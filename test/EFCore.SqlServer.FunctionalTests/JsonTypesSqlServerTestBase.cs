@@ -3,7 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class JsonTypesSqlServerTestBase : JsonTypesRelationalTestBase
+public abstract class JsonTypesSqlServerTestBase(NonSharedFixture fixture) : JsonTypesRelationalTestBase(fixture)
 {
     public override Task Can_read_write_collection_of_fixed_length_string_JSON_values(object? storeType)
         => base.Can_read_write_collection_of_fixed_length_string_JSON_values("nchar(32)");

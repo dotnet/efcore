@@ -10,7 +10,7 @@ public class AnnotationTest
     [ConditionalFact]
     public void Members_check_arguments()
         => Assert.Equal(
-            AbstractionsStrings.ArgumentIsEmpty("name"),
+            $"{AbstractionsStrings.ArgumentIsEmpty} (Parameter 'name')",
             Assert.Throws<ArgumentException>(() => new Annotation("", "Kake")).Message);
 
     [ConditionalFact]
@@ -26,13 +26,13 @@ public class AnnotationTest
     public void NegativeNumberArguments_PrecisionAttribute_Throws()
     {
         Assert.Equal(
-            AbstractionsStrings.ArgumentIsNegativeNumber("precision"),
+            $"{AbstractionsStrings.ArgumentIsNegativeNumber} (Parameter 'precision')",
             Assert.Throws<ArgumentException>(() => new PrecisionAttribute(-1)).Message);
         Assert.Equal(
-            AbstractionsStrings.ArgumentIsNegativeNumber("scale"),
+            $"{AbstractionsStrings.ArgumentIsNegativeNumber} (Parameter 'scale')",
             Assert.Throws<ArgumentException>(() => new PrecisionAttribute(3, -2)).Message);
         Assert.Equal(
-            AbstractionsStrings.ArgumentIsNegativeNumber("precision"),
+            $"{AbstractionsStrings.ArgumentIsNegativeNumber} (Parameter 'precision')",
             Assert.Throws<ArgumentException>(() => new PrecisionAttribute(-5, 4)).Message);
     }
 }

@@ -9,9 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks;
 public class PurchaseOrderHeader
 {
     public PurchaseOrderHeader()
-    {
-        PurchaseOrderDetail = new HashSet<PurchaseOrderDetail>();
-    }
+        => PurchaseOrderDetail = new HashSet<PurchaseOrderDetail>();
 
     public int PurchaseOrderID { get; set; }
     public int EmployeeID { get; set; }

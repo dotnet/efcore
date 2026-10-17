@@ -35,8 +35,8 @@ public class BoolToStringConverter : BoolToTwoValuesConverter<string>
         string trueValue,
         ConverterMappingHints? mappingHints = null)
         : base(
-            Check.NotNull(falseValue, nameof(falseValue)),
-            Check.NotNull(trueValue, nameof(trueValue)),
+            Check.NotNull(falseValue),
+            Check.NotNull(trueValue),
             FromProvider(trueValue),
             new ConverterMappingHints(size: Math.Max(falseValue.Length, trueValue.Length)).With(mappingHints))
     {

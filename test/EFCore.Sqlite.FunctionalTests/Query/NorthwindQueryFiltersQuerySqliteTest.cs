@@ -23,11 +23,11 @@ public class NorthwindQueryFiltersQuerySqliteTest : NorthwindQueryFiltersQueryTe
 
         AssertSql(
             """
-@__ef_filter__TenantPrefix_0_startswith='B%' (Size = 2)
+@ef_filter__TenantPrefix_startswith='B%' (Size = 2)
 
 SELECT COUNT(*)
 FROM "Customers" AS "c"
-WHERE "c"."CompanyName" LIKE @__ef_filter__TenantPrefix_0_startswith ESCAPE '\'
+WHERE "c"."CompanyName" LIKE @ef_filter__TenantPrefix_startswith ESCAPE '\'
 """);
     }
 

@@ -3,6 +3,8 @@
 
 // ReSharper disable once CheckNamespace
 
+using Microsoft.Azure.Cosmos.Scripts;
+
 namespace Microsoft.EntityFrameworkCore.Cosmos;
 
 public class CosmosBuilderExtensionsTest
@@ -185,6 +187,48 @@ public class CosmosBuilderExtensionsTest
         Assert.Equal(ValueGenerated.OnAddOrUpdate, etagProperty.ValueGenerated);
         Assert.True(etagProperty.IsConcurrencyToken);
         Assert.Equal("_etag", etagProperty.GetJsonPropertyName());
+    }
+
+    [ConditionalFact]
+    public void Can_use_convention_trigger_builder()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        var entityType = modelBuilder.Entity<Customer>().Metadata;
+
+        var trigger = entityType.AddTrigger("TestTrigger");
+        var conventionTrigger = (IConventionTrigger)trigger;
+
+        var triggerBuilder = conventionTrigger.Builder;
+
+        Assert.NotNull(triggerBuilder.HasTriggerType(TriggerType.Pre, fromDataAnnotation: true));
+        Assert.Equal(TriggerType.Pre, trigger.GetTriggerType());
+        Assert.Equal(ConfigurationSource.DataAnnotation, conventionTrigger.GetTriggerTypeConfigurationSource());
+
+        Assert.Null(triggerBuilder.HasTriggerType(TriggerType.Post, fromDataAnnotation: false));
+        Assert.Equal(TriggerType.Pre, trigger.GetTriggerType());
+        Assert.Equal(ConfigurationSource.DataAnnotation, conventionTrigger.GetTriggerTypeConfigurationSource());
+
+        Assert.NotNull(triggerBuilder.HasTriggerType(TriggerType.Post, fromDataAnnotation: true));
+        Assert.Equal(TriggerType.Post, trigger.GetTriggerType());
+        Assert.Equal(ConfigurationSource.DataAnnotation, conventionTrigger.GetTriggerTypeConfigurationSource());
+    }
+
+    [ConditionalFact]
+    public void Can_create_trigger()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        TriggerBuilder triggerBuilder = null!;
+        modelBuilder.Entity<Customer>(entity =>
+        {
+            triggerBuilder = entity.HasTrigger("TestTrigger", TriggerType.Pre, TriggerOperation.Create);
+        });
+
+        var entityType = modelBuilder.Model.FindEntityType(typeof(Customer))!;
+        var trigger = entityType.FindDeclaredTrigger("TestTrigger")!;
+
+        Assert.Equal(TriggerType.Pre, trigger.GetTriggerType());
+        Assert.Equal(TriggerOperation.Create, trigger.GetTriggerOperation());
     }
 
     protected virtual ModelBuilder CreateConventionModelBuilder()

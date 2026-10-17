@@ -30,8 +30,8 @@ public abstract class RelationshipBuilderBase : IInfrastructure<IConventionForei
         IMutableEntityType dependentEntityType,
         IMutableForeignKey foreignKey)
     {
-        Check.NotNull(principalEntityType, nameof(principalEntityType));
-        Check.NotNull(dependentEntityType, nameof(dependentEntityType));
+        Check.NotNull(principalEntityType);
+        Check.NotNull(dependentEntityType);
 
         Builder = ((ForeignKey)foreignKey).Builder;
 
@@ -53,7 +53,7 @@ public abstract class RelationshipBuilderBase : IInfrastructure<IConventionForei
         bool principalKeySet = false,
         bool requiredSet = false)
     {
-        Check.NotNull(builder, nameof(builder));
+        Check.NotNull(builder);
 
         Builder = builder;
         PrincipalEntityType = oldBuilder.PrincipalEntityType;

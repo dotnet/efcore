@@ -16,11 +16,9 @@ public class CustomerAddress
     public DateTime ModifiedDate { get; set; }
     public Guid rowguid { get; set; }
 
-    [ForeignKey("AddressID")]
-    [InverseProperty("CustomerAddress")]
+    [ForeignKey("AddressID"), InverseProperty("CustomerAddress")]
     public virtual Address Address { get; set; }
 
-    [ForeignKey("CustomerID")]
-    [InverseProperty("CustomerAddress")]
+    [ForeignKey("CustomerID"), InverseProperty("CustomerAddress")]
     public virtual Customer Customer { get; set; }
 }

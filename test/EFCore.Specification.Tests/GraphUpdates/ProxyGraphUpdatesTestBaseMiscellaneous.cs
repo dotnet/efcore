@@ -16,18 +16,16 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
             context =>
             {
                 context.AddRange(
-                    context.CreateProxy<Car>(
-                        car =>
-                        {
-                            car.Owner = context.CreateProxy<Person>();
-                            car.Id = Guid.NewGuid();
-                        }),
-                    context.CreateProxy<Car>(
-                        car =>
-                        {
-                            car.Owner = context.CreateProxy<Person>();
-                            car.Id = Guid.NewGuid();
-                        }));
+                    context.CreateProxy<Car>(car =>
+                    {
+                        car.Owner = context.CreateProxy<Person>();
+                        car.Id = Guid.NewGuid();
+                    }),
+                    context.CreateProxy<Car>(car =>
+                    {
+                        car.Owner = context.CreateProxy<Person>();
+                        car.Id = Guid.NewGuid();
+                    }));
 
                 context.SaveChanges();
                 return Task.CompletedTask;
@@ -67,11 +65,10 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
             context =>
             {
                 context.AddRange(
-                    context.CreateProxy<RecordCar>(
-                        car =>
-                        {
-                            car.Owner = context.CreateProxy<RecordPerson>();
-                        }));
+                    context.CreateProxy<RecordCar>(car =>
+                    {
+                        car.Owner = context.CreateProxy<RecordPerson>();
+                    }));
 
                 context.SaveChanges();
                 return Task.CompletedTask;
@@ -95,11 +92,10 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
             context =>
             {
                 context.AddRange(
-                    context.CreateProxy<RecordCar>(
-                        car =>
-                        {
-                            car.Owner = context.CreateProxy<RecordPerson>();
-                        }));
+                    context.CreateProxy<RecordCar>(car =>
+                    {
+                        car.Owner = context.CreateProxy<RecordPerson>();
+                    }));
 
                 context.SaveChanges();
                 return Task.CompletedTask;
@@ -198,9 +194,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
                 return Task.CompletedTask;
             });
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual Task Avoid_nulling_shared_FK_property_when_nulling_navigation(bool nullPrincipal)
         => ExecuteWithStrategyInTransactionAsync(
             context =>
@@ -354,121 +348,113 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
 
     [ConditionalFact]
     public virtual Task Can_attach_full_required_graph_of_duplicates()
-        => ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                var trackedRoot = await LoadRequiredGraphAsync(context);
-                var entries = context.ChangeTracker.Entries().ToList();
+        => ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            var trackedRoot = await LoadRequiredGraphAsync(context);
+            var entries = context.ChangeTracker.Entries().ToList();
 
-                context.Attach(QueryRequiredGraph(context).AsNoTracking().Single(IsTheRoot));
+            context.Attach(QueryRequiredGraph(context).AsNoTracking().Single(IsTheRoot));
 
-                AssertEntries(entries, context.ChangeTracker.Entries().ToList());
+            AssertEntries(entries, context.ChangeTracker.Entries().ToList());
 
-                Assert.Equal(0, context.SaveChanges());
-            });
+            Assert.Equal(0, context.SaveChanges());
+        });
 
     [ConditionalFact]
     public virtual Task Can_attach_full_optional_graph_of_duplicates()
-        => ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                var trackedRoot = await LoadOptionalGraphAsync(context);
-                var entries = context.ChangeTracker.Entries().ToList();
+        => ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            var trackedRoot = await LoadOptionalGraphAsync(context);
+            var entries = context.ChangeTracker.Entries().ToList();
 
-                context.Attach(QueryOptionalGraph(context).AsNoTracking().Single(IsTheRoot));
+            context.Attach(QueryOptionalGraph(context).AsNoTracking().Single(IsTheRoot));
 
-                AssertEntries(entries, context.ChangeTracker.Entries().ToList());
+            AssertEntries(entries, context.ChangeTracker.Entries().ToList());
 
-                Assert.Equal(0, context.SaveChanges());
-            });
+            Assert.Equal(0, context.SaveChanges());
+        });
 
     [ConditionalFact]
     public virtual Task Can_attach_full_required_non_PK_graph_of_duplicates()
-        => ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                var trackedRoot = await LoadRequiredNonPkGraphAsync(context);
-                var entries = context.ChangeTracker.Entries().ToList();
+        => ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            var trackedRoot = await LoadRequiredNonPkGraphAsync(context);
+            var entries = context.ChangeTracker.Entries().ToList();
 
-                context.Attach(QueryRequiredNonPkGraph(context).AsNoTracking().Single(IsTheRoot));
+            context.Attach(QueryRequiredNonPkGraph(context).AsNoTracking().Single(IsTheRoot));
 
-                AssertEntries(entries, context.ChangeTracker.Entries().ToList());
+            AssertEntries(entries, context.ChangeTracker.Entries().ToList());
 
-                Assert.Equal(0, context.SaveChanges());
-            });
+            Assert.Equal(0, context.SaveChanges());
+        });
 
     [ConditionalFact]
     public virtual Task Can_attach_full_required_AK_graph_of_duplicates()
-        => ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                var trackedRoot = await LoadRequiredAkGraphAsync(context);
-                var entries = context.ChangeTracker.Entries().ToList();
+        => ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            var trackedRoot = await LoadRequiredAkGraphAsync(context);
+            var entries = context.ChangeTracker.Entries().ToList();
 
-                context.Attach(QueryRequiredAkGraph(context).AsNoTracking().Single(IsTheRoot));
+            context.Attach(QueryRequiredAkGraph(context).AsNoTracking().Single(IsTheRoot));
 
-                AssertEntries(entries, context.ChangeTracker.Entries().ToList());
+            AssertEntries(entries, context.ChangeTracker.Entries().ToList());
 
-                Assert.Equal(0, context.SaveChanges());
-            });
+            Assert.Equal(0, context.SaveChanges());
+        });
 
     [ConditionalFact]
     public virtual Task Can_attach_full_optional_AK_graph_of_duplicates()
-        => ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                var trackedRoot = await LoadOptionalAkGraphAsync(context);
-                var entries = context.ChangeTracker.Entries().ToList();
+        => ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            var trackedRoot = await LoadOptionalAkGraphAsync(context);
+            var entries = context.ChangeTracker.Entries().ToList();
 
-                context.Attach(QueryOptionalAkGraph(context).AsNoTracking().Single(IsTheRoot));
+            context.Attach(QueryOptionalAkGraph(context).AsNoTracking().Single(IsTheRoot));
 
-                AssertEntries(entries, context.ChangeTracker.Entries().ToList());
+            AssertEntries(entries, context.ChangeTracker.Entries().ToList());
 
-                Assert.Equal(0, context.SaveChanges());
-            });
+            Assert.Equal(0, context.SaveChanges());
+        });
 
     [ConditionalFact]
     public virtual Task Can_attach_full_required_non_PK_AK_graph_of_duplicates()
-        => ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                var trackedRoot = await LoadRequiredNonPkAkGraphAsync(context);
-                var entries = context.ChangeTracker.Entries().ToList();
+        => ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            var trackedRoot = await LoadRequiredNonPkAkGraphAsync(context);
+            var entries = context.ChangeTracker.Entries().ToList();
 
-                context.Attach(QueryRequiredNonPkAkGraph(context).AsNoTracking().Single(IsTheRoot));
+            context.Attach(QueryRequiredNonPkAkGraph(context).AsNoTracking().Single(IsTheRoot));
 
-                AssertEntries(entries, context.ChangeTracker.Entries().ToList());
+            AssertEntries(entries, context.ChangeTracker.Entries().ToList());
 
-                Assert.Equal(0, context.SaveChanges());
-            });
+            Assert.Equal(0, context.SaveChanges());
+        });
 
     [ConditionalFact]
     public virtual Task Can_attach_full_required_one_to_many_graph_of_duplicates()
-        => ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                var trackedRoot = await LoadOptionalOneToManyGraphAsync(context);
-                var entries = context.ChangeTracker.Entries().ToList();
+        => ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            var trackedRoot = await LoadOptionalOneToManyGraphAsync(context);
+            var entries = context.ChangeTracker.Entries().ToList();
 
-                context.Attach(QueryOptionalOneToManyGraph(context).AsNoTracking().Single(IsTheRoot));
+            context.Attach(QueryOptionalOneToManyGraph(context).AsNoTracking().Single(IsTheRoot));
 
-                AssertEntries(entries, context.ChangeTracker.Entries().ToList());
+            AssertEntries(entries, context.ChangeTracker.Entries().ToList());
 
-                Assert.Equal(0, context.SaveChanges());
-            });
+            Assert.Equal(0, context.SaveChanges());
+        });
 
     [ConditionalFact]
     public virtual Task Can_attach_full_required_composite_graph_of_duplicates()
-        => ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                var trackedRoot = await LoadRequiredCompositeGraphAsync(context);
-                var entries = context.ChangeTracker.Entries().ToList();
+        => ExecuteWithStrategyInTransactionAsync(async context =>
+        {
+            var trackedRoot = await LoadRequiredCompositeGraphAsync(context);
+            var entries = context.ChangeTracker.Entries().ToList();
 
-                context.Attach(QueryRequiredCompositeGraph(context).AsNoTracking().Single(IsTheRoot));
+            context.Attach(QueryRequiredCompositeGraph(context).AsNoTracking().Single(IsTheRoot));
 
-                AssertEntries(entries, context.ChangeTracker.Entries().ToList());
+            AssertEntries(entries, context.ChangeTracker.Entries().ToList());
 
-                Assert.Equal(0, context.SaveChanges());
-            });
+            Assert.Equal(0, context.SaveChanges());
+        });
 }

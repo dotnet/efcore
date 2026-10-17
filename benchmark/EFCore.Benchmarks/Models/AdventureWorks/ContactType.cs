@@ -9,9 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks;
 public class ContactType
 {
     public ContactType()
-    {
-        BusinessEntityContact = new HashSet<BusinessEntityContact>();
-    }
+        => BusinessEntityContact = new HashSet<BusinessEntityContact>();
 
     public int ContactTypeID { get; set; }
     public DateTime ModifiedDate { get; set; }

@@ -1755,10 +1755,7 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
                 Assert.Empty(operation2.GetAnnotations());
             });
 
-    [ConditionalTheory]
-    [InlineData(DataCompressionType.None)]
-    [InlineData(DataCompressionType.Row)]
-    [InlineData(DataCompressionType.Page)]
+    [ConditionalTheory, InlineData(DataCompressionType.None), InlineData(DataCompressionType.Row), InlineData(DataCompressionType.Page)]
     public void Dont_rebuild_index_with_unchanged_datacompression_option(DataCompressionType dataCompression)
         => Execute(
             source => source
@@ -1785,10 +1782,7 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
                     }),
             operations => Assert.Equal(0, operations.Count));
 
-    [ConditionalTheory]
-    [InlineData(DataCompressionType.None)]
-    [InlineData(DataCompressionType.Row)]
-    [InlineData(DataCompressionType.Page)]
+    [ConditionalTheory, InlineData(DataCompressionType.None), InlineData(DataCompressionType.Row), InlineData(DataCompressionType.Page)]
     public void Rebuild_index_when_adding_datacompression_option(DataCompressionType dataCompression)
         => Execute(
             _ => { },
@@ -1927,6 +1921,59 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
                     x.HasKey("Id");
                     x.OwnsOne(
                         "Details", "Details", d =>
+                        {
+                            d.Property<string>("Author");
+                            d.Property<int>("Viewers");
+                            d.ToJson().HasColumnType("json");
+                        });
+                }),
+            upOps =>
+            {
+                Assert.Equal(1, upOps.Count);
+
+                var operation = Assert.IsType<AlterColumnOperation>(upOps[0]);
+                Assert.Equal("Blog", operation.Table);
+                Assert.Equal("Details", operation.Name);
+                Assert.Equal("json", operation.ColumnType);
+                Assert.Equal("nvarchar(max)", operation.OldColumn.ColumnType);
+            },
+            downOps =>
+            {
+                Assert.Equal(1, downOps.Count);
+
+                var operation = Assert.IsType<AlterColumnOperation>(downOps[0]);
+                Assert.Equal("Blog", operation.Table);
+                Assert.Equal("Details", operation.Name);
+                Assert.Equal("nvarchar(max)", operation.ColumnType);
+                Assert.Equal("json", operation.OldColumn.ColumnType);
+            });
+
+    [ConditionalFact]
+    public void Alter_column_from_nvarchar_max_to_json_for_complex_type()
+        => Execute(
+            _ => { },
+            source => source.Entity(
+                "Blog",
+                x =>
+                {
+                    x.Property<int>("Id");
+                    x.HasKey("Id");
+                    x.ComplexProperty(
+                        typeof(Dictionary<string, object>), "Details", d =>
+                        {
+                            d.Property<string>("Author");
+                            d.Property<int>("Viewers");
+                            d.ToJson();
+                        });
+                }),
+            target => target.Entity(
+                "Blog",
+                x =>
+                {
+                    x.Property<int>("Id");
+                    x.HasKey("Id");
+                    x.ComplexProperty(
+                        typeof(Dictionary<string, object>), "Details", d =>
                         {
                             d.Property<string>("Author");
                             d.Property<int>("Viewers");

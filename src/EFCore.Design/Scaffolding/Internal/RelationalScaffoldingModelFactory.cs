@@ -185,8 +185,7 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
         VisitForeignKeys(modelBuilder, databaseModel.Tables.SelectMany(table => table.ForeignKeys).ToList());
 
         modelBuilder.Model.AddAnnotations(
-            databaseModel.GetAnnotations().Where(
-                a => a.Name != ScaffoldingAnnotationNames.ConnectionString));
+            databaseModel.GetAnnotations().Where(a => a.Name != ScaffoldingAnnotationNames.ConnectionString));
 
         return modelBuilder;
     }
@@ -503,9 +502,8 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
         property.Metadata.SetColumnOrder(column.Table.Columns.IndexOf(column));
 
         property.Metadata.AddAnnotations(
-            column.GetAnnotations().Where(
-                a => a.Name != ScaffoldingAnnotationNames.ConcurrencyToken
-                    && a.Name != ScaffoldingAnnotationNames.ClrType));
+            column.GetAnnotations().Where(a => a.Name != ScaffoldingAnnotationNames.ConcurrencyToken
+                && a.Name != ScaffoldingAnnotationNames.ClrType));
 
         return property;
     }
@@ -814,8 +812,7 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
         }
 
         var principalPropertiesMap = foreignKey.PrincipalColumns
-            .Select(
-                fc => (property: principalEntityType.FindProperty(GetPropertyName(fc))!, column: fc)).ToList();
+            .Select(fc => (property: principalEntityType.FindProperty(GetPropertyName(fc))!, column: fc)).ToList();
         var principalProperties = principalPropertiesMap
             .Select(tuple => tuple.property)
             .ToList();

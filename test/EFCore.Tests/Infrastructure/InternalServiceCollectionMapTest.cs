@@ -273,8 +273,7 @@ public class InternalServiceCollectionMapTest
 
         Assert.Equal(
             CoreStrings.BadDependencyRegistration(nameof(DatabaseProviderDependencies)),
-            Assert.Throws<InvalidOperationException>(
-                    () => builder.TryAddCoreServices())
+            Assert.Throws<InvalidOperationException>(() => builder.TryAddCoreServices())
                 .Message);
     }
 
@@ -288,8 +287,7 @@ public class InternalServiceCollectionMapTest
 
         Assert.Equal(
             CoreStrings.BadDependencyRegistration(nameof(DatabaseProviderDependencies)),
-            Assert.Throws<InvalidOperationException>(
-                    () => builder.TryAddCoreServices())
+            Assert.Throws<InvalidOperationException>(() => builder.TryAddCoreServices())
                 .Message);
     }
 

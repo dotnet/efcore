@@ -361,7 +361,7 @@ public class CosmosTypeMappingSourceTest
         var typeMappingSource = new CosmosTypeMappingSource(
             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>() with
             {
-                Plugins = new[] { new FakeTypeMappingSourcePlugin() }
+                Plugins = [new FakeTypeMappingSourcePlugin()]
             });
 
         Assert.Same(typeof(Random), typeMappingSource.FindMapping(typeof(int))!.ClrType);

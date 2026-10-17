@@ -19,6 +19,7 @@ public class CommandEventData : CommandCorrelatedEventData
     /// <param name="messageGenerator">A delegate that generates a log message for this event.</param>
     /// <param name="connection">The <see cref="DbConnection" /> being used.</param>
     /// <param name="command">The <see cref="DbCommand" />.</param>
+    /// <param name="logCommandText">The command text that can be logged.</param>
     /// <param name="context">The <see cref="DbContext" /> currently being used, to null if not known.</param>
     /// <param name="executeMethod">The <see cref="DbCommand" /> method.</param>
     /// <param name="commandId">A correlation ID that identifies the <see cref="DbCommand" /> instance being used.</param>
@@ -32,6 +33,7 @@ public class CommandEventData : CommandCorrelatedEventData
         Func<EventDefinitionBase, EventData, string> messageGenerator,
         DbConnection connection,
         DbCommand command,
+        string logCommandText,
         DbContext? context,
         DbCommandMethod executeMethod,
         Guid commandId,
@@ -53,6 +55,7 @@ public class CommandEventData : CommandCorrelatedEventData
             commandSource)
     {
         Command = command;
+        LogCommandText = logCommandText;
         LogParameterValues = logParameterValues;
     }
 
@@ -60,6 +63,11 @@ public class CommandEventData : CommandCorrelatedEventData
     ///     The <see cref="DbCommand" />.
     /// </summary>
     public virtual DbCommand Command { get; }
+
+    /// <summary>
+    ///     The command text that can be logged.
+    /// </summary>
+    public virtual string LogCommandText { get; }
 
     /// <summary>
     ///     Indicates whether or not the application allows logging of parameter values.

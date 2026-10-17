@@ -41,7 +41,7 @@ public class InMemoryTestStore(string name = null, bool shared = true) : TestSto
 
     public override Task CleanAsync(DbContext context)
     {
-        context.GetService<IInMemoryStoreCache>().GetStore(Name).Clear();
+        context.GetService<IInMemoryStoreProvider>().Store.Clear();
         return context.Database.EnsureCreatedAsync();
     }
 }

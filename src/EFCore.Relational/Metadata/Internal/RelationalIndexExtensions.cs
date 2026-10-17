@@ -240,8 +240,8 @@ public static class RelationalIndexExtensions
                 }
                 else if (overlappingTables.Count == 0)
                 {
-                    Check.DebugAssert(firstPropertyTables != null, nameof(firstPropertyTables));
-                    Check.DebugAssert(lastPropertyTables != null, nameof(lastPropertyTables));
+                    Check.DebugAssert(firstPropertyTables != null);
+                    Check.DebugAssert(lastPropertyTables != null);
 
                     logger.IndexPropertiesMappedToNonOverlappingTables(
                         (IEntityType)index.DeclaringEntityType,

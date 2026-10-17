@@ -34,14 +34,13 @@ public class SpatialQuerySqliteFixture : SpatialQueryRelationalFixture
 
         modelBuilder.HasDbFunction(
             typeof(GeoExtensions).GetMethod(nameof(GeoExtensions.Distance)),
-            b => b.HasTranslation(
-                e => new SqlFunctionExpression(
-                    "Distance",
-                    arguments: e,
-                    nullable: true,
-                    argumentsPropagateNullability: e.Select(a => true).ToList(),
-                    typeof(double),
-                    null)));
+            b => b.HasTranslation(e => new SqlFunctionExpression(
+                "Distance",
+                arguments: e,
+                nullable: true,
+                argumentsPropagateNullability: e.Select(a => true).ToList(),
+                typeof(double),
+                null)));
     }
 
     private class ReplacementTypeMappingSource(

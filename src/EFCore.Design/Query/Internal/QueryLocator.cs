@@ -81,7 +81,7 @@ public class QueryLocator : CSharpSyntaxWalker
 
         _cancellationToken = cancellationToken;
         _semanticModel = _compilation.GetSemanticModel(syntaxTree);
-        _locatedQueries = new List<InvocationExpressionSyntax>();
+        _locatedQueries = [];
         _precompilationErrors = precompilationErrors;
         Visit(syntaxTree.GetRoot(cancellationToken));
 

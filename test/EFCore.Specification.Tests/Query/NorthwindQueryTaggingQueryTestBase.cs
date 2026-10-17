@@ -148,6 +148,8 @@ Laurel")
         Assert.NotNull(customer);
     }
 
+    // See also NorthwindGroupByQueryTestBase.Final_GroupBy_TagWith
+
     protected NorthwindContext CreateContext()
         => Fixture.CreateContext();
 }

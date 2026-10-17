@@ -7,9 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 public class DatabaseFacadeTest
 {
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public async Task Methods_delegate_to_configured_store_creator(bool async)
     {
         var creator = new FakeDatabaseCreator();
@@ -112,9 +110,7 @@ public class DatabaseFacadeTest
         Assert.Same(context.GetService<IModel>(), context.Database.GetService<IModel>());
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public async Task Can_begin_transaction(bool async)
     {
         var transaction = new FakeDbContextTransaction();

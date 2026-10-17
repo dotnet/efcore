@@ -17,8 +17,7 @@ public class SqlServerMemoryOptimizedTablesConventionTest
 
         modelBuilder.Entity<Order>().ToTable(tb => tb.IsMemoryOptimized());
 
-        modelBuilder.Entity<Order>().HasKey(
-            o => new { o.Id, o.CustomerId });
+        modelBuilder.Entity<Order>().HasKey(o => new { o.Id, o.CustomerId });
         modelBuilder.Entity<Order>().HasIndex(o => o.CustomerId);
 
         Assert.True(modelBuilder.Model.FindEntityType(typeof(Order)).GetKeys().All(k => k.IsClustered() == false));

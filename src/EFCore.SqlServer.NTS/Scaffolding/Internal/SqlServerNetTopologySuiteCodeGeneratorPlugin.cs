@@ -12,9 +12,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal;
 public class SqlServerNetTopologySuiteCodeGeneratorPlugin : ProviderCodeGeneratorPlugin
 {
     private static readonly MethodInfo UseNetTopologySuiteMethodInfo
-        = typeof(SqlServerNetTopologySuiteDbContextOptionsBuilderExtensions).GetRuntimeMethod(
-            nameof(SqlServerNetTopologySuiteDbContextOptionsBuilderExtensions.UseNetTopologySuite),
-            [typeof(SqlServerDbContextOptionsBuilder)])!;
+        = typeof(SqlServerNetTopologySuiteDbContextOptionsBuilderExtensions)
+            .GetRuntimeMethods()
+            .First(m => m.Name == nameof(SqlServerNetTopologySuiteDbContextOptionsBuilderExtensions.UseNetTopologySuite)
+                && m.GetParameters() is [{ ParameterType: var parameterType }]
+                && parameterType.TryGetElementType(typeof(SqlEngineDbContextOptionsBuilderBase<>)) is not null);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

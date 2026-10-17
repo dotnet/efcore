@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             = new ResourceManager("Microsoft.EntityFrameworkCore.SqlServer.Properties.SqlServerNTSStrings", typeof(SqlServerNTSStrings).Assembly);
 
         /// <summary>
-        ///     UseNetTopologySuite requires AddEntityFrameworkSqlServerNetTopologySuite to be called on the internal service provider used.
+        ///     'UseNetTopologySuite' requires 'AddEntityFrameworkSqlServerNetTopologySuite' to be called on the internal service provider used.
         /// </summary>
         public static string NTSServicesMissing
             => GetString("NTSServicesMissing");

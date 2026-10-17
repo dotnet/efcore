@@ -40,7 +40,7 @@ public class JsonEntityAllTypes
     public decimal[] TestDecimalCollection { get; set; }
     public List<DateTime> TestDateTimeCollection { get; set; }
     public IList<DateTimeOffset> TestDateTimeOffsetCollection { get; set; }
-    public TimeSpan[] TestTimeSpanCollection { get; set; } = [new TimeSpan(1, 1, 1)];
+    public TimeSpan[] TestTimeSpanCollection { get; set; } = [new(1, 1, 1)];
 
     public ReadOnlyCollection<long> TestInt64Collection { get; set; } = new([]);
     public IList<double> TestDoubleCollection { get; set; } = new List<double>();

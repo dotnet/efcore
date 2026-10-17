@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -22,16 +21,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 /// <typeparam name="TKey">The generic type of the key.</typeparam>
 public interface IDependentKeyValueFactory<TKey> : IDependentKeyValueFactory
 {
-    /// <summary>
-    ///     Attempts to create a key instance using foreign key values from the given <see cref="ValueBuffer" />.
-    /// </summary>
-    /// <param name="valueBuffer">The value buffer representing the entity instance.</param>
-    /// <param name="key">The key instance.</param>
-    /// <returns><see langword="true" /> if the key instance was created; <see langword="false" /> otherwise.</returns>
-    [ContractAnnotation("=>true, key:notnull; =>false, key:null")]
-    [Obsolete]
-    bool TryCreateFromBuffer(in ValueBuffer valueBuffer, [NotNullWhen(true)] out TKey? key);
-
     /// <summary>
     ///     Attempts to create a key instance using foreign key values from the given <see cref="IUpdateEntry" />.
     /// </summary>

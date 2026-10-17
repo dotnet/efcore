@@ -31,7 +31,7 @@ public readonly struct PathSegment : IRelationalQuotableExpression
     /// <summary>
     ///     Creates a new <see cref="PathSegment" /> struct representing JSON array element access.
     /// </summary>
-    /// <param name="arrayIndex"><see langword="abstract" />An index of an element which is being accessed in the JSON array.</param>
+    /// <param name="arrayIndex">An index of an element which is being accessed in the JSON array.</param>
     public PathSegment(SqlExpression arrayIndex)
     {
         ArrayIndex = arrayIndex;
@@ -52,11 +52,11 @@ public readonly struct PathSegment : IRelationalQuotableExpression
     public Expression Quote()
         => this switch
         {
-            { PropertyName: string propertyName }
+            { PropertyName: { } propertyName }
                 => Expression.New(
                     _pathSegmentPropertyConstructor ??= typeof(PathSegment).GetConstructor([typeof(string)])!,
                     Expression.Constant(propertyName)),
-            { ArrayIndex: SqlExpression arrayIndex }
+            { ArrayIndex: { } arrayIndex }
                 => Expression.New(
                     _pathSegmentArrayIndexConstructor ??= typeof(PathSegment).GetConstructor([typeof(SqlExpression)])!,
                     arrayIndex.Quote()),

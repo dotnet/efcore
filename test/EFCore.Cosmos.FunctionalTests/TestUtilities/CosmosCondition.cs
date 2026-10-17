@@ -8,4 +8,6 @@ public enum CosmosCondition
 {
     UsesTokenCredential = 1 << 0,
     DoesNotUseTokenCredential = 1 << 1,
+    IsEmulator = 1 << 2,
+    IsNotEmulator = 1 << 3,
 }

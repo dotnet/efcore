@@ -24,7 +24,7 @@ public static class RelationalKeyBuilderExtensions
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public static KeyBuilder HasName(this KeyBuilder keyBuilder, string? name)
     {
-        Check.NullButNotEmpty(name, nameof(name));
+        Check.NullButNotEmpty(name);
 
         keyBuilder.Metadata.SetName(name);
 

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
@@ -43,7 +44,8 @@ public class RelationalCommandBuilderTest
             new TestRelationalTypeMappingSource(
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                 TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
-            new ExceptionDetector());
+            new ExceptionDetector(),
+            new LoggingOptions());
 
         var commandBuilder = new RelationalCommandBuilder(dependencies);
         return commandBuilder;

@@ -35,41 +35,40 @@ public static class DesignTimeServiceCollectionExtensions
         reporter ??= new OperationReporter(handler: null);
 
         new EntityFrameworkRelationalDesignServicesBuilder(services)
-            .TryAddProviderSpecificServices(
-                services => services
-                    .TryAddSingleton<CSharpMigrationOperationGeneratorDependencies, CSharpMigrationOperationGeneratorDependencies>()
-                    .TryAddSingleton<CSharpMigrationsGeneratorDependencies, CSharpMigrationsGeneratorDependencies>()
-                    .TryAddSingleton<CSharpSnapshotGeneratorDependencies, CSharpSnapshotGeneratorDependencies>()
-                    .TryAddSingleton<ICandidateNamingService, CandidateNamingService>()
-                    .TryAddSingleton<ICSharpHelper, CSharpHelper>()
-                    .TryAddSingleton<ICSharpMigrationOperationGenerator, CSharpMigrationOperationGenerator>()
-                    .TryAddSingleton<ICSharpSnapshotGenerator, CSharpSnapshotGenerator>()
-                    .TryAddSingleton<ICSharpUtilities, CSharpUtilities>()
-                    .TryAddSingleton(reporter)
-                    .TryAddSingleton<IMigrationsCodeGenerator, CSharpMigrationsGenerator>()
-                    .TryAddSingleton<IMigrationsCodeGeneratorSelector, MigrationsCodeGeneratorSelector>()
-                    .TryAddSingletonEnumerable<IModelCodeGenerator, TextTemplatingModelGenerator>()
-                    .TryAddSingletonEnumerable<IModelCodeGenerator, CSharpModelGenerator>()
-                    .TryAddSingleton<IModelCodeGeneratorSelector, ModelCodeGeneratorSelector>()
-                    .TryAddSingleton<ICompiledModelCodeGenerator, CSharpRuntimeModelCodeGenerator>()
-                    .TryAddSingleton<ICompiledModelCodeGeneratorSelector, CompiledModelCodeGeneratorSelector>()
-                    .TryAddSingleton<ICompiledModelScaffolder, CompiledModelScaffolder>()
-                    .TryAddSingleton<IPrecompiledQueryCodeGenerator, PrecompiledQueryCodeGenerator>()
-                    .TryAddSingleton<IPrecompiledQueryCodeGeneratorSelector, PrecompiledQueryCodeGeneratorSelector>()
-                    .TryAddSingleton<IDesignTimeConnectionStringResolver>(
-                        new DesignTimeConnectionStringResolver(applicationServiceProviderAccessor))
-                    .TryAddSingleton<IPluralizer, HumanizerPluralizer>()
-                    .TryAddSingleton<IScaffoldingModelFactory, RelationalScaffoldingModelFactory>()
-                    .TryAddSingleton<IScaffoldingTypeMapper, ScaffoldingTypeMapper>()
-                    .TryAddSingleton<MigrationsCodeGeneratorDependencies, MigrationsCodeGeneratorDependencies>()
-                    .TryAddSingleton<ModelCodeGeneratorDependencies, ModelCodeGeneratorDependencies>()
-                    .TryAddScoped<IReverseEngineerScaffolder, ReverseEngineerScaffolder>()
-                    .TryAddScoped<MigrationsScaffolderDependencies, MigrationsScaffolderDependencies>()
-                    .TryAddScoped<IMigrationsScaffolder, MigrationsScaffolder>()
-                    .TryAddScoped<ISnapshotModelProcessor, SnapshotModelProcessor>());
+            .TryAddProviderSpecificServices(services => services
+                .TryAddSingleton<CSharpMigrationOperationGeneratorDependencies, CSharpMigrationOperationGeneratorDependencies>()
+                .TryAddSingleton<CSharpMigrationsGeneratorDependencies, CSharpMigrationsGeneratorDependencies>()
+                .TryAddSingleton<CSharpSnapshotGeneratorDependencies, CSharpSnapshotGeneratorDependencies>()
+                .TryAddSingleton<ICandidateNamingService, CandidateNamingService>()
+                .TryAddSingleton<ICSharpHelper, CSharpHelper>()
+                .TryAddSingleton<ICSharpMigrationOperationGenerator, CSharpMigrationOperationGenerator>()
+                .TryAddSingleton<ICSharpSnapshotGenerator, CSharpSnapshotGenerator>()
+                .TryAddSingleton<ICSharpUtilities, CSharpUtilities>()
+                .TryAddSingleton(reporter)
+                .TryAddSingleton<IMigrationsCodeGenerator, CSharpMigrationsGenerator>()
+                .TryAddSingleton<IMigrationsCodeGeneratorSelector, MigrationsCodeGeneratorSelector>()
+                .TryAddSingletonEnumerable<IModelCodeGenerator, TextTemplatingModelGenerator>()
+                .TryAddSingletonEnumerable<IModelCodeGenerator, CSharpModelGenerator>()
+                .TryAddSingleton<IModelCodeGeneratorSelector, ModelCodeGeneratorSelector>()
+                .TryAddSingleton<ICompiledModelCodeGenerator, CSharpRuntimeModelCodeGenerator>()
+                .TryAddSingleton<ICompiledModelCodeGeneratorSelector, CompiledModelCodeGeneratorSelector>()
+                .TryAddSingleton<ICompiledModelScaffolder, CompiledModelScaffolder>()
+                .TryAddSingleton<IPrecompiledQueryCodeGenerator, PrecompiledQueryCodeGenerator>()
+                .TryAddSingleton<IPrecompiledQueryCodeGeneratorSelector, PrecompiledQueryCodeGeneratorSelector>()
+                .TryAddSingleton<IDesignTimeConnectionStringResolver>(
+                    new DesignTimeConnectionStringResolver(applicationServiceProviderAccessor))
+                .TryAddSingleton<IPluralizer, HumanizerPluralizer>()
+                .TryAddSingleton<IScaffoldingModelFactory, RelationalScaffoldingModelFactory>()
+                .TryAddSingleton<IScaffoldingTypeMapper, ScaffoldingTypeMapper>()
+                .TryAddSingleton<MigrationsCodeGeneratorDependencies, MigrationsCodeGeneratorDependencies>()
+                .TryAddSingleton<ModelCodeGeneratorDependencies, ModelCodeGeneratorDependencies>()
+                .TryAddScoped<IReverseEngineerScaffolder, ReverseEngineerScaffolder>()
+                .TryAddScoped<MigrationsScaffolderDependencies, MigrationsScaffolderDependencies>()
+                .TryAddScoped<IMigrationsScaffolder, MigrationsScaffolder>()
+                .TryAddScoped<ISnapshotModelProcessor, SnapshotModelProcessor>());
 
         var loggerFactory = new LoggerFactory(
-            new[] { new OperationLoggerProvider(reporter) }, new LoggerFilterOptions { MinLevel = LogLevel.Debug });
+            [new OperationLoggerProvider(reporter)], new LoggerFilterOptions { MinLevel = LogLevel.Debug });
         services.AddScoped<ILoggerFactory>(_ => loggerFactory);
 
         return services;

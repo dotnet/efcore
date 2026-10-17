@@ -38,7 +38,7 @@ public interface ITypeMappingConfiguration : IAnnotatable
     int? GetScale();
 
     /// <summary>
-    ///     Gets a value indicating whether or not the property can persist Unicode characters.
+    ///     Gets a value indicating whether the property can persist Unicode characters.
     /// </summary>
     /// <returns>The Unicode setting, or <see langword="null" /> if none is defined.</returns>
     bool? IsUnicode();

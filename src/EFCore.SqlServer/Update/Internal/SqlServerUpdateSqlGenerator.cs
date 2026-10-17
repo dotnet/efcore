@@ -59,11 +59,10 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
         // Otherwise fall back to INSERT ... OUTPUT INTO @inserted; SELECT ... FROM @inserted.
         var table = StoreObjectIdentifier.Table(command.TableName, command.Schema);
 
-        return command.ColumnModifications.All(
-            o =>
-                !o.IsKey
-                || !o.IsRead
-                || o.Property?.GetValueGenerationStrategy(table) == SqlServerValueGenerationStrategy.IdentityColumn)
+        return command.ColumnModifications.All(o =>
+            !o.IsKey
+            || !o.IsRead
+            || o.Property?.GetValueGenerationStrategy(table) == SqlServerValueGenerationStrategy.IdentityColumn)
             ? AppendInsertAndSelectOperation(commandStringBuilder, command, commandPosition, out requiresTransaction)
             : AppendInsertSingleRowWithOutputInto(
                 commandStringBuilder,
@@ -142,33 +141,42 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
         string name,
         string? schema)
     {
-        if (columnModification.JsonPath is not (null or "$"))
+        if (columnModification.JsonPath is null or "$")
         {
-            stringBuilder.Append("JSON_MODIFY(");
-            updateSqlGeneratorHelper.DelimitIdentifier(stringBuilder, columnModification.ColumnName);
-
-            // using strict so that we don't remove json elements when they are assigned NULL value
-            stringBuilder.Append(", 'strict ");
-            stringBuilder.Append(columnModification.JsonPath);
-            stringBuilder.Append("', ");
-
-            if (columnModification.Property is { IsPrimitiveCollection: false })
-            {
-                base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
-            }
-            else
-            {
-                stringBuilder.Append("JSON_QUERY(");
-                base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
-                stringBuilder.Append(")");
-            }
-
-            stringBuilder.Append(")");
+            base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
+            return;
         }
-        else
+
+        stringBuilder.Append("JSON_MODIFY(");
+        updateSqlGeneratorHelper.DelimitIdentifier(stringBuilder, columnModification.ColumnName);
+
+        // using strict so that we don't remove json elements when they are assigned NULL value
+        stringBuilder.Append(", 'strict ");
+        stringBuilder.Append(columnModification.JsonPath);
+        stringBuilder.Append("', ");
+        var mapping = columnModification.Property?.GetRelationalTypeMapping();
+        var propertyProviderClrType = (mapping?.Converter?.ProviderClrType ?? columnModification.Property?.ClrType)?.UnwrapNullableType();
+
+        if (columnModification.Value is null
+            || propertyProviderClrType == typeof(bool)
+            || (propertyProviderClrType != null && propertyProviderClrType.IsNumeric()))
         {
             base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
         }
+        else if (columnModification.Property is { IsPrimitiveCollection: false })
+        {
+            stringBuilder.Append("JSON_VALUE(");
+            base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
+            stringBuilder.Append(", '$.\"\"')");
+        }
+        else
+        {
+            stringBuilder.Append("JSON_QUERY(");
+            base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
+            stringBuilder.Append(")");
+        }
+
+        stringBuilder.Append(")");
     }
 
     /// <summary>
@@ -235,11 +243,10 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
         var keyOperations = firstCommand.ColumnModifications.Where(o => o.IsKey).ToList();
 
         var writableOperations = modificationCommands[0].ColumnModifications
-            .Where(
-                o =>
-                    o.Property?.GetValueGenerationStrategy(table) != SqlServerValueGenerationStrategy.IdentityColumn
-                    && o.Property?.GetComputedColumnSql() is null
-                    && o.Property?.GetColumnType() is not "rowversion" and not "timestamp")
+            .Where(o =>
+                o.Property?.GetValueGenerationStrategy(table) != SqlServerValueGenerationStrategy.IdentityColumn
+                && o.Property?.GetComputedColumnSql() is null
+                && o.Property?.GetColumnType() is not "rowversion" and not "timestamp")
             .ToList();
 
         if (writeOperations.Count == 0)
@@ -324,11 +331,10 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
         // If we have an IDENTITY column, then multiple batched SELECT+INSERTs are faster up to a certain threshold (4), and then
         // MERGE ... OUTPUT INTO is faster.
         if (modificationCommands.Count < MergeIntoMinimumThreshold
-            && firstCommand.ColumnModifications.All(
-                o =>
-                    !o.IsKey
-                    || !o.IsRead
-                    || o.Property?.GetValueGenerationStrategy(table) == SqlServerValueGenerationStrategy.IdentityColumn))
+            && firstCommand.ColumnModifications.All(o =>
+                !o.IsKey
+                || !o.IsRead
+                || o.Property?.GetValueGenerationStrategy(table) == SqlServerValueGenerationStrategy.IdentityColumn))
         {
             requiresTransaction = true;
 
@@ -620,8 +626,8 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
         {
             var returnValueModification = command.ColumnModifications.First(c => c.Column is IStoreStoredProcedureReturnValue);
 
-            Check.DebugAssert(returnValueModification.UseCurrentValueParameter, "returnValueModification.UseCurrentValueParameter");
-            Check.DebugAssert(!returnValueModification.UseOriginalValueParameter, "!returnValueModification.UseOriginalValueParameter");
+            Check.DebugAssert(returnValueModification.UseCurrentValueParameter);
+            Check.DebugAssert(!returnValueModification.UseOriginalValueParameter);
 
             SqlGenerationHelper.GenerateParameterNamePlaceholder(commandStringBuilder, returnValueModification.ParameterName!);
 

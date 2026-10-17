@@ -42,6 +42,7 @@ public abstract class SqlExpressionVisitor : ExpressionVisitor
             OuterApplyExpression outerApplyExpression => VisitOuterApply(outerApplyExpression),
             ProjectionExpression projectionExpression => VisitProjection(projectionExpression),
             TableValuedFunctionExpression tableValuedFunctionExpression => VisitTableValuedFunction(tableValuedFunctionExpression),
+            RightJoinExpression rightJoinExpression => VisitRightJoin(rightJoinExpression),
             RowNumberExpression rowNumberExpression => VisitRowNumber(rowNumberExpression),
             RowValueExpression rowValueExpression => VisitRowValue(rowValueExpression),
             ScalarSubqueryExpression scalarSubqueryExpression => VisitScalarSubquery(scalarSubqueryExpression),
@@ -192,6 +193,13 @@ public abstract class SqlExpressionVisitor : ExpressionVisitor
     /// <param name="projectionExpression">The expression to visit.</param>
     /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
     protected abstract Expression VisitProjection(ProjectionExpression projectionExpression);
+
+    /// <summary>
+    ///     Visits the children of the right join expression.
+    /// </summary>
+    /// <param name="rightJoinExpression">The expression to visit.</param>
+    /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
+    protected abstract Expression VisitRightJoin(RightJoinExpression rightJoinExpression);
 
     /// <summary>
     ///     Visits the children of the table valued function expression.

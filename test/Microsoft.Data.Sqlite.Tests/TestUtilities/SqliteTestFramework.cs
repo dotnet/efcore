@@ -66,7 +66,8 @@ internal class SqliteTestAssemblyRunner(
     IEnumerable<IXunitTestCase> testCases,
     IMessageSink diagnosticMessageSink,
     IMessageSink executionMessageSink,
-    ITestFrameworkExecutionOptions executionOptions) : XunitTestAssemblyRunner(testAssembly, testCases, diagnosticMessageSink, executionMessageSink, executionOptions)
+    ITestFrameworkExecutionOptions executionOptions) : XunitTestAssemblyRunner(
+    testAssembly, testCases, diagnosticMessageSink, executionMessageSink, executionOptions)
 {
     protected override Task<RunSummary> RunTestCollectionAsync(
         IMessageBus messageBus,

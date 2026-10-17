@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 
@@ -10,8 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 
 public class RelationalDataReaderTest
 {
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public async Task Does_not_hold_reference_to_DbDataReader_after_dispose(bool async)
     {
         var fakeConnection = CreateConnection();
@@ -59,15 +59,18 @@ public class RelationalDataReaderTest
 
     private IRelationalCommand CreateRelationalCommand(
         string commandText = "Command Text",
+        string logCommandText = "Log Command Text",
         IReadOnlyList<IRelationalParameter> parameters = null)
         => new RelationalCommand(
             new RelationalCommandBuilderDependencies(
                 new TestRelationalTypeMappingSource(
                     TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                     TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
-                new ExceptionDetector()),
+                new ExceptionDetector(),
+                new LoggingOptions()),
             commandText,
+            logCommandText,
             parameters ?? []);
 
-    public static IEnumerable<object[]> IsAsyncData = new object[][] { [false], [true] };
+    public static readonly IEnumerable<object[]> IsAsyncData = [[false], [true]];
 }

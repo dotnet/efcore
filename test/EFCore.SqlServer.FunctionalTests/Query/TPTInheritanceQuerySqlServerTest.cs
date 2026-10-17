@@ -540,11 +540,11 @@ VALUES (@p0, @p1, @p2);
 
         AssertSql(
             """
-@__p_0='5'
+@p='5'
 
 SELECT DISTINCT [s].[Id], [s].[CountryId], [s].[Name], [s].[Species], [s].[EagleId], [s].[IsFlightless], [s].[FoundOn], [s].[Discriminator]
 FROM (
-    SELECT TOP(@__p_0) [a].[Id], [a].[CountryId], [a].[Name], [a].[Species], [b].[EagleId], [b].[IsFlightless], [k].[FoundOn], CASE
+    SELECT TOP(@p) [a].[Id], [a].[CountryId], [a].[Name], [a].[Species], [b].[EagleId], [b].[IsFlightless], [k].[FoundOn], CASE
         WHEN [k].[Id] IS NOT NULL THEN N'Kiwi'
         WHEN [e].[Id] IS NOT NULL THEN N'Eagle'
     END AS [Discriminator]

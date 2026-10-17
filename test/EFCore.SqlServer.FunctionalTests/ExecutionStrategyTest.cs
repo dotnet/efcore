@@ -22,8 +22,7 @@ public class ExecutionStrategyTest : IClassFixture<ExecutionStrategyTest.Executi
 
     protected ExecutionStrategyFixture Fixture { get; }
 
-    [ConditionalTheory]
-    [MemberData(nameof(DataGenerator.GetBoolCombinations), 1, MemberType = typeof(DataGenerator))]
+    [ConditionalTheory, MemberData(nameof(DataGenerator.GetBoolCombinations), 1, MemberType = typeof(DataGenerator))]
     public void Handles_commit_failure(bool realFailure)
     {
         // Use all overloads of ExecuteInTransaction
@@ -84,7 +83,7 @@ public class ExecutionStrategyTest : IClassFixture<ExecutionStrategyTest.Executi
         {
             var connection = (TestSqlServerConnection)context.GetService<ISqlServerConnection>();
 
-            connection.CommitFailures.Enqueue(new bool?[] { realFailure });
+            connection.CommitFailures.Enqueue([realFailure]);
             Fixture.TestSqlLoggerFactory.Clear();
 
             context.Products.Add(new Product());
@@ -115,8 +114,7 @@ public class ExecutionStrategyTest : IClassFixture<ExecutionStrategyTest.Executi
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(DataGenerator.GetBoolCombinations), 1, MemberType = typeof(DataGenerator))]
+    [ConditionalTheory, MemberData(nameof(DataGenerator.GetBoolCombinations), 1, MemberType = typeof(DataGenerator))]
     public async Task Handles_commit_failure_async(bool realFailure)
     {
         // Use all overloads of ExecuteInTransactionAsync
@@ -198,7 +196,7 @@ public class ExecutionStrategyTest : IClassFixture<ExecutionStrategyTest.Executi
         {
             var connection = (TestSqlServerConnection)context.GetService<ISqlServerConnection>();
 
-            connection.CommitFailures.Enqueue(new bool?[] { realFailure });
+            connection.CommitFailures.Enqueue([realFailure]);
             Fixture.TestSqlLoggerFactory.Clear();
 
             context.Products.Add(new Product());
@@ -229,8 +227,7 @@ public class ExecutionStrategyTest : IClassFixture<ExecutionStrategyTest.Executi
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(DataGenerator.GetBoolCombinations), 1, MemberType = typeof(DataGenerator))]
+    [ConditionalTheory, MemberData(nameof(DataGenerator.GetBoolCombinations), 1, MemberType = typeof(DataGenerator))]
     public void Handles_commit_failure_multiple_SaveChanges(bool realFailure)
     {
         CleanContext();
@@ -240,7 +237,7 @@ public class ExecutionStrategyTest : IClassFixture<ExecutionStrategyTest.Executi
 
         using (var context2 = CreateContext())
         {
-            connection.CommitFailures.Enqueue(new bool?[] { realFailure });
+            connection.CommitFailures.Enqueue([realFailure]);
 
             context1.Products.Add(new Product());
             context2.Products.Add(new Product());
@@ -266,8 +263,7 @@ public class ExecutionStrategyTest : IClassFixture<ExecutionStrategyTest.Executi
         Assert.Equal(2, context.Products.Count());
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(DataGenerator.GetBoolCombinations), 4, MemberType = typeof(DataGenerator))]
+    [ConditionalTheory, MemberData(nameof(DataGenerator.GetBoolCombinations), 4, MemberType = typeof(DataGenerator))]
     public async Task Retries_SaveChanges_on_execution_failure(
         bool realFailure,
         bool externalStrategy,
@@ -280,7 +276,7 @@ public class ExecutionStrategyTest : IClassFixture<ExecutionStrategyTest.Executi
         {
             var connection = (TestSqlServerConnection)context.GetService<ISqlServerConnection>();
 
-            connection.ExecutionFailures.Enqueue(new bool?[] { null, realFailure });
+            connection.ExecutionFailures.Enqueue([null, realFailure]);
 
             Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
 
@@ -371,8 +367,7 @@ public class ExecutionStrategyTest : IClassFixture<ExecutionStrategyTest.Executi
         }
     }
 
-    [ConditionalTheory] // Issue #25946
-    [MemberData(nameof(DataGenerator.GetBoolCombinations), 3, MemberType = typeof(DataGenerator))]
+    [ConditionalTheory, MemberData(nameof(DataGenerator.GetBoolCombinations), 3, MemberType = typeof(DataGenerator))] // Issue #25946
     public async Task Retries_SaveChanges_on_execution_failure_with_two_contexts(
         bool realFailure,
         bool openConnection,
@@ -386,7 +381,7 @@ public class ExecutionStrategyTest : IClassFixture<ExecutionStrategyTest.Executi
 
             var connection = (TestSqlServerConnection)context.GetService<ISqlServerConnection>();
 
-            connection.ExecutionFailures.Enqueue(new bool?[] { null, realFailure });
+            connection.ExecutionFailures.Enqueue([null, realFailure]);
 
             Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
 
@@ -528,8 +523,7 @@ public class ExecutionStrategyTest : IClassFixture<ExecutionStrategyTest.Executi
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(DataGenerator.GetBoolCombinations), 2, MemberType = typeof(DataGenerator))]
+    [ConditionalTheory, MemberData(nameof(DataGenerator.GetBoolCombinations), 2, MemberType = typeof(DataGenerator))]
     public async Task Retries_query_on_execution_failure(bool externalStrategy, bool async)
     {
         CleanContext();
@@ -546,7 +540,7 @@ public class ExecutionStrategyTest : IClassFixture<ExecutionStrategyTest.Executi
         {
             var connection = (TestSqlServerConnection)context.GetService<ISqlServerConnection>();
 
-            connection.ExecutionFailures.Enqueue(new bool?[] { true });
+            connection.ExecutionFailures.Enqueue([true]);
 
             Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
 
@@ -584,8 +578,7 @@ public class ExecutionStrategyTest : IClassFixture<ExecutionStrategyTest.Executi
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(DataGenerator.GetBoolCombinations), 2, MemberType = typeof(DataGenerator))]
+    [ConditionalTheory, MemberData(nameof(DataGenerator.GetBoolCombinations), 2, MemberType = typeof(DataGenerator))]
     public async Task Retries_FromSqlRaw_on_execution_failure(bool externalStrategy, bool async)
     {
         CleanContext();
@@ -602,7 +595,7 @@ public class ExecutionStrategyTest : IClassFixture<ExecutionStrategyTest.Executi
         {
             var connection = (TestSqlServerConnection)context.GetService<ISqlServerConnection>();
 
-            connection.ExecutionFailures.Enqueue(new bool?[] { true });
+            connection.ExecutionFailures.Enqueue([true]);
 
             Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
 
@@ -650,14 +643,13 @@ public class ExecutionStrategyTest : IClassFixture<ExecutionStrategyTest.Executi
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(DataGenerator.GetBoolCombinations), 2, MemberType = typeof(DataGenerator))]
+    [ConditionalTheory, MemberData(nameof(DataGenerator.GetBoolCombinations), 2, MemberType = typeof(DataGenerator))]
     public async Task Retries_OpenConnection_on_execution_failure(bool externalStrategy, bool async)
     {
         using var context = CreateContext();
         var connection = (TestSqlServerConnection)context.GetService<ISqlServerConnection>();
 
-        connection.OpenFailures.Enqueue(new bool?[] { true });
+        connection.OpenFailures.Enqueue([true]);
 
         Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
 
@@ -702,15 +694,13 @@ public class ExecutionStrategyTest : IClassFixture<ExecutionStrategyTest.Executi
         Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public async Task Retries_BeginTransaction_on_execution_failure(bool async)
     {
         using var context = CreateContext();
         var connection = (TestSqlServerConnection)context.GetService<ISqlServerConnection>();
 
-        connection.OpenFailures.Enqueue(new bool?[] { true });
+        connection.OpenFailures.Enqueue([true]);
 
         Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
 
@@ -745,17 +735,16 @@ public class ExecutionStrategyTest : IClassFixture<ExecutionStrategyTest.Executi
         {
             var connection = (TestSqlServerConnection)context.GetService<ISqlServerConnection>();
 
-            connection.ExecutionFailures.Enqueue(new bool?[] { true, null, true, true });
-            connection.CommitFailures.Enqueue(new bool?[] { true, true, true, true });
+            connection.ExecutionFailures.Enqueue([true, null, true, true]);
+            connection.CommitFailures.Enqueue([true, true, true, true]);
 
             context.Products.Add(new Product());
-            Assert.Throws<RetryLimitExceededException>(
-                () =>
-                    new TestSqlServerRetryingExecutionStrategy(context, TimeSpan.FromMilliseconds(100))
-                        .ExecuteInTransaction(
-                            context,
-                            c => c.SaveChanges(false),
-                            c => false));
+            Assert.Throws<RetryLimitExceededException>(() =>
+                new TestSqlServerRetryingExecutionStrategy(context, TimeSpan.FromMilliseconds(100))
+                    .ExecuteInTransaction(
+                        context,
+                        c => c.SaveChanges(false),
+                        c => false));
             context.ChangeTracker.AcceptAllChanges();
 
             Assert.Equal(7, connection.OpenCount);

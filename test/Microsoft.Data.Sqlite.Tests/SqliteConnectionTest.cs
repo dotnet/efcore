@@ -228,8 +228,7 @@ public class SqliteConnectionTest
         {
             connection.Open();
 
-            var ex = Assert.Throws<SqliteException>(
-                () => connection.ExecuteNonQuery("INSERT INTO Idomic VALUES ('arimfexendrapuse');"));
+            var ex = Assert.Throws<SqliteException>(() => connection.ExecuteNonQuery("INSERT INTO Idomic VALUES ('arimfexendrapuse');"));
 
             Assert.Equal(SQLITE_READONLY, ex.SqliteErrorCode);
         }
@@ -344,9 +343,7 @@ public class SqliteConnectionTest
     }
 #endif
 
-    [Theory]
-    [InlineData("True", 1L)]
-    [InlineData("False", 0L)]
+    [Theory, InlineData("True", 1L), InlineData("False", 0L)]
     public void Open_works_when_foreign_keys(string foreignKeys, long expected)
     {
         using var connection = new SqliteConnection("Data Source=:memory:;Foreign Keys=" + foreignKeys);
@@ -362,6 +359,23 @@ public class SqliteConnectionTest
         connection.Open();
 
         Assert.Equal(1L, connection.ExecuteScalar<long>("PRAGMA recursive_triggers;"));
+    }
+
+    [Fact]
+    public void Open_works_when_vfs()
+    {
+        var vfs = Environment.OSVersion.Platform == PlatformID.Win32NT
+            ? "win32-longpath"
+            : "unix-dotfile";
+        using var connection = new SqliteConnection($"Data Source=:memory:;Vfs={vfs}");
+        connection.Open();
+    }
+
+    [Fact]
+    public void Open_throws_when_vfs_invalid()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:;Vfs=invalidvfs");
+        Assert.Throws<SqliteException>(connection.Open);
     }
 
     [Fact]
@@ -541,8 +555,7 @@ public class SqliteConnectionTest
         connection.CreateCollation("MY_NOCASE", (s1, s2) => string.Compare(s1, s2, StringComparison.OrdinalIgnoreCase));
         connection.CreateCollation("MY_NOCASE", null);
 
-        var ex = Assert.Throws<SqliteException>(
-            () => connection.ExecuteScalar<long>("SELECT 'Νικοσ' = 'ΝΙΚΟΣ' COLLATE MY_NOCASE;"));
+        var ex = Assert.Throws<SqliteException>(() => connection.ExecuteScalar<long>("SELECT 'Νικοσ' = 'ΝΙΚΟΣ' COLLATE MY_NOCASE;"));
 
         Assert.Equal(Resources.SqliteNativeError(SQLITE_ERROR, "no such collation sequence: MY_NOCASE"), ex.Message);
     }
@@ -782,8 +795,8 @@ public class SqliteConnectionTest
         connection.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES (0);");
         connection.CreateFunction("test", (double x) => x);
 
-        var ex = Assert.Throws<SqliteException>(
-            () => connection.ExecuteNonQuery("CREATE INDEX InvalidIndex ON Data (Value) WHERE test(Value) = 0;"));
+        var ex = Assert.Throws<SqliteException>(()
+            => connection.ExecuteNonQuery("CREATE INDEX InvalidIndex ON Data (Value) WHERE test(Value) = 0;"));
 
         Assert.Equal(
             Resources.SqliteNativeError(SQLITE_ERROR, "non-deterministic functions prohibited in partial index WHERE clauses"),
@@ -926,8 +939,7 @@ public class SqliteConnectionTest
         connection.ExecuteNonQuery("CREATE TABLE dual (dummy); INSERT INTO dual (dummy) VALUES ('X');");
         connection.CreateAggregate("test", (string? _) => throw new Exception("Test"));
 
-        var ex = Assert.Throws<SqliteException>(
-            () => connection.ExecuteScalar<string>("SELECT test() FROM dual;"));
+        var ex = Assert.Throws<SqliteException>(() => connection.ExecuteScalar<string>("SELECT test() FROM dual;"));
 
         Assert.Equal(Resources.SqliteNativeError(SQLITE_ERROR, "Test"), ex.Message);
     }
@@ -940,8 +952,7 @@ public class SqliteConnectionTest
         connection.ExecuteNonQuery("CREATE TABLE dual (dummy); INSERT INTO dual (dummy) VALUES ('X');");
         connection.CreateAggregate<string, string>("test", "A", _ => "B", a => throw new Exception("Test"));
 
-        var ex = Assert.Throws<SqliteException>(
-            () => connection.ExecuteScalar<string>("SELECT test() FROM dual;"));
+        var ex = Assert.Throws<SqliteException>(() => connection.ExecuteScalar<string>("SELECT test() FROM dual;"));
 
         Assert.Equal(Resources.SqliteNativeError(SQLITE_ERROR, "Test"), ex.Message);
     }
@@ -954,8 +965,7 @@ public class SqliteConnectionTest
         connection.ExecuteNonQuery("CREATE TABLE dual (dummy); INSERT INTO dual (dummy) VALUES ('X');");
         connection.CreateAggregate("test", (string? _) => throw new SqliteException("Test", 200));
 
-        var ex = Assert.Throws<SqliteException>(
-            () => connection.ExecuteScalar<string>("SELECT test() FROM dual;"));
+        var ex = Assert.Throws<SqliteException>(() => connection.ExecuteScalar<string>("SELECT test() FROM dual;"));
 
         Assert.Equal(Resources.SqliteNativeError(200, "Test"), ex.Message);
     }
@@ -969,8 +979,7 @@ public class SqliteConnectionTest
         connection.CreateAggregate("test", (string? _) => "A");
         connection.CreateAggregate("test", default(Func<string?, string>));
 
-        var ex = Assert.Throws<SqliteException>(
-            () => connection.ExecuteScalar<long>("SELECT test() FROM dual;"));
+        var ex = Assert.Throws<SqliteException>(() => connection.ExecuteScalar<long>("SELECT test() FROM dual;"));
 
         Assert.Equal(Resources.SqliteNativeError(SQLITE_ERROR, "no such function: test"), ex.Message);
     }
@@ -1122,8 +1131,7 @@ public class SqliteConnectionTest
         connection.EnableExtensions(false);
         connection.Open();
 
-        var ex = Assert.Throws<SqliteException>(
-            () => connection.ExecuteNonQuery("SELECT load_extension('unknown');"));
+        var ex = Assert.Throws<SqliteException>(() => connection.ExecuteNonQuery("SELECT load_extension('unknown');"));
         var extensionsDisabledError = ex.Message;
 
         ex = Assert.Throws<SqliteException>(() => connection.LoadExtension("unknown"));
@@ -1148,8 +1156,7 @@ public class SqliteConnectionTest
         connection.EnableExtensions(false);
         connection.Open();
 
-        var ex = Assert.Throws<SqliteException>(
-            () => connection.ExecuteNonQuery("SELECT load_extension('unknown');"));
+        var ex = Assert.Throws<SqliteException>(() => connection.ExecuteNonQuery("SELECT load_extension('unknown');"));
         var extensionsDisabledError = ex.Message;
 
         connection.Close();
@@ -1200,11 +1207,7 @@ public class SqliteConnectionTest
         Assert.Equal(DbMetaDataCollectionNames.MetaDataCollections, dataTable.TableName);
     }
 
-    [Theory]
-    [InlineData(null)]
-    [InlineData("")]
-    [InlineData(" ")]
-    [InlineData("Unknown")]
+    [Theory, InlineData(null), InlineData(""), InlineData(" "), InlineData("Unknown")]
     public void GetSchema_throws_when_unknown_collection(string? collectionName)
     {
         using var connection = new SqliteConnection("Data Source=:memory:");
@@ -1224,17 +1227,15 @@ public class SqliteConnectionTest
         Assert.Equal(DbMetaDataCollectionNames.MetaDataCollections, dataTable.TableName);
     }
 
-    [Theory]
-    [InlineData(nameof(DbMetaDataCollectionNames.MetaDataCollections), 0)]
-    [InlineData(nameof(DbMetaDataCollectionNames.ReservedWords), 0)]
+    [Theory, InlineData(nameof(DbMetaDataCollectionNames.MetaDataCollections), 0),
+     InlineData(nameof(DbMetaDataCollectionNames.ReservedWords), 0)]
     public void GetSchema_throws_when_unknown_restrictions(string collectionName, int maxRestrictions)
     {
         using var connection = new SqliteConnection("Data Source=:memory:");
 
-        var ex = Assert.Throws<ArgumentException>(
-            () => connection.GetSchema(
-                collectionName,
-                Enumerable.Repeat<string?>(null, maxRestrictions + 1).ToArray()));
+        var ex = Assert.Throws<ArgumentException>(() => connection.GetSchema(
+            collectionName,
+            Enumerable.Repeat<string?>(null, maxRestrictions + 1).ToArray()));
 
         Assert.Equal(Resources.TooManyRestrictions(collectionName), ex.Message);
     }
@@ -1266,5 +1267,46 @@ public class SqliteConnectionTest
         Assert.Contains(
             dataTable.Rows.Cast<DataRow>(),
             r => (string)r[DbMetaDataColumnNames.ReservedWord] == "SELECT");
+    }
+
+    [Fact]
+    public void Open_releases_handle_when_constructor_fails()
+    {
+        var dbPath = Path.GetTempFileName();
+
+        // Create a file with invalid database content.
+        File.WriteAllText(dbPath, "this is not a database file but should still open with sqlite3_open_v2");
+
+        // Use password to trigger the encryption path in SqliteConnectionInternal ctor.
+        // This should fail during password verification when trying to decrypt the invalid file.
+        var connectionString = $"Data Source={dbPath};Password=test;Mode=ReadOnly;Pooling=False";
+
+        using (var connection = new SqliteConnection(connectionString))
+        {
+#if E_SQLITE3 || WINSQLITE3
+            var ex = Assert.Throws<InvalidOperationException>(connection.Open);
+            Assert.Equal(Resources.EncryptionNotSupported(GetNativeLibraryName()), ex.Message);
+            Assert.Equal(ConnectionState.Closed, connection.State);
+#elif E_SQLCIPHER || E_SQLITE3MC || SQLCIPHER
+            var ex = Assert.Throws<SqliteException>(connection.Open);
+            Assert.Equal(SQLITE_NOTADB, ex.SqliteErrorCode);
+            Assert.Equal(ConnectionState.Closed, connection.State);
+#else
+            // No code path in SqliteConnectionInternal ctor that would trigger exception
+            // and leave the handle open.
+#endif
+        }
+
+        if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+        {
+            // On Windows, this will fail if there's a file handle leak.
+            File.Delete(dbPath);
+        }
+        else
+        {
+            // On Unix-like systems, we can still delete the file but cannot 
+            // reliably detect handle leaks this way.
+            File.Delete(dbPath);
+        }
     }
 }

@@ -22,8 +22,8 @@ public class ConcurrencyDetectorTest
 
         var context = new Context();
 
-        var exception = Record.Exception(
-            () => context.Orders.Select(o => new { Date = o.OrderDate, Name = GetCustomer(o.OrderId, context) }).ToArray());
+        var exception = Record.Exception(()
+            => context.Orders.Select(o => new { Date = o.OrderDate, Name = GetCustomer(o.OrderId, context) }).ToArray());
 
         Assert.Null(exception);
     }
@@ -71,6 +71,7 @@ public class ConcurrencyDetectorTest
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Customer> Customers { get; set; }
+
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Order> Orders { get; set; }
     }

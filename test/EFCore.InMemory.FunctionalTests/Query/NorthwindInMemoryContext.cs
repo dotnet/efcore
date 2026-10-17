@@ -11,37 +11,31 @@ public class NorthwindInMemoryContext(DbContextOptions options) : NorthwindConte
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<CustomerQuery>().ToInMemoryQuery(
-            () => Customers.Select(
-                c => new CustomerQuery
-                {
-                    Address = c.Address,
-                    City = c.City,
-                    CompanyName = c.CompanyName,
-                    ContactName = c.ContactName,
-                    ContactTitle = c.ContactTitle
-                }));
+        modelBuilder.Entity<CustomerQuery>().ToInMemoryQuery(() => Customers.Select(c => new CustomerQuery
+        {
+            Address = c.Address,
+            City = c.City,
+            CompanyName = c.CompanyName,
+            ContactName = c.ContactName,
+            ContactTitle = c.ContactTitle
+        }));
 
-        modelBuilder.Entity<OrderQuery>().ToInMemoryQuery(
-            () => Orders.Select(o => new OrderQuery { CustomerID = o.CustomerID }));
+        modelBuilder.Entity<OrderQuery>().ToInMemoryQuery(() => Orders.Select(o => new OrderQuery { CustomerID = o.CustomerID }));
 
-        modelBuilder.Entity<ProductQuery>().ToInMemoryQuery(
-            () => Products.Where(p => !p.Discontinued)
-                .Select(
-                    p => new ProductQuery
-                    {
-                        ProductID = p.ProductID,
-                        ProductName = p.ProductName,
-                        CategoryName = "Food"
-                    }));
+        modelBuilder.Entity<ProductQuery>().ToInMemoryQuery(() => Products.Where(p => !p.Discontinued)
+            .Select(p => new ProductQuery
+            {
+                ProductID = p.ProductID,
+                ProductName = p.ProductName,
+                CategoryName = "Food"
+            }));
 
-        modelBuilder.Entity<CustomerQueryWithQueryFilter>().ToInMemoryQuery(
-            () => Customers.Select(
-                c => new CustomerQueryWithQueryFilter
-                {
-                    CompanyName = c.CompanyName,
-                    OrderCount = c.Orders.Count(),
-                    SearchTerm = SearchTerm
-                }));
+        modelBuilder.Entity<CustomerQueryWithQueryFilter>().ToInMemoryQuery(() => Customers.Select(c
+            => new CustomerQueryWithQueryFilter
+            {
+                CompanyName = c.CompanyName,
+                OrderCount = c.Orders.Count(),
+                SearchTerm = SearchTerm
+            }));
     }
 }

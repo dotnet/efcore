@@ -14,8 +14,7 @@ public class ChangeDetectionProxyTests
         using var context = new ChangeContext<ChangeSealedEntity>();
         Assert.Equal(
             ProxiesStrings.ItsASeal(nameof(ChangeSealedEntity)),
-            Assert.Throws<InvalidOperationException>(
-                () => context.Model).Message);
+            Assert.Throws<InvalidOperationException>(() => context.Model).Message);
     }
 
     [ConditionalFact]
@@ -24,8 +23,7 @@ public class ChangeDetectionProxyTests
         using var context = new ChangeContext<ChangeNonVirtualPropEntity>();
         Assert.Equal(
             ProxiesStrings.NonVirtualProperty(nameof(ChangeNonVirtualPropEntity.Id), nameof(ChangeNonVirtualPropEntity)),
-            Assert.Throws<InvalidOperationException>(
-                () => context.Model).Message);
+            Assert.Throws<InvalidOperationException>(() => context.Model).Message);
     }
 
     [ConditionalFact]
@@ -72,8 +70,7 @@ public class ChangeDetectionProxyTests
         using var context = new ChangeContext<ChangeNonVirtualNavEntity>();
         Assert.Equal(
             ProxiesStrings.NonVirtualProperty(nameof(ChangeNonVirtualNavEntity.SelfRef), nameof(ChangeNonVirtualNavEntity)),
-            Assert.Throws<InvalidOperationException>(
-                () => context.Model).Message);
+            Assert.Throws<InvalidOperationException>(() => context.Model).Message);
     }
 
     [ConditionalFact]
@@ -158,9 +155,7 @@ public class ChangeDetectionProxyTests
         Assert.True(changingInterface.IsAssignableFrom(proxyType));
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public void Raises_changed_event_when_changed(bool useLazyLoading)
     {
         using var context = new ChangeContext<ChangeValueEntity>(useLazyLoading: useLazyLoading);
@@ -189,9 +184,7 @@ public class ChangeDetectionProxyTests
         Assert.True(eventRaised);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public void Raises_changing_event_before_change(bool useLazyLoading)
     {
         using var context = new ChangeContext<ChangeValueEntity>(useLazyLoading: useLazyLoading);
@@ -221,9 +214,7 @@ public class ChangeDetectionProxyTests
         Assert.True(eventRaised);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public void Doesnt_raise_change_event_when_equal_and_check_equality_true(bool useLazyLoading)
     {
         using var context = new ChangeContext<ChangeValueEntity>(useLazyLoading: useLazyLoading, checkEquality: true);
@@ -243,9 +234,7 @@ public class ChangeDetectionProxyTests
         Assert.False(eventRaised);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public void Doesnt_raise_changing_event_when_equal_and_check_equality_true(bool useLazyLoading)
     {
         using var context = new ChangeContext<ChangeValueEntity>(useLazyLoading: useLazyLoading, checkEquality: true);
@@ -265,9 +254,7 @@ public class ChangeDetectionProxyTests
         Assert.False(eventRaised);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public void Raises_change_event_when_equal_and_check_equality_false(bool useLazyLoading)
     {
         using var context = new ChangeContext<ChangeValueEntity>(useLazyLoading: useLazyLoading, checkEquality: false);
@@ -287,9 +274,7 @@ public class ChangeDetectionProxyTests
         Assert.True(eventRaised);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public void Raises_changing_event_when_equal_and_check_equality_false(bool useLazyLoading)
     {
         using var context = new ChangeContext<ChangeValueEntity>(useLazyLoading: useLazyLoading, checkEquality: false);

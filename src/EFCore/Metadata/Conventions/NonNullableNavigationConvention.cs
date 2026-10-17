@@ -67,11 +67,10 @@ public class NonNullableNavigationConvention :
 
         if (navigation.IsOnDependent)
         {
-            if (foreignKey.Properties.All(
-                    p =>
-                        !p.IsNullable
-                        || (p.IsShadowProperty()
-                            && ConfigurationSource.Convention.Overrides(p.GetIsNullableConfigurationSource()))))
+            if (foreignKey.Properties.All(p =>
+                    !p.IsNullable
+                    || (p.IsShadowProperty()
+                        && ConfigurationSource.Convention.Overrides(p.GetIsNullableConfigurationSource()))))
             {
                 foreignKey.Builder.IsRequired(true);
             }
@@ -83,7 +82,7 @@ public class NonNullableNavigationConvention :
     }
 
     private bool IsNonNullable(IConventionModelBuilder modelBuilder, IConventionNavigation navigation)
-        => navigation.DeclaringEntityType.GetRuntimeProperties().Find(navigation.Name) is PropertyInfo propertyInfo
+        => navigation.DeclaringEntityType.GetRuntimeProperties().Find(navigation.Name) is { } propertyInfo
             && TryGetNullabilityInfo(modelBuilder, propertyInfo, out var nullabilityInfo)
             && nullabilityInfo.ReadState == NullabilityState.NotNull;
 }

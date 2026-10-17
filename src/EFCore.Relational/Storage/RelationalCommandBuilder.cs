@@ -8,6 +8,7 @@ public class RelationalCommandBuilder : IRelationalCommandBuilder
 {
     private readonly List<IRelationalParameter> _parameters = [];
     private readonly IndentedStringBuilder _commandTextBuilder = new();
+    private IndentedStringBuilder? _logCommandTextBuilder;
 
     /// <summary>
     ///     <para>
@@ -35,7 +36,11 @@ public class RelationalCommandBuilder : IRelationalCommandBuilder
 
     /// <inheritdoc />
     public virtual IRelationalCommand Build()
-        => new RelationalCommand(Dependencies, _commandTextBuilder.ToString(), Parameters);
+    {
+        var commandText = _commandTextBuilder.ToString();
+        var logCommandText = _logCommandTextBuilder?.ToString() ?? commandText;
+        return new RelationalCommand(Dependencies, commandText, logCommandText, Parameters);
+    }
 
     /// <summary>
     ///     Gets the command text.
@@ -64,9 +69,21 @@ public class RelationalCommandBuilder : IRelationalCommandBuilder
     }
 
     /// <inheritdoc />
-    public virtual IRelationalCommandBuilder Append(string value)
+    public virtual IRelationalCommandBuilder Append(string value, bool sensitive = false)
     {
+        InitializeLogCommandTextBuilderIfNeeded(sensitive);
         _commandTextBuilder.Append(value);
+        _logCommandTextBuilder?.Append(sensitive ? "?" : value);
+
+        return this;
+    }
+
+    /// <inheritdoc />
+    public virtual IRelationalCommandBuilder Append(FormattableString value, bool sensitive = false)
+    {
+        InitializeLogCommandTextBuilderIfNeeded(sensitive);
+        _commandTextBuilder.Append(value);
+        _logCommandTextBuilder?.Append(sensitive ? $"?" : value);
 
         return this;
     }
@@ -75,6 +92,7 @@ public class RelationalCommandBuilder : IRelationalCommandBuilder
     public virtual IRelationalCommandBuilder AppendLine()
     {
         _commandTextBuilder.AppendLine();
+        _logCommandTextBuilder?.AppendLine();
 
         return this;
     }
@@ -83,6 +101,7 @@ public class RelationalCommandBuilder : IRelationalCommandBuilder
     public virtual IRelationalCommandBuilder IncrementIndent()
     {
         _commandTextBuilder.IncrementIndent();
+        _logCommandTextBuilder?.IncrementIndent();
 
         return this;
     }
@@ -91,6 +110,7 @@ public class RelationalCommandBuilder : IRelationalCommandBuilder
     public virtual IRelationalCommandBuilder DecrementIndent()
     {
         _commandTextBuilder.DecrementIndent();
+        _logCommandTextBuilder?.DecrementIndent();
 
         return this;
     }
@@ -98,4 +118,14 @@ public class RelationalCommandBuilder : IRelationalCommandBuilder
     /// <inheritdoc />
     public virtual int CommandTextLength
         => _commandTextBuilder.Length;
+
+    private void InitializeLogCommandTextBuilderIfNeeded(bool sensitive)
+    {
+        if (sensitive
+            && _logCommandTextBuilder is null
+            && !Dependencies.LoggingOptions.IsSensitiveDataLoggingEnabled)
+        {
+            _logCommandTextBuilder = _commandTextBuilder.Clone();
+        }
+    }
 }

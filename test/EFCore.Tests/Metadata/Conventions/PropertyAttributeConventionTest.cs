@@ -486,10 +486,7 @@ public class PropertyAttributeConventionTest
 
     #region TimestampAttribute
 
-    [ConditionalTheory]
-    [InlineData("Timestamp")]
-    [InlineData("LongTimestamp")]
-    [InlineData("ULongTimestamp")]
+    [ConditionalTheory, InlineData("Timestamp"), InlineData("LongTimestamp"), InlineData("ULongTimestamp")]
     public void TimestampAttribute_overrides_configuration_from_convention_source(string propertyName)
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
@@ -506,10 +503,7 @@ public class PropertyAttributeConventionTest
         Assert.True(propertyBuilder.Metadata.IsConcurrencyToken);
     }
 
-    [ConditionalTheory]
-    [InlineData("Timestamp")]
-    [InlineData("LongTimestamp")]
-    [InlineData("ULongTimestamp")]
+    [ConditionalTheory, InlineData("Timestamp"), InlineData("LongTimestamp"), InlineData("ULongTimestamp")]
     public void TimestampAttribute_does_not_override_configuration_from_explicit_source(string propertyName)
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();

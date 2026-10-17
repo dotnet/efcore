@@ -256,15 +256,15 @@ public partial class ConventionDispatcher
             return !entityTypeBuilder.Metadata.IsIgnored(name) ? null : name;
         }
 
-        public override string? OnDiscriminatorPropertySet(IConventionEntityTypeBuilder entityTypeBuilder, string? name)
+        public override string? OnDiscriminatorPropertySet(IConventionTypeBaseBuilder structuralTypeBuilder, string? name)
         {
-            if (!entityTypeBuilder.Metadata.IsInModel)
+            if (!structuralTypeBuilder.Metadata.IsInModel)
             {
                 return null;
             }
 
 #if DEBUG
-            var initialValue = entityTypeBuilder.Metadata.GetDiscriminatorPropertyName();
+            var initialValue = structuralTypeBuilder.Metadata.GetDiscriminatorPropertyName();
 #endif
             using (dispatcher.DelayConventions())
             {
@@ -273,20 +273,20 @@ public partial class ConventionDispatcher
                 foreach (var entityTypeConvention in conventionSet.DiscriminatorPropertySetConventions)
                 {
                     entityTypeConvention.ProcessDiscriminatorPropertySet(
-                        entityTypeBuilder, name, _nullableStringConventionContext);
+                        structuralTypeBuilder, name, _nullableStringConventionContext);
                     if (_nullableStringConventionContext.ShouldStopProcessing())
                     {
                         return _nullableStringConventionContext.Result;
                     }
 #if DEBUG
                     Check.DebugAssert(
-                        initialValue == entityTypeBuilder.Metadata.GetDiscriminatorPropertyName(),
+                        initialValue == structuralTypeBuilder.Metadata.GetDiscriminatorPropertyName(),
                         $"Convention {entityTypeConvention.GetType().Name} changed value without terminating");
 #endif
                 }
             }
 
-            return entityTypeBuilder.Metadata.GetDiscriminatorPropertyName();
+            return structuralTypeBuilder.Metadata.GetDiscriminatorPropertyName();
         }
 
         public override IConventionEntityType? OnEntityTypeBaseTypeChanged(

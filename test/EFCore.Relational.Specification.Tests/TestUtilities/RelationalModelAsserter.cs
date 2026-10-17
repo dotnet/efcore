@@ -45,8 +45,8 @@ public class RelationalModelAsserter : ModelAsserter
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [],
                         compareMemberAnnotations)),
             () => Assert.Equal(
                 expected.GetSequences().Select(x => x),
@@ -55,8 +55,8 @@ public class RelationalModelAsserter : ModelAsserter
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [],
                         compareMemberAnnotations)),
             () =>
             {
@@ -104,8 +104,8 @@ public class RelationalModelAsserter : ModelAsserter
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [],
                         compareBackreferences: false)),
             () =>
             {
@@ -252,8 +252,8 @@ public class RelationalModelAsserter : ModelAsserter
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [],
                         compareBackreferences: false)),
             () =>
             {
@@ -266,8 +266,8 @@ public class RelationalModelAsserter : ModelAsserter
                             AssertEqual(
                                 expected,
                                 actual,
-                                compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                                compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
+                                compareMemberAnnotations ? expected.GetAnnotations() : [],
+                                compareMemberAnnotations ? actual.GetAnnotations() : [],
                                 compareBackreferences: false));
                 }
             },
@@ -421,8 +421,8 @@ public class RelationalModelAsserter : ModelAsserter
             return true;
         }
 
-        var expectedAnnotations = compareAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>();
-        var actualAnnotations = compareAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>();
+        var expectedAnnotations = compareAnnotations ? expected.GetAnnotations() : [];
+        var actualAnnotations = compareAnnotations ? actual.GetAnnotations() : [];
 
         Assert.Multiple(
             () => Assert.Equal(expected.Name, actual.Name),
@@ -441,8 +441,8 @@ public class RelationalModelAsserter : ModelAsserter
                     AssertEqual(
                         expected,
                         actual,
-                        compareAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
+                        compareAnnotations ? expected.GetAnnotations() : [],
+                        compareAnnotations ? actual.GetAnnotations() : [],
                         compareBackreferences: false,
                         compareAnnotations)),
             () => Assert.Equal(
@@ -451,8 +451,8 @@ public class RelationalModelAsserter : ModelAsserter
                     AssertEqual(
                         expected,
                         actual,
-                        compareAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
+                        compareAnnotations ? expected.GetAnnotations() : [],
+                        compareAnnotations ? actual.GetAnnotations() : [],
                         compareBackreferences: false,
                         compareAnnotations)),
             () => Assert.Equal(
@@ -599,8 +599,8 @@ public class RelationalModelAsserter : ModelAsserter
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [],
                         compareBackreferences: false)),
             () =>
             {
@@ -784,8 +784,8 @@ public class RelationalModelAsserter : ModelAsserter
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>())),
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [])),
             () =>
             {
                 if (isFinalized)
@@ -1078,8 +1078,8 @@ public class RelationalModelAsserter : ModelAsserter
         => AssertEqual(
             expected,
             actual,
-            compareAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-            compareAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
+            compareAnnotations ? expected.GetAnnotations() : [],
+            compareAnnotations ? actual.GetAnnotations() : [],
             compareMemberAnnotations: compareAnnotations);
 
     public virtual void AssertEqual(
@@ -1121,8 +1121,8 @@ public class RelationalModelAsserter : ModelAsserter
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [],
                         compareMemberAnnotations)),
             () => Assert.Equal(
                 expected.Views.Select(x => x), actual.Views,
@@ -1130,8 +1130,8 @@ public class RelationalModelAsserter : ModelAsserter
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [],
                         compareMemberAnnotations)),
             () => Assert.Equal(
                 expected.Queries.Select(x => x), actual.Queries,
@@ -1139,8 +1139,8 @@ public class RelationalModelAsserter : ModelAsserter
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [],
                         compareMemberAnnotations)),
             () => Assert.Equal(
                 expected.Functions.Select(x => x), actual.Functions,
@@ -1148,8 +1148,8 @@ public class RelationalModelAsserter : ModelAsserter
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [],
                         compareMemberAnnotations)),
             () => Assert.Equal(
                 expected.StoredProcedures.Select(x => x), actual.StoredProcedures,
@@ -1157,8 +1157,8 @@ public class RelationalModelAsserter : ModelAsserter
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [],
                         compareMemberAnnotations)),
             () => Assert.Equal(
                 expected.Sequences.Select(x => x), actual.Sequences,
@@ -1166,8 +1166,8 @@ public class RelationalModelAsserter : ModelAsserter
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [],
                         compareMemberAnnotations)),
             () => Assert.Equal(expectedAnnotations, actualAnnotations, TestAnnotationComparer.Instance));
     }
@@ -1218,8 +1218,8 @@ public class RelationalModelAsserter : ModelAsserter
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [],
                         compareMemberAnnotations)),
             () => Assert.Equal(
                 expected.EntityTypeMappings.Select(x => x), actual.EntityTypeMappings,
@@ -1227,8 +1227,8 @@ public class RelationalModelAsserter : ModelAsserter
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [],
                         compareMemberAnnotations)),
             () => Assert.Equal(
                 expected.ComplexTypeMappings.Select(x => x), actual.ComplexTypeMappings,
@@ -1236,8 +1236,8 @@ public class RelationalModelAsserter : ModelAsserter
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [],
                         compareMemberAnnotations)));
 
         return true;
@@ -1259,8 +1259,8 @@ public class RelationalModelAsserter : ModelAsserter
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [],
                         compareMemberAnnotations)),
             () => Assert.Equal(
                 expected.Indexes.Select(x => x), actual.Indexes,
@@ -1268,48 +1268,48 @@ public class RelationalModelAsserter : ModelAsserter
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>())),
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [])),
             () => Assert.Equal(
                 expected.ForeignKeyConstraints.Select(x => x), actual.ForeignKeyConstraints,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>())),
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [])),
             () => Assert.Equal(
                 expected.ReferencingForeignKeyConstraints.Select(x => x), actual.ReferencingForeignKeyConstraints,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>())),
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [])),
             () => Assert.Equal(
                 expected.UniqueConstraints.Select(x => x), actual.UniqueConstraints,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>())),
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [])),
             () => Assert.Equal(
                 expected.Triggers.Select(x => x), actual.Triggers,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>())),
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [])),
             () => Assert.Equal(
                 expected.EntityTypeMappings.Select(x => x), actual.EntityTypeMappings,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [],
                         compareMemberAnnotations)),
             () => Assert.Equal(
                 expected.ComplexTypeMappings.Select(x => x), actual.ComplexTypeMappings,
@@ -1317,8 +1317,8 @@ public class RelationalModelAsserter : ModelAsserter
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [],
                         compareMemberAnnotations)));
 
         return true;
@@ -1340,8 +1340,8 @@ public class RelationalModelAsserter : ModelAsserter
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [],
                         compareMemberAnnotations)),
             () => Assert.Equal(
                 expected.EntityTypeMappings.Select(x => x), actual.EntityTypeMappings,
@@ -1349,8 +1349,8 @@ public class RelationalModelAsserter : ModelAsserter
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [],
                         compareMemberAnnotations)),
             () => Assert.Equal(
                 expected.ComplexTypeMappings.Select(x => x), actual.ComplexTypeMappings,
@@ -1358,8 +1358,8 @@ public class RelationalModelAsserter : ModelAsserter
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [],
                         compareMemberAnnotations)));
 
         return true;
@@ -1382,8 +1382,8 @@ public class RelationalModelAsserter : ModelAsserter
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [],
                         compareMemberAnnotations)),
             () => Assert.Equal(
                 expected.EntityTypeMappings.Select(x => x), actual.EntityTypeMappings,
@@ -1391,8 +1391,8 @@ public class RelationalModelAsserter : ModelAsserter
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [],
                         compareMemberAnnotations)),
             () => Assert.Equal(
                 expected.ComplexTypeMappings.Select(x => x), actual.ComplexTypeMappings,
@@ -1400,8 +1400,8 @@ public class RelationalModelAsserter : ModelAsserter
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [],
                         compareMemberAnnotations)));
 
         return true;
@@ -1429,8 +1429,8 @@ public class RelationalModelAsserter : ModelAsserter
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [],
                         compareMemberAnnotations)),
             () => Assert.Equal(
                 expected.Columns.Select(x => x), actual.Columns,
@@ -1438,8 +1438,8 @@ public class RelationalModelAsserter : ModelAsserter
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [],
                         compareMemberAnnotations)),
             () => Assert.Equal(
                 expected.EntityTypeMappings.Select(x => x), actual.EntityTypeMappings,
@@ -1447,8 +1447,8 @@ public class RelationalModelAsserter : ModelAsserter
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [],
                         compareMemberAnnotations)),
             () => Assert.Equal(
                 expected.ComplexTypeMappings.Select(x => x), actual.ComplexTypeMappings,
@@ -1456,8 +1456,8 @@ public class RelationalModelAsserter : ModelAsserter
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [],
                         compareMemberAnnotations)));
 
         return true;
@@ -1483,8 +1483,8 @@ public class RelationalModelAsserter : ModelAsserter
                     AssertEqualBase(
                         expected.ReturnValue,
                         actual.ReturnValue,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>());
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : []);
                     Assert.Same(actual, actual.ReturnValue.StoredProcedure);
                     Assert.Equal(
                         expected.ReturnValue.PropertyMappings.Select(x => x), actual.ReturnValue.PropertyMappings,
@@ -1492,8 +1492,8 @@ public class RelationalModelAsserter : ModelAsserter
                             AssertEqual(
                                 expected,
                                 actual,
-                                compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                                compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>()));
+                                compareMemberAnnotations ? expected.GetAnnotations() : [],
+                                compareMemberAnnotations ? actual.GetAnnotations() : []));
                 }
                 else
                 {
@@ -1506,8 +1506,8 @@ public class RelationalModelAsserter : ModelAsserter
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [],
                         compareMemberAnnotations)),
             () => Assert.Equal(
                 expected.ResultColumns.Select(x => x), actual.ResultColumns,
@@ -1515,8 +1515,8 @@ public class RelationalModelAsserter : ModelAsserter
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [],
                         compareMemberAnnotations)),
             () => Assert.Equal(
                 expected.EntityTypeMappings.Select(x => x), actual.EntityTypeMappings,
@@ -1524,8 +1524,8 @@ public class RelationalModelAsserter : ModelAsserter
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [],
                         compareMemberAnnotations)),
             () => Assert.Equal(
                 expected.ComplexTypeMappings.Select(x => x), actual.ComplexTypeMappings,
@@ -1533,8 +1533,8 @@ public class RelationalModelAsserter : ModelAsserter
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [],
                         compareMemberAnnotations)));
 
         return true;
@@ -1572,8 +1572,8 @@ public class RelationalModelAsserter : ModelAsserter
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>())));
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [])));
 
         return true;
     }
@@ -1596,8 +1596,8 @@ public class RelationalModelAsserter : ModelAsserter
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>())));
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [])));
 
         return true;
     }
@@ -1617,8 +1617,8 @@ public class RelationalModelAsserter : ModelAsserter
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>())));
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [])));
 
         return true;
     }
@@ -1639,8 +1639,8 @@ public class RelationalModelAsserter : ModelAsserter
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>())));
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [])));
 
         return true;
     }
@@ -1661,8 +1661,8 @@ public class RelationalModelAsserter : ModelAsserter
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>())));
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [])));
 
         return true;
     }
@@ -1681,8 +1681,8 @@ public class RelationalModelAsserter : ModelAsserter
         return AssertEqual(
             expected,
             actual,
-            compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-            compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
+            compareMemberAnnotations ? expected.GetAnnotations() : [],
+            compareMemberAnnotations ? actual.GetAnnotations() : [],
             compareMemberAnnotations);
     }
 
@@ -1703,16 +1703,16 @@ public class RelationalModelAsserter : ModelAsserter
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>())),
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [])),
             () => Assert.Equal(
                 expected.ParameterMappings.Select(x => x), actual.ParameterMappings,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>())));
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [])));
 
         return true;
     }
@@ -1750,8 +1750,8 @@ public class RelationalModelAsserter : ModelAsserter
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>())));
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [])));
 
         return true;
     }
@@ -1772,8 +1772,8 @@ public class RelationalModelAsserter : ModelAsserter
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>())));
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [])));
 
         return true;
     }
@@ -1794,8 +1794,8 @@ public class RelationalModelAsserter : ModelAsserter
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>())));
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [])));
 
         return true;
     }
@@ -1816,8 +1816,8 @@ public class RelationalModelAsserter : ModelAsserter
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>())));
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [])));
 
         return true;
     }
@@ -1838,8 +1838,8 @@ public class RelationalModelAsserter : ModelAsserter
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>())));
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [])));
 
         return true;
     }
@@ -1884,8 +1884,8 @@ public class RelationalModelAsserter : ModelAsserter
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>())));
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [])));
 
         return true;
     }
@@ -1908,8 +1908,8 @@ public class RelationalModelAsserter : ModelAsserter
                     AssertEqual(
                         expected,
                         actual,
-                        compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
-                        compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>())));
+                        compareMemberAnnotations ? expected.GetAnnotations() : [],
+                        compareMemberAnnotations ? actual.GetAnnotations() : [])));
 
         return true;
     }

@@ -55,4 +55,16 @@ public static class SqlServerDbContextOptionsBuilderExtensions
 
         return optionsBuilder;
     }
+
+    /// <summary>
+    ///     Configures the SQL Server or Azure SQL provider with the specified compatibility level.
+    ///     This method automatically chooses between UseAzureSql and UseSqlServer based on the current test environment.
+    /// </summary>
+    /// <param name="optionsBuilder">The options builder to configure.</param>
+    /// <param name="compatibilityLevel">The compatibility level to use.</param>
+    /// <returns>The configured options builder.</returns>
+    public static DbContextOptionsBuilder UseSqlServerCompatibilityLevel(this DbContextOptionsBuilder optionsBuilder, int compatibilityLevel)
+        => TestEnvironment.IsAzureSql
+            ? optionsBuilder.UseAzureSql(b => b.UseCompatibilityLevel(compatibilityLevel))
+            : optionsBuilder.UseSqlServer(b => b.UseCompatibilityLevel(compatibilityLevel));
 }

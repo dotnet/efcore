@@ -13,6 +13,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal;
 /// </summary>
 public class SqlServerHierarchyIdCodeGeneratorPlugin : ProviderCodeGeneratorPlugin
 {
+    private static readonly MethodInfo UseHierarchyIdMethodInfo
+        = typeof(SqlServerHierarchyIdDbContextOptionsBuilderExtensions)
+            .GetRuntimeMethods()
+            .First(m => m.Name == nameof(SqlServerHierarchyIdDbContextOptionsBuilderExtensions.UseHierarchyId)
+                && m.GetParameters() is [{ ParameterType: var parameterType }]
+                && parameterType.TryGetElementType(typeof(SqlEngineDbContextOptionsBuilderBase<>)) is not null);
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -20,8 +27,5 @@ public class SqlServerHierarchyIdCodeGeneratorPlugin : ProviderCodeGeneratorPlug
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override MethodCallCodeFragment GenerateProviderOptions()
-        => new(
-            typeof(SqlServerHierarchyIdDbContextOptionsBuilderExtensions).GetRuntimeMethod(
-                nameof(SqlServerHierarchyIdDbContextOptionsBuilderExtensions.UseHierarchyId),
-                [typeof(SqlServerDbContextOptionsBuilder)])!);
+        => new(UseHierarchyIdMethodInfo);
 }

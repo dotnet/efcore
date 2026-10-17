@@ -52,7 +52,7 @@ public class SqliteDatabaseCreator : RelationalDatabaseCreator
                     Dependencies.Connection,
                     null,
                     null,
-                    null,
+                    Dependencies.CurrentContext.Context,
                     Dependencies.CommandLogger, CommandSource.Migrations));
 
         Dependencies.Connection.Close();
@@ -101,7 +101,7 @@ public class SqliteDatabaseCreator : RelationalDatabaseCreator
                     Dependencies.Connection,
                     null,
                     null,
-                    null,
+                    Dependencies.CurrentContext.Context,
                     Dependencies.CommandLogger, CommandSource.Migrations))!;
 
         return count != 0;

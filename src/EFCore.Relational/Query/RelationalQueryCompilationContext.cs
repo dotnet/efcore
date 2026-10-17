@@ -26,7 +26,7 @@ public class RelationalQueryCompilationContext : QueryCompilationContext
         QueryCompilationContextDependencies dependencies,
         RelationalQueryCompilationContextDependencies relationalDependencies,
         bool async)
-        : this(dependencies, relationalDependencies, async, precompiling: false, nonNullableReferenceTypeParameters: null)
+        : this(dependencies, relationalDependencies, async, precompiling: false)
     {
     }
 
@@ -37,15 +37,13 @@ public class RelationalQueryCompilationContext : QueryCompilationContext
     /// <param name="relationalDependencies">Parameter object containing relational dependencies for this class.</param>
     /// <param name="async">A bool value indicating whether it is for async query.</param>
     /// <param name="precompiling">Indicates whether the query is being precompiled.</param>
-    /// <param name="nonNullableReferenceTypeParameters">Names of parameters which have non-nullable reference types.</param>
     [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
     public RelationalQueryCompilationContext(
         QueryCompilationContextDependencies dependencies,
         RelationalQueryCompilationContextDependencies relationalDependencies,
         bool async,
-        bool precompiling,
-        IReadOnlySet<string>? nonNullableReferenceTypeParameters)
-        : base(dependencies, async, precompiling, nonNullableReferenceTypeParameters)
+        bool precompiling)
+        : base(dependencies, async, precompiling)
     {
         RelationalDependencies = relationalDependencies;
         QuerySplittingBehavior = RelationalOptionsExtension.Extract(ContextOptions).QuerySplittingBehavior;

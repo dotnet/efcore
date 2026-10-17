@@ -14,7 +14,7 @@ public class SqlServerTypeAliasTest(SqlServerFixture fixture) : IClassFixture<Sq
     [ConditionalFact]
     public async Task Can_create_database_with_alias_columns()
     {
-        using var testDatabase = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
+        await using var testDatabase = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
         var options = Fixture.CreateOptions(testDatabase);
 
         using (var context = new TypeAliasContext(options))
@@ -117,17 +117,16 @@ CREATE TYPE stringAlias FROM nvarchar(50);
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<TypeAliasEntity>();
-            modelBuilder.Entity<TypeAliasEntityWithFacets>(
-                b =>
-                {
-                    b.Property(e => e.DateTimeAlias).HasPrecision(6);
-                    b.Property(e => e.DateTimeOffsetAlias).HasPrecision(6);
-                    b.Property(e => e.TimeAlias).HasPrecision(6);
-                    b.Property(e => e.DecimalAlias).HasPrecision(10, 6);
-                    b.Property(e => e.DoubleAlias).HasPrecision(26);
-                    b.Property(e => e.BinaryAlias).HasMaxLength(50);
-                    b.Property(e => e.StringAlias).HasMaxLength(50);
-                });
+            modelBuilder.Entity<TypeAliasEntityWithFacets>(b =>
+            {
+                b.Property(e => e.DateTimeAlias).HasPrecision(6);
+                b.Property(e => e.DateTimeOffsetAlias).HasPrecision(6);
+                b.Property(e => e.TimeAlias).HasPrecision(6);
+                b.Property(e => e.DecimalAlias).HasPrecision(10, 6);
+                b.Property(e => e.DoubleAlias).HasPrecision(26);
+                b.Property(e => e.BinaryAlias).HasMaxLength(50);
+                b.Property(e => e.StringAlias).HasMaxLength(50);
+            });
         }
     }
 

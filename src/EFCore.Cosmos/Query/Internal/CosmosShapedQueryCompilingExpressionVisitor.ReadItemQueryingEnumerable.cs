@@ -53,7 +53,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             _cosmosContainer = rootEntityType.GetContainer()
                 ?? throw new UnreachableException("Root entity type without a Cosmos container.");
             _cosmosPartitionKey = GeneratePartitionKey(
-                rootEntityType, partitionKeyPropertyValues, _cosmosQueryContext.ParameterValues);
+                rootEntityType, partitionKeyPropertyValues, _cosmosQueryContext.Parameters);
         }
 
         public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
@@ -83,7 +83,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             {
                 var value = _readItemInfo.PropertyValues[property] switch
                 {
-                    SqlParameterExpression { Name: var parameterName } => _cosmosQueryContext.ParameterValues[parameterName],
+                    SqlParameterExpression { Name: var parameterName } => _cosmosQueryContext.Parameters[parameterName],
                     SqlConstantExpression { Value: var constantValue } => constantValue,
                     _ => throw new UnreachableException()
                 };

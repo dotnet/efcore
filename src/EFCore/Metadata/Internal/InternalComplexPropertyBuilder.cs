@@ -143,13 +143,16 @@ public class InternalComplexPropertyBuilder
         }
 
         var detachedProperties = InternalTypeBaseBuilder.DetachProperties(complexType.GetDeclaredProperties().ToList());
+        var detachedNestedComplexProperties =
+            InternalTypeBaseBuilder.DetachProperties(complexType.GetDeclaredComplexProperties().ToList()) ?? [];
 
         var snapshot = new ComplexPropertySnapshot(
             complexProperty.Builder,
             detachedProperties,
             detachedIndexes,
             detachedKeys,
-            detachedRelationships);
+            detachedRelationships,
+            detachedNestedComplexProperties);
 
         complexProperty.DeclaringType.RemoveComplexProperty(complexProperty);
 

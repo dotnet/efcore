@@ -84,9 +84,9 @@ public class SqlServerTimeOnlyMethodTranslator : IMethodCallTranslator
 
             return _sqlExpressionFactory.Function(
                 "DATEADD",
-                new[] { _sqlExpressionFactory.Fragment(datePart), _sqlExpressionFactory.Convert(arguments[0], typeof(int)), instance },
+                [_sqlExpressionFactory.Fragment(datePart), _sqlExpressionFactory.Convert(arguments[0], typeof(int)), instance],
                 nullable: true,
-                argumentsPropagateNullability: new[] { false, true, true },
+                argumentsPropagateNullability: [false, true, true],
                 instance.Type,
                 instance.TypeMapping);
         }

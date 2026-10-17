@@ -14,7 +14,6 @@ public class Interceptors : IInterceptors
     private readonly IServiceProvider _serviceProvider;
     private readonly IEnumerable<IInterceptor> _injectedInterceptors;
     private readonly Dictionary<Type, IInterceptorAggregator> _aggregators;
-    private CoreOptionsExtension? _coreOptionsExtension;
     private List<IInterceptor>? _interceptors;
 
     /// <summary>
@@ -70,7 +69,7 @@ public class Interceptors : IInterceptors
     ///     else is ready for them to do interception anyway.
     /// </summary>
     private CoreOptionsExtension? CoreOptionsExtension
-        => _coreOptionsExtension ??= _serviceProvider
+        => field ??= _serviceProvider
             .GetRequiredService<IDbContextOptions>()
             .Extensions
             .OfType<CoreOptionsExtension>()

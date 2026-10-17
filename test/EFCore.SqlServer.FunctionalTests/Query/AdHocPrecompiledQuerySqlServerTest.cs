@@ -3,8 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class AdHocPrecompiledQuerySqlServerTest(ITestOutputHelper testOutputHelper)
-    : AdHocPrecompiledQueryRelationalTestBase(testOutputHelper)
+public class AdHocPrecompiledQuerySqlServerTest(NonSharedFixture fixture, ITestOutputHelper testOutputHelper)
+    : AdHocPrecompiledQueryRelationalTestBase(fixture, testOutputHelper)
 {
     protected override bool AlwaysPrintGeneratedSources
         => false;
@@ -29,11 +29,11 @@ WHERE CAST(JSON_VALUE([j].[IntList], '$[' + CAST([j].[Id] AS nvarchar(max)) + ']
 
         AssertSql(
             """
-@__id_0='1'
+@id='1'
 
 SELECT [j].[Id], [j].[IntList], [j].[JsonThing]
 FROM [JsonEntities] AS [j]
-WHERE CAST(JSON_VALUE([j].[IntList], '$[' + CAST(@__id_0 AS nvarchar(max)) + ']') AS int) = 2
+WHERE CAST(JSON_VALUE([j].[IntList], '$[' + CAST(@id AS nvarchar(max)) + ']') AS int) = 2
 """);
     }
 
@@ -84,7 +84,7 @@ FROM [NonPublicEntities] AS [n]
         await base.Projecting_expression_requiring_converter_without_closure_works();
 
         AssertSql(
-"""
+            """
 SELECT [b].[AudiobookDate]
 FROM [Books] AS [b]
 """);
@@ -95,7 +95,7 @@ FROM [Books] AS [b]
         await base.Projecting_entity_with_property_requiring_converter_with_closure_works();
 
         AssertSql(
-"""
+            """
 SELECT [b].[Id], [b].[AudiobookDate], [b].[Name], [b].[PublishDate]
 FROM [Books] AS [b]
 """);

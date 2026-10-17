@@ -11,14 +11,13 @@ public class CommandLineApplicationTests
         var app = new CommandLineApplication();
         var one = app.Argument("<ONE>", "Argument one.");
         var two = app.Argument("<TWO>", "Argument two.");
-        app.OnExecute(
-            _ =>
-            {
-                Assert.Equal("1", one.Value);
-                Assert.Equal("2", two.Value);
+        app.OnExecute(_ =>
+        {
+            Assert.Equal("1", one.Value);
+            Assert.Equal("2", two.Value);
 
-                return 0;
-            });
+            return 0;
+        });
 
         app.Execute("1", "2");
     }

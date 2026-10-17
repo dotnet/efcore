@@ -6,9 +6,9 @@ namespace Microsoft.EntityFrameworkCore;
 #nullable disable
 
 public class PropertyValuesSqliteTest(PropertyValuesSqliteTest.PropertyValuesSqliteFixture fixture)
-    : PropertyValuesTestBase<PropertyValuesSqliteTest.PropertyValuesSqliteFixture>(fixture)
+    : PropertyValuesRelationalTestBase<PropertyValuesSqliteTest.PropertyValuesSqliteFixture>(fixture)
 {
-    public class PropertyValuesSqliteFixture : PropertyValuesFixtureBase
+    public class PropertyValuesSqliteFixture : PropertyValuesRelationalFixture
     {
         protected override ITestStoreFactory TestStoreFactory
             => SqliteTestStoreFactory.Instance;

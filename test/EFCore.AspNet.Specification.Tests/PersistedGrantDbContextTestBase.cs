@@ -257,7 +257,7 @@ public abstract class PersistedGrantDbContextTestBase<TFixture>(
     protected virtual List<EntityTypeMapping> ExpectedMappings
         =>
         [
-            new EntityTypeMapping
+            new()
             {
                 Name = "IdentityServer4.EntityFramework.Entities.DeviceFlowCodes",
                 TableName = "DeviceCodes",
@@ -279,7 +279,7 @@ public abstract class PersistedGrantDbContextTestBase<TFixture>(
                     "{'DeviceCode'} Unique", "{'Expiration'} ",
                 },
             },
-            new EntityTypeMapping
+            new()
             {
                 Name = "IdentityServer4.EntityFramework.Entities.PersistedGrant",
                 TableName = "PersistedGrants",
@@ -331,10 +331,9 @@ public abstract class PersistedGrantDbContextTestBase<TFixture>(
             => base.AddOptions(builder)
                 .EnableDetailedErrors()
                 .EnableSensitiveDataLogging()
-                .ConfigureWarnings(
-                    b => b.Default(WarningBehavior.Throw)
-                        .Log(CoreEventId.SensitiveDataLoggingEnabledWarning)
-                        .Log(CoreEventId.PossibleUnintendedReferenceComparisonWarning));
+                .ConfigureWarnings(b => b.Default(WarningBehavior.Throw)
+                    .Log(CoreEventId.SensitiveDataLoggingEnabledWarning)
+                    .Log(CoreEventId.PossibleUnintendedReferenceComparisonWarning));
 
         protected override bool UsePooling
             => false; // The IdentityServer ConfigurationDbContext has additional service dependencies

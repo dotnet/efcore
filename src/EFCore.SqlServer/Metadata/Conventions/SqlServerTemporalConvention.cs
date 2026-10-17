@@ -68,7 +68,7 @@ public class SqlServerTemporalConvention : IEntityTypeAnnotationChangedConventio
                 foreach (var skipLevelNavigation in entityTypeBuilder.Metadata.GetSkipNavigations())
                 {
                     if (skipLevelNavigation.DeclaringEntityType.IsTemporal()
-                        && skipLevelNavigation.Inverse is IConventionSkipNavigation inverse
+                        && skipLevelNavigation.Inverse is { } inverse
                         && inverse.DeclaringEntityType.IsTemporal()
                         && skipLevelNavigation.JoinEntityType is { HasSharedClrType: true } joinEntityType
                         && !joinEntityType.IsTemporal()
@@ -90,7 +90,7 @@ public class SqlServerTemporalConvention : IEntityTypeAnnotationChangedConventio
             if (oldAnnotation?.Value is string oldPeriodPropertyName)
             {
                 var oldPeriodProperty = entityTypeBuilder.Metadata.GetProperty(oldPeriodPropertyName);
-                entityTypeBuilder.RemoveUnusedImplicitProperties(new[] { oldPeriodProperty });
+                entityTypeBuilder.RemoveUnusedImplicitProperties([oldPeriodProperty]);
 
                 if (oldPeriodProperty.GetTypeConfigurationSource() == ConfigurationSource.Explicit)
                 {
@@ -130,7 +130,7 @@ public class SqlServerTemporalConvention : IEntityTypeAnnotationChangedConventio
             && !joinEntityType.IsTemporal()
             && joinEntityType.GetConfigurationSource() == ConfigurationSource.Convention
             && skipNavigationBuilder.Metadata.DeclaringEntityType.IsTemporal()
-            && skipNavigationBuilder.Metadata.Inverse is IConventionSkipNavigation inverse
+            && skipNavigationBuilder.Metadata.Inverse is { } inverse
             && inverse.DeclaringEntityType.IsTemporal())
         {
             joinEntityType.SetIsTemporal(true);

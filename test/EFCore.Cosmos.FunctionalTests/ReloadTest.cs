@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class ReloadTest : IClassFixture<ReloadTest.CosmosReloadTestFixture>
 {
-    public static IEnumerable<object[]> IsAsyncData = [[false], [true]];
+    public static readonly IEnumerable<object[]> IsAsyncData = [[false], [true]];
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
@@ -38,7 +38,7 @@ public class ReloadTest : IClassFixture<ReloadTest.CosmosReloadTestFixture>
 
         AssertSql(
             """
-@__p_0='1337'
+@p='1337'
 
 SELECT VALUE
 {
@@ -49,7 +49,7 @@ SELECT VALUE
     "" : c
 }
 FROM root c
-WHERE (c["Id"] = @__p_0)
+WHERE (c["Id"] = @p)
 OFFSET 0 LIMIT 1
 """);
 

@@ -35,8 +35,8 @@ public class ContextParameterBinding : ServiceParameterBinding
         Expression materializationExpression,
         Expression bindingInfoExpression)
     {
-        Check.NotNull(materializationExpression, nameof(materializationExpression));
-        Check.NotNull(bindingInfoExpression, nameof(bindingInfoExpression));
+        Check.NotNull(materializationExpression);
+        Check.NotNull(bindingInfoExpression);
 
         var propertyExpression
             = Expression.Property(

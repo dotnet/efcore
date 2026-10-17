@@ -67,4 +67,9 @@ public class NorthwindGroupByQueryInMemoryTest(NorthwindQueryInMemoryFixture<Noo
         => AssertTranslationFailedWithDetails(
             () => base.Final_GroupBy_property_entity_projecting_collection_and_single_result(async),
             InMemoryStrings.NonComposedGroupByNotSupported);
+
+    public override Task Final_GroupBy_TagWith(bool async)
+        => AssertTranslationFailedWithDetails(
+            () => base.Final_GroupBy_TagWith(async),
+            InMemoryStrings.NonComposedGroupByNotSupported);
 }

@@ -85,7 +85,7 @@ public interface IReadOnlyNavigation : IReadOnlyNavigationBase
     /// <summary>
     ///     Gets a value indicating whether the navigation property is a collection property.
     /// </summary>
-    bool IReadOnlyNavigationBase.IsCollection
+    bool IReadOnlyPropertyBase.IsCollection
     {
         [DebuggerStepThrough]
         get => !IsOnDependent && !ForeignKey.IsUnique;
@@ -140,6 +140,15 @@ public interface IReadOnlyNavigation : IReadOnlyNavigationBase
             {
                 builder.Append(" Collection");
             }
+            else if ((IsOnDependent && ForeignKey.IsRequired)
+                     || (!IsOnDependent && ForeignKey.IsRequiredDependent))
+            {
+                builder.Append(" Required");
+            }
+            else
+            {
+                builder.Append(" Optional");
+            }
 
             builder.Append(IsOnDependent ? " ToPrincipal " : " ToDependent ");
 
@@ -156,7 +165,7 @@ public interface IReadOnlyNavigation : IReadOnlyNavigationBase
             }
 
             if ((options & MetadataDebugStringOptions.IncludePropertyIndexes) != 0
-                && ((AnnotatableBase)this).IsReadOnly)
+                && (this is RuntimeAnnotatableBase || this is AnnotatableBase { IsReadOnly: true }))
             {
                 var indexes = ((INavigation)this).GetPropertyIndexes();
                 builder.Append(' ').Append(indexes.Index);

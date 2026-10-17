@@ -132,8 +132,7 @@ public abstract class SimpleQueryTests
     {
         var query = _context.Products
             .GroupBy(p => p.ActualStockLevel)
-            .Select(
-                g => new { ActualStockLevel = g.Key, Products = g });
+            .Select(g => new { ActualStockLevel = g.Key, Products = g });
 
         if (Async)
         {
@@ -166,17 +165,16 @@ public abstract class SimpleQueryTests
     public virtual async Task Projection()
     {
         var query = _context.Products
-            .Select(
-                p => new
-                {
-                    p.ProductId,
-                    p.Name,
-                    p.Description,
-                    p.SKU,
-                    p.Retail,
-                    p.CurrentPrice,
-                    p.ActualStockLevel
-                });
+            .Select(p => new
+            {
+                p.ProductId,
+                p.Name,
+                p.Description,
+                p.SKU,
+                p.Retail,
+                p.CurrentPrice,
+                p.ActualStockLevel
+            });
 
         if (Async)
         {
@@ -192,18 +190,17 @@ public abstract class SimpleQueryTests
     public virtual async Task ProjectionAcrossNavigation()
     {
         var query = _context.Orders
-            .Select(
-                o => new
-                {
-                    CustomerTitle = o.Customer.Title,
-                    CustomerFirstName = o.Customer.FirstName,
-                    CustomerLastName = o.Customer.LastName,
-                    OrderDate = o.Date,
-                    o.OrderDiscount,
-                    OrderDiscountReason = o.DiscountReason,
-                    OrderTax = o.Tax,
-                    OrderSpecialRequests = o.SpecialRequests
-                });
+            .Select(o => new
+            {
+                CustomerTitle = o.Customer.Title,
+                CustomerFirstName = o.Customer.FirstName,
+                CustomerLastName = o.Customer.LastName,
+                OrderDate = o.Date,
+                o.OrderDiscount,
+                OrderDiscountReason = o.DiscountReason,
+                OrderTax = o.Tax,
+                OrderSpecialRequests = o.SpecialRequests
+            });
 
         if (Async)
         {
