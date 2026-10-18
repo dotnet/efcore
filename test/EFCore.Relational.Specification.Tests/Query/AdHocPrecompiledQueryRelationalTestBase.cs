@@ -3,6 +3,7 @@
 
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using static Microsoft.EntityFrameworkCore.TestUtilities.PrecompiledQueryTestHelpers;
 
@@ -85,6 +86,89 @@ _ = context.JsonEntities.Where(b => b.JsonThing.StringProperty == "foo").ToList(
     public class JsonThing
     {
         public string StringProperty { get; set; } = null!;
+    }
+
+    [Fact]
+    public virtual async Task Materialize_sealed_entity()
+    {
+        var contextFactory = await InitializeNonSharedTest<SealedContext>(
+            seed: async context =>
+            {
+                context.Entities.Add(new SealedEntity { Id = 1, Name = "Sealed" });
+                await context.SaveChangesAsync();
+            });
+
+        await Test(
+            """
+await using var context = new AdHocPrecompiledQueryRelationalTestBase.SealedContext(dbContextOptions);
+var entity = await context.Entities.SingleAsync();
+Assert.Equal(1, entity.Id);
+Assert.Equal("Sealed", entity.Name);
+""",
+            typeof(SealedContext),
+            contextFactory.GetOptions());
+    }
+
+    [Fact]
+    public virtual async Task Materialize_sealed_entity_implementing_injectable_service()
+    {
+        var contextFactory = await InitializeNonSharedTest<SealedContext>(
+            seed: async context =>
+            {
+                context.InjectableEntities.Add(new SealedInjectableEntity { Id = 1, Name = "Injectable" });
+                await context.SaveChangesAsync();
+            });
+
+        await Test(
+            """
+await using var context = new AdHocPrecompiledQueryRelationalTestBase.SealedContext(dbContextOptions);
+var entity = await context.InjectableEntities.SingleAsync();
+Assert.Equal(1, entity.Id);
+Assert.Equal("Injectable", entity.Name);
+Assert.Equal(1, entity.InjectionCount);
+""",
+            typeof(SealedContext),
+            contextFactory.GetOptions());
+    }
+
+    public class SealedContext(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<SealedEntity> Entities { get; set; } = null!;
+        public DbSet<SealedInjectableEntity> InjectableEntities { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<SealedEntity>().Property(e => e.Id).ValueGeneratedNever();
+            modelBuilder.Entity<SealedInjectableEntity>().Property(e => e.Id).ValueGeneratedNever();
+            modelBuilder.Entity<SealedInjectableEntity>().Ignore(e => e.InjectionCount);
+        }
+    }
+
+    public sealed class SealedEntity
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = null!;
+    }
+
+    public sealed class SealedInjectableEntity : IInjectableService
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = null!;
+        public int InjectionCount { get; private set; }
+
+        void IInjectableService.Injected(
+            DbContext context,
+            object entity,
+            QueryTrackingBehavior? queryTrackingBehavior,
+            ITypeBase structuralType)
+            => InjectionCount++;
+
+        bool IInjectableService.Detaching(DbContext context, object entity)
+            => false;
+
+        void IInjectableService.Attaching(DbContext context, IEntityType entityType, object entity)
+        {
+        }
     }
 
     [Fact]
