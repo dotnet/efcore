@@ -1219,6 +1219,48 @@ CREATE INDEX [IX_People_SomeColumn] ON [People] ([SomeColumn]);
     }
 
     [Fact]
+    public override async Task Alter_column_make_not_required_with_unique_index()
+    {
+        await base.Alter_column_make_not_required_with_unique_index();
+
+        AssertSql(
+            """
+DROP INDEX [IX_People_SomeColumn] ON [People];
+""",
+            //
+            """
+DECLARE @var nvarchar(max);
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'SomeColumn';
+IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
+ALTER TABLE [People] ALTER COLUMN [SomeColumn] nvarchar(450) NULL;
+""",
+            //
+            """
+CREATE UNIQUE INDEX [IX_People_SomeColumn] ON [People] ([SomeColumn]) WHERE [SomeColumn] IS NOT NULL;
+""");
+    }
+
+    [Fact]
+    public override async Task Alter_column_make_not_required_while_referenced_in_other_index_filter()
+    {
+        await base.Alter_column_make_not_required_while_referenced_in_other_index_filter();
+
+        AssertSql(
+            """
+DROP INDEX [IX_People_FirstName] ON [People];
+DECLARE @var nvarchar(max);
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'LastName';
+IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
+ALTER TABLE [People] ALTER COLUMN [LastName] nvarchar(max) NULL;
+CREATE INDEX [IX_People_FirstName] ON [People] ([FirstName]) WHERE [LastName] <> '';
+""");
+    }
+
+    [Fact]
     public override async Task Alter_column_make_required_with_composite_index()
     {
         await base.Alter_column_make_required_with_composite_index();

@@ -321,9 +321,14 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                 || operation is { IsNullable: false, OldColumn.IsNullable: true };
         }
 
+        var hasIndexFilterReference = column?.Table.Indexes
+            .Any(index => index.Filter?.Contains(Dependencies.SqlGenerationHelper.DelimitIdentifier(column.Name)) == true)
+            == true;
         var sparseChanged = ((bool?)operation[SqlServerAnnotationNames.Sparse] ?? false)
             != ((bool?)operation.OldColumn[SqlServerAnnotationNames.Sparse] ?? false);
-        if (narrowed || sparseChanged)
+
+        var rebuildIndexes = narrowed || sparseChanged || hasIndexFilterReference;
+        if (rebuildIndexes)
         {
             indexesToRebuild = GetIndexesToRebuild(column, operation).ToList();
             DropIndexes(indexesToRebuild, builder);
@@ -484,7 +489,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             }
         }
 
-        if (narrowed || sparseChanged)
+        if (rebuildIndexes)
         {
             CreateIndexes(indexesToRebuild!, builder);
         }
@@ -2455,6 +2460,10 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             }
             else if (index[SqlServerAnnotationNames.Include] is IReadOnlyList<string> includeColumns
                      && includeColumns.Contains(column.Name))
+            {
+                yield return index;
+            }
+            else if (index.Filter?.Contains(Dependencies.SqlGenerationHelper.DelimitIdentifier(column.Name)) == true)
             {
                 yield return index;
             }
