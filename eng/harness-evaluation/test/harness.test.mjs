@@ -30,6 +30,11 @@ import {
 const workflow = parse(await readFile(new URL('../../../.github/workflows/agent-harness-evaluation.yml', import.meta.url), 'utf8'));
 const metadataStep = workflow.jobs.discover.steps.find((step) => step.name === 'Update pull request metadata');
 
+test('workflow uses the configured judge model for all component evaluations', () => {
+  const evaluationStep = workflow.jobs.evaluate.steps.find((step) => step.name === 'Run treatment, unskilled control, and comparison');
+  assert.match(evaluationStep.run, /--judge-model gpt-5\.6-terra/);
+});
+
 const evalYaml = (
   name,
   grader = `      - type: output-contains\n        config:\n          substring: Anchor`,
