@@ -384,7 +384,7 @@ public partial class SqliteConnection : DbConnection
             if (reference.TryGetTarget(out var command))
             {
                 // NB: Calls RemoveCommand()
-                command.Dispose();
+                command.CloseReaderAndDispose();
             }
         }
 

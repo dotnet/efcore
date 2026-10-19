@@ -34,6 +34,7 @@ public class SqliteCommand : DbCommand
     private bool _prepared;
     private int? _commandTimeout;
     private CancellationToken _cancellationToken;
+    private bool _disposeWhenReaderCloses;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="SqliteCommand" /> class.
@@ -218,8 +219,23 @@ public class SqliteCommand : DbCommand
     ///     <see langword="true" /> to release managed and unmanaged resources;
     ///     <see langword="false" /> to release only unmanaged resources.
     /// </param>
+    /// <remarks>
+    ///     If a data reader returned by this command is still open, the reader stays usable and the command finishes
+    ///     disposing when the reader is closed.
+    /// </remarks>
     protected override void Dispose(bool disposing)
     {
+        if (disposing
+            && DataReader != null)
+        {
+            // The open reader still steps through this command's statements
+            _disposeWhenReaderCloses = true;
+
+            return;
+        }
+
+        _disposeWhenReaderCloses = false;
+
         DisposePreparedStatements(disposing);
 
         if (disposing)
@@ -228,6 +244,28 @@ public class SqliteCommand : DbCommand
         }
 
         base.Dispose(disposing);
+    }
+
+    internal void OnReaderClosed()
+    {
+        if (_disposeWhenReaderCloses)
+        {
+            Dispose(disposing: true);
+        }
+    }
+
+    internal void CloseReaderAndDispose()
+    {
+        if (_disposeWhenReaderCloses)
+        {
+            // NB: Calls OnReaderClosed(), which disposes this command
+            DataReader!.Dispose();
+
+            return;
+        }
+
+        DataReader?.Dispose();
+        Dispose();
     }
 
     /// <summary>

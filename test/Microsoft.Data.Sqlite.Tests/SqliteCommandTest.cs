@@ -984,6 +984,84 @@ CREATE TABLE "Products" (
         Assert.Equal(ConnectionState.Closed, connection.State);
     }
 
+    [Fact]
+    public void Dispose_leaves_open_reader_usable()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT 1 UNION ALL SELECT 2; SELECT 3;";
+
+        using var reader = command.ExecuteReader();
+        command.Dispose();
+
+        Assert.False(reader.IsClosed);
+        Assert.True(reader.Read());
+        Assert.Equal(1L, reader.GetInt64(0));
+        Assert.True(reader.Read());
+        Assert.Equal(2L, reader.GetInt64(0));
+        Assert.False(reader.Read());
+        Assert.True(reader.NextResult());
+        Assert.True(reader.Read());
+        Assert.Equal(3L, reader.GetInt64(0));
+    }
+
+    [Fact]
+    public void Dispose_with_open_reader_completes_when_reader_closes()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        var command = connection.CreateCommand();
+        connection.Handle!.enable_sqlite3_next_stmt(true);
+        command.CommandText = "SELECT 1 UNION ALL SELECT 2;";
+        var disposedCount = 0;
+        command.Disposed += (_, _) => disposedCount++;
+
+        var reader = command.ExecuteReader();
+        command.Dispose();
+        Assert.Equal(0, disposedCount);
+        Assert.NotNull(sqlite3_next_stmt(connection.Handle, null));
+
+        reader.Dispose();
+        Assert.Equal(1, disposedCount);
+        Assert.Null(sqlite3_next_stmt(connection.Handle, null));
+    }
+
+    [Fact]
+    public void Dispose_with_open_reader_works_with_CloseConnection()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT 1;";
+
+        var reader = command.ExecuteReader(CommandBehavior.CloseConnection);
+        command.Dispose();
+        Assert.True(reader.Read());
+        Assert.Equal(1L, reader.GetInt64(0));
+
+        reader.Dispose();
+        Assert.Equal(ConnectionState.Closed, connection.State);
+    }
+
+    [Fact]
+    public void Connection_Close_closes_reader_of_disposed_command()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT 1;";
+        var disposedCount = 0;
+        command.Disposed += (_, _) => disposedCount++;
+
+        var reader = command.ExecuteReader();
+        command.Dispose();
+        connection.Close();
+
+        Assert.True(reader.IsClosed);
+        Assert.Equal(1, disposedCount);
+    }
+
     [Theory(Skip = "#35585"), InlineData(true), InlineData(false)]
     public Task ExecuteReader_retries_when_locked(bool extendedErrorCode)
     {

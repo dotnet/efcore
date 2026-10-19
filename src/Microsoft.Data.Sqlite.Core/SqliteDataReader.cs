@@ -308,6 +308,8 @@ public class SqliteDataReader : DbDataReader
 
         _closed = true;
 
+        _command.OnReaderClosed();
+
         if (_closeConnection)
         {
             _command.Connection!.Close();
