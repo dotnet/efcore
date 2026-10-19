@@ -30,9 +30,9 @@ import {
 const workflow = parse(await readFile(new URL('../../../.github/workflows/agent-harness-evaluation.yml', import.meta.url), 'utf8'));
 const metadataStep = workflow.jobs.discover.steps.find((step) => step.name === 'Update pull request metadata');
 
-test('workflow uses the configured judge model for all component evaluations', () => {
+test('workflow leaves judge model selection to the eval defaults', () => {
   const evaluationStep = workflow.jobs.evaluate.steps.find((step) => step.name === 'Run treatment, unskilled control, and comparison');
-  assert.match(evaluationStep.run, /--judge-model gpt-5\.6-terra/);
+  assert.doesNotMatch(evaluationStep.run, /--judge-model/);
 });
 
 const evalYaml = (
@@ -604,12 +604,13 @@ test('all evals specify and resolve judge defaults and overrides through Vally',
   for (const component of components) {
     const evalPath = join(defaultRepoRoot, component.eval);
     const authored = parse(await readFile(evalPath, 'utf8'));
+    assert.equal(authored.defaults.judge_model, '${JUDGE_MODEL=gpt-5.6-terra}', component.id);
     assert.equal(authored.defaults.judge_reasoning_effort, '${JUDGE_REASONING_EFFORT=medium}', component.id);
     assert.equal(authored.defaults.judge_timeout, '${JUDGE_TIMEOUT=10m}', component.id);
     assert.equal(authored.scoring.timeout, '${SCORING_TIMEOUT=10m}', component.id);
     const defaults = (await loadEvalWithParams(evalPath)).spec.defaults;
     assert.equal(defaults.judge_reasoning_effort, 'medium', component.id);
-    assert.equal(defaults.judge_model, 'gpt-6.1-terra');
+    assert.equal(defaults.judge_model, 'gpt-5.6-terra', component.id);
     assert.equal(defaults.judge_timeout, '10m', component.id);
     assert.equal(authored.defaults.timeout, undefined, component.id);
     assert.equal(defaults.timeout, undefined, component.id);
