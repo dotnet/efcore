@@ -564,7 +564,10 @@ test('judge launcher validates model selection and removes the SDK timeout cap w
     const rejectedEval = spawnSync(process.execPath, ['--import', pathToFileURL(preloadPath).href,
       fileURLToPath(new URL('../src/cli.mjs', import.meta.url)), 'eval', 'example', '--repo-root', root,
       '--judge-model', 'invalid-model', '--workers', '1', '--require-pass', '--output', output, '--runs', '1'],
-    { encoding: 'utf8' });
+    {
+      encoding: 'utf8',
+      env: { ...process.env, NODE_OPTIONS: `${process.env.NODE_OPTIONS ?? ''} --import=${pathToFileURL(preloadPath).href}` },
+    });
     assert.equal(rejectedEval.status, 1, rejectedEval.stderr);
     assert.match(rejectedEval.stdout + rejectedEval.stderr, /Judge model 'invalid-model' is not available/);
     const experimentDirectory = await findExperimentRunDirectory(output);
