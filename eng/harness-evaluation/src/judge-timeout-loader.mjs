@@ -14,12 +14,30 @@ export function initialize(options) {
 
 export async function resolve(specifier, context, nextResolve) {
   const resolved = await nextResolve(specifier, context);
+  const originalUrl = new URL(clientUrl);
+  originalUrl.searchParams.set('efcore-original', 'true');
+  if (specifier === '@github/copilot-sdk' && context.parentURL === originalUrl.href) {
+    const source = `
+      export * from ${JSON.stringify(resolved.url)};
+      import { CopilotClient as Client } from ${JSON.stringify(resolved.url)};
+      export class CopilotClient extends Client {
+        async createSession(options) {
+          if (!options.provider && options.model !== 'auto') {
+            const models = await this.listModels();
+            if (!models.some((model) => model.id === options.model)) {
+              throw new Error(\`Judge model '\${options.model}' is not available from Copilot. Select an id returned by CopilotClient.listModels().\`);
+            }
+          }
+          return super.createSession(options);
+        }
+      }
+    `;
+    return { url: `data:text/javascript,${encodeURIComponent(source)}`, shortCircuit: true };
+  }
   if (resolved.url !== clientUrl) {
     return resolved;
   }
 
-  const originalUrl = new URL(clientUrl);
-  originalUrl.searchParams.set('efcore-original', 'true');
   const source = `
     import { createCopilotLlmClient as createClient } from ${JSON.stringify(originalUrl.href)};
     import { withJudgeTimeout } from ${JSON.stringify(adapterUrl)};

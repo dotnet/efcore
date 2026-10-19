@@ -11,7 +11,7 @@ import { createGraderRegistry, gradeTrajectory, hasGraderError, loadEvalWithPara
 import { parse } from 'yaml';
 import { prepareComparison } from '../src/comparison.mjs';
 import { judgeTimeoutLimits, withJudgeTimeout } from '../src/judge-timeout.mjs';
-import { initialize as initializeJudgeLoader, load as loadJudgeModule } from '../src/judge-timeout-loader.mjs';
+import { initialize as initializeJudgeLoader, load as loadJudgeModule, resolve as resolveJudgeModule } from '../src/judge-timeout-loader.mjs';
 import {
   defaultRepoRoot,
   discoverComponents,
@@ -458,18 +458,24 @@ test('native scoring timeout reaches graders and bounds the whole grading pass',
   }
 });
 
-test('judge timeout loader removes the SDK cap without changing the native package', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'efcore-native-judge-timeout-'));
+test('judge launcher validates model selection and removes the SDK timeout cap without changing the native package', async () => {
+  const root = await makeRepo();
   try {
     const clientUrl = new URL('./graders/llm/llm-client.js', import.meta.resolve('@microsoft/vally')).href;
     const durationUrl = new URL('./utils/duration.js', import.meta.resolve('@microsoft/vally')).href;
     const sdkSource = `
+      export const approveAll = () => ({ kind: 'approve' });
       export const defineTool = (name, options) => ({ name, ...options });
-      export class ToolSet {}
+      export class ToolSet {
+        addBuiltIn() { return this; }
+        addCustom() { return this; }
+      }
       export class CopilotClient {
         async start() {}
         async stop() { return []; }
+        async listModels() { return [{ id: 'mock' }]; }
         async createSession(options) {
+          globalThis.sdkModel = options.model;
           return {
             on() {}, async abort() {}, async disconnect() {},
             async sendAndWait(message, timeoutMs) {
@@ -481,12 +487,13 @@ test('judge timeout loader removes the SDK cap without changing the native packa
       }
     `;
     const loaderPath = join(root, 'sdk-loader.mjs');
-    await writeFile(loaderPath, `export async function resolve(specifier, context, nextResolve) {
+    const sdkLoaderSource = `export async function resolve(specifier, context, nextResolve) {
       if (specifier === '@github/copilot-sdk') {
         return { url: ${JSON.stringify(`data:text/javascript,${encodeURIComponent(sdkSource)}`)}, shortCircuit: true };
       }
       return nextResolve(specifier, context);
-    }`);
+    }`;
+    await writeFile(loaderPath, sdkLoaderSource);
     const preloadPath = join(root, 'preload.mjs');
     await writeFile(preloadPath, `import { register } from 'node:module';
       register(${JSON.stringify(pathToFileURL(loaderPath).href)}, import.meta.url);`);
@@ -494,11 +501,11 @@ test('judge timeout loader removes the SDK cap without changing the native packa
       import { createCopilotLlmClient } from ${JSON.stringify(clientUrl)};
       import { resolveGradingTimeoutMs } from ${JSON.stringify(durationUrl)};
       const client = await createCopilotLlmClient();
-      const response = await client.judge({ model: 'mock', systemMessage: 'Judge.', userMessage: 'Grade.',
+      const response = await client.judge({ model: process.env.EF_HARNESS_TEST_JUDGE_MODEL ?? 'mock', systemMessage: 'Judge.', userMessage: 'Grade.',
         timeoutMs: resolveGradingTimeoutMs('10m'), tool: { name: 'submit', description: 'Submit a verdict.',
           parameters: { safeParse: (data) => ({ success: true, data }) } } });
       await client.shutdown();
-      console.log(JSON.stringify({ sdkTimeoutMs: globalThis.sdkTimeoutMs, verdict: response.args }));
+      console.log(JSON.stringify({ sdkTimeoutMs: globalThis.sdkTimeoutMs, sdkModel: globalThis.sdkModel, verdict: response.args }));
     `;
     const entryUrl = new URL('../node_modules/@microsoft/vally-cli/dist/index.js', import.meta.url).href;
     const originalSource = await readFile(fileURLToPath(clientUrl), 'utf8');
@@ -514,14 +521,9 @@ test('judge timeout loader removes the SDK cap without changing the native packa
         '--input-type=module', '-e', script.replace("resolveGradingTimeoutMs('10m')", `resolveGradingTimeoutMs('${remainingBudget}')`)],
       { encoding: 'utf8' });
       assert.equal(result.status, 0, result.stderr);
-      assert.deepEqual(JSON.parse(result.stdout), { sdkTimeoutMs: expected, verdict: { passed: true } });
+      assert.deepEqual(JSON.parse(result.stdout), { sdkTimeoutMs: expected, sdkModel: 'mock', verdict: { passed: true } });
     }
-    await writeFile(loaderPath, `export async function resolve(specifier, context, nextResolve) {
-      if (specifier === '@github/copilot-sdk') {
-        return { url: ${JSON.stringify(`data:text/javascript,${encodeURIComponent(sdkSource)}`)}, shortCircuit: true };
-      }
-      return nextResolve(specifier, context);
-    }
+    await writeFile(loaderPath, `${sdkLoaderSource}
     export async function load(url, context, nextLoad) {
       if (url === ${JSON.stringify(entryUrl)}) {
         return { format: 'module', source: ${JSON.stringify(`${script.replace("resolveGradingTimeoutMs('10m')", "resolveGradingTimeoutMs('30m')")}
@@ -540,15 +542,71 @@ test('judge timeout loader removes the SDK cap without changing the native packa
         assert.equal(result.status, 0, result.stderr);
         const lines = result.stdout.trim().split(/\r?\n/).map(JSON.parse);
         assert.deepEqual(lines, [
-          { sdkTimeoutMs: expected, verdict: { passed: true } },
+          { sdkTimeoutMs: expected, sdkModel: 'mock', verdict: { passed: true } },
           [command, 'fixture'],
         ]);
       }
+      const rejected = spawnSync(process.execPath, ['--import', pathToFileURL(preloadPath).href,
+        fileURLToPath(new URL('../src/vally.mjs', import.meta.url)), command, 'fixture'],
+      { encoding: 'utf8', env: { ...process.env, EF_HARNESS_TEST_JUDGE_MODEL: 'invalid-model' } });
+      assert.equal(rejected.status, 1, rejected.stderr);
+      assert.match(rejected.stderr, /Judge model 'invalid-model' is not available/);
+    }
+    await writeFile(loaderPath, sdkLoaderSource);
+    await writeFile(join(root, 'eng/harness-evaluation/harness.experiment.yaml'),
+      await readFile(new URL('../harness.experiment.yaml', import.meta.url), 'utf8'));
+    await writeFile(join(root, 'eng/harness-evaluation/skills/example/eval.yaml'),
+      evalYaml('example', `      - type: prompt\n        config:\n          prompt: Check the explanation.\n          scoring: binary`)
+        .replace('  executor: mock', '  model: mock\n  judge_model: ${JUDGE_MODEL=mock}\n  executor: mock')
+        .replace('src: src/EFCore/Anchor.cs', 'src: ../../../../src/EFCore/Anchor.cs')
+        .replace('    output-contains: 0.9', '    prompt: 0.9'));
+    const output = join(root, 'artifacts/results');
+    const rejectedEval = spawnSync(process.execPath, ['--import', pathToFileURL(preloadPath).href,
+      fileURLToPath(new URL('../src/cli.mjs', import.meta.url)), 'eval', 'example', '--repo-root', root,
+      '--judge-model', 'invalid-model', '--workers', '1', '--require-pass', '--output', output, '--runs', '1'],
+    { encoding: 'utf8' });
+    assert.equal(rejectedEval.status, 1, rejectedEval.stderr);
+    assert.match(rejectedEval.stdout + rejectedEval.stderr, /Judge model 'invalid-model' is not available/);
+    const experimentDirectory = await findExperimentRunDirectory(output);
+    const planPath = join(experimentDirectory, 'plan-snapshot.json');
+    for (const variant of ['control', 'treatment']) {
+      assert.equal(await variantCompleted(join(experimentDirectory, variant, 'results.jsonl'), planPath, variant), false);
     }
     assert.equal(await readFile(fileURLToPath(clientUrl), 'utf8'), originalSource);
   } finally {
     await rm(root, { recursive: true, force: true });
   }
+});
+
+test('judge loader validates SDK models without restricting explicit routing or BYOK providers', async () => {
+  const clientUrl = new URL('./graders/llm/llm-client.js', import.meta.resolve('@microsoft/vally'));
+  initializeJudgeLoader({ clientUrl: clientUrl.href, timeoutMs: 600_000 });
+  clientUrl.searchParams.set('efcore-original', 'true');
+  const sdkUrl = `data:text/javascript,${encodeURIComponent(`export class CopilotClient {
+    calls = [];
+    async listModels() {
+      if (this.catalogError) throw this.catalogError;
+      return [{ id: 'mock' }];
+    }
+    async createSession(options) {
+      this.calls.push(options);
+      return options;
+    }
+  }`)}`;
+  const resolved = { url: sdkUrl, format: 'module' };
+  const adapted = await resolveJudgeModule('@github/copilot-sdk', { parentURL: clientUrl.href }, async () => resolved);
+  const { CopilotClient } = await import(adapted.url);
+  const client = new CopilotClient();
+  const options = { model: 'mock', tools: [], onPermissionRequest: () => ({ kind: 'reject' }) };
+  assert.equal(await client.createSession(options), options);
+  await assert.rejects(client.createSession({ model: 'invalid-model' }), /Judge model 'invalid-model' is not available/);
+  assert.deepEqual(client.calls, [options]);
+  client.catalogError = new Error('Model catalog failed');
+  await assert.rejects(client.createSession(options), (error) => error === client.catalogError);
+  for (const options of [{ model: 'auto' }, { model: 'provider-model', provider: { type: 'openai', baseUrl: 'http://localhost' } }]) {
+    assert.equal(await client.createSession(options), options);
+  }
+  assert.equal(await resolveJudgeModule('@github/copilot-sdk', { parentURL: 'file:///executor.js' }, async () => resolved), resolved);
 });
 
 test('judge timeout adapter preserves tighter scoring budgets, evidence and lifecycle', async () => {
@@ -764,7 +822,7 @@ syncBuiltinESMExports();
       const result = spawnSync(process.execPath, [
         '--import', pathToFileURL(preloadPath).href,
         fileURLToPath(new URL('../src/cli.mjs', import.meta.url)),
-        'eval', 'example', '--repo-root', root, '--judge-reasoning-effort', 'high', ...options,
+        'eval', 'example', '--repo-root', root, '--judge-model', 'invalid-model', '--judge-reasoning-effort', 'high', ...options,
       ], { encoding: 'utf8', env: { ...process.env, EF_HARNESS_JUDGE_TIMEOUT_MS: '1' } });
       assert.match(result.stderr, /Intercepted Vally invocation/);
       const invocation = JSON.parse(await readFile(capturePath, 'utf8'));
@@ -772,6 +830,7 @@ syncBuiltinESMExports();
       assert.equal(invocation.args[0], fileURLToPath(new URL('../src/vally.mjs', import.meta.url)));
       assert.deepEqual(invocation.args.slice(1, 5), ['--judge-timeout', options[0] === '--judge-timeout' ? '20m' : '11m', 'experiment', 'run']);
       assert.ok(invocation.args.includes('JUDGE_REASONING_EFFORT=high'));
+      assert.ok(invocation.args.includes('JUDGE_MODEL=invalid-model'));
       assert.equal(invocation.effort, 'high');
       if (options[0] === '--judge-timeout') {
         assert.ok(invocation.args.includes('JUDGE_TIMEOUT=20m'));
