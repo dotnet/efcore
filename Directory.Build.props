@@ -64,6 +64,9 @@
   <!-- HACK: Work around #15093 -->
   <PropertyGroup>
     <NoWarn>$(NoWarn.Replace(';1591', ''))</NoWarn>
+    <!-- Stable EF packages declare [x, (major+1).0.0-a) bounds, and Specification.Tests depends on prerelease xunit.v3
+         packages, which NuGet reports as NU5104 in stable builds. -->
+    <NoWarn>$(NoWarn);NU5104</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup>
