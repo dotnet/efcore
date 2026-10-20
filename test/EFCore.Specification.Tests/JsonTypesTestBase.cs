@@ -3080,6 +3080,68 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public IList<DddId?> DddId { get; set; } = null!;
     }
 
+    [Theory, InlineData(false), InlineData(true)]
+    public virtual void Can_read_write_collection_of_nullable_int_with_null_returning_converter(bool existingCollection)
+    {
+        var contextFactory = CreateContextFactory<DbContext>(
+            b => b.Entity<NullableInt32CollectionType>().HasNoKey().PrimitiveCollection(e => e.Int32).ElementType()
+                .HasConversion(new ValueConverter<int?, int?>(
+                    v => v == 0 ? null : v,
+                    v => v == 0 ? null : v)));
+        using var context = contextFactory.CreateDbContext();
+        var readerWriter = context.Model.FindEntityType(typeof(NullableInt32CollectionType))!
+            .GetProperty(nameof(NullableInt32CollectionType.Int32)).GetTypeMapping().JsonValueReaderWriter!;
+
+        Assert.Equal("[5,null,null,7]", readerWriter.ToJsonString(new List<int?> { 5, 0, null, 7 }));
+
+        var existing = existingCollection ? new List<int?> { 99 } : null;
+        var result = readerWriter.FromJsonString("[5,0,null,7]", existing);
+        Assert.Equal(new int?[] { 5, null, null, 7 }, Assert.IsAssignableFrom<IEnumerable<int?>>(result));
+        if (existingCollection)
+        {
+            Assert.Same(existing, result);
+        }
+
+#pragma warning disable EF9100 // Experimental API.
+        var compiledReaderWriter = Expression.Lambda<Func<JsonValueReaderWriter>>(readerWriter.ConstructorExpression).Compile()();
+#pragma warning restore EF9100
+        Assert.Equal(
+            new int?[] { 5, null, null, 7 },
+            Assert.IsAssignableFrom<IEnumerable<int?>>(compiledReaderWriter.FromJsonString("[5,0,null,7]")));
+    }
+
+    [Theory, InlineData(false), InlineData(true)]
+    public virtual void Can_read_write_collection_of_nullable_struct_with_null_returning_converter(bool existingCollection)
+    {
+        var contextFactory = CreateContextFactory<DbContext>(
+            b => b.Entity<NullableDddIdCollectionType>().HasNoKey().PrimitiveCollection(e => e.DddId).ElementType()
+                .HasConversion(new ValueConverter<DddId?, int?>(
+                    v => v!.Value.Id == 0 ? null : v.Value.Id,
+                    v => v == 0 ? null : new DddId { Id = v!.Value })));
+        using var context = contextFactory.CreateDbContext();
+        var readerWriter = context.Model.FindEntityType(typeof(NullableDddIdCollectionType))!
+            .GetProperty(nameof(NullableDddIdCollectionType.DddId)).GetTypeMapping().JsonValueReaderWriter!;
+        var five = new DddId { Id = 5 };
+        var seven = new DddId { Id = 7 };
+
+        Assert.Equal("[5,null,null,7]", readerWriter.ToJsonString(new List<DddId?> { five, new DddId { Id = 0 }, null, seven }));
+
+        var existing = existingCollection ? new List<DddId?> { new DddId { Id = 99 } } : null;
+        var result = readerWriter.FromJsonString("[5,0,null,7]", existing);
+        Assert.Equal(new DddId?[] { five, null, null, seven }, Assert.IsAssignableFrom<IEnumerable<DddId?>>(result));
+        if (existingCollection)
+        {
+            Assert.Same(existing, result);
+        }
+
+#pragma warning disable EF9100 // Experimental API.
+        var compiledReaderWriter = Expression.Lambda<Func<JsonValueReaderWriter>>(readerWriter.ConstructorExpression).Compile()();
+#pragma warning restore EF9100
+        Assert.Equal(
+            new DddId?[] { five, null, null, seven },
+            Assert.IsAssignableFrom<IEnumerable<DddId?>>(compiledReaderWriter.FromJsonString("[5,0,null,7]")));
+    }
+
     [Fact]
     public virtual Task Can_read_write_binary_as_collection()
         => Can_read_and_write_JSON_collection_value<BinaryAsJsonType, byte[]>(
