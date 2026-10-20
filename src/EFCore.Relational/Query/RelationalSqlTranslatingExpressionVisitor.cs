@@ -127,6 +127,16 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
     {
         TranslationErrorDetails = null;
 
+        // Primitive collections are required to be arrays, constructable from List<T> or castable to IList<T>
+        if (expression is QueryParameterExpression { Type: { IsGenericType: true, IsArray: false } type }
+            && type.TryGetElementType(typeof(IEnumerable<>)) is { } elementType
+            && !type.IsAssignableFrom(typeof(List<>).MakeGenericType(elementType))
+            && !typeof(IList<>).MakeGenericType(elementType).IsAssignableFrom(type)
+            && type.GetConstructor(Type.EmptyTypes) is null)
+        {
+            return null;
+        }
+
         return TranslateInternal(expression, applyDefaultTypeMapping) switch
         {
             // This is the case of a structural type getting projected out via Select (possibly also an owned entity one day, if we stop
