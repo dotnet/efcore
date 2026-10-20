@@ -546,11 +546,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
                     Assert.Null(customerView.EntityTypeMappings.Single().IsSharedTablePrincipal);
                     Assert.Null(customerView.EntityTypeMappings.Single().IsSplitEntityTypePrincipal);
-                    Assert.Equal(5, customerView.Columns.Count());
+                    Assert.Equal(6, customerView.Columns.Count());
+                    Assert.Same(
+                        abstractBaseType.FindComplexProperty(nameof(AbstractBase.Tag))!.ComplexType.FindProperty(nameof(Tag.Name)),
+                        Assert.Single(customerView.FindColumn("Tag_Name")!.PropertyMappings).Property);
 
                     Assert.Single(specialCustomerView.EntityTypeMappings);
 
-                    Assert.Equal(9, specialCustomerView.Columns.Count());
+                    Assert.Equal(10, specialCustomerView.Columns.Count());
 
                     Assert.False(specialtyColumn.IsNullable);
 
@@ -560,7 +563,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     Assert.False(extraSpecialCustomerView.EntityTypeMappings.Last().IsSharedTablePrincipal);
                     Assert.Null(extraSpecialCustomerView.EntityTypeMappings.Last().IsSplitEntityTypePrincipal);
 
-                    Assert.Equal(11, extraSpecialCustomerView.Columns.Count());
+                    Assert.Equal(12, extraSpecialCustomerView.Columns.Count());
                 }
             }
         }
@@ -787,6 +790,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var customerPk = specialCustomerType.FindPrimaryKey()!;
 
             var complexType = abstractBaseType.GetComplexProperties().Single().ComplexType;
+
+            foreach (var columnMapping in complexType.GetTableMappings().SelectMany(m => m.ColumnMappings))
+            {
+                Assert.Equal("Tag_Name", columnMapping.Column.Name);
+                Assert.Same(complexType.FindProperty(nameof(Tag.Name)), columnMapping.Property);
+            }
 
             if (mapping == Mapping.TPT)
             {

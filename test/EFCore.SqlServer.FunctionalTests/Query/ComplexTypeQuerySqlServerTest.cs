@@ -1309,10 +1309,10 @@ FROM [EntityType] AS [e]
 
         AssertSql(
             """
-SELECT [t].[Id], [t].[ChildProperty], NULL AS [ChildProperty1], [t].[PropertyInsideComplexThing], [t].[ChildComplexProperty_PropertyInsideComplexThing], NULL AS [ChildComplexProperty_PropertyInsideComplexThing1], N'TpcChild1' AS [Discriminator]
+SELECT [t].[Id], [t].[ChildProperty], NULL AS [ChildProperty1], [t].[BaseComplexProperty_PropertyInsideComplexThing], [t].[ChildComplexProperty_PropertyInsideComplexThing], NULL AS [ChildComplexProperty_PropertyInsideComplexThing1], N'TpcChild1' AS [Discriminator]
 FROM [TpcChild1] AS [t]
 UNION ALL
-SELECT [t0].[Id], NULL AS [ChildProperty], [t0].[ChildProperty] AS [ChildProperty1], [t0].[PropertyInsideComplexThing], NULL AS [ChildComplexProperty_PropertyInsideComplexThing], [t0].[ChildComplexProperty_PropertyInsideComplexThing] AS [ChildComplexProperty_PropertyInsideComplexThing1], N'TpcChild2' AS [Discriminator]
+SELECT [t0].[Id], NULL AS [ChildProperty], [t0].[ChildProperty] AS [ChildProperty1], [t0].[BaseComplexProperty_PropertyInsideComplexThing], NULL AS [ChildComplexProperty_PropertyInsideComplexThing], [t0].[ChildComplexProperty_PropertyInsideComplexThing] AS [ChildComplexProperty_PropertyInsideComplexThing1], N'TpcChild2' AS [Discriminator]
 FROM [TpcChild2] AS [t0]
 """);
     }
