@@ -2256,7 +2256,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public IReadOnlyList<TimeOnly?> TimeOnly { get; set; } = null!;
     }
 
-    [Theory, InlineData("""{"Prop":["0001-01-01T00:00:00",null,"2023-05-29T10:52:47","9999-12-31T23:59:59.9999999"]}""")]
+    [Theory, InlineData("""{"Prop":["0001-01-01T00:00:00.0000000",null,"2023-05-29T10:52:47.0000000","9999-12-31T23:59:59.9999999"]}""")]
     public virtual Task Can_read_write_collection_of_nullable_DateTime_JSON_values(string expected)
         => Can_read_and_write_JSON_value<NullableDateTimeCollectionType, List<DateTime?>>(
             nameof(NullableDateTimeCollectionType.DateTime),

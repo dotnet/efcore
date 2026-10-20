@@ -190,8 +190,7 @@ public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSh
 
     #endregion 34911
 
-
-        #region 39113
+    #region 39113
 
     [Fact]
     public virtual async Task DateTime_with_and_without_fractional_seconds_orders_and_filters_correctly()
@@ -219,6 +218,42 @@ public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSh
         var boundary = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         var filtered = await context.Items.Where(x => x.Timestamp > boundary).ToListAsync();
         Assert.Equal(new[] { "fractional-second" }, filtered.Select(x => x.Name).ToArray());
+    }
+
+    [Fact]
+    public virtual async Task DateTime_in_legacy_short_format_is_read_correctly()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context39113>(
+            seed: async context =>
+            {
+                var client = context.Database.GetCosmosClient();
+                var container = client.GetContainer(
+                    context.Database.GetCosmosDatabaseId(),
+                    context.Model.FindEntityType(typeof(Context39113.Item))!.GetContainer()!);
+
+                // Documents written before #39113 omit trailing zero fractional seconds.
+                await AdHocCosmosTestHelpers.CreateCustomEntityHelperAsync(
+                    container,
+                    """{ "id": "1", "$type": "Item", "Id": 1, "Name": "legacy", "Timestamp": "2026-01-01T00:00:00Z" }""",
+                    CancellationToken.None);
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var expected = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        var item = await context.Items.SingleAsync();
+        Assert.Equal(expected, item.Timestamp);
+        Assert.Equal(DateTimeKind.Utc, item.Timestamp.Kind);
+
+        var scalar = await context.Items.Select(x => x.Timestamp).SingleAsync();
+        Assert.Equal(expected, scalar);
+        Assert.Equal(DateTimeKind.Utc, scalar.Kind);
+
+        var anonymous = await context.Items.Select(x => new { x.Name, x.Timestamp }).SingleAsync();
+        Assert.Equal("legacy", anonymous.Name);
+        Assert.Equal(expected, anonymous.Timestamp);
+        Assert.Equal(DateTimeKind.Utc, anonymous.Timestamp.Kind);
     }
 
     protected class Context39113(DbContextOptions options) : DbContext(options)
