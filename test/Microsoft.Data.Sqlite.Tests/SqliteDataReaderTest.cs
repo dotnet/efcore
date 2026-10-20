@@ -1358,10 +1358,10 @@ public class SqliteDataReaderTest
         connection.Open();
 
         using var reader = connection.ExecuteReader("SELECT 1;");
-        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => reader.GetOrdinal("Name"));
-        Assert.NotNull(ex.Message);
-        Assert.Equal("name", ex.ParamName);
-        Assert.Equal("Name", ex.ActualValue);
+
+        // IDataRecord.GetOrdinal: "If the index of the named field is not found, an IndexOutOfRangeException is thrown."
+        var ex = Assert.Throws<IndexOutOfRangeException>(() => reader.GetOrdinal("Name"));
+        Assert.Contains("Name", ex.Message);
     }
 
     [Fact]
@@ -1487,17 +1487,22 @@ public class SqliteDataReaderTest
     }
 
     [Fact]
-    public void GetValues_throws_when_too_narrow()
+    public void GetValues_copies_only_what_fits_when_too_narrow()
     {
         using var connection = new SqliteConnection("Data Source=:memory:");
         connection.Open();
 
-        using var reader = connection.ExecuteReader("SELECT 1;");
+        using var reader = connection.ExecuteReader("SELECT 1, 2, 3;");
         var hasData = reader.Read();
         Assert.True(hasData);
 
-        var values = Array.Empty<object>();
-        Assert.Throws<IndexOutOfRangeException>(() => reader.GetValues(values));
+        // IDataRecord.GetValues: "You can pass an Object array that contains fewer than the number of columns that are
+        // contained in the resulting row. Only the amount of data the Object array holds is copied to the array."
+        var values = new object[2];
+        Assert.Equal(2, reader.GetValues(values));
+        Assert.Equal(new object[] { 1L, 2L }, values);
+
+        Assert.Equal(0, reader.GetValues(Array.Empty<object>()));
     }
 
     [Fact]
