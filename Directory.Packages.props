@@ -47,6 +47,6 @@
     <PackageVersion Include="SQLitePCLRaw.bundle_e_sqlite3" Version="$(SQLitePCLRawVersion)" />
     <PackageVersion Include="SQLite3MC.PCLRaw.bundle" Version="$(SQLite3MCPCLRawBundleVersion)" />
     <!-- Transitive dependency for Microsoft.Data.SqlClient -->
-    <PackageVersion Include="System.Security.Cryptography.Pkcs" Version="$(MicrosoftNETCoreAppRefVersion)" />
+    <PackageVersion Include="System.Security.Cryptography.Pkcs" Version="$(SystemSecurityCryptographyPkcsVersion)" />
   </ItemGroup>
 </Project>

@@ -21,6 +21,7 @@ This file should be imported by eng/Versions.props
     <MicrosoftNETCorePlatformsPackageVersion>11.0.0-rtm.26514.117</MicrosoftNETCorePlatformsPackageVersion>
     <SystemFormatsAsn1PackageVersion>11.0.0</SystemFormatsAsn1PackageVersion>
     <SystemRuntimeCachingPackageVersion>11.0.0</SystemRuntimeCachingPackageVersion>
+    <SystemSecurityCryptographyPkcsPackageVersion>11.0.0</SystemSecurityCryptographyPkcsPackageVersion>
     <SystemTextEncodingsWebPackageVersion>11.0.0</SystemTextEncodingsWebPackageVersion>
     <SystemTextJsonPackageVersion>11.0.0</SystemTextJsonPackageVersion>
   </PropertyGroup>
