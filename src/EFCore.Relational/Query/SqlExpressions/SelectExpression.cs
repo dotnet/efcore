@@ -69,6 +69,12 @@ public sealed partial class SelectExpression : TableExpressionBase
     // Pushdown should null it out as if GroupBy was present was pushed down.
     private List<(ColumnExpression Column, ValueComparer Comparer)>? _preGroupByIdentifier;
 
+    // A value computed by the database which identifies each row's group for a final GroupBy, used in place of the grouping terms when
+    // the groupings are assembled on the client. Comparing the grouping terms on the client uses CLR equality, which can disagree with
+    // the database's (a case-insensitive collation, trailing spaces); the database's own value can't. Same lifetime as
+    // _preGroupByIdentifier: not cloned, and dropped by a pushdown.
+    private SqlExpression? _groupIdentifier;
+
     private static ConstructorInfo? _quotingConstructor;
 
     /// <summary>
@@ -661,7 +667,10 @@ public sealed partial class SelectExpression : TableExpressionBase
                 var keySelector = AddGroupByKeySelectorToProjection(
                     this, newClientProjections, projectionBindingMap, groupByShaper.KeySelector);
                 var (keyIdentifier, keyIdentifierValueComparers) = GetIdentifierAccessor(
-                    this, newClientProjections, projectionBindingMap, _identifier);
+                    this, newClientProjections, projectionBindingMap,
+                    _groupIdentifier is null
+                        ? _identifier.Select(e => ((SqlExpression)e.Column, e.Comparer))
+                        : [(_groupIdentifier, _groupIdentifier.TypeMapping!.KeyComparer)]);
                 // ApplyGrouping only sets this aside when it replaced the identifier with the grouping terms; when the identifier was
                 // already part of the key (e.g. grouping by the primary key) it left it alone, and there's nothing to restore.
                 if (_preGroupByIdentifier is not null)
@@ -691,14 +700,13 @@ public sealed partial class SelectExpression : TableExpressionBase
                                 existingIndex = clientProjectionList.Count - 1;
                             }
 
-                            var projectionBindingExpression = sqlExpression.Type.IsNullableType()
-                                ? (Expression)new ProjectionBindingExpression(selectExpression, existingIndex, sqlExpression.Type)
-                                : Convert(
-                                    new ProjectionBindingExpression(
-                                        selectExpression, existingIndex, sqlExpression.Type.MakeNullable()),
-                                    sqlExpression.Type);
+                            // The key identifier reads the value as nullable so that a null key doesn't throw.
+                            var projectionBindingExpression = new ProjectionBindingExpression(
+                                selectExpression, existingIndex, sqlExpression.Type.MakeNullable());
                             projectionBindingMap[sqlExpression] = projectionBindingExpression;
-                            return projectionBindingExpression;
+                            return sqlExpression.Type.IsNullableType()
+                                ? projectionBindingExpression
+                                : Convert(projectionBindingExpression, sqlExpression.Type);
                         }
 
                         case NewExpression newExpression:
@@ -732,9 +740,22 @@ public sealed partial class SelectExpression : TableExpressionBase
                             return memberInitExpression.Update((NewExpression)updatedNewExpression, newBindings);
 
                         case UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } unaryExpression:
-                            return unaryExpression.Update(
-                                AddGroupByKeySelectorToProjection(
-                                    selectExpression, clientProjectionList, projectionBindingMap, unaryExpression.Operand));
+                        {
+                            // Also adds the operand to projectionBindingMap, which the nullable read below comes from.
+                            var operand = AddGroupByKeySelectorToProjection(
+                                selectExpression, clientProjectionList, projectionBindingMap, unaryExpression.Operand);
+
+                            // A nullable or reference-type (e.g. object) key over a SQL expression with a non-nullable CLR type;
+                            // converting through the non-nullable operand would throw for a null key.
+                            if (unaryExpression is { Operand: SqlExpression sqlOperand, Method: null }
+                                && (unaryExpression.Type == sqlOperand.Type.MakeNullable() || !unaryExpression.Type.IsValueType))
+                            {
+                                var nullableRead = projectionBindingMap[sqlOperand];
+                                return nullableRead.Type == unaryExpression.Type ? nullableRead : unaryExpression.Update(nullableRead);
+                            }
+
+                            return unaryExpression.Update(operand);
+                        }
 
                         case StructuralTypeShaperExpression
                         {
@@ -764,7 +785,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                     SelectExpression selectExpression,
                     List<Expression> clientProjectionList,
                     Dictionary<SqlExpression, Expression> projectionBindingMap,
-                    IEnumerable<(ColumnExpression Column, ValueComparer Comparer)> identifyingProjection)
+                    IEnumerable<(SqlExpression Column, ValueComparer Comparer)> identifyingProjection)
                 {
                     var updatedExpressions = new List<Expression>();
                     var comparers = new List<ValueComparer>();
@@ -1899,6 +1920,63 @@ public sealed partial class SelectExpression : TableExpressionBase
             keySelector,
             shaperExpression,
             new ShapedQueryExpression(clonedSelectExpression, rebuiltShaperExpression));
+    }
+
+    // Keeps the first row of each group in place of the grouping. Rows are numbered with
+    // ROW_NUMBER() OVER(PARTITION BY <grouping terms> ORDER BY <orderings>) and filtered to 1, as AddJoin does for a group's element.
+    // `projection` is an expression over the grouping terms (e.g. the key selector), returned remapped to the new columns.
+    // Internal infrastructure: only called from RelationalQueryableMethodTranslatingExpressionVisitor.
+    internal Expression ApplyFirstRowPerGroup(
+        Expression projection,
+        IReadOnlyList<OrderingExpression> orderings,
+        ISqlExpressionFactory sqlExpressionFactory)
+    {
+        Check.DebugAssert(_groupBy.Count > 0, "The selectExpression doesn't have grouping terms.");
+        Check.DebugAssert(
+            Limit == null && Offset == null && !IsDistinct && Having == null,
+            "Grouped SelectExpression has state over the groups.");
+
+        var partitions = _groupBy.ToList();
+        _groupBy.Clear();
+
+        // Restore the identifier from before the grouping, as ApplyProjection does for a final GroupBy.
+        if (_preGroupByIdentifier is not null)
+        {
+            _identifier.Clear();
+            _identifier.AddRange(_preGroupByIdentifier);
+            _preGroupByIdentifier = null;
+        }
+
+        var one = sqlExpressionFactory.ApplyDefaultTypeMapping(sqlExpressionFactory.Constant(1));
+        var rowNumberExpression = new RowNumberExpression(partitions, GetRowNumberOrderings(orderings, _identifier), one.TypeMapping);
+        var sqlRemappingVisitor = PushdownIntoSubqueryInternal();
+        var subquery = (SelectExpression)_tables[0];
+        var rowNumberColumn = subquery.GenerateOuterColumn(subquery.Alias!, rowNumberExpression, "row");
+        ApplyPredicate(sqlExpressionFactory.LessThanOrEqual(rowNumberColumn, one));
+
+        return sqlRemappingVisitor.Visit(projection);
+    }
+
+    // ROW_NUMBER() needs an ordering. Without one, number by the identifier, or in no particular order.
+    private static List<OrderingExpression> GetRowNumberOrderings(
+        IReadOnlyList<OrderingExpression> orderings,
+        IReadOnlyList<(ColumnExpression Column, ValueComparer Comparer)> identifier)
+        => orderings.Count > 0
+            ? orderings.ToList()
+            : identifier.Count > 0
+                ? identifier.Select(e => new OrderingExpression(e.Column, true)).ToList()
+                : [new OrderingExpression(new SqlFragmentExpression("(SELECT 1)", typeof(int)), true)];
+
+    /// <summary>
+    ///     Identifies the groups of a final GroupBy by the given value, computed by the database, rather than by comparing the grouping
+    ///     terms on the client.
+    /// </summary>
+    /// <param name="groupIdentifier">A value which is equal for rows of the same group, and differs between consecutive groups.</param>
+    internal void ApplyGroupIdentifier(SqlExpression groupIdentifier)
+    {
+        Check.DebugAssert(_groupBy.Count > 0, "The selectExpression doesn't have grouping terms.");
+
+        _groupIdentifier = groupIdentifier;
     }
 
     private static void PopulateGroupByTerms(
@@ -3213,14 +3291,9 @@ public sealed partial class SelectExpression : TableExpressionBase
                         {
                             var partitions = new List<SqlExpression>();
                             GetPartitions(innerSelect, joinPredicate, partitions);
-                            var orderings = innerSelect.Orderings.Count > 0
-                                ? innerSelect.Orderings
-                                : innerSelect._identifier.Count > 0
-                                    ? innerSelect._identifier.Select(e => new OrderingExpression(e.Column, true))
-                                    : [new OrderingExpression(new SqlFragmentExpression("(SELECT 1)", typeof(int)), true)];
-
                             var rowNumberExpression = new RowNumberExpression(
-                                partitions, orderings.ToList(), (limit ?? offset)!.TypeMapping);
+                                partitions, GetRowNumberOrderings(innerSelect.Orderings, innerSelect._identifier),
+                                (limit ?? offset)!.TypeMapping);
                             innerSelect.ClearOrdering();
 
                             joinPredicate = innerSelect.PushdownIntoSubqueryInternal().Remap(joinPredicate);
@@ -3459,7 +3532,8 @@ public sealed partial class SelectExpression : TableExpressionBase
 
                 foreach (var innerColumn in innerKeyColumns)
                 {
-                    if (!projectionColumns.Contains(innerColumn))
+                    if (!projectionColumns.Contains(innerColumn)
+                        && !projectionColumns.Contains(innerColumn.MakeNullable()))
                     {
                         return null;
                     }
@@ -4070,6 +4144,7 @@ public sealed partial class SelectExpression : TableExpressionBase
         Offset = null;
         Limit = null;
         _preGroupByIdentifier = null;
+        _groupIdentifier = null;
 
         _tables.Add(subquery);
 

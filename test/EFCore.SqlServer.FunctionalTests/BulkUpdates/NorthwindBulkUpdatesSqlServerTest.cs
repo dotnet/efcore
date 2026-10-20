@@ -1190,6 +1190,29 @@ WHERE [c].[CustomerID] LIKE N'F%'
 """);
     }
 
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Update_Where_set_property_Replace_with_non_ASCII_char(bool async)
+    {
+        // The char constants must be emitted as Unicode literals: a non-Unicode 'ş' is best-fit mapped to 's' before REPLACE
+        // runs, which would replace every 's' in the stored value instead of the appended 'ş'.
+        await AssertUpdate(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")),
+            e => e,
+            s => s.SetProperty(c => c.ContactName, c => (c.ContactName + "ş").Replace('ş', 'x')),
+            rowsAffectedCount: 8,
+            (b, a) => b.Zip(a).ForEach(e => Assert.Equal(e.First.ContactName + "x", e.Second.ContactName)));
+
+        AssertExecuteUpdateSql(
+            """
+SET NOCOUNT OFF;
+UPDATE [c]
+SET [c].[ContactName] = REPLACE(COALESCE([c].[ContactName], N'') + N'ş', N'ş', N'x')
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'F%'
+""");
+    }
+
     public override async Task Update_Where_set_property_plus_parameter(bool async)
     {
         await base.Update_Where_set_property_plus_parameter(async);

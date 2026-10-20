@@ -15,7 +15,40 @@ public class NorthwindGroupByQuerySqliteTest : NorthwindGroupByQueryRelationalTe
         Fixture.TestSqlLoggerFactory.Clear();
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
+    
+    public override async Task SelectMany_DefaultIfEmpty_over_GroupBy(bool async)
+    {
+        await base.SelectMany_DefaultIfEmpty_over_GroupBy(async);
 
+        AssertSql(
+            """
+SELECT "p"."ProductID", "o0"."Key", COALESCE("o0"."Sum", 0) AS "Sum"
+FROM "Products" AS "p"
+LEFT JOIN (
+    SELECT "o"."ProductID" AS "Key", COALESCE(SUM("o"."Quantity"), 0) AS "Sum", "o"."ProductID"
+    FROM "Order Details" AS "o"
+    WHERE "o"."ProductID" < 10
+    GROUP BY "o"."ProductID"
+) AS "o0" ON "p"."ProductID" = "o0"."ProductID"
+""");
+    }
+
+    public override async Task SelectMany_DefaultIfEmpty_over_Distinct(bool async)
+    {
+        await base.SelectMany_DefaultIfEmpty_over_Distinct(async);
+
+        AssertSql(
+            """
+SELECT "p"."ProductID", "o0"."Key", COALESCE("o0"."Quantity", 0) AS "Quantity"
+FROM "Products" AS "p"
+LEFT JOIN (
+    SELECT DISTINCT "o"."ProductID" AS "Key", "o"."Quantity", 1 AS "marker", "o"."ProductID"
+    FROM "Order Details" AS "o"
+    WHERE "o"."ProductID" < 10
+) AS "o0" ON "p"."ProductID" = "o0"."ProductID"
+""");
+    }
+    
     // SQLite evaluates random() per row, where SQL Server's RAND() is a runtime constant - so this is the provider that
     // can catch the grouping element's filter being emitted more than once. Every order has OrderID > 0, so All holds for
     // every group whichever rows the filter samples, which is what the expected query asserts directly; EF.Functions.Random
@@ -54,6 +87,12 @@ GROUP BY "o"."CustomerID"
 
     public override Task Select_uncorrelated_collection_with_groupby_when_outer_is_distinct(bool async)
         => AssertApplyNotSupported(() => base.Select_uncorrelated_collection_with_groupby_works(async));
+
+    public override Task SelectMany_correlated_GroupBy_Select_First_ordered(bool async)
+        => AssertApplyNotSupported(() => base.SelectMany_correlated_GroupBy_Select_First_ordered(async));
+
+    public override Task GroupBy_composite_key_member_in_projected_First_ordered(bool async)
+        => AssertApplyNotSupported(() => base.GroupBy_composite_key_member_in_projected_First_ordered(async));
 
     public override Task AsEnumerable_in_subquery_for_GroupBy(bool async)
         => AssertApplyNotSupported(() => base.AsEnumerable_in_subquery_for_GroupBy(async));

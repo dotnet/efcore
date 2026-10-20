@@ -47,7 +47,7 @@
   <ItemGroup>
     <None Include="build\**\*">
       <Pack>True</Pack>
-      <PackagePath>build</PackagePath>
+      <PackagePath>build\$(DefaultNetCoreTargetFramework)</PackagePath>
     </None>
   </ItemGroup>
 

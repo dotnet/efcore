@@ -2292,26 +2292,15 @@ GROUP BY [j0].[Key]
 
         AssertSql(
             """
-SELECT [j5].[Id], [j5].[EntityBasicId], [j5].[Name], [j5].[c], [j5].[c0]
+SELECT [j1].[Id], [j1].[EntityBasicId], [j1].[Name], [j1].[c], [j1].[c0]
 FROM (
-    SELECT [j0].[Key]
+    SELECT [j0].[Id], [j0].[EntityBasicId], [j0].[Name], [j0].[c] AS [c], [j0].[c0] AS [c0], ROW_NUMBER() OVER(PARTITION BY [j0].[Key] ORDER BY [j0].[Id]) AS [row]
     FROM (
-        SELECT JSON_VALUE([j].[OwnedReferenceRoot], '$.Name' RETURNING nvarchar(max)) AS [Key]
+        SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot] AS [c], [j].[OwnedReferenceRoot] AS [c0], JSON_VALUE([j].[OwnedReferenceRoot], '$.Name' RETURNING nvarchar(max)) AS [Key]
         FROM [JsonEntitiesBasic] AS [j]
     ) AS [j0]
-    GROUP BY [j0].[Key]
-) AS [j3]
-LEFT JOIN (
-    SELECT [j4].[Id], [j4].[EntityBasicId], [j4].[Name], [j4].[c] AS [c], [j4].[c0] AS [c0], [j4].[Key]
-    FROM (
-        SELECT [j1].[Id], [j1].[EntityBasicId], [j1].[Name], [j1].[c] AS [c], [j1].[c0] AS [c0], [j1].[Key], ROW_NUMBER() OVER(PARTITION BY [j1].[Key] ORDER BY [j1].[Id]) AS [row]
-        FROM (
-            SELECT [j2].[Id], [j2].[EntityBasicId], [j2].[Name], [j2].[OwnedCollectionRoot] AS [c], [j2].[OwnedReferenceRoot] AS [c0], JSON_VALUE([j2].[OwnedReferenceRoot], '$.Name' RETURNING nvarchar(max)) AS [Key]
-            FROM [JsonEntitiesBasic] AS [j2]
-        ) AS [j1]
-    ) AS [j4]
-    WHERE [j4].[row] <= 1
-) AS [j5] ON [j3].[Key] = [j5].[Key]
+) AS [j1]
+WHERE [j1].[row] <= 1
 """);
     }
 
@@ -2321,26 +2310,15 @@ LEFT JOIN (
 
         AssertSql(
             """
-SELECT [j5].[Id], [j5].[EntityBasicId], [j5].[Name], [j5].[c], [j5].[c0]
+SELECT [j1].[Id], [j1].[EntityBasicId], [j1].[Name], [j1].[c], [j1].[c0]
 FROM (
-    SELECT [j0].[Key]
+    SELECT [j0].[Id], [j0].[EntityBasicId], [j0].[Name], [j0].[c] AS [c], [j0].[c0] AS [c0], ROW_NUMBER() OVER(PARTITION BY [j0].[Key] ORDER BY [j0].[Id]) AS [row]
     FROM (
-        SELECT JSON_VALUE([j].[OwnedReferenceRoot], '$.Name' RETURNING nvarchar(max)) AS [Key]
+        SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot] AS [c], [j].[OwnedReferenceRoot] AS [c0], JSON_VALUE([j].[OwnedReferenceRoot], '$.Name' RETURNING nvarchar(max)) AS [Key]
         FROM [JsonEntitiesBasic] AS [j]
     ) AS [j0]
-    GROUP BY [j0].[Key]
-) AS [j3]
-LEFT JOIN (
-    SELECT [j4].[Id], [j4].[EntityBasicId], [j4].[Name], [j4].[c] AS [c], [j4].[c0] AS [c0], [j4].[Key]
-    FROM (
-        SELECT [j1].[Id], [j1].[EntityBasicId], [j1].[Name], [j1].[c] AS [c], [j1].[c0] AS [c0], [j1].[Key], ROW_NUMBER() OVER(PARTITION BY [j1].[Key] ORDER BY [j1].[Id]) AS [row]
-        FROM (
-            SELECT [j2].[Id], [j2].[EntityBasicId], [j2].[Name], [j2].[OwnedCollectionRoot] AS [c], [j2].[OwnedReferenceRoot] AS [c0], JSON_VALUE([j2].[OwnedReferenceRoot], '$.Name' RETURNING nvarchar(max)) AS [Key]
-            FROM [JsonEntitiesBasic] AS [j2]
-        ) AS [j1]
-    ) AS [j4]
-    WHERE [j4].[row] <= 1
-) AS [j5] ON [j3].[Key] = [j5].[Key]
+) AS [j1]
+WHERE [j1].[row] <= 1
 """);
     }
 
@@ -2379,7 +2357,17 @@ ORDER BY [j3].[Key], [j5].[Key], [j5].[Id]
         await base.Group_by_json_scalar_Orderby_json_scalar_FirstOrDefault(async);
 
         AssertSql(
-            @"");
+            """
+SELECT [j1].[Id], [j1].[EntityBasicId], [j1].[Name], [j1].[c], [j1].[c0]
+FROM (
+    SELECT [j0].[Id], [j0].[EntityBasicId], [j0].[Name], [j0].[c] AS [c], [j0].[c0] AS [c0], ROW_NUMBER() OVER(PARTITION BY [j0].[Key] ORDER BY JSON_VALUE([j0].[c0], '$.Number' RETURNING int)) AS [row]
+    FROM (
+        SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot] AS [c], [j].[OwnedReferenceRoot] AS [c0], JSON_VALUE([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.Enum' RETURNING int) AS [Key]
+        FROM [JsonEntitiesBasic] AS [j]
+    ) AS [j0]
+) AS [j1]
+WHERE [j1].[row] <= 1
+""");
     }
 
     public override async Task Group_by_json_scalar_Skip_First_project_json_scalar(bool async)
@@ -4220,7 +4208,7 @@ VALUES(1, '{"Name":"e1","ConvertedHandlingNulls":null,"ConvertedNotHandlingNulls
     }
 
     [Fact]
-    public virtual async Task Materialize_json_null_required_primitive_collection_in_json_throws()
+    public virtual async Task Materialize_json_null_required_primitive_collection_in_json_is_empty()
     {
         var contextFactory = await InitializeNonSharedTest<ContextPrimitiveCollectionInJson>(
             onModelCreating: OnModelCreatingPrimitiveCollectionInJson,
@@ -4229,12 +4217,13 @@ VALUES(1, '{"Name":"e1","ConvertedHandlingNulls":null,"ConvertedNotHandlingNulls
 
         using var context = contextFactory.CreateDbContext();
 
-        // A required primitive collection nested in a JSON document whose value is a 'null' token yields a clear,
-        // property-named error rather than the cryptic reader/writer "Invalid token type: 'Null'".
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(()
-            => context.Set<ContextPrimitiveCollectionInJson.MyEntity>().Where(x => x.Id == 3).ToListAsync());
+        // A required primitive collection nested in a JSON document whose value is a 'null' token materializes as empty, the
+        // same as an absent key and as the Cosmos provider does; the optional one next to it keeps its value.
+        var entity = Assert.Single(
+            await context.Set<ContextPrimitiveCollectionInJson.MyEntity>().Where(x => x.Id == 3).ToListAsync());
 
-        Assert.Equal(RelationalStrings.NullValueInRequiredJsonProperty("RequiredStrings"), exception.Message);
+        Assert.Empty(entity.Reference!.RequiredStrings);
+        Assert.Equal(["x", "y"], entity.Reference.NullableStrings);
     }
 
     protected virtual async Task SeedPrimitiveCollectionInJson(DbContext ctx)
@@ -4253,7 +4242,7 @@ INSERT INTO [Entities] ([Id], [Reference])
 VALUES(2, '{"NullableStrings":["x","y"],"RequiredStrings":["c","d"]}')
 """);
 
-        // required collection is JSON null (materialization throws)
+        // required collection is JSON null (materializes as empty)
         await ctx.Database.ExecuteSqlAsync(
             $$"""
 INSERT INTO [Entities] ([Id], [Reference])

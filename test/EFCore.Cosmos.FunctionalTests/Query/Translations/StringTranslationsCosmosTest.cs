@@ -164,6 +164,18 @@ WHERE (INDEX_OF(c["String"], "e") != -1)
 """);
     }
 
+    public override async Task IndexOf_Char_with_non_ASCII_char()
+    {
+        await base.IndexOf_Char_with_non_ASCII_char();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (INDEX_OF(c["String"], "ş") = -1)
+""");
+    }
+
     public override async Task IndexOf_with_empty_string()
     {
         await base.IndexOf_with_empty_string();
@@ -256,6 +268,33 @@ WHERE ((LENGTH(c["String"]) > 2) AND (INDEX_OF(c["String"], "e", @start) = 6))
 """);
     }
 
+    public override async Task IndexOf_with_empty_string_and_constant_starting_position()
+    {
+        await base.IndexOf_with_empty_string_and_constant_starting_position();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE ((LENGTH(c["String"]) > 2) AND (INDEX_OF(c["String"], "", 2) = 2))
+""");
+    }
+
+    public override async Task IndexOf_with_empty_string_parameter_and_parameter_starting_position()
+    {
+        await base.IndexOf_with_empty_string_parameter_and_parameter_starting_position();
+
+        AssertSql(
+            """
+@pattern=''
+@start='2'
+
+SELECT VALUE c
+FROM root c
+WHERE ((LENGTH(c["String"]) > 2) AND (INDEX_OF(c["String"], @pattern, @start) = 2))
+""");
+    }
+
     public override Task IndexOf_after_ToString()
         => AssertTranslationFailed(base.IndexOf_after_ToString);
 
@@ -287,6 +326,18 @@ WHERE (REPLACE(c["String"], "Sea", "Rea") = "Reattle")
 SELECT VALUE c
 FROM root c
 WHERE (REPLACE(c["String"], "S", "R") = "Reattle")
+""");
+    }
+
+    public override async Task Replace_Char_with_non_ASCII_char()
+    {
+        await base.Replace_Char_with_non_ASCII_char();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (REPLACE(c["String"], "ş", "x") = c["String"])
 """);
     }
 
@@ -791,6 +842,27 @@ WHERE (LTRIM(c["String"]) = "Boston  ")
         AssertSql();
     }
 
+    public override async Task TrimStart_with_char_parameter()
+    {
+        await AssertTranslationFailed(base.TrimStart_with_char_parameter);
+
+        AssertSql();
+    }
+
+    public override async Task TrimStart_with_non_ASCII_char_parameter()
+    {
+        await AssertTranslationFailed(base.TrimStart_with_non_ASCII_char_parameter);
+
+        AssertSql();
+    }
+
+    public override async Task TrimStart_with_char_array_parameter()
+    {
+        await AssertTranslationFailed(base.TrimStart_with_char_array_parameter);
+
+        AssertSql();
+    }
+
     #endregion TrimStart
 
     #region TrimEnd
@@ -819,6 +891,27 @@ WHERE (RTRIM(c["String"]) = "  Boston")
     {
         // Cosmos client evaluation. Issue #17246.
         await AssertTranslationFailed(base.TrimEnd_with_char_array_argument);
+
+        AssertSql();
+    }
+
+    public override async Task TrimEnd_with_char_parameter()
+    {
+        await AssertTranslationFailed(base.TrimEnd_with_char_parameter);
+
+        AssertSql();
+    }
+
+    public override async Task TrimEnd_with_non_ASCII_char_parameter()
+    {
+        await AssertTranslationFailed(base.TrimEnd_with_non_ASCII_char_parameter);
+
+        AssertSql();
+    }
+
+    public override async Task TrimEnd_with_char_array_parameter()
+    {
+        await AssertTranslationFailed(base.TrimEnd_with_char_array_parameter);
 
         AssertSql();
     }

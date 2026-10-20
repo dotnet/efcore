@@ -9,6 +9,10 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
     protected override string NonSharedStoreName
         => "AdHocQueryFiltersQueryTests";
 
+    protected virtual void ClearLog()
+    {
+    }
+
     #region 8576
 
     [Fact]
@@ -863,41 +867,88 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
     #region 38151
 
     [Fact]
-    public virtual async Task Query_filter_with_EF_Constant_throws()
+    public virtual async Task Query_filter_with_EF_Constant_over_context_property()
     {
-        var contextFactory = await InitializeNonSharedTest<Context38151_Constant>();
+        var contextFactory = await InitializeNonSharedTest<Context38151_Constant>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        ClearLog();
+
+        Assert.Equal([1, 2], context.Set<Entity38151>().OrderBy(e => e.Id).Select(e => e.Id).ToList());
+    }
+
+    [Fact]
+    public virtual async Task Query_filter_with_EF_Constant_literal_throws()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context38151_ConstantLiteral>();
         using var context = contextFactory.CreateDbContext();
 
         var message = Assert.Throws<InvalidOperationException>(() => context.Set<Entity38151>().ToList()).Message;
         Assert.Equal(CoreStrings.EFMethodNotSupportedInCompiledQueries("EF.Constant<T>"), message);
     }
 
-    protected class Context38151_Constant(DbContextOptions options) : DbContext(options)
+    protected class Context38151_Constant(DbContextOptions options) : Context38151(options)
     {
-        public int TenantId { get; set; } = 1;
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Entity38151>()
                 .HasQueryFilter(e => e.TenantId == EF.Constant(TenantId));
     }
 
-    [Fact]
-    public virtual async Task Query_filter_with_EF_Parameter_throws()
+    protected class Context38151_ConstantLiteral(DbContextOptions options) : Context38151(options)
     {
-        var contextFactory = await InitializeNonSharedTest<Context38151_Parameter>();
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Entity38151>()
+                .HasQueryFilter(e => e.TenantId == EF.Constant(1));
+    }
+
+    [Fact]
+    public virtual async Task Query_filter_with_EF_Parameter_over_context_property()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context38151_Parameter>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        ClearLog();
+
+        Assert.Equal([1, 2], context.Set<Entity38151>().OrderBy(e => e.Id).Select(e => e.Id).ToList());
+    }
+
+    [Fact]
+    public virtual async Task Query_filter_with_EF_Parameter_literal_throws()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context38151_ParameterLiteral>();
         using var context = contextFactory.CreateDbContext();
 
         var message = Assert.Throws<InvalidOperationException>(() => context.Set<Entity38151>().ToList()).Message;
         Assert.Equal(CoreStrings.EFMethodNotSupportedInCompiledQueries("EF.Parameter<T>"), message);
     }
 
-    protected class Context38151_Parameter(DbContextOptions options) : DbContext(options)
+    protected class Context38151_Parameter(DbContextOptions options) : Context38151(options)
     {
-        public int TenantId { get; set; } = 1;
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Entity38151>()
                 .HasQueryFilter(e => e.TenantId == EF.Parameter(TenantId));
+    }
+
+    protected class Context38151_ParameterLiteral(DbContextOptions options) : Context38151(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Entity38151>()
+                .HasQueryFilter(e => e.TenantId == EF.Parameter(1));
+    }
+
+    protected abstract class Context38151(DbContextOptions options) : DbContext(options)
+    {
+        public int TenantId { get; set; } = 1;
+
+        public Task SeedAsync()
+        {
+            AddRange(
+                new Entity38151 { TenantId = 1 },
+                new Entity38151 { TenantId = 1 },
+                new Entity38151 { TenantId = 2 });
+
+            return SaveChangesAsync();
+        }
     }
 
     public class Entity38151

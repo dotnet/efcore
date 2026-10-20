@@ -1,87 +1,64 @@
 name: copilot-instructions
-description: Evaluates repository-wide Copilot guidance for EF Core internal APIs and provider test hierarchies.
+description: Evaluates repository-wide Copilot guidance while implementing EF Core API activation, resources, and regression tests.
 type: capability
 defaults:
   runs: ${RUNS=5}
-  timeout: 10m
-  model: ${MODEL=gpt-5.6-sol}
+  model: ${MODEL=gpt-6.1-sol}
   judge_model: ${JUDGE_MODEL=gpt-5.6-terra}
+  judge_reasoning_effort: ${JUDGE_REASONING_EFFORT=medium}
+  judge_timeout: ${JUDGE_TIMEOUT=10m}
   executor: copilot-sdk
 agent_environment:
   files:
     - src: ../../../../.github/copilot-instructions.md
       dest: .github/copilot-instructions.md
 stimuli:
-  - name: review-an-internal-public-api-change
+  - name: implement-a-provider-independent-async-api
     prompt: |-
-      Inspect src/EFCore/Metadata/Internal/EntityType.cs. A proposed change adds a new public virtual member in this internal namespace; the member activates a CLR type through reflection and awaits a callback. Write api-review.md listing every repository-wide implementation, documentation, compatibility, and validation requirement that must be satisfied before accepting the change. Ground the review by naming at least two relevant existing members or annotations found in the staged file. Do not edit source.
+      Complete the unshipped API in activation-proposal.cs using the staged DbContext and resource files as context. It must obtain a handler from the caller's factory, optionally provide a fallback when that factory returns null, initialize the selected handler exactly once, and return it. Correct the proposal in activation-proposal.cs, make any needed resource additions, and write focused xUnit regression tests in activation-tests.cs. Preserve the factory-first behavior and do not modify the staged DbContext.cs. Write analysis.md explaining the implemented contract and validation limits. This is an offline snapshot task; do not install dependencies, connect to a database, or claim that the full EF Core suite was executed.
     constraints:
-      max_turns: 50
+      max_turns: 65
       max_tokens: 1000000
-      max_duration: 10m
+      max_duration: ${EVAL_TIMEOUT=25m}
     agent_environment:
       files:
-        - src: ../../../../src/EFCore/Metadata/Internal/EntityType.cs
-          dest: src/EFCore/Metadata/Internal/EntityType.cs
+        - src: fixtures/activation-proposal.cs
+          dest: activation-proposal.cs
+        - src: ../../../../src/EFCore/DbContext.cs
+          dest: src/EFCore/DbContext.cs
+        - src: ../../../../src/EFCore/Properties/CoreStrings.resx
+          dest: src/EFCore/Properties/CoreStrings.resx
     rubric:
-      - The review requires the standard EF Core internal-API warning XML documentation on the public member.
-      - It addresses NativeAOT compatibility by avoiding reflection or requiring the appropriate annotations or exception.
-      - It requires ConfigureAwait(false) on the awaited callback and EFCore.ApiBaseline.Tests for the public API change.
-      - The advice names at least two relevant members or annotations from the staged EntityType implementation rather than giving generic library guidance.
+      - The agent implements the corrected API rather than only describing a plan. It belongs to Microsoft.EntityFrameworkCore.DbContext, treats the surface as unshipped, removes the areFallbacksEnabled naming violation, and supplies XML documentation for every parameter, the fallback contract, return value, and errors. It preserves factory-first behavior, exactly-once initialization, argument guards, and disposed-context behavior.
+      - Both normal and fallback activation are NativeAOT-safe. The implementation uses explicit typed factories or suitably constrained generic construction; if reflection remains, it supplies precise preservation annotations on the types that actually reach Activator.CreateInstance. Merely mentioning AOT in analysis.md is insufficient. A typed handler factory must support handlers without a public parameterless constructor.
+      - Every awaited initialization and fallback operation in the written implementation uses ConfigureAwait(false), including private helpers. The tests use an incomplete initialization task and a custom synchronization context to distinguish actual asynchronous continuation behavior from already-completed tasks; they prove exactly-once initialization for normal and fallback paths.
+      - User-facing failure messages in the implementation come from CoreStrings, with actual additions to the staged CoreStrings.resx when necessary. The agent does not hand-edit a generated designer and identifies its generation step in analysis.md. It preserves the original failure as an inner exception when translating construction failures rather than silently swallowing it.
+      - The written xUnit tests have substantive assertions for factory success, null result with fallback disabled, fallback success, construction or fallback failure, callback failure, argument validation, and disposed contexts. They include a handler without a public parameterless constructor and verify that a successful first factory does not invoke the fallback. A list of suggested tests is insufficient. The analysis distinguishes unexecuted snapshot tests and requests API-baseline validation of the implemented surface.
     graders:
       - type: file-matches
         config:
-          path: api-review.md
-          pattern: (?=[\s\S]*internal API)(?=[\s\S]*(NativeAOT|RequiresDynamicCode|DynamicallyAccessedMembers))(?=[\s\S]*ConfigureAwait\(false\))(?=[\s\S]*EFCore\.ApiBaseline\.Tests)[\s\S]+
-      - type: prompt
-        config:
-          scoring: binary
-          threshold: 1.0
-          evidence:
-            - trajectory
-            - repo
-          output_delivery: workspace
-      - type: token-budget
-        config:
-          max: 1000000
-  - name: add-a-query-test-through-provider-hierarchies
-    prompt: |-
-      Inspect test/EFCore.Specification.Tests/Query/QueryTestBase.cs, test/EFCore.Specification.Tests/Query/NorthwindWhereQueryTestBase.cs, test/EFCore.SqlServer.FunctionalTests/Query/NorthwindWhereQuerySqlServerTest.cs, and test/EFCore.Sqlite.FunctionalTests/Query/NorthwindWhereQuerySqliteTest.cs. Write test-plan.md for adding a new Where_with_parameterized_limit case through this hierarchy, including result assertions, provider overrides, SQL baselines, and focused commands to validate it. Include `restore.cmd` and dot-sourced `activate.ps1` setup, then use `dotnet exec` on each built provider test DLL with `--filter-method`, `--filter-not-trait category=failing`, and `--ignore-exit-code 8`. Do not put `--no-build` on test commands. Do not edit source.
-    constraints:
-      max_turns: 40
-      max_tokens: 750000
-      max_duration: 5m
-    agent_environment:
-      files:
-        - src: ../../../../test/EFCore.Specification.Tests/Query/QueryTestBase.cs
-          dest: test/EFCore.Specification.Tests/Query/QueryTestBase.cs
-        - src: ../../../../test/EFCore.Specification.Tests/Query/NorthwindWhereQueryTestBase.cs
-          dest: test/EFCore.Specification.Tests/Query/NorthwindWhereQueryTestBase.cs
-        - src: ../../../../test/EFCore.SqlServer.FunctionalTests/Query/NorthwindWhereQuerySqlServerTest.cs
-          dest: test/EFCore.SqlServer.FunctionalTests/Query/NorthwindWhereQuerySqlServerTest.cs
-        - src: ../../../../test/EFCore.Sqlite.FunctionalTests/Query/NorthwindWhereQuerySqliteTest.cs
-          dest: test/EFCore.Sqlite.FunctionalTests/Query/NorthwindWhereQuerySqliteTest.cs
-    rubric:
-      - The plan puts provider-independent behavior in the specification test and identifies every relevant staged provider override.
-      - Provider overrides call the base test and use AssertSql only where SQL is produced.
-      - The commands follow this repository's restore, activation, and focused Microsoft Testing Platform conventions without stale --no-build usage.
-    graders:
+          path: activation-proposal.cs
+          pattern: '(?=[\s\S]*namespace Microsoft\.EntityFrameworkCore)(?=[\s\S]*Task<THandler>)(?=[\s\S]*ConfigureAwait\(false\))(?=[\s\S]*CoreStrings\.)[\s\S]+'
       - type: file-matches
         config:
-          path: test-plan.md
-          pattern: (?=[\s\S]*Where_with_parameterized_limit)(?=[\s\S]*restore\.cmd)(?=[\s\S]*activate\.ps1)(?=[\s\S]*base)(?=[\s\S]*AssertSql)(?=[\s\S]*dotnet exec)(?=[\s\S]*--filter-method)(?=[\s\S]*--filter-not-trait category=failing)(?=[\s\S]*--ignore-exit-code 8)[\s\S]+
+          path: activation-tests.cs
+          pattern: '(?=[\s\S]*\[(?:Fact|Theory)\])(?=[\s\S]*Assert\.)(?=[\s\S]*SynchronizationContext)(?=[\s\S]*TaskCompletionSource)[\s\S]+'
+      - type: file-matches
+        config:
+          path: src/EFCore/Properties/CoreStrings.resx
+          pattern: '(?=[\s\S]*<root>)(?=[\s\S]*<data\s+name="[^"]+"[^>]*>\s*<value>[^<]+</value>)(?=[\s\S]*</root>)[\s\S]+'
       - type: prompt
         config:
           scoring: binary
           threshold: 1.0
           evidence: [ trajectory, repo ]
-          output_delivery: workspace
       - type: token-budget
         config:
-          max: 750000
+          max: 1000000
 scoring:
+  timeout: ${SCORING_TIMEOUT=10m}
   weights:
-    file-matches: 0.36
-    prompt: 0.54
+    file-matches: 0.2
+    prompt: 0.7
     token-budget: 0.1
   threshold: 0.8

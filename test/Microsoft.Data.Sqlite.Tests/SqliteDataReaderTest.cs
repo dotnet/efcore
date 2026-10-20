@@ -540,6 +540,59 @@ public class SqliteDataReaderTest
         Assert.Equal([0x01, 0x02, 0x03, 0x04], buffer);
     }
 
+    [Theory]
+    [InlineData("CREATE TABLE DataTable (Id INTEGER PRIMARY KEY, Data BLOB) WITHOUT ROWID;")]
+    [InlineData("CREATE TABLE DataTable (Id INTEGER PRIMARY KEY DESC, Data BLOB);")]
+    public void GetStream_works_when_integer_pk_is_not_rowid(string createTable)
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+
+        connection.ExecuteNonQuery(
+            createTable
+            + @"INSERT INTO DataTable VALUES (2, X'01020304');
+                    INSERT INTO DataTable VALUES (1, X'05060708');");
+
+        var selectCommand = connection.CreateCommand();
+        selectCommand.CommandText = "SELECT Id, Data FROM DataTable WHERE Id = 2";
+        using var reader = selectCommand.ExecuteReader();
+        Assert.True(reader.Read());
+        using var sourceStream = reader.GetStream(1);
+        Assert.IsType<MemoryStream>(sourceStream);
+        var buffer = new byte[4];
+        var bytesRead = sourceStream.Read(buffer, 0, 4);
+        Assert.Equal(4, bytesRead);
+        Assert.Equal([0x01, 0x02, 0x03, 0x04], buffer);
+    }
+
+    [Theory]
+    [InlineData("CREATE TABLE aux.DataTable (Id INTEGER PRIMARY KEY, Data BLOB) WITHOUT ROWID;")]
+    [InlineData("CREATE TABLE aux.DataTable (Id INTEGER PRIMARY KEY DESC, Data BLOB);")]
+    [InlineData("CREATE TABLE aux.DataTable (Id INTEGER, Data BLOB, Id2 INTEGER DEFAULT 0, PRIMARY KEY (Id, Id2));")]
+    public void GetStream_works_when_attached_table_has_same_name_as_rowid_table(string createTable)
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+
+        connection.ExecuteNonQuery(
+            @"CREATE TABLE DataTable (Id INTEGER PRIMARY KEY, Data BLOB);
+                    ATTACH DATABASE ':memory:' AS aux;"
+            + createTable
+            + @"INSERT INTO aux.DataTable (Id, Data) VALUES (2, X'01020304');
+                    INSERT INTO aux.DataTable (Id, Data) VALUES (1, X'05060708');");
+
+        var selectCommand = connection.CreateCommand();
+        selectCommand.CommandText = "SELECT Id, Data FROM aux.DataTable WHERE Id = 2";
+        using var reader = selectCommand.ExecuteReader();
+        Assert.True(reader.Read());
+        using var sourceStream = reader.GetStream(1);
+        Assert.IsType<MemoryStream>(sourceStream);
+        var buffer = new byte[4];
+        var bytesRead = sourceStream.Read(buffer, 0, 4);
+        Assert.Equal(4, bytesRead);
+        Assert.Equal([0x01, 0x02, 0x03, 0x04], buffer);
+    }
+
     [Fact]
     public void GetStream_throws_when_closed()
         => X_throws_when_closed(r => r.GetStream(0), nameof(SqliteDataReader.GetStream));
@@ -743,6 +796,39 @@ public class SqliteDataReaderTest
         => GetFieldValue_works(
             "SELECT '13:10:15.5';",
             new TimeOnly(13, 10, 15, 500));
+
+    [Fact]
+    public void GetFieldValue_of_TimeOnly_works_with_real()
+        => GetFieldValue_works(
+            "SELECT 0.5487847222222222;",
+            new TimeOnly(13, 10, 15));
+
+    [Fact]
+    public void GetFieldValue_of_TimeOnly_works_with_real_and_milliseconds()
+        => GetFieldValue_works(
+            "SELECT julianday('2014-04-15 13:10:15.123') - julianday('2014-04-15');",
+            new TimeOnly(13, 10, 15, 123));
+
+    [Fact]
+    public void GetFieldValue_of_TimeOnly_works_with_integer()
+        => GetFieldValue_works(
+            "SELECT 0;",
+            new TimeOnly(0, 0));
+
+    [Fact]
+    public void GetFieldValue_of_TimeOnly_round_trips_with_SqliteType_Real()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT $time;";
+        command.Parameters.Add("$time", SqliteType.Real).Value = new TimeOnly(23, 59, 59, 999);
+
+        using var reader = command.ExecuteReader();
+        Assert.True(reader.Read());
+        Assert.Equal(new TimeOnly(23, 59, 59, 999), reader.GetFieldValue<TimeOnly>(0));
+    }
 
     [Theory,
      InlineData("SELECT 1;", "INTEGER"),

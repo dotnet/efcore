@@ -150,6 +150,9 @@
   <data name="CannotGenerateTypeQualifiedMethodCall" xml:space="preserve">
     <value>A type-qualified method call requires an instance identifier, a MethodInfo and no chained calls.</value>
   </data>
+  <data name="CannotScaffoldProvider" xml:space="preserve">
+    <value>The provider '{provider}' does not support reverse engineering.</value>
+  </data>
   <data name="CircularBaseClassDependency" xml:space="preserve">
     <value>You cannot add a migration with the name 'Migration'.</value>
   </data>

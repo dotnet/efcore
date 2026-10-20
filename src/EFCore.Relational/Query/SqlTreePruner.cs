@@ -70,7 +70,11 @@ public class SqlTreePruner : ExpressionVisitor
             case UpdateExpression updateExpression:
                 // Note that we must visit the setters before we visit the select, since the setters can reference tables inside it.
                 var visitedSetters = updateExpression.ColumnValueSetters
-                    .Select(e => e with { Value = (SqlExpression)Visit(e.Value) })
+                    .Select(e => e with
+                    {
+                        Column = (ColumnExpression)Visit(e.Column),
+                        Value = (SqlExpression)Visit(e.Value)
+                    })
                     .ToList();
                 return updateExpression.Update(PruneTopLevelSelect(updateExpression.SelectExpression), visitedSetters);
 

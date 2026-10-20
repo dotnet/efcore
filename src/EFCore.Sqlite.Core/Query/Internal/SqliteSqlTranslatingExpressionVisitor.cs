@@ -305,20 +305,20 @@ public class SqliteSqlTranslatingExpressionVisitor(
                         string s => s.Any(IsLikeWildChar)
                             ? _sqlExpressionFactory.Like(
                                 translatedInstance,
-                                _sqlExpressionFactory.Constant(startsWith ? EscapeLikePattern(s) + '%' : '%' + EscapeLikePattern(s)),
+                                _sqlExpressionFactory.Constant(startsWith ? $"{EscapeLikePattern(s)}%" : $"%{EscapeLikePattern(s)}"),
                                 _sqlExpressionFactory.Constant(LikeEscapeString))
                             : _sqlExpressionFactory.Like(
                                 translatedInstance,
-                                _sqlExpressionFactory.Constant(startsWith ? s + '%' : '%' + s)),
+                                _sqlExpressionFactory.Constant(startsWith ? $"{s}%" : $"%{s}")),
 
                         char s => IsLikeWildChar(s)
                             ? _sqlExpressionFactory.Like(
                                 translatedInstance,
-                                _sqlExpressionFactory.Constant(startsWith ? LikeEscapeString + s + "%" : '%' + LikeEscapeString + s),
+                                _sqlExpressionFactory.Constant(startsWith ? $"{LikeEscapeChar}{s}%" : $"%{LikeEscapeChar}{s}"),
                                 _sqlExpressionFactory.Constant(LikeEscapeString))
                             : _sqlExpressionFactory.Like(
                                 translatedInstance,
-                                _sqlExpressionFactory.Constant(startsWith ? s + "%" : "%" + s)),
+                                _sqlExpressionFactory.Constant(startsWith ? $"{s}%" : $"%{s}")),
 
                         _ => throw new UnreachableException()
                     };
@@ -436,11 +436,11 @@ public class SqliteSqlTranslatingExpressionVisitor(
             // Return % which always matches instead.
             "" => "%",
 
-            string s => startsWith ? EscapeLikePattern(s) + '%' : '%' + EscapeLikePattern(s),
+            string s => startsWith ? $"{EscapeLikePattern(s)}%" : $"%{EscapeLikePattern(s)}",
 
-            char s when IsLikeWildChar(s) => startsWith ? LikeEscapeString + s + '%' : '%' + LikeEscapeString + s,
+            char s when IsLikeWildChar(s) => startsWith ? $"{LikeEscapeChar}{s}%" : $"%{LikeEscapeChar}{s}",
 
-            char s => startsWith ? s + "%" : "%" + s,
+            char s => startsWith ? $"{s}%" : $"%{s}",
 
             _ => throw new UnreachableException()
         };

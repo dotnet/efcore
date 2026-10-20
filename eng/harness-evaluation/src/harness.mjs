@@ -4,18 +4,21 @@ import {
   readFile,
   readdir,
 } from 'node:fs/promises';
-import { dirname, isAbsolute, join, posix, relative, resolve, sep } from 'node:path';
+import { basename, dirname, isAbsolute, join, posix, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   computeSkillScore,
   computeStimulusScore,
+  hasGraderError,
   resolveGradePass,
 } from '@microsoft/vally';
 import { parse } from 'yaml';
+export { timeoutMilliseconds } from './judge-timeout.mjs';
 
 const moduleDirectory = dirname(fileURLToPath(import.meta.url));
 export const defaultRepoRoot = resolve(moduleDirectory, '../../..');
 export const packageRoot = resolve(moduleDirectory, '..');
+const vallyEntry = join(moduleDirectory, 'vally.mjs');
 
 const evaluationRoot = 'eng/harness-evaluation';
 const componentIdPattern = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
@@ -179,34 +182,21 @@ export async function validateEval(evalPath, componentId) {
     errors.push('scoring.weights.token-budget must be defined');
   }
 
-  for (const [index, stimulus] of (spec.stimuli ?? []).entries()) {
-    const label = stimulus?.name || `stimuli[${index}]`;
-    if (!(stimulus.graders ?? []).some((grader) => grader?.type === 'token-budget')) {
-      errors.push(`${label}: token-budget grader must be defined`);
+  for (const environment of [spec.agent_environment, ...(spec.stimuli ?? []).map(stimulus => stimulus.agent_environment)]) {
+    for (const file of environment?.files ?? []) {
+      if ([file.src, file.dest].some(path => typeof path === 'string' && /\.(diff|patch)$/i.test(path))) {
+        errors.push('eval input fixtures must use self-contained source snapshots, not .diff or .patch files');
+      }
     }
   }
 
-  return errors;
-}
-
-async function validateActivationGraders(component, evalPath) {
-  if (component.kind !== 'skill') {
-    return [];
-  }
-
-  const spec = parse(await readFile(evalPath, 'utf8'));
-  const errors = [];
   for (const [index, stimulus] of (spec.stimuli ?? []).entries()) {
     const label = stimulus?.name || `stimuli[${index}]`;
-    const graders = stimulus?.graders ?? [];
-    const invokesTarget = graders.some(
-      (grader) => grader?.type === 'skill-invocation'
-        && Array.isArray(grader?.config?.required)
-        && grader.config.required.length === 1
-        && grader.config.required[0] === component.id,
-    );
-    if (!invokesTarget) {
-      errors.push(`${label}: skill eval must require exact activation of '${component.id}'`);
+    if ((stimulus.graders ?? []).some((grader) => grader?.type === 'skill-invocation')) {
+      errors.push(`${label}: skill-invocation grader must not be used in shared control/treatment scoring; treatment activation is enforced by the runner`);
+    }
+    if (!(stimulus.graders ?? []).some((grader) => grader?.type === 'token-budget')) {
+      errors.push(`${label}: token-budget grader must be defined`);
     }
   }
 
@@ -287,7 +277,6 @@ export async function validateInventory(repoRoot = defaultRepoRoot) {
     } else {
       const absoluteEvalPath = join(repoRoot, evalPath);
       errors.push(...(await validateEval(absoluteEvalPath, component.id)).map((error) => `${component.id}: ${error}`));
-      errors.push(...(await validateActivationGraders(component, absoluteEvalPath)).map((error) => `${component.id}: ${error}`));
       errors.push(...(await validateComponentEnvironment(component, absoluteEvalPath, repoRoot)).map(
         (error) => `${component.id}: ${error}`,
       ));
@@ -332,20 +321,28 @@ export async function findExperimentRunDirectory(directory) {
   return dirname(matches[0]);
 }
 
-export async function variantPassed(resultsFile, evalFile, planFile, variant = 'treatment') {
-  const content = await readFile(resultsFile, 'utf8');
+async function readCompletedVariant(resultsFile, planFile, variant) {
+  let content;
+  try {
+    content = await readFile(resultsFile, 'utf8');
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      return null;
+    }
+    throw error;
+  }
   const records = content.split(/\r?\n/).filter(Boolean).map(JSON.parse);
   const trials = records.filter((record) => record.type === 'trial-result');
   const plan = JSON.parse(await readFile(planFile, 'utf8'));
   if (plan.type !== 'experiment-plan-snapshot' || !Array.isArray(plan.evals)) {
-    return false;
+    return null;
   }
 
-  const variantPlans = plan.evals.filter((evalPlan) => evalPlan.variant === variant && !evalPlan.failure);
+  const variantPlans = plan.evals.filter((evalPlan) => evalPlan.variant === variant);
   if (variantPlans.length === 0 || variantPlans.some((evalPlan) =>
-    !Number.isSafeInteger(evalPlan.runs) || evalPlan.runs <= 0
+    evalPlan.failure || !Number.isSafeInteger(evalPlan.runs) || evalPlan.runs <= 0
       || !Array.isArray(evalPlan.plannedStimulusNames))) {
-    return false;
+    return null;
   }
 
   const trialKeys = trials
@@ -359,19 +356,33 @@ export async function variantPassed(resultsFile, evalFile, planFile, variant = '
       )))
     .sort();
   if (trials.length === 0 || JSON.stringify(trialKeys) !== JSON.stringify(plannedTrialKeys)) {
-    return false;
+    return null;
   }
 
+  if (trials.some((trial) => trial.status !== 'success'
+    || !Number.isFinite(trial.gradeResult?.score)
+    || hasGraderError(trial.gradeResult))) {
+    return null;
+  }
+
+  return trials;
+}
+
+export async function variantCompleted(resultsFile, planFile, variant = 'treatment') {
+  return (await readCompletedVariant(resultsFile, planFile, variant)) !== null;
+}
+
+export async function variantPassed(resultsFile, evalFile, planFile, variant = 'treatment') {
+  const trials = await readCompletedVariant(resultsFile, planFile, variant);
+  if (!trials) {
+    return false;
+  }
   const spec = parse(await readFile(evalFile, 'utf8'));
   const threshold = spec?.scoring?.threshold;
   const stimulusScores = [];
 
   for (const stimulus of spec.stimuli ?? []) {
     const stimulusTrials = trials.filter((trial) => trial.stimulus === stimulus.name);
-    if (stimulusTrials.some((trial) => trial.status !== 'success' || !trial.gradeResult)) {
-      return false;
-    }
-
     stimulusScores.push(computeStimulusScore(
       stimulus.name,
       stimulusTrials.map((trial) => ({
@@ -387,14 +398,62 @@ export async function variantPassed(resultsFile, evalFile, planFile, variant = '
     : stimulusScores.every((stimulus) => stimulus.multiTrial.passToTheK === 1);
 }
 
+export async function variantInvokedSkill(resultsFile, requiredSkill) {
+  try {
+    const records = (await readFile(resultsFile, 'utf8'))
+      .split(/\r?\n/)
+      .filter(Boolean)
+      .map(JSON.parse);
+    const trialIds = records
+      .filter((record) => record.type === 'trial-result')
+      .map((record) => record.itemId);
+    if (trialIds.length === 0 || trialIds.some((trialId) => typeof trialId !== 'string')) {
+      return false;
+    }
+
+    const metadataPaths = await filesRecursively(
+      dirname(resultsFile),
+      (path) => basename(path) === 'metadata.json',
+    );
+    const metadataByTrialId = new Map();
+    for (const metadataPath of metadataPaths) {
+      const metadata = JSON.parse(await readFile(metadataPath, 'utf8'));
+      if (typeof metadata.trialId !== 'string' || metadataByTrialId.has(metadata.trialId)) {
+        return false;
+      }
+      metadataByTrialId.set(metadata.trialId, metadataPath);
+    }
+
+    for (const trialId of trialIds) {
+      const metadataPath = metadataByTrialId.get(trialId);
+      if (!metadataPath) {
+        return false;
+      }
+
+      const events = (await readFile(join(dirname(metadataPath), 'events.jsonl'), 'utf8'))
+        .split(/\r?\n/)
+        .filter(Boolean)
+        .map(JSON.parse);
+      if (!events.some((event) =>
+        (event.type === 'skill.invoked' || event.type === 'skill_activation')
+          && event.data?.name === requiredSkill)) {
+        return false;
+      }
+    }
+
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export function runVally(argumentsList, options = {}) {
-  const executable = join(packageRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'vally.cmd' : 'vally');
-  const result = spawnSync(executable, argumentsList, {
+  const timeoutArguments = options.judgeTimeout === undefined ? [] : ['--judge-timeout', options.judgeTimeout];
+  const result = spawnSync(process.execPath, [vallyEntry, ...timeoutArguments, ...argumentsList], {
     cwd: options.cwd ?? defaultRepoRoot,
     env: { ...process.env, ...options.env },
     encoding: 'utf8',
     stdio: options.inherit ? 'inherit' : 'pipe',
-    shell: process.platform === 'win32',
     timeout: options.timeout,
   });
 

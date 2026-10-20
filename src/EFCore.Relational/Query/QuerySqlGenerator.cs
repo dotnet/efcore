@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 
@@ -116,6 +117,7 @@ public class QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : Exp
         => expression switch
         {
             ShapedQueryExpression e => e.UpdateQueryExpression(Visit(e.QueryExpression)),
+            AggregateFunctionExpression e => VisitAggregateFunction(e),
             AtTimeZoneExpression e => VisitAtTimeZone(e),
             CaseExpression e => VisitCase(e),
             CollateExpression e => VisitCollate(e),
@@ -139,6 +141,7 @@ public class QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : Exp
             RightJoinExpression e => VisitRightJoin(e),
             FullJoinExpression e => VisitFullJoin(e),
             RowNumberExpression e => VisitRowNumber(e),
+            DenseRankExpression e => VisitDenseRank(e),
             RowValueExpression e => VisitRowValue(e),
             ScalarSubqueryExpression e => VisitScalarSubquery(e),
             SelectExpression e => VisitSelect(e),
@@ -404,6 +407,50 @@ public class QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : Exp
         }
 
         return sqlFunctionExpression;
+    }
+
+    /// <summary>
+    ///     Generates SQL for an aggregate function invocation.
+    /// </summary>
+    /// <param name="aggregateFunctionExpression">The <see cref="AggregateFunctionExpression" /> for which to generate SQL.</param>
+    protected virtual Expression VisitAggregateFunction(AggregateFunctionExpression aggregateFunctionExpression)
+    {
+        _relationalCommandBuilder.Append(aggregateFunctionExpression.Name);
+
+        _relationalCommandBuilder.Append("(");
+        GenerateList(aggregateFunctionExpression.Arguments, e => Visit(e));
+
+        if (aggregateFunctionExpression.Orderings.Count > 0)
+        {
+            GenerateAggregateFunctionOrderings(aggregateFunctionExpression, insideArgumentList: true);
+        }
+
+        _relationalCommandBuilder.Append(")");
+
+        if (aggregateFunctionExpression.Orderings.Count > 0)
+        {
+            GenerateAggregateFunctionOrderings(aggregateFunctionExpression, insideArgumentList: false);
+        }
+
+        return aggregateFunctionExpression;
+    }
+
+    /// <summary>
+    ///     Generates SQL for the orderings of an aggregate function invocation. This is called twice: once just before the closing
+    ///     parenthesis of the argument list, and once just after it. By default, generates <c>ORDER BY</c> inside the argument list,
+    ///     as specified by the SQL standard; providers can override this to generate e.g. a <c>WITHIN GROUP</c> clause instead.
+    /// </summary>
+    /// <param name="aggregateFunctionExpression">The <see cref="AggregateFunctionExpression" /> for which to generate SQL.</param>
+    /// <param name="insideArgumentList">Whether the SQL is generated inside the argument list or after it.</param>
+    protected virtual void GenerateAggregateFunctionOrderings(
+        AggregateFunctionExpression aggregateFunctionExpression,
+        bool insideArgumentList)
+    {
+        if (insideArgumentList)
+        {
+            _relationalCommandBuilder.Append(" ORDER BY ");
+            GenerateList(aggregateFunctionExpression.Orderings, e => Visit(e));
+        }
     }
 
     /// <summary>
@@ -1350,6 +1397,15 @@ public class QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : Exp
         _relationalCommandBuilder.Append(")");
 
         return rowNumberExpression;
+    }
+
+    private Expression VisitDenseRank(DenseRankExpression denseRankExpression)
+    {
+        _relationalCommandBuilder.Append("DENSE_RANK() OVER(ORDER BY ");
+        GenerateList(denseRankExpression.Orderings, e => Visit(e));
+        _relationalCommandBuilder.Append(")");
+
+        return denseRankExpression;
     }
 
     /// <summary>

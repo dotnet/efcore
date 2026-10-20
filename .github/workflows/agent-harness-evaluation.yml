@@ -119,6 +119,7 @@ jobs:
             };
             const fromBranch = pull.head.repo?.id === pull.base.repo.id;
             const automatic = context.eventName === 'pull_request_target'
+              && !pull.draft
               && !['synchronize', 'closed'].includes(context.payload.action);
             const canUseSecrets = mergedIntoDefault || (isBot(author)
               ? fromBranch && (manual || automatic)
@@ -296,6 +297,7 @@ jobs:
             core.setOutput('trusted_sha', trustedCommit.sha);
             core.setOutput('pull_request', String(pullNumber));
             core.setOutput('can_use_secrets', String(canUseSecrets));
+            core.setOutput('draft', String(pull.draft));
             core.setOutput('component_filter', componentFilter);
             core.setOutput('author', author);
             core.setOutput('matrix', JSON.stringify(matrix));
@@ -318,6 +320,7 @@ jobs:
         env:
           CAN_USE_SECRETS: ${{ steps.pr.outputs.can_use_secrets }}
           COMPONENT_FILTER: ${{ steps.pr.outputs.component_filter }}
+          PR_DRAFT: ${{ steps.pr.outputs.draft }}
           HEAD_SHA: ${{ steps.pr.outputs.target_sha }}
           PULL_REQUEST: ${{ steps.pr.outputs.pull_request }}
           SELECTED_COMPONENTS: ${{ steps.pr.outputs.components }}
@@ -325,6 +328,7 @@ jobs:
           script: |
             const issueNumber = Number(process.env.PULL_REQUEST);
             const selected = new Set(JSON.parse(process.env.SELECTED_COMPONENTS));
+            const draft = process.env.PR_DRAFT === 'true';
             const comments = await github.paginate(github.rest.issues.listComments, {
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -349,7 +353,7 @@ jobs:
             const rerunMarker = '<!-- agent-harness-evaluation:rerun-required -->';
             const rerunComment = comments.find(comment =>
               comment.user?.login === 'github-actions[bot]' && comment.body?.startsWith(rerunMarker));
-            if (context.payload.action === 'synchronize' && selected.size > 0) {
+            if (context.payload.action === 'synchronize' && selected.size > 0 && !draft) {
               const body = `${rerunMarker}\n### Agent harness evaluation is stale\n\n` +
                 `Evaluation does not run automatically for new commits. A contributor with write access can comment ` +
                 `\`/eval\` to run all affected components or \`/eval component-name\` to run one component.`;
@@ -389,7 +393,7 @@ jobs:
               labels: [label]
             });
 
-            if (context.payload.action === 'synchronize') return;
+            if (context.payload.action === 'synchronize' && !draft) return;
 
             const promptMarker = '<!-- agent-harness-evaluation:manual-required -->';
             const prompt = comments.find(comment =>
@@ -412,9 +416,13 @@ jobs:
 
             const manualUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}` +
               '/actions/workflows/agent-harness-evaluation.yml';
-            const body = `${promptMarker}\n### Agent harness evaluation required\n\n` +
+            const reason = draft
+              ? 'Automatic evaluation is deferred because this PR is currently marked as draft. ' +
+                'Once it is ready for review, the usual author authorization rules apply. '
+              : 'Its author cannot use repository secrets in an automatic run. ';
+            const body = `${promptMarker}\n### Agent harness evaluation ${draft ? 'deferred' : 'required'}\n\n` +
               `This PR affects: ${[...selected].map(id => `\`${id}\``).join(', ')}. ` +
-              `Its author cannot use repository secrets in an automatic run. A contributor with write access can comment ` +
+              reason + `A contributor with write access can comment ` +
               `\`/eval\` or \`/eval component-name\`, or ` +
               `[run the workflow manually](${manualUrl}) for pull request **#${issueNumber}**.`;
             if (prompt) {
@@ -509,9 +517,9 @@ jobs:
           echo "$PWD/.dotnet" >> "$GITHUB_PATH"
 
       - name: Set up Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
         with:
-          node-version: 22.12
+          node-version: 24.22.0
           cache: npm
           cache-dependency-path: ${{ env.TRUSTED_ROOT }}/eng/harness-evaluation/package-lock.json
 
@@ -537,7 +545,7 @@ jobs:
       - name: Upload component results
         id: upload
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: harness-eval-result-${{ matrix.id }}
           path: ${{ env.RESULT_ROOT }}/
@@ -553,29 +561,16 @@ jobs:
           node --input-type=module <<'EOF'
           import fs from 'node:fs';
           import path from 'node:path';
+          import { pathToFileURL } from 'node:url';
 
-          const resultFiles = [];
-          const planFiles = [];
-          const visit = directory => {
-            for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
-              const fullPath = path.join(directory, entry.name);
-              if (entry.isDirectory()) visit(fullPath);
-              else if (entry.name === 'results.jsonl') resultFiles.push(fullPath);
-              else if (entry.name === 'plan-snapshot.json') planFiles.push(fullPath);
-            }
-          };
-          visit(process.env.RESULT_ROOT);
-          const controlFile = resultFiles.find(file => path.basename(path.dirname(file)) === 'control');
-          const treatmentFile = resultFiles.find(file => path.basename(path.dirname(file)) === 'treatment');
-          if (!controlFile || !treatmentFile || resultFiles.length !== 2) {
-            throw new Error(`Expected control and treatment results.jsonl files, found ${resultFiles.length}.`);
-          }
-          if (planFiles.length !== 1) {
-            throw new Error(`Expected one plan-snapshot.json file, found ${planFiles.length}.`);
-          }
+          const { findExperimentRunDirectory } = await import(pathToFileURL(
+            path.resolve(process.env.TRUSTED_ROOT, 'eng/harness-evaluation/src/harness.mjs')).href);
+          const experimentDirectory = await findExperimentRunDirectory(process.env.RESULT_ROOT);
+          const controlFile = path.join(experimentDirectory, 'control', 'results.jsonl');
+          const treatmentFile = path.join(experimentDirectory, 'treatment', 'results.jsonl');
 
           const readRecords = file => fs.readFileSync(file, 'utf8').trim().split(/\r?\n/).map(JSON.parse);
-          const plan = JSON.parse(fs.readFileSync(planFiles[0], 'utf8'));
+          const plan = JSON.parse(fs.readFileSync(path.join(experimentDirectory, 'plan-snapshot.json'), 'utf8'));
           if (plan.type !== 'experiment-plan-snapshot' || !Array.isArray(plan.evals)) {
             throw new Error('Vally did not produce a valid experiment plan snapshot.');
           }
@@ -640,19 +635,12 @@ jobs:
             const marker = `<!-- agent-harness-eval:${process.env.COMPONENT} -->`;
             const passed = process.env.EVAL_OUTCOME === 'success';
             let details = '_No complete Vally comparison was produced._';
+            let gateDetails = '';
             let gradeBreakdown = '';
             let model = '';
             let reportGenerationFailed = false;
 
             const readRecords = file => fs.readFileSync(file, 'utf8').split(/\r?\n/).filter(Boolean).map(JSON.parse);
-            const findFiles = (directory, name, matches = []) => {
-              for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
-                const fullPath = path.join(directory, entry.name);
-                if (entry.isDirectory()) findFiles(fullPath, name, matches);
-                else if (entry.name === name) matches.push(fullPath);
-              }
-              return matches;
-            };
             const escapeCell = value => String(value).replaceAll('|', '\\|').replaceAll(/\r?\n/g, ' ');
 
             try {
@@ -664,19 +652,19 @@ jobs:
                 }
                 const comparison = comparisons[0];
                 const summary = comparison?.summary;
-                const tokens = summary?.metricDeltas?.find(metric => metric.metric === 'totalTokens');
                 if (comparison?.type !== 'comparison' ||
                     !Number.isFinite(summary?.meanScore) ||
                     !Number.isFinite(summary?.wins) ||
                     !Number.isFinite(summary?.ties) ||
-                    !Number.isFinite(summary?.losses) ||
-                    !Number.isFinite(tokens?.mean)) {
-                  throw new Error('comparison summary or token metrics are incomplete');
+                    !Number.isFinite(summary?.losses)) {
+                  throw new Error('comparison summary is incomplete');
                 }
-                const tokenDelta = `${tokens.mean >= 0 ? '+' : ''}${Math.round(tokens.mean).toLocaleString()}`;
-                details = `Quality score (treatment relative to control): **${summary.meanScore.toFixed(2)}** ` +
-                  `(${summary.wins} wins, ${summary.ties} ties, ${summary.losses} losses)\n\n` +
-                  `Mean token delta: **${tokenDelta} tokens** per paired trial.`;
+                const qualityScore = summary.meanScore.toFixed(2);
+                const formattedQualityScore = summary.meanScore === 0
+                  ? `**${qualityScore}**`
+                  : `$\\color{${summary.meanScore > 0 ? 'green' : 'red'}}{\\mathbf{${qualityScore}}}$`;
+                details = `Quality score (treatment relative to control): ${formattedQualityScore} ` +
+                  `(${summary.wins} wins, ${summary.ties} ties, ${summary.losses} losses).`;
               }
             } catch (error) {
               reportGenerationFailed = true;
@@ -684,13 +672,40 @@ jobs:
             }
 
             try {
-              const treatmentFiles = findFiles(process.env.RESULT_ROOT, 'results.jsonl')
-                .filter(file => path.basename(path.dirname(file)) === 'treatment');
-              if (treatmentFiles.length !== 1) {
-                throw new Error(`expected one treatment results file, found ${treatmentFiles.length}`);
-              }
+              const validationPath = path.join(process.env.RESULT_ROOT, 'validation.json');
+              if (fs.existsSync(validationPath)) {
+                const validation = JSON.parse(fs.readFileSync(validationPath, 'utf8'));
+                if (validation?.type !== 'harness-validation' ||
+                    typeof validation?.quality?.passed !== 'boolean' ||
+                    typeof validation?.activation?.required !== 'boolean' ||
+                    typeof validation?.activation?.passed !== 'boolean') {
+                  throw new Error('validation summary is incomplete');
+                }
 
-              const treatmentTrials = readRecords(treatmentFiles[0])
+                const formatGate = passed => passed ? '✅ passed' : '❌ failed';
+                const gates = [
+                  `Treatment quality threshold: **${formatGate(validation.quality.passed)}**`,
+                ];
+                if (validation.activation.required) {
+                  const skill = validation.activation.skill ? ` \`${validation.activation.skill}\`` : '';
+                  gates.push(`Required skill activation${skill}: **${formatGate(validation.activation.passed)}**` +
+                    (validation.activation.passed ? '' : ' — the target skill was not invoked in every treatment trial.'));
+                }
+                gateDetails = '\n' + gates.join('\n');
+              }
+            } catch (error) {
+              reportGenerationFailed = true;
+              core.warning(`Could not parse treatment validation: ${error.message}`);
+            }
+
+            try {
+              const { pathToFileURL } = require('node:url');
+              const { findExperimentRunDirectory } = await import(pathToFileURL(
+                path.resolve(process.env.TRUSTED_ROOT, 'eng/harness-evaluation/src/harness.mjs')).href);
+              const experimentDirectory = await findExperimentRunDirectory(process.env.RESULT_ROOT);
+              const treatmentTrials = readRecords(path.join(experimentDirectory, 'treatment', 'results.jsonl'))
+                .filter(record => record.type === 'trial-result');
+              const controlTrials = readRecords(path.join(experimentDirectory, 'control', 'results.jsonl'))
                 .filter(record => record.type === 'trial-result');
               const models = [...new Set(treatmentTrials.map(trial => trial.model).filter(Boolean))];
               if (treatmentTrials.length > 0 && models.length !== 1) {
@@ -705,11 +720,14 @@ jobs:
                   trials: 0,
                   successful: 0,
                   scores: [],
+                  treatmentTokens: [],
                   graders: new Map(),
                 };
                 summary.trials++;
                 if (trial.status === 'success') summary.successful++;
                 if (Number.isFinite(trial.gradeResult?.score)) summary.scores.push(trial.gradeResult.score);
+                const totalTokens = trial.trajectory?.metrics?.tokenUsage?.totalTokens;
+                if (Number.isFinite(totalTokens)) summary.treatmentTokens.push(totalTokens);
                 for (const grade of trial.gradeResult?.details ?? []) {
                   const grader = grade.name ?? grade.graderType ?? 'unknown';
                   const count = summary.graders.get(grader) ?? { passed: 0, total: 0 };
@@ -721,18 +739,41 @@ jobs:
               }
 
               if (byStimulus.size > 0) {
+                const controlTokens = new Map();
+                for (const trial of controlTrials) {
+                  const stimulus = trial.stimulus ?? trial.gradeResult?.stimulusName ?? 'unknown';
+                  const totalTokens = trial.trajectory?.metrics?.tokenUsage?.totalTokens;
+                  if (!Number.isFinite(totalTokens)) continue;
+                  const values = controlTokens.get(stimulus) ?? [];
+                  values.push(totalTokens);
+                  controlTokens.set(stimulus, values);
+                }
+                const mean = values => values.length > 0
+                  ? values.reduce((sum, value) => sum + value, 0) / values.length
+                  : Number.NaN;
+                const formatTokenDelta = value => {
+                  if (!Number.isFinite(value)) return 'N/A';
+                  const tokenDelta = `${value >= 0 ? '+' : ''}${Math.round(value).toLocaleString()}`;
+                  if (value === 0) return `**${tokenDelta} tokens**`;
+                  const tokenDeltaValue = tokenDelta.replaceAll(',', '{,}');
+                  return `$\\color{${value < 0 ? 'green' : 'red'}}{\\mathbf{${tokenDeltaValue}\\ tokens}}$`;
+                };
                 const rows = [...byStimulus.entries()].map(([stimulus, summary]) => {
                   const meanScore = summary.scores.length > 0
                     ? (summary.scores.reduce((sum, score) => sum + score, 0) / summary.scores.length).toFixed(2)
                     : 'N/A';
+                  const meanTreatmentTokens = mean(summary.treatmentTokens);
+                  const meanControlTokens = mean(controlTokens.get(stimulus) ?? []);
+                  const tokenDelta = meanTreatmentTokens - meanControlTokens;
                   const graders = [...summary.graders.entries()]
                     .map(([grader, count]) => `${escapeCell(grader)}: ${count.passed}/${count.total}`)
                     .join('<br>');
-                  return `| ${escapeCell(stimulus)} | ${summary.successful}/${summary.trials} | ${meanScore} | ${graders} |`;
+                  return `| ${escapeCell(stimulus)} | ${summary.successful}/${summary.trials} | ${meanScore} | ` +
+                    `${formatTokenDelta(tokenDelta)} | ${graders} |`;
                 });
                 gradeBreakdown = '\n\n#### Treatment grades by stimulus\n\n' +
-                  '| Stimulus | Successful trials | Mean score | Grader passes |\n' +
-                  '| --- | ---: | ---: | --- |\n' + rows.join('\n');
+                  '| Stimulus | Successful trials | Mean score | Token delta | Grader passes |\n' +
+                  '| --- | ---: | ---: | ---: | --- |\n' + rows.join('\n');
               }
             } catch (error) {
               reportGenerationFailed = true;
@@ -772,7 +813,7 @@ jobs:
                   for (const comment of comments) {
                     if (comment.user?.login !== 'github-actions[bot]' ||
                         !comment.body?.startsWith(marker) ||
-                        !/Status: \*\*(passed|failed)\*\*/.test(comment.body)) continue;
+                        !/Status: \*\*(?:✅ passed|❌ failed)\*\*/.test(comment.body)) continue;
                     if (!previous || Date.parse(comment.updated_at) > Date.parse(previous.comment.updated_at)) {
                       previous = { comment, pullNumber: pull.number };
                     }
@@ -780,7 +821,7 @@ jobs:
                 }
                 if (previous) {
                   baseline = `\n\n[Previous result from PR #${previous.pullNumber}]` +
-                    `(${previous.comment.html_url}) provides the baseline.`;
+                    `(${previous.comment.html_url})`;
                 }
               }
             } catch (error) {
@@ -793,11 +834,12 @@ jobs:
               ? `[Download Vally reports](${process.env.ARTIFACT_URL}) · `
               : '';
             const status = reportGenerationFailed ? 'error' : passed ? 'passed' : 'failed';
+            const formattedStatus = status === 'passed' ? '✅ passed' : status === 'failed' ? '❌ failed' : status;
             const report = reportGenerationFailed
               ? 'An error occurred while generating the evaluation report.'
               : `${model ? `Model: **\`${model}\`**\n\n` : ''}${details}${gradeBreakdown}${baseline}`;
             const body = `${marker}\n### Agent evaluation: \`${process.env.COMPONENT}\`\n\n` +
-              `Status: **${status}** for \`${process.env.HEAD_SHA}\`\n\n` +
+              `Status: **${formattedStatus}** for \`${process.env.HEAD_SHA}\`${gateDetails}\n\n` +
               `${report}\n\n` +
               `${artifactLink}[View workflow run](${runUrl})`;
             const comments = await github.paginate(github.rest.issues.listComments, {

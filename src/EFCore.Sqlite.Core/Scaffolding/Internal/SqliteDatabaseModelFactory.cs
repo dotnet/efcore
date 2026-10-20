@@ -457,7 +457,7 @@ ORDER BY "cid"
             else if (defaultValueSql.StartsWith('\'')
                      && defaultValueSql.EndsWith('\''))
             {
-                defaultValueSql = defaultValueSql[1..^1];
+                defaultValueSql = defaultValueSql[1..^1].Replace("''", "'");
 
                 if (type == typeof(string))
                 {

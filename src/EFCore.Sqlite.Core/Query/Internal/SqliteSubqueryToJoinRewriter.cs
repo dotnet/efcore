@@ -66,12 +66,19 @@ public class SqliteSubqueryToJoinRewriter(ISqlExpressionFactory sqlExpressionFac
 
             var projectionMap = inner.Projection.ToDictionary(p => p.Alias, p => p.Expression);
             var inliner = new AliasInliningVisitor(inner.Alias!, projectionMap);
+            var joinPredicate = (SqlExpression)inliner.Visit(join.JoinPredicate);
+
+            // SqlNullabilityProcessor leaves a join predicate that is a single top-level equality uncompensated, because in LINQ
+            // equijoins null doesn't match null. Once the filter is AND-ed onto it, the equality is no longer top-level and gets
+            // the regular null compensation, so NULL keys would start matching each other; keep such subqueries as they are.
+            if (IsEqualityBetweenNullableExpressions(joinPredicate))
+            {
+                continue;
+            }
 
             // The subquery's WHERE moves onto the join condition; both the existing join key and the filter are remapped from the
             // subquery alias onto the underlying table's columns.
-            var newJoinPredicate = sqlExpressionFactory.AndAlso(
-                (SqlExpression)inliner.Visit(join.JoinPredicate),
-                (SqlExpression)inliner.Visit(inner.Predicate!));
+            var newJoinPredicate = sqlExpressionFactory.AndAlso(joinPredicate, (SqlExpression)inliner.Visit(inner.Predicate!));
 
             newTables ??= [.. select.Tables];
             newTables[i] = join is InnerJoinExpression
@@ -99,6 +106,62 @@ public class SqliteSubqueryToJoinRewriter(ISqlExpressionFactory sqlExpressionFac
             select.Orderings.Select(o => (OrderingExpression)outerInliner.Visit(o)).ToList(),
             (SqlExpression?)outerInliner.Visit(select.Offset),
             (SqlExpression?)outerInliner.Visit(select.Limit));
+    }
+
+    private static bool IsEqualityBetweenNullableExpressions(SqlExpression predicate)
+        => predicate is SqlBinaryExpression { OperatorType: ExpressionType.Equal, Left: var left, Right: var right }
+            && MayBeNull(left)
+            && MayBeNull(right);
+
+    // A compile-time approximation of the nullability SqlNullabilityProcessor computes later (parameter values aren't known yet,
+    // so parameters count as nullable). It must never report a nullable expression as non-nullable: that would fold the subquery and
+    // let the compensated key match NULL with NULL, while the opposite only keeps a subquery that could have been flattened.
+    private static bool MayBeNull(SqlExpression expression)
+        => expression switch
+        {
+            ColumnExpression column => column.IsNullable,
+            SqlConstantExpression constant => constant.Value is null,
+            // IS NULL / IS NOT NULL never yield NULL
+            SqlUnaryExpression { OperatorType: ExpressionType.Equal or ExpressionType.NotEqual } => false,
+            SqlUnaryExpression unary => MayBeNull(unary.Operand),
+            SqlBinaryExpression binary => MayBeNull(binary.Left) || MayBeNull(binary.Right),
+            SqlFunctionExpression function => FunctionMayBeNull(function),
+            CaseExpression caseExpression
+                => caseExpression.ElseResult is null
+                || MayBeNull(caseExpression.ElseResult)
+                || caseExpression.WhenClauses.Any(clause => MayBeNull(clause.Result)),
+            ExistsExpression => false,
+            _ => true
+        };
+
+    private static bool FunctionMayBeNull(SqlFunctionExpression function)
+    {
+        if (!function.IsNullable)
+        {
+            return false;
+        }
+
+        if (function is { IsBuiltIn: true, Arguments: not null }
+            && string.Equals(function.Name, "COALESCE", StringComparison.OrdinalIgnoreCase))
+        {
+            return function.Arguments.All(MayBeNull);
+        }
+
+        // Same rule as SqlNullabilityProcessor.VisitSqlFunction: when nullability propagation is declared for the instance or any
+        // argument, the result is nullable only if one of the propagating operands is; otherwise fall back to IsNullable.
+        var usesNullabilityPropagation = function.InstancePropagatesNullability == true;
+        var hasNullableOperand = function is { InstancePropagatesNullability: true, Instance: { } instance } && MayBeNull(instance);
+
+        if (function is { Arguments: not null, ArgumentsPropagateNullability: not null })
+        {
+            for (var i = 0; i < function.Arguments.Count; i++)
+            {
+                usesNullabilityPropagation |= function.ArgumentsPropagateNullability[i];
+                hasNullableOperand |= function.ArgumentsPropagateNullability[i] && MayBeNull(function.Arguments[i]);
+            }
+        }
+
+        return !usesNullabilityPropagation || hasNullableOperand;
     }
 
     // An "IS NOT NULL" check is a SqlUnaryExpression with a NotEqual operator; a predicate built only from these (AND-ed together)

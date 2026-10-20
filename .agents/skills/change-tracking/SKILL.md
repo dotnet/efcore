@@ -23,6 +23,10 @@ Manages entity states and detects changes for `SaveChanges()`.
 - Snapshot and notification strategies both call `SetPropertyModified()` to keep property flags and entity state consistent.
 - `SetEntityState()` validates values, updates flags and complex entries, changes state, then runs manager bookkeeping hooks.
 
+## Shared-Identity Replacement
+
+`SharedIdentityEntry` is the invariant that distinguishes an old deleted entry from its replacement with the same identity. When attaching a replacement graph, a deleted nested entry should be reconsidered only when its source entry has a replacement; do not broadly process every deleted node. Likewise, cascading from the old replaced principal must not delete dependents that belong to the replacement graph. Keep synchronous and asynchronous graph-attach paths equivalent and preserve unrelated values in replacement tests so they isolate the identity transition.
+
 ## Testing
 
 Unit tests: `test/EFCore.Tests/ChangeTracking/`. Functional tests: `test/EFCore.Specification.Tests/GraphUpdates/`.
@@ -31,7 +35,7 @@ Unit tests: `test/EFCore.Tests/ChangeTracking/`. Functional tests: `test/EFCore.
 
 | Pitfall | Solution |
 |---------|----------|
-| There is a failure when there is shared identity entry (Added and Deleted) | Add code that checks `SharedIdentityEntry` |
+| State-based checks treat every Added/Deleted entry as a replacement | Scope replacement behavior through `SharedIdentityEntry` and the graph source |
 
 ## Validation
 

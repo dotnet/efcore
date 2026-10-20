@@ -766,7 +766,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             .Concat(jsonColumns);
     }
 
-    private static IEnumerable<IProperty> GetSortedProperties(IEntityType entityType, ITable table)
+    private static IEnumerable<IProperty> GetSortedProperties(ITypeBase typeBase, ITable table)
     {
         var leastPriorityProperties = new List<IProperty>();
         var leastPriorityPrimaryKeyProperties = new List<IProperty>();
@@ -775,7 +775,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         var unorderedGroups = new Dictionary<PropertyInfo, SortedDictionary<(int, string), IProperty>>();
         var types = new Dictionary<Type, SortedDictionary<int, PropertyInfo>>();
 
-        foreach (var property in entityType.GetDeclaredProperties())
+        foreach (var property in typeBase.GetDeclaredProperties())
         {
             var clrProperty = property.PropertyInfo;
             if (clrProperty == null
@@ -820,14 +820,34 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             types.GetOrAddNew(clrType)[index] = clrProperty;
         }
 
-        AddNestedComplexProperties(entityType, leastPriorityProperties);
+        foreach (var complexProperty in typeBase.GetDeclaredComplexProperties())
+        {
+            var complexClrProperty = complexProperty.PropertyInfo;
+            var properties = GetSortedProperties(complexProperty.ComplexType, table).ToList();
+            if (complexClrProperty == null
+                || complexProperty.IsIndexerProperty())
+            {
+                leastPriorityProperties.AddRange(properties);
+
+                continue;
+            }
+
+            groups.Add(complexClrProperty, properties);
+
+            var clrType = complexClrProperty.DeclaringType!;
+            var index = clrType.GetTypeInfo().DeclaredProperties
+                .IndexOf(complexClrProperty, PropertyInfoEqualityComparer.Instance);
+
+            types.GetOrAddNew(clrType)[index] = complexClrProperty;
+        }
 
         foreach (var (propertyInfo, properties) in unorderedGroups)
         {
             groups.Add(propertyInfo, properties.Values.ToList());
         }
 
-        if (table.EntityTypeMappings.Any(m => m.TypeBase == entityType))
+        if (typeBase is IEntityType entityType
+            && table.EntityTypeMappings.Any(m => m.TypeBase == entityType))
         {
             foreach (var linkingForeignKey in table.GetReferencingRowInternalForeignKeys(entityType))
             {
@@ -893,27 +913,14 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             .Concat(leastPriorityPrimaryKeyProperties)
             .Concat(
                 sortedPropertyInfos
-                    .Where(pi => !primaryKeyPropertyGroups.ContainsKey(pi) && entityType.ClrType.IsAssignableFrom(pi.DeclaringType))
+                    .Where(pi => !primaryKeyPropertyGroups.ContainsKey(pi) && typeBase.ClrType.IsAssignableFrom(pi.DeclaringType))
                     .SelectMany(p => groups[p]))
             .Concat(leastPriorityProperties)
-            .Concat(entityType.GetDirectlyDerivedTypes().SelectMany(et => GetSortedProperties(et, table)))
+            .Concat(typeBase.GetDirectlyDerivedTypes().SelectMany(et => GetSortedProperties(et, table)))
             .Concat(
                 sortedPropertyInfos
-                    .Where(pi => !primaryKeyPropertyGroups.ContainsKey(pi) && !entityType.ClrType.IsAssignableFrom(pi.DeclaringType))
+                    .Where(pi => !primaryKeyPropertyGroups.ContainsKey(pi) && !typeBase.ClrType.IsAssignableFrom(pi.DeclaringType))
                     .SelectMany(p => groups[p]));
-    }
-
-    private static void AddNestedComplexProperties(ITypeBase typeBase, List<IProperty> leastPriorityProperties)
-    {
-        foreach (var complexProperty in typeBase.GetDeclaredComplexProperties())
-        {
-            foreach (var complexTypeProperty in complexProperty.ComplexType.GetDeclaredProperties())
-            {
-                leastPriorityProperties.Add(complexTypeProperty);
-            }
-
-            AddNestedComplexProperties(complexProperty.ComplexType, leastPriorityProperties);
-        }
     }
 
     private sealed class PropertyInfoEqualityComparer : IEqualityComparer<PropertyInfo>

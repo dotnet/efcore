@@ -163,22 +163,13 @@
           "Member": "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGeneratorDependencies <Clone>$();"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGeneratorDependencies? other);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGeneratorDependencies? left, Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGeneratorDependencies? right);"
         },
         {
           "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGeneratorDependencies? left, Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationOperationGeneratorDependencies? right);"
-        },
-        {
-          "Member": "override string ToString();"
         }
       ],
       "Properties": [
@@ -192,26 +183,11 @@
       "Methods": [
         {
           "Member": "CSharpMigrationsGenerator(Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsCodeGeneratorDependencies dependencies, Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorDependencies csharpDependencies);"
-        },
-        {
-          "Member": "override string GenerateMetadata(string? migrationNamespace, System.Type contextType, string migrationName, string migrationId, Microsoft.EntityFrameworkCore.Metadata.IModel targetModel);"
-        },
-        {
-          "Member": "override string GenerateMigration(string? migrationNamespace, string migrationName, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Migrations.Operations.MigrationOperation> upOperations, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Migrations.Operations.MigrationOperation> downOperations);"
-        },
-        {
-          "Member": "override string GenerateSnapshot(string? modelSnapshotNamespace, System.Type contextType, string modelSnapshotName, Microsoft.EntityFrameworkCore.Metadata.IModel model, string? latestMigrationId = null);"
         }
       ],
       "Properties": [
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorDependencies CSharpDependencies { get; }"
-        },
-        {
-          "Member": "override string FileExtension { get; }"
-        },
-        {
-          "Member": "override string Language { get; }"
         }
       ]
     },
@@ -222,22 +198,13 @@
           "Member": "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorDependencies <Clone>$();"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorDependencies? other);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorDependencies? left, Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorDependencies? right);"
         },
         {
           "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorDependencies? left, Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorDependencies? right);"
-        },
-        {
-          "Member": "override string ToString();"
         }
       ],
       "Properties": [
@@ -386,22 +353,13 @@
           "Member": "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorDependencies <Clone>$();"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorDependencies? other);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorDependencies? left, Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorDependencies? right);"
         },
         {
           "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorDependencies? left, Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorDependencies? right);"
-        },
-        {
-          "Member": "override string ToString();"
         }
       ],
       "Properties": [
@@ -423,22 +381,13 @@
           "Member": "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorParameters <Clone>$();"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorParameters? other);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorParameters? left, Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorParameters? right);"
         },
         {
           "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorParameters? left, Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorParameters? right);"
-        },
-        {
-          "Member": "override string ToString();"
         }
       ],
       "Properties": [
@@ -787,22 +736,13 @@
           "Member": "Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsCodeGeneratorDependencies <Clone>$();"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsCodeGeneratorDependencies? other);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsCodeGeneratorDependencies? left, Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsCodeGeneratorDependencies? right);"
         },
         {
           "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsCodeGeneratorDependencies? left, Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsCodeGeneratorDependencies? right);"
-        },
-        {
-          "Member": "override string ToString();"
         }
       ],
       "Properties": [
@@ -858,22 +798,13 @@
           "Member": "Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolderDependencies <Clone>$();"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolderDependencies? other);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolderDependencies? left, Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolderDependencies? right);"
         },
         {
           "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolderDependencies? left, Microsoft.EntityFrameworkCore.Migrations.Design.MigrationsScaffolderDependencies? right);"
-        },
-        {
-          "Member": "override string ToString();"
         }
       ],
       "Properties": [
@@ -978,22 +909,13 @@
           "Member": "Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGeneratorDependencies <Clone>$();"
         },
         {
-          "Member": "override bool Equals(object? obj);"
-        },
-        {
           "Member": "bool Equals(Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGeneratorDependencies? other);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGeneratorDependencies? left, Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGeneratorDependencies? right);"
         },
         {
           "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGeneratorDependencies? left, Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGeneratorDependencies? right);"
-        },
-        {
-          "Member": "override string ToString();"
         }
       ]
     },
@@ -1379,9 +1301,6 @@
         }
       ],
       "Properties": [
-        {
-          "Member": "override string? Language { get; }"
-        },
         {
           "Member": "static string TemplatesDirectory { get; }"
         }

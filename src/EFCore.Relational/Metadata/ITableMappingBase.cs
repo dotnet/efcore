@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
 /// </remarks>
-public interface ITableMappingBase : IAnnotatable
+public interface ITableMappingBase : IAnnotatable, IComparable<ITableMappingBase>
 {
     /// <summary>
     ///     Gets the mapped type base.
@@ -135,4 +135,10 @@ public interface ITableMappingBase : IAnnotatable
 
         return builder.ToString();
     }
+
+    /// <summary>
+    ///     Compares the current instance with another object of the same type.
+    /// </summary>
+    int IComparable<ITableMappingBase>.CompareTo(ITableMappingBase? other)
+        => other is null ? 1 : 0;
 }

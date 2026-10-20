@@ -353,8 +353,14 @@ internal class SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnectio
                     if (pkColumns < 0L)
                     {
                         using var command = connection.CreateCommand();
-                        command.CommandText = "SELECT COUNT(*) FROM pragma_table_info($table) WHERE pk != 0;";
+
+                        // SQLite only creates an index for a primary key that is not an alias for the rowid, for example
+                        // in WITHOUT ROWID tables or with INTEGER PRIMARY KEY DESC, so the key columns count only without one
+                        command.CommandText =
+                            "SELECT COUNT(*) FROM pragma_table_info($table, $schema) WHERE pk != 0 "
+                            + "AND NOT EXISTS (SELECT 1 FROM pragma_index_list($table, $schema) WHERE origin = 'pk');";
                         command.Parameters.AddWithValue("$table", tableName);
+                        command.Parameters.AddWithValue("$schema", databaseName);
 
                         pkColumns = (long)command.ExecuteScalar()!;
                     }

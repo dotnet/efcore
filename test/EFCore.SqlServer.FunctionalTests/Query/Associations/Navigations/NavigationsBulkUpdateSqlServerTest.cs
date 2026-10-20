@@ -20,30 +20,107 @@ public class NavigationsBulkUpdateSqlServerTest(NavigationsSqlServerFixture fixt
     public override Task Delete_required_associate()
         => Assert.ThrowsAsync<SqlException>(base.Delete_required_associate);
 
-    // SQL generation produces invalid object name for these scenarios
     public override Task Delete_optional_associate()
         => Assert.ThrowsAsync<SqlException>(base.Delete_optional_associate);
 
-    public override Task Update_property_inside_associate()
-        => Assert.ThrowsAsync<SqlException>(base.Update_property_inside_associate);
+    public override async Task Update_property_inside_associate()
+    {
+        await base.Update_property_inside_associate();
 
-    public override Task Update_property_inside_associate_with_special_chars()
-        => Assert.ThrowsAsync<SqlException>(base.Update_property_inside_associate_with_special_chars);
+        AssertExecuteUpdateSql(
+            """
+@p='foo_updated' (Size = 4000)
 
-    public override Task Update_property_on_projected_associate()
-        => Assert.ThrowsAsync<SqlException>(base.Update_property_on_projected_associate);
+SET NOCOUNT OFF;
+UPDATE [a]
+SET [a].[String] = @p
+FROM [RootEntity] AS [r]
+INNER JOIN [AssociateType] AS [a] ON [r].[RequiredAssociateId] = [a].[Id]
+""");
+    }
+
+    public override async Task Update_property_inside_associate_with_special_chars()
+    {
+        await base.Update_property_inside_associate_with_special_chars();
+
+        AssertExecuteUpdateSql(
+            """
+SET NOCOUNT OFF;
+UPDATE [a0]
+SET [a0].[String] = N'{ Some other/JSON:like text though it [isn''t]: ממש ממש לאéèéè }'
+FROM [RootEntity] AS [r]
+INNER JOIN [AssociateType] AS [a] ON [r].[RequiredAssociateId] = [a].[Id]
+INNER JOIN [AssociateType] AS [a0] ON [r].[RequiredAssociateId] = [a0].[Id]
+WHERE [a].[String] = N'{ this may/look:like JSON but it [isn''t]: ממש ממש לאéèéè }'
+""");
+    }
+
+    public override async Task Update_property_on_projected_associate()
+    {
+        await base.Update_property_on_projected_associate();
+
+        AssertExecuteUpdateSql(
+            """
+@p='foo_updated' (Size = 4000)
+
+SET NOCOUNT OFF;
+UPDATE [a]
+SET [a].[String] = @p
+FROM [RootEntity] AS [r]
+INNER JOIN [AssociateType] AS [a] ON [r].[RequiredAssociateId] = [a].[Id]
+""");
+    }
 
     public override Task Update_property_on_projected_associate_with_OrderBy_Skip()
         => Assert.ThrowsAsync<EqualException>(base.Update_property_on_projected_associate_with_OrderBy_Skip);
 
-    public override Task Update_multiple_properties_inside_same_associate()
-        => Assert.ThrowsAsync<SqlException>(base.Update_multiple_properties_inside_same_associate);
+    public override async Task Update_multiple_properties_inside_same_associate()
+    {
+        await base.Update_multiple_properties_inside_same_associate();
 
-    public override Task Update_primitive_collection_to_constant()
-        => Assert.ThrowsAsync<SqlException>(base.Update_primitive_collection_to_constant);
+        AssertExecuteUpdateSql(
+            """
+@p='foo_updated' (Size = 4000)
+@p1='20'
 
-    public override Task Update_primitive_collection_to_parameter()
-        => Assert.ThrowsAsync<SqlException>(base.Update_primitive_collection_to_parameter);
+SET NOCOUNT OFF;
+UPDATE [a]
+SET [a].[String] = @p,
+    [a].[Int] = @p1
+FROM [RootEntity] AS [r]
+INNER JOIN [AssociateType] AS [a] ON [r].[RequiredAssociateId] = [a].[Id]
+""");
+    }
+
+    public override async Task Update_primitive_collection_to_constant()
+    {
+        await base.Update_primitive_collection_to_constant();
+
+        AssertExecuteUpdateSql(
+            """
+SET NOCOUNT OFF;
+UPDATE [a]
+SET [a].[Ints] = N'[1,2,4]'
+FROM [RootEntity] AS [r]
+INNER JOIN [AssociateType] AS [a] ON [r].[RequiredAssociateId] = [a].[Id]
+""");
+    }
+
+    public override async Task Update_primitive_collection_to_parameter()
+    {
+        await base.Update_primitive_collection_to_parameter();
+
+        AssertExecuteUpdateSql(
+            """
+@ints='[1,2,4]' (Size = 4000)
+
+SET NOCOUNT OFF;
+UPDATE [a]
+SET [a].[Ints] = @ints
+FROM [RootEntity] AS [r]
+INNER JOIN [AssociateType] AS [a] ON [r].[RequiredAssociateId] = [a].[Id]
+""");
+    }
 
     // Translation not yet supported for navigation-mapped associations
     public override Task Update_associate_to_parameter()

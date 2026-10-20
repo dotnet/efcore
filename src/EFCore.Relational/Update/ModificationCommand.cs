@@ -284,7 +284,12 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
     protected virtual IColumnModification CreateColumnModification(in ColumnModificationParameters columnModificationParameters)
         => new ColumnModification(columnModificationParameters);
 
-    private record struct JsonPartialUpdatePathEntry(string PropertyName, int? Ordinal, IUpdateEntry ParentEntry, IPropertyBase Property);
+    private record struct JsonPartialUpdatePathEntry(
+        string PropertyName,
+        int? Ordinal,
+        IUpdateEntry ParentEntry,
+        IPropertyBase Property,
+        IUpdateEntry? ElementEntry = null);
 
     private List<IColumnModification> GenerateColumnModifications()
     {
@@ -663,7 +668,8 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                     currentOwnership.PrincipalEntityType.IsMappedToJson() ? jsonPropertyName : "$",
                     ordinal,
                     currentEntry,
-                    currentOwnership.GetNavigation(pointsToPrincipal: false)!); // TODO: Handle complex properties, Issue #36429
+                    currentOwnership.GetNavigation(pointsToPrincipal: false)!, // TODO: Handle complex properties, Issue #36429
+                    ElementEntry: ordinal == null ? null : previousEntry);
 
                 result.Insert(0, pathEntry);
             }
@@ -862,27 +868,21 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                 {
                     var stream = new MemoryStream();
                     var writer = new Utf8JsonWriter(stream, new JsonWriterOptions { Indented = false });
-                    if (finalUpdatePathElement.Ordinal != null && propertyValue != null)
+                    if (finalUpdatePathElement is { Ordinal: not null, ElementEntry: { } elementEntry })
                     {
-                        var i = 0;
-                        foreach (var navigationValueElement in (IEnumerable)propertyValue)
-                        {
-                            if (i == finalUpdatePathElement.Ordinal)
-                            {
-                                WriteJson(
-                                    writer,
-                                    navigationValueElement,
-                                    (IInternalEntry)finalUpdatePathElement.ParentEntry,
-                                    jsonProperty,
-                                    ordinal: null,
-                                    isCollection: false,
-                                    isTopLevel: true);
-
-                                break;
-                            }
-
-                            i++;
-                        }
+                        // The ordinal identifies the element in the stored JSON array, so write the entry that owns that
+                        // ordinal. The element at the same index in the CLR collection may be a different entity when
+                        // the collection was reordered in memory.
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                        WriteJson(
+                            writer,
+                            ((IInternalEntry)elementEntry).Entity,
+                            (IInternalEntry)finalUpdatePathElement.ParentEntry,
+                            jsonProperty,
+                            ordinal: null,
+                            isCollection: false,
+                            isTopLevel: true);
+#pragma warning restore EF1001 // Internal EF Core API usage.
                     }
                     else
                     {

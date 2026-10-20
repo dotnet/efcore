@@ -1253,7 +1253,11 @@ public abstract partial class InternalEntryBase : IInternalEntry
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public IEnumerable<InternalComplexEntry> GetFlattenedComplexEntries()
-        => _complexCollectionEntries.SelectMany(c => c.GetOrCreateEntries(original: false)).Where(e => e != null)!;
+        => _complexCollectionEntries
+            .SelectMany(
+                c => c.GetOrCreateEntries(original: false)
+                    .Take(UseOldBehavior39073 ? int.MaxValue : c.GetCollection(original: false)?.Count ?? 0))
+            .Where(e => e != null)!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1710,6 +1714,8 @@ public abstract partial class InternalEntryBase : IInternalEntry
                 && IsLoaded(property)
                 && GetCurrentValue(property) == null
                 && (property.DeclaringType is not IComplexType complexType
+                    // A collection element has its own entry; its containing property lives on the parent's entry
+                    || complexType.ComplexProperty.IsCollection
                     || GetCurrentValue(complexType.ComplexProperty) != null))
             {
                 throw new InvalidOperationException(
@@ -1721,10 +1727,17 @@ public abstract partial class InternalEntryBase : IInternalEntry
         {
             foreach (var complexProperty in structuralType.GetFlattenedComplexProperties())
             {
+                Check.DebugAssert(
+                    complexProperty.DeclaringType is not IComplexType { ComplexProperty.IsCollection: true }
+                    || complexProperty.DeclaringType == structuralType,
+                    "Properties of a complex collection element type are only flattened into the element's own entry");
+
                 if (!complexProperty.IsNullable
                     && this[complexProperty] == null
                     && complexProperty.ComplexType.GetProperties().Any(p => !p.IsNullable)
                     && (complexProperty.DeclaringType is not IComplexType complexType
+                        // A collection element has its own entry; its containing property lives on the parent's entry
+                        || complexType.ComplexProperty.IsCollection
                         || GetCurrentValue(complexType.ComplexProperty) != null))
                 {
                     throw new InvalidOperationException(

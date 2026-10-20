@@ -31,115 +31,9 @@ public sealed class TableMappingBaseComparer : IEqualityComparer<ITableMappingBa
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public int Compare(ITableMappingBase? x, ITableMappingBase? y)
-    {
-        if (ReferenceEquals(x, y))
-        {
-            return 0;
-        }
-
-        if (x is null)
-        {
-            return -1;
-        }
-
-        if (y is null)
-        {
-            return 1;
-        }
-
-        var result = 0;
-        if (y.IsSharedTablePrincipal == null)
-        {
-            if (x.IsSharedTablePrincipal != null)
-            {
-                return 1;
-            }
-        }
-        else
-        {
-            if (x.IsSharedTablePrincipal == null)
-            {
-                return -1;
-            }
-
-            result = y.IsSharedTablePrincipal.Value.CompareTo(x.IsSharedTablePrincipal.Value);
-            if (result != 0)
-            {
-                return result;
-            }
-        }
-
-        if (y.IncludesDerivedTypes == null)
-        {
-            if (x.IncludesDerivedTypes != null)
-            {
-                return -1;
-            }
-        }
-        else
-        {
-            if (x.IncludesDerivedTypes == null)
-            {
-                return 1;
-            }
-
-            result = y.IncludesDerivedTypes.Value.CompareTo(x.IncludesDerivedTypes.Value);
-            if (result != 0)
-            {
-                return result;
-            }
-        }
-
-        if (y.IsSplitEntityTypePrincipal == null)
-        {
-            if (x.IsSplitEntityTypePrincipal != null)
-            {
-                return -1;
-            }
-        }
-        else
-        {
-            if (x.IsSplitEntityTypePrincipal == null)
-            {
-                return 1;
-            }
-
-            result = y.IsSplitEntityTypePrincipal.Value.CompareTo(x.IsSplitEntityTypePrincipal.Value);
-            if (result != 0)
-            {
-                return result;
-            }
-        }
-
-        result = TypeBaseNameComparer.Instance.Compare(x.TypeBase, y.TypeBase);
-        if (result != 0)
-        {
-            return result;
-        }
-
-        result = StringComparer.Ordinal.Compare(x.Table.Name, y.Table.Name);
-        if (result != 0)
-        {
-            return result;
-        }
-
-        result = StringComparer.Ordinal.Compare(x.Table.Schema, y.Table.Schema);
-        if (result != 0)
-        {
-            return result;
-        }
-
-        result = x.ColumnMappings.Count().CompareTo(y.ColumnMappings.Count());
-        return result != 0
-            ? result
-            : x.ColumnMappings.Zip(
-                    y.ColumnMappings, (xc, yc) =>
-                    {
-                        var columnResult = StringComparer.Ordinal.Compare(xc.Property.Name, yc.Property.Name);
-                        return columnResult != 0 ? columnResult : StringComparer.Ordinal.Compare(xc.Column.Name, yc.Column.Name);
-                    })
-                .FirstOrDefault(r => r != 0);
-    }
+        => x is null
+            ? y is null ? 0 : -1
+            : y is null ? 1 : x.CompareTo(y);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -168,6 +62,23 @@ public sealed class TableMappingBaseComparer : IEqualityComparer<ITableMappingBa
         hashCode.Add(obj.TypeBase, TypeBaseNameComparer.Instance);
         hashCode.Add(obj.Table.Name);
         hashCode.Add(obj.Table.Schema);
+        if (obj.Table is IStoreFunction function)
+        {
+            foreach (var parameter in function.Parameters)
+            {
+                hashCode.Add(parameter.StoreType);
+                hashCode.Add(parameter.Name);
+            }
+        }
+        else if (obj.Table is IStoreStoredProcedure sproc)
+        {
+            foreach (var parameter in sproc.Parameters)
+            {
+                hashCode.Add(parameter.StoreType);
+                hashCode.Add(parameter.Name);
+            }
+        }
+
         foreach (var columnMapping in obj.ColumnMappings)
         {
             hashCode.Add(columnMapping.Property.Name);

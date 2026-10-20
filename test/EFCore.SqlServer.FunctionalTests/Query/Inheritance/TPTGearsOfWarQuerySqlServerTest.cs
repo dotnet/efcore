@@ -5976,16 +5976,16 @@ FROM [Gears] AS [g]
 
         AssertSql(
             """
-SELECT ISNULL((
-    SELECT TOP(1) [w].[Id]
-    FROM [Weapons] AS [w]
-    WHERE [g].[FullName] = [w].[OwnerFullName]
-    ORDER BY [w].[Id]), (
-    SELECT TOP(1) [w0].[Id]
-    FROM [Weapons] AS [w0]
-    WHERE [g].[FullName] = [w0].[OwnerFullName]
-    ORDER BY [w0].[Id]))
+SELECT [w1].[Id]
 FROM [Gears] AS [g]
+LEFT JOIN (
+    SELECT [w0].[Id], [w0].[OwnerFullName]
+    FROM (
+        SELECT [w].[Id], [w].[OwnerFullName], ROW_NUMBER() OVER(PARTITION BY [w].[OwnerFullName] ORDER BY [w].[Id]) AS [row]
+        FROM [Weapons] AS [w]
+    ) AS [w0]
+    WHERE [w0].[row] <= 1
+) AS [w1] ON [g].[FullName] = [w1].[OwnerFullName]
 """);
     }
 
@@ -6535,6 +6535,17 @@ ORDER BY CASE
     WHEN [g].[LeaderNickname] IS NOT NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
+""");
+    }
+
+    public override async Task New_Date_Expressions_in_projection(bool async)
+    {
+        await base.New_Date_Expressions_in_projection(async);
+
+        AssertSql(
+            """
+SELECT [m].[Date], CAST('08:00:00' AS time), CAST('2020-01-02' AS date), [m].[Time], CAST('2020-01-02T08:00:00.0000000' AS datetime2)
+FROM [Missions] AS [m]
 """);
     }
 
@@ -9428,7 +9439,7 @@ ORDER BY [g].[Nickname], [g].[SquadId]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([m].[Rating]), 0.0E0)
+SELECT ISNULL(SUM([m].[Rating]), 0.0E0)
 FROM [Missions] AS [m]
 WHERE [m].[CodeName] = N'Operation Foobar'
 """);
@@ -9610,7 +9621,7 @@ LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([m].[Rating]), 0.0E0)
+SELECT ISNULL(SUM([m].[Rating]), 0.0E0)
 FROM [Missions] AS [m]
 GROUP BY [m].[CodeName]
 """);

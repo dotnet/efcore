@@ -3031,7 +3031,7 @@ ORDER BY [l].[Id], [s].[Date], [s].[Date0], [s].[Name]
 @validIds1='L1 01' (Size = 4000)
 @validIds2='L1 02' (Size = 4000)
 
-SELECT [l].[Date], [l].[Id]
+SELECT [l].[Date], DENSE_RANK() OVER(ORDER BY [l].[Date]), [l].[Id]
 FROM [Level1] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l]
 WHERE [l].[Name] IN (@validIds1, @validIds2)
 ORDER BY [l].[Date]

@@ -490,6 +490,57 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             });
 
     [Fact]
+    public void Create_table_columns_uses_complex_property_order()
+        => Execute(
+            _ => { },
+            modelBuilder => modelBuilder.Entity<CreateTableEntity2>().ComplexProperty(e => e.D),
+            operations =>
+            {
+                var operation = Assert.IsType<CreateTableOperation>(Assert.Single(operations));
+                Assert.Collection(
+                    operation.Columns,
+                    x => Assert.Equal("Id", x.Name),
+                    x => Assert.Equal("E", x.Name),
+                    x => Assert.Equal("D_B", x.Name),
+                    x => Assert.Equal("D_C", x.Name),
+                    x => Assert.Equal("A", x.Name));
+            });
+
+    private class CreateTableEntity3
+    {
+        public int Id { get; set; }
+        public int Z { get; set; }
+        public CreateTableEntity3B Y { get; set; } = null!;
+        public int A { get; set; }
+    }
+
+    private class CreateTableEntity3B
+    {
+        public int D { get; set; }
+        public CreateTableEntity2B C { get; set; } = null!;
+        public int B { get; set; }
+    }
+
+    [Fact]
+    public void Create_table_columns_uses_nested_complex_property_order()
+        => Execute(
+            _ => { },
+            modelBuilder => modelBuilder.Entity<CreateTableEntity3>().ComplexProperty(e => e.Y, y => y.ComplexProperty(e => e.C)),
+            operations =>
+            {
+                var operation = Assert.IsType<CreateTableOperation>(Assert.Single(operations));
+                Assert.Collection(
+                    operation.Columns,
+                    x => Assert.Equal("Id", x.Name),
+                    x => Assert.Equal("Z", x.Name),
+                    x => Assert.Equal("Y_D", x.Name),
+                    x => Assert.Equal("Y_C_B", x.Name),
+                    x => Assert.Equal("Y_C_C", x.Name),
+                    x => Assert.Equal("Y_B", x.Name),
+                    x => Assert.Equal("A", x.Name));
+            });
+
+    [Fact]
     public void Create_table_columns_uses_principal_to_dependent_order_when_splitting()
         => Execute(
             _ => { },

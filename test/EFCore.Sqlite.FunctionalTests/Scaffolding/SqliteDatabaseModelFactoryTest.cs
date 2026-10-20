@@ -1098,6 +1098,37 @@ INSERT INTO MyTable VALUES (1, 'A', 'Tale', 'Of', 'Two', 'Cities');",
             },
             "DROP TABLE MyTable;");
 
+    [Fact]
+    public void String_literals_with_escaped_quotes_are_unescaped_for_HasDefaultValue()
+        => Test(
+            @"
+CREATE TABLE MyTable (
+    Id int,
+    A nvarchar DEFAULT 'It''s',
+    B varchar DEFAULT ('O''Brien''s'),
+    C text DEFAULT (''''));
+
+INSERT INTO MyTable VALUES (1, 'A', 'Tale', 'Of');",
+            [],
+            [],
+            dbModel =>
+            {
+                var columns = dbModel.Tables.Single().Columns;
+
+                var column = columns.Single(c => c.Name == "A");
+                Assert.Equal("'It''s'", column.DefaultValueSql);
+                Assert.Equal("It's", column.DefaultValue);
+
+                column = columns.Single(c => c.Name == "B");
+                Assert.Equal("'O''Brien''s'", column.DefaultValueSql);
+                Assert.Equal("O'Brien's", column.DefaultValue);
+
+                column = columns.Single(c => c.Name == "C");
+                Assert.Equal("''''", column.DefaultValueSql);
+                Assert.Equal("'", column.DefaultValue);
+            },
+            "DROP TABLE MyTable;");
+
     [Theory, InlineData(false), InlineData(true)]
     public void Column_ValueGenerated_is_set(bool autoIncrement)
         => Test(

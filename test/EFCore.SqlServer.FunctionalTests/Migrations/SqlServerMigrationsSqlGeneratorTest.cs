@@ -784,6 +784,58 @@ ALTER TABLE [Person] ALTER COLUMN [Id] bigint NOT NULL;
     }
 
     [Fact]
+    public virtual void AlterColumnOperation_change_identity_seed()
+    {
+        Generate(
+            modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersion, "10.0.0"),
+            new AlterColumnOperation
+            {
+                Table = "Person",
+                Name = "Id",
+                ClrType = typeof(int),
+                ColumnType = "int",
+                [SqlServerAnnotationNames.Identity] = "100, 1",
+                OldColumn = new AddColumnOperation
+                {
+                    ClrType = typeof(int),
+                    ColumnType = "int",
+                    [SqlServerAnnotationNames.Identity] = "10, 1"
+                }
+            });
+
+        AssertSql(
+            """
+DBCC CHECKIDENT(N'[Person]', RESEED, 100);
+""");
+    }
+
+    [Fact]
+    public virtual void AlterColumnOperation_change_identity_seed_above_int_range()
+    {
+        Generate(
+            modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersion, "10.0.0"),
+            new AlterColumnOperation
+            {
+                Table = "Person",
+                Name = "Id",
+                ClrType = typeof(long),
+                ColumnType = "bigint",
+                [SqlServerAnnotationNames.Identity] = "3000000000, 1",
+                OldColumn = new AddColumnOperation
+                {
+                    ClrType = typeof(long),
+                    ColumnType = "bigint",
+                    [SqlServerAnnotationNames.Identity] = "1, 1"
+                }
+            });
+
+        AssertSql(
+            """
+DBCC CHECKIDENT(N'[Person]', RESEED, 3000000000);
+""");
+    }
+
+    [Fact]
     public virtual void AlterColumnOperation_add_identity_legacy()
     {
         var ex = Assert.Throws<InvalidOperationException>(() => Generate(
@@ -1038,6 +1090,75 @@ ALTER SCHEMA [hr] TRANSFER [dbo].[People];
 """);
     }
 
+    [Fact] // Issue #38601
+    public virtual void RenameTableOperation_temporal_table_moved_into_model_default_schema()
+    {
+        Generate(
+            modelBuilder =>
+            {
+                modelBuilder.HasDefaultSchema("dbo");
+                modelBuilder.Entity(
+                    "Customer", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.Property<string>("Name");
+                        e.Property<DateTime>("PeriodStart").ValueGeneratedOnAddOrUpdate();
+                        e.Property<DateTime>("PeriodEnd").ValueGeneratedOnAddOrUpdate();
+                        e.HasKey("Id");
+                        e.ToTable(
+                            "Customers", tb => tb.IsTemporal(ttb =>
+                            {
+                                ttb.UseHistoryTable("CustomersHistory");
+                                ttb.HasPeriodStart("PeriodStart");
+                                ttb.HasPeriodEnd("PeriodEnd");
+                            }));
+                    });
+            },
+            new EnsureSchemaOperation { Name = "dbo" },
+            new RenameTableOperation
+            {
+                Name = "Customers",
+                Schema = null,
+                NewName = "Customers",
+                NewSchema = "dbo",
+                [SqlServerAnnotationNames.IsTemporal] = true,
+                [SqlServerAnnotationNames.TemporalHistoryTableName] = "CustomersHistory",
+                [SqlServerAnnotationNames.TemporalHistoryTableSchema] = null,
+                [SqlServerAnnotationNames.TemporalPeriodStartColumnName] = "PeriodStart",
+                [SqlServerAnnotationNames.TemporalPeriodEndColumnName] = "PeriodEnd"
+            },
+            new AlterTableOperation
+            {
+                Name = "Customers",
+                Schema = "dbo",
+                [SqlServerAnnotationNames.IsTemporal] = true,
+                [SqlServerAnnotationNames.TemporalHistoryTableName] = "CustomersHistory",
+                [SqlServerAnnotationNames.TemporalHistoryTableSchema] = "dbo",
+                [SqlServerAnnotationNames.TemporalPeriodStartColumnName] = "PeriodStart",
+                [SqlServerAnnotationNames.TemporalPeriodEndColumnName] = "PeriodEnd",
+                OldTable =
+                {
+                    [SqlServerAnnotationNames.IsTemporal] = true,
+                    [SqlServerAnnotationNames.TemporalHistoryTableName] = "CustomersHistory",
+                    [SqlServerAnnotationNames.TemporalHistoryTableSchema] = null,
+                    [SqlServerAnnotationNames.TemporalPeriodStartColumnName] = "PeriodStart",
+                    [SqlServerAnnotationNames.TemporalPeriodEndColumnName] = "PeriodEnd"
+                }
+            });
+
+        AssertSql(
+            """
+ALTER TABLE [dbo].[Customers] SET (SYSTEM_VERSIONING = OFF)
+
+GO
+
+ALTER SCHEMA [dbo] TRANSFER [Customers];
+GO
+
+ALTER TABLE [dbo].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [dbo].[CustomersHistory]))
+""");
+    }
+
     [Fact]
     public virtual void RenameIndexOperations_throws_when_no_table()
     {
@@ -1153,6 +1274,26 @@ GO
         AssertSql(
             """
 -- I GO 2
+""");
+    }
+
+    [Fact]
+    public virtual void SqlOperation_ignores_line_starting_with_go_identifier()
+    {
+        Generate(
+            new SqlOperation
+            {
+                Sql = "SELECT" + EOL + "    ColumnA," + EOL + "    GoodColumn," + EOL + "    ColumnC" + EOL + "FROM" + EOL + "   [Table]"
+            });
+
+        AssertSql(
+            """
+SELECT
+    ColumnA,
+    GoodColumn,
+    ColumnC
+FROM
+   [Table]
 """);
     }
 
@@ -2333,6 +2474,61 @@ WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Settings';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [People] ALTER COLUMN [Settings] json NOT NULL;
 """);
+    }
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
+    public virtual void Create_json_index_over_complex_property_member()
+    {
+        var services = TestHelpers.CreateContextServices(CustomServices!, ContextOptions!);
+        var modelBuilder = TestHelpers.CreateConventionBuilder(services);
+        BuildModel(modelBuilder);
+
+        var model = modelBuilder.FinalizeModel(designTime: true);
+        var operation = Assert.Single(
+            services.GetRequiredService<IMigrationsModelDiffer>()
+                .GetDifferences(null, model.GetRelationalModel())
+                .OfType<CreateIndexOperation>());
+
+        // Scaffolded migration code cannot contain the non-literal RelationalJsonIndex annotation;
+        // removing this filter would make CSharpMigrationOperationGenerator throw here.
+        var migrationCode = TestHelpers.CreateDesignServiceProvider().GetRequiredService<IMigrationsCodeGenerator>()
+            .GenerateMigration("Migrations", "AddJsonIndex", [operation], []);
+        Assert.DoesNotContain(RelationalAnnotationNames.JsonIndex, migrationCode);
+
+        operation.RemoveAnnotation(RelationalAnnotationNames.JsonIndex);
+        Generate(BuildModel, operation);
+
+        AssertSql(
+            """
+CREATE JSON INDEX [IX_Blogs_Details_Slug] ON [Blogs]([Details]) FOR (N'$.Slug');
+""");
+
+        static void BuildModel(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<JsonIndexBlog>(
+                e =>
+                {
+                    e.ToTable("Blogs");
+                    e.ComplexProperty(
+                        b => b.Details, cb =>
+                        {
+                            cb.ToJson().HasColumnType("json");
+                            cb.Property(i => i.Slug);
+                            cb.Property(i => i.Owner);
+                        });
+                    e.HasIndex(b => b.Details.Slug);
+                });
+    }
+
+    private class JsonIndexBlog
+    {
+        public int Id { get; set; }
+        public JsonIndexBlogDetails Details { get; set; } = null!;
+    }
+
+    private class JsonIndexBlogDetails
+    {
+        public string Slug { get; set; } = null!;
+        public string Owner { get; set; } = null!;
     }
 
     private static void CreateGotModel(ModelBuilder b)

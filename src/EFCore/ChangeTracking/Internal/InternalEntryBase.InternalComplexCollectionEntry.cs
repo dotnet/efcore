@@ -15,6 +15,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 /// </summary>
 public partial class InternalEntryBase
 {
+    internal static readonly bool UseOldBehavior39073 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue39073", out var enabled) && enabled;
+
     private struct InternalComplexCollectionEntry(InternalEntryBase entry, IComplexProperty complexCollection)
     {
         private List<InternalComplexEntry?>? _entries;
@@ -34,7 +37,8 @@ public partial class InternalEntryBase
                 && (defaultState != EntityState.Deleted || original)
                 && (defaultState != EntityState.Added || !original))
             {
-                for (var i = 0; i < entries.Count; i++)
+                var count = UseOldBehavior39073 ? entries.Count : collection.Count;
+                for (var i = 0; i < count; i++)
                 {
                     if (entries[i] != null)
                     {
@@ -139,7 +143,7 @@ public partial class InternalEntryBase
             return _entries;
         }
 
-        private IList? GetCollection(bool original)
+        public IList? GetCollection(bool original)
         {
             if (_containingEntry is InternalComplexEntry complexEntry)
             {
@@ -385,14 +389,20 @@ public partial class InternalEntryBase
 
             _containingEntry.EnsureOriginalValues();
 
-            EnsureCapacity(GetCollection(original: true)?.Count ?? 0, original: true, trim: false);
-            EnsureCapacity(GetCollection(original: false)?.Count ?? 0, original: false, trim: false);
+            var originalCollectionCount = GetCollection(original: true)?.Count ?? 0;
+            var currentCollectionCount = GetCollection(original: false)?.Count ?? 0;
+            EnsureCapacity(originalCollectionCount, original: true, trim: false);
+            EnsureCapacity(currentCollectionCount, original: false, trim: false);
 
             var defaultState = newState == EntityState.Modified && !modifyProperties
                 ? EntityState.Unchanged
                 : newState;
-            var originalEntries = GetOrCreateEntries(original: true, defaultState).ToArray();
-            var currentEntries = GetOrCreateEntries(original: false, defaultState).ToArray();
+            var originalEntries = GetOrCreateEntries(original: true, defaultState)
+                .Take(UseOldBehavior39073 ? int.MaxValue : originalCollectionCount)
+                .ToArray();
+            var currentEntries = GetOrCreateEntries(original: false, defaultState)
+                .Take(UseOldBehavior39073 ? int.MaxValue : currentCollectionCount)
+                .ToArray();
             if (setOriginalState)
             {
                 foreach (var originalEntry in originalEntries)

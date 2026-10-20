@@ -101,6 +101,52 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
     protected class PassiveNonQueryCommandInterceptor() : CommandInterceptorBase(DbCommandMethod.ExecuteNonQuery);
 
     [Theory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
+    public virtual async Task Intercept_ExecuteDelete_passively(bool async, bool inject)
+    {
+        var (context, interceptor) = await CreateContextAsync<PassiveNonQueryCommandInterceptor>(inject);
+        using (context)
+        {
+            using (context.Database.BeginTransaction())
+            {
+                using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
+                var query = context.Set<Singularity>().Where(e => e.Id == 77);
+                var result = async
+                    ? await query.ExecuteDeleteAsync()
+                    : query.ExecuteDelete();
+
+                Assert.Equal(1, result);
+
+                AssertNormalOutcome(context, interceptor, async, CommandSource.ExecuteDelete);
+
+                AssertExecutedEvents(listener);
+            }
+        }
+    }
+
+    [Theory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
+    public virtual async Task Intercept_ExecuteUpdate_passively(bool async, bool inject)
+    {
+        var (context, interceptor) = await CreateContextAsync<PassiveNonQueryCommandInterceptor>(inject);
+        using (context)
+        {
+            using (context.Database.BeginTransaction())
+            {
+                using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
+                var query = context.Set<Singularity>().Where(e => e.Id == 77);
+                var result = async
+                    ? await query.ExecuteUpdateAsync(s => s.SetProperty(e => e.Type, "White Hole"))
+                    : query.ExecuteUpdate(s => s.SetProperty(e => e.Type, "White Hole"));
+
+                Assert.Equal(1, result);
+
+                AssertNormalOutcome(context, interceptor, async, CommandSource.ExecuteUpdate);
+
+                AssertExecutedEvents(listener);
+            }
+        }
+    }
+
+    [Theory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public virtual async Task<string> Intercept_query_to_suppress_execution(bool async, bool inject)
     {
         var (context, interceptor) = await CreateContextAsync<SuppressingReaderCommandInterceptor>(inject);

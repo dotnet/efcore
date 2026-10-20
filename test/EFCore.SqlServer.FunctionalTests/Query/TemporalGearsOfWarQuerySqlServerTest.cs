@@ -2877,6 +2877,17 @@ ORDER BY [g].[Nickname], [g].[SquadId], [w0].[Name]
 """);
     }
 
+    public override async Task New_Date_Expressions_in_projection(bool async)
+    {
+        await base.New_Date_Expressions_in_projection(async);
+
+        AssertSql(
+            """
+SELECT [m].[Date], CAST('08:00:00' AS time), CAST('2020-01-02' AS date), [m].[Time], CAST('2020-01-02T08:00:00.0000000' AS datetime2)
+FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
+""");
+    }
+
     public override async Task GetValueOrDefault_in_projection(bool async)
     {
         await base.GetValueOrDefault_in_projection(async);
@@ -3431,7 +3442,7 @@ ORDER BY [g].[Nickname]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([m].[Rating]), 0.0E0)
+SELECT ISNULL(SUM([m].[Rating]), 0.0E0)
 FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
 GROUP BY [m].[CodeName]
 """);
@@ -6287,16 +6298,16 @@ FROM [Factions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [f]
 
         AssertSql(
             """
-SELECT ISNULL((
-    SELECT TOP(1) [w].[Id]
-    FROM [Weapons] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [w]
-    WHERE [g].[FullName] = [w].[OwnerFullName]
-    ORDER BY [w].[Id]), (
-    SELECT TOP(1) [w0].[Id]
-    FROM [Weapons] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [w0]
-    WHERE [g].[FullName] = [w0].[OwnerFullName]
-    ORDER BY [w0].[Id]))
+SELECT [w1].[Id]
 FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
+LEFT JOIN (
+    SELECT [w0].[Id], [w0].[OwnerFullName]
+    FROM (
+        SELECT [w].[Id], [w].[OwnerFullName], ROW_NUMBER() OVER(PARTITION BY [w].[OwnerFullName] ORDER BY [w].[Id]) AS [row]
+        FROM [Weapons] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [w]
+    ) AS [w0]
+    WHERE [w0].[row] <= 1
+) AS [w1] ON [g].[FullName] = [w1].[OwnerFullName]
 """);
     }
 
@@ -8052,7 +8063,7 @@ WHERE [m].[Rating] IS NULL
 
         AssertSql(
             """
-SELECT COALESCE(SUM([m].[Rating]), 0.0E0)
+SELECT ISNULL(SUM([m].[Rating]), 0.0E0)
 FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
 WHERE [m].[CodeName] = N'Operation Foobar'
 """);

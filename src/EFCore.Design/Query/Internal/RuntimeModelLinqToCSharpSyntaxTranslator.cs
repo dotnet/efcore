@@ -55,12 +55,18 @@ public class RuntimeModelLinqToCSharpSyntaxTranslator : LinqToCSharpSyntaxTransl
         IReadOnlyDictionary<object, string>? constantReplacements,
         IReadOnlyDictionary<MemberInfo, QualifiedName>? memberAccessReplacements,
         ISet<string> collectedNamespaces,
-        ISet<MethodDeclarationSyntax> unsafeAccessors)
+        ISet<MethodDeclarationSyntax> unsafeAccessors,
+        IReadOnlySet<string>? declaredNames = null)
     {
         _memberAccessReplacements = memberAccessReplacements;
-        var result = TranslateStatement(node, constantReplacements, collectedNamespaces, unsafeAccessors);
-        _memberAccessReplacements = null;
-        return result;
+        try
+        {
+            return TranslateStatement(node, constantReplacements, collectedNamespaces, unsafeAccessors, declaredNames);
+        }
+        finally
+        {
+            _memberAccessReplacements = null;
+        }
     }
 
     /// <summary>
@@ -74,12 +80,18 @@ public class RuntimeModelLinqToCSharpSyntaxTranslator : LinqToCSharpSyntaxTransl
         IReadOnlyDictionary<object, string>? constantReplacements,
         IReadOnlyDictionary<MemberInfo, QualifiedName>? memberAccessReplacements,
         ISet<string> collectedNamespaces,
-        ISet<MethodDeclarationSyntax> unsafeAccessors)
+        ISet<MethodDeclarationSyntax> unsafeAccessors,
+        IReadOnlySet<string>? declaredNames = null)
     {
         _memberAccessReplacements = memberAccessReplacements;
-        var result = TranslateExpression(node, constantReplacements, collectedNamespaces, unsafeAccessors);
-        _memberAccessReplacements = null;
-        return result;
+        try
+        {
+            return TranslateExpression(node, constantReplacements, collectedNamespaces, unsafeAccessors, declaredNames);
+        }
+        finally
+        {
+            _memberAccessReplacements = null;
+        }
     }
 
     /// <summary>
