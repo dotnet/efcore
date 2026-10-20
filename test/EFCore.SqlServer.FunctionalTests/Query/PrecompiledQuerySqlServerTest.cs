@@ -421,6 +421,33 @@ ORDER BY [b].[Name]
 """);
     }
 
+    public override async Task Final_GroupBy_projecting_grouping_elements()
+    {
+        await base.Final_GroupBy_projecting_grouping_elements();
+
+        AssertSql(
+            """
+SELECT [b].[Name], DENSE_RANK() OVER(ORDER BY [b].[Name]), [b].[Id]
+FROM [Blogs] AS [b]
+ORDER BY [b].[Name]
+""");
+    }
+
+    public override async Task GroupBy_Select_first_grouping_element()
+    {
+        await base.GroupBy_Select_first_grouping_element();
+
+        AssertSql(
+            """
+SELECT [b0].[Id], [b0].[Name], [b0].[c]
+FROM (
+    SELECT [b].[Id], [b].[Name], [b].[Json] AS [c], ROW_NUMBER() OVER(PARTITION BY [b].[Name] ORDER BY [b].[Id]) AS [row]
+    FROM [Blogs] AS [b]
+) AS [b0]
+WHERE [b0].[row] <= 1
+""");
+    }
+
     #endregion Regular operators
 
     #region Terminating operators
@@ -2011,6 +2038,16 @@ FROM [Blogs] AS [b]
 """);
     }
 
+    public override async Task DbContext_as_captured_parameter()
+    {
+        await base.DbContext_as_captured_parameter();
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Name], [b].[Json]
+FROM [Blogs] AS [b]
+""");
+    }
+
     public override async Task DbContext_as_method_invocation_result()
     {
         await base.DbContext_as_method_invocation_result();
@@ -2025,6 +2062,19 @@ FROM [Blogs] AS [b]
     #endregion Different query roots
 
     #region Captured variable handling
+
+    public override async Task Captured_method_parameter_in_lambda()
+    {
+        await base.Captured_method_parameter_in_lambda();
+        AssertSql(
+            """
+@id='7'
+
+SELECT [b].[Id], [b].[Name], [b].[Json]
+FROM [Blogs] AS [b]
+WHERE [b].[Id] = @id
+""");
+    }
 
     public override async Task Two_captured_variables_in_same_lambda()
     {

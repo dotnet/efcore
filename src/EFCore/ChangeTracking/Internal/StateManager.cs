@@ -735,6 +735,7 @@ public class StateManager : IStateManager
         Clear(resetting: true);
         Dependencies.NavigationFixer.AbortDelayedFixup();
         _changeDetector?.ResetState();
+        (_concurrencyDetector as IResettableService)?.ResetState();
 
         Tracking = null;
         Tracked = null;

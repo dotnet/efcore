@@ -46,6 +46,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         {
             null or { TypeMapping: not null } => sqlExpression,
 
+            AggregateFunctionExpression e => e.ApplyTypeMapping(typeMapping),
             AtTimeZoneExpression e => ApplyTypeMappingOnAtTimeZone(e, typeMapping),
             CaseExpression e => ApplyTypeMappingOnCase(e, typeMapping),
             CollateExpression e => ApplyTypeMappingOnCollate(e, typeMapping),
@@ -749,11 +750,30 @@ public class SqlExpressionFactory : ISqlExpressionFactory
                     // WHEN x THEN y
                     test = nestedSingleClause.Test;
                 }
-                else if (nestedSingleClause.Result is SqlConstantExpression { Value: false or null }
+                else if (whenClauses.Count == 1
+                         && nestedSingleClause.Result is SqlConstantExpression { Value: false or null }
                          && testExpr.ElseResult is SqlConstantExpression { Value: true })
                 {
-                    // same for the negated results
-                    test = Not(nestedSingleClause.Test);
+                    // CASE
+                    //   WHEN CASE
+                    //     WHEN x THEN FALSE/NULL
+                    //     ELSE TRUE
+                    //   END THEN y
+                    //   ELSE z
+                    // END
+                    // simplifies to
+                    // CASE
+                    //   WHEN x THEN z
+                    //   ELSE y
+                    // END
+                    // It cannot become WHEN NOT x THEN y: when x is NULL the nested CASE is TRUE, but NOT x is NULL. That is
+                    // the case the nested CASE exists for, as the nullability processor wraps a nullable comparison in it
+                    // to give it C# semantics. With more clauses, swapping would change which one the remaining rows reach,
+                    // so the nested CASE is left as is.
+                    return Case(
+                        operand: null,
+                        [new CaseWhenClause(nestedSingleClause.Test, elseResult ?? Constant(null, caseWhenClause.Result.Type, caseWhenClause.Result.TypeMapping))],
+                        caseWhenClause.Result);
                 }
             }
 
@@ -864,8 +884,8 @@ public class SqlExpressionFactory : ISqlExpressionFactory
                     case var _ when ifEqual.Equals(right):
                         return left;
                     // a == b ? null : a -> NULLIF(a, b)
+                    // NULLIF is also NULL when a == b, so its nullability doesn't follow from its arguments: never propagate.
                     case SqlConstantExpression { Value: null }:
-                        // NULLIF is also NULL when a == b, so its nullability doesn't follow from its arguments: never propagate.
                         return Function("NULLIF", [left, right], nullable: true, Statics.FalseArrays[2], left.Type, left.TypeMapping);
                 }
             }

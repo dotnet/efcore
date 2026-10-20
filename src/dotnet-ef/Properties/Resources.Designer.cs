@@ -426,6 +426,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("NamespaceDescription");
 
         /// <summary>
+        ///     The C# language version to use when generating code.
+        /// </summary>
+        public static string LanguageVersionDescription
+            => GetString("LanguageVersionDescription");
+
+        /// <summary>
         ///     Generate additional code in the compiled model required for NativeAOT compilation and precompiled queries (experimental).
         /// </summary>
         public static string NativeAotDescription

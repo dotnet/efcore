@@ -95,6 +95,10 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
             : AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.IndexOf('e') != -1));
 
     [Fact]
+    public virtual Task IndexOf_Char_with_non_ASCII_char()
+        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.IndexOf('ş') == -1));
+
+    [Fact]
     public virtual Task IndexOf_with_empty_string()
         => AssertQuery(
             ss => ss.Set<BasicTypesEntity>().Where(b => b.String.IndexOf(string.Empty) == 0),
@@ -172,6 +176,19 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
     }
 
     [Fact]
+    public virtual Task IndexOf_with_empty_string_and_constant_starting_position()
+        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Length > 2 && b.String.IndexOf(string.Empty, 2) == 2));
+
+    [Fact]
+    public virtual Task IndexOf_with_empty_string_parameter_and_parameter_starting_position()
+    {
+        var pattern = string.Empty;
+        var start = 2;
+
+        return AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Length > 2 && b.String.IndexOf(pattern, start) == 2));
+    }
+
+    [Fact]
     public virtual Task IndexOf_after_ToString()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(x => x.Int.ToString().IndexOf("55") == 1));
 
@@ -195,6 +212,10 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
     [Fact]
     public virtual Task Replace_Char()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Replace('S', 'R') == "Reattle"));
+
+    [Fact]
+    public virtual Task Replace_Char_with_non_ASCII_char()
+        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Replace('ş', 'x') == b.String));
 
     [Fact]
     public virtual Task Replace_with_empty_string()
@@ -554,6 +575,30 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
     public virtual Task TrimStart_with_char_array_argument()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.String.TrimStart(new[] { 'S', 'e' }) == "attle"));
 
+    [Fact]
+    public virtual Task TrimStart_with_char_parameter()
+    {
+        var trimChar = 'S';
+
+        return AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.String.TrimStart(trimChar) == "eattle"));
+    }
+
+    [Fact]
+    public virtual Task TrimStart_with_non_ASCII_char_parameter()
+    {
+        var trimChar = 'ş';
+
+        return AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.String.TrimStart(trimChar) == c.String));
+    }
+
+    [Fact]
+    public virtual Task TrimStart_with_char_array_parameter()
+    {
+        var trimChars = new[] { 'S', 'e' };
+
+        return AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.String.TrimStart(trimChars) == "attle"));
+    }
+
     #endregion TrimStart
 
     #region TrimEnd
@@ -569,6 +614,30 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
     [Fact]
     public virtual Task TrimEnd_with_char_array_argument()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.String.TrimEnd(new[] { 'l', 'e' }) == "Seatt"));
+
+    [Fact]
+    public virtual Task TrimEnd_with_char_parameter()
+    {
+        var trimChar = 'e';
+
+        return AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.String.TrimEnd(trimChar) == "Seattl"));
+    }
+
+    [Fact]
+    public virtual Task TrimEnd_with_non_ASCII_char_parameter()
+    {
+        var trimChar = 'ş';
+
+        return AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.String.TrimEnd(trimChar) == c.String));
+    }
+
+    [Fact]
+    public virtual Task TrimEnd_with_char_array_parameter()
+    {
+        var trimChars = new[] { 'l', 'e' };
+
+        return AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.String.TrimEnd(trimChars) == "Seatt"));
+    }
 
     #endregion TrimEnd
 

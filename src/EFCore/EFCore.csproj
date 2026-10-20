@@ -59,7 +59,7 @@ Microsoft.EntityFrameworkCore.DbSet
   <ItemGroup>
     <None Include="buildTransitive\**\*">
       <Pack>True</Pack>
-      <PackagePath>buildTransitive</PackagePath>
+      <PackagePath>buildTransitive\$(DefaultNetCoreTargetFramework)</PackagePath>
     </None>
   </ItemGroup>
 

@@ -164,4 +164,10 @@ public abstract class DateTimeOffsetTranslationsTestBase<TFixture>(TFixture fixt
             ss => ss.Set<BasicTypesEntity>().Where(dynamicWhere),
             ss => ss.Set<BasicTypesEntity>().Where(m => m.DateTimeOffset == dateTimeOffset));
     }
+
+    [Fact]
+    public virtual Task Select_Ctor_Parameter_DateTime_New_TimeSpan()
+        => AssertQuery(ss => ss.Set<BasicTypesEntity>()
+            .Where(b => b.DateTime.Year > 1)
+            .Select(b => new DateTimeOffset(b.DateTime, new TimeSpan(2, 0, 0))));
 }

@@ -46,4 +46,71 @@ public class FunctionMapping : TableMappingBase<FunctionColumnMapping>, IFunctio
         [DebuggerStepThrough]
         get => ColumnMappings;
     }
+
+    /// <inheritdoc />
+    protected override int CompareTableDetails(ITableMappingBase other)
+    {
+        if (other is not IFunctionMapping otherFunctionMapping)
+        {
+            return 1;
+        }
+
+        if (Table is StoreFunction storeFunction
+            && otherFunctionMapping.Table is StoreFunction otherStoreFunction)
+        {
+            var xParams = storeFunction.Parameters;
+            var yParams = otherStoreFunction.Parameters;
+            var result = xParams.Length.CompareTo(yParams.Length);
+            if (result != 0)
+            {
+                return result;
+            }
+
+            for (var i = 0; i < xParams.Length; i++)
+            {
+                var xp = xParams[i];
+                var yp = yParams[i];
+                result = StringComparer.Ordinal.Compare(xp.StoreType, yp.StoreType);
+                if (result != 0)
+                {
+                    return result;
+                }
+
+                result = StringComparer.Ordinal.Compare(xp.Name, yp.Name);
+                if (result != 0)
+                {
+                    return result;
+                }
+            }
+
+            return 0;
+        }
+
+        var xList = StoreFunction.Parameters.ToList();
+        var yList = otherFunctionMapping.StoreFunction.Parameters.ToList();
+        var countResult = xList.Count.CompareTo(yList.Count);
+        if (countResult != 0)
+        {
+            return countResult;
+        }
+
+        for (var i = 0; i < xList.Count; i++)
+        {
+            var xp = xList[i];
+            var yp = yList[i];
+            var result = StringComparer.Ordinal.Compare(xp.StoreType, yp.StoreType);
+            if (result != 0)
+            {
+                return result;
+            }
+
+            result = StringComparer.Ordinal.Compare(xp.Name, yp.Name);
+            if (result != 0)
+            {
+                return result;
+            }
+        }
+
+        return 0;
+    }
 }

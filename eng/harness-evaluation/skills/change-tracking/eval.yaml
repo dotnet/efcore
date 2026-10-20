@@ -1,0 +1,57 @@
+name: change-tracking
+description: Evaluates change-tracking guidance against EF Core snapshot and entry-state code.
+type: capability
+defaults:
+  runs: ${RUNS=5}
+  model: ${MODEL=gpt-6.1-sol}
+  judge_model: ${JUDGE_MODEL=gpt-5.6-terra}
+  judge_reasoning_effort: ${JUDGE_REASONING_EFFORT=medium}
+  judge_timeout: ${JUDGE_TIMEOUT=10m}
+  executor: copilot-sdk
+agent_environment:
+  skills:
+    - ../../../../.agents/skills/change-tracking
+stimuli:
+  - name: diagnose-replaced-owned-graph-corruption
+    prompt: |-
+      Inspect the staged change-tracking implementation and JSON update tests. Replacing a JSON-owned root with a new instance that reuses its nested leaf persists correctly, but after SaveChanges the replacement graph's leaf is null in memory.
+
+      A proposed fix makes `EntityGraphAttacher` process every entry in `Deleted` state and makes `StateManager.CascadeDelete` return early whenever the entry is `Deleted`. Write analysis.md with the corrected implementation and focused regression-test plan. Do not edit source.
+    constraints:
+      max_turns: 80
+      max_tokens: 2000000
+      max_duration: ${EVAL_TIMEOUT=30m}
+    agent_environment:
+      files:
+        - src: ../../../../src/EFCore/ChangeTracking/Internal/EntityGraphAttacher.cs
+          dest: src/EFCore/ChangeTracking/Internal/EntityGraphAttacher.cs
+        - src: ../../../../src/EFCore/ChangeTracking/Internal/StateManager.cs
+          dest: src/EFCore/ChangeTracking/Internal/StateManager.cs
+        - src: ../../../../test/EFCore.Relational.Specification.Tests/Update/JsonUpdateTestBase.cs
+          dest: test/EFCore.Relational.Specification.Tests/Update/JsonUpdateTestBase.cs
+    rubric:
+      - The analysis uses `SharedIdentityEntry`, not broad Added/Deleted state checks, to identify an old entry and its replacement.
+      - It allows a deleted nested entry through EntityGraphAttacher only when the graph source has a shared-identity replacement, and skips cascading from the replaced old principal; synchronous and asynchronous paths remain equivalent.
+      - The regression replaces the root while reusing a nested reference, preserves unrelated branch values, and verifies the same nested object/value remains intact in memory after SaveChanges.
+    graders:
+      - type: file-matches
+        config:
+          path: analysis.md
+          pattern: (?i)(?=[\s\S]*SharedIdentityEntry)(?=[\s\S]*EntityGraphAttacher)(?=[\s\S]*CascadeDelete)(?=[\s\S]*(nested|leaf|replacement))[\s\S]+
+      - type: prompt
+        config:
+          scoring: binary
+          threshold: 1
+          evidence:
+            - trajectory
+            - repo
+      - type: token-budget
+        config:
+          max: 2000000
+scoring:
+  timeout: ${SCORING_TIMEOUT=10m}
+  weights:
+    file-matches: 0.27
+    prompt: 0.63
+    token-budget: 0.1
+  threshold: 0.75

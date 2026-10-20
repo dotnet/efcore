@@ -212,7 +212,7 @@
       "Type": "static class Microsoft.EntityFrameworkCore.Infrastructure.LazyLoaderExtensions",
       "Methods": [
         {
-          "Member": "static TRelated? Load<TRelated>(this Microsoft.EntityFrameworkCore.Infrastructure.ILazyLoader? loader, object entity, ref TRelated? navigationField, string navigationName = \"\");"
+          "Member": "static TRelated? Load<TRelated>(this Microsoft.EntityFrameworkCore.Infrastructure.ILazyLoader? loader, object entity, ref TRelated? navigationField, string navigationName = \"\") where TRelated : class;"
         }
       ]
     },
@@ -228,7 +228,7 @@
       "Type": "static class Microsoft.EntityFrameworkCore.ObservableCollectionExtensions",
       "Methods": [
         {
-          "Member": "static System.ComponentModel.BindingList<T> ToBindingList<T>(this System.Collections.ObjectModel.ObservableCollection<T> source);"
+          "Member": "static System.ComponentModel.BindingList<T> ToBindingList<T>(this System.Collections.ObjectModel.ObservableCollection<T> source) where T : class;"
         }
       ]
     },

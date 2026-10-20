@@ -74,4 +74,33 @@ public class ColumnMappingBase : Annotatable, IColumnMappingBase
         [DebuggerStepThrough]
         get => TableMapping;
     }
+
+    /// <inheritdoc />
+    public virtual int CompareTo(IColumnMappingBase? other)
+    {
+        if (ReferenceEquals(this, other))
+        {
+            return 0;
+        }
+
+        if (other is null)
+        {
+            return 1;
+        }
+
+        var result = other.Property.IsPrimaryKey().CompareTo(Property.IsPrimaryKey());
+        if (result != 0)
+        {
+            return result;
+        }
+
+        result = TableMapping.CompareTo(other.TableMapping);
+        if (result != 0)
+        {
+            return result;
+        }
+
+        result = StringComparer.Ordinal.Compare(Property.Name, other.Property.Name);
+        return result != 0 ? result : StringComparer.Ordinal.Compare(Column.Name, other.Column.Name);
+    }
 }

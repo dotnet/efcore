@@ -13,7 +13,7 @@ EF Core does not generally need any prerequisites installed to build the code. H
   * The Cosmos tests are optional and will be skipped if the emulator is not available. If you are not making Cosmos changes, then you may choose to skip installing the emulator and let the continuous integration system handle Cosmos testing.
   * Tip: Turn off "Rate Limiting" in the emulator to make the Cosmos tests run faster.<br>
     ![Switch off Cosmos Rate Limiting](rate_limiting.png)
-* While not strictly necessary, since EF will download an SDK locally if needed, it is recommended to always have tha [latest public preview of the .NET SDK](https://dotnet.microsoft.com/download) installed.
+* While not strictly necessary, since EF will download an SDK locally if needed, it is recommended to always have the [latest public preview of the .NET SDK](https://dotnet.microsoft.com/download) installed.
 
 ## Fork the repository
 

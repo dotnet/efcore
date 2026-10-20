@@ -222,6 +222,43 @@ partial class Snapshot : ModelSnapshot
     }
 
     [Fact]
+    public void Optional_entity_splitting_fragment_is_stored_in_snapshot()
+    {
+        var modelBuilder = CreateConventionalModelBuilder();
+        modelBuilder.HasDefaultSchema(null);
+        modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
+        modelBuilder.Entity<SplitEntity>(b =>
+        {
+            b.ToTable("SplitEntities");
+            b.SplitToTable(
+                "SplitEntityDetails", t =>
+                {
+                    t.IsOptional();
+                    t.Property(e => e.Description);
+                });
+        });
+
+        var model = modelBuilder.FinalizeModel(designTime: true);
+
+        var generator = CreateMigrationsGenerator();
+        var code = generator.GenerateSnapshot("RootNamespace", typeof(DbContext), "Snapshot", model);
+
+        Assert.Contains("t.IsOptional();", code);
+
+        var roundTrippedModel = BuildModelFromSnapshotSource(code);
+        var fragment = Assert.Single(
+            roundTrippedModel.FindEntityType(typeof(SplitEntity))!.GetMappingFragments(StoreObjectType.Table));
+        Assert.True(fragment.IsOptional);
+    }
+
+    private class SplitEntity
+    {
+        public int Id { get; set; }
+        public string? Name { get; set; }
+        public string? Description { get; set; }
+    }
+
+    [Fact]
     public void Snapshot_with_migration_id()
     {
         var generator = CreateMigrationsCodeGenerator();
@@ -909,7 +946,7 @@ partial class Snapshot : ModelSnapshot
                     .ValueGeneratedOnAdd()
                     .HasColumnType("int");
 
-                SqlServerPropertyBuilderExtensions.UseHiLo(id);
+                SqlServerPropertyBuilderExtensions.UseHiLo(id, "EntityFrameworkHiLoSequence");
 
                 b.HasKey("Id");
 
@@ -968,6 +1005,31 @@ partial class Snapshot : ModelSnapshot
                     SqlServerValueGenerationStrategy.Sequence,
                     SqlServerPropertyExtensions.GetValueGenerationStrategy(o.GetEntityTypes().Single().GetProperty("Id")));
             });
+
+    [Theory]
+    [InlineData(null, null)]
+    [InlineData("HiLoSequence", null)]
+    [InlineData(null, "HiLoSchema")]
+    [InlineData("HiLoSequence", "HiLoSchema")]
+    public virtual void Model_HiLo_sequence_is_preserved_in_snapshot(string? sequenceName, string? sequenceSchema)
+        => Test(
+            builder =>
+            {
+                builder.HasDefaultSchema(null);
+                builder.UseHiLo(sequenceName, sequenceSchema);
+                builder.Entity("Entity").Property<int>("Id");
+            },
+            $"SqlServerPropertyBuilderExtensions.UseHiLo(id, \"{sequenceName ?? SqlServerModelExtensions.DefaultHiLoSequenceName}\""
+            + (sequenceSchema is null ? ");" : $", \"{sequenceSchema}\");"),
+            o =>
+            {
+                var sequence = Assert.Single(o.GetSequences());
+                Assert.Equal(sequenceName ?? SqlServerModelExtensions.DefaultHiLoSequenceName, sequence.Name);
+                Assert.Equal(sequenceSchema, sequence.Schema);
+                Assert.Equal(10, sequence.IncrementBy);
+                Assert.Same(sequence, o.FindEntityType("Entity")!.FindProperty("Id")!.FindHiLoSequence());
+            },
+            fullSnapshot: false);
 
     [Fact]
     public virtual void Model_default_schema_annotation_is_stored_in_snapshot_as_fluent_api()

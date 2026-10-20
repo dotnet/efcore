@@ -1,17 +1,13 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using IOPath = System.IO.Path;
-
 namespace Microsoft.EntityFrameworkCore.Tools.TestUtilities;
 
 public class TempDirectory : IDisposable
 {
     public TempDirectory()
     {
-        Path = IOPath.Combine(IOPath.GetTempPath(), IOPath.GetRandomFileName());
-        Assert.False(Directory.Exists(Path), $"Temporary directory '{Path}' already exists.");
-        Directory.CreateDirectory(Path);
+        Path = Directory.CreateTempSubdirectory().FullName;
     }
 
     public string Path { get; }
