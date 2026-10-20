@@ -1996,6 +1996,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 typeName, ownerType);
 
         /// <summary>
+        ///     Cannot create a DbSet for '{typeName}' with entity type name '{entityTypeName}' because no entity type with this name is included in the model for the context.
+        /// </summary>
+        public static string InvalidSetTypeWithName(object? typeName, object? entityTypeName)
+            => string.Format(
+                GetString("InvalidSetTypeWithName", nameof(typeName), nameof(entityTypeName)),
+                typeName, entityTypeName);
+
+        /// <summary>
         ///     The number of indices provided ({indicesCount}) must match the number of array segments in the JSON path ({arraySegmentCount}).
         /// </summary>
         public static string InvalidStructuredJsonPathIndexCount(object? indicesCount, object? arraySegmentCount)

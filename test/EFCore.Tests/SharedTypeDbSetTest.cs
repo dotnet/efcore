@@ -709,6 +709,36 @@ public class SharedTypeDbSetTest
         public string ShirtColor { get; set; } = null!;
     }
 
+    [Fact]
+    public void Set_throws_for_shared_entity_type_name_not_in_model()
+    {
+        using var context = new EarlyLearningCenter();
+        var ex = Assert.Throws<InvalidOperationException>(() => context.Set<Category>("Foo").Local);
+
+        Assert.Equal(
+            CoreStrings.InvalidSetTypeWithName(nameof(Category), "Foo"), ex.Message);
+
+        var exDict = Assert.Throws<InvalidOperationException>(() => context.Set<Dictionary<string, object>>("Foo").Local);
+
+        Assert.Equal(
+            CoreStrings.InvalidSetTypeWithName("Dictionary<string, object>", "Foo"), exDict.Message);
+    }
+
+    [Fact]
+    public void Set_throws_for_shared_entity_type_without_name()
+    {
+        using var context = new EarlyLearningCenter();
+        var ex = Assert.Throws<InvalidOperationException>(() => context.Set<Category>().Local);
+
+        Assert.Equal(
+            CoreStrings.InvalidSetSharedType(nameof(Category)), ex.Message);
+
+        var exDict = Assert.Throws<InvalidOperationException>(() => context.Set<Dictionary<string, object>>().Local);
+
+        Assert.Equal(
+            CoreStrings.InvalidSetSharedType("Dictionary<string, object>"), exDict.Message);
+    }
+
     private class EarlyLearningCenter : DbContext
     {
         public DbSet<Product> Product1s
