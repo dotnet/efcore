@@ -17005,6 +17005,9 @@
       "Type": "sealed class Microsoft.EntityFrameworkCore.Storage.Json.JsonDateTimeReaderWriter : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<System.DateTime>",
       "Methods": [
         {
+          "Member": "JsonDateTimeReaderWriter(string format);"
+        },
+        {
           "Member": "override System.DateTime FromJsonTyped(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
         },
         {
