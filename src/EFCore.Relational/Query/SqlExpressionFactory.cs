@@ -865,7 +865,8 @@ public class SqlExpressionFactory : ISqlExpressionFactory
                         return left;
                     // a == b ? null : a -> NULLIF(a, b)
                     case SqlConstantExpression { Value: null }:
-                        return Function("NULLIF", [left, right], nullable: true, Statics.TrueFalse, left.Type, left.TypeMapping);
+                        // NULLIF is also NULL when a == b, so its nullability doesn't follow from its arguments: never propagate.
+                        return Function("NULLIF", [left, right], nullable: true, Statics.FalseArrays[2], left.Type, left.TypeMapping);
                 }
             }
 
@@ -879,7 +880,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
                         return right;
                     // a == b ? null : b -> NULLIF(b, a)
                     case SqlConstantExpression { Value: null }:
-                        return Function("NULLIF", [right, left], nullable: true, Statics.TrueFalse, right.Type, right.TypeMapping);
+                        return Function("NULLIF", [right, left], nullable: true, Statics.FalseArrays[2], right.Type, right.TypeMapping);
                 }
             }
         }
