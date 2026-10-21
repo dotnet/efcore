@@ -355,18 +355,57 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     private Expression VisitWithConversion(ExpressionSyntax node, bool convertReferenceTypes = true)
     {
         var expression = Visit(node);
+        var conversion = _semanticModel.GetConversion(node);
 
         if (_semanticModel.GetTypeInfo(node).ConvertedType is { } typeSymbol)
         {
             var convertedType = ResolveType(typeSymbol);
             if (expression.Type != convertedType
-                && (convertReferenceTypes || !_semanticModel.GetConversion(node).IsReference))
+                && (convertReferenceTypes || !conversion.IsReference))
             {
-                return Convert(expression, convertedType);
+                return ApplyConversion(expression, convertedType, conversion);
             }
         }
 
         return expression;
+    }
+
+    private Expression ApplyConversion(Expression expression, Type convertedType, Conversion conversion)
+    {
+        if (!conversion.IsUserDefined)
+        {
+            return Convert(expression, convertedType);
+        }
+
+        var methodSymbol = conversion.MethodSymbol
+            ?? throw new InvalidOperationException($"Could not find method for user-defined conversion: {expression}");
+        var declaringType = ResolveType(methodSymbol.ContainingType);
+        var methodInfo = declaringType.GetMethod(
+            methodSymbol.Name,
+            BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static,
+            [ResolveType(methodSymbol.Parameters[0].Type)])
+            ?? throw new InvalidOperationException(
+                $"Could not find method '{methodSymbol.Name}' on type '{declaringType.Name}' for user-defined conversion: {expression}");
+
+        var parameterType = methodInfo.GetParameters()[0].ParameterType;
+        var returnType = methodInfo.ReturnType;
+        if (Nullable.GetUnderlyingType(expression.Type) is not null
+            && Nullable.GetUnderlyingType(parameterType) is null
+            && Nullable.GetUnderlyingType(returnType) is null)
+        {
+            parameterType = typeof(Nullable<>).MakeGenericType(parameterType);
+            returnType = typeof(Nullable<>).MakeGenericType(returnType);
+        }
+
+        if (expression.Type != parameterType)
+        {
+            expression = Convert(expression, parameterType);
+        }
+
+        expression = Convert(expression, returnType, methodInfo);
+        return expression.Type == convertedType
+            ? expression
+            : Convert(expression, convertedType);
     }
 
     /// <summary>

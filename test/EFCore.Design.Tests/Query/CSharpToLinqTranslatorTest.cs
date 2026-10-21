@@ -81,6 +81,25 @@ public class CSharpToLinqTranslatorTest
             """new[] { new CSharpToLinqTranslatorTest.ConvertibleName("foo") }.Where(name => "foo" == name)""");
 
     [Fact]
+    public void Binary_equality_with_implicit_conversion_and_explicit_conversion()
+        => AssertExpression(
+            () => new[] { new ConvertibleWithIntAndLong(1) }.Where(value => 1L == value),
+            "new[] { new CSharpToLinqTranslatorTest.ConvertibleWithIntAndLong(1) }.Where(value => 1L == value)");
+
+    [Fact]
+    public void Binary_equality_with_implicit_conversion_to_int_and_numeric_widening()
+        => AssertExpression(
+            () => new[] { new ConvertibleInt(1) }.Where(value => 1L == value),
+            "new[] { new CSharpToLinqTranslatorTest.ConvertibleInt(1) }.Where(value => 1L == value)");
+
+    [Fact]
+    public void Binary_equality_with_nullable_lifted_implicit_conversion()
+        => AssertExpression(
+            () => new[] { new NullableConversionPair(1L, new ConvertibleInt(1)) }
+                .Where(pair => pair.LongValue == pair.Value),
+            "new[] { new CSharpToLinqTranslatorTest.NullableConversionPair(1L, new CSharpToLinqTranslatorTest.ConvertibleInt(1)) }.Where(pair => pair.LongValue == pair.Value)");
+
+    [Fact]
     public void Binary_inequality_with_implicit_conversion()
         => AssertExpression(
             () => new[] { new ConvertibleName("foo") }.Where(name => (string)name != "bar"),
@@ -550,6 +569,31 @@ _ = {code};
 
         public static implicit operator string(ConvertibleName name)
             => name._value;
+    }
+
+    public class ConvertibleWithIntAndLong(int value)
+    {
+        public int Value { get; } = value;
+
+        public static implicit operator int(ConvertibleWithIntAndLong value)
+            => value.Value;
+
+        public static explicit operator long(ConvertibleWithIntAndLong value)
+            => value.Value + 100;
+    }
+
+    public readonly struct ConvertibleInt(int value)
+    {
+        public int Value { get; } = value;
+
+        public static implicit operator int(ConvertibleInt value)
+            => value.Value;
+    }
+
+    public class NullableConversionPair(long longValue, ConvertibleInt value)
+    {
+        public long? LongValue { get; } = longValue;
+        public ConvertibleInt? Value { get; } = value;
     }
 
     public class Blog
