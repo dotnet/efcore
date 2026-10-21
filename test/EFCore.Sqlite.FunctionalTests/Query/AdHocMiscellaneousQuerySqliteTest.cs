@@ -1010,7 +1010,7 @@ LEFT JOIN (
         WHERE "p0"."Rank" > 1
     ) AS "p2"
     WHERE "p2"."row" <= 1
-) AS "p3" ON "p1"."GroupId" = "p3"."GroupId"
+) AS "p3" ON "p1"."GroupId" = "p3"."GroupId" OR ("p1"."GroupId" IS NULL AND "p3"."GroupId" IS NULL)
 """);
     }
 
