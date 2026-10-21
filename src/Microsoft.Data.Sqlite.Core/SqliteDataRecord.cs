@@ -122,7 +122,7 @@ internal class SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnectio
             _columnNameOrdinalCache = [];
             for (var i = 0; i < FieldCount; i++)
             {
-                _columnNameOrdinalCache[GetName(i)] = i;
+                _columnNameOrdinalCache.TryAdd(GetName(i), i);
             }
         }
 
@@ -136,7 +136,8 @@ internal class SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnectio
         {
             if (string.Equals(name, item.Key, StringComparison.OrdinalIgnoreCase))
             {
-                if (match != null)
+                if (match != null
+                    && match.Value.Value != item.Value)
                 {
                     throw new InvalidOperationException(
                         Resources.AmbiguousColumnName(name, match.Value.Key, item.Key));
