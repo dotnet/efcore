@@ -32,6 +32,9 @@ public sealed class SqlServerJsonPostprocessor(
     SqlAliasManager? sqlAliasManager)
     : ExpressionVisitor
 {
+    private static readonly bool UseOldBehavior39277 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue39277", out var enabled) && enabled;
+
     private readonly List<OuterApplyExpression> _openjsonOuterAppliesToAdd = [];
     private readonly Dictionary<(string, string), ColumnInfo> _columnsToRewrite = new();
     private readonly HashSet<(string, string)> _jsonColumnsToCast = [];
@@ -90,7 +93,8 @@ public sealed class SqlServerJsonPostprocessor(
                 {
                     var table = selectExpression.Tables[i];
 
-                    if (!_supportsJsonTypeInOpenJson
+                    if (!UseOldBehavior39277
+                        && !_supportsJsonTypeInOpenJson
                         && table.UnwrapJoin() is SqlServerOpenJsonExpression { ColumnInfos: { } jsonColumnInfos } jsonTable)
                     {
                         foreach (var columnInfo in jsonColumnInfos)
