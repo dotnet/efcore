@@ -1041,13 +1041,31 @@ public class CSharpHelper : ICSharpHelper
             }
         }
 
-        return allValues.Aggregate(
-                (string?)null,
-                (previous, current) =>
-                    previous == null
-                        ? GetSimpleEnumValue(type, Enum.GetName(type, current)!, fullName)
-                        : previous + " | " + GetSimpleEnumValue(type, Enum.GetName(type, current)!, fullName))
-            ?? GetUnnamedEnumValue(type, flags);
+        var composite = allValues.Aggregate(
+            (string?)null,
+            (previous, current) =>
+                previous == null
+                    ? GetSimpleEnumValue(type, Enum.GetName(type, current)!, fullName)
+                    : previous + " | " + GetSimpleEnumValue(type, Enum.GetName(type, current)!, fullName));
+        if (composite == null)
+        {
+            return GetUnnamedEnumValue(type, flags);
+        }
+
+        // Bits that don't correspond to any named flag must still be emitted, otherwise the generated value would differ
+        var unnamedBits = ToUInt64(flags) & ~allValues.Aggregate(0UL, (bits, current) => bits | ToUInt64(current));
+
+        return unnamedBits == 0
+            ? composite
+            : composite + " | " + GetUnnamedEnumValue(type, (Enum)Enum.ToObject(type, unnamedBits));
+
+        static ulong ToUInt64(Enum value)
+            => Type.GetTypeCode(Enum.GetUnderlyingType(value.GetType())) switch
+            {
+                TypeCode.SByte or TypeCode.Int16 or TypeCode.Int32 or TypeCode.Int64
+                    => unchecked((ulong)Convert.ToInt64(value, CultureInfo.InvariantCulture)),
+                _ => Convert.ToUInt64(value, CultureInfo.InvariantCulture)
+            };
     }
 
     internal static IReadOnlyCollection<Enum> GetFlags(Enum flags)

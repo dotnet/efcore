@@ -311,6 +311,13 @@ public class CSharpHelperTest
     public void Literal_works_when_enum_value_is_unnamed(object value, string expected)
         => Assert.Equal(expected, new CSharpHelper(TypeMappingSource).UnknownLiteral(value));
 
+    [Theory, InlineData(SomeFlagsEnum.One | SomeFlagsEnum.Two, "CSharpHelperTest.SomeFlagsEnum.One | CSharpHelperTest.SomeFlagsEnum.Two"),
+     InlineData((SomeFlagsEnum)4, "(CSharpHelperTest.SomeFlagsEnum)4"),
+     InlineData((SomeFlagsEnum)5, "CSharpHelperTest.SomeFlagsEnum.One | (CSharpHelperTest.SomeFlagsEnum)4"),
+     InlineData((SomeFlagsEnum)7, "CSharpHelperTest.SomeFlagsEnum.One | CSharpHelperTest.SomeFlagsEnum.Two | (CSharpHelperTest.SomeFlagsEnum)4")]
+    public void Literal_works_when_flags_enum_value_has_unnamed_bits(object value, string expected)
+        => Assert.Equal(expected, new CSharpHelper(TypeMappingSource).UnknownLiteral(value));
+
     [Theory, InlineData(typeof(int), "int"), InlineData(typeof(int?), "int?"), InlineData(typeof(int[]), "int[]"),
      InlineData(typeof(int[,]), "int[,]"), InlineData(typeof(int[][]), "int[][]"), InlineData(typeof(Generic<int>), "Generic<int>"),
      InlineData(typeof(Nested), "CSharpHelperTest.Nested"), InlineData(typeof(Generic<Generic<int>>), "Generic<Generic<int>>"),
@@ -336,6 +343,14 @@ public class CSharpHelperTest
     private enum SomeSByteEnum : sbyte
     {
         Default
+    }
+
+    [Flags]
+    private enum SomeFlagsEnum
+    {
+        Default = 0,
+        One = 1,
+        Two = 2
     }
 
     [Theory, InlineData("dash-er", "dasher"), InlineData("params", "@params"), InlineData("true", "@true"),
