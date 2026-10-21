@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 ///     * When the column type in the WITH clause is a SQL Server "CLR type" - these are incompatible with WITH (e.g. hierarchy id).
 ///     2. Rewrite JsonScalarExpression (JSON_VALUE()) to OPENJSON for when JSON_VALUE() isn't compatible with the type (e.g. binary data
 ///     which needs to be base64-decoded).
-///     3. Cast native json projections from OPENJSON back to json when its WITH clause only supports nvarchar(max).
+///     3. Restore native json inputs to JSON operations when OPENJSON's WITH clause only supports nvarchar(max).
 /// </summary>
 /// <remarks>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -212,15 +212,6 @@ public sealed class SqlServerJsonPostprocessor(
                 return RewriteOpenJsonColumn(columnExpression, columnInfo);
             }
 
-            case ColumnExpression { TypeMapping.StoreType: "json" } columnExpression
-                when _jsonColumnsToCast.Contains((columnExpression.TableAlias, columnExpression.Name)):
-                // OPENJSON projects these fragments as nvarchar(max); restore their native json type so that
-                // subsequent JSON_VALUE calls can use RETURNING, including for strings longer than 4000 characters.
-                return sqlExpressionFactory.Convert(
-                    columnExpression.ApplyTypeMapping(columnExpression.TypeMapping.WithStoreTypeAndSize("nvarchar(max)", null)),
-                    columnExpression.Type,
-                    columnExpression.TypeMapping);
-
             // JsonScalarExpression over a column coming out of OPENJSON/WITH; this means that the column represents an owned sub-
             // entity, and therefore must have AS JSON. Rewrite the column and simply collapse the paths together.
             case JsonScalarExpression { Json: ColumnExpression columnExpression } jsonScalarExpression
@@ -290,6 +281,23 @@ public sealed class SqlServerJsonPostprocessor(
                     jsonScalar.Type,
                     jsonScalar.TypeMapping,
                     jsonScalar.IsNullable);
+            }
+
+            case JsonScalarExpression
+                {
+                    Json: ColumnExpression { TypeMapping: { StoreType: "json" } jsonTypeMapping } columnExpression,
+                    Path.Count: > 0
+                } jsonScalar
+                when jsonScalar.TypeMapping is not SqlServerStructuralJsonTypeMapping
+                && jsonScalar.TypeMapping?.ElementTypeMapping is null
+                && _jsonColumnsToCast.Contains((columnExpression.TableAlias, columnExpression.Name)):
+            {
+                var visited = (JsonScalarExpression)base.Visit(jsonScalar);
+
+                return visited.Update(sqlExpressionFactory.Convert(
+                    columnExpression.ApplyTypeMapping(jsonTypeMapping.WithStoreTypeAndSize("nvarchar(max)", null)),
+                    columnExpression.Type,
+                    jsonTypeMapping));
             }
 
             // The SQL Server json type cannot be compared ("The JSON data type cannot be compared or sorted, except when using the
