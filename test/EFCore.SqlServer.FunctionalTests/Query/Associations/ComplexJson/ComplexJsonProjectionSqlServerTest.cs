@@ -266,7 +266,7 @@ ORDER BY [r].[Id]
     {
         await base.SelectMany_associate_collection(queryTrackingBehavior);
 
-        if (Fixture.UsingJsonType)
+        if (Fixture.UsingJsonType && !SqlServerTestEnvironment.IsAzureSql)
         {
             AssertSql(
                 """
@@ -308,7 +308,7 @@ CROSS APPLY OPENJSON([r].[AssociateCollection], '$') WITH (
     {
         await base.SelectMany_nested_collection_on_required_associate(queryTrackingBehavior);
 
-        if (Fixture.UsingJsonType)
+        if (Fixture.UsingJsonType && !SqlServerTestEnvironment.IsAzureSql)
         {
             AssertSql(
                 """
@@ -344,7 +344,7 @@ CROSS APPLY OPENJSON([r].[RequiredAssociate], '$.NestedCollection') WITH (
     {
         await base.SelectMany_nested_collection_on_optional_associate(queryTrackingBehavior);
 
-        if (Fixture.UsingJsonType)
+        if (Fixture.UsingJsonType && !SqlServerTestEnvironment.IsAzureSql)
         {
             AssertSql(
                 """

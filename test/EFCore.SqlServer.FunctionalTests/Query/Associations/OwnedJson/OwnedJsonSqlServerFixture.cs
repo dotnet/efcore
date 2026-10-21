@@ -18,5 +18,7 @@ public class OwnedJsonSqlServerFixture : OwnedJsonRelationalFixtureBase
     }
 
     public virtual bool UsingJsonType
-        => SqlServerTestEnvironment.SqlServerMajorVersion >= 17;
+        => SqlServerTestEnvironment.IsAzureSql
+            ? SqlServerTestEnvironment.IsJsonTypeSupported
+            : SqlServerTestEnvironment.SqlServerMajorVersion >= 17;
 }

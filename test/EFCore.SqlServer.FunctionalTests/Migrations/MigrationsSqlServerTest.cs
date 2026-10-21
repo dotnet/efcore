@@ -1578,15 +1578,16 @@ ALTER TABLE [Entity] ADD [OwnedReference] nvarchar(max) NULL;
     {
         await base.Convert_string_column_to_a_json_column_containing_required_reference();
 
+        var columnType = SqlServerTestEnvironment.IsAzureSql ? "json" : "nvarchar(max)";
         AssertSql(
-            """
+            $$"""
 DECLARE @var nvarchar(max);
 SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
 FROM [sys].[columns] [c]
 WHERE [c].[object_id] = OBJECT_ID(N'[Entity]') AND [c].[name] = N'Name';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [Entity] DROP CONSTRAINT ' + @var + ';');
 UPDATE [Entity] SET [Name] = N'{}' WHERE [Name] IS NULL;
-ALTER TABLE [Entity] ALTER COLUMN [Name] nvarchar(max) NOT NULL;
+ALTER TABLE [Entity] ALTER COLUMN [Name] {{columnType}} NOT NULL;
 ALTER TABLE [Entity] ADD DEFAULT N'{}' FOR [Name];
 """);
     }
