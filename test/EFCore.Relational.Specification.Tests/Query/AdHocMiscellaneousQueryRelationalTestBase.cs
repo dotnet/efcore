@@ -2196,6 +2196,100 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #endregion
 
+        #region 39366
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task GroupBy_value_converted_reference_type_key_with_elements_and_aggregate(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<ContextConvertedReferenceKey>(seed: c => c.SeedAsync());
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Posts
+                .GroupBy(p => p.Tag)
+                .Select(g => new { g.Key, Ids = g.Select(p => p.Id).ToList(), Count = g.Count() });
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            Assert.Collection(
+                result.OrderBy(g => g.Key.Name),
+                efcore =>
+                {
+                    Assert.Equal("efcore", efcore.Key.Name);
+                    Assert.Equal([1, 2], efcore.Ids.Order());
+                    Assert.Equal(2, efcore.Count);
+                },
+                linq =>
+                {
+                    Assert.Equal("linq", linq.Key.Name);
+                    Assert.Equal([3], linq.Ids);
+                    Assert.Equal(1, linq.Count);
+                });
+        }
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Distinct_value_converted_reference_type_with_collection(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<ContextConvertedReferenceKey>(seed: c => c.SeedAsync());
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Posts
+                .Select(p => p.Tag)
+                .Distinct()
+                .Select(t => new { Tag = t, Ids = context.Posts.Where(p => p.Tag == t).Select(p => p.Id).ToList() });
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            Assert.Collection(
+                result.OrderBy(t => t.Tag.Name),
+                efcore =>
+                {
+                    Assert.Equal("efcore", efcore.Tag.Name);
+                    Assert.Equal([1, 2], efcore.Ids.Order());
+                },
+                linq =>
+                {
+                    Assert.Equal("linq", linq.Tag.Name);
+                    Assert.Equal([3], linq.Ids);
+                });
+        }
+
+        // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+        protected class ContextConvertedReferenceKey(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<Post> Posts
+                => Set<Post>();
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Post>().Property(p => p.Id).ValueGeneratedNever();
+                modelBuilder.Entity<Post>().Property(p => p.Tag).HasConversion(t => t.Name, n => new Tag { Name = n });
+            }
+
+            public Task SeedAsync()
+            {
+                AddRange(
+                    new Post { Id = 1, Tag = new Tag { Name = "efcore" } },
+                    new Post { Id = 2, Tag = new Tag { Name = "efcore" } },
+                    new Post { Id = 3, Tag = new Tag { Name = "linq" } });
+
+                return SaveChangesAsync();
+            }
+
+            public class Post
+            {
+                public int Id { get; set; }
+                public Tag Tag { get; set; } = null!;
+            }
+
+            // Deliberately without Equals/GetHashCode overrides: two instances read from the same database value are distinct.
+            public class Tag
+            {
+                public string Name { get; set; } = null!;
+            }
+        }
+
+        #endregion
+
         #region 30233
 
         [Theory, MemberData(nameof(IsAsyncData))]
