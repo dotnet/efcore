@@ -1776,7 +1776,11 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                     return _groupingParameter is null ? expression : RewriteAggregate(aggregateIndex);
                 }
 
-                if (_groupingParameter is null && IsAggregateOverGrouping(expression))
+                // A conversion around the aggregate is part of it, and gets translated with it: on the server it can be a CAST with
+                // semantics of its own (a decimal cast rounds), which moving it to the client would lose. If it translates to a CAST
+                // around the function, the aggregate can't carry a window and the projection keeps the GROUP BY translation; a conversion
+                // the server doesn't need, such as to a nullable type, translates to nothing and the aggregate is windowed as usual.
+                if (_groupingParameter is null && IsAggregateOverGrouping(RemoveConversions(expression)))
                 {
                     _aggregates.Add(expression);
 
@@ -1870,6 +1874,16 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             }
 
             return true;
+        }
+
+        private static Expression RemoveConversions(Expression expression)
+        {
+            while (expression is UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } conversion)
+            {
+                expression = conversion.Operand;
+            }
+
+            return expression;
         }
 
         /// <summary>

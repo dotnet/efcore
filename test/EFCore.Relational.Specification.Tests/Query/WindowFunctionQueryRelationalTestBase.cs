@@ -228,6 +228,69 @@ public abstract class WindowFunctionQueryRelationalTestBase(NonSharedFixture fix
             });
     }
 
+    /// <summary>
+    ///     A conversion around an aggregate is translated with it. A decimal cast rounds on SQL Server (to decimal(18,2)), so it has to
+    ///     stay on the server, inside the aggregate's translation; there it's a CAST around the function, which can't carry a window, and
+    ///     the projection keeps the GROUP BY translation whether the option is on or off.
+    /// </summary>
+    [Theory, InlineData(false), InlineData(true)]
+    public virtual async Task Elements_and_decimal_converted_aggregate(bool useWindowFunctionAggregates)
+    {
+        var contextFactory = await InitializeAsync(useWindowFunctionAggregates);
+        await using var context = contextFactory.CreateDbContext();
+        context.Employees.AddRange(
+            new Employee { Name = "Gus", DepartmentName = "Support", Salary = 1 },
+            new Employee { Name = "Hana", DepartmentName = "Support", Salary = 1 },
+            new Employee { Name = "Ivo", DepartmentName = "Support", Salary = 2 });
+        await context.SaveChangesAsync();
+
+        ClearLog();
+
+        var results = await context.Employees
+            .Where(e => e.DepartmentName == "Support")
+            .GroupBy(e => e.DepartmentName)
+            .Select(g => new { Names = g.Select(e => e.Name).ToList(), AverageSalary = (decimal)g.Average(e => e.Salary) })
+            .ToListAsync();
+
+        var support = Assert.Single(results);
+        Assert.Equal(["Gus", "Hana", "Ivo"], support.Names.Order());
+        Assert.Equal(DecimalAverageOfOneOneTwo, support.AverageSalary);
+    }
+
+    /// <summary>
+    ///     The average of 1, 1 and 2 after the provider's conversion to decimal: rounded where the database converts to a fixed scale.
+    /// </summary>
+    protected virtual decimal DecimalAverageOfOneOneTwo
+        => 1.33m;
+
+    /// <summary>
+    ///     A conversion the server doesn't need, such as to a nullable type, translates to nothing, so the aggregate is windowed as usual.
+    /// </summary>
+    [Fact]
+    public virtual async Task Elements_and_nullable_converted_count()
+    {
+        var contextFactory = await InitializeAsync(useWindowFunctionAggregates: true);
+        await using var context = contextFactory.CreateDbContext();
+
+        var results = await context.Employees
+            .GroupBy(e => e.DepartmentName)
+            .Select(g => new { g.Key, Names = g.Select(e => e.Name).ToList(), Count = (int?)g.Count() })
+            .ToListAsync();
+
+        Assert.Collection(
+            results.OrderBy(r => r.Key),
+            engineering =>
+            {
+                Assert.Equal(["Alice", "Bob", "Cheng"], engineering.Names.Order());
+                Assert.Equal(3, engineering.Count);
+            },
+            sales =>
+            {
+                Assert.Equal(["Dara", "Emre"], sales.Names.Order());
+                Assert.Equal(2, sales.Count);
+            });
+    }
+
     [Fact]
     public virtual async Task Projected_elements_and_aggregate()
     {

@@ -98,6 +98,40 @@ ORDER BY [e].[DepartmentName]
 """);
     }
 
+    public override async Task Elements_and_decimal_converted_aggregate(bool useWindowFunctionAggregates)
+    {
+        await base.Elements_and_decimal_converted_aggregate(useWindowFunctionAggregates);
+
+        AssertSql(
+            """
+SELECT [e1].[DepartmentName], [e2].[Name], [e2].[Id], [e1].[c]
+FROM (
+    SELECT CAST(AVG(CAST([e].[Salary] AS float)) AS decimal(18,2)) AS [c], [e].[DepartmentName]
+    FROM [Employees] AS [e]
+    WHERE [e].[DepartmentName] = N'Support'
+    GROUP BY [e].[DepartmentName]
+) AS [e1]
+LEFT JOIN (
+    SELECT [e0].[Name], [e0].[Id], [e0].[DepartmentName]
+    FROM [Employees] AS [e0]
+    WHERE [e0].[DepartmentName] = N'Support'
+) AS [e2] ON [e1].[DepartmentName] = [e2].[DepartmentName]
+ORDER BY [e1].[DepartmentName]
+""");
+    }
+
+    public override async Task Elements_and_nullable_converted_count()
+    {
+        await base.Elements_and_nullable_converted_count();
+
+        AssertSql(
+            """
+SELECT [e].[DepartmentName], DENSE_RANK() OVER(ORDER BY [e].[DepartmentName]), [e].[Name], COUNT(*) OVER(PARTITION BY [e].[DepartmentName])
+FROM [Employees] AS [e]
+ORDER BY [e].[DepartmentName]
+""");
+    }
+
     public override async Task Projected_elements_and_aggregate()
     {
         await base.Projected_elements_and_aggregate();

@@ -98,6 +98,40 @@ ORDER BY "e"."DepartmentName"
 """);
     }
 
+    // SQLite converts to decimal without a fixed scale, so nothing is rounded.
+    protected override decimal DecimalAverageOfOneOneTwo
+        => 1.3333333333333333m;
+
+    public override async Task Elements_and_decimal_converted_aggregate(bool useWindowFunctionAggregates)
+    {
+        await base.Elements_and_decimal_converted_aggregate(useWindowFunctionAggregates);
+
+        AssertSql(
+            """
+SELECT "e1"."DepartmentName", "e0"."Name", "e0"."Id", "e1"."c"
+FROM (
+    SELECT CAST(AVG(CAST("e"."Salary" AS REAL)) AS TEXT) AS "c", "e"."DepartmentName"
+    FROM "Employees" AS "e"
+    WHERE "e"."DepartmentName" = 'Support'
+    GROUP BY "e"."DepartmentName"
+) AS "e1"
+LEFT JOIN "Employees" AS "e0" ON "e1"."DepartmentName" = "e0"."DepartmentName" AND "e0"."DepartmentName" = 'Support'
+ORDER BY "e1"."DepartmentName"
+""");
+    }
+
+    public override async Task Elements_and_nullable_converted_count()
+    {
+        await base.Elements_and_nullable_converted_count();
+
+        AssertSql(
+            """
+SELECT "e"."DepartmentName", DENSE_RANK() OVER(ORDER BY "e"."DepartmentName"), "e"."Name", COUNT(*) OVER(PARTITION BY "e"."DepartmentName")
+FROM "Employees" AS "e"
+ORDER BY "e"."DepartmentName"
+""");
+    }
+
     public override async Task Projected_elements_and_aggregate()
     {
         await base.Projected_elements_and_aggregate();
