@@ -26,6 +26,12 @@ public class CSharpToLinqTranslatorTest
         => AssertExpression(
             () => new int[] { 1, 2 },
             "new int[] { 1, 2 }");
+
+    [Fact]
+    public void ArrayCreation_with_initializer_requiring_conversion()
+        => AssertExpression(
+            () => new object?[] { (int?)1 },
+            "new object?[] { (int?)1 }");
     // ReSharper restore RedundantExplicitArrayCreation
 
     // ReSharper disable BuiltInTypeReferenceStyle

@@ -966,6 +966,50 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 propertySpecification, function);
 
         /// <summary>
+        ///     The expression '{expression}' in a grouping set doesn't match any member of the grouping key. Each element of a grouping set passed to 'EF.Functions.GroupingSets' must be one of the expressions composing the grouping key.
+        /// </summary>
+        public static string GroupingSetsElementNotInKey(object? expression)
+            => string.Format(
+                GetString("GroupingSetsElementNotInKey", nameof(expression)),
+                expression);
+
+        /// <summary>
+        ///     Queries using ROLLUP, CUBE or GROUPING SETS must project the groupings using aggregate operators (e.g. 'Select(g =&gt; g.Count())'); returning 'IGrouping' instances isn't supported.
+        /// </summary>
+        public static string GroupingSetsFinalGroupByNotSupported
+            => GetString("GroupingSetsFinalGroupByNotSupported");
+
+        /// <summary>
+        ///     The elements of a grouping cannot be queried when grouping with ROLLUP, CUBE or GROUPING SETS; only aggregate operators (e.g. 'Count', 'Sum', 'Max') applied directly to the grouping are supported.
+        /// </summary>
+        public static string GroupingSetsGroupingElementNotSupported
+            => GetString("GroupingSetsGroupingElementNotSupported");
+
+        /// <summary>
+        ///     The grouping key '{keySelector}' can't be used with ROLLUP, CUBE or GROUPING SETS. The key must be a scalar value, or an anonymous or user type composed of scalar members.
+        /// </summary>
+        public static string GroupingSetsInvalidKey(object? keySelector)
+            => string.Format(
+                GetString("GroupingSetsInvalidKey", nameof(keySelector)),
+                keySelector);
+
+        /// <summary>
+        ///     The grouping key member '{keyMember}' is of the non-nullable type '{type}'. Since ROLLUP, CUBE and GROUPING SETS return NULL for keys which aren't part of a row's grouping, key members must be nullable; cast the member to a nullable type (e.g. '(int?)x.Id').
+        /// </summary>
+        public static string GroupingSetsKeyMustBeNullable(object? keyMember, object? type)
+            => string.Format(
+                GetString("GroupingSetsKeyMustBeNullable", nameof(keyMember), nameof(type)),
+                keyMember, type);
+
+        /// <summary>
+        ///     '{groupingSetsKind}' grouping isn't supported by the current database provider.
+        /// </summary>
+        public static string GroupingSetsNotSupported(object? groupingSetsKind)
+            => string.Format(
+                GetString("GroupingSetsNotSupported", nameof(groupingSetsKind)),
+                groupingSetsKind);
+
+        /// <summary>
         ///     'HasData' cannot be used for entity type '{entity}'. 'HasData' is not supported for entities mapped to JSON.
         /// </summary>
         public static string HasDataNotSupportedForEntitiesMappedToJson(object? entity)

@@ -142,6 +142,7 @@ public class QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : Exp
             FullJoinExpression e => VisitFullJoin(e),
             RowNumberExpression e => VisitRowNumber(e),
             DenseRankExpression e => VisitDenseRank(e),
+            GroupingSetsExpression e => VisitGroupingSets(e),
             RowValueExpression e => VisitRowValue(e),
             ScalarSubqueryExpression e => VisitScalarSubquery(e),
             SelectExpression e => VisitSelect(e),
@@ -1406,6 +1407,46 @@ public class QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : Exp
         _relationalCommandBuilder.Append(")");
 
         return denseRankExpression;
+    }
+
+    /// <summary>
+    ///     Generates SQL for a <c>ROLLUP</c>, <c>CUBE</c> or <c>GROUPING SETS</c> element of a <c>GROUP BY</c> clause.
+    /// </summary>
+    /// <param name="groupingSetsExpression">The <see cref="GroupingSetsExpression" /> for which to generate SQL.</param>
+    protected virtual Expression VisitGroupingSets(GroupingSetsExpression groupingSetsExpression)
+    {
+        switch (groupingSetsExpression.Kind)
+        {
+            case GroupingSetsKind.Rollup:
+                _relationalCommandBuilder.Append("ROLLUP (");
+                GenerateList(groupingSetsExpression.Items, e => Visit(e));
+                _relationalCommandBuilder.Append(")");
+                break;
+
+            case GroupingSetsKind.Cube:
+                _relationalCommandBuilder.Append("CUBE (");
+                GenerateList(groupingSetsExpression.Items, e => Visit(e));
+                _relationalCommandBuilder.Append(")");
+                break;
+
+            case GroupingSetsKind.GroupingSets:
+                _relationalCommandBuilder.Append("GROUPING SETS (");
+                GenerateList(
+                    groupingSetsExpression.Sets!,
+                    set =>
+                    {
+                        _relationalCommandBuilder.Append("(");
+                        GenerateList(set, index => Visit(groupingSetsExpression.Items[index]));
+                        _relationalCommandBuilder.Append(")");
+                    });
+                _relationalCommandBuilder.Append(")");
+                break;
+
+            default:
+                throw new UnreachableException();
+        }
+
+        return groupingSetsExpression;
     }
 
     /// <summary>

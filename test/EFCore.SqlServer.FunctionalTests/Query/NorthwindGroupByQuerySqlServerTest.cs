@@ -5187,6 +5187,128 @@ ORDER BY [c0].[Key], [c0].[CustomerID]
 """);
     }
 
+    public override async Task GroupBy_Rollup_two_keys_Count(bool async)
+    {
+        await base.GroupBy_Rollup_two_keys_Count(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID], [o].[EmployeeID], COUNT(*) AS [Count]
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] < 10300
+GROUP BY ROLLUP ([o].[CustomerID], [o].[EmployeeID])
+""");
+    }
+
+    public override async Task GroupBy_Rollup_Count_Distinct(bool async)
+    {
+        await base.GroupBy_Rollup_Count_Distinct(async);
+
+        AssertSql(
+            """
+SELECT [c].[Country], [c].[City], COUNT(DISTINCT ([c].[ContactTitle])) AS [Titles]
+FROM [Customers] AS [c]
+GROUP BY ROLLUP ([c].[Country], [c].[City])
+""");
+    }
+
+    public override async Task GroupBy_Cube_two_keys_Count(bool async)
+    {
+        await base.GroupBy_Cube_two_keys_Count(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID], [o].[EmployeeID], COUNT(*) AS [Count]
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] < 10300
+GROUP BY CUBE ([o].[CustomerID], [o].[EmployeeID])
+""");
+    }
+
+    public override async Task GroupBy_GroupingSets_with_empty_set(bool async)
+    {
+        await base.GroupBy_GroupingSets_with_empty_set(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID], [o].[EmployeeID], COUNT(*) AS [Count]
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] < 10300
+GROUP BY GROUPING SETS (([o].[CustomerID]), ([o].[EmployeeID]), ())
+""");
+    }
+
+    public override async Task GroupBy_Rollup_with_Grouping_function(bool async)
+    {
+        await base.GroupBy_Rollup_with_Grouping_function(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID], [o].[EmployeeID], CAST(GROUPING([o].[CustomerID]) AS int) AS [CustomerGrouping], CAST(GROUPING([o].[EmployeeID]) AS int) AS [EmployeeGrouping], COUNT(*) AS [Count]
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] < 10300
+GROUP BY ROLLUP ([o].[CustomerID], [o].[EmployeeID])
+""");
+    }
+
+    public override async Task GroupBy_Rollup_with_Having(bool async)
+    {
+        await base.GroupBy_Rollup_with_Having(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID], [o].[EmployeeID], COUNT(*) AS [Count]
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] < 10300
+GROUP BY ROLLUP ([o].[CustomerID], [o].[EmployeeID])
+HAVING COUNT(*) > 1
+""");
+    }
+
+    public override async Task GroupBy_Rollup_computed_key(bool async)
+    {
+        await base.GroupBy_Rollup_computed_key(async);
+
+        AssertSql(
+            """
+SELECT [o0].[Year], [o0].[EmployeeID], COUNT(*) AS [Count]
+FROM (
+    SELECT [o].[EmployeeID], DATEPART(year, [o].[OrderDate]) AS [Year]
+    FROM [Orders] AS [o]
+    WHERE [o].[OrderID] < 10300
+) AS [o0]
+GROUP BY ROLLUP ([o0].[Year], [o0].[EmployeeID])
+""");
+    }
+
+    public override async Task GroupBy_Rollup_non_nullable_key_throws(bool async)
+    {
+        await base.GroupBy_Rollup_non_nullable_key_throws(async);
+
+        AssertSql();
+    }
+
+    public override async Task GroupBy_Rollup_final_GroupBy_throws(bool async)
+    {
+        await base.GroupBy_Rollup_final_GroupBy_throws(async);
+
+        AssertSql();
+    }
+
+    public override async Task GroupBy_Rollup_grouping_element_throws(bool async)
+    {
+        await base.GroupBy_Rollup_grouping_element_throws(async);
+
+        AssertSql();
+    }
+
+    public override async Task GroupBy_GroupingSets_element_not_in_key_throws(bool async)
+    {
+        await base.GroupBy_GroupingSets_element_not_in_key_throws(async);
+
+        AssertSql();
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

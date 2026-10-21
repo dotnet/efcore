@@ -246,6 +246,11 @@ public sealed partial class SelectExpression : TableExpressionBase
     public IReadOnlyList<SqlExpression> GroupBy
         => _groupBy;
 
+    // ROLLUP, CUBE and GROUPING SETS produce rows for several groupings at once, so the grouping terms don't identify a group and
+    // there's no grouping element to correlate to.
+    internal bool HasGroupingSets
+        => _groupBy.Any(e => e is GroupingSetsExpression);
+
     /// <summary>
     ///     The HAVING predicate for the SELECT when <see cref="GroupBy" /> clause exists.
     /// </summary>
@@ -571,6 +576,11 @@ public sealed partial class SelectExpression : TableExpressionBase
         {
             // This is final GroupBy operation
             Check.DebugAssert(_groupBy.Count > 0, "The selectExpression doesn't have grouping terms.");
+
+            if (HasGroupingSets)
+            {
+                throw new InvalidOperationException(RelationalStrings.GroupingSetsFinalGroupByNotSupported);
+            }
 
             if (_clientProjections.Count == 0)
             {
@@ -1920,6 +1930,67 @@ public sealed partial class SelectExpression : TableExpressionBase
             keySelector,
             shaperExpression,
             new ShapedQueryExpression(clonedSelectExpression, rebuiltShaperExpression));
+    }
+
+    // Applies a ROLLUP, CUBE or GROUPING SETS grouping. keySelector must be composed of scalar terms only (validated by the caller), which
+    // are flattened in the same order as PopulateGroupByTerms visits them; sets index into these terms.
+    // Internal infrastructure: only called from RelationalQueryableMethodTranslatingExpressionVisitor.
+    internal RelationalGroupByShaperExpression ApplyGroupingSets(
+        Expression keySelector,
+        Expression shaperExpression,
+        GroupingSetsKind kind,
+        IReadOnlyList<IReadOnlyList<int>>? sets)
+    {
+        ClearOrdering();
+
+        var groupByTerms = new List<SqlExpression>();
+        var groupByAliases = new List<string?>();
+        PopulateGroupByTerms(keySelector, groupByTerms, groupByAliases, "Key");
+
+        if (groupByTerms.Any(e => e is not ColumnExpression))
+        {
+            var sqlRemappingVisitor = PushdownIntoSubqueryInternal();
+            var newGroupByTerms = new List<SqlExpression>(groupByTerms.Count);
+            var subquery = (SelectExpression)_tables[0];
+            for (var i = 0; i < groupByTerms.Count; i++)
+            {
+                var item = groupByTerms[i];
+                var newItem = subquery._projection.Any(e => e.Expression.Equals(item))
+                    ? sqlRemappingVisitor.Remap(item)
+                    : subquery.GenerateOuterColumn(subquery.Alias!, item, groupByAliases[i] ?? "Key");
+                newGroupByTerms.Add(newItem);
+            }
+
+            keySelector = new ReplacingExpressionVisitor(groupByTerms, newGroupByTerms).Visit(keySelector);
+            groupByTerms = newGroupByTerms;
+        }
+
+        _groupBy.Add(new GroupingSetsExpression(kind, groupByTerms, sets));
+
+        // A term is NULL in the rows where it isn't part of the grouping, so the key must be read as nullable even when the
+        // underlying column isn't.
+        keySelector = new ReplacingExpressionVisitor(
+                groupByTerms,
+                groupByTerms.Select(e => e is ColumnExpression column ? column.MakeNullable() : e).ToList())
+            .Visit(keySelector);
+
+        // Several rows can have the same key values (e.g. a NULL grouping term vs. a super-aggregate row), so the key doesn't identify
+        // a row. Without an identifier, collections can't be projected out of the result, which isn't supported anyway.
+        _preGroupByIdentifier = _identifier.ToList();
+        _identifier.Clear();
+
+        // The grouping element can't be correlated to the groups (a super-aggregate row includes the rows of all values of the
+        // rolled-up terms), so it can only be aggregated over directly; the translator rejects any other use of it. It is still
+        // provided so that aggregate translation finds the element shape.
+        var clonedSelectExpression = Clone();
+        clonedSelectExpression._groupBy.Clear();
+
+        var rebuiltShaperExpression = RemapGroupingElementShaper(clonedSelectExpression, shaperExpression);
+
+        return new RelationalGroupByShaperExpression(
+            keySelector,
+            shaperExpression,
+            new ShapedQueryExpression(clonedSelectExpression, rebuiltShaperExpression)) { IsGroupingSets = true };
     }
 
     // Keeps the first row of each group in place of the grouping. Rows are numbered with
@@ -4237,6 +4308,13 @@ public sealed partial class SelectExpression : TableExpressionBase
         {
             foreach (var key in subquery._groupBy)
             {
+                if (key is GroupingSetsExpression)
+                {
+                    // Not a value which can be projected. Its terms are referenced elsewhere through nullable copies (see
+                    // ApplyGroupingSets), which get projected out of the subquery as they are found.
+                    continue;
+                }
+
                 projectionMap[key] = subquery.GenerateOuterColumn(subqueryAlias, key);
             }
         }

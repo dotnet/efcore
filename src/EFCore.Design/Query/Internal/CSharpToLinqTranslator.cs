@@ -241,7 +241,14 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
 
         return arrayCreation.Initializer is null
             ? NewArrayBounds(elementType, Visit(arrayCreation.Type.RankSpecifiers[0].Sizes[0]))
-            : NewArrayInit(elementType, arrayCreation.Initializer.Expressions.Select(e => Visit(e)));
+            : NewArrayInit(
+                elementType,
+                arrayCreation.Initializer.Expressions
+                    .Select(e => Visit(e))
+                    // Like the C# compiler, box value types and convert elements of other types, but keep reference conversions implicit
+                    .Select(e => e.Type == elementType || (!e.Type.IsValueType && elementType.IsAssignableFrom(e.Type))
+                        ? e
+                        : Convert(e, elementType)));
     }
 
     /// <summary>

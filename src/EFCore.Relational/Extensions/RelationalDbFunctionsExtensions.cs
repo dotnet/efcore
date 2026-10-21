@@ -58,4 +58,124 @@ public static class RelationalDbFunctionsExtensions
     /// <param name="path">The JSON path to look for.</param>
     public static bool JsonPathExists(this DbFunctions _, object json, string path)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(JsonPathExists)));
+
+    /// <summary>
+    ///     When used as the key selector of a LINQ <c>GroupBy</c>, groups by the given key using the SQL <c>ROLLUP</c> construct:
+    ///     in addition to the groups of the full key, rows are returned for each prefix of the key's members (e.g.
+    ///     <c>GROUP BY ROLLUP (a, b)</c> groups by <c>(a, b)</c>, by <c>(a)</c> and by <c>()</c>).
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         The key must be a scalar or an anonymous/user type composed of nullable scalar members: in rows which aren't
+    ///         grouped by a member, that member is <see langword="null" />. Use <see cref="Grouping{T}" /> to distinguish these
+    ///         rows from groups whose key value is <see langword="null" />.
+    ///     </para>
+    ///     <para>
+    ///         Only aggregate operators can be applied to the groupings (e.g. <c>g.Count()</c>,
+    ///         <c>g.Select(e => e.Id).Distinct().Count()</c>).
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <example>
+    ///     <code>
+    /// context.Sales
+    ///     .GroupBy(s => EF.Functions.Rollup(new { s.Category, s.Product }))
+    ///     .Select(g => new { g.Key.Category, g.Key.Product, Clients = g.Select(s => s.ClientId).Distinct().Count() });
+    ///     </code>
+    /// </example>
+    /// <typeparam name="TKey">The type of the grouping key.</typeparam>
+    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
+    /// <param name="key">The grouping key.</param>
+    /// <returns>The grouping key.</returns>
+    public static TKey Rollup<TKey>(this DbFunctions _, TKey key)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Rollup)));
+
+    /// <summary>
+    ///     When used as the key selector of a LINQ <c>GroupBy</c>, groups by the given key using the SQL <c>CUBE</c> construct:
+    ///     rows are returned for every combination of the key's members (e.g. <c>GROUP BY CUBE (a, b)</c> groups by <c>(a, b)</c>,
+    ///     by <c>(a)</c>, by <c>(b)</c> and by <c>()</c>).
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         The key must be a scalar or an anonymous/user type composed of nullable scalar members: in rows which aren't
+    ///         grouped by a member, that member is <see langword="null" />. Use <see cref="Grouping{T}" /> to distinguish these
+    ///         rows from groups whose key value is <see langword="null" />.
+    ///     </para>
+    ///     <para>
+    ///         Only aggregate operators can be applied to the groupings (e.g. <c>g.Count()</c>, <c>g.Sum(e => e.Price)</c>).
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <typeparam name="TKey">The type of the grouping key.</typeparam>
+    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
+    /// <param name="key">The grouping key.</param>
+    /// <returns>The grouping key.</returns>
+    public static TKey Cube<TKey>(this DbFunctions _, TKey key)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Cube)));
+
+    /// <summary>
+    ///     When used as the key selector of a LINQ <c>GroupBy</c>, groups by the given key using the SQL <c>GROUPING SETS</c>
+    ///     construct: rows are returned for each of the given sets of the key's members.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         Each set lists members of <paramref name="key" />, referenced by the same expression used in the key; an empty set
+    ///         (<c>new object[0]</c>) groups all rows together.
+    ///     </para>
+    ///     <para>
+    ///         The key must be a scalar or an anonymous/user type composed of nullable scalar members: in rows which aren't
+    ///         grouped by a member, that member is <see langword="null" />. Use <see cref="Grouping{T}" /> to distinguish these
+    ///         rows from groups whose key value is <see langword="null" />.
+    ///     </para>
+    ///     <para>
+    ///         Only aggregate operators can be applied to the groupings (e.g. <c>g.Count()</c>, <c>g.Sum(e => e.Price)</c>).
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <example>
+    ///     <code>
+    /// // GROUP BY GROUPING SETS ((Category, Product), (Category), ())
+    /// context.Sales
+    ///     .GroupBy(s => EF.Functions.GroupingSets(
+    ///         new { s.Category, s.Product },
+    ///         new object[] { s.Category, s.Product },
+    ///         new object[] { s.Category },
+    ///         new object[0]))
+    ///     .Select(g => new { g.Key.Category, g.Key.Product, Count = g.Count() });
+    ///     </code>
+    /// </example>
+    /// <typeparam name="TKey">The type of the grouping key.</typeparam>
+    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
+    /// <param name="key">The grouping key.</param>
+    /// <param name="sets">The grouping sets, each one composed of members of <paramref name="key" />.</param>
+    /// <returns>The grouping key.</returns>
+    public static TKey GroupingSets<TKey>(this DbFunctions _, TKey key, params object?[][] sets)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(GroupingSets)));
+
+    /// <summary>
+    ///     Returns <c>1</c> if the given grouping key member isn't part of the grouping of the current row, and <c>0</c> if it is.
+    ///     Corresponds to the SQL <c>GROUPING</c> function.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         Used in projections over groupings created with <see cref="Rollup{TKey}" />, <see cref="Cube{TKey}" /> or
+    ///         <see cref="GroupingSets{TKey}" />, to distinguish super-aggregate rows (where the member is <see langword="null" />
+    ///         because it was rolled up) from groups whose key value is actually <see langword="null" />.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <typeparam name="T">The type of the grouping key member.</typeparam>
+    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
+    /// <param name="keyMember">A member of the grouping key, e.g. <c>g.Key.Category</c>.</param>
+    /// <returns><c>1</c> if <paramref name="keyMember" /> isn't part of the current row's grouping; <c>0</c> otherwise.</returns>
+    public static int Grouping<T>(this DbFunctions _, T keyMember)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Grouping)));
 }
