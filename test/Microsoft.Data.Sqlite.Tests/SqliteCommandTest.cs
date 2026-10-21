@@ -485,6 +485,31 @@ CREATE TABLE "Products" (
     }
 
     [Fact]
+    public void ExecuteReader_throws_when_parameter_unset_and_other_parameter_has_no_prefix()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT @Parameter, @Parameter2;";
+        command.Parameters.AddWithValue("Parameter", 1);
+        connection.Open();
+
+        var ex = Assert.Throws<InvalidOperationException>(command.ExecuteScalar);
+        Assert.Equal(Resources.MissingParameters("@Parameter2"), ex.Message);
+    }
+
+    [Fact]
+    public void ExecuteReader_throws_when_parameter_unset_and_no_parameters()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT @Parameter;";
+        connection.Open();
+
+        var ex = Assert.Throws<InvalidOperationException>(command.ExecuteScalar);
+        Assert.Equal(Resources.MissingParameters("@Parameter"), ex.Message);
+    }
+
+    [Fact]
     public void ExecuteReader_throws_when_reader_open()
     {
         using var connection = new SqliteConnection("Data Source=:memory:");
