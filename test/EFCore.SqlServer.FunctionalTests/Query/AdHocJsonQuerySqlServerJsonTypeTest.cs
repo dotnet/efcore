@@ -61,22 +61,30 @@ public class AdHocJsonQuerySqlServerJsonTypeTest(NonSharedFixture fixture) : AdH
         => Assert.ThrowsAsync<InvalidOperationException>(() => base.Read_enum_property_with_legacy_values_core(async));
 
     [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(false, true)]
-    [InlineData(true, false)]
-    [InlineData(true, true)]
-    public Task Json_collection_Any_with_nested_scalar_predicate_AzureSql(bool complex, bool async)
-        => Json_collection_Any_with_nested_scalar_predicate(complex, azureSql: true, async);
+    [InlineData(false, false, false)]
+    [InlineData(false, false, true)]
+    [InlineData(false, true, false)]
+    [InlineData(false, true, true)]
+    [InlineData(true, false, false)]
+    [InlineData(true, false, true)]
+    [InlineData(true, true, false)]
+    [InlineData(true, true, true)]
+    public Task Json_collection_Any_with_nested_scalar_predicate_AzureSql(bool complex, bool subquery, bool async)
+        => Json_collection_Any_with_nested_scalar_predicate(complex, azureSql: true, subquery, async);
 
     [ConditionalTheory, SqlServerCondition(SqlServerCondition.IsNotAzureSql)]
-    [InlineData(false, false)]
-    [InlineData(false, true)]
-    [InlineData(true, false)]
-    [InlineData(true, true)]
-    public Task Json_collection_Any_with_nested_scalar_predicate_SqlServer(bool complex, bool async)
-        => Json_collection_Any_with_nested_scalar_predicate(complex, azureSql: false, async);
+    [InlineData(false, false, false)]
+    [InlineData(false, false, true)]
+    [InlineData(false, true, false)]
+    [InlineData(false, true, true)]
+    [InlineData(true, false, false)]
+    [InlineData(true, false, true)]
+    [InlineData(true, true, false)]
+    [InlineData(true, true, true)]
+    public Task Json_collection_Any_with_nested_scalar_predicate_SqlServer(bool complex, bool subquery, bool async)
+        => Json_collection_Any_with_nested_scalar_predicate(complex, azureSql: false, subquery, async);
 
-    private async Task Json_collection_Any_with_nested_scalar_predicate(bool complex, bool azureSql, bool async)
+    private async Task Json_collection_Any_with_nested_scalar_predicate(bool complex, bool azureSql, bool subquery, bool async)
     {
         var contextFactory = await InitializeAsync<Context39277>(
             onConfiguring: b => b.UseSqlServerCompatibilityLevel(170),
@@ -110,7 +118,11 @@ public class AdHocJsonQuerySqlServerJsonTypeTest(NonSharedFixture fixture) : AdH
                         Id = 1,
                         Document = new()
                         {
-                            Entries = [new() { Metadata = new() { Name = new string('x', 4001) + "Driver", Number = 7 } }]
+                            Entries =
+                            [
+                                new() { Metadata = new() { Name = "Passenger", Number = 8 } },
+                                new() { Metadata = new() { Name = new string('x', 4001) + "Driver", Number = 7 } }
+                            ]
                         }
                     },
                     new Context39277.Entity
@@ -122,6 +134,18 @@ public class AdHocJsonQuerySqlServerJsonTypeTest(NonSharedFixture fixture) : AdH
                     {
                         Id = 3,
                         Document = new() { Entries = [new() { Metadata = new() { Name = "Passenger", Number = 7 } }] }
+                    },
+                    new Context39277.Entity
+                    {
+                        Id = 4,
+                        Document = new()
+                        {
+                            Entries =
+                            [
+                                new() { Metadata = new() { Name = "Passenger", Number = 6 } },
+                                new() { Metadata = new() { Name = "Driver", Number = 7 } }
+                            ]
+                        }
                     });
 
                 return context.SaveChangesAsync();
@@ -142,33 +166,62 @@ public class AdHocJsonQuerySqlServerJsonTypeTest(NonSharedFixture fixture) : AdH
         }
 
         await using var queryContext = new Context39277(optionsBuilder.Options);
-        var query = queryContext.Set<Context39277.Entity>()
-            .Where(e => e.Document.Entries.Any(
-                entry => entry.Metadata.Name.ToLower().Contains("driver") && entry.Metadata.Number == 7))
+        var entities = queryContext.Set<Context39277.Entity>();
+        var query = (subquery
+                ? entities.Where(e => e.Document.Entries.OrderBy(entry => entry.Metadata.Number).Take(1).Any(
+                    entry => entry.Metadata.Name.ToLower().Contains("driver") && entry.Metadata.Number == 7))
+                : entities.Where(e => e.Document.Entries.Any(
+                    entry => entry.Metadata.Name.ToLower().Contains("driver") && entry.Metadata.Number == 7)))
             .Select(e => e.Id);
 
         var result = async ? await query.ToListAsync() : query.ToList();
 
-        Assert.Equal([1], result);
+        Assert.Equal(subquery ? new[] { 1 } : [1, 4], result.Order());
 
         AssertSql(
-            azureSql
-                ? """
+            (azureSql, subquery) switch
+            {
+                (true, false) => """
 SELECT [e].[Id]
 FROM [Entity] AS [e]
 WHERE EXISTS (
     SELECT 1
     FROM OPENJSON([e].[Document], '$.Entries') WITH ([Metadata] nvarchar(max) '$.Metadata' AS JSON) AS [e0]
     WHERE LOWER(JSON_VALUE(CAST([e0].[Metadata] AS json), '$.Name' RETURNING nvarchar(max))) LIKE N'%driver%' AND JSON_VALUE(CAST([e0].[Metadata] AS json), '$.Number' RETURNING int) = 7)
-"""
-                : """
+""",
+                (false, false) => """
 SELECT [e].[Id]
 FROM [Entity] AS [e]
 WHERE EXISTS (
     SELECT 1
     FROM OPENJSON([e].[Document], '$.Entries') WITH ([Metadata] json '$.Metadata' AS JSON) AS [e0]
     WHERE LOWER(JSON_VALUE([e0].[Metadata], '$.Name' RETURNING nvarchar(max))) LIKE N'%driver%' AND JSON_VALUE([e0].[Metadata], '$.Number' RETURNING int) = 7)
-""");
+""",
+                (true, true) => """
+SELECT [e].[Id]
+FROM [Entity] AS [e]
+WHERE EXISTS (
+    SELECT 1
+    FROM (
+        SELECT TOP(1) [e0].[Metadata]
+        FROM OPENJSON([e].[Document], '$.Entries') WITH ([Metadata] nvarchar(max) '$.Metadata' AS JSON) AS [e0]
+        ORDER BY JSON_VALUE(CAST([e0].[Metadata] AS json), '$.Number' RETURNING int)
+    ) AS [e1]
+    WHERE LOWER(JSON_VALUE(CAST([e1].[Metadata] AS json), '$.Name' RETURNING nvarchar(max))) LIKE N'%driver%' AND JSON_VALUE(CAST([e1].[Metadata] AS json), '$.Number' RETURNING int) = 7)
+""",
+                (false, true) => """
+SELECT [e].[Id]
+FROM [Entity] AS [e]
+WHERE EXISTS (
+    SELECT 1
+    FROM (
+        SELECT TOP(1) [e0].[Metadata]
+        FROM OPENJSON([e].[Document], '$.Entries') WITH ([Metadata] json '$.Metadata' AS JSON) AS [e0]
+        ORDER BY JSON_VALUE([e0].[Metadata], '$.Number' RETURNING int)
+    ) AS [e1]
+    WHERE LOWER(JSON_VALUE([e1].[Metadata], '$.Name' RETURNING nvarchar(max))) LIKE N'%driver%' AND JSON_VALUE([e1].[Metadata], '$.Number' RETURNING int) = 7)
+"""
+            });
     }
 
     protected class Context39277(DbContextOptions options) : DbContext(options)

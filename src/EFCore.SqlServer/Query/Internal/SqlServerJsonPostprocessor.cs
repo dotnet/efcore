@@ -203,6 +203,19 @@ public sealed class SqlServerJsonPostprocessor(
                     _openjsonOuterAppliesToAdd.Clear();
                 }
 
+                if (!_supportsJsonTypeInOpenJson
+                    && result.Alias is { } selectAlias)
+                {
+                    foreach (var projection in result.Projection)
+                    {
+                        if (projection.Expression is ColumnExpression column
+                            && _jsonColumnsToCast.Contains((column.TableAlias, column.Name)))
+                        {
+                            _jsonColumnsToCast.Add((selectAlias, projection.Alias));
+                        }
+                    }
+                }
+
                 return result;
             }
 
