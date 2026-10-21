@@ -1085,6 +1085,24 @@ public class RelationalConnectionTest
     }
 
     [Theory]
+    [InlineData(typeof(IDbCommandInterceptor), typeof(Diagnostics.Internal.DbCommandInterceptorAggregator))]
+    [InlineData(typeof(IDbConnectionInterceptor), typeof(Diagnostics.Internal.DbConnectionInterceptorAggregator))]
+    [InlineData(typeof(IDbTransactionInterceptor), typeof(Diagnostics.Internal.DbTransactionInterceptorAggregator))]
+    [InlineData(typeof(ISaveChangesInterceptor), typeof(Diagnostics.Internal.SaveChangesInterceptorAggregator))]
+    [InlineData(typeof(IIdentityResolutionInterceptor), typeof(Diagnostics.Internal.IdentityResolutionInterceptorAggregator))]
+    [InlineData(typeof(IMaterializationInterceptor), typeof(Diagnostics.Internal.MaterializationInterceptorAggregator))]
+    [InlineData(typeof(IQueryExpressionInterceptor), typeof(Diagnostics.Internal.QueryExpressionInterceptorAggregator))]
+    public void Interceptor_aggregators_implement_all_interface_methods(Type interceptorType, Type aggregatorType)
+    {
+        var compositeType = Assert.Single(
+            aggregatorType.GetNestedTypes(BindingFlags.NonPublic).Where(interceptorType.IsAssignableFrom));
+
+        Assert.All(
+            compositeType.GetInterfaceMap(interceptorType).TargetMethods,
+            method => Assert.Equal(compositeType, method.DeclaringType));
+    }
+
+    [Theory]
     [InlineData(false, 1, false)]
     [InlineData(false, 2, false)]
     [InlineData(true, 1, false)]
