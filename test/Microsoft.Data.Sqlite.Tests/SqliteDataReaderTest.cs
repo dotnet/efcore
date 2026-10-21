@@ -2091,6 +2091,24 @@ public class SqliteDataReaderTest
         Assert.Equal("pk", schemaTable.Rows[5][SchemaTableColumn.ColumnName]);
     }
 
+    [Theory, InlineData("CREATE TEMP TABLE Person"), InlineData("CREATE TABLE other.Person")]
+    public void GetSchemaTable_works_when_table_not_in_main_database(string createTable)
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        connection.ExecuteNonQuery("ATTACH DATABASE ':memory:' AS other;");
+        connection.ExecuteNonQuery(createTable + " (ID INTEGER PRIMARY KEY AUTOINCREMENT, FirstName TEXT NOT NULL, LastName TEXT);");
+
+        using var reader = connection.ExecuteReader("SELECT ID, FirstName, LastName FROM Person;");
+        var schemaTable = reader.GetSchemaTable();
+
+        Assert.True((bool)schemaTable.Rows[0][SchemaTableColumn.IsKey]);
+        Assert.True((bool)schemaTable.Rows[0][SchemaTableOptionalColumn.IsAutoIncrement]);
+        Assert.False((bool)schemaTable.Rows[1][SchemaTableColumn.IsKey]);
+        Assert.False((bool)schemaTable.Rows[1][SchemaTableColumn.AllowDBNull]);
+        Assert.True((bool)schemaTable.Rows[2][SchemaTableColumn.AllowDBNull]);
+    }
+
     [Theory,
      InlineData("(0), (1), ('A')", typeof(long)),
      InlineData("('Z'), (1), ('A')", typeof(string)),
