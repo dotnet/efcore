@@ -67,16 +67,22 @@ public class SqliteDateTimeMemberTranslator(SqliteSqlExpressionFactory sqlExpres
                     typeof(long));
 
             case nameof(DateTime.Millisecond):
-                return sqlExpressionFactory.Modulo(
-                    sqlExpressionFactory.Multiply(
-                        sqlExpressionFactory.Convert(
+                // strftime('%f') returns SS.SSS; take the milliseconds digits directly, since multiplying the REAL value by 1000
+                // and truncating loses a millisecond for values that can't be represented exactly (e.g. 01.005).
+                return sqlExpressionFactory.Convert(
+                    sqlExpressionFactory.Function(
+                        "substr",
+                        [
                             sqlExpressionFactory.Strftime(
                                 typeof(string),
                                 "%f",
                                 instance!),
-                            typeof(double)),
-                        sqlExpressionFactory.Constant(1000)),
-                    sqlExpressionFactory.Constant(1000));
+                            sqlExpressionFactory.Constant(4)
+                        ],
+                        nullable: true,
+                        argumentsPropagateNullability: Statics.TrueArrays[2],
+                        typeof(string)),
+                    returnType);
 
             case nameof(DateTime.Microsecond):
             case nameof(DateTime.Nanosecond):
