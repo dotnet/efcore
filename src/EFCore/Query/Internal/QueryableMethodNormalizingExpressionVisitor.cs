@@ -175,11 +175,14 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
 
         if (method.Name == nameof(ICollection<>.Contains)
             && method.DeclaringType is { IsGenericType: true }
-            && (method.DeclaringType.TryGetElementType(typeof(ICollection<>)) is not null
-                || !UseOldBehavior37081
-                && method.DeclaringType.TryGetElementType(typeof(IReadOnlyCollection<>)) is not null))
+            && (method.DeclaringType.TryGetElementType(typeof(ICollection<>))
+                ?? (!UseOldBehavior37081
+                    ? method.DeclaringType.TryGetElementType(typeof(IReadOnlyCollection<>))
+                    : null)) is { } elementType
+            && method.GetParameters() is [{ ParameterType: var parameterType }]
+            && parameterType == elementType)
         {
-            visitedExpression = TryConvertCollectionContainsToQueryableContains(methodCallExpression);
+            visitedExpression = TryConvertCollectionContainsToQueryableContains(methodCallExpression, elementType);
         }
 
         if (method.Name == nameof(List<>.Exists)
@@ -545,14 +548,14 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                 Expression.Quote(rewrittenPredicate)));
     }
 
-    private Expression TryConvertCollectionContainsToQueryableContains(MethodCallExpression methodCallExpression)
+    private Expression TryConvertCollectionContainsToQueryableContains(
+        MethodCallExpression methodCallExpression,
+        Type sourceType)
     {
         if (methodCallExpression.Object is MemberInitExpression or NewExpression)
         {
             return base.VisitMethodCall(methodCallExpression);
         }
-
-        var sourceType = methodCallExpression.Method.DeclaringType!.GetGenericArguments()[0];
 
         var objectExpression = methodCallExpression.Object!.Type.IsValueType
             ? Expression.Convert(methodCallExpression.Object!, typeof(IEnumerable<>).MakeGenericType(sourceType))
