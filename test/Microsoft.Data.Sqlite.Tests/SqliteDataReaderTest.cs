@@ -1358,10 +1358,10 @@ public class SqliteDataReaderTest
         connection.Open();
 
         using var reader = connection.ExecuteReader("SELECT 1;");
-        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => reader.GetOrdinal("Name"));
-        Assert.NotNull(ex.Message);
-        Assert.Equal("name", ex.ParamName);
-        Assert.Equal("Name", ex.ActualValue);
+
+        // IDataRecord.GetOrdinal: "If the index of the named field is not found, an IndexOutOfRangeException is thrown."
+        var ex = Assert.Throws<IndexOutOfRangeException>(() => reader.GetOrdinal("Name"));
+        Assert.Contains("Name", ex.Message);
     }
 
     [Fact]
