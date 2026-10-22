@@ -3725,6 +3725,17 @@ public static class EntityFrameworkQueryableExtensions
     ///     Merges the given <paramref name="source" /> rows into the target table (see <c>ExecuteMerge</c>), returning a projection over
     ///     each affected row. This is an experimental API.
     /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         The merge is executed against the database when the returned sequence is enumerated, rather than when this method is
+    ///         called, and is executed again each time the sequence is re-enumerated. It does not interact with the EF change tracker
+    ///         in any way.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-bulk-operations">Executing bulk operations with EF Core</see>
+    ///         for more information and examples.
+    ///     </para>
+    /// </remarks>
     /// <typeparam name="TTarget">The type of the target entity.</typeparam>
     /// <typeparam name="TSource">The type of the source rows.</typeparam>
     /// <typeparam name="TResult">The type of the projected result.</typeparam>
@@ -3758,6 +3769,17 @@ public static class EntityFrameworkQueryableExtensions
     ///     Asynchronously merges the given <paramref name="source" /> rows into the target table (see <c>ExecuteMergeAsync</c>),
     ///     streaming a projection over each affected row. This is an experimental API.
     /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         The merge is executed against the database when the returned sequence is enumerated, rather than when this method is
+    ///         called, and is executed again each time the sequence is re-enumerated. It does not interact with the EF change tracker
+    ///         in any way.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-bulk-operations">Executing bulk operations with EF Core</see>
+    ///         for more information and examples.
+    ///     </para>
+    /// </remarks>
     /// <typeparam name="TTarget">The type of the target entity.</typeparam>
     /// <typeparam name="TSource">The type of the source rows.</typeparam>
     /// <typeparam name="TResult">The type of the projected result.</typeparam>

@@ -149,9 +149,9 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         var fixedValues = new SqlExpression?[insertProperties.Count];
         var columnTypeMappings = new RelationalTypeMapping[insertProperties.Count];
 
-        // WhenMatched can only see source values through the inserted ("excluded") row, so track which source member, if any, each
-        // insert column carries unchanged.
-        var excludedColumnsBySourceMember = new Dictionary<string, (IColumnBase Column, IProperty Property)>();
+        // WhenMatched can only see source values through the inserted ("excluded") row, so track which insert columns, if any, carry
+        // each source member unchanged.
+        var excludedColumnsBySourceMember = new Dictionary<string, List<(IColumnBase Column, IProperty Property)>>();
         for (var i = 0; i < insertProperties.Count; i++)
         {
             var (property, valueExpression) = insertProperties[i];
@@ -200,7 +200,12 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 
             if (sourceMember is not null)
             {
-                excludedColumnsBySourceMember.TryAdd(sourceMember, (column, property));
+                if (!excludedColumnsBySourceMember.TryGetValue(sourceMember, out var excludedColumns))
+                {
+                    excludedColumnsBySourceMember[sourceMember] = excludedColumns = [];
+                }
+
+                excludedColumns.Add((column, property));
             }
         }
 
@@ -213,8 +218,9 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 
         // WhenMatched value selectors reference the existing target row (and the incoming source row), so they must be translated to
         // SQL rather than evaluated: target references become target columns, source references become the "excluded" pseudo-row.
+        // A WhenMatched without setters leaves matched rows unchanged, as when it's omitted.
         IReadOnlyList<MergeColumnSetter>? updateSetters = null;
-        if (whenMatchedSetters is not null)
+        if (whenMatchedSetters is { Count: > 0 })
         {
             var setters = new List<MergeColumnSetter>(whenMatchedSetters.Count);
             foreach (var setter in whenMatchedSetters)
@@ -229,12 +235,13 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                     var targetParam = valueLambda.Parameters[0];
                     var sourceParam = valueLambda.Parameters.Count > 1 ? valueLambda.Parameters[1] : null;
                     value = TranslateMergeUpdateValue(
-                        valueLambda.Body, targetParam, sourceParam, entityType, table, excludedColumnsBySourceMember);
+                        valueLambda.Body, targetParam, sourceParam, property, column, entityType, table, excludedColumnsBySourceMember);
                 }
                 else
                 {
                     value = TranslateMergeUpdateValue(
-                        setter.ValueExpression, targetParam: null, sourceParam: null, entityType, table, excludedColumnsBySourceMember);
+                        setter.ValueExpression, targetParam: null, sourceParam: null, property, column, entityType, table,
+                        excludedColumnsBySourceMember);
                 }
 
                 value = _sqlExpressionFactory.ApplyTypeMapping(value, column.StoreTypeMapping)!;
@@ -302,10 +309,15 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         Type resultType)
     {
         var getMethod = typeMapping.GetDataReaderMethod();
-        Expression value = Expression.Call(
-            getMethod.DeclaringType != typeof(DbDataReader) ? Expression.Convert(reader, getMethod.DeclaringType!) : reader,
-            getMethod,
-            Expression.Constant(ordinal));
+
+        // When buffering, the reader is a buffered one rather than the provider's, but it returns any column through the DbDataReader
+        // methods (see RelationalShapedQueryCompilingExpressionVisitor.CreateMergeReturningReaderColumns).
+        Expression value = QueryCompilationContext.IsBuffering
+            ? Expression.Call(reader, RelationalTypeMapping.GetDataReaderMethod(getMethod.ReturnType), Expression.Constant(ordinal))
+            : Expression.Call(
+                getMethod.DeclaringType != typeof(DbDataReader) ? Expression.Convert(reader, getMethod.DeclaringType!) : reader,
+                getMethod,
+                Expression.Constant(ordinal));
 
         value = typeMapping.CustomizeDataReaderExpression(value);
 
@@ -335,16 +347,24 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         List<ProjectionExpression> projections,
         Dictionary<IProperty, int> ordinals) : ExpressionVisitor
     {
-        protected override Expression VisitMember(MemberExpression node)
-            => GetParameterRoot(node) == targetParam ? ReadColumn(node, node.Type) : base.VisitMember(node);
+        // Only target properties, optionally composed into new/member-init expressions with conversions and constants, are supported;
+        // anything else, e.g. a captured variable, can't be evaluated by the shaper.
+        [return: NotNullIfNotNull(nameof(node))]
+        public override Expression? Visit(Expression? node)
+            => node switch
+            {
+                null => null,
+                MemberExpression member when GetParameterRoot(member) == targetParam => ReadColumn(member),
+                MethodCallExpression { Arguments: [var instance, ConstantExpression { Value: string }] } methodCall
+                    when methodCall.Method.IsEFPropertyMethod() && instance.UnwrapTypeConversion(out _) == targetParam
+                    => ReadColumn(methodCall),
+                NewExpression or MemberInitExpression or ConstantExpression
+                    or UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked }
+                    => base.Visit(node),
+                _ => throw new InvalidOperationException(RelationalStrings.ExecuteMergeReturningUnsupportedExpression(node.Print()))
+            };
 
-        protected override Expression VisitMethodCall(MethodCallExpression node)
-            => node is { Method.Name: "Property", Arguments: [var source, ConstantExpression { Value: string }] }
-                && source is ParameterExpression p && p == targetParam
-                    ? ReadColumn(node, node.Type)
-                    : base.VisitMethodCall(node);
-
-        private Expression ReadColumn(Expression selector, Type resultType)
+        private Expression ReadColumn(Expression selector)
         {
             var property = ResolveProperty(selector, targetParam, entityType);
             var column = table.FindColumn(property)
@@ -360,7 +380,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                         column.Name));
             }
 
-            return visitor.CreateReturningColumnRead(readerParam, ordinal, column.StoreTypeMapping, resultType);
+            return visitor.CreateReturningColumnRead(readerParam, ordinal, column.StoreTypeMapping, selector.Type);
         }
     }
 
@@ -373,15 +393,16 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
     {
         if (whenNotMatchedSetters is null)
         {
-            // Default: insert every property that maps to a column on the target table. Computed columns are populated by the database
-            // and cannot be inserted into, so they're excluded; as in SaveChanges, so are properties ignored before save (e.g. a row
-            // version), unless they're match columns, whose values ON CONFLICT needs.
+            // Default: insert every property that maps to a column on the target table, except those generated by the database.
             return entityType.GetProperties()
-                .Where(p => table.FindColumn(p) is not null
-                    && p.GetComputedColumnSql(storeObject) is null
-                    && (p.GetBeforeSaveBehavior() != PropertySaveBehavior.Ignore || conflictProperties.Any(c => c.Property == p)))
+                .Where(p => table.FindColumn(p) is not null && !IsGeneratedOnInsert(p, storeObject, conflictProperties))
                 .Select(p => (p, (Expression?)null))
                 .ToList();
+        }
+
+        if (whenNotMatchedSetters.Count == 0)
+        {
+            throw new InvalidOperationException(RelationalStrings.ExecuteMergeEmptyWhenNotMatched);
         }
 
         var result = new List<(IProperty, Expression?)>(whenNotMatchedSetters.Count);
@@ -389,8 +410,17 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         foreach (var setter in whenNotMatchedSetters)
         {
             var property = ResolveProperty(setter.PropertySelector, entityType);
+            if (!explicitValues.TryAdd(property, setter.ValueExpression))
+            {
+                throw new InvalidOperationException(RelationalStrings.ExecuteMergeDuplicateInsertProperty(property.Name));
+            }
+
+            if (IsGeneratedOnInsert(property, storeObject, conflictProperties))
+            {
+                throw new InvalidOperationException(RelationalStrings.ExecuteMergeGeneratedInsertProperty(property.Name));
+            }
+
             result.Add((property, setter.ValueExpression));
-            explicitValues[property] = setter.ValueExpression;
         }
 
         // Without its conflict-column values, an inserted row could never be matched by a subsequent merge. The value must also be the
@@ -413,16 +443,27 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         return result;
     }
 
-    // Translates a WhenMatched value selector into SQL. Target-row references become "<table>"."<col>"; a source-row member becomes the
-    // SQLite/PostgreSQL "excluded" pseudo-row column it was inserted into unchanged. Supports member access, binary operators and
-    // constants (the common upsert grammar).
+    // Computed columns are populated by the database and can't be inserted into; as in SaveChanges, neither are properties ignored before
+    // save (e.g. a row version), unless they're match columns, whose values ON CONFLICT needs.
+    private static bool IsGeneratedOnInsert(
+        IProperty property,
+        StoreObjectIdentifier storeObject,
+        IReadOnlyList<(IProperty Property, string SourceMember)> conflictProperties)
+        => property.GetComputedColumnSql(storeObject) is not null
+            || (property.GetBeforeSaveBehavior() == PropertySaveBehavior.Ignore && conflictProperties.All(c => c.Property != property));
+
+    // Translates a WhenMatched value selector into SQL. A target-row reference becomes "<table>"."<col>"; a source-row member becomes the
+    // SQLite/PostgreSQL "excluded" pseudo-row column it was inserted into unchanged. Only member access and constants are supported:
+    // operators and functions translate differently across providers, so they need the regular translation pipeline.
     private SqlExpression TranslateMergeUpdateValue(
         Expression expression,
         ParameterExpression? targetParam,
         ParameterExpression? sourceParam,
+        IProperty property,
+        IColumnBase column,
         IEntityType entityType,
         ITableBase table,
-        IReadOnlyDictionary<string, (IColumnBase Column, IProperty Property)> excludedColumnsBySourceMember)
+        IReadOnlyDictionary<string, List<(IColumnBase Column, IProperty Property)>> excludedColumnsBySourceMember)
     {
         expression = expression.UnwrapTypeConversion(out _);
 
@@ -431,32 +472,36 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             case MemberExpression member when sourceParam is not null && GetParameterRoot(member) == sourceParam:
             {
                 if (member.Expression != sourceParam
-                    || !excludedColumnsBySourceMember.TryGetValue(member.Member.Name, out var excluded))
+                    || !excludedColumnsBySourceMember.TryGetValue(member.Member.Name, out var excludedColumns))
                 {
                     throw new InvalidOperationException(RelationalStrings.ExecuteMergeSourceMemberNotInserted(member.Print()));
                 }
 
+                // The excluded value has been converted by its own column's value converter, so it can only be assigned to a column
+                // that converts the same way; prefer the column being set.
+                var (excludedColumn, excludedProperty) = excludedColumns
+                    .Where(c => c.Column.StoreTypeMapping.Converter == column.StoreTypeMapping.Converter)
+                    .OrderBy(c => c.Column != column)
+                    .FirstOrDefault();
+                if (excludedColumn is null)
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.ExecuteMergeSourceMemberConverterMismatch(member.Print(), property.Name));
+                }
+
                 return new MergeColumnReferenceExpression(
-                    excluded.Column.Name, fromExcluded: true, excluded.Property.ClrType, excluded.Column.StoreTypeMapping);
+                    excludedColumn.Name, fromExcluded: true, excludedProperty.ClrType, excludedColumn.StoreTypeMapping);
             }
 
             case MemberExpression member:
             {
-                var property = ResolveProperty(member, targetParam, entityType);
-                var column = table.FindColumn(property)
-                    ?? throw new InvalidOperationException(RelationalStrings.ExecuteMergePropertyNotMapped(property.Name, table.Name));
+                var targetProperty = ResolveProperty(member, targetParam, entityType);
+                var targetColumn = table.FindColumn(targetProperty)
+                    ?? throw new InvalidOperationException(
+                        RelationalStrings.ExecuteMergePropertyNotMapped(targetProperty.Name, table.Name));
 
-                return new MergeColumnReferenceExpression(column.Name, fromExcluded: false, property.ClrType, column.StoreTypeMapping);
-            }
-
-            case BinaryExpression binary:
-            {
-                var left = TranslateMergeUpdateValue(
-                    binary.Left, targetParam, sourceParam, entityType, table, excludedColumnsBySourceMember);
-                var right = TranslateMergeUpdateValue(
-                    binary.Right, targetParam, sourceParam, entityType, table, excludedColumnsBySourceMember);
-                return _sqlExpressionFactory.MakeBinary(binary.NodeType, left, right, typeMapping: null)
-                    ?? throw new InvalidOperationException(RelationalStrings.ExecuteMergeUnsupportedOperator(binary.NodeType));
+                return new MergeColumnReferenceExpression(
+                    targetColumn.Name, fromExcluded: false, targetProperty.ClrType, targetColumn.StoreTypeMapping);
             }
 
             case ConstantExpression constant:
@@ -579,8 +624,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                 => entityType.FindProperty(name)
                     ?? throw new InvalidOperationException(
                         RelationalStrings.ExecuteMergePropertyNotFound(name, entityType.DisplayName())),
-            MethodCallExpression { Method.Name: "Property", Arguments: [var instance, ConstantExpression { Value: string shadowName }] }
-                when instance.UnwrapTypeConversion(out _) == targetParam
+            MethodCallExpression { Arguments: [var instance, ConstantExpression { Value: string shadowName }] } methodCall
+                when methodCall.Method.IsEFPropertyMethod() && instance.UnwrapTypeConversion(out _) == targetParam
                 => entityType.FindProperty(shadowName)
                     ?? throw new InvalidOperationException(
                         RelationalStrings.ExecuteMergePropertyNotFound(shadowName, entityType.DisplayName())),

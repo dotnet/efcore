@@ -50,11 +50,11 @@ public abstract class ExecuteMergeTestBase<TFixture>(TFixture fixture) : QueryTe
                     [new DailyVisit { UserId = 1, Day = "mon", Visits = 3 }, new DailyVisit { UserId = 2, Day = "tue", Visits = 7 }],
                     merge => merge
                         .Match(t => new { t.UserId, t.Day }, s => new { s.UserId, s.Day })
-                        .WhenMatched(u => u.SetProperty(t => t.Visits, (t, s) => t.Visits + s.Visits)));
+                        .WhenMatched(u => u.SetProperty(t => t.Visits, (t, s) => s.Visits)));
 
                 Assert.Equal(2, affected);
                 var visits = await context.Visits.OrderBy(v => v.UserId).ToListAsync();
-                Assert.Equal([8, 7], visits.Select(v => v.Visits));
+                Assert.Equal([3, 7], visits.Select(v => v.Visits));
             });
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -68,11 +68,11 @@ public abstract class ExecuteMergeTestBase<TFixture>(TFixture fixture) : QueryTe
                     merge => merge
                         .Match(t => t.UserId, s => s.UserId)
                         .Match(t => t.Day, s => s.Day)
-                        .WhenMatched(u => u.SetProperty(t => t.Visits, (t, s) => t.Visits + s.Visits)));
+                        .WhenMatched(u => u.SetProperty(t => t.Visits, (t, s) => s.Visits)));
 
                 Assert.Equal(2, affected);
                 var visits = await context.Visits.OrderBy(v => v.UserId).ToListAsync();
-                Assert.Equal([8, 7], visits.Select(v => v.Visits));
+                Assert.Equal([3, 7], visits.Select(v => v.Visits));
             });
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -86,12 +86,12 @@ public abstract class ExecuteMergeTestBase<TFixture>(TFixture fixture) : QueryTe
                     [new Account { Id = 999, ExternalId = 1, Balance = 50 }, new Account { Id = 888, ExternalId = 2, Balance = 70 }],
                     merge => merge
                         .Match(t => t.Id, s => s.ExternalId)
-                        .WhenMatched(u => u.SetProperty(t => t.Balance, (t, s) => t.Balance + s.Balance)));
+                        .WhenMatched(u => u.SetProperty(t => t.Balance, (t, s) => s.Balance)));
 
                 Assert.Equal(2, affected);
                 var accounts = await context.Accounts.OrderBy(a => a.Id).ToListAsync();
                 Assert.Equal([1, 2], accounts.Select(a => a.Id));
-                Assert.Equal([150, 70], accounts.Select(a => a.Balance));
+                Assert.Equal([50, 70], accounts.Select(a => a.Balance));
             });
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -171,6 +171,31 @@ public abstract class ExecuteMergeTestBase<TFixture>(TFixture fixture) : QueryTe
                 Assert.Equal(2, affected);
                 var blogs = await context.Blogs.OrderBy(b => b.Id).ToListAsync();
                 Assert.Equal(["Updated", "Blog2", "Blog3"], blogs.Select(b => b.Name));
+            });
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Source_member_used_for_converted_and_unconverted_properties(bool async)
+        => AssertMerge(
+            async context =>
+            {
+                // s.Value is inserted both through ConvertedValue's value converter and as-is into Value, so each WhenMatched setter
+                // must read it back from the inserted column with its own conversion.
+                var affected = await Merge(
+                    async, context.Measurements,
+                    [new Measurement { Id = 1, Value = 5 }, new Measurement { Id = 2, Value = 7 }],
+                    merge => merge
+                        .WhenMatched(u => u
+                            .SetProperty(t => t.Value, (t, s) => s.Value)
+                            .SetProperty(t => t.ConvertedValue, (t, s) => s.Value))
+                        .WhenNotMatched(insert => insert
+                            .SetProperty(t => t.Id, s => s.Id)
+                            .SetProperty(t => t.ConvertedValue, s => s.Value)
+                            .SetProperty(t => t.Value, s => s.Value)));
+
+                Assert.Equal(2, affected);
+                var measurements = await context.Measurements.OrderBy(m => m.Id).ToListAsync();
+                Assert.Equal([5, 7], measurements.Select(m => m.Value));
+                Assert.Equal([5, 7], measurements.Select(m => m.ConvertedValue));
             });
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -275,10 +300,10 @@ public abstract class ExecuteMergeTestBase<TFixture>(TFixture fixture) : QueryTe
                     [new DailyVisit { UserId = 1, Day = "mon", Visits = 3 }, new DailyVisit { UserId = 2, Day = "tue", Visits = 7 }],
                     merge => merge
                         .Match(t => new { t.UserId, t.Day }, s => new { s.UserId, s.Day })
-                        .WhenMatched(u => u.SetProperty(t => t.Visits, (t, s) => t.Visits + s.Visits)),
+                        .WhenMatched(u => u.SetProperty(t => t.Visits, (t, s) => s.Visits)),
                     t => new { t.UserId, t.Visits });
 
-                Assert.Equal([(1, 8), (2, 7)], results.OrderBy(r => r.UserId).Select(r => (r.UserId, r.Visits)));
+                Assert.Equal([(1, 3), (2, 7)], results.OrderBy(r => r.UserId).Select(r => (r.UserId, r.Visits)));
             });
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -322,6 +347,23 @@ public abstract class ExecuteMergeTestBase<TFixture>(TFixture fixture) : QueryTe
                     t => t.Note);
 
                 Assert.Null(Assert.Single(notes));
+            });
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Returning_with_buffering(bool async)
+        => AssertMerge(
+            async context =>
+            {
+                // A retrying execution strategy makes the query buffer the returned rows.
+                var results = await new BufferingExecutionStrategy(context).ExecuteAsync(
+                    () => MergeReturning(
+                        async, context.Blogs,
+                        [new Blog { Id = 1, Name = "Updated" }, new Blog { Id = 3, Name = "Blog3" }],
+                        merge => merge.WhenMatched(u => u.SetProperty(t => t.Name, (t, s) => s.Name)),
+                        t => new { t.Id, t.Name, t.Note }));
+
+                Assert.Equal([(1, "Updated"), (3, "Blog3")], results.OrderBy(r => r.Id).Select(r => (r.Id, r.Name)));
+                Assert.All(results, r => Assert.Null(r.Note));
             });
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -369,5 +411,17 @@ public abstract class ExecuteMergeTestBase<TFixture>(TFixture fixture) : QueryTe
         }
 
         return results;
+    }
+
+    // Retries on failure, which makes queries buffer their results, but never actually retries, so it can run in the test's transaction.
+    private sealed class BufferingExecutionStrategy(DbContext context)
+        : ExecutionStrategy(context, maxRetryCount: 1, maxRetryDelay: TimeSpan.Zero)
+    {
+        protected override void OnFirstExecution()
+        {
+        }
+
+        protected override bool ShouldRetryOn(Exception exception)
+            => false;
     }
 }

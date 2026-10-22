@@ -60,3 +60,10 @@ public class Keyless
 {
     public int Value { get; set; }
 }
+
+public class Measurement
+{
+    public int Id { get; set; }
+    public int Value { get; set; }
+    public int ConvertedValue { get; set; }
+}

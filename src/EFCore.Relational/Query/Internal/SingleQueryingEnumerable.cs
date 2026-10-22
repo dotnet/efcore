@@ -28,7 +28,8 @@ public static class SingleQueryingEnumerable
         Type contextType,
         bool standAloneStateManager,
         bool detailedErrorsEnabled,
-        bool threadSafetyChecksEnabled)
+        bool threadSafetyChecksEnabled,
+        CommandSource commandSource)
         => new(
             relationalQueryContext,
             relationalCommandResolver,
@@ -37,7 +38,8 @@ public static class SingleQueryingEnumerable
             contextType,
             standAloneStateManager,
             detailedErrorsEnabled,
-            threadSafetyChecksEnabled);
+            threadSafetyChecksEnabled,
+            commandSource);
 }
 
 /// <summary>
@@ -57,6 +59,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
     private readonly bool _standAloneStateManager;
     private readonly bool _detailedErrorsEnabled;
     private readonly bool _threadSafetyChecksEnabled;
+    private readonly CommandSource _commandSource;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -72,7 +75,8 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
         Type contextType,
         bool standAloneStateManager,
         bool detailedErrorsEnabled,
-        bool threadSafetyChecksEnabled)
+        bool threadSafetyChecksEnabled,
+        CommandSource commandSource)
     {
         _relationalQueryContext = relationalQueryContext;
         _relationalCommandResolver = relationalCommandResolver;
@@ -83,6 +87,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
         _standAloneStateManager = standAloneStateManager;
         _detailedErrorsEnabled = detailedErrorsEnabled;
         _threadSafetyChecksEnabled = threadSafetyChecksEnabled;
+        _commandSource = commandSource;
     }
 
     /// <summary>
@@ -133,7 +138,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
                     _relationalQueryContext.Parameters,
                     null,
                     _relationalQueryContext.Context,
-                    null, CommandSource.LinqQuery),
+                    null, _commandSource),
                 Guid.Empty,
                 (DbCommandMethod)(-1));
 
@@ -159,6 +164,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
         private readonly bool _standAloneStateManager;
         private readonly bool _detailedErrorsEnabled;
+        private readonly CommandSource _commandSource;
         private readonly IConcurrencyDetector? _concurrencyDetector;
         private readonly IExceptionDetector _exceptionDetector;
 
@@ -177,6 +183,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
             _queryLogger = queryingEnumerable._queryLogger;
             _standAloneStateManager = queryingEnumerable._standAloneStateManager;
             _detailedErrorsEnabled = queryingEnumerable._detailedErrorsEnabled;
+            _commandSource = queryingEnumerable._commandSource;
             _exceptionDetector = _relationalQueryContext.ExceptionDetector;
             Current = default!;
 
@@ -274,7 +281,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
                     enumerator._relationalQueryContext.Context,
                     enumerator._relationalQueryContext.CommandLogger,
                     enumerator._detailedErrorsEnabled,
-                    CommandSource.LinqQuery));
+                    enumerator._commandSource));
             enumerator._dbDataReader = dataReader.DbDataReader;
 
             enumerator._resultCoordinator = new SingleQueryResultCoordinator();
@@ -309,6 +316,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
         private readonly bool _standAloneStateManager;
         private readonly bool _detailedErrorsEnabled;
+        private readonly CommandSource _commandSource;
         private readonly IConcurrencyDetector? _concurrencyDetector;
         private readonly IExceptionDetector _exceptionDetector;
         private readonly CancellationToken _cancellationToken;
@@ -328,6 +336,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
             _queryLogger = queryingEnumerable._queryLogger;
             _standAloneStateManager = queryingEnumerable._standAloneStateManager;
             _detailedErrorsEnabled = queryingEnumerable._detailedErrorsEnabled;
+            _commandSource = queryingEnumerable._commandSource;
             _exceptionDetector = _relationalQueryContext.ExceptionDetector;
             _cancellationToken = _relationalQueryContext.CancellationToken;
             Current = default!;
@@ -427,7 +436,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
                         enumerator._readerColumns,
                         enumerator._relationalQueryContext.Context,
                         enumerator._relationalQueryContext.CommandLogger,
-                        enumerator._detailedErrorsEnabled, CommandSource.LinqQuery),
+                        enumerator._detailedErrorsEnabled, enumerator._commandSource),
                     cancellationToken)
                 .ConfigureAwait(false);
             enumerator._dbDataReader = dataReader.DbDataReader;

@@ -435,10 +435,11 @@ public class SqlNullabilityProcessor : ExpressionVisitor
     private List<RowValueExpression> ExpandMergeSourceRows(MergeExpression mergeExpression, string sourceParameterName)
     {
         // The SQL depends on the number of source rows, so the generated command can't be cached.
-        var rows = (IEnumerable?)ParametersDecorator.GetAndDisableCaching()[sourceParameterName];
+        var rows = (IEnumerable?)ParametersDecorator.GetAndDisableCaching()[sourceParameterName]
+            ?? throw new InvalidOperationException(RelationalStrings.ExecuteMergeNullSource);
         var template = mergeExpression.SourceRows[0].Values;
         var sourceRows = new List<RowValueExpression>();
-        foreach (var row in rows ?? Array.Empty<object>())
+        foreach (var row in rows)
         {
             var values = new SqlExpression[template.Count];
             for (var i = 0; i < template.Count; i++)

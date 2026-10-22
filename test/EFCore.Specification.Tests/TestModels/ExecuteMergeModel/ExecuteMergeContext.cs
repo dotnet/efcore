@@ -10,6 +10,7 @@ public class ExecuteMergeContext(DbContextOptions options) : PoolableDbContext(o
     public DbSet<Account> Accounts { get; set; } = null!;
     public DbSet<Gadget> Gadgets { get; set; } = null!;
     public DbSet<Keyless> Keyless { get; set; } = null!;
+    public DbSet<Measurement> Measurements { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -28,5 +29,11 @@ public class ExecuteMergeContext(DbContextOptions options) : PoolableDbContext(o
             });
         modelBuilder.Entity<Gadget>(b => b.Property(e => e.Id).ValueGeneratedNever());
         modelBuilder.Entity<Keyless>(b => b.HasNoKey());
+        modelBuilder.Entity<Measurement>(
+            b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+                b.Property(e => e.ConvertedValue).HasConversion(v => "#" + v, v => int.Parse(v.Substring(1)));
+            });
     }
 }

@@ -1234,8 +1234,14 @@ public abstract class QueryableMethodTranslatingExpressionVisitor(
     /// <param name="source">The shaped query identifying the target table.</param>
     /// <param name="sourceRows">A parameter holding the source rows to merge; its value is only available when the query is executed.</param>
     /// <param name="matches">The match (conflict) selectors; empty means match on the target's primary key.</param>
-    /// <param name="whenMatchedSetters">The update setters for matched rows, or <see langword="null" /> to leave matched rows unchanged.</param>
-    /// <param name="whenNotMatchedSetters">The insert setters for unmatched rows, or <see langword="null" /> to insert all mapped columns.</param>
+    /// <param name="whenMatchedSetters">
+    ///     The update setters for matched rows, or <see langword="null" /> when <c>WhenMatched</c> was omitted. Matched rows are left
+    ///     unchanged when there are no setters.
+    /// </param>
+    /// <param name="whenNotMatchedSetters">
+    ///     The insert setters for unmatched rows, or <see langword="null" /> when <c>WhenNotMatched</c> was omitted, to insert all mapped
+    ///     columns.
+    /// </param>
     /// <param name="returningSelector">A projection over each affected row, or <see langword="null" /> when no results are returned.</param>
     /// <returns>The non query after translation.</returns>
     [Experimental(EFDiagnostics.ExecuteMergeExperimental)]
@@ -1301,10 +1307,10 @@ public abstract class QueryableMethodTranslatingExpressionVisitor(
 
     private static IReadOnlyList<ExecuteUpdateSetter>? DecodeMergeSetters(Expression argument)
     {
-        // A null constant means the WhenMatched/WhenNotMatched clause was omitted.
+        // A null constant means the WhenMatched/WhenNotMatched clause was omitted; an empty one is constantized to an empty array.
         if (argument is not NewArrayExpression newArray)
         {
-            return null;
+            return argument is ConstantExpression { Value: Array { Length: 0 } } ? [] : null;
         }
 
         var setters = new ExecuteUpdateSetter[newArray.Expressions.Count];

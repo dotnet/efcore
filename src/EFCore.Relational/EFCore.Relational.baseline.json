@@ -1181,6 +1181,11 @@
           "Value": "9"
         },
         {
+          "Member": "const Microsoft.EntityFrameworkCore.Diagnostics.CommandSource ExecuteMerge",
+          "Stage": "Experimental",
+          "Value": "10"
+        },
+        {
           "Member": "const Microsoft.EntityFrameworkCore.Diagnostics.CommandSource ExecuteSqlRaw",
           "Value": "5"
         },
@@ -15386,7 +15391,13 @@
           "Member": "static string ExecuteMergeComputedMatchColumn(object? property);"
         },
         {
+          "Member": "static string ExecuteMergeDuplicateInsertProperty(object? property);"
+        },
+        {
           "Member": "static string ExecuteMergeDuplicateMatchColumn(object? column);"
+        },
+        {
+          "Member": "static string ExecuteMergeGeneratedInsertProperty(object? property);"
         },
         {
           "Member": "static string ExecuteMergeInvalidPropertySelector(object? selector);"
@@ -15416,16 +15427,19 @@
           "Member": "static string ExecuteMergePropertyNotMapped(object? property, object? table);"
         },
         {
+          "Member": "static string ExecuteMergeReturningUnsupportedExpression(object? expression);"
+        },
+        {
           "Member": "static string ExecuteMergeReturningUnsupportedSelector(object? selector);"
+        },
+        {
+          "Member": "static string ExecuteMergeSourceMemberConverterMismatch(object? member, object? property);"
         },
         {
           "Member": "static string ExecuteMergeSourceMemberNotInserted(object? member);"
         },
         {
           "Member": "static string ExecuteMergeUnsupportedExpression(object? expression);"
-        },
-        {
-          "Member": "static string ExecuteMergeUnsupportedOperator(object? nodeType);"
         },
         {
           "Member": "static string ExecuteOperationOnEntitySplitting(object? operation, object? entityType);"
@@ -16013,10 +16027,16 @@
           "Member": "static string ExecuteDeleteOnNonEntityType { get; }"
         },
         {
+          "Member": "static string ExecuteMergeEmptyWhenNotMatched { get; }"
+        },
+        {
           "Member": "static string ExecuteMergeNotSupportedByProvider { get; }"
         },
         {
           "Member": "static string ExecuteMergeNotSupportedInPrecompiledQueries { get; }"
+        },
+        {
+          "Member": "static string ExecuteMergeNullSource { get; }"
         },
         {
           "Member": "static string ExecuteMergeOnComplexQuery { get; }"

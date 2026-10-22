@@ -78,6 +78,61 @@ public abstract class ExecuteMergeRelationalTestBase<TFixture>(TFixture fixture)
             RelationalStrings.ExecuteMergeUnsupportedExpression("t.Name.ToUpper()"));
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task When_matched_with_operator_throws(bool async)
+        => AssertMergeThrows(
+            context => Merge(
+                async, context.Visits,
+                [new DailyVisit { UserId = 1, Day = "mon", Visits = 3 }],
+                merge => merge
+                    .Match(t => new { t.UserId, t.Day }, s => new { s.UserId, s.Day })
+                    .WhenMatched(u => u.SetProperty(t => t.Visits, (t, s) => t.Visits + s.Visits))),
+            RelationalStrings.ExecuteMergeUnsupportedExpression("t.Visits + s.Visits"));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task When_matched_source_member_inserted_with_other_converter_throws(bool async)
+        => AssertMergeThrows(
+            // s.Value is only inserted through ConvertedValue's value converter, so it can't be read back as-is for Value.
+            context => Merge(
+                async, context.Measurements,
+                [new Measurement { Id = 1, Value = 5 }],
+                merge => merge
+                    .WhenMatched(u => u.SetProperty(t => t.Value, (t, s) => s.Value))
+                    .WhenNotMatched(insert => insert
+                        .SetProperty(t => t.Id, s => s.Id)
+                        .SetProperty(t => t.ConvertedValue, s => s.Value))),
+            RelationalStrings.ExecuteMergeSourceMemberConverterMismatch("s.Value", nameof(Measurement.Value)));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task When_not_matched_without_setters_throws(bool async)
+        => AssertMergeThrows(
+            context => Merge(async, context.Blogs, [new Blog { Id = 3, Name = "Blog3" }], merge => merge.WhenNotMatched(_ => { })),
+            RelationalStrings.ExecuteMergeEmptyWhenNotMatched);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task When_not_matched_duplicate_property_throws(bool async)
+        => AssertMergeThrows(
+            context => Merge(
+                async, context.Blogs,
+                [new Blog { Id = 3, Name = "Blog3" }],
+                merge => merge.WhenNotMatched(insert => insert
+                    .SetProperty(t => t.Id, s => s.Id)
+                    .SetProperty(t => t.Name, s => s.Name)
+                    .SetProperty(t => t.Name, "Other"))),
+            RelationalStrings.ExecuteMergeDuplicateInsertProperty(nameof(Blog.Name)));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task When_not_matched_computed_property_throws(bool async)
+        => AssertMergeThrows(
+            context => Merge(
+                async, context.Gadgets,
+                [new Gadget { Id = 1, Price = 100, Tax = 10 }],
+                merge => merge.WhenNotMatched(insert => insert
+                    .SetProperty(t => t.Id, s => s.Id)
+                    .SetProperty(t => t.Price, s => s.Price)
+                    .SetProperty(t => t.Tax, s => s.Tax))),
+            RelationalStrings.ExecuteMergeGeneratedInsertProperty(nameof(Gadget.Tax)));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task When_not_matched_setters_omit_match_column_throws(bool async)
         => AssertMergeThrows(
             context => Merge(
@@ -178,6 +233,28 @@ public abstract class ExecuteMergeRelationalTestBase<TFixture>(TFixture fixture)
             RelationalStrings.ExecuteMergeReturningUnsupportedSelector("t => 1"));
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Returning_selector_with_captured_variable_throws(bool async)
+    {
+        var prefix = "Blog";
+
+        return AssertMergeThrows(
+            context => MergeReturning(
+                async, context.Blogs, [new Blog { Id = 3, Name = "Blog3" }], merge => { }, t => new { t.Id, Prefix = prefix }),
+            RelationalStrings.ExecuteMergeReturningUnsupportedExpression("@prefix"));
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Null_source_throws(bool async)
+        => AssertMerge(
+            async context =>
+            {
+                var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => Merge(async, context.Blogs, (IEnumerable<Blog>)null!, merge => { }));
+
+                Assert.Equal(RelationalStrings.ExecuteMergeNullSource, exception.Message);
+            });
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task On_filtered_target_throws(bool async)
         => AssertMergeThrows(
             context => Merge(async, context.Blogs.Where(b => b.Id > 0), [new Blog { Id = 1, Name = "x" }], merge => { }),
@@ -245,6 +322,37 @@ public abstract class ExecuteMergeRelationalTestBase<TFixture>(TFixture fixture)
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task When_not_matched_property_generated_on_add_or_update_throws(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<StampedContext>();
+        await using var context = contextFactory.CreateDbContext();
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => Merge(
+                async, context.Set<Stamped>(),
+                [new Stamped { Id = 1, Name = "a", Version = 7 }],
+                merge => merge.WhenNotMatched(insert => insert
+                    .SetProperty(t => t.Id, s => s.Id)
+                    .SetProperty(t => t.Version, s => s.Version))));
+
+        Assert.Equal(RelationalStrings.ExecuteMergeGeneratedInsertProperty(nameof(Stamped.Version)), exception.InnerException!.Message);
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Commands_report_ExecuteMerge_command_source(bool async)
+    {
+        var interceptor = new CommandSourceInterceptor();
+        var contextFactory = await InitializeNonSharedTest<StampedContext>(onConfiguring: o => o.AddInterceptors(interceptor));
+        await using var context = contextFactory.CreateDbContext();
+        interceptor.CommandSources.Clear();
+
+        await Merge(async, context.Set<Stamped>(), [new Stamped { Id = 1, Name = "a" }], merge => { });
+        await MergeReturning(async, context.Set<Stamped>(), [new Stamped { Id = 2, Name = "b" }], merge => { }, t => t.Id);
+
+        Assert.Equal([CommandSource.ExecuteMerge, CommandSource.ExecuteMerge], interceptor.CommandSources);
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task On_entity_with_owned_type_throws(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<OrderContext>();
@@ -291,6 +399,17 @@ public abstract class ExecuteMergeRelationalTestBase<TFixture>(TFixture fixture)
     {
         public int Id { get; set; }
         public string Name { get; set; } = null!;
+    }
+
+    protected class CommandSourceInterceptor : DbCommandInterceptor
+    {
+        public List<CommandSource> CommandSources { get; } = [];
+
+        public override DbCommand CommandInitialized(CommandEndEventData eventData, DbCommand result)
+        {
+            CommandSources.Add(eventData.CommandSource);
+            return result;
+        }
     }
 
     protected class StampedContext(DbContextOptions options) : DbContext(options)

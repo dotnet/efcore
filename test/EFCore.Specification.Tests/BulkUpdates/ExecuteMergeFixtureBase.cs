@@ -18,6 +18,7 @@ public abstract class ExecuteMergeFixtureBase : QueryFixtureBase<ExecuteMergeCon
         context.AddRange(data.Blogs);
         context.AddRange(data.Visits);
         context.AddRange(data.Accounts);
+        context.AddRange(data.Measurements);
         return context.SaveChangesAsync();
     }
 

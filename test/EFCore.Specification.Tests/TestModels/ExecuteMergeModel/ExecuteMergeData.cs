@@ -21,6 +21,11 @@ public class ExecuteMergeData : ISetSource
         new() { Id = 1, ExternalId = 10, Balance = 100 }
     ];
 
+    public IReadOnlyList<Measurement> Measurements { get; } =
+    [
+        new() { Id = 1, Value = 1, ConvertedValue = 1 }
+    ];
+
     public IQueryable<TEntity> Set<TEntity>()
         where TEntity : class
     {
@@ -37,6 +42,11 @@ public class ExecuteMergeData : ISetSource
         if (typeof(TEntity) == typeof(Account))
         {
             return (IQueryable<TEntity>)Accounts.AsQueryable();
+        }
+
+        if (typeof(TEntity) == typeof(Measurement))
+        {
+            return (IQueryable<TEntity>)Measurements.AsQueryable();
         }
 
         throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
