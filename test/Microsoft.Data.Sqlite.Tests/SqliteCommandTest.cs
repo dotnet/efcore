@@ -1034,6 +1034,7 @@ CREATE TABLE "Products" (
         connection.Open();
         var command = connection.CreateCommand();
         command.CommandText = "SELECT 1;";
+        command.Disposed += (_, _) => command.Connection = null;
 
         var reader = command.ExecuteReader(CommandBehavior.CloseConnection);
         command.Dispose();
