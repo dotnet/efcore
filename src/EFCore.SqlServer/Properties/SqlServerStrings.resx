@@ -406,6 +406,9 @@
   <data name="TemporalSetOperationOnMismatchedSources" xml:space="preserve">
     <value>Set operation can't be applied on entity '{entityType}' because temporal operations on both arguments don't match.</value>
   </data>
+  <data name="TimeSpanLiteralOutOfRange" xml:space="preserve">
+    <value>The TimeSpan value '{timeSpan}' is outside the valid range for a SQL Server 'time' literal. Values must be greater than or equal to zero and less than 24 hours.</value>
+  </data>
   <data name="TimeSpanOffsetOutOfRange" xml:space="preserve">
     <value>The provided time zone offset '{offset}' is outside the valid range for SQL Server. Time zone offsets must be between -14:00 and +14:00.</value>
   </data>

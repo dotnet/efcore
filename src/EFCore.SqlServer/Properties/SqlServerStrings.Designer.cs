@@ -502,6 +502,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 entityType);
 
         /// <summary>
+        ///     The TimeSpan value '{timeSpan}' is outside the valid range for a SQL Server 'time' literal. Values must be greater than or equal to zero and less than 24 hours.
+        /// </summary>
+        public static string TimeSpanLiteralOutOfRange(object? timeSpan)
+            => string.Format(
+                GetString("TimeSpanLiteralOutOfRange", nameof(timeSpan)),
+                timeSpan);
+
+        /// <summary>
         ///     The provided time zone offset '{offset}' is outside the valid range for SQL Server. Time zone offsets must be between -14:00 and +14:00.
         /// </summary>
         public static string TimeSpanOffsetOutOfRange(object? offset)
