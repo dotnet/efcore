@@ -413,7 +413,7 @@ ORDER BY "j"."Id", "o"."key"
 
         AssertSql(
             """
-SELECT "j"."Id", "j"."Title", "j"."json_collection_custom_naming", "j"."json_reference_custom_naming", "j"."json_reference_custom_naming", "j"."json_reference_custom_naming" ->> '"Custom#OwnedReferenceBranch\u0060-=[]\\;\u0027,./~!@#$%^\u0026*()_\u002B{}|:\u0022\u003C\u003E?\u72EC\u89D2\u517D\u03C0\u7368\u89D2\u7378"', "j"."json_collection_custom_naming", "j"."json_reference_custom_naming" ->> 'CustomOwnedCollectionBranch', "j"."json_reference_custom_naming" ->> 'CustomName', "j"."json_reference_custom_naming" ->> '$."Custom#OwnedReferenceBranch\u0060-=[]\\;\u0027,./~!@#$%^\u0026*()_\u002B{}|:\u0022\u003C\u003E?\u72EC\u89D2\u517D\u03C0\u7368\u89D2\u7378"."\u30E6\u30CB\u30B3\u30FC\u30F3Fraction\u4E00\u89D2\u7363"'
+SELECT "j"."Id", "j"."Title", "j"."json_collection_custom_naming", "j"."json_reference_custom_naming", "j"."json_reference_custom_naming", "j"."json_reference_custom_naming" ->> '$."Custom#OwnedReferenceBranch\u0060-=[]\\;\u0027,./~!@#$%^\u0026*()_\u002B{}|:\u0022\u003C\u003E?\u72EC\u89D2\u517D\u03C0\u7368\u89D2\u7378"', "j"."json_collection_custom_naming", "j"."json_reference_custom_naming" ->> 'CustomOwnedCollectionBranch', "j"."json_reference_custom_naming" ->> 'CustomName', "j"."json_reference_custom_naming" ->> '$."Custom#OwnedReferenceBranch\u0060-=[]\\;\u0027,./~!@#$%^\u0026*()_\u002B{}|:\u0022\u003C\u003E?\u72EC\u89D2\u517D\u03C0\u7368\u89D2\u7378"."\u30E6\u30CB\u30B3\u30FC\u30F3Fraction\u4E00\u89D2\u7363"'
 FROM "JsonEntitiesCustomNaming" AS "j"
 """);
     }
@@ -429,13 +429,35 @@ FROM "JsonEntitiesCustomNaming" AS "j"
 """);
     }
 
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Custom_naming_predicate_on_scalar_in_collection_element(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityCustomNaming>()
+                .Where(x => x.OwnedReferenceRoot.OwnedCollectionBranch.Any(b => b.Fraction == 10.2)));
+
+        AssertSql(
+            """
+SELECT "j"."Id", "j"."Title", "j"."json_collection_custom_naming", "j"."json_reference_custom_naming"
+FROM "JsonEntitiesCustomNaming" AS "j"
+WHERE EXISTS (
+    SELECT 1
+    FROM (
+        SELECT "c"."value" ->> '$."\u30E6\u30CB\u30B3\u30FC\u30F3Fraction\u4E00\u89D2\u7363"' AS "ユニコーンFraction一角獣"
+        FROM json_each("j"."json_reference_custom_naming", '$.CustomOwnedCollectionBranch') AS "c"
+    ) AS "c0"
+    WHERE "c0"."ユニコーンFraction一角獣" = 10.199999999999999)
+""");
+    }
+
     public override async Task Custom_naming_projection_owned_reference(bool async)
     {
         await base.Custom_naming_projection_owned_reference(async);
 
         AssertSql(
             """
-SELECT "j"."json_reference_custom_naming" ->> '"Custom#OwnedReferenceBranch\u0060-=[]\\;\u0027,./~!@#$%^\u0026*()_\u002B{}|:\u0022\u003C\u003E?\u72EC\u89D2\u517D\u03C0\u7368\u89D2\u7378"', "j"."Id"
+SELECT "j"."json_reference_custom_naming" ->> '$."Custom#OwnedReferenceBranch\u0060-=[]\\;\u0027,./~!@#$%^\u0026*()_\u002B{}|:\u0022\u003C\u003E?\u72EC\u89D2\u517D\u03C0\u7368\u89D2\u7378"', "j"."Id"
 FROM "JsonEntitiesCustomNaming" AS "j"
 """);
     }
