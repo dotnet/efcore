@@ -3118,23 +3118,29 @@ WHERE [c0].[row] <= 1
 
         AssertSql(
             """
-SELECT [o1].[CustomerID], [o1].[c], [o3].[OrderID], [o3].[CustomerID], [o3].[EmployeeID], [o3].[OrderDate]
+SELECT [o2].[CustomerID], [o2].[c], [o4].[OrderID], [o4].[CustomerID], [o4].[EmployeeID], [o4].[OrderDate]
 FROM (
     SELECT [o].[CustomerID], CASE
-        WHEN 2 IN (COUNT(*), 0) THEN CAST(1 AS bit)
+        WHEN 2 IN (0) OR (2 = (
+            SELECT COUNT(*)
+            FROM [Orders] AS [o1]
+            WHERE [o].[CustomerID] = [o1].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o1].[CustomerID] IS NULL) OR ([o].[CustomerID] IS NULL AND [o1].[CustomerID] IS NULL) OR ([o].[CustomerID] IS NULL AND [o1].[CustomerID] IS NULL)) AND (
+            SELECT COUNT(*)
+            FROM [Orders] AS [o1]
+            WHERE [o].[CustomerID] = [o1].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o1].[CustomerID] IS NULL) OR ([o].[CustomerID] IS NULL AND [o1].[CustomerID] IS NULL) OR ([o].[CustomerID] IS NULL AND [o1].[CustomerID] IS NULL)) IS NOT NULL) THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END AS [c]
     FROM [Orders] AS [o]
     GROUP BY [o].[CustomerID]
-) AS [o1]
+) AS [o2]
 LEFT JOIN (
-    SELECT [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
+    SELECT [o3].[OrderID], [o3].[CustomerID], [o3].[EmployeeID], [o3].[OrderDate]
     FROM (
         SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], ROW_NUMBER() OVER(PARTITION BY [o0].[CustomerID] ORDER BY [o0].[OrderID]) AS [row]
         FROM [Orders] AS [o0]
-    ) AS [o2]
-    WHERE [o2].[row] <= 1
-) AS [o3] ON [o1].[CustomerID] = [o3].[CustomerID] OR ([o1].[CustomerID] IS NULL AND [o3].[CustomerID] IS NULL)
+    ) AS [o3]
+    WHERE [o3].[row] <= 1
+) AS [o4] ON [o2].[CustomerID] = [o4].[CustomerID] OR ([o2].[CustomerID] IS NULL AND [o4].[CustomerID] IS NULL)
 """);
     }
 
@@ -4762,6 +4768,210 @@ SELECT [o].[CustomerID] AS [Key], ISNULL((
         SELECT COUNT(*)
         FROM [Orders] AS [o0]
         WHERE ([o].[CustomerID] = [o0].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)) AND [o0].[OrderID] > CAST(LEN([e].[City]) AS int))), 0) AS [A]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]
+""");
+    }
+
+    public override async Task GroupBy_aggregate_from_multiple_query_with_inner_aggregate_over_outer_key(bool async)
+    {
+        await base.GroupBy_aggregate_from_multiple_query_with_inner_aggregate_over_outer_key(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID] AS [Key], ISNULL((
+    SELECT TOP(1) (
+        SELECT ISNULL(SUM([e1].[c]), 0)
+        FROM (
+            SELECT CAST(LEN([o].[CustomerID]) AS int) AS [c]
+            FROM [Employees] AS [e0]
+            WHERE [e0].[City] = N'Seattle' AND ([e].[City] = [e0].[City] OR ([e].[City] IS NULL AND [e0].[City] IS NULL))
+        ) AS [e1])
+    FROM [Employees] AS [e]
+    WHERE [e].[City] = N'Seattle'
+    GROUP BY [e].[City]
+    ORDER BY (
+        SELECT ISNULL(SUM([e1].[c]), 0)
+        FROM (
+            SELECT CAST(LEN([o].[CustomerID]) AS int) AS [c]
+            FROM [Employees] AS [e0]
+            WHERE [e0].[City] = N'Seattle' AND ([e].[City] = [e0].[City] OR ([e].[City] IS NULL AND [e0].[City] IS NULL))
+        ) AS [e1])), 0) AS [A]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]
+""");
+    }
+
+    public override async Task GroupBy_aggregate_from_multiple_query_three_levels(bool async)
+    {
+        await base.GroupBy_aggregate_from_multiple_query_three_levels(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID] AS [Key], ISNULL((
+    SELECT TOP(1) ISNULL((
+        SELECT TOP(1) COUNT(*) + (
+            SELECT COUNT(*)
+            FROM [Employees] AS [e0]
+            WHERE [e0].[City] = N'Seattle' AND ([e].[City] = [e0].[City] OR ([e].[City] IS NULL AND [e0].[City] IS NULL)))
+        FROM [Products] AS [p]
+        WHERE [p].[ProductID] < 3
+        GROUP BY [p].[Discontinued]
+        ORDER BY COUNT(*) + (
+            SELECT COUNT(*)
+            FROM [Employees] AS [e0]
+            WHERE [e0].[City] = N'Seattle' AND ([e].[City] = [e0].[City] OR ([e].[City] IS NULL AND [e0].[City] IS NULL)))), 0)
+    FROM [Employees] AS [e]
+    WHERE [e].[City] = N'Seattle'
+    GROUP BY [e].[City]
+    ORDER BY ISNULL((
+        SELECT TOP(1) COUNT(*) + (
+            SELECT COUNT(*)
+            FROM [Employees] AS [e0]
+            WHERE [e0].[City] = N'Seattle' AND ([e].[City] = [e0].[City] OR ([e].[City] IS NULL AND [e0].[City] IS NULL)))
+        FROM [Products] AS [p]
+        WHERE [p].[ProductID] < 3
+        GROUP BY [p].[Discontinued]
+        ORDER BY COUNT(*) + (
+            SELECT COUNT(*)
+            FROM [Employees] AS [e0]
+            WHERE [e0].[City] = N'Seattle' AND ([e].[City] = [e0].[City] OR ([e].[City] IS NULL AND [e0].[City] IS NULL)))), 0)), 0) AS [A]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]
+""");
+    }
+
+    public override async Task GroupBy_aggregate_from_multiple_query_three_levels_with_middle_aggregate_over_outer_key(bool async)
+    {
+        await base.GroupBy_aggregate_from_multiple_query_three_levels_with_middle_aggregate_over_outer_key(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID] AS [Key], ISNULL((
+    SELECT TOP(1) ISNULL((
+        SELECT TOP(1) COUNT(*) + (
+            SELECT ISNULL(SUM([e1].[c]), 0)
+            FROM (
+                SELECT CAST(LEN([o].[CustomerID]) AS int) AS [c]
+                FROM [Employees] AS [e0]
+                WHERE [e0].[City] = N'Seattle' AND ([e].[City] = [e0].[City] OR ([e].[City] IS NULL AND [e0].[City] IS NULL))
+            ) AS [e1])
+        FROM [Products] AS [p]
+        WHERE [p].[ProductID] < 3
+        GROUP BY [p].[Discontinued]
+        ORDER BY COUNT(*) + (
+            SELECT ISNULL(SUM([e1].[c]), 0)
+            FROM (
+                SELECT CAST(LEN([o].[CustomerID]) AS int) AS [c]
+                FROM [Employees] AS [e0]
+                WHERE [e0].[City] = N'Seattle' AND ([e].[City] = [e0].[City] OR ([e].[City] IS NULL AND [e0].[City] IS NULL))
+            ) AS [e1])), 0)
+    FROM [Employees] AS [e]
+    WHERE [e].[City] = N'Seattle'
+    GROUP BY [e].[City]
+    ORDER BY ISNULL((
+        SELECT TOP(1) COUNT(*) + (
+            SELECT ISNULL(SUM([e1].[c]), 0)
+            FROM (
+                SELECT CAST(LEN([o].[CustomerID]) AS int) AS [c]
+                FROM [Employees] AS [e0]
+                WHERE [e0].[City] = N'Seattle' AND ([e].[City] = [e0].[City] OR ([e].[City] IS NULL AND [e0].[City] IS NULL))
+            ) AS [e1])
+        FROM [Products] AS [p]
+        WHERE [p].[ProductID] < 3
+        GROUP BY [p].[Discontinued]
+        ORDER BY COUNT(*) + (
+            SELECT ISNULL(SUM([e1].[c]), 0)
+            FROM (
+                SELECT CAST(LEN([o].[CustomerID]) AS int) AS [c]
+                FROM [Employees] AS [e0]
+                WHERE [e0].[City] = N'Seattle' AND ([e].[City] = [e0].[City] OR ([e].[City] IS NULL AND [e0].[City] IS NULL))
+            ) AS [e1])), 0)), 0) AS [A]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]
+""");
+    }
+
+    public override async Task GroupBy_aggregate_from_multiple_query_in_ungrouped_subquery(bool async)
+    {
+        await base.GroupBy_aggregate_from_multiple_query_in_ungrouped_subquery(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID] AS [Key], ISNULL((
+    SELECT TOP(1) (
+        SELECT COUNT(*)
+        FROM [Orders] AS [o1]
+        WHERE [o].[CustomerID] = [o1].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o1].[CustomerID] IS NULL))
+    FROM [Employees] AS [e]
+    WHERE [e].[City] = N'Seattle'
+    ORDER BY (
+        SELECT COUNT(*)
+        FROM [Orders] AS [o0]
+        WHERE [o].[CustomerID] = [o0].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL))), 0) AS [A]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]
+""");
+    }
+
+    public override async Task GroupBy_aggregate_from_multiple_query_in_aggregate_selector(bool async)
+    {
+        await base.GroupBy_aggregate_from_multiple_query_in_aggregate_selector(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID] AS [Key], (
+    SELECT ISNULL(SUM([e0].[c]), 0)
+    FROM (
+        SELECT (
+            SELECT COUNT(*)
+            FROM [Orders] AS [o0]
+            WHERE [o].[CustomerID] = [o0].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)) AS [c]
+        FROM [Employees] AS [e]
+        WHERE [e].[City] = N'Seattle'
+    ) AS [e0]) AS [A]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]
+""");
+    }
+
+    public override async Task GroupBy_aggregate_from_multiple_query_in_grouping_key(bool async)
+    {
+        await base.GroupBy_aggregate_from_multiple_query_in_grouping_key(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID] AS [Key], ISNULL((
+    SELECT TOP(1) [e0].[Key]
+    FROM (
+        SELECT (
+            SELECT COUNT(*)
+            FROM [Orders] AS [o0]
+            WHERE [o].[CustomerID] = [o0].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)) AS [Key]
+        FROM [Employees] AS [e]
+        WHERE [e].[City] = N'Seattle'
+    ) AS [e0]
+    GROUP BY [e0].[Key]
+    ORDER BY [e0].[Key]), 0) AS [A]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]
+""");
+    }
+
+    public override async Task GroupBy_aggregate_from_multiple_query_in_join_key(bool async)
+    {
+        await base.GroupBy_aggregate_from_multiple_query_in_join_key(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID] AS [Key], (
+    SELECT COUNT(*)
+    FROM [Employees] AS [e]
+    INNER JOIN [Employees] AS [e0] ON (
+        SELECT COUNT(*)
+        FROM [Orders] AS [o0]
+        WHERE [o].[CustomerID] = [o0].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)) = [e0].[EmployeeID]
+    WHERE [e].[City] = N'Seattle') AS [A]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
 """);
