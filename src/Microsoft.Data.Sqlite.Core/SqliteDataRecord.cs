@@ -59,6 +59,11 @@ internal class SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnectio
             ? throw new InvalidOperationException(Resources.NoData)
             : base.GetValue(ordinal)!;
 
+    public override int GetValues(object?[] values)
+        => !_stepped || sqlite3_data_count(Handle) == 0
+            ? throw new InvalidOperationException(Resources.NoData)
+            : base.GetValues(values);
+
     protected override double GetDoubleCore(int ordinal)
         => sqlite3_column_double(Handle, ordinal);
 
