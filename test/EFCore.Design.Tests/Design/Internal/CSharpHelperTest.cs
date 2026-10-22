@@ -212,6 +212,18 @@ public class CSharpHelperTest
     public void Literal_works_when_value_tuple_of_length_9()
         => Literal_works((1, 2, 3, 4, 5, 6, 7, 8, 9), "(1, 2, 3, 4, 5, 6, 7, 8, 9)");
 
+    [Fact, UseCulture("sv-SE")]
+    public void Literal_works_when_negative_integers_with_non_ASCII_negative_sign()
+    {
+        Assert.Equal("(sbyte)-1", new CSharpHelper(TypeMappingSource).UnknownLiteral((sbyte)-1));
+        Assert.Equal("(short)-1", new CSharpHelper(TypeMappingSource).UnknownLiteral((short)-1));
+        Assert.Equal("-1", new CSharpHelper(TypeMappingSource).UnknownLiteral(-1));
+        Assert.Equal("-1L", new CSharpHelper(TypeMappingSource).UnknownLiteral(-1L));
+        Assert.Equal(
+            "(CSharpHelperTest.SomeSByteEnum)(sbyte)-1",
+            new CSharpHelper(TypeMappingSource).UnknownLiteral((SomeSByteEnum)(-1)));
+    }
+
     [Fact, UseCulture("de-DE")]
     public void Literal_works_when_DateTime()
         => Literal_works(

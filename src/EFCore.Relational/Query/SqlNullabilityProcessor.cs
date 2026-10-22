@@ -4,6 +4,7 @@
 using System.Collections;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -348,6 +349,8 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         var nullValueColumnsCount = _nullValueColumns.Count;
         var result = sqlExpression switch
         {
+            AggregateFunctionExpression aggregateFunctionExpression
+                => VisitAggregateFunction(aggregateFunctionExpression, allowOptimizedExpansion, out nullable),
             AtTimeZoneExpression sqlAtTimeZoneExpression
                 => VisitAtTimeZone(sqlAtTimeZoneExpression, allowOptimizedExpansion, out nullable),
             CaseExpression caseExpression
@@ -368,6 +371,8 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 => VisitLike(likeExpression, allowOptimizedExpansion, out nullable),
             RowNumberExpression rowNumberExpression
                 => VisitRowNumber(rowNumberExpression, allowOptimizedExpansion, out nullable),
+            DenseRankExpression denseRankExpression
+                => VisitDenseRank(denseRankExpression, out nullable),
             RowValueExpression rowValueExpression
                 => VisitRowValue(rowValueExpression, allowOptimizedExpansion, out nullable),
             ScalarSubqueryExpression scalarSubqueryExpression
@@ -449,6 +454,62 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         }
 
         return sourceRows;
+    }
+
+    /// <summary>
+    ///     Visits an <see cref="AggregateFunctionExpression" /> and computes its nullability.
+    /// </summary>
+    /// <param name="aggregateFunctionExpression">An aggregate function expression to visit.</param>
+    /// <param name="allowOptimizedExpansion">A bool value indicating if optimized expansion which considers null value as false value is allowed.</param>
+    /// <param name="nullable">A bool value indicating whether the sql expression is nullable.</param>
+    /// <returns>An optimized sql expression.</returns>
+    protected virtual SqlExpression VisitAggregateFunction(
+        AggregateFunctionExpression aggregateFunctionExpression,
+        bool allowOptimizedExpansion,
+        out bool nullable)
+    {
+        nullable = aggregateFunctionExpression.IsNullable;
+
+        SqlExpression[]? arguments = null;
+        for (var i = 0; i < aggregateFunctionExpression.Arguments.Count; i++)
+        {
+            var visitedArgument = Visit(aggregateFunctionExpression.Arguments[i], out _);
+            if (visitedArgument != aggregateFunctionExpression.Arguments[i] && arguments is null)
+            {
+                arguments = new SqlExpression[aggregateFunctionExpression.Arguments.Count];
+
+                for (var j = 0; j < i; j++)
+                {
+                    arguments[j] = aggregateFunctionExpression.Arguments[j];
+                }
+            }
+
+            arguments?[i] = visitedArgument;
+        }
+
+        OrderingExpression[]? orderings = null;
+        for (var i = 0; i < aggregateFunctionExpression.Orderings.Count; i++)
+        {
+            var ordering = aggregateFunctionExpression.Orderings[i];
+            var visitedOrdering = ordering.Update(Visit(ordering.Expression, out _));
+            if (visitedOrdering != aggregateFunctionExpression.Orderings[i] && orderings is null)
+            {
+                orderings = new OrderingExpression[aggregateFunctionExpression.Orderings.Count];
+
+                for (var j = 0; j < i; j++)
+                {
+                    orderings[j] = aggregateFunctionExpression.Orderings[j];
+                }
+            }
+
+            orderings?[i] = visitedOrdering;
+        }
+
+        return arguments is not null || orderings is not null
+            ? aggregateFunctionExpression.Update(
+                arguments ?? aggregateFunctionExpression.Arguments,
+                orderings ?? aggregateFunctionExpression.Orderings)
+            : aggregateFunctionExpression;
     }
 
     /// <summary>
@@ -761,7 +822,9 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 return _sqlExpressionFactory.Constant(false, inExpression.TypeMapping);
             }
 
-            var projectionExpression = Visit(subqueryProjection, allowOptimizedExpansion, out var projectionNullable);
+            // The projection is a value compared against the item rather than a predicate, so NULL can't be treated as false there
+            // (e.g. FALSE IN (SELECT x > 1 ...) must match rows where x is NULL).
+            var projectionExpression = Visit(subqueryProjection, allowOptimizedExpansion: false, out var projectionNullable);
             inExpression = inExpression.Update(
                 item, subquery.Update(
                     subquery.Tables,
@@ -1254,6 +1317,24 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         return changed
             ? rowNumberExpression.Update(partitions, orderings)
             : rowNumberExpression;
+    }
+
+    private SqlExpression VisitDenseRank(DenseRankExpression denseRankExpression, out bool nullable)
+    {
+        var changed = false;
+        var orderings = new List<OrderingExpression>();
+        foreach (var ordering in denseRankExpression.Orderings)
+        {
+            var newOrdering = ordering.Update(Visit(ordering.Expression, out _));
+            changed |= newOrdering != ordering;
+            orderings.Add(newOrdering);
+        }
+
+        nullable = false;
+
+        return changed
+            ? denseRankExpression.Update(orderings)
+            : denseRankExpression;
     }
 
     /// <summary>

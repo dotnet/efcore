@@ -1,9 +1,19 @@
 Scenario
 --------
-A project created on EF Core 9.0.3 has a Customer entity with a required struct Address complex property. After updating the tools and runtime to EF Core 10, `dotnet ef migrations add CheckUpgrade` emits a migration although the application model was not changed.
+A SQL Server application last added a migration using Microsoft.EntityFrameworkCore,
+Microsoft.EntityFrameworkCore.Design, Microsoft.EntityFrameworkCore.SqlServer, and
+dotnet-ef 9.0.3. All four were upgraded together to 10.0.4. The target framework is
+now net10.0. The staged CustomerContext.cs is the application's unchanged model
+configuration; CustomerContextModelSnapshot.cs is the snapshot committed with
+the last migration. This report was collected with those released packages.
 
-Generated operation
--------------------
+There are no pending migrations or manual schema changes. The Customers table has
+an identity int primary key, Address_Line1 nvarchar(160) NOT NULL, and
+Address_ZipCode int NOT NULL. Running `dotnet ef migrations add CheckUpgrade`
+immediately after the package upgrade produces the following operations.
+
+Generated operations
+--------------------
 AlterColumnOperation
   Table: Customers
   Name: Address_ZipCode
@@ -12,19 +22,26 @@ AlterColumnOperation
   OldColumn.ClrType: System.Int32
   OldColumn.IsNullable: true
 
-Legacy snapshot model observed before relational-model diff
------------------------------------------------------------
-ProductVersion: 9.0.3
-Path: Customer.Address
-Metadata CLR type: System.Collections.Generic.Dictionary<System.String, System.Object>
-IsNullable: true
-IsNullable configuration source: <null>
+AlterColumnOperation
+  Table: Customers
+  Name: Address_Line1
+  ClrType: System.String
+  ColumnType: nvarchar(160)
+  IsNullable: false
+  OldColumn.ClrType: System.String
+  OldColumn.ColumnType: nvarchar(160)
+  OldColumn.IsNullable: true
 
-Current design-time model observed before relational-model diff
----------------------------------------------------------------
-ProductVersion: 10.0.4
-Path: Customer.Address
-Application CLR type: Address (struct)
-IsNullable: false
+Both Up operations make the columns NOT NULL, which they already are in the
+database. Down would make them nullable. No type, length, key, or identity changes
+are emitted. Repeating scaffolding from a clean copy of the committed files gives
+the same result without applying any migrations.
 
-The legacy snapshot contains no explicit required/optional call for Customer.Address. The application model and database schema are otherwise unchanged.
+Team's proposed workaround
+--------------------------
+Replacing `address.IsRequired()` with `address.IsRequired(false)` in
+CustomerContext.OnModelCreating makes CheckUpgrade empty. The team proposes
+keeping that change because neither scalar property's configuration has changed
+and Customer.Address is still declared as a non-nullable CLR property. Existing
+application code always supplies an Address; the database still rejects NULL in
+both columns. The workaround is not applied in the staged current model.

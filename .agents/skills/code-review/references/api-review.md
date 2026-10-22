@@ -1,6 +1,8 @@
 # EF Core API Review
 
-Use this reference only for supported public or protected API changes outside `.Internal` namespaces and without `[EntityFrameworkInternal]`.
+Use this reference only for supported public or protected API changes outside `.Internal` namespaces and without `[EntityFrameworkInternal]` or `[Experimental]`.
+
+Read and apply [EF Core API conventions](conventions.md) to the proposed shape. The [.NET Framework Design Guidelines digest](https://github.com/dotnet/runtime/blob/main/docs/coding-guidelines/framework-design-guidelines-digest.md) is background guidance; established EF Core contracts take precedence.
 
 ## Review Procedure
 

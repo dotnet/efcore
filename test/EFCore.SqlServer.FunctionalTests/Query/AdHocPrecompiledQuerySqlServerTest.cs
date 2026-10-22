@@ -61,6 +61,28 @@ WHERE JSON_VALUE([j].[JsonThing], '$.StringProperty') = N'foo'
 """);
     }
 
+    public override async Task Materialize_sealed_entity()
+    {
+        await base.Materialize_sealed_entity();
+
+        AssertSql(
+            """
+SELECT TOP(2) [e].[Id], [e].[Name]
+FROM [Entities] AS [e]
+""");
+    }
+
+    public override async Task Materialize_sealed_entity_implementing_injectable_service()
+    {
+        await base.Materialize_sealed_entity_implementing_injectable_service();
+
+        AssertSql(
+            """
+SELECT TOP(2) [i].[Id], [i].[Name]
+FROM [InjectableEntities] AS [i]
+""");
+    }
+
     public override async Task Materialize_non_public()
     {
         await base.Materialize_non_public();
@@ -110,6 +132,17 @@ FROM [Books] AS [b]
             """
 SELECT [b].[Id], [b].[AudiobookDate], [b].[Name], [b].[PublishDate]
 FROM [Books] AS [b]
+""");
+    }
+
+    public override async Task Projecting_entity_with_value_converter_subclass_does_not_cast_to_the_subclass()
+    {
+        await base.Projecting_entity_with_value_converter_subclass_does_not_cast_to_the_subclass();
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Rating]
+FROM [Posts] AS [p]
 """);
     }
 

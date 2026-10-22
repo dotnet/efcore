@@ -15,7 +15,7 @@
     <UsingToolXliff>false</UsingToolXliff>
 
     <!-- For an LTS release EF design tools only support the current TFM, but the corresponding Roslyn build might only become available after RTM. -->
-    <ShouldUseLiveRoslyn Condition="'$(PreReleaseVersionLabel)' == 'servicing' And !$(VersionPrefix.EndsWith('.0')) And !$(VersionPrefix.EndsWith('.1'))">true</ShouldUseLiveRoslyn>
+    <ShouldUseLiveRoslyn Condition="('$(PreReleaseVersionLabel)' == 'servicing' Or '$(PreReleaseVersionLabel)' == 'hotfix') And !$(VersionPrefix.EndsWith('.0')) And !$(VersionPrefix.EndsWith('.1'))">true</ShouldUseLiveRoslyn>
 
     <!--
       Upper bound for NuGet dependency version ranges on packages built from this repo.
@@ -45,9 +45,9 @@
     <SQLitePCLRawVersion>3.0.5</SQLitePCLRawVersion>
     <SQLite3MCPCLRawBundleVersion>2.4.0</SQLite3MCPCLRawBundleVersion>
     <XUnitV3Version>4.0.1</XUnitV3Version>
-    <MicrosoftDotNetXUnitV3ExtensionsVersion>11.0.0-beta.26502.119</MicrosoftDotNetXUnitV3ExtensionsVersion>
-    <MicrosoftTestingPlatformVersion>2.4.1</MicrosoftTestingPlatformVersion>
-    <MicrosoftTestingExtensionsCodeCoverageVersion>18.11.2</MicrosoftTestingExtensionsCodeCoverageVersion>
+    <MicrosoftDotNetXUnitV3ExtensionsVersion>11.0.0-beta.26514.118</MicrosoftDotNetXUnitV3ExtensionsVersion>
+    <MicrosoftTestingPlatformVersion>2.5.1</MicrosoftTestingPlatformVersion>
+    <MicrosoftTestingExtensionsCodeCoverageVersion>18.12.0</MicrosoftTestingExtensionsCodeCoverageVersion>
   </PropertyGroup>
 
   <PropertyGroup Label="Analyzers">
@@ -57,7 +57,7 @@
 
   <PropertyGroup Label="Tooling dependencies">
     <ICSharpCodeDecompilerVersion>11.1.0.9782</ICSharpCodeDecompilerVersion>
-    <SystemCommandLineVersion>2.0.12</SystemCommandLineVersion>
+    <SystemCommandLineVersion>2.0.13</SystemCommandLineVersion>
   </PropertyGroup>
 
 </Project>

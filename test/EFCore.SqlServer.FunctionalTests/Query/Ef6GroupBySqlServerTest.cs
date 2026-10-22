@@ -710,22 +710,13 @@ INNER JOIN (
 
         AssertSql(
             """
-SELECT [p3].[FirstName], [p3].[FullName], [p3].[c]
+SELECT TOP(1) [p0].[FirstName], ISNULL([p0].[FirstName], N'') + N' ' + ISNULL([p0].[MiddleInitial], N'') + N' ' + ISNULL([p0].[LastName], N'') AS [FullName]
 FROM (
-    SELECT TOP(1) [p].[FirstName]
+    SELECT [p].[FirstName], [p].[LastName], [p].[MiddleInitial], ROW_NUMBER() OVER(PARTITION BY [p].[FirstName] ORDER BY [p].[Id]) AS [row]
     FROM [Person] AS [p]
-    GROUP BY [p].[FirstName]
-    ORDER BY [p].[FirstName]
-) AS [p1]
-LEFT JOIN (
-    SELECT [p2].[FirstName], [p2].[FullName], [p2].[c]
-    FROM (
-        SELECT [p0].[FirstName], ISNULL([p0].[FirstName], N'') + N' ' + ISNULL([p0].[MiddleInitial], N'') + N' ' + ISNULL([p0].[LastName], N'') AS [FullName], 1 AS [c], ROW_NUMBER() OVER(PARTITION BY [p0].[FirstName] ORDER BY [p0].[Id]) AS [row]
-        FROM [Person] AS [p0]
-    ) AS [p2]
-    WHERE [p2].[row] <= 1
-) AS [p3] ON [p1].[FirstName] = [p3].[FirstName]
-ORDER BY [p1].[FirstName]
+) AS [p0]
+WHERE [p0].[row] <= 1
+ORDER BY [p0].[FirstName]
 """);
     }
 

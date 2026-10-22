@@ -3902,6 +3902,38 @@ WHERE NOT EXISTS (
 """);
     }
 
+    public override async Task Null_semantics_contains_with_subquery_projecting_nullable_comparison(bool async)
+    {
+        await base.Null_semantics_contains_with_subquery_projecting_nullable_comparison(async);
+
+        AssertSql(
+            """
+SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE CAST(0 AS bit) IN (
+    SELECT CASE
+        WHEN [e0].[NullableIntA] > 1 THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END
+    FROM [Entities2] AS [e0]
+    WHERE [e0].[Id] = [e].[Id]
+)
+""",
+            //
+            """
+SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE [e].[BoolA] IN (
+    SELECT CASE
+        WHEN [e0].[NullableIntA] > 1 THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END
+    FROM [Entities2] AS [e0]
+    WHERE [e0].[Id] = [e].[Id]
+)
+""");
+    }
+
     public override async Task Null_semantics_contains_nullable_item_with_nullable_subquery(bool async)
     {
         await base.Null_semantics_contains_nullable_item_with_nullable_subquery(async);

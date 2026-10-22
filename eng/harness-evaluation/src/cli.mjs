@@ -1,16 +1,20 @@
 #!/usr/bin/env node
 
-import { readFile, rm, writeFile } from 'node:fs/promises';
+import { rm, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
-import { parse } from 'yaml';
+import { loadEvalWithParams } from '@microsoft/vally';
+import { prepareComparison } from './comparison.mjs';
+import { judgeTimeoutLimits } from './judge-timeout.mjs';
 import {
   defaultRepoRoot,
   findExperimentRunDirectory,
   resolveComponent,
   runVally,
+  timeoutMilliseconds,
   validateComponentId,
   validateInventory,
   validateOutputRoot,
+  variantCompleted,
   variantInvokedSkill,
   variantPassed,
 } from './harness.mjs';
@@ -32,7 +36,7 @@ function valueAfter(args, name, fallback) {
 function printUsage() {
   console.error(`Usage:
   node src/cli.mjs lint
-  node src/cli.mjs eval <component> [--repo-root <directory>] [--model <model>] [--judge-model <model>] [--runs <n>] [--workers <n>] [--require-pass] [--output <directory>]`);
+  node src/cli.mjs eval <component> [--repo-root <directory>] [--model <model>] [--judge-model <model>] [--judge-reasoning-effort <low|medium|high|xhigh>] [--judge-timeout <duration>] [--scoring-timeout <duration>] [--timeout <duration>] [--runs <n>] [--workers <n>] [--require-pass] [--output <directory>]`);
 }
 
 async function lint() {
@@ -72,6 +76,22 @@ async function evaluate(args) {
   if (judgeModel !== undefined && (!judgeModel.trim() || judgeModel.includes('::'))) {
     throw new Error(`--judge-model must be a non-empty model name without '::': ${judgeModel}`);
   }
+  const judgeReasoningEffort = valueAfter(args, '--judge-reasoning-effort');
+  if (judgeReasoningEffort !== undefined && !['low', 'medium', 'high', 'xhigh'].includes(judgeReasoningEffort)) {
+    throw new Error(`--judge-reasoning-effort must be low, medium, high, or xhigh: ${judgeReasoningEffort}`);
+  }
+  const judgeTimeout = valueAfter(args, '--judge-timeout');
+  if (judgeTimeout !== undefined) {
+    judgeTimeoutLimits(timeoutMilliseconds(judgeTimeout, '--judge-timeout'));
+  }
+  const scoringTimeout = valueAfter(args, '--scoring-timeout');
+  if (scoringTimeout !== undefined) {
+    timeoutMilliseconds(scoringTimeout, '--scoring-timeout');
+  }
+  const evalTimeout = valueAfter(args, '--timeout');
+  if (evalTimeout !== undefined) {
+    timeoutMilliseconds(evalTimeout, '--timeout');
+  }
   const runsValue = valueAfter(args, '--runs');
   const runs = runsValue === undefined ? undefined : Number(runsValue);
   if (runs !== undefined && (!Number.isSafeInteger(runs) || runs <= 0)) {
@@ -87,6 +107,29 @@ async function evaluate(args) {
   validateOutputRoot(outputRoot, repoRoot);
   const evalPath = join(repoRoot, component.eval);
   const experimentPath = join(repoRoot, 'eng', 'harness-evaluation', 'harness.experiment.yaml');
+  const cliParams = Object.fromEntries(Object.entries({
+    RUNS: runs === undefined ? undefined : String(runs),
+    MODEL: model,
+    JUDGE_MODEL: judgeModel,
+    JUDGE_REASONING_EFFORT: judgeReasoningEffort,
+    JUDGE_TIMEOUT: judgeTimeout,
+    SCORING_TIMEOUT: scoringTimeout,
+    EVAL_TIMEOUT: evalTimeout,
+  }).filter(([, value]) => value !== undefined));
+  const { spec: treatmentSpec } = await loadEvalWithParams(evalPath, { cliParams });
+  const resolvedJudgeTimeout = treatmentSpec.defaults?.judge_timeout;
+  judgeTimeoutLimits(timeoutMilliseconds(resolvedJudgeTimeout, 'defaults.judge_timeout'));
+  if (judgeTimeout !== undefined && resolvedJudgeTimeout !== judgeTimeout) {
+    throw new Error('defaults.judge_timeout must use the JUDGE_TIMEOUT parameter to support --judge-timeout.');
+  }
+  timeoutMilliseconds(treatmentSpec.scoring?.timeout, 'scoring.timeout');
+  if (scoringTimeout !== undefined && treatmentSpec.scoring.timeout !== scoringTimeout) {
+    throw new Error('scoring.timeout must use the SCORING_TIMEOUT parameter to support --scoring-timeout.');
+  }
+  if (evalTimeout !== undefined
+    && treatmentSpec.stimuli.some((stimulus) => stimulus.constraints?.max_duration !== evalTimeout)) {
+    throw new Error('All stimulus duration limits must use the EVAL_TIMEOUT parameter to support --timeout.');
+  }
   await rm(outputRoot, { recursive: true, force: true });
   const experimentArguments = [
     'experiment', 'run', experimentPath,
@@ -95,25 +138,24 @@ async function evaluate(args) {
     '--workers', String(workers),
     '--verbose',
   ];
-  if (runs !== undefined) {
-    experimentArguments.push('--param', `RUNS=${runs}`);
+  for (const [name, value] of Object.entries(cliParams)) {
+    experimentArguments.push('--param', `${name}=${value}`);
   }
-  if (model !== undefined) {
-    experimentArguments.push('--param', `MODEL=${model}`);
-  }
-  if (judgeModel !== undefined) {
-    experimentArguments.push('--param', `JUDGE_MODEL=${judgeModel}`);
-  }
-  const experimentResult = runVally(experimentArguments, { cwd: repoRoot, inherit: true });
-  if (experimentResult.status !== 0) {
-    process.exitCode = 1;
-    return;
-  }
-
+  const experimentResult = runVally(experimentArguments, {
+    cwd: repoRoot,
+    inherit: true,
+    judgeTimeout: resolvedJudgeTimeout,
+    env: judgeReasoningEffort ? { EVAL_JUDGE_REASONING_EFFORT: judgeReasoningEffort } : {},
+  });
   const experimentDirectory = await findExperimentRunDirectory(outputRoot);
   const treatmentResults = join(experimentDirectory, 'treatment', 'results.jsonl');
   const experimentPlan = join(experimentDirectory, 'plan-snapshot.json');
-  const treatmentSpec = parse(await readFile(evalPath, 'utf8'));
+  if (experimentResult.status !== 0
+    && !(await variantCompleted(join(experimentDirectory, 'control', 'results.jsonl'), experimentPlan, 'control')
+      && await variantCompleted(treatmentResults, experimentPlan))) {
+    process.exitCode = 1;
+    return;
+  }
   const qualityPass = await variantPassed(treatmentResults, evalPath, experimentPlan);
   const activationPass = component.kind !== 'skill'
     || await variantInvokedSkill(treatmentResults, component.id);
@@ -135,21 +177,26 @@ async function evaluate(args) {
     console.error(`Treatment '${componentId}' did not meet its committed scoring threshold.`);
   }
 
+  const comparisonDirectory = await prepareComparison(experimentDirectory, join(outputRoot, 'comparison-input'));
   const comparisonArguments = [
-    'compare', experimentDirectory,
+    'compare', comparisonDirectory,
     '--output', join(outputRoot, 'comparison.jsonl'),
     '--verbose',
     '--fail-on-regression',
   ];
-  const configuredJudgeModel = treatmentSpec.defaults?.judge_model;
-  const defaultJudgeModel = typeof configuredJudgeModel === 'string'
-    ? configuredJudgeModel.match(/^\$\{JUDGE_MODEL=(.*)\}$/)?.[1] ?? configuredJudgeModel
-    : configuredJudgeModel;
-  const comparisonJudgeModel = judgeModel ?? defaultJudgeModel;
+  const comparisonJudgeModel = judgeModel ?? treatmentSpec.defaults?.judge_model;
   if (comparisonJudgeModel) {
     comparisonArguments.push('--judge-model', comparisonJudgeModel);
   }
-  const comparisonResult = runVally(comparisonArguments, { cwd: repoRoot, inherit: true });
+  const comparisonJudgeEffort = judgeReasoningEffort
+    ?? treatmentSpec.defaults?.judge_reasoning_effort
+    ?? process.env.EVAL_JUDGE_REASONING_EFFORT;
+  if (comparisonJudgeEffort) {
+    comparisonArguments.push('--judge-reasoning-effort', comparisonJudgeEffort);
+  }
+  const comparisonResult = runVally(comparisonArguments, {
+    cwd: repoRoot, inherit: true, judgeTimeout: resolvedJudgeTimeout,
+  });
   if (!treatmentPass || comparisonResult.status !== 0) {
     process.exitCode = 1;
   }

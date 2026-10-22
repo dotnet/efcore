@@ -3231,9 +3231,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     // TODO: do we even need to do this check? can we ever have a custom ValueConverter that is not generic?
                     if (typedConverterType != null)
                     {
-                        if (converterExpression.Type != converter.GetType())
+                        if (converterExpression.Type != typedConverterType)
                         {
-                            converterExpression = Convert(converterExpression, converter.GetType());
+                            converterExpression = Convert(converterExpression, typedConverterType);
                         }
 
                         if (valueExpression.Type != converter.ProviderClrType)
@@ -3294,9 +3294,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         Expression invocationExpression;
                         if (typedConverterType != null)
                         {
-                            if (converterExpression.Type != converter.GetType())
+                            if (converterExpression.Type != typedConverterType)
                             {
-                                converterExpression = Convert(converterExpression, converter.GetType());
+                                converterExpression = Convert(converterExpression, typedConverterType);
                             }
 
                             invocationExpression = Invoke(
@@ -3430,9 +3430,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     var typedConverterType = converterType.GetGenericTypeImplementations(typeof(ValueConverter<,>)).FirstOrDefault();
                     if (typedConverterType != null)
                     {
-                        if (converterExpression.Type != converter.GetType())
+                        if (converterExpression.Type != typedConverterType)
                         {
-                            converterExpression = Convert(converterExpression, converter.GetType());
+                            converterExpression = Convert(converterExpression, typedConverterType);
                         }
 
                         nullExpression = Invoke(

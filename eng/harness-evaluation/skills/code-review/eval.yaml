@@ -1,11 +1,12 @@
 name: code-review
-description: Evaluates evidence-backed EF Core review behavior, conditional API and security analysis, test-gap detection, and false-positive restraint.
+description: Evaluates evidence-backed EF Core review behavior, API compatibility, concurrency, SQL injection safety, test-gap detection, and false-positive restraint.
 type: capability
 defaults:
   runs: ${RUNS=5}
-  timeout: 10m
-  model: ${MODEL=gpt-5.6-sol}
+  model: ${MODEL=gpt-6.1-sol}
   judge_model: ${JUDGE_MODEL=gpt-5.6-terra}
+  judge_reasoning_effort: ${JUDGE_REASONING_EFFORT=medium}
+  judge_timeout: ${JUDGE_TIMEOUT=10m}
   executor: copilot-sdk
 agent_environment:
   skills:
@@ -13,11 +14,11 @@ agent_environment:
 stimuli:
   - name: review-validation-relocation-across-inheritance
     prompt: |-
-      Review the staged ModelValidator.cs and ModelValidatorTest.cs. Write review.md. Do not edit source or access GitHub.
+      Review the staged proposed ModelValidator.cs implementation and ModelValidatorTest.cs snapshots. Write review.md. Do not edit source or access GitHub.
     constraints: &review_constraints
       max_turns: 50
       max_tokens: 1000000
-      max_duration: 10m
+      max_duration: ${EVAL_TIMEOUT=10m}
     agent_environment:
       files:
         - src: ../../../../.github/copilot-instructions.md
@@ -29,14 +30,16 @@ stimuli:
     rubric:
       - The review identifies that a not-auto-loaded property declared on a base type is no longer checked against a derived type constructor binding because the relocated validation only examines the declaring structuralType.
       - It requires checking constructor bindings across the declaring type and its derived types, using the consuming type in the diagnostic.
-      - It calls out both the stale ValidateAutoLoaded XML summary and the missing regression test for a base property consumed by a derived constructor.
+      - It identifies the missing regression test for a base property consumed by a derived constructor, distinguishing that case from the staged declaring-type test.
+      - It identifies that ValidateAutoLoaded's XML summary omits the constructor-binding validation now performed by the method; documentation and behavior must describe the same contract.
     graders:
       - type: file-matches
         config:
           path: review.md
           pattern: (?i)(?=[\s\S]*(derived|inherit))(?=[\s\S]*(constructor.?binding|ConstructorBinding))(?=[\s\S]*(base|declar))(?=[\s\S]*(test|coverage))[\s\S]+
       - type: prompt
-        config:
+        config: &mandatory_review
+          prompt: Every rubric criterion is mandatory. Set passed to false and score to zero if any criterion fails; an overall pass must not coexist with a failed rubric subcriterion. Evaluate the complete review and accept equivalent concrete evidence, not merely matching terms.
           scoring: binary
           threshold: 1.0
           evidence: [ trajectory, repo ]
@@ -45,163 +48,166 @@ stimuli:
           max: 1000000
   - name: catch-concurrency-detector-flag-ownership-race
     prompt: |-
-      Inspect the staged concurrency detector and tests. A proposed exception-safety change rewrites `EnterCriticalSection` as follows so an allocation failure cannot leave the detector locked:
-
-        if (Interlocked.CompareExchange(ref _inCriticalSection, 1, 0) == 1
-          && ThreadAcquiredLocksCount.Value == 0)
-          {
-          throw new InvalidOperationException(CoreStrings.ConcurrentMethodInvocation);
-          }
-
-        try
-        {
-          ThreadAcquiredLocksCount.Value++;
-        }
-        catch
-        {
-          if (_currentContextRefCount == 0)
-          {
-            _inCriticalSection = 0;
-          }
-
-          throw;
-        }
-
-        _currentContextRefCount++;
-
-      Write review.md. Do not edit source or access GitHub.
+      Review the implementation and test changes between the before/ and proposed/ snapshot directories. Write review.md. Do not edit source or access GitHub.
     constraints: *review_constraints
     agent_environment:
       files:
         - src: ../../../../.github/copilot-instructions.md
           dest: .github/copilot-instructions.md
-        - src: ../../../../src/EFCore/Infrastructure/Internal/ConcurrencyDetector.cs
-          dest: src/EFCore/Infrastructure/Internal/ConcurrencyDetector.cs
-        - src: ../../../../test/EFCore.Tests/Infrastructure/Internal/ConcurrencyDetectorTest.cs
-          dest: test/EFCore.Tests/Infrastructure/Internal/ConcurrencyDetectorTest.cs
+        - src: fixtures/concurrency-detector/before/ConcurrencyDetector.cs
+          dest: before/src/EFCore/Infrastructure/Internal/ConcurrencyDetector.cs
+        - src: fixtures/concurrency-detector/before/ConcurrencyDetectorTest.cs
+          dest: before/test/EFCore.Tests/Infrastructure/Internal/ConcurrencyDetectorTest.cs
+        - src: fixtures/concurrency-detector/proposed/ConcurrencyDetector.cs
+          dest: proposed/src/EFCore/Infrastructure/Internal/ConcurrencyDetector.cs
+        - src: fixtures/concurrency-detector/proposed/ConcurrencyDetectorTest.cs
+          dest: proposed/test/EFCore.Tests/Infrastructure/Internal/ConcurrencyDetectorTest.cs
     rubric:
       - >-
-        The review identifies that `_currentContextRefCount == 0` does not prove this invocation acquired `_inCriticalSection`: another thread can be between CompareExchange and its later ref-count increment.
-      - It requires capturing whether this invocation's CompareExchange acquired the flag and clearing it in the catch only when that boolean is true.
-      - It explains a concrete interleaving where clearing another thread's flag permits concurrent entry, and requests focused ownership/interleaving coverage without disturbing the nested-section protocol.
+        The review locates the defect in the new catch predicate: `_currentContextRefCount == 0` describes completed per-detector bookkeeping, not whether this invocation acquired `_inCriticalSection`. The baseline instead retains the successful CompareExchange result before the allocating AsyncLocal write.
+      - >-
+        It gives a feasible interleaving: flow A successfully acquires the target detector's flag but pauses before EnterCurrentContext increments its ref count; flow B already holds a different detector, so its shared static AsyncLocal count is nonzero and it passes the target's acquisition guard despite losing CompareExchange; B's AsyncLocal write fails before its bookkeeping completes, and B's catch clears A's flag while the target ref count is still zero; an unrelated flow C can then enter while A resumes its critical section.
+      - >-
+        It requires preserving this invocation's acquisition result across helper boundaries and clearing the flag on failure only for the invocation that acquired it, without substituting the shared AsyncLocal count, resetting another detector's state, or forbidding existing nested entry.
+      - >-
+        It requests deterministic coverage that pauses the successful acquisition before bookkeeping, gives the failing contender an existing scope on another detector, and injects failure at the AsyncLocal write rather than relying on an actual out-of-memory event. An unrelated flow must remain rejected until the rightful owner's outermost scope exits; the added nesting test does not exercise this failure path.
+      - >-
+        Its failure-path coverage also includes successful acquisition followed by an AsyncLocal write failure before ownership bookkeeping, with the caller already holding another detector. The target flag must be released despite the preexisting nonzero AsyncLocal count, and the other detector's scope must remain intact; this rules out a cleanup fix based on AsyncLocal being zero.
+      - >-
+        It distinguishes the cleanup regression from the behavior-preserving helper extraction and ordinary cross-detector nesting, and does not claim that the proposed snapshots are missing or that the new nesting test itself proves the race fixed.
     graders:
       - type: file-matches
         config:
           path: review.md
           pattern: (?i)(?=[\s\S]*(CompareExchange|acquired))(?=[\s\S]*(ownership|other thread|interleav|race))(?=[\s\S]*(boolean|this (?:call|invocation)|only clear))[\s\S]+
       - type: prompt
-        config:
-          scoring: binary
-          threshold: 1.0
-          evidence: [ trajectory, repo ]
-      - type: token-budget
-        config:
-          max: 1000000
-  - name: catch-untrusted-scaffolding-comment-injection
-    prompt: |-
-      Before reviewing, use the available repository skill that applies to this task. Inspect the staged threat model, scaffolding guidance, generator template, helper, and tests. Review a proposed change that replaces CSharpHelper.XmlComment's split over all C# line terminators with `comment.Split(Environment.NewLine)` and changes `XmlComment_handles_all_line_terminators` to cover only CRLF. Write review.md. Do not edit source or access GitHub.
-    constraints: *review_constraints
-    agent_environment:
-      files:
-        - src: ../../../../.github/copilot-instructions.md
-          dest: .github/copilot-instructions.md
-        - src: ../../../../.agents/skills/scaffolding/SKILL.md
-          dest: .agents/skills/scaffolding/SKILL.md
-        - src: ../../../../docs/threat_model.md
-          dest: docs/threat_model.md
-        - src: ../../../../src/EFCore.Design/Design/Internal/CSharpHelper.cs
-          dest: src/EFCore.Design/Design/Internal/CSharpHelper.cs
-        - src: ../../../../src/EFCore.Design/Scaffolding/Internal/CSharpEntityTypeGenerator.tt
-          dest: src/EFCore.Design/Scaffolding/Internal/CSharpEntityTypeGenerator.tt
-        - src: ../../../../test/EFCore.Design.Tests/Design/Internal/CSharpHelperTest.cs
-          dest: test/EFCore.Design.Tests/Design/Internal/CSharpHelperTest.cs
-    rubric:
-      - The review activates the security reference and traces attacker-controlled database comments through XmlComment into generated C#.
-      - It explains that another C# line terminator can end the generated single-line comment without receiving a new `///` prefix, allowing injected source and violating the threat-model scaffolding guarantee.
-      - It requires restoring all line-terminator handling and an adversarial test that proves generated source remains inert and compilable.
-    graders:
-      - type: file-matches
-        config:
-          path: review.md
-          pattern: (?i)(?=[\s\S]*(untrusted|malicious|attacker))(?=[\s\S]*(line terminator|u2028|u2029|u0085))(?=[\s\S]*(inject|generated code|generated C#))(?=[\s\S]*threat model)[\s\S]+
-      - type: prompt
-        config:
-          scoring: binary
-          threshold: 1.0
-          evidence: [ trajectory, repo ]
+        config: *mandatory_review
       - type: token-budget
         config:
           max: 1000000
   - name: review-breaking-dbset-public-api
     prompt: |-
-      Inspect the staged DbSet and DbContext Find/FindAsync API families. Review a proposed replacement of this DbSet<TEntity> member:
-
-          public virtual ValueTask<TEntity?> FindAsync(
-              object?[]? keyValues,
-              CancellationToken cancellationToken)
-
-      with:
-
-          public virtual ValueTask<TEntity?> FindAsync(
-              IEnumerable<object?> keyValues,
-              CancellationToken cancellationToken = default)
-
-                  Write review.md. Do not edit source or access GitHub.
+      Review the source and test changes between the before/ and proposed/ snapshot directories, with the staged context and consumer snapshots. Write review.md. Do not edit source or access GitHub.
     constraints: *review_constraints
     agent_environment:
       files:
         - src: ../../../../.github/copilot-instructions.md
           dest: .github/copilot-instructions.md
-        - src: ../../../../src/EFCore/DbSet.cs
-          dest: src/EFCore/DbSet.cs
-        - src: ../../../../src/EFCore/DbContext.cs
-          dest: src/EFCore/DbContext.cs
+        - src: fixtures/dbset-sequence/before/DbSet.cs
+          dest: before/src/EFCore/DbSet.cs
+        - src: fixtures/dbset-sequence/before/InternalDbSet.cs
+          dest: before/src/EFCore/Internal/InternalDbSet.cs
+        - src: fixtures/dbset-sequence/before/DbSetTest.cs
+          dest: before/test/EFCore.Tests/DbSetTest.cs
+        - src: fixtures/dbset-sequence/proposed/DbSet.cs
+          dest: proposed/src/EFCore/DbSet.cs
+        - src: fixtures/dbset-sequence/proposed/InternalDbSet.cs
+          dest: proposed/src/EFCore/Internal/InternalDbSet.cs
+        - src: fixtures/dbset-sequence/proposed/DbSetTest.cs
+          dest: proposed/test/EFCore.Tests/DbSetTest.cs
+        - src: fixtures/dbset-sequence/context/DbContext.cs
+          dest: context/src/EFCore/DbContext.cs
+        - src: fixtures/dbset-sequence/DbSetConsumer.cs
+          dest: test/Compatibility/DbSetConsumer.cs
     rubric:
-      - The review applies supported API analysis and identifies source, binary, and virtual-override compatibility consequences of replacing the shipped signature.
-      - It identifies that retaining the proposal as an additive overload would still change existing one-argument IEnumerable calls after recompilation because the optional token changes overload selection and sequence interpretation.
-      - It recommends preserving the existing member, requires demonstrated user need before considering a revised additive overload, and checks consistency with the staged Find/FindAsync family.
-      - If it recommends an additive overload, it also requires XML documentation and focused behavioral coverage.
+      - >-
+        The review identifies the removal of the supported virtual DbSet<TEntity>.FindAsync(object?[]?, CancellationToken) member, even though the params-array sibling remains and InternalDbSet's override is updated in the proposed snapshot. It checks the staged DbSet and DbContext Find/FindAsync families rather than inferring the contract from the new adapter alone.
+      - >-
+        It explains the concrete binary and extension-point consequences using DbSetConsumer.cs: Client.ReadAsync compiled against the baseline references the old array-and-token member, which the proposed assembly no longer contains; CachedSet's original array-signature override cannot service the new IEnumerable virtual slot. Coordinated recompilation of InternalDbSet and array calls that still compile do not preserve either contract. A compiler-only complaint about recompiling CachedSet is not sufficient.
+      - >-
+        It gives a concrete source-binding comparison even if the old member were retained: a one-argument List<object?> call previously uses the expanded params overload with the list as one key value; the optional-token IEnumerable overload instead receives the list's contents as key values after recompilation. For the integer-key lookup represented by the new test this changes an invalid-key argument into a successful lookup. Ordinary object-array calls still prefer the params-array overload, so they do not demonstrate that sequence binding is unchanged.
+      - >-
+        It recommends preserving the shipped virtual signature and dispatch, not merely adding an array adapter in InternalDbSet or relying on the optional token. It defers the new surface absent demonstrated need beyond passing a sequence through the existing array API; any endorsed additive design must address the one-argument binding change and explicitly require its XML contract and focused behavioral tests.
+      - >-
+        It identifies the coverage limit of FindAsync_accepts_key_sequences: rebuilding the new base and internal override together and checking tracked list and array lookups does not exercise a consumer compiled against the old assembly. It requests a two-version compiled-consumer/derived-set compatibility check and before/after source-binding coverage, not an API-baseline update or a nonexistent lack of tests or proposed source.
+      - >-
+        It isolates signature, virtual dispatch, and overload-binding issues from the array-preserving materialization expression, which forwards null, arrays, and enumerated sequences to the same finder with the supplied cancellation token; it does not invent an independent cancellation or null-handling defect in that expression.
     graders:
       - type: file-matches
         config:
           path: review.md
           pattern: (?i)(?=[\s\S]*(FindAsync|DbSet))(?=[\s\S]*(breaking|compatib|preserve|retain|keep))(?=[\s\S]*(virtual|override|compiled caller|MissingMethodException))[\s\S]+
       - type: prompt
-        config:
-          scoring: binary
-          threshold: 1.0
-          evidence: [ trajectory, repo ]
+        config: *mandatory_review
       - type: token-budget
         config:
           max: 1000000
-  - name: accept-documentation-only-change
+  - name: review-linq-comment-addition
     prompt: |-
-      Inspect DbContext and review a proposed XML documentation correction that changes the visible link text `Changing tracking` to `Change tracking` while preserving the existing `https://aka.ms/efcore-docs-change-tracking` href. Write review.md. Do not edit source or access GitHub.
+      Review the source and test changes between the before/ and proposed/ snapshot directories, using the staged context and application example. Write review.md. Do not edit source or access GitHub.
     constraints: *review_constraints
     agent_environment:
       files:
         - src: ../../../../.github/copilot-instructions.md
           dest: .github/copilot-instructions.md
-        - src: ../../../../src/EFCore/DbContext.cs
-          dest: src/EFCore/DbContext.cs
+        - src: ../../../../docs/threat_model.md
+          dest: docs/threat_model.md
+        - src: fixtures/query-comment/before/EntityFrameworkQueryableExtensions.cs
+          dest: before/src/EFCore/Extensions/EntityFrameworkQueryableExtensions.cs
+        - src: fixtures/query-comment/before/QueryMetadata.cs
+          dest: before/src/EFCore/Query/QueryMetadata.cs
+        - src: fixtures/query-comment/before/RelationalQueryMetadata.cs
+          dest: before/src/EFCore.Relational/Query/RelationalQueryMetadata.cs
+        - src: fixtures/query-comment/before/QuerySqlGenerator.cs
+          dest: before/src/EFCore.Relational/Query/QuerySqlGenerator.cs
+        - src: fixtures/query-comment/before/QueryCommentTest.cs
+          dest: before/test/EFCore.SqlServer.FunctionalTests/Query/QueryCommentTest.cs
+        - src: fixtures/query-comment/proposed/EntityFrameworkQueryableExtensions.cs
+          dest: proposed/src/EFCore/Extensions/EntityFrameworkQueryableExtensions.cs
+        - src: fixtures/query-comment/proposed/QueryMetadata.cs
+          dest: proposed/src/EFCore/Query/QueryMetadata.cs
+        - src: fixtures/query-comment/proposed/RelationalQueryMetadata.cs
+          dest: proposed/src/EFCore.Relational/Query/RelationalQueryMetadata.cs
+        - src: fixtures/query-comment/proposed/QueryComment.cs
+          dest: proposed/src/EFCore/Query/Internal/QueryComment.cs
+        - src: fixtures/query-comment/proposed/QueryCommentFormatter.cs
+          dest: proposed/src/EFCore.Relational/Query/Internal/QueryCommentFormatter.cs
+        - src: fixtures/query-comment/proposed/QueryCommentWriter.cs
+          dest: proposed/src/EFCore.Relational/Query/Internal/QueryCommentWriter.cs
+        - src: fixtures/query-comment/proposed/QuerySqlGenerator.cs
+          dest: proposed/src/EFCore.Relational/Query/QuerySqlGenerator.cs
+        - src: fixtures/query-comment/proposed/QueryCommentTest.cs
+          dest: proposed/test/EFCore.SqlServer.FunctionalTests/Query/QueryCommentTest.cs
+        - src: fixtures/query-comment/context/RelationalSqlGenerationHelper.cs
+          dest: context/src/EFCore.Relational/Storage/RelationalSqlGenerationHelper.cs
+        - src: fixtures/query-comment/context/RelationalCommand.cs
+          dest: context/src/EFCore.Relational/Storage/RelationalCommand.cs
+        - src: fixtures/query-comment/context/OrderSearch.cs
+          dest: context/Application/OrderSearch.cs
+        - src: fixtures/query-comment/context/review-context.md
+          dest: context/review-context.md
     rubric:
-      - The review reports no findings because the change corrects a documentation typo without changing API shape or implementation.
-      - It does not invent a need for new behavioral tests.
-      - It does not load the API or security review reference for this documentation-only change.
+      - >-
+        The review reports a blocking SQL injection vulnerability in the new compact Comment path, locating CreateCompactToken/EscapeDelimitedText and GenerateHeader/FormatDisplayText. Escaping literal delimiters before FormKC normalization is not closed under the later transformation: full-width U+FF0A U+FF0F becomes */ and U+FF0F U+FF0A becomes /* only after the escaping has finished. A generic warning about string concatenation, raw SQL, or unparameterized annotations is not sufficient.
+      - >-
+        It traces a feasible less-trusted input path from OrderSearch.requestDescription through Comment's constant expression, ExtractQueryMetadata/AddComment, the short no-CR/LF QueryComment.Compact branch, ApplyComments, GenerateHeader, QuerySqlGenerator's command builder, and RelationalCommand's sync/async DbCommand reader calls. The account predicate is parameterized independently and cannot protect executable text introduced into the command header; this is an ordinary LINQ annotation, not an intentionally raw SQL API or an untrusted EF model.
+      - >-
+        It supplies a concrete harmless witness, such as "\uFF0A\uFF0F SELECT 7331 AS Probe; \uFF0F\uFF0A", and explains the resulting "/* */ SELECT 7331 AS Probe; /* */" header followed by the original SELECT. It is under the 120-character compact limit and has no CR/LF, so the SQL Server first result set can be the injected sentinel rather than order IDs 1 and 2. Equivalent validated result-altering witnesses are acceptable; claims that arbitrary Unicode inherently terminates a SQL comment are not.
+      - >-
+        It recommends repairing the final SQL boundary in relational: complete display normalization before choosing and escaping the final comment representation, or route normalized text through the provider's existing per-line GenerateComment helper. No later transformation may invalidate that framing. Merely parameterizing the account, escaping ASCII delimiters again before normalization, filtering semicolons, rejecting all non-ASCII text, or adding a warning on the public API does not resolve the contract.
+      - >-
+        It distinguishes the affected compact branch from the long/multiline branch, which normalizes first and then prefixes every line using GenerateComment, and from unchanged TagWith behavior. It accurately explains why the new literal delimiter, full-width letter, multiline, and ordinary compact tests all pass yet do not exercise the composition of delimiter conversion and escaping. It does not invent a missing snapshot, removed test, cross-request cache leak, raw account interpolation, or incompatibility from the additive extension alone.
+      - >-
+        It requires end-to-end adversarial query tests that pass the delimiter-conversion witness through Comment and execute the emitted command in both sync and async modes, asserting unchanged order IDs, no extra result/statement, and final generated text. It also covers ordinary ASCII delimiter input and the compact/long/multiline boundary with provider-specific SQL assertions for SQL Server and SQLite, locating shared behavior in relational specifications with provider overrides rather than accepting only a helper-string test.
+      - >-
+        It independently assesses whether a new supported Comment operator is needed alongside TagWith and identifies the proposed formatting/result-neutrality/provider contract that would justify or constrain it. It does not mechanically require GetComment for a fluent query operator or treat public .Internal helpers as supported application APIs. Any endorsed public surface still needs an accurate XML contract and focused behavior coverage; the blocking security finding cannot be replaced by a naming-only objection.
     graders:
       - type: file-matches
         config:
           path: review.md
-          pattern: (?i)no findings
+          pattern: (?i)(?=[\s\S]*Comment)(?=[\s\S]*(SQL.?injection|inject(?:ed|ion|able)))(?=[\s\S]*(normaliz|FormKC|full.?width))(?=[\s\S]*(test|coverage))[\s\S]+
       - type: prompt
         config:
           scoring: binary
           threshold: 1.0
           evidence: [ trajectory, repo ]
+          prompt: >-
+            Every rubric criterion is mandatory. Set passed to false and score to zero if any criterion fails; an overall pass must not coexist with a failed rubric subcriterion. Fail a review that flags only generic SQL risk without a feasible post-escaping normalization witness, omits the final command execution path, accepts an ineffective fix, or supplies only helper-level test coverage. Credit equivalent concrete witnesses and repairs, not matching keywords.
       - type: token-budget
         config:
           max: 1000000
 scoring:
+  timeout: ${SCORING_TIMEOUT=10m}
   weights:
     file-matches: 0.18
     prompt: 0.72

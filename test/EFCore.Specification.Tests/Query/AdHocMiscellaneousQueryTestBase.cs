@@ -2305,4 +2305,53 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     }
 
     #endregion
+
+    #region 33061
+
+    [Fact]
+    public virtual async Task Select_concat_on_string()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context33061>();
+        using var context = contextFactory.CreateDbContext();
+
+        var resultWithConstant = context.Cities
+            .OrderBy(itm => itm.CityId)
+            .Select(itm => itm.CityName.Concat("- A string"))
+            .ToList();
+
+        Assert.Equal([.. "- A string"], resultWithConstant[0]);
+        Assert.Equal([.. "City1- A string"], resultWithConstant[1]);
+        Assert.Equal([.. "City2- A string"], resultWithConstant[2]);
+
+        var suffix = "- A string";
+        var resultWithParameter = context.Cities
+            .OrderBy(itm => itm.CityId)
+            .Select(itm => itm.CityName.Concat(suffix))
+            .ToList();
+
+        Assert.Equal([.. "- A string"], resultWithParameter[0]);
+        Assert.Equal([.. "City1- A string"], resultWithParameter[1]);
+        Assert.Equal([.. "City2- A string"], resultWithParameter[2]);
+    }
+
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context33061(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<City> Cities { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<City>()
+                .HasData(
+                    new City { CityId = 1, CityName = string.Empty },
+                    new City { CityId = 2, CityName = "City1" },
+                    new City { CityId = 3, CityName = "City2" });
+
+        public class City
+        {
+            public int CityId { get; set; }
+            public string CityName { get; set; } = null!;
+        }
+    }
+
+    #endregion
 }

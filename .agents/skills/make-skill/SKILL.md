@@ -29,6 +29,7 @@ Produce concise, stable task guidance that adds knowledge an agent cannot reliab
 - The eval root `agent_environment.skills` contains only the target skill. Stimulus inputs belong under each stimulus's `agent_environment.files`.
 - The runner removes the root skill for control and separately verifies treatment activation. Do not add a `skill-invocation` grader and do not tell the agent to invoke the skill in the shared prompt.
 - Prompts may identify fixtures, proposed code, fixed IDs, and output paths, but must not reveal the expected diagnosis, owning mechanism, or regression-test design.
+- Stage self-contained source snapshots rather than diffs or commit references; fixture context must not require fetching a repository revision.
 - Use deterministic graders for observable artifacts, a narrow semantic rubric for behavior, and a `token-budget` grader. Define bounded turns, tokens, and duration plus a committed scoring threshold.
 - The task must exercise guidance distinctive to the skill. A control that consistently matches treatment means the skill or eval is not useful enough.
 

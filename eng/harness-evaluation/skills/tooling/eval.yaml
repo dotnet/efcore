@@ -3,9 +3,10 @@ description: Evaluates dotnet-ef tooling guidance against the EF Core command im
 type: capability
 defaults:
   runs: ${RUNS=5}
-  timeout: 10m
-  model: ${MODEL=gpt-5.6-sol}
+  model: ${MODEL=gpt-6.1-sol}
   judge_model: ${JUDGE_MODEL=gpt-5.6-terra}
+  judge_reasoning_effort: ${JUDGE_REASONING_EFFORT=medium}
+  judge_timeout: ${JUDGE_TIMEOUT=10m}
   executor: copilot-sdk
 agent_environment:
   skills:
@@ -17,7 +18,7 @@ stimuli:
     constraints: &short_constraints
       max_turns: 40
       max_tokens: 1000000
-      max_duration: 10m
+      max_duration: ${EVAL_TIMEOUT=10m}
     agent_environment:
       files:
         - src: ../../../../src/dotnet-ef/RootCommand.cs
@@ -52,6 +53,7 @@ stimuli:
         config:
           max: 1000000
 scoring:
+  timeout: ${SCORING_TIMEOUT=10m}
   weights:
     file-matches: 0.27
     prompt: 0.63

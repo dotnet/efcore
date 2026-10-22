@@ -12,7 +12,7 @@ Review pull requests and local working-tree changes without modifying source. Fi
 - Review the provided pull request, or staged, unstaged, and untracked local changes. Ask for clarification when both are plausible.
 - Never checkout, switch branches, stash, reset, clean, or otherwise mutate the working tree, except for checking out the requested head for review purposes. Never edit source as part of a review.
 - For a pull request, record its base, head, and immutable head SHA. If local `HEAD` differs, use read-only repository or GitHub context when sufficient; otherwise ask the user to checkout the requested commit.
-- Never submit an `APPROVE` or `REQUEST_CHANGES` event. COMMENT emission follows Step 7.
+- Never submit an `APPROVE` or `REQUEST_CHANGES` event. COMMENT emission follows Step 8.
 - Do not use this skill to address existing review comments or implement fixes.
 
 ## Workflow
@@ -30,20 +30,32 @@ Before reading the author's narrative:
 
 1. Read each changed implementation beyond its diff hunk. Diff-only review is insufficient evidence for a finding. For very large files, read the containing members, their contracts, and relevant state. When many files are changed, use subagents to break down the review into manageable parts and gather context incrementally.
 2. Search callers, implementations, overrides, sibling provider paths, and nearby tests. Read shared helpers whose contracts control the changed behavior.
-3. When logic moves, compare the old and new input domains to ensure coverage is preserved.
-4. Use focused history when it can explain an invariant, revert, or prior fix attempt.
+3. When logic moves, compare the old and new input domains. Check the moved member's XML contract as well as regression coverage.
+4. Use focused history to explain invariants, reverts, or prior rejected approaches; establish what makes a repeated approach viable now.
 5. Describe the old and new behavior, likely motivation, affected callers/providers, and initial concerns in your own words.
 
-### 3. Reconcile Pull Request Context
+### 3. Holistic PR Assessment
 
-For pull requests, now read the description, linked issues, and existing review threads. Treat them as claims to verify against the code. Do not duplicate an existing finding unless the changed revision leaves it unresolved.
+Assess the overall approach before refining implementation details:
 
-### 4. Route Conditional Reviews
+- Require a concrete need for added code, APIs, abstractions, and flags. Prefer the simplest sufficient alternative; weigh benefits against complexity, surface area, and long-term maintenance.
+- Prefer root-cause fixes at the owning layer. Challenge a flawed direction early rather than polishing its implementation.
+- Require BenchmarkDotNet results or equivalent measurements for performance claims; prefer focused local runs for experimental or iterative work.
+ - Explain and address scenario-specific regressions even when aggregate results improve.
+- Scale required benefit and validation with regression risk and blast radius, especially for stable code.
+
+### 4. Reconcile Pull Request Context
+
+For pull requests, now read the description, linked issues, and existing review threads. Treat them as claims to verify against the code. Also flag found problems the PR narrative doesn't acknowledge.
+
+If the additional context reveals information that genuinely changes your evaluation, update your holistic assessment accordingly. But do not soften findings just because the PR description sounds reasonable.
+
+### 5. Route Conditional Reviews
 
 - Read [references/api-review.md](references/api-review.md) when the change adds, removes, or changes supported public or protected API outside an `.Internal` namespace and not annotated with `[EntityFrameworkInternal]`.
 - Read [references/security-review.md](references/security-review.md) when changed data crosses a documented trust boundary or the change affects serialization, generated code from database metadata, command construction, sensitive-data handling, caches or complexity bounds, assembly loading, elevated operations, or another high-risk path.
 
-### 5. Analyze Behavior and Coverage
+### 6. Analyze Behavior and Coverage
 
 For each non-trivial production change, identify:
 
@@ -55,13 +67,27 @@ For each non-trivial production change, identify:
 
 Check correctness, error handling, async behavior, concurrency, state and resource lifetime, compatibility, provider hierarchy behavior, NativeAOT constraints, and performance only where the changed path plausibly makes them relevant.
 
-For exception cleanup around shared or concurrent state, distinguish whether this invocation acquired each resource from whether the resource currently appears held. Construct a concrete interleaving and require focused coverage that exercises ownership without weakening existing reentrancy or nesting behavior.
+For exception cleanup around shared or concurrent state, distinguish whether this invocation acquired each resource from whether the resource currently appears held. Cover both a failing owner releasing its acquisition and a failing contender preserving another owner's acquisition, including preexisting nested state. Construct a concrete interleaving without weakening existing reentrancy or nesting behavior.
 
 For new functionality consider other feature areas that might be affected but are not directly touched by the change.
 
 Do not request tests for documentation-only changes, comments, formatting, or demonstrably behavior-preserving mechanical changes. Do not flag issues that the compiler, formatter, or existing analyzers deterministically report.
 
-### 6. Verify and Report Findings
+### 7. Optional Multi-Model Review
+
+When the environment supports launching sub-agents with different models (e.g., the `task` tool with a `model` parameter), run the review in parallel across multiple model families to get diverse perspectives. Different models catch different classes of issues. If the environment does not support this, proceed with a single-model review.
+
+1. Inspect the available model list and select models from 2-3 distinct model families, up to 3 sub-agent models total. If fewer than 2 eligible families are available, use what is available.
+   - Pick only from models explicitly listed as available in the environment. Do not guess or assume model names.
+   - Never pick models labeled "mini", "fast", or "cheap" for code review.
+   - Do not select a model from the same family that is already running the primary review (i.e. the currently used model).
+   - If multiple models exist in the same family, pick the one with the highest version number. Prefer "-codex" variants over general-purpose.
+   - If the model supports effort configuration use the one closest to the current effort level.
+2. Launch a sub-agent for each selected model in parallel, giving each the same review prompt: the PR diff, the review rules from this skill, and instructions to produce findings in the severity format defined above.
+3. Wait for all agents to complete, then synthesize: deduplicate findings that appear across models, elevate issues flagged by multiple models (higher confidence), and include unique findings from individual models that meet the confidence bar. If a sub-agent has not completed after 10 minutes and you have results from other agents, proceed with the results you have.
+4. Present a single unified review to the user, noting when an issue was flagged by multiple models. Do not wait for any remaining sub-agents and do not attempt retries if any failed. The review is complete once the report operation succeeds.
+
+### 7. Verify and Report Findings
 
 Before reporting a concern:
 
@@ -72,11 +98,11 @@ Before reporting a concern:
 
 Order findings by severity:
 
-- **Critical**: practical exploitation, arbitrary code execution, widespread data loss, or similarly catastrophic impact.
-- **High**: merge-blocking correctness, security, compatibility, data-integrity, or concurrency defect.
-- **Medium**: concrete defect with limited impact or a meaningful regression gap for changed behavior.
-- **Low**: minor but real defect worth fixing in this change.
-- **Info**: observations or suggestions that do not constitute a defect but may improve code quality or maintainability.
+- ❌ **Critical**: practical exploitation, arbitrary code execution, widespread data loss, or similarly catastrophic impact.
+- 🔴 **High**: merge-blocking correctness, security, compatibility, data-integrity, or concurrency defect.
+- ⚠️ **Medium**: concrete defect with limited impact or a meaningful regression gap for changed behavior.
+- 🔵 **Low**: minor but real defect worth fixing in this change.
+- 💡 **Info**: observations or suggestions that do not constitute a defect but may improve code quality or maintainability.
 
 Each finding must contain:
 
@@ -87,9 +113,15 @@ Each finding must contain:
 5. Evidence that makes the finding actionable.
 6. Fix direction and, when relevant, the missing regression-test shape.
 
-Present findings first. If none meet the evidence bar, say **No findings** and then state any validation gaps or residual risk. Do not add praise or filler.
+Present the holistic assessment before findings. Do not add praise or filler.
 
-### 7. Optionally Post Pull Request Comments
+**Motivation**: <1-2 sentences on whether the PR is justified and the problem is real>
+
+**Approach**: <1-2 sentences on whether the fix/change takes the right approach>
+
+**Summary**: <✅ LGTM / ⚠️ Needs Human Review / ⚠️ Needs Changes / ❌ Reject>. <2-3 sentence summary of the overall verdict and key points. If "Needs Human Review," explicitly state which findings you are uncertain about and what a human reviewer should focus on.>
+
+### 8. Optionally Post Pull Request Comments
 
 Posting is allowed through either authorization path:
 

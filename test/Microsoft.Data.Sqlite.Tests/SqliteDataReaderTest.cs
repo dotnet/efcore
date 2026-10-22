@@ -797,6 +797,39 @@ public class SqliteDataReaderTest
             "SELECT '13:10:15.5';",
             new TimeOnly(13, 10, 15, 500));
 
+    [Fact]
+    public void GetFieldValue_of_TimeOnly_works_with_real()
+        => GetFieldValue_works(
+            "SELECT 0.5487847222222222;",
+            new TimeOnly(13, 10, 15));
+
+    [Fact]
+    public void GetFieldValue_of_TimeOnly_works_with_real_and_milliseconds()
+        => GetFieldValue_works(
+            "SELECT julianday('2014-04-15 13:10:15.123') - julianday('2014-04-15');",
+            new TimeOnly(13, 10, 15, 123));
+
+    [Fact]
+    public void GetFieldValue_of_TimeOnly_works_with_integer()
+        => GetFieldValue_works(
+            "SELECT 0;",
+            new TimeOnly(0, 0));
+
+    [Fact]
+    public void GetFieldValue_of_TimeOnly_round_trips_with_SqliteType_Real()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT $time;";
+        command.Parameters.Add("$time", SqliteType.Real).Value = new TimeOnly(23, 59, 59, 999);
+
+        using var reader = command.ExecuteReader();
+        Assert.True(reader.Read());
+        Assert.Equal(new TimeOnly(23, 59, 59, 999), reader.GetFieldValue<TimeOnly>(0));
+    }
+
     [Theory,
      InlineData("SELECT 1;", "INTEGER"),
      InlineData("SELECT 3.14;", "REAL"),
@@ -1325,10 +1358,10 @@ public class SqliteDataReaderTest
         connection.Open();
 
         using var reader = connection.ExecuteReader("SELECT 1;");
-        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => reader.GetOrdinal("Name"));
-        Assert.NotNull(ex.Message);
-        Assert.Equal("name", ex.ParamName);
-        Assert.Equal("Name", ex.ActualValue);
+
+        // IDataRecord.GetOrdinal: "If the index of the named field is not found, an IndexOutOfRangeException is thrown."
+        var ex = Assert.Throws<IndexOutOfRangeException>(() => reader.GetOrdinal("Name"));
+        Assert.Contains("Name", ex.Message);
     }
 
     [Fact]
@@ -1341,6 +1374,34 @@ public class SqliteDataReaderTest
         var ex = Assert.Throws<InvalidOperationException>(() => reader.GetOrdinal("id"));
 
         Assert.Contains(Resources.AmbiguousColumnName("id", "Id", "ID"), ex.Message);
+    }
+
+    [Fact]
+    public void GetOrdinal_works_with_repeated_case_insensitive_lookups()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+
+        using var reader = connection.ExecuteReader("SELECT 1 AS Id");
+
+        Assert.Equal(0, reader.GetOrdinal("ID"));
+        Assert.Equal(0, reader.GetOrdinal("id"));
+        Assert.Equal(0, reader.GetOrdinal("iD"));
+        Assert.Equal(0, reader.GetOrdinal("ID"));
+    }
+
+    [Fact]
+    public void GetOrdinal_returns_first_ordinal_when_names_are_duplicated()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+
+        using var reader = connection.ExecuteReader("SELECT 1 AS Id, 2 AS Id");
+        Assert.True(reader.Read());
+
+        Assert.Equal(0, reader.GetOrdinal("Id"));
+        Assert.Equal(0, reader.GetOrdinal("ID"));
+        Assert.Equal(1L, reader["Id"]);
     }
 
     [Fact]

@@ -273,6 +273,10 @@ _ = await context.Blogs.OrderBy(b => b.Name).Take(toTake).ToListAsync();
     public virtual Task Final_GroupBy_projecting_grouping_elements()
         => Test("""var blogs = await context.Blogs.GroupBy(b => b.Name).Select(g => g.Select(b => b.Id).ToList()).ToListAsync();""");
 
+    [Fact]
+    public virtual Task GroupBy_Select_first_grouping_element()
+        => Test("""var blogs = await context.Blogs.GroupBy(b => b.Name).Select(g => g.OrderBy(b => b.Id).First()).ToListAsync();""");
+
     #endregion Regular operators
 
     #region Terminating operators
@@ -853,6 +857,23 @@ CancellationTokenSource source = new CancellationTokenSource();
 CancellationToken token = source.Token;
 Assert.Equal("Blog1", (await context.Blogs.Where(b => b.Id == 8).FirstOrDefaultAsync(token)).Name);
 Assert.Null(await context.Blogs.Where(b => b.Id == 7).FirstOrDefaultAsync(token));
+""");
+
+    [Fact] // #37961
+    public virtual Task Terminating_with_ConfigureAwait()
+        => Test(
+            """
+CancellationTokenSource source = new CancellationTokenSource();
+CancellationToken token = source.Token;
+Assert.Equal("Blog1", (await context.Blogs.Where(b => b.Id == 8).FirstOrDefaultAsync(token).ConfigureAwait(false)).Name);
+""");
+
+    [Fact]
+    public virtual Task Terminating_followed_by_instance_method_call()
+        => Test(
+            """
+var id = 8;
+Assert.Equal("1", context.Blogs.Count(b => b.Id == id).ToString());
 """);
 
     #endregion Reducing terminating operators

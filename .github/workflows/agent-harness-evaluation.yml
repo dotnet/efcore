@@ -297,6 +297,7 @@ jobs:
             core.setOutput('trusted_sha', trustedCommit.sha);
             core.setOutput('pull_request', String(pullNumber));
             core.setOutput('can_use_secrets', String(canUseSecrets));
+            core.setOutput('draft', String(pull.draft));
             core.setOutput('component_filter', componentFilter);
             core.setOutput('author', author);
             core.setOutput('matrix', JSON.stringify(matrix));
@@ -319,6 +320,7 @@ jobs:
         env:
           CAN_USE_SECRETS: ${{ steps.pr.outputs.can_use_secrets }}
           COMPONENT_FILTER: ${{ steps.pr.outputs.component_filter }}
+          PR_DRAFT: ${{ steps.pr.outputs.draft }}
           HEAD_SHA: ${{ steps.pr.outputs.target_sha }}
           PULL_REQUEST: ${{ steps.pr.outputs.pull_request }}
           SELECTED_COMPONENTS: ${{ steps.pr.outputs.components }}
@@ -326,6 +328,7 @@ jobs:
           script: |
             const issueNumber = Number(process.env.PULL_REQUEST);
             const selected = new Set(JSON.parse(process.env.SELECTED_COMPONENTS));
+            const draft = process.env.PR_DRAFT === 'true';
             const comments = await github.paginate(github.rest.issues.listComments, {
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -350,7 +353,7 @@ jobs:
             const rerunMarker = '<!-- agent-harness-evaluation:rerun-required -->';
             const rerunComment = comments.find(comment =>
               comment.user?.login === 'github-actions[bot]' && comment.body?.startsWith(rerunMarker));
-            if (context.payload.action === 'synchronize' && selected.size > 0) {
+            if (context.payload.action === 'synchronize' && selected.size > 0 && !draft) {
               const body = `${rerunMarker}\n### Agent harness evaluation is stale\n\n` +
                 `Evaluation does not run automatically for new commits. A contributor with write access can comment ` +
                 `\`/eval\` to run all affected components or \`/eval component-name\` to run one component.`;
@@ -390,7 +393,7 @@ jobs:
               labels: [label]
             });
 
-            if (context.payload.action === 'synchronize') return;
+            if (context.payload.action === 'synchronize' && !draft) return;
 
             const promptMarker = '<!-- agent-harness-evaluation:manual-required -->';
             const prompt = comments.find(comment =>
@@ -413,9 +416,13 @@ jobs:
 
             const manualUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}` +
               '/actions/workflows/agent-harness-evaluation.yml';
-            const body = `${promptMarker}\n### Agent harness evaluation required\n\n` +
+            const reason = draft
+              ? 'Automatic evaluation is deferred because this PR is currently marked as draft. ' +
+                'Once it is ready for review, the usual author authorization rules apply. '
+              : 'Its author cannot use repository secrets in an automatic run. ';
+            const body = `${promptMarker}\n### Agent harness evaluation ${draft ? 'deferred' : 'required'}\n\n` +
               `This PR affects: ${[...selected].map(id => `\`${id}\``).join(', ')}. ` +
-              `Its author cannot use repository secrets in an automatic run. A contributor with write access can comment ` +
+              reason + `A contributor with write access can comment ` +
               `\`/eval\` or \`/eval component-name\`, or ` +
               `[run the workflow manually](${manualUrl}) for pull request **#${issueNumber}**.`;
             if (prompt) {
@@ -510,9 +517,9 @@ jobs:
           echo "$PWD/.dotnet" >> "$GITHUB_PATH"
 
       - name: Set up Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
         with:
-          node-version: 22.12
+          node-version: 24.22.0
           cache: npm
           cache-dependency-path: ${{ env.TRUSTED_ROOT }}/eng/harness-evaluation/package-lock.json
 
@@ -538,7 +545,7 @@ jobs:
       - name: Upload component results
         id: upload
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: harness-eval-result-${{ matrix.id }}
           path: ${{ env.RESULT_ROOT }}/
@@ -554,29 +561,16 @@ jobs:
           node --input-type=module <<'EOF'
           import fs from 'node:fs';
           import path from 'node:path';
+          import { pathToFileURL } from 'node:url';
 
-          const resultFiles = [];
-          const planFiles = [];
-          const visit = directory => {
-            for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
-              const fullPath = path.join(directory, entry.name);
-              if (entry.isDirectory()) visit(fullPath);
-              else if (entry.name === 'results.jsonl') resultFiles.push(fullPath);
-              else if (entry.name === 'plan-snapshot.json') planFiles.push(fullPath);
-            }
-          };
-          visit(process.env.RESULT_ROOT);
-          const controlFile = resultFiles.find(file => path.basename(path.dirname(file)) === 'control');
-          const treatmentFile = resultFiles.find(file => path.basename(path.dirname(file)) === 'treatment');
-          if (!controlFile || !treatmentFile || resultFiles.length !== 2) {
-            throw new Error(`Expected control and treatment results.jsonl files, found ${resultFiles.length}.`);
-          }
-          if (planFiles.length !== 1) {
-            throw new Error(`Expected one plan-snapshot.json file, found ${planFiles.length}.`);
-          }
+          const { findExperimentRunDirectory } = await import(pathToFileURL(
+            path.resolve(process.env.TRUSTED_ROOT, 'eng/harness-evaluation/src/harness.mjs')).href);
+          const experimentDirectory = await findExperimentRunDirectory(process.env.RESULT_ROOT);
+          const controlFile = path.join(experimentDirectory, 'control', 'results.jsonl');
+          const treatmentFile = path.join(experimentDirectory, 'treatment', 'results.jsonl');
 
           const readRecords = file => fs.readFileSync(file, 'utf8').trim().split(/\r?\n/).map(JSON.parse);
-          const plan = JSON.parse(fs.readFileSync(planFiles[0], 'utf8'));
+          const plan = JSON.parse(fs.readFileSync(path.join(experimentDirectory, 'plan-snapshot.json'), 'utf8'));
           if (plan.type !== 'experiment-plan-snapshot' || !Array.isArray(plan.evals)) {
             throw new Error('Vally did not produce a valid experiment plan snapshot.');
           }
@@ -647,14 +641,6 @@ jobs:
             let reportGenerationFailed = false;
 
             const readRecords = file => fs.readFileSync(file, 'utf8').split(/\r?\n/).filter(Boolean).map(JSON.parse);
-            const findFiles = (directory, name, matches = []) => {
-              for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
-                const fullPath = path.join(directory, entry.name);
-                if (entry.isDirectory()) findFiles(fullPath, name, matches);
-                else if (entry.name === name) matches.push(fullPath);
-              }
-              return matches;
-            };
             const escapeCell = value => String(value).replaceAll('|', '\\|').replaceAll(/\r?\n/g, ' ');
 
             try {
@@ -713,17 +699,13 @@ jobs:
             }
 
             try {
-              const resultFiles = findFiles(process.env.RESULT_ROOT, 'results.jsonl');
-              const treatmentFiles = resultFiles.filter(file => path.basename(path.dirname(file)) === 'treatment');
-              const controlFiles = resultFiles.filter(file => path.basename(path.dirname(file)) === 'control');
-              if (treatmentFiles.length !== 1 || controlFiles.length !== 1) {
-                throw new Error(
-                  `expected one control and one treatment results file, found ${controlFiles.length} control and ${treatmentFiles.length} treatment`);
-              }
-
-              const treatmentTrials = readRecords(treatmentFiles[0])
+              const { pathToFileURL } = require('node:url');
+              const { findExperimentRunDirectory } = await import(pathToFileURL(
+                path.resolve(process.env.TRUSTED_ROOT, 'eng/harness-evaluation/src/harness.mjs')).href);
+              const experimentDirectory = await findExperimentRunDirectory(process.env.RESULT_ROOT);
+              const treatmentTrials = readRecords(path.join(experimentDirectory, 'treatment', 'results.jsonl'))
                 .filter(record => record.type === 'trial-result');
-              const controlTrials = readRecords(controlFiles[0])
+              const controlTrials = readRecords(path.join(experimentDirectory, 'control', 'results.jsonl'))
                 .filter(record => record.type === 'trial-result');
               const models = [...new Set(treatmentTrials.map(trial => trial.model).filter(Boolean))];
               if (treatmentTrials.length > 0 && models.length !== 1) {
@@ -839,7 +821,7 @@ jobs:
                 }
                 if (previous) {
                   baseline = `\n\n[Previous result from PR #${previous.pullNumber}]` +
-                    `(${previous.comment.html_url}) provides the baseline.`;
+                    `(${previous.comment.html_url})`;
                 }
               }
             } catch (error) {

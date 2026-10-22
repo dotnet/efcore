@@ -73,6 +73,62 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
         => expression is NewExpression newExpression
             && TransparentIdentifierFactory.IsTransparentIdentifierType(newExpression.Type);
 
+    private sealed class MarkerNullCheckSimplifyingExpressionVisitor : ExpressionVisitor
+    {
+        protected override Expression VisitBinary(BinaryExpression node)
+        {
+            if (node is { NodeType: ExpressionType.Equal or ExpressionType.NotEqual, Method: null }
+                && ((IsNull(node.Left) && TryGetNullCheck(node.Right, out var nullCheck))
+                    || (IsNull(node.Right) && TryGetNullCheck(node.Left, out nullCheck))))
+            {
+                nullCheck = Visit(nullCheck);
+                return node.NodeType == ExpressionType.Equal
+                    ? nullCheck
+                    : Expression.Not(nullCheck);
+            }
+
+            return base.VisitBinary(node);
+        }
+
+        private static bool IsNull(Expression expression)
+            => expression is ConstantExpression { Value: null }
+                or DefaultExpression { Type.IsValueType: false };
+
+        private static bool TryGetNullCheck(Expression expression, [NotNullWhen(true)] out Expression? nullCheck)
+        {
+            expression = expression.UnwrapTypeConversion(out _);
+            if (expression is ConditionalExpression
+                {
+                    Test: var test,
+                    IfTrue: var ifTrue,
+                    IfFalse: NewExpression or MemberInitExpression
+                }
+                && IsNull(ifTrue)
+                && IsMarkerNullCheck(test))
+            {
+                nullCheck = test;
+                return true;
+            }
+
+            nullCheck = null;
+            return false;
+        }
+
+        private static bool IsMarkerNullCheck(Expression expression)
+        {
+            expression = expression.UnwrapTypeConversion(out _);
+            return expression is BinaryExpression
+                {
+                    NodeType: ExpressionType.Equal,
+                    Method: null,
+                    Left: var left,
+                    Right: var right
+                }
+                && ((IsNull(left) && right.UnwrapTypeConversion(out _) is ProjectionBindingExpression)
+                    || (IsNull(right) && left.UnwrapTypeConversion(out _) is ProjectionBindingExpression));
+        }
+    }
+
     private Expression GateNonEntityOnNullabilityMarker(
         Expression visited,
         Expression markerBinding,
