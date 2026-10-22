@@ -859,6 +859,23 @@ Assert.Equal("Blog1", (await context.Blogs.Where(b => b.Id == 8).FirstOrDefaultA
 Assert.Null(await context.Blogs.Where(b => b.Id == 7).FirstOrDefaultAsync(token));
 """);
 
+    [Fact] // #37961
+    public virtual Task Terminating_with_ConfigureAwait()
+        => Test(
+            """
+CancellationTokenSource source = new CancellationTokenSource();
+CancellationToken token = source.Token;
+Assert.Equal("Blog1", (await context.Blogs.Where(b => b.Id == 8).FirstOrDefaultAsync(token).ConfigureAwait(false)).Name);
+""");
+
+    [Fact]
+    public virtual Task Terminating_followed_by_instance_method_call()
+        => Test(
+            """
+var id = 8;
+Assert.Equal("1", context.Blogs.Count(b => b.Id == id).ToString());
+""");
+
     #endregion Reducing terminating operators
 
     #region SQL expression quotability
