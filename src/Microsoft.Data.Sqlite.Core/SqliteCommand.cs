@@ -256,10 +256,12 @@ public class SqliteCommand : DbCommand
 
     internal void CloseReaderAndDispose()
     {
-        if (_disposeWhenReaderCloses)
+        // NB: DataReader is null if closing it failed after it detached from this command
+        if (_disposeWhenReaderCloses
+            && DataReader != null)
         {
             // NB: Calls OnReaderClosed(), which disposes this command
-            DataReader!.Dispose();
+            DataReader.Dispose();
 
             return;
         }

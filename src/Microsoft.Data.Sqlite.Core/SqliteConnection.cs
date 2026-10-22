@@ -42,6 +42,7 @@ public partial class SqliteConnection : DbConnection
 
     private string _connectionString;
     private ConnectionState _state;
+    private bool _closing;
     private SqliteConnectionInternal? _innerConnection;
     private bool _extensionsEnabled;
     private int? _defaultTimeout;
@@ -370,22 +371,32 @@ public partial class SqliteConnection : DbConnection
     /// </summary>
     public override void Close()
     {
-        if (State != ConnectionState.Open)
+        // NB: Closing a reader opened with CommandBehavior.CloseConnection calls back into Close()
+        if (State != ConnectionState.Open
+            || _closing)
         {
             return;
         }
 
-        Transaction?.Dispose();
-
-        var commands = _commands;
-        for (var i = commands.Count - 1; i >= 0; i--)
+        _closing = true;
+        try
         {
-            var reference = commands[i];
-            if (reference.TryGetTarget(out var command))
+            Transaction?.Dispose();
+
+            var commands = _commands;
+            for (var i = commands.Count - 1; i >= 0; i--)
             {
-                // NB: Calls RemoveCommand()
-                command.CloseReaderAndDispose();
+                var reference = commands[i];
+                if (reference.TryGetTarget(out var command))
+                {
+                    // NB: Calls RemoveCommand()
+                    command.CloseReaderAndDispose();
+                }
             }
+        }
+        finally
+        {
+            _closing = false;
         }
 
         _commands.Clear();
