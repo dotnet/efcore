@@ -575,7 +575,7 @@ DROP TABLE [MemoryOptimizedTablesProbe];
         sqlConnection.Open();
 
         using var command = new SqlCommand(
-            IsAzureSql
+            GetEngineEdition() == 5
                 ? "SELECT compatibility_level FROM sys.databases WHERE [name] = 'master';"
                 : "SELECT compatibility_level FROM sys.databases WHERE [name] = 'model';",
             sqlConnection);
