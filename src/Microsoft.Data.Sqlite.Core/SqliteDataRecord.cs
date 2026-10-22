@@ -154,8 +154,8 @@ internal class SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnectio
             return match.Value.Value;
         }
 
-        // NB: Message is provided by framework
-        throw new ArgumentOutOfRangeException(nameof(name), name, message: null);
+        // IDataRecord.GetOrdinal: "If the index of the named field is not found, an IndexOutOfRangeException is thrown."
+        throw new IndexOutOfRangeException(name);
     }
 
     public virtual string GetDataTypeName(int ordinal)
