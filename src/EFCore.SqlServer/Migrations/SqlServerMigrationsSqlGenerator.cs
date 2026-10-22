@@ -1947,9 +1947,8 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         if (constraintName != null && (defaultValue != null || defaultValueSql != null))
         {
             builder
-                .Append(" CONSTRAINT [")
-                .Append(constraintName)
-                .Append("]");
+                .Append(" CONSTRAINT ")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(constraintName));
         }
 
         base.DefaultValue(defaultValue, defaultValueSql, columnType, builder);
@@ -2382,9 +2381,8 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             builder
                 .Append("ALTER TABLE ")
                 .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(tableName, schema))
-                .Append(" DROP CONSTRAINT [")
-                .Append(defaultConstraintName)
-                .Append("]")
+                .Append(" DROP CONSTRAINT ")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(defaultConstraintName))
                 .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
 
             return;
