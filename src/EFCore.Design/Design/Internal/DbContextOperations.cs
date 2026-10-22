@@ -289,8 +289,9 @@ public class DbContextOperations
 
         var scaffolder = services.GetRequiredService<ICompiledModelScaffolder>();
         var databaseProvider = context.GetService<IDatabaseProvider>();
+        var code = services.GetRequiredService<ICSharpHelper>();
 
-        var finalModelNamespace = modelNamespace ?? GetNamespaceFromOutputPath(outputDir) ?? "";
+        var finalModelNamespace = modelNamespace ?? GetNamespaceFromOutputPath(outputDir, code) ?? "";
 
         var scaffoldedFiles = scaffolder.ScaffoldModel(
             context.GetService<IDesignTimeModel>().Model,
@@ -418,9 +419,9 @@ public class DbContextOperations
         return CompiledModelScaffolder.WriteFiles(generatedFiles, outputDir);
     }
 
-    private string? GetNamespaceFromOutputPath(string directoryPath)
+    private string? GetNamespaceFromOutputPath(string directoryPath, ICSharpHelper code)
     {
-        var subNamespace = SubnamespaceFromOutputPath(_projectDir, directoryPath);
+        var subNamespace = SubnamespaceFromOutputPath(_projectDir, directoryPath, code);
         return string.IsNullOrEmpty(subNamespace)
             ? _rootNamespace
             : string.IsNullOrEmpty(_rootNamespace)
@@ -431,7 +432,7 @@ public class DbContextOperations
     // if outputDir is a subfolder of projectDir, then use each subfolder as a sub-namespace
     // --output-dir $(projectFolder)/A/B/C
     // => "namespace $(rootnamespace).A.B.C"
-    private static string? SubnamespaceFromOutputPath(string projectDir, string outputDir)
+    private static string? SubnamespaceFromOutputPath(string projectDir, string outputDir, ICSharpHelper code)
     {
         if (!outputDir.StartsWith(projectDir, StringComparison.Ordinal))
         {
@@ -441,8 +442,7 @@ public class DbContextOperations
         var subPath = outputDir[projectDir.Length..];
 
         return !string.IsNullOrWhiteSpace(subPath)
-            ? string.Join(
-                ".",
+            ? code.Namespace(
                 subPath.Split(
                     [Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar], StringSplitOptions.RemoveEmptyEntries))
             : null;
