@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 // ReSharper disable AccessToDisposedClosure
@@ -8,15 +9,12 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 // ReSharper disable ConvertToConstant.Local
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class SqlExecutorTestBase<TFixture> : IClassFixture<TFixture>
-    where TFixture : NorthwindQueryRelationalFixture<NoopModelCustomizer>, new()
-{
-    protected SqlExecutorTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
+#nullable disable
 
-    protected TFixture Fixture { get; }
+public abstract class SqlExecutorTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
+    where TFixture : NorthwindQueryRelationalFixture<SqlExecutorModelCustomizer>, new()
+{
+    protected TFixture Fixture { get; } = fixture;
 
     [ConditionalTheory]
     [InlineData(false)]
@@ -284,6 +282,25 @@ public abstract class SqlExecutorTestBase<TFixture> : IClassFixture<TFixture>
         Assert.Equal(-1, actual);
     }
 
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual async Task Query_with_parameters_custom_converter(bool async)
+    {
+        var city = new City { Name = "London" };
+        var contactTitle = "Sales Representative";
+
+        using var context = CreateContext();
+
+        var actual = async
+            ? await context.Database.ExecuteSqlAsync(
+                $@"SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = {city} AND ""ContactTitle"" = {contactTitle}")
+            : context.Database.ExecuteSql(
+                $@"SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = {city} AND ""ContactTitle"" = {contactTitle}");
+
+        Assert.Equal(-1, actual);
+    }
+
     private static Customer Process(Customer c, ManualResetEventSlim e, SemaphoreSlim s)
     {
         e.Set();
@@ -302,4 +319,12 @@ public abstract class SqlExecutorTestBase<TFixture> : IClassFixture<TFixture>
     protected abstract string CustomerOrderHistorySproc { get; }
 
     protected abstract string CustomerOrderHistoryWithGeneratedParameterSproc { get; }
+}
+
+public class SqlExecutorModelCustomizer : NoopModelCustomizer
+{
+    public override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+        => configurationBuilder.DefaultTypeMapping<City>().HasConversion<CityToStringConverter>();
+
+    private sealed class CityToStringConverter() : ValueConverter<City, string>(value => value.Name, value => new City { Name = value });
 }

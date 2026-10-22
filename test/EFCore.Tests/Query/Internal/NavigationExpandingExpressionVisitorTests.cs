@@ -15,29 +15,26 @@ public class NavigationExpandingExpressionVisitorTests
             => null;
     }
 
-    private class TestNavigationExpandingExpressionVisitor : NavigationExpandingExpressionVisitor
+    private class TestNavigationExpandingExpressionVisitor() : NavigationExpandingExpressionVisitor(
+        null,
+        new QueryCompilationContext(
+            new QueryCompilationContextDependencies(
+                model: null,
+                queryTranslationPreprocessorFactory: null,
+                queryableMethodTranslatingExpressionVisitorFactory: null,
+                queryTranslationPostprocessorFactory: null,
+                shapedQueryCompilingExpressionVisitorFactory: null,
+                liftableConstantFactory: null,
+                liftableConstantProcessor: null,
+                new ExecutionStrategyTest.TestExecutionStrategy(new MyDemoContext()),
+                new CurrentDbContext(new MyDemoContext()),
+                contextOptions: null,
+                logger: null,
+                new TestInterceptors()
+            ), async: false),
+        null,
+        null)
     {
-        public TestNavigationExpandingExpressionVisitor()
-            : base(
-                null,
-                new QueryCompilationContext(
-                    new QueryCompilationContextDependencies(
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        new ExecutionStrategyTest.TestExecutionStrategy(new MyDemoContext()),
-                        new CurrentDbContext(new MyDemoContext()),
-                        null,
-                        null,
-                        new TestInterceptors()
-                    ), false),
-                null,
-                null)
-        {
-        }
-
         public Expression TestVisitExtension(Expression extensionExpression)
             => base.VisitExtension(extensionExpression);
     }
@@ -75,7 +72,7 @@ public class NavigationExpandingExpressionVisitorTests
     }
 
     [ConditionalFact]
-    public void Visits_extention_childrens()
+    public void Visits_extension_children()
     {
         var model = new Model();
         var e = model.AddEntityType(typeof(A), false, ConfigurationSource.Explicit);

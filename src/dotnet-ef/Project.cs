@@ -53,16 +53,35 @@ internal class Project
 
         Directory.CreateDirectory(buildExtensionsDir);
 
+        byte[] efTargets;
+        using (var input = typeof(Resources).Assembly.GetManifestResourceStream(
+                   "Microsoft.EntityFrameworkCore.Tools.Resources.EntityFrameworkCore.targets")!)
+        {
+            efTargets = new byte[input.Length];
+            input.ReadExactly(efTargets);
+        }
+
         var efTargetsPath = Path.Combine(
             buildExtensionsDir,
             Path.GetFileName(file) + ".EntityFrameworkCore.targets");
-        using (var input = typeof(Resources).Assembly.GetManifestResourceStream(
-                   "Microsoft.EntityFrameworkCore.Tools.Resources.EntityFrameworkCore.targets")!)
-        using (var output = File.OpenWrite(efTargetsPath))
+
+        bool FileMatches()
         {
-            // NB: Copy always in case it changes
+            try
+            {
+                return File.ReadAllBytes(efTargetsPath).SequenceEqual(efTargets);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        // Avoid touching the targets file, if it matches what we need, to enable incremental builds
+        if (!File.Exists(efTargetsPath) || !FileMatches())
+        {
             Reporter.WriteVerbose(Resources.WritingFile(efTargetsPath));
-            input.CopyTo(output);
+            File.WriteAllBytes(efTargetsPath, efTargets);
         }
 
         IDictionary<string, string> metadata;
@@ -102,7 +121,7 @@ internal class Project
                 throw new CommandException(Resources.GetMetadataFailed);
             }
 
-            metadata = File.ReadLines(metadataFile).Select(l => l.Split(new[] { ':' }, 2))
+            metadata = File.ReadLines(metadataFile).Select(l => l.Split([':'], 2))
                 .ToDictionary(s => s[0], s => s[1].TrimStart());
         }
         finally
@@ -134,7 +153,7 @@ internal class Project
         };
     }
 
-    public void Build()
+    public void Build(IEnumerable<string>? additionalArgs)
     {
         var args = new List<string> { "build" };
 
@@ -165,8 +184,12 @@ internal class Project
         args.Add("/verbosity:quiet");
         args.Add("/nologo");
         args.Add("/p:PublishAot=false"); // Avoid NativeAOT warnings
+        if (additionalArgs != null)
+        {
+            args.AddRange(additionalArgs);
+        }
 
-        var exitCode = Exe.Run("dotnet", args, interceptOutput: true);
+        var exitCode = Exe.Run("dotnet", args, handleOutput: Reporter.WriteVerbose);
         if (exitCode != 0)
         {
             throw new CommandException(Resources.BuildFailed);

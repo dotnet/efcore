@@ -116,6 +116,7 @@ public class SqlServerRuntimeModelConvention : RelationalRuntimeModelConvention
         if (!runtime)
         {
             annotations.Remove(SqlServerAnnotationNames.Clustered);
+            annotations.Remove(SqlServerAnnotationNames.FillFactor);
         }
     }
 

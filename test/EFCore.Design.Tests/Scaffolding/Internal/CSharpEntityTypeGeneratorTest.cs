@@ -9,13 +9,9 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
-public class CSharpEntityTypeGeneratorTest : ModelCodeGeneratorTestBase
+public class CSharpEntityTypeGeneratorTest(ModelCodeGeneratorTestFixture fixture, ITestOutputHelper output)
+    : ModelCodeGeneratorTestBase(fixture, output)
 {
-    public CSharpEntityTypeGeneratorTest(ModelCodeGeneratorTestFixture fixture, ITestOutputHelper output)
-        : base(fixture, output)
-    {
-    }
-
     [ConditionalFact]
     public Task KeylessAttribute_is_generated_for_key_less_entity()
         => TestAsync(
@@ -258,10 +254,10 @@ public partial class Vista
                         x.Property<int>("B");
                         x.Property<int>("C");
                         x.HasKey("Id");
-                        x.HasIndex(new[] { "A", "B" }, "IndexOnAAndB")
+                        x.HasIndex(["A", "B"], "IndexOnAAndB")
                             .IsUnique()
                             .IsDescending(true, false);
-                        x.HasIndex(new[] { "B", "C" }, "IndexOnBAndC");
+                        x.HasIndex(["B", "C"], "IndexOnBAndC");
                         x.HasIndex("C");
                     }),
             new ModelCodeGenerationOptions { UseDataAnnotations = true },
@@ -317,9 +313,9 @@ public partial class EntityWithIndexes
                         x.Property<int>("A");
                         x.Property<int>("B");
                         x.HasKey("Id");
-                        x.HasIndex(new[] { "A", "B" }, "AllAscending");
-                        x.HasIndex(new[] { "A", "B" }, "PartiallyDescending").IsDescending(true, false);
-                        x.HasIndex(new[] { "A", "B" }, "AllDescending").IsDescending();
+                        x.HasIndex(["A", "B"], "AllAscending");
+                        x.HasIndex(["A", "B"], "PartiallyDescending").IsDescending(true, false);
+                        x.HasIndex(["A", "B"], "AllDescending").IsDescending();
                     }),
             new ModelCodeGenerationOptions { UseDataAnnotations = true },
             code =>
@@ -363,7 +359,7 @@ public partial class EntityWithAscendingDescendingIndexes
                     i =>
                     {
                         Assert.Equal("AllDescending", i.Name);
-                        Assert.Equal(Array.Empty<bool>(), i.IsDescending);
+                        Assert.Equal([], i.IsDescending);
                     },
                     i =>
                     {
@@ -385,9 +381,9 @@ public partial class EntityWithAscendingDescendingIndexes
                         x.Property<int>("B");
                         x.Property<int>("C");
                         x.HasKey("Id");
-                        x.HasIndex(new[] { "A", "B" }, "IndexOnAAndB")
+                        x.HasIndex(["A", "B"], "IndexOnAAndB")
                             .IsUnique();
-                        x.HasIndex(new[] { "B", "C" }, "IndexOnBAndC")
+                        x.HasIndex(["B", "C"], "IndexOnBAndC")
                             .HasFilter("Filter SQL");
                     }),
             new ModelCodeGenerationOptions { UseDataAnnotations = true },
@@ -2933,19 +2929,15 @@ public partial class TestDbContext : DbContext
                     Assert.Equal("Post_Blogs_Source", skipNavigation.ForeignKey.GetConstraintName());
                 }));
 
-    protected override void AddModelServices(IServiceCollection services)
+    protected override IServiceCollection AddModelServices(IServiceCollection services)
         => services.Replace(ServiceDescriptor.Singleton<IRelationalAnnotationProvider, TestModelAnnotationProvider>());
 
-    protected override void AddScaffoldingServices(IServiceCollection services)
+    protected override IServiceCollection AddScaffoldingServices(IServiceCollection services)
         => services.Replace(ServiceDescriptor.Singleton<IAnnotationCodeGenerator, TestModelAnnotationCodeGenerator>());
 
-    private class TestModelAnnotationProvider : SqlServerAnnotationProvider
+    private class TestModelAnnotationProvider(RelationalAnnotationProviderDependencies dependencies)
+        : SqlServerAnnotationProvider(dependencies)
     {
-        public TestModelAnnotationProvider(RelationalAnnotationProviderDependencies dependencies)
-            : base(dependencies)
-        {
-        }
-
         public override IEnumerable<IAnnotation> For(ITable table, bool designTime)
         {
             foreach (var annotation in base.For(table, designTime))
@@ -2978,13 +2970,9 @@ public partial class TestDbContext : DbContext
         }
     }
 
-    private class TestModelAnnotationCodeGenerator : SqlServerAnnotationCodeGenerator
+    private class TestModelAnnotationCodeGenerator(AnnotationCodeGeneratorDependencies dependencies)
+        : SqlServerAnnotationCodeGenerator(dependencies)
     {
-        public TestModelAnnotationCodeGenerator(AnnotationCodeGeneratorDependencies dependencies)
-            : base(dependencies)
-        {
-        }
-
         protected override AttributeCodeFragment GenerateDataAnnotation(IEntityType entityType, IAnnotation annotation)
             => annotation.Name switch
             {
@@ -3003,24 +2991,14 @@ public partial class TestDbContext : DbContext
     }
 
     [AttributeUsage(AttributeTargets.Class)]
-    public class CustomEntityDataAnnotationAttribute : Attribute
+    public class CustomEntityDataAnnotationAttribute(string argument) : Attribute
     {
-        public CustomEntityDataAnnotationAttribute(string argument)
-        {
-            Argument = argument;
-        }
-
-        public virtual string Argument { get; }
+        public virtual string Argument { get; } = argument;
     }
 
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    public class CustomPropertyDataAnnotationAttribute : Attribute
+    public class CustomPropertyDataAnnotationAttribute(string argument) : Attribute
     {
-        public CustomPropertyDataAnnotationAttribute(string argument)
-        {
-            Argument = argument;
-        }
-
-        public virtual string Argument { get; }
+        public virtual string Argument { get; } = argument;
     }
 }

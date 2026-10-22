@@ -118,12 +118,21 @@ public class RuntimeDbFunctionParameter : AnnotatableBase, IRuntimeDbFunctionPar
     IStoreFunctionParameter IDbFunctionParameter.StoreFunctionParameter
     {
         [DebuggerStepThrough]
-        get => _storeFunctionParameter!;
+        get
+        {
+            Function.Model.EnsureRelationalModel();
+            return _storeFunctionParameter!;
+        }
     }
 
     IStoreFunctionParameter IRuntimeDbFunctionParameter.StoreFunctionParameter
     {
-        get => _storeFunctionParameter!;
+        get
+        {
+            Function.Model.EnsureRelationalModel();
+            return _storeFunctionParameter!;
+        }
+
         set => _storeFunctionParameter = value;
     }
 

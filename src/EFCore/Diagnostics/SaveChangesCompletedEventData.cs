@@ -25,9 +25,7 @@ public class SaveChangesCompletedEventData : DbContextEventData
         DbContext context,
         int entitiesSavedCount)
         : base(eventDefinition, messageGenerator, context)
-    {
-        EntitiesSavedCount = entitiesSavedCount;
-    }
+        => EntitiesSavedCount = entitiesSavedCount;
 
     /// <summary>
     ///     The number of entities saved to the database.

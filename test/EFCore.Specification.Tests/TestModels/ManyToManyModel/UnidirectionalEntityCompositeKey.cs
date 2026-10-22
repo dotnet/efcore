@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
+#nullable disable
+
 public class UnidirectionalEntityCompositeKey
 {
     public virtual int Key1 { get; set; }

@@ -28,9 +28,7 @@ public class TestSqlLoggerFactory : ListLoggerFactory
 
     public TestSqlLoggerFactory(Func<string, bool> shouldLogCategory)
         : base(c => shouldLogCategory(c) || c == DbLoggerCategory.Database.Command.Name)
-    {
-        Logger = new TestSqlLogger(shouldLogCategory(DbLoggerCategory.Database.Command.Name));
-    }
+        => Logger = new TestSqlLogger(shouldLogCategory(DbLoggerCategory.Database.Command.Name));
 
     public IReadOnlyList<string> SqlStatements
         => ((TestSqlLogger)Logger).SqlStatements;
@@ -40,6 +38,12 @@ public class TestSqlLoggerFactory : ListLoggerFactory
 
     public string Sql
         => string.Join(_eol + _eol, SqlStatements);
+
+    public void OutputSql()
+    {
+        Logger.TestOutputHelper?.WriteLine("SQL sent to the database:");
+        Logger.TestOutputHelper?.WriteLine(Sql);
+    }
 
     public void AssertBaseline(string[] expected, bool assertOrder = true, bool forUpdate = false)
     {
@@ -75,7 +79,7 @@ public class TestSqlLoggerFactory : ListLoggerFactory
         catch
         {
             var methodCallLine = Environment.StackTrace.Split(
-                new[] { _eol },
+                [_eol],
                 StringSplitOptions.RemoveEmptyEntries)[3][6..];
 
             var indexMethodEnding = methodCallLine.IndexOf(')') + 1;
@@ -166,7 +170,7 @@ public class TestSqlLoggerFactory : ListLoggerFactory
                     {
                         // Detect whether a byte-order mark (BOM) exists, to write out the same
                         var buffer = new byte[3];
-                        inputStream.Read(buffer, 0, 3);
+                        inputStream.ReadExactly(buffer, 0, 3);
                         inputStream.Position = 0;
 
                         var hasUtf8ByteOrderMark = (buffer[0] == 0xEF && buffer[1] == 0xBB && buffer[2] == 0xBF);
@@ -286,17 +290,12 @@ public class TestSqlLoggerFactory : ListLoggerFactory
         }
     }
 
-    protected class TestSqlLogger : ListLogger
+    protected class TestSqlLogger(bool shouldLogCommands) : ListLogger
     {
-        private readonly bool _shouldLogCommands;
+        private readonly bool _shouldLogCommands = shouldLogCommands;
 
-        public TestSqlLogger(bool shouldLogCommands)
-        {
-            _shouldLogCommands = shouldLogCommands;
-        }
-
-        public List<string> SqlStatements { get; } = new();
-        public List<string> Parameters { get; } = new();
+        public List<string> SqlStatements { get; } = [];
+        public List<string> Parameters { get; } = [];
 
         private readonly StringBuilder _stringBuilder = new();
 
@@ -311,9 +310,9 @@ public class TestSqlLoggerFactory : ListLoggerFactory
         protected override void UnsafeLog<TState>(
             LogLevel logLevel,
             EventId eventId,
-            string message,
+            string? message,
             TState state,
-            Exception exception)
+            Exception? exception)
         {
             if ((eventId.Id == RelationalEventId.CommandExecuted.Id
                     || eventId.Id == RelationalEventId.CommandError.Id
@@ -328,7 +327,7 @@ public class TestSqlLoggerFactory : ListLoggerFactory
                     && message != null
                     && eventId.Id != RelationalEventId.CommandExecuting.Id)
                 {
-                    var structure = (IReadOnlyList<KeyValuePair<string, object>>)state;
+                    var structure = (IReadOnlyList<KeyValuePair<string, object>>)state!;
 
                     var parameters = structure.Where(i => i.Key == "parameters").Select(i => (string)i.Value).First();
                     var commandText = structure.Where(i => i.Key == "commandText").Select(i => (string)i.Value).First();

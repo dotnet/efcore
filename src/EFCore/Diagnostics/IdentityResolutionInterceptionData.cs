@@ -20,9 +20,7 @@ public readonly struct IdentityResolutionInterceptionData
     [EntityFrameworkInternal]
     [UsedImplicitly]
     public IdentityResolutionInterceptionData(DbContext context)
-    {
-        Context = context;
-    }
+        => Context = context;
 
     /// <summary>
     ///     The current <see cref="DbContext" /> instance being used.

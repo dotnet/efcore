@@ -5,18 +5,9 @@ using Microsoft.EntityFrameworkCore.InMemory.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class NorthwindWhereQueryInMemoryTest : NorthwindWhereQueryTestBase<NorthwindQueryInMemoryFixture<NoopModelCustomizer>>
+public class NorthwindWhereQueryInMemoryTest(NorthwindQueryInMemoryFixture<NoopModelCustomizer> fixture)
+    : NorthwindWhereQueryTestBase<NorthwindQueryInMemoryFixture<NoopModelCustomizer>>(fixture)
 {
-    public NorthwindWhereQueryInMemoryTest(
-        NorthwindQueryInMemoryFixture<NoopModelCustomizer> fixture,
-#pragma warning disable IDE0060 // Remove unused parameter
-        ITestOutputHelper testOutputHelper)
-#pragma warning restore IDE0060 // Remove unused parameter
-        : base(fixture)
-    {
-        //TestLoggerFactory.TestOutputHelper = testOutputHelper;
-    }
-
     public override async Task<string> Where_simple_closure(bool async)
     {
         var queryString = await base.Where_simple_closure(async);
@@ -59,6 +50,4 @@ public class NorthwindWhereQueryInMemoryTest : NorthwindWhereQueryTestBase<North
 
     public override Task Where_compare_tuple_create_constructed_multi_value_not_equal(bool async)
         => Task.CompletedTask;
-
-    
 }

@@ -5,6 +5,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
 
+#nullable disable
+
 public class Level4
 {
     public int Id { get; set; }

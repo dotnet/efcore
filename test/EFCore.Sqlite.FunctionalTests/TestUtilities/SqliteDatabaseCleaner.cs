@@ -47,7 +47,7 @@ public class SqliteDatabaseCleaner : RelationalDatabaseCleaner
         var command = connection.CreateCommand();
         command.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE name = 'geometry_columns' AND type = 'table';";
 
-        var hasGeometryColumns = (long)command.ExecuteScalar() != 0L;
+        var hasGeometryColumns = (long)command.ExecuteScalar()! != 0L;
         if (hasGeometryColumns)
         {
             // NB: SUM forces DiscardGeometryColumn to evaluate for each row

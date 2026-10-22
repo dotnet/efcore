@@ -3,13 +3,30 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class OwnedQueryRelationalTestBase<TFixture> : OwnedQueryTestBase<TFixture>
+#nullable disable
+
+public abstract class OwnedQueryRelationalTestBase<TFixture>(TFixture fixture) : OwnedQueryTestBase<TFixture>(fixture)
     where TFixture : OwnedQueryRelationalTestBase<TFixture>.RelationalOwnedQueryFixture, new()
 {
-    protected OwnedQueryRelationalTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
+    public override Task Contains_over_owned_collection(bool async)
+        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Contains_over_owned_collection(async));
+
+    // The query uses a row limiting operator ('Skip'/'Take') without an 'OrderBy' operator.
+    public override Task ElementAt_over_owned_collection(bool async)
+        => Assert.ThrowsAsync<InvalidOperationException>(() => base.ElementAt_over_owned_collection(async));
+
+    // The query uses a row limiting operator ('Skip'/'Take') without an 'OrderBy' operator.
+    public override Task ElementAtOrDefault_over_owned_collection(bool async)
+        => Assert.ThrowsAsync<InvalidOperationException>(() => base.ElementAtOrDefault_over_owned_collection(async));
+
+    // The query uses a row limiting operator ('Skip'/'Take') without an 'OrderBy' operator.
+    public override Task Skip_Take_over_owned_collection(bool async)
+        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Skip_Take_over_owned_collection(async));
+
+    // This test is non-deterministic on relational, since FirstOrDefault is used without an ordering.
+    // Since this is FirstOrDefault with a filter, we don't issue our usual "missing ordering" warning (see #33997).
+    public override Task FirstOrDefault_over_owned_collection(bool async)
+        => Task.CompletedTask;
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -111,14 +128,11 @@ public abstract class OwnedQueryRelationalTestBase<TFixture> : OwnedQueryTestBas
     protected FormattableString NormalizeDelimitersInInterpolatedString(FormattableString sql)
         => Fixture.TestStore.NormalizeDelimitersInInterpolatedString(sql);
 
-    protected virtual bool CanExecuteQueryString
-        => false;
-
     protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
         => new RelationalQueryAsserter(
-            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, canExecuteQueryString: CanExecuteQueryString);
+            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression);
 
-    public abstract class RelationalOwnedQueryFixture : OwnedQueryFixtureBase
+    public abstract class RelationalOwnedQueryFixture : OwnedQueryFixtureBase, ITestSqlLoggerFactory
     {
         public new RelationalTestStore TestStore
             => (RelationalTestStore)base.TestStore;

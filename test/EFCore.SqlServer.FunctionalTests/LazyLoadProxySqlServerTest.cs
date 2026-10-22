@@ -3,13 +3,13 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class LazyLoadProxySqlServerTest : LazyLoadProxyTestBase<LazyLoadProxySqlServerTest.LoadSqlServerFixture>
 {
     public LazyLoadProxySqlServerTest(LoadSqlServerFixture fixture)
         : base(fixture)
-    {
-        fixture.TestSqlLoggerFactory.Clear();
-    }
+        => fixture.TestSqlLoggerFactory.Clear();
 
     public override void Lazy_load_collection(EntityState state, bool useAttach, bool useDetach)
     {
@@ -495,7 +495,7 @@ WHERE [p].[Id] = @__entity_equality_called_0_Id
         catch
         {
             var methodCallLine = Environment.StackTrace.Split(
-                new[] { Environment.NewLine },
+                [Environment.NewLine],
                 StringSplitOptions.RemoveEmptyEntries)[2][6..];
 
             var indexMethodEnding = methodCallLine.IndexOf(')') + 1;

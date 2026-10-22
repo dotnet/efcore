@@ -30,21 +30,21 @@ public interface ITableMappingBase : IAnnotatable
 
     /// <summary>
     ///     Gets the value indicating whether this is the mapping for the principal entity type
-    ///     if the table-like object is shared. <see langword="null" /> is the table-like object is not shared.
+    ///     if the table-like object is shared. <see langword="null" /> if the table-like object is not shared.
     /// </summary>
     bool? IsSharedTablePrincipal { get; }
 
     /// <summary>
     ///     Gets the value indicating whether this is the mapping for the principal table-like object
-    ///     if the entity type is split. <see langword="null" /> is the entity type is not split.
+    ///     if the entity type is split. <see langword="null" /> if the entity type is not split.
     /// </summary>
     bool? IsSplitEntityTypePrincipal { get; }
 
     /// <summary>
     ///     Gets the value indicating whether the mapped table-like object includes rows for the derived entity types.
-    ///     Set to <see langword="false" /> for inherited mappings.
+    ///     Set to <see langword="false" /> for inherited mappings. <see langword="null" /> if the entity type has no derived types.
     /// </summary>
-    bool IncludesDerivedTypes { get; }
+    bool? IncludesDerivedTypes { get; }
 
     /// <summary>
     ///     <para>
@@ -78,20 +78,23 @@ public interface ITableMappingBase : IAnnotatable
                 .Append(" - ")
                 .Append(Table.Name);
 
-            builder.Append(" ");
-            if (!IncludesDerivedTypes)
+            if (IncludesDerivedTypes != null)
             {
-                builder.Append("!");
-            }
+                builder.Append(' ');
+                if (!IncludesDerivedTypes.Value)
+                {
+                    builder.Append('!');
+                }
 
-            builder.Append("IncludesDerivedTypes");
+                builder.Append("IncludesDerivedTypes");
+            }
 
             if (IsSharedTablePrincipal != null)
             {
-                builder.Append(" ");
+                builder.Append(' ');
                 if (!IsSharedTablePrincipal.Value)
                 {
-                    builder.Append("!");
+                    builder.Append('!');
                 }
 
                 builder.Append("IsSharedTablePrincipal");
@@ -99,10 +102,10 @@ public interface ITableMappingBase : IAnnotatable
 
             if (IsSplitEntityTypePrincipal != null)
             {
-                builder.Append(" ");
+                builder.Append(' ');
                 if (!IsSplitEntityTypePrincipal.Value)
                 {
-                    builder.Append("!");
+                    builder.Append('!');
                 }
 
                 builder.Append("IsSplitEntityTypePrincipal");

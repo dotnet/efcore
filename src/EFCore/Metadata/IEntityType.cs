@@ -311,6 +311,14 @@ public interface IEntityType : IReadOnlyEntityType, ITypeBase
         => ((IReadOnlyEntityType)this).GetDerivedNavigations().Cast<INavigation>();
 
     /// <summary>
+    ///     Gets all navigation properties declared on the base types and types derived from this entity type.
+    /// </summary>
+    /// <returns>Navigation properties.</returns>
+    IEnumerable<INavigation> GetNavigationsInHierarchy()
+        => GetAllBaseTypes().Concat(GetDerivedTypesInclusive())
+            .SelectMany(t => t.GetDeclaredNavigations());
+
+    /// <summary>
     ///     Gets all navigation properties on the given entity type.
     /// </summary>
     /// <returns>All navigation properties on the given entity type.</returns>
@@ -419,6 +427,7 @@ public interface IEntityType : IReadOnlyEntityType, ITypeBase
     new IEnumerable<IIndex> GetIndexes();
 
     // The following methods are needed for binary compatibility
+
     #region DO NOT DELETE
 
     /// <summary>
@@ -516,6 +525,22 @@ public interface IEntityType : IReadOnlyEntityType, ITypeBase
     /// </summary>
     /// <returns>The properties contained in foreign keys.</returns>
     IEnumerable<IProperty> GetForeignKeyProperties();
+
+    /// <summary>
+    ///     Gets all properties declared on the base types and types derived from this entity type.
+    /// </summary>
+    /// <returns>The properties.</returns>
+    IEnumerable<IProperty> ITypeBase.GetPropertiesInHierarchy()
+        => GetAllBaseTypes().Concat(GetDerivedTypesInclusive())
+            .SelectMany(t => t.GetDeclaredProperties());
+
+    /// <summary>
+    ///     Gets all properties declared on the base types and types derived from this entity type, including those on complex types.
+    /// </summary>
+    /// <returns>The properties.</returns>
+    IEnumerable<IProperty> ITypeBase.GetFlattenedPropertiesInHierarchy()
+        => GetAllBaseTypes().Concat(GetDerivedTypesInclusive())
+            .SelectMany(t => t.GetFlattenedDeclaredProperties());
 
     /// <summary>
     ///     Returns the properties that need a value to be generated when the entity entry transitions to the

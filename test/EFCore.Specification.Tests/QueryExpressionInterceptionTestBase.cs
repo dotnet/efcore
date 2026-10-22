@@ -1,15 +1,13 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class QueryExpressionInterceptionTestBase : InterceptionTestBase
-{
-    protected QueryExpressionInterceptionTestBase(InterceptionFixtureBase fixture)
-        : base(fixture)
-    {
-    }
+#nullable disable
 
+public abstract class QueryExpressionInterceptionTestBase(InterceptionTestBase.InterceptionFixtureBase fixture)
+    : InterceptionTestBase(fixture)
+{
     [ConditionalTheory]
     [InlineData(false, false)]
     [InlineData(true, false)]
@@ -17,7 +15,7 @@ public abstract class QueryExpressionInterceptionTestBase : InterceptionTestBase
     [InlineData(true, true)]
     public virtual async Task Intercept_query_passively(bool async, bool inject)
     {
-        var (context, interceptor) = CreateContext<TestQueryExpressionInterceptor>(inject);
+        var (context, interceptor) = await CreateContextAsync<TestQueryExpressionInterceptor>(inject);
 
         using var _ = context;
 
@@ -44,7 +42,7 @@ public abstract class QueryExpressionInterceptionTestBase : InterceptionTestBase
         var interceptor3 = new TestQueryExpressionInterceptor();
         var interceptor4 = new TestQueryExpressionInterceptor();
 
-        using var context = CreateContext(
+        using var context = await CreateContextAsync(
             new IInterceptor[] { new TestQueryExpressionInterceptor(), interceptor1, interceptor2 },
             new IInterceptor[] { interceptor3, interceptor4, new TestQueryExpressionInterceptor() });
 
@@ -75,7 +73,7 @@ public abstract class QueryExpressionInterceptionTestBase : InterceptionTestBase
     [InlineData(true, true)]
     public virtual async Task Intercept_to_change_query_expression(bool async, bool inject)
     {
-        var (context, interceptor) = CreateContext<QueryChangingExpressionInterceptor>(inject);
+        var (context, interceptor) = await CreateContextAsync<QueryChangingExpressionInterceptor>(inject);
 
         using var _ = context;
 

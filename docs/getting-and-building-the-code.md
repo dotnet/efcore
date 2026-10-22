@@ -7,13 +7,13 @@ The following instructions are for current **main** branch only.
 EF Core does not generally need any prerequisites installed to build the code. However, running tests requires certain local databases to be available:
 
 * The SQL Server tests require a local SQL Server installation. This can be:
-  * SQL Server LocalDb, usually obtained by installing the latest [Visual Studio 2022](https://visualstudio.microsoft.com/downloads/) public preview with the "ASP.NET and web development" workload selected.
-  * SQL Server [Express or Developer Edition](https://www.microsoft.com/en-us/sql-server/sql-server-downloads). When not using LocalDb, make sure to set the environment variable `Test__SqlServer__DefaultConnection` to the connection string that EF Core tests should use.
-* The Cosmos tests require that the [Azure Cosmos Emulator](https://docs.microsoft.com/azure/cosmos-db/local-emulator-release-notes) is installed. Use the default installation options. Make sure to re-start the emulator each time you restart your machine.
+  * SQL Server LocalDb, usually obtained by installing the latest [Visual Studio](https://visualstudio.microsoft.com/downloads/) public preview with the "ASP.NET and web development" workload selected.
+  * SQL Server [Express or Developer Edition](https://www.microsoft.com/sql-server/sql-server-downloads), on Windows or [Linux](https://learn.microsoft.com/sql/linux/sql-server-linux-setup). When not using LocalDb, make sure to set the environment variable `Test__SqlServer__DefaultConnection` to the connection string that EF Core tests should use.
+* The Cosmos tests require that the [Azure Cosmos Emulator](https://docs.microsoft.com/azure/cosmos-db/local-emulator-release-notes) is installed. Use the default installation options. Make sure to start the emulator each time you restart your machine.
   * The Cosmos tests are optional and will be skipped if the emulator is not available. If you are not making Cosmos changes, then you may choose to skip installing the emulator and let the continuous integration system handle Cosmos testing.
-  * Tip: Turn off "Rate Limiting" in the emulator to make the Cosmos tests run faster.
-
-![Switch off Cosmos Rate Limiting](rate_limiting.png)
+  * Tip: Turn off "Rate Limiting" in the emulator to make the Cosmos tests run faster.<br>
+    ![Switch off Cosmos Rate Limiting](rate_limiting.png)
+* While not strictly necessary, since EF will download an SDK locally if needed, it is recommended to always have tha [latest public preview of the .NET SDK](https://dotnet.microsoft.com/download) installed.
 
 ## Fork the repository
 
@@ -43,12 +43,35 @@ build
 
 The `build` script has different arguments to perform specific actions. The full list of arguments can be found via `build -h` command. Arguments for common actions are listed in table below. The repository root directory also contains cmd/sh files to invoke some of them directly.
 
-| build argument | action | script file |
-| --- | --- | --- |
-| -restore | Restore packages. | restore.cmd |
-| -build | Build all projects. | build.cmd |
-| -test | Run all tests (requires build). | test.cmd |
-| -pack | Build and produce NuGet packages. | None |
+| Build argument |               Action              | Script file  |
+|:---------------|:----------------------------------|:-------------|
+| -restore       |         Restore packages.         | restore.cmd  |
+| -build         |        Build all projects.        | build.cmd    |
+| -test          |  Run all tests (requires build).  | test.cmd     |
+| -pack          | Build and produce NuGet packages. | None         |
+
+## Building local packages
+
+The `build -pack` command created all the EF Core NuGet packages and places them in `efcore\artifacts\packages`. However, these packages will have the same package version no matter how many times they are built. This confuses NuGet package caching, so if you want to build and test with local packages, then specify a new build number for each set of packages. For example:
+
+```
+build /p:OfficialBuildId=20231212.6 -pack
+```
+
+This uses the .NET convention for internal build numbers which is `yyyyMMdd.x`. Increment "x" with each build.
+
+Using the NuGet packages build like this requires adding the package location to a local "NuGet.Config". For example:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <packageSources>
+    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" protocolVersion="3" />
+    <add key="Local" value="C:\local\code\efcore\artifacts\packages\Debug\Shipping" />
+  </packageSources>
+</configuration>
+```
+Place the "Nuget.Config" file in your solution or project directory.
 
 ## Using Visual Studio
 
@@ -57,7 +80,7 @@ The `build` script has different arguments to perform specific actions. The full
 The build script installs a preview .NET Core SDK. In order to make sure Visual studio (or any other IDE) is using same SDK, certain environment variables need to be set. To configure your local environment and open solution file in Visual Studio, run following command:
 
 ```console
-startvs.cmd EFCore.slnf
+startvs.cmd EFCore.sln
 ```
 
 You can inspect the script and use similar configuration for other IDEs.
@@ -81,6 +104,3 @@ test
 2. Clean the source directory. `git clean -xid` will clean files in the EF source directory.
 3. Clear nuget packages and caches. `nuget.exe locals all -clear` will delete the NuGet caches. (You can get nuget.exe from <https://dist.nuget.org/index.html> or use `dotnet nuget`).
 
-### ReSharper
-
-Some people on the team use [ReSharper](https://www.jetbrains.com/resharper/download/) to increase productivity. Currently the EAP builds of the latest release seem to be working well. Some people see better performance if ReSharper testing support is disabled.

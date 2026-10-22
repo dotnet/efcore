@@ -19,9 +19,7 @@ public class CSharpMigrationOperationGenerator : ICSharpMigrationOperationGenera
     /// </summary>
     /// <param name="dependencies">The dependencies.</param>
     public CSharpMigrationOperationGenerator(CSharpMigrationOperationGeneratorDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.

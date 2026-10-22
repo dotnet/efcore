@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel;
 
+#nullable disable
+
 public class PoweredVehicle : Vehicle
 {
     public Engine Engine { get; set; }

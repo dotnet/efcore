@@ -7,15 +7,12 @@ using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-public class SqlServerValueGenerationStrategyThrowTest :
-    SqlServerValueGenerationConflictTest<SqlServerValueGenerationStrategyThrowTest.ThrowContext>
-{
-    public SqlServerValueGenerationStrategyThrowTest(
-        SqlServerValueGenerationStrategyFixture<ThrowContext> fixture)
-        : base(fixture)
-    {
-    }
+#nullable disable
 
+public class SqlServerValueGenerationStrategyThrowTest(
+    SqlServerValueGenerationStrategyFixture<SqlServerValueGenerationStrategyThrowTest.ThrowContext> fixture) :
+    SqlServerValueGenerationConflictTest<SqlServerValueGenerationStrategyThrowTest.ThrowContext>(fixture)
+{
     [ConditionalFact]
     public virtual void SqlServerValueGeneration_conflicting_with_existing_ValueGeneration_strategy_throws()
     {
@@ -54,13 +51,8 @@ public class SqlServerValueGenerationStrategyThrowTest :
             Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
     }
 
-    public class ThrowContext : DbContext
+    public class ThrowContext(DbContextOptions options) : DbContext(options)
     {
-        public ThrowContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public virtual DbSet<Fred> Freds { get; set; }
 
         // use the normal behavior of ConflictingValueGenerationStrategiesWarning
@@ -70,15 +62,10 @@ public class SqlServerValueGenerationStrategyThrowTest :
     }
 }
 
-public class SqlServerValueGenerationStrategyNoThrowTest :
-    SqlServerValueGenerationConflictTest<SqlServerValueGenerationStrategyNoThrowTest.NoThrowContext>
+public class SqlServerValueGenerationStrategyNoThrowTest(
+    SqlServerValueGenerationStrategyFixture<SqlServerValueGenerationStrategyNoThrowTest.NoThrowContext> fixture) :
+    SqlServerValueGenerationConflictTest<SqlServerValueGenerationStrategyNoThrowTest.NoThrowContext>(fixture)
 {
-    public SqlServerValueGenerationStrategyNoThrowTest(
-        SqlServerValueGenerationStrategyFixture<NoThrowContext> fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalFact]
     public virtual void SqlServerValueGeneration_conflicting_with_existing_ValueGeneration_strategy_warns()
     {
@@ -100,13 +87,8 @@ public class SqlServerValueGenerationStrategyNoThrowTest :
             logEntry.Message);
     }
 
-    public class NoThrowContext : DbContext
+    public class NoThrowContext(DbContextOptions options) : DbContext(options)
     {
-        public NoThrowContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public virtual DbSet<Fred> Freds { get; set; }
 
         // override the normal behavior of ConflictingValueGenerationStrategiesWarning
@@ -118,16 +100,11 @@ public class SqlServerValueGenerationStrategyNoThrowTest :
     }
 }
 
-public class SqlServerValueGenerationConflictTest<TContext>
+public class SqlServerValueGenerationConflictTest<TContext>(SqlServerValueGenerationStrategyFixture<TContext> fixture)
     : IClassFixture<SqlServerValueGenerationStrategyFixture<TContext>>
     where TContext : DbContext
 {
-    public SqlServerValueGenerationConflictTest(SqlServerValueGenerationStrategyFixture<TContext> fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected SqlServerValueGenerationStrategyFixture<TContext> Fixture { get; }
+    protected SqlServerValueGenerationStrategyFixture<TContext> Fixture { get; } = fixture;
 
     public TContext CreateContext()
         => (TContext)Fixture.CreateContext();

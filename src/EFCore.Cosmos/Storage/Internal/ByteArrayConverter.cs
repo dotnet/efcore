@@ -51,7 +51,7 @@ public class ByteArrayConverter : JsonConverter
     public override object ReadJson(
         JsonReader reader,
         Type objectType,
-        object existingValue,
+        object? existingValue,
         JsonSerializer serializer)
     {
         if (reader.TokenType != JsonToken.StartArray)

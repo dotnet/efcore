@@ -85,17 +85,11 @@ public abstract class ModelValidatorTestBase
         public ICollection<A> ManyAs { get; set; }
     }
 
-    protected class C : A
-    {
-    }
+    protected class C : A;
 
-    protected class D : A
-    {
-    }
+    protected class D : A;
 
-    protected class F : D
-    {
-    }
+    protected class F : D;
 
     protected class G
     {
@@ -109,14 +103,10 @@ public abstract class ModelValidatorTestBase
         public A A { get; set; }
     }
 
-    protected abstract class Abstract : A
-    {
-    }
+    protected abstract class Abstract : A;
 
     // ReSharper disable once UnusedTypeParameter
-    protected class Generic<T> : Abstract
-    {
-    }
+    protected class Generic<T> : Abstract;
 
 #nullable enable
     protected class BaseEntity
@@ -185,9 +175,7 @@ public abstract class ModelValidatorTestBase
         public ReferencedEntityMinimal ReferencedEntity { get; set; }
     }
 
-    protected class ReferencedEntityMinimal
-    {
-    }
+    protected class ReferencedEntityMinimal;
 
     protected class AnotherSampleEntityMinimal
     {
@@ -218,7 +206,7 @@ public abstract class ModelValidatorTestBase
 
     protected enum X
     {
-        A,
+        A = 1,
         B
     }
 
@@ -448,9 +436,7 @@ public abstract class ModelValidatorTestBase
     }
 
     protected ModelValidatorTestBase()
-    {
-        LoggerFactory = new ListLoggerFactory(l => l == DbLoggerCategory.Model.Validation.Name || l == DbLoggerCategory.Model.Name);
-    }
+        => LoggerFactory = new ListLoggerFactory(l => l == DbLoggerCategory.Model.Validation.Name || l == DbLoggerCategory.Model.Name);
 
     protected ListLoggerFactory LoggerFactory { get; }
 

@@ -34,9 +34,7 @@ public class PropertyDiscoveryConventionTest
         }
     }
 
-    private class DerivedWithoutPrivates : BaseWithPrivates
-    {
-    }
+    private class DerivedWithoutPrivates : BaseWithPrivates;
 
     private class WithPrivatesContext : DbContext
     {

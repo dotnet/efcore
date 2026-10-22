@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class NullSemanticsQuerySqliteFixture : NullSemanticsQueryFixtureBase
 {
     protected override ITestStoreFactory TestStoreFactory

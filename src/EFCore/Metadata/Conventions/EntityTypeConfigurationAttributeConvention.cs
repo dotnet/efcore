@@ -24,7 +24,12 @@ public class EntityTypeConfigurationAttributeConvention : TypeAttributeConventio
     {
     }
 
-    /// <inheritdoc />
+    /// <summary>
+    ///     Called after an entity type is added to the model if it has an attribute.
+    /// </summary>
+    /// <param name="entityTypeBuilder">The builder for the entity type.</param>
+    /// <param name="attribute">The attribute.</param>
+    /// <param name="context">Additional information associated with convention execution.</param>
     protected override void ProcessEntityTypeAdded(
         IConventionEntityTypeBuilder entityTypeBuilder,
         EntityTypeConfigurationAttribute attribute,
@@ -43,10 +48,15 @@ public class EntityTypeConfigurationAttributeConvention : TypeAttributeConventio
         }
 
         ConfigureMethod.MakeGenericMethod(entityTypeBuilder.Metadata.ClrType)
-            .Invoke(null, new object[] { entityTypeBuilder.Metadata, entityTypeConfigurationType });
+            .Invoke(null, [entityTypeBuilder.Metadata, entityTypeConfigurationType]);
     }
 
-    /// <inheritdoc />
+    /// <summary>
+    ///     Called after an complex type is added to the model if it has an attribute.
+    /// </summary>
+    /// <param name="complexTypeBuilder">The builder for the complex type.</param>
+    /// <param name="attribute">The attribute.</param>
+    /// <param name="context">Additional information associated with convention execution.</param>
     protected override void ProcessComplexTypeAdded(
         IConventionComplexTypeBuilder complexTypeBuilder,
         EntityTypeConfigurationAttribute attribute,

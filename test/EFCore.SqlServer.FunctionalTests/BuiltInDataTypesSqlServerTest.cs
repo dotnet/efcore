@@ -13,6 +13,8 @@ using Microsoft.Data.SqlClient;
 // ReSharper disable PossibleInvalidOperationException
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 [SqlServerCondition(SqlServerCondition.IsNotSqlAzure | SqlServerCondition.SupportsUtf8)]
 public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDataTypesSqlServerTest.BuiltInDataTypesSqlServerFixture>
 {
@@ -891,9 +893,9 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
                     StringAsNationalCharacterVaryingMax = "anyone!",
                     StringAsText = "Gumball Rules!",
                     StringAsNtext = "Gumball Rules OK!",
-                    BytesAsVarbinaryMax = new byte[] { 89, 90, 91, 92 },
-                    BytesAsBinaryVaryingMax = new byte[] { 93, 94, 95, 96 },
-                    BytesAsImage = new byte[] { 97, 98, 99, 100 },
+                    BytesAsVarbinaryMax = [89, 90, 91, 92],
+                    BytesAsBinaryVaryingMax = [93, 94, 95, 96],
+                    BytesAsImage = [97, 98, 99, 100],
                     Decimal = 101.7m,
                     DecimalAsDec = 102.8m,
                     DecimalAsNumeric = 103.9m,
@@ -1470,9 +1472,9 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
             StringAsCharacterVaryingMaxUtf8 = "this...",
             StringAsText = "Gumball Rules!",
             StringAsNtext = "Gumball Rules OK!",
-            BytesAsVarbinaryMax = new byte[] { 89, 90, 91, 92 },
-            BytesAsBinaryVaryingMax = new byte[] { 93, 94, 95, 96 },
-            BytesAsImage = new byte[] { 97, 98, 99, 100 },
+            BytesAsVarbinaryMax = [89, 90, 91, 92],
+            BytesAsBinaryVaryingMax = [93, 94, 95, 96],
+            BytesAsImage = [97, 98, 99, 100],
             Decimal = 101m,
             DecimalAsDec = 102m,
             DecimalAsNumeric = 103m,
@@ -1643,8 +1645,8 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
             StringAsNvarcharMax = string.Concat(Enumerable.Repeat("D", 4001)),
             StringAsText = "Gumball Rules!",
             StringAsNtext = "Gumball Rules OK!",
-            BytesAsVarbinaryMax = new byte[] { 89, 90, 91, 92 },
-            BytesAsImage = new byte[] { 97, 98, 99, 100 },
+            BytesAsVarbinaryMax = [89, 90, 91, 92],
+            BytesAsImage = [97, 98, 99, 100],
             Decimal = 101m,
             DecimalAsDec = 102m,
             DecimalAsNumeric = 103m,
@@ -1840,9 +1842,9 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
             StringAsCharacterVaryingMaxUtf8 = "this...",
             StringAsText = "Gumball Rules!",
             StringAsNtext = "Gumball Rules OK!",
-            BytesAsVarbinaryMax = new byte[] { 89, 90, 91, 92 },
-            BytesAsBinaryVaryingMax = new byte[] { 93, 94, 95, 96 },
-            BytesAsImage = new byte[] { 97, 98, 99, 100 },
+            BytesAsVarbinaryMax = [89, 90, 91, 92],
+            BytesAsBinaryVaryingMax = [93, 94, 95, 96],
+            BytesAsImage = [97, 98, 99, 100],
             Decimal = 101m,
             DecimalAsDec = 102m,
             DecimalAsNumeric = 103m,
@@ -2098,9 +2100,9 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
             StringAsVarchar3Utf8 = "the",
             StringAsCharVarying3Utf8 = "tex",
             StringAsCharacterVarying3Utf8 = "men",
-            BytesAsBinary3 = new byte[] { 10, 11, 12 },
-            BytesAsVarbinary3 = new byte[] { 11, 12, 13 },
-            BytesAsBinaryVarying3 = new byte[] { 12, 13, 14 },
+            BytesAsBinary3 = [10, 11, 12],
+            BytesAsVarbinary3 = [11, 12, 13],
+            BytesAsBinaryVarying3 = [12, 13, 14],
             CharAsVarchar3 = 'A',
             CharAsAsCharVarying3 = 'B',
             CharAsCharacterVarying3 = 'C',
@@ -2273,9 +2275,9 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
             StringAsVarchar3Utf8 = "the",
             StringAsCharVarying3Utf8 = "tex",
             StringAsCharacterVarying3Utf8 = "men",
-            BytesAsBinary3 = new byte[] { 10, 11, 12 },
-            BytesAsVarbinary3 = new byte[] { 11, 12, 13 },
-            BytesAsBinaryVarying3 = new byte[] { 12, 13, 14 },
+            BytesAsBinary3 = [10, 11, 12],
+            BytesAsVarbinary3 = [11, 12, 13],
+            BytesAsBinaryVarying3 = [12, 13, 14],
             CharAsVarchar3 = 'A',
             CharAsAsCharVarying3 = 'B',
             CharAsCharacterVarying3 = 'C',
@@ -2725,9 +2727,9 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
             StringAsCharacterVaryingMaxUtf8 = "this...",
             StringAsText = "Gumball Rules!",
             StringAsNtext = "Gumball Rules OK!",
-            BytesAsVarbinaryMax = new byte[] { 89, 90, 91, 92 },
-            BytesAsBinaryVaryingMax = new byte[] { 93, 94, 95, 96 },
-            BytesAsImage = new byte[] { 97, 98, 99, 100 },
+            BytesAsVarbinaryMax = [89, 90, 91, 92],
+            BytesAsBinaryVaryingMax = [93, 94, 95, 96],
+            BytesAsImage = [97, 98, 99, 100],
             Decimal = 101m,
             DecimalAsDec = 102m,
             DecimalAsNumeric = 103m,
@@ -2927,9 +2929,9 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
             StringAsCharacterVaryingMaxUtf8 = "this...",
             StringAsText = "Gumball Rules!",
             StringAsNtext = "Gumball Rules OK!",
-            BytesAsVarbinaryMax = new byte[] { 89, 90, 91, 92 },
-            BytesAsVaryingMax = new byte[] { 93, 94, 95, 96 },
-            BytesAsImage = new byte[] { 97, 98, 99, 100 },
+            BytesAsVarbinaryMax = [89, 90, 91, 92],
+            BytesAsVaryingMax = [93, 94, 95, 96],
+            BytesAsImage = [97, 98, 99, 100],
             Decimal = 101m,
             DecimalAsDec = 102m,
             DecimalAsNumeric = 103m,
@@ -3188,9 +3190,9 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
             StringAsVarchar3Utf8 = "the",
             StringAsCharVarying3Utf8 = "tex",
             StringAsCharacterVarying3Utf8 = "men",
-            BytesAsBinary3 = new byte[] { 10, 11, 12 },
-            BytesAsVarbinary3 = new byte[] { 11, 12, 13 },
-            BytesAsBinaryVarying3 = new byte[] { 12, 13, 14 },
+            BytesAsBinary3 = [10, 11, 12],
+            BytesAsVarbinary3 = [11, 12, 13],
+            BytesAsBinaryVarying3 = [12, 13, 14],
             CharAsVarchar3 = 'A',
             CharAsAsCharVarying3 = 'B',
             CharAsCharacterVarying3 = 'C',
@@ -4264,9 +4266,9 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
         }
     }
 
-    public override void Object_to_string_conversion()
+    public override async Task Object_to_string_conversion()
     {
-        base.Object_to_string_conversion();
+        await base.Object_to_string_conversion();
 
         AssertSql(
             """

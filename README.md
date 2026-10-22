@@ -7,7 +7,7 @@ This repository is home to the following [.NET Foundation](https://dotnetfoundat
 * [Entity Framework Core](#entity-framework-core)
 * [Microsoft.Data.Sqlite](#microsoftdatasqlite)
 
-## Entity Framework Core
+## <img alt="EF" src="./logo/ef-logo.png" width="32"/> Entity Framework Core
 
 [![latest version](https://img.shields.io/nuget/v/Microsoft.EntityFrameworkCore)](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore) [![preview version](https://img.shields.io/nuget/vpre/Microsoft.EntityFrameworkCore)](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore/absoluteLatest) [![downloads](https://img.shields.io/nuget/dt/Microsoft.EntityFrameworkCore)](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore)
 

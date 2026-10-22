@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
@@ -165,9 +166,12 @@ public static class RelationalIndexExtensions
     /// <param name="index">The index.</param>
     /// <returns>The table indexes to which the index is mapped.</returns>
     public static IEnumerable<ITableIndex> GetMappedTableIndexes(this IIndex index)
-        => (IEnumerable<ITableIndex>?)index.FindRuntimeAnnotationValue(
+    {
+        index.DeclaringEntityType.Model.EnsureRelationalModel();
+        return (IEnumerable<ITableIndex>?)index.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.TableIndexMappings)
             ?? Enumerable.Empty<ITableIndex>();
+    }
 
     /// <summary>
     ///     <para>

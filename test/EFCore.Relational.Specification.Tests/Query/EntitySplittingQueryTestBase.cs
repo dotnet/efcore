@@ -6,12 +6,12 @@ using Microsoft.EntityFrameworkCore.TestModels.EntitySplitting;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
 {
     protected EntitySplittingQueryTestBase()
-    {
-        _setSourceCreator = GetSetSourceCreator();
-    }
+        => _setSourceCreator = GetSetSourceCreator();
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -2516,7 +2516,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
     private static readonly MethodInfo _filteredIncludeMethodInfo =
         typeof(EntitySplittingQueryTestBase).GetTypeInfo().GetDeclaredMethod(nameof(FilteredInclude));
 
-    private readonly List<string> _includePath = new();
+    private readonly List<string> _includePath = [];
 
     protected void AssertInclude<TEntity>(
         TEntity expected,
@@ -2547,11 +2547,11 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                 i => i.IsConstructedGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
         {
             _assertIncludeCollectionMethodInfo.MakeGenericMethod(expectedType.GenericTypeArguments[0])
-                .Invoke(this, new[] { expected, actual, expectedIncludes, assertOrder });
+                .Invoke(this, [expected, actual, expectedIncludes, assertOrder]);
         }
         else
         {
-            _assertIncludeEntity.MakeGenericMethod(expectedType).Invoke(this, new[] { expected, actual, expectedIncludes });
+            _assertIncludeEntity.MakeGenericMethod(expectedType).Invoke(this, [expected, actual, expectedIncludes]);
         }
     }
 
@@ -2592,7 +2592,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
         {
             var elementType = expectedList[i].GetType();
             _assertIncludeEntity.MakeGenericMethod(elementType)
-                .Invoke(this, new object[] { expectedList[i], actualList[i], expectedIncludes });
+                .Invoke(this, [expectedList[i], actualList[i], expectedIncludes]);
         }
     }
 
@@ -2612,7 +2612,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                     this,
                     BindingFlags.NonPublic,
                     null,
-                    new[] { expectedIncludedNavigation, expectedInclude },
+                    [expectedIncludedNavigation, expectedInclude],
                     CultureInfo.CurrentCulture);
 
                 assertOrder = (bool)expectedInclude.GetType()
@@ -2893,14 +2893,9 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
     protected virtual ISetSource GetExpectedData()
         => EntitySplittingData.Instance;
 
-    private class DefaultSetSource : ISetSource
+    private class DefaultSetSource(DbContext context) : ISetSource
     {
-        private readonly DbContext _context;
-
-        public DefaultSetSource(DbContext context)
-        {
-            _context = context;
-        }
+        private readonly DbContext _context = context;
 
         public IQueryable<TEntity> Set<TEntity>()
             where TEntity : class
@@ -2923,10 +2918,25 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                 {
                     wc.Log(RelationalEventId.ForeignKeyTpcPrincipalWarning);
                 }),
-            shouldLogCategory: _ => true, seed: c => Seed(c));
+            shouldLogCategory: _ => true);
 
     protected virtual EntitySplittingContext CreateContext()
         => ContextFactory.CreateContext();
+
+    protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+        => base.AddOptions(builder)
+            .UseSeeding(
+                (c, _) =>
+                {
+                    EntitySplittingData.Instance.AddSeedData((EntitySplittingContext)c);
+                    c.SaveChanges();
+                })
+            .UseAsyncSeeding(
+                (c, _, t) =>
+                {
+                    EntitySplittingData.Instance.AddSeedData((EntitySplittingContext)c);
+                    return c.SaveChangesAsync(t);
+                });
 
     public void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());
@@ -2950,12 +2960,9 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
         modelBuilder.Entity<LeafEntity>();
     }
 
-    protected virtual void Seed(EntitySplittingContext context)
-        => EntitySplittingData.Instance.Seed(context);
-
-    public override void Dispose()
+    public override async Task DisposeAsync()
     {
-        base.Dispose();
+        await base.DisposeAsync();
 
         ContextFactory = null;
     }

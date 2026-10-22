@@ -17,7 +17,7 @@ namespace Microsoft.Data.Sqlite
     /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/parameters">Parameters</seealso>
     public class SqliteParameterCollection : DbParameterCollection
     {
-        private readonly List<SqliteParameter> _parameters = new();
+        private readonly List<SqliteParameter> _parameters = [];
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="SqliteParameterCollection" /> class.
@@ -325,12 +325,12 @@ namespace Microsoft.Data.Sqlite
         protected override void SetParameter(string parameterName, DbParameter value)
             => SetParameter(IndexOfChecked(parameterName), value);
 
-        internal int Bind(sqlite3_stmt stmt)
+        internal int Bind(sqlite3_stmt stmt, sqlite3 handle)
         {
             var bound = 0;
             foreach (var parameter in _parameters)
             {
-                if (parameter.Bind(stmt))
+                if (parameter.Bind(stmt, handle))
                 {
                     bound++;
                 }

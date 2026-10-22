@@ -22,9 +22,7 @@ public class DesignTimeModel : IDesignTimeModel
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public DesignTimeModel(IDbContextServices contextServices)
-    {
-        _contextServices = contextServices;
-    }
+        => _contextServices = contextServices;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

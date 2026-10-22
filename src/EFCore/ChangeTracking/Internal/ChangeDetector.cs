@@ -175,7 +175,7 @@ public class ChangeDetector : IChangeDetector
         try
         {
             _inCascadeDelete = true;
-            DetectChanges(entry, new HashSet<InternalEntityEntry> { entry });
+            DetectChanges(entry, [entry]);
         }
         finally
         {

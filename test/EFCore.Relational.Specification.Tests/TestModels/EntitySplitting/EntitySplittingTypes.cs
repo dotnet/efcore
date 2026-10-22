@@ -5,6 +5,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.EntitySplitting;
 
+#nullable disable
+
 public class EntityOne
 {
     public int Id { get; set; }
@@ -16,14 +18,14 @@ public class EntityOne
     public int IntValue2 { get; set; }
     public int IntValue3 { get; set; }
     public int IntValue4 { get; set; }
-    public List<EntityTwo> EntityTwos { get; set; } = new();
+    public List<EntityTwo> EntityTwos { get; set; } = [];
     public EntityThree EntityThree { get; set; }
 
     [NotMapped]
     public OwnedReference OwnedReference { get; set; }
 
     [NotMapped]
-    public List<OwnedCollection> OwnedCollection { get; set; } = new();
+    public List<OwnedCollection> OwnedCollection { get; set; } = [];
 }
 
 public class EntityTwo
@@ -37,7 +39,7 @@ public class EntityThree
 {
     public int Id { get; set; }
     public string Name { get; set; }
-    public List<EntityOne> EntityOnes { get; set; } = new();
+    public List<EntityOne> EntityOnes { get; set; } = [];
 }
 
 public class OwnedReference
@@ -93,7 +95,7 @@ public class BaseEntity
     public OwnedReference OwnedReference { get; set; }
 
     [NotMapped]
-    public List<OwnedCollection> OwnedCollection { get; set; } = new();
+    public List<OwnedCollection> OwnedCollection { get; set; } = [];
 }
 
 public class MiddleEntity : BaseEntity

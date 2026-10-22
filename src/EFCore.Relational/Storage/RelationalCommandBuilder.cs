@@ -6,7 +6,7 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 /// <inheritdoc />
 public class RelationalCommandBuilder : IRelationalCommandBuilder
 {
-    private readonly List<IRelationalParameter> _parameters = new();
+    private readonly List<IRelationalParameter> _parameters = [];
     private readonly IndentedStringBuilder _commandTextBuilder = new();
 
     /// <summary>
@@ -21,9 +21,7 @@ public class RelationalCommandBuilder : IRelationalCommandBuilder
     /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
     public RelationalCommandBuilder(
         RelationalCommandBuilderDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Relational provider-specific dependencies for this service.

@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.OptionalDependent;
 
+#nullable disable
+
 public class OptionalDependentJsonAllOptional
 {
     public string OpProp1 { get; set; }

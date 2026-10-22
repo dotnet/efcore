@@ -27,9 +27,8 @@ public class MetadataTracker : IReferenceRoot<IConventionForeignKey>
             !oldForeignKey.IsInModel && newForeignKey.IsInModel,
             $"{nameof(oldForeignKey)} is in the model or {nameof(newForeignKey)} isn't");
 
-        if (_trackedForeignKeys.TryGetValue(oldForeignKey, out var reference))
+        if (_trackedForeignKeys.Remove(oldForeignKey, out var reference))
         {
-            _trackedForeignKeys.Remove(oldForeignKey);
             reference.Object = newForeignKey;
             _trackedForeignKeys.Add(newForeignKey, reference);
         }

@@ -51,7 +51,13 @@ public class KeyAttributeConvention
         CheckAttributesAndEnsurePrimaryKey((EntityType)entityTypeBuilder.Metadata, null, shouldThrow: false);
     }
 
-    /// <inheritdoc />
+    /// <summary>
+    ///     Called after a property is added to the entity type with an attribute on the associated CLR property or field.
+    /// </summary>
+    /// <param name="propertyBuilder">The builder for the property.</param>
+    /// <param name="attribute">The attribute.</param>
+    /// <param name="clrMember">The member that has the attribute.</param>
+    /// <param name="context">Additional information associated with convention execution.</param>
     protected override void ProcessPropertyAdded(
         IConventionPropertyBuilder propertyBuilder,
         KeyAttribute attribute,
@@ -132,7 +138,13 @@ public class KeyAttributeConvention
         return primaryKeyAttributeExists;
     }
 
-    /// <inheritdoc />
+    /// <summary>
+    ///     Called after a complex property is added to a type with an attribute on the associated CLR property or field.
+    /// </summary>
+    /// <param name="propertyBuilder">The builder for the property.</param>
+    /// <param name="attribute">The attribute.</param>
+    /// <param name="clrMember">The member that has the attribute.</param>
+    /// <param name="context">Additional information associated with convention execution.</param>
     protected override void ProcessPropertyAdded(
         IConventionComplexPropertyBuilder propertyBuilder,
         KeyAttribute attribute,

@@ -5,15 +5,11 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class QueryFilterFuncletizationContext : DbContext
+#nullable disable
+
+public class QueryFilterFuncletizationContext(DbContextOptions options) : DbContext(options)
 {
     public static int AdminId = 1;
-
-    public QueryFilterFuncletizationContext(DbContextOptions options)
-        : base(options)
-    {
-    }
-
     public bool Field;
     public bool Property { get; set; }
     public bool? IsModerated { get; set; }
@@ -97,53 +93,34 @@ public class QueryFilterFuncletizationContext : DbContext
 
     #region EntityTypeConfigs
 
-    public class FieldConfiguration : IEntityTypeConfiguration<EntityTypeConfigurationFieldFilter>
+    public class FieldConfiguration(QueryFilterFuncletizationContext context) : IEntityTypeConfiguration<EntityTypeConfigurationFieldFilter>
     {
-        public FieldConfiguration(QueryFilterFuncletizationContext context)
-        {
-            Context = context;
-        }
-
-        public QueryFilterFuncletizationContext Context { get; }
+        public QueryFilterFuncletizationContext Context { get; } = context;
 
         public void Configure(EntityTypeBuilder<EntityTypeConfigurationFieldFilter> builder)
             => builder.HasQueryFilter(e => e.IsEnabled == Context.Field);
     }
 
-    public class PropertyConfiguration : IEntityTypeConfiguration<EntityTypeConfigurationPropertyFilter>
+    public class PropertyConfiguration(QueryFilterFuncletizationContext context)
+        : IEntityTypeConfiguration<EntityTypeConfigurationPropertyFilter>
     {
-        private readonly QueryFilterFuncletizationContext _context;
-
-        public PropertyConfiguration(QueryFilterFuncletizationContext context)
-        {
-            _context = context;
-        }
+        private readonly QueryFilterFuncletizationContext _context = context;
 
         public void Configure(EntityTypeBuilder<EntityTypeConfigurationPropertyFilter> builder)
             => builder.HasQueryFilter(e => e.IsEnabled == _context.Property);
     }
 
-    public class MethodCallConfiguration : IEntityTypeConfiguration<EntityTypeConfigurationMethodCallFilter>
+    public class MethodCallConfiguration(DbContextWrapper wrapper) : IEntityTypeConfiguration<EntityTypeConfigurationMethodCallFilter>
     {
-        public MethodCallConfiguration(DbContextWrapper wrapper)
-        {
-            Wrapper = wrapper;
-        }
-
-        public DbContextWrapper Wrapper { get; }
+        public DbContextWrapper Wrapper { get; } = wrapper;
 
         public void Configure(EntityTypeBuilder<EntityTypeConfigurationMethodCallFilter> builder)
             => builder.HasQueryFilter(e => e.Tenant == Wrapper.Context.GetId());
     }
 
-    public class PropertyChainConfiguration : IEntityTypeConfiguration<EntityTypeConfigurationPropertyChainFilter>
+    public class PropertyChainConfiguration(DbContextWrapper wrapper) : IEntityTypeConfiguration<EntityTypeConfigurationPropertyChainFilter>
     {
-        private readonly DbContextWrapper _wrapper;
-
-        public PropertyChainConfiguration(DbContextWrapper wrapper)
-        {
-            _wrapper = wrapper;
-        }
+        private readonly DbContextWrapper _wrapper = wrapper;
 
         public void Configure(EntityTypeBuilder<EntityTypeConfigurationPropertyChainFilter> builder)
             => builder.HasQueryFilter(e => e.IsEnabled == _wrapper.Context.IndirectionFlag.Enabled);
@@ -151,7 +128,7 @@ public class QueryFilterFuncletizationContext : DbContext
 
     #endregion
 
-    public static void SeedData(QueryFilterFuncletizationContext context)
+    public static Task SeedDataAsync(QueryFilterFuncletizationContext context)
     {
         context.AddRange(
             new FieldFilter { IsEnabled = true },
@@ -219,20 +196,15 @@ public class QueryFilterFuncletizationContext : DbContext
             new DeDupeFilter1 { Tenant = 2 }
         );
 
-        context.SaveChanges();
+        return context.SaveChangesAsync();
     }
 }
 
 #region HelperClasses
 
-public class DbContextWrapper
+public class DbContextWrapper(QueryFilterFuncletizationContext context)
 {
-    public DbContextWrapper(QueryFilterFuncletizationContext context)
-    {
-        Context = context;
-    }
-
-    public QueryFilterFuncletizationContext Context { get; }
+    public QueryFilterFuncletizationContext Context { get; } = context;
 }
 
 public static class FilterExtensions

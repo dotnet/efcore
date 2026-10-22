@@ -823,7 +823,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information and examples.
     ///     </para>
     /// </remarks>
-    /// <param name="properties">The the properties to match.</param>
+    /// <param name="properties">The properties to match.</param>
     /// <param name="propertyValues">The values of the properties to match.</param>
     /// <returns>An entry for each entity being tracked.</returns>
     public virtual IEnumerable<EntityEntry<TEntity>> GetEntries(IEnumerable<IProperty> properties, IEnumerable<object?> propertyValues)

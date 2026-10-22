@@ -5,13 +5,12 @@ using Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
-public abstract class TPCInheritanceBulkUpdatesFixture : InheritanceBulkUpdatesFixtureBase
+#nullable disable
+
+public abstract class TPCInheritanceBulkUpdatesFixture : InheritanceBulkUpdatesRelationalFixtureBase
 {
     protected override string StoreName
         => "TPCInheritanceBulkUpdatesTest";
-
-    public TestSqlLoggerFactory TestSqlLoggerFactory
-        => (TestSqlLoggerFactory)ListLoggerFactory;
 
     public override bool HasDiscriminator
         => false;

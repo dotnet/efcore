@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using NetTopologySuite.Geometries;
@@ -13,7 +13,7 @@ public class GeometryComparer : IEqualityComparer<Geometry>
     {
     }
 
-    public bool Equals(Geometry x, Geometry y)
+    public bool Equals(Geometry? x, Geometry? y)
         => (x == null && y == null)
             || (x != null
                 && y != null

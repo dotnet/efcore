@@ -18,9 +18,7 @@ public abstract class SaveChangesEventArgs : EventArgs
     /// </summary>
     /// <param name="acceptAllChangesOnSuccess">The value passed to SaveChanges.</param>
     protected SaveChangesEventArgs(bool acceptAllChangesOnSuccess)
-    {
-        AcceptAllChangesOnSuccess = acceptAllChangesOnSuccess;
-    }
+        => AcceptAllChangesOnSuccess = acceptAllChangesOnSuccess;
 
     /// <summary>
     ///     The value passed to <see cref="O:DbContext.SaveChanges" /> or <see cref="O:DbContext.SaveChangesAsync" />.

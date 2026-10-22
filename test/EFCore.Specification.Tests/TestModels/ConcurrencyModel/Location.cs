@@ -5,15 +5,10 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 
 public class Location
 {
-    public class LocationProxy : Location, IF1Proxy
+    public class LocationProxy(
+        double latitude,
+        double longitude) : Location(latitude, longitude), IF1Proxy
     {
-        public LocationProxy(
-            double latitude,
-            double longitude)
-            : base(latitude, longitude)
-        {
-        }
-
         public bool CreatedCalled { get; set; }
         public bool InitializingCalled { get; set; }
         public bool InitializedCalled { get; set; }

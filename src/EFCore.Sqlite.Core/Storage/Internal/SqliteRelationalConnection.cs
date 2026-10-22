@@ -113,7 +113,7 @@ public class SqliteRelationalConnection : RelationalConnection, ISqliteRelationa
 
             sqliteConnection.CreateFunction(
                 "ef_mod",
-                (decimal? dividend, decimal? divisor) => dividend % divisor,
+                (decimal? dividend, decimal? divisor) => divisor == 0m ? null : dividend % divisor,
                 isDeterministic: true);
 
             sqliteConnection.CreateFunction(
@@ -123,7 +123,7 @@ public class SqliteRelationalConnection : RelationalConnection, ISqliteRelationa
 
             sqliteConnection.CreateFunction(
                 name: "ef_divide",
-                (decimal? dividend, decimal? divisor) => dividend / divisor,
+                (decimal? dividend, decimal? divisor) => divisor == 0m ? null : dividend / divisor,
                 isDeterministic: true);
 
             sqliteConnection.CreateFunction(
@@ -141,6 +141,27 @@ public class SqliteRelationalConnection : RelationalConnection, ISqliteRelationa
             sqliteConnection.CreateFunction(
                 name: "ef_negate",
                 (decimal? m) => -m,
+                isDeterministic: true);
+
+            sqliteConnection.CreateAggregate(
+                "ef_avg",
+                seed: (0m, 0ul),
+                ((decimal sum, ulong count) acc, decimal? value) => value is null
+                    ? acc
+                    : (acc.sum + value.Value, acc.count + 1),
+                ((decimal sum, ulong count) acc) => acc.count == 0
+                    ? default(decimal?)
+                    : acc.sum / acc.count,
+                isDeterministic: true);
+
+            sqliteConnection.CreateAggregate(
+                "ef_sum",
+                seed: null,
+                (decimal? sum, decimal? value) => value is null
+                    ? sum
+                    : sum is null
+                        ? value
+                        : sum.Value + value.Value,
                 isDeterministic: true);
         }
         else

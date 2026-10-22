@@ -48,7 +48,7 @@ public class CSharpModelGeneratorTest
     {
         var testAssembly = typeof(CSharpModelGeneratorTest).Assembly;
         var reporter = new TestOperationReporter();
-        return new DesignTimeServicesBuilder(testAssembly, testAssembly, reporter, new string[0])
+        return new DesignTimeServicesBuilder(testAssembly, testAssembly, reporter, [])
             .CreateServiceCollection("Microsoft.EntityFrameworkCore.SqlServer")
             .AddSingleton<IAnnotationCodeGenerator, AnnotationCodeGenerator>()
             .AddSingleton<IProviderConfigurationCodeGenerator, TestProviderCodeGenerator>()

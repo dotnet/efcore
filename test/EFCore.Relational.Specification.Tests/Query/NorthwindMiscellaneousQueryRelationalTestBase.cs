@@ -5,14 +5,12 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class NorthwindMiscellaneousQueryRelationalTestBase<TFixture> : NorthwindMiscellaneousQueryTestBase<TFixture>
+#nullable disable
+
+public abstract class NorthwindMiscellaneousQueryRelationalTestBase<TFixture>(TFixture fixture)
+    : NorthwindMiscellaneousQueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
-    protected NorthwindMiscellaneousQueryRelationalTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Projecting_collection_split(bool async)
@@ -64,10 +62,7 @@ public abstract class NorthwindMiscellaneousQueryRelationalTestBase<TFixture> : 
     public override Task Random_next_is_not_funcletized_6(bool async)
         => AssertTranslationFailed(() => base.Random_next_is_not_funcletized_6(async));
 
-    protected virtual bool CanExecuteQueryString
-        => false;
-
     protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
         => new RelationalQueryAsserter(
-            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, canExecuteQueryString: CanExecuteQueryString);
+            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression);
 }

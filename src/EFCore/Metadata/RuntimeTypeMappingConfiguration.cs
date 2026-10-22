@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
 /// </remarks>
-public sealed class RuntimeTypeMappingConfiguration : AnnotatableBase, ITypeMappingConfiguration
+public sealed class RuntimeTypeMappingConfiguration : RuntimeAnnotatableBase, ITypeMappingConfiguration
 {
     private readonly ValueConverter? _valueConverter;
 

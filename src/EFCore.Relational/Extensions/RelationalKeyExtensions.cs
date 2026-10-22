@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
@@ -106,9 +107,12 @@ public static class RelationalKeyExtensions
     /// <param name="key">The key.</param>
     /// <returns>The unique constraints to which the key is mapped.</returns>
     public static IEnumerable<IUniqueConstraint> GetMappedConstraints(this IKey key)
-        => (IEnumerable<IUniqueConstraint>?)key.FindRuntimeAnnotationValue(
+    {
+        key.DeclaringEntityType.Model.EnsureRelationalModel();
+        return (IEnumerable<IUniqueConstraint>?)key.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.UniqueConstraintMappings)
             ?? Enumerable.Empty<IUniqueConstraint>();
+    }
 
     /// <summary>
     ///     <para>

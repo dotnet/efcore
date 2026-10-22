@@ -11,6 +11,8 @@ using Track = Microsoft.EntityFrameworkCore.TestModels.ConferencePlanner.Track;
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixture<TFixture>
     where TFixture : ConferencePlannerTestBase<TFixture>.ConferencePlannerFixtureBase, new()
 {
@@ -226,14 +228,9 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
                 Assert.Equal("No attendee", result);
             });
 
-    protected class AttendeesController
+    protected class AttendeesController(ApplicationDbContext db)
     {
-        private readonly ApplicationDbContext _db;
-
-        public AttendeesController(ApplicationDbContext db)
-        {
-            _db = db;
-        }
+        private readonly ApplicationDbContext _db = db;
 
         public async Task<AttendeeResponse> Get(string username)
         {
@@ -365,14 +362,9 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
                 Assert.All(speakers, s => Assert.NotEmpty(s.Sessions));
             });
 
-    protected class SearchController
+    protected class SearchController(ApplicationDbContext db)
     {
-        private readonly ApplicationDbContext _db;
-
-        public SearchController(ApplicationDbContext db)
-        {
-            _db = db;
-        }
+        private readonly ApplicationDbContext _db = db;
 
         public async Task<List<SearchResult>> Search(SearchTerm term)
         {
@@ -548,14 +540,9 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
                 Assert.Null(result);
             });
 
-    protected class SessionsController
+    protected class SessionsController(ApplicationDbContext db)
     {
-        private readonly ApplicationDbContext _db;
-
-        public SessionsController(ApplicationDbContext db)
-        {
-            _db = db;
-        }
+        private readonly ApplicationDbContext _db = db;
 
         public async Task<List<SessionResponse>> Get()
             => await _db.Sessions.AsNoTracking()
@@ -672,14 +659,9 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
                 Assert.Null(result);
             });
 
-    protected class SpeakersController
+    protected class SpeakersController(ApplicationDbContext db)
     {
-        private readonly ApplicationDbContext _db;
-
-        public SpeakersController(ApplicationDbContext db)
-        {
-            _db = db;
-        }
+        private readonly ApplicationDbContext _db = db;
 
         public async Task<List<SpeakerResponse>> GetSpeakers()
             => await _db.Speakers.AsNoTracking()
@@ -729,7 +711,7 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
         protected override bool UsePooling
             => false;
 
-        protected override void Seed(ApplicationDbContext context)
+        protected override Task SeedAsync(ApplicationDbContext context)
         {
             var attendees1 = new List<TestModels.ConferencePlanner.Attendee>
             {
@@ -848,7 +830,7 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
             }
 
             context.AddRange(tracks.Values);
-            context.SaveChanges();
+            return context.SaveChangesAsync();
         }
     }
 }

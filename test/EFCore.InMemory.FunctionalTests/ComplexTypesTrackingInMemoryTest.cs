@@ -3,28 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class ComplexTypesTrackingInMemoryTest : ComplexTypesTrackingTestBase<ComplexTypesTrackingInMemoryTest.InMemoryFixture>
+public class ComplexTypesTrackingInMemoryTest(ComplexTypesTrackingInMemoryTest.InMemoryFixture fixture)
+    : ComplexTypesTrackingTestBase<ComplexTypesTrackingInMemoryTest.InMemoryFixture>(fixture)
 {
-    public ComplexTypesTrackingInMemoryTest(InMemoryFixture fixture)
-        : base(fixture)
-    {
-    }
-
-    protected override void ExecuteWithStrategyInTransaction(
-        Action<DbContext> testOperation,
-        Action<DbContext> nestedTestOperation1 = null,
-        Action<DbContext> nestedTestOperation2 = null)
-    {
-        try
-        {
-            base.ExecuteWithStrategyInTransaction(testOperation, nestedTestOperation1, nestedTestOperation2);
-        }
-        finally
-        {
-            Fixture.Reseed();
-        }
-    }
-
     protected override async Task ExecuteWithStrategyInTransactionAsync(
         Func<DbContext, Task> testOperation,
         Func<DbContext, Task> nestedTestOperation1 = null,
@@ -36,7 +17,7 @@ public class ComplexTypesTrackingInMemoryTest : ComplexTypesTrackingTestBase<Com
         }
         finally
         {
-            Fixture.Reseed();
+            await Fixture.ReseedAsync();
         }
     }
 

@@ -22,6 +22,10 @@ public class PropertyValuesInMemoryTest(PropertyValuesInMemoryTest.PropertyValue
         => Assert.ThrowsAsync<NullReferenceException>( // In-memory database cannot query complex types
             () => base.Complex_store_values_can_be_accessed_asynchronously_as_a_property_dictionary_using_IProperty());
 
+    public override Task Values_can_be_reloaded_from_database_for_entity_in_any_state_with_inheritance(EntityState state, bool async)
+        => Assert.ThrowsAnyAsync<Exception>( // In-memory database cannot query complex types
+            () => base.Values_can_be_reloaded_from_database_for_entity_in_any_state_with_inheritance(state, async));
+
     public class PropertyValuesInMemoryFixture : PropertyValuesFixtureBase
     {
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
@@ -43,7 +47,6 @@ public class PropertyValuesInMemoryTest(PropertyValuesInMemoryTest.PropertyValue
                     b.Ignore(e => e.Culture);
                     b.Ignore(e => e.Milk);
                 });
-
         }
     }
 }

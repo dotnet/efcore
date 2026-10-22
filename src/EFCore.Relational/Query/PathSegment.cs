@@ -14,8 +14,10 @@ namespace Microsoft.EntityFrameworkCore.Query;
 ///         not used in application code.
 ///     </para>
 /// </summary>
-public readonly struct PathSegment
+public readonly struct PathSegment : IRelationalQuotableExpression
 {
+    private static ConstructorInfo? _pathSegmentPropertyConstructor, _pathSegmentArrayIndexConstructor;
+
     /// <summary>
     ///     Creates a new <see cref="PathSegment" /> struct representing JSON property access.
     /// </summary>
@@ -45,6 +47,21 @@ public readonly struct PathSegment
     ///     The index of an element which is being accessed in the JSON array.
     /// </summary>
     public SqlExpression? ArrayIndex { get; }
+
+    /// <inheritdoc />
+    public Expression Quote()
+        => this switch
+        {
+            { PropertyName: string propertyName }
+                => Expression.New(
+                    _pathSegmentPropertyConstructor ??= typeof(PathSegment).GetConstructor([typeof(string)])!,
+                    Expression.Constant(propertyName)),
+            { ArrayIndex: SqlExpression arrayIndex }
+                => Expression.New(
+                    _pathSegmentArrayIndexConstructor ??= typeof(PathSegment).GetConstructor([typeof(SqlExpression)])!,
+                    arrayIndex.Quote()),
+            _ => throw new UnreachableException()
+        };
 
     /// <inheritdoc />
     public override string ToString()

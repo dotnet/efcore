@@ -19,9 +19,7 @@ public class LazyLoadingProxiesOptionsBuilder
     /// </summary>
     /// <param name="optionsBuilder">The core options builder.</param>
     public LazyLoadingProxiesOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
-    {
-        OptionsBuilder = optionsBuilder;
-    }
+        => OptionsBuilder = optionsBuilder;
 
     /// <summary>
     ///     Gets the core options builder.

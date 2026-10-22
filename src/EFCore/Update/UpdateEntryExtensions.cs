@@ -49,7 +49,10 @@ public static class UpdateEntryExtensions
     /// <returns>The value for the property.</returns>
     public static object? GetOriginalProviderValue(this IUpdateEntry updateEntry, IProperty property)
     {
-        var value = updateEntry.GetOriginalValue(property);
+        var value = updateEntry.CanHaveOriginalValue(property)
+            ? updateEntry.GetOriginalValue(property)
+            : updateEntry.GetCurrentValue(property);
+
         var typeMapping = property.GetTypeMapping();
         value = value?.GetType().IsInteger() == true && typeMapping.ClrType.UnwrapNullableType().IsEnum
             ? Enum.ToObject(typeMapping.ClrType.UnwrapNullableType(), value)

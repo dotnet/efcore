@@ -5,14 +5,11 @@ using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class ManyToManyNoTrackingQuerySqliteTest
-    : ManyToManyNoTrackingQueryRelationalTestBase<ManyToManyQuerySqliteFixture>
-{
-    public ManyToManyNoTrackingQuerySqliteTest(ManyToManyQuerySqliteFixture fixture)
-        : base(fixture)
-    {
-    }
+#nullable disable
 
+public class ManyToManyNoTrackingQuerySqliteTest(ManyToManyQuerySqliteFixture fixture)
+    : ManyToManyNoTrackingQueryRelationalTestBase<ManyToManyQuerySqliteFixture>(fixture)
+{
     // Sqlite does not support Apply operations
 
     public override async Task Skip_navigation_order_by_single_or_default(bool async)

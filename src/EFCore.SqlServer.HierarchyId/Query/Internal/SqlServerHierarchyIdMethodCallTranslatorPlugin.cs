@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 
@@ -23,9 +22,7 @@ public class SqlServerHierarchyIdMethodCallTranslatorPlugin : IMethodCallTransla
     public SqlServerHierarchyIdMethodCallTranslatorPlugin(
         IRelationalTypeMappingSource typeMappingSource,
         ISqlExpressionFactory sqlExpressionFactory)
-    {
-        Translators = new IMethodCallTranslator[] { new SqlServerHierarchyIdMethodTranslator(typeMappingSource, sqlExpressionFactory) };
-    }
+        => Translators = new IMethodCallTranslator[] { new SqlServerHierarchyIdMethodTranslator(typeMappingSource, sqlExpressionFactory) };
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

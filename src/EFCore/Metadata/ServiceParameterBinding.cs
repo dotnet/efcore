@@ -85,7 +85,7 @@ public abstract class ServiceParameterBinding : ParameterBinding
                     b.BindToParameter(
                         materializationContextParam,
                         Expression.New(
-                            typeof(ParameterBindingInfo).GetConstructor(new[] { typeof(IEntityType), typeof(Expression) })!,
+                            typeof(ParameterBindingInfo).GetConstructor([typeof(IEntityType), typeof(Expression)])!,
                             entityTypeParam,
                             Expression.Constant(materializationContextParam))),
                     materializationContextParam,

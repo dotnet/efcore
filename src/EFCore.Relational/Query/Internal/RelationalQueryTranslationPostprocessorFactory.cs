@@ -45,5 +45,5 @@ public class RelationalQueryTranslationPostprocessorFactory : IQueryTranslationP
         => new RelationalQueryTranslationPostprocessor(
             Dependencies,
             RelationalDependencies,
-            queryCompilationContext);
+            (RelationalQueryCompilationContext)queryCompilationContext);
 }

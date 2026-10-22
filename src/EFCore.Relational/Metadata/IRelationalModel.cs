@@ -67,6 +67,13 @@ public interface IRelationalModel : IAnnotatable
     ITable? FindTable(string name, string? schema);
 
     /// <summary>
+    ///     Gets the default table with the given name. Returns <see langword="null" /> if no table with the given name is defined.
+    /// </summary>
+    /// <param name="name">The name of the table.</param>
+    /// <returns>The default table with a given name or <see langword="null" /> if no table with the given name is defined.</returns>
+    TableBase? FindDefaultTable(string name);
+
+    /// <summary>
     ///     Gets the view with the given name. Returns <see langword="null" /> if no view with the given name is defined.
     /// </summary>
     /// <param name="name">The name of the view.</param>

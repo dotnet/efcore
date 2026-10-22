@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Query.ExpressionExtensions;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
@@ -19,48 +20,50 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
 {
     private readonly SqlServerQueryCompilationContext _queryCompilationContext;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
-
-    private static readonly bool UseOldBehavior32432 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32432", out var enabled32432) && enabled32432;
+    private readonly IRelationalTypeMappingSource _typeMappingSource;
+    private readonly ISqlServerSingletonOptions _sqlServerSingletonOptions;
 
     private static readonly HashSet<string> DateTimeDataTypes
-        = new()
-        {
+        =
+        [
             "time",
             "date",
             "datetime",
             "datetime2",
             "datetimeoffset"
-        };
+        ];
 
     private static readonly HashSet<Type> DateTimeClrTypes
-        = new()
-        {
+        =
+        [
             typeof(TimeOnly),
             typeof(DateOnly),
             typeof(TimeSpan),
             typeof(DateTime),
             typeof(DateTimeOffset)
-        };
+        ];
 
     private static readonly HashSet<ExpressionType> ArithmeticOperatorTypes
-        = new()
-        {
+        =
+        [
             ExpressionType.Add,
             ExpressionType.Subtract,
             ExpressionType.Multiply,
             ExpressionType.Divide,
             ExpressionType.Modulo
-        };
+        ];
 
     private static readonly MethodInfo StringStartsWithMethodInfo
-        = typeof(string).GetRuntimeMethod(nameof(string.StartsWith), new[] { typeof(string) })!;
+        = typeof(string).GetRuntimeMethod(nameof(string.StartsWith), [typeof(string)])!;
 
     private static readonly MethodInfo StringEndsWithMethodInfo
-        = typeof(string).GetRuntimeMethod(nameof(string.EndsWith), new[] { typeof(string) })!;
+        = typeof(string).GetRuntimeMethod(nameof(string.EndsWith), [typeof(string)])!;
 
     private static readonly MethodInfo StringContainsMethodInfo
-        = typeof(string).GetRuntimeMethod(nameof(string.Contains), new[] { typeof(string) })!;
+        = typeof(string).GetRuntimeMethod(nameof(string.Contains), [typeof(string)])!;
+
+    private static readonly MethodInfo StringJoinMethodInfo
+        = typeof(string).GetRuntimeMethod(nameof(string.Join), [typeof(string), typeof(string[])])!;
 
     private static readonly MethodInfo EscapeLikePatternParameterMethod =
         typeof(SqlServerSqlTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ConstructLikePatternParameter))!;
@@ -77,11 +80,14 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
     public SqlServerSqlTranslatingExpressionVisitor(
         RelationalSqlTranslatingExpressionVisitorDependencies dependencies,
         SqlServerQueryCompilationContext queryCompilationContext,
-        QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
+        QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor,
+        ISqlServerSingletonOptions sqlServerSingletonOptions)
         : base(dependencies, queryCompilationContext, queryableMethodTranslatingExpressionVisitor)
     {
         _queryCompilationContext = queryCompilationContext;
         _sqlExpressionFactory = dependencies.SqlExpressionFactory;
+        _typeMappingSource = dependencies.TypeMappingSource;
+        _sqlServerSingletonOptions = sqlServerSingletonOptions;
     }
 
     /// <summary>
@@ -202,6 +208,57 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
             return translation3;
         }
 
+        // Translate non-aggregate string.Join to CONCAT_WS (for aggregate string.Join, see SqlServerStringAggregateMethodTranslator)
+        if (method == StringJoinMethodInfo
+            && methodCallExpression.Arguments[1] is NewArrayExpression newArrayExpression
+            && ((_sqlServerSingletonOptions.EngineType == SqlServerEngineType.SqlServer
+                    && _sqlServerSingletonOptions.SqlServerCompatibilityLevel >= 140)
+                || (_sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSql
+                    && _sqlServerSingletonOptions.AzureSqlCompatibilityLevel >= 140)
+                || (_sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSynapse)))
+        {
+            if (TranslationFailed(methodCallExpression.Arguments[0], Visit(methodCallExpression.Arguments[0]), out var delimiter))
+            {
+                return QueryCompilationContext.NotTranslatedExpression;
+            }
+
+            var arguments = new SqlExpression[newArrayExpression.Expressions.Count + 1];
+            arguments[0] = delimiter!;
+
+            var isUnicode = delimiter!.TypeMapping?.IsUnicode == true;
+
+            for (var i = 0; i < newArrayExpression.Expressions.Count; i++)
+            {
+                var argument = newArrayExpression.Expressions[i];
+                if (TranslationFailed(argument, Visit(argument), out var sqlArgument))
+                {
+                    return QueryCompilationContext.NotTranslatedExpression;
+                }
+
+                // CONCAT_WS returns a type with a length that varies based on actual inputs (i.e. the sum of all argument lengths, plus
+                // the length needed for the delimiters). We don't know column values (or even parameter values, so we always return max.
+                // We do vary return varchar(max) or nvarchar(max) based on whether we saw any nvarchar mapping.
+                if (sqlArgument!.TypeMapping?.IsUnicode == true)
+                {
+                    isUnicode = true;
+                }
+
+                // CONCAT_WS filters out nulls, but string.Join treats them as empty strings; so coalesce (which is a no-op for non-nullable
+                // arguments).
+                arguments[i + 1] = Dependencies.SqlExpressionFactory.Coalesce(sqlArgument, _sqlExpressionFactory.Constant(string.Empty));
+            }
+
+            // CONCAT_WS never returns null; a null delimiter is interpreted as an empty string, and null arguments are skipped
+            // (but we coalesce them above in any case).
+            return Dependencies.SqlExpressionFactory.Function(
+                "CONCAT_WS",
+                arguments,
+                nullable: false,
+                argumentsPropagateNullability: new bool[arguments.Length],
+                typeof(string),
+                _typeMappingSource.FindMapping(isUnicode ? "nvarchar(max)" : "varchar(max)"));
+        }
+
         return base.VisitMethodCall(methodCallExpression);
 
         bool TryTranslateStartsEndsWithContains(
@@ -230,7 +287,9 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
                     // simple LIKE
                     translation = patternConstant.Value switch
                     {
-                        null => _sqlExpressionFactory.Like(translatedInstance, _sqlExpressionFactory.Constant(null, stringTypeMapping)),
+                        null => _sqlExpressionFactory.Like(
+                            translatedInstance,
+                            _sqlExpressionFactory.Constant(null, typeof(string), stringTypeMapping)),
 
                         // In .NET, all strings start with/end with/contain the empty string, but SQL LIKE return false for empty patterns.
                         // Return % which always matches instead.
@@ -238,20 +297,8 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
                         // (but SqlNullabilityProcess will convert this to a true constant if the instance is non-nullable)
                         "" => _sqlExpressionFactory.Like(translatedInstance, _sqlExpressionFactory.Constant("%")),
 
-                        string s => s.Any(IsLikeWildChar)
-                            ? _sqlExpressionFactory.Like(
-                                translatedInstance,
-                                _sqlExpressionFactory.Constant(
-                                    methodType switch
-                                    {
-                                        StartsEndsWithContains.StartsWith => EscapeLikePattern(s) + '%',
-                                        StartsEndsWithContains.EndsWith => '%' + EscapeLikePattern(s),
-                                        StartsEndsWithContains.Contains => $"%{EscapeLikePattern(s)}%",
-
-                                        _ => throw new ArgumentOutOfRangeException(nameof(methodType), methodType, null)
-                                    }),
-                                _sqlExpressionFactory.Constant(LikeEscapeString))
-                            : _sqlExpressionFactory.Like(
+                        string s when !s.Any(IsLikeWildChar)
+                            => _sqlExpressionFactory.Like(
                                 translatedInstance,
                                 _sqlExpressionFactory.Constant(
                                     methodType switch
@@ -263,6 +310,24 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
                                         _ => throw new ArgumentOutOfRangeException(nameof(methodType), methodType, null)
                                     })),
 
+                        // Azure Synapse does not support ESCAPE clause in LIKE
+                        // fallback to translation like with column/expression
+                        string s when _sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSynapse
+                            => TranslateWithoutLike(patternIsNonEmptyConstantString: true),
+
+                        string s => _sqlExpressionFactory.Like(
+                            translatedInstance,
+                            _sqlExpressionFactory.Constant(
+                                methodType switch
+                                {
+                                    StartsEndsWithContains.StartsWith => EscapeLikePattern(s) + '%',
+                                    StartsEndsWithContains.EndsWith => '%' + EscapeLikePattern(s),
+                                    StartsEndsWithContains.Contains => $"%{EscapeLikePattern(s)}%",
+
+                                    _ => throw new ArgumentOutOfRangeException(nameof(methodType), methodType, null)
+                                }),
+                            _sqlExpressionFactory.Constant(LikeEscapeString)),
+
                         _ => throw new UnreachableException()
                     };
 
@@ -270,7 +335,10 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
                 }
 
                 case SqlParameterExpression patternParameter
-                    when patternParameter.Name.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal):
+                    when patternParameter.Name.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal)
+                        // Azure Synapse does not support ESCAPE clause in LIKE
+                        // fall through to translation like with column/expression
+                        && _sqlServerSingletonOptions.EngineType != SqlServerEngineType.AzureSynapse:
                 {
                     // The pattern is a parameter, register a runtime parameter that will contain the rewritten LIKE pattern, where
                     // all special characters have been escaped.
@@ -282,9 +350,8 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
                             Expression.Constant(methodType)),
                         QueryCompilationContext.QueryContextParameter);
 
-                    var escapedPatternParameter = UseOldBehavior32432
-                        ? _queryCompilationContext.RegisterRuntimeParameter(patternParameter.Name + "_rewritten", lambda)
-                        : _queryCompilationContext.RegisterRuntimeParameter(
+                    var escapedPatternParameter =
+                        _queryCompilationContext.RegisterRuntimeParameter(
                             $"{patternParameter.Name}_{methodType.ToString().ToLower(CultureInfo.InvariantCulture)}", lambda);
 
                     translation = _sqlExpressionFactory.Like(
@@ -298,23 +365,29 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
                 default:
                     // The pattern is a column or a complex expression; the possible special characters in the pattern cannot be escaped,
                     // preventing us from translating to LIKE.
-                    translation = methodType switch
-                    {
-                        // For StartsWith/EndsWith, use LEFT or RIGHT instead to extract substring and compare:
-                        // WHERE instance IS NOT NULL AND pattern IS NOT NULL AND LEFT(instance, LEN(pattern)) = pattern
-                        // This is less efficient than LIKE (i.e. StartsWith does an index scan instead of seek), but we have no choice.
-                        // Note that we compensate for the case where both the instance and the pattern are null (null.StartsWith(null)); a
-                        // simple equality would yield true in that case, but we want false. We technically
-                        StartsEndsWithContains.StartsWith or StartsEndsWithContains.EndsWith
-                            => _sqlExpressionFactory.AndAlso(
-                                _sqlExpressionFactory.IsNotNull(translatedInstance),
-                                _sqlExpressionFactory.AndAlso(
-                                    _sqlExpressionFactory.IsNotNull(translatedPattern),
-                                    _sqlExpressionFactory.Equal(
-                                        _sqlExpressionFactory.Function(
-                                            methodType is StartsEndsWithContains.StartsWith ? "LEFT" : "RIGHT",
-                                            new[]
-                                            {
+                    translation = TranslateWithoutLike();
+                    return true;
+            }
+
+            SqlExpression TranslateWithoutLike(bool patternIsNonEmptyConstantString = false)
+            {
+                return methodType switch
+                {
+                    // For StartsWith/EndsWith, use LEFT or RIGHT instead to extract substring and compare:
+                    // WHERE instance IS NOT NULL AND pattern IS NOT NULL AND LEFT(instance, LEN(pattern)) = pattern
+                    // This is less efficient than LIKE (i.e. StartsWith does an index scan instead of seek), but we have no choice.
+                    // Note that we compensate for the case where both the instance and the pattern are null (null.StartsWith(null)); a
+                    // simple equality would yield true in that case, but we want false. We technically
+                    StartsEndsWithContains.StartsWith or StartsEndsWithContains.EndsWith
+                        => _sqlExpressionFactory.AndAlso(
+                            _sqlExpressionFactory.IsNotNull(translatedInstance),
+                            _sqlExpressionFactory.AndAlso(
+                                _sqlExpressionFactory.IsNotNull(translatedPattern),
+                                _sqlExpressionFactory.Equal(
+                                    _sqlExpressionFactory.Function(
+                                        methodType is StartsEndsWithContains.StartsWith ? "LEFT" : "RIGHT",
+                                        new[]
+                                        {
                                                 translatedInstance,
                                                 _sqlExpressionFactory.Function(
                                                     "LEN",
@@ -322,42 +395,56 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
                                                     nullable: true,
                                                     argumentsPropagateNullability: new[] { true },
                                                     typeof(int))
-                                            },
-                                            nullable: true,
-                                            argumentsPropagateNullability: new[] { true, true },
-                                            typeof(string),
-                                            stringTypeMapping),
-                                        translatedPattern))),
+                                        },
+                                        nullable: true,
+                                        argumentsPropagateNullability: new[] { true, true },
+                                        typeof(string),
+                                        stringTypeMapping),
+                                    translatedPattern))),
 
-                        // For Contains, just use CHARINDEX and check if the result is greater than 0.
-                        // Add a check to return null when the pattern is an empty string (and the string isn't null)
-                        StartsEndsWithContains.Contains
-                            => _sqlExpressionFactory.AndAlso(
-                                _sqlExpressionFactory.IsNotNull(translatedInstance),
-                                _sqlExpressionFactory.AndAlso(
-                                    _sqlExpressionFactory.IsNotNull(translatedPattern),
-                                    _sqlExpressionFactory.OrElse(
-                                        _sqlExpressionFactory.GreaterThan(
-                                            _sqlExpressionFactory.Function(
-                                                "CHARINDEX",
-                                                new[] { translatedPattern, translatedInstance },
-                                                nullable: true,
-                                                argumentsPropagateNullability: new[] { true, true },
-                                                typeof(int)),
-                                            _sqlExpressionFactory.Constant(0)),
-                                        _sqlExpressionFactory.Like(
-                                            translatedPattern,
-                                            _sqlExpressionFactory.Constant(string.Empty, stringTypeMapping))))),
+                    // For Contains, just use CHARINDEX and check if the result is greater than 0.
+                    StartsEndsWithContains.Contains when patternIsNonEmptyConstantString
+                        => _sqlExpressionFactory.AndAlso(
+                            _sqlExpressionFactory.IsNotNull(translatedInstance),
+                            CharIndexGreaterThanZero()),
 
-                        _ => throw new UnreachableException()
-                    };
+                    // For Contains, just use CHARINDEX and check if the result is greater than 0.
+                    // Add a check to return null when the pattern is an empty string (and the string isn't null)
+                    StartsEndsWithContains.Contains
+                        => _sqlExpressionFactory.AndAlso(
+                            _sqlExpressionFactory.IsNotNull(translatedInstance),
+                            _sqlExpressionFactory.AndAlso(
+                                _sqlExpressionFactory.IsNotNull(translatedPattern),
+                                _sqlExpressionFactory.OrElse(
+                                    CharIndexGreaterThanZero(),
+                                    _sqlExpressionFactory.Like(
+                                        translatedPattern,
+                                        _sqlExpressionFactory.Constant(string.Empty, stringTypeMapping))))),
 
-                    return true;
+                    _ => throw new UnreachableException()
+                };
+
+                SqlExpression CharIndexGreaterThanZero()
+                    => _sqlExpressionFactory.GreaterThan(
+                        _sqlExpressionFactory.Function(
+                            "CHARINDEX",
+                            new[] { translatedPattern, translatedInstance },
+                            nullable: true,
+                            argumentsPropagateNullability: new[] { true, true },
+                            typeof(int)),
+                        _sqlExpressionFactory.Constant(0));
             }
         }
     }
 
-    private static string? ConstructLikePatternParameter(
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public static string? ConstructLikePatternParameter(
         QueryContext queryContext,
         string baseParameterName,
         StartsEndsWithContains methodType)
@@ -380,10 +467,37 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
             _ => throw new UnreachableException()
         };
 
-    private enum StartsEndsWithContains
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public enum StartsEndsWithContains
     {
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         StartsWith,
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         EndsWith,
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         Contains
     }
 
@@ -442,20 +556,56 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override bool TryTranslateAggregateMethodCall(
-        MethodCallExpression methodCallExpression,
-        [NotNullWhen(true)] out SqlExpression? translation)
+    public override SqlExpression? GenerateGreatest(IReadOnlyList<SqlExpression> expressions, Type resultType)
     {
-        var previousInAggregateFunction = _queryCompilationContext.InAggregateFunction;
-        _queryCompilationContext.InAggregateFunction = true;
+        // Docs: https://learn.microsoft.com/sql/t-sql/functions/logical-functions-greatest-transact-sql
+        if (_sqlServerSingletonOptions.EngineType == SqlServerEngineType.SqlServer
+            && _sqlServerSingletonOptions.SqlServerCompatibilityLevel < 160)
+        {
+            return null;
+        }
 
-#pragma warning disable EF1001 // Internal EF Core API usage.
-        var result = base.TryTranslateAggregateMethodCall(methodCallExpression, out translation);
-#pragma warning restore EF1001 // Internal EF Core API usage.
+        if (_sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSql
+            && _sqlServerSingletonOptions.AzureSqlCompatibilityLevel < 160)
+        {
+            return null;
+        }
 
-        _queryCompilationContext.InAggregateFunction = previousInAggregateFunction;
+        var resultTypeMapping = ExpressionExtensions.InferTypeMapping(expressions);
 
-        return result;
+        // If one or more arguments aren't NULL, then NULL arguments are ignored during comparison.
+        // If all arguments are NULL, then GREATEST returns NULL.
+        return _sqlExpressionFactory.Function(
+            "GREATEST", expressions, nullable: true, Enumerable.Repeat(false, expressions.Count), resultType, resultTypeMapping);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override SqlExpression? GenerateLeast(IReadOnlyList<SqlExpression> expressions, Type resultType)
+    {
+        // Docs: https://learn.microsoft.com/sql/t-sql/functions/logical-functions-least-transact-sql
+        if (_sqlServerSingletonOptions.EngineType == SqlServerEngineType.SqlServer
+            && _sqlServerSingletonOptions.SqlServerCompatibilityLevel < 160)
+        {
+            return null;
+        }
+
+        if (_sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSql
+            && _sqlServerSingletonOptions.AzureSqlCompatibilityLevel < 160)
+        {
+            return null;
+        }
+
+        var resultTypeMapping = ExpressionExtensions.InferTypeMapping(expressions);
+
+        // If one or more arguments aren't NULL, then NULL arguments are ignored during comparison.
+        // If all arguments are NULL, then LEAST returns NULL.
+        return _sqlExpressionFactory.Function(
+            "LEAST", expressions, nullable: true, Enumerable.Repeat(false, expressions.Count), resultType, resultTypeMapping);
     }
 
     private Expression TranslateByteArrayElementAccess(Expression array, Expression index, Type resultType)
@@ -481,6 +631,20 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
                         typeof(byte[])),
                     resultType)
                 : QueryCompilationContext.NotTranslatedExpression;
+    }
+
+    [DebuggerStepThrough]
+    private static bool TranslationFailed(Expression? original, Expression? translation, out SqlExpression? castTranslation)
+    {
+        if (original != null
+            && translation is not SqlExpression)
+        {
+            castTranslation = null;
+            return true;
+        }
+
+        castTranslation = translation as SqlExpression;
+        return false;
     }
 
     private static string? GetProviderType(SqlExpression expression)

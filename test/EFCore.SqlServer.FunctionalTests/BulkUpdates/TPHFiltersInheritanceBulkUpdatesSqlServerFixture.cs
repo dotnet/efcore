@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
+#nullable disable
+
 public class TPHFiltersInheritanceBulkUpdatesSqlServerFixture : TPHInheritanceBulkUpdatesSqlServerFixture
 {
     protected override string StoreName

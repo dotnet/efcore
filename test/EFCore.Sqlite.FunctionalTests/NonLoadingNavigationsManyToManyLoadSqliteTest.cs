@@ -5,18 +5,19 @@ using Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class NonLoadingNavigationsManyToManyLoadSqliteTest
-    : ManyToManyLoadTestBase<NonLoadingNavigationsManyToManyLoadSqliteTest.NonLoadingNavigationsManyToManyLoadSqliteFixture>
-{
-    public NonLoadingNavigationsManyToManyLoadSqliteTest(NonLoadingNavigationsManyToManyLoadSqliteFixture fixture)
-        : base(fixture)
-    {
-    }
+#nullable disable
 
-    public class NonLoadingNavigationsManyToManyLoadSqliteFixture : ManyToManyLoadFixtureBase
+public class NonLoadingNavigationsManyToManyLoadSqliteTest(
+    NonLoadingNavigationsManyToManyLoadSqliteTest.NonLoadingNavigationsManyToManyLoadSqliteFixture fixture)
+    : ManyToManyLoadTestBase<NonLoadingNavigationsManyToManyLoadSqliteTest.NonLoadingNavigationsManyToManyLoadSqliteFixture>(fixture)
+{
+    public class NonLoadingNavigationsManyToManyLoadSqliteFixture : ManyToManyLoadFixtureBase, ITestSqlLoggerFactory
     {
         protected override string StoreName
             => "NonLoadingNavigationsManyToMany";
+
+        public TestSqlLoggerFactory TestSqlLoggerFactory
+            => (TestSqlLoggerFactory)ListLoggerFactory;
 
         protected override ITestStoreFactory TestStoreFactory
             => SqliteTestStoreFactory.Instance;

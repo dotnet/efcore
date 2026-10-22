@@ -303,9 +303,7 @@ public class InternalServiceCollectionMapTest
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .Options);
 
-    private interface IFakeService
-    {
-    }
+    private interface IFakeService;
 
     private class FakeService : IFakeService, IPatchServiceInjectionSite
     {
@@ -315,13 +313,9 @@ public class InternalServiceCollectionMapTest
             => Context = serviceProvider.GetService<ICurrentDbContext>().Context;
     }
 
-    private class DerivedFakeService : FakeService
-    {
-    }
+    private class DerivedFakeService : FakeService;
 
-    private interface IFakeSingletonService
-    {
-    }
+    private interface IFakeSingletonService;
 
     private class FakeSingletonService : IFakeSingletonService, IPatchServiceInjectionSite
     {
@@ -331,7 +325,5 @@ public class InternalServiceCollectionMapTest
             => ModelSource = serviceProvider.GetService<IModelSource>();
     }
 
-    private class DerivedFakeSingletonService : FakeSingletonService
-    {
-    }
+    private class DerivedFakeSingletonService : FakeSingletonService;
 }

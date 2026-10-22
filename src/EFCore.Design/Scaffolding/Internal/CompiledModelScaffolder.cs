@@ -21,10 +21,16 @@ public class CompiledModelScaffolder : ICompiledModelScaffolder
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public static readonly int MaxFileNameLength = 255;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public CompiledModelScaffolder(ICompiledModelCodeGeneratorSelector modelCodeGeneratorSelector)
-    {
-        ModelCodeGeneratorSelector = modelCodeGeneratorSelector;
-    }
+        => ModelCodeGeneratorSelector = modelCodeGeneratorSelector;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -45,54 +51,46 @@ public class CompiledModelScaffolder : ICompiledModelScaffolder
         string outputDir,
         CompiledModelCodeGenerationOptions options)
     {
-        var codeGenerator = ModelCodeGeneratorSelector.Select(options);
-
-        var scaffoldedModel = codeGenerator.GenerateModel(model, options);
-
-        CheckOutputFiles(scaffoldedModel, outputDir);
-
-        Directory.CreateDirectory(outputDir);
-
-        var savedFiles = new List<string>();
-        foreach (var file in scaffoldedModel)
-        {
-            var filePath = Path.Combine(outputDir, file.Path);
-            File.WriteAllText(filePath, file.Code, Encoding.UTF8);
-            savedFiles.Add(filePath);
-        }
-
-        return savedFiles;
+        var scaffoldedModel = ModelCodeGeneratorSelector.Select(options).GenerateModel(model, options);
+        return WriteFiles(scaffoldedModel, outputDir);
     }
 
-    private static void CheckOutputFiles(
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static IReadOnlyList<string> WriteFiles(
         IReadOnlyCollection<ScaffoldedFile> scaffoldedModel,
         string outputDir)
     {
+        Directory.CreateDirectory(outputDir);
         var paths = scaffoldedModel.Select(f => f.Path).ToList();
 
-        var existingFiles = new List<string>();
         var readOnlyFiles = new List<string>();
-        foreach (var path in paths)
+        var savedFiles = new List<string>();
+        foreach (var file in scaffoldedModel)
         {
-            var fullPath = Path.Combine(outputDir, path);
+            var fullPath = Path.Combine(outputDir, file.Path);
 
-            if (File.Exists(fullPath))
+            if (File.Exists(fullPath)
+                && File.GetAttributes(fullPath).HasFlag(FileAttributes.ReadOnly))
             {
-                existingFiles.Add(path);
-
-                if (File.GetAttributes(fullPath).HasFlag(FileAttributes.ReadOnly))
-                {
-                    readOnlyFiles.Add(path);
-                }
+                readOnlyFiles.Add(file.Path);
+            }
+            else
+            {
+                File.WriteAllText(fullPath, file.Code, Encoding.UTF8);
+                savedFiles.Add(fullPath);
             }
         }
 
-        if (readOnlyFiles.Count != 0)
-        {
-            throw new OperationException(
+        return readOnlyFiles.Count != 0
+            ? throw new OperationException(
                 DesignStrings.ReadOnlyFiles(
                     outputDir,
-                    string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator, readOnlyFiles)));
-        }
+                    string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator, readOnlyFiles)))
+            : (IReadOnlyList<string>)savedFiles;
     }
 }

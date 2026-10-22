@@ -134,9 +134,7 @@ public class SqliteDatabaseCreator : RelationalDatabaseCreator
 
         if (!string.IsNullOrEmpty(path))
         {
-            SqliteConnection.ClearPool(new SqliteConnection(Dependencies.Connection.ConnectionString));
-            // See issues #25797 and #26016
-            // SqliteConnection.ClearAllPools();
+            SqliteConnection.ClearAllPools();
             File.Delete(path);
         }
         else if (dbConnection.State == ConnectionState.Open)

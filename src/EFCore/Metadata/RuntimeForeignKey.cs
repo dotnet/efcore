@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
 /// </remarks>
-public class RuntimeForeignKey : AnnotatableBase, IRuntimeForeignKey
+public class RuntimeForeignKey : RuntimeAnnotatableBase, IRuntimeForeignKey
 {
     private readonly DeleteBehavior _deleteBehavior;
     private readonly bool _isUnique;
@@ -267,7 +267,7 @@ public class RuntimeForeignKey : AnnotatableBase, IRuntimeForeignKey
     IDependentKeyValueFactory IForeignKey.GetDependentKeyValueFactory()
         => _dependentKeyValueFactory!;
 
-    // Note: This is set and used only by IdentityMapFactoryFactory, which ensures thread-safety
+    // Note: This is set and used only by KeyValueFactoryFactory, which ensures thread-safety
     /// <inheritdoc />
     IDependentKeyValueFactory IRuntimeForeignKey.DependentKeyValueFactory
     {
@@ -278,7 +278,7 @@ public class RuntimeForeignKey : AnnotatableBase, IRuntimeForeignKey
         set => _dependentKeyValueFactory = value;
     }
 
-    // Note: This is set and used only by IdentityMapFactoryFactory, which ensures thread-safety
+    // Note: This is set and used only by KeyValueFactoryFactory, which ensures thread-safety
     /// <inheritdoc />
     Func<IDependentsMap> IRuntimeForeignKey.DependentsMapFactory
     {

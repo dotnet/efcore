@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
@@ -25,9 +24,7 @@ public class ArrayPropertyValues : PropertyValues
     /// </summary>
     public ArrayPropertyValues(InternalEntityEntry internalEntry, object?[] values)
         : base(internalEntry)
-    {
-        _values = values;
-    }
+        => _values = values;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -100,7 +97,7 @@ public class ArrayPropertyValues : PropertyValues
 
         for (var i = 0; i < _values.Length; i++)
         {
-            SetValue(i, EntityMaterializerSource.UseOldBehavior32701 ? propertyValues[Properties[i].Name] : propertyValues[Properties[i]]);
+            SetValue(i, propertyValues[Properties[i]]);
         }
     }
 
@@ -111,9 +108,7 @@ public class ArrayPropertyValues : PropertyValues
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override IReadOnlyList<IProperty> Properties
-        => _properties ??= EntityMaterializerSource.UseOldBehavior32701
-            ? EntityType.GetProperties().ToList()
-            : EntityType.GetFlattenedProperties().ToList();
+        => _properties ??= EntityType.GetFlattenedProperties().ToList();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -135,8 +130,8 @@ public class ArrayPropertyValues : PropertyValues
     /// </summary>
     public override object? this[IProperty property]
     {
-        get => _values[EntityType.CheckPropertyBelongsToType(property).GetIndex()];
-        set => SetValue(EntityType.CheckPropertyBelongsToType(property).GetIndex(), value);
+        get => _values[EntityType.CheckContains(property).GetIndex()];
+        set => SetValue(EntityType.CheckContains(property).GetIndex(), value);
     }
 
     /// <summary>

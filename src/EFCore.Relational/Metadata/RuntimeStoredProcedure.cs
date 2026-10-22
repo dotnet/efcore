@@ -14,8 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 /// </summary>
 public class RuntimeStoredProcedure : AnnotatableBase, IRuntimeStoredProcedure
 {
-    private readonly List<RuntimeStoredProcedureParameter> _parameters = new();
-    private readonly List<RuntimeStoredProcedureResultColumn> _resultColumns = new();
+    private readonly List<RuntimeStoredProcedureParameter> _parameters = [];
+    private readonly List<RuntimeStoredProcedureResultColumn> _resultColumns = [];
     private readonly string? _schema;
     private readonly string _name;
     private readonly bool _isRowsAffectedReturned;

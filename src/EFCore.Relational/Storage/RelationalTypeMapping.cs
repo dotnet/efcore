@@ -274,7 +274,7 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
     };
 
     private static MethodInfo GetDataReaderMethod(string name)
-        => typeof(DbDataReader).GetRuntimeMethod(name, new[] { typeof(int) })!;
+        => typeof(DbDataReader).GetRuntimeMethod(name, [typeof(int)])!;
 
     /// <summary>
     ///     Gets the mapping to be used when the only piece of information is that there is a null value.

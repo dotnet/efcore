@@ -3,13 +3,11 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class SaveChangesInterceptionSqliteTestBase : SaveChangesInterceptionTestBase
-{
-    protected SaveChangesInterceptionSqliteTestBase(InterceptionSqliteFixtureBase fixture)
-        : base(fixture)
-    {
-    }
+#nullable disable
 
+public abstract class SaveChangesInterceptionSqliteTestBase(SaveChangesInterceptionSqliteTestBase.InterceptionSqliteFixtureBase fixture)
+    : SaveChangesInterceptionTestBase(fixture)
+{
     public abstract class InterceptionSqliteFixtureBase : InterceptionFixtureBase
     {
         protected override string StoreName
@@ -24,14 +22,9 @@ public abstract class SaveChangesInterceptionSqliteTestBase : SaveChangesInterce
             => base.InjectInterceptors(serviceCollection.AddEntityFrameworkSqlite(), injectedInterceptors);
     }
 
-    public class SaveChangesInterceptionSqliteTest
-        : SaveChangesInterceptionSqliteTestBase, IClassFixture<SaveChangesInterceptionSqliteTest.InterceptionSqliteFixture>
+    public class SaveChangesInterceptionSqliteTest(SaveChangesInterceptionSqliteTest.InterceptionSqliteFixture fixture)
+        : SaveChangesInterceptionSqliteTestBase(fixture), IClassFixture<SaveChangesInterceptionSqliteTest.InterceptionSqliteFixture>
     {
-        public SaveChangesInterceptionSqliteTest(InterceptionSqliteFixture fixture)
-            : base(fixture)
-        {
-        }
-
         public class InterceptionSqliteFixture : InterceptionSqliteFixtureBase
         {
             protected override bool ShouldSubscribeToDiagnosticListener
@@ -39,15 +32,11 @@ public abstract class SaveChangesInterceptionSqliteTestBase : SaveChangesInterce
         }
     }
 
-    public class SaveChangesInterceptionWithDiagnosticsSqliteTest
-        : SaveChangesInterceptionSqliteTestBase,
+    public class SaveChangesInterceptionWithDiagnosticsSqliteTest(
+        SaveChangesInterceptionWithDiagnosticsSqliteTest.InterceptionSqliteFixture fixture)
+        : SaveChangesInterceptionSqliteTestBase(fixture),
             IClassFixture<SaveChangesInterceptionWithDiagnosticsSqliteTest.InterceptionSqliteFixture>
     {
-        public SaveChangesInterceptionWithDiagnosticsSqliteTest(InterceptionSqliteFixture fixture)
-            : base(fixture)
-        {
-        }
-
         public class InterceptionSqliteFixture : InterceptionSqliteFixtureBase
         {
             protected override bool ShouldSubscribeToDiagnosticListener

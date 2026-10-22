@@ -6,13 +6,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 /// <summary>
 ///     Represents a database trigger on a table.
 /// </summary>
-public class RuntimeTrigger : AnnotatableBase, ITrigger
+public class RuntimeTrigger : RuntimeAnnotatableBase, ITrigger
 {
     /// <summary>
-    ///     Initializes a new instance of the <see cref="RuntimeTrigger" /> class.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    /// <param name="entityType">The entity type.</param>
-    /// <param name="modelName">The name in the model.</param>
+    [EntityFrameworkInternal]
     public RuntimeTrigger(
         RuntimeEntityType entityType,
         string modelName)

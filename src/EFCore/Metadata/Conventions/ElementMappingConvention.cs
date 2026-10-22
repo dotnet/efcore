@@ -18,9 +18,7 @@ public class ElementMappingConvention : IModelFinalizingConvention
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
     public ElementMappingConvention(ProviderConventionSetBuilderDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.
@@ -42,15 +40,7 @@ public class ElementMappingConvention : IModelFinalizingConvention
                 var typeMapping = Dependencies.TypeMappingSource.FindMapping((IProperty)property);
                 if (typeMapping is { ElementTypeMapping: not null })
                 {
-                    var elementType = property.ClrType.TryGetElementType(typeof(IEnumerable<>));
-                    if (ElementTypeChangedConvention.UseOldBehavior32411)
-                    {
-                        property.SetElementType(elementType);
-                    }
-                    else
-                    {
-                        property.Builder.SetElementType(elementType);
-                    }
+                    property.Builder.SetElementType(property.ClrType.TryGetElementType(typeof(IEnumerable<>)));
                 }
             }
 

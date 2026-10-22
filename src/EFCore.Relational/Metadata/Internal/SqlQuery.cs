@@ -19,9 +19,7 @@ public class SqlQuery : TableBase, ISqlQuery
     /// </summary>
     public SqlQuery(string name, RelationalModel model, string sql)
         : base(name, null, model)
-    {
-        Sql = sql;
-    }
+        => Sql = sql;
 
     /// <inheritdoc />
     public virtual string Sql { get; set; }

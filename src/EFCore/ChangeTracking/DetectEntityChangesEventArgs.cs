@@ -24,9 +24,7 @@ public class DetectEntityChangesEventArgs : DetectChangesEventArgs
     /// </summary>
     [EntityFrameworkInternal]
     public DetectEntityChangesEventArgs(InternalEntityEntry internalEntityEntry)
-    {
-        _internalEntityEntry = internalEntityEntry;
-    }
+        => _internalEntityEntry = internalEntityEntry;
 
     /// <summary>
     ///     The <see cref="EntityEntry" /> for the entity.

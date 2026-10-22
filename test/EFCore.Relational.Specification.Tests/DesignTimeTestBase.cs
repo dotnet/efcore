@@ -3,15 +3,12 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class DesignTimeTestBase<TFixture> : IClassFixture<TFixture>
+#nullable disable
+
+public abstract class DesignTimeTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : DesignTimeTestBase<TFixture>.DesignTimeFixtureBase
 {
-    protected TFixture Fixture { get; }
-
-    protected DesignTimeTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
+    protected TFixture Fixture { get; } = fixture;
 
     protected abstract Assembly ProviderAssembly { get; }
 

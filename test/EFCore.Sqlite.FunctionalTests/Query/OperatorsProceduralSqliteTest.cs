@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class OperatorsProceduralSqliteTest : OperatorsProceduralQueryTestBase
 {
     protected override ITestStoreFactory TestStoreFactory

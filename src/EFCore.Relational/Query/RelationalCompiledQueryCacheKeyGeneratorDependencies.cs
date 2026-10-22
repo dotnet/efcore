@@ -46,9 +46,7 @@ public sealed record RelationalCompiledQueryCacheKeyGeneratorDependencies
     /// </remarks>
     [EntityFrameworkInternal]
     public RelationalCompiledQueryCacheKeyGeneratorDependencies(IDbContextOptions contextOptions)
-    {
-        ContextOptions = contextOptions;
-    }
+        => ContextOptions = contextOptions;
 
     /// <summary>
     ///     Options for the current <see cref="DbContext" /> instance.

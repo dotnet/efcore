@@ -3,13 +3,11 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class NullKeysSqlServerTest : NullKeysTestBase<NullKeysSqlServerTest.NullKeysSqlServerFixture>
-{
-    public NullKeysSqlServerTest(NullKeysSqlServerFixture fixture)
-        : base(fixture)
-    {
-    }
+#nullable disable
 
+public class NullKeysSqlServerTest(NullKeysSqlServerTest.NullKeysSqlServerFixture fixture)
+    : NullKeysTestBase<NullKeysSqlServerTest.NullKeysSqlServerFixture>(fixture)
+{
     public class NullKeysSqlServerFixture : NullKeysFixtureBase
     {
         protected override ITestStoreFactory TestStoreFactory

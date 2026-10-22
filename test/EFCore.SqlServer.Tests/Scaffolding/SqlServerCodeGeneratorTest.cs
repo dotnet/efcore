@@ -73,7 +73,7 @@ public class SqlServerCodeGeneratorTest
     }
 
     private static readonly MethodInfo _setProviderOptionMethodInfo
-        = typeof(SqlServerCodeGeneratorTest).GetRuntimeMethod(nameof(SetProviderOption), new[] { typeof(DbContextOptionsBuilder) });
+        = typeof(SqlServerCodeGeneratorTest).GetRuntimeMethod(nameof(SetProviderOption), [typeof(DbContextOptionsBuilder)]);
 
     public static SqlServerDbContextOptionsBuilder SetProviderOption(DbContextOptionsBuilder optionsBuilder)
         => throw new NotSupportedException();

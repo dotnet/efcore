@@ -59,7 +59,7 @@ public class InMemoryProjectionBindingExpressionVisitor : ExpressionVisitor
             _indexBasedBinding = true;
             _projectionMapping.Clear();
             _entityProjectionCache = new Dictionary<EntityProjectionExpression, ProjectionBindingExpression>();
-            _clientProjections = new List<Expression>();
+            _clientProjections = [];
 
             result = Visit(expression);
 
@@ -85,7 +85,7 @@ public class InMemoryProjectionBindingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [return: NotNullIfNotNull("expression")]
+    [return: NotNullIfNotNull(nameof(expression))]
     public override Expression? Visit(Expression? expression)
     {
         if (expression == null)

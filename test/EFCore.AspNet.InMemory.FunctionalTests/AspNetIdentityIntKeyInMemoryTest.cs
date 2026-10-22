@@ -6,13 +6,11 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class AspNetIdentityIntKeyInMemoryTest
-    : AspNetIdentityIntKeyTestBase<AspNetIdentityIntKeyInMemoryTest.AspNetIdentityIntKeyInMemoryFixture>
+public class AspNetIdentityIntKeyInMemoryTest(AspNetIdentityIntKeyInMemoryTest.AspNetIdentityIntKeyInMemoryFixture fixture)
+    : AspNetIdentityIntKeyTestBase<AspNetIdentityIntKeyInMemoryTest.AspNetIdentityIntKeyInMemoryFixture>(fixture)
 {
-    public AspNetIdentityIntKeyInMemoryTest(AspNetIdentityIntKeyInMemoryFixture fixture)
-        : base(fixture)
-    {
-    }
+    protected override bool HasForeignKeyIndexes
+        => false;
 
     protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
     {

@@ -12,7 +12,7 @@ public class OwnedEntityQueryInMemoryTest : OwnedEntityQueryTestBase
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Expand_owned_navigation_as_optional_always(bool async)
     {
-        var contextFactory = await InitializeAsync<MyContext>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<MyContext>(seed: c => c.SeedAsync());
 
         using var context = contextFactory.CreateContext();
         var query = context.Set<Foo>().Include(c => c.Bar);
@@ -23,20 +23,13 @@ public class OwnedEntityQueryInMemoryTest : OwnedEntityQueryTestBase
         Assert.NotNull(foo);
     }
 
-    protected class MyContext : DbContext
+    protected class MyContext(DbContextOptions options) : DbContext(options)
     {
-        public MyContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
-        public DbSet<Warehouse> Warehouses { get; set; }
-
-        public void Seed()
+        public Task SeedAsync()
         {
             Add(new Foo());
 
-            SaveChanges();
+            return SaveChangesAsync();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -59,9 +52,7 @@ public class OwnedEntityQueryInMemoryTest : OwnedEntityQueryTestBase
         public virtual Baz Baz { get; set; } = new();
     }
 
-    protected class Baz
-    {
-    }
+    protected class Baz;
 
     protected class Foo
     {
@@ -74,7 +65,7 @@ public class OwnedEntityQueryInMemoryTest : OwnedEntityQueryTestBase
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Owned_references_on_same_level_expanded_at_different_times_around_take(bool async)
     {
-        var contextFactory = await InitializeAsync<MyContext26592>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<MyContext26592>(seed: c => c.SeedAsync());
         using var context = contextFactory.CreateContext();
 
         await base.Owned_references_on_same_level_expanded_at_different_times_around_take_helper(context, async);
@@ -84,17 +75,11 @@ public class OwnedEntityQueryInMemoryTest : OwnedEntityQueryTestBase
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Owned_references_on_same_level_nested_expanded_at_different_times_around_take(bool async)
     {
-        var contextFactory = await InitializeAsync<MyContext26592>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<MyContext26592>(seed: c => c.SeedAsync());
         using var context = contextFactory.CreateContext();
 
         await base.Owned_references_on_same_level_nested_expanded_at_different_times_around_take_helper(context, async);
     }
 
-    protected class MyContext26592 : MyContext26592Base
-    {
-        public MyContext26592(DbContextOptions options)
-            : base(options)
-        {
-        }
-    }
+    protected class MyContext26592(DbContextOptions options) : MyContext26592Base(options);
 }

@@ -199,6 +199,7 @@ public class ModelConfigurationBuilder
     /// <summary>
     ///     Marks the given type as a scalar, even when used outside of entity types. This allows values of this type
     ///     to be used in queries that are not referencing property of this type.
+    ///     Calling this won't affect whether properties of this type are discovered.
     /// </summary>
     /// <remarks>
     ///     <para>
@@ -226,6 +227,7 @@ public class ModelConfigurationBuilder
     /// <summary>
     ///     Marks the given type as a scalar, even when used outside of entity types. This allows values of this type
     ///     to be used in queries that are not referencing property of this type.
+    ///     Calling this won't affect whether properties of this type are discovered.
     /// </summary>
     /// <remarks>
     ///     <para>

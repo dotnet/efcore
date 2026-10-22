@@ -3,15 +3,10 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.StoreValueGenerationModel;
 
-#nullable enable
+#nullable disable
 
-public class StoreValueGenerationContext : PoolableDbContext
+public class StoreValueGenerationContext(DbContextOptions options) : PoolableDbContext(options)
 {
-    public StoreValueGenerationContext(DbContextOptions options)
-        : base(options)
-    {
-    }
-
     public DbSet<StoreValueGenerationData> WithSomeDatabaseGenerated
         => Set<StoreValueGenerationData>(nameof(WithSomeDatabaseGenerated));
 

@@ -5,12 +5,14 @@ using Microsoft.Data.SqlClient;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class OperatorsProceduralSqlServerTest : OperatorsProceduralQueryTestBase
 {
     private static readonly MethodInfo AtTimeZoneDateTimeOffsetMethodInfo = typeof(SqlServerDbFunctionsExtensions)
         .GetRuntimeMethod(
             nameof(SqlServerDbFunctionsExtensions.AtTimeZone),
-            new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(string) })!;
+            [typeof(DbFunctions), typeof(DateTimeOffset), typeof(string)])!;
 
     public OperatorsProceduralSqlServerTest(ITestOutputHelper testOutputHelper)
     {

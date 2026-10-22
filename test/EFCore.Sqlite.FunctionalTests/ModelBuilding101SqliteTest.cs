@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class ModelBuilding101SqliteTest : ModelBuilding101RelationalTestBase
 {
     protected override DbContextOptionsBuilder ConfigureContext(DbContextOptionsBuilder optionsBuilder)

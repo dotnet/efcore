@@ -79,7 +79,11 @@ internal class RootCommand : CommandBase
         if (!_noBuild!.HasValue())
         {
             Reporter.WriteInformation(Resources.BuildStarted);
-            startupProject.Build();
+            var skipOptimization = _args!.Count > 2
+                && _args[0] == "dbcontext"
+                && _args[1] == "optimize"
+                && !_args.Any(a => a == "--no-scaffold");
+            startupProject.Build(skipOptimization ? new[] { "/p:EFOptimizeContext=false" } : null);
             Reporter.WriteInformation(Resources.BuildSucceeded);
         }
 
@@ -106,7 +110,7 @@ internal class RootCommand : CommandBase
         {
             executable = Path.Combine(
                 toolsPath,
-                "net461",
+                "net472",
                 startupProject.PlatformTarget == "x86"
                     ? "win-x86"
                     : "any",
@@ -126,7 +130,7 @@ internal class RootCommand : CommandBase
             {
                 executable = Path.Combine(
                     toolsPath,
-                    "net461",
+                    "net472",
                     startupProject.PlatformTarget switch
                     {
                         "x86" => "win-x86",
@@ -303,7 +307,7 @@ internal class RootCommand : CommandBase
 
             if (!Directory.Exists(path)) // It's not a directory
             {
-                return new List<string> { path };
+                return [path];
             }
         }
 

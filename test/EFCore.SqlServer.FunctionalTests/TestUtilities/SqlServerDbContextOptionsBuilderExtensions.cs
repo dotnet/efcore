@@ -21,4 +21,38 @@ public static class SqlServerDbContextOptionsBuilderExtensions
 
         return optionsBuilder;
     }
+
+    public static AzureSqlDbContextOptionsBuilder ApplyConfiguration(this AzureSqlDbContextOptionsBuilder optionsBuilder)
+    {
+        var maxBatch = TestEnvironment.GetInt(nameof(SqlServerDbContextOptionsBuilder.MaxBatchSize));
+        if (maxBatch.HasValue)
+        {
+            optionsBuilder.MaxBatchSize(maxBatch.Value);
+        }
+
+        optionsBuilder.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery);
+
+        optionsBuilder.ExecutionStrategy(d => new TestSqlServerRetryingExecutionStrategy(d));
+
+        optionsBuilder.CommandTimeout(SqlServerTestStore.CommandTimeout);
+
+        return optionsBuilder;
+    }
+
+    public static AzureSynapseDbContextOptionsBuilder ApplyConfiguration(this AzureSynapseDbContextOptionsBuilder optionsBuilder)
+    {
+        var maxBatch = TestEnvironment.GetInt(nameof(SqlServerDbContextOptionsBuilder.MaxBatchSize));
+        if (maxBatch.HasValue)
+        {
+            optionsBuilder.MaxBatchSize(maxBatch.Value);
+        }
+
+        optionsBuilder.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery);
+
+        optionsBuilder.ExecutionStrategy(d => new TestSqlServerRetryingExecutionStrategy(d));
+
+        optionsBuilder.CommandTimeout(SqlServerTestStore.CommandTimeout);
+
+        return optionsBuilder;
+    }
 }

@@ -5,14 +5,9 @@ using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration;
 
-public class AppendIncludeToExistingExpressionMutator : ExpressionMutator
+public class AppendIncludeToExistingExpressionMutator(DbContext context) : ExpressionMutator(context)
 {
-    public AppendIncludeToExistingExpressionMutator(DbContext context)
-        : base(context)
-    {
-    }
-
-    private ExpressionFinder _expressionFinder;
+    private ExpressionFinder _expressionFinder = null!;
 
     public override bool IsValid(Expression expression)
     {
@@ -83,15 +78,14 @@ public class AppendIncludeToExistingExpressionMutator : ExpressionMutator
 
     private class ExpressionFinder : ExpressionVisitor
     {
-        public readonly List<Expression> FoundExpressions = new();
+        public readonly List<Expression> FoundExpressions = [];
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
             // can't handle string overloads = need type information to construct Expression calls.
-            if (node != null
-                && (node.Method.MethodIsClosedFormOf(IncludeMethodInfo)
-                    || node.Method.MethodIsClosedFormOf(ThenIncludeReferenceMethodInfo)
-                    || node.Method.MethodIsClosedFormOf(ThenIncludeCollectionMethodInfo)))
+            if (node.Method.MethodIsClosedFormOf(IncludeMethodInfo)
+                || node.Method.MethodIsClosedFormOf(ThenIncludeReferenceMethodInfo)
+                || node.Method.MethodIsClosedFormOf(ThenIncludeCollectionMethodInfo))
             {
                 FoundExpressions.Add(node);
 

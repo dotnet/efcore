@@ -5,14 +5,11 @@ using Microsoft.EntityFrameworkCore.TestModels.OptionalDependent;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class OptionalDependentQueryTestBase<TFixture> : QueryTestBase<TFixture>
+#nullable disable
+
+public abstract class OptionalDependentQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : OptionalDependentQueryFixtureBase, new()
 {
-    protected OptionalDependentQueryTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Basic_projection_entity_with_all_optional(bool async)

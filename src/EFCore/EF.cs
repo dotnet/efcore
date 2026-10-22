@@ -75,6 +75,18 @@ public static partial class EF
         => throw new InvalidOperationException(CoreStrings.EFConstantInvoked);
 
     /// <summary>
+    ///     Within the context of an EF LINQ query, forces its argument to be inserted into the query as a parameter expression. This can be
+    ///     used to e.g. make sure a constant value is parameterized instead of integrated as a constant into the query, which can be useful
+    ///     in dynamic query construction scenarios.
+    /// </summary>
+    /// <remarks>Note that this is a static method accessed through the top-level <see cref="EF" /> static type.</remarks>
+    /// <typeparam name="T">The type of the expression to be integrated as a parameter into the query.</typeparam>
+    /// <param name="argument">The expression to be integrated as a parameter into the query.</param>
+    /// <returns>The same value for further use in the query.</returns>
+    public static T Parameter<T>(T argument)
+        => throw new InvalidOperationException(CoreStrings.EFParameterInvoked);
+
+    /// <summary>
     ///     Provides CLR methods that get translated to database functions when used in LINQ to Entities queries.
     ///     Calling these methods in other contexts (e.g. LINQ to Objects) will throw a <see cref="NotSupportedException" />.
     /// </summary>

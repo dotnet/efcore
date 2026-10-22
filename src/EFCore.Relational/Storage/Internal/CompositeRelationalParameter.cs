@@ -21,9 +21,7 @@ public class CompositeRelationalParameter : RelationalParameterBase
         string invariantName,
         IReadOnlyList<IRelationalParameter> relationalParameters)
         : base(invariantName)
-    {
-        RelationalParameters = relationalParameters;
-    }
+        => RelationalParameters = relationalParameters;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

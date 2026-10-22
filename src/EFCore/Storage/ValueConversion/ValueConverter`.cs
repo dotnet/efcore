@@ -19,6 +19,10 @@ public class ValueConverter<TModel, TProvider> : ValueConverter
     private Func<TModel, TProvider>? _convertToProviderTyped;
     private Func<TProvider, TModel>? _convertFromProviderTyped;
 
+    private static readonly ConstructorInfo MappingHintsCtor
+        = typeof(ConverterMappingHints).GetConstructor(
+            [typeof(int?), typeof(int?), typeof(int?), typeof(bool?), typeof(Func<IProperty, IEntityType, ValueGenerator>)])!;
+
     /// <summary>
     ///     Initializes a new instance of the <see cref="ValueConverter{TModel,TProvider}" /> class.
     /// </summary>
@@ -172,4 +176,28 @@ public class ValueConverter<TModel, TProvider> : ValueConverter
     /// </remarks>
     public override Type ProviderClrType
         => typeof(TProvider);
+
+    private readonly ConstructorInfo _constructorInfo = typeof(ValueConverter<TModel, TProvider>).GetConstructor(
+    [
+        typeof(Expression<Func<TModel, TProvider>>),
+        typeof(Expression<Func<TProvider, TModel>>),
+        typeof(ConverterMappingHints)
+    ])!;
+
+    /// <inheritdoc />
+    public override Expression ConstructorExpression
+        => Expression.New(
+            _constructorInfo,
+            ConvertToProviderExpression,
+            ConvertFromProviderExpression,
+            MappingHints != null
+                ? Expression.New(
+                    MappingHintsCtor,
+                    Expression.Constant(MappingHints.Size, typeof(int?)),
+                    Expression.Constant(MappingHints.Precision, typeof(int?)),
+                    Expression.Constant(MappingHints.Scale, typeof(int?)),
+                    Expression.Constant(MappingHints.IsUnicode, typeof(bool?)),
+                    // valueGeneratorFactory is difficult to build using Expression trees and is obsolete
+                    Expression.Default(typeof(Func<IProperty, IEntityType, ValueGenerator>)))
+                : Expression.Default(typeof(ConverterMappingHints)));
 }
