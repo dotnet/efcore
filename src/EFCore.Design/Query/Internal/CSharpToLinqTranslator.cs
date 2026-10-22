@@ -390,6 +390,8 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
         var parameterType = methodInfo.GetParameters()[0].ParameterType;
         var returnType = methodInfo.ReturnType;
         if (Nullable.GetUnderlyingType(expression.Type) is not null
+            && parameterType.IsValueType
+            && returnType.IsValueType
             && Nullable.GetUnderlyingType(parameterType) is null
             && Nullable.GetUnderlyingType(returnType) is null)
         {
