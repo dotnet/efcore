@@ -1506,6 +1506,32 @@ public class SqliteDataReaderTest
     }
 
     [Fact]
+    public void GetValues_throws_before_read_when_empty()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+
+        using var reader = connection.ExecuteReader("SELECT 1;");
+
+        var ex = Assert.Throws<InvalidOperationException>(() => reader.GetValues(Array.Empty<object>()));
+        Assert.Equal(Resources.NoData, ex.Message);
+    }
+
+    [Fact]
+    public void GetValues_throws_after_last_row_when_empty()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+
+        using var reader = connection.ExecuteReader("SELECT 1;");
+        Assert.True(reader.Read());
+        Assert.False(reader.Read());
+
+        var ex = Assert.Throws<InvalidOperationException>(() => reader.GetValues(Array.Empty<object>()));
+        Assert.Equal(Resources.NoData, ex.Message);
+    }
+
+    [Fact]
     public void GetValues_throws_when_closed()
         => X_throws_when_closed(r => r.GetValues(null!), nameof(SqliteDataReader.GetValues));
 
