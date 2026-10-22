@@ -102,8 +102,8 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     private void LocalViewCollectionChanged(object? _, NotifyCollectionChangedEventArgs args)
     {
         Check.DebugAssert(
-            args.Action is NotifyCollectionChangedAction.Add or NotifyCollectionChangedAction.Remove,
-            "action is not Add or Remove");
+            args.Action is NotifyCollectionChangedAction.Add or NotifyCollectionChangedAction.Remove or NotifyCollectionChangedAction.Reset,
+            "action is not Add, Remove or Reset");
 
         if (_triggeringLocalViewChange)
         {
@@ -114,7 +114,11 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
         {
             _triggeringObservableChange = true;
 
-            if (args.Action == NotifyCollectionChangedAction.Remove)
+            if (args.Action == NotifyCollectionChangedAction.Reset)
+            {
+                _observable!.Clear();
+            }
+            else if (args.Action == NotifyCollectionChangedAction.Remove)
             {
                 Check.DebugAssert(args.OldItems!.Count == 1, $"OldItems.Count is {args.OldItems.Count}");
                 _observable!.Remove((TEntity)args.OldItems[0]!);
@@ -512,6 +516,27 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
         PropertyChanged = null;
         PropertyChanging = null;
         CollectionChanged = null;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual void OnStateManagerCleared()
+    {
+        // The state manager stopped tracking everything without reporting each entity, so tell the existing
+        // subscribers (including the observable collection and binding list) that the view is now empty
+        OnCountPropertyChanging();
+
+        _count = 0;
+        _countChanges = 0;
+
+        OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+
+        OnCountPropertyChanged();
     }
 
     /// <summary>

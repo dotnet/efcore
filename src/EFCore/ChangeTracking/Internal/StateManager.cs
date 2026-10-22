@@ -765,9 +765,18 @@ public class StateManager : IStateManager
 
         SavingChanges = false;
 
-        foreach (IResettableService set in ((IDbSetCache)Context).GetSets())
+        foreach (var set in ((IDbSetCache)Context).GetSets())
         {
-            set.ResetState();
+            if (resetting)
+            {
+                ((IResettableService)set).ResetState();
+            }
+            else
+            {
+                // The context stays in use after ChangeTracker.Clear(), so local views keep their subscribers
+                // (e.g. data bound ObservableCollections) and are told that they are now empty instead
+                (set as ILocalViewOwner)?.OnStateManagerCleared();
+            }
         }
     }
 
