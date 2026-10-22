@@ -1671,8 +1671,7 @@ WHERE (
     [ConditionalFact]
     public override async Task Parameter_collection_Concat_column_collection()
     {
-        // Issue #32561
-        await Assert.ThrowsAsync<EqualException>(() => base.Parameter_collection_Concat_column_collection());
+        await base.Parameter_collection_Concat_column_collection();
 
         AssertSql(
             """
