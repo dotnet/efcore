@@ -259,4 +259,26 @@ public class SqliteParameter : DbParameter
 
         return index;
     }
+
+    internal bool Matches(string? name)
+    {
+        if (name == null)
+        {
+            return false;
+        }
+
+        if (ParameterName == name)
+        {
+            return true;
+        }
+
+        if (name.Length > 1
+            && (name[0] == '@' || name[0] == '$' || name[0] == ':')
+            && string.Equals(ParameterName, name[1..], StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        return false;
+    }
 }

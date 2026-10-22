@@ -331,10 +331,10 @@ public class SqliteCommand : DbCommand
                 {
                     var name = sqlite3_bind_parameter_name(stmt, i).utf8_to_string();
 
-                    if (_parameters != null
-                        && !_parameters.Cast<SqliteParameter>().Any(p => p.ParameterName == name))
+                    if (_parameters == null
+                        || !_parameters.Cast<SqliteParameter>().Any(p => p.Matches(name)))
                     {
-                        unboundParams.Add(name);
+                        unboundParams.Add(name ?? "?");
                     }
                 }
 
