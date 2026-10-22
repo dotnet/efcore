@@ -1606,7 +1606,7 @@ LEFT JOIN (
         ) AS [o1]
     ) AS [o6]
     WHERE [o6].[row] <= 1
-) AS [o7] ON [o5].[Key] = [o7].[Key]
+) AS [o7] ON [o5].[Key] = [o7].[Key] OR ([o5].[Key] IS NULL AND [o7].[Key] IS NULL)
 LEFT JOIN (
     SELECT [o3].[ClientId], [o3].[Id], [o3].[OrderDate], [o3].[PeriodEnd], [o3].[PeriodStart], [o4].[OrderClientId], [o4].[OrderId], [o4].[Id] AS [Id0], [o4].[Detail], [o4].[PeriodEnd] AS [PeriodEnd0], [o4].[PeriodStart] AS [PeriodStart0]
     FROM [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o3]

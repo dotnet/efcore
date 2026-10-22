@@ -3280,7 +3280,8 @@ public sealed partial class SelectExpression : TableExpressionBase
                     ? innerSelect.Having
                     : innerSelect.Predicate;
 
-                joinPredicate = TryExtractJoinKey(this, innerSelect, allowNonEquality: limit == null && offset == null);
+                joinPredicate = TryExtractJoinKey(
+                    this, innerSelect, allowNonEquality: limit == null && offset == null, out var nullKeysMatch);
                 if (joinPredicate != null)
                 {
                     var containsOuterReference = new SelectExpressionCorrelationFindingExpressionVisitor(this)
@@ -3332,6 +3333,20 @@ public sealed partial class SelectExpression : TableExpressionBase
                                     : offsetPredicate
                                 : limitPredicate;
                             innerSelect.ApplyPredicate(predicate!);
+                        }
+
+                        // SqlNullabilityProcessor.ProcessJoinPredicate gives a lone equality in a join predicate LINQ equijoin
+                        // semantics, where null equals nothing. When null keys should match, as they did in the subquery's WHERE,
+                        // the equality is given an always-true partner, as CreateJoinPredicate does for an anonymous type with a
+                        // single property, so that it's processed with C# null semantics instead.
+                        if (nullKeysMatch)
+                        {
+                            joinPredicate = new SqlBinaryExpression(
+                                ExpressionType.AndAlso,
+                                joinPredicate,
+                                new SqlConstantExpression(true, joinPredicate.TypeMapping),
+                                typeof(bool),
+                                joinPredicate.TypeMapping);
                         }
 
                         AddJoin(
@@ -3486,8 +3501,14 @@ public sealed partial class SelectExpression : TableExpressionBase
             }
         }
 
-        static SqlExpression? TryExtractJoinKey(SelectExpression outer, SelectExpression inner, bool allowNonEquality)
+        static SqlExpression? TryExtractJoinKey(
+            SelectExpression outer,
+            SelectExpression inner,
+            bool allowNonEquality,
+            out bool nullKeysMatch)
         {
+            nullKeysMatch = false;
+
             if (inner.Limit != null
                 || inner.Offset != null)
             {
@@ -3511,7 +3532,15 @@ public sealed partial class SelectExpression : TableExpressionBase
 
             if (joinPredicate != null)
             {
+                var keyComparison = joinPredicate;
                 joinPredicate = RemoveRedundantNullChecks(joinPredicate, outerColumnExpressions);
+
+                // The predicate was the subquery's WHERE, where an equality has C# null semantics: null equals null. A correlation
+                // which wants null keys to match nothing says so with a null check on the outer key - navigations and GroupJoin
+                // generate "outer != null && outer == inner" - and removing that check above relies on the join predicate's
+                // equijoin semantics instead. A lone equality without one has to keep matching null keys.
+                nullKeysMatch = ReferenceEquals(joinPredicate, keyComparison)
+                    && joinPredicate is SqlBinaryExpression { OperatorType: ExpressionType.Equal };
             }
 
             // we can't convert apply to join in case of distinct and group by, if the projection doesn't already contain the join keys
