@@ -52,12 +52,10 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
     private readonly QueryableMethodTranslatingExpressionVisitor _queryableMethodTranslatingExpressionVisitor;
     private readonly RelationalQueryableMethodTranslatingExpressionVisitor? _relationalQueryableTranslator;
 
-    private bool _throwForNotTranslatedEfProperty;
+    // The queries the SQL being translated may end up in, outermost first; see RelationalQueryCompilationContext.TranslationScopes.
+    private readonly List<SelectExpression?> _translationScopes;
 
-    // The SelectExpression currently being composed, scoped by the callers that build one (projection binding and
-    // TranslateLambdaExpression). Lets an aggregate tell its own grouping apart from one belonging to an enclosing
-    // query. Null when translating outside any such context.
-    internal SelectExpression? CurrentSelectExpression { get; set; }
+    private bool _throwForNotTranslatedEfProperty;
 
     /// <summary>
     ///     Creates a new instance of the <see cref="RelationalSqlTranslatingExpressionVisitor" /> class.
@@ -77,6 +75,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
         _queryableMethodTranslatingExpressionVisitor = queryableMethodTranslatingExpressionVisitor;
         _relationalQueryableTranslator =
             queryableMethodTranslatingExpressionVisitor as RelationalQueryableMethodTranslatingExpressionVisitor;
+        _translationScopes = (queryCompilationContext as RelationalQueryCompilationContext)?.TranslationScopes ?? [];
         _throwForNotTranslatedEfProperty = true;
     }
 
@@ -115,11 +114,36 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
     /// </param>
     /// <returns>A SQL translation of the given expression.</returns>
     public virtual SqlExpression? Translate(Expression expression, bool applyDefaultTypeMapping = true)
+        => Translate(expression, scope: null, applyDefaultTypeMapping);
+
+    /// <summary>
+    ///     Translates an expression whose SQL will be placed into <paramref name="scope" />, or into a query the caller doesn't
+    ///     know when it is <see langword="null" />, in which case no aggregate over an enclosing grouping is folded into it.
+    /// </summary>
+    internal SqlExpression? Translate(Expression expression, SelectExpression? scope, bool applyDefaultTypeMapping = true)
     {
         TranslationErrorDetails = null;
 
-        return TranslateInternal(expression, applyDefaultTypeMapping) as SqlExpression;
+        PushTranslationScope(scope);
+        try
+        {
+            return TranslateInternal(expression, applyDefaultTypeMapping) as SqlExpression;
+        }
+        finally
+        {
+            PopTranslationScope();
+        }
     }
+
+    /// <summary>
+    ///     Records that SQL translated until the matching <see cref="PopTranslationScope" /> is placed into
+    ///     <paramref name="scope" />, or into a query the caller doesn't know when it is <see langword="null" />.
+    /// </summary>
+    internal void PushTranslationScope(SelectExpression? scope)
+        => _translationScopes.Add(scope);
+
+    internal void PopTranslationScope()
+        => _translationScopes.RemoveAt(_translationScopes.Count - 1);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -129,6 +153,13 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
     /// </summary>
     [EntityFrameworkInternal]
     public virtual Expression? TranslateProjection(Expression expression, bool applyDefaultTypeMapping = true)
+        => TranslateProjection(expression, scope: null, applyDefaultTypeMapping);
+
+    /// <summary>
+    ///     Translates a projection whose SQL will be placed into <paramref name="scope" />, or into a query the caller doesn't
+    ///     know when it is <see langword="null" />.
+    /// </summary>
+    internal Expression? TranslateProjection(Expression expression, SelectExpression? scope, bool applyDefaultTypeMapping = true)
     {
         TranslationErrorDetails = null;
 
@@ -141,7 +172,18 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
             return null;
         }
 
-        return TranslateInternal(expression, applyDefaultTypeMapping) switch
+        Expression? translation;
+        PushTranslationScope(scope);
+        try
+        {
+            translation = TranslateInternal(expression, applyDefaultTypeMapping);
+        }
+        finally
+        {
+            PopTranslationScope();
+        }
+
+        return translation switch
         {
             // This is the case of a structural type getting projected out via Select (possibly also an owned entity one day, if we stop
             // expanding them in pre-visitation)
@@ -159,28 +201,6 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
 
             _ => null
         };
-    }
-
-    /// <summary>
-    ///     Translates a projection, scoping the translation to <paramref name="selectExpression" /> - the SelectExpression the
-    ///     projection is being built into.
-    /// </summary>
-    internal Expression? TranslateProjection(
-        Expression expression,
-        SelectExpression selectExpression,
-        bool applyDefaultTypeMapping = true)
-    {
-        var previous = CurrentSelectExpression;
-        CurrentSelectExpression = selectExpression;
-
-        try
-        {
-            return TranslateProjection(expression, applyDefaultTypeMapping);
-        }
-        finally
-        {
-            CurrentSelectExpression = previous;
-        }
     }
 
     private Expression? TranslateInternal(Expression expression, bool applyDefaultTypeMapping = true)
@@ -1774,57 +1794,89 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
         var translation = Dependencies.AggregateMethodCallTranslatorProvider.Translate(
             _model, method, enumerableExpression, scalarArguments, _queryCompilationContext.Logger);
 
-        // #27130: a grouping from an enclosing query is still in scope inside a subquery, and an aggregate over it lands in
-        // whichever GROUP BY is being composed here. Leave it folded in only when it is unambiguously an aggregate over the
-        // enclosing group - every column it references comes from outside this query (MIN([o].[OrderID]),
-        // COUNT(CASE WHEN [o].x ...)), so SQL evaluates it against that group. Anything else is refused: an aggregate with no
-        // outer reference at all (COUNT(*) and friends) would silently bind to the inner grouping and count the wrong rows,
-        // and one mixing outer and inner columns is not an outer aggregate either. Refusing makes the caller fall back to a
-        // correlated subquery over the grouping element.
+        // #27130: SQL evaluates an aggregate in the innermost query whose columns its argument references - or, when it references
+        // none (COUNT(*)), in the query it is written in. A grouping from an enclosing query stays in scope inside subqueries, so an
+        // aggregate over it isn't necessarily written in the query owning that grouping, and even one that is can name only columns
+        // of a query further out (g.Sum(e => outer.Key)). Leave the aggregate folded in only when SQL will evaluate it over the
+        // owner's own GROUP BY; otherwise refusing makes the caller fall back to a subquery over the grouping element.
         if (translation is not null
-            && CurrentSelectExpression is { GroupBy.Count: > 0 } currentSelectExpression
-            && enumerableExpression.GroupingOwner is not null
-            && enumerableExpression.GroupingOwner != currentSelectExpression
-            && !IsAggregateOverEnclosingGroup(translation, currentSelectExpression))
+            && enumerableExpression.GroupingOwner is { } groupingOwner
+            && !IsEvaluatedIn(translation, groupingOwner))
         {
             return null;
         }
 
         return translation;
-
-        static bool IsAggregateOverEnclosingGroup(SqlExpression expression, SelectExpression currentSelectExpression)
-        {
-            var ownAliases = new HashSet<string>();
-            foreach (var table in currentSelectExpression.Tables)
-            {
-                if (table.UnwrapJoin().Alias is string alias)
-                {
-                    ownAliases.Add(alias);
-                }
-            }
-
-            var finder = new OuterColumnFindingExpressionVisitor(ownAliases);
-            finder.Visit(expression);
-            return finder.FoundOuterColumn && !finder.FoundInnerColumn;
-        }
     }
 
-    // Classifies the columns an aggregate references, relative to the SelectExpression being composed: those belonging to that
-    // query's own tables are inner, those belonging to a table nested inside the expression are local and ignored, and anything
-    // else is an outer reference. Mirrors how SelectExpressionCorrelationFindingExpressionVisitor and
-    // SqlServerAggregateOverSubqueryPostprocessor decide whether a subquery is correlated.
-    private sealed class OuterColumnFindingExpressionVisitor(HashSet<string> ownAliases) : ExpressionVisitor
+    // Whether SQL evaluates an aggregate written in the innermost translation scope over the rows of the given query. Unknown scopes
+    // (null) and columns from tables of no known scope count against it, so a translation path which doesn't say where its SQL goes
+    // can only lose the folded aggregate, never fold it into the wrong query.
+    private bool IsEvaluatedIn(SqlExpression aggregate, SelectExpression query)
+    {
+        var scopes = _translationScopes;
+        if (scopes.Count == 0 || scopes[^1] is null)
+        {
+            return false;
+        }
+
+        var evaluatedIn = scopes.Count - 1;
+        var referencedAliases = ReferencedTableAliasCollector.Collect(aggregate);
+        if (referencedAliases.Count > 0)
+        {
+            evaluatedIn = -1;
+            foreach (var alias in referencedAliases)
+            {
+                var level = scopes.FindLastIndex(s => s is not null && ContainsTable(s, alias));
+                if (level < 0)
+                {
+                    return false;
+                }
+
+                evaluatedIn = Math.Max(evaluatedIn, level);
+            }
+        }
+
+        // Every scope between the query evaluating it and the one it's written in must be known, or a column of an unknown one could
+        // have been missed.
+        for (var i = evaluatedIn + 1; i < scopes.Count; i++)
+        {
+            if (scopes[i] is null)
+            {
+                return false;
+            }
+        }
+
+        return scopes[evaluatedIn] == query;
+    }
+
+    // Whether the selector of an aggregate over the given query references columns, but none of the query's own, so that SQL would
+    // evaluate the aggregate in an enclosing query rather than over this one's rows.
+    internal static bool ReferencesOnlyOuterColumns(SqlExpression selector, SelectExpression query)
+    {
+        var referencedAliases = ReferencedTableAliasCollector.Collect(selector);
+
+        return referencedAliases.Count > 0 && !referencedAliases.Any(a => ContainsTable(query, a));
+    }
+
+    private static bool ContainsTable(SelectExpression query, string alias)
+        => query.Tables.Any(t => t.UnwrapJoin().Alias == alias);
+
+    // Collects the aliases of the tables whose columns an expression references, leaving out tables of subqueries nested inside the
+    // expression. Mirrors how SelectExpressionCorrelationFindingExpressionVisitor and SqlServerAggregateOverSubqueryPostprocessor
+    // decide whether a subquery is correlated.
+    private sealed class ReferencedTableAliasCollector : ExpressionVisitor
     {
         private readonly HashSet<string> _nestedAliases = [];
+        private readonly HashSet<string> _referencedAliases = [];
 
-        public bool FoundOuterColumn { get; private set; }
+        public static HashSet<string> Collect(Expression expression)
+        {
+            var collector = new ReferencedTableAliasCollector();
+            collector.Visit(expression);
 
-        public bool FoundInnerColumn { get; private set; }
-
-        [return: NotNullIfNotNull(nameof(node))]
-        public override Expression? Visit(Expression? node)
-            // An inner column already settles the question; an outer one does not, since a later inner column still matters.
-            => FoundInnerColumn ? node : base.Visit(node);
+            return collector._referencedAliases;
+        }
 
         protected override Expression VisitExtension(Expression node)
         {
@@ -1845,14 +1897,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                 case ColumnExpression columnExpression:
                     if (!_nestedAliases.Contains(columnExpression.TableAlias))
                     {
-                        if (ownAliases.Contains(columnExpression.TableAlias))
-                        {
-                            FoundInnerColumn = true;
-                        }
-                        else
-                        {
-                            FoundOuterColumn = true;
-                        }
+                        _referencedAliases.Add(columnExpression.TableAlias);
                     }
 
                     return columnExpression;
