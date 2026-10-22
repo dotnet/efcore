@@ -6,6 +6,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Data.SqlTypes;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
@@ -264,6 +265,68 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
         // With a value converter the provider value reaching the type mapping may not be a TimeSpan
         var convertedMapping = (RelationalTypeMapping)GetMapping(typeof(TimeSpan)).WithComposedConverter(new TimeSpanToStringConverter());
         Assert.Equal("'13:10:15.5000000'", convertedMapping.GenerateSqlLiteral(new TimeSpan(0, 13, 10, 15, 500)));
+    }
+
+    [Theory]
+    [InlineData(-1)]
+    [InlineData(24)]
+    [InlineData(25)]
+    public void Timespan_literal_throws_for_out_of_range_value(double hours)
+    {
+        var typeMapping = GetMapping(typeof(TimeSpan));
+        var value = TimeSpan.FromHours(hours);
+
+        var exception = Assert.Throws<OverflowException>(
+            () => typeMapping.GenerateSqlLiteral(value));
+
+        Assert.Equal(SqlServerStrings.TimeSpanLiteralOutOfRange(value), exception.Message);
+    }
+
+    [Fact]
+    public void Timespan_literal_generated_for_boundary_values()
+    {
+        var typeMapping = GetMapping(typeof(TimeSpan));
+
+        Assert.Equal("'00:00:00'", typeMapping.GenerateSqlLiteral(TimeSpan.Zero));
+        Assert.Equal(
+            "'23:59:59.9999999'",
+            typeMapping.GenerateSqlLiteral(TimeSpan.FromDays(1) - TimeSpan.FromTicks(1)));
+    }
+
+    [Fact]
+    public void Timespan_literal_throws_for_negative_tick()
+    {
+        var typeMapping = GetMapping(typeof(TimeSpan));
+
+        Assert.Throws<OverflowException>(
+            () => typeMapping.GenerateSqlLiteral(TimeSpan.FromTicks(-1)));
+    }
+
+    [Fact]
+    public void Query_with_out_of_range_TimeSpan_constant_throws()
+    {
+        using var context = new TimeSpanLiteralContext();
+
+        // Case 1: Negative TimeSpan must throw.
+        var negativeQuery = context.Entities
+            .Where(e => e.TimeSpan > TimeSpan.FromHours(-1));
+
+        Assert.Throws<OverflowException>(
+            () => negativeQuery.ToQueryString());
+
+        // Case 2: A valid value must generate correct SQL.
+        var validSql = context.Entities
+            .Where(e => e.TimeSpan > TimeSpan.FromHours(1))
+            .ToQueryString();
+
+        Assert.Contains("'01:00:00'", validSql);
+
+        // Case 3: A value outside the 24-hour range must throw.
+        var invalidQuery = context.Entities
+            .Where(e => e.TimeSpan > TimeSpan.FromHours(25));
+
+        Assert.Throws<OverflowException>(
+            () => invalidQuery.ToQueryString());
     }
 
     public override void DateTime_literal_generated_correctly()
@@ -552,4 +615,24 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
         = new DbContextOptionsBuilder()
             .UseInternalServiceProvider(SqlServerFixture.DefaultServiceProvider)
             .UseSqlServer("Server=Dummy").Options;
+
+    private sealed class TimeSpanLiteralContext : DbContext
+    {
+        public DbSet<TimeSpanLiteralEntity> Entities
+            => Set<TimeSpanLiteralEntity>();
+
+        protected override void OnConfiguring(
+            DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder.UseSqlServer(
+                "Server=localhost;Database=TimeSpanManualTest;"
+                + "User Id=sa;Password=NotUsed123!;"
+                + "TrustServerCertificate=True");
+    }
+
+    private sealed class TimeSpanLiteralEntity
+    {
+        public int Id { get; set; }
+
+        public TimeSpan TimeSpan { get; set; }
+    }
 }
