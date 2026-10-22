@@ -380,10 +380,12 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
         var methodSymbol = conversion.MethodSymbol
             ?? throw new InvalidOperationException($"Could not find method for user-defined conversion: {expression}");
         var declaringType = ResolveType(methodSymbol.ContainingType);
-        var methodInfo = declaringType.GetMethod(
-            methodSymbol.Name,
-            BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static,
-            [ResolveType(methodSymbol.Parameters[0].Type)])
+        var methodInfo = declaringType.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)
+            .SingleOrDefault(
+                method => method.Name == methodSymbol.Name
+                    && method.ReturnType == ResolveType(methodSymbol.ReturnType)
+                    && method.GetParameters() is [var parameter]
+                    && parameter.ParameterType == ResolveType(methodSymbol.Parameters[0].Type))
             ?? throw new InvalidOperationException(
                 $"Could not find method '{methodSymbol.Name}' on type '{declaringType.Name}' for user-defined conversion: {expression}");
 
