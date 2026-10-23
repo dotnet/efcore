@@ -641,7 +641,8 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
                 Assert.NotEmpty(elementObject.Properties);
 
                 // Verify GetJsonElementMappings works for the complex property
-                var mappings = manyOwnedComplexProperty.GetJsonElementMappings().ToList();
+                var mappings = manyOwnedComplexProperty.GetJsonElementMappings()
+                    .Where(m => m.TableMapping.Table == principalDerivedTable).ToList();
                 Assert.NotEmpty(mappings);
                 Assert.All(
                     mappings, m =>

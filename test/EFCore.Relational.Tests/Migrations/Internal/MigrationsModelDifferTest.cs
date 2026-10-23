@@ -8863,6 +8863,50 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 }));
 
     [Fact]
+    public void Add_second_inherited_complex_property_in_TPC_does_not_reassign_existing_columns()
+        => Execute(
+            common =>
+            {
+                common.Entity("Vessel", b =>
+                {
+                    b.UseTpcMappingStrategy();
+                    b.Property<int>("Id");
+                    b.ComplexProperty<Address>("Shipping", c =>
+                    {
+                        c.IsRequired();
+                        c.Ignore(a => a.AddressLine2);
+                    });
+                });
+                common.Entity("Ferry").HasBaseType("Vessel");
+            },
+            _ => { },
+            target => target.Entity("Vessel").ComplexProperty<Address>("Billing", c =>
+            {
+                c.IsRequired();
+                c.Ignore(a => a.AddressLine2);
+            }),
+            upOperations =>
+            {
+                Assert.Equal(2, upOperations.Count);
+                Assert.Equal(["Ferry", "Vessel"], upOperations.Cast<AddColumnOperation>().Select(o => o.Table).Order());
+                foreach (var operation in upOperations)
+                {
+                    var addColumn = Assert.IsType<AddColumnOperation>(operation);
+                    Assert.Equal("Billing_AddressLine1", addColumn.Name);
+                }
+            },
+            downOperations =>
+            {
+                Assert.Equal(2, downOperations.Count);
+                Assert.Equal(["Ferry", "Vessel"], downOperations.Cast<DropColumnOperation>().Select(o => o.Table).Order());
+                foreach (var operation in downOperations)
+                {
+                    var dropColumn = Assert.IsType<DropColumnOperation>(operation);
+                    Assert.Equal("Billing_AddressLine1", dropColumn.Name);
+                }
+            });
+
+    [Fact]
     public void Change_TPT_to_TPC_with_excluded_base()
         => Execute(
             common =>
