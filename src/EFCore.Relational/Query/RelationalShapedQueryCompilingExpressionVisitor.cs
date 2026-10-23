@@ -28,7 +28,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
     private static ConstructorInfo? _relationalCommandConstructor;
     private static ConstructorInfo? _typeMappedRelationalParameterConstructor;
     private static PropertyInfo? _commandBuilderDependenciesProperty;
-    private static MethodInfo? _getRelationalCommandTemplateMethod;
+    private static MethodInfo? _createRelationalCommandResolverMethod;
 
     private static ConstructorInfo? _hashSetConstructor;
     private static PropertyInfo? _stringComparerOrdinalProperty;
@@ -131,6 +131,13 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
         CommandSource commandSource,
         bool threadSafetyChecksEnabled)
     {
+        // When compiled as part of a query batch, the command is captured for deferred execution instead of
+        // being executed here; the rows-affected count is later consumed from the batch's result sets.
+        if (RelationalBatchNonQueryCapture.TryCapture(relationalQueryContext, relationalCommandResolver, threadSafetyChecksEnabled))
+        {
+            return 0;
+        }
+
         try
         {
             using var _ = threadSafetyChecksEnabled
@@ -198,6 +205,13 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
         CommandSource commandSource,
         bool threadSafetyChecksEnabled)
     {
+        // When compiled as part of a query batch, the command is captured for deferred execution instead of
+        // being executed here; the rows-affected count is later consumed from the batch's result sets.
+        if (RelationalBatchNonQueryCapture.TryCapture(relationalQueryContext, relationalCommandResolver, threadSafetyChecksEnabled))
+        {
+            return Task.FromResult(0);
+        }
+
         try
         {
             using var _ = threadSafetyChecksEnabled
@@ -565,15 +579,12 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
             "relationalCommandCache",
             typeof(RelationalCommandCache));
 
-        var parametersParameter = Parameter(typeof(Dictionary<string, object?>), "parameters");
-
-        return Lambda<RelationalCommandResolver>(
-            Call(
-                commandLiftableConstant,
-                _getRelationalCommandTemplateMethod ??=
-                    typeof(RelationalCommandCache).GetMethod(nameof(RelationalCommandCache.GetRelationalCommandTemplate))!,
-                parametersParameter),
-            parametersParameter);
+        // The resolver is created from a method group on the cache (rather than a lambda closing over it), so that the cache
+        // remains reachable from the delegate; query batching uses it to regenerate the SQL with prefixed parameter names.
+        return Call(
+            _createRelationalCommandResolverMethod ??=
+                typeof(RelationalCommandCache).GetMethod(nameof(RelationalCommandCache.CreateResolver))!,
+            commandLiftableConstant);
 
         bool TryGeneratePregeneratedCommandResolver(
             Expression select,

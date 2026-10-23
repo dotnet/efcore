@@ -534,6 +534,68 @@
       ]
     },
     {
+      "Type": "static class Microsoft.EntityFrameworkCore.BatchQuery",
+      "Methods": [
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.BatchQuery<TContext, TResult> Create<TContext, TResult>(System.Linq.Expressions.Expression<System.Func<TContext, System.Linq.IQueryable<TResult>>> query);"
+        }
+      ]
+    },
+    {
+      "Type": "sealed class Microsoft.EntityFrameworkCore.BatchQuery<TContext, TResult> where TContext : Microsoft.EntityFrameworkCore.DbContext",
+      "Methods": [
+        {
+          "Member": "static implicit operator System.Linq.Expressions.Expression<System.Func<TContext, object>>(Microsoft.EntityFrameworkCore.BatchQuery<TContext, TResult> batchQuery);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "System.Linq.Expressions.Expression<System.Func<TContext, System.Linq.IQueryable<TResult>>> Expression { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.BatchResultsReader : System.IDisposable, System.IAsyncDisposable",
+      "Methods": [
+        {
+          "Member": "virtual void Dispose();"
+        },
+        {
+          "Member": "virtual System.Threading.Tasks.ValueTask DisposeAsync();"
+        },
+        {
+          "Member": "virtual System.Collections.Generic.IAsyncEnumerable<T> NextAsAsyncEnumerable<T>();"
+        },
+        {
+          "Member": "virtual System.Collections.Generic.IAsyncEnumerable<TResult> NextAsAsyncEnumerable<TContext, TResult>(Microsoft.EntityFrameworkCore.BatchQuery<TContext, TResult> query);"
+        },
+        {
+          "Member": "virtual System.Collections.Generic.IEnumerable<T> NextAsEnumerable<T>();"
+        },
+        {
+          "Member": "virtual System.Collections.Generic.IEnumerable<TResult> NextAsEnumerable<TContext, TResult>(Microsoft.EntityFrameworkCore.BatchQuery<TContext, TResult> query);"
+        },
+        {
+          "Member": "virtual System.Collections.Generic.List<T> NextAsList<T>();"
+        },
+        {
+          "Member": "virtual System.Collections.Generic.List<TResult> NextAsList<TContext, TResult>(Microsoft.EntityFrameworkCore.BatchQuery<TContext, TResult> query);"
+        },
+        {
+          "Member": "virtual System.Threading.Tasks.Task<System.Collections.Generic.List<T>> NextAsListAsync<T>(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));"
+        },
+        {
+          "Member": "virtual System.Threading.Tasks.Task<System.Collections.Generic.List<TResult>> NextAsListAsync<TContext, TResult>(Microsoft.EntityFrameworkCore.BatchQuery<TContext, TResult> query, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));"
+        },
+        {
+          "Member": "virtual int NextAsRowsAffected();"
+        },
+        {
+          "Member": "virtual System.Threading.Tasks.Task<int> NextAsRowsAffectedAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));"
+        }
+      ]
+    },
+    {
       "Type": "class Microsoft.EntityFrameworkCore.Storage.BoolTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping<bool>",
       "Methods": [
         {
@@ -6287,6 +6349,9 @@
       ],
       "Properties": [
         {
+          "Member": "string? AffectedRowsCountStatement { get; }"
+        },
+        {
           "Member": "string BatchTerminator { get; }"
         },
         {
@@ -9647,6 +9712,20 @@
         },
         {
           "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Metadata.RelationalAnnotationProviderDependencies? left, Microsoft.EntityFrameworkCore.Metadata.RelationalAnnotationProviderDependencies? right);"
+        }
+      ]
+    },
+    {
+      "Type": "static class Microsoft.EntityFrameworkCore.RelationalBatchQueryExtensions",
+      "Methods": [
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.BatchResultsReader Batch<TContext>(this TContext context, params System.Linq.Expressions.Expression<System.Func<TContext, object>>[] queries);"
+        },
+        {
+          "Member": "static System.Threading.Tasks.Task<Microsoft.EntityFrameworkCore.BatchResultsReader> BatchAsync<TContext>(this TContext context, params System.Linq.Expressions.Expression<System.Func<TContext, object>>[] queries);"
+        },
+        {
+          "Member": "static System.Threading.Tasks.Task<Microsoft.EntityFrameworkCore.BatchResultsReader> BatchAsync<TContext>(this TContext context, System.Collections.Generic.IEnumerable<System.Linq.Expressions.Expression<System.Func<TContext, object>>> queries, System.Threading.CancellationToken cancellationToken);"
         }
       ]
     },
@@ -14835,6 +14914,9 @@
       ],
       "Properties": [
         {
+          "Member": "virtual string? AffectedRowsCountStatement { get; }"
+        },
+        {
           "Member": "virtual string BatchTerminator { get; }"
         },
         {
@@ -14960,6 +15042,18 @@
         },
         {
           "Member": "static string AutoLoadedJsonProperty(object? property, object? type);"
+        },
+        {
+          "Member": "static string BatchQueryNoMoreResultSets(object? count);"
+        },
+        {
+          "Member": "static string BatchQueryResultTypeMismatch(object? actualType, object? requestedType);"
+        },
+        {
+          "Member": "static string BatchQueryUnsupportedExpression(object? expression);"
+        },
+        {
+          "Member": "static string BatchQueryUnsupportedParameter(object? parameterType);"
         },
         {
           "Member": "static string CannotCompareJsonComplexTypeToNonJson(object? jsonComplexType, object? nonJsonComplexType);"
@@ -15788,6 +15882,33 @@
         },
         {
           "Member": "static string BadSequenceType { get; }"
+        },
+        {
+          "Member": "static string BatchQueryBufferingNotSupported { get; }"
+        },
+        {
+          "Member": "static string BatchQueryDifferentContext { get; }"
+        },
+        {
+          "Member": "static string BatchQueryEmpty { get; }"
+        },
+        {
+          "Member": "static string BatchQueryExpectedQueryResults { get; }"
+        },
+        {
+          "Member": "static string BatchQueryExpectedRowsAffected { get; }"
+        },
+        {
+          "Member": "static string BatchQueryNonQueryNotSupported { get; }"
+        },
+        {
+          "Member": "static string BatchQueryRequiresRelationalProvider { get; }"
+        },
+        {
+          "Member": "static string BatchQueryResultSetInvalidated { get; }"
+        },
+        {
+          "Member": "static string BatchQueryUnsupportedQueryType { get; }"
         },
         {
           "Member": "static string CannotChangeWhenOpen { get; }"
