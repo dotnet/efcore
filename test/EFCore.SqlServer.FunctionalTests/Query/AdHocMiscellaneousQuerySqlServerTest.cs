@@ -3698,6 +3698,21 @@ ORDER BY [c].[CityId]
 
     #endregion
 
+    #region 33061
+
+    public override async Task Primitive_collection_hashset_parameter_is_client_eval(bool async)
+    {
+        await base.Primitive_collection_hashset_parameter_is_client_eval(async);
+
+        AssertSql(
+            """
+SELECT [e].[Id]
+FROM [Entities] AS [e]
+""");
+    }
+
+    #endregion
+
     [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
