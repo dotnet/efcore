@@ -856,6 +856,46 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
     }
 
     [Fact]
+    public virtual void Query_uses_high_precision_functions_with_datetime2()
+    {
+        using var context = CreateContext();
+        var results
+            = context.Set<MappedDataTypes>()
+                .Where(e => e.DateTimeAsDatetime2 < DateTime.Now && e.DateTimeAsDatetime2 > DateTime.Now.AddHours(1))
+                .Select(e => e.Int)
+                .ToList();
+
+        Assert.Empty(results);
+
+        AssertSql(
+            """
+SELECT [m].[Int]
+FROM [MappedDataTypes] AS [m]
+WHERE [m].[DateTimeAsDatetime2] < SYSDATETIME() AND [m].[DateTimeAsDatetime2] > DATEADD(hour, CAST(1.0E0 AS int), SYSUTCDATETIME())
+""");
+    }
+
+    [Fact]
+    public virtual void Query_uses_low_precision_functions_with_datetime()
+    {
+        using var context = CreateContext();
+        var results
+            = context.Set<MappedDataTypes>()
+                .Where(e => e.DateTimeAsDatetime < DateTime.Now && e.DateTimeAsDatetime > DateTime.Now.AddHours(1))
+                .Select(e => e.Int)
+                .ToList();
+
+        Assert.Empty(results);
+
+        AssertSql(
+            """
+SELECT [m].[Int]
+FROM [MappedDataTypes] AS [m]
+WHERE [m].[DateTimeAsDatetime] < GETDATE() AND [m].[DateTimeAsDatetime] > DATEADD(hour, CAST(1.0E0 AS int), GETDATE())
+""");
+    }
+
+    [Fact]
     public virtual void Can_query_using_any_mapped_data_type()
     {
         using (var context = CreateContext())
