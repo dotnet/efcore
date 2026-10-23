@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
@@ -151,8 +152,83 @@ GROUP BY "o0"."Key"
         AssertSql();
     }
 
+    // SQLite supports neither ROLLUP, CUBE nor GROUPING SETS
+    public override Task GroupBy_Rollup_two_keys_Count(bool async)
+        => AssertGroupingSetsNotSupported(() => base.GroupBy_Rollup_two_keys_Count(async), GroupingSetsKind.Rollup);
+
+    public override Task GroupBy_Rollup_Count_Distinct(bool async)
+        => AssertGroupingSetsNotSupported(() => base.GroupBy_Rollup_Count_Distinct(async), GroupingSetsKind.Rollup);
+
+    public override Task GroupBy_Cube_two_keys_Count(bool async)
+        => AssertGroupingSetsNotSupported(() => base.GroupBy_Cube_two_keys_Count(async), GroupingSetsKind.Cube);
+
+    public override Task GroupBy_GroupingSets_with_empty_set(bool async)
+        => AssertGroupingSetsNotSupported(() => base.GroupBy_GroupingSets_with_empty_set(async), GroupingSetsKind.GroupingSets);
+
+    public override Task GroupBy_Rollup_with_Grouping_function(bool async)
+        => AssertGroupingSetsNotSupported(() => base.GroupBy_Rollup_with_Grouping_function(async), GroupingSetsKind.Rollup);
+
+    public override Task GroupBy_Rollup_with_Having(bool async)
+        => AssertGroupingSetsNotSupported(() => base.GroupBy_Rollup_with_Having(async), GroupingSetsKind.Rollup);
+
+    public override Task GroupBy_Rollup_computed_key(bool async)
+        => AssertGroupingSetsNotSupported(() => base.GroupBy_Rollup_computed_key(async), GroupingSetsKind.Rollup);
+
+    public override Task GroupBy_Rollup_non_nullable_key_throws(bool async)
+        => AssertGroupingSetsNotSupported(
+            async () =>
+            {
+                using var context = CreateContext();
+                var query = context.Orders.GroupBy(o => EF.Functions.Rollup(o.OrderID)).Select(g => g.Count());
+                _ = async ? await query.ToListAsync() : query.ToList();
+            },
+            GroupingSetsKind.Rollup);
+
+    public override Task GroupBy_Rollup_final_GroupBy_throws(bool async)
+        => AssertGroupingSetsNotSupported(
+            async () =>
+            {
+                using var context = CreateContext();
+                var query = context.Orders.GroupBy(o => EF.Functions.Rollup(o.CustomerID));
+                _ = async ? await query.ToListAsync() : query.ToList();
+            },
+            GroupingSetsKind.Rollup);
+
+    public override Task GroupBy_Rollup_grouping_element_throws(bool async)
+        => AssertGroupingSetsNotSupported(
+            async () =>
+            {
+                using var context = CreateContext();
+                var query = context.Orders
+                    .GroupBy(o => EF.Functions.Rollup(o.CustomerID))
+                    .Select(g => new { g.Key, Ids = g.Select(o => o.OrderID).ToList() });
+                _ = async ? await query.ToListAsync() : query.ToList();
+            },
+            GroupingSetsKind.Rollup);
+
+    public override Task GroupBy_GroupingSets_element_not_in_key_throws(bool async)
+        => AssertGroupingSetsNotSupported(
+            async () =>
+            {
+                using var context = CreateContext();
+                var query = context.Orders
+                    .GroupBy(o => EF.Functions.GroupingSets(new { o.CustomerID }, new object?[] { o.CustomerID }))
+                    .Select(g => g.Count());
+                _ = async ? await query.ToListAsync() : query.ToList();
+            },
+            GroupingSetsKind.GroupingSets);
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
+
+    private async Task AssertGroupingSetsNotSupported(Func<Task> query, GroupingSetsKind kind)
+    {
+        Assert.Equal(
+            RelationalStrings.GroupingSetsNotSupported(kind),
+            (await Assert.ThrowsAsync<InvalidOperationException>(query)).Message);
+
+        AssertSql();
+    }
 
     private static async Task AssertApplyNotSupported(Func<Task> query)
         => Assert.Equal(

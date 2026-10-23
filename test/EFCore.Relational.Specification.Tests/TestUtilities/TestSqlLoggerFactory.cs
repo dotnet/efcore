@@ -94,9 +94,12 @@ public class TestSqlLoggerFactory : ListLoggerFactory
 
             var indexMethodEnding = methodCallLine.IndexOf(')') + 1;
             var testName = methodCallLine[..indexMethodEnding];
-            var parts = methodCallLine[indexMethodEnding..].Split(" ", StringSplitOptions.RemoveEmptyEntries);
-            var fileName = parts[1][..^5];
-            var lineNumber = int.Parse(parts[2]);
+            // The location is " in <fileName>:line <lineNumber>"; the file name may contain spaces.
+            var location = methodCallLine[indexMethodEnding..];
+            var fileNameStart = location.IndexOf(" in ", StringComparison.Ordinal) + 4;
+            var lineNumberStart = location.LastIndexOf(":line ", StringComparison.Ordinal);
+            var fileName = location[fileNameStart..lineNumberStart];
+            var lineNumber = int.Parse(location[(lineNumberStart + 6)..]);
 
             const string indent = FileNewLine + "                ";
 

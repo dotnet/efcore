@@ -448,6 +448,44 @@ WHERE [b0].[row] <= 1
 """);
     }
 
+    [Fact]
+    public virtual async Task GroupBy_Rollup_with_Grouping()
+    {
+        await Test(
+            """
+var blogs = await context.Blogs
+    .GroupBy(b => EF.Functions.Rollup(new { b.Name }))
+    .Select(g => new { g.Key.Name, Grouping = EF.Functions.Grouping(g.Key.Name), Count = g.Count() })
+    .ToListAsync();
+""");
+
+        AssertSql(
+            """
+SELECT [b].[Name], CAST(GROUPING([b].[Name]) AS int) AS [Grouping], COUNT(*) AS [Count]
+FROM [Blogs] AS [b]
+GROUP BY ROLLUP ([b].[Name])
+""");
+    }
+
+    [Fact]
+    public virtual async Task GroupBy_GroupingSets()
+    {
+        await Test(
+            """
+var blogs = await context.Blogs
+    .GroupBy(b => EF.Functions.GroupingSets(new { b.Name, Id = (int?)b.Id }, new object[] { b.Name }, new object[] { (int?)b.Id }, new object[0]))
+    .Select(g => new { g.Key.Name, Count = g.Count() })
+    .ToListAsync();
+""");
+
+        AssertSql(
+            """
+SELECT [b].[Name], COUNT(*) AS [Count]
+FROM [Blogs] AS [b]
+GROUP BY GROUPING SETS (([b].[Name]), ([b].[Id]), ())
+""");
+    }
+
     #endregion Regular operators
 
     #region Terminating operators

@@ -481,6 +481,24 @@
   <data name="FunctionOverrideMismatch" xml:space="preserve">
     <value>The property '{propertySpecification}' has specific configuration for the function '{function}', but it isn't mapped to a column on that function return. Remove the specific configuration, or map an entity type that contains this property to '{function}'.</value>
   </data>
+  <data name="GroupingSetsElementNotInKey" xml:space="preserve">
+    <value>The expression '{expression}' in a grouping set doesn't match any member of the grouping key. Each element of a grouping set passed to 'EF.Functions.GroupingSets' must be one of the expressions composing the grouping key.</value>
+  </data>
+  <data name="GroupingSetsFinalGroupByNotSupported" xml:space="preserve">
+    <value>Queries using ROLLUP, CUBE or GROUPING SETS must project the groupings using aggregate operators (e.g. 'Select(g =&gt; g.Count())'); returning 'IGrouping' instances isn't supported.</value>
+  </data>
+  <data name="GroupingSetsGroupingElementNotSupported" xml:space="preserve">
+    <value>The elements of a grouping cannot be queried when grouping with ROLLUP, CUBE or GROUPING SETS; only aggregate operators (e.g. 'Count', 'Sum', 'Max') applied directly to the grouping are supported.</value>
+  </data>
+  <data name="GroupingSetsInvalidKey" xml:space="preserve">
+    <value>The grouping key '{keySelector}' can't be used with ROLLUP, CUBE or GROUPING SETS. The key must be a scalar value, or an anonymous or user type composed of scalar members.</value>
+  </data>
+  <data name="GroupingSetsKeyMustBeNullable" xml:space="preserve">
+    <value>The grouping key member '{keyMember}' is of the non-nullable type '{type}'. Since ROLLUP, CUBE and GROUPING SETS return NULL for keys which aren't part of a row's grouping, key members must be nullable; cast the member to a nullable type (e.g. '(int?)x.Id').</value>
+  </data>
+  <data name="GroupingSetsNotSupported" xml:space="preserve">
+    <value>'{groupingSetsKind}' grouping isn't supported by the current database provider.</value>
+  </data>
   <data name="HasDataNotSupportedForEntitiesMappedToJson" xml:space="preserve">
     <value>'HasData' cannot be used for entity type '{entity}'. 'HasData' is not supported for entities mapped to JSON.</value>
   </data>

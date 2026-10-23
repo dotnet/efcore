@@ -68,6 +68,10 @@ public class RelationalGroupByShaperExpression : GroupByShaperExpression
     /// </summary>
     public virtual LambdaExpression? ResultSelector { get; }
 
+    // Whether the grouping is a ROLLUP, CUBE or GROUPING SETS one, over which only aggregates can be translated: GroupingEnumerable
+    // can't be correlated to the groups.
+    internal bool IsGroupingSets { get; init; }
+
     /// <inheritdoc />
     public override Type Type
         => ResultSelector?.ReturnType ?? base.Type;

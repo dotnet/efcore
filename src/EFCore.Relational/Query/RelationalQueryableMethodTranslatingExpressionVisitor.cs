@@ -174,6 +174,9 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                         new FromSqlExpression(alias, table, sqlQuery.Sql, Expression.Constant(Array.Empty<object>(), typeof(object[])))));
             }
 
+            case RelationalGroupByShaperExpression { IsGroupingSets: true }:
+                throw new InvalidOperationException(RelationalStrings.GroupingSetsGroupingElementNotSupported);
+
             case GroupByShaperExpression groupByShaperExpression:
                 var groupShapedQueryExpression = groupByShaperExpression.GroupingEnumerable;
                 var groupSourceSelectExpression = (SelectExpression)groupShapedQueryExpression.QueryExpression;
@@ -792,6 +795,13 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         LambdaExpression? resultSelector)
     {
         var selectExpression = (SelectExpression)source.QueryExpression;
+
+        if (TryExtractGroupingSets(keySelector, out var groupingSetsKind, out var groupingSetsKeySelector, out var groupingSets))
+        {
+            return TranslateGroupingSetsGroupBy(
+                source, groupingSetsKind, groupingSetsKeySelector, groupingSets, elementSelector, resultSelector);
+        }
+
         selectExpression.PrepareForAggregate();
 
         var remappedKeySelector = RemapLambdaBody(source, keySelector);
@@ -851,6 +861,230 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     }
 
     /// <summary>
+    ///     Returns whether the database supports the given kind of multiple grouping (<c>ROLLUP</c>, <c>CUBE</c> or
+    ///     <c>GROUPING SETS</c>), requested via <see cref="RelationalDbFunctionsExtensions.Rollup{TKey}" />,
+    ///     <see cref="RelationalDbFunctionsExtensions.Cube{TKey}" /> or
+    ///     <see cref="RelationalDbFunctionsExtensions.GroupingSets{TKey}" />.
+    /// </summary>
+    /// <param name="kind">The kind of grouping.</param>
+    /// <returns><see langword="true" /> if the kind of grouping is supported; <see langword="false" /> otherwise.</returns>
+    protected virtual bool IsGroupingSetsSupported(GroupingSetsKind kind)
+        => true;
+
+    // Recognizes a key selector wrapped in EF.Functions.Rollup/Cube/GroupingSets, returning the wrapped key selector and, for
+    // GroupingSets, the set lambdas (over the same parameter) as their elements.
+    private static bool TryExtractGroupingSets(
+        LambdaExpression keySelector,
+        out GroupingSetsKind kind,
+        [NotNullWhen(true)] out LambdaExpression? innerKeySelector,
+        out IReadOnlyList<IReadOnlyList<Expression>>? sets)
+    {
+        kind = default;
+        innerKeySelector = null;
+        sets = null;
+
+        if (keySelector.Body is not MethodCallExpression { Method: { IsGenericMethod: true } method } methodCall
+            || method.DeclaringType != typeof(RelationalDbFunctionsExtensions))
+        {
+            return false;
+        }
+
+        switch (method.Name)
+        {
+            case nameof(RelationalDbFunctionsExtensions.Rollup):
+                kind = GroupingSetsKind.Rollup;
+                break;
+
+            case nameof(RelationalDbFunctionsExtensions.Cube):
+                kind = GroupingSetsKind.Cube;
+                break;
+
+            case nameof(RelationalDbFunctionsExtensions.GroupingSets):
+            {
+                kind = GroupingSetsKind.GroupingSets;
+
+                if (methodCall.Arguments[2] is not NewArrayExpression { NodeType: ExpressionType.NewArrayInit } setsArray)
+                {
+                    throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCall.Print()));
+                }
+
+                var extractedSets = new List<IReadOnlyList<Expression>>();
+                foreach (var set in setsArray.Expressions)
+                {
+                    switch (set)
+                    {
+                        case NewArrayExpression { NodeType: ExpressionType.NewArrayInit } setArray:
+                            extractedSets.Add(setArray.Expressions.Select(e => e.UnwrapTypeConversion(out _)).ToList());
+                            break;
+
+                        // The empty set (e.g. new object[0]), which the funcletizer has already evaluated to a constant.
+                        case ConstantExpression { Value: Array { Length: 0 } }:
+                        case NewArrayExpression
+                        {
+                            NodeType: ExpressionType.NewArrayBounds,
+                            Expressions: [ConstantExpression { Value: 0 }]
+                        }:
+                            extractedSets.Add([]);
+                            break;
+
+                        default:
+                            throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCall.Print()));
+                    }
+                }
+
+                sets = extractedSets;
+                break;
+            }
+
+            default:
+                return false;
+        }
+
+        innerKeySelector = Expression.Lambda(methodCall.Arguments[1], keySelector.Parameters);
+        return true;
+    }
+
+    private ShapedQueryExpression? TranslateGroupingSetsGroupBy(
+        ShapedQueryExpression source,
+        GroupingSetsKind kind,
+        LambdaExpression keySelector,
+        IReadOnlyList<IReadOnlyList<Expression>>? sets,
+        LambdaExpression? elementSelector,
+        LambdaExpression? resultSelector)
+    {
+        if (!IsGroupingSetsSupported(kind))
+        {
+            throw new InvalidOperationException(RelationalStrings.GroupingSetsNotSupported(kind));
+        }
+
+        // Flatten the key into its scalar members, in the order SelectExpression.PopulateGroupByTerms visits them. Rows which aren't
+        // grouped by a member contain NULL for it, so it must be nullable.
+        var keyMembers = new List<(string Name, Expression Expression)>();
+        if (!TryFlattenGroupingSetsKey(keySelector.Body, "Key", keyMembers) || keyMembers.Count == 0)
+        {
+            throw new InvalidOperationException(RelationalStrings.GroupingSetsInvalidKey(keySelector.Print()));
+        }
+
+        foreach (var (name, expression) in keyMembers)
+        {
+            if (expression.Type.IsValueType && !expression.Type.IsNullableType())
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.GroupingSetsKeyMustBeNullable(name, expression.Type.ShortDisplayName()));
+            }
+        }
+
+        // Each element of a grouping set must be one of the key's members; record it as an index into them.
+        List<IReadOnlyList<int>>? setIndexes = null;
+        if (sets is not null)
+        {
+            setIndexes = [];
+            foreach (var set in sets)
+            {
+                var indexes = new List<int>(set.Count);
+                foreach (var element in set)
+                {
+                    var index = keyMembers.FindIndex(
+                        m => ExpressionEqualityComparer.Instance.Equals(m.Expression.UnwrapTypeConversion(out _), element));
+                    if (index < 0)
+                    {
+                        throw new InvalidOperationException(RelationalStrings.GroupingSetsElementNotInKey(element.Print()));
+                    }
+
+                    indexes.Add(index);
+                }
+
+                setIndexes.Add(indexes);
+            }
+        }
+
+        var selectExpression = (SelectExpression)source.QueryExpression;
+        selectExpression.PrepareForAggregate();
+
+        var translatedKey = TranslateGroupingKey(RemapLambdaBody(source, keySelector));
+        if (translatedKey is null)
+        {
+            return null;
+        }
+
+        // Each member must translate to a single scalar term, so that the set indexes line up with the grouping terms.
+        var translatedKeyMembers = new List<(string, Expression)>();
+        if (!TryFlattenGroupingSetsKey(translatedKey, "Key", translatedKeyMembers)
+            || translatedKeyMembers.Count != keyMembers.Count
+            || translatedKeyMembers.Any(m => m.Item2.UnwrapTypeConversion(out _) is not SqlExpression))
+        {
+            throw new InvalidOperationException(RelationalStrings.GroupingSetsInvalidKey(keySelector.Print()));
+        }
+
+        if (elementSelector != null)
+        {
+            source = TranslateSelect(source, elementSelector);
+        }
+
+        var groupByShaper = selectExpression.ApplyGroupingSets(translatedKey, source.ShaperExpression, kind, setIndexes);
+        if (resultSelector == null)
+        {
+            return source.UpdateShaperExpression(groupByShaper);
+        }
+
+        var newResultSelectorBody = new ReplacingExpressionVisitor(
+                [resultSelector.Parameters[0], resultSelector.Parameters[1]],
+                [groupByShaper.KeySelector, groupByShaper])
+            .Visit(resultSelector.Body);
+
+        newResultSelectorBody = ExpandSharedTypeEntities(selectExpression, newResultSelectorBody);
+
+        return source.UpdateShaperExpression(
+            _projectionBindingExpressionVisitor.Translate(selectExpression, newResultSelectorBody));
+
+        static bool TryFlattenGroupingSetsKey(Expression expression, string name, List<(string, Expression)> members)
+        {
+            switch (expression)
+            {
+                case NewExpression newExpression:
+                    for (var i = 0; i < newExpression.Arguments.Count; i++)
+                    {
+                        if (!TryFlattenGroupingSetsKey(
+                                newExpression.Arguments[i], newExpression.Members?[i].Name ?? name, members))
+                        {
+                            return false;
+                        }
+                    }
+
+                    return true;
+
+                case MemberInitExpression memberInitExpression:
+                    if (!TryFlattenGroupingSetsKey(memberInitExpression.NewExpression, name, members))
+                    {
+                        return false;
+                    }
+
+                    foreach (var binding in memberInitExpression.Bindings)
+                    {
+                        if (binding is not MemberAssignment memberAssignment
+                            || !TryFlattenGroupingSetsKey(memberAssignment.Expression, memberAssignment.Member.Name, members))
+                        {
+                            return false;
+                        }
+                    }
+
+                    return true;
+
+                default:
+                    // Only scalar members are supported; entity and complex type keys (and nested keys) aren't.
+                    if (expression.UnwrapTypeConversion(out _) is NewExpression or MemberInitExpression or StructuralTypeShaperExpression
+                        || expression.Type.IsGenericType && expression.Type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                    {
+                        return false;
+                    }
+
+                    members.Add((name, expression));
+                    return true;
+            }
+        }
+    }
+
+    /// <summary>
     ///     Attempts to translate a projection over a grouping which doesn't aggregate the grouping, but only enumerates its elements
     ///     (e.g. <c>GroupBy(e => e.Key).Select(g => g.Select(e => e.Id).ToList())</c>).
     /// </summary>
@@ -874,9 +1108,10 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         RelationalGroupByShaperExpression groupByShaper,
         Expression projection)
     {
-        if (groupByShaper.ResultSelector != null)
+        if (groupByShaper.ResultSelector != null || groupByShaper.IsGroupingSets)
         {
             // Already projected out of the grouping once; the shaper is a client-side projection which can't be composed over.
+            // With ROLLUP/CUBE/GROUPING SETS the groups overlap, so they can't be assembled from rows.
             return null;
         }
 
@@ -957,7 +1192,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         RelationalGroupByShaperExpression groupByShaper,
         Expression projection)
     {
-        if (groupByShaper.ResultSelector != null || _subquery)
+        if (groupByShaper.ResultSelector != null || groupByShaper.IsGroupingSets || _subquery)
         {
             return null;
         }

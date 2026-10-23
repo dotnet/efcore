@@ -368,6 +368,8 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 => VisitRowNumber(rowNumberExpression, allowOptimizedExpansion, out nullable),
             DenseRankExpression denseRankExpression
                 => VisitDenseRank(denseRankExpression, out nullable),
+            GroupingSetsExpression groupingSetsExpression
+                => VisitGroupingSets(groupingSetsExpression, out nullable),
             RowValueExpression rowValueExpression
                 => VisitRowValue(rowValueExpression, allowOptimizedExpansion, out nullable),
             ScalarSubqueryExpression scalarSubqueryExpression
@@ -1291,6 +1293,16 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         return changed
             ? denseRankExpression.Update(orderings)
             : denseRankExpression;
+    }
+
+    private SqlExpression VisitGroupingSets(GroupingSetsExpression groupingSetsExpression, out bool nullable)
+    {
+        // The grouping terms are only grouped by, never compared; there's nothing to compensate for.
+        var items = this.VisitAndConvert(groupingSetsExpression.Items);
+
+        nullable = false;
+
+        return groupingSetsExpression.Update(items);
     }
 
     /// <summary>

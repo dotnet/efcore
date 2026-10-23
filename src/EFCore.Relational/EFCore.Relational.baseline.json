@@ -2756,6 +2756,50 @@
       ]
     },
     {
+      "Type": "class Microsoft.EntityFrameworkCore.Query.SqlExpressions.GroupingSetsExpression : Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression",
+      "Methods": [
+        {
+          "Member": "GroupingSetsExpression(Microsoft.EntityFrameworkCore.Query.SqlExpressions.GroupingSetsKind kind, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression> items, System.Collections.Generic.IReadOnlyList<System.Collections.Generic.IReadOnlyList<int>>? sets = null);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Query.SqlExpressions.GroupingSetsExpression Update(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression> items);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression> Items { get; }"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Query.SqlExpressions.GroupingSetsKind Kind { get; }"
+        },
+        {
+          "Member": "virtual System.Collections.Generic.IReadOnlyList<System.Collections.Generic.IReadOnlyList<int>>? Sets { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "enum Microsoft.EntityFrameworkCore.Query.SqlExpressions.GroupingSetsKind",
+      "Methods": [
+        {
+          "Member": "GroupingSetsKind();"
+        }
+      ],
+      "Fields": [
+        {
+          "Member": "const Microsoft.EntityFrameworkCore.Query.SqlExpressions.GroupingSetsKind Cube",
+          "Value": "1"
+        },
+        {
+          "Member": "const Microsoft.EntityFrameworkCore.Query.SqlExpressions.GroupingSetsKind GroupingSets",
+          "Value": "2"
+        },
+        {
+          "Member": "const Microsoft.EntityFrameworkCore.Query.SqlExpressions.GroupingSetsKind Rollup",
+          "Value": "0"
+        }
+      ]
+    },
+    {
       "Type": "class Microsoft.EntityFrameworkCore.Storage.GuidTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping<System.Guid>",
       "Methods": [
         {
@@ -8925,6 +8969,9 @@
           "Member": "virtual System.Linq.Expressions.Expression VisitFullJoin(Microsoft.EntityFrameworkCore.Query.SqlExpressions.FullJoinExpression fullJoinExpression);"
         },
         {
+          "Member": "virtual System.Linq.Expressions.Expression VisitGroupingSets(Microsoft.EntityFrameworkCore.Query.SqlExpressions.GroupingSetsExpression groupingSetsExpression);"
+        },
+        {
           "Member": "virtual System.Linq.Expressions.Expression VisitInnerJoin(Microsoft.EntityFrameworkCore.Query.SqlExpressions.InnerJoinExpression innerJoinExpression);"
         },
         {
@@ -10906,13 +10953,25 @@
           "Member": "static TProperty Collate<TProperty>(this Microsoft.EntityFrameworkCore.DbFunctions _, TProperty operand, string collation);"
         },
         {
+          "Member": "static TKey Cube<TKey>(this Microsoft.EntityFrameworkCore.DbFunctions _, TKey key);"
+        },
+        {
           "Member": "static T Greatest<T>(this Microsoft.EntityFrameworkCore.DbFunctions _, params T[] values);"
+        },
+        {
+          "Member": "static int Grouping<T>(this Microsoft.EntityFrameworkCore.DbFunctions _, T keyMember);"
+        },
+        {
+          "Member": "static TKey GroupingSets<TKey>(this Microsoft.EntityFrameworkCore.DbFunctions _, TKey key, params object?[][] sets);"
         },
         {
           "Member": "static bool JsonPathExists(this Microsoft.EntityFrameworkCore.DbFunctions _, object json, string path);"
         },
         {
           "Member": "static T Least<T>(this Microsoft.EntityFrameworkCore.DbFunctions _, params T[] values);"
+        },
+        {
+          "Member": "static TKey Rollup<TKey>(this Microsoft.EntityFrameworkCore.DbFunctions _, TKey key);"
         }
       ]
     },
@@ -14388,6 +14447,9 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression? GenerateJsonPartialUpdateSetter(System.Linq.Expressions.Expression target, Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression value, ref Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression? existingSetterValue);"
         },
         {
+          "Member": "virtual bool IsGroupingSetsSupported(Microsoft.EntityFrameworkCore.Query.SqlExpressions.GroupingSetsKind kind);"
+        },
+        {
           "Member": "virtual bool IsNaturallyOrdered(Microsoft.EntityFrameworkCore.Query.SqlExpressions.SelectExpression selectExpression);"
         },
         {
@@ -15274,6 +15336,18 @@
           "Member": "static string FunctionOverrideMismatch(object? propertySpecification, object? function);"
         },
         {
+          "Member": "static string GroupingSetsElementNotInKey(object? expression);"
+        },
+        {
+          "Member": "static string GroupingSetsInvalidKey(object? keySelector);"
+        },
+        {
+          "Member": "static string GroupingSetsKeyMustBeNullable(object? keyMember, object? type);"
+        },
+        {
+          "Member": "static string GroupingSetsNotSupported(object? groupingSetsKind);"
+        },
+        {
           "Member": "static string HasDataNotSupportedForEntitiesMappedToJson(object? entity);"
         },
         {
@@ -15827,6 +15901,12 @@
         },
         {
           "Member": "static string FromSqlNonComposable { get; }"
+        },
+        {
+          "Member": "static string GroupingSetsFinalGroupByNotSupported { get; }"
+        },
+        {
+          "Member": "static string GroupingSetsGroupingElementNotSupported { get; }"
         },
         {
           "Member": "static string InsufficientInformationToIdentifyElementOfCollectionJoin { get; }"
