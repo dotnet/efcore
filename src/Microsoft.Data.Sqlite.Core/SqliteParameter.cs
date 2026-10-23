@@ -273,6 +273,10 @@ public class SqliteParameter : DbParameter
         }
 
         if (name.Length > 1
+            && ParameterName.Length > 0
+            && ParameterName[0] != '@'
+            && ParameterName[0] != '$'
+            && ParameterName[0] != ':'
             && (name[0] == '@' || name[0] == '$' || name[0] == ':')
             && string.Equals(ParameterName, name[1..], StringComparison.Ordinal))
         {
