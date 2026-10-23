@@ -1084,6 +1084,125 @@ public class RelationalConnectionTest
             });
     }
 
+    [Theory]
+    [InlineData(typeof(IDbCommandInterceptor), typeof(Diagnostics.Internal.DbCommandInterceptorAggregator))]
+    [InlineData(typeof(IDbConnectionInterceptor), typeof(Diagnostics.Internal.DbConnectionInterceptorAggregator))]
+    [InlineData(typeof(IDbTransactionInterceptor), typeof(Diagnostics.Internal.DbTransactionInterceptorAggregator))]
+    [InlineData(typeof(ISaveChangesInterceptor), typeof(Diagnostics.Internal.SaveChangesInterceptorAggregator))]
+    [InlineData(typeof(IIdentityResolutionInterceptor), typeof(Diagnostics.Internal.IdentityResolutionInterceptorAggregator))]
+    [InlineData(typeof(IMaterializationInterceptor), typeof(Diagnostics.Internal.MaterializationInterceptorAggregator))]
+    [InlineData(typeof(IQueryExpressionInterceptor), typeof(Diagnostics.Internal.QueryExpressionInterceptorAggregator))]
+    public void Interceptor_aggregators_implement_all_interface_methods(Type interceptorType, Type aggregatorType)
+    {
+        var compositeType = Assert.Single(
+            aggregatorType.GetNestedTypes(BindingFlags.NonPublic).Where(interceptorType.IsAssignableFrom));
+
+        Assert.All(
+            compositeType.GetInterfaceMap(interceptorType).TargetMethods,
+            method => Assert.Equal(compositeType, method.DeclaringType));
+    }
+
+    [Theory]
+    [InlineData(false, 1, false)]
+    [InlineData(false, 2, false)]
+    [InlineData(true, 1, false)]
+    [InlineData(true, 2, false)]
+    [InlineData(true, 1, true)]
+    [InlineData(true, 2, true)]
+    public async Task Reports_connection_cancellation_to_interceptors(bool async, int interceptorCount, bool cancelWhileOpening)
+    {
+        var callbacks = new List<CancellationInterceptor>();
+        var interceptors = Enumerable.Range(0, interceptorCount).Select(_ => new CancellationInterceptor(callbacks)).ToArray();
+        using var cancellationTokenSource = new CancellationTokenSource();
+        using var dbConnection = new CancelingDbConnection(cancelWhileOpening ? cancellationTokenSource : null);
+        using var context = FakeRelationalTestHelpers.Instance.CreateContext(
+            new DbContextOptionsBuilder().UseFakeRelational(dbConnection).AddInterceptors(interceptors).Options);
+        using var connection = new CancelingRelationalConnection(
+            context.GetService<RelationalConnectionDependencies>());
+
+        var exception = async
+            ? await Assert.ThrowsAsync<OperationCanceledException>(() => connection.OpenAsync(cancellationTokenSource.Token))
+            : Assert.Throws<OperationCanceledException>(() => connection.Open());
+
+        Assert.Same(dbConnection.Exception, exception);
+        Assert.Equal(ConnectionState.Closed, dbConnection.State);
+        Assert.Equal(interceptors, callbacks);
+        foreach (var interceptor in interceptors)
+        {
+            Assert.Equal(async, interceptor.AsyncCalled);
+            Assert.NotEqual(async, interceptor.SyncCalled);
+            Assert.Equal(async ? cancellationTokenSource.Token : default, interceptor.CancellationToken);
+            var eventData = Assert.IsType<ConnectionEndEventData>(interceptor.EventData);
+            Assert.Equal(async, eventData.IsAsync);
+            Assert.Same(dbConnection, eventData.Connection);
+            Assert.Same(context, eventData.Context);
+            Assert.Equal(connection.ConnectionId, eventData.ConnectionId);
+            Assert.Same(interceptors[0].EventData, eventData);
+        }
+    }
+
+    private class CancelingRelationalConnection(RelationalConnectionDependencies dependencies)
+        : RelationalConnection(dependencies)
+    {
+        protected override DbConnection CreateDbConnection()
+            => throw new NotImplementedException();
+    }
+
+    private class CancelingDbConnection(CancellationTokenSource? cancellationTokenSource) : FakeDbConnection("Database=FrodoLives")
+    {
+        public OperationCanceledException Exception { get; } = new();
+
+        public override void Open()
+            => throw Exception;
+
+        public override Task OpenAsync(CancellationToken cancellationToken)
+        {
+            cancellationTokenSource?.Cancel();
+            return Task.FromException(Exception);
+        }
+    }
+
+    private class CancellationInterceptor(List<CancellationInterceptor> callbacks) : DbConnectionInterceptor
+    {
+        public bool SyncCalled { get; private set; }
+        public bool AsyncCalled { get; private set; }
+        public CancellationToken CancellationToken { get; private set; }
+        public ConnectionEndEventData? EventData { get; private set; }
+
+        public override void ConnectionCanceled(DbConnection connection, ConnectionEndEventData eventData)
+        {
+            Assert.Same(connection, eventData.Connection);
+            SyncCalled = true;
+            EventData = eventData;
+            callbacks.Add(this);
+        }
+
+        public override async Task ConnectionCanceledAsync(
+            DbConnection connection,
+            ConnectionEndEventData eventData,
+            CancellationToken cancellationToken = default)
+        {
+            await Task.Yield();
+            Assert.Same(connection, eventData.Connection);
+            AsyncCalled = true;
+            CancellationToken = cancellationToken;
+            EventData = eventData;
+            callbacks.Add(this);
+        }
+
+        public override void ConnectionFailed(DbConnection connection, ConnectionErrorEventData eventData)
+            => Assert.Fail("Cancellation should not be reported as a failure.");
+
+        public override Task ConnectionFailedAsync(
+            DbConnection connection,
+            ConnectionErrorEventData eventData,
+            CancellationToken cancellationToken = default)
+        {
+            Assert.Fail("Cancellation should not be reported as a failure.");
+            return Task.CompletedTask;
+        }
+    }
+
     [Fact]
     public async Task HandleTransactionCompleted_with_concurrent_ClearTransactions_is_thread_safe()
     {
