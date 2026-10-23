@@ -458,7 +458,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                     else if (otherExpressions.All(e => e is ColumnExpression))
                     {
                         _identifier.AddRange(typeProjectionIdentifiers.Zip(typeProjectionValueComparers));
-                        _identifier.AddRange(otherExpressions.Select(e => ((ColumnExpression)e, e.TypeMapping!.KeyComparer)));
+                        _identifier.AddRange(otherExpressions.Select(e => ((ColumnExpression)e, GetIdentifierComparer(e.TypeMapping!))));
                     }
                 }
             }
@@ -1838,7 +1838,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             _identifier.Clear();
             if (_groupBy.All(e => e is ColumnExpression))
             {
-                _identifier.AddRange(_groupBy.Select(e => ((ColumnExpression)e, e.TypeMapping!.KeyComparer)));
+                _identifier.AddRange(_groupBy.Select(e => ((ColumnExpression)e, GetIdentifierComparer(e.TypeMapping!))));
             }
         }
     }
@@ -1907,7 +1907,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             _identifier.Clear();
             if (_groupBy.All(e => e is ColumnExpression))
             {
-                _identifier.AddRange(_groupBy.Select(e => ((ColumnExpression)e, e.TypeMapping!.KeyComparer)));
+                _identifier.AddRange(_groupBy.Select(e => ((ColumnExpression)e, GetIdentifierComparer(e.TypeMapping!))));
             }
         }
 
@@ -1920,6 +1920,42 @@ public sealed partial class SelectExpression : TableExpressionBase
             keySelector,
             shaperExpression,
             new ShapedQueryExpression(clonedSelectExpression, rebuiltShaperExpression));
+    }
+
+    // Rows are told apart on the client by their identifier values, as materialized. Through a value converter, the same database
+    // value can materialize as instances which the mapping's key comparer doesn't consider equal - a class without Equals compares
+    // by reference - so every row would look like the start of a new collection or grouping, and the shaper would never move past
+    // it. The database told those rows apart by their provider values, so values of a converted reference type are compared as such.
+    private static ValueComparer GetIdentifierComparer(CoreTypeMapping typeMapping)
+        => typeMapping is { Converter: { } converter, ClrType.IsValueType: false }
+            ? (ValueComparer)CreateProviderValueIdentifierComparerMethod.MakeGenericMethod(typeMapping.ClrType)
+                .Invoke(null, [converter, typeMapping.ProviderValueComparer])!
+            : typeMapping.KeyComparer;
+
+    private static readonly MethodInfo CreateProviderValueIdentifierComparerMethod
+        = typeof(SelectExpression).GetMethod(
+            nameof(CreateProviderValueIdentifierComparer), BindingFlags.NonPublic | BindingFlags.Static)!;
+
+    private static ValueComparer<T> CreateProviderValueIdentifierComparer<T>(
+        ValueConverter converter,
+        ValueComparer providerValueComparer)
+    {
+        var left = Parameter(typeof(T), "left");
+        var right = Parameter(typeof(T), "right");
+
+        // ValueComparer<T> handles nulls before calling these, so the converter only ever sees a value.
+        return new ValueComparer<T>(
+            Lambda<Func<T?, T?, bool>>(providerValueComparer.ExtractEqualsBody(ToProvider(left), ToProvider(right)), left, right),
+            Lambda<Func<T, int>>(providerValueComparer.ExtractHashCodeBody(ToProvider(left)), left));
+
+        Expression ToProvider(ParameterExpression value)
+        {
+            var toProvider = converter.ConvertToProviderExpression;
+            var parameter = toProvider.Parameters[0];
+
+            return ReplacingExpressionVisitor.Replace(
+                parameter, parameter.Type == value.Type ? value : Convert(value, parameter.Type), toProvider.Body);
+        }
     }
 
     // Keeps the first row of each group in place of the grouping. Rows are numbered with
@@ -2332,7 +2368,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                         RelationalStrings.SetOperationsRequireAtLeastOneSideWithValidTypeMapping(setOperationType));
                 }
 
-                otherExpressions.Add((outerProjection, outerTypeMapping.KeyComparer));
+                otherExpressions.Add((outerProjection, GetIdentifierComparer(outerTypeMapping)));
             }
         }
 
@@ -2452,7 +2488,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                                     RelationalStrings.SetOperationsRequireAtLeastOneSideWithValidTypeMapping(setOperationType));
                             }
 
-                            otherExpressions.Add((outerColumn, outerTypeMapping.KeyComparer));
+                            otherExpressions.Add((outerColumn, GetIdentifierComparer(outerTypeMapping)));
                         }
                     }
                 }
