@@ -87,7 +87,32 @@ public class CosmosTypeMapping : CoreTypeMapping
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual SqlParameter CreateParameter(string name, object? value)
-        => new SqlValueParameter(name, ConvertToProviderValue(value));
+    {
+        var normalized = NormalizeValue(value);
+
+        // The reader/writer can only handle values of its own type. For anything else
+        // (e.g. a List<object> passed where the mapping expects IEnumerable<int>),
+        // keep the previous behavior of letting the SDK serialize the raw value.
+        if (normalized is not null && !JsonValueReaderWriter!.ValueType.IsInstanceOfType(normalized))
+        {
+            return new SqlValueParameter(name, ConvertToProviderValue(value));
+        }
+
+        using var stream = new MemoryStream();
+        using (var writer = new Utf8JsonWriter(stream, CosmosClientWrapper.JsonWriterOptions))
+        {
+            if (normalized is not null || JsonValueReaderWriter!.HandlesNullWrites)
+            {
+                JsonValueReaderWriter!.ToJson(writer, normalized!);
+            }
+            else
+            {
+                writer.WriteNullValue();
+            }
+        }
+
+        return new SqlRawJsonParameter(name, stream.ToArray());
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
