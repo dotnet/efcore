@@ -585,6 +585,126 @@ public abstract class BatchQueryTestBase<TFixture> : QueryTestBase<TFixture>
     }
 
     [Fact]
+    public virtual void Batch_throws_when_enumerating_invalidated_sync_enumerable()
+    {
+        using var context = CreateContext();
+
+        using var batch = context.Batch(
+            ctx => ctx.Set<Customer>().Where(c => c.City == "London"),
+            ctx => ctx.Set<Employee>().Where(e => e.City == "London"));
+
+        var customers = batch.NextAsEnumerable<Customer>();
+        var employees = batch.NextAsList<Employee>();
+        Assert.Equal(4, employees.Count);
+
+        Assert.Equal(
+            RelationalStrings.BatchQueryResultSetInvalidated,
+            Assert.Throws<InvalidOperationException>(() => customers.ToList()).Message);
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Batch_throws_when_continuing_partially_consumed_result_set(bool async)
+    {
+        using var context = CreateContext();
+
+        // Both queries have the same shape, so a stale enumerator that kept reading would silently return the
+        // second result set's rows instead of failing.
+        using var batch = async
+            ? await context.BatchAsync(
+                ctx => ctx.Set<Customer>().Where(c => c.City == "London").OrderBy(c => c.CustomerID),
+                ctx => ctx.Set<Customer>().Where(c => c.City == "London").OrderBy(c => c.CustomerID))
+            : context.Batch(
+                ctx => ctx.Set<Customer>().Where(c => c.City == "London").OrderBy(c => c.CustomerID),
+                ctx => ctx.Set<Customer>().Where(c => c.City == "London").OrderBy(c => c.CustomerID));
+
+        if (async)
+        {
+            await using var first = batch.NextAsAsyncEnumerable<Customer>().GetAsyncEnumerator();
+            Assert.True(await first.MoveNextAsync());
+            Assert.Equal("AROUT", first.Current.CustomerID);
+
+            var second = await batch.NextAsListAsync<Customer>();
+            Assert.Equal(6, second.Count);
+
+            var exception = await Assert.ThrowsAsync<InvalidOperationException>(async () => await first.MoveNextAsync());
+            Assert.Equal(RelationalStrings.BatchQueryResultSetInvalidated, exception.Message);
+        }
+        else
+        {
+            using var first = batch.NextAsEnumerable<Customer>().GetEnumerator();
+            Assert.True(first.MoveNext());
+            Assert.Equal("AROUT", first.Current.CustomerID);
+
+            var second = batch.NextAsList<Customer>();
+            Assert.Equal(6, second.Count);
+
+            Assert.Equal(
+                RelationalStrings.BatchQueryResultSetInvalidated,
+                Assert.Throws<InvalidOperationException>(() => first.MoveNext()).Message);
+        }
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Batch_with_constant_resembling_parameter_placeholder(bool async)
+    {
+        using var context = CreateContext();
+
+        // The string constant matches the placeholder of the 'city' parameter; it must survive parameter renaming intact
+        var city = "London";
+        var customers = BatchQuery.Create((NorthwindContext ctx) => ctx.Set<Customer>()
+            .Where(c => c.City == city)
+            .OrderBy(c => c.CustomerID)
+            .Select(c => new { c.CustomerID, Marker = c.CustomerID + "@city" }));
+
+        using var batch = async
+            ? await context.BatchAsync(customers, ctx => ctx.Set<Employee>().Where(e => e.City == city))
+            : context.Batch(customers, ctx => ctx.Set<Employee>().Where(e => e.City == city));
+
+        var markers = async
+            ? await batch.NextAsListAsync(customers)
+            : batch.NextAsList(customers);
+        var employees = async
+            ? await batch.NextAsListAsync<Employee>()
+            : batch.NextAsList<Employee>();
+
+        Assert.Equal(6, markers.Count);
+        Assert.Equal("AROUT@city", markers[0].Marker);
+        Assert.All(markers, m => Assert.EndsWith("@city", m.Marker));
+        Assert.Equal(4, employees.Count);
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Batch_with_only_non_queries(bool async)
+    {
+        using var context = CreateContext();
+        await context.Database.CreateExecutionStrategy().ExecuteAsync(
+            async () =>
+            {
+                await using var transaction = async
+                    ? await context.Database.BeginTransactionAsync()
+                    : context.Database.BeginTransaction();
+
+                using var batch = async
+                    ? await context.BatchAsync(
+                        ctx => ctx.Set<OrderDetail>().Where(od => od.OrderID == 10248).ExecuteDelete(),
+                        ctx => ctx.Set<OrderDetail>().Where(od => od.OrderID == 10249).ExecuteDelete())
+                    : context.Batch(
+                        ctx => ctx.Set<OrderDetail>().Where(od => od.OrderID == 10248).ExecuteDelete(),
+                        ctx => ctx.Set<OrderDetail>().Where(od => od.OrderID == 10249).ExecuteDelete());
+
+                var firstRowsAffected = async
+                    ? await batch.NextAsRowsAffectedAsync()
+                    : batch.NextAsRowsAffected();
+                var secondRowsAffected = async
+                    ? await batch.NextAsRowsAffectedAsync()
+                    : batch.NextAsRowsAffected();
+
+                Assert.Equal(3, firstRowsAffected);
+                Assert.Equal(2, secondRowsAffected);
+            });
+    }
+
+    [Fact]
     public virtual void Batch_throws_for_query_from_different_context()
     {
         using var context = CreateContext();

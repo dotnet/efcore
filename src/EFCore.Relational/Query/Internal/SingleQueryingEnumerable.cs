@@ -161,8 +161,8 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
     bool IRelationalBatchQueryingEnumerable.DetailedErrorsEnabled
         => _detailedErrorsEnabled;
 
-    IRelationalCommandTemplate IRelationalBatchQueryingEnumerable.ResolveCommandTemplate()
-        => _relationalCommandResolver(_relationalQueryContext.Parameters);
+    IRelationalCommandTemplate IRelationalBatchQueryingEnumerable.ResolveCommandTemplate(string parameterNamePrefix)
+        => _relationalCommandResolver.ResolveForBatch(_relationalQueryContext.Parameters, parameterNamePrefix);
 
     IEnumerator<TResult> IRelationalBatchQueryingEnumerable.MaterializeResultSet<TResult>(RelationalDataReader dataReader)
         => new BatchResultSetEnumerator(this, dataReader) as IEnumerator<TResult>
