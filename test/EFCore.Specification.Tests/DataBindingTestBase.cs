@@ -253,6 +253,26 @@ public abstract class DataBindingTestBase<TFixture>(TFixture fixture) : IClassFi
         Assert.Equal(2, countChanges);
     }
 
+    [Fact]
+    public virtual void Loading_with_forced_identity_resolution_does_not_clear_local_view()
+    {
+        using var context = CreateF1Context();
+        SetupContext(context);
+
+        var localView = context.Drivers.Local;
+        var observable = localView.ToObservableCollection();
+
+        Assert.Equal(TotalCount, observable.Count);
+
+        // Loading into a detached entity uses a temporary state manager, which is cleared afterwards
+        var team = context.Teams.AsNoTracking().Single(t => t.Id == Team.Ferrari);
+        context.Entry(team).Collection(t => t.Drivers).Load(LoadOptions.ForceIdentityResolution);
+
+        Assert.NotEmpty(team.Drivers);
+        Assert.Equal(TotalCount, localView.Count);
+        Assert.Equal(TotalCount, observable.Count);
+    }
+
     [Theory, InlineData(false), InlineData(true)]
     public virtual void Entities_with_state_changed_to_deleted_are_removed_from_local_view(
         bool toObservableCollection)

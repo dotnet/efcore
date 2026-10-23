@@ -346,7 +346,9 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
 
     private void StateManagerChangedHandler(InternalEntityEntry entry, EntityState previousState)
     {
-        if (_triggeringStateManagerChange)
+        // Entries tracked by the temporary state managers used for identity resolution aren't tracked by the context
+        if (_triggeringStateManagerChange
+            || entry.StateManager != _context.GetDependencies().StateManager)
         {
             return;
         }
@@ -518,16 +520,9 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
         CollectionChanged = null;
     }
 
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [EntityFrameworkInternal]
-    public virtual void OnStateManagerCleared()
+    internal void OnStateManagerCleared()
     {
-        // The state manager stopped tracking everything without reporting each entity, so tell the existing
+        // The change tracker stopped tracking everything without reporting each entity, so tell the existing
         // subscribers (including the observable collection and binding list) that the view is now empty
         OnCountPropertyChanging();
 

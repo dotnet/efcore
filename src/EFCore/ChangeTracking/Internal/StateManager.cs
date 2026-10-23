@@ -765,17 +765,13 @@ public class StateManager : IStateManager
 
         SavingChanges = false;
 
-        foreach (var set in ((IDbSetCache)Context).GetSets())
+        // Local views are only reset with the context. ChangeTracker.Clear() notifies them itself, and the temporary
+        // state managers used for identity resolution share the context but must not touch its views.
+        if (resetting)
         {
-            if (resetting)
+            foreach (IResettableService set in ((IDbSetCache)Context).GetSets())
             {
-                ((IResettableService)set).ResetState();
-            }
-            else
-            {
-                // The context stays in use after ChangeTracker.Clear(), so local views keep their subscribers
-                // (e.g. data bound ObservableCollections) and are told that they are now empty instead
-                (set as ILocalViewOwner)?.OnStateManagerCleared();
+                set.ResetState();
             }
         }
     }
