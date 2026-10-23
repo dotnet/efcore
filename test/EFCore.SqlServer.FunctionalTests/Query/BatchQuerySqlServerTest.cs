@@ -53,6 +53,26 @@ WHERE [o].[OrderID] = 10248
 """);
     }
 
+    public override async Task Batch_with_constant_resembling_parameter_placeholder(bool async)
+    {
+        await base.Batch_with_constant_resembling_parameter_placeholder(async);
+
+        AssertSql(
+            """
+@b0_city='London' (Size = 15)
+@b1_city='London' (Size = 15)
+
+SELECT [c].[CustomerID], [c].[CustomerID] + N'@city' AS [Marker]
+FROM [Customers] AS [c]
+WHERE [c].[City] = @b0_city
+ORDER BY [c].[CustomerID];
+
+SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE [e].[City] = @b1_city
+""");
+    }
+
     protected override DbParameter CreateDbParameter(string name, object value)
         => new SqlParameter { ParameterName = name, Value = value };
 

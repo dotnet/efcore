@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 
@@ -114,16 +113,18 @@ public static class RelationalBatchQueryExecutor
                 throw new InvalidOperationException(RelationalStrings.BatchQueryDifferentContext);
             }
 
-            var template = element.ResolveCommandTemplate();
-            var renameMap = new Dictionary<string, string>();
+            // Parameter names are prefixed per element while the SQL is generated, so the parameters of different
+            // elements never collide in the combined command and the generated SQL text is never rewritten.
+            var parameterNamePrefix = GetParameterNamePrefix(i);
+            var template = element.ResolveCommandTemplate(parameterNamePrefix);
 
             foreach (var parameter in template.Parameters)
             {
-                parameters.Add(CloneParameter(parameter, i, queryContext.Parameters, parameterValues, renameMap));
+                parameters.Add(CloneParameter(parameter, parameterNamePrefix, queryContext.Parameters, parameterValues));
             }
 
-            statements[i] = RewriteParameterPlaceholders(template.CommandText, renameMap);
-            logStatements[i] = RewriteParameterPlaceholders(template.LogCommandText, renameMap);
+            statements[i] = template.CommandText;
+            logStatements[i] = template.LogCommandText;
 
             if (element.IsNonQuery)
             {
@@ -139,17 +140,23 @@ public static class RelationalBatchQueryExecutor
 
         // Either all queries were compiled for buffering (e.g. a retrying execution strategy is configured on the
         // context) or none were; a mix would require buffering some result sets while streaming others on one reader.
-        // Rows-affected result sets of non-query elements are buffered with a synthetic single-int column.
+        if (bufferingCount > 0 && bufferingCount != queryCount)
+        {
+            throw new InvalidOperationException(RelationalStrings.BatchQueryBufferingNotSupported);
+        }
+
+        // A batch consisting only of non-queries has no compiled reader columns to go by, so it buffers whenever the
+        // execution strategy retries. Rows-affected result sets are buffered with a synthetic single-int column.
+        var buffering = queryCount == 0
+            ? firstQueryContext.ExecutionStrategy.RetriesOnFailure
+            : bufferingCount > 0;
+
         IReadOnlyList<ReaderColumn?>? readerColumns = null;
-        if (bufferingCount > 0 && bufferingCount == queryCount)
+        if (buffering)
         {
             var affectedRowsColumns = new[] { ReaderColumn.Create(typeof(int), nullable: false, null, null, AffectedRowsReadFunc) };
             readerColumns = new BatchReaderColumns(
                 [.. elements.Select(e => e.ReaderColumns ?? affectedRowsColumns)]);
-        }
-        else if (bufferingCount > 0)
-        {
-            throw new InvalidOperationException(RelationalStrings.BatchQueryBufferingNotSupported);
         }
 
         var separator = sqlGenerationHelper.StatementTerminator + Environment.NewLine + Environment.NewLine;
@@ -176,23 +183,27 @@ public static class RelationalBatchQueryExecutor
         return (command, parameterObject, concurrencyDetector);
     }
 
+    private static string GetParameterNamePrefix(int elementIndex)
+        => $"b{elementIndex}_";
+
+    // The parameter names in the template were already prefixed during SQL generation; only the invariant names,
+    // which key the parameter values, still need to be made unique across the batch.
     private static IRelationalParameter CloneParameter(
         IRelationalParameter parameter,
-        int queryIndex,
+        string parameterNamePrefix,
         IReadOnlyDictionary<string, object?> sourceValues,
-        Dictionary<string, object?> targetValues,
-        Dictionary<string, string> renameMap)
+        Dictionary<string, object?> targetValues)
     {
         switch (parameter)
         {
             case TypeMappedRelationalParameter typeMapped:
             {
-                var newInvariantName = RenameInvariantName(typeMapped.InvariantName, queryIndex);
+                var newInvariantName = parameterNamePrefix + typeMapped.InvariantName;
                 targetValues[newInvariantName] = sourceValues[typeMapped.InvariantName];
 
                 return new TypeMappedRelationalParameter(
                     newInvariantName,
-                    RenameParameterName(typeMapped.Name, queryIndex, renameMap),
+                    typeMapped.Name,
                     typeMapped.RelationalTypeMapping,
                     typeMapped.IsNullable,
                     typeMapped.Direction);
@@ -200,62 +211,24 @@ public static class RelationalBatchQueryExecutor
 
             case CompositeRelationalParameter composite:
             {
-                var subParameters = new List<IRelationalParameter>(composite.RelationalParameters.Count);
                 foreach (var subParameter in composite.RelationalParameters)
                 {
-                    if (subParameter is not TypeMappedRelationalParameter subTypeMapped)
+                    if (subParameter is not TypeMappedRelationalParameter)
                     {
                         throw new InvalidOperationException(
                             RelationalStrings.BatchQueryUnsupportedParameter(subParameter.GetType().ShortDisplayName()));
                     }
-
-                    subParameters.Add(
-                        new TypeMappedRelationalParameter(
-                            RenameInvariantName(subTypeMapped.InvariantName, queryIndex),
-                            RenameParameterName(subTypeMapped.Name, queryIndex, renameMap),
-                            subTypeMapped.RelationalTypeMapping,
-                            subTypeMapped.IsNullable,
-                            subTypeMapped.Direction));
                 }
 
-                var newInvariantName = RenameInvariantName(composite.InvariantName, queryIndex);
+                var newInvariantName = parameterNamePrefix + composite.InvariantName;
                 targetValues[newInvariantName] = sourceValues[composite.InvariantName];
 
-                return new CompositeRelationalParameter(newInvariantName, subParameters);
+                return new CompositeRelationalParameter(newInvariantName, composite.RelationalParameters);
             }
 
             default:
                 throw new InvalidOperationException(
                     RelationalStrings.BatchQueryUnsupportedParameter(parameter.GetType().ShortDisplayName()));
         }
-    }
-
-    private static string RenameInvariantName(string invariantName, int queryIndex)
-        => $"b{queryIndex}_{invariantName}";
-
-    private static string RenameParameterName(string name, int queryIndex, Dictionary<string, string> renameMap)
-    {
-        var hasPrefix = name.StartsWith('@');
-        var bareName = hasPrefix ? name[1..] : name;
-        var newBareName = $"b{queryIndex}_{bareName}";
-
-        renameMap["@" + bareName] = "@" + newBareName;
-
-        return hasPrefix ? "@" + newBareName : newBareName;
-    }
-
-    private static string RewriteParameterPlaceholders(string commandText, Dictionary<string, string> renameMap)
-    {
-        if (renameMap.Count == 0)
-        {
-            return commandText;
-        }
-
-        // A trailing lookahead ensures a placeholder never matches a prefix of a longer placeholder (e.g. "@p1" in "@p10");
-        // the regex engine backtracks into the alternation until the full placeholder matches. A parameter placeholder
-        // appearing inside a SQL string literal would be rewritten too - not something LINQ-generated SQL produces.
-        var pattern = "(?:" + string.Join("|", renameMap.Keys.Select(Regex.Escape)) + ")(?![A-Za-z0-9_$@])";
-
-        return Regex.Replace(commandText, pattern, match => renameMap[match.Value]);
     }
 }

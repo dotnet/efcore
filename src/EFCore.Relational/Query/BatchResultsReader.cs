@@ -99,7 +99,14 @@ public class BatchResultsReader : IDisposable, IAsyncDisposable
     /// <returns>An enumerable streaming the results.</returns>
     /// <exception cref="InvalidOperationException">All result sets have already been consumed.</exception>
     public virtual IEnumerable<T> NextAsEnumerable<T>()
-        => new SingleUseEnumerable<T>(NextEnumerator<T>());
+    {
+        CheckDisposed();
+
+        var index = ReserveNextResultSet();
+        var element = _elements[index];
+
+        return new SingleUseEnumerable<T>(this, element, index);
+    }
 
     /// <summary>
     ///     Returns a lazily-evaluated async enumerable that streams the rows of the next result set of the batch.
@@ -279,11 +286,17 @@ public class BatchResultsReader : IDisposable, IAsyncDisposable
         CheckDisposed();
 
         var index = ReserveNextResultSet();
-        var enumerator = _elements[index].MaterializeResultSet<T>(_dataReader);
+
+        return CreateEnumerator<T>(_elements[index], index);
+    }
+
+    private IEnumerator<T> CreateEnumerator<T>(RelationalBatchElement element, int index)
+    {
+        var enumerator = element.MaterializeResultSet<T>(_dataReader);
 
         Position(index);
 
-        return enumerator;
+        return new BoundEnumerator<T>(this, index, enumerator);
     }
 
     private async Task<IAsyncEnumerator<T>> NextEnumeratorAsync<T>(CancellationToken cancellationToken)
@@ -291,19 +304,31 @@ public class BatchResultsReader : IDisposable, IAsyncDisposable
         CheckDisposed();
 
         var index = ReserveNextResultSet();
-        var enumerator = _elements[index].MaterializeResultSetAsync<T>(
-            _dataReader,
-            cancellationToken == default ? _cancellationToken : cancellationToken);
+        var effectiveCancellationToken = cancellationToken == default ? _cancellationToken : cancellationToken;
+        var enumerator = _elements[index].MaterializeResultSetAsync<T>(_dataReader, effectiveCancellationToken);
 
-        await PositionAsync(index, cancellationToken).ConfigureAwait(false);
+        await PositionAsync(index, effectiveCancellationToken).ConfigureAwait(false);
 
-        return enumerator;
+        return new BoundAsyncEnumerator<T>(this, index, enumerator);
     }
 
     private int ReserveNextResultSet()
         => _nextResultSet < _elements.Count
             ? _nextResultSet++
             : throw new InvalidOperationException(RelationalStrings.BatchQueryNoMoreResultSets(_elements.Count));
+
+    // Enumerators read from the data reader shared by all result sets of the batch; once the reader has been advanced
+    // to a later result set, an enumerator bound to an earlier one must not keep reading (it would shape the rows of
+    // the wrong result set).
+    private void EnsureCurrentResultSet(int index)
+    {
+        CheckDisposed();
+
+        if (_readerResultSet != index)
+        {
+            throw new InvalidOperationException(RelationalStrings.BatchQueryResultSetInvalidated);
+        }
+    }
 
     private void Position(int index)
     {
@@ -373,21 +398,68 @@ public class BatchResultsReader : IDisposable, IAsyncDisposable
         GC.SuppressFinalize(this);
     }
 
-    private sealed class SingleUseEnumerable<T>(IEnumerator<T> enumerator) : IEnumerable<T>
+    private sealed class SingleUseEnumerable<T>(
+        BatchResultsReader reader,
+        RelationalBatchElement element,
+        int index) : IEnumerable<T>
     {
-        private IEnumerator<T>? _enumerator = enumerator;
+        private bool _used;
 
         public IEnumerator<T> GetEnumerator()
         {
-            var enumerator = _enumerator
-                ?? throw new InvalidOperationException(CoreStrings.EnumerableResetNotSupported);
-            _enumerator = null;
+            if (_used)
+            {
+                throw new InvalidOperationException(CoreStrings.EnumerableResetNotSupported);
+            }
 
-            return enumerator;
+            _used = true;
+
+            reader.CheckDisposed();
+
+            return reader.CreateEnumerator<T>(element, index);
         }
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
             => GetEnumerator();
+    }
+
+    private sealed class BoundEnumerator<T>(BatchResultsReader reader, int index, IEnumerator<T> enumerator) : IEnumerator<T>
+    {
+        public T Current
+            => enumerator.Current;
+
+        object? System.Collections.IEnumerator.Current
+            => Current;
+
+        public bool MoveNext()
+        {
+            reader.EnsureCurrentResultSet(index);
+
+            return enumerator.MoveNext();
+        }
+
+        public void Reset()
+            => enumerator.Reset();
+
+        public void Dispose()
+            => enumerator.Dispose();
+    }
+
+    private sealed class BoundAsyncEnumerator<T>(BatchResultsReader reader, int index, IAsyncEnumerator<T> enumerator)
+        : IAsyncEnumerator<T>
+    {
+        public T Current
+            => enumerator.Current;
+
+        public ValueTask<bool> MoveNextAsync()
+        {
+            reader.EnsureCurrentResultSet(index);
+
+            return enumerator.MoveNextAsync();
+        }
+
+        public ValueTask DisposeAsync()
+            => enumerator.DisposeAsync();
     }
 
     private sealed class SingleUseAsyncEnumerable<T>(
@@ -414,8 +486,15 @@ public class BatchResultsReader : IDisposable, IAsyncDisposable
 
             await reader.PositionAsync(index, effectiveCancellationToken).ConfigureAwait(false);
 
-            while (await enumerator.MoveNextAsync().ConfigureAwait(false))
+            while (true)
             {
+                reader.EnsureCurrentResultSet(index);
+
+                if (!await enumerator.MoveNextAsync().ConfigureAwait(false))
+                {
+                    yield break;
+                }
+
                 yield return enumerator.Current;
             }
         }
