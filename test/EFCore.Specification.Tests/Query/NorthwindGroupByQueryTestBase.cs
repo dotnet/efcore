@@ -3173,6 +3173,32 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
             });
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_selecting_grouping_element_list_with_converted_key(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OrderDetail>().GroupBy(od => od.Quantity)
+                .Select(g => new { Key = (int)g.Key, Orders = g.Select(od => od.OrderID).ToList() }),
+            elementSorter: e => e.Key,
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.Key, a.Key);
+                AssertCollection(e.Orders, a.Orders);
+            });
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_selecting_grouping_element_list_with_nullable_converted_key(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Employee>().GroupBy(e => e.EmployeeID)
+                .Select(g => new { Key = (uint?)g.Key, Employees = g.Select(e => e.EmployeeID).ToList() }),
+            elementSorter: e => e.Key,
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.Key, a.Key);
+                AssertCollection(e.Employees, a.Employees);
+            });
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Select_GroupBy_SelectMany(bool async)
         // Entity equality. Issue #15938.
         => AssertTranslationFailed(() => AssertQuery(

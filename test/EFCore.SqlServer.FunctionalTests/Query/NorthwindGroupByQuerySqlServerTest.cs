@@ -4286,6 +4286,35 @@ ORDER BY [c1].[Region]
 """);
     }
 
+    public override async Task GroupBy_selecting_grouping_element_list_with_converted_key(bool async)
+    {
+        await base.GroupBy_selecting_grouping_element_list_with_converted_key(async);
+
+        AssertSql(
+            """
+SELECT [o1].[c], [o1].[Quantity], [o0].[OrderID], [o0].[ProductID]
+FROM (
+    SELECT CAST([o].[Quantity] AS int) AS [c], [o].[Quantity]
+    FROM [Order Details] AS [o]
+    GROUP BY [o].[Quantity]
+) AS [o1]
+LEFT JOIN [Order Details] AS [o0] ON [o1].[Quantity] = [o0].[Quantity]
+ORDER BY [o1].[Quantity], [o0].[OrderID]
+""");
+    }
+
+    public override async Task GroupBy_selecting_grouping_element_list_with_nullable_converted_key(bool async)
+    {
+        await base.GroupBy_selecting_grouping_element_list_with_nullable_converted_key(async);
+
+        AssertSql(
+            """
+SELECT [e].[EmployeeID], DENSE_RANK() OVER(ORDER BY [e].[EmployeeID])
+FROM [Employees] AS [e]
+ORDER BY [e].[EmployeeID]
+""");
+    }
+
     public override async Task GroupBy_selecting_grouping_element_list(bool async)
     {
         await base.GroupBy_selecting_grouping_element_list(async);
