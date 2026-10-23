@@ -94,7 +94,7 @@ WHERE (
 
     public override async Task Distinct()
     {
-        if (Fixture.UsingJsonType)
+        if (Fixture.UsingJsonType && !SqlServerTestEnvironment.IsAzureSql)
         {
             // The json data type cannot be selected as DISTINCT because it is not comparable.
             await Assert.ThrowsAsync<SqlException>(base.Distinct);
@@ -153,7 +153,7 @@ WHERE (
         {
             await base.Distinct_projected(queryTrackingBehavior);
         }
-        else if (Fixture.UsingJsonType)
+        else if (Fixture.UsingJsonType && !SqlServerTestEnvironment.IsAzureSql)
         {
             // The json data type cannot be selected as DISTINCT because it is not comparable.
             await Assert.ThrowsAsync<SqlException>(() => base.Distinct_projected(queryTrackingBehavior));
@@ -395,7 +395,7 @@ WHERE 16 IN (
     {
         await base.Select_within_Select_within_Select_with_aggregates();
 
-        if (Fixture.UsingJsonType)
+        if (Fixture.UsingJsonType && !SqlServerTestEnvironment.IsAzureSql)
         {
             AssertSql(
                 """

@@ -11,7 +11,7 @@ public class SqlAzureDatabaseCreationTest
 {
     protected string StoreName { get; } = "SqlAzureDatabaseCreationTest";
 
-    [Fact]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsElasticPoolConfigured))]
     public async Task Creates_database_in_elastic_pool()
     {
         await using var testDatabase = SqlServerTestStore.Create(StoreName + "Elastic");
@@ -60,7 +60,7 @@ public class SqlAzureDatabaseCreationTest
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasDatabaseMaxSize("32 GB");
-            modelBuilder.HasServiceTier("'GeneralPurpose'");
+            modelBuilder.HasServiceTier("GeneralPurpose");
             modelBuilder.HasPerformanceLevel("GP_Gen5_2");
         }
     }
