@@ -64,7 +64,14 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
 
             if (field == null)
             {
-                if (_context.Model.IsShared(typeof(TEntity)))
+                if (_entityTypeName != null)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.InvalidSetTypeWithName(typeof(TEntity).ShortDisplayName(), _entityTypeName));
+                }
+
+                if (_context.Model.IsShared(typeof(TEntity))
+                    || _context.Model.FindEntityTypes(typeof(TEntity)).Any(e => e.HasSharedClrType))
                 {
                     throw new InvalidOperationException(CoreStrings.InvalidSetSharedType(typeof(TEntity).ShortDisplayName()));
                 }
