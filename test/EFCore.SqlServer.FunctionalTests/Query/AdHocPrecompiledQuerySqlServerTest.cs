@@ -11,6 +11,29 @@ public class AdHocPrecompiledQuerySqlServerTest(NonSharedFixture fixture, ITestO
     protected override bool AlwaysPrintGeneratedSources
         => false;
 
+    public override async Task Implicit_conversions_in_binary_and_conditional_expressions()
+    {
+        await base.Implicit_conversions_in_binary_and_conditional_expressions();
+
+        AssertSql(
+            """
+@taskType='generation' (Size = 4000)
+@since='2026-01-01T00:00:00.0000000'
+
+SELECT [t].[State], COUNT(*), CASE
+    WHEN COUNT_BIG(CASE
+        WHEN [t].[CompletedAt] IS NOT NULL THEN 1
+    END) > CAST(0 AS bigint) THEN AVG(CASE
+        WHEN [t].[CompletedAt] IS NOT NULL THEN CAST([t].[Id] AS float)
+    END)
+END
+FROM [Tasks] AS [t]
+WHERE [t].[Type] = @taskType AND [t].[CreatedAt] >= @since
+GROUP BY [t].[State]
+ORDER BY [t].[State]
+""");
+    }
+
     public override async Task Index_no_evaluatability()
     {
         if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
