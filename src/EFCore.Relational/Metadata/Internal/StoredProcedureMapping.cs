@@ -9,7 +9,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class StoredProcedureMapping : TableMappingBase<IStoredProcedureResultColumnMapping>, IStoredProcedureMapping
+public class StoredProcedureMapping : TableMappingBase<IStoredProcedureResultColumnMapping>, IStoredProcedureMapping,
+    IComparable<StoredProcedureMapping>
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -43,6 +44,10 @@ public class StoredProcedureMapping : TableMappingBase<IStoredProcedureResultCol
     /// <inheritdoc />
     public virtual ITableMapping? TableMapping { get; }
 
+    /// <inheritdoc />
+    public int CompareTo(StoredProcedureMapping? other)
+        => CompareTo((ITableMappingBase?)other);
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -60,13 +65,13 @@ public class StoredProcedureMapping : TableMappingBase<IStoredProcedureResultCol
     /// </summary>
     public virtual bool AddParameterMapping(IStoredProcedureParameterMapping parameterMapping)
     {
-        if (ParameterMappings.IndexOf(parameterMapping, ColumnMappingBaseComparer.Instance) != -1)
+        if (ParameterMappings.IndexOf(parameterMapping) != -1)
         {
             return false;
         }
 
         ParameterMappings.Add(parameterMapping);
-        ParameterMappings.Sort(ColumnMappingBaseComparer.Instance);
+        ParameterMappings.Sort();
 
         return true;
     }
