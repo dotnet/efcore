@@ -2255,18 +2255,27 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 case MemberExpression memberExpression:
                     var instanceValue = EvaluateCore(
                         memberExpression.Expression, ref evaluateAsParameter, out parameterName, out isContextAccessor);
+                    var name = SanitizeCompilerGeneratedName(memberExpression.Member.Name);
+                    parameterName = parameterName is null ? name : $"{parameterName}_{name}";
+
+                    // Captured reference types may have null placeholder values during precompilation.
+                    // Only the parameter name is needed; the member is evaluated at runtime.
+                    if (evaluateAsParameter
+                        && (_precompiledQuery || _calculatingPath)
+                        && instanceValue is null
+                        && memberExpression.Expression is not null)
+                    {
+                        return null;
+                    }
+
                     try
                     {
                         switch (memberExpression.Member)
                         {
                             case FieldInfo fieldInfo:
-                                var name = SanitizeCompilerGeneratedName(fieldInfo.Name);
-                                parameterName = parameterName is null ? name : $"{parameterName}_{name}";
                                 return fieldInfo.GetValue(instanceValue);
 
                             case PropertyInfo propertyInfo:
-                                name = SanitizeCompilerGeneratedName(propertyInfo.Name);
-                                parameterName = parameterName is null ? name : $"{parameterName}_{name}";
                                 return propertyInfo.GetValue(instanceValue);
                         }
                     }
