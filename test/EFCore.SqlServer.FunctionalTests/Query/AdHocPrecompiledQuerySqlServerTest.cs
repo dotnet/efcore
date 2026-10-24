@@ -11,6 +11,13 @@ public class AdHocPrecompiledQuerySqlServerTest(NonSharedFixture fixture, ITestO
     protected override bool AlwaysPrintGeneratedSources
         => false;
 
+    public override async Task Decimal_projection_with_implicitly_converted_zero()
+    {
+        await base.Decimal_projection_with_implicitly_converted_zero();
+
+        AssertSql();
+    }
+
     public override async Task Index_no_evaluatability()
     {
         if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
