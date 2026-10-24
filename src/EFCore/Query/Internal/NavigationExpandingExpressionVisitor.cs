@@ -2269,6 +2269,8 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     /// <summary>
     ///     Whether database equality of values of this type implies they are the same value, so that every row of a group holds
     ///     exactly the group's key. Strings are not (collations, trailing spaces), nor datetimeoffsets, decimals or floating point.
+    ///     Nor are Guids: a provider can store them as text without a value converter, as SQLite does, where a collation
+    ///     such as NOCASE groups spellings that differ in case.
     /// </summary>
     private static bool HasIdentityEquality(Type type)
     {
@@ -2282,8 +2284,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             || type == typeof(ulong)
             || type == typeof(ushort)
             || type == typeof(sbyte)
-            || type == typeof(bool)
-            || type == typeof(Guid);
+            || type == typeof(bool);
     }
 
     /// <summary>
