@@ -660,6 +660,15 @@
   <data name="ErrorMaterializingPropertyInvalidCast" xml:space="preserve">
     <value>An error occurred while reading a database value for property '{entityType}.{property}'. The expected type was '{expectedType}' but the actual value was of type '{actualType}'.</value>
   </data>
+  <data name="ExecuteMergeDuplicateClause" xml:space="preserve">
+    <value>'{method}' can only be called once when configuring 'ExecuteMerge'.</value>
+  </data>
+  <data name="ExecuteMergeEmptyMatch" xml:space="preserve">
+    <value>The 'Match' call in 'ExecuteMerge' must select at least one property.</value>
+  </data>
+  <data name="ExecuteMergeQuerySource" xml:space="preserve">
+    <value>The source of 'ExecuteMerge' is an EF query, which isn't supported. Materialize it first, e.g. with 'ToList'.</value>
+  </data>
   <data name="ExecuteQueriesNotSupported" xml:space="preserve">
     <value>The methods '{methodName}' and '{asyncMethodName}' are not supported by the current database provider. Please contact the publisher of the database provider for more information.</value>
   </data>

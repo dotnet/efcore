@@ -31,7 +31,7 @@ public class RelationalShapedQueryCompilingExpressionVisitorTest
         IAsyncEnumerable<object> enumerable = enumerableType switch
         {
             "Single" => new SingleQueryingEnumerable<object>(
-                queryContext, null!, null, null!, typeof(DbContext), false, false, false),
+                queryContext, null!, null, null!, typeof(DbContext), false, false, false, CommandSource.LinqQuery),
             "Split" => new SplitQueryingEnumerable<object>(
                 queryContext, null!, null, null!, null, null, typeof(DbContext), false, false, false),
             "FromSql" => new FromSqlQueryingEnumerable<object>(
