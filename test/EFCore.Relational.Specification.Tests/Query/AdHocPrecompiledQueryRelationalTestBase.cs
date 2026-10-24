@@ -479,6 +479,71 @@ var posts = await context.Posts.ToListAsync();
             v => new Rating(v));
     }
 
+    #region Window functions
+
+    [Fact]
+    public virtual async Task GroupBy_elements_and_aggregates_as_window_functions()
+    {
+        var contextFactory = await InitializeNonSharedTest<WindowFunctionContext>(
+            onConfiguring: o => UseWindowFunctionAggregates(o));
+        var options = contextFactory.GetOptions();
+
+        await Test(
+            """
+await using var context = new AdHocPrecompiledQueryRelationalTestBase.WindowFunctionContext(dbContextOptions);
+context.Employees.AddRange(
+    new AdHocPrecompiledQueryRelationalTestBase.WindowFunctionEmployee { DepartmentName = "Engineering", Salary = 100 },
+    new AdHocPrecompiledQueryRelationalTestBase.WindowFunctionEmployee { DepartmentName = "Engineering", Salary = 200 },
+    new AdHocPrecompiledQueryRelationalTestBase.WindowFunctionEmployee { DepartmentName = "Sales", Salary = 50 });
+await context.SaveChangesAsync();
+
+// With more nullable parameters than SQL is pregenerated for, the SQL tree itself is quoted into the generated code.
+string? excluded1 = "Finance", excluded2 = "Legal", excluded3 = "Marketing", excluded4 = "Support";
+var departments = await context.Employees
+    .Where(e => e.DepartmentName != excluded1 && e.DepartmentName != excluded2 && e.DepartmentName != excluded3 && e.DepartmentName != excluded4)
+    .GroupBy(e => e.DepartmentName)
+    .Select(g => new { Employees = g.ToList(), Total = g.Sum(e => e.Salary), Count = g.LongCount() })
+    .ToListAsync();
+
+Assert.Collection(
+    departments.OrderBy(d => d.Total),
+    sales =>
+    {
+        Assert.Single(sales.Employees);
+        Assert.Equal(50, sales.Total);
+        Assert.Equal(1L, sales.Count);
+    },
+    engineering =>
+    {
+        Assert.Equal(2, engineering.Employees.Count);
+        Assert.Equal(300, engineering.Total);
+        Assert.Equal(2L, engineering.Count);
+    });
+""",
+            typeof(WindowFunctionContext),
+            options,
+            interceptorCodeAsserter: code => Assert.Contains("new WindowFunctionExpression(", code));
+    }
+
+    /// <summary>
+    ///     Enables the window function translation on the given options, using the provider's own options builder.
+    /// </summary>
+    protected abstract DbContextOptionsBuilder UseWindowFunctionAggregates(DbContextOptionsBuilder optionsBuilder);
+
+    public class WindowFunctionContext(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<WindowFunctionEmployee> Employees { get; set; } = null!;
+    }
+
+    public class WindowFunctionEmployee
+    {
+        public int Id { get; set; }
+        public string DepartmentName { get; set; } = "";
+        public int Salary { get; set; }
+    }
+
+    #endregion
+
     #region Invalid runtime constant name
 
     [Fact]
