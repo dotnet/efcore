@@ -1716,7 +1716,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
             _state = operandState.ContainsEvaluatable && _calculatingPath
                 ? State.CreateContainsEvaluatable(
                     typeof(UnaryExpression),
-                    [_state.Path! with { PathFromParent = static e => Property(e, nameof(UnaryExpression.Operand)) }])
+                    [operandState.Path! with { PathFromParent = static e => Property(e, nameof(UnaryExpression.Operand)) }])
                 : State.NoEvaluatability;
 
             return unary.Update(operand);
@@ -2012,6 +2012,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         // while setting the appropriate state, but does not evaluate the root itself.
         if (!forceEvaluation && TryHandleNonEvaluatableAsRoot(evaluatableRoot, state, evaluateAsParameter, out var result))
         {
+            state = _state;
             return result;
         }
 
