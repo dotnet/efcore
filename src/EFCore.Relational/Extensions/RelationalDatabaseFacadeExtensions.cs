@@ -5,6 +5,7 @@ using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore;
@@ -973,6 +974,65 @@ public static class RelationalDatabaseFacadeExtensions
         }
 
         databaseFacade.SetCommandTimeout(Convert.ToInt32(timeout.TotalSeconds));
+    }
+
+    /// <summary>
+    ///     Temporarily sets the timeout (in seconds) to use for commands executed with this <see cref="DbContext" />.
+    ///     The previous value is restored when the returned object is disposed.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         The timeout applies to all commands executed by this context while the returned object is not disposed.
+    ///         Dispose the returned object to restore the previous value.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-connections">Connections and connection strings</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <example>
+    ///     <code>
+    /// using (context.Database.WithCommandTimeout(60))
+    /// {
+    ///     var items = context.Items.ToList();
+    /// }
+    ///     </code>
+    /// </example>
+    /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
+    /// <param name="timeout">The timeout to use, in seconds.</param>
+    /// <returns>An object that restores the previous timeout when disposed.</returns>
+    public static IDisposable WithCommandTimeout(this DatabaseFacade databaseFacade, int? timeout)
+    {
+        var connection = GetFacadeDependencies(databaseFacade).RelationalConnection;
+        var scope = new CommandTimeoutScope(connection, connection.CommandTimeout);
+        connection.CommandTimeout = timeout;
+
+        return scope;
+    }
+
+    /// <summary>
+    ///     Temporarily sets the timeout to use for commands executed with this <see cref="DbContext" />.
+    ///     The previous value is restored when the returned object is disposed.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This is a sugar method allowing a <see cref="TimeSpan" /> to be used to set the value. It delegates to
+    ///         <see cref="WithCommandTimeout(DatabaseFacade,int?)" />.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-connections">Connections and connection strings</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
+    /// <param name="timeout">The timeout to use.</param>
+    /// <returns>An object that restores the previous timeout when disposed.</returns>
+    public static IDisposable WithCommandTimeout(this DatabaseFacade databaseFacade, TimeSpan timeout)
+    {
+        var connection = GetFacadeDependencies(databaseFacade).RelationalConnection;
+        var previousTimeout = connection.CommandTimeout;
+
+        databaseFacade.SetCommandTimeout(timeout);
+
+        return new CommandTimeoutScope(connection, previousTimeout);
     }
 
     /// <summary>

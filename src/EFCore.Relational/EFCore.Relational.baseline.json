@@ -10760,6 +10760,12 @@
           "Member": "static void SetCommandTimeout(this Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade databaseFacade, System.TimeSpan timeout);"
         },
         {
+          "Member": "static System.IDisposable WithCommandTimeout(this Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade databaseFacade, int? timeout);"
+        },
+        {
+          "Member": "static System.IDisposable WithCommandTimeout(this Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade databaseFacade, System.TimeSpan timeout);"
+        },
+        {
           "Member": "static void SetConnectionString(this Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade databaseFacade, string? connectionString);"
         },
         {
