@@ -11,6 +11,53 @@ public abstract class PrimitiveCollectionsQueryRelationalTestBase<TFixture>(TFix
         DbContextOptionsBuilder optionsBuilder,
         ParameterTranslationMode parameterizedCollectionMode);
 
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Project_collection_with_identity_select_split_query(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().AsSplitQuery().OrderBy(x => x.Id)
+                .Select(x => new { x.Id, Strings = x.Strings.Select(s => s) }),
+            assertOrder: true,
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.Id, a.Id);
+                AssertCollection(e.Strings, a.Strings, ordered: true);
+            });
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Project_collection_with_identity_select_split_query_with_converter(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<TestContext>(
+            onModelCreating: mb => mb.Entity<TestEntity>().PrimitiveCollection(e => e.Ints).ElementType()
+                .HasConversion<string>().HasMaxLength(10000),
+            seed: context =>
+            {
+                context.AddRange(
+                    new TestEntity { Id = 1, Ints = [1, 10, 1] },
+                    new TestEntity { Id = 2, Ints = [] });
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var query = context.Set<TestEntity>().AsSplitQuery().OrderBy(x => x.Id)
+            .Select(x => new { x.Id, Ints = x.Ints!.Select(i => i) });
+        var results = async ? await query.ToListAsync() : query.ToList();
+
+        Assert.Collection(
+            results,
+            result =>
+            {
+                Assert.Equal(1, result.Id);
+                Assert.Equal([1, 10, 1], result.Ints);
+            },
+            result =>
+            {
+                Assert.Equal(2, result.Id);
+                Assert.Empty(result.Ints);
+            });
+    }
+
     [Fact]
     public override async Task Inline_collection_Count_with_zero_values()
     {
