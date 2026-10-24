@@ -49,9 +49,6 @@ public class CustomConvertersCosmosTest : CustomConvertersTestBase<CustomConvert
 
     public override async Task Field_on_derived_type_retrieved_via_cast_applies_value_converter()
     {
-        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
-        CosmosTestEnvironment.SkipOnLinuxEmulator();
-
         await base.Field_on_derived_type_retrieved_via_cast_applies_value_converter();
     }
 
