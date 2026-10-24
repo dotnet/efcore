@@ -993,6 +993,63 @@ public static class RelationalDatabaseFacadeExtensions
         => GetFacadeDependencies(databaseFacade).RelationalConnection.CommandTimeout;
 
     /// <summary>
+    ///     Sets the timeout to use for commands executed with this <see cref="DbContext" /> within the returned scope.
+    ///     The previous timeout is restored when the returned object is disposed.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         Note that the command timeout is distinct from the connection timeout. Connection timeouts are usually
+    ///         configured in the connection string. More recently, some ADO.NET data providers are adding the capability
+    ///         to also set a command timeout in the connection string. A value set with this API for the command timeout
+    ///         will override any value set in the connection string.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-connections">Connections and connection strings</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
+    /// <param name="timeout">The timeout to use, in seconds.</param>
+    /// <returns>An <see cref="IDisposable" /> that resets the command timeout to its previous value when disposed.</returns>
+    public static IDisposable UseCommandTimeout(this DatabaseFacade databaseFacade, int? timeout)
+        => new CommandTimeoutScope(databaseFacade, timeout);
+
+    /// <summary>
+    ///     Sets the timeout to use for commands executed with this <see cref="DbContext" /> within the returned scope.
+    ///     The previous timeout is restored when the returned object is disposed.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This is a sugar method allowing a <see cref="TimeSpan" /> to be used to set the value. It delegates to
+    ///         <see cref="UseCommandTimeout(DatabaseFacade,int?)" />.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-connections">Connections and connection strings</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
+    /// <param name="timeout">The timeout to use.</param>
+    /// <returns>An <see cref="IDisposable" /> that resets the command timeout to its previous value when disposed.</returns>
+    public static IDisposable UseCommandTimeout(this DatabaseFacade databaseFacade, TimeSpan timeout)
+    {
+        if (timeout == Timeout.InfiniteTimeSpan)
+        {
+            return databaseFacade.UseCommandTimeout(0);
+        }
+
+        if (timeout < TimeSpan.Zero)
+        {
+            throw new ArgumentException(RelationalStrings.TimeoutTooSmall(timeout.TotalSeconds));
+        }
+
+        if (timeout.TotalSeconds > int.MaxValue)
+        {
+            throw new ArgumentException(RelationalStrings.TimeoutTooBig(timeout.TotalSeconds));
+        }
+
+        return databaseFacade.UseCommandTimeout(Convert.ToInt32(timeout.TotalSeconds));
+    }
+
+    /// <summary>
     ///     Generates a script to create all tables for the current model.
     /// </summary>
     /// <remarks>
@@ -1052,4 +1109,27 @@ public static class RelationalDatabaseFacadeExtensions
 
     private static IDbContextTransactionManager GetTransactionManager(this DatabaseFacade databaseFacade)
         => ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Dependencies.TransactionManager;
+
+    private sealed class CommandTimeoutScope : IDisposable
+    {
+        private readonly DatabaseFacade _databaseFacade;
+        private readonly int? _previousTimeout;
+        private bool _disposed;
+
+        public CommandTimeoutScope(DatabaseFacade databaseFacade, int? timeout)
+        {
+            _databaseFacade = databaseFacade;
+            _previousTimeout = databaseFacade.GetCommandTimeout();
+            databaseFacade.SetCommandTimeout(timeout);
+        }
+
+        public void Dispose()
+        {
+            if (!_disposed)
+            {
+                _databaseFacade.SetCommandTimeout(_previousTimeout);
+                _disposed = true;
+            }
+        }
+    }
 }
