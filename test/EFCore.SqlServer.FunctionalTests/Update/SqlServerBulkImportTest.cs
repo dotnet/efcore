@@ -162,6 +162,58 @@ public class SqlServerBulkImportTest : IAsyncLifetime
         Assert.True(anyStreamed);
     }
 
+    [Fact]
+    public async Task Benchmark_BulkImport_vs_SaveChanges()
+    {
+        var sp = CreateServiceProvider();
+        await using var context = new BulkImportContext(sp, TestStore.Name);
+        await context.Database.EnsureCreatedResilientlyAsync();
+
+        // Warmup
+        var warmupProducts = Enumerable.Range(1, 100).Select(i => new Product
+        {
+            Name = $"Warmup {i}",
+            Price = i,
+            Category = ProductCategory.Books
+        }).ToList();
+        await context.Products.ImportFromAsync(warmupProducts);
+
+        foreach (var count in new[] { 1000, 10000 })
+        {
+            var productsSave = Enumerable.Range(1, count).Select(i => new Product
+            {
+                Name = $"SaveProduct {i}",
+                Price = i,
+                Category = ProductCategory.Electronics
+            }).ToList();
+
+            var productsBulk = Enumerable.Range(1, count).Select(i => new Product
+            {
+                Name = $"BulkProduct {i}",
+                Price = i,
+                Category = ProductCategory.Electronics
+            }).ToList();
+
+            // SaveChanges
+            var sw1 = System.Diagnostics.Stopwatch.StartNew();
+            var alloc1 = GC.GetAllocatedBytesForCurrentThread();
+            await context.Products.AddRangeAsync(productsSave);
+            await context.SaveChangesAsync();
+            sw1.Stop();
+            var memorySave = GC.GetAllocatedBytesForCurrentThread() - alloc1;
+
+            // ImportFromAsync (SqlBulkCopy)
+            var sw2 = System.Diagnostics.Stopwatch.StartNew();
+            var alloc2 = GC.GetAllocatedBytesForCurrentThread();
+            await context.Products.ImportFromAsync(productsBulk);
+            sw2.Stop();
+            var memoryBulk = GC.GetAllocatedBytesForCurrentThread() - alloc2;
+
+            var speedup = sw1.Elapsed.TotalMilliseconds / Math.Max(1.0, sw2.Elapsed.TotalMilliseconds);
+            Console.WriteLine($"[BENCHMARK] Rows: {count} | SaveChanges: {sw1.ElapsedMilliseconds} ms ({memorySave / 1024 / 1024} MB) | SqlBulkCopy: {sw2.ElapsedMilliseconds} ms ({memoryBulk / 1024 / 1024} MB) | Speedup: {speedup:F1}x");
+        }
+    }
+
     protected SqlServerTestStore TestStore { get; private set; } = null!;
 
     public async ValueTask InitializeAsync()

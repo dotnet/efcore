@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks.UpdatePipeline;
 
+[InProcess]
 public class BulkImportSqlServerTests
 {
     private OrdersSqlServerFixture _fixture = null!;
