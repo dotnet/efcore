@@ -3,6 +3,8 @@
 
 #nullable disable
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -1071,14 +1073,26 @@ FROM [JsonEntitiesBasic] AS [j]
     {
         await base.Json_collection_Any_with_predicate(async);
 
+        using var context = Fixture.CreateContext();
+
         AssertSql(
-            """
+            context.GetService<ISqlServerSingletonOptions>() is
+                { EngineType: SqlServerEngineType.SqlServer, SqlServerCompatibilityLevel: >= 170 }
+                ? """
 SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
 FROM [JsonEntitiesBasic] AS [j]
 WHERE EXISTS (
     SELECT 1
     FROM OPENJSON([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch') WITH ([OwnedReferenceLeaf] json '$.OwnedReferenceLeaf' AS JSON) AS [o]
     WHERE JSON_VALUE([o].[OwnedReferenceLeaf], '$.SomethingSomething' RETURNING nvarchar(max)) = N'e1_r_c1_r')
+"""
+                : """
+SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
+WHERE EXISTS (
+    SELECT 1
+    FROM OPENJSON([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch') WITH ([OwnedReferenceLeaf] nvarchar(max) '$.OwnedReferenceLeaf' AS JSON) AS [o]
+    WHERE JSON_VALUE(CAST([o].[OwnedReferenceLeaf] AS json), '$.SomethingSomething' RETURNING nvarchar(max)) = N'e1_r_c1_r')
 """);
     }
 

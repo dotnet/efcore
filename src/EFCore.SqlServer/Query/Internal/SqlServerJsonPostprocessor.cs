@@ -18,6 +18,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 ///     * When the column type in the WITH clause is a SQL Server "CLR type" - these are incompatible with WITH (e.g. hierarchy id).
 ///     2. Rewrite JsonScalarExpression (JSON_VALUE()) to OPENJSON for when JSON_VALUE() isn't compatible with the type (e.g. binary data
 ///     which needs to be base64-decoded).
+///     3. Restore native json inputs to JSON operations when OPENJSON's WITH clause only supports nvarchar(max).
 /// </summary>
 /// <remarks>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -31,10 +32,15 @@ public sealed class SqlServerJsonPostprocessor(
     SqlAliasManager? sqlAliasManager)
     : ExpressionVisitor
 {
+    private static readonly bool UseOldBehavior39277 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue39277", out var enabled) && enabled;
+
     private readonly List<OuterApplyExpression> _openjsonOuterAppliesToAdd = [];
     private readonly Dictionary<(string, string), ColumnInfo> _columnsToRewrite = new();
+    private readonly HashSet<(string, string)> _jsonColumnsToCast = [];
 
     private RelationalTypeMapping? _nvarcharMaxTypeMapping;
+    private bool _supportsJsonTypeInOpenJson;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -43,8 +49,19 @@ public sealed class SqlServerJsonPostprocessor(
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public Expression Process(Expression expression)
+        => Process(expression, supportsJsonTypeInOpenJson: true);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    internal Expression Process(Expression expression, bool supportsJsonTypeInOpenJson)
     {
         _columnsToRewrite.Clear();
+        _jsonColumnsToCast.Clear();
+        _supportsJsonTypeInOpenJson = supportsJsonTypeInOpenJson;
 
         return Visit(expression);
     }
@@ -75,6 +92,19 @@ public sealed class SqlServerJsonPostprocessor(
                 for (var i = 0; i < selectExpression.Tables.Count; i++)
                 {
                     var table = selectExpression.Tables[i];
+
+                    if (!UseOldBehavior39277
+                        && !_supportsJsonTypeInOpenJson
+                        && table.UnwrapJoin() is SqlServerOpenJsonExpression { ColumnInfos: { } jsonColumnInfos } jsonTable)
+                    {
+                        foreach (var columnInfo in jsonColumnInfos)
+                        {
+                            if (columnInfo is { AsJson: true, TypeMapping.StoreType: "json" })
+                            {
+                                _jsonColumnsToCast.Add((jsonTable.Alias, columnInfo.Name));
+                            }
+                        }
+                    }
 
                     if (table.UnwrapJoin() is SqlServerOpenJsonExpression { ColumnInfos: { } columnInfos } openJsonExpression
                         // Condition 1: an ordering/projection still refers to the OPENJSON's [key] column - it needs to be preserved.
@@ -177,6 +207,19 @@ public sealed class SqlServerJsonPostprocessor(
                     _openjsonOuterAppliesToAdd.Clear();
                 }
 
+                if (!_supportsJsonTypeInOpenJson
+                    && result.Alias is { } selectAlias)
+                {
+                    foreach (var projection in result.Projection)
+                    {
+                        if (projection.Expression is ColumnExpression column
+                            && _jsonColumnsToCast.Contains((column.TableAlias, column.Name)))
+                        {
+                            _jsonColumnsToCast.Add((selectAlias, projection.Alias));
+                        }
+                    }
+                }
+
                 return result;
             }
 
@@ -255,6 +298,23 @@ public sealed class SqlServerJsonPostprocessor(
                     jsonScalar.Type,
                     jsonScalar.TypeMapping,
                     jsonScalar.IsNullable);
+            }
+
+            case JsonScalarExpression
+                {
+                    Json: ColumnExpression { TypeMapping: { StoreType: "json" } jsonTypeMapping } columnExpression,
+                    Path.Count: > 0
+                } jsonScalar
+                when jsonScalar.TypeMapping is not SqlServerStructuralJsonTypeMapping
+                && jsonScalar.TypeMapping?.ElementTypeMapping is null
+                && _jsonColumnsToCast.Contains((columnExpression.TableAlias, columnExpression.Name)):
+            {
+                var visited = (JsonScalarExpression)base.Visit(jsonScalar);
+
+                return visited.Update(sqlExpressionFactory.Convert(
+                    columnExpression.ApplyTypeMapping(jsonTypeMapping.WithStoreTypeAndSize("nvarchar(max)", null)),
+                    columnExpression.Type,
+                    jsonTypeMapping));
             }
 
             // The SQL Server json type cannot be compared ("The JSON data type cannot be compared or sorted, except when using the

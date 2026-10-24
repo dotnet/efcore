@@ -1,6 +1,9 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Internal;
+
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 
 /// <summary>
@@ -14,6 +17,7 @@ public class SqlServerQueryTranslationPostprocessor : RelationalQueryTranslation
     private readonly SqlServerJsonPostprocessor _jsonPostprocessor;
     private readonly SqlServerAggregateOverSubqueryPostprocessor _aggregatePostprocessor;
     private readonly SqlServerSqlTreePruner _pruner = new();
+    private readonly bool _supportsJsonTypeInOpenJson;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -30,6 +34,10 @@ public class SqlServerQueryTranslationPostprocessor : RelationalQueryTranslation
         _jsonPostprocessor = new SqlServerJsonPostprocessor(
             relationalDependencies.TypeMappingSource, relationalDependencies.SqlExpressionFactory, queryCompilationContext.SqlAliasManager);
         _aggregatePostprocessor = new SqlServerAggregateOverSubqueryPostprocessor(queryCompilationContext.SqlAliasManager);
+
+        var sqlServerOptions = queryCompilationContext.ContextOptions.FindExtension<SqlServerOptionsExtension>()!;
+        _supportsJsonTypeInOpenJson = sqlServerOptions.EngineType == SqlServerEngineType.SqlServer
+            && sqlServerOptions.SqlServerCompatibilityLevel >= 170;
     }
 
     /// <summary>
@@ -42,7 +50,7 @@ public class SqlServerQueryTranslationPostprocessor : RelationalQueryTranslation
     {
         var query1 = base.Process(query);
 
-        var query2 = _jsonPostprocessor.Process(query1);
+        var query2 = _jsonPostprocessor.Process(query1, _supportsJsonTypeInOpenJson);
         var query3 = _aggregatePostprocessor.Visit(query2);
 
         return query3;
