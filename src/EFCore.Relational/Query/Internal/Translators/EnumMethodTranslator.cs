@@ -73,8 +73,7 @@ public class EnumMethodTranslator : IMethodCallTranslator
                     return _sqlExpressionFactory.Case(instance, whenClauses, elseResult);
 
                 case not null when converterType.GetGenericTypeDefinition() == typeof(EnumToStringConverter<>):
-                    // TODO: Unnecessary cast to string, #33733
-                    return _sqlExpressionFactory.Convert(instance, typeof(string));
+                    return new ClrTypeChangeExpression(instance, typeof(string), typeMapping: null);
 
                 default:
                     return null;
