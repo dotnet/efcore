@@ -339,6 +339,35 @@ public abstract class ExecuteMergeTestBase<TFixture>(TFixture fixture) : QueryTe
                 return Task.CompletedTask;
             });
 
+    [Fact]
+    public virtual Task Returning_can_be_enumerated_twice()
+        => AssertMerge(
+            context =>
+            {
+                var results = context.Blogs.ExecuteMergeReturning(
+                    [new Blog { Id = 1, Name = "Updated" }, new Blog { Id = 3, Name = "Blog3" }],
+                    merge => merge.WhenMatched(u => u.SetProperty(t => t.Name, (t, s) => s.Name)),
+                    t => t.Id);
+
+                Assert.Equal([1, 3], results.ToList().Order());
+                Assert.Equal([1, 3], results.ToList().Order());
+                return Task.CompletedTask;
+            });
+
+    [Fact]
+    public virtual Task Returning_async_can_be_enumerated_twice()
+        => AssertMerge(
+            async context =>
+            {
+                var results = context.Blogs.ExecuteMergeReturningAsync(
+                    [new Blog { Id = 1, Name = "Updated" }, new Blog { Id = 3, Name = "Blog3" }],
+                    merge => merge.WhenMatched(u => u.SetProperty(t => t.Name, (t, s) => s.Name)),
+                    t => t.Id);
+
+                Assert.Equal([1, 3], (await results.ToListAsync()).Order());
+                Assert.Equal([1, 3], (await results.ToListAsync()).Order());
+            });
+
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Returning_projects_affected_rows(bool async)
         => AssertMerge(

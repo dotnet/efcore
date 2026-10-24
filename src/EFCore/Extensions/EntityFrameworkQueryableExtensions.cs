@@ -3754,7 +3754,8 @@ public static class EntityFrameworkQueryableExtensions
         var builder = new MergeBuilder<TTarget, TSource>();
         buildMerge(builder);
 
-        return target.Provider.Execute<IEnumerable<TResult>>(
+        return ExecuteOnEachEnumeration<TResult>(
+            target.Provider,
             Expression.Call(
                 ExecuteMergeReturningMethodInfo.MakeGenericMethod(typeof(TTarget), typeof(TSource), typeof(TResult)),
                 target.Expression,
@@ -3808,7 +3809,8 @@ public static class EntityFrameworkQueryableExtensions
         buildMerge(builder);
 
         return target.Provider is IAsyncQueryProvider provider
-            ? provider.ExecuteAsync<IAsyncEnumerable<TResult>>(
+            ? ExecuteOnEachEnumerationAsync<TResult>(
+                provider,
                 Expression.Call(
                     ExecuteMergeReturningMethodInfo.MakeGenericMethod(typeof(TTarget), typeof(TSource), typeof(TResult)),
                     target.Expression,
@@ -3819,6 +3821,31 @@ public static class EntityFrameworkQueryableExtensions
                     Expression.Quote(returning)),
                 cancellationToken)
             : throw new InvalidOperationException(CoreStrings.IQueryableProviderNotAsync);
+    }
+
+    // Each enumeration runs the merge again, so give it its own query context; reusing one would keep every earlier run's expanded
+    // source parameters.
+    private static IEnumerable<TResult> ExecuteOnEachEnumeration<TResult>(IQueryProvider provider, Expression expression)
+    {
+        foreach (var result in provider.Execute<IEnumerable<TResult>>(expression))
+        {
+            yield return result;
+        }
+    }
+
+    private static async IAsyncEnumerable<TResult> ExecuteOnEachEnumerationAsync<TResult>(
+        IAsyncQueryProvider provider,
+        Expression expression,
+        CancellationToken cancellationToken,
+        [EnumeratorCancellation] CancellationToken enumeratorCancellationToken = default)
+    {
+        using var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, enumeratorCancellationToken);
+        await foreach (var result in provider.ExecuteAsync<IAsyncEnumerable<TResult>>(expression, linkedTokenSource.Token)
+                           .WithCancellation(linkedTokenSource.Token)
+                           .ConfigureAwait(false))
+        {
+            yield return result;
+        }
     }
 
     private static int ExecuteMerge<TTarget, TSource>(
