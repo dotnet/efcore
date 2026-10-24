@@ -16,6 +16,20 @@ public class PrecompiledQuerySqlServerTest(
 
     #region Expression types
 
+    public override async Task MemberInit_with_required_init_only_properties()
+    {
+        await base.MemberInit_with_required_init_only_properties();
+
+        AssertSql(
+            """
+@id='8'
+
+SELECT TOP(1) [b].[Id], [b].[Name]
+FROM [Blogs] AS [b]
+WHERE [b].[Id] = @id
+""");
+    }
+
     public override async Task BinaryExpression()
     {
         await base.BinaryExpression();
