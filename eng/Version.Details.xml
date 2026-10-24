@@ -58,6 +58,10 @@
       <Uri>https://github.com/dotnet/dotnet</Uri>
       <Sha>d624959ccc6702dcf1983d4c2fafb8116fc25ac0</Sha>
     </Dependency>
+    <Dependency Name="System.Security.Cryptography.Pkcs" Version="11.0.0">
+      <Uri>https://github.com/dotnet/dotnet</Uri>
+      <Sha>a586537b3872e4e2f69c0b1ce7017a97bc3bcd55</Sha>
+    </Dependency>
   </ProductDependencies>
   <ToolsetDependencies>
     <Dependency Name="Microsoft.DotNet.Arcade.Sdk" Version="11.0.0-beta.26523.128">
