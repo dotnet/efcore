@@ -677,6 +677,25 @@
       ]
     },
     {
+      "Type": "class Microsoft.EntityFrameworkCore.Query.SqlExpressions.ClrTypeChangeExpression : Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression",
+      "Methods": [
+        {
+          "Member": "ClrTypeChangeExpression(Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression operand, System.Type type, Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping? typeMapping);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Query.SqlExpressions.ClrTypeChangeExpression ApplyTypeMapping(Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping? typeMapping);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Query.SqlExpressions.ClrTypeChangeExpression Update(Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression operand);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression Operand { get; }"
+        }
+      ]
+    },
+    {
       "Type": "class Microsoft.EntityFrameworkCore.Query.SqlExpressions.CollateExpression : Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression",
       "Methods": [
         {
@@ -8896,6 +8915,9 @@
         },
         {
           "Member": "virtual System.Linq.Expressions.Expression VisitCase(Microsoft.EntityFrameworkCore.Query.SqlExpressions.CaseExpression caseExpression);"
+        },
+        {
+          "Member": "virtual System.Linq.Expressions.Expression VisitClrTypeChange(Microsoft.EntityFrameworkCore.Query.SqlExpressions.ClrTypeChangeExpression clrTypeChangeExpression);"
         },
         {
           "Member": "virtual System.Linq.Expressions.Expression VisitCollate(Microsoft.EntityFrameworkCore.Query.SqlExpressions.CollateExpression collateExpression);"
@@ -17894,6 +17916,9 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression VisitCase(Microsoft.EntityFrameworkCore.Query.SqlExpressions.CaseExpression caseExpression, bool allowOptimizedExpansion, out bool nullable);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression VisitClrTypeChange(Microsoft.EntityFrameworkCore.Query.SqlExpressions.ClrTypeChangeExpression clrTypeChangeExpression, bool allowOptimizedExpansion, out bool nullable);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression VisitCollate(Microsoft.EntityFrameworkCore.Query.SqlExpressions.CollateExpression collateExpression, bool allowOptimizedExpansion, out bool nullable);"

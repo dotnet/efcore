@@ -2675,13 +2675,13 @@ ORDER BY [d].[Id]
 
         AssertSql(
             """
-SELECT CAST([u].[Role] AS nvarchar(max))
+SELECT [u].[Role]
 FROM [Users] AS [u]
 ORDER BY [u].[Id]
 """,
             //
             """
-SELECT CAST([u].[NullableRole] AS nvarchar(max))
+SELECT [u].[NullableRole]
 FROM [Users] AS [u]
 WHERE [u].[NullableRole] IS NOT NULL
 ORDER BY [u].[Id]
@@ -2700,9 +2700,16 @@ ORDER BY [u].[Id]
 """,
             //
             """
-SELECT CAST([u].[Role] AS nvarchar(max))
+SELECT [u].[Role]
 FROM [Users] AS [u]
 WHERE [u].[Role] = N'Admin'
+ORDER BY [u].[Id]
+""",
+            //
+            """
+SELECT [u].[Role]
+FROM [Users] AS [u]
+WHERE [u].[Role] LIKE N'%Adm%'
 ORDER BY [u].[Id]
 """);
     }

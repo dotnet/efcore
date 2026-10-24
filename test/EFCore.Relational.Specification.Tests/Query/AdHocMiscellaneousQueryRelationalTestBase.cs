@@ -379,6 +379,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var filteredQuery = users.Where(u => u.Role.ToString() == "Admin").Select(u => u.Role.ToString());
             Assert.Equal(["Admin"], async ? await filteredQuery.ToListAsync() : filteredQuery.ToList());
+
+            var containsQuery = users.Where(u => u.Role.ToString().Contains("Adm")).Select(u => u.Role.ToString());
+            Assert.Equal(["Admin"], async ? await containsQuery.ToListAsync() : containsQuery.ToList());
         }
 
         protected class Context39146(DbContextOptions options) : DbContext(options)
