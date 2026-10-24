@@ -3708,6 +3708,11 @@ ORDER BY [c].[CityId]
             """
 SELECT [e].[Id]
 FROM [Entities] AS [e]
+""",
+            //
+            """
+SELECT [e].[Id]
+FROM [Entities] AS [e]
 """);
     }
 

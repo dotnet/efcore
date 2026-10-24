@@ -2366,19 +2366,31 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         var setOfDouble = new HashSet<double> { 1d };
         IReadOnlySet<double> readOnlySetOfDouble = new HashSet<double> { 2d };
 
-        var query = context.Entities
+        var hashSetQuery = context.Entities
             .Select(e => new
             {
                 e.Id,
-                setOfDouble,
-                readOnlySetOfDouble,
+                setOfDouble
             });
 
-        var result = async
-            ? await query.ToListAsync()
-            : query.ToList();
+        var hashSetResult = async
+            ? await hashSetQuery.ToListAsync()
+            : hashSetQuery.ToList();
 
-        Assert.Equal(3, result.Count);
+        Assert.Equal(3, hashSetResult.Count);
+
+        var readOnlySetQuery = context.Entities
+            .Select(e => new
+            {
+                e.Id,
+                readOnlySetOfDouble
+            });
+
+        var readOnlySetResult = async
+            ? await readOnlySetQuery.ToListAsync()
+            : readOnlySetQuery.ToList();
+
+        Assert.Equal(3, readOnlySetResult.Count);
     }
 
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.

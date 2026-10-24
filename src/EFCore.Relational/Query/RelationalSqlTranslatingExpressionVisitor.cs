@@ -131,8 +131,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
         if (expression is QueryParameterExpression { Type: { IsGenericType: true, IsArray: false } type }
             && type.TryGetElementType(typeof(IEnumerable<>)) is { } elementType
             && !type.IsAssignableFrom(typeof(List<>).MakeGenericType(elementType))
-            && !typeof(IList<>).MakeGenericType(elementType).IsAssignableFrom(type)
-            && type.GetConstructor(Type.EmptyTypes) is null)
+            && !typeof(IList<>).MakeGenericType(elementType).IsAssignableFrom(type))
         {
             return null;
         }
