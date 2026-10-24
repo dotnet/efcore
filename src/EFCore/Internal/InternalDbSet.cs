@@ -3,6 +3,8 @@
 
 using System.Collections;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 
@@ -608,4 +610,51 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
                 acceptChanges: true,
                 forceStateWhenUnknownKey: entityState,
                 cancellationToken: cancellationToken);
+
+    private IBulkImporter BulkImporter
+        => _context.GetService<IBulkImporter>();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override void ImportFrom(
+        IEnumerable<TEntity> entities,
+        BulkImportOptions? options = null)
+    {
+        Check.NotNull(entities);
+        BulkImporter.Import(EntityType, entities, options);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override Task ImportFromAsync(
+        IEnumerable<TEntity> entities,
+        BulkImportOptions? options,
+        CancellationToken cancellationToken = default)
+    {
+        Check.NotNull(entities);
+        return BulkImporter.ImportAsync(EntityType, entities, options, cancellationToken);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override Task ImportFromAsync(
+        IAsyncEnumerable<TEntity> entities,
+        BulkImportOptions? options,
+        CancellationToken cancellationToken = default)
+    {
+        Check.NotNull(entities);
+        return BulkImporter.ImportAsync(EntityType, entities, options, cancellationToken);
+    }
 }

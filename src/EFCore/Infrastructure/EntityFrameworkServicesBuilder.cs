@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
+using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Update.Internal;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -127,6 +128,7 @@ public class EntityFrameworkServicesBuilder
             { typeof(IDbContextLogger), new ServiceCharacteristics(ServiceLifetime.Scoped) },
             { typeof(IAdHocMapper), new ServiceCharacteristics(ServiceLifetime.Scoped) },
             { typeof(ILiftableConstantProcessor), new ServiceCharacteristics(ServiceLifetime.Scoped) },
+            { typeof(IBulkImporter), new ServiceCharacteristics(ServiceLifetime.Scoped) },
             { typeof(ILazyLoader), new ServiceCharacteristics(ServiceLifetime.Transient) },
             { typeof(ILazyLoaderFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
             { typeof(IParameterBindingFactory), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true) },
