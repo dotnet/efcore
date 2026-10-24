@@ -1261,6 +1261,21 @@ CREATE INDEX [IX_People_FirstName] ON [People] ([FirstName]) WHERE [LastName] <>
     }
 
     [Fact]
+    public override async Task Alter_column_add_comment_while_referenced_in_other_index_filter_does_not_rebuild_index()
+    {
+        await base.Alter_column_add_comment_while_referenced_in_other_index_filter_does_not_rebuild_index();
+
+        AssertSql(
+            """
+DECLARE @defaultSchema AS sysname;
+SET @defaultSchema = SCHEMA_NAME();
+DECLARE @description AS sql_variant;
+SET @description = N'Some comment';
+EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'People', 'COLUMN', N'LastName';
+""");
+    }
+
+    [Fact]
     public override async Task Alter_column_make_required_with_composite_index()
     {
         await base.Alter_column_make_required_with_composite_index();

@@ -228,7 +228,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
     {
         if (operation[RelationalAnnotationNames.ColumnOrder] != operation.OldColumn[RelationalAnnotationNames.ColumnOrder])
         {
-            Dependencies.MigrationsLogger.ColumnOrderIgnoredWarning(operation);
+            //Dependencies.MigrationsLogger.ColumnOrderIgnoredWarning(operation);
         }
 
         IEnumerable<ITableIndex>? indexesToRebuild = null;
@@ -327,7 +327,29 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         var sparseChanged = ((bool?)operation[SqlServerAnnotationNames.Sparse] ?? false)
             != ((bool?)operation.OldColumn[SqlServerAnnotationNames.Sparse] ?? false);
 
-        var rebuildIndexes = narrowed || sparseChanged || hasIndexFilterReference;
+        var newAnnotations = operation.GetAnnotations().Where(a => a.Name != SqlServerAnnotationNames.Identity);
+        var oldAnnotations = operation.OldColumn.GetAnnotations().Where(a => a.Name != SqlServerAnnotationNames.Identity);
+
+        var alterStatementNeeded = narrowed
+            || !oldColumnSupported
+            || operation.ClrType != operation.OldColumn.ClrType
+            || columnType != operation.OldColumn.ColumnType
+            || operation.IsUnicode != operation.OldColumn.IsUnicode
+            || operation.IsFixedLength != operation.OldColumn.IsFixedLength
+            || operation.MaxLength != operation.OldColumn.MaxLength
+            || operation.Precision != operation.OldColumn.Precision
+            || operation.Scale != operation.OldColumn.Scale
+            || operation.IsRowVersion != operation.OldColumn.IsRowVersion
+            || operation.IsNullable != operation.OldColumn.IsNullable
+            || operation.Collation != operation.OldColumn.Collation
+            || HasDifferences(newAnnotations, oldAnnotations);
+
+        if (computedColumnIsNoOp)
+        {
+            alterStatementNeeded = false;
+        }
+
+        var rebuildIndexes = narrowed || sparseChanged || (hasIndexFilterReference && alterStatementNeeded);
         if (rebuildIndexes)
         {
             indexesToRebuild = GetIndexesToRebuild(column, operation).ToList();
@@ -353,28 +375,6 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                     .Append($"DBCC CHECKIDENT({table}, RESEED, {newSeed.ToString(CultureInfo.InvariantCulture)})")
                     .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
             }
-        }
-
-        var newAnnotations = operation.GetAnnotations().Where(a => a.Name != SqlServerAnnotationNames.Identity);
-        var oldAnnotations = operation.OldColumn.GetAnnotations().Where(a => a.Name != SqlServerAnnotationNames.Identity);
-
-        var alterStatementNeeded = narrowed
-            || !oldColumnSupported
-            || operation.ClrType != operation.OldColumn.ClrType
-            || columnType != operation.OldColumn.ColumnType
-            || operation.IsUnicode != operation.OldColumn.IsUnicode
-            || operation.IsFixedLength != operation.OldColumn.IsFixedLength
-            || operation.MaxLength != operation.OldColumn.MaxLength
-            || operation.Precision != operation.OldColumn.Precision
-            || operation.Scale != operation.OldColumn.Scale
-            || operation.IsRowVersion != operation.OldColumn.IsRowVersion
-            || operation.IsNullable != operation.OldColumn.IsNullable
-            || operation.Collation != operation.OldColumn.Collation
-            || HasDifferences(newAnnotations, oldAnnotations);
-
-        if (computedColumnIsNoOp)
-        {
-            alterStatementNeeded = false;
         }
 
         var (oldDefaultValue, oldDefaultValueSql) = (operation.OldColumn.DefaultValue, operation.OldColumn.DefaultValueSql);
