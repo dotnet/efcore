@@ -3665,7 +3665,7 @@ public static class EntityFrameworkQueryableExtensions
             Expression.Call(
                 ExecuteMergeMethodInfo.MakeGenericMethod(typeof(TTarget), typeof(TSource)),
                 target.Expression,
-                Expression.Constant(source, typeof(IEnumerable<TSource>)),
+                Expression.Constant(PrepareMergeSource(source), typeof(IEnumerable<TSource>)),
                 builder.BuildMatchExpression(),
                 builder.BuildWhenMatchedExpression(),
                 builder.BuildWhenNotMatchedExpression()));
@@ -3713,7 +3713,7 @@ public static class EntityFrameworkQueryableExtensions
                 Expression.Call(
                     ExecuteMergeMethodInfo.MakeGenericMethod(typeof(TTarget), typeof(TSource)),
                     target.Expression,
-                    Expression.Constant(source, typeof(IEnumerable<TSource>)),
+                    Expression.Constant(PrepareMergeSource(source), typeof(IEnumerable<TSource>)),
                     builder.BuildMatchExpression(),
                     builder.BuildWhenMatchedExpression(),
                     builder.BuildWhenNotMatchedExpression()),
@@ -3758,7 +3758,7 @@ public static class EntityFrameworkQueryableExtensions
             Expression.Call(
                 ExecuteMergeReturningMethodInfo.MakeGenericMethod(typeof(TTarget), typeof(TSource), typeof(TResult)),
                 target.Expression,
-                Expression.Constant(source, typeof(IEnumerable<TSource>)),
+                Expression.Constant(PrepareMergeSource(source), typeof(IEnumerable<TSource>)),
                 builder.BuildMatchExpression(),
                 builder.BuildWhenMatchedExpression(),
                 builder.BuildWhenNotMatchedExpression(),
@@ -3812,7 +3812,7 @@ public static class EntityFrameworkQueryableExtensions
                 Expression.Call(
                     ExecuteMergeReturningMethodInfo.MakeGenericMethod(typeof(TTarget), typeof(TSource), typeof(TResult)),
                     target.Expression,
-                    Expression.Constant(source, typeof(IEnumerable<TSource>)),
+                    Expression.Constant(PrepareMergeSource(source), typeof(IEnumerable<TSource>)),
                     builder.BuildMatchExpression(),
                     builder.BuildWhenMatchedExpression(),
                     builder.BuildWhenNotMatchedExpression(),
@@ -3837,6 +3837,16 @@ public static class EntityFrameworkQueryableExtensions
         [NotParameterized] IReadOnlyList<ITuple>? whenNotMatchedSetters,
         [NotParameterized] Expression<Func<TTarget, TResult>> returning)
         => throw new UnreachableException("Can't call this overload directly");
+
+    // The funcletizer leaves IQueryable constants in the tree as query roots instead of parameterizing them, so hide an in-memory
+    // IQueryable behind a plain enumerable. An EF query can't be a source: it would run while the merge is being translated.
+    private static IEnumerable<TSource> PrepareMergeSource<TSource>(IEnumerable<TSource> source)
+        => source switch
+        {
+            IQueryable { Provider: IAsyncQueryProvider } => throw new InvalidOperationException(CoreStrings.ExecuteMergeQuerySource),
+            IQueryable => source.Select(static e => e),
+            _ => source
+        };
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

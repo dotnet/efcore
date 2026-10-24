@@ -442,6 +442,9 @@
   <data name="ExecuteMergeDuplicateMatchColumn" xml:space="preserve">
     <value>The column '{column}' is matched more than once in ExecuteMerge.</value>
   </data>
+  <data name="ExecuteMergeDuplicateUpdateProperty" xml:space="preserve">
+    <value>The property '{property}' is set more than once in 'WhenMatched'.</value>
+  </data>
   <data name="ExecuteMergeEmptyWhenNotMatched" xml:space="preserve">
     <value>The 'WhenNotMatched' call in 'ExecuteMerge' must set at least one property. Omit 'WhenNotMatched' to insert all mapped properties.</value>
   </data>
@@ -501,6 +504,9 @@
   </data>
   <data name="ExecuteMergeSourceMemberNotInserted" xml:space="preserve">
     <value>The source member '{member}' is referenced in an ExecuteMerge WhenMatched value, but is not inserted unchanged into any target column. WhenMatched can only reference source members whose values are inserted as-is.</value>
+  </data>
+  <data name="ExecuteMergeTargetPropertyConverterMismatch" xml:space="preserve">
+    <value>The property '{targetProperty}' is referenced in an ExecuteMerge WhenMatched value for '{property}', but the two properties use different value converters.</value>
   </data>
   <data name="ExecuteMergeUnsupportedExpression" xml:space="preserve">
     <value>Unsupported expression '{expression}' in an ExecuteMerge setter value.</value>

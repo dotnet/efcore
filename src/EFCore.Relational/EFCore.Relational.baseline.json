@@ -15397,6 +15397,9 @@
           "Member": "static string ExecuteMergeDuplicateMatchColumn(object? column);"
         },
         {
+          "Member": "static string ExecuteMergeDuplicateUpdateProperty(object? property);"
+        },
+        {
           "Member": "static string ExecuteMergeGeneratedInsertProperty(object? property);"
         },
         {
@@ -15437,6 +15440,9 @@
         },
         {
           "Member": "static string ExecuteMergeSourceMemberNotInserted(object? member);"
+        },
+        {
+          "Member": "static string ExecuteMergeTargetPropertyConverterMismatch(object? targetProperty, object? property);"
         },
         {
           "Member": "static string ExecuteMergeUnsupportedExpression(object? expression);"

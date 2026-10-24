@@ -291,6 +291,55 @@ public abstract class ExecuteMergeTestBase<TFixture>(TFixture fixture) : QueryTe
             });
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Queryable_source_inserts_rows(bool async)
+        => AssertMerge(
+            async context =>
+            {
+                var affected = await Merge(
+                    async, context.Blogs, new[] { new Blog { Id = 3, Name = "Blog3" } }.AsQueryable(), merge => { });
+
+                Assert.Equal(1, affected);
+                Assert.Equal("Blog3", (await context.Blogs.SingleAsync(b => b.Id == 3)).Name);
+            });
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Query_source_throws(bool async)
+        => AssertMerge(
+            async context =>
+            {
+                var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => Merge(async, context.Blogs, context.Blogs.Where(b => b.Id > 0), merge => { }));
+
+                Assert.Equal(CoreStrings.ExecuteMergeQuerySource, exception.Message);
+            });
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Returning_with_queryable_source(bool async)
+        => AssertMerge(
+            async context =>
+            {
+                var ids = await MergeReturning(
+                    async, context.Blogs, new[] { new Blog { Id = 3, Name = "Blog3" } }.AsQueryable(), merge => { }, t => t.Id);
+
+                Assert.Equal([3], ids);
+            });
+
+    [Fact]
+    public virtual Task Returning_does_not_enumerate_source_until_executed()
+        => AssertMerge(
+            context =>
+            {
+                var source = new List<Blog> { new() { Id = 3, Name = "Blog3" } };
+                var results = context.Blogs.ExecuteMergeReturning(source.AsQueryable(), merge => { }, t => t.Id);
+
+                // The row added after the call must still be merged, since the source is only read when the results are enumerated.
+                source.Add(new Blog { Id = 4, Name = "Blog4" });
+
+                Assert.Equal([3, 4], results.ToList().Order());
+                return Task.CompletedTask;
+            });
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Returning_projects_affected_rows(bool async)
         => AssertMerge(
             async context =>
@@ -380,6 +429,38 @@ public abstract class ExecuteMergeTestBase<TFixture>(TFixture fixture) : QueryTe
                 Assert.Equal(CoreStrings.ExecuteMergeEmptyMatch, exception.InnerException!.Message);
             });
 
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Repeated_when_matched_throws(bool async)
+        => AssertMerge(
+            async context =>
+            {
+                var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => Merge(
+                        async, context.Blogs,
+                        [new Blog { Id = 1, Name = "x" }],
+                        merge => merge
+                            .WhenMatched(u => u.SetProperty(t => t.Name, (t, s) => s.Name))
+                            .WhenMatched(u => u.SetProperty(t => t.Note, "y"))));
+
+                Assert.Equal(CoreStrings.ExecuteMergeDuplicateClause("WhenMatched"), exception.Message);
+            });
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Repeated_when_not_matched_throws(bool async)
+        => AssertMerge(
+            async context =>
+            {
+                var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => Merge(
+                        async, context.Blogs,
+                        [new Blog { Id = 3, Name = "x" }],
+                        merge => merge
+                            .WhenNotMatched(insert => insert.SetProperty(t => t.Id, s => s.Id).SetProperty(t => t.Name, s => s.Name))
+                            .WhenNotMatched(insert => insert.SetProperty(t => t.Id, s => s.Id).SetProperty(t => t.Name, "y"))));
+
+                Assert.Equal(CoreStrings.ExecuteMergeDuplicateClause("WhenNotMatched"), exception.Message);
+            });
+
     protected virtual Task AssertMerge(Func<ExecuteMergeContext, Task> test)
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(Fixture.CreateContext, Fixture.UseTransaction, test);
 
@@ -414,7 +495,7 @@ public abstract class ExecuteMergeTestBase<TFixture>(TFixture fixture) : QueryTe
     }
 
     // Retries on failure, which makes queries buffer their results, but never actually retries, so it can run in the test's transaction.
-    private sealed class BufferingExecutionStrategy(DbContext context)
+    protected sealed class BufferingExecutionStrategy(DbContext context)
         : ExecutionStrategy(context, maxRetryCount: 1, maxRetryDelay: TimeSpan.Zero)
     {
         protected override void OnFirstExecution()

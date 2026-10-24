@@ -223,9 +223,15 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         if (whenMatchedSetters is { Count: > 0 })
         {
             var setters = new List<MergeColumnSetter>(whenMatchedSetters.Count);
+            var setProperties = new HashSet<IProperty>();
             foreach (var setter in whenMatchedSetters)
             {
                 var property = ResolveProperty(setter.PropertySelector, entityType);
+                if (!setProperties.Add(property))
+                {
+                    throw new InvalidOperationException(RelationalStrings.ExecuteMergeDuplicateUpdateProperty(property.Name));
+                }
+
                 var column = table.FindColumn(property)
                     ?? throw new InvalidOperationException(RelationalStrings.ExecuteMergePropertyNotMapped(property.Name, table.Name));
 
@@ -321,10 +327,26 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 
         value = typeMapping.CustomizeDataReaderExpression(value);
 
+        Expression nullValue = Expression.Default(resultType);
         if (typeMapping.Converter is ValueConverter converter)
         {
+            if (value.Type != converter.ProviderClrType)
+            {
+                value = Expression.Convert(value, converter.ProviderClrType);
+            }
+
             var convert = converter.ConvertFromProviderExpression;
             value = ReplacingExpressionVisitor.Replace(convert.Parameters[0], value, convert.Body);
+
+            if (converter.ConvertsNulls)
+            {
+                nullValue = ReplacingExpressionVisitor.Replace(
+                    convert.Parameters[0], Expression.Default(converter.ProviderClrType), convert.Body);
+                if (nullValue.Type != resultType)
+                {
+                    nullValue = Expression.Convert(nullValue, resultType);
+                }
+            }
         }
 
         if (value.Type != resultType)
@@ -334,7 +356,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 
         return Expression.Condition(
             Expression.Call(reader, IsDbNullMethod, Expression.Constant(ordinal)),
-            Expression.Default(resultType),
+            nullValue,
             value);
     }
 
@@ -465,7 +487,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         ITableBase table,
         IReadOnlyDictionary<string, List<(IColumnBase Column, IProperty Property)>> excludedColumnsBySourceMember)
     {
-        expression = expression.UnwrapTypeConversion(out _);
+        expression = UnwrapValuePreservingConversions(expression);
 
         switch (expression)
         {
@@ -500,6 +522,13 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                     ?? throw new InvalidOperationException(
                         RelationalStrings.ExecuteMergePropertyNotMapped(targetProperty.Name, table.Name));
 
+                // The column holds its own converter's provider value, so it can only be copied to a column that converts the same way.
+                if (targetColumn.StoreTypeMapping.Converter != column.StoreTypeMapping.Converter)
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.ExecuteMergeTargetPropertyConverterMismatch(targetProperty.Name, property.Name));
+                }
+
                 return new MergeColumnReferenceExpression(
                     targetColumn.Name, fromExcluded: false, targetProperty.ClrType, targetColumn.StoreTypeMapping);
             }
@@ -515,6 +544,28 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             default:
                 throw new InvalidOperationException(RelationalStrings.ExecuteMergeUnsupportedExpression(expression.Print()));
         }
+    }
+
+    // Casts that only change nullability, box, or cast to a base type keep the value; others (e.g. narrowing or checked casts) would
+    // need translating, which isn't supported yet.
+    private static Expression UnwrapValuePreservingConversions(Expression expression)
+    {
+        while (expression is UnaryExpression
+            {
+                NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked or ExpressionType.TypeAs
+            } convert)
+        {
+            if (convert.Type != typeof(object)
+                && !convert.Type.IsAssignableFrom(convert.Operand.Type)
+                && convert.Type.UnwrapNullableType() != convert.Operand.Type.UnwrapNullableType())
+            {
+                throw new InvalidOperationException(RelationalStrings.ExecuteMergeUnsupportedExpression(convert.Print()));
+            }
+
+            expression = convert.Operand;
+        }
+
+        return expression;
     }
 
     private static ParameterExpression? GetParameterRoot(Expression expression)
@@ -603,7 +654,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
     }
 
     private static string? GetDirectSourceMemberName(Expression expression, ParameterExpression sourceParam)
-        => expression.UnwrapTypeConversion(out _) is MemberExpression { Member.Name: var name } member
+        => UnwrapValuePreservingConversions(expression) is MemberExpression { Member.Name: var name } member
             && member.Expression == sourceParam
                 ? name
                 : null;
@@ -615,7 +666,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
     // same-named property on the target itself.
     private static IProperty ResolveProperty(Expression selector, ParameterExpression? targetParam, IEntityType entityType)
     {
-        var expression = selector.UnwrapTypeConversion(out _);
+        var expression = UnwrapValuePreservingConversions(selector);
 
         return expression switch
         {

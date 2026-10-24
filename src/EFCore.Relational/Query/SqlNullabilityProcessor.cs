@@ -435,20 +435,28 @@ public class SqlNullabilityProcessor : ExpressionVisitor
     private List<RowValueExpression> ExpandMergeSourceRows(MergeExpression mergeExpression, string sourceParameterName)
     {
         // The SQL depends on the number of source rows, so the generated command can't be cached.
-        var rows = (IEnumerable?)ParametersDecorator.GetAndDisableCaching()[sourceParameterName]
+        var parameters = ParametersDecorator.GetAndDisableCaching();
+        var rows = (IEnumerable?)parameters[sourceParameterName]
             ?? throw new InvalidOperationException(RelationalStrings.ExecuteMergeNullSource);
         var template = mergeExpression.SourceRows[0].Values;
         var sourceRows = new List<RowValueExpression>();
+        var parameterCounter = 0;
         foreach (var row in rows)
         {
             var values = new SqlExpression[template.Count];
             for (var i = 0; i < template.Count; i++)
             {
-                // Source values are user data, so they're redacted from logs unless sensitive data logging is enabled.
-                values[i] = template[i] is MergeSourceMemberExpression sourceMember
-                    ? new SqlConstantExpression(
-                        sourceMember.GetValue(row), sourceMember.Type, sensitive: true, sourceMember.TypeMapping)
-                    : template[i];
+                if (template[i] is MergeSourceMemberExpression sourceMember)
+                {
+                    var parameterName = Uniquifier.Uniquify(
+                        sourceParameterName, parameters, maxLength: int.MaxValue, uniquifier: ++parameterCounter);
+                    parameters.Add(parameterName, sourceMember.GetValue(row));
+                    values[i] = new SqlParameterExpression(parameterName, sourceMember.Type, sourceMember.TypeMapping);
+                }
+                else
+                {
+                    values[i] = template[i];
+                }
             }
 
             sourceRows.Add(new RowValueExpression(values));

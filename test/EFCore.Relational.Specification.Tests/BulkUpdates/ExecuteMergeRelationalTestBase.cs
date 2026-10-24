@@ -89,6 +89,32 @@ public abstract class ExecuteMergeRelationalTestBase<TFixture>(TFixture fixture)
             RelationalStrings.ExecuteMergeUnsupportedExpression("t.Visits + s.Visits"));
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task When_matched_with_narrowing_conversion_throws(bool async)
+        => AssertMergeThrows(
+            context => Merge(
+                async, context.Visits,
+                [new DailyVisit { UserId = 1, Day = "mon", Visits = 3 }],
+                merge => merge
+                    .Match(t => new { t.UserId, t.Day }, s => new { s.UserId, s.Day })
+                    .WhenMatched(u => u.SetProperty(t => t.Visits, (t, s) => unchecked((byte)t.Visits)))),
+            RelationalStrings.ExecuteMergeUnsupportedExpression("(int)(byte)t.Visits"));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task When_matched_with_checked_conversion_throws(bool async)
+        => AssertMerge(
+            async context =>
+            {
+                // The printed ConvertChecked node isn't stable enough to compare, so only check that translation rejects it.
+                await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => Merge(
+                        async, context.Visits,
+                        [new DailyVisit { UserId = 1, Day = "mon", Visits = 3 }],
+                        merge => merge
+                            .Match(t => new { t.UserId, t.Day }, s => new { s.UserId, s.Day })
+                            .WhenMatched(u => u.SetProperty(t => t.Visits, (t, s) => checked((byte)s.Visits)))));
+            });
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task When_matched_source_member_inserted_with_other_converter_throws(bool async)
         => AssertMergeThrows(
             // s.Value is only inserted through ConvertedValue's value converter, so it can't be read back as-is for Value.
@@ -101,6 +127,45 @@ public abstract class ExecuteMergeRelationalTestBase<TFixture>(TFixture fixture)
                         .SetProperty(t => t.Id, s => s.Id)
                         .SetProperty(t => t.ConvertedValue, s => s.Value))),
             RelationalStrings.ExecuteMergeSourceMemberConverterMismatch("s.Value", nameof(Measurement.Value)));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task When_matched_target_property_with_other_converter_throws(bool async)
+        => AssertMergeThrows(
+            // Value is stored as-is, while ConvertedValue goes through a value converter, so copying the raw column would corrupt it.
+            context => Merge(
+                async, context.Measurements,
+                [new Measurement { Id = 1, Value = 5 }],
+                merge => merge.WhenMatched(u => u.SetProperty(t => t.ConvertedValue, (t, s) => t.Value))),
+            RelationalStrings.ExecuteMergeTargetPropertyConverterMismatch(nameof(Measurement.Value), nameof(Measurement.ConvertedValue)));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task When_not_matched_with_narrowing_conversion_throws(bool async)
+        => AssertMergeThrows(
+            context => Merge(
+                async, context.Measurements,
+                [new Measurement { Id = 2, Value = 300 }],
+                merge => merge.WhenNotMatched(insert => insert
+                    .SetProperty(t => t.Id, s => s.Id)
+                    .SetProperty(t => t.Value, s => unchecked((byte)s.Value)))),
+            RelationalStrings.ExecuteMergeUnsupportedExpression("(int)(byte)s.Value"));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Match_with_narrowing_source_conversion_throws(bool async)
+        => AssertMergeThrows(
+            context => Merge(
+                async, context.Accounts,
+                [new Account { Id = 1, ExternalId = 300, Balance = 10 }],
+                merge => merge.Match(t => t.Id, s => unchecked((byte)s.ExternalId))),
+            RelationalStrings.ExecuteMergeUnsupportedExpression("(int)(byte)s.ExternalId"));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Match_with_narrowing_target_conversion_throws(bool async)
+        => AssertMergeThrows(
+            context => Merge(
+                async, context.Accounts,
+                [new Account { Id = 1, ExternalId = 300, Balance = 10 }],
+                merge => merge.Match(t => unchecked((byte)t.ExternalId), s => unchecked((byte)s.ExternalId))),
+            RelationalStrings.ExecuteMergeUnsupportedExpression("(byte)t.ExternalId"));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task When_not_matched_without_setters_throws(bool async)
@@ -119,6 +184,17 @@ public abstract class ExecuteMergeRelationalTestBase<TFixture>(TFixture fixture)
                     .SetProperty(t => t.Name, s => s.Name)
                     .SetProperty(t => t.Name, "Other"))),
             RelationalStrings.ExecuteMergeDuplicateInsertProperty(nameof(Blog.Name)));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task When_matched_duplicate_property_throws(bool async)
+        => AssertMergeThrows(
+            context => Merge(
+                async, context.Blogs,
+                [new Blog { Id = 1, Name = "x" }],
+                merge => merge.WhenMatched(u => u
+                    .SetProperty(t => t.Name, (t, s) => s.Name)
+                    .SetProperty(t => t.Name, "Other"))),
+            RelationalStrings.ExecuteMergeDuplicateUpdateProperty(nameof(Blog.Name)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task When_not_matched_computed_property_throws(bool async)
@@ -290,6 +366,21 @@ public abstract class ExecuteMergeRelationalTestBase<TFixture>(TFixture fixture)
             RelationalStrings.ExecuteMergePropertyNotFound(nameof(Blog.Name), nameof(BlogWithoutName)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Default_insert_source_member_of_incompatible_type_is_not_inlined(bool async)
+        => AssertMerge(
+            async context =>
+            {
+                // The string Id is mapped as the int Id column, so inlining it as a literal would inject the DELETE.
+                await Assert.ThrowsAnyAsync<Exception>(
+                    () => Merge(
+                        async, context.Blogs,
+                        new BlogRowWithStringId[] { new() { Id = "3, 'x', NULL); DELETE FROM Blogs; --", Name = "x" } },
+                        merge => { }));
+
+                Assert.Equal(2, await context.Blogs.CountAsync());
+            });
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task On_entity_mapped_to_table_and_view_targets_table(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<WidgetContext>(
@@ -353,6 +444,37 @@ public abstract class ExecuteMergeRelationalTestBase<TFixture>(TFixture fixture)
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Returning_with_nullable_provider_type_converter(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<RatedContext>();
+        await using var context = contextFactory.CreateDbContext();
+
+        var unbuffered = await MergeReturning(
+            async, context.Set<Rated>(), [new Rated { Id = 1, Score = new Score(5) }], merge => { }, t => t.Score);
+        var buffered = await new BufferingExecutionStrategy(context).ExecuteAsync(
+            () => MergeReturning(async, context.Set<Rated>(), [new Rated { Id = 2, Score = new Score(7) }], merge => { }, t => t.Score));
+
+        Assert.Equal(5, Assert.Single(unbuffered).Points);
+        Assert.Equal(7, Assert.Single(buffered).Points);
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Returning_with_converter_that_converts_nulls(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<LabeledContext>();
+        await using var context = contextFactory.CreateDbContext();
+
+        // "<null>" is stored as SQL NULL, and the converter must turn it back into "<null>".
+        var unbuffered = await MergeReturning(
+            async, context.Set<Labeled>(), [new Labeled { Id = 1, Label = "<null>" }], merge => { }, t => t.Label);
+        var buffered = await new BufferingExecutionStrategy(context).ExecuteAsync(
+            () => MergeReturning(async, context.Set<Labeled>(), [new Labeled { Id = 2, Label = "<null>" }], merge => { }, t => t.Label));
+
+        Assert.Equal("<null>", Assert.Single(unbuffered));
+        Assert.Equal("<null>", Assert.Single(buffered));
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task On_entity_with_owned_type_throws(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<OrderContext>();
@@ -383,6 +505,13 @@ public abstract class ExecuteMergeRelationalTestBase<TFixture>(TFixture fixture)
                 var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => merge(context));
                 Assert.Equal(expectedMessage, exception.InnerException!.Message);
             });
+
+    protected class BlogRowWithStringId
+    {
+        public string Id { get; set; } = null!;
+        public string Name { get; set; } = null!;
+        public string? Note { get; set; }
+    }
 
     protected class WidgetContext(DbContextOptions options) : DbContext(options)
     {
@@ -428,6 +557,49 @@ public abstract class ExecuteMergeRelationalTestBase<TFixture>(TFixture fixture)
         public int Id { get; set; }
         public string Name { get; set; } = null!;
         public int Version { get; set; }
+    }
+
+    protected class RatedContext(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Rated>(
+                b =>
+                {
+                    b.Property(e => e.Id).ValueGeneratedNever();
+                    b.Property(e => e.Score).HasConversion(new ValueConverter<Score, int?>(s => s.Points, v => new Score(v!.Value)));
+                });
+    }
+
+    protected class Rated
+    {
+        public int Id { get; set; }
+        public Score Score { get; set; } = null!;
+    }
+
+    protected class Score(int points)
+    {
+        public int Points { get; } = points;
+    }
+
+    protected class LabeledContext(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Labeled>(
+                b =>
+                {
+                    b.Property(e => e.Id).ValueGeneratedNever();
+                    b.Property(e => e.Label).HasConversion(
+                        new ValueConverter<string?, string?>(
+                            v => v == "<null>" ? null : v,
+                            v => v ?? "<null>",
+                            convertsNulls: true));
+                });
+    }
+
+    protected class Labeled
+    {
+        public int Id { get; set; }
+        public string? Label { get; set; }
     }
 
     protected class OrderContext(DbContextOptions options) : DbContext(options)

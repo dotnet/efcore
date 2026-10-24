@@ -70,6 +70,11 @@ public class MergeBuilder<TTarget, TSource>
     public virtual MergeBuilder<TTarget, TSource> WhenMatched(
         Action<MergeUpdateSettersBuilder<TTarget, TSource>> setPropertyCalls)
     {
+        if (_whenMatched is not null)
+        {
+            throw new InvalidOperationException(CoreStrings.ExecuteMergeDuplicateClause(nameof(WhenMatched)));
+        }
+
         _whenMatched = new MergeUpdateSettersBuilder<TTarget, TSource>();
         setPropertyCalls(_whenMatched);
         return this;
@@ -88,6 +93,11 @@ public class MergeBuilder<TTarget, TSource>
     public virtual MergeBuilder<TTarget, TSource> WhenNotMatched(
         Action<MergeInsertSettersBuilder<TTarget, TSource>> setPropertyCalls)
     {
+        if (_whenNotMatched is not null)
+        {
+            throw new InvalidOperationException(CoreStrings.ExecuteMergeDuplicateClause(nameof(WhenNotMatched)));
+        }
+
         _whenNotMatched = new MergeInsertSettersBuilder<TTarget, TSource>();
         setPropertyCalls(_whenNotMatched);
         return this;

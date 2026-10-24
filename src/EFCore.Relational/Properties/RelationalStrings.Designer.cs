@@ -868,6 +868,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 column);
 
         /// <summary>
+        ///     The property '{property}' is set more than once in 'WhenMatched'.
+        /// </summary>
+        public static string ExecuteMergeDuplicateUpdateProperty(object? property)
+            => string.Format(
+                GetString("ExecuteMergeDuplicateUpdateProperty", nameof(property)),
+                property);
+
+        /// <summary>
         ///     The 'WhenNotMatched' call in 'ExecuteMerge' must set at least one property. Omit 'WhenNotMatched' to insert all mapped properties.
         /// </summary>
         public static string ExecuteMergeEmptyWhenNotMatched
@@ -1014,6 +1022,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("ExecuteMergeSourceMemberNotInserted", nameof(member)),
                 member);
+
+        /// <summary>
+        ///     The property '{targetProperty}' is referenced in an ExecuteMerge WhenMatched value for '{property}', but the two properties use different value converters.
+        /// </summary>
+        public static string ExecuteMergeTargetPropertyConverterMismatch(object? targetProperty, object? property)
+            => string.Format(
+                GetString("ExecuteMergeTargetPropertyConverterMismatch", nameof(targetProperty), nameof(property)),
+                targetProperty, property);
 
         /// <summary>
         ///     Unsupported expression '{expression}' in an ExecuteMerge setter value.

@@ -3919,6 +3919,9 @@
           "Member": "static string ErrorMaterializingPropertyInvalidCast(object? entityType, object? property, object? expectedType, object? actualType);"
         },
         {
+          "Member": "static string ExecuteMergeDuplicateClause(object? method);"
+        },
+        {
           "Member": "static string ExecuteQueriesNotSupported(object? methodName, object? asyncMethodName);"
         },
         {
@@ -4736,6 +4739,9 @@
         },
         {
           "Member": "static string ExecuteMergeEmptyMatch { get; }"
+        },
+        {
+          "Member": "static string ExecuteMergeQuerySource { get; }"
         },
         {
           "Member": "static string ExpressionParameterizationException { get; }"
