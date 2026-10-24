@@ -2288,6 +2288,57 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Distinct_value_converted_string_with_nondeterministic_write_with_collection(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<ContextNondeterministicConvertedKey>(seed: c => c.SeedAsync());
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Posts
+                .Select(p => p.Tag)
+                .Distinct()
+                .Select(t => new { Tag = t, Ids = context.Posts.Where(p => p.Tag == t).Select(p => p.Id).ToList() });
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            // Every stored value is distinct, but the strings read back are compared as strings, as they always were: comparing them
+            // by converting them back to provider values would never match even the row just read, and never finish.
+            Assert.Equal([1, 2, 3], result.SelectMany(t => t.Ids).Order());
+        }
+
+        // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+        protected class ContextNondeterministicConvertedKey(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<Post> Posts
+                => Set<Post>();
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Post>().Property(p => p.Id).ValueGeneratedNever();
+
+                // Like randomized encryption, writing the same value twice stores two different values.
+                modelBuilder.Entity<Post>().Property(p => p.Tag).HasConversion(
+                    t => t + "#" + Guid.NewGuid(),
+                    s => s.Substring(0, s.IndexOf('#')));
+            }
+
+            public Task SeedAsync()
+            {
+                AddRange(
+                    new Post { Id = 1, Tag = "efcore" },
+                    new Post { Id = 2, Tag = "efcore" },
+                    new Post { Id = 3, Tag = "linq" });
+
+                return SaveChangesAsync();
+            }
+
+            public class Post
+            {
+                public int Id { get; set; }
+                public string Tag { get; set; } = null!;
+            }
+        }
+
         #endregion
 
         #region 30233

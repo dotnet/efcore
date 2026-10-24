@@ -3632,6 +3632,22 @@ ORDER BY [p0].[Tag]
 """);
     }
 
+    public override async Task Distinct_value_converted_string_with_nondeterministic_write_with_collection(bool async)
+    {
+        await base.Distinct_value_converted_string_with_nondeterministic_write_with_collection(async);
+
+        AssertSql(
+            """
+SELECT [p0].[Tag], [p1].[Id]
+FROM (
+    SELECT DISTINCT [p].[Tag]
+    FROM [Posts] AS [p]
+) AS [p0]
+LEFT JOIN [Posts] AS [p1] ON [p0].[Tag] = [p1].[Tag]
+ORDER BY [p0].[Tag]
+""");
+    }
+
     #endregion
 
     #region 30233

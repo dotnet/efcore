@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -1925,12 +1926,52 @@ public sealed partial class SelectExpression : TableExpressionBase
     // Rows are told apart on the client by their identifier values, as materialized. Through a value converter, the same database
     // value can materialize as instances which the mapping's key comparer doesn't consider equal - a class without Equals compares
     // by reference - so every row would look like the start of a new collection or grouping, and the shaper would never move past
-    // it. The database told those rows apart by their provider values, so values of a converted reference type are compared as such.
+    // it. The database told those rows apart by their provider values, so values of such a type are compared as such. Any other
+    // type keeps the mapping's key comparer: going back through the converter to compare values runs code the read never did, which
+    // needn't give the same provider value twice (randomized encryption doesn't), and can't be inlined into a precompiled query
+    // when it captures state.
     private static ValueComparer GetIdentifierComparer(CoreTypeMapping typeMapping)
-        => typeMapping is { Converter: { } converter, ClrType.IsValueType: false }
-            ? (ValueComparer)CreateProviderValueIdentifierComparerMethod.MakeGenericMethod(typeMapping.ClrType)
+        => typeMapping is { Converter: { } converter, ClrType: var clrType } && ComparesByReference(clrType)
+            ? (ValueComparer)CreateProviderValueIdentifierComparerMethod.MakeGenericMethod(clrType)
                 .Invoke(null, [converter, typeMapping.ProviderValueComparer])!
             : typeMapping.KeyComparer;
+
+    // Whether the default comparer for the type, which a converted type's mapping gets, ends up at object.Equals without an override.
+    private static bool ComparesByReference(Type type)
+    {
+        if (type.IsValueType
+            || type == typeof(string)
+            || typeof(IStructuralEquatable).IsAssignableFrom(type)
+            || type.GetMethod(nameof(object.Equals), [typeof(object)])!.DeclaringType != typeof(object))
+        {
+            return false;
+        }
+
+        // As ValueComparer<T> looks for them, by exact parameter types: GetMethod would also bind Equals(T) to Equals(object).
+        if (type.GetRuntimeMethods().Any(m => !m.IsStatic
+                && m.ReturnType == typeof(bool)
+                && m.Name == nameof(object.Equals)
+                && m.GetParameters() is [{ ParameterType: var otherType }]
+                && otherType == type))
+        {
+            return false;
+        }
+
+        for (var current = type; current != null; current = current.BaseType)
+        {
+            if (current.GetTypeInfo().DeclaredMethods.Any(m => m.IsStatic
+                    && m.ReturnType == typeof(bool)
+                    && m.Name == "op_Equality"
+                    && m.GetParameters() is [{ ParameterType: var leftType }, { ParameterType: var rightType }]
+                    && leftType == type
+                    && rightType == type))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
 
     private static readonly MethodInfo CreateProviderValueIdentifierComparerMethod
         = typeof(SelectExpression).GetMethod(
