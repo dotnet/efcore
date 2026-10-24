@@ -2164,6 +2164,25 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             return base.VisitUnary(unaryExpression);
         }
 
+        // A key that is itself a value the expansion hid, read directly rather than through a member.
+        protected override Expression VisitDefault(DefaultExpression defaultExpression)
+        {
+            Found = true;
+
+            return defaultExpression;
+        }
+
+        // The node is the whole of what is read here: an entity reference holds no read of its own beneath it.
+        protected override Expression VisitExtension(Expression extensionExpression)
+        {
+            if (!TryResolve(extensionExpression, out _))
+            {
+                Found = true;
+            }
+
+            return extensionExpression;
+        }
+
         /// <summary>
         ///     Resolves what an expression evaluates to in terms of the model: an entity or complex type, or null for a scalar,
         ///     checking the property behind a scalar read off one. Returns false for a read off an entity reference that the
@@ -2175,6 +2194,10 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             switch (expression)
             {
                 case NavigationTreeExpression { Value: EntityReference entityReference }:
+                    structuralType = entityReference.EntityType;
+                    return true;
+
+                case EntityReference entityReference:
                     structuralType = entityReference.EntityType;
                     return true;
 
@@ -2195,6 +2218,14 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
 
                 case MethodCallExpression methodCall when methodCall.TryGetEFPropertyArguments(out var source, out var propertyName):
                     return TryResolveMember(source, propertyName, out structuralType);
+
+                // What a Distinct, a SelectMany or a join leaves of a projection it snapshots: a scalar is replaced with its
+                // default value, inside a navigation tree, and how it was stored is no longer visible. So is anything else the
+                // expansion represents with a node of its own.
+                case DefaultExpression:
+                case NavigationTreeExpression:
+                case { NodeType: ExpressionType.Extension }:
+                    return false;
 
                 default:
                     // Not a read off an entity reference: a parameter, a constant or a value computed from scalars.

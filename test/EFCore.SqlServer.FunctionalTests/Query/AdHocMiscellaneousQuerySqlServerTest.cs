@@ -3788,6 +3788,89 @@ GROUP BY [e].[Card_Number]
 """);
     }
 
+    // The same string-stored Guid, projected out of a cross join: the projection's storage is no longer visible as a property,
+    // so it can't be shown to compare by identity. Four joined rows, of which the two whose badge is the key's spelling count.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task GroupBy_lifted_aggregate_capturing_key_converted_to_string_projected_through_SelectMany(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context38775_Keys>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Employees
+            .SelectMany(e => context.Employees.Select(x => x.Badge), (e, badge) => new { Employee = e, Badge = badge })
+            .GroupBy(x => x.Badge, x => new { x.Employee, x.Badge })
+            .Select(g => new
+            {
+                Count = g.Count(),
+                SameLength = g.Count(
+                    x => x.Employee.Manager.Name != null && EF.Functions.DataLength(x.Badge) == EF.Functions.DataLength(g.Key))
+            });
+
+        var results = async ? await query.ToListAsync() : query.ToList();
+
+        var result = Assert.Single(results);
+        Assert.Equal(4, result.Count);
+        Assert.Equal(2, result.SameLength);
+
+        AssertSql(
+            """
+SELECT COUNT(*) AS [Count], (
+    SELECT COUNT(*)
+    FROM [Employees] AS [e1]
+    CROSS JOIN [Employees] AS [e2]
+    INNER JOIN [Manager] AS [m] ON [e1].[ManagerId] = [m].[Id]
+    WHERE [e0].[Badge] = [e2].[Badge] AND DATALENGTH([e2].[Badge]) = DATALENGTH([e0].[Badge])) AS [SameLength]
+FROM [Employees] AS [e]
+CROSS JOIN [Employees] AS [e0]
+GROUP BY [e0].[Badge]
+""");
+    }
+
+    // The same string-stored Guid, projected through a Distinct and joined back to its employee.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task GroupBy_lifted_aggregate_capturing_key_converted_to_string_projected_through_Distinct(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context38775_Keys>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Employees
+            .Select(e => new { e.Id, e.Badge })
+            .Distinct()
+            .Join(context.Employees, x => x.Id, e => e.Id, (x, e) => new { x.Badge, Employee = e })
+            .GroupBy(x => x.Badge)
+            .Select(g => new
+            {
+                Count = g.Count(),
+                SameLength = g.Count(
+                    x => x.Employee.Manager.Name != null && EF.Functions.DataLength(x.Badge) == EF.Functions.DataLength(g.Key))
+            });
+
+        var results = async ? await query.ToListAsync() : query.ToList();
+
+        var result = Assert.Single(results);
+        Assert.Equal(2, result.Count);
+        Assert.Equal(1, result.SameLength);
+
+        AssertSql(
+            """
+SELECT COUNT(*) AS [Count], (
+    SELECT COUNT(*)
+    FROM (
+        SELECT DISTINCT [e3].[Id], [e3].[Badge]
+        FROM [Employees] AS [e3]
+    ) AS [e2]
+    INNER JOIN [Employees] AS [e4] ON [e2].[Id] = [e4].[Id]
+    INNER JOIN [Manager] AS [m] ON [e4].[ManagerId] = [m].[Id]
+    WHERE [e1].[Badge] = [e2].[Badge] AND DATALENGTH([e2].[Badge]) = DATALENGTH([e1].[Badge])) AS [SameLength]
+FROM (
+    SELECT DISTINCT [e].[Id], [e].[Badge]
+    FROM [Employees] AS [e]
+) AS [e1]
+INNER JOIN [Employees] AS [e0] ON [e1].[Id] = [e0].[Id]
+GROUP BY [e1].[Badge]
+""");
+    }
+
     protected class Context38775_Keys(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Employee> Employees
