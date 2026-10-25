@@ -228,7 +228,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
     {
         if (operation[RelationalAnnotationNames.ColumnOrder] != operation.OldColumn[RelationalAnnotationNames.ColumnOrder])
         {
-            //Dependencies.MigrationsLogger.ColumnOrderIgnoredWarning(operation);
+            Dependencies.MigrationsLogger.ColumnOrderIgnoredWarning(operation);
         }
 
         IEnumerable<ITableIndex>? indexesToRebuild = null;
