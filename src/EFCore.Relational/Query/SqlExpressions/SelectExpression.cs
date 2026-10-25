@@ -1937,12 +1937,16 @@ public sealed partial class SelectExpression : TableExpressionBase
             : typeMapping.KeyComparer;
 
     // Whether the default comparer for the type, which a converted type's mapping gets, ends up at object.Equals without an override.
+    // An interface or object itself declares nothing of the sort: what Equals does depends on the instance, so it is left alone.
     private static bool ComparesByReference(Type type)
     {
         if (type.IsValueType
+            || type.IsInterface
+            || type == typeof(object)
             || type == typeof(string)
             || typeof(IStructuralEquatable).IsAssignableFrom(type)
-            || type.GetMethod(nameof(object.Equals), [typeof(object)])!.DeclaringType != typeof(object))
+            || type.GetMethod(nameof(object.Equals), [typeof(object)]) is not { DeclaringType: var equalsDeclaringType }
+            || equalsDeclaringType != typeof(object))
         {
             return false;
         }
