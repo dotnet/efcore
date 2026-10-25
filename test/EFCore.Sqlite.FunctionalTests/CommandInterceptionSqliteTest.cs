@@ -39,6 +39,107 @@ SELECT "s"."Id", "s"."Type" FROM "Singularity" AS "s"
         return null!;
     }
 
+    [Theory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
+    public async Task CommandFailed_is_called_when_SaveChanges_fails_while_advancing_results(bool async, bool inject)
+    {
+        var (context, interceptor) = await CreateContextAsync<NextResultFailureCommandInterceptor>(inject);
+        using (context)
+        {
+            var singularities = new[]
+            {
+                new Singularity { Id = 77, Type = "Black Hole updated" },
+                new Singularity { Id = 88, Type = "Bing Bang updated" }
+            };
+            context.AttachRange(singularities);
+
+            foreach (var singularity in singularities)
+            {
+                context.Entry(singularity).Property(s => s.Type).IsModified = true;
+            }
+
+            var exception = async
+                ? await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync())
+                : Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+
+            Assert.Same(interceptor.FailureException, exception.InnerException);
+            Assert.True(interceptor.FailedCalled);
+            Assert.Equal(1, interceptor.FailureCount);
+        }
+    }
+
+    private sealed class NextResultFailureCommandInterceptor() : CommandInterceptorBase(DbCommandMethod.ExecuteReader)
+    {
+        public InvalidOperationException FailureException { get; } = new("Advancing the result failed.");
+
+        public int FailureCount { get; private set; }
+
+        public override DbDataReader ReaderExecuted(
+            DbCommand command,
+            CommandExecutedEventData eventData,
+            DbDataReader result)
+        {
+            base.ReaderExecuted(command, eventData, result);
+            result.Dispose();
+
+            return new NextResultFailureDbDataReader(FailureException);
+        }
+
+        public override async ValueTask<DbDataReader> ReaderExecutedAsync(
+            DbCommand command,
+            CommandExecutedEventData eventData,
+            DbDataReader result,
+            CancellationToken cancellationToken = default)
+        {
+            await base.ReaderExecutedAsync(command, eventData, result, cancellationToken);
+            await result.DisposeAsync().ConfigureAwait(false);
+
+            return new NextResultFailureDbDataReader(FailureException);
+        }
+
+        public override void CommandFailed(DbCommand command, CommandErrorEventData eventData)
+        {
+            FailureCount++;
+            base.CommandFailed(command, eventData);
+        }
+
+        public override Task CommandFailedAsync(
+            DbCommand command,
+            CommandErrorEventData eventData,
+            CancellationToken cancellationToken = default)
+        {
+            FailureCount++;
+            return base.CommandFailedAsync(command, eventData, cancellationToken);
+        }
+    }
+
+    private sealed class NextResultFailureDbDataReader(Exception exception) : FakeDbDataReader
+    {
+        private bool _read;
+
+        public override int FieldCount
+            => 1;
+
+        public override bool HasRows
+            => true;
+
+        public override bool Read()
+        {
+            return !_read && (_read = true);
+        }
+
+        public override Task<bool> ReadAsync(CancellationToken cancellationToken)
+            => Task.FromResult(Read());
+
+        public override int GetInt32(int ordinal)
+            => 1;
+
+        public override bool NextResult()
+            => throw exception;
+
+        public override Task<bool> NextResultAsync(CancellationToken cancellationToken)
+            => Task.FromException<bool>(exception);
+    }
+
     public abstract class InterceptionSqliteFixtureBase : InterceptionFixtureBase
     {
         protected override string StoreName
