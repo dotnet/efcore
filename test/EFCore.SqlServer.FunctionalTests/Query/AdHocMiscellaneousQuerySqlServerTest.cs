@@ -3899,7 +3899,7 @@ GROUP BY [e].[HiredAt]
 """);
     }
 
-    // A Guid is stored as a string here, so the database compares it as one: the two badges differ only by a trailing space,
+    // A bool is stored as a string here, so the database compares it as one: the two badges differ only by a trailing space,
     // which SQL Server's equality ignores, so they are one group whose key is one of the two spellings.
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task GroupBy_lifted_aggregate_capturing_key_converted_to_string(bool async)
@@ -3913,7 +3913,7 @@ GROUP BY [e].[HiredAt]
             {
                 Count = g.Count(),
                 SameLength = g.Count(
-                    e => e.Manager.Name != null && EF.Functions.DataLength(e.Badge) == EF.Functions.DataLength(g.Key))
+                    e => e.Manager.Name != null && EF.Functions.DataLength((bool?)e.Badge) == EF.Functions.DataLength((bool?)g.Key))
             });
 
         var results = async ? await query.ToListAsync() : query.ToList();
@@ -3934,7 +3934,7 @@ GROUP BY [e].[Badge]
 """);
     }
 
-    // The same string-stored Guid, read off a derived type through a cast.
+    // The same string-stored bool, read off a derived type through a cast.
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task GroupBy_lifted_aggregate_capturing_key_converted_to_string_through_cast(bool async)
     {
@@ -3948,7 +3948,7 @@ GROUP BY [e].[Badge]
                 Count = g.Count(),
                 SameLength = g.Count(
                     e => e.Manager.Name != null
-                        && EF.Functions.DataLength(((Context38775_Keys.Contractor)e).Code) == EF.Functions.DataLength(g.Key))
+                        && EF.Functions.DataLength((bool?)((Context38775_Keys.Contractor)e).Code) == EF.Functions.DataLength((bool?)g.Key))
             });
 
         var results = async ? await query.ToListAsync() : query.ToList();
@@ -3969,7 +3969,7 @@ GROUP BY [e].[Code]
 """);
     }
 
-    // The same string-stored Guid, read off a complex property.
+    // The same string-stored bool, read off a complex property.
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task GroupBy_lifted_aggregate_capturing_key_converted_to_string_on_complex_property(bool async)
     {
@@ -3982,7 +3982,7 @@ GROUP BY [e].[Code]
             {
                 Count = g.Count(),
                 SameLength = g.Count(
-                    e => e.Manager.Name != null && EF.Functions.DataLength(e.Card.Number) == EF.Functions.DataLength(g.Key))
+                    e => e.Manager.Name != null && EF.Functions.DataLength((bool?)e.Card.Number) == EF.Functions.DataLength((bool?)g.Key))
             });
 
         var results = async ? await query.ToListAsync() : query.ToList();
@@ -4003,7 +4003,7 @@ GROUP BY [e].[Card_Number]
 """);
     }
 
-    // The same string-stored Guid, projected out of a cross join: the projection's storage is no longer visible as a property,
+    // The same string-stored bool, projected out of a cross join: the projection's storage is no longer visible as a property,
     // so it can't be shown to compare by identity. Four joined rows, of which the two whose badge is the key's spelling count.
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task GroupBy_lifted_aggregate_capturing_key_converted_to_string_projected_through_SelectMany(bool async)
@@ -4018,7 +4018,7 @@ GROUP BY [e].[Card_Number]
             {
                 Count = g.Count(),
                 SameLength = g.Count(
-                    x => x.Employee.Manager.Name != null && EF.Functions.DataLength(x.Badge) == EF.Functions.DataLength(g.Key))
+                    x => x.Employee.Manager.Name != null && EF.Functions.DataLength((bool?)x.Badge) == EF.Functions.DataLength((bool?)g.Key))
             });
 
         var results = async ? await query.ToListAsync() : query.ToList();
@@ -4041,7 +4041,7 @@ GROUP BY [e0].[Badge]
 """);
     }
 
-    // The same string-stored Guid, projected through a Distinct and joined back to its employee.
+    // The same string-stored bool, projected through a Distinct and joined back to its employee.
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task GroupBy_lifted_aggregate_capturing_key_converted_to_string_projected_through_Distinct(bool async)
     {
@@ -4057,7 +4057,7 @@ GROUP BY [e0].[Badge]
             {
                 Count = g.Count(),
                 SameLength = g.Count(
-                    x => x.Employee.Manager.Name != null && EF.Functions.DataLength(x.Badge) == EF.Functions.DataLength(g.Key))
+                    x => x.Employee.Manager.Name != null && EF.Functions.DataLength((bool?)x.Badge) == EF.Functions.DataLength((bool?)g.Key))
             });
 
         var results = async ? await query.ToListAsync() : query.ToList();
@@ -4088,6 +4088,9 @@ GROUP BY [e1].[Badge]
 
     protected class Context38775_Keys(DbContextOptions options) : DbContext(options)
     {
+        // Reads back with its trailing space trimmed, so that both stored spellings materialize.
+        private static readonly ValueConverter<bool, string> YesNo = new(b => b ? "Y" : "N", s => s.Trim() == "Y");
+
         public DbSet<Employee> Employees
             => Set<Employee>();
 
@@ -4096,18 +4099,18 @@ GROUP BY [e1].[Badge]
             modelBuilder.Entity<Employee>(
                 b =>
                 {
-                    b.Property(e => e.Badge).HasConversion<string>().HasColumnType("nvarchar(40)");
+                    b.Property(e => e.Badge).HasConversion(YesNo).HasColumnType("nvarchar(40)");
                     b.ComplexProperty(
                         e => e.Card,
-                        c => c.Property(x => x.Number).HasConversion<string>().HasColumnType("nvarchar(40)"));
+                        c => c.Property(x => x.Number).HasConversion(YesNo).HasColumnType("nvarchar(40)"));
                 });
-            modelBuilder.Entity<Contractor>().Property(e => e.Code).HasConversion<string>().HasColumnType("nvarchar(40)");
+            modelBuilder.Entity<Contractor>().Property(e => e.Code).HasConversion(YesNo).HasColumnType("nvarchar(40)");
         }
 
         public async Task SeedAsync()
         {
             var manager = new Manager { Id = 1, Name = "Ada" };
-            var badge = new Guid("6f9619ff-8b86-d011-b42d-00c04fc964ff");
+            var badge = true;
             AddRange(
                 new Contractor
                 {
@@ -4139,7 +4142,7 @@ GROUP BY [e1].[Badge]
             public int Id { get; set; }
 
             public DateTimeOffset HiredAt { get; set; }
-            public Guid Badge { get; set; }
+            public bool Badge { get; set; }
             public Card Card { get; set; } = null!;
             public int ManagerId { get; set; }
             public Manager Manager { get; set; } = null!;
@@ -4147,12 +4150,12 @@ GROUP BY [e1].[Badge]
 
         public class Contractor : Employee
         {
-            public Guid Code { get; set; }
+            public bool Code { get; set; }
         }
 
         public class Card
         {
-            public Guid Number { get; set; }
+            public bool Number { get; set; }
         }
 
         public class Manager
