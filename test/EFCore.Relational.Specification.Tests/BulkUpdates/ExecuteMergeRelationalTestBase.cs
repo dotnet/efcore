@@ -89,6 +89,23 @@ public abstract class ExecuteMergeRelationalTestBase<TFixture>(TFixture fixture)
             RelationalStrings.ExecuteMergeUnsupportedExpression("t.Visits + s.Visits"));
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task When_matched_constant_of_incompatible_type_is_not_inlined(bool async)
+        => AssertMerge(
+            async context =>
+            {
+                // The int mapping would emit the string unquoted, so inlining it would add another assignment to the UPDATE.
+                await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => Merge(
+                        async, context.Visits,
+                        [new DailyVisit { UserId = 1, Day = "mon", Visits = 3 }],
+                        merge => merge
+                            .Match(t => new { t.UserId, t.Day }, s => new { s.UserId, s.Day })
+                            .WhenMatched(u => u.SetProperty<object>(t => t.Visits, (t, s) => "1, \"Day\" = 'injected'"))));
+
+                Assert.Equal("mon", (await context.Visits.SingleAsync()).Day);
+            });
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task When_matched_with_narrowing_conversion_throws(bool async)
         => AssertMergeThrows(
             context => Merge(

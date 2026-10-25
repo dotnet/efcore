@@ -178,6 +178,12 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                     break;
 
                 case ConstantExpression constant:
+                    if (constant.Value is not null
+                        && !property.ClrType.UnwrapNullableType().IsInstanceOfType(constant.Value))
+                    {
+                        throw new InvalidOperationException(RelationalStrings.ExecuteMergeUnsupportedExpression(constant.Print()));
+                    }
+
                     fixedValues[i] = new SqlConstantExpression(constant.Value, property.ClrType, column.StoreTypeMapping);
                     break;
 
@@ -534,7 +540,13 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             }
 
             case ConstantExpression constant:
-                return _sqlExpressionFactory.Constant(constant.Value, constant.Type, typeMapping: null);
+                if (constant.Value is not null
+                    && !property.ClrType.UnwrapNullableType().IsInstanceOfType(constant.Value))
+                {
+                    throw new InvalidOperationException(RelationalStrings.ExecuteMergeUnsupportedExpression(constant.Print()));
+                }
+
+                return _sqlExpressionFactory.Constant(constant.Value, property.ClrType, column.StoreTypeMapping);
 
             // A constant WhenMatched value from the SetProperty(property, value) overload is funcletized to a query parameter;
             // emit it as a SQL parameter (bound from the query context).
