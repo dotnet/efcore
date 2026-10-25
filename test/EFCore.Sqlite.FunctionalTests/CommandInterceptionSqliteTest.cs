@@ -67,6 +67,36 @@ SELECT "s"."Id", "s"."Type" FROM "Singularity" AS "s"
         }
     }
 
+    [Theory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
+    public async Task CommandFailed_is_called_for_sqlite_overflow_while_reading(bool async, bool buffered)
+    {
+        var interceptor = new PassiveReaderCommandInterceptor();
+        var options = new DbContextOptionsBuilder(Fixture.CreateOptions([interceptor], []));
+        if (buffered)
+        {
+            options.UseSqlite(o => o.ExecutionStrategy(d => new BufferingExecutionStrategy(d)));
+        }
+
+        using var context = new UniverseContext(options.Options);
+        var query = context.Database.SqlQueryRaw<long>(
+            "SELECT abs(value) AS Value FROM (SELECT 1 AS value UNION ALL SELECT -9223372036854775808)");
+        var exception = async
+            ? await Assert.ThrowsAsync<Microsoft.Data.Sqlite.SqliteException>(() => query.ToListAsync())
+            : Assert.Throws<Microsoft.Data.Sqlite.SqliteException>(() => query.ToList());
+
+        Assert.Equal(1, exception.SqliteErrorCode);
+        Assert.True(interceptor.ExecutedCalled);
+        Assert.True(interceptor.FailedCalled);
+        Assert.Same(exception, interceptor.Exception);
+    }
+
+    private sealed class BufferingExecutionStrategy(ExecutionStrategyDependencies dependencies)
+        : ExecutionStrategy(dependencies, 1, TimeSpan.Zero)
+    {
+        protected override bool ShouldRetryOn(Exception exception)
+            => false;
+    }
+
     private sealed class NextResultFailureCommandInterceptor() : CommandInterceptorBase(DbCommandMethod.ExecuteReader)
     {
         public InvalidOperationException FailureException { get; } = new("Advancing the result failed.");

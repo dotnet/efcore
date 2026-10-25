@@ -28,8 +28,12 @@ internal readonly struct RelationalCommandErrorReporter
             return false;
         }
 
-        var definition = RelationalResources.LogCommandFailed(logger);
-        return logger.NeedsEventData<IDbCommandInterceptor>(definition, out _, out _, out _);
+        var errorDefinition = RelationalResources.LogCommandFailed(logger);
+        var canceledDefinition = RelationalResources.LogCommandCanceled(logger);
+        return logger.ShouldLog(errorDefinition)
+            || logger.ShouldLog(canceledDefinition)
+            || logger.NeedsEventData<IDbCommandInterceptor>(errorDefinition, out _, out _, out _)
+            || logger.NeedsEventData<IDbCommandInterceptor>(canceledDefinition, out _, out _, out _);
     }
 
     public RelationalCommandErrorReporter(
