@@ -1345,6 +1345,29 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_on_inline_collection_with_nullable_subquery_value(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().Select(o => new
+            {
+                o.OrderID,
+                HasTwo = new[] { ss.Set<Order>().Count(o2 => o2.CustomerID == o.CustomerID), 0 }.Contains(2)
+            }),
+            elementSorter: e => e.OrderID);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_on_inline_collection_with_single_nullable_subquery_value_and_null(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().Select(o => new
+            {
+                o.OrderID,
+                IsMax = new[] { ss.Set<Order>().Where(o2 => o2.CustomerID == o.CustomerID).Max(o2 => o2.EmployeeID), null }
+                    .Contains(o.EmployeeID)
+            }),
+            elementSorter: e => e.OrderID);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task OfType_Select(bool async)
         => AssertFirst(
             async,

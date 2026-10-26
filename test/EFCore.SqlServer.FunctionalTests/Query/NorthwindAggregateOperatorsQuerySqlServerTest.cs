@@ -2599,6 +2599,46 @@ END
         AssertSql();
     }
 
+    public override async Task Contains_on_inline_collection_with_nullable_subquery_value(bool async)
+    {
+        await base.Contains_on_inline_collection_with_nullable_subquery_value(async);
+
+        AssertSql(
+            """
+SELECT [o].[OrderID], CASE
+    WHEN 2 IN (0) OR (2 = (
+        SELECT COUNT(*)
+        FROM [Orders] AS [o0]
+        WHERE [o0].[CustomerID] = [o].[CustomerID] OR ([o0].[CustomerID] IS NULL AND [o].[CustomerID] IS NULL)) AND (
+        SELECT COUNT(*)
+        FROM [Orders] AS [o0]
+        WHERE [o0].[CustomerID] = [o].[CustomerID] OR ([o0].[CustomerID] IS NULL AND [o].[CustomerID] IS NULL)) IS NOT NULL) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [HasTwo]
+FROM [Orders] AS [o]
+""");
+    }
+
+    public override async Task Contains_on_inline_collection_with_single_nullable_subquery_value_and_null(bool async)
+    {
+        await base.Contains_on_inline_collection_with_single_nullable_subquery_value_and_null(async);
+
+        AssertSql(
+            """
+SELECT [o].[OrderID], CASE
+    WHEN [o].[EmployeeID] IS NULL OR ([o].[EmployeeID] = (
+        SELECT MAX([o0].[EmployeeID])
+        FROM [Orders] AS [o0]
+        WHERE [o0].[CustomerID] = [o].[CustomerID] OR ([o0].[CustomerID] IS NULL AND [o].[CustomerID] IS NULL)) AND (
+        SELECT MAX([o0].[EmployeeID])
+        FROM [Orders] AS [o0]
+        WHERE [o0].[CustomerID] = [o].[CustomerID] OR ([o0].[CustomerID] IS NULL AND [o].[CustomerID] IS NULL)) IS NOT NULL) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [IsMax]
+FROM [Orders] AS [o]
+""");
+    }
+
     public override async Task OfType_Select(bool async)
     {
         await base.OfType_Select(async);

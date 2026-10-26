@@ -755,6 +755,10 @@ public class SqlNullabilityProcessor : ExpressionVisitor
     {
         // SQL IN returns null when the item is null, and when the values (or subquery projection) contains NULL and no match was made.
 
+        // Null compensation isn't idempotent - visiting a = b OR (a IS NULL AND b IS NULL) again expands a = b a second time - so the
+        // comparisons built below from the item and the values are built from them as they were before being visited.
+        var originalItem = inExpression.Item;
+        var originalValues = new Dictionary<SqlExpression, SqlExpression>(ReferenceEqualityComparer.Instance);
         var item = Visit(inExpression.Item, out var itemNullable);
         inExpression = inExpression.Update(item, inExpression.Subquery, inExpression.Values, inExpression.ValuesParameter);
 
@@ -922,7 +926,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         // For relational null semantics we don't need to extract null values from the array
         if (UseRelationalNulls)
         {
-            inExpression = ProcessInExpressionValues(inExpression, removeNulls: false, removeNullables: false, out _, out _);
+            inExpression = ProcessInExpressionValues(inExpression, removeNulls: false, out _, out _);
 
             return inExpression.Values! switch
             {
@@ -936,7 +940,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         // (columns/arbitrary expressions) in the value list. The following visits all the values, removing nulls (but not nullables)
         // and returns the visited values with some information on what was found.
         inExpression = ProcessInExpressionValues(
-            inExpression, removeNulls: true, removeNullables: false, out var valuesHasNull, out var nullableValues);
+            inExpression, removeNulls: true, out var valuesHasNull, out var nullableValues);
 
         // Do some simplifications for when the value list contains only zero or one values
         switch (inExpression.Values!)
@@ -955,8 +959,10 @@ public class SqlNullabilityProcessor : ExpressionVisitor
             case [var singleValue]:
                 return Visit(
                     itemNullable && valuesHasNull
-                        ? _sqlExpressionFactory.OrElse(_sqlExpressionFactory.IsNull(item), _sqlExpressionFactory.Equal(item, singleValue))
-                        : _sqlExpressionFactory.Equal(item, singleValue),
+                        ? _sqlExpressionFactory.OrElse(
+                            _sqlExpressionFactory.IsNull(originalItem),
+                            _sqlExpressionFactory.Equal(originalItem, OriginalValue(singleValue)))
+                        : _sqlExpressionFactory.Equal(originalItem, OriginalValue(singleValue)),
                     allowOptimizedExpansion,
                     out _);
         }
@@ -984,7 +990,8 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         // values. We'll add them back via separate equality checks.
         if (nullableValues.Count > 0)
         {
-            inExpression = ProcessInExpressionValues(inExpression, removeNulls: true, removeNullables: true, out _, out nullableValues);
+            var nullableValueSet = new HashSet<SqlExpression>(nullableValues, ReferenceEqualityComparer.Instance);
+            inExpression = inExpression.Update(item, inExpression.Values!.Where(v => !nullableValueSet.Contains(v)).ToList());
         }
 
         SqlExpression result = inExpression;
@@ -1013,12 +1020,14 @@ public class SqlNullabilityProcessor : ExpressionVisitor
             result,
             (expr, nullableValue) => _sqlExpressionFactory.OrElse(
                 expr,
-                Visit(_sqlExpressionFactory.Equal(item, nullableValue), allowOptimizedExpansion, out _)));
+                Visit(_sqlExpressionFactory.Equal(originalItem, OriginalValue(nullableValue)), allowOptimizedExpansion, out _)));
+
+        SqlExpression OriginalValue(SqlExpression visitedValue)
+            => originalValues.GetValueOrDefault(visitedValue, visitedValue);
 
         InExpression ProcessInExpressionValues(
             InExpression inExpression,
             bool removeNulls,
-            bool removeNullables,
             out bool hasNull,
             out List<SqlExpression> nullables)
         {
@@ -1129,20 +1138,14 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                     }
 
                     var visitedValue = Visit(value, out var valueNullable);
+                    if (visitedValue != value)
+                    {
+                        originalValues[visitedValue] = value;
+                    }
 
                     if (valueNullable)
                     {
                         nullables.Add(visitedValue);
-
-                        if (removeNullables)
-                        {
-                            if (processedValues is null)
-                            {
-                                CreateProcessedValues();
-                            }
-
-                            continue;
-                        }
                     }
 
                     if (value != visitedValue && processedValues is null)
