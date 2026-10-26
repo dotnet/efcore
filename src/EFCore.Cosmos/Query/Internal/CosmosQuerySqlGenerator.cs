@@ -469,7 +469,13 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Exp
                     // Note that we don't go through _sqlParametersByOriginalName, since the FromSql parameters we're adding here cannot
                     // be referenced multiple times.
                     var parameterName = PrefixAndUniquifyParameterName("p");
-                    _sqlParameters.Add(new SqlValueParameter(parameterName, parameterValues[i]));
+
+                    // Go through the type mapping so that values (e.g. DateTime) are serialized the same way as stored values.
+                    var value = parameterValues[i];
+                    _sqlParameters.Add(
+                        value is not null && typeMappingSource.FindMapping(value.GetType()) is CosmosTypeMapping typeMapping
+                            ? typeMapping.CreateParameter(parameterName, value)
+                            : new SqlValueParameter(parameterName, value));
                     substitutions[i] = parameterName;
                 }
 

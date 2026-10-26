@@ -280,6 +280,34 @@ public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSh
         Assert.Equal(new[] { "exact-second" }, result.Select(x => x.Name).ToArray());
     }
 
+    [Fact]
+    public virtual async Task DateTime_parameter_in_FromSql_matches_exact_second_value()
+    {
+        var contextFactory = await Initialize39113ItemsAsync();
+        await using var context = contextFactory.CreateDbContext();
+
+        var timestamp = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        var result = await context.Items
+            .FromSqlRaw("""SELECT * FROM root c WHERE c["Timestamp"] = {0}""", timestamp)
+            .ToListAsync();
+
+        Assert.Equal(new[] { "exact-second" }, result.Select(x => x.Name).ToArray());
+    }
+
+    [Fact]
+    public virtual async Task DateTime_interpolated_parameter_in_FromSql_matches_exact_second_value()
+    {
+        var contextFactory = await Initialize39113ItemsAsync();
+        await using var context = contextFactory.CreateDbContext();
+
+        var timestamp = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        var result = await context.Items
+            .FromSql($"""SELECT * FROM root c WHERE c["Timestamp"] = {timestamp}""")
+            .ToListAsync();
+
+        Assert.Equal(new[] { "exact-second" }, result.Select(x => x.Name).ToArray());
+    }
+
     private Task<ContextFactory<Context39113>> Initialize39113ItemsAsync()
         => InitializeNonSharedTest<Context39113>(
             seed: async context =>
