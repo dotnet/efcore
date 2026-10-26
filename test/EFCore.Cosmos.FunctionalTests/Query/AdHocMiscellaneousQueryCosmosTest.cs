@@ -256,6 +256,46 @@ public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSh
         Assert.Equal(DateTimeKind.Utc, anonymous.Timestamp.Kind);
     }
 
+    [Fact]
+    public virtual async Task DateTime_in_List_of_object_Contains_matches_exact_second_value()
+    {
+        var contextFactory = await Initialize39113ItemsAsync();
+        await using var context = contextFactory.CreateDbContext();
+
+        var dates = new List<object> { new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc) };
+        var result = await context.Items.Where(x => dates.Contains(x.Timestamp)).ToListAsync();
+
+        Assert.Equal(new[] { "exact-second" }, result.Select(x => x.Name).ToArray());
+    }
+
+    [Fact]
+    public virtual async Task DateTime_in_object_array_Contains_matches_exact_second_value()
+    {
+        var contextFactory = await Initialize39113ItemsAsync();
+        await using var context = contextFactory.CreateDbContext();
+
+        var dates = new object[] { new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc) };
+        var result = await context.Items.Where(x => dates.Contains(x.Timestamp)).ToListAsync();
+
+        Assert.Equal(new[] { "exact-second" }, result.Select(x => x.Name).ToArray());
+    }
+
+    private Task<ContextFactory<Context39113>> Initialize39113ItemsAsync()
+        => InitializeNonSharedTest<Context39113>(
+            seed: async context =>
+            {
+                context.Items.AddRange(
+                    new Context39113.Item
+                    {
+                        Id = 1, Name = "exact-second", Timestamp = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+                    },
+                    new Context39113.Item
+                    {
+                        Id = 2, Name = "fractional-second", Timestamp = new DateTime(2026, 1, 1, 0, 0, 0, 123, DateTimeKind.Utc)
+                    });
+                await context.SaveChangesAsync();
+            });
+
     protected class Context39113(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Item> Items

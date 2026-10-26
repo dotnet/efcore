@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections;
 using System.Text;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Storage.Json;
@@ -95,7 +96,9 @@ public class CosmosTypeMapping : CoreTypeMapping
         // keep the previous behavior of letting the SDK serialize the raw value.
         if (normalized is not null && !JsonValueReaderWriter!.ValueType.IsInstanceOfType(normalized))
         {
-            return new SqlValueParameter(name, ConvertToProviderValue(value));
+            // Object-backed collections (e.g. a List<object> of DateTimes) can still be serialized element by element
+            // through the element mapping, so that the elements get the same representation as stored values.
+            return TryCreateElementwiseParameter(name, normalized) ?? new SqlValueParameter(name, ConvertToProviderValue(value));
         }
 
         using var stream = new MemoryStream();
@@ -109,6 +112,48 @@ public class CosmosTypeMapping : CoreTypeMapping
             {
                 writer.WriteNullValue();
             }
+        }
+
+        return new SqlRawJsonParameter(name, stream.ToArray());
+    }
+
+    private SqlParameter? TryCreateElementwiseParameter(string name, object value)
+    {
+        var elementReaderWriter = ElementTypeMapping?.JsonValueReaderWriter;
+        if (elementReaderWriter is null
+            || value is string
+            || value is not IEnumerable elements)
+        {
+            return null;
+        }
+
+        var elementType = elementReaderWriter.ValueType;
+        var items = new List<object?>();
+        foreach (var element in elements)
+        {
+            if (element is not null && !elementType.IsInstanceOfType(element))
+            {
+                return null;
+            }
+
+            if (element is null && !elementReaderWriter.HandlesNullWrites)
+            {
+                return null;
+            }
+
+            items.Add(element);
+        }
+
+        using var stream = new MemoryStream();
+        using (var writer = new Utf8JsonWriter(stream, CosmosClientWrapper.JsonWriterOptions))
+        {
+            writer.WriteStartArray();
+            foreach (var item in items)
+            {
+                elementReaderWriter.ToJson(writer, item!);
+            }
+
+            writer.WriteEndArray();
         }
 
         return new SqlRawJsonParameter(name, stream.ToArray());
