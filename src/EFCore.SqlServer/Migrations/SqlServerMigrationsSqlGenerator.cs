@@ -2125,6 +2125,10 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         if (operation.IsStored == true)
         {
             builder.Append(" PERSISTED");
+            if (!operation.IsNullable)
+            {
+                builder.Append(" NOT NULL");
+            }
         }
     }
 
