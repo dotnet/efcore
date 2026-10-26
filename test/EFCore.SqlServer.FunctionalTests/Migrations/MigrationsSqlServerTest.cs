@@ -1306,7 +1306,7 @@ CREATE INDEX [IX_People_FirstName_LastName] ON [People] ([FirstName], [LastName]
     {
         await base.Alter_column_make_computed(stored);
 
-        var computedColumnTypeSql = stored == true ? " PERSISTED" : "";
+        var computedColumnTypeSql = stored == true ? " PERSISTED NOT NULL" : "";
 
         AssertSql(
             $"""
@@ -1369,7 +1369,7 @@ FROM [sys].[columns] [c]
 WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Sum';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [People] DROP COLUMN [Sum];
-ALTER TABLE [People] ADD [Sum] AS [X] + [Y] PERSISTED;
+ALTER TABLE [People] ADD [Sum] AS [X] + [Y] PERSISTED NOT NULL;
 """);
     }
 
