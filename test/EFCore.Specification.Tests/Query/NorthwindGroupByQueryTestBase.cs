@@ -4047,6 +4047,60 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
                 }),
             elementSorter: e => e.Key);
 
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_as_element_of_inline_collection_Contains(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(o => o.CustomerID)
+                .Select(g => new { g.Key, HasTwo = new[] { g.Count(), g.Max(o => o.OrderID), 0 }.Contains(2) }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_as_item_of_inline_collection_Contains(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(o => o.CustomerID)
+                .Select(g => new { g.Key, CountIsSmall = new[] { 1, 2, 3 }.Contains(g.Count()) }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_quantifier_as_element_of_inline_collection_Contains(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(o => o.CustomerID)
+                .Select(g => new { g.Key, HasLate = new[] { g.Any(o => o.OrderID > 11000), false }.Contains(true) }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_as_element_of_inline_collection_Contains_in_predicate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(o => o.CustomerID)
+                .Where(g => new[] { 1, 2, 3 }.Contains(g.Count()))
+                .Select(g => g.Key));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_as_element_of_inline_collection_composed_over(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(o => o.CustomerID)
+                .Select(g => new { g.Key, Large = new[] { g.Count(), 0, 5 }.Count(c => c > 4) }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_as_element_of_inline_collection_Contains_from_inner_query(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(o => o.CustomerID)
+                .Select(g => new
+                {
+                    g.Key,
+                    A = ss.Set<Employee>().Where(e => e.City == "Seattle").GroupBy(e => e.City)
+                        .Select(g2 => new[] { g.Count(), g2.Count() }.Contains(2))
+                        .FirstOrDefault()
+                }),
+            elementSorter: e => e.Key);
+
     #endregion
 
     #region GroupByAndDistinctWithCorrelatedCollection

@@ -3118,29 +3118,23 @@ WHERE [c0].[row] <= 1
 
         AssertSql(
             """
-SELECT [o2].[CustomerID], [o2].[c], [o4].[OrderID], [o4].[CustomerID], [o4].[EmployeeID], [o4].[OrderDate]
+SELECT [o1].[CustomerID], [o1].[c], [o3].[OrderID], [o3].[CustomerID], [o3].[EmployeeID], [o3].[OrderDate]
 FROM (
     SELECT [o].[CustomerID], CASE
-        WHEN 2 IN (0) OR (2 = (
-            SELECT COUNT(*)
-            FROM [Orders] AS [o1]
-            WHERE [o].[CustomerID] = [o1].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o1].[CustomerID] IS NULL) OR ([o].[CustomerID] IS NULL AND [o1].[CustomerID] IS NULL) OR ([o].[CustomerID] IS NULL AND [o1].[CustomerID] IS NULL)) AND (
-            SELECT COUNT(*)
-            FROM [Orders] AS [o1]
-            WHERE [o].[CustomerID] = [o1].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o1].[CustomerID] IS NULL) OR ([o].[CustomerID] IS NULL AND [o1].[CustomerID] IS NULL) OR ([o].[CustomerID] IS NULL AND [o1].[CustomerID] IS NULL)) IS NOT NULL) THEN CAST(1 AS bit)
+        WHEN 2 IN (COUNT(*), 0) THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END AS [c]
     FROM [Orders] AS [o]
     GROUP BY [o].[CustomerID]
-) AS [o2]
+) AS [o1]
 LEFT JOIN (
-    SELECT [o3].[OrderID], [o3].[CustomerID], [o3].[EmployeeID], [o3].[OrderDate]
+    SELECT [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
     FROM (
         SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], ROW_NUMBER() OVER(PARTITION BY [o0].[CustomerID] ORDER BY [o0].[OrderID]) AS [row]
         FROM [Orders] AS [o0]
-    ) AS [o3]
-    WHERE [o3].[row] <= 1
-) AS [o4] ON [o2].[CustomerID] = [o4].[CustomerID] OR ([o2].[CustomerID] IS NULL AND [o4].[CustomerID] IS NULL)
+    ) AS [o2]
+    WHERE [o2].[row] <= 1
+) AS [o3] ON [o1].[CustomerID] = [o3].[CustomerID] OR ([o1].[CustomerID] IS NULL AND [o3].[CustomerID] IS NULL)
 """);
     }
 
@@ -4972,6 +4966,112 @@ SELECT [o].[CustomerID] AS [Key], (
         FROM [Orders] AS [o0]
         WHERE [o].[CustomerID] = [o0].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)) = [e0].[EmployeeID]
     WHERE [e].[City] = N'Seattle') AS [A]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]
+""");
+    }
+
+    public override async Task GroupBy_aggregate_as_element_of_inline_collection_Contains(bool async)
+    {
+        await base.GroupBy_aggregate_as_element_of_inline_collection_Contains(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID] AS [Key], CASE
+    WHEN 2 IN (COUNT(*), 0) OR (2 = MAX([o].[OrderID]) AND MAX([o].[OrderID]) IS NOT NULL) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [HasTwo]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]
+""");
+    }
+
+    public override async Task GroupBy_aggregate_as_item_of_inline_collection_Contains(bool async)
+    {
+        await base.GroupBy_aggregate_as_item_of_inline_collection_Contains(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID] AS [Key], CASE
+    WHEN COUNT(*) IN (1, 2, 3) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [CountIsSmall]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]
+""");
+    }
+
+    public override async Task GroupBy_quantifier_as_element_of_inline_collection_Contains(bool async)
+    {
+        await base.GroupBy_quantifier_as_element_of_inline_collection_Contains(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID] AS [Key], CASE
+    WHEN CAST(1 AS bit) IN (CASE
+        WHEN COUNT_BIG(CASE
+            WHEN [o].[OrderID] > 11000 THEN 1
+        END) > CAST(0 AS bigint) THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END, CAST(0 AS bit)) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [HasLate]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]
+""");
+    }
+
+    public override async Task GroupBy_aggregate_as_element_of_inline_collection_Contains_in_predicate(bool async)
+    {
+        await base.GroupBy_aggregate_as_element_of_inline_collection_Contains_in_predicate(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]
+HAVING COUNT(*) IN (1, 2, 3)
+""");
+    }
+
+    public override async Task GroupBy_aggregate_as_element_of_inline_collection_composed_over(bool async)
+    {
+        await base.GroupBy_aggregate_as_element_of_inline_collection_composed_over(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID] AS [Key], (
+    SELECT COUNT(*)
+    FROM (VALUES ((
+        SELECT COUNT(*)
+        FROM [Orders] AS [o0]
+        WHERE [o].[CustomerID] = [o0].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL))), (0), (5)) AS [v]([Value])
+    WHERE [v].[Value] > 4) AS [Large]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]
+""");
+    }
+
+    public override async Task GroupBy_aggregate_as_element_of_inline_collection_Contains_from_inner_query(bool async)
+    {
+        await base.GroupBy_aggregate_as_element_of_inline_collection_Contains_from_inner_query(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID] AS [Key], ISNULL((
+    SELECT TOP(1) CASE
+        WHEN 2 IN (COUNT(*)) OR (2 = (
+            SELECT COUNT(*)
+            FROM [Orders] AS [o0]
+            WHERE [o].[CustomerID] = [o0].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL) OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL) OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)) AND (
+            SELECT COUNT(*)
+            FROM [Orders] AS [o0]
+            WHERE [o].[CustomerID] = [o0].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL) OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL) OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)) IS NOT NULL) THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END
+    FROM [Employees] AS [e]
+    WHERE [e].[City] = N'Seattle'
+    GROUP BY [e].[City]), CAST(0 AS bit)) AS [A]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
 """);
