@@ -5309,6 +5309,13 @@ GROUP BY ROLLUP ([o0].[Year], [o0].[EmployeeID])
         AssertSql();
     }
 
+    public override async Task GroupBy_GroupingSets_without_sets_throws(bool async)
+    {
+        await base.GroupBy_GroupingSets_without_sets_throws(async);
+
+        AssertSql();
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

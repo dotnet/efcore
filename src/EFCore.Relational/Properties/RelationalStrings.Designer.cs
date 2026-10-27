@@ -974,6 +974,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 expression);
 
         /// <summary>
+        ///     At least one grouping set must be passed to 'EF.Functions.GroupingSets'. To group by the grand total only, pass an empty set (e.g. 'new object[0]').
+        /// </summary>
+        public static string GroupingSetsEmpty
+            => GetString("GroupingSetsEmpty");
+
+        /// <summary>
         ///     Queries using ROLLUP, CUBE or GROUPING SETS must project the groupings using aggregate operators (e.g. 'Select(g =&gt; g.Count())'); returning 'IGrouping' instances isn't supported.
         /// </summary>
         public static string GroupingSetsFinalGroupByNotSupported

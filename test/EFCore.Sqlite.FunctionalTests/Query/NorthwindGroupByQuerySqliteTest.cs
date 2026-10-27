@@ -218,6 +218,18 @@ GROUP BY "o0"."Key"
             },
             GroupingSetsKind.GroupingSets);
 
+    public override Task GroupBy_GroupingSets_without_sets_throws(bool async)
+        => AssertGroupingSetsNotSupported(
+            async () =>
+            {
+                using var context = CreateContext();
+                var query = context.Orders
+                    .GroupBy(o => EF.Functions.GroupingSets(new { o.CustomerID }))
+                    .Select(g => g.Count());
+                _ = async ? await query.ToListAsync() : query.ToList();
+            },
+            GroupingSetsKind.GroupingSets);
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

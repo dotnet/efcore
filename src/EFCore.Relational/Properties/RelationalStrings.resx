@@ -484,6 +484,9 @@
   <data name="GroupingSetsElementNotInKey" xml:space="preserve">
     <value>The expression '{expression}' in a grouping set doesn't match any member of the grouping key. Each element of a grouping set passed to 'EF.Functions.GroupingSets' must be one of the expressions composing the grouping key.</value>
   </data>
+  <data name="GroupingSetsEmpty" xml:space="preserve">
+    <value>At least one grouping set must be passed to 'EF.Functions.GroupingSets'. To group by the grand total only, pass an empty set (e.g. 'new object[0]').</value>
+  </data>
   <data name="GroupingSetsFinalGroupByNotSupported" xml:space="preserve">
     <value>Queries using ROLLUP, CUBE or GROUPING SETS must project the groupings using aggregate operators (e.g. 'Select(g =&gt; g.Count())'); returning 'IGrouping' instances isn't supported.</value>
   </data>

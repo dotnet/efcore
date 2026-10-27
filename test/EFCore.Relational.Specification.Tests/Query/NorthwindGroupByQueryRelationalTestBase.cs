@@ -354,5 +354,19 @@ public abstract class NorthwindGroupByQueryRelationalTestBase<TFixture>(TFixture
         Assert.StartsWith(RelationalStrings.GroupingSetsElementNotInKey("o.ShipCity")[..30], message);
     }
 
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task GroupBy_GroupingSets_without_sets_throws(bool async)
+    {
+        using var context = CreateContext();
+        var query = context.Orders
+            .GroupBy(o => EF.Functions.GroupingSets(new { o.CustomerID }))
+            .Select(g => g.Count());
+
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+            async () => _ = async ? await query.ToListAsync() : query.ToList())).Message;
+
+        Assert.Equal(RelationalStrings.GroupingSetsEmpty, message);
+    }
+
     #endregion
 }

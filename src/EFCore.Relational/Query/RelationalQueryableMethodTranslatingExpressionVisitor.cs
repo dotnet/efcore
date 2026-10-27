@@ -903,13 +903,17 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             {
                 kind = GroupingSetsKind.GroupingSets;
 
-                if (methodCall.Arguments[2] is not NewArrayExpression { NodeType: ExpressionType.NewArrayInit } setsArray)
+                // When no sets are passed (e.g. EF.Functions.GroupingSets(key)), the funcletizer may already have evaluated the empty
+                // params array to a constant.
+                var setExpressions = methodCall.Arguments[2] switch
                 {
-                    throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCall.Print()));
-                }
+                    NewArrayExpression { NodeType: ExpressionType.NewArrayInit } setsArray => setsArray.Expressions,
+                    ConstantExpression { Value: Array { Length: 0 } } => [],
+                    _ => throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCall.Print()))
+                };
 
                 var extractedSets = new List<IReadOnlyList<Expression>>();
-                foreach (var set in setsArray.Expressions)
+                foreach (var set in setExpressions)
                 {
                     switch (set)
                     {
@@ -955,6 +959,12 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         if (!IsGroupingSetsSupported(kind))
         {
             throw new InvalidOperationException(RelationalStrings.GroupingSetsNotSupported(kind));
+        }
+
+        // GROUPING SETS () is invalid SQL; the grand total must be expressed as an empty set inside the list.
+        if (sets is { Count: 0 })
+        {
+            throw new InvalidOperationException(RelationalStrings.GroupingSetsEmpty);
         }
 
         // Flatten the key into its scalar members, in the order SelectExpression.PopulateGroupByTerms visits them. Rows which aren't

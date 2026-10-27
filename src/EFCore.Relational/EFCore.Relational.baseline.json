@@ -15903,6 +15903,9 @@
           "Member": "static string FromSqlNonComposable { get; }"
         },
         {
+          "Member": "static string GroupingSetsEmpty { get; }"
+        },
+        {
           "Member": "static string GroupingSetsFinalGroupByNotSupported { get; }"
         },
         {
