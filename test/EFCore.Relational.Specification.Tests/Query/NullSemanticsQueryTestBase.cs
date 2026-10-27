@@ -539,6 +539,66 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
             elementSorter: e => (e.Id1, e.Id2));
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Join_uses_database_semantics_with_filtered_inner(bool async)
+        => AssertQuery(
+            async,
+            ss => from e1 in ss.Set<NullSemanticsEntity1>()
+                  join e2 in ss.Set<NullSemanticsEntity2>().Where(e => e.BoolA) on e1.NullableIntA equals e2.NullableIntB
+                  select new
+                  {
+                      Id1 = e1.Id,
+                      Id2 = e2.Id,
+                      e1.NullableIntA,
+                      e2.NullableIntB
+                  },
+            elementSorter: e => (e.Id1, e.Id2));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Left_join_uses_database_semantics_with_filtered_inner(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>()
+                .LeftJoin(
+                    ss.Set<NullSemanticsEntity2>().Where(e => e.BoolA),
+                    e1 => e1.NullableIntA,
+                    e2 => e2.NullableIntB,
+                    (e1, e2) => new
+                    {
+                        Id1 = e1.Id,
+                        Id2 = e2 == null ? null : (int?)e2.Id,
+                        e1.NullableIntA,
+                        NullableIntB = e2 == null ? null : e2.NullableIntB
+                    }),
+            elementSorter: e => (e.Id1, e.Id2));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Join_with_filtered_inner_on_non_nullable_computed_key(bool async)
+        => AssertQuery(
+            async,
+            ss => from e1 in ss.Set<NullSemanticsEntity1>()
+                  join e2 in ss.Set<NullSemanticsEntity2>().Where(e => e.BoolA) on e1.IntA + 1 equals e2.IntB + 1
+                  select new { Id1 = e1.Id, Id2 = e2.Id },
+            elementSorter: e => (e.Id1, e.Id2));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Join_with_filtered_inner_on_non_nullable_function_key(bool async)
+        => AssertQuery(
+            async,
+            ss => from e1 in ss.Set<NullSemanticsEntity1>()
+                  join e2 in ss.Set<NullSemanticsEntity2>().Where(e => e.BoolA) on e1.StringA.Length equals e2.StringB.Length
+                  select new { Id1 = e1.Id, Id2 = e2.Id },
+            elementSorter: e => (e.Id1, e.Id2));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Join_with_filtered_inner_on_nullable_computed_key(bool async)
+        => AssertQuery(
+            async,
+            ss => from e1 in ss.Set<NullSemanticsEntity1>()
+                  join e2 in ss.Set<NullSemanticsEntity2>().Where(e => e.BoolA) on e1.NullableIntA + 1 equals e2.NullableIntB + 1
+                  select new { Id1 = e1.Id, Id2 = e2.Id },
+            elementSorter: e => (e.Id1, e.Id2));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Join_uses_csharp_semantics_for_anon_objects(bool async)
         => AssertQuery(
             async,
@@ -794,6 +854,58 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
                 e1 => e1.NullableStringA != "Foo",
                 e2 => e2.NullableBoolB != true,
                 (o, i) => new { o, i }));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Correlated_collection_uses_csharp_semantics(bool async)
+        // Unlike a join, the correlation is a Where: null equals null, whether the subquery stays one or gets turned into a join.
+        => AssertQuery(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>().Select(e1 => new
+            {
+                e1.Id,
+                Ids = ss.Set<NullSemanticsEntity2>().Where(e2 => e2.NullableIntB == e1.NullableIntA).Select(e2 => e2.Id).ToList()
+            }),
+            elementSorter: e => e.Id,
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.Id, a.Id);
+                AssertCollection(e.Ids, a.Ids);
+            });
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Correlated_collection_uses_csharp_semantics_with_composite_correlation(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>().Select(e1 => new
+            {
+                e1.Id,
+                Ids = ss.Set<NullSemanticsEntity2>()
+                    .Where(e2 => e2.NullableIntB == e1.NullableIntA && e2.NullableStringB == e1.NullableStringA)
+                    .Select(e2 => e2.Id)
+                    .ToList()
+            }),
+            elementSorter: e => e.Id,
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.Id, a.Id);
+                AssertCollection(e.Ids, a.Ids);
+            });
+
+    [Fact]
+    public virtual void Correlated_collection_using_relational_null_semantics()
+    {
+        using var context = CreateContext(useRelationalNulls: true);
+        var results = context.Entities1
+            .Select(e1 => new
+            {
+                e1.NullableIntA,
+                Ids = context.Entities2.Where(e2 => e2.NullableIntB == e1.NullableIntA).Select(e2 => e2.Id).ToList()
+            })
+            .ToList();
+
+        Assert.All(results.Where(r => r.NullableIntA is null), r => Assert.Empty(r.Ids));
+        Assert.Contains(results, r => r.NullableIntA is not null && r.Ids.Count > 0);
+    }
 
     [Fact]
     public virtual void Where_equal_using_relational_null_semantics()
@@ -1359,6 +1471,22 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
             assertEmpty: true);
     }
 
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Null_semantics_contains_with_subquery_projecting_nullable_comparison(bool async)
+    {
+        await AssertQueryScalar(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>()
+                .Where(e => ss.Set<NullSemanticsEntity2>().Where(x => x.Id == e.Id).Select(x => x.NullableIntA > 1).Contains(false))
+                .Select(e => e.Id));
+
+        await AssertQueryScalar(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>()
+                .Where(e => ss.Set<NullSemanticsEntity2>().Where(x => x.Id == e.Id).Select(x => x.NullableIntA > 1).Contains(e.BoolA))
+                .Select(e => e.Id));
+    }
+
     #endregion Contains with subquery
 
     // For more tests on Contains with parameterized collections, see PrimitiveCollectionsqueryTestBase
@@ -1859,6 +1987,24 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
             assertOrder: true);
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task CaseWhen_negated_nullable_comparison_projection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>()
+                .OrderBy(x => x.Id)
+                .Select(x => !(x.NullableIntA <= 1) ? 0 : 1),
+            assertOrder: true);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task CaseWhen_negated_nullable_comparison_in_later_clause_projection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>()
+                .OrderBy(x => x.Id)
+                .Select(x => x.BoolB ? 1 : !(x.NullableIntA <= 1) ? 2 : 3),
+            assertOrder: true);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task CaseOpWhen_projection(bool async)
         => AssertQuery(
             async,
@@ -2224,6 +2370,23 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
             async,
             ss => ss.Set<NullSemanticsEntity1>().GroupBy(e => e.NullableIntA)
                 .Select(g => new { g.Key, Sum = g.Sum(x => x.IntA) != g.Key }));
+
+    // Enumerable.Any and All read a predicate that evaluates to NULL as "does not satisfy": such a row is not a match for
+    // Any, and is a failure for All. NullableIntA is 0, 1 or NULL, so "greater than or equal to 0" can only fail on a NULL,
+    // and grouping by it gives a group whose rows are all NULL - neither of which the Northwind columns the GroupBy
+    // quantifier tests group over can offer, since none of those hold NULLs.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Quantifier_over_group_treats_null_predicate_as_not_satisfied(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>().GroupBy(e => e.NullableIntA)
+                .Select(g => new
+                {
+                    g.Key,
+                    All = g.All(e => e.NullableIntA >= 0),
+                    Any = g.Any(e => e.NullableIntA >= 0)
+                }),
+            elementSorter: e => e.Key);
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Nullability_is_computed_correctly_for_chained_coalesce(bool async)

@@ -590,6 +590,8 @@ public class OperationExecutor : MarshalByRefObject
         ///     <para><c>suffix</c>--The suffix to add to all the generated files.</para>
         ///     <para><c>scaffoldModel</c>--Whether to generate a compiled model from the DbContext.</para>
         ///     <para><c>precompileQueries</c>--Whether to generate code for precompiled queries.</para>
+        ///     <para><c>nativeAot</c>--Whether to generate code for NativeAOT.</para>
+        ///     <para><c>langVersion</c>--The C# language version to use when generating code.</para>
         /// </remarks>
         /// <param name="executor">The operation executor.</param>
         /// <param name="resultHandler">The <see cref="IOperationResultHandler" />.</param>
@@ -610,6 +612,9 @@ public class OperationExecutor : MarshalByRefObject
             var scaffoldModel = (bool)(args["scaffoldModel"] ?? true);
             var precompileQueries = (bool)(args["precompileQueries"] ?? false);
             var nativeAot = (bool)(args["nativeAot"] ?? false);
+            var langVersion = args.Contains("langVersion")
+                ? (string?)args["langVersion"]
+                : null;
 
             Execute(() => executor.OptimizeContextImpl(
                 outputDir,
@@ -618,7 +623,8 @@ public class OperationExecutor : MarshalByRefObject
                 suffix,
                 scaffoldModel,
                 precompileQueries,
-                nativeAot));
+                nativeAot,
+                langVersion));
         }
     }
 
@@ -629,8 +635,9 @@ public class OperationExecutor : MarshalByRefObject
         string? suffix,
         bool scaffoldModel,
         bool precompileQueries,
-        bool nativeAot)
-        => ContextOperations.Optimize(outputDir, modelNamespace, contextType, suffix, scaffoldModel, precompileQueries, nativeAot);
+        bool nativeAot,
+        string? langVersion)
+        => ContextOperations.Optimize(outputDir, modelNamespace, contextType, suffix, scaffoldModel, precompileQueries, nativeAot, langVersion);
 
     /// <summary>
     ///     Represents an operation to scaffold a <see cref="DbContext" /> and entity types for a database.

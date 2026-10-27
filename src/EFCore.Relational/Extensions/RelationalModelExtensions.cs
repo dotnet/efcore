@@ -70,8 +70,14 @@ public static class RelationalModelExtensions
         if (relationalModel == null)
         {
             var relationalModelFactory = (Func<IRelationalModel>?)model.FindRuntimeAnnotationValue(
-                    RelationalAnnotationNames.RelationalModelFactory)
-                ?? throw new InvalidOperationException(CoreStrings.ModelNotFinalized(nameof(GetRelationalModel)));
+                RelationalAnnotationNames.RelationalModelFactory);
+            if (relationalModelFactory == null)
+            {
+                // The factory is removed after the relational model is created, which could have happened on another thread
+                return (IRelationalModel?)model.FindRuntimeAnnotationValue(RelationalAnnotationNames.RelationalModel)
+                    ?? throw new InvalidOperationException(CoreStrings.ModelNotFinalized(nameof(GetRelationalModel)));
+            }
+
             lock (relationalModelFactory)
             {
                 relationalModel = model.GetOrAddRuntimeAnnotationValue(

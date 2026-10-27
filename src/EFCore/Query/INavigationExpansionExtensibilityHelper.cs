@@ -48,4 +48,13 @@ public interface INavigationExpansionExtensibilityHelper
     /// </summary>
     bool SupportsNavigationExpansionJoins
         => false;
+
+    /// <summary>
+    ///     Whether navigation expansion may lift a single-result subquery that is read more than once in a projection
+    ///     into a single join. When the subquery's correlation cannot be converted to a regular join, the lifted join
+    ///     requires <c>OUTER APPLY</c> or <c>LATERAL</c>, so providers that cannot translate those must return
+    ///     <see langword="false" />.
+    /// </summary>
+    bool SupportsSingleResultLifting
+        => false;
 }

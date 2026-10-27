@@ -244,6 +244,13 @@ public class SqliteParameterTest
     }
 
     [Fact]
+    public void Bind_works_when_byte_array_as_text()
+    {
+        var bytes = new byte[] { 0x7E, 0x57 };
+        Bind_works(bytes, "7E57", SqliteType.Text);
+    }
+
+    [Fact]
     public void Bind_works_when_read_only_memory_bytes()
     {
         var buffer = new byte[] { 0xBA, 0x7E, 0x57, 0xAB };
@@ -418,6 +425,34 @@ public class SqliteParameterTest
         var command = connection.CreateCommand();
         command.CommandText = "SELECT $value;";
         command.Parameters.AddWithValue("$value", new byte[] { 0x7E, 0x57 }).Size = -1;
+        connection.Open();
+
+        var result = command.ExecuteScalar();
+
+        Assert.Equal(new byte[] { 0x7E, 0x57 }, result);
+    }
+
+    [Fact]
+    public void Bind_with_zero_size_does_not_truncate_string_values()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT $value;";
+        command.Parameters.AddWithValue("$value", "TEST").Size = 0;
+        connection.Open();
+
+        var result = command.ExecuteScalar();
+
+        Assert.Equal("TEST", result);
+    }
+
+    [Fact]
+    public void Bind_with_zero_size_does_not_truncate_blob_values()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT $value;";
+        command.Parameters.AddWithValue("$value", new byte[] { 0x7E, 0x57 }).Size = 0;
         connection.Open();
 
         var result = command.ExecuteScalar();

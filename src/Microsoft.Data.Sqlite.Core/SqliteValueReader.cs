@@ -105,7 +105,16 @@ internal abstract class SqliteValueReader
     }
 
     public virtual TimeOnly GetTimeOnly(int ordinal)
-        => TimeOnly.Parse(GetString(ordinal), CultureInfo.InvariantCulture);
+    {
+        var sqliteType = GetSqliteType(ordinal);
+        return sqliteType switch
+        {
+            // A fraction of a day, as written by SqliteValueBinder for SqliteType.Real
+            SQLITE_FLOAT or SQLITE_INTEGER
+                => TimeOnly.FromTimeSpan(TimeSpan.FromMilliseconds(Math.Round(GetDouble(ordinal) * 86400000.0))),
+            _ => TimeOnly.Parse(GetString(ordinal), CultureInfo.InvariantCulture),
+        };
+    }
 
     public virtual decimal GetDecimal(int ordinal)
         => decimal.Parse(GetString(ordinal), NumberStyles.Number | NumberStyles.AllowExponent, CultureInfo.InvariantCulture);
@@ -398,13 +407,15 @@ internal abstract class SqliteValueReader
 
     public virtual int GetValues(object?[] values)
     {
-        int i;
-        for (i = 0; i < FieldCount; i++)
+        // IDataRecord.GetValues: "You can pass an Object array that contains fewer than the number of columns that are
+        // contained in the resulting row. Only the amount of data the Object array holds is copied to the array."
+        var count = Math.Min(values.Length, FieldCount);
+        for (var i = 0; i < count; i++)
         {
             values[i] = GetValue(i);
         }
 
-        return i;
+        return count;
     }
 
     protected virtual byte[]? GetBlob(int ordinal)

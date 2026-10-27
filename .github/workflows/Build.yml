@@ -73,14 +73,14 @@ jobs:
 
       - name: Upload coverage artifacts
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: coverage-main-${{ matrix.os }}
           path: artifacts/coverage/*.cobertura.xml
           if-no-files-found: ignore
 
       - name: Publish Test Results
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         if: always()
         with:
           name: test-results-main-${{ matrix.os }}
@@ -127,14 +127,14 @@ jobs:
 
       - name: Upload coverage artifacts
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: coverage-cosmos-${{ matrix.os }}
           path: artifacts/coverage/*.cobertura.xml
           if-no-files-found: ignore
 
       - name: Publish Test Results
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         if: always()
         with:
           name: test-results-cosmos-${{ matrix.os }}
@@ -187,14 +187,14 @@ jobs:
 
       - name: Upload coverage artifacts
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: coverage-sqlserver-${{ matrix.sqlserver_version }}
           path: artifacts/coverage/*.cobertura.xml
           if-no-files-found: ignore
 
       - name: Publish Test Results
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         if: always()
         with:
           name: test-results-sqlserver-${{ matrix.sqlserver_version }}
@@ -236,14 +236,14 @@ jobs:
 
       - name: Upload coverage artifacts
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: coverage-sqlite-${{ matrix.os }}
           path: artifacts/coverage/*.cobertura.xml
           if-no-files-found: ignore
 
       - name: Publish Test Results
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         if: always()
         with:
           name: test-results-sqlite-${{ matrix.os }}
@@ -297,14 +297,14 @@ jobs:
 
       - name: Upload coverage artifacts
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: coverage-microsoft-data-sqlite-${{ matrix.os }}
           path: artifacts/coverage/*.cobertura.xml
           if-no-files-found: ignore
 
       - name: Publish Test Results
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         if: always()
         with:
           name: test-results-microsoft-data-sqlite-${{ matrix.os }}
@@ -335,27 +335,33 @@ jobs:
       code-quality: write
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          sparse-checkout: eng/
+
+      - name: Install .NET SDK
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68
+        with:
+          dotnet-version: latest
+          dotnet-quality: ga
+
       - name: Download coverage artifacts
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
         with:
           pattern: coverage-*
           path: artifacts/coverage
 
       - name: Merge coverage reports
-        continue-on-error: true
-        run: |
-          mapfile -d '' files < <(find artifacts/coverage -name '*.cobertura.xml' -print0 2>/dev/null)
-          if [ ${#files[@]} -gt 0 ]; then
-            export PATH="$PATH:$HOME/.dotnet/tools"
-            dotnet tool update --global dotnet-coverage || dotnet tool install --global dotnet-coverage
-            dotnet-coverage merge -o artifacts/coverage/coverage.cobertura.xml -f cobertura "${files[@]}"
-          fi
+        shell: pwsh
+        working-directory: ${{ runner.temp }}
+        run: . ${{ github.workspace }}/eng/merge-coverage.ps1 -CoverageDirectory ${{ github.workspace }}/artifacts/coverage -OutputFile ${{ github.workspace }}/artifacts/coverage/coverage.cobertura.xml
 
       - name: Upload coverage report
         if: (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && hashFiles('artifacts/coverage/coverage.cobertura.xml') != ''
-        uses: actions/upload-code-coverage@d8e329117199404bba6fc81efe8093dc7c015e34
+        uses: actions/upload-code-coverage@2b21a77928be8d5168c2b9581a67f2adbebacc52
         with:
           file: artifacts/coverage/coverage.cobertura.xml
           language: C#
           label: code-coverage
-          fail-on-error: false
+          fail-on-error: true

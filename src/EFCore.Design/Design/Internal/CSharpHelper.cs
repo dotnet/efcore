@@ -364,6 +364,9 @@ public class CSharpHelper : ICSharpHelper
                 .Replace("\n", @"\n")
                 .Replace("\r", @"\r")
                 .Replace("\"", "\\\"")
+                .Replace("\u2028", "\\u2028")
+                .Replace("\u2029", "\\u2029")
+                .Replace("\u0085", "\\u0085")
                 .Insert(0, '"')
                 .Append('"')
                 .ToString()
@@ -385,7 +388,7 @@ public class CSharpHelper : ICSharpHelper
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual string Literal(byte value)
-        => "(byte)" + value;
+        => "(byte)" + value.ToString(CultureInfo.InvariantCulture);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -402,6 +405,9 @@ public class CSharpHelper : ICSharpHelper
                 '\n' => @"\n",
                 '\r' => @"\r",
                 '\'' => @"\'",
+                '\u2028' => "\\u2028",
+                '\u2029' => "\\u2029",
+                '\u0085' => "\\u0085",
                 _ => value.ToString()
             }
             + "\'";
@@ -496,7 +502,24 @@ public class CSharpHelper : ICSharpHelper
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual string Literal(float value)
-        => value.ToString(CultureInfo.InvariantCulture) + "f";
+    {
+        if (float.IsNaN(value))
+        {
+            return $"float.{nameof(float.NaN)}";
+        }
+
+        if (float.IsNegativeInfinity(value))
+        {
+            return $"float.{nameof(float.NegativeInfinity)}";
+        }
+
+        if (float.IsPositiveInfinity(value))
+        {
+            return $"float.{nameof(float.PositiveInfinity)}";
+        }
+
+        return value.ToString(CultureInfo.InvariantCulture) + "f";
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -532,7 +555,7 @@ public class CSharpHelper : ICSharpHelper
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual string Literal(sbyte value)
-        => "(sbyte)" + value;
+        => "(sbyte)" + value.ToString(CultureInfo.InvariantCulture);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -541,7 +564,7 @@ public class CSharpHelper : ICSharpHelper
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual string Literal(short value)
-        => "(short)" + value;
+        => "(short)" + value.ToString(CultureInfo.InvariantCulture);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -597,7 +620,7 @@ public class CSharpHelper : ICSharpHelper
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual string Literal(uint value)
-        => value + "u";
+        => value.ToString(CultureInfo.InvariantCulture) + "u";
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -606,7 +629,7 @@ public class CSharpHelper : ICSharpHelper
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual string Literal(ulong value)
-        => value + "ul";
+        => value.ToString(CultureInfo.InvariantCulture) + "ul";
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -615,7 +638,7 @@ public class CSharpHelper : ICSharpHelper
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual string Literal(ushort value)
-        => "(ushort)" + value;
+        => "(ushort)" + value.ToString(CultureInfo.InvariantCulture);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -679,6 +702,12 @@ public class CSharpHelper : ICSharpHelper
             else if (type == typeof(object))
             {
                 builder.Append(" object");
+            }
+            else if (Nullable.GetUnderlyingType(type) != null)
+            {
+                // Elements are emitted as their underlying type, so an implicitly-typed array would be inferred as
+                // the non-nullable type; emit the element type explicitly to keep the array type correct.
+                builder.Append(' ').Append(Reference(type));
             }
 
             if (vertical)
@@ -1012,13 +1041,31 @@ public class CSharpHelper : ICSharpHelper
             }
         }
 
-        return allValues.Aggregate(
-                (string?)null,
-                (previous, current) =>
-                    previous == null
-                        ? GetSimpleEnumValue(type, Enum.GetName(type, current)!, fullName)
-                        : previous + " | " + GetSimpleEnumValue(type, Enum.GetName(type, current)!, fullName))
-            ?? GetUnnamedEnumValue(type, flags);
+        var composite = allValues.Aggregate(
+            (string?)null,
+            (previous, current) =>
+                previous == null
+                    ? GetSimpleEnumValue(type, Enum.GetName(type, current)!, fullName)
+                    : previous + " | " + GetSimpleEnumValue(type, Enum.GetName(type, current)!, fullName));
+        if (composite == null)
+        {
+            return GetUnnamedEnumValue(type, flags);
+        }
+
+        // Bits that don't correspond to any named flag must still be emitted, otherwise the generated value would differ
+        var unnamedBits = ToUInt64(flags) & ~allValues.Aggregate(0UL, (bits, current) => bits | ToUInt64(current));
+
+        return unnamedBits == 0
+            ? composite
+            : composite + " | " + GetUnnamedEnumValue(type, (Enum)Enum.ToObject(type, unnamedBits));
+
+        static ulong ToUInt64(Enum value)
+            => Type.GetTypeCode(Enum.GetUnderlyingType(value.GetType())) switch
+            {
+                TypeCode.SByte or TypeCode.Int16 or TypeCode.Int32 or TypeCode.Int64
+                    => unchecked((ulong)Convert.ToInt64(value, CultureInfo.InvariantCulture)),
+                _ => Convert.ToUInt64(value, CultureInfo.InvariantCulture)
+            };
     }
 
     internal static IReadOnlyCollection<Enum> GetFlags(Enum flags)

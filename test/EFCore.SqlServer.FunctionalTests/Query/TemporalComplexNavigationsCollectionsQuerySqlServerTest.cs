@@ -445,7 +445,7 @@ LEFT JOIN (
         FROM [LevelOne] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l0]
     ) AS [l3]
     WHERE [l3].[row] <= 1
-) AS [l4] ON [l2].[Name] = [l4].[Name]
+) AS [l4] ON [l2].[Name] = [l4].[Name] OR ([l2].[Name] IS NULL AND [l4].[Name] IS NULL)
 LEFT JOIN [LevelTwo] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l1] ON [l4].[Id] = [l1].[OneToMany_Optional_Inverse2Id]
 ORDER BY [l2].[Name]
 """);
@@ -772,7 +772,7 @@ LEFT JOIN (
         WHERE [l0].[Id] > 3
     ) AS [l3]
     WHERE [l3].[row] <= 1
-) AS [l4] ON [l2].[Name] = [l4].[Name]
+) AS [l4] ON [l2].[Name] = [l4].[Name] OR ([l2].[Name] IS NULL AND [l4].[Name] IS NULL)
 LEFT JOIN [LevelTwo] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l1] ON [l4].[Id] = [l1].[OneToMany_Optional_Inverse2Id]
 ORDER BY [l2].[Name]
 """);
@@ -1116,7 +1116,7 @@ LEFT JOIN (
         FROM [LevelOne] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l0]
     ) AS [l3]
     WHERE [l3].[row] <= 1
-) AS [l4] ON [l2].[Name] = [l4].[Name]
+) AS [l4] ON [l2].[Name] = [l4].[Name] OR ([l2].[Name] IS NULL AND [l4].[Name] IS NULL)
 LEFT JOIN [LevelTwo] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l1] ON [l4].[Id] = [l1].[OneToMany_Optional_Inverse2Id]
 ORDER BY [l2].[Name]
 """);
@@ -2304,19 +2304,10 @@ ORDER BY [l].[Id], [s].[Date], [s].[Date0], [s].[Name]
 @validIds1='L1 01' (Size = 4000)
 @validIds2='L1 02' (Size = 4000)
 
-SELECT [l1].[Date], [l2].[Id]
-FROM (
-    SELECT [l].[Date]
-    FROM [LevelOne] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l]
-    WHERE [l].[Name] IN (@validIds1, @validIds2)
-    GROUP BY [l].[Date]
-) AS [l1]
-LEFT JOIN (
-    SELECT [l0].[Id], [l0].[Date]
-    FROM [LevelOne] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l0]
-    WHERE [l0].[Name] IN (@validIds1, @validIds2)
-) AS [l2] ON [l1].[Date] = [l2].[Date]
-ORDER BY [l1].[Date]
+SELECT [l].[Date], DENSE_RANK() OVER(ORDER BY [l].[Date]), [l].[Id]
+FROM [LevelOne] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l]
+WHERE [l].[Name] IN (@validIds1, @validIds2)
+ORDER BY [l].[Date]
 """);
     }
 

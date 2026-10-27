@@ -37,6 +37,14 @@ public abstract class ByteArrayTranslationsTestBase<TFixture>(TFixture fixture) 
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(s => s.ByteArray.Contains(s.Byte)));
 
     [Fact]
+    public virtual Task Contains_with_parameter_above_ascii_range()
+    {
+        byte someByte = 0xDE;
+
+        return AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(s => s.ByteArray.Contains(someByte)));
+    }
+
+    [Fact]
     public virtual Task Any()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(e => e.ByteArray.Any()));
 

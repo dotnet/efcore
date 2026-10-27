@@ -644,7 +644,7 @@ LEFT JOIN (
     SELECT [p0].[Id], [p0].[Age], [p0].[FirstName], [p0].[LastName], [p0].[MiddleInitial], [s].[Id] AS [Id0], [s].[Age] AS [Age0], [s].[PersonId], [s].[Style]
     FROM [Person] AS [p0]
     LEFT JOIN [Shoes] AS [s] ON [p0].[Id] = [s].[PersonId]
-) AS [s0] ON [p1].[FirstName] = [s0].[FirstName]
+) AS [s0] ON [p1].[FirstName] = [s0].[FirstName] OR ([p1].[FirstName] IS NULL AND [s0].[FirstName] IS NULL)
 ORDER BY [p1].[FirstName], [s0].[Id]
 """);
     }
@@ -710,22 +710,13 @@ INNER JOIN (
 
         AssertSql(
             """
-SELECT [p3].[FirstName], [p3].[FullName], [p3].[c]
+SELECT TOP(1) [p0].[FirstName], ISNULL([p0].[FirstName], N'') + N' ' + ISNULL([p0].[MiddleInitial], N'') + N' ' + ISNULL([p0].[LastName], N'') AS [FullName]
 FROM (
-    SELECT TOP(1) [p].[FirstName]
+    SELECT [p].[FirstName], [p].[LastName], [p].[MiddleInitial], ROW_NUMBER() OVER(PARTITION BY [p].[FirstName] ORDER BY [p].[Id]) AS [row]
     FROM [Person] AS [p]
-    GROUP BY [p].[FirstName]
-    ORDER BY [p].[FirstName]
-) AS [p1]
-LEFT JOIN (
-    SELECT [p2].[FirstName], [p2].[FullName], [p2].[c]
-    FROM (
-        SELECT [p0].[FirstName], ISNULL([p0].[FirstName], N'') + N' ' + ISNULL([p0].[MiddleInitial], N'') + N' ' + ISNULL([p0].[LastName], N'') AS [FullName], 1 AS [c], ROW_NUMBER() OVER(PARTITION BY [p0].[FirstName] ORDER BY [p0].[Id]) AS [row]
-        FROM [Person] AS [p0]
-    ) AS [p2]
-    WHERE [p2].[row] <= 1
-) AS [p3] ON [p1].[FirstName] = [p3].[FirstName]
-ORDER BY [p1].[FirstName]
+) AS [p0]
+WHERE [p0].[row] <= 1
+ORDER BY [p0].[FirstName]
 """);
     }
 
@@ -748,7 +739,7 @@ LEFT JOIN (
         FROM [Person] AS [p0]
     ) AS [p2]
     WHERE [p2].[row] <= 1
-) AS [p3] ON [p1].[FirstName] = [p3].[FirstName]
+) AS [p3] ON [p1].[FirstName] = [p3].[FirstName] OR ([p1].[FirstName] IS NULL AND [p3].[FirstName] IS NULL)
 LEFT JOIN [Shoes] AS [s] ON [p3].[Id] = [s].[PersonId]
 ORDER BY [p1].[FirstName]
 """);
@@ -889,7 +880,7 @@ LEFT JOIN (
         FROM [Person] AS [p0]
     ) AS [p3]
     WHERE [p3].[row] <= 1
-) AS [p4] ON [p2].[LastName] = [p4].[LastName]
+) AS [p4] ON [p2].[LastName] = [p4].[LastName] OR ([p2].[LastName] IS NULL AND [p4].[LastName] IS NULL)
 LEFT JOIN (
     SELECT [p5].[Id], [p5].[Age], [p5].[FirstName], [p5].[LastName], [p5].[MiddleInitial]
     FROM (
@@ -897,7 +888,7 @@ LEFT JOIN (
         FROM [Person] AS [p1]
     ) AS [p5]
     WHERE [p5].[row] <= 2
-) AS [p6] ON [p2].[LastName] = [p6].[LastName]
+) AS [p6] ON [p2].[LastName] = [p6].[LastName] OR ([p2].[LastName] IS NULL AND [p6].[LastName] IS NULL)
 ORDER BY [p2].[LastName] DESC, [p6].[LastName], [p6].[Id]
 """);
     }

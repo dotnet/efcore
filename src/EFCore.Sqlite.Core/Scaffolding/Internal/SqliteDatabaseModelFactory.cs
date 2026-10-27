@@ -455,9 +455,11 @@ ORDER BY "cid"
                 column.DefaultValue = (Half)halfValue;
             }
             else if (defaultValueSql.StartsWith('\'')
-                     && defaultValueSql.EndsWith('\''))
+                     && defaultValueSql.EndsWith('\'')
+                     // Not a single string literal, e.g. 'a' || 'b'
+                     && !defaultValueSql[1..^1].Replace("''", "").Contains('\''))
             {
-                defaultValueSql = defaultValueSql[1..^1];
+                defaultValueSql = defaultValueSql[1..^1].Replace("''", "'");
 
                 if (type == typeof(string))
                 {
@@ -469,22 +471,22 @@ ORDER BY "cid"
                     column.DefaultValue = guid;
                 }
                 else if (type == typeof(DateTime)
-                         && DateTime.TryParse(defaultValueSql, out var dateTime))
+                         && DateTime.TryParse(defaultValueSql, CultureInfo.InvariantCulture, out var dateTime))
                 {
                     column.DefaultValue = dateTime;
                 }
                 else if (type == typeof(DateOnly)
-                         && DateOnly.TryParse(defaultValueSql, out var dateOnly))
+                         && DateOnly.TryParse(defaultValueSql, CultureInfo.InvariantCulture, out var dateOnly))
                 {
                     column.DefaultValue = dateOnly;
                 }
                 else if (type == typeof(TimeOnly)
-                         && TimeOnly.TryParse(defaultValueSql, out var timeOnly))
+                         && TimeOnly.TryParse(defaultValueSql, CultureInfo.InvariantCulture, out var timeOnly))
                 {
                     column.DefaultValue = timeOnly;
                 }
                 else if (type == typeof(DateTimeOffset)
-                         && DateTimeOffset.TryParse(defaultValueSql, out var dateTimeOffset))
+                         && DateTimeOffset.TryParse(defaultValueSql, CultureInfo.InvariantCulture, out var dateTimeOffset))
                 {
                     column.DefaultValue = dateTimeOffset;
                 }

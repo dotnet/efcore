@@ -102,7 +102,15 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
 
         // Perform data flow analysis to detect all variables flowing into the query (e.g. captured variables)
         _dataFlowsIn.Clear();
-        foreach (var flowsIn in _semanticModel.AnalyzeDataFlow(node).DataFlowsIn)
+        var dataFlow = _semanticModel.AnalyzeDataFlow(node);
+
+        // Analysis fails when the query is the receiver of an instance call (dotnet/roslyn#86099)
+        for (var parent = node.Parent; !dataFlow.Succeeded && parent is ExpressionSyntax; parent = parent.Parent)
+        {
+            dataFlow = _semanticModel.AnalyzeDataFlow(parent);
+        }
+
+        foreach (var flowsIn in dataFlow.DataFlowsIn)
         {
             _dataFlowsIn[flowsIn] = null;
         }
@@ -418,6 +426,9 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
             case IPropertySymbol s:
                 typeSymbol = s.Type;
                 break;
+            case IParameterSymbol s:
+                typeSymbol = s.Type;
+                break;
             case null:
                 throw new InvalidOperationException($"Identifier without symbol: {identifierName}");
             default:
@@ -453,6 +464,19 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
                             ResolveType(localSymbol.Type),
                             localSymbol.Name,
                             localSymbol.NullableAnnotation is NullableAnnotation.NotAnnotated)));
+        }
+
+        if (symbol is IParameterSymbol parameterSymbol && _dataFlowsIn.TryGetValue(parameterSymbol, out memberExpression))
+        {
+            return memberExpression
+                ?? (_dataFlowsIn[parameterSymbol] =
+                    Field(
+                        Constant(new FakeClosureFrameClass()),
+                        new FakeFieldInfo(
+                            typeof(FakeClosureFrameClass),
+                            ResolveType(parameterSymbol.Type),
+                            parameterSymbol.Name,
+                            parameterSymbol.NullableAnnotation is NullableAnnotation.NotAnnotated)));
         }
 
         throw new InvalidOperationException(

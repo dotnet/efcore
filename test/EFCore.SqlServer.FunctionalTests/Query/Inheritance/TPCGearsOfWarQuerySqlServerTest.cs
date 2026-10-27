@@ -4658,77 +4658,6 @@ LEFT JOIN (
 """);
     }
 
-    public override async Task ToString_enum_property_projection(bool async)
-    {
-        await base.ToString_enum_property_projection(async);
-
-        AssertSql(
-            """
-SELECT CASE [u].[Rank]
-    WHEN 0 THEN N'None'
-    WHEN 1 THEN N'Private'
-    WHEN 2 THEN N'Corporal'
-    WHEN 4 THEN N'Sergeant'
-    WHEN 8 THEN N'Lieutenant'
-    WHEN 16 THEN N'Captain'
-    WHEN 32 THEN N'Major'
-    WHEN 64 THEN N'Colonel'
-    WHEN 128 THEN N'General'
-    ELSE CAST([u].[Rank] AS nvarchar(max))
-END
-FROM (
-    SELECT [g].[Rank]
-    FROM [Gears] AS [g]
-    UNION ALL
-    SELECT [o].[Rank]
-    FROM [Officers] AS [o]
-) AS [u]
-""");
-    }
-
-    public override async Task ToString_nullable_enum_property_projection(bool async)
-    {
-        await base.ToString_nullable_enum_property_projection(async);
-
-        AssertSql(
-            """
-SELECT CASE [w].[AmmunitionType]
-    WHEN 1 THEN N'Cartridge'
-    WHEN 2 THEN N'Shell'
-    ELSE ISNULL(CAST([w].[AmmunitionType] AS nvarchar(max)), N'')
-END
-FROM [Weapons] AS [w]
-""");
-    }
-
-    public override async Task ToString_enum_contains(bool async)
-    {
-        await base.ToString_enum_contains(async);
-
-        AssertSql(
-            """
-SELECT [m].[CodeName]
-FROM [Missions] AS [m]
-WHERE [m].[Difficulty] LIKE N'%Med%'
-""");
-    }
-
-    public override async Task ToString_nullable_enum_contains(bool async)
-    {
-        await base.ToString_nullable_enum_contains(async);
-
-        AssertSql(
-            """
-SELECT [w].[Name]
-FROM [Weapons] AS [w]
-WHERE CASE [w].[AmmunitionType]
-    WHEN 1 THEN N'Cartridge'
-    WHEN 2 THEN N'Shell'
-    ELSE ISNULL(CAST([w].[AmmunitionType] AS nvarchar(max)), N'')
-END LIKE N'%Cart%'
-""");
-    }
-
     public override async Task Correlated_collections_naked_navigation_with_ToList(bool async)
     {
         await base.Correlated_collections_naked_navigation_with_ToList(async);
@@ -7162,15 +7091,7 @@ FROM (
 
         AssertSql(
             """
-SELECT ISNULL((
-    SELECT TOP(1) [w].[Id]
-    FROM [Weapons] AS [w]
-    WHERE [u].[FullName] = [w].[OwnerFullName]
-    ORDER BY [w].[Id]), (
-    SELECT TOP(1) [w0].[Id]
-    FROM [Weapons] AS [w0]
-    WHERE [u].[FullName] = [w0].[OwnerFullName]
-    ORDER BY [w0].[Id]))
+SELECT [w1].[Id]
 FROM (
     SELECT [g].[FullName]
     FROM [Gears] AS [g]
@@ -7178,6 +7099,14 @@ FROM (
     SELECT [o].[FullName]
     FROM [Officers] AS [o]
 ) AS [u]
+LEFT JOIN (
+    SELECT [w0].[Id], [w0].[OwnerFullName]
+    FROM (
+        SELECT [w].[Id], [w].[OwnerFullName], ROW_NUMBER() OVER(PARTITION BY [w].[OwnerFullName] ORDER BY [w].[Id]) AS [row]
+        FROM [Weapons] AS [w]
+    ) AS [w0]
+    WHERE [w0].[row] <= 1
+) AS [w1] ON [u].[FullName] = [w1].[OwnerFullName]
 """);
     }
 
@@ -7867,6 +7796,17 @@ ORDER BY CASE
     WHEN [u].[LeaderNickname] IS NOT NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
+""");
+    }
+
+    public override async Task New_Date_Expressions_in_projection(bool async)
+    {
+        await base.New_Date_Expressions_in_projection(async);
+
+        AssertSql(
+            """
+SELECT [m].[Date], CAST('08:00:00' AS time), CAST('2020-01-02' AS date), [m].[Time], CAST('2020-01-02T08:00:00.0000000' AS datetime2)
+FROM [Missions] AS [m]
 """);
     }
 
@@ -11195,7 +11135,7 @@ ORDER BY [u].[Nickname], [u].[SquadId], [w0].[IsAutomatic]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([m].[Rating]), 0.0E0)
+SELECT ISNULL(SUM([m].[Rating]), 0.0E0)
 FROM [Missions] AS [m]
 WHERE [m].[CodeName] = N'Operation Foobar'
 """);
@@ -11402,7 +11342,7 @@ FROM (
 
         AssertSql(
             """
-SELECT COALESCE(SUM([m].[Rating]), 0.0E0)
+SELECT ISNULL(SUM([m].[Rating]), 0.0E0)
 FROM [Missions] AS [m]
 GROUP BY [m].[CodeName]
 """);

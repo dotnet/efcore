@@ -111,7 +111,7 @@ public class StructuralTypeProjectionExpression : Expression, IPrintableExpressi
         if (!_propertyExpressionsMap.TryGetValue(property, out var expression))
         {
             expression = new ScalarAccessExpression(
-                Object, property.GetJsonPropertyName(), property.ClrType, property.GetTypeMapping());
+                Object, property.GetJsonPropertyName(), property.ClrType.UnwrapNullableType(), property.GetTypeMapping());
             _propertyExpressionsMap[property] = expression;
         }
 

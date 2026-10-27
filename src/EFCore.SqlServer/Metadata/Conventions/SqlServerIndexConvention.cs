@@ -18,6 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 /// </remarks>
 public class SqlServerIndexConvention :
     IEntityTypeBaseTypeChangedConvention,
+    IDiscriminatorPropertySetConvention,
     IIndexAddedConvention,
     IIndexUniquenessChangedConvention,
     IIndexAnnotationChangedConvention,
@@ -72,6 +73,34 @@ public class SqlServerIndexConvention :
             foreach (var index in entityTypeBuilder.Metadata.GetDeclaredIndexes())
             {
                 SetIndexFilter(index.Builder);
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Called after a discriminator property is set.
+    /// </summary>
+    /// <param name="structuralTypeBuilder">The builder for the type.</param>
+    /// <param name="name">The name of the discriminator property.</param>
+    /// <param name="context">Additional information associated with convention execution.</param>
+    public virtual void ProcessDiscriminatorPropertySet(
+        IConventionTypeBaseBuilder structuralTypeBuilder,
+        string? name,
+        IConventionContext<string?> context)
+    {
+        if (structuralTypeBuilder is not IConventionEntityTypeBuilder entityTypeBuilder)
+        {
+            return;
+        }
+
+        // Whether the columns of derived types are nullable depends on the mapping strategy, which is only known
+        // for sure once the discriminator is removed for TPT and TPC hierarchies. Regenerate existing filters too, since
+        // the set of nullable columns may have shrunk; a filter configured explicitly is still not overridden.
+        foreach (var entityType in entityTypeBuilder.Metadata.GetDerivedTypesInclusive())
+        {
+            foreach (var index in entityType.GetDeclaredIndexes())
+            {
+                SetIndexFilter(index.Builder, regenerate: true);
             }
         }
     }
@@ -151,19 +180,19 @@ public class SqlServerIndexConvention :
         {
             foreach (var index in propertyBuilder.Metadata.GetContainingIndexes())
             {
-                SetIndexFilter(index.Builder, columnNameChanged: true);
+                SetIndexFilter(index.Builder, regenerate: true);
             }
         }
     }
 
-    private void SetIndexFilter(IConventionIndexBuilder indexBuilder, bool columnNameChanged = false)
+    private void SetIndexFilter(IConventionIndexBuilder indexBuilder, bool regenerate = false)
     {
         var index = indexBuilder.Metadata;
         if (index.IsUnique
             && index.IsClustered() != true
             && GetNullableColumns(index) is { Count: > 0 } nullableColumns)
         {
-            if (columnNameChanged
+            if (regenerate
                 || index.GetFilter() == null)
             {
                 indexBuilder.HasFilter(CreateIndexFilter(nullableColumns));

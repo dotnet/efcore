@@ -48,6 +48,12 @@ public class CSharpHelperTest
          "-3.402823E+38f"), InlineData(
          3.402823E+38f, // Single MaxValue
          "3.402823E+38f"), InlineData(
+         float.NegativeInfinity,
+         "float.NegativeInfinity"), InlineData(
+         float.PositiveInfinity,
+         "float.PositiveInfinity"), InlineData(
+         float.NaN,
+         "float.NaN"), InlineData(
          42,
          "42"), InlineData(
          42L,
@@ -77,6 +83,24 @@ public class CSharpHelperTest
     }
 
     [Fact]
+    public void Literal_escapes_unicode_newline_characters_in_string()
+    {
+        // U+2028 (LINE SEPARATOR), U+2029 (PARAGRAPH SEPARATOR) and U+0085 (NEXT LINE) are treated as
+        // new-line characters by the C# compiler, so leaving them unescaped produces code that does not compile.
+        Assert.Equal("\"a\\u2028b\"", new CSharpHelper(TypeMappingSource).Literal("a" + (char)0x2028 + "b"));
+        Assert.Equal("\"a\\u2029b\"", new CSharpHelper(TypeMappingSource).Literal("a" + (char)0x2029 + "b"));
+        Assert.Equal("\"a\\u0085b\"", new CSharpHelper(TypeMappingSource).Literal("a" + (char)0x0085 + "b"));
+    }
+
+    [Fact]
+    public void Literal_escapes_unicode_newline_characters_in_char()
+    {
+        Assert.Equal("'\\u2028'", new CSharpHelper(TypeMappingSource).Literal((char)0x2028));
+        Assert.Equal("'\\u2029'", new CSharpHelper(TypeMappingSource).Literal((char)0x2029));
+        Assert.Equal("'\\u0085'", new CSharpHelper(TypeMappingSource).Literal((char)0x0085));
+    }
+
+    [Fact]
     public void Literal_works_when_empty_ByteArray()
         => Literal_works(
             Array.Empty<byte>(),
@@ -93,6 +117,18 @@ public class CSharpHelperTest
         => Literal_works(
             new byte[] { 1, 2 },
             "new byte[] { 1, 2 }");
+
+    [Fact]
+    public void Literal_works_when_nullable_value_type_array()
+        => Literal_works(
+            new int?[] { 1, 2 },
+            "new int?[] { 1, 2 }");
+
+    [Fact]
+    public void Literal_works_when_nullable_value_type_array_with_null_element()
+        => Literal_works(
+            new int?[] { 1, null, 3 },
+            "new int?[] { 1, null, 3 }");
 
     [Fact]
     public void Literal_works_when_empty_list()
@@ -175,6 +211,18 @@ public class CSharpHelperTest
     [Fact]
     public void Literal_works_when_value_tuple_of_length_9()
         => Literal_works((1, 2, 3, 4, 5, 6, 7, 8, 9), "(1, 2, 3, 4, 5, 6, 7, 8, 9)");
+
+    [Fact, UseCulture("sv-SE")]
+    public void Literal_works_when_negative_integers_with_non_ASCII_negative_sign()
+    {
+        Assert.Equal("(sbyte)-1", new CSharpHelper(TypeMappingSource).UnknownLiteral((sbyte)-1));
+        Assert.Equal("(short)-1", new CSharpHelper(TypeMappingSource).UnknownLiteral((short)-1));
+        Assert.Equal("-1", new CSharpHelper(TypeMappingSource).UnknownLiteral(-1));
+        Assert.Equal("-1L", new CSharpHelper(TypeMappingSource).UnknownLiteral(-1L));
+        Assert.Equal(
+            "(CSharpHelperTest.SomeSByteEnum)(sbyte)-1",
+            new CSharpHelper(TypeMappingSource).UnknownLiteral((SomeSByteEnum)(-1)));
+    }
 
     [Fact, UseCulture("de-DE")]
     public void Literal_works_when_DateTime()
@@ -275,6 +323,13 @@ public class CSharpHelperTest
     public void Literal_works_when_enum_value_is_unnamed(object value, string expected)
         => Assert.Equal(expected, new CSharpHelper(TypeMappingSource).UnknownLiteral(value));
 
+    [Theory, InlineData(SomeFlagsEnum.One | SomeFlagsEnum.Two, "CSharpHelperTest.SomeFlagsEnum.One | CSharpHelperTest.SomeFlagsEnum.Two"),
+     InlineData((SomeFlagsEnum)4, "(CSharpHelperTest.SomeFlagsEnum)4"),
+     InlineData((SomeFlagsEnum)5, "CSharpHelperTest.SomeFlagsEnum.One | (CSharpHelperTest.SomeFlagsEnum)4"),
+     InlineData((SomeFlagsEnum)7, "CSharpHelperTest.SomeFlagsEnum.One | CSharpHelperTest.SomeFlagsEnum.Two | (CSharpHelperTest.SomeFlagsEnum)4")]
+    public void Literal_works_when_flags_enum_value_has_unnamed_bits(object value, string expected)
+        => Assert.Equal(expected, new CSharpHelper(TypeMappingSource).UnknownLiteral(value));
+
     [Theory, InlineData(typeof(int), "int"), InlineData(typeof(int?), "int?"), InlineData(typeof(int[]), "int[]"),
      InlineData(typeof(int[,]), "int[,]"), InlineData(typeof(int[][]), "int[][]"), InlineData(typeof(Generic<int>), "Generic<int>"),
      InlineData(typeof(Nested), "CSharpHelperTest.Nested"), InlineData(typeof(Generic<Generic<int>>), "Generic<Generic<int>>"),
@@ -300,6 +355,14 @@ public class CSharpHelperTest
     private enum SomeSByteEnum : sbyte
     {
         Default
+    }
+
+    [Flags]
+    private enum SomeFlagsEnum
+    {
+        Default = 0,
+        One = 1,
+        Two = 2
     }
 
     [Theory, InlineData("dash-er", "dasher"), InlineData("params", "@params"), InlineData("true", "@true"),

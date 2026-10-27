@@ -558,8 +558,10 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
 
             case SqlServerValueGenerationStrategy.SequenceHiLo:
             {
-                var name = GetAndRemove<string>(annotations, SqlServerAnnotationNames.HiLoSequenceName);
-                var schema = GetAndRemove<string>(annotations, SqlServerAnnotationNames.HiLoSequenceSchema);
+                var name = GetAndRemove<string>(annotations, SqlServerAnnotationNames.HiLoSequenceName)
+                    ?? (onModel ? null : model.GetHiLoSequenceName());
+                var schema = GetAndRemove<string>(annotations, SqlServerAnnotationNames.HiLoSequenceSchema)
+                    ?? (onModel ? null : model.GetHiLoSequenceSchema());
                 return new MethodCallCodeFragment(
                     onModel
                         ? ModelUseHiLoMethodInfo
