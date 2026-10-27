@@ -60,8 +60,4 @@
     <SystemCommandLineVersion>2.0.13</SystemCommandLineVersion>
   </PropertyGroup>
 
-  <PropertyGroup Label="Product dependencies">
-    <SystemSecurityCryptographyPkcsVersion>$(SystemSecurityCryptographyPkcsPackageVersion)</SystemSecurityCryptographyPkcsVersion>
-  </PropertyGroup>
-
 </Project>
