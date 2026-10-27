@@ -446,6 +446,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 periodType, entityType, periodProperty, periodColumn, expectedColumnName);
 
         /// <summary>
+        ///     The temporal operator '{operatorName}' cannot be used in a compiled query with arguments that vary per invocation. Temporal points in time and ranges are written into the SQL as literals, and a compiled query reuses a single SQL string, so the arguments must be constants. Either use constant arguments, or execute the query without EF.CompileQuery or EF.CompileAsyncQuery.
+        /// </summary>
+        public static string TemporalOperatorRequiresConstantArgumentInCompiledQuery(object? operatorName)
+            => string.Format(
+                GetString("TemporalOperatorRequiresConstantArgumentInCompiledQuery", nameof(operatorName)),
+                operatorName);
+
+        /// <summary>
         ///     Only root entity type should be marked as temporal. Entity type: '{entityType}'.
         /// </summary>
         public static string TemporalOnlyOnRoot(object? entityType)

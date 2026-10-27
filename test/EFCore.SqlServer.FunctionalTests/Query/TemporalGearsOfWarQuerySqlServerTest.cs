@@ -384,6 +384,115 @@ WHERE [g0].[Discriminator] = N'Officer'
         AssertSql();
     }
 
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Compiled_query_TemporalAsOf_with_parameter_reports_guided_error(bool async)
+    {
+        using var ctx = CreateContext();
+        var date = new DateTime(2015, 1, 1);
+
+        var message = async
+            ? (await Assert.ThrowsAsync<InvalidOperationException>(
+                async () => await EF.CompileAsyncQuery(
+                    (GearsOfWarContext c, DateTime d) => c.Cities.TemporalAsOf(d).Select(x => x.Name))(ctx, date).ToListAsync())).Message
+            : Assert.Throws<InvalidOperationException>(
+                () => EF.CompileQuery(
+                    (GearsOfWarContext c, DateTime d) => c.Cities.TemporalAsOf(d).Select(x => x.Name))(ctx, date).ToList()).Message;
+
+        Assert.Equal(
+            SqlServerStrings.TemporalOperatorRequiresConstantArgumentInCompiledQuery(nameof(SqlServerDbSetExtensions.TemporalAsOf)),
+            message);
+
+        AssertSql();
+    }
+
+    public static readonly IEnumerable<object[]> TemporalRangeOperatorData =
+    [
+        [nameof(SqlServerDbSetExtensions.TemporalFromTo), false],
+        [nameof(SqlServerDbSetExtensions.TemporalFromTo), true],
+        [nameof(SqlServerDbSetExtensions.TemporalBetween), false],
+        [nameof(SqlServerDbSetExtensions.TemporalBetween), true],
+        [nameof(SqlServerDbSetExtensions.TemporalContainedIn), false],
+        [nameof(SqlServerDbSetExtensions.TemporalContainedIn), true],
+    ];
+
+    [Theory, MemberData(nameof(TemporalRangeOperatorData))]
+    public virtual async Task Compiled_query_temporal_range_operator_with_parameters_reports_guided_error(string operatorName, bool async)
+    {
+        using var ctx = CreateContext();
+        var from = new DateTime(2015, 1, 1);
+        var to = new DateTime(2018, 1, 1);
+
+        Expression<Func<GearsOfWarContext, DateTime, DateTime, IQueryable<string>>> query = operatorName switch
+        {
+            nameof(SqlServerDbSetExtensions.TemporalFromTo) => (c, f, t) => c.Cities.TemporalFromTo(f, t).Select(x => x.Name),
+            nameof(SqlServerDbSetExtensions.TemporalBetween) => (c, f, t) => c.Cities.TemporalBetween(f, t).Select(x => x.Name),
+            nameof(SqlServerDbSetExtensions.TemporalContainedIn) => (c, f, t) => c.Cities.TemporalContainedIn(f, t).Select(x => x.Name),
+            _ => throw new ArgumentOutOfRangeException(nameof(operatorName)),
+        };
+
+        var message = async
+            ? (await Assert.ThrowsAsync<InvalidOperationException>(
+                async () => await EF.CompileAsyncQuery(query)(ctx, from, to).ToListAsync())).Message
+            : Assert.Throws<InvalidOperationException>(() => EF.CompileQuery(query)(ctx, from, to).ToList()).Message;
+
+        Assert.Equal(SqlServerStrings.TemporalOperatorRequiresConstantArgumentInCompiledQuery(operatorName), message);
+
+        AssertSql();
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Compiled_query_TemporalAsOf_with_constant(bool async)
+    {
+        using var ctx = CreateContext();
+
+        _ = async
+            ? await EF.CompileAsyncQuery(
+                (GearsOfWarContext c) => c.Cities.TemporalAsOf(new DateTime(2015, 1, 1)).Select(x => x.Name))(ctx).ToListAsync()
+            : EF.CompileQuery(
+                (GearsOfWarContext c) => c.Cities.TemporalAsOf(new DateTime(2015, 1, 1)).Select(x => x.Name))(ctx).ToList();
+
+        AssertSql(
+            """
+SELECT [c].[Name]
+FROM [Cities] FOR SYSTEM_TIME AS OF '2015-01-01T00:00:00.0000000' AS [c]
+""");
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Compiled_query_TemporalAsOf_with_captured_variable(bool async)
+    {
+        using var ctx = CreateContext();
+        var date = new DateTime(2015, 1, 1);
+
+        _ = async
+            ? await EF.CompileAsyncQuery(
+                (GearsOfWarContext c) => c.Cities.TemporalAsOf(date).Select(x => x.Name))(ctx).ToListAsync()
+            : EF.CompileQuery(
+                (GearsOfWarContext c) => c.Cities.TemporalAsOf(date).Select(x => x.Name))(ctx).ToList();
+
+        AssertSql(
+            """
+SELECT [c].[Name]
+FROM [Cities] FOR SYSTEM_TIME AS OF '2015-01-01T00:00:00.0000000' AS [c]
+""");
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Compiled_query_TemporalAll(bool async)
+    {
+        using var ctx = CreateContext();
+
+        _ = async
+            ? await EF.CompileAsyncQuery((GearsOfWarContext c) => c.Cities.TemporalAll().Select(x => x.Name))(ctx).ToListAsync()
+            : EF.CompileQuery((GearsOfWarContext c) => c.Cities.TemporalAll().Select(x => x.Name))(ctx).ToList();
+
+        AssertSql(
+            """
+SELECT [c].[Name]
+FROM [Cities] FOR SYSTEM_TIME ALL AS [c]
+""");
+    }
+
     public override async Task Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_inheritance_and_coalesce_result(bool async)
     {
         await base.Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_inheritance_and_coalesce_result(async);

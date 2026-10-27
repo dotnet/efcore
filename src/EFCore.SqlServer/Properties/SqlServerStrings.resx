@@ -385,6 +385,9 @@
   <data name="TemporalNotSupportedForTableSplittingWithInconsistentPeriodMapping" xml:space="preserve">
     <value>When multiple temporal entities are mapped to the same table, their period {periodType} properties must map to the same column. Issue happens for entity type '{entityType}' with period property '{periodProperty}' which is mapped to column '{periodColumn}'. Expected period column name is '{expectedColumnName}'.</value>
   </data>
+  <data name="TemporalOperatorRequiresConstantArgumentInCompiledQuery" xml:space="preserve">
+    <value>The temporal operator '{operatorName}' cannot be used in a compiled query with arguments that vary per invocation. Temporal points in time and ranges are written into the SQL as literals, and a compiled query reuses a single SQL string, so the arguments must be constants. Either use constant arguments, or execute the query without EF.CompileQuery or EF.CompileAsyncQuery.</value>
+  </data>
   <data name="TemporalOnlyOnRoot" xml:space="preserve">
     <value>Only root entity type should be marked as temporal. Entity type: '{entityType}'.</value>
   </data>
