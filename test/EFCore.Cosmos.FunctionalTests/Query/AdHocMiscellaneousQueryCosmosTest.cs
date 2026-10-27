@@ -308,6 +308,84 @@ public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSh
         Assert.Equal(new[] { "exact-second" }, result.Select(x => x.Name).ToArray());
     }
 
+    [Fact]
+    public virtual async Task DateTime_in_List_of_nullable_object_Contains_matches_exact_second_value()
+    {
+        var contextFactory = await Initialize39113ItemsAsync();
+        await using var context = contextFactory.CreateDbContext();
+
+        var dates = new List<object?> { new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc), null };
+        var result = await context.Items.Where(x => dates.Contains(x.Timestamp)).ToListAsync();
+
+        Assert.Equal(new[] { "exact-second" }, result.Select(x => x.Name).ToArray());
+    }
+
+    [Fact]
+    public virtual async Task DateTime_in_heterogeneous_object_array_Contains_matches_exact_second_value()
+    {
+        var contextFactory = await Initialize39113ItemsAsync();
+        await using var context = contextFactory.CreateDbContext();
+
+        var dates = new object?[] { "not a date", null, 42, new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc) };
+        var result = await context.Items.Where(x => dates.Contains(x.Timestamp)).ToListAsync();
+
+        Assert.Equal(new[] { "exact-second" }, result.Select(x => x.Name).ToArray());
+    }
+
+    [Fact]
+    public virtual async Task Mixed_object_collection_of_references_Contains_does_not_throw()
+    {
+        var contextFactory = await Initialize39113ItemsAsync();
+        await using var context = contextFactory.CreateDbContext();
+
+        var names = new List<object> { "exact-second", 1 };
+        var result = await context.Items.Where(x => names.Contains(x.Name)).ToListAsync();
+
+        Assert.Equal(new[] { "exact-second" }, result.Select(x => x.Name).ToArray());
+    }
+
+    [Fact]
+    public virtual async Task FromSql_parameter_uses_model_level_default_type_mapping_conversion()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context39113Converted>(
+            seed: async context =>
+            {
+                context.Items.Add(new Context39113Converted.Item { Id = 1, Name = "converted", Value = new Context39113Converted.Wrapped(42) });
+                context.Items.Add(new Context39113Converted.Item { Id = 2, Name = "other", Value = new Context39113Converted.Wrapped(43) });
+                await context.SaveChangesAsync();
+            });
+        await using var context = contextFactory.CreateDbContext();
+
+        var result = await context.Items
+            .FromSqlRaw("""SELECT * FROM root c WHERE c["Value"] = {0}""", new Context39113Converted.Wrapped(42))
+            .ToListAsync();
+
+        Assert.Equal(new[] { "converted" }, result.Select(x => x.Name).ToArray());
+    }
+
+    protected class Context39113Converted(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Item> Items
+            => Set<Item>();
+
+        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+        {
+            configurationBuilder.DefaultTypeMapping<Wrapped>().HasConversion<WrappedConverter>();
+            configurationBuilder.Properties<Wrapped>().HaveConversion<WrappedConverter>();
+        }
+
+        public readonly record struct Wrapped(int Number);
+
+        public class WrappedConverter() : ValueConverter<Wrapped, int>(v => v.Number, v => new Wrapped(v));
+
+        public class Item
+        {
+            public int Id { get; set; }
+            public string Name { get; set; } = null!;
+            public Wrapped Value { get; set; }
+        }
+    }
+
     private Task<ContextFactory<Context39113>> Initialize39113ItemsAsync()
         => InitializeNonSharedTest<Context39113>(
             seed: async context =>

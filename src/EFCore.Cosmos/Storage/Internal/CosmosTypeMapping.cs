@@ -91,13 +91,14 @@ public class CosmosTypeMapping : CoreTypeMapping
     {
         var normalized = NormalizeValue(value);
 
-        // The reader/writer can only handle values of its own type. For anything else
-        // (e.g. a List<object> passed where the mapping expects IEnumerable<int>),
-        // keep the previous behavior of letting the SDK serialize the raw value.
-        if (normalized is not null && !JsonValueReaderWriter!.ValueType.IsInstanceOfType(normalized))
+        // The reader/writer can only handle values of its own type. Collections of references report 'object' as their
+        // value type, so they are not validated by this check either. Object-backed collections (e.g. a List<object> of
+        // DateTimes) are serialized element by element through the element mapping, so that the elements get the same
+        // representation as stored values. Anything else is left to the SDK serializer, as before.
+        if (normalized is not null
+            && (!JsonValueReaderWriter!.ValueType.IsInstanceOfType(normalized)
+                || (JsonValueReaderWriter.ValueType == typeof(object) && ElementTypeMapping is not null)))
         {
-            // Object-backed collections (e.g. a List<object> of DateTimes) can still be serialized element by element
-            // through the element mapping, so that the elements get the same representation as stored values.
             return TryCreateElementwiseParameter(name, normalized) ?? new SqlValueParameter(name, ConvertToProviderValue(value));
         }
 
@@ -128,29 +129,33 @@ public class CosmosTypeMapping : CoreTypeMapping
         }
 
         var elementType = elementReaderWriter.ValueType;
-        var items = new List<object?>();
-        foreach (var element in elements)
-        {
-            if (element is not null && !elementType.IsInstanceOfType(element))
-            {
-                return null;
-            }
-
-            if (element is null && !elementReaderWriter.HandlesNullWrites)
-            {
-                return null;
-            }
-
-            items.Add(element);
-        }
 
         using var stream = new MemoryStream();
         using (var writer = new Utf8JsonWriter(stream, CosmosClientWrapper.JsonWriterOptions))
         {
             writer.WriteStartArray();
-            foreach (var item in items)
+            foreach (var element in elements)
             {
-                elementReaderWriter.ToJson(writer, item!);
+                if (element is null)
+                {
+                    if (elementReaderWriter.HandlesNullWrites)
+                    {
+                        elementReaderWriter.ToJson(writer, null);
+                    }
+                    else
+                    {
+                        writer.WriteNullValue();
+                    }
+                }
+                else if (elementType.IsInstanceOfType(element))
+                {
+                    elementReaderWriter.ToJson(writer, element);
+                }
+                else
+                {
+                    // The element isn't compatible with the element mapping, so serialize just this element as before.
+                    JsonSerializer.Serialize(writer, element, element.GetType());
+                }
             }
 
             writer.WriteEndArray();
