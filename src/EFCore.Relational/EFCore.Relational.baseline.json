@@ -49,6 +49,9 @@
           "Member": "virtual string[] Columns { get; set; }"
         },
         {
+          "Member": "virtual Microsoft.EntityFrameworkCore.ConstraintDeferrability Deferrability { get; set; }"
+        },
+        {
           "Member": "virtual string Name { get; set; }"
         },
         {
@@ -1308,6 +1311,28 @@
       ]
     },
     {
+      "Type": "enum Microsoft.EntityFrameworkCore.ConstraintDeferrability",
+      "Methods": [
+        {
+          "Member": "ConstraintDeferrability();"
+        }
+      ],
+      "Fields": [
+        {
+          "Member": "const Microsoft.EntityFrameworkCore.ConstraintDeferrability DeferrableInitiallyDeferred",
+          "Value": "2"
+        },
+        {
+          "Member": "const Microsoft.EntityFrameworkCore.ConstraintDeferrability DeferrableInitiallyImmediate",
+          "Value": "1"
+        },
+        {
+          "Member": "const Microsoft.EntityFrameworkCore.ConstraintDeferrability NotDeferrable",
+          "Value": "0"
+        }
+      ]
+    },
+    {
       "Type": "class Microsoft.EntityFrameworkCore.Migrations.Operations.CreateIndexOperation : Microsoft.EntityFrameworkCore.Migrations.Operations.MigrationOperation, Microsoft.EntityFrameworkCore.Migrations.Operations.ITableMigrationOperation",
       "Methods": [
         {
@@ -1376,10 +1401,10 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Migrations.Operations.Builders.OperationBuilder<Microsoft.EntityFrameworkCore.Migrations.Operations.AddCheckConstraintOperation> CheckConstraint(string name, string sql);"
         },
         {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Migrations.Operations.Builders.OperationBuilder<Microsoft.EntityFrameworkCore.Migrations.Operations.AddForeignKeyOperation> ForeignKey(string name, System.Linq.Expressions.Expression<System.Func<TColumns, object>> column, string principalTable, string? principalColumn = null, string? principalSchema = null, Microsoft.EntityFrameworkCore.Migrations.ReferentialAction onUpdate = Microsoft.EntityFrameworkCore.Migrations.ReferentialAction.NoAction, Microsoft.EntityFrameworkCore.Migrations.ReferentialAction onDelete = Microsoft.EntityFrameworkCore.Migrations.ReferentialAction.NoAction);"
+          "Member": "virtual Microsoft.EntityFrameworkCore.Migrations.Operations.Builders.OperationBuilder<Microsoft.EntityFrameworkCore.Migrations.Operations.AddForeignKeyOperation> ForeignKey(string name, System.Linq.Expressions.Expression<System.Func<TColumns, object>> column, string principalTable, string? principalColumn = null, string? principalSchema = null, Microsoft.EntityFrameworkCore.Migrations.ReferentialAction onUpdate = Microsoft.EntityFrameworkCore.Migrations.ReferentialAction.NoAction, Microsoft.EntityFrameworkCore.Migrations.ReferentialAction onDelete = Microsoft.EntityFrameworkCore.Migrations.ReferentialAction.NoAction, Microsoft.EntityFrameworkCore.ConstraintDeferrability deferrability = Microsoft.EntityFrameworkCore.ConstraintDeferrability.NotDeferrable);"
         },
         {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Migrations.Operations.Builders.OperationBuilder<Microsoft.EntityFrameworkCore.Migrations.Operations.AddForeignKeyOperation> ForeignKey(string name, System.Linq.Expressions.Expression<System.Func<TColumns, object>> columns, string principalTable, string[]? principalColumns, string? principalSchema = null, Microsoft.EntityFrameworkCore.Migrations.ReferentialAction onUpdate = Microsoft.EntityFrameworkCore.Migrations.ReferentialAction.NoAction, Microsoft.EntityFrameworkCore.Migrations.ReferentialAction onDelete = Microsoft.EntityFrameworkCore.Migrations.ReferentialAction.NoAction);"
+          "Member": "virtual Microsoft.EntityFrameworkCore.Migrations.Operations.Builders.OperationBuilder<Microsoft.EntityFrameworkCore.Migrations.Operations.AddForeignKeyOperation> ForeignKey(string name, System.Linq.Expressions.Expression<System.Func<TColumns, object>> columns, string principalTable, string[]? principalColumns, string? principalSchema = null, Microsoft.EntityFrameworkCore.Migrations.ReferentialAction onUpdate = Microsoft.EntityFrameworkCore.Migrations.ReferentialAction.NoAction, Microsoft.EntityFrameworkCore.Migrations.ReferentialAction onDelete = Microsoft.EntityFrameworkCore.Migrations.ReferentialAction.NoAction, Microsoft.EntityFrameworkCore.ConstraintDeferrability deferrability = Microsoft.EntityFrameworkCore.ConstraintDeferrability.NotDeferrable);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Migrations.Operations.Builders.OperationBuilder<Microsoft.EntityFrameworkCore.Migrations.Operations.AddPrimaryKeyOperation> PrimaryKey(string name, System.Linq.Expressions.Expression<System.Func<TColumns, object>> columns);"
@@ -4244,6 +4269,9 @@
       "Properties": [
         {
           "Member": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IColumn> Columns { get; }"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.ConstraintDeferrability Deferrability { get; }"
         },
         {
           "Member": "bool IsExcludedFromMigrations { get; }"
@@ -7219,10 +7247,10 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Migrations.Operations.Builders.OperationBuilder<Microsoft.EntityFrameworkCore.Migrations.Operations.AddColumnOperation> AddColumn<T>(string name, string table, string? type = null, bool? unicode = null, int? maxLength = null, bool rowVersion = false, string? schema = null, bool nullable = false, object? defaultValue = null, string? defaultValueSql = null, string? computedColumnSql = null, bool? fixedLength = null, string? comment = null, string? collation = null, int? precision = null, int? scale = null, bool? stored = null);"
         },
         {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Migrations.Operations.Builders.OperationBuilder<Microsoft.EntityFrameworkCore.Migrations.Operations.AddForeignKeyOperation> AddForeignKey(string name, string table, string column, string principalTable, string? schema = null, string? principalSchema = null, string? principalColumn = null, Microsoft.EntityFrameworkCore.Migrations.ReferentialAction onUpdate = Microsoft.EntityFrameworkCore.Migrations.ReferentialAction.NoAction, Microsoft.EntityFrameworkCore.Migrations.ReferentialAction onDelete = Microsoft.EntityFrameworkCore.Migrations.ReferentialAction.NoAction);"
+          "Member": "virtual Microsoft.EntityFrameworkCore.Migrations.Operations.Builders.OperationBuilder<Microsoft.EntityFrameworkCore.Migrations.Operations.AddForeignKeyOperation> AddForeignKey(string name, string table, string column, string principalTable, string? schema = null, string? principalSchema = null, string? principalColumn = null, Microsoft.EntityFrameworkCore.Migrations.ReferentialAction onUpdate = Microsoft.EntityFrameworkCore.Migrations.ReferentialAction.NoAction, Microsoft.EntityFrameworkCore.Migrations.ReferentialAction onDelete = Microsoft.EntityFrameworkCore.Migrations.ReferentialAction.NoAction, Microsoft.EntityFrameworkCore.ConstraintDeferrability deferrability = Microsoft.EntityFrameworkCore.ConstraintDeferrability.NotDeferrable);"
         },
         {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Migrations.Operations.Builders.OperationBuilder<Microsoft.EntityFrameworkCore.Migrations.Operations.AddForeignKeyOperation> AddForeignKey(string name, string table, string[] columns, string principalTable, string? schema = null, string? principalSchema = null, string[]? principalColumns = null, Microsoft.EntityFrameworkCore.Migrations.ReferentialAction onUpdate = Microsoft.EntityFrameworkCore.Migrations.ReferentialAction.NoAction, Microsoft.EntityFrameworkCore.Migrations.ReferentialAction onDelete = Microsoft.EntityFrameworkCore.Migrations.ReferentialAction.NoAction);"
+          "Member": "virtual Microsoft.EntityFrameworkCore.Migrations.Operations.Builders.OperationBuilder<Microsoft.EntityFrameworkCore.Migrations.Operations.AddForeignKeyOperation> AddForeignKey(string name, string table, string[] columns, string principalTable, string? schema = null, string? principalSchema = null, string[]? principalColumns = null, Microsoft.EntityFrameworkCore.Migrations.ReferentialAction onUpdate = Microsoft.EntityFrameworkCore.Migrations.ReferentialAction.NoAction, Microsoft.EntityFrameworkCore.Migrations.ReferentialAction onDelete = Microsoft.EntityFrameworkCore.Migrations.ReferentialAction.NoAction, Microsoft.EntityFrameworkCore.ConstraintDeferrability deferrability = Microsoft.EntityFrameworkCore.ConstraintDeferrability.NotDeferrable);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Migrations.Operations.Builders.OperationBuilder<Microsoft.EntityFrameworkCore.Migrations.Operations.AddPrimaryKeyOperation> AddPrimaryKey(string name, string table, string column, string? schema = null);"
@@ -7702,6 +7730,9 @@
         },
         {
           "Member": "virtual void DefaultValue(object? defaultValue, string? defaultValueSql, string? columnType, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
+        },
+        {
+          "Member": "virtual void Deferrability(Microsoft.EntityFrameworkCore.ConstraintDeferrability deferrability, Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder);"
         },
         {
           "Member": "virtual void EndStatement(Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder builder, bool suppressTransaction = false);"
@@ -9329,6 +9360,10 @@
         {
           "Member": "const string DefaultValueSql",
           "Value": "Relational:DefaultValueSql"
+        },
+        {
+          "Member": "const string Deferrability",
+          "Value": "Relational:Deferrability"
         },
         {
           "Member": "const string DeleteStoredProcedure",
@@ -12162,6 +12197,9 @@
           "Member": "static bool CanSetConstraintName(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder relationship, string? name, bool fromDataAnnotation = false);"
         },
         {
+          "Member": "static bool CanSetDeferrability(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder relationship, Microsoft.EntityFrameworkCore.ConstraintDeferrability? deferrability, bool fromDataAnnotation = false);"
+        },
+        {
           "Member": "static bool CanSetExcludeForeignKeyFromMigrations(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder relationship, bool? excluded, bool fromDataAnnotation = false);"
         },
         {
@@ -12205,6 +12243,27 @@
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder? HasConstraintName(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder relationship, string? name, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder HasDeferrability(this Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder referenceCollectionBuilder, Microsoft.EntityFrameworkCore.ConstraintDeferrability deferrability);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder<TEntity, TRelatedEntity> HasDeferrability<TEntity, TRelatedEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder<TEntity, TRelatedEntity> referenceCollectionBuilder, Microsoft.EntityFrameworkCore.ConstraintDeferrability deferrability) where TEntity : class where TRelatedEntity : class;"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder HasDeferrability(this Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder referenceReferenceBuilder, Microsoft.EntityFrameworkCore.ConstraintDeferrability deferrability);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasDeferrability<TEntity, TRelatedEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder<TEntity, TRelatedEntity> referenceReferenceBuilder, Microsoft.EntityFrameworkCore.ConstraintDeferrability deferrability) where TEntity : class where TRelatedEntity : class;"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnershipBuilder HasDeferrability(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnershipBuilder ownershipBuilder, Microsoft.EntityFrameworkCore.ConstraintDeferrability deferrability);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnershipBuilder<TEntity, TDependentEntity> HasDeferrability<TEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnershipBuilder<TEntity, TDependentEntity> ownershipBuilder, Microsoft.EntityFrameworkCore.ConstraintDeferrability deferrability) where TEntity : class where TDependentEntity : class;"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder? HasDeferrability(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder relationship, Microsoft.EntityFrameworkCore.ConstraintDeferrability? deferrability, bool fromDataAnnotation = false);"
         }
       ]
     },
@@ -12239,6 +12298,12 @@
           "Member": "static string? GetDefaultName(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyForeignKey foreignKey, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier principalStoreObject);"
         },
         {
+          "Member": "static Microsoft.EntityFrameworkCore.ConstraintDeferrability GetDeferrability(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyForeignKey foreignKey);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetDeferrabilityConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionForeignKey foreignKey);"
+        },
+        {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetIsExcludedFromMigrationsConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionForeignKey foreignKey);"
         },
         {
@@ -12255,6 +12320,12 @@
         },
         {
           "Member": "static string? SetConstraintName(this Microsoft.EntityFrameworkCore.Metadata.IConventionForeignKey foreignKey, string? value, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static void SetDeferrability(this Microsoft.EntityFrameworkCore.Metadata.IMutableForeignKey foreignKey, Microsoft.EntityFrameworkCore.ConstraintDeferrability? deferrability);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.ConstraintDeferrability? SetDeferrability(this Microsoft.EntityFrameworkCore.Metadata.IConventionForeignKey foreignKey, Microsoft.EntityFrameworkCore.ConstraintDeferrability? deferrability, bool fromDataAnnotation = false);"
         },
         {
           "Member": "static void SetIsExcludedFromMigrations(this Microsoft.EntityFrameworkCore.Metadata.IMutableForeignKey foreignKey, bool? excluded);"
@@ -15146,6 +15217,9 @@
         },
         {
           "Member": "static string DuplicateForeignKeyColumnMismatch(object? foreignKeyProperties1, object? entityType1, object? foreignKeyProperties2, object? entityType2, object? table, object? foreignKeyName, object? columnNames1, object? columnNames2);"
+        },
+        {
+          "Member": "static string DuplicateForeignKeyDeferrabilityMismatch(object? foreignKeyProperties1, object? entityType1, object? foreignKeyProperties2, object? entityType2, object? table, object? foreignKeyName, object? deferrability1, object? deferrability2);"
         },
         {
           "Member": "static string DuplicateForeignKeyDeleteBehaviorMismatch(object? foreignKeyProperties1, object? entityType1, object? foreignKeyProperties2, object? entityType2, object? table, object? foreignKeyName, object? deleteBehavior1, object? deleteBehavior2);"
