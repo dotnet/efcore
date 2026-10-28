@@ -46,7 +46,7 @@ public static class SingleQueryingEnumerable
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, IRelationalQueryingEnumerable
+public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, IRelationalBatchQueryingEnumerable
 {
     private readonly RelationalQueryContext _relationalQueryContext;
     private readonly RelationalCommandResolver _relationalCommandResolver;
@@ -149,6 +149,135 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
         return _relationalQueryContext.RelationalQueryStringFactory.Create(dbCommand);
     }
 
+    RelationalQueryContext IRelationalBatchQueryingEnumerable.QueryContext
+        => _relationalQueryContext;
+
+    IReadOnlyList<ReaderColumn?>? IRelationalBatchQueryingEnumerable.ReaderColumns
+        => _readerColumns;
+
+    bool IRelationalBatchQueryingEnumerable.ThreadSafetyChecksEnabled
+        => _threadSafetyChecksEnabled;
+
+    bool IRelationalBatchQueryingEnumerable.DetailedErrorsEnabled
+        => _detailedErrorsEnabled;
+
+    IRelationalCommandTemplate IRelationalBatchQueryingEnumerable.ResolveCommandTemplate(string parameterNamePrefix)
+        => _relationalCommandResolver.ResolveForBatch(_relationalQueryContext.Parameters, parameterNamePrefix);
+
+    IEnumerator<TResult> IRelationalBatchQueryingEnumerable.MaterializeResultSet<TResult>(RelationalDataReader dataReader)
+        => new BatchResultSetEnumerator(this, dataReader) as IEnumerator<TResult>
+            ?? throw new InvalidOperationException(
+                RelationalStrings.BatchQueryResultTypeMismatch(
+                    typeof(T).ShortDisplayName(), typeof(TResult).ShortDisplayName()));
+
+    IAsyncEnumerator<TResult> IRelationalBatchQueryingEnumerable.MaterializeResultSetAsync<TResult>(
+        RelationalDataReader dataReader,
+        CancellationToken cancellationToken)
+        => new BatchResultSetEnumerator(this, dataReader, cancellationToken) as IAsyncEnumerator<TResult>
+            ?? throw new InvalidOperationException(
+                RelationalStrings.BatchQueryResultTypeMismatch(
+                    typeof(T).ShortDisplayName(), typeof(TResult).ShortDisplayName()));
+
+    private static bool MoveNextCore(
+        RelationalQueryContext relationalQueryContext,
+        RelationalDataReader dataReader,
+        DbDataReader dbDataReader,
+        SingleQueryResultCoordinator resultCoordinator,
+        Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, T> shaper,
+        out T current)
+    {
+        var hasNext = resultCoordinator.HasNext ?? dataReader.Read();
+
+        if (hasNext)
+        {
+            while (true)
+            {
+                resultCoordinator.ResultReady = true;
+                resultCoordinator.HasNext = null;
+                current = shaper(relationalQueryContext, dbDataReader, resultCoordinator.ResultContext, resultCoordinator);
+                if (resultCoordinator.ResultReady)
+                {
+                    // We generated a result so null out previously stored values
+                    resultCoordinator.ResultContext.Values = null;
+                    break;
+                }
+
+                // If we are already pointing to next row, we don't need to call Read
+                if (resultCoordinator.HasNext == true)
+                {
+                    continue;
+                }
+
+                if (!dataReader.Read())
+                {
+                    resultCoordinator.HasNext = false;
+                    // Enumeration has ended, materialize last element
+                    resultCoordinator.ResultReady = true;
+                    current = shaper(relationalQueryContext, dbDataReader, resultCoordinator.ResultContext, resultCoordinator);
+
+                    break;
+                }
+            }
+        }
+        else
+        {
+            current = default!;
+        }
+
+        return hasNext;
+    }
+
+    private static async ValueTask<(bool HasNext, T Current)> MoveNextCoreAsync(
+        RelationalQueryContext relationalQueryContext,
+        RelationalDataReader dataReader,
+        DbDataReader dbDataReader,
+        SingleQueryResultCoordinator resultCoordinator,
+        Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, T> shaper,
+        CancellationToken cancellationToken)
+    {
+        T current;
+        var hasNext = resultCoordinator.HasNext
+            ?? await dataReader.ReadAsync(cancellationToken).ConfigureAwait(false);
+
+        if (hasNext)
+        {
+            while (true)
+            {
+                resultCoordinator.ResultReady = true;
+                resultCoordinator.HasNext = null;
+                current = shaper(relationalQueryContext, dbDataReader, resultCoordinator.ResultContext, resultCoordinator);
+                if (resultCoordinator.ResultReady)
+                {
+                    // We generated a result so null out previously stored values
+                    resultCoordinator.ResultContext.Values = null;
+                    break;
+                }
+
+                // If we are already pointing to next row, we don't need to call Read
+                if (resultCoordinator.HasNext == true)
+                {
+                    continue;
+                }
+
+                if (!await dataReader.ReadAsync(cancellationToken).ConfigureAwait(false))
+                {
+                    resultCoordinator.HasNext = false;
+                    // Enumeration has ended, materialize last element
+                    resultCoordinator.ResultReady = true;
+                    current = shaper(relationalQueryContext, dbDataReader, resultCoordinator.ResultContext, resultCoordinator);
+
+                    break;
+                }
+            }
+        }
+        else
+        {
+            current = default!;
+        }
+
+        return (hasNext, current);
+    }
+
     private sealed class Enumerator : IEnumerator<T>
     {
         private readonly RelationalQueryContext _relationalQueryContext;
@@ -202,45 +331,9 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
                         this, static (_, enumerator) => InitializeReader(enumerator), null);
                 }
 
-                var hasNext = _resultCoordinator!.HasNext ?? _dataReader!.Read();
-
-                if (hasNext)
-                {
-                    while (true)
-                    {
-                        _resultCoordinator.ResultReady = true;
-                        _resultCoordinator.HasNext = null;
-                        Current = _shaper(
-                            _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
-                        if (_resultCoordinator.ResultReady)
-                        {
-                            // We generated a result so null out previously stored values
-                            _resultCoordinator.ResultContext.Values = null;
-                            break;
-                        }
-
-                        // If we are already pointing to next row, we don't need to call Read
-                        if (_resultCoordinator.HasNext == true)
-                        {
-                            continue;
-                        }
-
-                        if (!_dataReader!.Read())
-                        {
-                            _resultCoordinator.HasNext = false;
-                            // Enumeration has ended, materialize last element
-                            _resultCoordinator.ResultReady = true;
-                            Current = _shaper(
-                                _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
-
-                            break;
-                        }
-                    }
-                }
-                else
-                {
-                    Current = default!;
-                }
+                var hasNext = MoveNextCore(
+                    _relationalQueryContext, _dataReader!, _dbDataReader!, _resultCoordinator!, _shaper, out var current);
+                Current = current;
 
                 return hasNext;
             }
@@ -355,46 +448,10 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
                         .ConfigureAwait(false);
                 }
 
-                var hasNext = _resultCoordinator!.HasNext
-                    ?? await _dataReader!.ReadAsync(_cancellationToken).ConfigureAwait(false);
-
-                if (hasNext)
-                {
-                    while (true)
-                    {
-                        _resultCoordinator.ResultReady = true;
-                        _resultCoordinator.HasNext = null;
-                        Current = _shaper(
-                            _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
-                        if (_resultCoordinator.ResultReady)
-                        {
-                            // We generated a result so null out previously stored values
-                            _resultCoordinator.ResultContext.Values = null;
-                            break;
-                        }
-
-                        // If we are already pointing to next row, we don't need to call Read
-                        if (_resultCoordinator.HasNext == true)
-                        {
-                            continue;
-                        }
-
-                        if (!await _dataReader!.ReadAsync(_cancellationToken).ConfigureAwait(false))
-                        {
-                            _resultCoordinator.HasNext = false;
-                            // Enumeration has ended, materialize last element
-                            _resultCoordinator.ResultReady = true;
-                            Current = _shaper(
-                                _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
-
-                            break;
-                        }
-                    }
-                }
-                else
-                {
-                    Current = default!;
-                }
+                var (hasNext, current) = await MoveNextCoreAsync(
+                        _relationalQueryContext, _dataReader!, _dbDataReader!, _resultCoordinator!, _shaper, _cancellationToken)
+                    .ConfigureAwait(false);
+                Current = current;
 
                 return hasNext;
             }
@@ -454,5 +511,132 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
 
             return default;
         }
+    }
+
+    private sealed class BatchResultSetEnumerator : IEnumerator<T>, IAsyncEnumerator<T>
+    {
+        private readonly RelationalQueryContext _relationalQueryContext;
+        private readonly Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, T> _shaper;
+        private readonly Type _contextType;
+        private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
+        private readonly bool _standAloneStateManager;
+        private readonly IConcurrencyDetector? _concurrencyDetector;
+        private readonly IExceptionDetector _exceptionDetector;
+        private readonly RelationalDataReader _dataReader;
+        private readonly DbDataReader _dbDataReader;
+        private readonly CancellationToken _cancellationToken;
+
+        private SingleQueryResultCoordinator? _resultCoordinator;
+
+        public BatchResultSetEnumerator(
+            SingleQueryingEnumerable<T> queryingEnumerable,
+            RelationalDataReader dataReader,
+            CancellationToken cancellationToken = default)
+        {
+            _relationalQueryContext = queryingEnumerable._relationalQueryContext;
+            _shaper = queryingEnumerable._shaper;
+            _contextType = queryingEnumerable._contextType;
+            _queryLogger = queryingEnumerable._queryLogger;
+            _standAloneStateManager = queryingEnumerable._standAloneStateManager;
+            _exceptionDetector = _relationalQueryContext.ExceptionDetector;
+            _dataReader = dataReader;
+            _dbDataReader = dataReader.DbDataReader;
+            _cancellationToken = cancellationToken;
+            Current = default!;
+
+            _concurrencyDetector = queryingEnumerable._threadSafetyChecksEnabled
+                ? _relationalQueryContext.ConcurrencyDetector
+                : null;
+        }
+
+        public T Current { get; private set; }
+
+        object IEnumerator.Current
+            => Current!;
+
+        public bool MoveNext()
+        {
+            try
+            {
+                using var _ = _concurrencyDetector?.EnterCriticalSection();
+
+                if (_resultCoordinator == null)
+                {
+                    Initialize();
+                }
+
+                var hasNext = MoveNextCore(
+                    _relationalQueryContext, _dataReader, _dbDataReader, _resultCoordinator!, _shaper, out var current);
+                Current = current;
+
+                return hasNext;
+            }
+            catch (Exception exception)
+            {
+                if (_exceptionDetector.IsCancellation(exception))
+                {
+                    _queryLogger.QueryCanceled(_contextType);
+                }
+                else
+                {
+                    _queryLogger.QueryIterationFailed(_contextType, exception);
+                }
+
+                throw;
+            }
+        }
+
+        public async ValueTask<bool> MoveNextAsync()
+        {
+            try
+            {
+                using var _ = _concurrencyDetector?.EnterCriticalSection();
+
+                if (_resultCoordinator == null)
+                {
+                    Initialize();
+                }
+
+                var (hasNext, current) = await MoveNextCoreAsync(
+                        _relationalQueryContext, _dataReader, _dbDataReader, _resultCoordinator!, _shaper, _cancellationToken)
+                    .ConfigureAwait(false);
+                Current = current;
+
+                return hasNext;
+            }
+            catch (Exception exception)
+            {
+                if (_exceptionDetector.IsCancellation(exception, _cancellationToken))
+                {
+                    _queryLogger.QueryCanceled(_contextType);
+                }
+                else
+                {
+                    _queryLogger.QueryIterationFailed(_contextType, exception);
+                }
+
+                throw;
+            }
+        }
+
+        private void Initialize()
+        {
+            EntityFrameworkMetricsData.ReportQueryExecuting();
+
+            _resultCoordinator = new SingleQueryResultCoordinator();
+
+            _relationalQueryContext.InitializeStateManager(_standAloneStateManager);
+        }
+
+        // The data reader is shared across all result sets of the batch and is owned by the BatchResultsReader.
+        public void Dispose()
+        {
+        }
+
+        public ValueTask DisposeAsync()
+            => default;
+
+        public void Reset()
+            => throw new NotSupportedException(CoreStrings.EnumerableResetNotSupported);
     }
 }
