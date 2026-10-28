@@ -21,6 +21,7 @@ public class EnumMethodTranslator : IMethodCallTranslator
         = typeof(object).GetRuntimeMethod(nameof(ToString), [])!;
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
+    private readonly IRelationalTypeMappingSource _typeMappingSource;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -28,8 +29,11 @@ public class EnumMethodTranslator : IMethodCallTranslator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public EnumMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
-        => _sqlExpressionFactory = sqlExpressionFactory;
+    public EnumMethodTranslator(ISqlExpressionFactory sqlExpressionFactory, IRelationalTypeMappingSource typeMappingSource)
+    {
+        _sqlExpressionFactory = sqlExpressionFactory;
+        _typeMappingSource = typeMappingSource;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -73,7 +77,22 @@ public class EnumMethodTranslator : IMethodCallTranslator
                     return _sqlExpressionFactory.Case(instance, whenClauses, elseResult);
 
                 case not null when converterType.GetGenericTypeDefinition() == typeof(EnumToStringConverter<>):
-                    return new ClrTypeChangeExpression(instance, typeof(string), typeMapping: null);
+                    // The operand is emitted as is, so the result must keep describing the stored column (store type, size,
+                    // Unicode-ness, etc.) rather than get a default string mapping. If no converter-free string mapping with the
+                    // same store facets exists, fall back to an explicit conversion.
+                    var operandMapping = instance.TypeMapping;
+                    var stringMapping = _typeMappingSource.FindMapping(
+                        typeof(string),
+                        operandMapping.StoreType,
+                        unicode: operandMapping.IsUnicode,
+                        size: operandMapping.Size,
+                        fixedLength: operandMapping.IsFixedLength,
+                        precision: operandMapping.Precision,
+                        scale: operandMapping.Scale);
+
+                    return stringMapping is { Converter: null, ClrType: var clrType } && clrType == typeof(string)
+                        ? new ClrTypeChangeExpression(instance, typeof(string), stringMapping)
+                        : _sqlExpressionFactory.Convert(instance, typeof(string));
 
                 default:
                     return null;

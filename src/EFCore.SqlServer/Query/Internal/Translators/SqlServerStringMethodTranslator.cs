@@ -16,6 +16,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 /// </summary>
 public class SqlServerStringMethodTranslator(
     ISqlExpressionFactory sqlExpressionFactory,
+    IRelationalTypeMappingSource typeMappingSource,
     ISqlServerSingletonOptions sqlServerSingletonOptions)
     : IMethodCallTranslator
 {
@@ -149,6 +150,17 @@ public class SqlServerStringMethodTranslator(
         instance = sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping);
         oldValue = ApplyStringTypeMapping(oldValue, stringTypeMapping);
         newValue = ApplyStringTypeMapping(newValue, stringTypeMapping);
+
+        // REPLACE returns the type of its first argument, and truncates the result at 8,000 bytes unless that argument is
+        // (n)varchar(max). Since .NET strings are unbounded, widen bounded (n)varchar(n) inputs.
+        // See https://learn.microsoft.com/sql/t-sql/functions/replace-transact-sql#return-types
+        if (instance.TypeMapping is { Size: > 0, StoreTypeNameBase: "nvarchar" or "varchar" } boundedMapping
+            && typeMappingSource.FindMapping(typeof(string), boundedMapping.StoreTypeNameBase, unicode: boundedMapping.IsUnicode, size: -1)
+            is { } maxMapping)
+        {
+            instance = sqlExpressionFactory.Convert(instance, typeof(string), maxMapping);
+            stringTypeMapping = maxMapping;
+        }
 
         return sqlExpressionFactory.Function(
             "REPLACE",

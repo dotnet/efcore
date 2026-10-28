@@ -2714,6 +2714,134 @@ ORDER BY [u].[Id]
 """);
     }
 
+    #region 33733
+
+    [Fact]
+    public virtual async Task String_join_on_non_unicode_string_converted_enum()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context33733>(
+            seed: async context =>
+            {
+                context.Users.AddRange(
+                    new Context33733.User { Group = 1, AnsiRole = Context33733.Role.Admin },
+                    new Context33733.User { Group = 1, AnsiRole = Context33733.Role.User },
+                    new Context33733.User { Group = 2, AnsiRole = Context33733.Role.User });
+                await context.SaveChangesAsync();
+            });
+        using var context = contextFactory.CreateDbContext();
+        ClearLog();
+
+        var query = context.Users
+            .GroupBy(u => u.Group)
+            .OrderBy(g => g.Key)
+            .Select(g => string.Join("|", g.OrderBy(u => u.Id).Select(u => u.AnsiRole.ToString())));
+
+        Assert.Equal(["Admin|User", "User"], await query.ToListAsync());
+
+        // The enum is stored as varchar(20), so the aggregate input and its separator must both be varchar.
+        var sql = TestSqlLoggerFactory.SqlStatements.Single();
+        Assert.Contains("STRING_AGG([u].[AnsiRole], '|')", sql);
+        Assert.DoesNotContain("N'|'", sql);
+    }
+
+    [Fact]
+    public virtual async Task Replace_on_bounded_unicode_string_converted_enum_with_long_replacement()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context33733>(
+            seed: async context =>
+            {
+                context.Users.Add(new Context33733.User { UnicodeRole = Context33733.Role.Admin });
+                await context.SaveChangesAsync();
+            });
+        using var context = contextFactory.CreateDbContext();
+        ClearLog();
+
+        // The result is 5,000 characters, which a bounded nvarchar(20) REPLACE would silently truncate to 4,000.
+        var replacement = new string('x', 5000);
+        var result = await context.Users.Select(u => u.UnicodeRole.ToString().Replace("Admin", replacement)).SingleAsync();
+
+        Assert.Equal(replacement, result);
+        Assert.Contains("REPLACE(CAST([u].[UnicodeRole] AS nvarchar(max))", TestSqlLoggerFactory.SqlStatements.Single());
+    }
+
+    [Fact]
+    public virtual async Task Replace_on_bounded_string_with_long_replacement()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context33733>(
+            seed: async context =>
+            {
+                context.Users.Add(new Context33733.User { Name = "Admin" });
+                await context.SaveChangesAsync();
+            });
+        using var context = contextFactory.CreateDbContext();
+        ClearLog();
+
+        var replacement = new string('x', 5000);
+        var result = await context.Users.Select(u => u.Name.Replace("Admin", replacement)).SingleAsync();
+
+        Assert.Equal(replacement, result);
+        Assert.Contains("REPLACE(CAST([u].[Name] AS nvarchar(max))", TestSqlLoggerFactory.SqlStatements.Single());
+    }
+
+    [Fact]
+    public virtual async Task Replace_on_bounded_non_unicode_string_with_long_replacement()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context33733>(
+            seed: async context =>
+            {
+                context.Users.Add(new Context33733.User { AnsiName = "Admin" });
+                await context.SaveChangesAsync();
+            });
+        using var context = contextFactory.CreateDbContext();
+        ClearLog();
+
+        // A bounded varchar(20) REPLACE would truncate the 5,000-character result to 8,000 bytes.
+        var replacement = new string('x', 5000);
+        var result = await context.Users.Select(u => u.AnsiName.Replace("Admin", replacement)).SingleAsync();
+
+        Assert.Equal(replacement, result);
+
+        // The input must be widened to varchar(max), without promoting anything to Unicode.
+        var sql = TestSqlLoggerFactory.SqlStatements.Single();
+        Assert.Contains("REPLACE(CAST([u].[AnsiName] AS varchar(max)), 'Admin', @", sql);
+        Assert.DoesNotContain("nvarchar", sql);
+        Assert.DoesNotContain("N'", sql);
+    }
+
+    protected class Context33733(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<User> Users { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<User>(b =>
+            {
+                b.Property(u => u.AnsiRole).HasConversion<string>().HasColumnType("varchar(20)");
+                b.Property(u => u.UnicodeRole).HasConversion<string>().HasColumnType("nvarchar(20)");
+                b.Property(u => u.Name).HasMaxLength(20);
+                b.Property(u => u.AnsiName).HasColumnType("varchar(20)");
+            });
+        }
+
+        public class User
+        {
+            public int Id { get; set; }
+            public int Group { get; set; }
+            public Role AnsiRole { get; set; }
+            public Role UnicodeRole { get; set; }
+            public string Name { get; set; } = "";
+            public string AnsiName { get; set; } = "";
+        }
+
+        public enum Role
+        {
+            User,
+            Admin
+        }
+    }
+
+    #endregion
+
     public override async Task Like_on_value_converted_string_column_does_not_produce_cast(bool async)
     {
         await base.Like_on_value_converted_string_column_does_not_produce_cast(async);
