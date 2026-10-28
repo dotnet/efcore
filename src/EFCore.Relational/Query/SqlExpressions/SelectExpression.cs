@@ -2751,12 +2751,23 @@ public sealed partial class SelectExpression : TableExpressionBase
                 var subqueryIdentifyingColumn = (ColumnExpression)subquery.Projection
                     .Single(e => string.Equals(e.Alias, identifyingColumn.Name, StringComparison.OrdinalIgnoreCase))
                     .Expression;
-
+                // when an owned entity projected with a CROSS APPLY, identifying column comes from
+                // the owner table selectExpression instead of the subquery
+                var ownerInSubquery = subquery.ContainsReferencedTable(subqueryIdentifyingColumn);
+                var subquerySelectExpression = ownerInSubquery ? subquery : selectExpression;
+                var prevTableCount = selectExpression._tables.Count;
                 var subqueryPropertyExpressions = GetPropertyExpressions(
-                    sqlExpressionFactory, sqlAliasManager, navigation, subquery, subqueryIdentifyingColumn, allowOwnerJoin);
+                    sqlExpressionFactory, sqlAliasManager, navigation, subquerySelectExpression, subqueryIdentifyingColumn, allowOwnerJoin);
                 if (subqueryPropertyExpressions is null)
                 {
                     return null;
+                }
+
+                if (!ownerInSubquery && selectExpression._tables.Count > prevTableCount)
+                {
+                    // The owned table is appended to this select, after the CROSS APPLY. The subquery can't get
+                    // reference to the separate owned table, so don't add the columns to the subquery projection
+                    return subqueryPropertyExpressions;
                 }
 
                 var changeNullability = identifyingColumn.IsNullable && !subqueryIdentifyingColumn.IsNullable;
