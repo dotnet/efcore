@@ -19,6 +19,9 @@ public class SqlServerDateTimeTypeMapping : DateTimeTypeMapping
     private const string SmallDateTimeFormatConst = "'{0:yyyy-MM-ddTHH:mm:ss}'";
     private const string DateTimeFormatConst = "'{0:yyyy-MM-ddTHH:mm:ss.fff}'";
 
+    // datetime and smalldatetime can't be converted from strings with more than three fractional second digits
+    private static readonly JsonDateTimeReaderWriter DateTimeJsonValueReaderWriter = new("yyyy-MM-dd'T'HH:mm:ss.fffK");
+
     private readonly SqlDbType? _sqlDbType;
 
     // Note: this array will be accessed using the precision as an index
@@ -56,7 +59,11 @@ public class SqlServerDateTimeTypeMapping : DateTimeTypeMapping
         StoreTypePostfix storeTypePostfix = StoreTypePostfix.Precision)
         : this(
             new RelationalTypeMappingParameters(
-                new CoreTypeMappingParameters(typeof(DateTime), jsonValueReaderWriter: JsonDateTimeReaderWriter.Instance),
+                new CoreTypeMappingParameters(
+                    typeof(DateTime),
+                    jsonValueReaderWriter: storeType is "datetime" or "smalldatetime"
+                        ? DateTimeJsonValueReaderWriter
+                        : JsonDateTimeReaderWriter.Instance),
                 storeType,
                 storeTypePostfix,
                 dbType),

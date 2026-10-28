@@ -252,7 +252,7 @@ WHERE (IIF((c["Int"] = @orderId), 0, IIF((c["Int"] > @orderId), 1, IIF((c["Int"]
 
         AssertSql(
             """
-@dateTime='1998-05-04T15:30:10'
+@dateTime='1998-05-04T15:30:10.0000000'
 
 SELECT VALUE c
 FROM root c
@@ -260,7 +260,7 @@ WHERE (IIF((c["DateTime"] = @dateTime), 0, IIF((c["DateTime"] > @dateTime), 1, I
 """,
             //
             """
-@dateTime='1998-05-04T15:30:10'
+@dateTime='1998-05-04T15:30:10.0000000'
 
 SELECT VALUE c
 FROM root c
@@ -268,7 +268,7 @@ WHERE (0 != IIF((c["DateTime"] = @dateTime), 0, IIF((c["DateTime"] > @dateTime),
 """,
             //
             """
-@dateTime='1998-05-04T15:30:10'
+@dateTime='1998-05-04T15:30:10.0000000'
 
 SELECT VALUE c
 FROM root c
@@ -276,7 +276,7 @@ WHERE (IIF((c["DateTime"] = @dateTime), 0, IIF((c["DateTime"] > @dateTime), 1, I
 """,
             //
             """
-@dateTime='1998-05-04T15:30:10'
+@dateTime='1998-05-04T15:30:10.0000000'
 
 SELECT VALUE c
 FROM root c
@@ -284,7 +284,7 @@ WHERE (0 >= IIF((c["DateTime"] = @dateTime), 0, IIF((c["DateTime"] > @dateTime),
 """,
             //
             """
-@dateTime='1998-05-04T15:30:10'
+@dateTime='1998-05-04T15:30:10.0000000'
 
 SELECT VALUE c
 FROM root c
@@ -292,7 +292,7 @@ WHERE (0 < IIF((c["DateTime"] = @dateTime), 0, IIF((c["DateTime"] > @dateTime), 
 """,
             //
             """
-@dateTime='1998-05-04T15:30:10'
+@dateTime='1998-05-04T15:30:10.0000000'
 
 SELECT VALUE c
 FROM root c
