@@ -433,6 +433,12 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
             nameof(RelationalForeignKeyBuilderExtensions.ExcludeForeignKeyFromMigrations),
             methodCallCodeFragments);
 
+        GenerateSimpleFluentApiCall(
+            annotations,
+            RelationalAnnotationNames.Deferrability,
+            nameof(RelationalForeignKeyBuilderExtensions.HasDeferrability),
+            methodCallCodeFragments);
+
         methodCallCodeFragments.AddRange(GenerateFluentApiCallsHelper(foreignKey, annotations, GenerateFluentApi));
 
         return methodCallCodeFragments;

@@ -8593,6 +8593,70 @@ partial class Snapshot : ModelSnapshot
                 o.FindEntityType(typeof(EntityWithTwoProperties))!.GetForeignKeys().First().IsExcludedFromMigrations()));
 
     [Fact]
+    public virtual void ForeignKey_deferrability_is_stored_in_snapshot()
+        => Test(
+            builder => builder.Entity<EntityWithTwoProperties>()
+                .HasOne(e => e.EntityWithOneProperty)
+                .WithOne(e => e.EntityWithTwoProperties)
+                .HasForeignKey<EntityWithTwoProperties>(e => e.AlternateId)
+                .HasDeferrability(ConstraintDeferrability.DeferrableInitiallyDeferred),
+            AddBoilerPlate(
+                GetHeading()
+                + """
+        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty", b =>
+            {
+                var id = b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
+
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(id);
+
+                b.HasKey("Id");
+
+                b.ToTable("EntityWithOneProperty", "DefaultSchema");
+            });
+
+        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithTwoProperties", b =>
+            {
+                var id = b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
+
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(id);
+
+                b.Property<int>("AlternateId")
+                    .HasColumnType("int");
+
+                b.HasKey("Id");
+
+                b.HasIndex("AlternateId")
+                    .IsUnique();
+
+                b.ToTable("EntityWithTwoProperties", "DefaultSchema");
+            });
+
+        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithTwoProperties", b =>
+            {
+                b.HasOne("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty", "EntityWithOneProperty")
+                    .WithOne("EntityWithTwoProperties")
+                    .HasForeignKey("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithTwoProperties", "AlternateId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired()
+                    .HasDeferrability(ConstraintDeferrability.DeferrableInitiallyDeferred);
+
+                b.Navigation("EntityWithOneProperty");
+            });
+
+        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty", b =>
+            {
+                b.Navigation("EntityWithTwoProperties");
+            });
+"""),
+            o => Assert.Equal(
+                ConstraintDeferrability.DeferrableInitiallyDeferred,
+                o.FindEntityType(typeof(EntityWithTwoProperties))!.GetForeignKeys().First().GetDeferrability()));
+
+    [Fact]
     public virtual void ForeignKey_multiple_annotations_are_stored_in_snapshot()
         => Test(
             builder => builder.Entity<EntityWithTwoProperties>()

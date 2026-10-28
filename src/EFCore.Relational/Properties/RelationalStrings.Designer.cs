@@ -580,6 +580,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 foreignKeyProperties1, entityType1, foreignKeyProperties2, entityType2, table, foreignKeyName, deleteBehavior1, deleteBehavior2);
 
         /// <summary>
+        ///     The foreign keys {foreignKeyProperties1} on '{entityType1}' and {foreignKeyProperties2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}', but with different deferrability ('{deferrability1}' and '{deferrability2}').
+        /// </summary>
+        public static string DuplicateForeignKeyDeferrabilityMismatch(object? foreignKeyProperties1, object? entityType1, object? foreignKeyProperties2, object? entityType2, object? table, object? foreignKeyName, object? deferrability1, object? deferrability2)
+            => string.Format(
+                GetString("DuplicateForeignKeyDeferrabilityMismatch", nameof(foreignKeyProperties1), nameof(entityType1), nameof(foreignKeyProperties2), nameof(entityType2), nameof(table), nameof(foreignKeyName), nameof(deferrability1), nameof(deferrability2)),
+                foreignKeyProperties1, entityType1, foreignKeyProperties2, entityType2, table, foreignKeyName, deferrability1, deferrability2);
+
+        /// <summary>
         ///     The foreign keys {foreignKeyProperties1} on '{entityType1}' and {foreignKeyProperties2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}', but with different migration exclusion configurations.
         /// </summary>
         public static string DuplicateForeignKeyExcludedFromMigrationsMismatch(object? foreignKeyProperties1, object? entityType1, object? foreignKeyProperties2, object? entityType2, object? table, object? foreignKeyName)
