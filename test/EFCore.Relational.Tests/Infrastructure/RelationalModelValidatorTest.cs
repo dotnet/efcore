@@ -2128,6 +2128,25 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
             modelBuilder);
     }
 
+    [Fact]
+    public virtual void Detects_duplicate_foreignKey_names_within_hierarchy_with_different_deferrability()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Animal>();
+        modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey(c => c.Name).HasPrincipalKey(p => p.Name)
+            .HasConstraintName("FK_Animal_Person_Name").HasDeferrability(ConstraintDeferrability.DeferrableInitiallyDeferred);
+        modelBuilder.Entity<Dog>().HasOne<Person>().WithMany().HasForeignKey(d => d.Name).HasPrincipalKey(p => p.Name)
+            .HasConstraintName("FK_Animal_Person_Name");
+
+        VerifyError(
+            RelationalStrings.DuplicateForeignKeyDeferrabilityMismatch(
+                "{'" + nameof(Dog.Name) + "'}", nameof(Dog),
+                "{'" + nameof(Cat.Name) + "'}", nameof(Cat),
+                nameof(Animal), "FK_Animal_Person_Name",
+                ConstraintDeferrability.NotDeferrable, ConstraintDeferrability.DeferrableInitiallyDeferred),
+            modelBuilder);
+    }
+
     [Fact] // #28488
     public virtual void Passes_for_table_splitting_foreign_key_with_the_same_truncated_name_as_another_foreign_key()
     {

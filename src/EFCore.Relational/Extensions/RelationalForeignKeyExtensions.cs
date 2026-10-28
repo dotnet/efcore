@@ -331,4 +331,46 @@ public static class RelationalForeignKeyExtensions
     public static ConfigurationSource? GetIsExcludedFromMigrationsConfigurationSource(this IConventionForeignKey foreignKey)
         => foreignKey.FindAnnotation(RelationalAnnotationNames.IsForeignKeyExcludedFromMigrations)
             ?.GetConfigurationSource();
+
+    /// <summary>
+    ///     Returns a value indicating whether checking of the foreign key constraint can be deferred until the end of the transaction.
+    /// </summary>
+    /// <param name="foreignKey">The foreign key.</param>
+    /// <returns>The deferrability of the foreign key constraint.</returns>
+    public static ConstraintDeferrability GetDeferrability(this IReadOnlyForeignKey foreignKey)
+        => foreignKey is RuntimeForeignKey
+            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+            : (ConstraintDeferrability?)foreignKey[RelationalAnnotationNames.Deferrability] ?? ConstraintDeferrability.NotDeferrable;
+
+    /// <summary>
+    ///     Sets a value indicating whether checking of the foreign key constraint can be deferred until the end of the transaction.
+    /// </summary>
+    /// <param name="foreignKey">The foreign key.</param>
+    /// <param name="deferrability">The value to set.</param>
+    public static void SetDeferrability(this IMutableForeignKey foreignKey, ConstraintDeferrability? deferrability)
+        => foreignKey.SetOrRemoveAnnotation(RelationalAnnotationNames.Deferrability, deferrability);
+
+    /// <summary>
+    ///     Sets a value indicating whether checking of the foreign key constraint can be deferred until the end of the transaction.
+    /// </summary>
+    /// <param name="foreignKey">The foreign key.</param>
+    /// <param name="deferrability">The value to set.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    public static ConstraintDeferrability? SetDeferrability(
+        this IConventionForeignKey foreignKey,
+        ConstraintDeferrability? deferrability,
+        bool fromDataAnnotation = false)
+        => (ConstraintDeferrability?)foreignKey.SetOrRemoveAnnotation(
+            RelationalAnnotationNames.Deferrability,
+            deferrability,
+            fromDataAnnotation)?.Value;
+
+    /// <summary>
+    ///     Gets the <see cref="ConfigurationSource" /> for the deferrability of the foreign key constraint.
+    /// </summary>
+    /// <param name="foreignKey">The foreign key.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for the deferrability of the foreign key constraint.</returns>
+    public static ConfigurationSource? GetDeferrabilityConfigurationSource(this IConventionForeignKey foreignKey)
+        => foreignKey.FindAnnotation(RelationalAnnotationNames.Deferrability)?.GetConfigurationSource();
 }

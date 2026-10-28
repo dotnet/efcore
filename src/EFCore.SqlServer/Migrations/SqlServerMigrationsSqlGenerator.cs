@@ -191,6 +191,25 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
     }
 
     /// <summary>
+    ///     Generates a SQL fragment for a foreign key constraint of an <see cref="AddForeignKeyOperation" />.
+    /// </summary>
+    /// <param name="operation">The operation.</param>
+    /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+    /// <param name="builder">The command builder to use to add the SQL fragment.</param>
+    protected override void ForeignKeyConstraint(
+        AddForeignKeyOperation operation,
+        IModel? model,
+        MigrationCommandListBuilder builder)
+    {
+        if (operation.Deferrability != ConstraintDeferrability.NotDeferrable)
+        {
+            throw new NotSupportedException(SqlServerStrings.DeferrableConstraintsNotSupported(operation.Name, operation.Table));
+        }
+
+        base.ForeignKeyConstraint(operation, model, builder);
+    }
+
+    /// <summary>
     ///     Builds commands for the given <see cref="AddPrimaryKeyOperation" /> by making calls on the given
     ///     <see cref="MigrationCommandListBuilder" />.
     /// </summary>

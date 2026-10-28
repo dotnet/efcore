@@ -590,6 +590,24 @@ ALTER TABLE [People] ADD FOREIGN KEY ([SpouseId]) REFERENCES [People];
 """);
     }
 
+    public override void AddForeignKeyOperation_deferrable_initially_deferred()
+    {
+        var ex = Assert.Throws<NotSupportedException>(base.AddForeignKeyOperation_deferrable_initially_deferred);
+        Assert.Equal(SqlServerStrings.DeferrableConstraintsNotSupported("FK_People_People_SpouseId", "People"), ex.Message);
+    }
+
+    public override void AddForeignKeyOperation_deferrable_initially_immediate()
+    {
+        var ex = Assert.Throws<NotSupportedException>(base.AddForeignKeyOperation_deferrable_initially_immediate);
+        Assert.Equal(SqlServerStrings.DeferrableConstraintsNotSupported("FK_People_People_SpouseId", "People"), ex.Message);
+    }
+
+    public override void CreateTableOperation_with_deferrable_foreign_key()
+    {
+        var ex = Assert.Throws<NotSupportedException>(base.CreateTableOperation_with_deferrable_foreign_key);
+        Assert.Equal(SqlServerStrings.DeferrableConstraintsNotSupported("FK_People_People_SpouseId", "People"), ex.Message);
+    }
+
     [Fact]
     public virtual void AlterColumnOperation_computed_column_with_only_clr_type_change_is_noop()
     {

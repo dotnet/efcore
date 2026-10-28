@@ -484,6 +484,90 @@ SELECT AddGeometryColumn('Geometries', 'Geometry', 4326, 'GEOMETRYZM', -1, 0);
         Assert.Equal(SqliteStrings.InvalidMigrationOperation(nameof(AddForeignKeyOperation)), ex.Message);
     }
 
+    public override void AddForeignKeyOperation_deferrable_initially_deferred()
+    {
+        var ex = Assert.Throws<NotSupportedException>(base.AddForeignKeyOperation_deferrable_initially_deferred);
+        Assert.Equal(SqliteStrings.InvalidMigrationOperation(nameof(AddForeignKeyOperation)), ex.Message);
+    }
+
+    public override void AddForeignKeyOperation_deferrable_initially_immediate()
+    {
+        var ex = Assert.Throws<NotSupportedException>(base.AddForeignKeyOperation_deferrable_initially_immediate);
+        Assert.Equal(SqliteStrings.InvalidMigrationOperation(nameof(AddForeignKeyOperation)), ex.Message);
+    }
+
+    public override void CreateTableOperation_with_deferrable_foreign_key()
+    {
+        base.CreateTableOperation_with_deferrable_foreign_key();
+
+        AssertSql(
+            """
+CREATE TABLE "People" (
+    "Id" int NOT NULL CONSTRAINT "PK_People" PRIMARY KEY,
+    "SpouseId" int NULL,
+    CONSTRAINT "FK_People_People_SpouseId" FOREIGN KEY ("SpouseId") REFERENCES "People" ("Id") DEFERRABLE INITIALLY DEFERRED
+);
+""");
+    }
+
+    [Fact]
+    public virtual void Alter_foreign_key_deferrability_rebuilds_table()
+    {
+        Generate(
+            modelBuilder => modelBuilder.Entity(
+                "Person",
+                x =>
+                {
+                    x.ToTable("People");
+                    x.Property<int>("Id");
+                    x.Property<int?>("SpouseId");
+                    x.HasOne("Person").WithMany().HasForeignKey("SpouseId")
+                        .HasDeferrability(ConstraintDeferrability.DeferrableInitiallyDeferred);
+                }),
+            migrationBuilder =>
+            {
+                migrationBuilder.DropForeignKey(
+                    name: "FK_People_People_SpouseId",
+                    table: "People");
+                migrationBuilder.AddForeignKey(
+                    name: "FK_People_People_SpouseId",
+                    table: "People",
+                    column: "SpouseId",
+                    principalTable: "People",
+                    principalColumn: "Id",
+                    deferrability: ConstraintDeferrability.DeferrableInitiallyDeferred);
+            });
+
+        AssertSql(
+            """
+CREATE TABLE "ef_temp_People" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_People" PRIMARY KEY AUTOINCREMENT,
+    "SpouseId" INTEGER NULL,
+    CONSTRAINT "FK_People_People_SpouseId" FOREIGN KEY ("SpouseId") REFERENCES "People" ("Id") DEFERRABLE INITIALLY DEFERRED
+);
+GO
+
+INSERT INTO "ef_temp_People" ("Id", "SpouseId")
+SELECT "Id", "SpouseId"
+FROM "People";
+GO
+
+PRAGMA foreign_keys = 0;
+GO
+
+DROP TABLE "People";
+GO
+
+ALTER TABLE "ef_temp_People" RENAME TO "People";
+GO
+
+PRAGMA foreign_keys = 1;
+GO
+
+CREATE INDEX "IX_People_SpouseId" ON "People" ("SpouseId");
+""");
+    }
+
     public override void AlterColumnOperation_without_column_type()
     {
         var ex = Assert.Throws<NotSupportedException>(base.AlterColumnOperation_without_column_type);

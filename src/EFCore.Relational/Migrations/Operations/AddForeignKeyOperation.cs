@@ -60,6 +60,11 @@ public class AddForeignKeyOperation : MigrationOperation, ITableMigrationOperati
     public virtual ReferentialAction OnDelete { get; set; }
 
     /// <summary>
+    ///     Indicates whether checking of the foreign key constraint can be deferred until the end of the transaction.
+    /// </summary>
+    public virtual ConstraintDeferrability Deferrability { get; set; }
+
+    /// <summary>
     ///     Creates a new <see cref="AddForeignKeyOperation" /> from the specified foreign key.
     /// </summary>
     /// <param name="foreignKey">The foreign key.</param>
@@ -77,7 +82,8 @@ public class AddForeignKeyOperation : MigrationOperation, ITableMigrationOperati
             PrincipalSchema = foreignKey.PrincipalTable.Schema,
             PrincipalTable = foreignKey.PrincipalTable.Name,
             PrincipalColumns = foreignKey.PrincipalColumns.Select(c => c.Name).ToArray(),
-            OnDelete = foreignKey.OnDeleteAction
+            OnDelete = foreignKey.OnDeleteAction,
+            Deferrability = foreignKey.Deferrability
         };
         operation.AddAnnotations(foreignKey.GetAnnotations());
 
