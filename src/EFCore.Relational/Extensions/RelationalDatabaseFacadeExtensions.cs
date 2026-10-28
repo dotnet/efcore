@@ -1008,7 +1008,7 @@ public static class RelationalDatabaseFacadeExtensions
     ///     </para>
     /// </remarks>
     /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
-    /// <param name="timeout">The timeout to use, in seconds.</param>
+    /// <param name="timeout">The timeout to use, in seconds, or <see langword="null" /> to use the default provider timeout.</param>
     /// <returns>An <see cref="IDisposable" /> that resets the command timeout to its previous value when disposed.</returns>
     public static IDisposable UseCommandTimeout(this DatabaseFacade databaseFacade, int? timeout)
         => new CommandTimeoutScope(databaseFacade, timeout);
@@ -1020,7 +1020,8 @@ public static class RelationalDatabaseFacadeExtensions
     /// <remarks>
     ///     <para>
     ///         This is a sugar method allowing a <see cref="TimeSpan" /> to be used to set the value. It delegates to
-    ///         <see cref="UseCommandTimeout(DatabaseFacade,int?)" />.
+    ///         <see cref="UseCommandTimeout(DatabaseFacade,int?)" />. Passing <see cref="Timeout.InfiniteTimeSpan" /> sets
+    ///         the timeout to 0 (infinite).
     ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-connections">Connections and connection strings</see> for more information and examples.
