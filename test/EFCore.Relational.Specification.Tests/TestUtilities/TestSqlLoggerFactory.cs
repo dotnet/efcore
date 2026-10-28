@@ -337,7 +337,8 @@ public class TestSqlLoggerFactory : ListLoggerFactory
                     var parameters = structure.Where(i => i.Key == "parameters").Select(i => (string)i.Value).First();
                     var commandText = structure.Where(i => i.Key == "commandText").Select(i => (string)i.Value).First();
 
-                    if (!string.IsNullOrWhiteSpace(parameters))
+                    if (eventId.Id != RelationalEventId.CommandError.Id
+                        && !string.IsNullOrWhiteSpace(parameters))
                     {
                         Parameters.Add(parameters);
 
@@ -368,11 +369,13 @@ public class TestSqlLoggerFactory : ListLoggerFactory
                     }
 
                     var sqlStatement = parameters + commandText;
-                    SqlStatements.Add(sqlStatement);
-
                     if (eventId.Id == RelationalEventId.CommandError.Id)
                     {
                         FailedSqlStatements.Add(sqlStatement);
+                    }
+                    else
+                    {
+                        SqlStatements.Add(sqlStatement);
                     }
                 }
             }
