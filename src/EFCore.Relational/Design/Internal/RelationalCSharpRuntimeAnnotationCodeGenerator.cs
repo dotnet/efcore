@@ -2467,6 +2467,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
         else
         {
             parameters.Annotations.Remove(RelationalAnnotationNames.IsForeignKeyExcludedFromMigrations);
+            parameters.Annotations.Remove(RelationalAnnotationNames.Deferrability);
         }
 
         base.Generate(foreignKey, parameters);

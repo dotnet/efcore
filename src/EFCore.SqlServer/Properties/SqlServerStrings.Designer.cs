@@ -66,6 +66,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             => GetString("DateTimeOffsetOffsetRequiresTotalMinutes");
 
         /// <summary>
+        ///     The foreign key constraint '{constraint}' on table '{table}' is configured as deferrable, but SQL Server does not support deferrable constraints.
+        /// </summary>
+        public static string DeferrableConstraintsNotSupported(object? constraint, object? table)
+            => string.Format(
+                GetString("DeferrableConstraintsNotSupported", nameof(constraint), nameof(table)),
+                constraint, table);
+
+        /// <summary>
         ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different identity increment values.
         /// </summary>
         public static string DuplicateColumnIdentityIncrementMismatch(object? entityType1, object? property1, object? entityType2, object? property2, object? columnName, object? table)

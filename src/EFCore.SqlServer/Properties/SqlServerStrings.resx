@@ -135,6 +135,9 @@
   <data name="DateTimeOffsetOffsetRequiresTotalMinutes" xml:space="preserve">
     <value>'DateTimeOffset.Offset' cannot be translated on its own; use 'DateTimeOffset.Offset.TotalMinutes' to get the offset in minutes.</value>
   </data>
+  <data name="DeferrableConstraintsNotSupported" xml:space="preserve">
+    <value>The foreign key constraint '{constraint}' on table '{table}' is configured as deferrable, but SQL Server does not support deferrable constraints.</value>
+  </data>
   <data name="DuplicateColumnIdentityIncrementMismatch" xml:space="preserve">
     <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different identity increment values.</value>
   </data>
