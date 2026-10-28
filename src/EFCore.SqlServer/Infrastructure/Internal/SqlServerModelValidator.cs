@@ -57,6 +57,32 @@ public class SqlServerModelValidator(
         ValidateDecimalColumn(property, logger);
     }
 
+    /// <inheritdoc />
+    protected override void ValidateForeignKey(
+        IForeignKey foreignKey,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        base.ValidateForeignKey(foreignKey, logger);
+
+        ValidateForeignKeyDeferrability(foreignKey);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual void ValidateForeignKeyDeferrability(IForeignKey foreignKey)
+    {
+        if (foreignKey.GetDeferrability() != ConstraintDeferrability.NotDeferrable)
+        {
+            throw new InvalidOperationException(
+                SqlServerStrings.DeferrableForeignKeysNotSupported(
+                    foreignKey.Properties.Format(), foreignKey.DeclaringEntityType.DisplayName()));
+        }
+    }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
