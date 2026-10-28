@@ -10772,6 +10772,12 @@
           "Member": "static System.Linq.IQueryable<TResult> SqlQueryRaw<TResult>(this Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade databaseFacade, string sql, params object?[] parameters);"
         },
         {
+          "Member": "static System.IDisposable UseCommandTimeout(this Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade databaseFacade, int? timeout);"
+        },
+        {
+          "Member": "static System.IDisposable UseCommandTimeout(this Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade databaseFacade, System.TimeSpan timeout);"
+        },
+        {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.IDbContextTransaction? UseTransaction(this Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade databaseFacade, System.Data.Common.DbTransaction? transaction);"
         },
         {
