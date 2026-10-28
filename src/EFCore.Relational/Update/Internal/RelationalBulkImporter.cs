@@ -2,11 +2,13 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #pragma warning disable CS1591
+#pragma warning disable EF1001
 
 using System.Text;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -88,7 +90,7 @@ public class RelationalBulkImporter : IBulkImporter
         IProperty Property,
         string ColumnName,
         string DelimitedColumnName,
-        IClrPropertyGetter Getter,
+        Func<object, object?> ValueAccessor,
         ValueConverter? Converter);
 
     private async Task ImportCoreAsync<TEntity>(
@@ -110,8 +112,10 @@ public class RelationalBulkImporter : IBulkImporter
 
         var keepIdentity = options?.KeepIdentity ?? false;
         var columns = new List<PropertyColumn>();
+        var discriminatorProperty = entityType.FindDiscriminatorProperty();
+        var discriminatorValue = entityType.GetDiscriminatorValue();
 
-        foreach (var property in entityType.GetProperties())
+        foreach (var property in entityType.GetFlattenedProperties())
         {
             var columnName = property.GetColumnName(storeObject);
             if (columnName is null)
@@ -119,20 +123,44 @@ public class RelationalBulkImporter : IBulkImporter
                 continue;
             }
 
-            if (property.IsPrimaryKey()
-                && property.ValueGenerated != ValueGenerated.Never
-                && !keepIdentity)
+            // Exclude computed columns or columns marked to ignore before save
+            if (property.GetComputedColumnSql() is not null
+                || property.GetBeforeSaveBehavior() == PropertySaveBehavior.Ignore)
             {
                 continue;
             }
 
-            var getter = property.GetGetter();
-            var converter = property.GetValueConverter() ?? property.FindTypeMapping()?.Converter;
+            // Exclude store-generated identity primary keys unless keepIdentity is requested.
+            // Client-generated keys (such as GUIDs) are preserved.
+            if (property.IsPrimaryKey()
+                && !keepIdentity
+                && property.ValueGenerated == ValueGenerated.OnAdd
+                && property.ClrType != typeof(Guid)
+                && property.GetValueGeneratorFactory() == null)
+            {
+                continue;
+            }
+
+            Func<object, object?> valueAccessor;
+            if (property == discriminatorProperty)
+            {
+                valueAccessor = _ => discriminatorValue;
+            }
+            else if (property.GetGetter() is { } clrGetter)
+            {
+                valueAccessor = entity => clrGetter.GetClrValueUsingContainingEntity(entity);
+            }
+            else
+            {
+                valueAccessor = _ => null;
+            }
+
+            var converter = property.GetTypeMapping().Converter ?? property.GetValueConverter();
             columns.Add(new PropertyColumn(
                 property,
                 columnName,
                 _sqlGenerationHelper.DelimitIdentifier(columnName),
-                getter,
+                valueAccessor,
                 converter));
         }
 
@@ -144,10 +172,20 @@ public class RelationalBulkImporter : IBulkImporter
         var maxBatchSize = options?.BatchSize ?? 1000;
         var maxRowsPerBatch = Math.Max(1, Math.Min(maxBatchSize, 1000 / columns.Count));
 
-        var columnList = string.Join(", ", columns.Select(c => c.DelimitedColumnName));
+        var safeTableName = delimitedTableName.Replace("{", "{{").Replace("}", "}}");
+        var safeColumnList = string.Join(", ", columns.Select(c => c.DelimitedColumnName.Replace("{", "{{").Replace("}", "}}")));
 
-        var shouldManageTransaction = _connection.CurrentTransaction is null;
+        var transactionEnlistManager = _connection as ITransactionEnlistmentManager;
+        var shouldManageTransaction = _connection.CurrentTransaction is null
+            && transactionEnlistManager?.EnlistedTransaction is null
+            && transactionEnlistManager?.CurrentAmbientTransaction is null;
         IDbContextTransaction? transaction = null;
+
+        var previousTimeout = _connection.CommandTimeout;
+        if (options?.Timeout is not null)
+        {
+            _connection.CommandTimeout = options.Timeout;
+        }
 
         await _connection.OpenAsync(cancellationToken).ConfigureAwait(false);
         try
@@ -164,14 +202,14 @@ public class RelationalBulkImporter : IBulkImporter
                 batch.Add(entity);
                 if (batch.Count >= maxRowsPerBatch)
                 {
-                    await ExecuteBatchAsync(batch, delimitedTableName, columnList, columns, cancellationToken).ConfigureAwait(false);
+                    await ExecuteBatchAsync(batch, safeTableName, safeColumnList, columns, cancellationToken).ConfigureAwait(false);
                     batch.Clear();
                 }
             }
 
             if (batch.Count > 0)
             {
-                await ExecuteBatchAsync(batch, delimitedTableName, columnList, columns, cancellationToken).ConfigureAwait(false);
+                await ExecuteBatchAsync(batch, safeTableName, safeColumnList, columns, cancellationToken).ConfigureAwait(false);
             }
 
             if (transaction is not null)
@@ -190,6 +228,11 @@ public class RelationalBulkImporter : IBulkImporter
         }
         finally
         {
+            if (options?.Timeout is not null)
+            {
+                _connection.CommandTimeout = previousTimeout;
+            }
+
             if (transaction is not null)
             {
                 await transaction.DisposeAsync().ConfigureAwait(false);
@@ -234,7 +277,7 @@ public class RelationalBulkImporter : IBulkImporter
                 sqlBuilder.Append(paramName);
 
                 var column = columns[c];
-                var val = column.Getter.GetClrValue(entity);
+                var val = column.ValueAccessor(entity);
                 if (val is not null && column.Converter is not null)
                 {
                     val = column.Converter.ConvertToProvider(val);

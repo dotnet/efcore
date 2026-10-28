@@ -74,7 +74,7 @@ public class SqlServerBulkImporter : IBulkImporter
         var (destinationTable, storeObject) = GetTableAndStoreObject(entityType);
         var keepIdentity = options?.KeepIdentity ?? false;
 
-        var reader = new EntityDataReader<TEntity>(entityType, entities, storeObject, keepIdentity);
+        var reader = new EntityDataReader<TEntity>(entityType, entities, storeObject, keepIdentity, cancellationToken);
         await using (reader.ConfigureAwait(false))
         {
             await ExecuteBulkCopyAsync(reader, reader.ColumnNames, destinationTable, options, cancellationToken).ConfigureAwait(false);
@@ -91,7 +91,7 @@ public class SqlServerBulkImporter : IBulkImporter
 
         var schema = entityType.GetSchema();
         var storeObject = StoreObjectIdentifier.Table(tableName, schema);
-        var destinationTable = schema is not null ? $"[{schema}].[{tableName}]" : $"[{tableName}]";
+        var destinationTable = schema is not null ? $"[{schema.Replace("]", "]]")}].[{tableName.Replace("]", "]]")}]" : $"[{tableName.Replace("]", "]]")}]";
 
         return (destinationTable, storeObject);
     }
@@ -106,7 +106,7 @@ public class SqlServerBulkImporter : IBulkImporter
         var sqlConnection = (SqlConnection)_connection.DbConnection;
         var transaction = (SqlTransaction?)_connection.CurrentTransaction?.GetDbTransaction();
 
-        var bulkOptions = SqlBulkCopyOptions.Default;
+        var bulkOptions = SqlBulkCopyOptions.CheckConstraints | SqlBulkCopyOptions.KeepNulls;
         if (options?.KeepIdentity == true)
         {
             bulkOptions |= SqlBulkCopyOptions.KeepIdentity;

@@ -2,10 +2,12 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #pragma warning disable CS1591
+#pragma warning disable EF1001
 
 using System.Collections;
 using System.Data.Common;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal;
@@ -29,7 +31,7 @@ public sealed class EntityDataReader<TEntity> : DbDataReader
     private readonly record struct PropertyColumnMapping(
         string ColumnName,
         Type ClrType,
-        IClrPropertyGetter Getter,
+        Func<object, object?> ValueAccessor,
         ValueConverter? Converter);
 
     /// <summary>
@@ -60,9 +62,10 @@ public sealed class EntityDataReader<TEntity> : DbDataReader
         IEntityType entityType,
         IAsyncEnumerable<TEntity> source,
         StoreObjectIdentifier storeObject,
-        bool keepIdentity)
+        bool keepIdentity,
+        CancellationToken cancellationToken = default)
     {
-        _asyncEnumerator = source.GetAsyncEnumerator();
+        _asyncEnumerator = source.GetAsyncEnumerator(cancellationToken);
         _mappings = CreateMappings(entityType, storeObject, keepIdentity);
         _ordinals = _mappings.Select((m, i) => (m.ColumnName, Index: i))
             .ToDictionary(x => x.ColumnName, x => x.Index, StringComparer.OrdinalIgnoreCase);
@@ -74,7 +77,10 @@ public sealed class EntityDataReader<TEntity> : DbDataReader
         bool keepIdentity)
     {
         var list = new List<PropertyColumnMapping>();
-        foreach (var property in entityType.GetProperties())
+        var discriminatorProperty = entityType.FindDiscriminatorProperty();
+        var discriminatorValue = entityType.GetDiscriminatorValue();
+
+        foreach (var property in entityType.GetFlattenedProperties())
         {
             var columnName = property.GetColumnName(storeObject);
             if (columnName is null)
@@ -82,20 +88,42 @@ public sealed class EntityDataReader<TEntity> : DbDataReader
                 continue;
             }
 
-            // If primary key is store-generated and identity is not being kept, let SQL Server generate it
-            if (property.IsPrimaryKey()
-                && property.ValueGenerated != ValueGenerated.Never
-                && !keepIdentity)
+            // Exclude computed columns or columns marked to ignore before save
+            if (property.GetComputedColumnSql() is not null
+                || property.GetBeforeSaveBehavior() == PropertySaveBehavior.Ignore)
             {
                 continue;
             }
 
-            var getter = property.GetGetter();
-            var converter = property.GetValueConverter() ?? property.FindTypeMapping()?.Converter;
+            // Exclude store-generated identity primary keys unless keepIdentity is requested.
+            // Client-generated keys (such as GUIDs) have strategy == None and are preserved.
+            if (property.IsPrimaryKey()
+                && !keepIdentity
+                && (property.GetValueGenerationStrategy(storeObject) == SqlServerValueGenerationStrategy.IdentityColumn
+                    || (property.ValueGenerated == ValueGenerated.OnAdd && property.ClrType != typeof(Guid) && property.GetValueGeneratorFactory() == null)))
+            {
+                continue;
+            }
+
+            Func<object, object?> valueAccessor;
+            if (property == discriminatorProperty)
+            {
+                valueAccessor = _ => discriminatorValue;
+            }
+            else if (property.GetGetter() is { } clrGetter)
+            {
+                valueAccessor = entity => clrGetter.GetClrValueUsingContainingEntity(entity);
+            }
+            else
+            {
+                valueAccessor = _ => null;
+            }
+
+            var converter = property.GetTypeMapping().Converter ?? property.GetValueConverter();
             var targetType = converter?.ProviderClrType ?? property.ClrType;
             var unwrapped = Nullable.GetUnderlyingType(targetType) ?? targetType;
 
-            list.Add(new PropertyColumnMapping(columnName, unwrapped, getter, converter));
+            list.Add(new PropertyColumnMapping(columnName, unwrapped, valueAccessor, converter));
         }
 
         return list.ToArray();
@@ -150,7 +178,7 @@ public sealed class EntityDataReader<TEntity> : DbDataReader
         }
 
         var mapping = _mappings[ordinal];
-        var val = mapping.Getter.GetClrValue(_current);
+        var val = mapping.ValueAccessor(_current);
         if (val is null)
         {
             return DBNull.Value;

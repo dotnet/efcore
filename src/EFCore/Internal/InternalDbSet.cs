@@ -612,7 +612,11 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
                 cancellationToken: cancellationToken);
 
     private IBulkImporter BulkImporter
-        => _context.GetService<IBulkImporter>();
+        => _context.GetService<IBulkImporter>()
+            ?? throw new InvalidOperationException(
+                CoreStrings.ExecuteQueriesNotSupported(
+                    nameof(DbSet<TEntity>.ImportFrom),
+                    nameof(DbSet<TEntity>.ImportFromAsync)));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

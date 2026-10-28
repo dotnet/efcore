@@ -418,6 +418,49 @@
       ]
     },
     {
+      "Type": "record Microsoft.EntityFrameworkCore.Update.BulkImportOptions",
+      "Methods": [
+        {
+          "Member": "BulkImportOptions(Microsoft.EntityFrameworkCore.Update.BulkImportOptions original);"
+        },
+        {
+          "Member": "BulkImportOptions();"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Update.BulkImportOptions <Clone>$();"
+        },
+        {
+          "Member": "virtual bool Equals(Microsoft.EntityFrameworkCore.Update.BulkImportOptions? other);"
+        },
+        {
+          "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.Update.BulkImportOptions? left, Microsoft.EntityFrameworkCore.Update.BulkImportOptions? right);"
+        },
+        {
+          "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Update.BulkImportOptions? left, Microsoft.EntityFrameworkCore.Update.BulkImportOptions? right);"
+        },
+        {
+          "Member": "virtual bool PrintMembers(System.Text.StringBuilder builder);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "int? BatchSize { get; init; }"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Update.BulkImportOptions Default { get; }"
+        },
+        {
+          "Member": "virtual System.Type EqualityContract { get; }"
+        },
+        {
+          "Member": "bool KeepIdentity { get; init; }"
+        },
+        {
+          "Member": "int? Timeout { get; init; }"
+        }
+      ]
+    },
+    {
       "Type": "class Microsoft.EntityFrameworkCore.Storage.ValueConversion.BytesToStringConverter : Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<byte[]?, string?>",
       "Methods": [
         {
@@ -5984,6 +6027,21 @@
           "Member": "virtual System.Collections.Generic.IAsyncEnumerator<TEntity> GetAsyncEnumerator(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));"
         },
         {
+          "Member": "virtual void ImportFrom(System.Collections.Generic.IEnumerable<TEntity> entities, Microsoft.EntityFrameworkCore.Update.BulkImportOptions? options = null);"
+        },
+        {
+          "Member": "virtual System.Threading.Tasks.Task ImportFromAsync(System.Collections.Generic.IEnumerable<TEntity> entities, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));"
+        },
+        {
+          "Member": "virtual System.Threading.Tasks.Task ImportFromAsync(System.Collections.Generic.IEnumerable<TEntity> entities, Microsoft.EntityFrameworkCore.Update.BulkImportOptions? options, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));"
+        },
+        {
+          "Member": "virtual System.Threading.Tasks.Task ImportFromAsync(System.Collections.Generic.IAsyncEnumerable<TEntity> entities, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));"
+        },
+        {
+          "Member": "virtual System.Threading.Tasks.Task ImportFromAsync(System.Collections.Generic.IAsyncEnumerable<TEntity> entities, Microsoft.EntityFrameworkCore.Update.BulkImportOptions? options, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));"
+        },
+        {
           "Member": "virtual Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<TEntity> Remove(TEntity entity);"
         },
         {
@@ -9057,6 +9115,20 @@
       "Methods": [
         {
           "Member": "TResult ExecuteAsync<TResult>(System.Linq.Expressions.Expression expression, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));"
+        }
+      ]
+    },
+    {
+      "Type": "interface Microsoft.EntityFrameworkCore.Update.IBulkImporter",
+      "Methods": [
+        {
+          "Member": "void Import<TEntity>(Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType, System.Collections.Generic.IEnumerable<TEntity> entities, Microsoft.EntityFrameworkCore.Update.BulkImportOptions? options = null) where TEntity : class;"
+        },
+        {
+          "Member": "System.Threading.Tasks.Task ImportAsync<TEntity>(Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType, System.Collections.Generic.IEnumerable<TEntity> entities, Microsoft.EntityFrameworkCore.Update.BulkImportOptions? options = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) where TEntity : class;"
+        },
+        {
+          "Member": "System.Threading.Tasks.Task ImportAsync<TEntity>(Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType, System.Collections.Generic.IAsyncEnumerable<TEntity> entities, Microsoft.EntityFrameworkCore.Update.BulkImportOptions? options = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) where TEntity : class;"
         }
       ]
     },

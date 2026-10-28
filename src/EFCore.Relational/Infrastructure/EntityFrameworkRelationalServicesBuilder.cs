@@ -88,6 +88,7 @@ public class EntityFrameworkRelationalServicesBuilder : EntityFrameworkServicesB
             { typeof(IDiagnosticsLogger<DbLoggerCategory.Database.Connection>), new ServiceCharacteristics(ServiceLifetime.Scoped) },
             { typeof(IRelationalCommandDiagnosticsLogger), new ServiceCharacteristics(ServiceLifetime.Scoped) },
             { typeof(IDiagnosticsLogger<DbLoggerCategory.Database.Command>), new ServiceCharacteristics(ServiceLifetime.Scoped) },
+            { typeof(IBulkImporter), new ServiceCharacteristics(ServiceLifetime.Scoped) },
             {
                 typeof(IRelationalTypeMappingSourcePlugin),
                 new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true)
