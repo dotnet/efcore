@@ -63,17 +63,18 @@ public class TestSqlLoggerFactory : ListLoggerFactory
     public void AssertBaseline(string[] expected, bool assertOrder = true, bool forUpdate = false)
     {
         var offset = forUpdate ? 1 : 0;
-        var count = SqlStatements.Count - offset - offset;
+        var sqlStatements = ((TestSqlLogger)Logger).GetSqlStatementsForBaseline(expected, assertOrder, offset);
+        var count = sqlStatements.Count - offset - offset;
         try
         {
             if (assertOrder)
             {
                 for (var i = 0; i < expected.Length; i++)
                 {
-                    Assert.Equal(expected[i], SqlStatements[i + offset], ignoreLineEndingDifferences: true);
+                    Assert.Equal(expected[i], sqlStatements[i + offset], ignoreLineEndingDifferences: true);
                 }
 
-                Assert.Empty(SqlStatements.Skip(expected.Length + offset + offset));
+                Assert.Empty(sqlStatements.Skip(expected.Length + offset + offset));
             }
             else
             {
@@ -82,7 +83,7 @@ public class TestSqlLoggerFactory : ListLoggerFactory
                     var normalizedExpectedFragment = NormalizeLineEndings(expectedFragment);
                     Assert.Contains(
                         normalizedExpectedFragment,
-                        SqlStatements);
+                        sqlStatements);
                 }
             }
         }
@@ -107,14 +108,14 @@ public class TestSqlLoggerFactory : ListLoggerFactory
 
             var sql = string.Join(
                 "," + indent + "//" + indent,
-                SqlStatements.Skip(offset).Take(count).Select(sql => "\"\"\"" + FileNewLine + sql + FileNewLine + "\"\"\""));
+                sqlStatements.Skip(offset).Take(count).Select(sql => "\"\"\"" + FileNewLine + sql + FileNewLine + "\"\"\""));
 
             var newBaseLine = $@"        Assert{(forUpdate ? "ExecuteUpdate" : "")}Sql(
 {sql});
 
 ";
 
-            if (SqlStatements.Count > 20)
+            if (sqlStatements.Count > 20)
             {
                 newBaseLine += "Output truncated.";
             }
@@ -301,6 +302,8 @@ public class TestSqlLoggerFactory : ListLoggerFactory
 
         public List<string> FailedSqlStatements { get; } = [];
 
+        private List<(string Statement, bool IsError)> SqlStatementsAndErrors { get; } = [];
+
         private readonly StringBuilder _stringBuilder = new();
 
         protected override void UnsafeClear()
@@ -310,6 +313,37 @@ public class TestSqlLoggerFactory : ListLoggerFactory
             SqlStatements.Clear();
             Parameters.Clear();
             FailedSqlStatements.Clear();
+            SqlStatementsAndErrors.Clear();
+        }
+
+        public List<string> GetSqlStatementsForBaseline(string[] expected, bool assertOrder, int offset)
+        {
+            var expectedIndex = 0;
+            var statements = new List<string>();
+            var statementCount = SqlStatementsAndErrors.Count;
+
+            for (var i = 0; i < statementCount; i++)
+            {
+                var (statement, isError) = SqlStatementsAndErrors[i];
+                var inBaseline = i >= offset && i < statementCount - offset;
+                var expectedStatement = inBaseline
+                    && (assertOrder
+                        ? expectedIndex < expected.Length
+                            && NormalizeLineEndings(statement) == NormalizeLineEndings(expected[expectedIndex])
+                        : expected.Any(expectedStatement => NormalizeLineEndings(statement) == NormalizeLineEndings(expectedStatement)));
+
+                if (!inBaseline || !isError || expectedStatement)
+                {
+                    statements.Add(statement);
+
+                    if (assertOrder && expectedStatement)
+                    {
+                        expectedIndex++;
+                    }
+                }
+            }
+
+            return statements;
         }
 
         protected override void UnsafeLog<TState>(
@@ -337,8 +371,8 @@ public class TestSqlLoggerFactory : ListLoggerFactory
                     var parameters = structure.Where(i => i.Key == "parameters").Select(i => (string)i.Value).First();
                     var commandText = structure.Where(i => i.Key == "commandText").Select(i => (string)i.Value).First();
 
-                    if (eventId.Id != RelationalEventId.CommandError.Id
-                        && !string.IsNullOrWhiteSpace(parameters))
+                    var isCommandError = eventId.Id == RelationalEventId.CommandError.Id;
+                    if (!string.IsNullOrWhiteSpace(parameters))
                     {
                         Parameters.Add(parameters);
 
@@ -369,13 +403,12 @@ public class TestSqlLoggerFactory : ListLoggerFactory
                     }
 
                     var sqlStatement = parameters + commandText;
-                    if (eventId.Id == RelationalEventId.CommandError.Id)
+                    SqlStatementsAndErrors.Add((sqlStatement, isCommandError));
+                    SqlStatements.Add(sqlStatement);
+
+                    if (isCommandError)
                     {
                         FailedSqlStatements.Add(sqlStatement);
-                    }
-                    else
-                    {
-                        SqlStatements.Add(sqlStatement);
                     }
                 }
             }
