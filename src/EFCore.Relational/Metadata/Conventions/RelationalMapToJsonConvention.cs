@@ -56,5 +56,27 @@ public class RelationalMapToJsonConvention : IModelFinalizingConvention
                 }
             }
         }
+
+        // Like the columns of their properties, the default JSON column of a complex property on an
+        // owned type sharing its owner's table is prefixed with the ownership navigation names
+        foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
+        {
+            foreach (var complexProperty in entityType.GetDeclaredComplexProperties())
+            {
+                var complexType = complexProperty.ComplexType;
+                if (complexType.RemoveAnnotation(RelationalComplexPropertyBuilderExtensions.DefaultContainerColumnNameAnnotation) == null)
+                {
+                    continue;
+                }
+
+                if (StoreObjectIdentifier.Create(entityType, StoreObjectType.Table) is { } table
+                    && RelationalPropertyExtensions.CreateOwnershipPrefix(entityType, table, builder: null) is { } prefix)
+                {
+                    complexType.SetContainerColumnName(
+                        Uniquifier.Truncate(
+                            prefix.Append(complexProperty.Name).ToString(), modelBuilder.Metadata.GetMaxIdentifierLength()));
+                }
+            }
+        }
     }
 }

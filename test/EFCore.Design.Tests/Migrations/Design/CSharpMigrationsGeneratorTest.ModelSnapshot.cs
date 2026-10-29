@@ -4872,6 +4872,237 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal("json", ownedType1.GetContainerColumnType());
             });
 
+    [Fact]
+    public virtual void Complex_properties_on_owned_types_are_stored_in_snapshot()
+        => Test(
+            builder => builder.Entity<EntityWithOneProperty>(b =>
+            {
+                b.HasKey(e => e.Id).HasName("PK_Custom");
+
+                b.OwnsOne(
+                    eo => eo.EntityWithTwoProperties, eb =>
+                    {
+                        eb.Ignore(e => e.EntityWithOneProperty);
+                        eb.ComplexProperty(
+                            e => e.Coordinates, cb =>
+                            {
+                                cb.Property(c => c.Latitude).HasPrecision(9, 6);
+                                cb.Property(c => c.Longitude).HasPrecision(9, 6);
+                            });
+                        eb.OwnsOne(
+                            e => e.EntityWithStringKey,
+                            sb => sb.ComplexCollection(e => e.Properties, pb => pb.ToJson()));
+                    });
+            }),
+            AddBoilerPlate(
+                GetHeading()
+                + """
+        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty", b =>
+            {
+                var id = b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
+
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(id);
+
+                b.HasKey("Id")
+                    .HasName("PK_Custom");
+
+                b.ToTable("EntityWithOneProperty", "DefaultSchema");
+            });
+
+        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty", b =>
+            {
+                b.OwnsOne("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithTwoProperties", "EntityWithTwoProperties", b1 =>
+                    {
+                        b1.Property<int>("Id")
+                            .HasColumnType("int");
+
+                        b1.Property<int>("AlternateId")
+                            .HasColumnType("int");
+
+                        b1.ComplexProperty(typeof(Dictionary<string, object>), "Coordinates", "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithTwoProperties.Coordinates#Coordinates", b2 =>
+                            {
+                                b2.IsRequired();
+
+                                b2.Property<decimal>("Latitude")
+                                    .HasPrecision(9, 6)
+                                    .HasColumnType("decimal(9,6)");
+
+                                b2.Property<decimal>("Longitude")
+                                    .HasPrecision(9, 6)
+                                    .HasColumnType("decimal(9,6)");
+                            });
+
+                        b1.HasKey("Id");
+
+                        b1.ToTable("EntityWithOneProperty", "DefaultSchema");
+
+                        b1.WithOwner()
+                            .HasForeignKey("Id");
+
+                        b1.OwnsOne("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithStringKey", "EntityWithStringKey", b2 =>
+                            {
+                                b2.Property<int>("EntityWithTwoPropertiesId")
+                                    .HasColumnType("int");
+
+                                b2.Property<string>("Id")
+                                    .HasColumnType("nvarchar(max)");
+
+                                b2.ComplexCollection(typeof(List<Dictionary<string, object>>), "Properties", "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithStringKey.Properties#EntityWithStringProperty", b3 =>
+                                    {
+                                        b3.Property<int>("Id");
+
+                                        b3.Property<string>("Name");
+
+                                        b3
+                                            .ToJson("EntityWithTwoProperties_EntityWithStringKey_Properties")
+                                            .HasColumnType("nvarchar(max)");
+                                    });
+
+                                b2.HasKey("EntityWithTwoPropertiesId");
+
+                                b2.ToTable("EntityWithOneProperty", "DefaultSchema");
+
+                                b2.WithOwner()
+                                    .HasForeignKey("EntityWithTwoPropertiesId");
+                            });
+
+                        b1.Navigation("EntityWithStringKey");
+                    });
+
+                b.Navigation("EntityWithTwoProperties");
+            });
+""", usingSystem: false, usingCollections: true),
+            o =>
+            {
+                var ownedType = o.FindEntityType(typeof(EntityWithOneProperty))!
+                    .FindNavigation(nameof(EntityWithOneProperty.EntityWithTwoProperties))!.TargetEntityType;
+                var coordinates = ownedType.FindComplexProperty(nameof(EntityWithTwoProperties.Coordinates))!;
+                Assert.False(coordinates.IsCollection);
+                Assert.Equal(6, coordinates.ComplexType.FindProperty(nameof(Coordinates.Latitude))!.GetScale());
+                Assert.Equal(
+                    "EntityWithTwoProperties_Coordinates_Longitude",
+                    coordinates.ComplexType.FindProperty(nameof(Coordinates.Longitude))!
+                        .GetColumnName(StoreObjectIdentifier.Table(nameof(EntityWithOneProperty), "DefaultSchema")));
+
+                var nestedOwnedType = ownedType.FindNavigation(nameof(EntityWithTwoProperties.EntityWithStringKey))!.TargetEntityType;
+                var properties = nestedOwnedType.FindComplexProperty(nameof(EntityWithStringKey.Properties))!;
+                Assert.True(properties.IsCollection);
+                Assert.Equal("EntityWithTwoProperties_EntityWithStringKey_Properties", properties.ComplexType.GetContainerColumnName());
+            });
+
+    [Fact]
+    public virtual void Complex_properties_on_owned_collection_configured_by_attributes_are_stored_in_snapshot()
+        => Test(
+            builder => builder.Entity<EntityWithOwnedItems>(),
+            AddBoilerPlate(
+                GetHeading()
+                + """
+        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOwnedItems", b =>
+            {
+                var id = b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
+
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(id);
+
+                b.HasKey("Id");
+
+                b.ToTable("EntityWithOwnedItems", "DefaultSchema");
+            });
+
+        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOwnedItems", b =>
+            {
+                b.OwnsMany("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+OwnedItem", "Items", b1 =>
+                    {
+                        b1.Property<int>("EntityWithOwnedItemsId")
+                            .HasColumnType("int");
+
+                        var id = b1.Property<int>("Id")
+                            .ValueGeneratedOnAdd()
+                            .HasColumnType("int");
+
+                        SqlServerPropertyBuilderExtensions.UseIdentityColumn(id);
+
+                        b1.Property<string>("Name")
+                            .HasColumnType("nvarchar(max)");
+
+                        b1.ComplexProperty(typeof(Dictionary<string, object>), "Details", "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+OwnedItem.Details#ItemDetails", b2 =>
+                            {
+                                b2.IsRequired();
+
+                                b2.Property<int?>("Code")
+                                    .HasColumnType("int");
+
+                                b2.Property<string>("Type")
+                                    .IsRequired()
+                                    .HasColumnType("nvarchar(max)");
+
+                                b2.ComplexProperty(typeof(Dictionary<string, object>), "Dimensions", "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+OwnedItem.Details#ItemDetails.Dimensions#ItemDimensions", b3 =>
+                                    {
+                                        b3.IsRequired();
+
+                                        b3.Property<decimal>("Height")
+                                            .HasColumnType("decimal(18,2)");
+
+                                        b3.Property<decimal>("Width")
+                                            .HasColumnType("decimal(18,2)");
+                                    });
+                            });
+
+                        b1.HasKey("EntityWithOwnedItemsId", "Id");
+
+                        b1.ToTable("OwnedItem", "DefaultSchema");
+
+                        b1.WithOwner()
+                            .HasForeignKey("EntityWithOwnedItemsId");
+                    });
+
+                b.Navigation("Items");
+            });
+""", usingSystem: false, usingCollections: true),
+            o =>
+            {
+                var ownedType = o.FindEntityType(typeof(EntityWithOwnedItems))!
+                    .FindNavigation(nameof(EntityWithOwnedItems.Items))!.TargetEntityType;
+                var details = ownedType.FindComplexProperty(nameof(OwnedItem.Details))!;
+                Assert.False(details.IsNullable);
+                Assert.Equal(
+                    "Details_Dimensions_Width",
+                    details.ComplexType.FindComplexProperty(nameof(ItemDetails.Dimensions))!.ComplexType
+                        .FindProperty(nameof(ItemDimensions.Width))!
+                        .GetColumnName(StoreObjectIdentifier.Table(nameof(OwnedItem), "DefaultSchema")));
+            });
+
+    private class EntityWithOwnedItems
+    {
+        public int Id { get; set; }
+        public List<OwnedItem> Items { get; set; } = [];
+    }
+
+    [Owned]
+    private class OwnedItem
+    {
+        public string? Name { get; set; }
+        public ItemDetails Details { get; set; } = null!;
+    }
+
+    [ComplexType]
+    private class ItemDetails
+    {
+        public string Type { get; set; } = null!;
+        public int? Code { get; set; }
+        public ItemDimensions Dimensions { get; set; } = null!;
+    }
+
+    [ComplexType]
+    private class ItemDimensions
+    {
+        public decimal Width { get; set; }
+        public decimal Height { get; set; }
+    }
+
     private class Order
     {
         public int Id { get; set; }

@@ -271,6 +271,16 @@ public class RelationalModelValidator(
                     complexProperty.DeclaringType.DisplayName(), complexProperty.Name));
         }
 
+        // OwnsMany().ToJson() is deprecated (#37289), no need to support complex properties (#33170)
+        if (complexProperty.DeclaringType is IEntityType declaringEntityType
+            && declaringEntityType.IsMappedToJson()
+            && IsInJsonOwnedCollection(declaringEntityType))
+        {
+            throw new InvalidOperationException(
+                RelationalStrings.ComplexPropertyInJsonOwnedCollection(
+                    $"{declaringEntityType.DisplayName()}.{complexProperty.Name}", declaringEntityType.DisplayName()));
+        }
+
         if (!complexProperty.ComplexType.IsMappedToJson()
             && complexProperty.IsNullable
             && complexProperty.ComplexType.GetProperties().All(m => m.IsNullable))
@@ -324,6 +334,24 @@ public class RelationalModelValidator(
             }
 
             ValidateJsonProperties(complexProperty.ComplexType);
+        }
+
+        return;
+
+        static bool IsInJsonOwnedCollection(IEntityType entityType)
+        {
+            while (entityType.IsMappedToJson()
+                && entityType.FindOwnership() is { } ownership)
+            {
+                if (!ownership.IsUnique)
+                {
+                    return true;
+                }
+
+                entityType = ownership.PrincipalEntityType;
+            }
+
+            return false;
         }
     }
 
