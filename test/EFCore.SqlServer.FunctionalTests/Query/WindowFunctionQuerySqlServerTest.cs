@@ -17,9 +17,9 @@ public class WindowFunctionQuerySqlServerTest(NonSharedFixture fixture) : Window
         return optionsBuilder;
     }
 
-    public override async Task Elements_and_aggregate()
+    public override async Task Elements_and_aggregate(bool async)
     {
-        await base.Elements_and_aggregate();
+        await base.Elements_and_aggregate(async);
 
         AssertSql(
             """
@@ -144,9 +144,9 @@ ORDER BY [e].[DepartmentName]
 """);
     }
 
-    public override async Task Nullable_aggregate_over_partition_without_values()
+    public override async Task Nullable_aggregate_over_partition_without_values(bool async)
     {
-        await base.Nullable_aggregate_over_partition_without_values();
+        await base.Nullable_aggregate_over_partition_without_values(async);
 
         AssertSql(
             """
@@ -220,9 +220,9 @@ ORDER BY [e].[DepartmentName]
 """);
     }
 
-    public override async Task Elements_and_aggregate_without_opt_in()
+    public override async Task Elements_and_aggregate_without_opt_in(bool async)
     {
-        await base.Elements_and_aggregate_without_opt_in();
+        await base.Elements_and_aggregate_without_opt_in(async);
 
         AssertSql(
             """

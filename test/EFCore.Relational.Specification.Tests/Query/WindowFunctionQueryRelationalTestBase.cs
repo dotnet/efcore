@@ -38,16 +38,17 @@ public abstract class WindowFunctionQueryRelationalTestBase(NonSharedFixture fix
                 }
             });
 
-    [Fact]
-    public virtual async Task Elements_and_aggregate()
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Elements_and_aggregate(bool async)
     {
         var contextFactory = await InitializeAsync(useWindowFunctionAggregates: true);
         await using var context = contextFactory.CreateDbContext();
 
-        var results = await context.Employees
+        var query = context.Employees
             .GroupBy(e => e.DepartmentName)
-            .Select(g => new { Employees = g.ToList(), AverageSalary = g.Average(e => e.Salary) })
-            .ToListAsync();
+            .Select(g => new { Employees = g.ToList(), AverageSalary = g.Average(e => e.Salary) });
+
+        var results = async ? await query.ToListAsync() : query.ToList();
 
         Assert.Collection(
             results,
@@ -320,16 +321,17 @@ public abstract class WindowFunctionQueryRelationalTestBase(NonSharedFixture fix
     ///     An aggregate is null for a partition in which every value is, exactly as it is for a group in which every value is - the
     ///     window neither adds rows to the partition nor takes any away.
     /// </summary>
-    [Fact]
-    public virtual async Task Nullable_aggregate_over_partition_without_values()
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Nullable_aggregate_over_partition_without_values(bool async)
     {
         var contextFactory = await InitializeAsync(useWindowFunctionAggregates: true);
         await using var context = contextFactory.CreateDbContext();
 
-        var results = await context.Employees
+        var query = context.Employees
             .GroupBy(e => e.DepartmentName)
-            .Select(g => new { g.Key, Employees = g.ToList(), AverageBonus = g.Average(e => e.Bonus) })
-            .ToListAsync();
+            .Select(g => new { g.Key, Employees = g.ToList(), AverageBonus = g.Average(e => e.Bonus) });
+
+        var results = async ? await query.ToListAsync() : query.ToList();
 
         Assert.Collection(
             results,
@@ -484,16 +486,17 @@ public abstract class WindowFunctionQueryRelationalTestBase(NonSharedFixture fix
     /// <summary>
     ///     Without the opt-in, the same query as <see cref="Elements_and_aggregate" /> keeps the GROUP BY translation it has today.
     /// </summary>
-    [Fact]
-    public virtual async Task Elements_and_aggregate_without_opt_in()
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Elements_and_aggregate_without_opt_in(bool async)
     {
         var contextFactory = await InitializeAsync(useWindowFunctionAggregates: false);
         await using var context = contextFactory.CreateDbContext();
 
-        var results = await context.Employees
+        var query = context.Employees
             .GroupBy(e => e.DepartmentName)
-            .Select(g => new { Employees = g.ToList(), AverageSalary = g.Average(e => e.Salary) })
-            .ToListAsync();
+            .Select(g => new { Employees = g.ToList(), AverageSalary = g.Average(e => e.Salary) });
+
+        var results = async ? await query.ToListAsync() : query.ToList();
 
         Assert.Collection(
             results,
