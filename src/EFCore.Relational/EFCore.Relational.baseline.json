@@ -14980,6 +14980,9 @@
           "Member": "static string ComplexCollectionNotMappedToJson(object? entityType, object? property);"
         },
         {
+          "Member": "static string ComplexPropertiesSharedJsonColumn(object? complexProperty1, object? complexProperty2, object? column, object? table);"
+        },
+        {
           "Member": "static string ComplexPropertyBothJsonColumnAndJsonPropertyName(object? complexProperty, object? columnName, object? propertyName);"
         },
         {
@@ -15497,6 +15500,9 @@
         },
         {
           "Member": "static string NestedCollectionsNotSupported(object? propertyType, object? type, object? property);"
+        },
+        {
+          "Member": "static string NestedComplexPropertyJsonColumn(object? complexProperty, object? column, object? containingType, object? containingColumn);"
         },
         {
           "Member": "static string NestedComplexPropertyJsonWithTableSharing(object? complexProperty, object? containingType);"

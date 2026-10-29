@@ -298,6 +298,17 @@ public class RelationalModelValidator(
             }
         }
 
+        if (complexProperty.ComplexType.FindAnnotation(RelationalAnnotationNames.ContainerColumnName)?.Value is string containerColumnName
+            && complexProperty.DeclaringType.IsMappedToJson())
+        {
+            throw new InvalidOperationException(
+                RelationalStrings.NestedComplexPropertyJsonColumn(
+                    $"{complexProperty.DeclaringType.DisplayName()}.{complexProperty.Name}",
+                    containerColumnName,
+                    complexProperty.DeclaringType.DisplayName(),
+                    complexProperty.DeclaringType.GetContainerColumnName()));
+        }
+
         if (complexProperty.ComplexType.IsMappedToJson())
         {
             if (!complexProperty.DeclaringType.IsMappedToJson()
@@ -1031,11 +1042,78 @@ public class RelationalModelValidator(
             ValidateSharedCheckConstraintCompatibility(nonJsonMappedTypes, table, logger);
             ValidateSharedTriggerCompatibility(nonJsonMappedTypes, table, logger);
             ValidateOptionalDependents(nonJsonMappedTypes, table, logger);
+            ValidateSharedComplexJsonColumns(nonJsonMappedTypes, table);
         }
 
         if (mappedTypes.Count != nonJsonMappedTypes.Count)
         {
             ValidateJsonTable(mappedTypes, table, logger);
+        }
+    }
+
+    /// <summary>
+    ///     Validates that complex properties on types that can share a row in the given table aren't mapped to the same JSON column.
+    /// </summary>
+    /// <param name="mappedTypes">The entity types mapped to the table, excluding those mapped to JSON.</param>
+    /// <param name="table">The identifier of the table.</param>
+    private static void ValidateSharedComplexJsonColumns(IReadOnlyList<IEntityType> mappedTypes, in StoreObjectIdentifier table)
+    {
+        var jsonColumns = new Dictionary<string, IComplexProperty>();
+        foreach (var entityType in mappedTypes)
+        {
+            foreach (var complexProperty in entityType.GetDeclaredComplexProperties())
+            {
+                Validate(complexProperty, jsonColumns, table);
+            }
+        }
+
+        return;
+
+        static void Validate(
+            IComplexProperty complexProperty,
+            Dictionary<string, IComplexProperty> jsonColumns,
+            in StoreObjectIdentifier table)
+        {
+            var columnName = complexProperty.ComplexType.GetContainerColumnName();
+            if (columnName == null)
+            {
+                foreach (var nestedComplexProperty in complexProperty.ComplexType.GetComplexProperties())
+                {
+                    Validate(nestedComplexProperty, jsonColumns, table);
+                }
+
+                return;
+            }
+
+            if (!jsonColumns.TryGetValue(columnName, out var existingComplexProperty))
+            {
+                jsonColumns[columnName] = complexProperty;
+                return;
+            }
+
+            // Types in different branches of a hierarchy never share a row, so they can share the column
+            var rootType = GetRootPrincipal(complexProperty.DeclaringType.ContainingEntityType);
+            var existingRootType = GetRootPrincipal(existingComplexProperty.DeclaringType.ContainingEntityType);
+            if (rootType.IsAssignableFrom(existingRootType)
+                || existingRootType.IsAssignableFrom(rootType))
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.ComplexPropertiesSharedJsonColumn(
+                        $"{existingComplexProperty.DeclaringType.DisplayName()}.{existingComplexProperty.Name}",
+                        $"{complexProperty.DeclaringType.DisplayName()}.{complexProperty.Name}",
+                        columnName,
+                        table.DisplayName()));
+            }
+        }
+
+        static IEntityType GetRootPrincipal(IEntityType entityType)
+        {
+            while (entityType.FindOwnership() is { } ownership)
+            {
+                entityType = ownership.PrincipalEntityType;
+            }
+
+            return entityType;
         }
     }
 
