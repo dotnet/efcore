@@ -314,7 +314,9 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                     }
             }
 
-            if (targetProperty.DeclaringType is IEntityType entityType && entityType.IsMappedToJson())
+            // Includes members of complex types declared on owned entity types mapped to JSON
+            if (targetProperty.DeclaringType.ContainingEntityType is var entityType
+                && entityType.IsMappedToJson())
             {
                 throw new InvalidOperationException(
                     RelationalStrings.ExecuteOperationOnOwnedJsonIsNotSupported("ExecuteUpdate", entityType.DisplayName()));

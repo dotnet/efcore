@@ -102,29 +102,6 @@ public abstract class OwnedComplexPropertiesQueryRelationalTestBase(NonSharedFix
     }
 
     [Fact]
-    public virtual async Task Owned_collection_json()
-    {
-        var contextFactory = await InitializeNonSharedTest<Context>(
-            onModelCreating: mb => mb.Entity<Owner>(b =>
-            {
-                b.Ignore(e => e.Owned);
-                b.OwnsMany(
-                    e => e.OwnedCollection, ob =>
-                    {
-                        ob.ToJson();
-                        ob.ComplexProperty(o => o.Address);
-                    });
-            }),
-            onConfiguring: b => b.ConfigureWarnings(w => w.Log(RelationalEventId.OwnedEntityMappedToJsonCollectionWarning)),
-            seed: Seed);
-
-        using var context = contextFactory.CreateDbContext();
-        var owners = await context.Owners.OrderBy(e => e.Id).ToListAsync();
-
-        AssertOwnedCollections(owners);
-    }
-
-    [Fact]
     public virtual async Task Owned_reference_in_subquery()
     {
         var contextFactory = await InitializeNonSharedTest<Context>(
@@ -305,53 +282,12 @@ public abstract class OwnedComplexPropertiesQueryRelationalTestBase(NonSharedFix
         => AssertUpdateOwnedReference(ConfigureJsonOwnedReference, nested: true);
 
     [Fact]
-    public virtual Task Update_complex_property_of_json_owned_collection_element()
-        => AssertUpdateOwnedCollectionElement(
-            mb => mb.Entity<Owner>(b =>
-            {
-                b.Ignore(e => e.Owned);
-                b.OwnsMany(
-                    e => e.OwnedCollection, ob =>
-                    {
-                        ob.ToJson();
-                        ob.ComplexProperty(o => o.Address);
-                    });
-            }),
-            onConfiguring: b => b.ConfigureWarnings(w => w.Log(RelationalEventId.OwnedEntityMappedToJsonCollectionWarning)));
+    public virtual Task Update_complex_property_and_nested_owned_reference_with_same_json_name()
+        => AssertUpdateComplexPropertyAndNestedOwnedReference(configureJsonNames: false);
 
     [Fact]
-    public virtual async Task Json_owned_collection_with_complex_property_as_queryable()
-    {
-        var contextFactory = await InitializeNonSharedTest<Context>(
-            onModelCreating: ConfigureJsonOwnedCollection,
-            onConfiguring: b => b.ConfigureWarnings(w => w.Log(RelationalEventId.OwnedEntityMappedToJsonCollectionWarning)),
-            seed: Seed);
-
-        using var context = contextFactory.CreateDbContext();
-        var owneds = await context.Owners.AsNoTracking()
-            .SelectMany(e => e.OwnedCollection.Where(o => o.Name != "X"))
-            .ToListAsync();
-
-        Assert.Equal(["Berlin", "Perth", "Sydney"], owneds.Select(o => o.Address.City).Order());
-        Assert.All(owneds, o => Assert.NotNull(o.Address.Country));
-    }
-
-    [Fact]
-    public virtual async Task Json_owned_collection_filter_on_complex_property()
-    {
-        var contextFactory = await InitializeNonSharedTest<Context>(
-            onModelCreating: ConfigureJsonOwnedCollection,
-            onConfiguring: b => b.ConfigureWarnings(w => w.Log(RelationalEventId.OwnedEntityMappedToJsonCollectionWarning)),
-            seed: Seed);
-
-        using var context = contextFactory.CreateDbContext();
-        var counts = await context.Owners
-            .OrderBy(e => e.Id)
-            .Select(e => e.OwnedCollection.Count(o => o.Address.City == "Perth"))
-            .ToListAsync();
-
-        Assert.Equal([1, 0], counts);
-    }
+    public virtual Task Update_complex_property_and_nested_owned_reference_with_same_configured_json_name()
+        => AssertUpdateComplexPropertyAndNestedOwnedReference(configureJsonNames: true);
 
     [Fact]
     public virtual async Task Complex_property_of_owned_reference_after_pushdown()
@@ -537,6 +473,23 @@ public abstract class OwnedComplexPropertiesQueryRelationalTestBase(NonSharedFix
     }
 
     [Fact]
+    public virtual async Task ExecuteUpdate_complex_property_of_json_owned_reference()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context>(
+            onModelCreating: ConfigureJsonOwnedReference,
+            seed: Seed);
+
+        using var context = contextFactory.CreateDbContext();
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => context.Owners.ExecuteUpdateAsync(s => s.SetProperty(e => e.Owned.Address.City, "Melbourne")));
+
+        Assert.Equal(
+            RelationalStrings.ExecuteOperationOnOwnedJsonIsNotSupported("ExecuteUpdate", "Owned"),
+            Assert.IsType<InvalidOperationException>(exception.InnerException).Message);
+    }
+
+    [Fact]
     public virtual async Task Json_complex_properties_on_same_owned_type_under_two_navigations_throws()
     {
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(
@@ -546,16 +499,54 @@ public abstract class OwnedComplexPropertiesQueryRelationalTestBase(NonSharedFix
                     mb.Entity<Owner>(b =>
                     {
                         b.Ignore(e => e.OwnedCollection);
-                        b.OwnsOne(e => e.Owned, ob => ob.ComplexProperty(o => o.Address, ab => ab.ToJson()));
+                        b.OwnsOne(e => e.Owned, ob => ob.ComplexProperty(o => o.Address, ab => ab.ToJson("Address")));
                     });
+                    // The default names are prefixed with the navigations, so they only collide when named explicitly
                     mb.Entity<SpecialOwner>(b => b.OwnsOne(
-                        e => e.DerivedOwned, ob => ob.ComplexProperty(o => o.Address, ab => ab.ToJson())));
+                        e => e.DerivedOwned, ob => ob.ComplexProperty(o => o.Address, ab => ab.ToJson("Address"))));
                 }));
 
         Assert.Equal(
             RelationalStrings.ComplexPropertiesSharedJsonColumn("Owner.Owned#Owned.Address", "SpecialOwner.DerivedOwned#Owned.Address", "Address", "Owners"),
             exception.Message);
     }
+
+    [Fact]
+    public virtual async Task Update_scalar_and_complex_collection_of_json_owned_reference()
+    {
+        var contextFactory = await InitializeTaggedOwners(ob => ob.ToJson(), configureTag: null, ConfigureTagConverters);
+
+        using (var context = contextFactory.CreateDbContext())
+        {
+            var owner = await context.Set<OwnerWithTag>().SingleAsync(e => e.Id == 1);
+            owner.Owned.Tag.Label = "Uno";
+            owner.Owned.Tags.Add(new Tag { Id = new TagId(11), Label = "Eleven", Code = new TagCode("E") });
+
+            ClearLog();
+            await context.SaveChangesAsync();
+        }
+
+        using (var context = contextFactory.CreateDbContext())
+        {
+            var owner = await context.Set<OwnerWithTag>().SingleAsync(e => e.Id == 1);
+
+            Assert.Equal("Uno", owner.Owned.Tag.Label);
+            Assert.Equal(["Ten", "Eleven"], owner.Owned.Tags.Select(t => t.Label));
+        }
+    }
+
+    [Fact]
+    public virtual Task Set_nullable_complex_property_of_json_owned_reference()
+        => AssertUpdateNullableComplexProperty(
+            initialValue: null, o => o.Outer = new OuterComplex { Inner = new InnerComplex { Value = "New" } }, expectedValue: "New");
+
+    [Fact]
+    public virtual Task Clear_nullable_complex_property_of_json_owned_reference()
+        => AssertUpdateNullableComplexProperty(initialValue: "Old", o => o.Outer = null, expectedValue: null);
+
+    [Fact]
+    public virtual Task Update_property_in_nullable_complex_property_of_json_owned_reference()
+        => AssertUpdateNullableComplexProperty(initialValue: "Old", o => o.Outer!.Inner.Value = "New", expectedValue: "New");
 
     [Fact(Skip = "Issue #35701")]
     public virtual async Task Optional_owned_reference_with_null_scalars_and_complex_property()
@@ -705,17 +696,119 @@ public abstract class OwnedComplexPropertiesQueryRelationalTestBase(NonSharedFix
             => writer.WriteStringValue("#" + value.Value);
     }
 
-    private static void ConfigureJsonOwnedCollection(ModelBuilder modelBuilder)
-        => modelBuilder.Entity<Owner>(b =>
+    // Address.City and the nested City navigation share a JSON name at different depths of the owned document
+    private async Task AssertUpdateComplexPropertyAndNestedOwnedReference(bool configureJsonNames)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context>(
+            onModelCreating: mb =>
+            {
+                mb.Ignore<Owner>();
+                mb.Entity<OwnerOfNested>(b => b.OwnsOne(
+                    e => e.Owned, ob =>
+                    {
+                        ob.ToJson();
+                        ob.ComplexProperty(
+                            o => o.Address, ab =>
+                            {
+                                if (configureJsonNames)
+                                {
+                                    ab.Property(a => a.City).HasJsonPropertyName("Place");
+                                }
+                            });
+                        ob.OwnsOne(
+                            o => o.City, cb =>
+                            {
+                                if (configureJsonNames)
+                                {
+                                    cb.HasJsonPropertyName("Place");
+                                }
+                            });
+                    }));
+            },
+            seed: context =>
+            {
+                context.Add(
+                    new OwnerOfNested
+                    {
+                        Id = 1,
+                        Owned = new NestedOwned
+                        {
+                            Address = CreateOwned("", "1 Main St", "Sydney", "Australia", "AU").Address,
+                            City = new City { Name = "Sydney" }
+                        }
+                    });
+
+                return context.SaveChangesAsync();
+            });
+
+        using (var context = contextFactory.CreateDbContext())
         {
-            b.Ignore(e => e.Owned);
-            b.OwnsMany(
-                e => e.OwnedCollection, ob =>
-                {
-                    ob.ToJson();
-                    ob.ComplexProperty(o => o.Address);
-                });
-        });
+            var owner = await context.Set<OwnerOfNested>().SingleAsync();
+            owner.Owned.Address.City = "Melbourne";
+            owner.Owned.City.Name = "Brisbane";
+
+            ClearLog();
+            await context.SaveChangesAsync();
+        }
+
+        using (var context = contextFactory.CreateDbContext())
+        {
+            var owner = await context.Set<OwnerOfNested>().SingleAsync();
+
+            Assert.Equal("Melbourne", owner.Owned.Address.City);
+            Assert.Equal("Brisbane", owner.Owned.City.Name);
+        }
+    }
+
+    // Changing a nullable complex property between null and a value changes its JSON parent, so it can't be patched by property
+    private async Task AssertUpdateNullableComplexProperty(
+        string? initialValue,
+        Action<OwnedWithNullableComplex> change,
+        string? expectedValue)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context>(
+            onModelCreating: mb =>
+            {
+                mb.Ignore<Owner>();
+                mb.Entity<OwnerOfNullableComplex>(b => b.OwnsOne(
+                    e => e.Owned, ob =>
+                    {
+                        ob.ToJson();
+                        ob.ComplexProperty(o => o.Outer, cb => cb.ComplexProperty(c => c.Inner));
+                    }));
+            },
+            seed: context =>
+            {
+                context.Add(
+                    new OwnerOfNullableComplex
+                    {
+                        Id = 1,
+                        Owned = new OwnedWithNullableComplex
+                        {
+                            Name = "Owned",
+                            Outer = initialValue == null ? null : new OuterComplex { Inner = new InnerComplex { Value = initialValue } }
+                        }
+                    });
+
+                return context.SaveChangesAsync();
+            });
+
+        using (var context = contextFactory.CreateDbContext())
+        {
+            change((await context.Set<OwnerOfNullableComplex>().SingleAsync()).Owned);
+
+            ClearLog();
+            await context.SaveChangesAsync();
+        }
+
+        using (var context = contextFactory.CreateDbContext())
+        {
+            var owned = (await context.Set<OwnerOfNullableComplex>().SingleAsync()).Owned;
+
+            Assert.Equal("Owned", owned.Name);
+            Assert.Equal(expectedValue, owned.Outer?.Inner.Value);
+        }
+    }
 
     private static void ConfigureJsonOwnedReference(ModelBuilder modelBuilder)
         => modelBuilder.Entity<Owner>(b =>
@@ -728,6 +821,49 @@ public abstract class OwnedComplexPropertiesQueryRelationalTestBase(NonSharedFix
                     ob.ComplexProperty(o => o.Address);
                 });
         });
+
+    public class OwnerOfNested
+    {
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
+        public int Id { get; set; }
+
+        public NestedOwned Owned { get; set; } = null!;
+    }
+
+    public class NestedOwned
+    {
+        public Address Address { get; set; } = null!;
+        public City City { get; set; } = null!;
+    }
+
+    public class City
+    {
+        public string Name { get; set; } = null!;
+    }
+
+    public class OwnerOfNullableComplex
+    {
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
+        public int Id { get; set; }
+
+        public OwnedWithNullableComplex Owned { get; set; } = null!;
+    }
+
+    public class OwnedWithNullableComplex
+    {
+        public string Name { get; set; } = null!;
+        public OuterComplex? Outer { get; set; }
+    }
+
+    public class OuterComplex
+    {
+        public InnerComplex Inner { get; set; } = null!;
+    }
+
+    public class InnerComplex
+    {
+        public string Value { get; set; } = null!;
+    }
 
     public class OwnerOfSplit
     {

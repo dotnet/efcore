@@ -54,7 +54,7 @@ ORDER BY "o"."Id"
 
         AssertSql(
             """
-SELECT "o"."Id", "o"."Name", "o"."Owned_Name", "o"."Address"
+SELECT "o"."Id", "o"."Name", "o"."Owned_Name", "o"."Owned_Address"
 FROM "Owners" AS "o"
 ORDER BY "o"."Id"
 """);
@@ -82,18 +82,6 @@ SELECT "o"."Id", "o"."Name", "o0"."OwnerId", "o0"."Name", "o0"."Address_City", "
 FROM "Owners" AS "o"
 LEFT JOIN "Owned" AS "o0" ON "o"."Id" = "o0"."OwnerId"
 ORDER BY "o"."Id", "o0"."OwnerId", "o0"."Name"
-""");
-    }
-
-    public override async Task Owned_collection_json()
-    {
-        await base.Owned_collection_json();
-
-        AssertSql(
-            """
-SELECT "o"."Id", "o"."Name", "o"."OwnedCollection"
-FROM "Owners" AS "o"
-ORDER BY "o"."Id"
 """);
     }
 
@@ -164,7 +152,7 @@ ORDER BY "o0"."Id"
 
 SELECT "o0"."Id", "o0"."Owned_Name", "o0"."c"
 FROM (
-    SELECT "o"."Id", "o"."Owned_Name", "o"."Address" AS "c"
+    SELECT "o"."Id", "o"."Owned_Name", "o"."Owned_Address" AS "c"
     FROM "Owners" AS "o"
     ORDER BY "o"."Id"
     LIMIT @p
@@ -355,13 +343,13 @@ LIMIT 2
 @p0='{"City":"Melbourne","Street":"1 Main St","Country":{"Code":"AU","Name":"Australia"}}' (Nullable = false) (Size = 84)
 @p1='1'
 
-UPDATE "Owners" SET "Address" = @p0
+UPDATE "Owners" SET "Owned_Address" = @p0
 WHERE "Id" = @p1
 RETURNING 1;
 """,
             //
             """
-SELECT "o"."Id", "o"."Name", "o"."Owned_Name", "o"."Address"
+SELECT "o"."Id", "o"."Name", "o"."Owned_Name", "o"."Owned_Address"
 FROM "Owners" AS "o"
 WHERE "o"."Id" = 1
 LIMIT 2
@@ -437,28 +425,6 @@ FROM (
 ) AS "o1"
 LEFT JOIN "Owned" AS "o0" ON "o1"."Id" = "o0"."OwnerId"
 ORDER BY "o1"."Id", "o0"."OwnerId", "o0"."Name"
-""");
-    }
-
-    public override async Task Update_complex_property_of_json_owned_collection_element()
-    {
-        await base.Update_complex_property_of_json_owned_collection_element();
-
-        AssertSql(
-            """
-@p0='Fremantle' (Nullable = false) (Size = 9)
-@p1='1'
-
-UPDATE "Owners" SET "OwnedCollection" = json_set("OwnedCollection", '$[1].Address.City', @p0)
-WHERE "Id" = @p1
-RETURNING 1;
-""",
-            //
-            """
-SELECT "o"."Id", "o"."Name", "o"."OwnedCollection"
-FROM "Owners" AS "o"
-WHERE "o"."Id" = 1
-LIMIT 2
 """);
     }
 
@@ -569,13 +535,13 @@ LIMIT 2
 @p1='3'
 @p2='[5,6,7]' (Nullable = false) (Size = 7)
 
-UPDATE "OwnerWithTag" SET "Tags" = @p0, "Owned_Tag_Id" = @p1, "Owned_Tag_RelatedIds" = @p2
+UPDATE "OwnerWithTag" SET "Owned_Tags" = @p0, "Owned_Tag_Id" = @p1, "Owned_Tag_RelatedIds" = @p2
 WHERE "Id" = @p3
 RETURNING 1;
 """,
             //
             """
-SELECT "o"."Id", "o"."Owned_Tag_Code", "o"."Owned_Tag_Id", "o"."Owned_Tag_Label", "o"."Owned_Tag_RelatedIds", "o"."Tags"
+SELECT "o"."Id", "o"."Owned_Tag_Code", "o"."Owned_Tag_Id", "o"."Owned_Tag_Label", "o"."Owned_Tag_RelatedIds", "o"."Owned_Tags"
 FROM "OwnerWithTag" AS "o"
 WHERE "o"."Owned_Tag_Id" = 3
 LIMIT 2
@@ -614,44 +580,121 @@ LIMIT 2
 @p1='[{"Code":"A","Id":30,"Label":"Ten","RelatedIds":[]}]' (Nullable = false) (Size = 52)
 @p2='1'
 
-UPDATE "OwnerWithTag" SET "Tag" = @p0, "Tags" = @p1
+UPDATE "OwnerWithTag" SET "Owned_Tag" = @p0, "Owned_Tags" = @p1
 WHERE "Id" = @p2
 RETURNING 1;
 """,
             //
             """
-SELECT "o"."Id", "o"."Tag", "o"."Tags"
+SELECT "o"."Id", "o"."Owned_Tag", "o"."Owned_Tags"
 FROM "OwnerWithTag" AS "o"
-WHERE "o"."Tag" ->> 'Id' = 3
+WHERE "o"."Owned_Tag" ->> 'Id' = 3
 LIMIT 2
 """);
     }
 
-    public override async Task Json_owned_collection_with_complex_property_as_queryable()
+    public override async Task Update_complex_property_and_nested_owned_reference_with_same_json_name()
     {
-        Assert.Equal(
-            SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(()
-                => base.Json_owned_collection_with_complex_property_as_queryable())).Message);
-
-        AssertSql();
-    }
-
-    public override async Task Json_owned_collection_filter_on_complex_property()
-    {
-        await base.Json_owned_collection_filter_on_complex_property();
+        await base.Update_complex_property_and_nested_owned_reference_with_same_json_name();
 
         AssertSql(
             """
-SELECT (
-    SELECT COUNT(*)
-    FROM (
-        SELECT "o0"."value" ->> 'Address' AS "Address"
-        FROM json_each("o"."OwnedCollection", '$') AS "o0"
-    ) AS "o1"
-    WHERE "o1"."Address" ->> 'City' = 'Perth')
-FROM "Owners" AS "o"
-ORDER BY "o"."Id"
+@p0='{"Address":{"City":"Melbourne","Street":"1 Main St","Country":{"Code":"AU","Name":"Australia"}},"City":{"Name":"Brisbane"}}' (Nullable = false) (Size = 123)
+@p1='1'
+
+UPDATE "OwnerOfNested" SET "Owned" = @p0
+WHERE "Id" = @p1
+RETURNING 1;
+""",
+            //
+            """
+SELECT "o"."Id", "o"."Owned"
+FROM "OwnerOfNested" AS "o"
+LIMIT 2
+""");
+    }
+
+    public override async Task Update_complex_property_and_nested_owned_reference_with_same_configured_json_name()
+    {
+        await base.Update_complex_property_and_nested_owned_reference_with_same_configured_json_name();
+
+        AssertSql(
+            """
+@p0='{"Address":{"Place":"Melbourne","Street":"1 Main St","Country":{"Code":"AU","Name":"Australia"}},"Place":{"Name":"Brisbane"}}' (Nullable = false) (Size = 125)
+@p1='1'
+
+UPDATE "OwnerOfNested" SET "Owned" = @p0
+WHERE "Id" = @p1
+RETURNING 1;
+""",
+            //
+            """
+SELECT "o"."Id", "o"."Owned"
+FROM "OwnerOfNested" AS "o"
+LIMIT 2
+""");
+    }
+
+    public override async Task Set_nullable_complex_property_of_json_owned_reference()
+    {
+        await base.Set_nullable_complex_property_of_json_owned_reference();
+
+        AssertSql(
+            """
+@p0='{"Name":"Owned","Outer":{"Inner":{"Value":"New"}}}' (Nullable = false) (Size = 50)
+@p1='1'
+
+UPDATE "OwnerOfNullableComplex" SET "Owned" = @p0
+WHERE "Id" = @p1
+RETURNING 1;
+""",
+            //
+            """
+SELECT "o"."Id", "o"."Owned"
+FROM "OwnerOfNullableComplex" AS "o"
+LIMIT 2
+""");
+    }
+
+    public override async Task Clear_nullable_complex_property_of_json_owned_reference()
+    {
+        await base.Clear_nullable_complex_property_of_json_owned_reference();
+
+        AssertSql(
+            """
+@p0='{"Name":"Owned","Outer":null}' (Nullable = false) (Size = 29)
+@p1='1'
+
+UPDATE "OwnerOfNullableComplex" SET "Owned" = @p0
+WHERE "Id" = @p1
+RETURNING 1;
+""",
+            //
+            """
+SELECT "o"."Id", "o"."Owned"
+FROM "OwnerOfNullableComplex" AS "o"
+LIMIT 2
+""");
+    }
+
+    public override async Task Update_property_in_nullable_complex_property_of_json_owned_reference()
+    {
+        await base.Update_property_in_nullable_complex_property_of_json_owned_reference();
+
+        AssertSql(
+            """
+@p0='{"Name":"Owned","Outer":{"Inner":{"Value":"New"}}}' (Nullable = false) (Size = 50)
+@p1='1'
+
+UPDATE "OwnerOfNullableComplex" SET "Owned" = @p0
+WHERE "Id" = @p1
+RETURNING 1;
+""",
+            //
+            """
+SELECT "o"."Id", "o"."Owned"
+FROM "OwnerOfNullableComplex" AS "o"
+LIMIT 2
 """);
     }
 
@@ -743,7 +786,7 @@ ORDER BY "o1"."Id"
 @p2='1'
 @p1=NULL
 
-UPDATE "OwnerOfOptional" SET "Address" = @p0, "Holder_Note" = @p1
+UPDATE "OwnerOfOptional" SET "Holder_Address" = @p0, "Holder_Note" = @p1
 WHERE "Id" = @p2
 RETURNING 1;
 """,
@@ -756,7 +799,7 @@ VALUES (@p0);
 """,
             //
             """
-SELECT "o"."Address"
+SELECT "o"."Holder_Address"
 FROM "OwnerOfOptional" AS "o"
 ORDER BY "o"."Id"
 """);
@@ -783,11 +826,40 @@ LIMIT 2
 """);
     }
 
+    public override async Task ExecuteUpdate_complex_property_of_json_owned_reference()
+    {
+        await base.ExecuteUpdate_complex_property_of_json_owned_reference();
+
+        AssertSql();
+    }
+
     public override async Task Json_complex_properties_on_same_owned_type_under_two_navigations_throws()
     {
         await base.Json_complex_properties_on_same_owned_type_under_two_navigations_throws();
 
         AssertSql();
+    }
+
+    public override async Task Update_scalar_and_complex_collection_of_json_owned_reference()
+    {
+        await base.Update_scalar_and_complex_collection_of_json_owned_reference();
+
+        AssertSql(
+            """
+@p0='{"Tag":{"Code":"A","Id":1,"Label":"Uno","RelatedIds":"5,6"},"Tags":[{"Code":"A","Id":10,"Label":"Ten","RelatedIds":""},{"Code":"E","Id":11,"Label":"Eleven","RelatedIds":""}]}' (Nullable = false) (Size = 174)
+@p1='1'
+
+UPDATE "OwnerWithTag" SET "Owned" = @p0
+WHERE "Id" = @p1
+RETURNING 1;
+""",
+            //
+            """
+SELECT "o"."Id", "o"."Owned"
+FROM "OwnerWithTag" AS "o"
+WHERE "o"."Id" = 1
+LIMIT 2
+""");
     }
 
     public override async Task Optional_owned_reference_with_null_scalars_and_complex_property()
@@ -803,7 +875,7 @@ LIMIT 2
 
         AssertSql(
             """
-SELECT "o"."Id", "o"."Owned_Tag_Code", "o"."Owned_Tag_Id", "o"."Owned_Tag_Label", "o"."Owned_Tag_RelatedIds", "o"."Tags"
+SELECT "o"."Id", "o"."Owned_Tag_Code", "o"."Owned_Tag_Id", "o"."Owned_Tag_Label", "o"."Owned_Tag_RelatedIds", "o"."Owned_Tags"
 FROM "OwnerWithTag" AS "o"
 WHERE "o"."Id" = 1
 LIMIT 2
@@ -819,7 +891,7 @@ RETURNING 1;
 """,
             //
             """
-SELECT "o"."Id", "o"."Owned_Tag_Code", "o"."Owned_Tag_Id", "o"."Owned_Tag_Label", "o"."Owned_Tag_RelatedIds", "o"."Tags"
+SELECT "o"."Id", "o"."Owned_Tag_Code", "o"."Owned_Tag_Id", "o"."Owned_Tag_Label", "o"."Owned_Tag_RelatedIds", "o"."Owned_Tags"
 FROM "OwnerWithTag" AS "o"
 WHERE "o"."Id" = 1
 LIMIT 2
@@ -861,7 +933,7 @@ LIMIT 2
 
         AssertSql(
             """
-SELECT "o"."Id", "o"."Tag", "o"."Tags"
+SELECT "o"."Id", "o"."Owned_Tag", "o"."Owned_Tags"
 FROM "OwnerWithTag" AS "o"
 WHERE "o"."Id" = 1
 LIMIT 2
@@ -871,13 +943,13 @@ LIMIT 2
 @p0='{"Code":"A","Id":1,"Label":"One","RelatedIds":"5,6,7"}' (Nullable = false) (Size = 54)
 @p1='1'
 
-UPDATE "OwnerWithTag" SET "Tag" = @p0
+UPDATE "OwnerWithTag" SET "Owned_Tag" = @p0
 WHERE "Id" = @p1
 RETURNING 1;
 """,
             //
             """
-SELECT "o"."Id", "o"."Tag", "o"."Tags"
+SELECT "o"."Id", "o"."Owned_Tag", "o"."Owned_Tags"
 FROM "OwnerWithTag" AS "o"
 WHERE "o"."Id" = 1
 LIMIT 2
@@ -915,13 +987,13 @@ LIMIT 2
 @p0='{"Code":"#C","Id":1,"Label":"One","RelatedIds":"5,6"}' (Nullable = false) (Size = 53)
 @p1='1'
 
-UPDATE "OwnerWithTag" SET "Tag" = @p0
+UPDATE "OwnerWithTag" SET "Owned_Tag" = @p0
 WHERE "Id" = @p1
 RETURNING 1;
 """,
             //
             """
-SELECT "o"."Id", "o"."Tag", "o"."Tags"
+SELECT "o"."Id", "o"."Owned_Tag", "o"."Owned_Tags"
 FROM "OwnerWithTag" AS "o"
 WHERE "o"."Id" = 1
 LIMIT 2
