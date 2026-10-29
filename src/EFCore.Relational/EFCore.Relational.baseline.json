@@ -15176,6 +15176,9 @@
           "Member": "static string ComplexPropertyBothJsonColumnAndJsonPropertyName(object? complexProperty, object? columnName, object? propertyName);"
         },
         {
+          "Member": "static string ComplexPropertyInJsonOwnedCollection(object? complexProperty, object? entityType);"
+        },
+        {
           "Member": "static string ComplexPropertyJsonPropertyNameConflict(object? property1, object? property2, object? jsonPropertyName);"
         },
         {

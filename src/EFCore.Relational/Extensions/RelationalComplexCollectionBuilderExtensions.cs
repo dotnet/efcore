@@ -17,14 +17,18 @@ public static class RelationalComplexCollectionBuilderExtensions
     /// <param name="complexCollectionBuilder">The builder for the complex collection being configured.</param>
     /// <param name="jsonColumnName">The name of the JSON column. If not specified, the complex collection name is used.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    /// <remarks>
+    ///     If the complex collection is declared on an owned type that shares its owner's table, the default column name is
+    ///     prefixed with the names of the ownership navigations. For example, a complex collection <c>Locations</c> on the
+    ///     owned <c>Order.ShippingAddress</c> is mapped to the <c>ShippingAddress_Locations</c> column.
+    /// </remarks>
     public static ComplexCollectionBuilder ToJson(
         this ComplexCollectionBuilder complexCollectionBuilder,
         string? jsonColumnName = null)
     {
         Check.NullButNotEmpty(jsonColumnName);
 
-        var complexProperty = complexCollectionBuilder.Metadata;
-        complexProperty.ComplexType.SetContainerColumnName(jsonColumnName ?? complexProperty.Name);
+        RelationalComplexPropertyBuilderExtensions.SetContainerColumnName(complexCollectionBuilder.Metadata, jsonColumnName);
 
         return complexCollectionBuilder;
     }
@@ -35,6 +39,11 @@ public static class RelationalComplexCollectionBuilderExtensions
     /// <param name="complexCollectionBuilder">The builder for the complex collection being configured.</param>
     /// <param name="jsonColumnName">The name of the JSON column. If not specified, the complex collection name is used.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    /// <remarks>
+    ///     If the complex collection is declared on an owned type that shares its owner's table, the default column name is
+    ///     prefixed with the names of the ownership navigations. For example, a complex collection <c>Locations</c> on the
+    ///     owned <c>Order.ShippingAddress</c> is mapped to the <c>ShippingAddress_Locations</c> column.
+    /// </remarks>
     public static ComplexCollectionBuilder<TComplex> ToJson<TComplex>(
         this ComplexCollectionBuilder<TComplex> complexCollectionBuilder,
         string? jsonColumnName = null)

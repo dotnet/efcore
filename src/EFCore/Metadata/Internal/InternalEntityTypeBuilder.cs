@@ -2051,6 +2051,8 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
 
         var detachedProperties = DetachProperties(entityType.GetDeclaredProperties().ToList());
 
+        var detachedComplexProperties = DetachProperties(entityType.GetDeclaredComplexProperties().ToList());
+
         List<InternalServicePropertyBuilder>? detachedServiceProperties = null;
         foreach (var servicePropertiesToBeDetached in entityType.GetDeclaredServiceProperties().ToList())
         {
@@ -2062,6 +2064,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         return new EntityType.Snapshot(
             entityType,
             detachedProperties,
+            detachedComplexProperties,
             detachedIndexes,
             detachedKeys,
             detachedRelationships,

@@ -98,6 +98,12 @@ public class ComplexPropertySnapshot
         }
         else
         {
+            // Default names are derived from the declaring type, so regenerate them for the new one
+            var complexTypeName = ComplexType.Name ==
+                ComplexProperty.GetDefaultComplexTypeName(ComplexProperty.DeclaringType, ComplexProperty.Name, ComplexType.ClrType)
+                    ? null
+                    : ComplexType.Name;
+
             complexPropertyBuilder = ComplexProperty.IsIndexerProperty()
                 ? typeBaseBuilder.ComplexIndexerProperty(
                     ComplexProperty.ClrType,
@@ -109,7 +115,7 @@ public class ComplexPropertySnapshot
                     ComplexProperty.ClrType,
                     ComplexProperty.Name,
                     ComplexProperty.GetIdentifyingMemberInfo(),
-                    ComplexType.Name,
+                    complexTypeName,
                     ComplexType.ClrType,
                     ComplexProperty.IsCollection,
                     configurationSource);

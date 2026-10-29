@@ -160,6 +160,9 @@
   <data name="ComplexPropertyBothJsonColumnAndJsonPropertyName" xml:space="preserve">
     <value>Complex property '{complexProperty}' cannot have both a JSON column name ('{columnName}') and a JSON property name ('{propertyName}') configured. Use 'ToJson()' to map to a JSON column or 'HasJsonPropertyName()' to map as a JSON property within a containing JSON column, but not both.</value>
   </data>
+  <data name="ComplexPropertyInJsonOwnedCollection" xml:space="preserve">
+    <value>Complex property '{complexProperty}' cannot be declared on '{entityType}', which is mapped to JSON as part of an owned collection. Owned JSON collections ('OwnsMany(...).ToJson()') are obsolete and don't support complex properties; map the collection with 'ComplexCollection(...).ToJson()' instead.</value>
+  </data>
   <data name="ComplexPropertyJsonPropertyNameConflict" xml:space="preserve">
     <value>Complex property '{property1}' and '{property2}' are both configured to use the same JSON property name '{jsonPropertyName}'. Each property within a JSON-mapped type must have a unique JSON property name.</value>
   </data>

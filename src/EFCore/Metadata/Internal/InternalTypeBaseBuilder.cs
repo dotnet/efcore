@@ -1145,11 +1145,15 @@ public abstract class InternalTypeBaseBuilder :
                     || shouldBeCollection != null)
                 {
                     var typeConfigurationSource = (member as Property)?.GetTypeConfigurationSource();
-                    var typeBuilder = member.IsInModel
-                        && member.DeclaringType is ComplexType ownerComplex
-                        && ownerComplex.ContainingEntityType.IsAssignableFrom(Metadata)
-                            ? ownerComplex.Builder
-                            : this;
+                    var typeBuilder = member.DeclaringType is not ComplexType ownerComplex
+                        ? this
+                        : member.IsInModel
+                            ? ownerComplex.ContainingEntityType.IsAssignableFrom(Metadata) ? ownerComplex.Builder : this
+                            : FindComplexType(Metadata, ownerComplex)?.Builder;
+                    if (typeBuilder == null)
+                    {
+                        return null;
+                    }
 
                     var builder = typeBuilder.Property(
                         typeConfigurationSource.Overrides(ConfigurationSource.DataAnnotation)
@@ -1214,6 +1218,15 @@ public abstract class InternalTypeBaseBuilder :
             && (property.DeclaringType.IsAssignableFrom(Metadata)
                 || (property.DeclaringType is ComplexType complexType
                     && complexType.ContainingEntityType.IsAssignableFrom(Metadata)));
+
+    // Finds the complex type corresponding to a detached one through the same complex properties on the given type
+    internal static TypeBase? FindComplexType(TypeBase typeBase, ComplexType detachedComplexType)
+    {
+        var declaringType = detachedComplexType.ComplexProperty.DeclaringType is ComplexType declaringComplexType
+            ? FindComplexType(typeBase, declaringComplexType)
+            : typeBase;
+        return declaringType?.FindComplexProperty(detachedComplexType.ComplexProperty.Name)?.ComplexType;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

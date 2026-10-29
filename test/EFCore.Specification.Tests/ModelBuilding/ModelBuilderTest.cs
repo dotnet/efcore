@@ -1209,6 +1209,77 @@ public abstract partial class ModelBuilderTest
         public abstract TestPrimitiveCollectionBuilder<TProperty> PrimitiveCollection<TProperty>(
             Expression<Func<TDependentEntity, TProperty>> propertyExpression);
 
+        public abstract TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(string propertyName)
+            where TProperty : notnull;
+
+        public abstract TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
+            Expression<Func<TDependentEntity, TProperty?>> propertyExpression)
+            where TProperty : notnull;
+
+        public abstract TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
+            Expression<Func<TDependentEntity, TProperty?>> propertyExpression,
+            string complexTypeName)
+            where TProperty : notnull;
+
+        public abstract TestOwnedNavigationBuilder<TEntity, TDependentEntity> ComplexProperty<TProperty>(
+            Expression<Func<TDependentEntity, TProperty?>> propertyExpression,
+            Action<TestComplexPropertyBuilder<TProperty>> buildAction)
+            where TProperty : notnull;
+
+        public abstract TestOwnedNavigationBuilder<TEntity, TDependentEntity> ComplexProperty<TProperty>(
+            Expression<Func<TDependentEntity, TProperty?>> propertyExpression,
+            string complexTypeName,
+            Action<TestComplexPropertyBuilder<TProperty>> buildAction)
+            where TProperty : notnull;
+
+        public abstract TestOwnedNavigationBuilder<TEntity, TDependentEntity> ComplexProperty<TProperty>(
+            string propertyName,
+            Action<TestComplexPropertyBuilder<TProperty>> buildAction)
+            where TProperty : notnull;
+
+        public abstract TestComplexCollectionBuilder<TElement> ComplexCollection<TProperty, TElement>(string propertyName)
+            where TProperty : IEnumerable<TElement>
+            where TElement : notnull;
+
+        public abstract TestComplexCollectionBuilder<TElement> ComplexCollection<TProperty, TElement>(
+            string propertyName,
+            string complexTypeName)
+            where TProperty : IEnumerable<TElement>
+            where TElement : notnull;
+
+        public abstract TestComplexCollectionBuilder<TElement> ComplexCollection<TElement>(
+            Expression<Func<TDependentEntity, IEnumerable<TElement?>?>> propertyExpression)
+            where TElement : notnull;
+
+        public abstract TestComplexCollectionBuilder<TElement> ComplexCollection<TElement>(
+            Expression<Func<TDependentEntity, IEnumerable<TElement?>?>> propertyExpression,
+            string complexTypeName)
+            where TElement : notnull;
+
+        public abstract TestOwnedNavigationBuilder<TEntity, TDependentEntity> ComplexCollection<TProperty, TElement>(
+            string propertyName,
+            Action<TestComplexCollectionBuilder<TElement>> buildAction)
+            where TProperty : IEnumerable<TElement>
+            where TElement : notnull;
+
+        public abstract TestOwnedNavigationBuilder<TEntity, TDependentEntity> ComplexCollection<TProperty, TElement>(
+            string propertyName,
+            string complexTypeName,
+            Action<TestComplexCollectionBuilder<TElement>> buildAction)
+            where TProperty : IEnumerable<TElement>
+            where TElement : notnull;
+
+        public abstract TestOwnedNavigationBuilder<TEntity, TDependentEntity> ComplexCollection<TElement>(
+            Expression<Func<TDependentEntity, IEnumerable<TElement?>?>> propertyExpression,
+            Action<TestComplexCollectionBuilder<TElement>> buildAction)
+            where TElement : notnull;
+
+        public abstract TestOwnedNavigationBuilder<TEntity, TDependentEntity> ComplexCollection<TElement>(
+            Expression<Func<TDependentEntity, IEnumerable<TElement?>?>> propertyExpression,
+            string complexTypeName,
+            Action<TestComplexCollectionBuilder<TElement>> buildAction)
+            where TElement : notnull;
+
         public abstract TestNavigationBuilder Navigation<TNavigation>(
             Expression<Func<TDependentEntity, TNavigation?>> navigationExpression)
             where TNavigation : class;

@@ -18584,6 +18584,66 @@
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder>",
       "Methods": [
         {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionBuilder ComplexCollection(string propertyName);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionBuilder<TElement> ComplexCollection<TProperty, TElement>(string propertyName) where TProperty : System.Collections.Generic.IEnumerable<TElement> where TElement : notnull;"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionBuilder<TElement> ComplexCollection<TProperty, TElement>(string propertyName, string complexTypeName) where TProperty : System.Collections.Generic.IEnumerable<TElement> where TElement : notnull;"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionBuilder ComplexCollection(System.Type propertyType, string propertyName);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionBuilder ComplexCollection(System.Type propertyType, string propertyName, string complexTypeName);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder ComplexCollection(string propertyName, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionBuilder> buildAction);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder ComplexCollection<TProperty, TElement>(string propertyName, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionBuilder<TElement>> buildAction) where TProperty : System.Collections.Generic.IEnumerable<TElement> where TElement : notnull;"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder ComplexCollection<TProperty, TElement>(string propertyName, string complexTypeName, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionBuilder<TElement>> buildAction) where TProperty : System.Collections.Generic.IEnumerable<TElement> where TElement : notnull;"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder ComplexCollection(System.Type propertyType, string propertyName, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionBuilder> buildAction);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder ComplexCollection(System.Type propertyType, string propertyName, string complexTypeName, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionBuilder> buildAction);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder ComplexProperty(string propertyName);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(string propertyName) where TProperty : notnull;"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(string propertyName, string complexTypeName) where TProperty : notnull;"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder ComplexProperty(System.Type propertyType, string propertyName);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder ComplexProperty(System.Type propertyType, string propertyName, string complexTypeName);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder ComplexProperty(string propertyName, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder> buildAction);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder ComplexProperty<TProperty>(string propertyName, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder<TProperty>> buildAction) where TProperty : notnull;"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder ComplexProperty<TProperty>(string propertyName, string complexTypeName, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder<TProperty>> buildAction) where TProperty : notnull;"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder ComplexProperty(System.Type propertyType, string propertyName, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder> buildAction);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder ComplexProperty(System.Type propertyType, string propertyName, string complexTypeName, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder> buildAction);"
+        },
+        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder HasAnnotation(string annotation, object? value);"
         },
         {
@@ -18698,6 +18758,84 @@
     {
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicFields | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicFields | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicProperties | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)] TOwnerEntity, [System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicFields | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicFields | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicProperties | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)] TDependentEntity> : Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder where TOwnerEntity : class where TDependentEntity : class",
       "Methods": [
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ComplexCollection(string propertyName, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionBuilder> buildAction);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ComplexCollection<TProperty, TElement>(string propertyName, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionBuilder<TElement>> buildAction) where TProperty : System.Collections.Generic.IEnumerable<TElement> where TElement : notnull;"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ComplexCollection<TProperty, TElement>(string propertyName, string complexTypeName, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionBuilder<TElement>> buildAction) where TProperty : System.Collections.Generic.IEnumerable<TElement> where TElement : notnull;"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ComplexCollection(System.Type propertyType, string propertyName, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionBuilder> buildAction);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ComplexCollection(System.Type propertyType, string propertyName, string complexTypeName, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionBuilder> buildAction);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionBuilder<TElement> ComplexCollection<TElement>(System.Linq.Expressions.Expression<System.Func<TDependentEntity, System.Collections.Generic.IEnumerable<TElement?>?>> propertyExpression) where TElement : notnull;"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionBuilder<TElement> ComplexCollection<TElement>(System.Linq.Expressions.Expression<System.Func<TDependentEntity, System.Collections.Generic.IEnumerable<TElement?>?>> propertyExpression, string complexTypeName) where TElement : notnull;"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ComplexCollection<TElement>(System.Linq.Expressions.Expression<System.Func<TDependentEntity, System.Collections.Generic.IEnumerable<TElement?>?>> propertyExpression, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionBuilder<TElement>> buildAction) where TElement : notnull;"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ComplexCollection<TElement>(System.Linq.Expressions.Expression<System.Func<TDependentEntity, System.Collections.Generic.IEnumerable<TElement?>?>> propertyExpression, string complexTypeName, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionBuilder<TElement>> buildAction) where TElement : notnull;"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionBuilder<TElement> ComplexCollection<TElement>(System.Linq.Expressions.Expression<System.Func<TDependentEntity, System.Collections.Generic.IEnumerable<TElement?>?>> propertyExpression) where TElement : struct;"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionBuilder<TElement> ComplexCollection<TElement>(System.Linq.Expressions.Expression<System.Func<TDependentEntity, System.Collections.Generic.IEnumerable<TElement?>?>> propertyExpression, string complexTypeName) where TElement : struct;"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ComplexCollection<TElement>(System.Linq.Expressions.Expression<System.Func<TDependentEntity, System.Collections.Generic.IEnumerable<TElement?>?>> propertyExpression, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionBuilder<TElement>> buildAction) where TElement : struct;"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ComplexCollection<TElement>(System.Linq.Expressions.Expression<System.Func<TDependentEntity, System.Collections.Generic.IEnumerable<TElement?>?>> propertyExpression, string complexTypeName, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionBuilder<TElement>> buildAction) where TElement : struct;"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ComplexProperty(string propertyName, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder> buildAction);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ComplexProperty<TProperty>(string propertyName, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder<TProperty>> buildAction) where TProperty : notnull;"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ComplexProperty<TProperty>(string propertyName, string complexTypeName, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder<TProperty>> buildAction) where TProperty : notnull;"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ComplexProperty(System.Type propertyType, string propertyName, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder> buildAction);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ComplexProperty(System.Type propertyType, string propertyName, string complexTypeName, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder> buildAction);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(System.Linq.Expressions.Expression<System.Func<TDependentEntity, TProperty?>> propertyExpression) where TProperty : notnull;"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(System.Linq.Expressions.Expression<System.Func<TDependentEntity, TProperty?>> propertyExpression, string complexTypeName) where TProperty : notnull;"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ComplexProperty<TProperty>(System.Linq.Expressions.Expression<System.Func<TDependentEntity, TProperty?>> propertyExpression, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder<TProperty>> buildAction) where TProperty : notnull;"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ComplexProperty<TProperty>(System.Linq.Expressions.Expression<System.Func<TDependentEntity, TProperty?>> propertyExpression, string complexTypeName, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder<TProperty>> buildAction) where TProperty : notnull;"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(System.Linq.Expressions.Expression<System.Func<TDependentEntity, TProperty?>> propertyExpression) where TProperty : struct;"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(System.Linq.Expressions.Expression<System.Func<TDependentEntity, TProperty?>> propertyExpression, string complexTypeName) where TProperty : struct;"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ComplexProperty<TProperty>(System.Linq.Expressions.Expression<System.Func<TDependentEntity, TProperty?>> propertyExpression, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder<TProperty>> buildAction) where TProperty : struct;"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ComplexProperty<TProperty>(System.Linq.Expressions.Expression<System.Func<TDependentEntity, TProperty?>> propertyExpression, string complexTypeName, System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexPropertyBuilder<TProperty>> buildAction) where TProperty : struct;"
+        },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> HasAnnotation(string annotation, object? value);"
         },
