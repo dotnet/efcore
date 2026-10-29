@@ -755,10 +755,6 @@ public class SqlNullabilityProcessor : ExpressionVisitor
     {
         // SQL IN returns null when the item is null, and when the values (or subquery projection) contains NULL and no match was made.
 
-        // Null compensation isn't idempotent - visiting a = b OR (a IS NULL AND b IS NULL) again expands a = b a second time - so the
-        // comparisons built below from the item and the values are built from them as they were before being visited.
-        var originalItem = inExpression.Item;
-        var originalValues = new Dictionary<SqlExpression, SqlExpression>(ReferenceEqualityComparer.Instance);
         var item = Visit(inExpression.Item, out var itemNullable);
         inExpression = inExpression.Update(item, inExpression.Subquery, inExpression.Values, inExpression.ValuesParameter);
 
@@ -956,15 +952,14 @@ public class SqlNullabilityProcessor : ExpressionVisitor
 
             // a IN (1) -> a = 1
             // nullable IN (1, NULL) -> nullable IS NULL OR nullable = 1
+            // The equality only matters when the item isn't null, so it needs no compensation for the item being null.
+            case [var singleValue] when itemNullable && valuesHasNull:
+                return _sqlExpressionFactory.OrElse(
+                    ProcessNullNotNull(_sqlExpressionFactory.IsNull(item), operandNullable: true),
+                    ItemEqualTo(singleValue, itemNullable: false, valueNullable: nullableValues.Count > 0));
+
             case [var singleValue]:
-                return Visit(
-                    itemNullable && valuesHasNull
-                        ? _sqlExpressionFactory.OrElse(
-                            _sqlExpressionFactory.IsNull(originalItem),
-                            _sqlExpressionFactory.Equal(originalItem, OriginalValue(singleValue)))
-                        : _sqlExpressionFactory.Equal(originalItem, OriginalValue(singleValue)),
-                    allowOptimizedExpansion,
-                    out _);
+                return ItemEqualTo(singleValue, itemNullable, valueNullable: nullableValues.Count > 0);
         }
 
         // If the item is non-nullable and there are no nullables, return the expression without compensation; null has already been removed
@@ -1018,12 +1013,31 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         // non_nullable IN (1, 2, NULL, nullable) -> non_nullable IN (1, 2) OR (non_nullable = nullable AND nullable IS NOT NULL) (full)
         return nullableValues.Aggregate(
             result,
-            (expr, nullableValue) => _sqlExpressionFactory.OrElse(
-                expr,
-                Visit(_sqlExpressionFactory.Equal(originalItem, OriginalValue(nullableValue)), allowOptimizedExpansion, out _)));
+            (expr, nullableValue) => _sqlExpressionFactory.OrElse(expr, ItemEqualTo(nullableValue, itemNullable, valueNullable: true)));
 
-        SqlExpression OriginalValue(SqlExpression visitedValue)
-            => originalValues.GetValueOrDefault(visitedValue, visitedValue);
+        // The item and the values have already been visited, and null compensation isn't idempotent (visiting a = b OR (a IS NULL AND
+        // b IS NULL) again expands a = b a second time), so the comparison is processed from their known nullability rather than visited.
+        SqlExpression ItemEqualTo(SqlExpression value, bool itemNullable, bool valueNullable)
+        {
+            if (allowOptimizedExpansion)
+            {
+                if (IsTrue(item) && item.TypeMapping!.Converter == null)
+                {
+                    return value;
+                }
+
+                if (IsTrue(value) && value.TypeMapping!.Converter == null)
+                {
+                    return item;
+                }
+            }
+
+            var equal = _sqlExpressionFactory.Equal(item, value);
+
+            return equal is SqlBinaryExpression binary
+                ? ProcessComparison(binary, itemNullable, valueNullable, allowOptimizedExpansion, out _)
+                : equal;
+        }
 
         InExpression ProcessInExpressionValues(
             InExpression inExpression,
@@ -1138,10 +1152,6 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                     }
 
                     var visitedValue = Visit(value, out var valueNullable);
-                    if (visitedValue != value)
-                    {
-                        originalValues[visitedValue] = value;
-                    }
 
                     if (valueNullable)
                     {
@@ -1450,17 +1460,10 @@ public class SqlNullabilityProcessor : ExpressionVisitor
 
         if (sqlBinaryExpression.OperatorType is ExpressionType.Equal or ExpressionType.NotEqual)
         {
-            var updated = sqlBinaryExpression.Update(left, right);
+            var processed = ProcessComparison(
+                sqlBinaryExpression.Update(left, right), leftNullable, rightNullable, optimize, out nullable);
 
-            var optimized = OptimizeComparison(
-                updated,
-                left,
-                right,
-                leftNullable,
-                rightNullable,
-                out nullable);
-
-            if (optimized is SqlUnaryExpression { Operand: ColumnExpression optimizedUnaryColumnOperand } optimizedUnary)
+            if (processed is SqlUnaryExpression { Operand: ColumnExpression optimizedUnaryColumnOperand } optimizedUnary)
             {
                 if (optimizedUnary.OperatorType == ExpressionType.NotEqual)
                 {
@@ -1472,32 +1475,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 }
             }
 
-            // we assume that NullSemantics rewrite is only needed (on the current level)
-            // if the optimization didn't make any changes.
-            // Reason is that optimization can/will change the nullability of the resulting expression
-            // and that information is not tracked/stored anywhere
-            // so we can no longer rely on nullabilities that we computed earlier (leftNullable, rightNullable)
-            // when performing null semantics rewrite.
-            // It should be fine because current optimizations *radically* change the expression
-            // (e.g. binary -> unary, or binary -> constant)
-            // but we need to pay attention in the future if we introduce more subtle transformations here
-            if (optimized.Equals(updated)
-                && (leftNullable || rightNullable)
-                && !UseRelationalNulls)
-            {
-                var rewriteNullSemanticsResult = RewriteNullSemantics(
-                    updated,
-                    updated.Left,
-                    updated.Right,
-                    leftNullable,
-                    rightNullable,
-                    optimize,
-                    out nullable);
-
-                return rewriteNullSemanticsResult;
-            }
-
-            return optimized;
+            return processed;
         }
 
         nullable = leftNullable || rightNullable;
@@ -1837,6 +1815,48 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         {
             _nullValueColumns.RemoveRange(counter, _nullValueColumns.Count - counter);
         }
+    }
+
+    // Applies optimizations and null semantics to an Equal/NotEqual comparison whose operands have already been visited.
+    private SqlExpression ProcessComparison(
+        SqlBinaryExpression sqlBinaryExpression,
+        bool leftNullable,
+        bool rightNullable,
+        bool optimize,
+        out bool nullable)
+    {
+        var optimized = OptimizeComparison(
+            sqlBinaryExpression,
+            sqlBinaryExpression.Left,
+            sqlBinaryExpression.Right,
+            leftNullable,
+            rightNullable,
+            out nullable);
+
+        // we assume that NullSemantics rewrite is only needed (on the current level)
+        // if the optimization didn't make any changes.
+        // Reason is that optimization can/will change the nullability of the resulting expression
+        // and that information is not tracked/stored anywhere
+        // so we can no longer rely on nullabilities that we computed earlier (leftNullable, rightNullable)
+        // when performing null semantics rewrite.
+        // It should be fine because current optimizations *radically* change the expression
+        // (e.g. binary -> unary, or binary -> constant)
+        // but we need to pay attention in the future if we introduce more subtle transformations here
+        if (optimized.Equals(sqlBinaryExpression)
+            && (leftNullable || rightNullable)
+            && !UseRelationalNulls)
+        {
+            return RewriteNullSemantics(
+                sqlBinaryExpression,
+                sqlBinaryExpression.Left,
+                sqlBinaryExpression.Right,
+                leftNullable,
+                rightNullable,
+                optimize,
+                out nullable);
+        }
+
+        return optimized;
     }
 
     private SqlExpression OptimizeComparison(

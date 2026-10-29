@@ -2336,6 +2336,26 @@ OFFSET 0 LIMIT 1
         AssertSql();
     }
 
+    [Theory(Skip = "Nested IN expressions are generated without parentheses (a = 5 IN (...) IN (...)), which Cosmos rejects")]
+    public override Task Contains_on_nested_inline_collections_with_null(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Contains_on_nested_inline_collections_with_null(a);
+
+                AssertSql();
+            });
+
+    [Theory(Skip = "Nested IN expressions are generated without parentheses (a = 5 IN (...) IN (...)), which Cosmos rejects")]
+    public override Task Contains_on_nested_inline_collections_with_null_in_projection(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Contains_on_nested_inline_collections_with_null_in_projection(a);
+
+                AssertSql();
+            });
+
     public override async Task OfType_Select(bool async)
     {
         // Contains over subquery. Issue #17246.

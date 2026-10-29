@@ -1368,6 +1368,27 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
             elementSorter: e => e.OrderID);
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_on_nested_inline_collections_with_null(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().Where(o => new bool?[] { true, null }.Contains(
+                new bool?[] { true, null }.Contains(
+                    new bool?[] { true, null }.Contains(o.EmployeeID == 5)))));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_on_nested_inline_collections_with_null_in_projection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().Select(o => new
+            {
+                o.OrderID,
+                Nested = new bool?[] { true, null }.Contains(
+                    new bool?[] { true, null }.Contains(
+                        new bool?[] { true, null }.Contains(o.EmployeeID == 5)))
+            }),
+            elementSorter: e => e.OrderID);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task OfType_Select(bool async)
         => AssertFirst(
             async,
