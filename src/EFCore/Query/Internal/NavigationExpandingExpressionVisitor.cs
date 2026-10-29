@@ -2379,6 +2379,19 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                 : Expression.Call(EnumerableMethods.Where.MakeGenericMethod(newElementType), newSource, guard);
         }
 
+        if (newSelector != null
+            && newSelector.ReturnType != aggregate.Selector!.ReturnType)
+        {
+            // The compiler leaves an implicit reference conversion out of the selector's body, so the rebuilt lambda's
+            // inferred return type can be narrower than the one the selector was declared with - g.AsQueryable()
+            // .Max<string, object>(x => x). A delegate type is covariant in its return type and accepts that, but
+            // Expression<TDelegate> is invariant, so the lambda keeps the declared return type.
+            newSelector = Expression.Lambda(
+                Expression.GetFuncType(newElementType, aggregate.Selector.ReturnType),
+                newSelector.Body,
+                newSelector.Parameters);
+        }
+
         return newSelector == null
             ? Expression.Call(newMethod, newSource)
             : Expression.Call(

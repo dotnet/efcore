@@ -2902,6 +2902,32 @@ GROUP BY [o].[EmployeeID]
 """);
     }
 
+    public override async Task GroupBy_element_selector_with_widened_queryable_Max_through_navigation(bool async)
+    {
+        await base.GroupBy_element_selector_with_widened_queryable_Max_through_navigation(async);
+
+        AssertSql(
+            """
+SELECT [o].[EmployeeID] AS [Key], MAX([c].[Region]) AS [Max]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+GROUP BY [o].[EmployeeID]
+""");
+    }
+
+    public override async Task GroupBy_element_selector_with_widened_queryable_Min_through_navigation(bool async)
+    {
+        await base.GroupBy_element_selector_with_widened_queryable_Min_through_navigation(async);
+
+        AssertSql(
+            """
+SELECT [o].[EmployeeID] AS [Key], MIN([c].[Region]) AS [Min]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+GROUP BY [o].[EmployeeID]
+""");
+    }
+
     public override async Task GroupBy_element_selector_projecting_constructor_bound_type_with_aggregate(bool async)
     {
         await base.GroupBy_element_selector_projecting_constructor_bound_type_with_aggregate(async);

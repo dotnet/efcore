@@ -711,6 +711,24 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
             elementSorter: e => e.Key);
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_element_selector_with_widened_queryable_Max_through_navigation(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.EmployeeID, o => o.Customer!.Region)
+                .Select(g => new { g.Key, Max = g.AsQueryable().Max<string?, object?>(x => x) }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_element_selector_with_widened_queryable_Min_through_navigation(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.EmployeeID, o => o.Customer!.Region)
+                .Select(g => new { g.Key, Min = g.AsQueryable().Min<string?, object?>(x => x) }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_aggregate_capturing_key_through_navigation(bool async)
         => AssertQuery(
             async,
