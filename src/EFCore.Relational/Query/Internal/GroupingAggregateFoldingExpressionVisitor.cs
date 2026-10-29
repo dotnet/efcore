@@ -61,7 +61,7 @@ internal sealed class GroupingAggregateFoldingExpressionVisitor : ExpressionVisi
                 or LikeExpression or CollateExpression or AtTimeZoneExpression:
                 return base.VisitExtension(node);
 
-            case SqlFunctionExpression { IsBuiltIn: true } function when !IsAggregateFunction(function):
+            case SqlFunctionExpression { IsBuiltIn: true } function when IsKnownScalarFunction(function):
                 return base.VisitExtension(function);
 
             default:
@@ -72,11 +72,24 @@ internal sealed class GroupingAggregateFoldingExpressionVisitor : ExpressionVisi
     private bool CanFold(GroupingAggregateFallbackExpression fallback)
         => _foldTarget is { } target
             && target.GroupBy.SequenceEqual(fallback.GroupingKeys)
+            // A GROUP BY made of an outer query's columns - an inner query grouped by g.Key - equals that query's own, so the target
+            // is the owner only if the grouping keys are over its tables.
+            && ReferencesOnlyTablesOf(fallback.GroupingKeys, target, allowNone: false)
             && fallback.FoldedAggregate.Type == fallback.Fallback.Type
             && fallback.FoldedAggregate.TypeMapping == fallback.Fallback.TypeMapping
             // An aggregate naming columns of no table of the target - an outer query's - would be evaluated by that query instead.
-            && RelationalSqlTranslatingExpressionVisitor.ReferencedTableAliasCollector.Collect(fallback.FoldedAggregate)
-                .All(alias => target.Tables.Any(t => t.UnwrapJoin().Alias == alias));
+            && ReferencesOnlyTablesOf([fallback.FoldedAggregate], target, allowNone: true);
+
+    private static bool ReferencesOnlyTablesOf(IReadOnlyList<SqlExpression> expressions, SelectExpression target, bool allowNone)
+    {
+        var aliases = new HashSet<string>();
+        foreach (var expression in expressions)
+        {
+            aliases.UnionWith(RelationalSqlTranslatingExpressionVisitor.ReferencedTableAliasCollector.Collect(expression));
+        }
+
+        return (allowNone || aliases.Count > 0) && aliases.All(alias => target.Tables.Any(t => t.UnwrapJoin().Alias == alias));
+    }
 
     private Expression VisitBoundary(Expression node)
     {
@@ -106,10 +119,9 @@ internal sealed class GroupingAggregateFoldingExpressionVisitor : ExpressionVisi
         return visitedList ?? list;
     }
 
-    // There's no representation of whether a function is an aggregate; match the well-known ones, as
-    // SqlServerAggregateArgumentPostprocessor does.
-    private static bool IsAggregateFunction(SqlFunctionExpression function)
-        => function.Name.ToLower(CultureInfo.InvariantCulture) is "sum" or "avg" or "min" or "max" or "count" or "count_big"
-            or "string_agg" or "group_concat" or "total" or "stdev" or "stdevp" or "var" or "varp" or "checksum_agg" or "grouping"
-            or "grouping_id";
+    // There's no representation of whether a function is an aggregate, and providers emit their own as plain functions (SQLite's
+    // ef_sum, for one), so only the null-handling functions translation wraps aggregates in are taken to be scalar; an aggregate
+    // folded under any other function would risk being nested in another aggregate.
+    private static bool IsKnownScalarFunction(SqlFunctionExpression function)
+        => function.Name.ToLower(CultureInfo.InvariantCulture) is "coalesce" or "isnull" or "ifnull" or "nullif" or "iif";
 }

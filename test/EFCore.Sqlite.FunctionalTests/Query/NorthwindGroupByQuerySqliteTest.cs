@@ -48,6 +48,64 @@ LEFT JOIN (
 """);
     }
     
+    // SQL Server rejects a GROUP BY made only of outer references (error 164); SQLite accepts it. The inner query's GROUP BY is then
+    // the outer one's, and g.Count() must still count the outer group's orders rather than the inner group's employees.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task GroupBy_aggregate_over_outer_grouping_in_inner_query_grouped_by_outer_key(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(o => o.CustomerID)
+                .Select(g => new
+                {
+                    g.Key,
+                    A = ss.Set<Employee>().GroupBy(e => g.Key).Select(g2 => new[] { g.Count(), 0 }.Contains(2)).FirstOrDefault()
+                }),
+            elementSorter: e => e.Key);
+
+        AssertSql(
+            """
+SELECT "o"."CustomerID" AS "Key", COALESCE((
+    SELECT 2 IN (0) OR (2 = (
+        SELECT COUNT(*)
+        FROM "Orders" AS "o0"
+        WHERE "o"."CustomerID" = "o0"."CustomerID" OR ("o"."CustomerID" IS NULL AND "o0"."CustomerID" IS NULL) OR ("o"."CustomerID" IS NULL AND "o0"."CustomerID" IS NULL) OR ("o"."CustomerID" IS NULL AND "o0"."CustomerID" IS NULL)) AND (
+        SELECT COUNT(*)
+        FROM "Orders" AS "o0"
+        WHERE "o"."CustomerID" = "o0"."CustomerID" OR ("o"."CustomerID" IS NULL AND "o0"."CustomerID" IS NULL) OR ("o"."CustomerID" IS NULL AND "o0"."CustomerID" IS NULL) OR ("o"."CustomerID" IS NULL AND "o0"."CustomerID" IS NULL)) IS NOT NULL)
+    FROM "Employees" AS "e"
+    GROUP BY "o"."CustomerID"
+    LIMIT 1), 0) AS "A"
+FROM "Orders" AS "o"
+GROUP BY "o"."CustomerID"
+""");
+    }
+
+    // SQLite sums decimals with its own ef_sum aggregate, emitted as a plain function, so g.Count() inside its argument mustn't be
+    // folded into a nested aggregate.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task GroupBy_decimal_Sum_with_aggregate_over_grouping_in_inline_collection(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ss.Set<OrderDetail>().GroupBy(od => od.OrderID)
+                .Select(g => new { g.Key, S = g.Sum(od => new[] { g.Count(), 0 }.Contains(2) ? od.UnitPrice : 0m) }),
+            elementSorter: e => e.Key);
+
+        AssertSql(
+            """
+SELECT "o"."OrderID" AS "Key", COALESCE(ef_sum(CASE
+    WHEN 2 IN ((
+        SELECT COUNT(*)
+        FROM "Order Details" AS "o0"
+        WHERE "o"."OrderID" = "o0"."OrderID"), 0) THEN "o"."UnitPrice"
+    ELSE '0.0'
+END), '0.0') AS "S"
+FROM "Order Details" AS "o"
+GROUP BY "o"."OrderID"
+""");
+    }
+
     // SQLite evaluates random() per row, where SQL Server's RAND() is a runtime constant - so this is the provider that
     // can catch the grouping element's filter being emitted more than once. Every order has OrderID > 0, so All holds for
     // every group whichever rows the filter samples, which is what the expected query asserts directly; EF.Functions.Random
