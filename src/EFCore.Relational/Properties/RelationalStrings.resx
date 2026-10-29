@@ -151,6 +151,9 @@
   <data name="ComplexCollectionNotMappedToJson" xml:space="preserve">
     <value>The complex collection property '{entityType}.{property}' must be mapped to a JSON column. Use 'ToJson()' to configure this complex collection as mapped to a JSON column.</value>
   </data>
+  <data name="ComplexCollectionSharedJsonColumn" xml:space="preserve">
+    <value>The complex collection '{complexCollection}' and the complex property '{complexProperty}' are both mapped to JSON column '{column}' in table '{table}', but a complex collection can't share a JSON column with a complex property that isn't a collection. Configure a different JSON column name for one of them by passing it to 'ToJson()'.</value>
+  </data>
   <data name="ComplexPropertiesSharedJsonColumn" xml:space="preserve">
     <value>The complex properties '{complexProperty1}' and '{complexProperty2}' are both mapped to JSON column '{column}' in table '{table}'. Configure a different JSON column name for one of them by passing it to 'ToJson()'.</value>
   </data>

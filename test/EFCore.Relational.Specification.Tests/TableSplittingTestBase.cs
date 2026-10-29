@@ -916,6 +916,273 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase, IClassFix
     }
 
     [Fact]
+    public virtual async Task Can_replace_dependent_with_sibling_type_sharing_json_column()
+    {
+        var contextFactory = await InitializeNonSharedTest<ContextJsonSiblingDependents>(
+            seed: context =>
+            {
+                context.Add(
+                    new Car
+                    {
+                        Id = 1,
+                        Name = "Car1",
+                        Details = new SportsCarDetails
+                        {
+                            Id = 1,
+                            Color = "Red",
+                            Specs = new CarSpecs { Doors = 2 },
+                            Extras = new CarSpecs { Doors = 1 }
+                        }
+                    });
+
+                return context.SaveChangesAsync();
+            });
+
+        using (var context = contextFactory.CreateDbContext())
+        {
+            var car = await context.Cars.Include(c => c.Details).SingleAsync();
+            context.Remove(car.Details!);
+            car.Details = new FamilyCarDetails
+            {
+                Id = 1,
+                Color = "Blue",
+                Specs = new CarSpecs { Doors = 5 },
+                Extras = new CarSpecs { Doors = 7 }
+            };
+
+            TestSqlLoggerFactory.Clear();
+            await context.SaveChangesAsync();
+        }
+
+        using (var context = contextFactory.CreateDbContext())
+        {
+            var details = Assert.IsType<FamilyCarDetails>((await context.Cars.Include(c => c.Details).SingleAsync()).Details);
+
+            Assert.Equal(5, details.Specs.Doors);
+            Assert.Equal(7, details.Extras.Doors);
+        }
+    }
+
+    [Fact]
+    public virtual async Task Can_replace_dependent_with_sibling_type_using_different_json_column()
+    {
+        var contextFactory = await InitializeNonSharedTest<ContextJsonDistinctSiblingDependents>(
+            seed: SeedSportsCar);
+
+        using (var context = contextFactory.CreateDbContext())
+        {
+            var car = await context.Cars.Include(c => c.Details).SingleAsync();
+            context.Remove(car.Details!);
+            car.Details = new FamilyCarDetails
+            {
+                Id = 1,
+                Color = "Blue",
+                Specs = new CarSpecs { Doors = 5 },
+                Extras = new CarSpecs { Doors = 60 }
+            };
+
+            TestSqlLoggerFactory.Clear();
+            await context.SaveChangesAsync();
+        }
+
+        using (var context = contextFactory.CreateDbContext())
+        {
+            Assert.Null(await context.Database.SqlQueryRaw<string?>("SELECT SportsExtras AS Value FROM Cars").SingleAsync());
+
+            var details = Assert.IsType<FamilyCarDetails>((await context.Cars.Include(c => c.Details).SingleAsync()).Details);
+            Assert.Equal(60, details.Extras.Doors);
+        }
+    }
+
+    [Fact]
+    public virtual async Task Can_replace_dependent_with_base_type_without_json_column()
+    {
+        var contextFactory = await InitializeNonSharedTest<ContextJsonDistinctSiblingDependents>(
+            seed: SeedSportsCar);
+
+        using (var context = contextFactory.CreateDbContext())
+        {
+            var car = await context.Cars.Include(c => c.Details).SingleAsync();
+            context.Remove(car.Details!);
+            car.Details = new CarDetails
+            {
+                Id = 1,
+                Color = "Blue",
+                Specs = new CarSpecs { Doors = 5 }
+            };
+
+            TestSqlLoggerFactory.Clear();
+            await context.SaveChangesAsync();
+        }
+
+        using (var context = contextFactory.CreateDbContext())
+        {
+            Assert.Null(await context.Database.SqlQueryRaw<string?>("SELECT SportsExtras AS Value FROM Cars").SingleAsync());
+
+            var details = (await context.Cars.Include(c => c.Details).SingleAsync()).Details;
+            Assert.Equal(typeof(CarDetails), details!.GetType());
+            Assert.Equal(5, details.Specs.Doors);
+        }
+    }
+
+    [Fact]
+    public virtual async Task Can_replace_dependent_with_base_type_without_any_json_column()
+    {
+        var contextFactory = await InitializeNonSharedTest<ContextJsonOnlyDerivedDependent>(
+            seed: SeedSportsCar);
+
+        using (var context = contextFactory.CreateDbContext())
+        {
+            var car = await context.Cars.Include(c => c.Details).SingleAsync();
+            context.Remove(car.Details!);
+            car.Details = new CarDetails { Id = 1, Color = "Blue" };
+
+            TestSqlLoggerFactory.Clear();
+            await context.SaveChangesAsync();
+        }
+
+        using (var context = contextFactory.CreateDbContext())
+        {
+            Assert.Null(await context.Database.SqlQueryRaw<string?>("SELECT SportsExtras AS Value FROM Cars").SingleAsync());
+
+            var details = (await context.Cars.Include(c => c.Details).SingleAsync()).Details;
+            Assert.Equal(typeof(CarDetails), details!.GetType());
+            Assert.Equal("Blue", details.Color);
+        }
+    }
+
+    [Fact]
+    public virtual async Task Can_replace_TPT_dependent_with_derived_type_and_back()
+    {
+        var contextFactory = await InitializeNonSharedTest<ContextJsonComplexTptDependent>(
+            seed: context =>
+            {
+                context.Add(
+                    new Car
+                    {
+                        Id = 1,
+                        Name = "Car1",
+                        Details = new CarDetails { Id = 1, Color = "Red", Specs = new CarSpecs { Doors = 2 } }
+                    });
+
+                return context.SaveChangesAsync();
+            });
+
+        using (var context = contextFactory.CreateDbContext())
+        {
+            var car = await context.Cars.Include(c => c.Details).SingleAsync();
+            context.Remove(car.Details!);
+            car.Details = new SportsCarDetails
+            {
+                Id = 1,
+                Color = "Blue",
+                Specs = new CarSpecs { Doors = 3 },
+                Extras = new CarSpecs { Doors = 4 }
+            };
+
+            TestSqlLoggerFactory.Clear();
+            await context.SaveChangesAsync();
+        }
+
+        using (var context = contextFactory.CreateDbContext())
+        {
+            var car = await context.Cars.Include(c => c.Details).SingleAsync();
+            var details = Assert.IsType<SportsCarDetails>(car.Details);
+            Assert.Equal(3, details.Specs.Doors);
+            Assert.Equal(4, details.Extras.Doors);
+
+            context.Remove(details);
+            car.Details = new CarDetails { Id = 1, Color = "Green", Specs = new CarSpecs { Doors = 5 } };
+            await context.SaveChangesAsync();
+        }
+
+        using (var context = contextFactory.CreateDbContext())
+        {
+            var details = (await context.Cars.Include(c => c.Details).SingleAsync()).Details;
+            Assert.Equal(typeof(CarDetails), details!.GetType());
+            Assert.Equal(5, details.Specs.Doors);
+        }
+    }
+
+    protected class ContextJsonOnlyDerivedDependent(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Car> Cars
+            => Set<Car>();
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Car>(b =>
+            {
+                b.Property(c => c.Id).ValueGeneratedNever();
+                b.HasOne(c => c.Details).WithOne().HasForeignKey<CarDetails>(d => d.Id);
+            });
+            modelBuilder.Entity<CarDetails>(b =>
+            {
+                b.ToTable("Cars");
+                b.Ignore(d => d.Specs);
+            });
+            modelBuilder.Entity<SportsCarDetails>().ComplexProperty(d => d.Extras, sb => sb.ToJson("SportsExtras"));
+        }
+    }
+
+    private static Task SeedSportsCar(DbContext context)
+    {
+        context.Add(
+            new Car
+            {
+                Id = 1,
+                Name = "Car1",
+                Details = new SportsCarDetails
+                {
+                    Id = 1,
+                    Color = "Red",
+                    Specs = new CarSpecs { Doors = 2 },
+                    Extras = new CarSpecs { Doors = 20 }
+                }
+            });
+
+        return context.SaveChangesAsync();
+    }
+
+    protected class ContextJsonDistinctSiblingDependents(DbContextOptions options) : ContextJsonSiblingDependents(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<SportsCarDetails>().ComplexProperty(d => d.Extras, sb => sb.ToJson("SportsExtras"));
+            modelBuilder.Entity<FamilyCarDetails>().ComplexProperty(d => d.Extras, sb => sb.ToJson("FamilyExtras"));
+        }
+    }
+
+    protected class ContextJsonSiblingDependents(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Car> Cars
+            => Set<Car>();
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Car>(b =>
+            {
+                b.Property(c => c.Id).ValueGeneratedNever();
+                b.HasOne(c => c.Details).WithOne().HasForeignKey<CarDetails>(d => d.Id);
+            });
+            modelBuilder.Entity<CarDetails>(b =>
+            {
+                b.ToTable("Cars");
+                b.ComplexProperty(d => d.Specs, sb => sb.ToJson("Specs"));
+            });
+            modelBuilder.Entity<SportsCarDetails>().ComplexProperty(d => d.Extras, sb => sb.ToJson("Extras"));
+            modelBuilder.Entity<FamilyCarDetails>().ComplexProperty(d => d.Extras, sb => sb.ToJson("Extras"));
+        }
+    }
+
+    protected class FamilyCarDetails : CarDetails
+    {
+        public CarSpecs Extras { get; set; } = null!;
+    }
+
+    [Fact]
     public virtual async Task Can_query_optional_dependent_with_only_json_complex_collection()
     {
         var contextFactory = await InitializeNonSharedTest<ContextJsonOnlyComplexCollectionDependent>(

@@ -213,6 +213,213 @@ ORDER BY [c].[Id]
 """);
     }
 
+    public override async Task Can_replace_dependent_with_sibling_type_sharing_json_column()
+    {
+        await base.Can_replace_dependent_with_sibling_type_sharing_json_column();
+
+        AssertSql(
+            """
+@p0='{"Doors":5}' (Nullable = false) (Size = 11)
+@p1='{"Doors":7}' (Nullable = false) (Size = 11)
+@p4='1'
+@p2='Blue' (Size = 4000)
+@p3='FamilyCarDetails' (Size = 21)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [Cars] SET [Specs] = @p0, [Extras] = @p1, [Color] = @p2, [Discriminator] = @p3
+OUTPUT 1
+WHERE [Id] = @p4;
+""",
+            //
+            """
+SELECT TOP(2) [c].[Id], [c].[Name], [c1].[Id], [c1].[Color], [c1].[Discriminator], [c1].[c], [c1].[c0], [c1].[c0]
+FROM [Cars] AS [c]
+LEFT JOIN (
+    SELECT [c0].[Id], [c0].[Color], [c0].[Discriminator], [c0].[Specs] AS [c], [c0].[Extras] AS [c0]
+    FROM [Cars] AS [c0]
+    WHERE [c0].[Color] IS NOT NULL AND [c0].[Discriminator] IS NOT NULL AND [c0].[Specs] IS NOT NULL
+) AS [c1] ON [c].[Id] = [c1].[Id]
+""");
+    }
+
+    public override async Task Can_replace_dependent_with_base_type_without_any_json_column()
+    {
+        await base.Can_replace_dependent_with_base_type_without_any_json_column();
+
+        AssertSql(
+            """
+@p0=NULL
+@p3='1'
+@p1='Blue' (Size = 4000)
+@p2='CarDetails' (Size = 21)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [Cars] SET [SportsExtras] = @p0, [Color] = @p1, [Discriminator] = @p2
+OUTPUT 1
+WHERE [Id] = @p3;
+""",
+            //
+            """
+SELECT TOP(2) [s].[Value]
+FROM (
+    SELECT SportsExtras AS Value FROM Cars
+) AS [s]
+""",
+            //
+            """
+SELECT TOP(2) [c].[Id], [c].[Name], [c1].[Id], [c1].[Color], [c1].[Discriminator], [c1].[c]
+FROM [Cars] AS [c]
+LEFT JOIN (
+    SELECT [c0].[Id], [c0].[Color], [c0].[Discriminator], [c0].[SportsExtras] AS [c]
+    FROM [Cars] AS [c0]
+    WHERE [c0].[Color] IS NOT NULL AND [c0].[Discriminator] IS NOT NULL
+) AS [c1] ON [c].[Id] = [c1].[Id]
+""");
+    }
+
+    public override async Task Can_replace_TPT_dependent_with_derived_type_and_back()
+    {
+        await base.Can_replace_TPT_dependent_with_derived_type_and_back();
+
+        AssertSql(
+            """
+@p0='{"Doors":3}' (Nullable = false) (Size = 11)
+@p2='1'
+@p1='Blue' (Size = 4000)
+@p3='{"Doors":4}' (Nullable = false) (Size = 11)
+@p4='1'
+
+SET NOCOUNT ON;
+UPDATE [Cars] SET [Specs] = @p0, [Color] = @p1
+OUTPUT 1
+WHERE [Id] = @p2;
+INSERT INTO [SportsCarDetails] ([Specs], [Id])
+VALUES (@p3, @p4);
+""",
+            //
+            """
+SELECT TOP(2) [c].[Id], [c].[Name], [s0].[Id], [s0].[Color], [s0].[c], [s0].[c0], [s0].[Discriminator]
+FROM [Cars] AS [c]
+LEFT JOIN (
+    SELECT [c0].[Id], [c0].[Color], [c0].[Specs] AS [c], [s].[Specs] AS [c0], CASE
+        WHEN [s].[Id] IS NOT NULL THEN N'SportsCarDetails'
+    END AS [Discriminator], [c0].[Specs]
+    FROM [Cars] AS [c0]
+    LEFT JOIN [SportsCarDetails] AS [s] ON [c0].[Id] = [s].[Id]
+    WHERE [c0].[Color] IS NOT NULL AND [c0].[Specs] IS NOT NULL
+) AS [s0] ON [c].[Id] = CASE
+    WHEN [s0].[Color] IS NOT NULL AND [s0].[Specs] IS NOT NULL THEN [s0].[Id]
+END
+""",
+            //
+            """
+@p0='{"Doors":5}' (Nullable = false) (Size = 11)
+@p2='1'
+@p1='Green' (Size = 4000)
+@p3='1'
+
+SET NOCOUNT ON;
+UPDATE [Cars] SET [Specs] = @p0, [Color] = @p1
+OUTPUT 1
+WHERE [Id] = @p2;
+DELETE FROM [SportsCarDetails]
+OUTPUT 1
+WHERE [Id] = @p3;
+""",
+            //
+            """
+SELECT TOP(2) [c].[Id], [c].[Name], [s0].[Id], [s0].[Color], [s0].[c], [s0].[c0], [s0].[Discriminator]
+FROM [Cars] AS [c]
+LEFT JOIN (
+    SELECT [c0].[Id], [c0].[Color], [c0].[Specs] AS [c], [s].[Specs] AS [c0], CASE
+        WHEN [s].[Id] IS NOT NULL THEN N'SportsCarDetails'
+    END AS [Discriminator], [c0].[Specs]
+    FROM [Cars] AS [c0]
+    LEFT JOIN [SportsCarDetails] AS [s] ON [c0].[Id] = [s].[Id]
+    WHERE [c0].[Color] IS NOT NULL AND [c0].[Specs] IS NOT NULL
+) AS [s0] ON [c].[Id] = CASE
+    WHEN [s0].[Color] IS NOT NULL AND [s0].[Specs] IS NOT NULL THEN [s0].[Id]
+END
+""");
+    }
+
+    public override async Task Can_replace_dependent_with_sibling_type_using_different_json_column()
+    {
+        await base.Can_replace_dependent_with_sibling_type_using_different_json_column();
+
+        AssertSql(
+            """
+@p0=NULL
+@p1='{"Doors":5}' (Nullable = false) (Size = 11)
+@p2='{"Doors":60}' (Nullable = false) (Size = 12)
+@p5='1'
+@p3='Blue' (Size = 4000)
+@p4='FamilyCarDetails' (Size = 21)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [Cars] SET [SportsExtras] = @p0, [Specs] = @p1, [FamilyExtras] = @p2, [Color] = @p3, [Discriminator] = @p4
+OUTPUT 1
+WHERE [Id] = @p5;
+""",
+            //
+            """
+SELECT TOP(2) [s].[Value]
+FROM (
+    SELECT SportsExtras AS Value FROM Cars
+) AS [s]
+""",
+            //
+            """
+SELECT TOP(2) [c].[Id], [c].[Name], [c1].[Id], [c1].[Color], [c1].[Discriminator], [c1].[c], [c1].[c0], [c1].[c1]
+FROM [Cars] AS [c]
+LEFT JOIN (
+    SELECT [c0].[Id], [c0].[Color], [c0].[Discriminator], [c0].[Specs] AS [c], [c0].[FamilyExtras] AS [c0], [c0].[SportsExtras] AS [c1]
+    FROM [Cars] AS [c0]
+    WHERE [c0].[Color] IS NOT NULL AND [c0].[Discriminator] IS NOT NULL AND [c0].[Specs] IS NOT NULL
+) AS [c1] ON [c].[Id] = [c1].[Id]
+""");
+    }
+
+    public override async Task Can_replace_dependent_with_base_type_without_json_column()
+    {
+        await base.Can_replace_dependent_with_base_type_without_json_column();
+
+        AssertSql(
+            """
+@p0=NULL
+@p1='{"Doors":5}' (Nullable = false) (Size = 11)
+@p4='1'
+@p2='Blue' (Size = 4000)
+@p3='CarDetails' (Size = 21)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [Cars] SET [SportsExtras] = @p0, [Specs] = @p1, [Color] = @p2, [Discriminator] = @p3
+OUTPUT 1
+WHERE [Id] = @p4;
+""",
+            //
+            """
+SELECT TOP(2) [s].[Value]
+FROM (
+    SELECT SportsExtras AS Value FROM Cars
+) AS [s]
+""",
+            //
+            """
+SELECT TOP(2) [c].[Id], [c].[Name], [c1].[Id], [c1].[Color], [c1].[Discriminator], [c1].[c], [c1].[c0], [c1].[c1]
+FROM [Cars] AS [c]
+LEFT JOIN (
+    SELECT [c0].[Id], [c0].[Color], [c0].[Discriminator], [c0].[Specs] AS [c], [c0].[FamilyExtras] AS [c0], [c0].[SportsExtras] AS [c1]
+    FROM [Cars] AS [c0]
+    WHERE [c0].[Color] IS NOT NULL AND [c0].[Discriminator] IS NOT NULL AND [c0].[Specs] IS NOT NULL
+) AS [c1] ON [c].[Id] = [c1].[Id]
+""");
+    }
+
     public override async Task Can_query_optional_dependent_with_nullable_json_and_scalar_properties(bool buffered)
     {
         await base.Can_query_optional_dependent_with_nullable_json_and_scalar_properties(buffered);

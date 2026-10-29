@@ -106,6 +106,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, property);
 
         /// <summary>
+        ///     The complex collection '{complexCollection}' and the complex property '{complexProperty}' are both mapped to JSON column '{column}' in table '{table}', but a complex collection can't share a JSON column with a complex property that isn't a collection. Configure a different JSON column name for one of them by passing it to 'ToJson()'.
+        /// </summary>
+        public static string ComplexCollectionSharedJsonColumn(object? complexCollection, object? complexProperty, object? column, object? table)
+            => string.Format(
+                GetString("ComplexCollectionSharedJsonColumn", nameof(complexCollection), nameof(complexProperty), nameof(column), nameof(table)),
+                complexCollection, complexProperty, column, table);
+
+        /// <summary>
         ///     The complex properties '{complexProperty1}' and '{complexProperty2}' are both mapped to JSON column '{column}' in table '{table}'. Configure a different JSON column name for one of them by passing it to 'ToJson()'.
         /// </summary>
         public static string ComplexPropertiesSharedJsonColumn(object? complexProperty1, object? complexProperty2, object? column, object? table)
