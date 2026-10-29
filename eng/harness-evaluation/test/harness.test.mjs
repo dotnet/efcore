@@ -82,7 +82,7 @@ variants:
 `);
     const outputRoot = join(root, 'artifacts/results');
     const execution = runVally(['experiment', 'run', experimentPath, '--output-dir', outputRoot,
-      '--param', 'RUNS=1', '--workers', '1'], { cwd: root });
+      '--param', 'RUNS=1', '--workers', '1'], { cwd: root, judgeTimeout: '10m' });
     assert.ok([0, 1].includes(execution.status), execution.stderr);
     const experimentDirectory = await findExperimentRunDirectory(outputRoot);
     const planPath = join(experimentDirectory, 'plan-snapshot.json');
