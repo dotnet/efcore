@@ -2320,6 +2320,22 @@ OFFSET 0 LIMIT 1
         AssertSql();
     }
 
+    public override async Task Contains_on_inline_collection_with_nullable_subquery_value(bool async)
+    {
+        // Aggregates. Issue #16146.
+        await AssertTranslationFailed(() => base.Contains_on_inline_collection_with_nullable_subquery_value(async));
+
+        AssertSql();
+    }
+
+    public override async Task Contains_on_inline_collection_with_single_nullable_subquery_value_and_null(bool async)
+    {
+        // Aggregates. Issue #16146.
+        await AssertTranslationFailed(() => base.Contains_on_inline_collection_with_single_nullable_subquery_value_and_null(async));
+
+        AssertSql();
+    }
+
     public override async Task OfType_Select(bool async)
     {
         // Contains over subquery. Issue #17246.
