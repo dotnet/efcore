@@ -674,6 +674,62 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 }
             });
 
+    [Fact]
+    public virtual Task Modify_elements_in_nested_complex_collection_mapped_to_json()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var entity = await context.Set<EntityWithNestedCollections>().OrderBy(e => e.Id).FirstAsync();
+
+                entity.Items[0].Inner[1].Value = "inner-1-modified";
+                entity.Items[0].Inner.Insert(0, new InnerEntry { Value = "inner-new" });
+                entity.Items[1].Inner.Clear();
+                entity.Items.Add(new DeepItem { Title = "Item3", Inner = [new InnerEntry { Value = "inner-3" }], Others = [] });
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                using (SuspendRecordingEvents())
+                {
+                    var entity = await context.Set<EntityWithNestedCollections>().OrderBy(e => e.Id).FirstAsync();
+                    Assert.Equal(["Item1", "Item2", "Item3"], entity.Items.Select(i => i.Title));
+                    Assert.Equal(["inner-new", "inner-0", "inner-1-modified"], entity.Items[0].Inner.Select(i => i.Value));
+                    Assert.Empty(entity.Items[1].Inner);
+                    Assert.Equal(["inner-3"], entity.Items[2].Inner.Select(i => i.Value));
+                }
+            });
+
+    [Fact]
+    public virtual Task Remove_element_with_nested_complex_collection_mapped_to_json()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var entity = await context.Set<EntityWithNestedCollections>().OrderBy(e => e.Id).FirstAsync();
+
+                // The nested elements of the remaining item move to a different ordinal
+                entity.Items.RemoveAt(0);
+                entity.Items[0].Inner.Add(new InnerEntry { Value = "inner-3" });
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                using (SuspendRecordingEvents())
+                {
+                    var entity = await context.Set<EntityWithNestedCollections>().OrderBy(e => e.Id).FirstAsync();
+                    var item = Assert.Single(entity.Items);
+                    Assert.Equal("Item2", item.Title);
+                    Assert.Equal(["inner-2", "inner-3"], item.Inner.Select(i => i.Value));
+                }
+            });
+
     [Fact] // Issue #38625
     public virtual Task Complex_collection_absent_from_json_is_materialized_as_empty()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
@@ -980,6 +1036,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
         public DbSet<CodeWidget> CodeWidgets { get; set; } = null!;
         public DbSet<OwnedCodeWidget> OwnedCodeWidgets { get; set; } = null!;
         public DbSet<EntityWithNullableMeta> EntitiesWithNullableMeta { get; set; } = null!;
+        public DbSet<EntityWithNestedCollections> EntitiesWithNestedCollections { get; set; } = null!;
     }
 
     protected class CompanyWithComplexCollections
@@ -1166,6 +1223,12 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
         public required string Value { get; set; }
     }
 
+    protected class EntityWithNestedCollections
+    {
+        public int Id { get; set; }
+        public List<DeepItem> Items { get; set; } = [];
+    }
+
     public abstract class ComplexCollectionJsonUpdateFixtureBase : SharedStoreFixtureBase<DbContext>
     {
         protected override string StoreName
@@ -1272,6 +1335,19 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                                 mb.ComplexCollection(m => m.Entries));
                     });
             });
+
+            modelBuilder.Entity<EntityWithNestedCollections>(b =>
+            {
+                b.Property(x => x.Id).ValueGeneratedNever();
+
+                b.ComplexCollection(
+                    x => x.Items, ib =>
+                    {
+                        ib.ToJson();
+                        ib.ComplexCollection(i => i.Inner);
+                        ib.ComplexCollection(i => i.Others);
+                    });
+            });
         }
 
         protected override Task SeedAsync(DbContext context)
@@ -1375,6 +1451,23 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
             };
 
             context.Add(entityWithNullableMeta);
+
+            context.Add(
+                new EntityWithNestedCollections
+                {
+                    Id = 1,
+                    Items =
+                    [
+                        new DeepItem
+                        {
+                            Title = "Item1",
+                            Inner = [new InnerEntry { Value = "inner-0" }, new InnerEntry { Value = "inner-1" }],
+                            Others = []
+                        },
+                        new DeepItem { Title = "Item2", Inner = [new InnerEntry { Value = "inner-2" }], Others = [] }
+                    ]
+                });
+
             return context.SaveChangesAsync();
         }
     }

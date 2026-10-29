@@ -458,6 +458,40 @@ public class InternalComplexEntryTest
     }
 
     [Fact]
+    public void Complex_collection_detects_reordering_after_removal_and_addition()
+    {
+        var model = CreateModel();
+        var entityType = model.FindEntityType(typeof(Blog))!;
+        var complexProperty = entityType.FindComplexProperty(nameof(Blog.Tags))!;
+
+        var serviceProvider = InMemoryTestHelpers.Instance.CreateContextServices(model);
+        var stateManager = serviceProvider.GetRequiredService<IStateManager>();
+        var changeDetector = serviceProvider.GetRequiredService<IChangeDetector>();
+
+        var tag1 = new Tag { Name = "Tag1", Priority = 1 };
+        var tag2 = new Tag { Name = "Tag2", Priority = 2 };
+        var tag3 = new Tag { Name = "Tag3", Priority = 3 };
+
+        var blog = new Blog { Tags = [tag1, tag2] };
+
+        var entityEntry = stateManager.GetOrCreateEntry(blog);
+        entityEntry.SetEntityState(EntityState.Unchanged);
+
+        // tag1 moves after the slot of the added tag3, which still holds its entry
+        blog.Tags.Remove(tag2);
+        blog.Tags.Add(tag3);
+        blog.Tags.Reverse();
+
+        changeDetector.DetectChanges(entityEntry);
+
+        Assert.Equal([1, 0], entityEntry.GetComplexCollectionEntries(complexProperty).Select(e => e!.OriginalOrdinal));
+        Assert.Equal(
+            [EntityState.Modified, EntityState.Unchanged],
+            entityEntry.GetComplexCollectionEntries(complexProperty).Select(e => e!.EntityState));
+        Assert.True(entityEntry.IsModified(complexProperty));
+    }
+
+    [Fact]
     public void Complex_collection_detects_elements_replaced_with_nulls_as_modified()
     {
         var model = CreateModel();
