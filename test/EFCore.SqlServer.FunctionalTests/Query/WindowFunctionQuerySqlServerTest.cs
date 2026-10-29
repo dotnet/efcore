@@ -304,4 +304,22 @@ LEFT JOIN [Employees] AS [e0] ON [e1].[DepartmentName] = [e0].[DepartmentName]
 ORDER BY [e1].[DepartmentName]
 """);
     }
+
+    public override async Task Elements_and_aggregate_composed_over_is_not_lifted()
+    {
+        await base.Elements_and_aggregate_composed_over_is_not_lifted();
+
+        AssertSql(
+            """
+SELECT [e1].[DepartmentName], [e0].[Id], [e0].[Bonus], [e0].[DepartmentName], [e0].[Name], [e0].[Salary], [e1].[c]
+FROM (
+    SELECT [e].[DepartmentName], AVG(CAST([e].[Salary] AS float)) AS [c]
+    FROM [Employees] AS [e]
+    GROUP BY [e].[DepartmentName]
+    HAVING AVG(CAST([e].[Salary] AS float)) > 100.0E0
+) AS [e1]
+LEFT JOIN [Employees] AS [e0] ON [e1].[DepartmentName] = [e0].[DepartmentName]
+ORDER BY [e1].[DepartmentName]
+""");
+    }
 }

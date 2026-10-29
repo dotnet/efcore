@@ -615,6 +615,27 @@ public abstract class WindowFunctionQueryRelationalTestBase(NonSharedFixture fix
             sales => Assert.Equal(0, sales.HighEarners));
     }
 
+    /// <summary>
+    ///     A projection which another operator composes over isn't lifted, even with the opt-in: the filter is about the groupings, so
+    ///     the query keeps the GROUP BY translation it has today.
+    /// </summary>
+    [Fact]
+    public virtual async Task Elements_and_aggregate_composed_over_is_not_lifted()
+    {
+        var contextFactory = await InitializeAsync(useWindowFunctionAggregates: true);
+        await using var context = contextFactory.CreateDbContext();
+
+        var results = await context.Employees
+            .GroupBy(e => e.DepartmentName)
+            .Select(g => new { g.Key, Employees = g.ToList(), AverageSalary = g.Average(e => e.Salary) })
+            .Where(x => x.AverageSalary > 100)
+            .ToListAsync();
+
+        var engineering = Assert.Single(results);
+        Assert.Equal(["Alice", "Bob", "Cheng"], engineering.Employees.Select(e => e.Name).Order());
+        Assert.Equal(200, engineering.AverageSalary);
+    }
+
     protected class WindowFunctionContext(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Employee> Employees
