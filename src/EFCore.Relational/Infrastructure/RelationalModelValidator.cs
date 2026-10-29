@@ -1075,25 +1075,13 @@ public class RelationalModelValidator(
                 .Select(e => e.GetColumnName(tableIdentifier))
                 .Where(e => e != null)
                 .ToList();
-            var requiredNonSharedColumnFound = false;
-            foreach (var property in entityType.GetProperties())
-            {
-                if (property.IsPrimaryKey()
-                    || property.IsNullable)
+            var requiredNonSharedColumnFound = entityType.GetRequiredNonPkProperties().Any(p => p switch
                 {
-                    continue;
-                }
-
-                var columnName = property.GetColumnName(tableIdentifier);
-                if (columnName != null)
-                {
-                    if (!principalColumns.Contains(columnName))
-                    {
-                        requiredNonSharedColumnFound = true;
-                        break;
-                    }
-                }
-            }
+                    IProperty property => property.GetColumnName(tableIdentifier),
+                    IComplexProperty complexProperty => complexProperty.ComplexType.GetContainerColumnName(tableIdentifier),
+                    _ => null
+                } is { } columnName
+                && !principalColumns.Contains(columnName));
 
             if (!requiredNonSharedColumnFound)
             {

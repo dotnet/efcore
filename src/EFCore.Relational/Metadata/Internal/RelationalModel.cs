@@ -650,11 +650,19 @@ public class RelationalModel : Annotatable, IRelationalModel
             complexType = (IComplexType)mappedType;
 #pragma warning disable EF1001 // Internal EF Core API usage.
             var chain = complexType.ComplexProperty.GetChainToComplexProperty(fromEntity: true);
+            StoreObjectIdentifier? storeObject = tableBase switch
+            {
+                Table table => StoreObjectIdentifier.Table(table.Name, table.Schema),
+                View view => StoreObjectIdentifier.View(view.Name, view.Schema),
+                _ => null
+            };
             var isNullable = complexType.ComplexProperty.IsNullable
                 || (chain[0].DeclaringType is IEntityType declaringEntityType
-                    && declaringEntityType.BaseType != null
-                    && (declaringEntityType.GetMappingStrategy() ?? RelationalAnnotationNames.TphMappingStrategy)
-                    == RelationalAnnotationNames.TphMappingStrategy)
+                    && ((declaringEntityType.BaseType != null
+                            && (declaringEntityType.GetMappingStrategy() ?? RelationalAnnotationNames.TphMappingStrategy)
+                            == RelationalAnnotationNames.TphMappingStrategy)
+                        || (storeObject != null
+                            && declaringEntityType.IsOptionalSharingDependent(storeObject.Value))))
                 || chain.Any(p => p.IsNullable);
 #pragma warning restore EF1001 // Internal EF Core API usage.
 

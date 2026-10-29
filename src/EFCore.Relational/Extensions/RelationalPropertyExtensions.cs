@@ -1269,30 +1269,9 @@ public static class RelationalPropertyExtensions
             || (property.DeclaringType.ContainingEntityType is { } entityType
                 && ((entityType.BaseType != null
                         && entityType.GetMappingStrategy() == RelationalAnnotationNames.TphMappingStrategy)
-                    || IsOptionalSharingDependent(entityType, storeObject, 0)))
+                    || entityType.IsOptionalSharingDependent(storeObject)))
             || (property.DeclaringType is IReadOnlyComplexType complexType
                 && IsNullable(complexType.ComplexProperty));
-    }
-
-    private static bool IsOptionalSharingDependent(
-        IReadOnlyEntityType entityType,
-        in StoreObjectIdentifier storeObject,
-        int recursionDepth)
-    {
-        if (recursionDepth++ == Metadata.Internal.RelationalEntityTypeExtensions.MaxEntityTypesSharingTable)
-        {
-            return true;
-        }
-
-        bool? optional = null;
-        foreach (var linkingForeignKey in entityType.FindRowInternalForeignKeys(storeObject))
-        {
-            optional = (optional ?? true)
-                && (!linkingForeignKey.IsRequiredDependent
-                    || IsOptionalSharingDependent(linkingForeignKey.PrincipalEntityType, storeObject, recursionDepth));
-        }
-
-        return optional ?? (entityType.BaseType != null && entityType.FindDiscriminatorProperty() != null);
     }
 
     /// <summary>

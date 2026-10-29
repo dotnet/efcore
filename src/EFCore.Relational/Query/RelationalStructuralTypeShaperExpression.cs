@@ -112,7 +112,7 @@ public class RelationalStructuralTypeShaperExpression : StructuralTypeShaperExpr
             var body = baseCondition.Body;
             var valueBufferParameter = baseCondition.Parameters[0];
             Expression? condition = null;
-            var requiredNonPkProperties = entityType.GetProperties().Where(p => !p.IsNullable && !p.IsPrimaryKey()).ToList();
+            var requiredNonPkProperties = entityType.GetRequiredNonPkProperties();
             if (requiredNonPkProperties.Count > 0)
             {
                 condition = requiredNonPkProperties
@@ -125,7 +125,7 @@ public class RelationalStructuralTypeShaperExpression : StructuralTypeShaperExpr
             var allNonPrincipalSharedNonPkProperties = entityType.GetNonPrincipalSharedNonPkProperties(table);
             // We don't need condition for nullable property if there exist at least one required property which is non shared.
             if (allNonPrincipalSharedNonPkProperties.Count != 0
-                && allNonPrincipalSharedNonPkProperties.All(p => p.IsNullable))
+                && allNonPrincipalSharedNonPkProperties.All(p => p.IsNullable()))
             {
                 var atLeastOneNonNullValueInNullablePropertyCondition = allNonPrincipalSharedNonPkProperties
                     .Select(p => NotEqual(
