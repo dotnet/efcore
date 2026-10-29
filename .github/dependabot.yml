@@ -5,7 +5,7 @@ registries:
     url: https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-public/nuget/v3/index.json
   dotnet-npm:
     type: npm-registry
-    url: https://packagefeedproxy.microsoft.io/npm/
+    url: https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-public-npm/npm/registry/
 updates:
   - package-ecosystem: "nuget"
     directory: "/"
