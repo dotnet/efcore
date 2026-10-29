@@ -458,49 +458,49 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 
             static ITableBase GetTableBaseFiltered(IEntityType entityType, Dictionary<ITableBase, string> existingTables)
                 => entityType.GetQueryMappings().Single(m => !existingTables.ContainsKey(m.Table)).Table;
+        }
+    }
 
-            static ITableBase FindTable(IComplexProperty complexProperty, IReadOnlyList<ITableMappingBase> mappings)
-                => TryFindTable(complexProperty, mappings)
-                    ?? complexProperty.ComplexType.GetQueryMappings().Single().Table;
+    internal static ITableBase FindTable(IComplexProperty complexProperty, IReadOnlyList<ITableMappingBase> mappings)
+        => TryFindTable(complexProperty, mappings)
+            ?? complexProperty.ComplexType.GetQueryMappings().Single().Table;
 
-            static ITableBase? TryFindTable(IComplexProperty complexProperty, IReadOnlyList<ITableMappingBase> mappings)
+    private static ITableBase? TryFindTable(IComplexProperty complexProperty, IReadOnlyList<ITableMappingBase> mappings)
+    {
+        if (complexProperty.ComplexType.IsMappedToJson())
+        {
+            foreach (var mapping in mappings)
             {
-                if (complexProperty.ComplexType.IsMappedToJson())
+                if (mapping.Table.FindColumn(complexProperty) is { } containerColumn)
                 {
-                    foreach (var mapping in mappings)
-                    {
-                        if (mapping.Table.FindColumn(complexProperty) is { } containerColumn)
-                        {
-                            return containerColumn.Table;
-                        }
-                    }
-
-                    return null;
+                    return containerColumn.Table;
                 }
+            }
 
-                foreach (var property in complexProperty.ComplexType.GetProperties())
+            return null;
+        }
+
+        foreach (var property in complexProperty.ComplexType.GetProperties())
+        {
+            foreach (var mapping in mappings)
+            {
+                if (mapping.Table.FindColumn(property) is { } column)
                 {
-                    foreach (var mapping in mappings)
-                    {
-                        if (mapping.Table.FindColumn(property) is { } column)
-                        {
-                            return column.Table;
-                        }
-                    }
+                    return column.Table;
                 }
-
-                foreach (var nestedComplexProperty in complexProperty.ComplexType.GetComplexProperties())
-                {
-                    var nestedTable = TryFindTable(nestedComplexProperty, mappings);
-                    if (nestedTable is not null)
-                    {
-                        return nestedTable;
-                    }
-                }
-
-                return null;
             }
         }
+
+        foreach (var nestedComplexProperty in complexProperty.ComplexType.GetComplexProperties())
+        {
+            var nestedTable = TryFindTable(nestedComplexProperty, mappings);
+            if (nestedTable is not null)
+            {
+                return nestedTable;
+            }
+        }
+
+        return null;
     }
 
     private SelectExpression GenerateSingleTableSelect(IEntityType entityType, ITableBase table, TableExpressionBase tableExpression)
@@ -560,7 +560,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         return new SelectExpression([tableExpression], projection, identifier, _sqlAliasManager);
     }
 
-    private static Expression ProcessComplexProperty(
+    internal static Expression ProcessComplexProperty(
         IComplexProperty complexProperty,
         ITableBase table,
         string tableAlias,
