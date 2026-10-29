@@ -14402,6 +14402,10 @@
           "Member": "RelationalQueryableMethodTranslatingExpressionVisitor(Microsoft.EntityFrameworkCore.Query.RelationalQueryableMethodTranslatingExpressionVisitor parentVisitor);"
         },
         {
+          "Member": "virtual bool CanTranslateAggregateAsWindowFunction(Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlFunctionExpression function);",
+          "Stage": "Experimental"
+        },
+        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Query.SqlExpressions.SelectExpression CreateSelect(Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType);"
         },
         {
@@ -14418,10 +14422,6 @@
         },
         {
           "Member": "virtual bool IsValidSelectExpressionForExecuteUpdate(Microsoft.EntityFrameworkCore.Query.SqlExpressions.SelectExpression selectExpression, Microsoft.EntityFrameworkCore.Query.SqlExpressions.TableExpressionBase targetTable, out Microsoft.EntityFrameworkCore.Query.SqlExpressions.TableExpression? tableExpression);"
-        },
-        {
-          "Member": "virtual bool IsWindowFunctionSupported(Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlFunctionExpression function);",
-          "Stage": "Experimental"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression? TransformJsonQueryToTable(Microsoft.EntityFrameworkCore.Query.JsonQueryExpression jsonQueryExpression);"

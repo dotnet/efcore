@@ -944,7 +944,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                 // window. An aggregate whose translation wraps the function - Sum and Average over a float become a CAST around it -
                 // keeps the regular GROUP BY translation, as does one the provider can't evaluate over a window.
                 if (_sqlTranslator.Translate(analyzer.Aggregates[i]) is not SqlFunctionExpression aggregate
-                    || !IsWindowFunctionSupported(aggregate))
+                    || !CanTranslateAggregateAsWindowFunction(aggregate))
                 {
                     return null;
                 }
@@ -1115,7 +1115,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     /// <param name="function">The translated aggregate function.</param>
     /// <returns><see langword="true" /> if the aggregate can be translated as a window function.</returns>
     [Experimental(EFDiagnostics.ExperimentalApi)]
-    protected virtual bool IsWindowFunctionSupported(SqlFunctionExpression function)
+    protected virtual bool CanTranslateAggregateAsWindowFunction(SqlFunctionExpression function)
         => true;
 
     /// <summary>
