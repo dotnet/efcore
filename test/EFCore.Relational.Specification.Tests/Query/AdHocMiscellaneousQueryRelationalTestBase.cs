@@ -2339,6 +2339,128 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Distinct_value_converted_object_with_collection(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<ContextConvertedObjectKey>(seed: c => c.SeedAsync());
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Posts
+                .Select(p => p.Tag)
+                .Distinct()
+                .Select(t => new { Tag = t, Ids = context.Posts.Where(p => p.Tag == t).Select(p => p.Id).ToList() });
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            Assert.Collection(
+                result.OrderBy(t => ((ContextConvertedObjectKey.Tag)t.Tag).Name),
+                efcore =>
+                {
+                    Assert.Equal("efcore", ((ContextConvertedObjectKey.Tag)efcore.Tag).Name);
+                    Assert.Equal([1, 2], efcore.Ids.Order());
+                },
+                linq =>
+                {
+                    Assert.Equal("linq", ((ContextConvertedObjectKey.Tag)linq.Tag).Name);
+                    Assert.Equal([3], linq.Ids);
+                });
+        }
+
+        // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+        protected class ContextConvertedObjectKey(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<Post> Posts
+                => Set<Post>();
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Post>().Property(p => p.Id).ValueGeneratedNever();
+                modelBuilder.Entity<Post>().Property(p => p.Tag).HasConversion<string>(t => ((Tag)t).Name, n => new Tag { Name = n });
+            }
+
+            public Task SeedAsync()
+            {
+                AddRange(
+                    new Post { Id = 1, Tag = new Tag { Name = "efcore" } },
+                    new Post { Id = 2, Tag = new Tag { Name = "efcore" } },
+                    new Post { Id = 3, Tag = new Tag { Name = "linq" } });
+
+                return SaveChangesAsync();
+            }
+
+            public class Post
+            {
+                public int Id { get; set; }
+                public object Tag { get; set; } = null!;
+            }
+
+            // The default comparer for object compares with ==, so even an Equals override doesn't make two reads equal.
+            public class Tag
+            {
+                public string Name { get; set; } = null!;
+
+                public override bool Equals(object? obj)
+                    => obj is Tag other && other.Name == Name;
+
+                public override int GetHashCode()
+                    => Name.GetHashCode();
+            }
+        }
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Distinct_primitive_collection_with_collection(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<ContextPrimitiveCollectionKey>(seed: c => c.SeedAsync());
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Posts
+                .Select(p => p.Tags)
+                .Distinct()
+                .Select(t => new { Tags = t, Ids = context.Posts.Where(p => p.Tags == t).Select(p => p.Id).ToList() });
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            // The mapping's own structural comparer is kept, rather than serializing both lists again to compare them.
+            Assert.Collection(
+                result.OrderBy(t => t.Tags[0]),
+                efcore =>
+                {
+                    Assert.Equal(["efcore", "query"], efcore.Tags);
+                    Assert.Equal([1, 2], efcore.Ids.Order());
+                },
+                linq =>
+                {
+                    Assert.Equal(["linq"], linq.Tags);
+                    Assert.Equal([3], linq.Ids);
+                });
+        }
+
+        // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+        protected class ContextPrimitiveCollectionKey(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<Post> Posts
+                => Set<Post>();
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+                => modelBuilder.Entity<Post>().Property(p => p.Id).ValueGeneratedNever();
+
+            public Task SeedAsync()
+            {
+                AddRange(
+                    new Post { Id = 1, Tags = ["efcore", "query"] },
+                    new Post { Id = 2, Tags = ["efcore", "query"] },
+                    new Post { Id = 3, Tags = ["linq"] });
+
+                return SaveChangesAsync();
+            }
+
+            public class Post
+            {
+                public int Id { get; set; }
+                public List<string> Tags { get; set; } = null!;
+            }
+        }
+
         #endregion
 
         #region 30233

@@ -1927,22 +1927,30 @@ public sealed partial class SelectExpression : TableExpressionBase
     // value can materialize as instances which the mapping's key comparer doesn't consider equal - a class without Equals compares
     // by reference - so every row would look like the start of a new collection or grouping, and the shaper would never move past
     // it. The database told those rows apart by their provider values, so values of such a type are compared as such. Any other
-    // type keeps the mapping's key comparer: going back through the converter to compare values runs code the read never did, which
-    // needn't give the same provider value twice (randomized encryption doesn't), and can't be inlined into a precompiled query
-    // when it captures state.
+    // type, or a mapping that was given its own comparers (a primitive collection's structural one, say), keeps the mapping's key
+    // comparer: going back through the converter to compare values runs code the read never did, which needn't give the same
+    // provider value twice (randomized encryption doesn't), and can't be inlined into a precompiled query when it captures state.
     private static ValueComparer GetIdentifierComparer(CoreTypeMapping typeMapping)
-        => typeMapping is { Converter: { } converter, ClrType: var clrType } && ComparesByReference(clrType)
+#pragma warning disable EF1001 // Internal EF Core API usage.
+        => typeMapping is { Converter: { } converter, ClrType: var clrType, HasDefaultComparers: true } && ComparesByReference(clrType)
+#pragma warning restore EF1001 // Internal EF Core API usage.
             ? (ValueComparer)CreateProviderValueIdentifierComparerMethod.MakeGenericMethod(clrType)
                 .Invoke(null, [converter, typeMapping.ProviderValueComparer])!
             : typeMapping.KeyComparer;
 
-    // Whether the default comparer for the type, which a converted type's mapping gets, ends up at object.Equals without an override.
-    // An interface or object itself declares nothing of the sort: what Equals does depends on the instance, so it is left alone.
+    // Whether the default comparer for the type, which a converted type's mapping gets, compares by reference: object itself is
+    // compared with ==, whatever Equals the instance overrides, and other classes end up at object.Equals without an override.
+    // An interface declares nothing of the sort: Equals is called on the instance, so what it does depends on that, and it is left
+    // alone.
     private static bool ComparesByReference(Type type)
     {
+        if (type == typeof(object))
+        {
+            return true;
+        }
+
         if (type.IsValueType
             || type.IsInterface
-            || type == typeof(object)
             || type == typeof(string)
             || typeof(IStructuralEquatable).IsAssignableFrom(type)
             || type.GetMethod(nameof(object.Equals), [typeof(object)]) is not { DeclaringType: var equalsDeclaringType }
