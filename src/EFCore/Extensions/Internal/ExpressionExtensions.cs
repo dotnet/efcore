@@ -31,7 +31,9 @@ public static class ExpressionExtensions
         var isNullableValueType = currentValueExpression.Type.IsGenericType
             && currentValueExpression.Type.GetGenericTypeDefinition() == typeof(Nullable<>);
 
-        if (isNullableValueType && currentValueExpression is not ParameterExpression)
+        if (isNullableValueType
+            && propertyBase?.DeclaringType is IRuntimeComplexType { CollectionDepth: > 0 }
+            && currentValueExpression is not ParameterExpression)
         {
             var value = Expression.Variable(currentValueExpression.Type, "value");
 
