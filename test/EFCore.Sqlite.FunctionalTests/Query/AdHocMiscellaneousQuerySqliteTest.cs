@@ -180,13 +180,13 @@ ORDER BY "d"."Id"
 
         AssertSql(
             """
-SELECT CAST("u"."Role" AS TEXT)
+SELECT "u"."Role"
 FROM "Users" AS "u"
 ORDER BY "u"."Id"
 """,
             //
             """
-SELECT CAST("u"."NullableRole" AS TEXT)
+SELECT "u"."NullableRole"
 FROM "Users" AS "u"
 WHERE "u"."NullableRole" IS NOT NULL
 ORDER BY "u"."Id"
@@ -205,9 +205,16 @@ ORDER BY "u"."Id"
 """,
             //
             """
-SELECT CAST("u"."Role" AS TEXT)
+SELECT "u"."Role"
 FROM "Users" AS "u"
 WHERE "u"."Role" = 'Admin'
+ORDER BY "u"."Id"
+""",
+            //
+            """
+SELECT "u"."Role"
+FROM "Users" AS "u"
+WHERE instr("u"."Role", 'Adm') > 0
 ORDER BY "u"."Id"
 """);
     }

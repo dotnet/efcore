@@ -352,6 +352,8 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 => VisitAtTimeZone(sqlAtTimeZoneExpression, allowOptimizedExpansion, out nullable),
             CaseExpression caseExpression
                 => VisitCase(caseExpression, allowOptimizedExpansion, out nullable),
+            ClrTypeChangeExpression clrTypeChangeExpression
+                => VisitClrTypeChange(clrTypeChangeExpression, allowOptimizedExpansion, out nullable),
             CollateExpression collateExpression
                 => VisitCollate(collateExpression, allowOptimizedExpansion, out nullable),
             ColumnExpression columnExpression
@@ -682,6 +684,20 @@ public class SqlNullabilityProcessor : ExpressionVisitor
             }
         }
     }
+
+    /// <summary>
+    ///     Visits a <see cref="ClrTypeChangeExpression" /> and computes its nullability.
+    /// </summary>
+    /// <param name="clrTypeChangeExpression">A CLR type change expression to visit.</param>
+    /// <param name="allowOptimizedExpansion">Whether optimized expansion is allowed.</param>
+    /// <param name="nullable">Whether the SQL expression is nullable.</param>
+    /// <returns>An optimized SQL expression.</returns>
+    protected virtual SqlExpression VisitClrTypeChange(
+        ClrTypeChangeExpression clrTypeChangeExpression,
+        bool allowOptimizedExpansion,
+        out bool nullable)
+        => clrTypeChangeExpression.Update(
+            Visit(clrTypeChangeExpression.Operand, allowOptimizedExpansion, out nullable));
 
     /// <summary>
     ///     Visits a <see cref="CollateExpression" /> and computes its nullability.
