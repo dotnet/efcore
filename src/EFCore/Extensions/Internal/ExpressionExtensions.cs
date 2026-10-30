@@ -31,6 +31,16 @@ public static class ExpressionExtensions
         var isNullableValueType = currentValueExpression.Type.IsGenericType
             && currentValueExpression.Type.GetGenericTypeDefinition() == typeof(Nullable<>);
 
+        if (isNullableValueType && currentValueExpression is not ParameterExpression)
+        {
+            var value = Expression.Variable(currentValueExpression.Type, "value");
+
+            return Expression.Block(
+                [value],
+                Expression.Assign(value, currentValueExpression),
+                value.MakeHasSentinel(propertyBase));
+        }
+
         if (sentinel == null)
         {
             return isReferenceType
