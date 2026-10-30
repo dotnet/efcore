@@ -10,6 +10,21 @@ public class ComplexCollectionJsonUpdateSqliteTest : ComplexCollectionJsonUpdate
         : base(fixture)
         => ClearLog();
 
+    public override async Task Save_nested_complex_collection_with_nullable_property(bool async)
+    {
+        await base.Save_nested_complex_collection_with_nullable_property(async);
+
+        AssertSql(
+            """
+@p0='[{"Revisions":[{"PublishedOn":"2001-02-03"}]},{"Revisions":[{"PublishedOn":null}]}]' (Nullable = false) (Size = 83)
+@p1='1'
+
+UPDATE "Blog" SET "Posts" = @p0
+WHERE "Id" = @p1
+RETURNING 1;
+""");
+    }
+
     public override async Task Add_element_to_complex_collection_mapped_to_json()
     {
         await base.Add_element_to_complex_collection_mapped_to_json();

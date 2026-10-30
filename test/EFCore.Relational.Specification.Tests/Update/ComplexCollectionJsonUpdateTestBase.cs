@@ -18,6 +18,66 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
     protected ComplexCollectionJsonContext CreateContext()
         => (ComplexCollectionJsonContext)Fixture.CreateContext();
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual Task Save_nested_complex_collection_with_nullable_property(bool async)
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var blog = new Blog
+                {
+                    Id = 1,
+                    Posts =
+                    [
+                        new Post { Revisions = [new Revision { PublishedOn = null }] },
+                        new Post { Revisions = [new Revision { PublishedOn = new DateOnly(2000, 1, 1) }] }
+                    ]
+                };
+
+                context.Add(blog);
+
+                if (async)
+                {
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.SaveChanges();
+                }
+
+                blog.Posts[0].Revisions[0].PublishedOn = new DateOnly(2001, 2, 3);
+                blog.Posts[1].Revisions[0].PublishedOn = null;
+                context.ChangeTracker.DetectChanges();
+                Assert.Equal(EntityState.Modified, Assert.Single(context.ChangeTracker.Entries<Blog>()).State);
+
+                ClearLog();
+
+                if (async)
+                {
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.SaveChanges();
+                }
+            },
+            async context =>
+            {
+                using (SuspendRecordingEvents())
+                {
+                    var blog = async
+                        ? await context.Set<Blog>().SingleAsync()
+                        : context.Set<Blog>().Single();
+
+                    Assert.Equal(2, blog.Posts.Count);
+                    Assert.Equal(new DateOnly(2001, 2, 3), Assert.Single(blog.Posts[0].Revisions).PublishedOn);
+                    Assert.Null(Assert.Single(blog.Posts[1].Revisions).PublishedOn);
+                }
+            });
+
     [Fact]
     public virtual Task Add_element_to_complex_collection_mapped_to_json()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
@@ -911,7 +971,9 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 var exception = await Assert.ThrowsAsync<InvalidOperationException>(
                     () => context.Set<CodeWidget>().OrderBy(w => w.Id).FirstAsync());
 
-                Assert.Equal(RelationalStrings.NullValueInRequiredJsonProperty("CustomCodes"), exception.Message);
+                Assert.Equal(
+                    RelationalStrings.NullValueInRequiredJsonProperty("CustomCodes"),
+                    Assert.IsType<InvalidOperationException>(exception.InnerException).Message);
             });
 
     [Fact] // Issue #38625
@@ -1218,6 +1280,22 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
         public List<MetaEntry> Entries { get; set; } = [];
     }
 
+    protected class Blog
+    {
+        public int Id { get; set; }
+        public List<Post> Posts { get; set; } = [];
+    }
+
+    protected class Post
+    {
+        public List<Revision> Revisions { get; set; } = [];
+    }
+
+    protected class Revision
+    {
+        public DateOnly? PublishedOn { get; set; }
+    }
+
     protected class MetaEntry
     {
         public required string Value { get; set; }
@@ -1231,6 +1309,9 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
 
     public abstract class ComplexCollectionJsonUpdateFixtureBase : SharedStoreFixtureBase<DbContext>
     {
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => base.AddOptions(builder).EnableDetailedErrors();
+
         protected override string StoreName
             => "ComplexCollectionJsonUpdateTest";
 
@@ -1245,6 +1326,12 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
+            modelBuilder.Entity<Blog>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+                b.ComplexCollection(e => e.Posts, b => b.ToJson());
+            });
+
             modelBuilder.Entity<CompanyWithComplexCollections>(b =>
             {
                 b.Property(x => x.Id).ValueGeneratedNever();
