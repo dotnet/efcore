@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Reflection.Emit;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -128,6 +129,33 @@ public class BackingFieldConventionTest
         Validate(property);
 
         Assert.Null(property.GetFieldName());
+    }
+
+    [Fact]
+    public void FSharp_explicit_field_is_matched()
+    {
+        // F# compiles 'val' and 'member val' fields as "<name>@", which cannot be declared in C#
+        var typeBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName("FSharpFields"), AssemblyBuilderAccess.Run)
+            .DefineDynamicModule("FSharpFields")
+            .DefineType("Alert", TypeAttributes.Public);
+        var field = typeBuilder.DefineField("hypervisor@", typeof(int), FieldAttributes.Assembly);
+        typeBuilder.DefineField("_hypervisor", typeof(int), FieldAttributes.Private);
+        var getter = typeBuilder.DefineMethod(
+            "get_hypervisor", MethodAttributes.Public | MethodAttributes.SpecialName, typeof(int), Type.EmptyTypes);
+        var il = getter.GetILGenerator();
+        il.Emit(OpCodes.Ldarg_0);
+        il.Emit(OpCodes.Ldfld, field);
+        il.Emit(OpCodes.Ret);
+        typeBuilder.DefineProperty("hypervisor", PropertyAttributes.None, typeof(int), null).SetGetMethod(getter);
+        var type = typeBuilder.CreateType();
+
+        var entityType = CreateModel().AddEntityType(type);
+        var property = entityType.AddProperty(type.GetProperty("hypervisor")!);
+
+        RunConvention(property);
+        Validate(property);
+
+        Assert.Equal("hypervisor@", property.GetFieldName());
     }
 
     private void FieldMatchTest<TEntity>(string propertyName, string? fieldName)
