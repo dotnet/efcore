@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.TestModels.Northwind;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public class NorthwindGroupByQuerySqlServerTest : NorthwindGroupByQueryRelationalTestBase<
@@ -5607,6 +5609,101 @@ FROM (
 INNER JOIN [Orders] AS [o0] ON [c0].[CustomerID] = [o0].[CustomerID]
 ORDER BY [c0].[Key], [c0].[CustomerID]
 """);
+    }
+
+    public override async Task GroupBy_string_aggregate_as_element_of_inline_collection_Contains(bool async)
+    {
+        await base.GroupBy_string_aggregate_as_element_of_inline_collection_Contains(async);
+
+        AssertSql(
+            """
+SELECT [c].[City] AS [Key], CASE
+    WHEN N'ALFKI' IN (COALESCE(STRING_AGG([c].[CustomerID], N'|'), N''), N'') THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [IsAlfki]
+FROM [Customers] AS [c]
+GROUP BY [c].[City]
+""");
+    }
+
+    public override async Task GroupBy_string_aggregate_as_element_of_inline_collection_Contains_in_predicate(bool async)
+    {
+        await base.GroupBy_string_aggregate_as_element_of_inline_collection_Contains_in_predicate(async);
+
+        AssertSql(
+            """
+SELECT [c].[City]
+FROM [Customers] AS [c]
+GROUP BY [c].[City]
+HAVING N'ALFKI' IN (COALESCE(STRING_AGG([c].[CustomerID], N'|'), N''), N'')
+""");
+    }
+
+    public override async Task GroupBy_string_aggregate_as_element_of_inline_collection_Contains_from_inner_query(bool async)
+    {
+        await base.GroupBy_string_aggregate_as_element_of_inline_collection_Contains_from_inner_query(async);
+
+        AssertSql();
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task GroupBy_statistical_aggregate_as_element_of_inline_collection_Contains_in_predicate(bool async)
+    {
+        await using var context = CreateContext();
+
+        // The population standard deviation is zero exactly when every quantity in the order is the same.
+        var expected = context.Set<OrderDetail>().AsEnumerable().GroupBy(od => od.OrderID)
+            .Where(g => g.Select(od => od.Quantity).Distinct().Count() == 1)
+            .Select(g => g.Key)
+            .Order()
+            .ToList();
+        ClearLog();
+
+        var query = context.Set<OrderDetail>().GroupBy(od => od.OrderID)
+            .Where(g => new[] { EF.Functions.StandardDeviationPopulation(g.Select(od => (double)od.Quantity)), -1 }.Contains(0))
+            .Select(g => g.Key);
+
+        var results = async ? await query.ToListAsync() : query.ToList();
+
+        Assert.NotEmpty(expected);
+        Assert.Equal(expected, results.Order());
+
+        AssertSql(
+            """
+SELECT [o].[OrderID]
+FROM [Order Details] AS [o]
+GROUP BY [o].[OrderID]
+HAVING 0.0E0 IN (STDEVP(CAST([o].[Quantity] AS float)), -1.0E0)
+""");
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task GroupBy_statistical_aggregate_as_element_of_inline_collection_Contains_from_inner_query(bool async)
+    {
+        await using var context = CreateContext();
+
+        var query = context.Set<Order>().GroupBy(o => o.CustomerID)
+            .Select(g => new
+            {
+                g.Key,
+                A = context.Set<Employee>().Where(e => e.City == "Seattle").GroupBy(e => e.City)
+                    .Select(g2 => new[]
+                    {
+                        EF.Functions.StandardDeviationPopulation(g.Select(o => (double)(o.OrderID + g2.Key!.Length))), -1
+                    }.Contains(0))
+                    .FirstOrDefault()
+            });
+
+        if (async)
+        {
+            await AssertTranslationFailed(() => query.ToListAsync());
+        }
+        else
+        {
+            AssertTranslationFailed(() => query.ToList());
+        }
+
+        AssertSql();
     }
 
     private void AssertSql(params string[] expected)
