@@ -1014,7 +1014,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                 }
 
                 var refusedAggregate = TakeRefusedGroupingAggregate();
-                return WithRefusedGroupingAggregate(TranslateAsSubquery(methodCallExpression), refusedAggregate);
+                return WithRefusedGroupingAggregate(TranslateAsSubquery(methodCallExpression), refusedAggregate, methodCallExpression);
             }
 
             default:
@@ -1065,7 +1065,8 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
         }
 
         var refusedGroupingAggregate = TakeRefusedGroupingAggregate();
-        translation = WithRefusedGroupingAggregate(TranslateAsSubquery(methodCallExpression), refusedGroupingAggregate);
+        translation = WithRefusedGroupingAggregate(
+            TranslateAsSubquery(methodCallExpression), refusedGroupingAggregate, methodCallExpression);
         if (translation != QueryCompilationContext.NotTranslatedExpression)
         {
             return translation;
@@ -1845,15 +1846,24 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
     }
 
     // The refused aggregate hasn't had a type mapping applied, and nothing will apply one through the marker, so it is given the
-    // fallback's; a fallback without one is left on its own.
+    // fallback's; a fallback without one is left on its own. When the aggregate can't be translated as a subquery at all - a provider
+    // aggregate such as STDEVP or STRING_AGG - it is kept without a fallback, so that it can still be folded in where that's safe.
     private Expression WithRefusedGroupingAggregate(
         Expression fallback,
-        (SqlExpression Aggregate, IReadOnlyList<SqlExpression> GroupingKeys)? refusedGroupingAggregate)
+        (SqlExpression Aggregate, IReadOnlyList<SqlExpression> GroupingKeys)? refusedGroupingAggregate,
+        MethodCallExpression aggregateCall)
         => refusedGroupingAggregate is var (aggregate, groupingKeys)
-            && fallback is SqlExpression { TypeMapping: { } typeMapping } sqlFallback
-                ? new GroupingAggregateFallbackExpression(
-                    sqlFallback, _sqlExpressionFactory.ApplyTypeMapping(aggregate, typeMapping), groupingKeys)
-                : fallback;
+            ? fallback switch
+            {
+                SqlExpression { TypeMapping: { } typeMapping } sqlFallback
+                    => new GroupingAggregateFallbackExpression(
+                        sqlFallback, _sqlExpressionFactory.ApplyTypeMapping(aggregate, typeMapping), groupingKeys, aggregateCall),
+                _ when fallback == QueryCompilationContext.NotTranslatedExpression
+                    => new GroupingAggregateFallbackExpression(
+                        fallback: null, _sqlExpressionFactory.ApplyDefaultTypeMapping(aggregate), groupingKeys, aggregateCall),
+                _ => fallback
+            }
+            : fallback;
 
     // Whether SQL evaluates an aggregate written in the innermost translation scope over the rows of the given query. Unknown scopes
     // (null) and columns from tables of no known scope count against it, so a translation path which doesn't say where its SQL goes

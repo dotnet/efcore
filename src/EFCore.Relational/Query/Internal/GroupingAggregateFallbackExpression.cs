@@ -7,24 +7,28 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 
 // An aggregate over a grouping that the SQL translator refused to fold into the query owning the grouping, because it couldn't tell
 // that SQL would evaluate it there - typically because the query it was translated for isn't the one it ends up in, as with an element
-// of an inline collection that Contains later lifts into an IN (#27130). Carries both the correlated subquery fallback and the folded
-// aggregate, so that GroupingAggregateFoldingExpressionVisitor can pick the folded one once the final SQL tree shows it is safe.
-// Never survives query translation postprocessing.
+// of an inline collection that Contains later lifts into an IN (#27130). Carries the folded aggregate and, when there is one, the
+// correlated subquery fallback, so that GroupingAggregateFoldingExpressionVisitor can pick the folded one once the final SQL tree shows
+// it is safe. A provider aggregate such as STDEVP or STRING_AGG has no subquery fallback; if it can't be folded either, it fails to
+// translate then. Never survives query translation postprocessing.
 internal sealed class GroupingAggregateFallbackExpression : SqlExpression
 {
     public GroupingAggregateFallbackExpression(
-        SqlExpression fallback,
+        SqlExpression? fallback,
         SqlExpression foldedAggregate,
-        IReadOnlyList<SqlExpression> groupingKeys)
-        : base(fallback.Type, fallback.TypeMapping)
+        IReadOnlyList<SqlExpression> groupingKeys,
+        Expression aggregateCall)
+        : base(fallback?.Type ?? foldedAggregate.Type, fallback?.TypeMapping ?? foldedAggregate.TypeMapping)
     {
         Fallback = fallback;
         FoldedAggregate = foldedAggregate;
         GroupingKeys = groupingKeys;
+        AggregateCall = aggregateCall;
     }
 
-    // The translation to use unless the folded aggregate is shown safe: a correlated subquery over the grouping element.
-    public SqlExpression Fallback { get; }
+    // The translation to use unless the folded aggregate is shown safe: a correlated subquery over the grouping element, or null when
+    // the aggregate can't be translated as one.
+    public SqlExpression? Fallback { get; }
 
     // The aggregate over the owning query's GROUP BY.
     public SqlExpression FoldedAggregate { get; }
@@ -33,9 +37,12 @@ internal sealed class GroupingAggregateFallbackExpression : SqlExpression
     // the folded aggregate when a query is cloned with new table aliases.
     public IReadOnlyList<SqlExpression> GroupingKeys { get; }
 
+    // The LINQ aggregate call, for the translation failure reported when there's no fallback and the aggregate can't be folded.
+    public Expression AggregateCall { get; }
+
     protected override Expression VisitChildren(ExpressionVisitor visitor)
     {
-        var fallback = (SqlExpression)visitor.Visit(Fallback);
+        var fallback = (SqlExpression?)visitor.Visit(Fallback);
         var foldedAggregate = (SqlExpression)visitor.Visit(FoldedAggregate);
 
         var groupingKeys = (List<SqlExpression>?)null;
@@ -51,7 +58,7 @@ internal sealed class GroupingAggregateFallbackExpression : SqlExpression
         }
 
         return fallback != Fallback || foldedAggregate != FoldedAggregate || groupingKeys is not null
-            ? new GroupingAggregateFallbackExpression(fallback, foldedAggregate, groupingKeys ?? GroupingKeys)
+            ? new GroupingAggregateFallbackExpression(fallback, foldedAggregate, groupingKeys ?? GroupingKeys, AggregateCall)
             : this;
     }
 
@@ -62,8 +69,12 @@ internal sealed class GroupingAggregateFallbackExpression : SqlExpression
     protected override void Print(ExpressionPrinter expressionPrinter)
     {
         expressionPrinter.Append("GROUPING_AGGREGATE_FALLBACK(");
-        expressionPrinter.Visit(Fallback);
-        expressionPrinter.Append(", ");
+        if (Fallback is not null)
+        {
+            expressionPrinter.Visit(Fallback);
+            expressionPrinter.Append(", ");
+        }
+
         expressionPrinter.Visit(FoldedAggregate);
         expressionPrinter.Append(")");
     }
@@ -76,7 +87,7 @@ internal sealed class GroupingAggregateFallbackExpression : SqlExpression
 
     private bool Equals(GroupingAggregateFallbackExpression groupingAggregateFallbackExpression)
         => base.Equals(groupingAggregateFallbackExpression)
-            && Fallback.Equals(groupingAggregateFallbackExpression.Fallback)
+            && Equals(Fallback, groupingAggregateFallbackExpression.Fallback)
             && FoldedAggregate.Equals(groupingAggregateFallbackExpression.FoldedAggregate)
             && GroupingKeys.SequenceEqual(groupingAggregateFallbackExpression.GroupingKeys);
 

@@ -33,7 +33,9 @@ internal sealed class GroupingAggregateFoldingExpressionVisitor : ExpressionVisi
             case GroupingAggregateFallbackExpression fallback:
                 return CanFold(fallback)
                     ? VisitBoundary(fallback.FoldedAggregate)
-                    : VisitBoundary(fallback.Fallback);
+                    : VisitBoundary(
+                        fallback.Fallback
+                        ?? throw new InvalidOperationException(CoreStrings.TranslationFailed(fallback.AggregateCall.Print())));
 
             case SelectExpression { IsMutable: false } select:
             {
@@ -75,8 +77,8 @@ internal sealed class GroupingAggregateFoldingExpressionVisitor : ExpressionVisi
             // A GROUP BY made of an outer query's columns - an inner query grouped by g.Key - equals that query's own, so the target
             // is the owner only if the grouping keys are over its tables.
             && ReferencesOnlyTablesOf(fallback.GroupingKeys, target, allowNone: false)
-            && fallback.FoldedAggregate.Type == fallback.Fallback.Type
-            && fallback.FoldedAggregate.TypeMapping == fallback.Fallback.TypeMapping
+            && fallback.FoldedAggregate.Type == fallback.Type
+            && fallback.FoldedAggregate.TypeMapping == fallback.TypeMapping
             // An aggregate naming columns of no table of the target - an outer query's - would be evaluated by that query instead.
             && ReferencesOnlyTablesOf([fallback.FoldedAggregate], target, allowNone: true);
 
