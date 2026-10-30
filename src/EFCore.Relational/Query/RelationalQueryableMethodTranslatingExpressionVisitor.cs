@@ -38,6 +38,9 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     private Expression? _rootExpression;
     private bool _isRootOperator;
 
+    // The query the next TranslateExpression call's SQL goes into, when its caller knows; see TranslateExpressionInScope.
+    private SelectExpression? _translationScope;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -1012,7 +1015,10 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
         return source.UpdateShaperExpression(
             new RelationalGroupByShaperExpression(
-                groupByShaper.KeySelector, elementShaper, groupByShaper.GroupingEnumerable, resultSelector));
+                groupByShaper.KeySelector, elementShaper, groupByShaper.GroupingEnumerable, resultSelector)
+            {
+                OwningSelectExpression = groupByShaper.OwningSelectExpression
+            });
     }
 
     /// <summary>
@@ -1065,7 +1071,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                     selectExpression,
                     ReplacingExpressionVisitor.Replace(
                         orderingKeySelector.Parameters[0], groupByShaper.ElementSelector, orderingKeySelector.Body),
-                    allowOwnerJoin: false));
+                    allowOwnerJoin: false),
+                selectExpression);
             if (translation == null)
             {
                 return null;
@@ -2707,7 +2714,19 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     /// <returns>A <see cref="SqlExpression" /> which is translation of given expression or <see langword="null" />.</returns>
     protected virtual SqlExpression? TranslateExpression(Expression expression, bool applyDefaultTypeMapping = true)
     {
-        var translation = _sqlTranslator.Translate(expression, applyDefaultTypeMapping);
+        // Taken for this translation only, so that nothing translated from within it sees a scope that isn't its own.
+        var scope = _translationScope;
+        _translationScope = null;
+
+        SqlExpression? translation;
+        try
+        {
+            translation = _sqlTranslator.Translate(expression, scope, applyDefaultTypeMapping);
+        }
+        finally
+        {
+            _translationScope = scope;
+        }
 
         if (translation is null)
         {
@@ -2744,7 +2763,26 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     protected virtual SqlExpression? TranslateLambdaExpression(
         ShapedQueryExpression shapedQueryExpression,
         LambdaExpression lambdaExpression)
-        => TranslateExpression(RemapLambdaBody(shapedQueryExpression, lambdaExpression));
+        => TranslateExpressionInScope(
+            RemapLambdaBody(shapedQueryExpression, lambdaExpression),
+            shapedQueryExpression.QueryExpression as SelectExpression);
+
+    // Translates through TranslateExpression, telling the SQL translator that the result goes into the given query, so that an
+    // aggregate over a grouping can tell whether SQL would evaluate it over that grouping (#27130).
+    private SqlExpression? TranslateExpressionInScope(Expression expression, SelectExpression? scope)
+    {
+        var previous = _translationScope;
+        _translationScope = scope;
+
+        try
+        {
+            return TranslateExpression(expression);
+        }
+        finally
+        {
+            _translationScope = previous;
+        }
+    }
 
     // Expanding a collection navigation produces a subquery filtered only by the correlation to the outer query, i.e. an equality
     // between the foreign key columns and the principal key columns, optionally with a null check on the principal key. That doesn't
@@ -3563,9 +3601,22 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         }
 
         if (selector == null
-            || TranslateExpression(selector) is not { } translatedSelector)
+            || TranslateExpressionInScope(selector, selectExpression) is not { } translatedSelector)
         {
             return null;
+        }
+
+        // SQL evaluates an aggregate in the innermost query whose columns its argument references, so over a selector naming only
+        // columns of enclosing queries - Sum(e => outer.Value), or the fallback for a grouping aggregate that couldn't be folded -
+        // the aggregate would be computed by an enclosing query rather than over this one's rows (#27130). Projecting the selector
+        // out of a subquery first gives the aggregate a column of this query to be evaluated over.
+        if (RelationalSqlTranslatingExpressionVisitor.ReferencesOnlyOuterColumns(translatedSelector, selectExpression))
+        {
+            selectExpression.ReplaceProjection(
+                new Dictionary<ProjectionMember, Expression> { { new ProjectionMember(), translatedSelector } });
+            selectExpression.PushdownIntoSubquery();
+            translatedSelector = (SqlExpression)selectExpression.GetProjection(
+                new ProjectionBindingExpression(selectExpression, new ProjectionMember(), translatedSelector.Type));
         }
 
         var methodCall = Expression.Call(

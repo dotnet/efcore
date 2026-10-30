@@ -80,4 +80,36 @@ public abstract class NorthwindGroupByQueryRelationalTestBase<TFixture>(TFixture
                 e, a,
                 elementSorter: c => c.CustomerID,
                 elementAsserter: (ee, aa) => AssertInclude(ee, aa, new ExpectedInclude<Customer>(c => c.Orders))));
+
+    // A provider aggregate such as string.Join has no subquery fallback, so as an element of an inline collection - whose scope isn't
+    // known until Contains lifts it into an IN - it can only be folded in once the final SQL tree shows that's safe.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_string_aggregate_as_element_of_inline_collection_Contains(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().GroupBy(c => c.City)
+                .Select(g => new { g.Key, IsAlfki = new[] { string.Join("|", g.Select(c => c.CustomerID)), "" }.Contains("ALFKI") }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_string_aggregate_as_element_of_inline_collection_Contains_in_predicate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().GroupBy(c => c.City)
+                .Where(g => new[] { string.Join("|", g.Select(c => c.CustomerID)), "" }.Contains("ALFKI"))
+                .Select(g => g.Key));
+
+    // Folded into the inner query, an aggregate over the outer grouping that also names the inner query's columns would be evaluated
+    // over the inner query's rows; with no subquery to fall back to, it can't be translated.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_string_aggregate_as_element_of_inline_collection_Contains_from_inner_query(bool async)
+        => AssertTranslationFailed(() => AssertQuery(
+            async,
+            StringAggregateInInlineCollectionFromInnerQuery));
+
+    private static IQueryable<bool> StringAggregateInInlineCollectionFromInnerQuery(ISetSource ss)
+        => ss.Set<Order>().GroupBy(o => o.CustomerID)
+            .Select(g => ss.Set<Employee>().Where(e => e.City == "Seattle").GroupBy(e => e.City)
+                .Select(g2 => new[] { string.Join("|", g.Select(o => o.CustomerID + g2.Key)), "" }.Contains("ALFKISeattle"))
+                .FirstOrDefault());
 }

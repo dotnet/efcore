@@ -60,12 +60,17 @@ public class EnumerableExpression : Expression, IPrintableExpression
     /// </summary>
     public virtual IReadOnlyList<OrderingExpression> Orderings { get; }
 
+    // The SelectExpression whose GROUP BY produced the grouping this enumerable was built from, when it was built from one.
+    // Carried through the Apply* chain so that TranslateAggregateMethod can tell an aggregate over the current query's own
+    // grouping apart from one over a grouping belonging to an enclosing query.
+    internal SelectExpression? GroupingOwner { get; init; }
+
     /// <summary>
     ///     Applies new selector to the <see cref="EnumerableExpression" />.
     /// </summary>
     /// <returns>The new expression with specified component updated.</returns>
     public virtual EnumerableExpression ApplySelector(Expression expression)
-        => new(expression, IsDistinct, Predicate, Orderings);
+        => new(expression, IsDistinct, Predicate, Orderings) { GroupingOwner = GroupingOwner };
 
     /// <summary>
     ///     Sets whether the DISTINCT operator should be applied to the selector
@@ -73,7 +78,7 @@ public class EnumerableExpression : Expression, IPrintableExpression
     /// </summary>
     /// <returns>The new expression with specified component updated.</returns>
     public virtual EnumerableExpression SetDistinct(bool value)
-        => new(Selector, distinct: value, Predicate, Orderings);
+        => new(Selector, distinct: value, Predicate, Orderings) { GroupingOwner = GroupingOwner };
 
     /// <summary>
     ///     Applies filter predicate to the <see cref="EnumerableExpression" />.
@@ -96,7 +101,7 @@ public class EnumerableExpression : Expression, IPrintableExpression
                 typeof(bool),
                 sqlExpression.TypeMapping);
 
-        return new EnumerableExpression(Selector, IsDistinct, predicate, Orderings);
+        return new EnumerableExpression(Selector, IsDistinct, predicate, Orderings) { GroupingOwner = GroupingOwner };
     }
 
     /// <summary>
@@ -109,7 +114,7 @@ public class EnumerableExpression : Expression, IPrintableExpression
         var orderings = new List<OrderingExpression>();
         AppendOrdering(orderings, orderingExpression);
 
-        return new EnumerableExpression(Selector, IsDistinct, Predicate, orderings);
+        return new EnumerableExpression(Selector, IsDistinct, Predicate, orderings) { GroupingOwner = GroupingOwner };
     }
 
     /// <summary>
@@ -122,7 +127,7 @@ public class EnumerableExpression : Expression, IPrintableExpression
         var orderings = Orderings.ToList();
         AppendOrdering(orderings, orderingExpression);
 
-        return new EnumerableExpression(Selector, IsDistinct, Predicate, orderings);
+        return new EnumerableExpression(Selector, IsDistinct, Predicate, orderings) { GroupingOwner = GroupingOwner };
     }
 
     private static void AppendOrdering(List<OrderingExpression> orderings, OrderingExpression orderingExpression)

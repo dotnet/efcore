@@ -3,6 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -52,7 +53,17 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
     private readonly QueryableMethodTranslatingExpressionVisitor _queryableMethodTranslatingExpressionVisitor;
     private readonly RelationalQueryableMethodTranslatingExpressionVisitor? _relationalQueryableTranslator;
 
+    // The queries the SQL being translated may end up in, outermost first; see RelationalQueryCompilationContext.TranslationScopes.
+    private readonly List<SelectExpression?> _translationScopes;
+
+    // The scope a caller of the internal scoped overloads passes on to the public virtual entry point they dispatch through.
+    private SelectExpression? _pendingTranslationScope;
+
     private bool _throwForNotTranslatedEfProperty;
+
+    // The aggregate TranslateAggregateMethod last refused to fold, with the GROUP BY of the query owning its grouping, until the
+    // caller falling back to a subquery takes it to wrap the subquery in a GroupingAggregateFallbackExpression.
+    private (SqlExpression Aggregate, IReadOnlyList<SqlExpression> GroupingKeys)? _refusedGroupingAggregate;
 
     /// <summary>
     ///     Creates a new instance of the <see cref="RelationalSqlTranslatingExpressionVisitor" /> class.
@@ -72,6 +83,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
         _queryableMethodTranslatingExpressionVisitor = queryableMethodTranslatingExpressionVisitor;
         _relationalQueryableTranslator =
             queryableMethodTranslatingExpressionVisitor as RelationalQueryableMethodTranslatingExpressionVisitor;
+        _translationScopes = (queryCompilationContext as RelationalQueryCompilationContext)?.TranslationScopes ?? [];
         _throwForNotTranslatedEfProperty = true;
     }
 
@@ -113,8 +125,53 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
     {
         TranslationErrorDetails = null;
 
-        return TranslateInternal(expression, applyDefaultTypeMapping) as SqlExpression;
+        PushTranslationScope(TakePendingTranslationScope());
+        try
+        {
+            return TranslateInternal(expression, applyDefaultTypeMapping) as SqlExpression;
+        }
+        finally
+        {
+            PopTranslationScope();
+        }
     }
+
+    /// <summary>
+    ///     Translates an expression whose SQL will be placed into <paramref name="scope" />, or into a query the caller doesn't
+    ///     know when it is <see langword="null" />, in which case no aggregate over an enclosing grouping is folded into it.
+    ///     Dispatches through <see cref="Translate(Expression, bool)" />, so that a provider override of it still runs.
+    /// </summary>
+    internal SqlExpression? Translate(Expression expression, SelectExpression? scope, bool applyDefaultTypeMapping = true)
+    {
+        _pendingTranslationScope = scope;
+        try
+        {
+            return Translate(expression, applyDefaultTypeMapping);
+        }
+        finally
+        {
+            _pendingTranslationScope = null;
+        }
+    }
+
+    // Taken by the first public entry point to run, so that nothing it translates in turn, nor a later unscoped call, sees the scope.
+    private SelectExpression? TakePendingTranslationScope()
+    {
+        var scope = _pendingTranslationScope;
+        _pendingTranslationScope = null;
+
+        return scope;
+    }
+
+    /// <summary>
+    ///     Records that SQL translated until the matching <see cref="PopTranslationScope" /> is placed into
+    ///     <paramref name="scope" />, or into a query the caller doesn't know when it is <see langword="null" />.
+    /// </summary>
+    internal void PushTranslationScope(SelectExpression? scope)
+        => _translationScopes.Add(scope);
+
+    internal void PopTranslationScope()
+        => _translationScopes.RemoveAt(_translationScopes.Count - 1);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -125,6 +182,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
     [EntityFrameworkInternal]
     public virtual Expression? TranslateProjection(Expression expression, bool applyDefaultTypeMapping = true)
     {
+        var scope = TakePendingTranslationScope();
         TranslationErrorDetails = null;
 
         // Primitive collections are required to be arrays, constructable from List<T> or castable to IList<T>
@@ -136,7 +194,18 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
             return null;
         }
 
-        return TranslateInternal(expression, applyDefaultTypeMapping) switch
+        Expression? translation;
+        PushTranslationScope(scope);
+        try
+        {
+            translation = TranslateInternal(expression, applyDefaultTypeMapping);
+        }
+        finally
+        {
+            PopTranslationScope();
+        }
+
+        return translation switch
         {
             // This is the case of a structural type getting projected out via Select (possibly also an owned entity one day, if we stop
             // expanding them in pre-visitation)
@@ -154,6 +223,24 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
 
             _ => null
         };
+    }
+
+    /// <summary>
+    ///     Translates a projection whose SQL will be placed into <paramref name="scope" />, or into a query the caller doesn't
+    ///     know when it is <see langword="null" />. Dispatches through <see cref="TranslateProjection(Expression, bool)" />, so that
+    ///     a provider override of it still runs.
+    /// </summary>
+    internal Expression? TranslateProjection(Expression expression, SelectExpression? scope, bool applyDefaultTypeMapping = true)
+    {
+        _pendingTranslationScope = scope;
+        try
+        {
+            return TranslateProjection(expression, applyDefaultTypeMapping);
+        }
+        finally
+        {
+            _pendingTranslationScope = null;
+        }
     }
 
     private Expression? TranslateInternal(Expression expression, bool applyDefaultTypeMapping = true)
@@ -954,9 +1041,16 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                 when method.DeclaringType == typeof(Queryable)
                 || method.DeclaringType == typeof(EntityFrameworkQueryableExtensions)
                 || method.DeclaringType == typeof(RelationalQueryableExtensions):
-                return TryTranslateAggregateMethodCall(methodCallExpression, out var translatedAggregate)
-                    ? translatedAggregate
-                    : TranslateAsSubquery(methodCallExpression);
+            {
+                _refusedGroupingAggregate = null;
+                if (TryTranslateAggregateMethodCall(methodCallExpression, out var translatedAggregate))
+                {
+                    return translatedAggregate;
+                }
+
+                var refusedAggregate = TakeRefusedGroupingAggregate();
+                return WithRefusedGroupingAggregate(TranslateAsSubquery(methodCallExpression), refusedAggregate, methodCallExpression);
+            }
 
             default:
             {
@@ -994,6 +1088,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
             }
         }
 
+        _refusedGroupingAggregate = null;
         Expression? translation = enumerableExpression != null
             ? TranslateAggregateMethod(enumerableExpression, method, scalarArguments)
             : Dependencies.MethodCallTranslatorProvider.Translate(
@@ -1004,7 +1099,9 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
             return translation;
         }
 
-        translation = TranslateAsSubquery(methodCallExpression);
+        var refusedGroupingAggregate = TakeRefusedGroupingAggregate();
+        translation = WithRefusedGroupingAggregate(
+            TranslateAsSubquery(methodCallExpression), refusedGroupingAggregate, methodCallExpression);
         if (translation != QueryCompilationContext.NotTranslatedExpression)
         {
             return translation;
@@ -1591,19 +1688,29 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
             }
         }
 
+        _refusedGroupingAggregate = null;
         if (!TryTranslateCount(enumerableExpression, marker, out var count))
         {
+            // The caller's EXISTS fallback replaces the whole quantifier, so what can be folded in its place is the comparison.
+            if (_refusedGroupingAggregate is var (refusedCount, groupingKeys))
+            {
+                _refusedGroupingAggregate = (CompareCount(refusedCount), groupingKeys);
+            }
+
             return false;
         }
 
         // Any(p) is "at least one row matched"; All(p) is "no row failed". A count is non-nullable, so no null guard is
         // wrapped around either comparison, and both stay correct when the grouping element was already filtered down to no
         // rows: Any is false, All is true.
-        translation = isAll
-            ? _sqlExpressionFactory.Equal(count, _sqlExpressionFactory.Constant(0))
-            : _sqlExpressionFactory.GreaterThan(count, _sqlExpressionFactory.Constant(0));
+        translation = CompareCount(count);
 
         return true;
+
+        SqlExpression CompareCount(SqlExpression count)
+            => isAll
+                ? _sqlExpressionFactory.Equal(count, _sqlExpressionFactory.Constant(0))
+                : _sqlExpressionFactory.GreaterThan(count, _sqlExpressionFactory.Constant(0));
 
         bool TryTranslateCount(EnumerableExpression source, SqlExpression selector, [NotNullWhen(true)] out SqlExpression? count)
         {
@@ -1643,7 +1750,10 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
     {
         if (expression is RelationalGroupByShaperExpression relationalGroupByShaperExpression)
         {
-            enumerableExpression = new EnumerableExpression(relationalGroupByShaperExpression.ElementSelector);
+            enumerableExpression = new EnumerableExpression(relationalGroupByShaperExpression.ElementSelector)
+            {
+                GroupingOwner = relationalGroupByShaperExpression.OwningSelectExpression
+            };
             return true;
         }
 
@@ -1741,8 +1851,152 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
             enumerableExpression = enumerableExpression.ApplySelector(selector);
         }
 
-        return Dependencies.AggregateMethodCallTranslatorProvider.Translate(
+        var translation = Dependencies.AggregateMethodCallTranslatorProvider.Translate(
             _model, method, enumerableExpression, scalarArguments, _queryCompilationContext.Logger);
+
+        // #27130: SQL evaluates an aggregate in the innermost query whose columns its argument references - or, when it references
+        // none (COUNT(*)), in the query it is written in. A grouping from an enclosing query stays in scope inside subqueries, so an
+        // aggregate over it isn't necessarily written in the query owning that grouping, and even one that is can name only columns
+        // of a query further out (g.Sum(e => outer.Key)). Leave the aggregate folded in only when SQL will evaluate it over the
+        // owner's own GROUP BY; otherwise refusing makes the caller fall back to a subquery over the grouping element.
+        if (translation is not null
+            && enumerableExpression.GroupingOwner is { } groupingOwner
+            && !IsEvaluatedIn(translation, groupingOwner))
+        {
+            // The query this was translated for may not be the one the SQL ends up in, so keep the folded aggregate for
+            // GroupingAggregateFoldingExpressionVisitor to use if the final SQL tree shows it would be evaluated over the grouping.
+            _refusedGroupingAggregate = (translation, [.. groupingOwner.GroupBy]);
+            return null;
+        }
+
+        return translation;
+    }
+
+    private (SqlExpression Aggregate, IReadOnlyList<SqlExpression> GroupingKeys)? TakeRefusedGroupingAggregate()
+    {
+        var refusedGroupingAggregate = _refusedGroupingAggregate;
+        _refusedGroupingAggregate = null;
+
+        return refusedGroupingAggregate;
+    }
+
+    // The refused aggregate hasn't had a type mapping applied, and nothing will apply one through the marker, so it is given the
+    // fallback's; a fallback without one is left on its own. When the aggregate can't be translated as a subquery at all - a provider
+    // aggregate such as STDEVP or STRING_AGG - it is kept without a fallback, so that it can still be folded in where that's safe.
+    private Expression WithRefusedGroupingAggregate(
+        Expression fallback,
+        (SqlExpression Aggregate, IReadOnlyList<SqlExpression> GroupingKeys)? refusedGroupingAggregate,
+        MethodCallExpression aggregateCall)
+        => refusedGroupingAggregate is var (aggregate, groupingKeys)
+            ? fallback switch
+            {
+                SqlExpression { TypeMapping: { } typeMapping } sqlFallback
+                    => new GroupingAggregateFallbackExpression(
+                        sqlFallback, _sqlExpressionFactory.ApplyTypeMapping(aggregate, typeMapping), groupingKeys, aggregateCall),
+                _ when fallback == QueryCompilationContext.NotTranslatedExpression
+                    => new GroupingAggregateFallbackExpression(
+                        fallback: null, _sqlExpressionFactory.ApplyDefaultTypeMapping(aggregate), groupingKeys, aggregateCall),
+                _ => fallback
+            }
+            : fallback;
+
+    // Whether SQL evaluates an aggregate written in the innermost translation scope over the rows of the given query. Unknown scopes
+    // (null) and columns from tables of no known scope count against it, so a translation path which doesn't say where its SQL goes
+    // can only lose the folded aggregate, never fold it into the wrong query.
+    private bool IsEvaluatedIn(SqlExpression aggregate, SelectExpression query)
+    {
+        var scopes = _translationScopes;
+        if (scopes.Count == 0 || scopes[^1] is null)
+        {
+            return false;
+        }
+
+        var evaluatedIn = scopes.Count - 1;
+        var referencedAliases = ReferencedTableAliasCollector.Collect(aggregate);
+        if (referencedAliases.Count > 0)
+        {
+            evaluatedIn = -1;
+            foreach (var alias in referencedAliases)
+            {
+                var level = scopes.FindLastIndex(s => s is not null && ContainsTable(s, alias));
+                if (level < 0)
+                {
+                    return false;
+                }
+
+                evaluatedIn = Math.Max(evaluatedIn, level);
+            }
+        }
+
+        // Every scope between the query evaluating it and the one it's written in must be known, or a column of an unknown one could
+        // have been missed.
+        for (var i = evaluatedIn + 1; i < scopes.Count; i++)
+        {
+            if (scopes[i] is null)
+            {
+                return false;
+            }
+        }
+
+        return scopes[evaluatedIn] == query;
+    }
+
+    // Whether the selector of an aggregate over the given query references columns, but none of the query's own, so that SQL would
+    // evaluate the aggregate in an enclosing query rather than over this one's rows.
+    internal static bool ReferencesOnlyOuterColumns(SqlExpression selector, SelectExpression query)
+    {
+        var referencedAliases = ReferencedTableAliasCollector.Collect(selector);
+
+        return referencedAliases.Count > 0 && !referencedAliases.Any(a => ContainsTable(query, a));
+    }
+
+    private static bool ContainsTable(SelectExpression query, string alias)
+        => query.Tables.Any(t => t.UnwrapJoin().Alias == alias);
+
+    // Collects the aliases of the tables whose columns an expression references, leaving out tables of subqueries nested inside the
+    // expression. Mirrors how SelectExpressionCorrelationFindingExpressionVisitor and SqlServerAggregateOverSubqueryPostprocessor
+    // decide whether a subquery is correlated.
+    internal sealed class ReferencedTableAliasCollector : ExpressionVisitor
+    {
+        private readonly HashSet<string> _nestedAliases = [];
+        private readonly HashSet<string> _referencedAliases = [];
+
+        public static HashSet<string> Collect(Expression expression)
+        {
+            var collector = new ReferencedTableAliasCollector();
+            collector.Visit(expression);
+
+            return collector._referencedAliases;
+        }
+
+        protected override Expression VisitExtension(Expression node)
+        {
+            switch (node)
+            {
+                // A nested subquery brings its own tables into scope; without tracking them its columns would look outer.
+                case SelectExpression selectExpression:
+                {
+                    List<string> tableAliases =
+                        selectExpression.Tables.Select(t => t.UnwrapJoin().Alias).Where(a => a is not null).ToList()!;
+                    _nestedAliases.UnionWith(tableAliases);
+                    var visited = base.VisitExtension(selectExpression);
+                    _nestedAliases.ExceptWith(tableAliases);
+
+                    return visited;
+                }
+
+                case ColumnExpression columnExpression:
+                    if (!_nestedAliases.Contains(columnExpression.TableAlias))
+                    {
+                        _referencedAliases.Add(columnExpression.TableAlias);
+                    }
+
+                    return columnExpression;
+
+                default:
+                    return base.VisitExtension(node);
+            }
+        }
     }
 
     private Expression RemapLambda(EnumerableExpression enumerableExpression, LambdaExpression lambdaExpression)
