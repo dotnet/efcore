@@ -15,7 +15,6 @@ user-invocable: false
 
 ## Translation
 
-- During query precompilation, captured values are placeholders. Preserve captured-dependent branches in both parameter extraction and extractor-path calculation; only noncaptured values are safe for generation-time branch folding.
 - Translation fallback must distinguish established unsupported shapes from unexpected defects. Do not turn arbitrary exceptions into a successful fallback.
 - Check whether a failed rewrite mutated state that fallback will reuse. For test coordination, establish the actual collection, assembly, and async-flow boundaries before claiming shared static state can race; theory rows are not inherently parallel, and reset in `finally` is not mutual exclusion.
 
