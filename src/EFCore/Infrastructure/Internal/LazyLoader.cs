@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -18,7 +19,7 @@ public class LazyLoader : ILazyLoader, IInjectableService
     private QueryTrackingBehavior? _queryTrackingBehavior;
     private bool _disposed;
     private bool _detached;
-    private IDictionary<string, bool>? _loadedStates;
+    private readonly ConcurrentDictionary<string, bool> _loadedStates = new();
     private readonly Lock _isLoadingLock = new();
 
     private readonly Dictionary<(object Entity, string NavigationName), TaskCompletionSource> _isLoading =
@@ -68,11 +69,7 @@ public class LazyLoader : ILazyLoader, IInjectableService
         object entity,
         [CallerMemberName] string navigationName = "",
         bool loaded = true)
-    {
-        _loadedStates ??= new Dictionary<string, bool>();
-
-        _loadedStates[navigationName] = loaded;
-    }
+        => _loadedStates[navigationName] = loaded;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -81,9 +78,7 @@ public class LazyLoader : ILazyLoader, IInjectableService
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual bool IsLoaded(object entity, string navigationName = "")
-        => _loadedStates != null
-            && _loadedStates.TryGetValue(navigationName, out var loaded)
-            && loaded;
+        => _loadedStates.TryGetValue(navigationName, out var loaded) && loaded;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -126,9 +121,10 @@ public class LazyLoader : ILazyLoader, IInjectableService
                 refIsLoadingValue = new TaskCompletionSource();
             }
 
-            _isLoadingCallDepth.Value++;
             isLoadingValue = refIsLoadingValue!;
         }
+
+        _isLoadingCallDepth.Value++;
 
         if (exists)
         {
@@ -200,9 +196,10 @@ public class LazyLoader : ILazyLoader, IInjectableService
                 refIsLoadingValue = new TaskCompletionSource();
             }
 
-            _isLoadingCallDepth.Value++;
             isLoadingValue = refIsLoadingValue!;
         }
+
+        _isLoadingCallDepth.Value++;
 
         if (exists)
         {
