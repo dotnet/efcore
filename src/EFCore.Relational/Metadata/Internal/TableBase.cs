@@ -49,6 +49,18 @@ public class TableBase : Annotatable, ITableBase
     public override bool IsReadOnly
         => Model.IsReadOnly;
 
+    /// <inheritdoc />
+    public override bool Equals(object? obj)
+        => ReferenceEquals(this, obj)
+            || (obj is TableBase other
+                && GetType() == other.GetType()
+                && Name == other.Name
+                && Schema == other.Schema);
+
+    /// <inheritdoc />
+    public override int GetHashCode()
+        => HashCode.Combine(GetType(), Name, Schema);
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -64,7 +76,7 @@ public class TableBase : Annotatable, ITableBase
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual SortedSet<ITableMappingBase> EntityTypeMappings { get; }
-        = [with(TableMappingBaseComparer.Instance)];
+        = new();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -73,7 +85,7 @@ public class TableBase : Annotatable, ITableBase
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual SortedSet<ITableMappingBase> ComplexTypeMappings { get; }
-        = [with(TableMappingBaseComparer.Instance)];
+        = new();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

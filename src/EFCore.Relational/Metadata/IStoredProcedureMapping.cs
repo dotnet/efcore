@@ -8,8 +8,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 /// <summary>
 ///     Represents entity type mapping to a stored procedure.
 /// </summary>
-public interface IStoredProcedureMapping : ITableMappingBase
+public interface IStoredProcedureMapping : ITableMappingBase, IComparable<IStoredProcedureMapping>
 {
+    /// <inheritdoc />
+    int IComparable<IStoredProcedureMapping>.CompareTo(IStoredProcedureMapping? other)
+        => ((ITableMappingBase)this).CompareTo(other);
+
     /// <summary>
     ///     Gets the target stored procedure in the database.
     /// </summary>
