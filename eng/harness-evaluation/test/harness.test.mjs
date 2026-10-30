@@ -83,7 +83,7 @@ variants:
     const outputRoot = join(root, 'artifacts/results');
     const execution = runVally(['experiment', 'run', experimentPath, '--output-dir', outputRoot,
       '--param', 'RUNS=1', '--workers', '1'], { cwd: root, judgeTimeout: '10m' });
-    assert.ok([0, 1].includes(execution.status), execution.stderr);
+    assert.equal(execution.status, 0, execution.stderr + execution.stdout);
     const experimentDirectory = await findExperimentRunDirectory(outputRoot);
     const planPath = join(experimentDirectory, 'plan-snapshot.json');
     const plan = JSON.parse(await readFile(planPath, 'utf8'));
@@ -93,6 +93,8 @@ variants:
     for (const variant of ['control', 'treatment']) {
       const resultsPath = join(experimentDirectory, variant, 'results.jsonl');
       assert.equal(await variantCompleted(resultsPath, planPath, variant), true, await readFile(resultsPath, 'utf8'));
+      assert.equal(await variantPassed(resultsPath,
+        join(root, 'eng/harness-evaluation/skills/example/eval.yaml'), planPath, variant), true);
       const records = (await readFile(resultsPath, 'utf8')).split(/\r?\n/).filter(Boolean).map(JSON.parse);
       const trials = records.filter((record) => record.type === 'trial-result');
       assert.equal(trials.length, 1);
@@ -535,8 +537,12 @@ test('judge timeout loader preserves explicit timeouts without changing the nati
     }`);
     await writeFile(preloadPath, `import { register } from 'node:module';
       register(${JSON.stringify(pathToFileURL(loaderPath).href)}, import.meta.url);`);
-    for (const [command, subcommand, fixture] of [['experiment', 'run', 'fixture'], ['compare', undefined, 'fixture']]) {
-      const commandArguments = subcommand ? [command, subcommand, fixture] : [command, fixture];
+    for (const commandArguments of [
+      ['experiment', 'run', 'fixture'],
+      ['experiment', 'run', 'fixture', '--compare'],
+      ['compare', 'fixture'],
+      ['eval', 'fixture'],
+    ]) {
       for (const [timeout, expected] of [[undefined, 600_000], ['15m', 900_000], ['30s', 30_000]]) {
         const result = spawnSync(process.execPath, ['--import', pathToFileURL(preloadPath).href,
           fileURLToPath(new URL('../src/vally.mjs', import.meta.url)),
@@ -546,9 +552,13 @@ test('judge timeout loader preserves explicit timeouts without changing the nati
         const lines = result.stdout.trim().split(/\r?\n/).map(JSON.parse);
         assert.deepEqual(lines, [
           { sdkTimeoutMs: expected, verdict: { passed: true } },
-          subcommand
-            ? [command, subcommand, ...(timeout ? ['--judge-timeout', timeout] : []), fixture]
-            : [command, ...(timeout ? ['--judge-timeout', timeout] : []), fixture],
+          timeout && (commandArguments[0] !== 'experiment' || commandArguments.includes('--compare'))
+            ? [
+              ...commandArguments.slice(0, commandArguments[0] === 'experiment' ? 2 : 1),
+              '--judge-timeout', timeout,
+              ...commandArguments.slice(commandArguments[0] === 'experiment' ? 2 : 1),
+            ]
+            : commandArguments,
         ]);
       }
     }
