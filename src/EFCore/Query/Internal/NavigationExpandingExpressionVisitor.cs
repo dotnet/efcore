@@ -1165,6 +1165,10 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         var originalKeySelector = keySelector;
         var keySelectorBody = ExpandNavigationsForSource(source, RemapLambdaExpression(source, keySelector));
 
+        // The shape the key and element selectors were written over. ProcessSelect below swaps the pending selector for the
+        // projected element shape, so the aggregate lift needs this stashed to remap those lambdas onto the pre-GroupBy source.
+        var parentShape = source.PendingSelector;
+
         // Need to generate lambda after processing element/result selector
         if (elementSelector != null)
         {
@@ -1186,9 +1190,9 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
 
             return new GroupByNavigationExpansionExpression(
                 innerSource, groupingParameter, source.CurrentTree, source.PendingSelector, innerParameterName,
-                // Lift state — an element selector reshapes the source, so no lift in that case.
-                elementSelector == null ? source : null,
-                elementSelector == null ? originalKeySelector : null);
+                // Lift state. An element selector reshapes the grouping element, but the lift inlines it into the aggregate
+                // selectors to get lambdas over the pre-GroupBy source back (#38775).
+                source, originalKeySelector, parentShape);
         }
 
         var enumerableParameter = Expression.Parameter(
@@ -1672,9 +1676,14 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         // Lift aggregates over reference navigations into the grouped query instead of a
         // correlated subquery per group (#27933).
         if (_extensibilityHelper.SupportsNavigationExpansionJoins
-            && groupBySource is { Parent: NavigationExpansionExpression parent, OriginalKeySelector: LambdaExpression originalKeySelector })
+            && groupBySource is
+            {
+                Parent: NavigationExpansionExpression parent,
+                OriginalKeySelector: LambdaExpression originalKeySelector,
+                ParentShape: Expression parentShape
+            })
         {
-            var lifted = TryLiftAggregatesOverNavigations(parent, originalKeySelector, selector);
+            var lifted = TryLiftAggregatesOverNavigations(parent, parentShape, originalKeySelector, selector);
             if (lifted != null)
             {
                 return lifted;
@@ -1727,6 +1736,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     /// </summary>
     private NavigationExpansionExpression? TryLiftAggregatesOverNavigations(
         NavigationExpansionExpression parent,
+        Expression parentShape,
         LambdaExpression originalKeySelector,
         LambdaExpression selector)
     {
@@ -1738,16 +1748,47 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             return null;
         }
 
+        // The key selector is written over the pre-GroupBy element. The parent's pending selector is that element only
+        // without an element selector: with one, it is the element selector's projection, which the aggregate selectors are
+        // written over instead.
+        var keyBody = RemapLambdaExpression(parentShape, originalKeySelector);
+
+        // An aggregate selector may capture the grouping parameter as g.Key, which the scanner allows. The lifted aggregate
+        // becomes a lambda over the pre-GroupBy source, where that parameter is out of scope, so g.Key is rebound to the key
+        // expression itself, which yields the key per source row instead of per group.
+        var capturedKeyRebinder = new CapturedGroupingKeyRebinder(selector.Parameters[0], keyBody);
+
         // Flat-aggregate queries keep the existing translation unchanged.
         var traversesNavigation = false;
-        foreach (var aggregate in scanner.Aggregates)
+        var aggregateBodies = new Expression?[scanner.Aggregates.Count];
+        for (var i = 0; i < scanner.Aggregates.Count; i++)
         {
-            if (aggregate.Selector != null
-                && ContainsReferenceNavigationAccess(RemapLambdaExpression(parent, aggregate.Selector)))
+            var aggregateSelector = scanner.Aggregates[i].Selector;
+            if (aggregateSelector == null)
             {
-                traversesNavigation = true;
-                break;
+                continue;
             }
+
+            // With an element selector this inlines it into the aggregate selector (#38775), giving a lambda over the
+            // pre-GroupBy element back. Both are evaluated per source row, so the composition sees exactly the values the
+            // aggregate would have seen over the projected group.
+            var elementInliner = new ProjectionInliningVisitor(aggregateSelector.Parameters[0], parent.PendingSelector);
+            var aggregateBody = elementInliner.Visit(aggregateSelector.Body);
+            traversesNavigation |= ContainsReferenceNavigationAccess(aggregateBody);
+            aggregateBody = capturedKeyRebinder.Visit(aggregateBody);
+
+            // A member that could not be bound back to what the element selector or the key projects (a projection into a
+            // type whose members don't map onto its constructor arguments) would be left reading a member the pre-GroupBy
+            // element does not have. The grouping parameter is left over too when the selector uses it other than as g.Key -
+            // an aggregate over g nested inside this one. Those shapes keep the translation they have today.
+            if (elementInliner.LeftMemberUnbound
+                || capturedKeyRebinder.LeftMemberUnbound
+                || ReferencesParameter(aggregateBody, selector.Parameters[0]))
+            {
+                return null;
+            }
+
+            aggregateBodies[i] = aggregateBody;
         }
 
         if (!traversesNavigation)
@@ -1755,11 +1796,27 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             return null;
         }
 
+        // A key read per source row stands in for the group's key only when it is the same value on every row of the
+        // group, and the correlated-subquery translation, which reads the grouping's own key, is kept otherwise. That
+        // takes a key component of a type whose database equality is identity: rows a case-insensitive collation groups
+        // together can differ in case, as can trailing spaces, datetimeoffsets at different offsets for the same instant,
+        // or decimals of different scale. A value converter makes that the provider type rather than the CLR type: a Guid
+        // stored as a string compares as a string. It also takes a component that evaluates to the same value twice, since
+        // it is projected once for the GROUP BY and evaluated a second time inside the aggregate.
+        foreach (var boundKey in capturedKeyRebinder.BoundKeys)
+        {
+            if (!HasIdentityEquality(boundKey.Type)
+                || ReadsPropertyStoredWithoutIdentityEquality(boundKey)
+                || ContainsNonRepeatableOperation(boundKey))
+            {
+                return null;
+            }
+        }
+
         // Expand every body on the parent first (this applies the joins and may widen the parent's
         // element shape), then generate all lambdas over the final parameter. Re-expanding the key
         // selector is idempotent with respect to joins already applied by ProcessGroupBy.
-        var keyBody = ExpandNavigationsForSource(parent, RemapLambdaExpression(parent, originalKeySelector));
-        var aggregateBodies = new Expression?[scanner.Aggregates.Count];
+        keyBody = ExpandNavigationsForSource(parent, keyBody);
 
         // Guard bodies are generated into lambdas below, with the selectors, once every expansion has been
         // applied: each join widens the parent's element shape, so a lambda built here would bind to a
@@ -1774,18 +1831,18 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         // should make the aggregate empty rather than delete the source row from the grouping (#38965).
         // Expand the aggregate selectors with required navigations to filtered principals joined as outer
         // joins, so no row - and therefore no group - is lost. The key selector keeps the normal join,
-        // since grouping by a filtered principal's column has always removed those rows.
-        for (var i = 0; i < scanner.Aggregates.Count; i++)
+        // since grouping by a filtered principal's column has always removed those rows. It is expanded
+        // first, so a navigation the key shares with an aggregate - including a g.Key rebound into one -
+        // reuses that inner join rather than picking up a second, outer-joined expansion.
+        for (var i = 0; i < aggregateBodies.Length; i++)
         {
-            var aggregateSelector = scanner.Aggregates[i].Selector;
-            if (aggregateSelector == null)
+            if (aggregateBodies[i] is not Expression aggregateBody)
             {
                 continue;
             }
 
             relaxation.Recorded.Clear();
-            aggregateBodies[i] = ExpandNavigationsForSource(
-                parent, RemapLambdaExpression(parent, aggregateSelector), relaxation);
+            aggregateBodies[i] = ExpandNavigationsForSource(parent, aggregateBody, relaxation);
             var relaxedPrincipals = relaxation.Recorded.ToList();
 
             // The row an outer join keeps for a filtered-out principal has to be kept away from the
@@ -1808,7 +1865,6 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             Expression.Quote(keySelector));
 
         var groupingParameter = Expression.Parameter(groupByCall.Type.GetSequenceType(), GetParameterName("g"));
-        var originalElementType = selector.Parameters[0].Type.GetGenericArguments()[1];
 
         var aggregateReplacements = new Dictionary<Expression, Expression>(ReferenceEqualityComparer.Instance);
         for (var i = 0; i < scanner.Aggregates.Count; i++)
@@ -1821,7 +1877,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                 ? null
                 : GenerateLambda(aggregateGuardBodies[i]!, parent.CurrentParameter);
             aggregateReplacements[aggregate.Call] = RebuildLiftedAggregate(
-                aggregate, groupingParameter, originalElementType, elementType, newSelector, guard);
+                aggregate, groupingParameter, elementType, newSelector, guard);
         }
 
         var resultBody = new LiftedResultSelectorRebinder(selector.Parameters[0], groupingParameter, aggregateReplacements)
@@ -1948,6 +2004,342 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         }
     }
 
+    /// <summary>
+    ///     Replaces expressions with projections, folding a member read off a projection onto what it projects, and records when a
+    ///     member can't be folded (a projection into a type whose members don't map onto its constructor arguments). Only a
+    ///     projection the replacement put there counts: a member the selector reads off a value it constructs itself -
+    ///     new DateTime(...).Year - is its own, and translates as before.
+    /// </summary>
+    private class ProjectionInliningVisitor(IReadOnlyList<Expression> originals, IReadOnlyList<Expression> replacements)
+        : ReplacingExpressionVisitor(originals, replacements)
+    {
+        public ProjectionInliningVisitor(Expression original, Expression replacement)
+            : this([original], [replacement])
+        {
+        }
+
+        public bool LeftMemberUnbound { get; private set; }
+
+        protected override Expression VisitMember(MemberExpression memberExpression)
+        {
+            var result = base.VisitMember(memberExpression);
+
+            // Through a cast too - ((IHasRegion)new OrderRegion(...)).Region.
+            if (result is MemberExpression { Expression: { } inner }
+                && inner.UnwrapTypeConversion(out _) is NewExpression or MemberInitExpression
+                && memberExpression.Expression.UnwrapTypeConversion(out _) is not (NewExpression or MemberInitExpression))
+            {
+                LeftMemberUnbound = true;
+            }
+
+            return result;
+        }
+    }
+
+    private static bool ReferencesParameter(Expression body, ParameterExpression parameter)
+    {
+        var detector = new ParameterReferenceDetector(parameter);
+        detector.Visit(body);
+        return detector.Found;
+    }
+
+    private sealed class ParameterReferenceDetector(ParameterExpression parameter) : ExpressionVisitor
+    {
+        public bool Found { get; private set; }
+
+        protected override Expression VisitParameter(ParameterExpression parameterExpression)
+        {
+            Found |= parameterExpression == parameter;
+
+            return parameterExpression;
+        }
+    }
+
+    /// <summary>
+    ///     Replaces g.Key captured inside a lifted aggregate's selector with the key expression, which reads the key from the
+    ///     source row the aggregate is now evaluated over, folding a member read off a composite key onto the component it reads.
+    /// </summary>
+    private sealed class CapturedGroupingKeyRebinder(ParameterExpression groupingParameter, Expression keyBody)
+        : ProjectionInliningVisitor([], [])
+    {
+        private readonly List<Expression> _boundKeys = [];
+
+        /// <summary>
+        ///     What each captured g.Key was rebound to - the key, or the component of it that a member access reads.
+        /// </summary>
+        public IReadOnlyList<Expression> BoundKeys
+            => _boundKeys;
+
+        protected override Expression VisitMember(MemberExpression memberExpression)
+        {
+            if (IsGroupingKey(memberExpression))
+            {
+                _boundKeys.Add(keyBody);
+
+                return keyBody;
+            }
+
+            var result = base.VisitMember(memberExpression);
+
+            // A member that picks a component out of a composite key just bound (g.Key.EmployeeID) narrows what is read of
+            // the key to that component. Any other member (g.Key.Hour) computes from the key, so it is the key that is read
+            // per row and has to be the same value on every row of the group.
+            if (IsReadOffGroupingKey(memberExpression.Expression)
+                && _boundKeys[^1].UnwrapTypeConversion(out _) is NewExpression or MemberInitExpression)
+            {
+                _boundKeys[^1] = result;
+            }
+
+            return result;
+        }
+
+        private bool IsGroupingKey(Expression? expression)
+            => expression is MemberExpression { Member.Name: nameof(IGrouping<,>.Key) } member
+                && member.Expression == groupingParameter;
+
+        private bool IsReadOffGroupingKey(Expression? expression)
+        {
+            while (expression is MemberExpression member)
+            {
+                if (IsGroupingKey(member))
+                {
+                    return true;
+                }
+
+                expression = member.Expression;
+            }
+
+            return false;
+        }
+    }
+
+    /// <summary>
+    ///     Whether the expression reads a property whose value converter stores it as a type whose database equality is not
+    ///     identity, so that the database compares it as, say, the string it is stored as rather than as its CLR type.
+    /// </summary>
+    private static bool ReadsPropertyStoredWithoutIdentityEquality(Expression body)
+    {
+        var detector = new PropertyStoredWithoutIdentityEqualityDetector();
+        detector.Visit(body);
+        return detector.Found;
+    }
+
+    /// <summary>
+    ///     Follows every read off an entity reference down to the property it reads - through reference navigations, complex
+    ///     properties, casts to a derived type and EF.Property - and checks how that property is stored. A read it cannot
+    ///     follow is assumed to be stored without identity equality, since its storage can't be checked.
+    /// </summary>
+    private sealed class PropertyStoredWithoutIdentityEqualityDetector : ExpressionVisitor
+    {
+        public bool Found { get; private set; }
+
+        protected override Expression VisitMember(MemberExpression memberExpression)
+        {
+            // Not Found |= !TryResolve(...): that reads Found before the call, which can set it.
+            if (!TryResolve(memberExpression, out _))
+            {
+                Found = true;
+            }
+
+            return base.VisitMember(memberExpression);
+        }
+
+        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        {
+            if (!TryResolve(methodCallExpression, out _))
+            {
+                Found = true;
+            }
+
+            return base.VisitMethodCall(methodCallExpression);
+        }
+
+        protected override Expression VisitUnary(UnaryExpression unaryExpression)
+        {
+            if (!TryResolve(unaryExpression, out _))
+            {
+                Found = true;
+            }
+
+            return base.VisitUnary(unaryExpression);
+        }
+
+        // A key that is itself a value the expansion hid, read directly rather than through a member.
+        protected override Expression VisitDefault(DefaultExpression defaultExpression)
+        {
+            Found = true;
+
+            return defaultExpression;
+        }
+
+        // The node is the whole of what is read here: an entity reference holds no read of its own beneath it.
+        protected override Expression VisitExtension(Expression extensionExpression)
+        {
+            if (!TryResolve(extensionExpression, out _))
+            {
+                Found = true;
+            }
+
+            return extensionExpression;
+        }
+
+        /// <summary>
+        ///     Resolves what an expression evaluates to in terms of the model: an entity or complex type, or null for a scalar,
+        ///     checking the property behind a scalar read off one. Returns false for a read off an entity reference that the
+        ///     model can't follow.
+        /// </summary>
+        private bool TryResolve(Expression? expression, out IReadOnlyTypeBase? structuralType)
+        {
+            structuralType = null;
+            switch (expression)
+            {
+                case NavigationTreeExpression { Value: EntityReference entityReference }:
+                    structuralType = entityReference.EntityType;
+                    return true;
+
+                case EntityReference entityReference:
+                    structuralType = entityReference.EntityType;
+                    return true;
+
+                case UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked or ExpressionType.TypeAs } unary:
+                    if (!TryResolve(unary.Operand, out var operandType))
+                    {
+                        return false;
+                    }
+
+                    // A cast of a scalar, an upcast that leaves the type as it is, or a downcast to a derived type.
+                    structuralType = operandType == null || unary.Type.IsAssignableFrom(operandType.ClrType)
+                        ? operandType
+                        : operandType.GetDerivedTypes().FirstOrDefault(t => t.ClrType == unary.Type);
+                    return operandType == null || structuralType != null;
+
+                case MemberExpression member:
+                    return TryResolveMember(member.Expression, member.Member.GetSimpleMemberName(), out structuralType);
+
+                case MethodCallExpression methodCall when methodCall.TryGetEFPropertyArguments(out var source, out var propertyName):
+                    return TryResolveMember(source, propertyName, out structuralType);
+
+                // What a Distinct, a SelectMany or a join leaves of a projection it snapshots: a scalar is replaced with its
+                // default value, inside a navigation tree, and how it was stored is no longer visible. So is anything else the
+                // expansion represents with a node of its own.
+                case DefaultExpression:
+                case NavigationTreeExpression:
+                case { NodeType: ExpressionType.Extension }:
+                    return false;
+
+                default:
+                    // Not a read off an entity reference: a parameter, a constant or a value computed from scalars.
+                    return true;
+            }
+        }
+
+        private bool TryResolveMember(Expression? declaringExpression, string name, out IReadOnlyTypeBase? structuralType)
+        {
+            structuralType = null;
+            if (!TryResolve(declaringExpression, out var declaringType))
+            {
+                return false;
+            }
+
+            if (declaringType == null)
+            {
+                // A member of a scalar - .Hour of a datetimeoffset - checked through the scalar it is read off.
+                return true;
+            }
+
+            if (declaringType.FindProperty(name) is { } property)
+            {
+                if ((property.FindTypeMapping()?.Converter ?? property.GetValueConverter()) is { } converter
+                    && !HasIdentityEquality(converter.ProviderClrType))
+                {
+                    Found = true;
+                }
+
+                return true;
+            }
+
+            structuralType = (IReadOnlyTypeBase?)declaringType.FindComplexProperty(name)?.ComplexType
+                ?? ((declaringType as IReadOnlyEntityType)?.FindNavigation(name) is { IsCollection: false } navigation
+                    ? navigation.TargetEntityType
+                    : null);
+            return structuralType != null;
+        }
+    }
+
+    /// <summary>
+    ///     Whether database equality of values of this type implies they are the same value, so that every row of a group holds
+    ///     exactly the group's key. Strings are not (collations, trailing spaces), nor datetimeoffsets, decimals or floating point.
+    ///     Nor are Guids: a provider can store them as text without a value converter, as SQLite does, where a collation
+    ///     such as NOCASE groups spellings that differ in case.
+    /// </summary>
+    private static bool HasIdentityEquality(Type type)
+    {
+        type = type.UnwrapNullableType().UnwrapEnumType();
+
+        return type == typeof(int)
+            || type == typeof(long)
+            || type == typeof(short)
+            || type == typeof(byte)
+            || type == typeof(uint)
+            || type == typeof(ulong)
+            || type == typeof(ushort)
+            || type == typeof(sbyte)
+            || type == typeof(bool);
+    }
+
+    /// <summary>
+    ///     Detects an operation whose value can differ between two evaluations over the same row, so that an expression
+    ///     containing it cannot be recomputed in a second place and still be the same value.
+    /// </summary>
+    private static bool ContainsNonRepeatableOperation(Expression body)
+    {
+        var detector = new NonRepeatableOperationDetector();
+        detector.Visit(body);
+        return detector.Found;
+    }
+
+    private sealed class NonRepeatableOperationDetector : ExpressionVisitor
+    {
+        public bool Found { get; private set; }
+
+        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        {
+            // EF.Property reads a property of the row, a shadow key among them, and System.Math is deterministic.
+            if (methodCallExpression.TryGetEFPropertyArguments(out _, out _)
+                || methodCallExpression.Method.DeclaringType == typeof(Math)
+                || methodCallExpression.Method.DeclaringType == typeof(MathF))
+            {
+                return base.VisitMethodCall(methodCallExpression);
+            }
+
+            // Any other function can be non-deterministic - EF.Functions.Random(), a user-mapped DbFunction over NEWID().
+            // There is no determinism metadata to consult, so no call is assumed repeatable.
+            Found = true;
+
+            return methodCallExpression;
+        }
+
+        protected override Expression VisitInvocation(InvocationExpression invocationExpression)
+        {
+            Found = true;
+
+            return invocationExpression;
+        }
+
+        protected override Expression VisitMember(MemberExpression memberExpression)
+        {
+            // A static member reads ambient state rather than the row - DateTime.Now, DateTime.UtcNow.
+            if (memberExpression.Expression == null)
+            {
+                Found = true;
+
+                return memberExpression;
+            }
+
+            return base.VisitMember(memberExpression);
+        }
+    }
+
     private sealed record GroupingAggregateCall(
         MethodCallExpression Call,
         LambdaExpression? Selector,
@@ -1957,14 +2349,19 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     private static MethodCallExpression RebuildLiftedAggregate(
         GroupingAggregateCall aggregate,
         ParameterExpression groupingParameter,
-        Type originalElementType,
         Type newElementType,
         LambdaExpression? newSelector,
         LambdaExpression? guard)
     {
         var method = aggregate.Call.Method;
-        var newMethod = method.GetGenericMethodDefinition().MakeGenericMethod(
-            method.GetGenericArguments().Select(t => t == originalElementType ? newElementType : t).ToArray());
+
+        // The aggregate's source is always the first generic argument of these overloads. It is the grouping element type or,
+        // through covariance, a supertype of it - g.Max((IEntity e) => e.Name) - and the rebuilt selector is over the new
+        // element type either way. The others (Min/Max's TResult) keep their own type, which with an element selector can
+        // coincide with the element type - g.Max(x => x) over a grouping whose element selector projects a scalar.
+        var genericArguments = method.GetGenericArguments();
+        genericArguments[0] = newElementType;
+        var newMethod = method.GetGenericMethodDefinition().MakeGenericMethod(genericArguments);
 
         Expression newSource = aggregate.SourceAsQueryable
             ? Expression.Call(QueryableMethods.AsQueryable.MakeGenericMethod(newElementType), groupingParameter)
@@ -1980,6 +2377,19 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                 ? Expression.Call(
                     QueryableMethods.Where.MakeGenericMethod(newElementType), newSource, Expression.Quote(guard))
                 : Expression.Call(EnumerableMethods.Where.MakeGenericMethod(newElementType), newSource, guard);
+        }
+
+        if (newSelector != null
+            && newSelector.ReturnType != aggregate.Selector!.ReturnType)
+        {
+            // The compiler leaves an implicit reference conversion out of the selector's body, so the rebuilt lambda's
+            // inferred return type can be narrower than the one the selector was declared with - g.AsQueryable()
+            // .Max<string, object>(x => x). A delegate type is covariant in its return type and accepts that, but
+            // Expression<TDelegate> is invariant, so the lambda keeps the declared return type.
+            newSelector = Expression.Lambda(
+                Expression.GetFuncType(newElementType, aggregate.Selector.ReturnType),
+                newSelector.Body,
+                newSelector.Parameters);
         }
 
         return newSelector == null
@@ -2553,7 +2963,10 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     }
 
     private static Expression RemapLambdaExpression(NavigationExpansionExpression source, LambdaExpression lambdaExpression)
-        => ReplacingExpressionVisitor.Replace(lambdaExpression.Parameters[0], source.PendingSelector, lambdaExpression.Body);
+        => RemapLambdaExpression(source.PendingSelector, lambdaExpression);
+
+    private static Expression RemapLambdaExpression(Expression shape, LambdaExpression lambdaExpression)
+        => ReplacingExpressionVisitor.Replace(lambdaExpression.Parameters[0], shape, lambdaExpression.Body);
 
     private LambdaExpression ProcessLambdaExpression(NavigationExpansionExpression source, LambdaExpression lambdaExpression)
         => GenerateLambda(ExpandNavigationsForSource(source, RemapLambdaExpression(source, lambdaExpression)), source.CurrentParameter);

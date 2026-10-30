@@ -1028,6 +1028,65 @@ FROM [Parents] AS [p]
 """);
     }
 
+    public override async Task GroupBy_element_selector_projecting_required_navigation_with_query_filter(bool async)
+    {
+        await base.GroupBy_element_selector_projecting_required_navigation_with_query_filter(async);
+
+        AssertSql(
+            """
+SELECT [d].[GroupId] AS [Key], COUNT(*) AS [Count], MAX([p0].[Value]) AS [MaxValue], ISNULL(SUM([d].[GroupId]), 0) AS [SumGroupId]
+FROM [Dependents] AS [d]
+LEFT JOIN (
+    SELECT [p].[Id], [p].[Value]
+    FROM [Principals] AS [p]
+    WHERE [p].[Filtered] = CAST(0 AS bit)
+) AS [p0] ON [d].[PrincipalId] = [p0].[Id]
+GROUP BY [d].[GroupId]
+""");
+    }
+
+    public override async Task GroupBy_All_over_element_selector_projecting_required_navigation_with_query_filter(bool async)
+    {
+        await base.GroupBy_All_over_element_selector_projecting_required_navigation_with_query_filter(async);
+
+        AssertSql(
+            """
+SELECT [d].[GroupId] AS [Key], ~CAST(COUNT_BIG(CASE
+    WHEN [p0].[Id] IS NOT NULL THEN CASE
+        WHEN [p0].[Value] > 15 THEN NULL
+        ELSE 1
+    END
+END) ^ CAST(0 AS bigint) AS bit) AS [AllLarge]
+FROM [Dependents] AS [d]
+LEFT JOIN (
+    SELECT [p].[Id], [p].[Value]
+    FROM [Principals] AS [p]
+    WHERE [p].[Filtered] = CAST(0 AS bit)
+) AS [p0] ON [d].[PrincipalId] = [p0].[Id]
+GROUP BY [d].[GroupId]
+""");
+    }
+
+    public override async Task GroupBy_aggregate_capturing_key_over_filtered_required_navigation(bool async)
+    {
+        await base.GroupBy_aggregate_capturing_key_over_filtered_required_navigation(async);
+
+        AssertSql(
+            """
+SELECT [p0].[Value] AS [Key], MAX(CASE
+    WHEN [p0].[Value] > 0 THEN [p0].[Value]
+    ELSE 0
+END) AS [Max]
+FROM [Dependents] AS [d]
+INNER JOIN (
+    SELECT [p].[Id], [p].[Value]
+    FROM [Principals] AS [p]
+    WHERE [p].[Filtered] = CAST(0 AS bit)
+) AS [p0] ON [d].[PrincipalId] = [p0].[Id]
+GROUP BY [p0].[Value]
+""");
+    }
+
     [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

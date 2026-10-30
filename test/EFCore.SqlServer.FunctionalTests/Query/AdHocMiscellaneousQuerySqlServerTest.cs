@@ -3597,6 +3597,363 @@ ORDER BY [e].[DepartmentName]
 
     #endregion
 
+    #region 38775
+
+    public override async Task GroupBy_lifted_aggregate_over_supertype_of_grouping_element(bool async)
+    {
+        await base.GroupBy_lifted_aggregate_over_supertype_of_grouping_element(async);
+
+        AssertSql(
+            """
+SELECT [e].[ManagerId] AS [Key], MAX([m].[Name]) AS [MaxManager], MAX([e].[Name]) AS [MaxName]
+FROM [Employees] AS [e]
+INNER JOIN [Manager] AS [m] ON [e].[ManagerId] = [m].[Id]
+GROUP BY [e].[ManagerId]
+""");
+    }
+
+    // Under SQL Server's case-insensitive default collation "Engineering" and "engineering" are one group. g.Key inside an
+    // aggregate is that group's single key, so reading it ordinally matches every row of the group or none of them - never
+    // just the rows that happen to store the lower-case spelling.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task GroupBy_lifted_aggregate_capturing_key_differing_only_in_case(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context38775>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Employees
+            .GroupBy(e => e.DepartmentName)
+            .Select(g => new
+            {
+                Count = g.Count(),
+                LowerCaseKeyRows = g.Count(
+                    e => e.Manager.Name != null && EF.Functions.Collate(g.Key, "Latin1_General_BIN") == "engineering")
+            });
+
+        var results = async ? await query.ToListAsync() : query.ToList();
+
+        Assert.Collection(
+            results.OrderBy(r => r.Count),
+            r => Assert.Equal(0, r.LowerCaseKeyRows),
+            r => Assert.Contains(r.LowerCaseKeyRows, new[] { 0, 4 }));
+
+        AssertSql(
+            """
+SELECT COUNT(*) AS [Count], (
+    SELECT COUNT(*)
+    FROM [Employees] AS [e0]
+    INNER JOIN [Manager] AS [m] ON [e0].[ManagerId] = [m].[Id]
+    WHERE [e].[DepartmentName] = [e0].[DepartmentName] AND [e].[DepartmentName] COLLATE Latin1_General_BIN = N'engineering') AS [LowerCaseKeyRows]
+FROM [Employees] AS [e]
+GROUP BY [e].[DepartmentName]
+""");
+    }
+
+    // 10:00+00:00 and 11:00+01:00 are the same instant, so SQL Server groups them together, but their hours differ. g.Key.Hour
+    // reads the hour of the group's one key, so exactly one row of the group shares it. A member read off the key is only as
+    // safe to read per row as the key itself.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task GroupBy_lifted_aggregate_capturing_member_of_datetimeoffset_key(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context38775_Keys>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Employees
+            .GroupBy(e => e.HiredAt)
+            .Select(g => new
+            {
+                Count = g.Count(),
+                SameHour = g.Count(e => e.Manager.Name != null && e.HiredAt.Hour == g.Key.Hour)
+            });
+
+        var results = async ? await query.ToListAsync() : query.ToList();
+
+        var result = Assert.Single(results);
+        Assert.Equal(2, result.Count);
+        Assert.Equal(1, result.SameHour);
+
+        AssertSql(
+            """
+SELECT COUNT(*) AS [Count], (
+    SELECT COUNT(*)
+    FROM [Employees] AS [e0]
+    INNER JOIN [Manager] AS [m] ON [e0].[ManagerId] = [m].[Id]
+    WHERE [e].[HiredAt] = [e0].[HiredAt] AND DATEPART(hour, [e0].[HiredAt]) = DATEPART(hour, [e].[HiredAt])) AS [SameHour]
+FROM [Employees] AS [e]
+GROUP BY [e].[HiredAt]
+""");
+    }
+
+    // A bool is stored as a string here, so the database compares it as one: the two badges differ only by a trailing space,
+    // which SQL Server's equality ignores, so they are one group whose key is one of the two spellings.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task GroupBy_lifted_aggregate_capturing_key_converted_to_string(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context38775_Keys>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Employees
+            .GroupBy(e => e.Badge)
+            .Select(g => new
+            {
+                Count = g.Count(),
+                SameLength = g.Count(
+                    e => e.Manager.Name != null && EF.Functions.DataLength((bool?)e.Badge) == EF.Functions.DataLength((bool?)g.Key))
+            });
+
+        var results = async ? await query.ToListAsync() : query.ToList();
+
+        var result = Assert.Single(results);
+        Assert.Equal(2, result.Count);
+        Assert.Equal(1, result.SameLength);
+
+        AssertSql(
+            """
+SELECT COUNT(*) AS [Count], (
+    SELECT COUNT(*)
+    FROM [Employees] AS [e0]
+    INNER JOIN [Manager] AS [m] ON [e0].[ManagerId] = [m].[Id]
+    WHERE [e].[Badge] = [e0].[Badge] AND DATALENGTH([e0].[Badge]) = DATALENGTH([e].[Badge])) AS [SameLength]
+FROM [Employees] AS [e]
+GROUP BY [e].[Badge]
+""");
+    }
+
+    // The same string-stored bool, read off a derived type through a cast.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task GroupBy_lifted_aggregate_capturing_key_converted_to_string_through_cast(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context38775_Keys>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Employees
+            .GroupBy(e => ((Context38775_Keys.Contractor)e).Code)
+            .Select(g => new
+            {
+                Count = g.Count(),
+                SameLength = g.Count(
+                    e => e.Manager.Name != null
+                        && EF.Functions.DataLength((bool?)((Context38775_Keys.Contractor)e).Code) == EF.Functions.DataLength((bool?)g.Key))
+            });
+
+        var results = async ? await query.ToListAsync() : query.ToList();
+
+        var result = Assert.Single(results);
+        Assert.Equal(2, result.Count);
+        Assert.Equal(1, result.SameLength);
+
+        AssertSql(
+            """
+SELECT COUNT(*) AS [Count], (
+    SELECT COUNT(*)
+    FROM [Employees] AS [e0]
+    INNER JOIN [Manager] AS [m] ON [e0].[ManagerId] = [m].[Id]
+    WHERE ([e].[Code] = [e0].[Code] OR ([e].[Code] IS NULL AND [e0].[Code] IS NULL)) AND (DATALENGTH([e0].[Code]) = DATALENGTH([e].[Code]) OR ([e0].[Code] IS NULL AND [e].[Code] IS NULL))) AS [SameLength]
+FROM [Employees] AS [e]
+GROUP BY [e].[Code]
+""");
+    }
+
+    // The same string-stored bool, read off a complex property.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task GroupBy_lifted_aggregate_capturing_key_converted_to_string_on_complex_property(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context38775_Keys>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Employees
+            .GroupBy(e => e.Card.Number)
+            .Select(g => new
+            {
+                Count = g.Count(),
+                SameLength = g.Count(
+                    e => e.Manager.Name != null && EF.Functions.DataLength((bool?)e.Card.Number) == EF.Functions.DataLength((bool?)g.Key))
+            });
+
+        var results = async ? await query.ToListAsync() : query.ToList();
+
+        var result = Assert.Single(results);
+        Assert.Equal(2, result.Count);
+        Assert.Equal(1, result.SameLength);
+
+        AssertSql(
+            """
+SELECT COUNT(*) AS [Count], (
+    SELECT COUNT(*)
+    FROM [Employees] AS [e0]
+    INNER JOIN [Manager] AS [m] ON [e0].[ManagerId] = [m].[Id]
+    WHERE [e].[Card_Number] = [e0].[Card_Number] AND DATALENGTH([e0].[Card_Number]) = DATALENGTH([e].[Card_Number])) AS [SameLength]
+FROM [Employees] AS [e]
+GROUP BY [e].[Card_Number]
+""");
+    }
+
+    // The same string-stored bool, projected out of a cross join: the projection's storage is no longer visible as a property,
+    // so it can't be shown to compare by identity. Four joined rows, of which the two whose badge is the key's spelling count.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task GroupBy_lifted_aggregate_capturing_key_converted_to_string_projected_through_SelectMany(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context38775_Keys>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Employees
+            .SelectMany(e => context.Employees.Select(x => x.Badge), (e, badge) => new { Employee = e, Badge = badge })
+            .GroupBy(x => x.Badge, x => new { x.Employee, x.Badge })
+            .Select(g => new
+            {
+                Count = g.Count(),
+                SameLength = g.Count(
+                    x => x.Employee.Manager.Name != null && EF.Functions.DataLength((bool?)x.Badge) == EF.Functions.DataLength((bool?)g.Key))
+            });
+
+        var results = async ? await query.ToListAsync() : query.ToList();
+
+        var result = Assert.Single(results);
+        Assert.Equal(4, result.Count);
+        Assert.Equal(2, result.SameLength);
+
+        AssertSql(
+            """
+SELECT COUNT(*) AS [Count], (
+    SELECT COUNT(*)
+    FROM [Employees] AS [e1]
+    CROSS JOIN [Employees] AS [e2]
+    INNER JOIN [Manager] AS [m] ON [e1].[ManagerId] = [m].[Id]
+    WHERE [e0].[Badge] = [e2].[Badge] AND DATALENGTH([e2].[Badge]) = DATALENGTH([e0].[Badge])) AS [SameLength]
+FROM [Employees] AS [e]
+CROSS JOIN [Employees] AS [e0]
+GROUP BY [e0].[Badge]
+""");
+    }
+
+    // The same string-stored bool, projected through a Distinct and joined back to its employee.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task GroupBy_lifted_aggregate_capturing_key_converted_to_string_projected_through_Distinct(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context38775_Keys>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Employees
+            .Select(e => new { e.Id, e.Badge })
+            .Distinct()
+            .Join(context.Employees, x => x.Id, e => e.Id, (x, e) => new { x.Badge, Employee = e })
+            .GroupBy(x => x.Badge)
+            .Select(g => new
+            {
+                Count = g.Count(),
+                SameLength = g.Count(
+                    x => x.Employee.Manager.Name != null && EF.Functions.DataLength((bool?)x.Badge) == EF.Functions.DataLength((bool?)g.Key))
+            });
+
+        var results = async ? await query.ToListAsync() : query.ToList();
+
+        var result = Assert.Single(results);
+        Assert.Equal(2, result.Count);
+        Assert.Equal(1, result.SameLength);
+
+        AssertSql(
+            """
+SELECT COUNT(*) AS [Count], (
+    SELECT COUNT(*)
+    FROM (
+        SELECT DISTINCT [e3].[Id], [e3].[Badge]
+        FROM [Employees] AS [e3]
+    ) AS [e2]
+    INNER JOIN [Employees] AS [e4] ON [e2].[Id] = [e4].[Id]
+    INNER JOIN [Manager] AS [m] ON [e4].[ManagerId] = [m].[Id]
+    WHERE [e1].[Badge] = [e2].[Badge] AND DATALENGTH([e2].[Badge]) = DATALENGTH([e1].[Badge])) AS [SameLength]
+FROM (
+    SELECT DISTINCT [e].[Id], [e].[Badge]
+    FROM [Employees] AS [e]
+) AS [e1]
+INNER JOIN [Employees] AS [e0] ON [e1].[Id] = [e0].[Id]
+GROUP BY [e1].[Badge]
+""");
+    }
+
+    protected class Context38775_Keys(DbContextOptions options) : DbContext(options)
+    {
+        // Reads back with its trailing space trimmed, so that both stored spellings materialize.
+        private static readonly ValueConverter<bool, string> YesNo = new(b => b ? "Y" : "N", s => s.Trim() == "Y");
+
+        public DbSet<Employee> Employees
+            => Set<Employee>();
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Employee>(
+                b =>
+                {
+                    b.Property(e => e.Badge).HasConversion(YesNo).HasColumnType("nvarchar(40)");
+                    b.ComplexProperty(
+                        e => e.Card,
+                        c => c.Property(x => x.Number).HasConversion(YesNo).HasColumnType("nvarchar(40)"));
+                });
+            modelBuilder.Entity<Contractor>().Property(e => e.Code).HasConversion(YesNo).HasColumnType("nvarchar(40)");
+        }
+
+        public async Task SeedAsync()
+        {
+            var manager = new Manager { Id = 1, Name = "Ada" };
+            var badge = true;
+            AddRange(
+                new Contractor
+                {
+                    Id = 1,
+                    HiredAt = new DateTimeOffset(2026, 1, 1, 10, 0, 0, TimeSpan.Zero),
+                    Badge = badge,
+                    Card = new Card { Number = badge },
+                    Code = badge,
+                    Manager = manager
+                },
+                new Contractor
+                {
+                    Id = 2,
+                    HiredAt = new DateTimeOffset(2026, 1, 1, 11, 0, 0, TimeSpan.FromHours(1)),
+                    Badge = badge,
+                    Card = new Card { Number = badge },
+                    Code = badge,
+                    Manager = manager
+                });
+            await SaveChangesAsync();
+
+            await Database.ExecuteSqlRawAsync(
+                "UPDATE [Employees] SET [Badge] = [Badge] + N' ', [Card_Number] = [Card_Number] + N' ', [Code] = [Code] + N' ' WHERE [Id] = 2");
+        }
+
+        public class Employee
+        {
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
+            public int Id { get; set; }
+
+            public DateTimeOffset HiredAt { get; set; }
+            public bool Badge { get; set; }
+            public Card Card { get; set; } = null!;
+            public int ManagerId { get; set; }
+            public Manager Manager { get; set; } = null!;
+        }
+
+        public class Contractor : Employee
+        {
+            public bool Code { get; set; }
+        }
+
+        public class Card
+        {
+            public bool Number { get; set; }
+        }
+
+        public class Manager
+        {
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
+            public int Id { get; set; }
+
+            public string Name { get; set; } = null!;
+        }
+    }
+
+    #endregion
+
     #region 30233
 
     public override async Task Sum_over_property_with_value_converter_that_converts_nulls(bool async)

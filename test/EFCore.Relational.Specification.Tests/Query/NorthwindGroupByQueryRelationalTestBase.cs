@@ -80,4 +80,47 @@ public abstract class NorthwindGroupByQueryRelationalTestBase<TFixture>(TFixture
                 e, a,
                 elementSorter: c => c.CustomerID,
                 elementAsserter: (ee, aa) => AssertInclude(ee, aa, new ExpectedInclude<Customer>(c => c.Orders))));
+
+    // A projection into a type whose members do not map onto its constructor arguments cannot be folded back into the
+    // aggregate selector, so the GroupBy aggregate lift is abandoned and the query fails to translate exactly as it
+    // does without it.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_element_selector_projecting_constructor_bound_type_with_aggregate(bool async)
+        => AssertTranslationFailed(() => AssertQuery(async, ConstructorBoundElementSelectorQuery));
+
+    private static IQueryable<string?> ConstructorBoundElementSelectorQuery(ISetSource ss)
+        => ss.Set<Order>()
+            .GroupBy(o => o.EmployeeID, o => new OrderRegion(o.Customer!.Region, o.OrderID))
+            .Select(g => g.Max(x => x.Region));
+
+    // A non-deterministic function in the key can evaluate differently inside the aggregate than it did for the GROUP BY, so
+    // the key is not recomputed there, and the lift is abandoned. Multiplying by zero keeps the result checkable.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_capturing_key_computed_with_Random_through_navigation(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => (int)(EF.Functions.Random() * 0))
+                .Select(g => new { g.Key, Max = g.Max(o => o.Customer!.Region == null ? 0 : g.Key + 1) }),
+            ss => ss.Set<Order>()
+                .GroupBy(o => 0)
+                .Select(g => new { g.Key, Max = g.Max(o => o.Customer!.Region == null ? 0 : g.Key + 1) }),
+            elementSorter: e => e.Key);
+
+    // The same projection behind a cast, which the member access reads through.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_element_selector_projecting_cast_constructor_bound_type_with_aggregate(bool async)
+        => AssertTranslationFailed(() => AssertQuery(async, CastConstructorBoundElementSelectorQuery));
+
+    private static IQueryable<string?> CastConstructorBoundElementSelectorQuery(ISetSource ss)
+        => ss.Set<Order>()
+            .GroupBy(o => o.EmployeeID, o => (object)new OrderRegion(o.Customer!.Region, o.OrderID))
+            .Select(g => g.Max(x => ((OrderRegion)x).Region));
+
+    private class OrderRegion(string? region, int orderID)
+    {
+        public string? Region { get; } = region;
+
+        public int OrderID { get; } = orderID;
+    }
 }

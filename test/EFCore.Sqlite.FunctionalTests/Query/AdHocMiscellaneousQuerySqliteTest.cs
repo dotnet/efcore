@@ -921,6 +921,85 @@ ORDER BY "c"."CountryId", "c"."Id"
 
     #endregion
 
+    #region 38775
+
+    // A Guid is stored as text on SQLite without a value converter, so the database compares it as text: under a NOCASE collation,
+    // two badges differing only in case are one group whose key is one of the two spellings, and only the row stored in that
+    // spelling matches it under BINARY.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task GroupBy_lifted_aggregate_capturing_Guid_key_stored_as_text_under_NOCASE(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context38775_GuidText>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Employees
+            .GroupBy(e => e.Badge)
+            .Select(g => new
+            {
+                Count = g.Count(),
+                SameSpelling = g.Count(
+                    e => e.Manager.Name != null && EF.Functions.Collate(e.Badge.ToString(), "BINARY") == g.Key.ToString())
+            });
+
+        var results = async ? await query.ToListAsync() : query.ToList();
+
+        var result = Assert.Single(results);
+        Assert.Equal(2, result.Count);
+        Assert.Equal(1, result.SameSpelling);
+
+        AssertSql(
+            """
+SELECT COUNT(*) AS "Count", (
+    SELECT COUNT(*)
+    FROM "Employees" AS "e0"
+    INNER JOIN "Manager" AS "m" ON "e0"."ManagerId" = "m"."Id"
+    WHERE "e"."Badge" = "e0"."Badge" AND "e0"."Badge" COLLATE "BINARY" = "e"."Badge") AS "SameSpelling"
+FROM "Employees" AS "e"
+GROUP BY "e"."Badge"
+""");
+    }
+
+    protected class Context38775_GuidText(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Employee> Employees
+            => Set<Employee>();
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Employee>().Property(e => e.Badge).UseCollation("NOCASE");
+
+        public async Task SeedAsync()
+        {
+            var manager = new Manager { Id = 1, Name = "Ada" };
+            var badge = new Guid("6f9619ff-8b86-d011-b42d-00c04fc964ff");
+            AddRange(
+                new Employee { Id = 1, Badge = badge, Manager = manager },
+                new Employee { Id = 2, Badge = badge, Manager = manager });
+            await SaveChangesAsync();
+
+            await Database.ExecuteSqlRawAsync("""UPDATE "Employees" SET "Badge" = lower("Badge") WHERE "Id" = 2""");
+        }
+
+        public class Employee
+        {
+            [System.ComponentModel.DataAnnotations.Schema.DatabaseGenerated(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None)]
+            public int Id { get; set; }
+
+            public Guid Badge { get; set; }
+            public int ManagerId { get; set; }
+            public Manager Manager { get; set; } = null!;
+        }
+
+        public class Manager
+        {
+            [System.ComponentModel.DataAnnotations.Schema.DatabaseGenerated(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None)]
+            public int Id { get; set; }
+
+            public string Name { get; set; } = null!;
+        }
+    }
+
+    #endregion
+
     #region 39241
 
     public override async Task GroupBy_elements_with_keys_differing_only_in_case(bool async)
