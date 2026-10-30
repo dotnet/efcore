@@ -13360,6 +13360,9 @@
           "Member": "virtual void ValidateIndexPropertyMapping(Microsoft.EntityFrameworkCore.Metadata.IIndex index, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"
         },
         {
+          "Member": "virtual void ValidateJsonColumns(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IEntityType> mappedTypes, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier table, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"
+        },
+        {
           "Member": "virtual void ValidateJsonEntityKey(in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier table, Microsoft.EntityFrameworkCore.Metadata.IEntityType jsonEntityType);"
         },
         {
@@ -13378,7 +13381,7 @@
           "Member": "virtual void ValidateJsonEntitySingularMapping(in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier table, Microsoft.EntityFrameworkCore.Metadata.IEntityType jsonEntityType);"
         },
         {
-          "Member": "virtual void ValidateJsonTable(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IEntityType> mappedTypes, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier table, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"
+          "Member": "virtual void ValidateJsonOwnedEntityType(Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier table, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"
         },
         {
           "Member": "virtual void ValidateJsonView(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IEntityType> mappedTypes, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier view, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"
@@ -15008,6 +15011,12 @@
           "Member": "static string ComplexCollectionNotMappedToJson(object? entityType, object? property);"
         },
         {
+          "Member": "static string ComplexCollectionSharedJsonColumn(object? complexCollection, object? complexProperty, object? column, object? table);"
+        },
+        {
+          "Member": "static string ComplexPropertiesSharedJsonColumn(object? complexProperty1, object? complexProperty2, object? column, object? table);"
+        },
+        {
           "Member": "static string ComplexPropertyBothJsonColumnAndJsonPropertyName(object? complexProperty, object? columnName, object? propertyName);"
         },
         {
@@ -15525,6 +15534,9 @@
         },
         {
           "Member": "static string NestedCollectionsNotSupported(object? propertyType, object? type, object? property);"
+        },
+        {
+          "Member": "static string NestedComplexPropertyJsonColumn(object? complexProperty, object? column, object? containingType, object? containingColumn);"
         },
         {
           "Member": "static string NestedComplexPropertyJsonWithTableSharing(object? complexProperty, object? containingType);"

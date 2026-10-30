@@ -10507,6 +10507,41 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             Assert.Empty);
 
     [Fact]
+    public virtual void Making_table_splitting_dependent_with_json_complex_property_optional_makes_json_column_nullable()
+        => Execute(
+            common =>
+            {
+                common.Entity<SplitJsonPrincipal>(b =>
+                {
+                    b.ToTable("Principals");
+                    b.HasOne(p => p.Dependent)
+                        .WithOne()
+                        .HasForeignKey<SplitJsonDependent>(d => d.Id);
+                });
+                common.Entity<SplitJsonDependent>(b =>
+                {
+                    b.ToTable("Principals");
+                    b.ComplexProperty(d => d.Data, cb => cb.ToJson("json_data"));
+                });
+            },
+            source => source.Entity<SplitJsonPrincipal>().Navigation(p => p.Dependent).IsRequired(),
+            target => { },
+            upOps =>
+            {
+                var operation = Assert.IsType<AlterColumnOperation>(Assert.Single(upOps));
+                Assert.Equal("Principals", operation.Table);
+                Assert.Equal("json_data", operation.Name);
+                Assert.True(operation.IsNullable);
+                Assert.False(operation.OldColumn.IsNullable);
+            },
+            downOps =>
+            {
+                var operation = Assert.IsType<AlterColumnOperation>(Assert.Single(downOps));
+                Assert.Equal("json_data", operation.Name);
+                Assert.False(operation.IsNullable);
+            });
+
+    [Fact]
     public virtual void Add_complex_collection_mapped_to_json_uses_empty_array_as_default_value()
         => Execute(
             _ => { },
@@ -10734,6 +10769,18 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             },
             target => { },
             Assert.Empty);
+
+    protected class SplitJsonPrincipal
+    {
+        public int Id { get; set; }
+        public SplitJsonDependent? Dependent { get; set; }
+    }
+
+    protected class SplitJsonDependent
+    {
+        public int Id { get; set; }
+        public MyNestedComplex Data { get; set; } = null!;
+    }
 
     protected class MyJsonComplex
     {

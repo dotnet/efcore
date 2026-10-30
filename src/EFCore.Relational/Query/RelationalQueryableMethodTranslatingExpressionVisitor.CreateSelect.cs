@@ -644,7 +644,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             containerColumn,
             containerColumnClrType,
             containerColumnTypeMapping,
-            isNullable);
+            // The column can also be null when the declaring type is an optional dependent
+            isNullable || containerColumn?.IsNullable == true);
 
         var jsonQuery = new JsonQueryExpression(
             complexType,
@@ -735,7 +736,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         {
             SqlExpression? predicate = null;
             var projection = GetMappedProjection(selectExpression);
-            var requiredNonPkProperties = entityType.GetProperties().Where(p => !p.IsNullable && !p.IsPrimaryKey()).ToList();
+            var requiredNonPkProperties = entityType.GetRequiredNonPkProperties();
             if (requiredNonPkProperties.Count > 0)
             {
                 predicate = requiredNonPkProperties.Select(e => IsNotNull(e, projection))
@@ -745,7 +746,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             var allNonSharedNonPkProperties = entityType.GetNonPrincipalSharedNonPkProperties(table);
             // We don't need condition for nullable property if there exist at least one required property which is non shared.
             if (allNonSharedNonPkProperties.Count != 0
-                && allNonSharedNonPkProperties.All(p => p.IsNullable))
+                && allNonSharedNonPkProperties.All(p => p.IsNullable()))
             {
                 var atLeastOneNonNullValueInNullablePropertyCondition = allNonSharedNonPkProperties
                     .Select(p => IsNotNull(p, projection))
@@ -771,8 +772,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             => (StructuralTypeProjectionExpression)selectExpression.GetProjection(
                 new ProjectionBindingExpression(selectExpression, new ProjectionMember(), typeof(ValueBuffer)));
 
-        SqlExpression IsNotNull(IProperty property, StructuralTypeProjectionExpression projection)
-            => _sqlExpressionFactory.IsNotNull(projection.BindProperty(property));
+        SqlExpression IsNotNull(IPropertyBase property, StructuralTypeProjectionExpression projection)
+            => _sqlExpressionFactory.IsNotNull(projection.BindColumn(property));
     }
 
     private void AddJsonNavigationBindings(
