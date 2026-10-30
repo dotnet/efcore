@@ -2322,6 +2322,35 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
             });
 
     [Fact]
+    public virtual Task Add_deferrable_foreign_key()
+        => Test(
+            builder =>
+            {
+                builder.Entity(
+                    "Customers", e =>
+                    {
+                        e.Property<int>("Id");
+                        e.HasKey("Id");
+                    });
+                builder.Entity(
+                    "Orders", e =>
+                    {
+                        e.Property<int>("Id");
+                        e.Property<int>("CustomerId");
+                    });
+            },
+            builder => { },
+            builder => builder.Entity("Orders").HasOne("Customers").WithMany()
+                .HasForeignKey("CustomerId")
+                .HasDeferrability(ConstraintDeferrability.DeferrableInitiallyDeferred),
+            model =>
+            {
+                var ordersTable = Assert.Single(model.Tables, t => t.Name == "Orders");
+                var foreignKey = Assert.Single(ordersTable.ForeignKeys);
+                Assert.Equal("Customers", foreignKey.PrincipalTable.Name);
+            });
+
+    [Fact]
     public virtual Task Drop_foreign_key()
         => Test(
             builder =>

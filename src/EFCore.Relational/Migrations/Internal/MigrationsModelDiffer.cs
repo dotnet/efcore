@@ -1448,6 +1448,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                 && s.PrincipalColumns.Select(c => c.Name).SequenceEqual(
                     t.PrincipalColumns.Select(c => context.FindSource(c)?.Name))
                 && s.OnDeleteAction == t.OnDeleteAction
+                && s.Deferrability == t.Deferrability
                 && !HasDifferences(s.GetAnnotations(), t.GetAnnotations()));
 
     /// <summary>
