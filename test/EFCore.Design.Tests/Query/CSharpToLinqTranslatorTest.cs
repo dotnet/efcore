@@ -265,6 +265,39 @@ public class CSharpToLinqTranslatorTest
             () => 1.5m,
             "1.5m");
 
+    [Theory]
+    [InlineData("(decimal amount) => amount > 0 ? amount : 0")]
+    [InlineData("(decimal amount) => amount > 0m ? amount : 0")]
+    [InlineData("(decimal amount) => amount > 0m ? amount : 0m")]
+    public void Literal_implicitly_converted_to_decimal(string code)
+        => AssertExpression(
+            () => new[] { 1m }.Select(amount => amount > 0m ? amount : 0m),
+            $"new[] {{ 1m }}.Select({code})");
+
+    [Fact]
+    public void Literal_char_implicitly_converted_to_decimal()
+        => AssertExpression(
+            () => new decimal[] { 'a' },
+            "new decimal[] { 'a' }");
+
+    [Fact]
+    public void Literal_implicitly_converted_to_byte()
+        => AssertExpression(
+            () => new byte[] { 255 },
+            "new byte[] { 255 }");
+
+    [Fact]
+    public void Literal_implicitly_converted_to_long()
+        => AssertExpression(
+            () => new long[] { 1 },
+            "new long[] { 1 }");
+
+    [Fact]
+    public void Literal_implicitly_converted_to_double()
+        => AssertExpression(
+            () => new double[] { 1 },
+            "new double[] { 1 }");
+
     [Fact]
     public void Literal_null()
         => AssertExpression(

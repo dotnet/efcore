@@ -17,6 +17,40 @@ public abstract class AdHocPrecompiledQueryRelationalTestBase : NonSharedModelTe
         => TestOutputHelper = testOutputHelper;
 
     [Fact]
+    public virtual async Task Decimal_projection_with_implicitly_converted_zero()
+    {
+        var contextFactory = await InitializeNonSharedTest<DecimalContext>();
+
+        await Test(
+            """
+await using var context = new AdHocPrecompiledQueryRelationalTestBase.DecimalContext(dbContextOptions);
+var id = 1;
+var amount = 2m;
+
+// Generate and compile the query without executing it.
+Func<Task<decimal>> query = () => context.Groups.Where(group => group.Id == id)
+    .Select(group => group.Balance + (amount > 0 ? amount : 0))
+    .SingleAsync();
+""",
+            typeof(DecimalContext),
+            contextFactory.GetOptions(),
+            interceptorCodeAsserter: code => Assert.Contains("InterceptsLocation", code));
+    }
+
+    public class DecimalContext(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<DecimalGroup> Groups { get; set; } = null!;
+    }
+
+    public class DecimalGroup
+    {
+        public int Id { get; set; }
+
+        [Precision(18, 2)]
+        public decimal Balance { get; set; }
+    }
+
+    [Fact]
     public virtual async Task Index_no_evaluatability()
     {
         var contextFactory = await InitializeNonSharedTest<JsonContext>();
