@@ -68,6 +68,49 @@ _ = context.JsonEntities.Where(b => b.JsonThing.StringProperty == "foo").ToList(
             options);
     }
 
+    [Fact]
+    public virtual async Task Compare_converted_property_to_string()
+    {
+        var contextFactory = await InitializeNonSharedTest<ConvertedTypeContext>(
+            seed: async context =>
+            {
+                context.Blogs.Add(new ConvertedTypeBlog { Name = new ConvertedTypeName("Some name") });
+                await context.SaveChangesAsync();
+            });
+
+        await Test(
+            """
+await using var context = new AdHocPrecompiledQueryRelationalTestBase.ConvertedTypeContext(dbContextOptions);
+var name = "Some name";
+var blog = await context.Blogs.FirstOrDefaultAsync(blog => blog.Name == name);
+Assert.NotNull(blog);
+Assert.Equal("Some name", blog.Name.Value);
+""",
+            typeof(ConvertedTypeContext),
+            contextFactory.GetOptions());
+    }
+
+    public class ConvertedTypeContext(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<ConvertedTypeBlog> Blogs { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<ConvertedTypeBlog>().Property(blog => blog.Name)
+                .HasConversion(name => name.Value, value => new ConvertedTypeName(value));
+    }
+
+    public class ConvertedTypeBlog
+    {
+        public int Id { get; set; }
+        public ConvertedTypeName Name { get; set; }
+    }
+
+    public readonly record struct ConvertedTypeName(string Value)
+    {
+        public static implicit operator string(ConvertedTypeName name)
+            => name.Value;
+    }
+
     public class JsonContext(DbContextOptions options) : DbContext(options)
     {
         public DbSet<JsonEntity> JsonEntities { get; set; } = null!;

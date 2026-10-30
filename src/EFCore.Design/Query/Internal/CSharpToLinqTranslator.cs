@@ -263,6 +263,21 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
         var left = Visit(binary.Left);
         var right = Visit(binary.Right);
 
+        if (binary.IsKind(SyntaxKind.EqualsExpression) || binary.IsKind(SyntaxKind.NotEqualsExpression))
+        {
+            if (_semanticModel.GetTypeInfo(binary.Left).ConvertedType is { } leftConvertedType
+                && ResolveType(leftConvertedType) != left.Type)
+            {
+                left = Convert(left, ResolveType(leftConvertedType));
+            }
+
+            if (_semanticModel.GetTypeInfo(binary.Right).ConvertedType is { } rightConvertedType
+                && ResolveType(rightConvertedType) != right.Type)
+            {
+                right = Convert(right, ResolveType(rightConvertedType));
+            }
+        }
+
         if (Nullable.GetUnderlyingType(left.Type) == right.Type)
         {
             right = Convert(right, left.Type);
