@@ -61,6 +61,28 @@ WHERE JSON_VALUE([j].[JsonThing], '$.StringProperty') = N'foo'
 """);
     }
 
+    public override async Task Materialize_sealed_entity()
+    {
+        await base.Materialize_sealed_entity();
+
+        AssertSql(
+            """
+SELECT TOP(2) [e].[Id], [e].[Name]
+FROM [Entities] AS [e]
+""");
+    }
+
+    public override async Task Materialize_sealed_entity_implementing_injectable_service()
+    {
+        await base.Materialize_sealed_entity_implementing_injectable_service();
+
+        AssertSql(
+            """
+SELECT TOP(2) [i].[Id], [i].[Name]
+FROM [InjectableEntities] AS [i]
+""");
+    }
+
     public override async Task Materialize_non_public()
     {
         await base.Materialize_non_public();

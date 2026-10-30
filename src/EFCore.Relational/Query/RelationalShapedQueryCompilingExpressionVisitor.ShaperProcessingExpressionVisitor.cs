@@ -3745,9 +3745,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                 RelationalStrings.JsonProjectingQueryableOperationNoTrackingWithIdentityResolution(
                                     nameof(QueryTrackingBehavior.NoTrackingWithIdentityResolution)));
 
-                        case JsonProjectionInfo jsonEntityProjectionInfo:
+                        case JsonProjectionInfo jsonEntityProjectionInfo
+                            when entityShaperExpression.StructuralType is IEntityType jsonEntityType:
                         {
-                            var jsonEntityType = (IEntityType)entityShaperExpression.StructuralType;
                             if (_insideInclude)
                             {
                                 if (!_includedJsonEntityTypes.Contains(jsonEntityType))

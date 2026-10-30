@@ -321,6 +321,7 @@ public class SqlServerAnnotationCodeGeneratorTest
     {
         var generator = CreateGenerator();
         var modelBuilder = SqlServerConventionSetBuilder.CreateModelBuilder();
+        modelBuilder.UseHiLo("ModelHiLoSequence", "ModelHiLoSchema");
         modelBuilder.Entity("Post", x => x.Property<int>("Id").UseHiLo("HiLoIndexName", "HiLoIndexSchema"));
         var property = modelBuilder.Model.FindEntityType("Post")!.FindProperty("Id")!;
 
@@ -334,6 +335,32 @@ public class SqlServerAnnotationCodeGeneratorTest
             result.Arguments,
             name => Assert.Equal("HiLoIndexName", name),
             schema => Assert.Equal("HiLoIndexSchema", schema));
+    }
+
+    [Theory]
+    [InlineData(null, null)]
+    [InlineData("HiLoSequence", null)]
+    [InlineData(null, "HiLoSchema")]
+    [InlineData("HiLoSequence", "HiLoSchema")]
+    public void GenerateFluentApi_IProperty_works_with_model_HiLo(string? sequenceName, string? sequenceSchema)
+    {
+        var generator = CreateGenerator();
+        var modelBuilder = SqlServerConventionSetBuilder.CreateModelBuilder();
+        modelBuilder.UseHiLo(sequenceName, sequenceSchema);
+        modelBuilder.Entity("Post", x => x.Property<int>("Id"));
+        var model = modelBuilder.FinalizeModel();
+        var property = model.FindEntityType("Post")!.FindProperty("Id")!;
+
+        var annotations = property.GetAnnotations().ToDictionary(a => a.Name, a => a);
+        var result = generator.GenerateFluentApiCalls(property, annotations).Single();
+
+        Assert.Equal("UseHiLo", result.Method);
+        Assert.Equal("SqlServerPropertyBuilderExtensions", result.DeclaringType);
+
+        sequenceName ??= SqlServerModelExtensions.DefaultHiLoSequenceName;
+        Assert.Equal(
+            sequenceSchema is null ? new object[] { sequenceName } : [sequenceName, sequenceSchema],
+            result.Arguments);
     }
 
     [Fact]

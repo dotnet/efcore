@@ -1658,7 +1658,14 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                 case NewArrayExpression:
                 case ConstantExpression:
                 case ParameterExpression:
-                case UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked }:
+                    return base.Visit(expression);
+
+                // A conversion is computed too, unless it leaves the value as it is: (decimal)g.Key over a double key is a CAST on the
+                // server, which rounds to the mapped scale, and (int)g.Key over a long key is a CAST which fails on overflow rather than
+                // wrapping around. Only wrapping a value in its nullable form (or unwrapping it), boxing it and casting a reference
+                // up its hierarchy are the same in either place.
+                case UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } convert
+                    when IsValuePreservingConversion(convert):
                     return base.Visit(expression);
 
                 default:
@@ -1666,6 +1673,11 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                     return expression;
             }
         }
+
+        private static bool IsValuePreservingConversion(UnaryExpression convert)
+            => convert.Method is null
+                && (convert.Type.UnwrapNullableType() == convert.Operand.Type.UnwrapNullableType()
+                    || (!convert.Type.IsValueType && convert.Type.IsAssignableFrom(convert.Operand.Type)));
 
         private bool TryMatchElements(
             Expression expression,

@@ -1129,6 +1129,30 @@ INSERT INTO MyTable VALUES (1, 'A', 'Tale', 'Of');",
             },
             "DROP TABLE MyTable;");
 
+    [Fact]
+    public void String_concatenation_default_values_are_passed_through()
+        => Test(
+            @"
+CREATE TABLE MyTable (
+    Id int,
+    A text DEFAULT ('a' || 'b'),
+    B text DEFAULT ('It''s' || '!'));",
+            [],
+            [],
+            dbModel =>
+            {
+                var columns = dbModel.Tables.Single().Columns;
+
+                var column = columns.Single(c => c.Name == "A");
+                Assert.Equal("'a' || 'b'", column.DefaultValueSql);
+                Assert.Null(column.DefaultValue);
+
+                column = columns.Single(c => c.Name == "B");
+                Assert.Equal("'It''s' || '!'", column.DefaultValueSql);
+                Assert.Null(column.DefaultValue);
+            },
+            "DROP TABLE MyTable;");
+
     [Theory, InlineData(false), InlineData(true)]
     public void Column_ValueGenerated_is_set(bool autoIncrement)
         => Test(

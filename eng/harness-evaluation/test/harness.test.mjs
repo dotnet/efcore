@@ -9,6 +9,7 @@ import test from 'node:test';
 import { runInNewContext } from 'node:vm';
 import { createGraderRegistry, gradeTrajectory, hasGraderError, loadEvalWithParams, resolveGradingTimeoutMs } from '@microsoft/vally';
 import { parse } from 'yaml';
+import { prepareComparison } from '../src/comparison.mjs';
 import { judgeTimeoutLimits, withJudgeTimeout } from '../src/judge-timeout.mjs';
 import { initialize as initializeJudgeLoader, load as loadJudgeModule } from '../src/judge-timeout-loader.mjs';
 import {
@@ -28,6 +29,11 @@ import {
 
 const workflow = parse(await readFile(new URL('../../../.github/workflows/agent-harness-evaluation.yml', import.meta.url), 'utf8'));
 const metadataStep = workflow.jobs.discover.steps.find((step) => step.name === 'Update pull request metadata');
+
+test('workflow leaves judge model selection to the eval defaults', () => {
+  const evaluationStep = workflow.jobs.evaluate.steps.find((step) => step.name === 'Run treatment, unskilled control, and comparison');
+  assert.doesNotMatch(evaluationStep.run, /--judge-model/);
+});
 
 const evalYaml = (
   name,
@@ -122,7 +128,8 @@ variants:
     await writeFile(preloadPath, `import { register } from 'node:module';
       register(${JSON.stringify(pathToFileURL(loaderPath).href)}, import.meta.url);`);
     const comparisonPath = join(outputRoot, 'comparison.jsonl');
-    const comparisonResult = runVally(['compare', experimentDirectory, '--output', comparisonPath], {
+    const comparisonDirectory = await prepareComparison(experimentDirectory, join(outputRoot, 'comparison-input'));
+    const comparisonResult = runVally(['compare', comparisonDirectory, '--output', comparisonPath], {
       cwd: root, env: { NODE_OPTIONS: `--import=${pathToFileURL(preloadPath).href}` },
     });
     assert.equal(comparisonResult.status, 0, comparisonResult.stderr);
@@ -142,6 +149,65 @@ variants:
     assert.equal(comparison.stimuli[0].trials[0].trialIndex, 0);
     assert.deepEqual(comparison.unmatchedBaseline, []);
     assert.deepEqual(comparison.unmatchedTreatment, []);
+
+    for (const variant of ['control', 'treatment']) {
+      await writeFile(join(comparisonDirectory, variant, 'results.jsonl'), 'Not original experiment results.\n');
+    }
+    const verifyStep = workflow.jobs.evaluate.steps.find((step) => step.name === 'Verify Vally reports');
+    const verifyScript = verifyStep.run.match(/<<'EOF'\n([\s\S]*?)\nEOF/)[1];
+    const verify = () => spawnSync(process.execPath, ['--input-type=module', '-e', verifyScript], {
+      encoding: 'utf8',
+      env: { ...process.env, RESULT_ROOT: outputRoot, TRUSTED_ROOT: defaultRepoRoot },
+    });
+    const verification = verify();
+    assert.equal(verification.status, 0, verification.stderr);
+
+    const reportStep = workflow.jobs.evaluate.steps.find((step) => step.name === 'Report component result');
+    const report = async () => {
+      const comments = [];
+      const warnings = [];
+      const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
+      await new AsyncFunction('require', 'process', 'context', 'github', 'core', reportStep.with.script)(
+        createRequire(import.meta.url),
+        { env: {
+          RESULT_ROOT: outputRoot, TRUSTED_ROOT: defaultRepoRoot, PULL_REQUEST: '123',
+          COMPONENT: 'example', EVAL_OUTCOME: 'success', HEAD_SHA: 'head',
+        } },
+        { repo: { owner: 'dotnet', repo: 'efcore' }, serverUrl: 'https://github.com', runId: 1 },
+        {
+          paginate: async () => [],
+          rest: {
+            issues: { listComments() {}, createComment: async (comment) => comments.push(comment) },
+            repos: { getContent: async () => ({}) },
+            search: { issuesAndPullRequests: async () => ({ data: { items: [] } }) },
+          },
+        },
+        { info() {}, warning: (message) => warnings.push(message) },
+      );
+      assert.equal(comments.length, 1);
+      return { body: comments[0].body, warnings };
+    };
+    const reported = await report();
+    assert.deepEqual(reported.warnings, []);
+    assert.match(reported.body, /Status: \*\*✅ passed\*\*/);
+    assert.match(reported.body, /Model: \*\*`mock`\*\*/);
+    assert.match(reported.body, /\| inspect-anchor \| 1\/1 \|/);
+    assert.doesNotMatch(reported.body, /An error occurred/);
+
+    const duplicateDirectory = join(outputRoot, 'second-experiment');
+    await mkdir(duplicateDirectory);
+    await writeFile(join(duplicateDirectory, 'plan-snapshot.json'), JSON.stringify(plan));
+    assert.match(verify().stderr, /Expected one Vally experiment.*found 2/);
+    const duplicateReport = await report();
+    assert.match(duplicateReport.body, /Status: \*\*error\*\*/);
+    assert.match(duplicateReport.warnings.join('\n'), /Expected one Vally experiment.*found 2/);
+    await rm(duplicateDirectory, { recursive: true });
+
+    await rm(join(experimentDirectory, 'control', 'results.jsonl'));
+    assert.notEqual(verify().status, 0);
+    const missingReport = await report();
+    assert.match(missingReport.body, /Status: \*\*error\*\*/);
+    assert.match(missingReport.warnings.join('\n'), /Could not parse treatment grades:.*ENOENT/);
   } finally {
     await rm(root, { recursive: true, force: true });
   }
@@ -538,12 +604,13 @@ test('all evals specify and resolve judge defaults and overrides through Vally',
   for (const component of components) {
     const evalPath = join(defaultRepoRoot, component.eval);
     const authored = parse(await readFile(evalPath, 'utf8'));
+    assert.equal(authored.defaults.judge_model, '${JUDGE_MODEL=gpt-5.6-terra}', component.id);
     assert.equal(authored.defaults.judge_reasoning_effort, '${JUDGE_REASONING_EFFORT=medium}', component.id);
     assert.equal(authored.defaults.judge_timeout, '${JUDGE_TIMEOUT=10m}', component.id);
     assert.equal(authored.scoring.timeout, '${SCORING_TIMEOUT=10m}', component.id);
     const defaults = (await loadEvalWithParams(evalPath)).spec.defaults;
     assert.equal(defaults.judge_reasoning_effort, 'medium', component.id);
-    assert.equal(defaults.judge_model, 'gpt-6.1-terra');
+    assert.equal(defaults.judge_model, 'gpt-5.6-terra', component.id);
     assert.equal(defaults.judge_timeout, '10m', component.id);
     assert.equal(authored.defaults.timeout, undefined, component.id);
     assert.equal(defaults.timeout, undefined, component.id);

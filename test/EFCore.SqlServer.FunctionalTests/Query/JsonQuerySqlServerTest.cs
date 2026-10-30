@@ -2137,7 +2137,7 @@ LEFT JOIN (
         ) AS [j1]
     ) AS [j4]
     WHERE 1 < [j4].[row] AND [j4].[row] <= 6
-) AS [j5] ON [j3].[Key] = [j5].[Key]
+) AS [j5] ON [j3].[Key] = [j5].[Key] OR ([j3].[Key] IS NULL AND [j5].[Key] IS NULL)
 ORDER BY [j3].[Key], [j5].[Key], [j5].[Id]
 """);
     }

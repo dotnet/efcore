@@ -1636,7 +1636,7 @@ LEFT JOIN (
         ) AS [o1]
     ) AS [o6]
     WHERE [o6].[row] <= 1
-) AS [o7] ON [o5].[Key] = [o7].[Key]
+) AS [o7] ON [o5].[Key] = [o7].[Key] OR ([o5].[Key] IS NULL AND [o7].[Key] IS NULL)
 LEFT JOIN (
     SELECT [o3].[ClientId], [o3].[Id], [o3].[OrderDate], [o4].[OrderClientId], [o4].[OrderId], [o4].[Id] AS [Id0], [o4].[Detail]
     FROM [Order] AS [o3]

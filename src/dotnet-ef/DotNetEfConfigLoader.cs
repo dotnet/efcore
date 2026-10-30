@@ -35,7 +35,7 @@ internal static class DotNetEfConfigLoader
 
         while (directory != null)
         {
-            var configPath = Path.Combine(directory.FullName, ConfigDirectoryName, ConfigFileName);
+            var configPath = Path.Join(directory.FullName, ConfigDirectoryName, ConfigFileName);
             if (File.Exists(configPath))
             {
                 return configPath;
@@ -139,5 +139,5 @@ internal static class DotNetEfConfigLoader
     private static string ResolvePath(string configDirectory, string path)
         => Path.IsPathRooted(path)
             ? path
-            : Path.GetFullPath(Path.Combine(configDirectory, path));
+            : Path.GetFullPath(Path.Join(configDirectory, path));
 }

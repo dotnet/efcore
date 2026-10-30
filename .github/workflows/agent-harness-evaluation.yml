@@ -517,7 +517,7 @@ jobs:
           echo "$PWD/.dotnet" >> "$GITHUB_PATH"
 
       - name: Set up Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
         with:
           node-version: 24.22.0
           cache: npm
@@ -545,7 +545,7 @@ jobs:
       - name: Upload component results
         id: upload
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: harness-eval-result-${{ matrix.id }}
           path: ${{ env.RESULT_ROOT }}/
@@ -561,29 +561,16 @@ jobs:
           node --input-type=module <<'EOF'
           import fs from 'node:fs';
           import path from 'node:path';
+          import { pathToFileURL } from 'node:url';
 
-          const resultFiles = [];
-          const planFiles = [];
-          const visit = directory => {
-            for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
-              const fullPath = path.join(directory, entry.name);
-              if (entry.isDirectory()) visit(fullPath);
-              else if (entry.name === 'results.jsonl') resultFiles.push(fullPath);
-              else if (entry.name === 'plan-snapshot.json') planFiles.push(fullPath);
-            }
-          };
-          visit(process.env.RESULT_ROOT);
-          const controlFile = resultFiles.find(file => path.basename(path.dirname(file)) === 'control');
-          const treatmentFile = resultFiles.find(file => path.basename(path.dirname(file)) === 'treatment');
-          if (!controlFile || !treatmentFile || resultFiles.length !== 2) {
-            throw new Error(`Expected control and treatment results.jsonl files, found ${resultFiles.length}.`);
-          }
-          if (planFiles.length !== 1) {
-            throw new Error(`Expected one plan-snapshot.json file, found ${planFiles.length}.`);
-          }
+          const { findExperimentRunDirectory } = await import(pathToFileURL(
+            path.resolve(process.env.TRUSTED_ROOT, 'eng/harness-evaluation/src/harness.mjs')).href);
+          const experimentDirectory = await findExperimentRunDirectory(process.env.RESULT_ROOT);
+          const controlFile = path.join(experimentDirectory, 'control', 'results.jsonl');
+          const treatmentFile = path.join(experimentDirectory, 'treatment', 'results.jsonl');
 
           const readRecords = file => fs.readFileSync(file, 'utf8').trim().split(/\r?\n/).map(JSON.parse);
-          const plan = JSON.parse(fs.readFileSync(planFiles[0], 'utf8'));
+          const plan = JSON.parse(fs.readFileSync(path.join(experimentDirectory, 'plan-snapshot.json'), 'utf8'));
           if (plan.type !== 'experiment-plan-snapshot' || !Array.isArray(plan.evals)) {
             throw new Error('Vally did not produce a valid experiment plan snapshot.');
           }
@@ -654,14 +641,6 @@ jobs:
             let reportGenerationFailed = false;
 
             const readRecords = file => fs.readFileSync(file, 'utf8').split(/\r?\n/).filter(Boolean).map(JSON.parse);
-            const findFiles = (directory, name, matches = []) => {
-              for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
-                const fullPath = path.join(directory, entry.name);
-                if (entry.isDirectory()) findFiles(fullPath, name, matches);
-                else if (entry.name === name) matches.push(fullPath);
-              }
-              return matches;
-            };
             const escapeCell = value => String(value).replaceAll('|', '\\|').replaceAll(/\r?\n/g, ' ');
 
             try {
@@ -720,17 +699,13 @@ jobs:
             }
 
             try {
-              const resultFiles = findFiles(process.env.RESULT_ROOT, 'results.jsonl');
-              const treatmentFiles = resultFiles.filter(file => path.basename(path.dirname(file)) === 'treatment');
-              const controlFiles = resultFiles.filter(file => path.basename(path.dirname(file)) === 'control');
-              if (treatmentFiles.length !== 1 || controlFiles.length !== 1) {
-                throw new Error(
-                  `expected one control and one treatment results file, found ${controlFiles.length} control and ${treatmentFiles.length} treatment`);
-              }
-
-              const treatmentTrials = readRecords(treatmentFiles[0])
+              const { pathToFileURL } = require('node:url');
+              const { findExperimentRunDirectory } = await import(pathToFileURL(
+                path.resolve(process.env.TRUSTED_ROOT, 'eng/harness-evaluation/src/harness.mjs')).href);
+              const experimentDirectory = await findExperimentRunDirectory(process.env.RESULT_ROOT);
+              const treatmentTrials = readRecords(path.join(experimentDirectory, 'treatment', 'results.jsonl'))
                 .filter(record => record.type === 'trial-result');
-              const controlTrials = readRecords(controlFiles[0])
+              const controlTrials = readRecords(path.join(experimentDirectory, 'control', 'results.jsonl'))
                 .filter(record => record.type === 'trial-result');
               const models = [...new Set(treatmentTrials.map(trial => trial.model).filter(Boolean))];
               if (treatmentTrials.length > 0 && models.length !== 1) {

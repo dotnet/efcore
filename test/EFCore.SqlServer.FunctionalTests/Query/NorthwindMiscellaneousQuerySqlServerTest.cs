@@ -2697,7 +2697,7 @@ FROM (
     FROM [Orders] AS [o]
     WHERE [o].[OrderID] < 10300
 ) AS [o0]
-LEFT JOIN [Orders] AS [o1] ON [o0].[CustomerID] = [o1].[CustomerID]
+LEFT JOIN [Orders] AS [o1] ON [o0].[CustomerID] = [o1].[CustomerID] OR ([o0].[CustomerID] IS NULL AND [o1].[CustomerID] IS NULL)
 ORDER BY [o0].[CustomerID]
 """);
     }
@@ -2717,7 +2717,7 @@ FROM (
     FROM [Orders] AS [o]
     WHERE [o].[OrderID] < 10300
 ) AS [o0]
-LEFT JOIN [Orders] AS [o1] ON [o0].[CustomerID] = [o1].[CustomerID]
+LEFT JOIN [Orders] AS [o1] ON [o0].[CustomerID] = [o1].[CustomerID] OR ([o0].[CustomerID] IS NULL AND [o1].[CustomerID] IS NULL)
 ORDER BY [o0].[CustomerID]
 """);
     }
@@ -6419,7 +6419,7 @@ ORDER BY [c].[CustomerID] DESC, [c].[Country]
             """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
-INNER JOIN [Employees] AS [e] ON [c].[City] = [e].[City]
+INNER JOIN [Employees] AS [e] ON [c].[City] = [e].[City] OR ([c].[City] IS NULL AND [e].[City] IS NULL)
 ORDER BY [c].[CustomerID], [e].[EmployeeID]
 """);
     }

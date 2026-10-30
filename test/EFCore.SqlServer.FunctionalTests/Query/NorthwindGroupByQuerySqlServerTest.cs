@@ -2939,7 +2939,7 @@ LEFT JOIN (
     SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
     FROM [Customers] AS [c0]
     WHERE [c0].[CustomerID] LIKE N'A%'
-) AS [c2] ON [c1].[City] = [c2].[City]
+) AS [c2] ON [c1].[City] = [c2].[City] OR ([c1].[City] IS NULL AND [c2].[City] IS NULL)
 ORDER BY [c1].[City]
 """);
     }
@@ -2956,7 +2956,7 @@ FROM (
     FROM [Customers] AS [c]
     GROUP BY [c].[City]
 ) AS [c1]
-LEFT JOIN [Customers] AS [c0] ON [c1].[City] = [c0].[City]
+LEFT JOIN [Customers] AS [c0] ON [c1].[City] = [c0].[City] OR ([c1].[City] IS NULL AND [c0].[City] IS NULL)
 ORDER BY [c1].[City], [c0].[CustomerID]
 """);
     }
@@ -3134,7 +3134,7 @@ LEFT JOIN (
         FROM [Orders] AS [o0]
     ) AS [o2]
     WHERE [o2].[row] <= 1
-) AS [o3] ON [o1].[CustomerID] = [o3].[CustomerID]
+) AS [o3] ON [o1].[CustomerID] = [o3].[CustomerID] OR ([o1].[CustomerID] IS NULL AND [o3].[CustomerID] IS NULL)
 """);
     }
 
@@ -4186,7 +4186,7 @@ FROM (
     GROUP BY [o].[CustomerID]
     ORDER BY [o].[CustomerID]
 ) AS [o1]
-LEFT JOIN [Orders] AS [o0] ON [o1].[CustomerID] = [o0].[CustomerID]
+LEFT JOIN [Orders] AS [o0] ON [o1].[CustomerID] = [o0].[CustomerID] OR ([o1].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)
 ORDER BY [o1].[CustomerID]
 """);
     }
@@ -4207,7 +4207,7 @@ FROM (
     ORDER BY [o].[CustomerID]
     OFFSET @p ROWS
 ) AS [o1]
-LEFT JOIN [Orders] AS [o0] ON [o1].[CustomerID] = [o0].[CustomerID]
+LEFT JOIN [Orders] AS [o0] ON [o1].[CustomerID] = [o0].[CustomerID] OR ([o1].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)
 ORDER BY [o1].[CustomerID]
 """);
     }
@@ -4225,7 +4225,7 @@ FROM (
     GROUP BY [o].[CustomerID]
     HAVING COUNT(*) > 10
 ) AS [o1]
-LEFT JOIN [Orders] AS [o0] ON [o1].[CustomerID] = [o0].[CustomerID]
+LEFT JOIN [Orders] AS [o0] ON [o1].[CustomerID] = [o0].[CustomerID] OR ([o1].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)
 ORDER BY [o1].[CustomerID]
 """);
     }
@@ -4247,7 +4247,7 @@ LEFT JOIN (
     SELECT [o0].[OrderID], [o0].[CustomerID]
     FROM [Orders] AS [o0]
     WHERE [o0].[CustomerID] LIKE N'A%'
-) AS [o2] ON [o1].[CustomerID] = [o2].[CustomerID]
+) AS [o2] ON [o1].[CustomerID] = [o2].[CustomerID] OR ([o1].[CustomerID] IS NULL AND [o2].[CustomerID] IS NULL)
 ORDER BY [o1].[c], [o1].[CustomerID]
 """);
     }
@@ -4264,8 +4264,54 @@ FROM (
     FROM [Orders] AS [o]
     GROUP BY [o].[CustomerID]
 ) AS [o1]
-LEFT JOIN [Orders] AS [o0] ON [o1].[CustomerID] = [o0].[CustomerID]
+LEFT JOIN [Orders] AS [o0] ON [o1].[CustomerID] = [o0].[CustomerID] OR ([o1].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)
 ORDER BY [o1].[CustomerID]
+""");
+    }
+
+    public override async Task GroupBy_nullable_key_selecting_grouping_element_list_with_aggregate(bool async)
+    {
+        await base.GroupBy_nullable_key_selecting_grouping_element_list_with_aggregate(async);
+
+        AssertSql(
+            """
+SELECT [c1].[Region], [c1].[c], [c0].[CustomerID]
+FROM (
+    SELECT [c].[Region], COUNT(*) AS [c]
+    FROM [Customers] AS [c]
+    GROUP BY [c].[Region]
+) AS [c1]
+LEFT JOIN [Customers] AS [c0] ON [c1].[Region] = [c0].[Region] OR ([c1].[Region] IS NULL AND [c0].[Region] IS NULL)
+ORDER BY [c1].[Region]
+""");
+    }
+
+    public override async Task GroupBy_selecting_grouping_element_list_with_converted_key(bool async)
+    {
+        await base.GroupBy_selecting_grouping_element_list_with_converted_key(async);
+
+        AssertSql(
+            """
+SELECT [o1].[c], [o1].[Quantity], [o0].[OrderID], [o0].[ProductID]
+FROM (
+    SELECT CAST([o].[Quantity] AS int) AS [c], [o].[Quantity]
+    FROM [Order Details] AS [o]
+    GROUP BY [o].[Quantity]
+) AS [o1]
+LEFT JOIN [Order Details] AS [o0] ON [o1].[Quantity] = [o0].[Quantity]
+ORDER BY [o1].[Quantity], [o0].[OrderID]
+""");
+    }
+
+    public override async Task GroupBy_selecting_grouping_element_list_with_nullable_converted_key(bool async)
+    {
+        await base.GroupBy_selecting_grouping_element_list_with_nullable_converted_key(async);
+
+        AssertSql(
+            """
+SELECT [e].[EmployeeID], DENSE_RANK() OVER(ORDER BY [e].[EmployeeID])
+FROM [Employees] AS [e]
+ORDER BY [e].[EmployeeID]
 """);
     }
 
@@ -4317,7 +4363,7 @@ FROM (
     FROM [Orders] AS [o]
     GROUP BY [o].[CustomerID]
 ) AS [o1]
-LEFT JOIN [Orders] AS [o0] ON [o1].[CustomerID] = [o0].[CustomerID]
+LEFT JOIN [Orders] AS [o0] ON [o1].[CustomerID] = [o0].[CustomerID] OR ([o1].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)
 ORDER BY [o1].[CustomerID]
 """);
     }
@@ -4338,7 +4384,7 @@ LEFT JOIN (
     SELECT [o0].[OrderID], [o0].[CustomerID]
     FROM [Orders] AS [o0]
     WHERE [o0].[OrderID] > 10500
-) AS [o2] ON [o1].[CustomerID] = [o2].[CustomerID]
+) AS [o2] ON [o1].[CustomerID] = [o2].[CustomerID] OR ([o1].[CustomerID] IS NULL AND [o2].[CustomerID] IS NULL)
 ORDER BY [o1].[CustomerID]
 """);
     }
@@ -4358,7 +4404,7 @@ FROM (
     GROUP BY [o].[CustomerID]
     ORDER BY [o].[CustomerID]
 ) AS [o1]
-LEFT JOIN [Orders] AS [o0] ON [o1].[CustomerID] = [o0].[CustomerID]
+LEFT JOIN [Orders] AS [o0] ON [o1].[CustomerID] = [o0].[CustomerID] OR ([o1].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)
 ORDER BY [o1].[CustomerID]
 """);
     }
@@ -4583,7 +4629,7 @@ OUTER APPLY (
             WHERE [o0].[CustomerID] = [c].[CustomerID]
         ) AS [o2]
         WHERE [o2].[row] <= 1
-    ) AS [o3] ON [o1].[CustomerID] = [o3].[CustomerID]
+    ) AS [o3] ON [o1].[CustomerID] = [o3].[CustomerID] OR ([o1].[CustomerID] IS NULL AND [o3].[CustomerID] IS NULL)
 ) AS [s]
 WHERE [c].[CustomerID] LIKE N'F%'
 ORDER BY [c].[CustomerID]
@@ -4729,7 +4775,7 @@ FROM (
     GROUP BY [o].[CustomerID]
     HAVING [o].[CustomerID] LIKE N'F%'
 ) AS [o1]
-LEFT JOIN [Orders] AS [o0] ON [o1].[CustomerID] = [o0].[CustomerID]
+LEFT JOIN [Orders] AS [o0] ON [o1].[CustomerID] = [o0].[CustomerID] OR ([o1].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)
 ORDER BY [o1].[CustomerID]
 """);
     }
@@ -5138,7 +5184,7 @@ LEFT JOIN (
         ) AS [s0]
     ) AS [s2]
     WHERE 1 < [s2].[row] AND [s2].[row] <= 3
-) AS [s3] ON [s1].[Key] = [s3].[Key]
+) AS [s3] ON [s1].[Key] = [s3].[Key] OR ([s1].[Key] IS NULL AND [s3].[Key] IS NULL)
 ORDER BY [s1].[Key]
 """);
     }

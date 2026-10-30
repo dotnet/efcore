@@ -71,7 +71,7 @@ public class CosmosTypeMappingSourceTest
     [Fact]
     public void Can_map_DateTime()
         => Can_map_scalar_by_clr_type<DateTime, JsonDateTimeReaderWriter>(
-            new DateTime(2003, 12, 25, 20, 19, 12, 254), "\"2003-12-25T20:19:12.254\"");
+            new DateTime(2003, 12, 25, 20, 19, 12, 254), "\"2003-12-25T20:19:12.2540000\"");
 
     [Fact]
     public void Can_map_DateTimeOffset()
@@ -151,7 +151,7 @@ public class CosmosTypeMappingSourceTest
     [Fact]
     public void Can_map_nullable_DateTime()
         => Can_map_scalar_by_clr_type<DateTime?, JsonDateTimeReaderWriter>(
-            new DateTime(2003, 12, 25, 20, 19, 12, 254), "\"2003-12-25T20:19:12.254\"");
+            new DateTime(2003, 12, 25, 20, 19, 12, 254), "\"2003-12-25T20:19:12.2540000\"");
 
     [Fact]
     public void Can_map_nullable_DateTimeOffset()
