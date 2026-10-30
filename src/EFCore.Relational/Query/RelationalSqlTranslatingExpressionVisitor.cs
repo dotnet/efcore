@@ -56,6 +56,9 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
     // The queries the SQL being translated may end up in, outermost first; see RelationalQueryCompilationContext.TranslationScopes.
     private readonly List<SelectExpression?> _translationScopes;
 
+    // The scope a caller of the internal scoped overloads passes on to the public virtual entry point they dispatch through.
+    private SelectExpression? _pendingTranslationScope;
+
     private bool _throwForNotTranslatedEfProperty;
 
     // The aggregate TranslateAggregateMethod last refused to fold, with the GROUP BY of the query owning its grouping, until the
@@ -119,17 +122,10 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
     /// </param>
     /// <returns>A SQL translation of the given expression.</returns>
     public virtual SqlExpression? Translate(Expression expression, bool applyDefaultTypeMapping = true)
-        => Translate(expression, scope: null, applyDefaultTypeMapping);
-
-    /// <summary>
-    ///     Translates an expression whose SQL will be placed into <paramref name="scope" />, or into a query the caller doesn't
-    ///     know when it is <see langword="null" />, in which case no aggregate over an enclosing grouping is folded into it.
-    /// </summary>
-    internal SqlExpression? Translate(Expression expression, SelectExpression? scope, bool applyDefaultTypeMapping = true)
     {
         TranslationErrorDetails = null;
 
-        PushTranslationScope(scope);
+        PushTranslationScope(TakePendingTranslationScope());
         try
         {
             return TranslateInternal(expression, applyDefaultTypeMapping) as SqlExpression;
@@ -138,6 +134,33 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
         {
             PopTranslationScope();
         }
+    }
+
+    /// <summary>
+    ///     Translates an expression whose SQL will be placed into <paramref name="scope" />, or into a query the caller doesn't
+    ///     know when it is <see langword="null" />, in which case no aggregate over an enclosing grouping is folded into it.
+    ///     Dispatches through <see cref="Translate(Expression, bool)" />, so that a provider override of it still runs.
+    /// </summary>
+    internal SqlExpression? Translate(Expression expression, SelectExpression? scope, bool applyDefaultTypeMapping = true)
+    {
+        _pendingTranslationScope = scope;
+        try
+        {
+            return Translate(expression, applyDefaultTypeMapping);
+        }
+        finally
+        {
+            _pendingTranslationScope = null;
+        }
+    }
+
+    // Taken by the first public entry point to run, so that nothing it translates in turn, nor a later unscoped call, sees the scope.
+    private SelectExpression? TakePendingTranslationScope()
+    {
+        var scope = _pendingTranslationScope;
+        _pendingTranslationScope = null;
+
+        return scope;
     }
 
     /// <summary>
@@ -158,14 +181,8 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
     /// </summary>
     [EntityFrameworkInternal]
     public virtual Expression? TranslateProjection(Expression expression, bool applyDefaultTypeMapping = true)
-        => TranslateProjection(expression, scope: null, applyDefaultTypeMapping);
-
-    /// <summary>
-    ///     Translates a projection whose SQL will be placed into <paramref name="scope" />, or into a query the caller doesn't
-    ///     know when it is <see langword="null" />.
-    /// </summary>
-    internal Expression? TranslateProjection(Expression expression, SelectExpression? scope, bool applyDefaultTypeMapping = true)
     {
+        var scope = TakePendingTranslationScope();
         TranslationErrorDetails = null;
 
         // Primitive collections are required to be arrays, constructable from List<T> or castable to IList<T>
@@ -206,6 +223,24 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
 
             _ => null
         };
+    }
+
+    /// <summary>
+    ///     Translates a projection whose SQL will be placed into <paramref name="scope" />, or into a query the caller doesn't
+    ///     know when it is <see langword="null" />. Dispatches through <see cref="TranslateProjection(Expression, bool)" />, so that
+    ///     a provider override of it still runs.
+    /// </summary>
+    internal Expression? TranslateProjection(Expression expression, SelectExpression? scope, bool applyDefaultTypeMapping = true)
+    {
+        _pendingTranslationScope = scope;
+        try
+        {
+            return TranslateProjection(expression, applyDefaultTypeMapping);
+        }
+        finally
+        {
+            _pendingTranslationScope = null;
+        }
     }
 
     private Expression? TranslateInternal(Expression expression, bool applyDefaultTypeMapping = true)
