@@ -2040,7 +2040,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     cb.UseTptMappingStrategy();
                 }
 
-                cb.ComplexProperty(c => c.Tag).IsRequired();
+                var tag = cb.ComplexProperty(c => c.Tag);
+                if (mapping == Mapping.TPC)
+                {
+                    tag.Property(t => t.Name).HasColumnName("Tag_Name");
+                }
+
+                tag.IsRequired();
 
                 // TODO: Don't map it on the base #19811
                 cb.Property<string>("SpecialtyAk");

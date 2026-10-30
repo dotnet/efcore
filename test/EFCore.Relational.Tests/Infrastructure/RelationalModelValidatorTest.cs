@@ -1060,6 +1060,229 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
             modelBuilder);
     }
 
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public virtual void Detects_complex_properties_mapped_to_the_same_column_on_containing_entity(
+        bool complexDuplicate,
+        bool concurrencyToken)
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        var entity = modelBuilder.Entity<B>();
+        var complex = entity.ComplexProperty(b => b.A);
+        var duplicateProperty = complexDuplicate
+            ? entity.ComplexProperty(b => b.AnotherA).Property(a => a.P0).Metadata
+            : entity.Property(b => b.P0).Metadata;
+        duplicateProperty.SetColumnName("Shared");
+        duplicateProperty.IsConcurrencyToken = concurrencyToken;
+        var property = complex.Property(a => a.P0).HasColumnName("Shared").IsConcurrencyToken(concurrencyToken).Metadata;
+        var (firstProperty, secondProperty) = complexDuplicate
+            ? (property, duplicateProperty)
+            : (duplicateProperty, property);
+
+        VerifyError(
+            RelationalStrings.DuplicateColumnNameSameHierarchy(
+                firstProperty.DeclaringType.DisplayName(), firstProperty.Name,
+                secondProperty.DeclaringType.DisplayName(), secondProperty.Name, "Shared", nameof(B)),
+            modelBuilder);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Passes_for_uniquified_complex_concurrency_columns_on_containing_entity(bool complexDuplicate)
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        var entity = modelBuilder.Entity<ConcurrencyColumnBase>();
+        modelBuilder.Entity<ConcurrencyColumnDerived>();
+        var property = entity.ComplexProperty(e => e.First).Property(a => a.P0).IsConcurrencyToken().Metadata;
+        var duplicateProperty = complexDuplicate
+            ? entity.ComplexProperty(e => e.Second).Property(a => a.P0).IsConcurrencyToken().Metadata
+            : entity.Property(e => e.First_P0).IsConcurrencyToken().Metadata;
+        if (complexDuplicate)
+        {
+            entity.UseTpcMappingStrategy().ToTable((string?)null);
+        }
+        else
+        {
+            entity.Ignore(e => e.Second);
+        }
+
+        ((IConventionProperty)property).Builder.HasColumnName("Shared");
+        ((IConventionProperty)duplicateProperty).Builder.HasColumnName("Shared");
+
+        var table = StoreObjectIdentifier.Table(complexDuplicate ? nameof(ConcurrencyColumnDerived) : nameof(ConcurrencyColumnBase));
+        Assert.Equal(property.GetColumnName(table), duplicateProperty.GetColumnName(table));
+
+        Validate(modelBuilder);
+
+        Assert.NotEqual(property.GetColumnName(table), duplicateProperty.GetColumnName(table));
+    }
+
+    private abstract class ConcurrencyColumnBase
+    {
+        public int Id { get; set; }
+        public int? First_P0 { get; set; }
+        public A First { get; set; } = null!;
+        public A Second { get; set; } = null!;
+    }
+
+    private class ConcurrencyColumnDerived : ConcurrencyColumnBase;
+
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public virtual void Passes_for_uniquified_inherited_complex_columns(bool tpc, bool concurrencyToken)
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        var entity = modelBuilder.Entity<ComplexColumnBase>();
+        var property = entity.ComplexProperty(e => e.Details).Property(e => e.P0)
+            .IsConcurrencyToken(concurrencyToken).Metadata;
+        var duplicateProperty = modelBuilder.Entity<ComplexColumnDerived>().Property(e => e.Duplicate)
+            .IsConcurrencyToken(concurrencyToken).Metadata;
+        ((IConventionProperty)property).Builder.HasColumnName("Shared");
+        ((IConventionProperty)duplicateProperty).Builder.HasColumnName("Shared");
+        if (tpc)
+        {
+            entity.UseTpcMappingStrategy().ToTable((string?)null);
+        }
+
+        Validate(modelBuilder);
+
+        var table = StoreObjectIdentifier.Table(tpc ? nameof(ComplexColumnDerived) : nameof(ComplexColumnBase));
+        Assert.Equal("Shared", property.GetColumnName(table));
+        Assert.Equal("ComplexColumnDerived_Shared", duplicateProperty.GetColumnName(table));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Detects_inherited_complex_properties_mapped_to_the_same_column(bool tpc)
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        var entity = modelBuilder.Entity<ComplexColumnBase>();
+        var complexProperty = entity.ComplexProperty(e => e.Details).Property(e => e.P0)
+            .HasColumnName("Shared").Metadata;
+        var derivedProperty = modelBuilder.Entity<ComplexColumnDerived>().Property<int?>("Duplicate")
+            .HasColumnName("Shared").Metadata;
+        if (tpc)
+        {
+            entity.UseTpcMappingStrategy().ToTable((string?)null);
+        }
+
+        var (firstProperty, secondProperty) = tpc
+            ? (derivedProperty, complexProperty)
+            : (complexProperty, derivedProperty);
+
+        VerifyError(
+            RelationalStrings.DuplicateColumnNameSameHierarchy(
+                firstProperty.DeclaringType.DisplayName(), firstProperty.Name,
+                secondProperty.DeclaringType.DisplayName(), secondProperty.Name, "Shared",
+                tpc ? nameof(ComplexColumnDerived) : nameof(ComplexColumnBase)),
+            modelBuilder);
+    }
+
+    [Fact]
+    public virtual void Passes_for_complex_properties_mapped_to_the_same_column_on_sibling_entities()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ComplexColumnBase>().Ignore(e => e.Details);
+        var firstProperty = modelBuilder.Entity<ComplexColumnDerived>().ComplexProperty(e => e.Details)
+            .Property(a => a.P0).HasColumnName("Shared").Metadata;
+        var secondProperty = modelBuilder.Entity<ComplexColumnSibling>().ComplexProperty(e => e.Details)
+            .Property(a => a.P0).HasColumnName("Shared").Metadata;
+
+        Validate(modelBuilder);
+
+        var table = StoreObjectIdentifier.Table(nameof(ComplexColumnBase));
+        Assert.Equal("Shared", firstProperty.GetColumnName(table));
+        Assert.Equal("Shared", secondProperty.GetColumnName(table));
+    }
+
+    [Fact]
+    public virtual void Detects_nested_complex_properties_mapped_to_the_same_column()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        var complex = modelBuilder.Entity<NestedColumnEntity>().ComplexProperty(e => e.Details);
+        var property = complex.Property(e => e.Value).HasColumnName("Shared").Metadata;
+        var nestedProperty = complex.ComplexProperty(e => e.Nested).Property(e => e.P0)
+            .HasColumnName("Shared").Metadata;
+
+        VerifyError(
+            RelationalStrings.DuplicateColumnNameSameHierarchy(
+                property.DeclaringType.DisplayName(), property.Name,
+                nestedProperty.DeclaringType.DisplayName(), nestedProperty.Name, "Shared", nameof(NestedColumnEntity)),
+            modelBuilder);
+    }
+
+    [Fact]
+    public virtual void Passes_for_complex_properties_mapped_to_the_same_column_on_shared_table_entities()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<B>().ToTable("Table");
+        modelBuilder.Entity<G>().ToTable("Table");
+        modelBuilder.Entity<B>().HasOne<G>().WithOne().HasForeignKey<G>(e => e.Id).IsRequired();
+        var firstProperty = modelBuilder.Entity<B>().ComplexProperty(e => e.A)
+            .Property(e => e.P0).HasColumnName("Shared").Metadata;
+        var secondProperty = modelBuilder.Entity<G>().ComplexProperty(e => e.A)
+            .Property(e => e.P0).HasColumnName("Shared").Metadata;
+
+        Validate(modelBuilder);
+
+        var table = StoreObjectIdentifier.Table("Table");
+        Assert.Equal("Shared", firstProperty.GetColumnName(table));
+        Assert.Equal("Shared", secondProperty.GetColumnName(table));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Passes_for_inherited_complex_column_mappings(bool tpc)
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        var entity = modelBuilder.Entity<ComplexColumnBase>();
+        var property = entity.ComplexProperty(e => e.Details).Property(e => e.P0).HasColumnName("Shared").Metadata;
+        modelBuilder.Entity<ComplexColumnDerived>();
+        if (tpc)
+        {
+            entity.UseTpcMappingStrategy().ToTable((string?)null);
+        }
+
+        Validate(modelBuilder);
+
+        var table = StoreObjectIdentifier.Table(tpc ? nameof(ComplexColumnDerived) : nameof(ComplexColumnBase));
+        Assert.Equal("Shared", property.GetColumnName(table));
+    }
+
+    private class NestedColumnEntity
+    {
+        public int Id { get; set; }
+        public NestedColumnDetails Details { get; set; } = null!;
+    }
+
+    private class NestedColumnDetails
+    {
+        public int? Value { get; set; }
+        public A Nested { get; set; } = null!;
+    }
+
+    private abstract class ComplexColumnBase
+    {
+        public int Id { get; set; }
+        public A Details { get; set; } = null!;
+    }
+
+    private class ComplexColumnDerived : ComplexColumnBase
+    {
+        public int? Duplicate { get; set; }
+    }
+
+    private class ComplexColumnSibling : ComplexColumnBase;
+
     [Fact]
     public virtual void Passes_for_incompatible_shared_columns_in_shared_table_with_different_provider_types()
     {

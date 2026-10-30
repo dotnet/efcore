@@ -1488,7 +1488,7 @@ public class RelationalModelValidator(
             HashSet<string>? missingConcurrencyTokens,
             IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            foreach (var property in structuralType.GetDeclaredProperties())
+            foreach (var property in structuralType.GetProperties())
             {
                 var columnName = property.GetColumnName(storeObject);
                 if (columnName == null)
@@ -1503,8 +1503,15 @@ public class RelationalModelValidator(
                     continue;
                 }
 
-                if (property.DeclaringType.IsAssignableFrom(duplicateProperty.DeclaringType)
-                    || duplicateProperty.DeclaringType.IsAssignableFrom(property.DeclaringType))
+                if (property == duplicateProperty)
+                {
+                    continue;
+                }
+
+                var declaringEntityType = property.DeclaringType.ContainingEntityType;
+                var duplicateDeclaringEntityType = duplicateProperty.DeclaringType.ContainingEntityType;
+                if (declaringEntityType.IsAssignableFrom(duplicateDeclaringEntityType)
+                    || duplicateDeclaringEntityType.IsAssignableFrom(declaringEntityType))
                 {
                     throw new InvalidOperationException(
                         RelationalStrings.DuplicateColumnNameSameHierarchy(
@@ -1519,7 +1526,7 @@ public class RelationalModelValidator(
                 this.ValidateCompatible(property, duplicateProperty, columnName, storeObject, logger);
             }
 
-            foreach (var complexProperty in structuralType.GetDeclaredComplexProperties())
+            foreach (var complexProperty in structuralType.GetComplexProperties())
             {
                 ValidateCompatible(complexProperty.ComplexType, storeObject, propertyMappings, missingConcurrencyTokens, logger);
             }
