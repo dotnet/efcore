@@ -2063,7 +2063,10 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
 
         if (evaluateAsParameter)
         {
-            if (_parameterizedValues.TryGetValue(evaluatableRoot, out var cachedQueryParameter))
+            // Non-lambda arguments have already been evaluated to dummy constants during precompilation.
+            // Equal dummy values do not imply that the runtime arguments are equal.
+            if (!((_calculatingPath || _precompiledQuery) && evaluatableRoot is ConstantExpression)
+                && _parameterizedValues.TryGetValue(evaluatableRoot, out var cachedQueryParameter))
             {
                 // We're here when the same captured variable (or other fragment) is referenced more than once in the query; we want to
                 // use the same query parameter rather than sending it twice.

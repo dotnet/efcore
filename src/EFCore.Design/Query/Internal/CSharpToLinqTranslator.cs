@@ -110,7 +110,8 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
             dataFlow = _semanticModel.AnalyzeDataFlow(parent);
         }
 
-        foreach (var flowsIn in dataFlow.DataFlowsIn)
+        // Include variables captured by an enclosing local function, which may not appear in DataFlowsIn.
+        foreach (var flowsIn in dataFlow.DataFlowsIn.Concat(dataFlow.Captured))
         {
             _dataFlowsIn[flowsIn] = null;
         }
