@@ -956,6 +956,7 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
         var result = async ? await query.ToListAsync() : query.ToList();
         Assert.Single(result);
         Assert.Equal(true, result[0].Information.Boolean);
+        Assert.NotNull(result[0].Information.Nav);
     }
 
     protected class Context30458(DbContextOptions options) : DbContext(options)
