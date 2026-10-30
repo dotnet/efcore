@@ -557,14 +557,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
                     Assert.Null(customerView.EntityTypeMappings.Single().IsSharedTablePrincipal);
                     Assert.Null(customerView.EntityTypeMappings.Single().IsSplitEntityTypePrincipal);
-                    Assert.Equal(mapping == Mapping.TPC ? 7 : 6, customerView.Columns.Count());
+                    Assert.Equal(6, customerView.Columns.Count());
                     Assert.Same(
                         abstractBaseType.FindComplexProperty(nameof(AbstractBase.Tag))!.ComplexType.FindProperty(nameof(Tag.Name)),
                         Assert.Single(customerView.FindColumn("Tag_Name")!.PropertyMappings).Property);
 
                     Assert.Single(specialCustomerView.EntityTypeMappings);
 
-                    Assert.Equal(mapping == Mapping.TPC ? 11 : 10, specialCustomerView.Columns.Count());
+                    Assert.Equal(10, specialCustomerView.Columns.Count());
 
                     Assert.False(specialtyColumn.IsNullable);
 
@@ -574,7 +574,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     Assert.False(extraSpecialCustomerView.EntityTypeMappings.Last().IsSharedTablePrincipal);
                     Assert.Null(extraSpecialCustomerView.EntityTypeMappings.Last().IsSplitEntityTypePrincipal);
 
-                    Assert.Equal(mapping == Mapping.TPC ? 13 : 12, extraSpecialCustomerView.Columns.Count());
+                    Assert.Equal(12, extraSpecialCustomerView.Columns.Count());
                 }
             }
         }
