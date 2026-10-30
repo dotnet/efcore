@@ -1463,6 +1463,36 @@ WHERE 1 IN (
 """);
     }
 
+    public override async Task Column_collection_Any_with_predicate_referencing_parameter_on_both_sides()
+    {
+        await base.Column_collection_Any_with_predicate_referencing_parameter_on_both_sides();
+
+        AssertSql(
+            """
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."NullableWrappedId", "p"."NullableWrappedIdWithNullableComparer", "p"."String", "p"."Strings", "p"."WrappedId"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE EXISTS (
+    SELECT 1
+    FROM json_each("p"."Ints") AS "i"
+    WHERE "i"."value" = "p"."Int" - "i"."value")
+""");
+    }
+
+    public override async Task Column_collection_All_with_predicate_referencing_parameter_on_both_sides()
+    {
+        await base.Column_collection_All_with_predicate_referencing_parameter_on_both_sides();
+
+        AssertSql(
+            """
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."NullableWrappedId", "p"."NullableWrappedIdWithNullableComparer", "p"."String", "p"."Strings", "p"."WrappedId"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM json_each("p"."Ints") AS "i"
+    WHERE "i"."value" = "p"."Int" - "i"."value")
+""");
+    }
+
     public override async Task Column_with_custom_converter()
     {
         await base.Column_with_custom_converter();

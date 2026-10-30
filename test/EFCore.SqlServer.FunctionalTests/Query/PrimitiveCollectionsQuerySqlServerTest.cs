@@ -1899,6 +1899,36 @@ WHERE CAST(1 AS bit) IN (
         }
     }
 
+    public override async Task Column_collection_Any_with_predicate_referencing_parameter_on_both_sides()
+    {
+        await base.Column_collection_Any_with_predicate_referencing_parameter_on_both_sides();
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE EXISTS (
+    SELECT 1
+    FROM OPENJSON([p].[Ints]) WITH ([value] int '$') AS [i]
+    WHERE [i].[value] = [p].[Int] - [i].[value])
+""");
+    }
+
+    public override async Task Column_collection_All_with_predicate_referencing_parameter_on_both_sides()
+    {
+        await base.Column_collection_All_with_predicate_referencing_parameter_on_both_sides();
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM OPENJSON([p].[Ints]) WITH ([value] int '$') AS [i]
+    WHERE [i].[value] = [p].[Int] - [i].[value])
+""");
+    }
+
     [Fact]
     public virtual async Task Json_representation_of_bool_array()
     {
