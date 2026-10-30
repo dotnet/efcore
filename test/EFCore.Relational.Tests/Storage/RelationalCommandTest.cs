@@ -1261,6 +1261,186 @@ public class RelationalCommandTest
         Assert.Equal(async, afterData.IsAsync);
     }
 
+    [Theory, MemberData(nameof(ReaderFailureData))]
+    public async Task Reports_reader_failure(
+        bool async, bool buffered, bool nextResult, bool canceled, string consumer)
+    {
+        Exception exception = canceled ? new OperationCanceledException() : new InvalidOperationException();
+        var providerReader = new FailingDbDataReader(exception, nextResult);
+        var dbConnection = new FakeDbConnection(
+            ConnectionString,
+            new FakeCommandExecutor(
+                executeReader: (_, _) => providerReader,
+                executeReaderAsync: (_, _, _) => Task.FromResult<DbDataReader>(providerReader)));
+        var options = CreateOptions(new FakeRelationalOptionsExtension().WithConnection(dbConnection));
+        var connection = new FakeRelationalConnection(options);
+        var eventId = canceled ? RelationalEventId.CommandCanceled : RelationalEventId.CommandError;
+        var events = new List<Tuple<string, object>>();
+        var diagnosticSource = new ReaderFailureDiagnosticSource(
+            events, consumer == "DiagnosticSource" ? eventId.Name : null);
+        using var logFactory = new ListLoggerFactory(_ => consumer == "ILogger");
+        var interceptor = new ReaderFailureInterceptor();
+        using var services = new ServiceCollection().AddSingleton<IDbContextOptions>(options).BuildServiceProvider();
+        var logger = new RelationalCommandDiagnosticsLogger(
+            logFactory,
+            new FakeLoggingOptions(false),
+            diagnosticSource,
+            new TestRelationalLoggingDefinitions(),
+            new NullDbContextLogger(),
+            options,
+            consumer == "Interceptor"
+                ? new Interceptors(services, [interceptor], [new DbCommandInterceptorAggregator()])
+                : null);
+        var command = CreateRelationalCommand();
+        var parameters = new RelationalCommandParameterObject(
+            connection, null, buffered ? CreateReaderColumns() : null, null, logger,
+            detailedErrorsEnabled: false, CommandSource.LinqQuery);
+
+        var actual = await Assert.ThrowsAnyAsync<Exception>(async () =>
+        {
+            await using var reader = await ExecuteReader(command, parameters, async);
+            Assert.True(await Read(reader, async));
+            if (nextResult)
+            {
+                if (async)
+                {
+                    await reader.NextResultAsync();
+                }
+                else
+                {
+                    reader.NextResult();
+                }
+            }
+            else
+            {
+                await Read(reader, async);
+            }
+        });
+
+        Assert.Same(exception, actual);
+        if (consumer == "ILogger")
+        {
+            Assert.Single(logFactory.Log, entry => entry.Id == eventId);
+        }
+        else
+        {
+            var eventData = consumer == "DiagnosticSource"
+                ? Assert.IsAssignableFrom<CommandEndEventData>(Assert.Single(events).Item2)
+                : Assert.Single(interceptor.Events);
+            Assert.Equal(async, eventData.IsAsync);
+            Assert.Same(dbConnection.DbCommands[0], eventData.Command);
+            Assert.Equal(DbCommandMethod.ExecuteReader, eventData.ExecuteMethod);
+            Assert.Equal(CommandSource.LinqQuery, eventData.CommandSource);
+            if (!canceled)
+            {
+                Assert.Same(exception, Assert.IsType<CommandErrorEventData>(eventData).Exception);
+            }
+        }
+
+        Assert.Equal(1, providerReader.DisposeCount);
+    }
+
+    public static IEnumerable<object[]> ReaderFailureData
+        => from async in new[] { false, true }
+           from buffered in new[] { false, true }
+           from nextResult in new[] { false, true }
+           from canceled in new[] { false, true }
+           from consumer in new[] { "ILogger", "DiagnosticSource", "Interceptor" }
+           select new object[] { async, buffered, nextResult, canceled, consumer };
+
+    [Theory, InlineData(false), InlineData(true)]
+    public async Task Buffered_materialization_failure_does_not_report_command_error(bool async)
+    {
+        var exception = new InvalidOperationException();
+        var providerReader = new FailingDbDataReader(exception, nextResult: false, materialization: true);
+        var dbConnection = new FakeDbConnection(
+            ConnectionString,
+            new FakeCommandExecutor(
+                executeReader: (_, _) => providerReader,
+                executeReaderAsync: (_, _, _) => Task.FromResult<DbDataReader>(providerReader)));
+        var options = CreateOptions(new FakeRelationalOptionsExtension().WithConnection(dbConnection));
+        var events = new List<Tuple<string, object>>();
+        var diagnosticSource = new ListDiagnosticSource(events);
+        using var logFactory = new ListLoggerFactory();
+        var logger = new RelationalCommandDiagnosticsLogger(
+            logFactory, new FakeLoggingOptions(false), diagnosticSource,
+            new TestRelationalLoggingDefinitions(), new NullDbContextLogger(), options);
+        var parameters = new RelationalCommandParameterObject(
+            new FakeRelationalConnection(options), null, CreateReaderColumns(), null, logger);
+
+        Assert.Same(exception, await Assert.ThrowsAsync<InvalidOperationException>(
+            () => ExecuteReader(CreateRelationalCommand(), parameters, async)));
+        Assert.DoesNotContain(events, entry => entry.Item1 == RelationalEventId.CommandError.Name);
+        Assert.DoesNotContain(logFactory.Log, entry => entry.Id == RelationalEventId.CommandError);
+        Assert.Equal(1, providerReader.DisposeCount);
+    }
+
+    private static ReaderColumn[] CreateReaderColumns()
+    {
+#pragma warning disable EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+        return [new ReaderColumn<int>(false, null, null, (reader, _) => reader.GetInt32(0))];
+#pragma warning restore EF9100
+    }
+
+    private sealed class ReaderFailureDiagnosticSource(List<Tuple<string, object>> events, string? eventName)
+        : ListDiagnosticSource(events)
+    {
+        public override bool IsEnabled(string diagnosticName)
+            => diagnosticName == eventName;
+    }
+
+    private sealed class ReaderFailureInterceptor : DbCommandInterceptor
+    {
+        public List<CommandEndEventData> Events { get; } = [];
+
+        public override void CommandFailed(DbCommand command, CommandErrorEventData eventData)
+            => Events.Add(eventData);
+
+        public override Task CommandFailedAsync(
+            DbCommand command, CommandErrorEventData eventData, CancellationToken cancellationToken = default)
+        {
+            Events.Add(eventData);
+            return Task.CompletedTask;
+        }
+
+        public override void CommandCanceled(DbCommand command, CommandEndEventData eventData)
+            => Events.Add(eventData);
+
+        public override Task CommandCanceledAsync(
+            DbCommand command, CommandEndEventData eventData, CancellationToken cancellationToken = default)
+        {
+            Events.Add(eventData);
+            return Task.CompletedTask;
+        }
+    }
+
+    private sealed class FailingDbDataReader(Exception exception, bool nextResult, bool materialization = false)
+        : FakeDbDataReader(["Value"], new List<object[]> { new object[] { 1 } })
+    {
+        private int _readCount;
+
+        public override bool Read()
+            => nextResult || materialization || _readCount++ == 0 ? base.Read() : throw exception;
+
+        public override async Task<bool> ReadAsync(CancellationToken cancellationToken)
+        {
+            await Task.Yield();
+            return Read();
+        }
+
+        public override bool NextResult()
+            => nextResult ? throw exception : base.NextResult();
+
+        public override async Task<bool> NextResultAsync(CancellationToken cancellationToken)
+        {
+            await Task.Yield();
+            return NextResult();
+        }
+
+        public override int GetInt32(int ordinal)
+            => materialization ? throw exception : base.GetInt32(ordinal);
+    }
+
     private const string ConnectionString = "Fake Connection String";
 
     private static FakeRelationalConnection CreateConnection(IDbContextOptions? options = null)
