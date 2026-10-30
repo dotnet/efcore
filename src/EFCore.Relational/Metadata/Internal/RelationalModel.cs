@@ -299,19 +299,7 @@ public class RelationalModel : Annotatable, IRelationalModel
                     ? !isTpc && mappedType == entityType
                     : null);
 
-            var containerColumnName = mappedType.GetContainerColumnName();
-            var containerColumnType = mappedType.GetContainerColumnType();
-            if (!string.IsNullOrEmpty(containerColumnName))
-            {
-                CreateContainerColumn(
-                    defaultTable, containerColumnName, containerColumnType, mappedType, relationalTypeMappingSource,
-                    static (colName, colType, table, mapping) => new JsonColumnBase(
-                        colName, colType ?? mapping.StoreType, table, mapping), tableMapping);
-            }
-            else
-            {
-                CreateDefaultColumnMapping(entityType, mappedType, defaultTable, tableMapping, isTph, isTpc, relationalTypeMappingSource);
-            }
+            CreateDefaultColumnMapping(entityType, mappedType, defaultTable, tableMapping, isTph, isTpc, relationalTypeMappingSource);
 
             if (((ITableMappingBase)tableMapping).ColumnMappings.Any()
                 || tableMappings.Count == 0)
@@ -340,32 +328,44 @@ public class RelationalModel : Annotatable, IRelationalModel
         bool isTpc,
         IRelationalTypeMappingSource relationalTypeMappingSource)
     {
-        foreach (var property in typeBase.GetProperties())
+        var containerColumnName = mappedType.GetContainerColumnName();
+        var containerColumnType = mappedType.GetContainerColumnType();
+        if (!string.IsNullOrEmpty(containerColumnName))
         {
-            var columnName = property.IsPrimaryKey() || isTpc || isTph || property.DeclaringType == mappedType
-                ? GetColumnName(property)
-                : null;
-
-            if (columnName == null)
+            CreateContainerColumn(
+                defaultTable, containerColumnName, containerColumnType, mappedType, relationalTypeMappingSource,
+                static (colName, colType, table, mapping) => new JsonColumnBase(
+                    colName, colType ?? mapping.StoreType, table, mapping), tableMapping);
+        }
+        else
+        {
+            foreach (var property in typeBase.GetProperties())
             {
-                continue;
-            }
+                var columnName = property.IsPrimaryKey() || isTpc || isTph || property.DeclaringType == mappedType
+                    ? GetColumnName(property)
+                    : null;
 
-            var column = (ColumnBase<ColumnMappingBase>?)defaultTable.FindColumn(columnName);
-            if (column == null)
-            {
-                column = new ColumnBase<ColumnMappingBase>(columnName, property.GetColumnType(), defaultTable)
+                if (columnName == null)
                 {
-                    IsNullable = property.IsColumnNullable()
-                };
-                defaultTable.Columns.Add(columnName, column);
-            }
-            else if (!property.IsColumnNullable())
-            {
-                column.IsNullable = false;
-            }
+                    continue;
+                }
 
-            CreateColumnMapping(column, property, tableMapping);
+                var column = (ColumnBase<ColumnMappingBase>?)defaultTable.FindColumn(columnName);
+                if (column == null)
+                {
+                    column = new ColumnBase<ColumnMappingBase>(columnName, property.GetColumnType(), defaultTable)
+                    {
+                        IsNullable = property.IsColumnNullable()
+                    };
+                    defaultTable.Columns.Add(columnName, column);
+                }
+                else if (!property.IsColumnNullable())
+                {
+                    column.IsNullable = false;
+                }
+
+                CreateColumnMapping(column, property, tableMapping);
+            }
         }
 
         foreach (var complexProperty in typeBase.GetDeclaredComplexProperties())
@@ -650,11 +650,19 @@ public class RelationalModel : Annotatable, IRelationalModel
             complexType = (IComplexType)mappedType;
 #pragma warning disable EF1001 // Internal EF Core API usage.
             var chain = complexType.ComplexProperty.GetChainToComplexProperty(fromEntity: true);
+            StoreObjectIdentifier? storeObject = tableBase switch
+            {
+                Table table => StoreObjectIdentifier.Table(table.Name, table.Schema),
+                View view => StoreObjectIdentifier.View(view.Name, view.Schema),
+                _ => null
+            };
             var isNullable = complexType.ComplexProperty.IsNullable
                 || (chain[0].DeclaringType is IEntityType declaringEntityType
-                    && declaringEntityType.BaseType != null
-                    && (declaringEntityType.GetMappingStrategy() ?? RelationalAnnotationNames.TphMappingStrategy)
-                    == RelationalAnnotationNames.TphMappingStrategy)
+                    && ((declaringEntityType.BaseType != null
+                            && (declaringEntityType.GetMappingStrategy() ?? RelationalAnnotationNames.TphMappingStrategy)
+                            == RelationalAnnotationNames.TphMappingStrategy)
+                        || (storeObject != null
+                            && declaringEntityType.IsOptionalSharingDependent(storeObject.Value))))
                 || chain.Any(p => p.IsNullable);
 #pragma warning restore EF1001 // Internal EF Core API usage.
 

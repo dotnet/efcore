@@ -157,7 +157,7 @@ public class LazyLoader : ILazyLoader, IInjectableService
                 }
                 catch
                 {
-                    entry.IsLoaded = false;
+                    ResetIsLoaded(entry);
                     throw;
                 }
             }
@@ -232,7 +232,7 @@ public class LazyLoader : ILazyLoader, IInjectableService
                 }
                 catch
                 {
-                    entry.IsLoaded = false;
+                    ResetIsLoaded(entry);
                     throw;
                 }
             }
@@ -262,6 +262,17 @@ public class LazyLoader : ILazyLoader, IInjectableService
 
         public int GetHashCode((object Entity, string NavigationName) obj)
             => HashCode.Combine(RuntimeHelpers.GetHashCode(obj.Entity), obj.NavigationName.GetHashCode());
+    }
+
+    // A reference that fix-up already set to an entity can't be marked as not loaded, and trying to would throw
+    // and hide the exception that made the load fail. See #34167.
+    private static void ResetIsLoaded(NavigationEntry entry)
+    {
+        if (entry.Metadata.IsCollection
+            || entry.CurrentValue == null)
+        {
+            entry.IsLoaded = false;
+        }
     }
 
     private bool ShouldLoad(object entity, string navigationName, [NotNullWhen(true)] out NavigationEntry? navigationEntry)

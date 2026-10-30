@@ -10,6 +10,23 @@ public class ComplexCollectionJsonUpdateSqlServerTest : ComplexCollectionJsonUpd
         : base(fixture)
         => ClearLog();
 
+    public override async Task Save_nested_complex_collection_with_nullable_property(bool async)
+    {
+        await base.Save_nested_complex_collection_with_nullable_property(async);
+
+        AssertSql(
+            """
+@p0='[{"Revisions":[{"PublishedOn":"2001-02-03"}]},{"Revisions":[{"PublishedOn":null}]}]' (Nullable = false) (Size = 83)
+@p1='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [Blog] SET [Posts] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+""");
+    }
+
     public override async Task Add_element_to_complex_collection_mapped_to_json()
     {
         await base.Add_element_to_complex_collection_mapped_to_json();
@@ -356,6 +373,40 @@ WHERE [Id] = @p1;
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 UPDATE [EntitiesWithNullableMeta] SET [Items] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+""");
+    }
+
+    public override async Task Modify_elements_in_nested_complex_collection_mapped_to_json()
+    {
+        await base.Modify_elements_in_nested_complex_collection_mapped_to_json();
+
+        AssertSql(
+            """
+@p0='[{"Title":"Item1","Inner":[{"Value":"inner-new"},{"Value":"inner-0"},{"Value":"inner-1-modified"}],"Others":[]},{"Title":"Item2","Inner":[],"Others":[]},{"Title":"Item3","Inner":[{"Value":"inner-3"}],"Others":[]}]' (Nullable = false) (Size = 213)
+@p1='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [EntitiesWithNestedCollections] SET [Items] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+""");
+    }
+
+    public override async Task Remove_element_with_nested_complex_collection_mapped_to_json()
+    {
+        await base.Remove_element_with_nested_complex_collection_mapped_to_json();
+
+        AssertSql(
+            """
+@p0='[{"Title":"Item2","Inner":[{"Value":"inner-2"},{"Value":"inner-3"}],"Others":[]}]' (Nullable = false) (Size = 81)
+@p1='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [EntitiesWithNestedCollections] SET [Items] = @p0
 OUTPUT 1
 WHERE [Id] = @p1;
 """);

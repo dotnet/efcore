@@ -769,6 +769,19 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         return null;
     }
 
+#pragma warning disable EF9001 // Window function support is experimental
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override bool CanTranslateAggregateAsWindowFunction(SqlFunctionExpression function)
+        // The decimal aggregates are user-defined (see SqliteRelationalConnection), and SQLite only accepts an OVER clause on a
+        // user-defined aggregate registered as a window function.
+        => function.Name is not ("ef_sum" or "ef_avg" or "ef_min" or "ef_max");
+#pragma warning restore EF9001
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in

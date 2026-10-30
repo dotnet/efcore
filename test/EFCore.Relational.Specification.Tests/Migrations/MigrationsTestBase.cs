@@ -1120,6 +1120,89 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
             });
 
     [Fact]
+    public virtual Task Alter_column_make_not_required_with_unique_index()
+        => Test(
+            builder => builder.Entity(
+                "People", e =>
+                {
+                    e.Property<int>("Id");
+                    e.Property<string>("SomeColumn");
+                    e.HasIndex("SomeColumn")
+                        .IsUnique();
+                }),
+            builder => builder.Entity("People").Property<string>("SomeColumn").IsRequired(),
+            builder => builder.Entity("People").Property<string>("SomeColumn").IsRequired(false),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var column = Assert.Single(table.Columns, c => c.Name != "Id");
+                Assert.True(column.IsNullable);
+                var index = Assert.Single(table.Indexes);
+                Assert.True(index.IsUnique);
+                Assert.Same(column, Assert.Single(index.Columns));
+            });
+
+    [Fact]
+    public virtual Task Alter_column_make_not_required_while_referenced_in_other_index_filter()
+        => Test(
+            builder => builder.Entity(
+                "People", e =>
+                {
+                    e.Property<int>("Id");
+                    e.Property<string>("FirstName")
+                        .IsRequired();
+                    e.HasIndex("FirstName")
+                        .HasFilter($"{DelimitIdentifier("LastName")} <> ''");
+                    e.Property<string>("LastName");
+                }),
+            builder => builder.Entity("People").Property<string>("LastName").IsRequired(),
+            builder => builder.Entity("People").Property<string>("LastName").IsRequired(false),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+                var lastNameColumn = Assert.Single(table.Columns, c => c.Name == "LastName");
+                Assert.True(lastNameColumn.IsNullable);
+                Assert.Contains(table.Columns.Single(c => c.Name == "FirstName"), index.Columns);
+                if (AssertIndexFilters)
+                {
+                    Assert.Contains("LastName", index.Filter);
+                }
+            });
+
+    [Fact]
+    public virtual Task Alter_column_add_comment_while_referenced_in_other_index_filter_does_not_rebuild_index()
+        => Test(
+            builder => builder.Entity(
+                "People", e =>
+                {
+                    e.Property<int>("Id");
+                    e.Property<string>("FirstName")
+                        .IsRequired();
+                    e.HasIndex("FirstName")
+                        .HasFilter($"{DelimitIdentifier("LastName")} <> ''");
+                    e.Property<string>("LastName");
+                }),
+            builder => { },
+            builder => builder.Entity("People").Property<string>("LastName").HasComment("Some comment"),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+                var lastNameColumn = Assert.Single(table.Columns, c => c.Name == "LastName");
+                Assert.True(lastNameColumn.IsNullable);
+                Assert.Contains(table.Columns.Single(c => c.Name == "FirstName"), index.Columns);
+                if (AssertIndexFilters)
+                {
+                    Assert.Contains("LastName", index.Filter);
+                }
+                if (AssertComments)
+                {
+                    Assert.Equal("Some comment", lastNameColumn.Comment);
+                }
+            });
+
+    [Fact]
     public virtual Task Alter_column_make_required_with_composite_index()
         => Test(
             builder => builder.Entity(

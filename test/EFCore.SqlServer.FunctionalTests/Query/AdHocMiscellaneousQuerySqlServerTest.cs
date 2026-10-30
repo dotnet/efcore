@@ -3670,7 +3670,7 @@ LEFT JOIN (
         WHERE [p0].[Rank] > 1
     ) AS [p2]
     WHERE [p2].[row] <= 1
-) AS [p3] ON [p1].[GroupId] = [p3].[GroupId]
+) AS [p3] ON [p1].[GroupId] = [p3].[GroupId] OR ([p1].[GroupId] IS NULL AND [p3].[GroupId] IS NULL)
 """);
     }
 
@@ -3693,6 +3693,26 @@ ORDER BY [c].[CityId]
 SELECT [c].[CityName]
 FROM [Cities] AS [c]
 ORDER BY [c].[CityId]
+""");
+    }
+
+    #endregion
+
+    #region 33061
+
+    public override async Task Primitive_collection_hashset_parameter_is_client_eval(bool async)
+    {
+        await base.Primitive_collection_hashset_parameter_is_client_eval(async);
+
+        AssertSql(
+            """
+SELECT [e].[Id]
+FROM [Entities] AS [e]
+""",
+            //
+            """
+SELECT [e].[Id]
+FROM [Entities] AS [e]
 """);
     }
 

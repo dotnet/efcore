@@ -26,7 +26,7 @@ public class DateTimeTranslationsCosmosTest : DateTimeTranslationsTestBase<Basic
 
         AssertSql(
             """
-@myDatetime='2015-04-10T00:00:00'
+@myDatetime='2015-04-10T00:00:00.0000000'
 
 SELECT VALUE c
 FROM root c
@@ -178,7 +178,7 @@ WHERE (DateTimePart("ms", c["DateTime"]) = 123)
             """
 SELECT VALUE c
 FROM root c
-WHERE (c["DateTime"] = "1998-05-04T15:30:10")
+WHERE (c["DateTime"] = "1998-05-04T15:30:10.0000000")
 """);
     }
 
@@ -188,7 +188,7 @@ WHERE (c["DateTime"] = "1998-05-04T15:30:10")
 
         AssertSql(
             """
-@Parse='1998-05-04T15:30:10'
+@Parse='1998-05-04T15:30:10.0000000'
 
 SELECT VALUE c
 FROM root c
@@ -204,7 +204,7 @@ WHERE (c["DateTime"] = @Parse)
             """
 SELECT VALUE c
 FROM root c
-WHERE (c["DateTime"] = "1998-05-04T15:30:10")
+WHERE (c["DateTime"] = "1998-05-04T15:30:10.0000000")
 """);
     }
 
@@ -214,7 +214,7 @@ WHERE (c["DateTime"] = "1998-05-04T15:30:10")
 
         AssertSql(
             """
-@p='1998-05-04T15:30:10'
+@p='1998-05-04T15:30:10.0000000'
 
 SELECT VALUE c
 FROM root c

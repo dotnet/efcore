@@ -761,7 +761,7 @@ public class SqlServerSqlTranslatingExpressionVisitor(
                 _ => throw new ArgumentOutOfRangeException(nameof(methodType), methodType, null)
             },
 
-            char s when !IsLikeWildChar(s) => methodType switch
+            char s when !IsLikeWildChar(s) && s != LikeEscapeChar => methodType switch
             {
                 StartsEndsWithContains.StartsWith => $"{s}%",
                 StartsEndsWithContains.EndsWith => $"%{s}",

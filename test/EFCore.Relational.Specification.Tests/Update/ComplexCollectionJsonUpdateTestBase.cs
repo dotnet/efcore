@@ -18,6 +18,66 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
     protected ComplexCollectionJsonContext CreateContext()
         => (ComplexCollectionJsonContext)Fixture.CreateContext();
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual Task Save_nested_complex_collection_with_nullable_property(bool async)
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var blog = new Blog
+                {
+                    Id = 1,
+                    Posts =
+                    [
+                        new Post { Revisions = [new Revision { PublishedOn = null }] },
+                        new Post { Revisions = [new Revision { PublishedOn = new DateOnly(2000, 1, 1) }] }
+                    ]
+                };
+
+                context.Add(blog);
+
+                if (async)
+                {
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.SaveChanges();
+                }
+
+                blog.Posts[0].Revisions[0].PublishedOn = new DateOnly(2001, 2, 3);
+                blog.Posts[1].Revisions[0].PublishedOn = null;
+                context.ChangeTracker.DetectChanges();
+                Assert.Equal(EntityState.Modified, Assert.Single(context.ChangeTracker.Entries<Blog>()).State);
+
+                ClearLog();
+
+                if (async)
+                {
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.SaveChanges();
+                }
+            },
+            async context =>
+            {
+                using (SuspendRecordingEvents())
+                {
+                    var blog = async
+                        ? await context.Set<Blog>().SingleAsync()
+                        : context.Set<Blog>().Single();
+
+                    Assert.Equal(2, blog.Posts.Count);
+                    Assert.Equal(new DateOnly(2001, 2, 3), Assert.Single(blog.Posts[0].Revisions).PublishedOn);
+                    Assert.Null(Assert.Single(blog.Posts[1].Revisions).PublishedOn);
+                }
+            });
+
     [Fact]
     public virtual Task Add_element_to_complex_collection_mapped_to_json()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
@@ -674,6 +734,62 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 }
             });
 
+    [Fact]
+    public virtual Task Modify_elements_in_nested_complex_collection_mapped_to_json()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var entity = await context.Set<EntityWithNestedCollections>().OrderBy(e => e.Id).FirstAsync();
+
+                entity.Items[0].Inner[1].Value = "inner-1-modified";
+                entity.Items[0].Inner.Insert(0, new InnerEntry { Value = "inner-new" });
+                entity.Items[1].Inner.Clear();
+                entity.Items.Add(new DeepItem { Title = "Item3", Inner = [new InnerEntry { Value = "inner-3" }], Others = [] });
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                using (SuspendRecordingEvents())
+                {
+                    var entity = await context.Set<EntityWithNestedCollections>().OrderBy(e => e.Id).FirstAsync();
+                    Assert.Equal(["Item1", "Item2", "Item3"], entity.Items.Select(i => i.Title));
+                    Assert.Equal(["inner-new", "inner-0", "inner-1-modified"], entity.Items[0].Inner.Select(i => i.Value));
+                    Assert.Empty(entity.Items[1].Inner);
+                    Assert.Equal(["inner-3"], entity.Items[2].Inner.Select(i => i.Value));
+                }
+            });
+
+    [Fact]
+    public virtual Task Remove_element_with_nested_complex_collection_mapped_to_json()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var entity = await context.Set<EntityWithNestedCollections>().OrderBy(e => e.Id).FirstAsync();
+
+                // The nested elements of the remaining item move to a different ordinal
+                entity.Items.RemoveAt(0);
+                entity.Items[0].Inner.Add(new InnerEntry { Value = "inner-3" });
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                using (SuspendRecordingEvents())
+                {
+                    var entity = await context.Set<EntityWithNestedCollections>().OrderBy(e => e.Id).FirstAsync();
+                    var item = Assert.Single(entity.Items);
+                    Assert.Equal("Item2", item.Title);
+                    Assert.Equal(["inner-2", "inner-3"], item.Inner.Select(i => i.Value));
+                }
+            });
+
     [Fact] // Issue #38625
     public virtual Task Complex_collection_absent_from_json_is_materialized_as_empty()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
@@ -855,7 +971,9 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 var exception = await Assert.ThrowsAsync<InvalidOperationException>(
                     () => context.Set<CodeWidget>().OrderBy(w => w.Id).FirstAsync());
 
-                Assert.Equal(RelationalStrings.NullValueInRequiredJsonProperty("CustomCodes"), exception.Message);
+                Assert.Equal(
+                    RelationalStrings.NullValueInRequiredJsonProperty("CustomCodes"),
+                    Assert.IsType<InvalidOperationException>(exception.InnerException).Message);
             });
 
     [Fact] // Issue #38625
@@ -980,6 +1098,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
         public DbSet<CodeWidget> CodeWidgets { get; set; } = null!;
         public DbSet<OwnedCodeWidget> OwnedCodeWidgets { get; set; } = null!;
         public DbSet<EntityWithNullableMeta> EntitiesWithNullableMeta { get; set; } = null!;
+        public DbSet<EntityWithNestedCollections> EntitiesWithNestedCollections { get; set; } = null!;
     }
 
     protected class CompanyWithComplexCollections
@@ -1161,13 +1280,38 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
         public List<MetaEntry> Entries { get; set; } = [];
     }
 
+    protected class Blog
+    {
+        public int Id { get; set; }
+        public List<Post> Posts { get; set; } = [];
+    }
+
+    protected class Post
+    {
+        public List<Revision> Revisions { get; set; } = [];
+    }
+
+    protected class Revision
+    {
+        public DateOnly? PublishedOn { get; set; }
+    }
+
     protected class MetaEntry
     {
         public required string Value { get; set; }
     }
 
+    protected class EntityWithNestedCollections
+    {
+        public int Id { get; set; }
+        public List<DeepItem> Items { get; set; } = [];
+    }
+
     public abstract class ComplexCollectionJsonUpdateFixtureBase : SharedStoreFixtureBase<DbContext>
     {
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => base.AddOptions(builder).EnableDetailedErrors();
+
         protected override string StoreName
             => "ComplexCollectionJsonUpdateTest";
 
@@ -1182,6 +1326,12 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
+            modelBuilder.Entity<Blog>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+                b.ComplexCollection(e => e.Posts, b => b.ToJson());
+            });
+
             modelBuilder.Entity<CompanyWithComplexCollections>(b =>
             {
                 b.Property(x => x.Id).ValueGeneratedNever();
@@ -1270,6 +1420,19 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                         ib.ComplexProperty(
                             x => x.Meta, mb =>
                                 mb.ComplexCollection(m => m.Entries));
+                    });
+            });
+
+            modelBuilder.Entity<EntityWithNestedCollections>(b =>
+            {
+                b.Property(x => x.Id).ValueGeneratedNever();
+
+                b.ComplexCollection(
+                    x => x.Items, ib =>
+                    {
+                        ib.ToJson();
+                        ib.ComplexCollection(i => i.Inner);
+                        ib.ComplexCollection(i => i.Others);
                     });
             });
         }
@@ -1375,6 +1538,23 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
             };
 
             context.Add(entityWithNullableMeta);
+
+            context.Add(
+                new EntityWithNestedCollections
+                {
+                    Id = 1,
+                    Items =
+                    [
+                        new DeepItem
+                        {
+                            Title = "Item1",
+                            Inner = [new InnerEntry { Value = "inner-0" }, new InnerEntry { Value = "inner-1" }],
+                            Others = []
+                        },
+                        new DeepItem { Title = "Item2", Inner = [new InnerEntry { Value = "inner-2" }], Others = [] }
+                    ]
+                });
+
             return context.SaveChangesAsync();
         }
     }

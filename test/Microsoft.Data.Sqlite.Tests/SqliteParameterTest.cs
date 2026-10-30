@@ -432,6 +432,34 @@ public class SqliteParameterTest
         Assert.Equal(new byte[] { 0x7E, 0x57 }, result);
     }
 
+    [Fact]
+    public void Bind_with_zero_size_does_not_truncate_string_values()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT $value;";
+        command.Parameters.AddWithValue("$value", "TEST").Size = 0;
+        connection.Open();
+
+        var result = command.ExecuteScalar();
+
+        Assert.Equal("TEST", result);
+    }
+
+    [Fact]
+    public void Bind_with_zero_size_does_not_truncate_blob_values()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT $value;";
+        command.Parameters.AddWithValue("$value", new byte[] { 0x7E, 0x57 }).Size = 0;
+        connection.Open();
+
+        var result = command.ExecuteScalar();
+
+        Assert.Equal(new byte[] { 0x7E, 0x57 }, result);
+    }
+
     [Theory,
      InlineData("@Parameter"),
      InlineData("$Parameter"),
