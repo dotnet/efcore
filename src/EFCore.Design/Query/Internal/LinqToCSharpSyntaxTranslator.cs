@@ -2213,6 +2213,13 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
     /// <inheritdoc />
     protected override Expression VisitNew(NewExpression node)
     {
+        Result = TranslateNew(node);
+
+        return node;
+    }
+
+    private ExpressionSyntax TranslateNew(NewExpression node, IReadOnlyList<MemberBinding>? memberBindings = null)
+    {
         using var _ = ChangeContext(ExpressionContext.Expression);
 
         var arguments = node.Constructor is null
@@ -2226,30 +2233,34 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
                 throw new NotSupportedException("Anonymous type creation without members");
             }
 
-            Result = AnonymousObjectCreationExpression(
+            return AnonymousObjectCreationExpression(
                 SeparatedList(
                     arguments.Select((arg, i) =>
                             AnonymousObjectMemberDeclarator(NameEquals(node.Members[i].Name), arg.Expression))
                         .ToArray()));
-
-            return node;
         }
 
         // If the constructor isn't public, or it has required properties and the constructor doesn't have [SetsRequiredMembers], we can't
-        // just generate a regular instantiation expression (won't compile). Generate an unsafe accessor instead.
+        // just generate a regular instantiation expression unless the initializer assigns all required members (won't compile).
+        // Generate an unsafe accessor instead.
+        ExpressionSyntax result;
         if (node.Constructor is { } constructor
             && (!constructor.IsPublic
                 || (node.Type.GetCustomAttribute<RequiredMemberAttribute>() is not null
-                    && constructor.GetCustomAttribute<SetsRequiredMembersAttribute>() is null)))
+                    && constructor.GetCustomAttribute<SetsRequiredMembersAttribute>() is null
+                    && (memberBindings is null
+                        || !node.Type.GetMembers(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                            .Where(m => m.GetCustomAttribute<RequiredMemberAttribute>() is not null)
+                            .All(m => memberBindings.Any(b => b is MemberAssignment && b.Member.Name == m.Name))))))
         {
             var unsafeAccessorDeclaration = GetUnsafeAccessorDeclaration(constructor);
 
-            Result = _g.InvocationExpression(_g.IdentifierName(unsafeAccessorDeclaration.Identifier.Text), arguments);
+            result = (ExpressionSyntax)_g.InvocationExpression(_g.IdentifierName(unsafeAccessorDeclaration.Identifier.Text), arguments);
         }
         else
         {
             // Normal case with plain old instantiation
-            Result = ObjectCreationExpression(
+            result = ObjectCreationExpression(
                 Generate(node.Type),
                 ArgumentList(SeparatedList(arguments)),
                 initializer: null);
@@ -2257,7 +2268,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
 
         AddNamespace(node.Type);
 
-        return node;
+        return result;
     }
 
     /// <inheritdoc />
@@ -2665,7 +2676,8 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
     /// <inheritdoc />
     protected override Expression VisitMemberInit(MemberInitExpression memberInit)
     {
-        var objectCreation = Translate<ObjectCreationExpressionSyntax>(memberInit.NewExpression);
+        var objectCreation = TranslateNew(memberInit.NewExpression, memberInit.Bindings) as ObjectCreationExpressionSyntax
+            ?? throw new NotSupportedException("MemberInit: constructor requires an unsafe accessor");
 
         List<MemberListBinding>? incompatibleListBindings = null;
 
