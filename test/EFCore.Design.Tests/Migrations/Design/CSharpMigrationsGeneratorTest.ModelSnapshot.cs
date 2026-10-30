@@ -6790,7 +6790,7 @@ partial class Snapshot : ModelSnapshot
             });
 
     [Fact]
-    public virtual void Complex_collection_with_global_collation_is_stored_in_snapshot()
+    public virtual void Complex_collection_global_collation_is_ignored_in_snapshot()
     {
         var builder = TestHelpers.CreateConventionBuilder(
             configureConventions: c => c.Properties<string>().UseCollation("case_insensitive"));
