@@ -16,6 +16,70 @@ public abstract class AdHocPrecompiledQueryRelationalTestBase : NonSharedModelTe
         : base(fixture)
         => TestOutputHelper = testOutputHelper;
 
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public virtual async Task ExecuteUpdate_with_multiple_setters(bool async, bool valueLambda)
+    {
+        var contextFactory = await InitializeNonSharedTest<MultipleSettersContext>(
+            seed: async context =>
+            {
+                context.Entities.Add(new MultipleSettersEntity { A = "OriginalA", B = "OriginalB", Count = 1 });
+                await context.SaveChangesAsync();
+            });
+
+        ClearLog();
+
+        await Test(
+            $$"""
+await using var context = new AdHocPrecompiledQueryRelationalTestBase.MultipleSettersContext(dbContextOptions);
+await context.Database.BeginTransactionAsync();
+
+var a = "UpdatedA";
+var b = "UpdatedB";
+var rowsAffected = {{(async ? "await " : "")}}context.Entities.ExecuteUpdate{{(async ? "Async" : "")}}(setters => setters
+    .SetProperty(e => e.A, {{(valueLambda ? "e => " : "")}}a)
+    .SetProperty(e => e.B, {{(valueLambda ? "e => " : "")}}b));
+Assert.Equal(1, rowsAffected);
+
+var entity = await context.Entities.AsNoTracking().SingleAsync();
+Assert.Equal("UpdatedA", entity.A);
+Assert.Equal("UpdatedB", entity.B);
+Assert.Equal(1, entity.Count);
+
+var count = 42;
+a = "FinalA";
+b = "FinalB";
+rowsAffected = {{(async ? "await " : "")}}context.Entities.ExecuteUpdate{{(async ? "Async" : "")}}(setters => setters
+    .SetProperty(e => e.Count, e => count)
+    .SetProperty(e => e.A, {{(valueLambda ? "e => " : "")}}a)
+    .SetProperty(e => e.B, {{(valueLambda ? "e => " : "")}}b));
+Assert.Equal(1, rowsAffected);
+
+entity = await context.Entities.AsNoTracking().SingleAsync();
+Assert.Equal("FinalA", entity.A);
+Assert.Equal("FinalB", entity.B);
+Assert.Equal(42, entity.Count);
+""",
+            typeof(MultipleSettersContext),
+            contextFactory.GetOptions());
+    }
+
+    public class MultipleSettersContext(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<MultipleSettersEntity> Entities { get; set; } = null!;
+    }
+
+    public class MultipleSettersEntity
+    {
+        public int Id { get; set; }
+        public string A { get; set; } = "";
+        public string B { get; set; } = "";
+        public int Count { get; set; }
+    }
+
     [Fact]
     public virtual async Task Index_no_evaluatability()
     {

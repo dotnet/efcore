@@ -11,6 +11,46 @@ public class AdHocPrecompiledQuerySqlServerTest(NonSharedFixture fixture, ITestO
     protected override bool AlwaysPrintGeneratedSources
         => false;
 
+    public override async Task ExecuteUpdate_with_multiple_setters(bool async, bool valueLambda)
+    {
+        await base.ExecuteUpdate_with_multiple_setters(async, valueLambda);
+
+        AssertSql(
+            """
+@a='UpdatedA' (Size = 4000)
+@b='UpdatedB' (Size = 4000)
+
+SET NOCOUNT OFF;
+UPDATE [e]
+SET [e].[A] = @a,
+    [e].[B] = @b
+FROM [Entities] AS [e]
+""",
+            //
+            """
+SELECT TOP(2) [e].[Id], [e].[A], [e].[B], [e].[Count]
+FROM [Entities] AS [e]
+""",
+            //
+            """
+@count='42'
+@a='FinalA' (Size = 4000)
+@b='FinalB' (Size = 4000)
+
+SET NOCOUNT OFF;
+UPDATE [e]
+SET [e].[Count] = @count,
+    [e].[A] = @a,
+    [e].[B] = @b
+FROM [Entities] AS [e]
+""",
+            //
+            """
+SELECT TOP(2) [e].[Id], [e].[A], [e].[B], [e].[Count]
+FROM [Entities] AS [e]
+""");
+    }
+
     protected override DbContextOptionsBuilder UseWindowFunctionAggregates(DbContextOptionsBuilder optionsBuilder)
     {
 #pragma warning disable EF9001 // UseWindowFunctionAggregates is experimental
