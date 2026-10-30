@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -458,7 +459,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                     else if (otherExpressions.All(e => e is ColumnExpression))
                     {
                         _identifier.AddRange(typeProjectionIdentifiers.Zip(typeProjectionValueComparers));
-                        _identifier.AddRange(otherExpressions.Select(e => ((ColumnExpression)e, e.TypeMapping!.KeyComparer)));
+                        _identifier.AddRange(otherExpressions.Select(e => ((ColumnExpression)e, GetIdentifierComparer(e.TypeMapping!))));
                     }
                 }
             }
@@ -1838,7 +1839,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             _identifier.Clear();
             if (_groupBy.All(e => e is ColumnExpression))
             {
-                _identifier.AddRange(_groupBy.Select(e => ((ColumnExpression)e, e.TypeMapping!.KeyComparer)));
+                _identifier.AddRange(_groupBy.Select(e => ((ColumnExpression)e, GetIdentifierComparer(e.TypeMapping!))));
             }
         }
     }
@@ -1907,7 +1908,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             _identifier.Clear();
             if (_groupBy.All(e => e is ColumnExpression))
             {
-                _identifier.AddRange(_groupBy.Select(e => ((ColumnExpression)e, e.TypeMapping!.KeyComparer)));
+                _identifier.AddRange(_groupBy.Select(e => ((ColumnExpression)e, GetIdentifierComparer(e.TypeMapping!))));
             }
         }
 
@@ -1920,6 +1921,94 @@ public sealed partial class SelectExpression : TableExpressionBase
             keySelector,
             shaperExpression,
             new ShapedQueryExpression(clonedSelectExpression, rebuiltShaperExpression));
+    }
+
+    // Rows are told apart on the client by their identifier values, as materialized. Through a value converter, the same database
+    // value can materialize as instances which the mapping's key comparer doesn't consider equal - a class without Equals compares
+    // by reference - so every row would look like the start of a new collection or grouping, and the shaper would never move past
+    // it. The database told those rows apart by their provider values, so values of such a type are compared as such. Any other
+    // type, or a mapping that was given its own comparers (a primitive collection's structural one, say), keeps the mapping's key
+    // comparer: going back through the converter to compare values runs code the read never did, which needn't give the same
+    // provider value twice (randomized encryption doesn't), and can't be inlined into a precompiled query when it captures state.
+    private static ValueComparer GetIdentifierComparer(CoreTypeMapping typeMapping)
+#pragma warning disable EF1001 // Internal EF Core API usage.
+        => typeMapping is { Converter: { } converter, ClrType: var clrType, HasDefaultComparers: true } && ComparesByReference(clrType)
+#pragma warning restore EF1001 // Internal EF Core API usage.
+            ? (ValueComparer)CreateProviderValueIdentifierComparerMethod.MakeGenericMethod(clrType)
+                .Invoke(null, [converter, typeMapping.ProviderValueComparer])!
+            : typeMapping.KeyComparer;
+
+    // Whether the default comparer for the type, which a converted type's mapping gets, compares by reference: object itself is
+    // compared with ==, whatever Equals the instance overrides, and other classes end up at object.Equals without an override.
+    // An interface declares nothing of the sort: Equals is called on the instance, so what it does depends on that, and it is left
+    // alone.
+    private static bool ComparesByReference(Type type)
+    {
+        if (type == typeof(object))
+        {
+            return true;
+        }
+
+        if (type.IsValueType
+            || type.IsInterface
+            || type == typeof(string)
+            || typeof(IStructuralEquatable).IsAssignableFrom(type)
+            || type.GetMethod(nameof(object.Equals), [typeof(object)]) is not { DeclaringType: var equalsDeclaringType }
+            || equalsDeclaringType != typeof(object))
+        {
+            return false;
+        }
+
+        // As ValueComparer<T> looks for them, by exact parameter types: GetMethod would also bind Equals(T) to Equals(object).
+        if (type.GetRuntimeMethods().Any(m => !m.IsStatic
+                && m.ReturnType == typeof(bool)
+                && m.Name == nameof(object.Equals)
+                && m.GetParameters() is [{ ParameterType: var otherType }]
+                && otherType == type))
+        {
+            return false;
+        }
+
+        for (var current = type; current != null; current = current.BaseType)
+        {
+            if (current.GetTypeInfo().DeclaredMethods.Any(m => m.IsStatic
+                    && m.ReturnType == typeof(bool)
+                    && m.Name == "op_Equality"
+                    && m.GetParameters() is [{ ParameterType: var leftType }, { ParameterType: var rightType }]
+                    && leftType == type
+                    && rightType == type))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static readonly MethodInfo CreateProviderValueIdentifierComparerMethod
+        = typeof(SelectExpression).GetMethod(
+            nameof(CreateProviderValueIdentifierComparer), BindingFlags.NonPublic | BindingFlags.Static)!;
+
+    private static ValueComparer<T> CreateProviderValueIdentifierComparer<T>(
+        ValueConverter converter,
+        ValueComparer providerValueComparer)
+    {
+        var left = Parameter(typeof(T), "left");
+        var right = Parameter(typeof(T), "right");
+
+        // ValueComparer<T> handles nulls before calling these, so the converter only ever sees a value.
+        return new ValueComparer<T>(
+            Lambda<Func<T?, T?, bool>>(providerValueComparer.ExtractEqualsBody(ToProvider(left), ToProvider(right)), left, right),
+            Lambda<Func<T, int>>(providerValueComparer.ExtractHashCodeBody(ToProvider(left)), left));
+
+        Expression ToProvider(ParameterExpression value)
+        {
+            var toProvider = converter.ConvertToProviderExpression;
+            var parameter = toProvider.Parameters[0];
+
+            return ReplacingExpressionVisitor.Replace(
+                parameter, parameter.Type == value.Type ? value : Convert(value, parameter.Type), toProvider.Body);
+        }
     }
 
     // Keeps the first row of each group in place of the grouping. Rows are numbered with
@@ -2332,7 +2421,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                         RelationalStrings.SetOperationsRequireAtLeastOneSideWithValidTypeMapping(setOperationType));
                 }
 
-                otherExpressions.Add((outerProjection, outerTypeMapping.KeyComparer));
+                otherExpressions.Add((outerProjection, GetIdentifierComparer(outerTypeMapping)));
             }
         }
 
@@ -2452,7 +2541,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                                     RelationalStrings.SetOperationsRequireAtLeastOneSideWithValidTypeMapping(setOperationType));
                             }
 
-                            otherExpressions.Add((outerColumn, outerTypeMapping.KeyComparer));
+                            otherExpressions.Add((outerColumn, GetIdentifierComparer(outerTypeMapping)));
                         }
                     }
                 }

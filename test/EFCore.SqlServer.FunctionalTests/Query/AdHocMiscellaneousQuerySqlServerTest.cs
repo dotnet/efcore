@@ -3597,6 +3597,91 @@ ORDER BY [e].[DepartmentName]
 
     #endregion
 
+    #region 39366
+
+    public override async Task GroupBy_value_converted_reference_type_key_with_elements_and_aggregate(bool async)
+    {
+        await base.GroupBy_value_converted_reference_type_key_with_elements_and_aggregate(async);
+
+        AssertSql(
+            """
+SELECT [p1].[Tag], [p0].[Id], [p1].[c]
+FROM (
+    SELECT [p].[Tag], COUNT(*) AS [c]
+    FROM [Posts] AS [p]
+    GROUP BY [p].[Tag]
+) AS [p1]
+LEFT JOIN [Posts] AS [p0] ON [p1].[Tag] = [p0].[Tag]
+ORDER BY [p1].[Tag]
+""");
+    }
+
+    public override async Task Distinct_value_converted_reference_type_with_collection(bool async)
+    {
+        await base.Distinct_value_converted_reference_type_with_collection(async);
+
+        AssertSql(
+            """
+SELECT [p0].[Tag], [p1].[Id]
+FROM (
+    SELECT DISTINCT [p].[Tag]
+    FROM [Posts] AS [p]
+) AS [p0]
+LEFT JOIN [Posts] AS [p1] ON [p0].[Tag] = [p1].[Tag]
+ORDER BY [p0].[Tag]
+""");
+    }
+
+    public override async Task Distinct_value_converted_string_with_nondeterministic_write_with_collection(bool async)
+    {
+        await base.Distinct_value_converted_string_with_nondeterministic_write_with_collection(async);
+
+        AssertSql(
+            """
+SELECT [p0].[Tag], [p1].[Id]
+FROM (
+    SELECT DISTINCT [p].[Tag]
+    FROM [Posts] AS [p]
+) AS [p0]
+LEFT JOIN [Posts] AS [p1] ON [p0].[Tag] = [p1].[Tag]
+ORDER BY [p0].[Tag]
+""");
+    }
+
+    public override async Task Distinct_value_converted_object_with_collection(bool async)
+    {
+        await base.Distinct_value_converted_object_with_collection(async);
+
+        AssertSql(
+            """
+SELECT [p0].[Tag], [p1].[Id]
+FROM (
+    SELECT DISTINCT [p].[Tag]
+    FROM [Posts] AS [p]
+) AS [p0]
+LEFT JOIN [Posts] AS [p1] ON [p0].[Tag] = [p1].[Tag]
+ORDER BY [p0].[Tag]
+""");
+    }
+
+    public override async Task Distinct_primitive_collection_with_collection(bool async)
+    {
+        await base.Distinct_primitive_collection_with_collection(async);
+
+        AssertSql(
+            """
+SELECT [p0].[Tags], [p1].[Id]
+FROM (
+    SELECT DISTINCT [p].[Tags]
+    FROM [Posts] AS [p]
+) AS [p0]
+LEFT JOIN [Posts] AS [p1] ON [p0].[Tags] = [p1].[Tags]
+ORDER BY [p0].[Tags]
+""");
+    }
+
+    #endregion
+
     #region 30233
 
     public override async Task Sum_over_property_with_value_converter_that_converts_nulls(bool async)
