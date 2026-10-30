@@ -2065,7 +2065,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         {
             // Non-lambda arguments have already been evaluated to dummy constants during precompilation.
             // Equal dummy values do not imply that the runtime arguments are equal.
-            if (!(_precompiledQuery && evaluatableRoot is ConstantExpression)
+            if (!((_calculatingPath || _precompiledQuery) && evaluatableRoot is ConstantExpression)
                 && _parameterizedValues.TryGetValue(evaluatableRoot, out var cachedQueryParameter))
             {
                 // We're here when the same captured variable (or other fragment) is referenced more than once in the query; we want to
