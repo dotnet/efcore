@@ -117,6 +117,81 @@ public partial class CSharpMigrationsGeneratorTest : CSharpMigrationsGeneratorTe
     }
 
     [Fact]
+    public void Migration_with_index_on_json_complex_property_compiles()
+    {
+        var options = new DbContextOptionsBuilder()
+            .UseSqlServer(b => b.UseCompatibilityLevel(170))
+            .Options;
+        var services = SqlServerTestHelpers.Instance.CreateContextServices(options);
+        var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder(services);
+        modelBuilder.Entity<JsonIndexPerson>(
+            e =>
+            {
+                e.ToTable("People");
+                e.ComplexProperty(p => p.Address, a => a.ToJson());
+                e.HasIndex(p => p.Address.City);
+            });
+
+        var model = modelBuilder.FinalizeModel(designTime: true);
+        var modelDiffer = services.GetRequiredService<IMigrationsModelDiffer>();
+        var upOperations = modelDiffer.GetDifferences(null, model.GetRelationalModel());
+        var downOperations = modelDiffer.GetDifferences(model.GetRelationalModel(), null);
+        var index = Assert.Single(upOperations.OfType<CreateIndexOperation>());
+        Assert.IsType<RelationalJsonIndex>(index[RelationalAnnotationNames.JsonIndex]);
+
+        var generator = CreateMigrationsCodeGenerator();
+        var migrationCode = generator.GenerateMigration("MyNamespace", "MyMigration", upOperations, downOperations);
+        var metadataCode = generator.GenerateMetadata(
+            "MyNamespace", typeof(MyContext), "MyMigration", "20150511161616_MyMigration", model);
+        var snapshotCode = generator.GenerateSnapshot("MyNamespace", typeof(MyContext), "MySnapshot", model);
+
+        var build = new BuildSource
+        {
+            References =
+            {
+                BuildReference.ByName("Microsoft.EntityFrameworkCore.Design.Tests"),
+                BuildReference.ByName("Microsoft.EntityFrameworkCore"),
+                BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational"),
+                BuildReference.ByName("Microsoft.EntityFrameworkCore.SqlServer")
+            },
+            Sources = { { "Migration.cs", migrationCode }, { "Migration.Designer.cs", metadataCode }, { "Snapshot.cs", snapshotCode } }
+        };
+        var assembly = build.BuildInMemory();
+        var migration = (Migration)Activator.CreateInstance(assembly.GetType("MyNamespace.MyMigration")!)!;
+        var generatedIndex = Assert.Single(migration.UpOperations.OfType<CreateIndexOperation>());
+        Assert.Equal("IX_People_Address_City", generatedIndex.Name);
+        Assert.Equal(new[] { "Address" }, generatedIndex.Columns);
+        Assert.Null(generatedIndex[RelationalAnnotationNames.JsonIndex]);
+        Assert.Equal("People", Assert.IsType<DropTableOperation>(Assert.Single(migration.DownOperations)).Name);
+
+        var processor = new SnapshotModelProcessor(new TestOperationReporter(), services.GetRequiredService<IModelRuntimeInitializer>());
+        var targetModel = processor.Process(migration.TargetModel)!;
+        var commands = services.GetRequiredService<IMigrationsSqlGenerator>().Generate([generatedIndex], targetModel);
+        Assert.Equal(
+            """
+CREATE JSON INDEX [IX_People_Address_City] ON [People]([Address]) FOR (N'$.City');
+""",
+            Assert.Single(commands).CommandText.TrimEnd(),
+            ignoreLineEndingDifferences: true);
+
+        var snapshot = (ModelSnapshot)Activator.CreateInstance(assembly.GetType("MyNamespace.MySnapshot")!)!;
+        var snapshotModel = processor.Process(snapshot.Model)!;
+        Assert.Empty(modelDiffer.GetDifferences(snapshotModel.GetRelationalModel(), model.GetRelationalModel()));
+    }
+
+    private class JsonIndexPerson
+    {
+        public Guid Id { get; set; }
+        public required string Name { get; set; }
+        public required JsonIndexAddress Address { get; set; }
+    }
+
+    private class JsonIndexAddress
+    {
+        public required string City { get; set; }
+    }
+
+    [Fact]
     public void Migrations_compile()
     {
         var generator = CreateMigrationsCodeGenerator();
