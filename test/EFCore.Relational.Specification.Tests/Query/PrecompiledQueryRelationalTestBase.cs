@@ -76,6 +76,61 @@ var yes = "yes";
 var blogs = await context.Blogs.Select(b => b.Id == 2 ? yes : "no").ToListAsync();
 """);
 
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public virtual Task Conditional_test_contains_captured_variable(bool async, bool fullyEvaluatable)
+        => Test(
+            $$"""
+foreach (var flag in new[] { false, true })
+{
+    var ids = {{(async ? "await " : "")}}context.Blogs
+        .Where(b => {{(fullyEvaluatable ? "b.Id == (flag ? 8 : 9)" : "flag ? b.Id == 8 : b.Id == 9")}})
+        .Select(b => b.Id).{{(async ? "ToListAsync" : "ToList")}}();
+
+    Assert.Equal(new[] { flag ? 8 : 9 }, ids);
+}
+""");
+
+    [Theory]
+    [InlineData(false, false, false)]
+    [InlineData(false, false, true)]
+    [InlineData(false, true, false)]
+    [InlineData(false, true, true)]
+    [InlineData(true, false, false)]
+    [InlineData(true, false, true)]
+    [InlineData(true, true, false)]
+    [InlineData(true, true, true)]
+    public virtual Task Logical_binary_contains_captured_variable(bool async, bool andAlso, bool capturedOnLeft)
+        => Test(
+            $$"""
+foreach (var flag in new[] { false, true })
+{
+    var ids = {{(async ? "await " : "")}}context.Blogs
+        .Where(b => {{(capturedOnLeft ? "flag" : "b.Id == 8")}} {{(andAlso ? "&&" : "||")}} {{(capturedOnLeft ? "b.Id == 8" : "flag")}})
+        .OrderBy(b => b.Id).Select(b => b.Id).{{(async ? "ToListAsync" : "ToList")}}();
+
+    Assert.Equal({{(andAlso ? "flag ? new[] { 8 } : Array.Empty<int>()" : "flag ? new[] { 8, 9 } : new[] { 8 }")}}, ids);
+}
+""");
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual Task Coalesce_left_contains_captured_variable(bool async)
+        => Test(
+            $$"""
+foreach (var name in new string[] { null, "captured" })
+{
+    var names = {{(async ? "await " : "")}}context.Blogs.OrderBy(b => b.Id)
+        .Select(b => name ?? b.Name).{{(async ? "ToListAsync" : "ToList")}}();
+
+    Assert.Equal(name == null ? new[] { "Blog1", "Blog2" } : new[] { "captured", "captured" }, names);
+}
+""");
+
     // We do not support embedding Expression builder API calls into the query; this would require CSharpToLinqTranslator to actually
     // evaluate those APIs and embed the results into the tree. It's (at least potentially) a form of dynamic query, unsupported for now.
     [Fact]
