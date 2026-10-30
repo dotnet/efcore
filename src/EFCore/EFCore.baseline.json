@@ -16317,6 +16317,11 @@
     },
     {
       "Type": "sealed class Microsoft.EntityFrameworkCore.Storage.Json.JsonDateTimeReaderWriter : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<System.DateTime>",
+      "Methods": [
+        {
+          "Member": "JsonDateTimeReaderWriter(string format);"
+        }
+      ],
       "Properties": [
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.Json.JsonDateTimeReaderWriter Instance { get; }"

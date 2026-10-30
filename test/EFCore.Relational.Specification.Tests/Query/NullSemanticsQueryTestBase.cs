@@ -855,6 +855,58 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
                 e2 => e2.NullableBoolB != true,
                 (o, i) => new { o, i }));
 
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Correlated_collection_uses_csharp_semantics(bool async)
+        // Unlike a join, the correlation is a Where: null equals null, whether the subquery stays one or gets turned into a join.
+        => AssertQuery(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>().Select(e1 => new
+            {
+                e1.Id,
+                Ids = ss.Set<NullSemanticsEntity2>().Where(e2 => e2.NullableIntB == e1.NullableIntA).Select(e2 => e2.Id).ToList()
+            }),
+            elementSorter: e => e.Id,
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.Id, a.Id);
+                AssertCollection(e.Ids, a.Ids);
+            });
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Correlated_collection_uses_csharp_semantics_with_composite_correlation(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>().Select(e1 => new
+            {
+                e1.Id,
+                Ids = ss.Set<NullSemanticsEntity2>()
+                    .Where(e2 => e2.NullableIntB == e1.NullableIntA && e2.NullableStringB == e1.NullableStringA)
+                    .Select(e2 => e2.Id)
+                    .ToList()
+            }),
+            elementSorter: e => e.Id,
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.Id, a.Id);
+                AssertCollection(e.Ids, a.Ids);
+            });
+
+    [Fact]
+    public virtual void Correlated_collection_using_relational_null_semantics()
+    {
+        using var context = CreateContext(useRelationalNulls: true);
+        var results = context.Entities1
+            .Select(e1 => new
+            {
+                e1.NullableIntA,
+                Ids = context.Entities2.Where(e2 => e2.NullableIntB == e1.NullableIntA).Select(e2 => e2.Id).ToList()
+            })
+            .ToList();
+
+        Assert.All(results.Where(r => r.NullableIntA is null), r => Assert.Empty(r.Ids));
+        Assert.Contains(results, r => r.NullableIntA is not null && r.Ids.Count > 0);
+    }
+
     [Fact]
     public virtual void Where_equal_using_relational_null_semantics()
     {

@@ -334,14 +334,18 @@ public class SqliteQuerySqlGenerator(QuerySqlGeneratorDependencies dependencies)
 
                     Sql.Append(" ->> ");
 
+                    var delimitedPropertyName = Dependencies.SqlGenerationHelper.DelimitJsonPathElement(propertyName);
+
                     // No need to start a $. JSONPATH string if we're the last segment or the next segment isn't a constant
                     if (isLast || path[i + 1] is { ArrayIndex: not null and not SqlConstantExpression })
                     {
-                        Sql.Append("'").Append(Dependencies.SqlGenerationHelper.DelimitJsonPathElement(propertyName)).Append("'");
+                        // A plain label is matched literally by SQLite, so a name that had to be quoted needs a full JSONPATH;
+                        // otherwise the quotes become part of the key being looked up.
+                        Sql.Append(delimitedPropertyName == propertyName ? "'" : "'$.").Append(delimitedPropertyName).Append("'");
                         continue;
                     }
 
-                    Sql.Append("'$.").Append(Dependencies.SqlGenerationHelper.DelimitJsonPathElement(propertyName));
+                    Sql.Append("'$.").Append(delimitedPropertyName);
                     inJsonpathString = true;
                     continue;
 

@@ -222,7 +222,7 @@ internal class Project
             return;
         }
 
-        var contentFilesPath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(fullPath)!, "..", "..", "contentFiles", "any", "any"));
+        var contentFilesPath = Path.GetFullPath(Path.Join(Path.GetDirectoryName(fullPath)!, "..", "..", "contentFiles", "any", "any"));
         CopyDirectoryRecursive(contentFilesPath, targetDir);
     }
 
@@ -237,7 +237,7 @@ internal class Project
         Directory.CreateDirectory(targetDir);
         foreach (var file in directory.GetFiles())
         {
-            var filePath = Path.Combine(targetDir, file.Name);
+            var filePath = Path.Join(targetDir, file.Name);
             if (!File.Exists(filePath))
             {
                 file.CopyTo(filePath, overwrite: false);
@@ -246,7 +246,7 @@ internal class Project
 
         foreach (var subDir in directory.GetDirectories())
         {
-            CopyDirectoryRecursive(subDir.FullName, Path.Combine(targetDir, subDir.Name));
+            CopyDirectoryRecursive(subDir.FullName, Path.Join(targetDir, subDir.Name));
         }
     }
 

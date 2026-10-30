@@ -455,7 +455,9 @@ ORDER BY "cid"
                 column.DefaultValue = (Half)halfValue;
             }
             else if (defaultValueSql.StartsWith('\'')
-                     && defaultValueSql.EndsWith('\''))
+                     && defaultValueSql.EndsWith('\'')
+                     // Not a single string literal, e.g. 'a' || 'b'
+                     && !defaultValueSql[1..^1].Replace("''", "").Contains('\''))
             {
                 defaultValueSql = defaultValueSql[1..^1].Replace("''", "'");
 

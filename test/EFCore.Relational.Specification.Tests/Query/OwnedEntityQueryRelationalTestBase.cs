@@ -767,6 +767,164 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
 
     #endregion
 
+    #region 35862
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Owned_collection_select_many_with_result_selector(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context35862>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Set<Context35862.DocumentTest>()
+            .SelectMany(x => x.Versions, (d, v) => new { d, v });
+        var result = async
+            ? await query.ToListAsync()
+            : query.ToList();
+        Assert.Equal(result.Count, 2);
+        Assert.Collection(
+            result.OrderBy(t => t.v.Number),
+            t =>
+            {
+                Assert.Equal("Foo", t.d.PrintMargin.Foo);
+                Assert.Equal(3, t.v.Number);
+            },
+            t =>
+            {
+                Assert.Equal("Foo", t.d.PrintMargin.Foo);
+                Assert.Equal(4, t.v.Number);
+            });
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Owned_collection_select_many_without_result_selector(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context35862>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Set<Context35862.DocumentTest>()
+            .SelectMany(x => x.Versions.Select(y => new { d = x, v = y }));
+        var result = async
+            ? await query.ToListAsync()
+            : query.ToList();
+        Assert.Equal(result.Count, 2);
+        Assert.Collection(
+            result.OrderBy(t => t.v.Number),
+            t =>
+            {
+                Assert.Equal("Foo", t.d.PrintMargin.Foo);
+                Assert.Equal(3, t.v.Number);
+            },
+            t =>
+            {
+                Assert.Equal("Foo", t.d.PrintMargin.Foo);
+                Assert.Equal(4, t.v.Number);
+            });
+    }
+
+    //When owned entity with separate table is projected with CROSS APPLY,
+    //don't reference the separate table column inside CROSS APPLY subquery
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Owned_collection_select_many_without_result_selector_owned_in_separate_table(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context35862SeparateTable>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Set<Context35862SeparateTable.DocumentTest>()
+            .SelectMany(x => x.Versions.Select(y => new { d = x, v = y }));
+        var result = async
+            ? await query.ToListAsync()
+            : query.ToList();
+        Assert.Equal(2, result.Count);
+        Assert.Collection(
+            result.OrderBy(t => t.v.Number),
+            t =>
+            {
+                Assert.Equal("Foo", t.d.PrintMargin.Foo);
+                Assert.Equal(3, t.v.Number);
+            },
+            t =>
+            {
+                Assert.Equal("Foo", t.d.PrintMargin.Foo);
+                Assert.Equal(4, t.v.Number);
+            });
+    }
+
+    protected class Context35862SeparateTable(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<DocumentTest>().OwnsOne(d => d.PrintMargin, b => b.ToTable("PrintMargins"));
+        }
+
+        public Task SeedAsync()
+        {
+            Add(new DocumentTest
+            {
+                Versions = new() { new VersionTest { Number = 3 }, new VersionTest { Number = 4 } },
+                PrintMargin = new OwnedThing { Foo = "Foo" },
+            });
+
+            return SaveChangesAsync();
+        }
+
+        public class DocumentTest
+        {
+            public int Id { get; init; }
+            public List<VersionTest> Versions { get; init; } = new List<VersionTest>();
+            public OwnedThing PrintMargin { get; init; } = null!;
+        }
+
+        public class VersionTest
+        {
+            public int Id { get; init; }
+            public int Number { get; init; }
+        }
+
+        public class OwnedThing
+        {
+            public string Foo { get; set; } = null!;
+        }
+    }
+
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context35862(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<DocumentTest>().OwnsOne(d => d.PrintMargin);
+        }
+
+        public Task SeedAsync()
+        {
+            Add(new DocumentTest
+            {
+                Versions = new() { new VersionTest { Number = 3 }, new VersionTest { Number = 4 } },
+                PrintMargin = new OwnedThing { Foo = "Foo" },
+            });
+
+            return SaveChangesAsync();
+        }
+
+        public class DocumentTest
+        {
+            public int Id { get; init; }
+            public List<VersionTest> Versions { get; init; } = new List<VersionTest>();
+            public OwnedThing PrintMargin { get; init; } = null!;
+        }
+
+        public class VersionTest
+        {
+            public int Id { get; init; }
+            public int Number { get; init; }
+        }
+        public class OwnedThing
+        {
+            public string Foo { get; set; } = null!;
+        }
+    }
+
+    #endregion
+
     protected override DbContextOptionsBuilder AddNonSharedOptions(DbContextOptionsBuilder builder)
         => base.AddNonSharedOptions(builder).ConfigureWarnings(c => c
             .Log(RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning)

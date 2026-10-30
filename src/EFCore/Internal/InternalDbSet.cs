@@ -20,7 +20,8 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
     IAsyncEnumerable<TEntity>,
     IInfrastructure<DbContext>,
     IInfrastructure<IServiceProvider>,
-    IResettableService
+    IResettableService,
+    ILocalViewOwner
     where TEntity : class
 {
     private readonly DbContext _context;
@@ -546,6 +547,9 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
     /// </summary>
     void IResettableService.ResetState()
         => _localView?.Reset();
+
+    void ILocalViewOwner.OnStateManagerCleared()
+        => _localView?.OnStateManagerCleared();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
