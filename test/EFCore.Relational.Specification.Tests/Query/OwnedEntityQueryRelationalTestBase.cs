@@ -925,6 +925,89 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
 
     #endregion
 
+    #region 30458
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Owned_entity_where_before_include (bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context30458>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Set<Context30458.BaseMyClass>()
+                .Where(x => x.Id == 1 && x.Information.Boolean)
+                .Include(x => x.Information.Nav) ;
+
+        var result = async ? await query.ToListAsync() : query.ToList();
+
+        Assert.Single(result);
+        Assert.Equal(true, result[0].Information.Boolean);
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Owned_entity_where_after_include (bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context30458>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Set<Context30458.BaseMyClass>()
+                .Include(x => x.Information.Nav)
+                .Where(x => x.Id == 1 && x.Information.Boolean);
+
+        var result = async ? await query.ToListAsync() : query.ToList();
+        Assert.Single(result);
+        Assert.Equal(true, result[0].Information.Boolean);
+    }
+
+    protected class Context30458(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<BaseMyClass>().OwnsOne(e => e.Information);
+        }
+
+        public Task SeedAsync()
+        {
+            Add(new BaseMyClass
+            {
+                BaseEntityProperty = true,
+                Information = new Information
+                {
+                    Boolean = true,
+                    Nav = new()
+                }
+            });
+            Add(new BaseMyClass
+            {
+                BaseEntityProperty = true,
+                Information = new Information
+                {
+                    Boolean = false,
+                    Nav = new()
+                }
+            });
+            return SaveChangesAsync();
+        }
+
+        public class BaseMyClass
+        {
+            public int Id { get; set; }
+            public bool BaseEntityProperty { get; set; }
+            public Information Information { get; set; } = null!;
+        }
+
+        public class Information
+        {
+            public bool Boolean { get; set; }
+            public Nav Nav { get; set; } = null!;
+        }
+
+        public class Nav
+        {
+            public int Id { get; set; }
+        }
+    }
+
+    #endregion
+
     protected override DbContextOptionsBuilder AddNonSharedOptions(DbContextOptionsBuilder builder)
         => base.AddNonSharedOptions(builder).ConfigureWarnings(c => c
             .Log(RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning)
