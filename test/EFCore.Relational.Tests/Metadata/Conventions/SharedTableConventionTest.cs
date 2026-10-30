@@ -74,6 +74,8 @@ public class SharedTableConventionTest
             entity.HasKey(e => e.Id);
             var firstProperty = entity.ComplexProperty(e => e.First).IsRequired().Property(e => e.Value).Metadata;
             var secondProperty = entity.ComplexProperty(e => e.Second).IsRequired().Property(e => e.Value).Metadata;
+            ((IConventionProperty)firstProperty).Builder.HasColumnName("Value");
+            ((IConventionProperty)secondProperty).Builder.HasColumnName("Value");
             modelBuilder.Entity<TpcColumnDerived>().HasBaseType<TpcColumnBase>().ToTable("Columns");
 
             modelBuilder.Model.FinalizeModel();
@@ -147,6 +149,9 @@ public class SharedTableConventionTest
                 secondProperty = entity.ComplexProperty(e => e.Details).IsRequired()
                     .Property(e => e.Value).IsConcurrencyToken().Metadata;
             }
+
+            ((IConventionProperty)firstProperty).Builder.HasColumnName("Shared");
+            ((IConventionProperty)secondProperty).Builder.HasColumnName("Shared");
 
             var table = StoreObjectIdentifier.Table("Columns");
             Assert.Equal(firstProperty.GetColumnName(table), secondProperty.GetColumnName(table));

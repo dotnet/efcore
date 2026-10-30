@@ -1110,6 +1110,9 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
             entity.Ignore(e => e.Second);
         }
 
+        ((IConventionProperty)property).Builder.HasColumnName("Shared");
+        ((IConventionProperty)duplicateProperty).Builder.HasColumnName("Shared");
+
         var table = StoreObjectIdentifier.Table(complexDuplicate ? nameof(ConcurrencyColumnDerived) : nameof(ConcurrencyColumnBase));
         Assert.Equal(property.GetColumnName(table), duplicateProperty.GetColumnName(table));
 
