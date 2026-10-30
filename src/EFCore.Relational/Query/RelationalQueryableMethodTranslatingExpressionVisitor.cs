@@ -12,6 +12,19 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 {
     private const string SqlQuerySingleColumnAlias = "Value";
 
+    /// <summary>
+    ///     The number of aggregates which can be projected alongside a grouping's elements as window functions. The window values ride
+    ///     along with the element in a <see cref="ValueTuple" />, whose last type argument is a nested tuple rather than a value of its
+    ///     own; a projection with more aggregates than fit keeps the regular GROUP BY translation.
+    /// </summary>
+    private const int MaxWindowFunctionAggregates = 6;
+
+    private static readonly Type[] ValueTupleTypes =
+    [
+        typeof(ValueTuple<,>), typeof(ValueTuple<,,>), typeof(ValueTuple<,,,>), typeof(ValueTuple<,,,,>),
+        typeof(ValueTuple<,,,,,>), typeof(ValueTuple<,,,,,,>)
+    ];
+
     private readonly RelationalSqlTranslatingExpressionVisitor _sqlTranslator;
     private readonly SharedTypeEntityExpandingExpressionVisitor _sharedTypeEntityExpandingExpressionVisitor;
     private readonly RelationalProjectionBindingExpressionVisitor _projectionBindingExpressionVisitor;
@@ -900,25 +913,84 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             return null;
         }
 
-        var analyzer = new GroupingElementProjectionAnalyzer(groupByShaper);
+#pragma warning disable EF9001 // Window function support is experimental
+        var analyzer = new GroupingElementProjectionAnalyzer(groupByShaper, _queryCompilationContext.UseWindowFunctionAggregates);
+#pragma warning restore EF9001
         if (!analyzer.Analyze(projection))
         {
             return null;
         }
 
+        var elementType = analyzer.ElementSelector?.ReturnType ?? groupByShaper.ElementSelector.Type;
+
+        // Aggregates projected alongside the elements become window functions over the very same rows: the GROUP BY is dropped just as
+        // it is for an elements-only projection, and each aggregate is projected as OVER (PARTITION BY <grouping key>), which repeats
+        // it on every row of the partition. The element therefore becomes a tuple of the element proper and those window values, and
+        // the client selector reads each value back off the first element of the materialized grouping.
+#pragma warning disable EF9001 // Window function support is experimental
+        var windowFunctions = Array.Empty<WindowFunctionExpression>();
+        if (analyzer.Aggregates.Count > 0)
+        {
+            if (analyzer.Aggregates.Count > MaxWindowFunctionAggregates)
+            {
+                return null;
+            }
+
+            var partitions = selectExpression.GroupBy.ToArray();
+            windowFunctions = new WindowFunctionExpression[analyzer.Aggregates.Count];
+            for (var i = 0; i < windowFunctions.Length; i++)
+            {
+                // SQL applies OVER to the aggregate itself, so only an aggregate which translates to a bare function call can carry a
+                // window. An aggregate whose translation wraps the function - Sum and Average over a float become a CAST around it -
+                // keeps the regular GROUP BY translation, as does one the provider can't evaluate over a window.
+                if (_sqlTranslator.Translate(analyzer.Aggregates[i]) is not SqlFunctionExpression aggregate
+                    || !CanTranslateAggregateAsWindowFunction(aggregate))
+                {
+                    return null;
+                }
+
+                windowFunctions[i] = new WindowFunctionExpression(aggregate, partitions, orderings: null, typeMapping: null);
+            }
+
+            elementType = MakeWindowFunctionElementType(elementType, windowFunctions);
+        }
+#pragma warning restore EF9001
+
         // Build the client-side selector before anything gets composed into the SelectExpression: composing mutates it, and there's no
         // way back to the correlated subquery translation afterwards.
         var groupingParameter = Expression.Parameter(
-            typeof(IGrouping<,>).MakeGenericType(
-                groupByShaper.KeySelector.Type,
-                analyzer.ElementSelector?.ReturnType ?? groupByShaper.ElementSelector.Type),
-            "g");
+            typeof(IGrouping<,>).MakeGenericType(groupByShaper.KeySelector.Type, elementType), "g");
 
         var resultSelector = Expression.Lambda(analyzer.Rewrite(projection, groupingParameter), groupingParameter);
 
-        var elementShaper = analyzer.ElementSelector is { } elementSelector
-            ? TranslateSelect(source.UpdateShaperExpression(groupByShaper.ElementSelector), elementSelector).ShaperExpression
-            : groupByShaper.ElementSelector;
+        Expression elementShaper;
+        if (windowFunctions.Length > 0)
+        {
+            var elementBody = analyzer.ElementSelector is { } windowElementSelector
+                ? RemapLambdaBody(source.UpdateShaperExpression(groupByShaper.ElementSelector), windowElementSelector)
+                : groupByShaper.ElementSelector;
+
+            var typeArguments = elementType.GetGenericArguments();
+            var arguments = new Expression[typeArguments.Length];
+            arguments[0] = elementBody;
+            for (var i = 0; i < windowFunctions.Length; i++)
+            {
+                // The window values are carried in their nullable form: a projection is read back as nullable whatever the aggregate's
+                // own type says, and converting a null one to a non-nullable field would throw while materializing.
+                arguments[i + 1] = windowFunctions[i].Type == typeArguments[i + 1]
+                    ? windowFunctions[i]
+                    : Expression.Convert(windowFunctions[i], typeArguments[i + 1]);
+            }
+
+            elementShaper = _projectionBindingExpressionVisitor.Translate(
+                selectExpression, Expression.New(elementType.GetConstructor(typeArguments)!, arguments));
+        }
+        else
+        {
+            elementShaper = analyzer.ElementSelector is { } elementSelector
+                ? TranslateSelect(source.UpdateShaperExpression(groupByShaper.ElementSelector), elementSelector).ShaperExpression
+                : groupByShaper.ElementSelector;
+        }
 
         // With the GROUP BY gone, the groupings are assembled on the client from rows ordered by the grouping key, starting a new one
         // whenever the key changes. Comparing the key on the client would use CLR equality, which can disagree with the database's: under
@@ -1031,6 +1103,37 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             _projectionBindingExpressionVisitor.Translate(
                 selectExpression, ReplacingExpressionVisitor.Replace(elementReadPlaceholder, element, remappedProjection)));
     }
+
+    /// <summary>
+    ///     Checks whether the given aggregate function can be evaluated over a window, i.e. whether the database accepts an <c>OVER</c>
+    ///     clause applied to it.
+    /// </summary>
+    /// <remarks>
+    ///     Providers override this to reject aggregates which they translate to functions of their own, e.g. user-defined aggregates
+    ///     which the database doesn't allow as window functions.
+    /// </remarks>
+    /// <param name="function">The translated aggregate function.</param>
+    /// <returns><see langword="true" /> if the aggregate can be translated as a window function.</returns>
+    [Experimental(EFDiagnostics.ExperimentalApi)]
+    protected virtual bool CanTranslateAggregateAsWindowFunction(SqlFunctionExpression function)
+        => true;
+
+    /// <summary>
+    ///     Builds the type of a grouping element which carries window function values alongside the element itself.
+    /// </summary>
+#pragma warning disable EF9001 // Window function support is experimental
+    private static Type MakeWindowFunctionElementType(Type elementType, IReadOnlyList<WindowFunctionExpression> windowFunctions)
+    {
+        var typeArguments = new Type[windowFunctions.Count + 1];
+        typeArguments[0] = elementType;
+        for (var i = 0; i < windowFunctions.Count; i++)
+        {
+            typeArguments[i + 1] = windowFunctions[i].Type.MakeNullable();
+        }
+
+        return ValueTupleTypes[windowFunctions.Count - 1].MakeGenericType(typeArguments);
+    }
+#pragma warning restore EF9001
 
     private Expression? TranslateGroupingKey(Expression expression)
     {
@@ -1576,13 +1679,16 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     ///     splits them into the element projection (which gets composed into the grouping's element selector, server-side) and the rest
     ///     of the projection (which gets applied on the client to each materialized grouping).
     /// </summary>
-    private sealed class GroupingElementProjectionAnalyzer(RelationalGroupByShaperExpression groupByShaper) : ExpressionVisitor
+    private sealed class GroupingElementProjectionAnalyzer(
+        RelationalGroupByShaperExpression groupByShaper,
+        bool useWindowFunctionAggregates) : ExpressionVisitor
     {
         private static readonly MethodInfo[] ElementEnumerationMethods =
             [EnumerableMethods.ToList, EnumerableMethods.ToArray, EnumerableMethods.AsEnumerable];
 
         private List<MethodInfo> _enumerationMethods = [];
         private Expression? _elements;
+        private readonly List<Expression> _aggregates = [];
         private ParameterExpression? _groupingParameter;
         private bool _unsupported;
 
@@ -1590,6 +1696,12 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         ///     The projection applied to the elements of the grouping, or <see langword="null" /> if they're enumerated as-is.
         /// </summary>
         public LambdaExpression? ElementSelector { get; private set; }
+
+        /// <summary>
+        ///     The aggregates projected alongside the elements, in the order of the window values which carry them.
+        /// </summary>
+        public IReadOnlyList<Expression> Aggregates
+            => _aggregates;
 
         /// <summary>
         ///     Checks whether the given projection over the grouping can be applied on the client, over materialized groupings.
@@ -1600,7 +1712,14 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
             // Projections which don't enumerate the elements at all (aggregates, or just the key) are better off translated as usual,
             // on the server.
-            return !_unsupported && _elements != null;
+            if (_unsupported || _elements is null)
+            {
+                return false;
+            }
+
+            // The elements are projected as the grouping itself rather than as a sequence of them, so there's no projection to carry
+            // the window values on: rewriting the grouping would change the type the query asked for.
+            return _aggregates.Count == 0 || !ReferenceEquals(_elements, groupByShaper);
         }
 
         /// <summary>
@@ -1646,6 +1765,27 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             else if (ReferenceEquals(expression, _elements))
             {
                 return _groupingParameter is null ? expression : RewriteElements();
+            }
+
+            if (useWindowFunctionAggregates)
+            {
+                // The same aggregate projected more than once is carried by a single window value.
+                var aggregateIndex = _aggregates.FindIndex(a => ExpressionEqualityComparer.Instance.Equals(a, expression));
+                if (aggregateIndex >= 0)
+                {
+                    return _groupingParameter is null ? expression : RewriteAggregate(aggregateIndex);
+                }
+
+                // A conversion around the aggregate is part of it, and gets translated with it: on the server it can be a CAST with
+                // semantics of its own (a decimal cast rounds), which moving it to the client would lose. If it translates to a CAST
+                // around the function, the aggregate can't carry a window and the projection keeps the GROUP BY translation; a conversion
+                // the server doesn't need, such as to a nullable type, translates to nothing and the aggregate is windowed as usual.
+                if (_groupingParameter is null && IsAggregateOverGrouping(RemoveConversions(expression)))
+                {
+                    _aggregates.Add(expression);
+
+                    return expression;
+                }
             }
 
             switch (expression)
@@ -1736,10 +1876,99 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             return true;
         }
 
+        private static Expression RemoveConversions(Expression expression)
+        {
+            while (expression is UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } conversion)
+            {
+                expression = conversion.Operand;
+            }
+
+            return expression;
+        }
+
+        /// <summary>
+        ///     Checks whether the given expression is an aggregate applied directly to the grouping, e.g. <c>g.Sum(e => e.Value)</c>.
+        /// </summary>
+        private bool IsAggregateOverGrouping(Expression expression)
+        {
+            if (expression is not MethodCallExpression { Object: null, Arguments.Count: > 0 } methodCall
+                || methodCall.Method.DeclaringType != typeof(Queryable))
+            {
+                return false;
+            }
+
+            var genericMethod = methodCall.Method.IsGenericMethod
+                ? methodCall.Method.GetGenericMethodDefinition()
+                : methodCall.Method;
+
+            // Only the aggregates SQL evaluates the same way over a window as over a group. Notably absent is anything counting
+            // distinct values: COUNT(DISTINCT x) OVER (...) isn't supported by SQL Server.
+            if (genericMethod != QueryableMethods.CountWithoutPredicate
+                && genericMethod != QueryableMethods.CountWithPredicate
+                && genericMethod != QueryableMethods.LongCountWithoutPredicate
+                && genericMethod != QueryableMethods.LongCountWithPredicate
+                && genericMethod != QueryableMethods.MinWithoutSelector
+                && genericMethod != QueryableMethods.MinWithSelector
+                && genericMethod != QueryableMethods.MaxWithoutSelector
+                && genericMethod != QueryableMethods.MaxWithSelector
+                && !QueryableMethods.IsSumWithoutSelector(genericMethod)
+                && !QueryableMethods.IsSumWithSelector(genericMethod)
+                && !QueryableMethods.IsAverageWithoutSelector(genericMethod)
+                && !QueryableMethods.IsAverageWithSelector(genericMethod))
+            {
+                return false;
+            }
+
+            // The aggregate has to be over the grouping itself. Anything in between - a Where, a Distinct, a Select whose result is
+            // then aggregated - either changes the rows the aggregate sees or needs a window form SQL doesn't offer.
+            var source = methodCall.Arguments[0];
+            if (source is MethodCallExpression
+                {
+                    Object: null, Method.IsGenericMethod: true, Arguments: [var asQueryableSource]
+                } asQueryable
+                && asQueryable.Method.GetGenericMethodDefinition() == QueryableMethods.AsQueryable)
+            {
+                source = asQueryableSource;
+            }
+
+            return ReferenceEquals(source, groupByShaper);
+        }
+
+        /// <summary>
+        ///     Rewrites an aggregate into a read of the window value carried by the grouping's elements. Every row of the partition
+        ///     carries the same value, so the first materialized element has it.
+        /// </summary>
+        private Expression RewriteAggregate(int index)
+        {
+            var elementType = _groupingParameter!.Type.GetGenericArguments()[1];
+
+            Expression value = Expression.Field(
+                Expression.Call(EnumerableMethods.FirstWithoutPredicate.MakeGenericMethod(elementType), _groupingParameter),
+                "Item" + (index + 2));
+
+            return value.Type == _aggregates[index].Type
+                ? value
+                : Expression.Convert(value, _aggregates[index].Type);
+        }
+
         private Expression RewriteElements()
         {
             var elementType = _groupingParameter!.Type.GetGenericArguments()[1];
             var elements = (Expression)_groupingParameter;
+
+            if (_aggregates.Count > 0)
+            {
+                // The element carries the window values alongside the element proper; project the element proper back out of it.
+                var innerElementType = elementType.GetGenericArguments()[0];
+                var tupleParameter = Expression.Parameter(elementType, "t");
+
+                elements = Expression.Call(
+                    EnumerableMethods.Select.MakeGenericMethod(elementType, innerElementType),
+                    elements,
+                    Expression.Lambda(Expression.Field(tupleParameter, "Item1"), tupleParameter));
+
+                elementType = innerElementType;
+            }
 
             // The elements are enumerated as a queryable (over the grouping) rather than as a plain sequence; keep that type, the
             // enumeration around it may well depend on it.
