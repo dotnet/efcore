@@ -3648,6 +3648,47 @@ ORDER BY [p0].[Tag]
 """);
     }
 
+    public override async Task Distinct_complex_type_with_value_converted_reference_type_with_collection(bool async)
+    {
+        await base.Distinct_complex_type_with_value_converted_reference_type_with_collection(async);
+
+        AssertSql(
+            """
+SELECT [p0].[Details_Rating], [p0].[Details_Tag], [p1].[Id]
+FROM (
+    SELECT DISTINCT [p].[Details_Rating], [p].[Details_Tag]
+    FROM [Posts] AS [p]
+) AS [p0]
+LEFT JOIN [Posts] AS [p1] ON [p0].[Details_Tag] = [p1].[Details_Tag]
+ORDER BY [p0].[Details_Rating], [p0].[Details_Tag]
+""");
+    }
+
+    public override async Task Distinct_complex_type_with_value_converted_reference_type_with_split_collection(bool async)
+    {
+        await base.Distinct_complex_type_with_value_converted_reference_type_with_split_collection(async);
+
+        AssertSql(
+            """
+SELECT [p0].[Details_Rating], [p0].[Details_Tag]
+FROM (
+    SELECT DISTINCT [p].[Details_Rating], [p].[Details_Tag]
+    FROM [Posts] AS [p]
+) AS [p0]
+ORDER BY [p0].[Details_Rating], [p0].[Details_Tag]
+""",
+            //
+            """
+SELECT [p3].[Id], [p0].[Details_Rating], [p0].[Details_Tag]
+FROM (
+    SELECT DISTINCT [p].[Details_Rating], [p].[Details_Tag]
+    FROM [Posts] AS [p]
+) AS [p0]
+INNER JOIN [Posts] AS [p3] ON [p0].[Details_Tag] = [p3].[Details_Tag]
+ORDER BY [p0].[Details_Rating], [p0].[Details_Tag]
+""");
+    }
+
     public override async Task Distinct_value_converted_object_with_collection(bool async)
     {
         await base.Distinct_value_converted_object_with_collection(async);

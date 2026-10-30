@@ -2288,6 +2288,102 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        // A distinct complex type is identified by all its columns, which include a converted property's.
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Distinct_complex_type_with_value_converted_reference_type_with_collection(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<ContextConvertedReferenceInComplexType>(seed: c => c.SeedAsync());
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Posts
+                .Select(p => p.Details)
+                .Distinct()
+                .Select(d => new { Details = d, Ids = context.Posts.Where(p => p.Details.Tag == d.Tag).Select(p => p.Id).ToList() });
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            AssertDetails(result.Select(r => (r.Details, r.Ids)));
+        }
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Distinct_complex_type_with_value_converted_reference_type_with_split_collection(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<ContextConvertedReferenceInComplexType>(seed: c => c.SeedAsync());
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Posts
+                .Select(p => p.Details)
+                .Distinct()
+                .Select(d => new { Details = d, Ids = context.Posts.Where(p => p.Details.Tag == d.Tag).Select(p => p.Id).ToList() })
+                .AsSplitQuery();
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            AssertDetails(result.Select(r => (r.Details, r.Ids)));
+        }
+
+        private static void AssertDetails(IEnumerable<(ContextConvertedReferenceInComplexType.Details Details, List<int> Ids)> result)
+            => Assert.Collection(
+                result.OrderBy(r => r.Details.Tag.Name).ThenBy(r => r.Details.Rating),
+                efcore1 =>
+                {
+                    Assert.Equal(("efcore", 1), (efcore1.Details.Tag.Name, efcore1.Details.Rating));
+                    Assert.Equal([1, 2, 3], efcore1.Ids.Order());
+                },
+                efcore2 =>
+                {
+                    Assert.Equal(("efcore", 2), (efcore2.Details.Tag.Name, efcore2.Details.Rating));
+                    Assert.Equal([1, 2, 3], efcore2.Ids.Order());
+                },
+                linq =>
+                {
+                    Assert.Equal(("linq", 1), (linq.Details.Tag.Name, linq.Details.Rating));
+                    Assert.Equal([4], linq.Ids);
+                });
+
+        // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+        protected class ContextConvertedReferenceInComplexType(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<Post> Posts
+                => Set<Post>();
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Post>().Property(p => p.Id).ValueGeneratedNever();
+                modelBuilder.Entity<Post>().ComplexProperty(
+                    p => p.Details, d => d.Property(d => d.Tag).HasConversion(t => t.Name, n => new Tag { Name = n }));
+            }
+
+            public Task SeedAsync()
+            {
+                AddRange(
+                    new Post { Id = 1, Details = new Details { Tag = new Tag { Name = "efcore" }, Rating = 1 } },
+                    new Post { Id = 2, Details = new Details { Tag = new Tag { Name = "efcore" }, Rating = 1 } },
+                    new Post { Id = 3, Details = new Details { Tag = new Tag { Name = "efcore" }, Rating = 2 } },
+                    new Post { Id = 4, Details = new Details { Tag = new Tag { Name = "linq" }, Rating = 1 } });
+
+                return SaveChangesAsync();
+            }
+
+            public class Post
+            {
+                public int Id { get; set; }
+                public Details Details { get; set; } = null!;
+            }
+
+            public class Details
+            {
+                public Tag Tag { get; set; } = null!;
+                public int Rating { get; set; }
+            }
+
+            // Deliberately without Equals/GetHashCode overrides: two instances read from the same database value are distinct.
+            public class Tag
+            {
+                public string Name { get; set; } = null!;
+            }
+        }
+
         [Theory, MemberData(nameof(IsAsyncData))]
         public virtual async Task Distinct_value_converted_string_with_nondeterministic_write_with_collection(bool async)
         {
