@@ -940,6 +940,7 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
 
         Assert.Single(result);
         Assert.Equal(true, result[0].Information.Boolean);
+        Assert.NotNull(result[0].Information.Nav);
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
