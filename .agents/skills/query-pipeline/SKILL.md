@@ -17,6 +17,7 @@ user-invocable: false
 
 - Translation fallback must distinguish established unsupported shapes from unexpected defects. Do not turn arbitrary exceptions into a successful fallback.
 - Check whether a failed rewrite mutated state that fallback will reuse. For test coordination, establish the actual collection, assembly, and async-flow boundaries before claiming shared static state can race; theory rows are not inherently parallel, and reset in `finally` is not mutual exclusion.
+- During precompilation, non-lambda operator arguments become dummy constants; equal dummy values must not cause parameter reuse. Include enclosing local-function captures when discovering query inputs, since Roslyn's `DataFlowsIn` can omit them.
 
 ## Optimizations
 
