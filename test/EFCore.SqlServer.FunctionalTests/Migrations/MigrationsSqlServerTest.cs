@@ -804,14 +804,14 @@ ALTER TABLE [Entity] ADD [OwnedRequiredReference] nvarchar(max) NOT NULL DEFAULT
      InlineData(false, true),
      InlineData(true, true),
      InlineData(null, true)]
-    public virtual async Task Add_column_computed_includes_not_null_if_persisted_and_not_nullable(bool? stored, bool isNullable)
+    public virtual async Task Add_column_computed_includes_not_null_if_persisted_and_not_nullable(bool? stored, bool nullable)
     {
         await Test(
             builder => builder.Entity(
                 "People", e =>
                 {
                     e.Property<int>("Id");
-                    if (isNullable)
+                    if (nullable)
                     {
                         e.Property<DateTime?>("FullDate");
                     }
@@ -823,7 +823,7 @@ ALTER TABLE [Entity] ADD [OwnedRequiredReference] nvarchar(max) NOT NULL DEFAULT
             builder => {},
             builder =>
             {
-                if(isNullable)
+                if(nullable)
                 {
                     builder.Entity("People").Property<DateTime?>("ComputedDate")
                         .HasComputedColumnSql("CAST([FullDate] AS date)", stored);
@@ -838,7 +838,7 @@ ALTER TABLE [Entity] ADD [OwnedRequiredReference] nvarchar(max) NOT NULL DEFAULT
             {
                 var table = Assert.Single(model.Tables);
                 var computedDateColumn = Assert.Single(table.Columns, c => c.Name == "ComputedDate");
-                Assert.Equal(isNullable || stored != true, computedDateColumn.IsNullable);
+                Assert.Equal(nullable || stored != true, computedDateColumn.IsNullable);
                 if (AssertComputedColumns)
                 {
                     Assert.Contains("FullDate", computedDateColumn.ComputedColumnSql);
@@ -853,7 +853,7 @@ ALTER TABLE [Entity] ADD [OwnedRequiredReference] nvarchar(max) NOT NULL DEFAULT
         var computedColumnTypeSql = stored == true ? " PERSISTED" : "";
         // persisted computed columns can contain NOT NULL constraint but cannot contain NULL constraint
         // non-persisted computed columns cannot contain neither NOT NULL nor NULL constraint
-        var nullableColumnType = stored == true && !isNullable ? " NOT NULL" : "";
+        var nullableColumnType = stored == true && !nullable ? " NOT NULL" : "";
 
         AssertSql(
             $"""
