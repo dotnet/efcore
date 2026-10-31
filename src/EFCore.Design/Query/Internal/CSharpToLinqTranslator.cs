@@ -102,7 +102,15 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
 
         // Perform data flow analysis to detect all variables flowing into the query (e.g. captured variables)
         _dataFlowsIn.Clear();
-        foreach (var flowsIn in _semanticModel.AnalyzeDataFlow(node).DataFlowsIn)
+        var dataFlow = _semanticModel.AnalyzeDataFlow(node);
+
+        // Analysis fails when the query is the receiver of an instance call (dotnet/roslyn#86099)
+        for (var parent = node.Parent; !dataFlow.Succeeded && parent is ExpressionSyntax; parent = parent.Parent)
+        {
+            dataFlow = _semanticModel.AnalyzeDataFlow(parent);
+        }
+
+        foreach (var flowsIn in dataFlow.DataFlowsIn)
         {
             _dataFlowsIn[flowsIn] = null;
         }

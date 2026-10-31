@@ -6828,6 +6828,32 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
+    [Theory, InlineData(false), InlineData(true)] // Issue #34167
+    public virtual async Task Lazy_load_reference_failure_after_fixup_is_not_hidden(bool async)
+    {
+        if (!LazyLoadingEnabled)
+        {
+            return;
+        }
+
+        using var context = CreateContext(lazyLoadingEnabled: true);
+        var child = context.Set<Child>().Single(e => e.Id == 12);
+
+        // Fail the load once the parent is tracked, and so already fixed up to the child,
+        // like a query failing part way through
+        context.ChangeTracker.Tracked += (_, args) =>
+        {
+            if (args.Entry.Entity is Parent)
+            {
+                throw new InvalidOperationException("The load failed.");
+            }
+        };
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => child.LazyLoadParent(async));
+
+        Assert.Equal("The load failed.", exception.Message);
+    }
+
     protected virtual bool LazyLoadingEnabled
         => true;
 }

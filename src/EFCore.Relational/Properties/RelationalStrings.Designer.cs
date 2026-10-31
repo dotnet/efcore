@@ -106,6 +106,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, property);
 
         /// <summary>
+        ///     The complex collection '{complexCollection}' and the complex property '{complexProperty}' are both mapped to JSON column '{column}' in table '{table}', but a complex collection can't share a JSON column with a complex property that isn't a collection. Configure a different JSON column name for one of them by passing it to 'ToJson()'.
+        /// </summary>
+        public static string ComplexCollectionSharedJsonColumn(object? complexCollection, object? complexProperty, object? column, object? table)
+            => string.Format(
+                GetString("ComplexCollectionSharedJsonColumn", nameof(complexCollection), nameof(complexProperty), nameof(column), nameof(table)),
+                complexCollection, complexProperty, column, table);
+
+        /// <summary>
+        ///     The complex properties '{complexProperty1}' and '{complexProperty2}' are both mapped to JSON column '{column}' in table '{table}'. Configure a different JSON column name for one of them by passing it to 'ToJson()'.
+        /// </summary>
+        public static string ComplexPropertiesSharedJsonColumn(object? complexProperty1, object? complexProperty2, object? column, object? table)
+            => string.Format(
+                GetString("ComplexPropertiesSharedJsonColumn", nameof(complexProperty1), nameof(complexProperty2), nameof(column), nameof(table)),
+                complexProperty1, complexProperty2, column, table);
+
+        /// <summary>
         ///     Complex property '{complexProperty}' cannot have both a JSON column name ('{columnName}') and a JSON property name ('{propertyName}') configured. Use 'ToJson()' to map to a JSON column or 'HasJsonPropertyName()' to map as a JSON property within a containing JSON column, but not both.
         /// </summary>
         public static string ComplexPropertyBothJsonColumnAndJsonPropertyName(object? complexProperty, object? columnName, object? propertyName)
@@ -1656,6 +1672,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("NestedCollectionsNotSupported", nameof(propertyType), nameof(type), nameof(property)),
                 propertyType, type, property);
+
+        /// <summary>
+        ///     Complex property '{complexProperty}' is mapped to JSON column '{column}', but its containing type '{containingType}' is already mapped to JSON column '{containingColumn}'. Only call 'ToJson()' on the outermost type mapped to JSON.
+        /// </summary>
+        public static string NestedComplexPropertyJsonColumn(object? complexProperty, object? column, object? containingType, object? containingColumn)
+            => string.Format(
+                GetString("NestedComplexPropertyJsonColumn", nameof(complexProperty), nameof(column), nameof(containingType), nameof(containingColumn)),
+                complexProperty, column, containingType, containingColumn);
 
         /// <summary>
         ///     Complex property '{complexProperty}' is mapped to JSON but its containing type '{containingType}' is not. Map the root complex type to JSON. See https://github.com/dotnet/efcore/issues/36558.

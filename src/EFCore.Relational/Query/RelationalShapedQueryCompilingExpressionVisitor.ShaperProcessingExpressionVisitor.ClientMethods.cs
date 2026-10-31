@@ -491,7 +491,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             var dbDataReader = dataReaderContext.DataReader.DbDataReader;
             if (splitQueryCollectionContext.Parent is TIncludingEntity entity)
             {
-                while (dataReaderContext.HasNext ?? dbDataReader.Read())
+                while (dataReaderContext.HasNext ?? dataReaderContext.DataReader.Read())
                 {
                     if (!CompareIdentifiers(
                             identifierValueComparers,
@@ -590,7 +590,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             var dbDataReader = dataReaderContext.DataReader.DbDataReader;
             if (splitQueryCollectionContext.Parent is TIncludingEntity entity)
             {
-                while (dataReaderContext.HasNext ?? await dbDataReader.ReadAsync(queryContext.CancellationToken).ConfigureAwait(false))
+                while (dataReaderContext.HasNext ?? await dataReaderContext.DataReader.ReadAsync(queryContext.CancellationToken).ConfigureAwait(false))
                 {
                     if (!CompareIdentifiers(
                             identifierValueComparers,
@@ -860,7 +860,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 return;
             }
 
-            while (dataReaderContext.HasNext ?? dbDataReader.Read())
+            while (dataReaderContext.HasNext ?? dataReaderContext.DataReader.Read())
             {
                 if (!CompareIdentifiers(
                         identifierValueComparers,
@@ -954,7 +954,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 return;
             }
 
-            while (dataReaderContext.HasNext ?? await dbDataReader.ReadAsync(queryContext.CancellationToken).ConfigureAwait(false))
+            while (dataReaderContext.HasNext ?? await dataReaderContext.DataReader.ReadAsync(queryContext.CancellationToken).ConfigureAwait(false))
             {
                 if (!CompareIdentifiers(
                         identifierValueComparers,

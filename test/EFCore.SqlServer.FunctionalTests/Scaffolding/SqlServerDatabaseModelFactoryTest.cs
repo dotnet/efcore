@@ -4671,6 +4671,38 @@ CREATE TABLE MyTable (
             "DROP TABLE MyTable;");
 
     [Fact]
+    public void String_concatenation_default_values_are_passed_through()
+        => Test(
+            @"
+CREATE TABLE MyTable (
+    Id int,
+    A nvarchar(max) DEFAULT N'a' + N'b',
+    B varchar(max) DEFAULT ('It''s' + '!'),
+);",
+            [],
+            [],
+            (dbModel, scaffoldingFactory) =>
+            {
+                var columns = dbModel.Tables.Single().Columns;
+
+                var column = columns.Single(c => c.Name == "A");
+                Assert.Equal("(N'a'+N'b')", column.DefaultValueSql);
+                Assert.Null(column.DefaultValue);
+
+                column = columns.Single(c => c.Name == "B");
+                Assert.Equal("('It''s'+'!')", column.DefaultValueSql);
+                Assert.Null(column.DefaultValue);
+
+                var model = scaffoldingFactory.Create(dbModel, new ModelReverseEngineerOptions());
+                var entityType = model.GetEntityTypes().Single();
+                Assert.Null(entityType.GetProperty("A").GetDefaultValue());
+                Assert.Equal("(N'a'+N'b')", entityType.GetProperty("A").GetDefaultValueSql());
+                Assert.Null(entityType.GetProperty("B").GetDefaultValue());
+                Assert.Equal("('It''s'+'!')", entityType.GetProperty("B").GetDefaultValueSql());
+            },
+            "DROP TABLE MyTable;");
+
+    [Fact]
     public void ValueGenerated_is_set_for_identity_and_computed_column()
         => Test(
             @"

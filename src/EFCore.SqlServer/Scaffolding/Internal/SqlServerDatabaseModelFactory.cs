@@ -917,8 +917,14 @@ LEFT JOIN [sys].[default_constraints] AS [dc] ON [c].[object_id] = [dc].[parent_
             && defaultValueSql.EndsWith('\''))
         {
             var startIndex = defaultValueSql.IndexOf('\'');
-            defaultValueSql = defaultValueSql.Substring(startIndex + 1, defaultValueSql.Length - (startIndex + 2))
-                .Replace("''", "'");
+            var literal = defaultValueSql.Substring(startIndex + 1, defaultValueSql.Length - (startIndex + 2));
+            if (literal.Replace("''", "").Contains('\''))
+            {
+                // Not a single string literal, e.g. N'a' + N'b'
+                return null;
+            }
+
+            defaultValueSql = literal.Replace("''", "'");
 
             if (type == typeof(string))
             {

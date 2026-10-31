@@ -946,7 +946,7 @@ partial class Snapshot : ModelSnapshot
                     .ValueGeneratedOnAdd()
                     .HasColumnType("int");
 
-                SqlServerPropertyBuilderExtensions.UseHiLo(id);
+                SqlServerPropertyBuilderExtensions.UseHiLo(id, "EntityFrameworkHiLoSequence");
 
                 b.HasKey("Id");
 
@@ -1005,6 +1005,31 @@ partial class Snapshot : ModelSnapshot
                     SqlServerValueGenerationStrategy.Sequence,
                     SqlServerPropertyExtensions.GetValueGenerationStrategy(o.GetEntityTypes().Single().GetProperty("Id")));
             });
+
+    [Theory]
+    [InlineData(null, null)]
+    [InlineData("HiLoSequence", null)]
+    [InlineData(null, "HiLoSchema")]
+    [InlineData("HiLoSequence", "HiLoSchema")]
+    public virtual void Model_HiLo_sequence_is_preserved_in_snapshot(string? sequenceName, string? sequenceSchema)
+        => Test(
+            builder =>
+            {
+                builder.HasDefaultSchema(null);
+                builder.UseHiLo(sequenceName, sequenceSchema);
+                builder.Entity("Entity").Property<int>("Id");
+            },
+            $"SqlServerPropertyBuilderExtensions.UseHiLo(id, \"{sequenceName ?? SqlServerModelExtensions.DefaultHiLoSequenceName}\""
+            + (sequenceSchema is null ? ");" : $", \"{sequenceSchema}\");"),
+            o =>
+            {
+                var sequence = Assert.Single(o.GetSequences());
+                Assert.Equal(sequenceName ?? SqlServerModelExtensions.DefaultHiLoSequenceName, sequence.Name);
+                Assert.Equal(sequenceSchema, sequence.Schema);
+                Assert.Equal(10, sequence.IncrementBy);
+                Assert.Same(sequence, o.FindEntityType("Entity")!.FindProperty("Id")!.FindHiLoSequence());
+            },
+            fullSnapshot: false);
 
     [Fact]
     public virtual void Model_default_schema_annotation_is_stored_in_snapshot_as_fluent_api()
@@ -9306,7 +9331,7 @@ partial class Snapshot : ModelSnapshot
                         BytesCollection = "[\"AQI=\",\"AwQ=\"]",
                         Character = "9",
                         DateTime = new DateTime(1973, 9, 3, 12, 10, 42, 344, DateTimeKind.Utc),
-                        DateTimeCollection = "[\"2023-09-07T00:00:00\",\"2023-11-14T00:00:00\"]",
+                        DateTimeCollection = "[\"2023-09-07T00:00:00.0000000\",\"2023-11-14T00:00:00.0000000\"]",
                         DateTimeOffset = new DateTimeOffset(new DateTime(1973, 9, 3, 12, 10, 42, 344, DateTimeKind.Unspecified), new TimeSpan(0, 1, 0, 0, 0)),
                         Decimal = 50.0m,
                         Double = 49.0,
@@ -9471,7 +9496,7 @@ partial class Snapshot : ModelSnapshot
                         Assert.Equal("[1,2,3,4]", seed["Int32Collection"]);
                         Assert.Equal("[1.2,3.4]", seed["DoubleCollection"]);
                         Assert.Equal("[\"AB\",\"CD\"]", seed["StringCollection"]);
-                        Assert.Equal("[\"2023-09-07T00:00:00\",\"2023-11-14T00:00:00\"]", seed["DateTimeCollection"]);
+                        Assert.Equal("[\"2023-09-07T00:00:00.0000000\",\"2023-11-14T00:00:00.0000000\"]", seed["DateTimeCollection"]);
                         Assert.Equal("[true,false]", seed["BoolCollection"]);
                         Assert.Equal("[\"AQI=\",\"AwQ=\"]", seed["BytesCollection"]);
                     },

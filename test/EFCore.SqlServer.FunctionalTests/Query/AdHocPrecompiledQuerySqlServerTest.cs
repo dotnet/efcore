@@ -10,6 +10,52 @@ public class AdHocPrecompiledQuerySqlServerTest(NonSharedFixture fixture, ITestO
 {
     protected override bool AlwaysPrintGeneratedSources
         => false;
+          
+    protected override DbContextOptionsBuilder UseWindowFunctionAggregates(DbContextOptionsBuilder optionsBuilder)
+    {
+#pragma warning disable EF9001 // UseWindowFunctionAggregates is experimental
+        new SqlServerDbContextOptionsBuilder(optionsBuilder).UseWindowFunctionAggregates();
+#pragma warning restore EF9001
+        return optionsBuilder;
+    }
+
+    public override async Task GroupBy_elements_and_aggregates_as_window_functions()
+    {
+        await base.GroupBy_elements_and_aggregates_as_window_functions();
+
+        AssertSql(
+            """
+@p0='Engineering' (Nullable = false) (Size = 4000)
+@p1='100'
+@p2='Engineering' (Nullable = false) (Size = 4000)
+@p3='200'
+@p4='Sales' (Nullable = false) (Size = 4000)
+@p5='50'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+MERGE [Employees] USING (
+VALUES (@p0, @p1, 0),
+(@p2, @p3, 1),
+(@p4, @p5, 2)) AS i ([DepartmentName], [Salary], _Position) ON 1=0
+WHEN NOT MATCHED THEN
+INSERT ([DepartmentName], [Salary])
+VALUES (i.[DepartmentName], i.[Salary])
+OUTPUT INSERTED.[Id], i._Position;
+""",
+            //
+            """
+@excluded1='Finance' (Size = 4000)
+@excluded2='Legal' (Size = 4000)
+@excluded3='Marketing' (Size = 4000)
+@excluded4='Support' (Size = 4000)
+
+SELECT [e].[DepartmentName], DENSE_RANK() OVER(ORDER BY [e].[DepartmentName]), [e].[Id], [e].[Salary], ISNULL(SUM([e].[Salary]) OVER(PARTITION BY [e].[DepartmentName]), 0), COUNT_BIG(*) OVER(PARTITION BY [e].[DepartmentName])
+FROM [Employees] AS [e]
+WHERE [e].[DepartmentName] <> @excluded1 AND [e].[DepartmentName] <> @excluded2 AND [e].[DepartmentName] <> @excluded3 AND [e].[DepartmentName] <> @excluded4
+ORDER BY [e].[DepartmentName]
+""");
+    }
 
     public override async Task Coalesce_nullable_long_in_anonymous_projection()
     {
@@ -70,6 +116,28 @@ WHERE CAST(JSON_VALUE([j].[IntList], '$[' + CAST(@id AS nvarchar(max)) + ']') AS
 SELECT [j].[Id], [j].[IntList], [j].[JsonThing]
 FROM [JsonEntities] AS [j]
 WHERE JSON_VALUE([j].[JsonThing], '$.StringProperty') = N'foo'
+""");
+    }
+
+    public override async Task Materialize_sealed_entity()
+    {
+        await base.Materialize_sealed_entity();
+
+        AssertSql(
+            """
+SELECT TOP(2) [e].[Id], [e].[Name]
+FROM [Entities] AS [e]
+""");
+    }
+
+    public override async Task Materialize_sealed_entity_implementing_injectable_service()
+    {
+        await base.Materialize_sealed_entity_implementing_injectable_service();
+
+        AssertSql(
+            """
+SELECT TOP(2) [i].[Id], [i].[Name]
+FROM [InjectableEntities] AS [i]
 """);
     }
 

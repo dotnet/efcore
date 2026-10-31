@@ -386,6 +386,10 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 => VisitSqlUnary(sqlUnaryExpression, allowOptimizedExpansion, out nullable),
             JsonScalarExpression jsonScalarExpression
                 => VisitJsonScalar(jsonScalarExpression, allowOptimizedExpansion, out nullable),
+#pragma warning disable EF9001 // Window function support is experimental
+            WindowFunctionExpression windowFunctionExpression
+                => VisitWindowFunction(windowFunctionExpression, allowOptimizedExpansion, out nullable),
+#pragma warning restore EF9001
             _ => VisitCustomSqlExpression(sqlExpression, allowOptimizedExpansion, out nullable)
         };
 
@@ -922,7 +926,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         // For relational null semantics we don't need to extract null values from the array
         if (UseRelationalNulls)
         {
-            inExpression = ProcessInExpressionValues(inExpression, removeNulls: false, removeNullables: false, out _, out _);
+            inExpression = ProcessInExpressionValues(inExpression, removeNulls: false, out _, out _);
 
             return inExpression.Values! switch
             {
@@ -936,7 +940,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         // (columns/arbitrary expressions) in the value list. The following visits all the values, removing nulls (but not nullables)
         // and returns the visited values with some information on what was found.
         inExpression = ProcessInExpressionValues(
-            inExpression, removeNulls: true, removeNullables: false, out var valuesHasNull, out var nullableValues);
+            inExpression, removeNulls: true, out var valuesHasNull, out var nullableValues);
 
         // Do some simplifications for when the value list contains only zero or one values
         switch (inExpression.Values!)
@@ -952,13 +956,14 @@ public class SqlNullabilityProcessor : ExpressionVisitor
 
             // a IN (1) -> a = 1
             // nullable IN (1, NULL) -> nullable IS NULL OR nullable = 1
+            // The equality only matters when the item isn't null, so it needs no compensation for the item being null.
+            case [var singleValue] when itemNullable && valuesHasNull:
+                return _sqlExpressionFactory.OrElse(
+                    ProcessNullNotNull(_sqlExpressionFactory.IsNull(item), operandNullable: true),
+                    ItemEqualTo(singleValue, itemNullable: false, valueNullable: nullableValues.Count > 0));
+
             case [var singleValue]:
-                return Visit(
-                    itemNullable && valuesHasNull
-                        ? _sqlExpressionFactory.OrElse(_sqlExpressionFactory.IsNull(item), _sqlExpressionFactory.Equal(item, singleValue))
-                        : _sqlExpressionFactory.Equal(item, singleValue),
-                    allowOptimizedExpansion,
-                    out _);
+                return ItemEqualTo(singleValue, itemNullable, valueNullable: nullableValues.Count > 0);
         }
 
         // If the item is non-nullable and there are no nullables, return the expression without compensation; null has already been removed
@@ -984,7 +989,8 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         // values. We'll add them back via separate equality checks.
         if (nullableValues.Count > 0)
         {
-            inExpression = ProcessInExpressionValues(inExpression, removeNulls: true, removeNullables: true, out _, out nullableValues);
+            var nullableValueSet = new HashSet<SqlExpression>(nullableValues, ReferenceEqualityComparer.Instance);
+            inExpression = inExpression.Update(item, inExpression.Values!.Where(v => !nullableValueSet.Contains(v)).ToList());
         }
 
         SqlExpression result = inExpression;
@@ -1011,14 +1017,35 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         // non_nullable IN (1, 2, NULL, nullable) -> non_nullable IN (1, 2) OR (non_nullable = nullable AND nullable IS NOT NULL) (full)
         return nullableValues.Aggregate(
             result,
-            (expr, nullableValue) => _sqlExpressionFactory.OrElse(
-                expr,
-                Visit(_sqlExpressionFactory.Equal(item, nullableValue), allowOptimizedExpansion, out _)));
+            (expr, nullableValue) => _sqlExpressionFactory.OrElse(expr, ItemEqualTo(nullableValue, itemNullable, valueNullable: true)));
+
+        // The item and the values have already been visited, and null compensation isn't idempotent (visiting a = b OR (a IS NULL AND
+        // b IS NULL) again expands a = b a second time), so the comparison is processed from their known nullability rather than visited.
+        SqlExpression ItemEqualTo(SqlExpression value, bool itemNullable, bool valueNullable)
+        {
+            if (allowOptimizedExpansion)
+            {
+                if (IsTrue(item) && item.TypeMapping!.Converter == null)
+                {
+                    return value;
+                }
+
+                if (IsTrue(value) && value.TypeMapping!.Converter == null)
+                {
+                    return item;
+                }
+            }
+
+            var equal = _sqlExpressionFactory.Equal(item, value);
+
+            return equal is SqlBinaryExpression binary
+                ? ProcessComparison(binary, itemNullable, valueNullable, allowOptimizedExpansion, out _)
+                : equal;
+        }
 
         InExpression ProcessInExpressionValues(
             InExpression inExpression,
             bool removeNulls,
-            bool removeNullables,
             out bool hasNull,
             out List<SqlExpression> nullables)
         {
@@ -1133,16 +1160,6 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                     if (valueNullable)
                     {
                         nullables.Add(visitedValue);
-
-                        if (removeNullables)
-                        {
-                            if (processedValues is null)
-                            {
-                                CreateProcessedValues();
-                            }
-
-                            continue;
-                        }
                     }
 
                     if (value != visitedValue && processedValues is null)
@@ -1291,6 +1308,84 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         return changed
             ? denseRankExpression.Update(orderings)
             : denseRankExpression;
+    }
+
+    /// <summary>
+    ///     Visits a <see cref="WindowFunctionExpression" /> and computes its nullability.
+    /// </summary>
+    /// <param name="windowFunctionExpression">A window function expression to visit.</param>
+    /// <param name="allowOptimizedExpansion">A bool value indicating if optimized expansion which considers null value as false value is allowed.</param>
+    /// <param name="nullable">A bool value indicating whether the sql expression is nullable.</param>
+    /// <returns>An optimized sql expression.</returns>
+    [Experimental(EFDiagnostics.ExperimentalApi)]
+    protected virtual SqlExpression VisitWindowFunction(
+        WindowFunctionExpression windowFunctionExpression,
+        bool allowOptimizedExpansion,
+        out bool nullable)
+    {
+        // The window is what the function is evaluated over; it never makes a non-nullable function nullable (an aggregate always has
+        // at least the current row in its partition), nor a nullable one non-nullable. So the nullability is the function's own:
+        // COUNT(...) OVER (...) is never null, while AVG(x) OVER (...) is null for a partition in which every x is null.
+        //
+        // The aggregate's arguments are visited, but the aggregate node itself is not: SQL applies OVER to the aggregate, so nothing
+        // may come between the two, whereas a provider is free to rewrite an aggregate into an expression which wraps it. Any such
+        // wrapping has to go around the whole window function instead, as it does for SUM below.
+        SqlExpression function;
+        if (windowFunctionExpression.Function is SqlFunctionExpression sqlFunctionExpression)
+        {
+            var instance = sqlFunctionExpression.Instance is null ? null : Visit(sqlFunctionExpression.Instance, out _);
+
+            List<SqlExpression>? visitedArguments = null;
+            if (sqlFunctionExpression.Arguments is not null)
+            {
+                visitedArguments = [];
+                foreach (var argument in sqlFunctionExpression.Arguments)
+                {
+                    visitedArguments.Add(Visit(argument, out _));
+                }
+            }
+
+            function = sqlFunctionExpression.Update(instance, visitedArguments);
+            nullable = sqlFunctionExpression.IsNullable;
+        }
+        else
+        {
+            function = Visit(windowFunctionExpression.Function, allowOptimizedExpansion: false, out nullable);
+        }
+
+        var changed = function != windowFunctionExpression.Function;
+
+        var partitions = new List<SqlExpression>();
+        foreach (var partition in windowFunctionExpression.Partitions)
+        {
+            var newPartition = Visit(partition, out _);
+            changed |= newPartition != partition;
+            partitions.Add(newPartition);
+        }
+
+        var orderings = new List<OrderingExpression>();
+        foreach (var ordering in windowFunctionExpression.Orderings)
+        {
+            var newOrdering = ordering.Update(Visit(ordering.Expression, out _));
+            changed |= newOrdering != ordering;
+            orderings.Add(newOrdering);
+        }
+
+        var result = changed
+            ? windowFunctionExpression.Update(function, partitions, orderings)
+            : windowFunctionExpression;
+
+        // SUM is null over a partition in which every value is null - the current row being in it doesn't help - whereas LINQ's Sum is
+        // zero. So it gets the same COALESCE as a grouped SUM, around the window function rather than inside it.
+        if (function is SqlFunctionExpression { IsBuiltIn: true } sumFunction
+            && string.Equals(sumFunction.Name, "SUM", StringComparison.OrdinalIgnoreCase))
+        {
+            nullable = false;
+
+            return CoalesceToZero(result);
+        }
+
+        return result;
     }
 
     /// <summary>
@@ -1447,17 +1542,10 @@ public class SqlNullabilityProcessor : ExpressionVisitor
 
         if (sqlBinaryExpression.OperatorType is ExpressionType.Equal or ExpressionType.NotEqual)
         {
-            var updated = sqlBinaryExpression.Update(left, right);
+            var processed = ProcessComparison(
+                sqlBinaryExpression.Update(left, right), leftNullable, rightNullable, optimize, out nullable);
 
-            var optimized = OptimizeComparison(
-                updated,
-                left,
-                right,
-                leftNullable,
-                rightNullable,
-                out nullable);
-
-            if (optimized is SqlUnaryExpression { Operand: ColumnExpression optimizedUnaryColumnOperand } optimizedUnary)
+            if (processed is SqlUnaryExpression { Operand: ColumnExpression optimizedUnaryColumnOperand } optimizedUnary)
             {
                 if (optimizedUnary.OperatorType == ExpressionType.NotEqual)
                 {
@@ -1469,32 +1557,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 }
             }
 
-            // we assume that NullSemantics rewrite is only needed (on the current level)
-            // if the optimization didn't make any changes.
-            // Reason is that optimization can/will change the nullability of the resulting expression
-            // and that information is not tracked/stored anywhere
-            // so we can no longer rely on nullabilities that we computed earlier (leftNullable, rightNullable)
-            // when performing null semantics rewrite.
-            // It should be fine because current optimizations *radically* change the expression
-            // (e.g. binary -> unary, or binary -> constant)
-            // but we need to pay attention in the future if we introduce more subtle transformations here
-            if (optimized.Equals(updated)
-                && (leftNullable || rightNullable)
-                && !UseRelationalNulls)
-            {
-                var rewriteNullSemanticsResult = RewriteNullSemantics(
-                    updated,
-                    updated.Left,
-                    updated.Right,
-                    leftNullable,
-                    rightNullable,
-                    optimize,
-                    out nullable);
-
-                return rewriteNullSemanticsResult;
-            }
-
-            return optimized;
+            return processed;
         }
 
         nullable = leftNullable || rightNullable;
@@ -1640,18 +1703,23 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         {
             nullable = false;
 
-            // The zero must be of the function's CLR type, since the type mapping's value converter (if any) is applied to it.
-            var resultType = sqlFunctionExpression.Type.UnwrapNullableType();
-            return _sqlExpressionFactory.Coalesce(
-                sqlFunctionExpression,
-                _sqlExpressionFactory.Constant(resultType.GetDefaultValue(), resultType, sqlFunctionExpression.TypeMapping),
-                sqlFunctionExpression.TypeMapping);
+            return CoalesceToZero(sqlFunctionExpression);
         }
 
         // if some of the {Instance,Arguments}PropagateNullability are true, use
         // the computed nullability information; otherwise rely only on IsNullable
         nullable = sqlFunctionExpression.IsNullable && (!useNullabilityPropagation || hasNullableArgument);
         return sqlFunctionExpression;
+    }
+
+    private SqlExpression CoalesceToZero(SqlExpression sum)
+    {
+        // The zero must be of the function's CLR type, since the type mapping's value converter (if any) is applied to it.
+        var resultType = sum.Type.UnwrapNullableType();
+        return _sqlExpressionFactory.Coalesce(
+            sum,
+            _sqlExpressionFactory.Constant(resultType.GetDefaultValue(), resultType, sum.TypeMapping),
+            sum.TypeMapping);
     }
 
     /// <summary>
@@ -1834,6 +1902,48 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         {
             _nullValueColumns.RemoveRange(counter, _nullValueColumns.Count - counter);
         }
+    }
+
+    // Applies optimizations and null semantics to an Equal/NotEqual comparison whose operands have already been visited.
+    private SqlExpression ProcessComparison(
+        SqlBinaryExpression sqlBinaryExpression,
+        bool leftNullable,
+        bool rightNullable,
+        bool optimize,
+        out bool nullable)
+    {
+        var optimized = OptimizeComparison(
+            sqlBinaryExpression,
+            sqlBinaryExpression.Left,
+            sqlBinaryExpression.Right,
+            leftNullable,
+            rightNullable,
+            out nullable);
+
+        // we assume that NullSemantics rewrite is only needed (on the current level)
+        // if the optimization didn't make any changes.
+        // Reason is that optimization can/will change the nullability of the resulting expression
+        // and that information is not tracked/stored anywhere
+        // so we can no longer rely on nullabilities that we computed earlier (leftNullable, rightNullable)
+        // when performing null semantics rewrite.
+        // It should be fine because current optimizations *radically* change the expression
+        // (e.g. binary -> unary, or binary -> constant)
+        // but we need to pay attention in the future if we introduce more subtle transformations here
+        if (optimized.Equals(sqlBinaryExpression)
+            && (leftNullable || rightNullable)
+            && !UseRelationalNulls)
+        {
+            return RewriteNullSemantics(
+                sqlBinaryExpression,
+                sqlBinaryExpression.Left,
+                sqlBinaryExpression.Right,
+                leftNullable,
+                rightNullable,
+                optimize,
+                out nullable);
+        }
+
+        return optimized;
     }
 
     private SqlExpression OptimizeComparison(

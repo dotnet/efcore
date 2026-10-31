@@ -2354,4 +2354,62 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     }
 
     #endregion
+
+    #region 35568
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Primitive_collection_hashset_parameter_is_client_eval(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context35568>();
+        using var context = contextFactory.CreateDbContext();
+
+        var setOfDouble = new HashSet<double> { 1d };
+        IReadOnlySet<double> readOnlySetOfDouble = new HashSet<double> { 2d };
+
+        var hashSetQuery = context.Entities
+            .Select(e => new
+            {
+                e.Id,
+                setOfDouble
+            });
+
+        var hashSetResult = async
+            ? await hashSetQuery.ToListAsync()
+            : hashSetQuery.ToList();
+
+        Assert.Equal(3, hashSetResult.Count);
+
+        var readOnlySetQuery = context.Entities
+            .Select(e => new
+            {
+                e.Id,
+                readOnlySetOfDouble
+            });
+
+        var readOnlySetResult = async
+            ? await readOnlySetQuery.ToListAsync()
+            : readOnlySetQuery.ToList();
+
+        Assert.Equal(3, readOnlySetResult.Count);
+    }
+
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context35568(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Entity> Entities { get; set; } = null!;
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder
+                .Entity<Entity>()
+                .HasData(
+                    new Entity { Id = 1 },
+                    new Entity { Id = 2 },
+                    new Entity { Id = 3 });
+
+        public class Entity
+        {
+            public int Id { get; set; }
+        }
+    }
+
+    #endregion
 }

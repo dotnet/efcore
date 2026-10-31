@@ -9,6 +9,14 @@ public class AdHocPrecompiledQuerySqliteTest(NonSharedFixture fixture, ITestOutp
     protected override bool AlwaysPrintGeneratedSources
         => false;
 
+    protected override DbContextOptionsBuilder UseWindowFunctionAggregates(DbContextOptionsBuilder optionsBuilder)
+    {
+#pragma warning disable EF9001 // UseWindowFunctionAggregates is experimental
+        new SqliteDbContextOptionsBuilder(optionsBuilder).UseWindowFunctionAggregates();
+#pragma warning restore EF9001
+        return optionsBuilder;
+    }
+
     public override async Task Coalesce_nullable_long_in_anonymous_projection()
     {
         await base.Coalesce_nullable_long_in_anonymous_projection();

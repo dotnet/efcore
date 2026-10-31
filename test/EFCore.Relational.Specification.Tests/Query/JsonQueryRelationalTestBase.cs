@@ -1218,6 +1218,247 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
 
     #endregion HasJsonPropertyName
 
+    #region 39438
+
+    [Fact]
+    public virtual async Task Project_complex_collection_with_property_named_key()
+    {
+        var contextFactory = await InitializeContext39438();
+        await using var context = contextFactory.CreateDbContext();
+
+        var items = await context.Set<Context39438.Entity>()
+            .Select(e => e.Items.Select(i => new { i.Key, i.Value }).ToList())
+            .SingleAsync();
+
+        Assert.Equal(["k2", "k1"], items.Select(i => i.Key));
+        Assert.Equal(["Zeta", "Alpha"], items.Select(i => i.Value));
+    }
+
+    [Fact]
+    public virtual async Task Project_complex_collection_with_property_named_key_with_Take()
+    {
+        var contextFactory = await InitializeContext39438();
+        await using var context = contextFactory.CreateDbContext();
+
+        var keys = await context.Set<Context39438.Entity>()
+            .Select(e => e.Items.Select(i => i.Key).Take(1).ToList())
+            .SingleAsync();
+
+        Assert.Equal(["k2"], keys);
+    }
+
+    [Fact]
+    public virtual async Task Filter_complex_collection_with_property_named_key()
+    {
+        var contextFactory = await InitializeContext39438();
+        await using var context = contextFactory.CreateDbContext();
+
+        Assert.Equal(1, await context.Set<Context39438.Entity>().CountAsync(e => e.Items.Any(i => i.Key == "k1")));
+    }
+
+    [Fact]
+    public virtual async Task Project_complex_collection_with_property_named_Key()
+    {
+        var contextFactory = await InitializeContext39438(keyJsonPropertyName: "Key");
+        await using var context = contextFactory.CreateDbContext();
+
+        var items = await context.Set<Context39438.Entity>()
+            .Select(e => e.Items.Select(i => new { i.Key, i.Value }).ToList())
+            .SingleAsync();
+
+        Assert.Equal(["k2", "k1"], items.Select(i => i.Key));
+        Assert.Equal(["Zeta", "Alpha"], items.Select(i => i.Value));
+    }
+
+    [Fact]
+    public virtual async Task Project_complex_collection_with_properties_named_key_and_key0()
+    {
+        var contextFactory = await InitializeContext39438(valueJsonPropertyName: "key0");
+        await using var context = contextFactory.CreateDbContext();
+
+        var items = await context.Set<Context39438.Entity>()
+            .Select(e => e.Items.Select(i => new { i.Key, i.Value }).ToList())
+            .SingleAsync();
+
+        Assert.Equal(["k2", "k1"], items.Select(i => i.Key));
+        Assert.Equal(["Zeta", "Alpha"], items.Select(i => i.Value));
+    }
+
+    [Fact]
+    public virtual async Task Project_complex_collection_with_property_named_key0()
+    {
+        var contextFactory = await InitializeContext39438(keyJsonPropertyName: "code", valueJsonPropertyName: "key0");
+        await using var context = contextFactory.CreateDbContext();
+
+        var items = await context.Set<Context39438.Entity>()
+            .Select(e => e.Items.Select(i => new { i.Key, i.Value }).ToList())
+            .SingleAsync();
+
+        Assert.Equal(["k2", "k1"], items.Select(i => i.Key));
+        Assert.Equal(["Zeta", "Alpha"], items.Select(i => i.Value));
+    }
+
+    private Task<ContextFactory<Context39438>> InitializeContext39438(
+        string keyJsonPropertyName = "key",
+        string valueJsonPropertyName = "Value")
+        => InitializeNonSharedTest<Context39438>(
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            onModelCreating: m => m.Entity<Context39438.Entity>().ComplexCollection(
+                e => e.Items, b =>
+                {
+                    b.ToJson();
+                    if (JsonColumnType != null)
+                    {
+                        b.HasColumnType(JsonColumnType);
+                    }
+
+                    b.Property(i => i.Key).HasJsonPropertyName(keyJsonPropertyName);
+                    b.Property(i => i.Value).HasJsonPropertyName(valueJsonPropertyName);
+                }),
+            seed: context =>
+            {
+                context.Set<Context39438.Entity>().Add(
+                    new Context39438.Entity
+                    {
+                        Items =
+                        [
+                            new Context39438.Item { Key = "k2", Value = "Zeta" },
+                            new Context39438.Item { Key = "k1", Value = "Alpha" }
+                        ]
+                    });
+
+                return context.SaveChangesAsync();
+            });
+
+    protected class Context39438(DbContextOptions options) : DbContext(options)
+    {
+        public class Entity
+        {
+            public int Id { get; set; }
+            public List<Item> Items { get; set; } = null!;
+        }
+
+        public class Item
+        {
+            public string Key { get; set; } = null!;
+            public string Value { get; set; } = null!;
+        }
+    }
+
+    [Fact]
+    public virtual async Task Project_complex_collection_with_nested_complex_property_named_key()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context39438Nested>(
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            onModelCreating: m => m.Entity<Context39438Nested.Entity>().ComplexCollection(
+                e => e.Items, b =>
+                {
+                    b.ToJson();
+                    if (JsonColumnType != null)
+                    {
+                        b.HasColumnType(JsonColumnType);
+                    }
+
+                    b.ComplexProperty(i => i.Details, d => d.HasJsonPropertyName("key"));
+                }),
+            seed: context =>
+            {
+                context.Set<Context39438Nested.Entity>().Add(
+                    new Context39438Nested.Entity
+                    {
+                        Items =
+                        [
+                            new Context39438Nested.Item { Name = "Zeta", Details = new Context39438Nested.ItemDetails { Code = "k2" } },
+                            new Context39438Nested.Item { Name = "Alpha", Details = new Context39438Nested.ItemDetails { Code = "k1" } }
+                        ]
+                    });
+
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var items = await context.Set<Context39438Nested.Entity>()
+            .Select(e => e.Items.Select(i => new { i.Name, i.Details.Code }).ToList())
+            .SingleAsync();
+
+        Assert.Equal(["Zeta", "Alpha"], items.Select(i => i.Name));
+        Assert.Equal(["k2", "k1"], items.Select(i => i.Code));
+    }
+
+    protected class Context39438Nested(DbContextOptions options) : DbContext(options)
+    {
+        public class Entity
+        {
+            public int Id { get; set; }
+            public List<Item> Items { get; set; } = null!;
+        }
+
+        public class Item
+        {
+            public string Name { get; set; } = null!;
+            public ItemDetails Details { get; set; } = null!;
+        }
+
+        public class ItemDetails
+        {
+            public string Code { get; set; } = null!;
+        }
+    }
+
+    [Fact]
+    public virtual async Task Project_owned_collection_with_property_named_key()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context39438Owned>(
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            onModelCreating: m => m.Entity<Context39438Owned.Entity>().OwnsMany(
+                e => e.Items, b =>
+                {
+                    b.ToJson().HasColumnType(JsonColumnType);
+                    b.Property(i => i.Key).HasJsonPropertyName("key");
+                }),
+            seed: context =>
+            {
+                context.Set<Context39438Owned.Entity>().Add(
+                    new Context39438Owned.Entity
+                    {
+                        Items =
+                        [
+                            new Context39438Owned.Item { Key = "k2", Value = "Zeta" },
+                            new Context39438Owned.Item { Key = "k1", Value = "Alpha" }
+                        ]
+                    });
+
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var items = await context.Set<Context39438Owned.Entity>()
+            .Select(e => e.Items.Select(i => new { i.Key, i.Value }).ToList())
+            .SingleAsync();
+
+        Assert.Equal(["k2", "k1"], items.Select(i => i.Key));
+        Assert.Equal(["Zeta", "Alpha"], items.Select(i => i.Value));
+    }
+
+    protected class Context39438Owned(DbContextOptions options) : DbContext(options)
+    {
+        public class Entity
+        {
+            public int Id { get; set; }
+            public List<Item> Items { get; set; } = null!;
+        }
+
+        public class Item
+        {
+            public string Key { get; set; } = null!;
+            public string Value { get; set; } = null!;
+        }
+    }
+
+    #endregion 39438
+
     #region 38615
 
     [Fact]
