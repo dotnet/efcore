@@ -194,6 +194,28 @@ public class DbConnectionInterceptorAggregator : InterceptorAggregator<IDbConnec
             }
         }
 
+        public void ConnectionCanceled(
+            DbConnection connection,
+            ConnectionEndEventData eventData)
+        {
+            for (var i = 0; i < _interceptors.Length; i++)
+            {
+                _interceptors[i].ConnectionCanceled(connection, eventData);
+            }
+        }
+
+        public async Task ConnectionCanceledAsync(
+            DbConnection connection,
+            ConnectionEndEventData eventData,
+            CancellationToken cancellationToken = default)
+        {
+            for (var i = 0; i < _interceptors.Length; i++)
+            {
+                await _interceptors[i].ConnectionCanceledAsync(connection, eventData, cancellationToken)
+                    .ConfigureAwait(false);
+            }
+        }
+
         public void ConnectionFailed(
             DbConnection connection,
             ConnectionErrorEventData eventData)
