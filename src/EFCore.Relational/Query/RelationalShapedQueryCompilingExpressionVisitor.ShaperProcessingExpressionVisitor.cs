@@ -105,9 +105,6 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         private static readonly PropertyInfo Utf8JsonReaderTokenTypeProperty
             = typeof(Utf8JsonReader).GetProperty(nameof(Utf8JsonReader.TokenType))!;
 
-        private static readonly MethodInfo PropertyGetJsonValueReaderWriterMethod =
-            typeof(IReadOnlyProperty).GetMethod(nameof(IReadOnlyProperty.GetJsonValueReaderWriter), [])!;
-
         private static readonly MethodInfo PropertyGetTypeMappingMethod =
             typeof(IReadOnlyProperty).GetMethod(nameof(IReadOnlyProperty.GetTypeMapping), [])!;
 
@@ -3124,8 +3121,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             var jsonPrimitiveCollectionReaderWriter = converter is { ConvertsNulls: false, ProviderClrType: var providerClrType }
                 && providerClrType == typeof(string)
                 ? property is IProperty { IsPrimitiveCollection: true } primitiveCollectionProperty
-                    ? primitiveCollectionProperty.GetJsonValueReaderWriter()
-                    ?? primitiveCollectionProperty.GetTypeMapping().JsonValueReaderWriter
+                    ? primitiveCollectionProperty.GetTypeMapping().JsonValueReaderWriter
                     : property is null && typeMapping.ElementTypeMapping is not null
                         ? typeMapping.JsonValueReaderWriter
                         : null
@@ -3140,17 +3136,12 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     jsonReaderWriterExpression = _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
                         jsonPrimitiveCollectionReaderWriter,
                         Lambda<Func<MaterializerLiftableConstantContext, object>>(
-                            Coalesce(
+                            Property(
                                 Call(
                                     LiftableConstantExpressionHelpers.BuildMemberAccessForProperty(
                                         jsonProperty, liftableConstantParameter),
-                                    PropertyGetJsonValueReaderWriterMethod),
-                                Property(
-                                    Call(
-                                        LiftableConstantExpressionHelpers.BuildMemberAccessForProperty(
-                                            jsonProperty, liftableConstantParameter),
-                                        PropertyGetTypeMappingMethod),
-                                    nameof(CoreTypeMapping.JsonValueReaderWriter))),
+                                    PropertyGetTypeMappingMethod),
+                                nameof(CoreTypeMapping.JsonValueReaderWriter)),
                             liftableConstantParameter),
                         jsonProperty.Name + "JsonReaderWriter",
                         typeof(JsonValueReaderWriter));
@@ -3375,20 +3366,16 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             ParameterExpression jsonReaderManagerParameter,
             IProperty property)
         {
-            var jsonReaderWriter = property.GetJsonValueReaderWriter() ?? property.GetTypeMapping().JsonValueReaderWriter!;
+            var jsonReaderWriter = property.GetTypeMapping().JsonValueReaderWriter!;
             var prm = Parameter(typeof(MaterializerLiftableConstantContext), "c");
             var jsonReaderWriterExpression = _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
-                property.GetJsonValueReaderWriter() ?? property.GetTypeMapping().JsonValueReaderWriter!,
+                property.GetTypeMapping().JsonValueReaderWriter!,
                 Lambda<Func<MaterializerLiftableConstantContext, object>>(
-                    Coalesce(
+                    Property(
                         Call(
                             LiftableConstantExpressionHelpers.BuildMemberAccessForProperty(property, prm),
-                            PropertyGetJsonValueReaderWriterMethod),
-                        Property(
-                            Call(
-                                LiftableConstantExpressionHelpers.BuildMemberAccessForProperty(property, prm),
-                                PropertyGetTypeMappingMethod),
-                            nameof(CoreTypeMapping.JsonValueReaderWriter))),
+                            PropertyGetTypeMappingMethod),
+                        nameof(CoreTypeMapping.JsonValueReaderWriter)),
                     prm),
                 property.Name + "PropertyName",
                 jsonReaderWriter.GetType());

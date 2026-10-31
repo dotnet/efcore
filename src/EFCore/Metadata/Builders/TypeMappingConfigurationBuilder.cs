@@ -3,6 +3,7 @@
 
 using System.ComponentModel;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -154,6 +155,35 @@ public class TypeMappingConfigurationBuilder
         {
             Configuration.SetProviderClrType(conversionType);
         }
+
+        return this;
+    }
+
+    /// <summary>
+    ///     Configures the JSON reader/writer used by type mappings for this type.
+    /// </summary>
+    /// <remarks>
+    ///     Member-specific JSON reader/writer configuration takes precedence over this default. When a value converter
+    ///     is used, the reader/writer must handle the converter's provider values.
+    /// </remarks>
+    /// <typeparam name="TReaderWriter">The JSON reader/writer type.</typeparam>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public virtual TypeMappingConfigurationBuilder HasJsonValueReaderWriter<TReaderWriter>()
+        where TReaderWriter : JsonValueReaderWriter
+        => HasJsonValueReaderWriter(typeof(TReaderWriter));
+
+    /// <summary>
+    ///     Configures the JSON reader/writer used by type mappings for this type.
+    /// </summary>
+    /// <remarks>
+    ///     Member-specific JSON reader/writer configuration takes precedence over this default. When a value converter
+    ///     is used, the reader/writer must handle the converter's provider values.
+    /// </remarks>
+    /// <param name="readerWriterType">The JSON reader/writer type, or <see langword="null" /> to clear the configuration.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public virtual TypeMappingConfigurationBuilder HasJsonValueReaderWriter(Type? readerWriterType)
+    {
+        Configuration.SetJsonValueReaderWriterType(readerWriterType);
 
         return this;
     }

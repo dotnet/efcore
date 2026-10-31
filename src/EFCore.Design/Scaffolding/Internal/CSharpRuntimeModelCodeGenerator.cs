@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -485,6 +486,20 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 .AppendLine("}")
                 .AppendLine();
 
+            foreach (var readerWriterType in model.GetTypeMappingConfigurations()
+                         .Select(c => c.GetJsonValueReaderWriterType())
+                         .OfType<Type>()
+                         .Distinct())
+            {
+                AddNamespace(typeof(DynamicDependencyAttribute), namespaces);
+                AddNamespace(readerWriterType, namespaces);
+                mainBuilder
+                    .Append("[DynamicDependency(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | ")
+                    .Append("DynamicallyAccessedMemberTypes.PublicProperties, ")
+                    .Append(_code.Literal(readerWriterType))
+                    .AppendLine(")]");
+            }
+
             mainBuilder
                 .AppendLine("partial void Initialize()")
                 .AppendLine("{");
@@ -696,6 +711,14 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 .Append("valueConverter: new ")
                 .Append(_code.Reference(valueConverterType))
                 .Append("()");
+        }
+
+        if (typeConfiguration.GetJsonValueReaderWriterType() is { } jsonValueReaderWriterType)
+        {
+            AddNamespace(jsonValueReaderWriterType, parameters.Namespaces);
+            mainBuilder.AppendLine(",")
+                .Append("jsonValueReaderWriterType: ")
+                .Append(_code.Literal(jsonValueReaderWriterType));
         }
 
         mainBuilder

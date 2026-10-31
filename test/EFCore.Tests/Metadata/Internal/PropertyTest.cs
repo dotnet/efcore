@@ -503,6 +503,64 @@ public class PropertyTest
     }
 
     [Fact]
+    public void Property_reader_writer_is_cached_only_after_model_finalization()
+    {
+        var model = CreateModel();
+        var property = model.AddEntityType(typeof(object)).AddProperty("Value", typeof(string));
+        property.SetJsonValueReaderWriterType(typeof(SimpleJasonValueReaderWriter));
+        Assert.IsType<SimpleJasonValueReaderWriter>(property.GetJsonValueReaderWriter());
+        property.SetJsonValueReaderWriterType(typeof(JsonStringReaderWriter));
+        Assert.Same(JsonStringReaderWriter.Instance, property.GetJsonValueReaderWriter());
+        property.SetJsonValueReaderWriterType(null);
+        Assert.Null(property.GetJsonValueReaderWriter());
+
+        property.SetJsonValueReaderWriterType(typeof(SimpleJasonValueReaderWriter));
+        model.FinalizeModel();
+
+        var readerWriter = Assert.IsType<SimpleJasonValueReaderWriter>(property.GetJsonValueReaderWriter());
+        Assert.Same(readerWriter, property.GetJsonValueReaderWriter());
+    }
+
+    [Fact]
+    public void Element_reader_writer_is_cached_only_after_model_finalization()
+    {
+        var model = CreateModel();
+        var element = model.AddEntityType(typeof(object)).AddPrimitiveCollection("Values", typeof(List<string>), typeof(string))
+            .GetElementType()!;
+        element.SetJsonValueReaderWriterType(typeof(SimpleJasonValueReaderWriter));
+        Assert.IsType<SimpleJasonValueReaderWriter>(element.GetJsonValueReaderWriter());
+        element.SetJsonValueReaderWriterType(typeof(JsonStringReaderWriter));
+        Assert.Same(JsonStringReaderWriter.Instance, element.GetJsonValueReaderWriter());
+        element.SetJsonValueReaderWriterType(null);
+        Assert.Null(element.GetJsonValueReaderWriter());
+
+        element.SetJsonValueReaderWriterType(typeof(SimpleJasonValueReaderWriter));
+        model.FinalizeModel();
+
+        var readerWriter = Assert.IsType<SimpleJasonValueReaderWriter>(element.GetJsonValueReaderWriter());
+        Assert.Same(readerWriter, element.GetJsonValueReaderWriter());
+        Assert.Same(readerWriter, new TypeMappingInfo((IElementType)element).JsonValueReaderWriter);
+    }
+
+    [Fact]
+    public void Clearing_element_reader_writer_restores_default_without_reusing_previous_mapping()
+    {
+        var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder(
+            configureConventions: c => c.DefaultTypeMapping<int>().HasJsonValueReaderWriter<JsonInt32ReaderWriter>());
+        var element = builder.Entity<Customer>().PrimitiveCollection(e => e.Numbers).ElementType();
+        element.HasJsonValueReaderWriter<JsonStringReaderWriter>();
+        var metadata = (ElementType)element.Metadata;
+        metadata.SetTypeMapping(
+            new InMemory.Storage.Internal.InMemoryTypeMapping(typeof(int), jsonValueReaderWriter: JsonStringReaderWriter.Instance),
+            ConfigurationSource.Explicit);
+
+        element.HasJsonValueReaderWriter(null);
+
+        Assert.Null(metadata[CoreAnnotationNames.JsonValueReaderWriterType]);
+        Assert.Same(JsonInt32ReaderWriter.Instance, new TypeMappingInfo(metadata).JsonValueReaderWriter);
+    }
+
+    [Fact]
     public void Can_set_element_type_for_primitive_collection()
     {
         var model = CreateModel();

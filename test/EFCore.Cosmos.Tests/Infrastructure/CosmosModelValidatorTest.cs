@@ -4,11 +4,46 @@
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Scripts;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 public class CosmosModelValidatorTest : ModelValidatorTestBase
 {
+    [Fact]
+    public void Accepts_member_reader_writer_without_relational_JSON_mapping()
+    {
+        var builder = CreateConventionModelBuilder();
+        builder.Entity<A>().Property(e => e.P0).HasJsonValueReaderWriter<JsonInt32ReaderWriter>();
+
+        var model = Validate(builder);
+        var property = model.FindEntityType(typeof(A))!.FindProperty(nameof(A.P0))!;
+        Assert.Same(JsonInt32ReaderWriter.Instance, property.GetTypeMapping().JsonValueReaderWriter);
+    }
+
+    [Fact]
+    public void Rejects_member_reader_writer_with_incompatible_store_type()
+    {
+        var builder = CreateConventionModelBuilder();
+        builder.Entity<A>().Property(e => e.P0).HasJsonValueReaderWriter<JsonStringReaderWriter>();
+
+        VerifyError(
+            CoreStrings.JsonValueReaderWriterPropertyMismatch(nameof(A), nameof(A.P0), nameof(JsonStringReaderWriter), "string", "int"),
+            builder);
+    }
+
+    [Fact]
+    public void Accepts_member_reader_writer_matching_converted_store_type()
+    {
+        var builder = CreateConventionModelBuilder();
+        builder.Entity<A>().Property(e => e.P0).HasConversion<string>().HasJsonValueReaderWriter<JsonStringReaderWriter>();
+
+        var model = Validate(builder);
+        var readerWriter = model.FindEntityType(typeof(A))!.FindProperty(nameof(A.P0))!.GetTypeMapping().JsonValueReaderWriter!;
+        Assert.Equal("\"42\"", readerWriter.ToJsonString(42));
+        Assert.Equal(42, readerWriter.FromJsonString("\"42\""));
+    }
+
     [Fact]
     public virtual void Passes_on_valid_model()
     {

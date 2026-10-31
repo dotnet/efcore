@@ -64,10 +64,12 @@ public class CosmosTypeMappingSource : TypeMappingSource
         }
 
         var sequenceType = collectionType.GetSequenceType();
-        var elementMappingInfo = new TypeMappingInfo(sequenceType);
+        var mappingInfo = new TypeMappingInfo(property);
+        var elementMapping = property.GetElementType() is { } elementType
+            ? FindMapping(elementType)
+            : FindMapping(sequenceType, property.DeclaringType.Model);
 
-        CoreTypeMapping? _ = null;
-        if (!TryFindJsonCollectionMapping(elementMappingInfo, collectionType, null, ref _, out var _, out var readerWriter))
+        if (!TryFindJsonCollectionMapping(mappingInfo, collectionType, null, ref elementMapping, out _, out var readerWriter))
         {
             return null;
         }
@@ -98,7 +100,10 @@ public class CosmosTypeMappingSource : TypeMappingSource
             ? mapping
             : (base.FindMapping(mappingInfo) // This will find a mapping from plugins, and so must happen first. See #34041.
                 ?? FindPrimitiveMapping(mappingInfo)
-                ?? FindCollectionMapping(mappingInfo));
+                ?? FindCollectionMapping(mappingInfo)
+                ?? (mappingInfo.JsonValueReaderWriter is { } readerWriter
+                    ? CreateMapping(clrType, jsonValueReaderWriter: readerWriter)
+                    : null));
     }
 
     private CoreTypeMapping? FindPrimitiveMapping(in TypeMappingInfo mappingInfo)

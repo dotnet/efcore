@@ -447,7 +447,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             if (IsValueBufferTryReadValueMethodCall(methodCallExpression, out var property))
             {
                 var typeMapping = property.GetTypeMapping();
-                var jsonValueReaderWriter = property.GetJsonValueReaderWriter() ?? typeMapping.JsonValueReaderWriter;
+                var jsonValueReaderWriter = typeMapping.JsonValueReaderWriter;
                 Debug.Assert(
                     jsonValueReaderWriter != null,
                     "JsonValueReaderWriter should not be null since we are in Cosmos provider and all types should have JsonValueReaderWriter");
@@ -859,7 +859,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                             discriminatorValueVariable,
                                             ReadJsonValue(
                                                 _jsonReaderManagerVariable,
-                                                discriminatorProperty.GetJsonValueReaderWriter() ?? typeMapping.JsonValueReaderWriter!,
+                                                typeMapping.JsonValueReaderWriter!,
                                                 typeMapping, discriminatorProperty.ClrType.MakeNullable(), true)),
                                         // goto EndRead
                                         Break(breakLabel, typeof(void))),
@@ -1102,7 +1102,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     finalBlockVariables.Add(propertyVariable);
 
                     var typeMapping = property.GetTypeMapping();
-                    var jsonValueReaderWriter = property.GetJsonValueReaderWriter() ?? typeMapping.JsonValueReaderWriter;
+                    var jsonValueReaderWriter = typeMapping.JsonValueReaderWriter;
                     Debug.Assert(
                         jsonValueReaderWriter != null,
                         "JsonValueReaderWriter should not be null since we are in Cosmos provider and all types should have JsonValueReaderWriter");

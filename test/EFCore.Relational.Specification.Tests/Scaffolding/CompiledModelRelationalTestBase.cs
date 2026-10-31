@@ -6,6 +6,7 @@
 using System.Data;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding;
 
@@ -1158,6 +1159,16 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
             assertModel: model =>
             {
                 Assert.Equal(5, model.GetDbFunctions().Count());
+                Assert.Equal(
+                    typeof(JsonStringReaderWriter),
+                    model.FindTypeMappingConfiguration(typeof(string))!.GetJsonValueReaderWriterType());
+                Assert.Equal(
+                    typeof(MyJsonGuidReaderWriter),
+                    model.FindTypeMappingConfiguration(typeof(Guid))!.GetJsonValueReaderWriterType());
+                Assert.Equal(
+                    "\"value\"",
+                    model.GetModelDependencies().TypeMappingSource.FindMapping(typeof(string), model)!.JsonValueReaderWriter!
+                        .ToJsonString("value"));
 
                 var getCount = model.FindDbFunction(
                     typeof(DbFunctionContext)
@@ -1349,7 +1360,11 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
             => FromExpression(() => GetData());
 
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
-            => configurationBuilder.DefaultTypeMapping<string>().HasMaxLength(256).IsFixedLength();
+        {
+            configurationBuilder.DefaultTypeMapping<string>().HasMaxLength(256).IsFixedLength()
+                .HasJsonValueReaderWriter<JsonStringReaderWriter>();
+            configurationBuilder.DefaultTypeMapping<Guid>().HasJsonValueReaderWriter<MyJsonGuidReaderWriter>();
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

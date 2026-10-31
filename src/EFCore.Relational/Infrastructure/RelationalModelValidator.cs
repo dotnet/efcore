@@ -34,6 +34,12 @@ public class RelationalModelValidator(
     /// </summary>
     protected virtual RelationalModelValidatorDependencies RelationalDependencies { get; } = relationalDependencies;
 
+    /// <inheritdoc />
+    protected override bool IsJsonProperty(IProperty property)
+        => property.DeclaringType.IsMappedToJson()
+            || (property.IsPrimitiveCollection
+                && property.GetTypeMapping().Converter?.ProviderClrType == typeof(string));
+
     /// <summary>
     ///     Validates a model, throwing an exception if any errors are found.
     /// </summary>

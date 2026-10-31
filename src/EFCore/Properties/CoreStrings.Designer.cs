@@ -27,6 +27,23 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.CoreStrings", typeof(CoreStrings).Assembly);
 
         /// <summary>
+        ///     The JSON reader/writer '{readerWriter}' is configured on '{structuralType}.{property}', but this member is not mapped to JSON. Map the member to JSON or remove its JSON reader/writer configuration.
+        /// </summary>
+        public static string JsonValueReaderWriterOnNonJsonProperty(object? structuralType, object? property, object? readerWriter)
+            => string.Format(
+                GetString("JsonValueReaderWriterOnNonJsonProperty", nameof(structuralType), nameof(property), nameof(readerWriter)),
+                structuralType, property, readerWriter);
+
+        /// <summary>
+        ///     The JSON reader/writer '{readerWriter}' configured on '{structuralType}.{property}' reads and writes '{valueType}', but the member's store value type is '{storeType}'. Configure a reader/writer compatible with the store value type.
+        /// </summary>
+        public static string JsonValueReaderWriterPropertyMismatch(
+            object? structuralType, object? property, object? readerWriter, object? valueType, object? storeType)
+            => string.Format(
+                GetString("JsonValueReaderWriterPropertyMismatch", nameof(structuralType), nameof(property), nameof(readerWriter), nameof(valueType), nameof(storeType)),
+                structuralType, property, readerWriter, valueType, storeType);
+
+        /// <summary>
         ///     The entity type '{entityType}' cannot be instantiated because its corresponding CLR type is abstract and there is no derived entity type in the model that corresponds to a concrete CLR type. Add a concrete derived entity type to the model or change the entity type to use a concrete CLR type.
         /// </summary>
         public static string AbstractLeafEntityType(object? entityType)

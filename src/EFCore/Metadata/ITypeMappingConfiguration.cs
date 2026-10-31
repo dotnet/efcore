@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
 /// <summary>
@@ -54,4 +56,11 @@ public interface ITypeMappingConfiguration : IAnnotatable
     /// </summary>
     /// <returns>The provider type, or <see langword="null" /> if none has been set.</returns>
     Type? GetProviderClrType();
+
+    /// <summary>
+    ///     Gets the JSON reader/writer type configured for this type.
+    /// </summary>
+    /// <returns>The reader/writer type, or <see langword="null" /> if none has been configured.</returns>
+    Type? GetJsonValueReaderWriterType()
+        => (Type?)this[CoreAnnotationNames.JsonValueReaderWriterType];
 }

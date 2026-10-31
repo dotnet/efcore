@@ -3,6 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
@@ -16,6 +17,41 @@ public abstract partial class ModelBuilderTest
             TestComplexCollectionBuilder<TElement> builder)
             where TElement : notnull
             => builder;
+
+        [Fact]
+        public virtual void Can_configure_property_json_reader_writer()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var property = ConfigureComplexCollection(
+                    modelBuilder
+                        .Ignore<Product>()
+                        .Ignore<IndexedClass>()
+                        .Entity<ComplexProperties>()
+                        .Ignore(e => e.Customer)
+                        .ComplexCollection(e => e.Customers))
+                .Ignore(c => c.Details)
+                .Ignore(c => c.Orders)
+                .Property(c => c.Id);
+
+            Assert.Same(property.Metadata, property.HasJsonValueReaderWriter<JsonInt32ReaderWriter>().Metadata);
+            Assert.Same(JsonInt32ReaderWriter.Instance, property.Metadata.GetJsonValueReaderWriter());
+            Assert.Equal(
+                ConfigurationSource.Explicit,
+                ((IConventionProperty)property.Metadata).GetJsonValueReaderWriterTypeConfigurationSource());
+            Assert.Same(property.Metadata, property.HasJsonValueReaderWriter(typeof(JsonStringReaderWriter)).Metadata);
+            Assert.Same(JsonStringReaderWriter.Instance, property.Metadata.GetJsonValueReaderWriter());
+            Assert.Equal(
+                CoreStrings.BadJsonValueReaderWriterType("object"),
+                Assert.Throws<InvalidOperationException>(() => property.HasJsonValueReaderWriter(typeof(object))).Message);
+            Assert.Same(JsonStringReaderWriter.Instance, property.Metadata.GetJsonValueReaderWriter());
+            Assert.Same(property.Metadata, property.HasJsonValueReaderWriter(null).Metadata);
+            Assert.Null(property.Metadata.GetJsonValueReaderWriter());
+
+            var model = modelBuilder.FinalizeModel();
+            Assert.Null(
+                model.FindEntityType(typeof(ComplexProperties))!.FindComplexProperty(nameof(ComplexProperties.Customers))!
+                    .ComplexType.FindProperty(nameof(Customer.Id))![CoreAnnotationNames.JsonValueReaderWriterType]);
+        }
 
         [Fact]
         public virtual void Can_set_complex_property_annotation()

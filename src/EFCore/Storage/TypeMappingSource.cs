@@ -157,6 +157,12 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
                         jsonValueReaderWriter: mappingInfo.JsonValueReaderWriter);
                 }
 
+                if (mapping != null
+                    && mappingInfo.JsonValueReaderWriter != null)
+                {
+                    mapping = mapping.WithJsonValueReaderWriter(mappingInfo.JsonValueReaderWriter);
+                }
+
                 return mapping;
             },
             this);

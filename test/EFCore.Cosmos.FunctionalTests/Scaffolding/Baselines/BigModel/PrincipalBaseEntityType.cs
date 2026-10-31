@@ -78,8 +78,7 @@ public partial class PrincipalBaseEntityType
             typeof(Guid),
             fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("AlternateId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
             propertyAccessMode: PropertyAccessMode.FieldDuringConstruction,
-            afterSaveBehavior: PropertySaveBehavior.Throw,
-            jsonValueReaderWriter: JsonGuidReaderWriter.Instance);
+            afterSaveBehavior: PropertySaveBehavior.Throw);
         alternateId.SetGetter(
             Guid (CompiledModelTestBase.PrincipalBase instance) => instance.AlternateId,
             bool (CompiledModelTestBase.PrincipalBase instance) => instance.AlternateId == new Guid("00000000-0000-0000-0000-000000000000"));
@@ -110,7 +109,9 @@ public partial class PrincipalBaseEntityType
             comparer: DefaultValueComparer<Guid>.Default,
             providerValueComparer: DefaultValueComparer<string>.Default,
             converter: GuidToStringConverter.Instance,
-            jsonValueReaderWriter: JsonGuidReaderWriter.Instance);
+            jsonValueReaderWriter: new JsonConvertedValueReaderWriter<Guid, string>(
+                JsonStringReaderWriter.Instance,
+                GuidToStringConverter.Instance));
         alternateId.SetCurrentValueComparer(new EntryCurrentValueComparer<Guid>(alternateId));
         alternateId.SetSentinelFromProviderValue("00000000-0000-0000-0000-000000000000");
 
