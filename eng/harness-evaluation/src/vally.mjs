@@ -10,8 +10,10 @@ if (process.argv[2] === '--judge-timeout') {
   const judgeTimeout = process.argv[3];
   timeoutMs = timeoutMilliseconds(judgeTimeout, '--judge-timeout');
   process.argv.splice(2, 2);
-  const commandIndex = process.argv[2] === 'experiment' && process.argv[3] === 'run' ? 4 : 3;
-  process.argv.splice(commandIndex, 0, '--judge-timeout', judgeTimeout);
+  const experimentRun = process.argv[2] === 'experiment' && process.argv[3] === 'run';
+  if (!experimentRun || process.argv.includes('--compare')) {
+    process.argv.splice(experimentRun ? 4 : 3, 0, '--judge-timeout', judgeTimeout);
+  }
 }
 judgeTimeoutLimits(timeoutMs);
 

@@ -83,7 +83,7 @@ variants:
     const outputRoot = join(root, 'artifacts/results');
     const execution = runVally(['experiment', 'run', experimentPath, '--output-dir', outputRoot,
       '--param', 'RUNS=1', '--workers', '1'], { cwd: root, judgeTimeout: '10m' });
-    assert.ok([0, 1].includes(execution.status), execution.stderr);
+    assert.equal(execution.status, 0, execution.stderr + execution.stdout);
     const experimentDirectory = await findExperimentRunDirectory(outputRoot);
     const planPath = join(experimentDirectory, 'plan-snapshot.json');
     const plan = JSON.parse(await readFile(planPath, 'utf8'));
@@ -93,6 +93,8 @@ variants:
     for (const variant of ['control', 'treatment']) {
       const resultsPath = join(experimentDirectory, variant, 'results.jsonl');
       assert.equal(await variantCompleted(resultsPath, planPath, variant), true, await readFile(resultsPath, 'utf8'));
+      assert.equal(await variantPassed(resultsPath,
+        join(root, 'eng/harness-evaluation/skills/example/eval.yaml'), planPath, variant), true);
       const records = (await readFile(resultsPath, 'utf8')).split(/\r?\n/).filter(Boolean).map(JSON.parse);
       const trials = records.filter((record) => record.type === 'trial-result');
       assert.equal(trials.length, 1);
@@ -535,8 +537,12 @@ test('judge timeout loader preserves explicit timeouts without changing the nati
     }`);
     await writeFile(preloadPath, `import { register } from 'node:module';
       register(${JSON.stringify(pathToFileURL(loaderPath).href)}, import.meta.url);`);
-    for (const [command, subcommand, fixture] of [['experiment', 'run', 'fixture'], ['compare', undefined, 'fixture']]) {
-      const commandArguments = subcommand ? [command, subcommand, fixture] : [command, fixture];
+    for (const commandArguments of [
+      ['experiment', 'run', 'fixture'],
+      ['experiment', 'run', 'fixture', '--compare'],
+      ['compare', 'fixture'],
+      ['eval', 'fixture'],
+    ]) {
       for (const [timeout, expected] of [[undefined, 600_000], ['15m', 900_000], ['30s', 30_000]]) {
         const result = spawnSync(process.execPath, ['--import', pathToFileURL(preloadPath).href,
           fileURLToPath(new URL('../src/vally.mjs', import.meta.url)),
@@ -546,9 +552,13 @@ test('judge timeout loader preserves explicit timeouts without changing the nati
         const lines = result.stdout.trim().split(/\r?\n/).map(JSON.parse);
         assert.deepEqual(lines, [
           { sdkTimeoutMs: expected, verdict: { passed: true } },
-          subcommand
-            ? [command, subcommand, ...(timeout ? ['--judge-timeout', timeout] : []), fixture]
-            : [command, ...(timeout ? ['--judge-timeout', timeout] : []), fixture],
+          timeout && (commandArguments[0] !== 'experiment' || commandArguments.includes('--compare'))
+            ? [
+              ...commandArguments.slice(0, commandArguments[0] === 'experiment' ? 2 : 1),
+              '--judge-timeout', timeout,
+              ...commandArguments.slice(commandArguments[0] === 'experiment' ? 2 : 1),
+            ]
+            : commandArguments,
         ]);
       }
     }
@@ -605,19 +615,21 @@ test('judge timeout loader scales comparison deadlines and fails closed on nativ
   }
 });
 
-test('all evals specify and resolve judge defaults and overrides through Vally', async () => {
+test('all evals specify and resolve model and judge defaults and overrides through Vally', async () => {
   const components = await discoverComponents();
   assert.ok(components.length > 0);
   for (const component of components) {
     const evalPath = join(defaultRepoRoot, component.eval);
     const authored = parse(await readFile(evalPath, 'utf8'));
-    assert.equal(authored.defaults.judge_model, '${JUDGE_MODEL=gpt-5.6-terra}', component.id);
-    assert.equal(authored.defaults.judge_reasoning_effort, '${JUDGE_REASONING_EFFORT=medium}', component.id);
+    assert.equal(authored.defaults.model, '${MODEL=gpt-6.1-terra}', component.id);
+    assert.equal(authored.defaults.judge_model, '${JUDGE_MODEL=gpt-6.1-sol}', component.id);
+    assert.equal(authored.defaults.judge_reasoning_effort, '${JUDGE_REASONING_EFFORT=low}', component.id);
     assert.equal(authored.defaults.judge_timeout, '${JUDGE_TIMEOUT=10m}', component.id);
     assert.equal(authored.scoring.timeout, '${SCORING_TIMEOUT=10m}', component.id);
     const defaults = (await loadEvalWithParams(evalPath)).spec.defaults;
-    assert.equal(defaults.judge_reasoning_effort, 'medium', component.id);
-    assert.equal(defaults.judge_model, 'gpt-5.6-terra', component.id);
+    assert.equal(defaults.judge_reasoning_effort, 'low', component.id);
+    assert.equal(defaults.model, 'gpt-6.1-terra', component.id);
+    assert.equal(defaults.judge_model, 'gpt-6.1-sol', component.id);
     assert.equal(defaults.judge_timeout, '10m', component.id);
     assert.equal(authored.defaults.timeout, undefined, component.id);
     assert.equal(defaults.timeout, undefined, component.id);
@@ -629,10 +641,11 @@ test('all evals specify and resolve judge defaults and overrides through Vally',
         `${component.id}/${stimulus.name}`);
     }
     const overridden = (await loadEvalWithParams(evalPath, {
-      cliParams: { JUDGE_REASONING_EFFORT: 'high', JUDGE_MODEL: 'gpt-6.1-sol', JUDGE_TIMEOUT: '12m', SCORING_TIMEOUT: '15m', EVAL_TIMEOUT: '45m' },
+      cliParams: { MODEL: 'gpt-6.1-sol', JUDGE_REASONING_EFFORT: 'high', JUDGE_MODEL: 'gpt-6.1-terra', JUDGE_TIMEOUT: '12m', SCORING_TIMEOUT: '15m', EVAL_TIMEOUT: '45m' },
     })).spec;
     assert.equal(overridden.defaults.judge_reasoning_effort, 'high', component.id);
-    assert.equal(overridden.defaults.judge_model, 'gpt-6.1-sol');
+    assert.equal(overridden.defaults.model, 'gpt-6.1-sol', component.id);
+    assert.equal(overridden.defaults.judge_model, 'gpt-6.1-terra', component.id);
     assert.equal(overridden.defaults.judge_timeout, '12m', component.id);
     assert.equal(overridden.scoring.timeout, '15m', component.id);
     assert.equal(overridden.defaults.timeout, undefined, component.id);
