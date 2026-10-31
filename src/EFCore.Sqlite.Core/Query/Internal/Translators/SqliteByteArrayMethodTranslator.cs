@@ -32,33 +32,31 @@ public class SqliteByteArrayMethodTranslator(ISqlExpressionFactory sqlExpression
             && arguments is [var source, var item]
             && source.Type == typeof(byte[]))
         {
-            // A non-constant byte has to be turned into a one-byte BLOB. char() would produce TEXT (the UTF-8 encoding of
-            // the code point), which makes instr() compare as text and gives wrong results for values above 0x7F.
-            var value = item is SqlConstantExpression constantValue
-                ? sqlExpressionFactory.Constant(new[] { (byte)constantValue.Value! }, source.TypeMapping)
-                : sqlExpressionFactory.Function(
-                    "unhex",
-                    [
-                        sqlExpressionFactory.Function(
-                            "printf",
-                            [sqlExpressionFactory.Constant("%02X"), item],
-                            nullable: true,
-                            argumentsPropagateNullability: Statics.FalseTrue,
-                            typeof(string))
-                    ],
-                    nullable: true,
-                    argumentsPropagateNullability: Statics.TrueArrays[1],
-                    typeof(byte[]),
-                    source.TypeMapping);
-
             return sqlExpressionFactory.GreaterThan(
                 sqlExpressionFactory.Function(
                     "instr",
-                    [source, value],
+                    [source, ToSingleByteBlob(item, source)],
                     nullable: true,
                     argumentsPropagateNullability: Statics.TrueArrays[2],
                     typeof(int)),
                 sqlExpressionFactory.Constant(0));
+        }
+
+        if (method.IsGenericMethod
+            && method.DeclaringType == typeof(Array)
+            && method.Name == nameof(Array.IndexOf)
+            && arguments is [var array, var searchItem]
+            && array.Type == typeof(byte[]))
+        {
+            // instr() is 1-based and returns 0 when not found; Array.IndexOf is 0-based and returns -1.
+            return sqlExpressionFactory.Subtract(
+                sqlExpressionFactory.Function(
+                    "instr",
+                    [array, ToSingleByteBlob(searchItem, array)],
+                    nullable: true,
+                    argumentsPropagateNullability: Statics.TrueArrays[2],
+                    typeof(int)),
+                sqlExpressionFactory.Constant(1));
         }
 
         return method.IsGenericMethod
@@ -76,6 +74,26 @@ public class SqliteByteArrayMethodTranslator(ISqlExpressionFactory sqlExpression
                     sqlExpressionFactory.Constant(0))
                 : null;
     }
+
+    // A non-constant byte has to be turned into a one-byte BLOB. char() would produce TEXT (the UTF-8 encoding of
+    // the code point), which makes instr() compare as text and gives wrong results for values above 0x7F.
+    private SqlExpression ToSingleByteBlob(SqlExpression item, SqlExpression source)
+        => item is SqlConstantExpression constantValue
+            ? sqlExpressionFactory.Constant(new[] { (byte)constantValue.Value! }, source.TypeMapping)
+            : sqlExpressionFactory.Function(
+                "unhex",
+                [
+                    sqlExpressionFactory.Function(
+                        "printf",
+                        [sqlExpressionFactory.Constant("%02X"), item],
+                        nullable: true,
+                        argumentsPropagateNullability: Statics.FalseTrue,
+                        typeof(string))
+                ],
+                nullable: true,
+                argumentsPropagateNullability: Statics.TrueArrays[1],
+                typeof(byte[]),
+                source.TypeMapping);
 
     // See issue#16428
     //if (method.IsGenericMethod

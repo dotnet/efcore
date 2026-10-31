@@ -32,22 +32,14 @@ public class SqlServerByteArrayMethodTranslator(ISqlExpressionFactory sqlExpress
             switch (method.Name)
             {
                 case nameof(Enumerable.Contains) when arguments is [var source, var item] && source.Type == typeof(byte[]):
-                {
-                    var sourceTypeMapping = source.TypeMapping;
-
-                    var value = item is SqlConstantExpression constantValue
-                        ? sqlExpressionFactory.Constant(new[] { (byte)constantValue.Value! }, sourceTypeMapping)
-                        : sqlExpressionFactory.Convert(item, typeof(byte[]), sourceTypeMapping);
-
                     return sqlExpressionFactory.GreaterThan(
                         sqlExpressionFactory.Function(
                             "CHARINDEX",
-                            [value, source],
+                            [ToSingleByteArray(item, source), source],
                             nullable: true,
                             argumentsPropagateNullability: Statics.TrueArrays[2],
                             typeof(int)),
                         sqlExpressionFactory.Constant(0));
-                }
 
                 // First without a predicate
                 case nameof(Enumerable.First) when arguments is [var source] && source.Type == typeof(byte[]):
@@ -72,7 +64,31 @@ public class SqlServerByteArrayMethodTranslator(ISqlExpressionFactory sqlExpress
                         sqlExpressionFactory.Constant(0));
             }
         }
+        else if (method.IsGenericMethod
+            && method.DeclaringType == typeof(Array)
+            && method.Name == nameof(Array.IndexOf)
+            && arguments is [var array, var searchItem]
+            && array.Type == typeof(byte[]))
+        {
+            // CHARINDEX is 1-based and returns 0 when not found; Array.IndexOf is 0-based and returns -1.
+            // CHARINDEX returns bigint when the searched expression is varbinary(max), so convert it back to int.
+            return sqlExpressionFactory.Subtract(
+                sqlExpressionFactory.Convert(
+                    sqlExpressionFactory.Function(
+                        "CHARINDEX",
+                        [ToSingleByteArray(searchItem, array), array],
+                        nullable: true,
+                        argumentsPropagateNullability: Statics.TrueArrays[2],
+                        typeof(long)),
+                    typeof(int)),
+                sqlExpressionFactory.Constant(1));
+        }
 
         return null;
     }
+
+    private SqlExpression ToSingleByteArray(SqlExpression item, SqlExpression source)
+        => item is SqlConstantExpression constantValue
+            ? sqlExpressionFactory.Constant(new[] { (byte)constantValue.Value! }, source.TypeMapping)
+            : sqlExpressionFactory.Convert(item, typeof(byte[]), source.TypeMapping);
 }
