@@ -36,7 +36,7 @@ public class RelationalModelValidator(
 
     /// <inheritdoc />
     protected override bool IsJsonProperty(IProperty property)
-        => property.DeclaringType.IsMappedToJson()
+        => (property.DeclaringType.IsMappedToJson() && !property.IsPrimaryKey())
             || (property.IsPrimitiveCollection
                 && property.GetTypeMapping().Converter?.ProviderClrType == typeof(string));
 

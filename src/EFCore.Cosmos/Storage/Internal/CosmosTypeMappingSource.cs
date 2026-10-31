@@ -102,6 +102,7 @@ public class CosmosTypeMappingSource : TypeMappingSource
                 ?? FindPrimitiveMapping(mappingInfo)
                 ?? FindCollectionMapping(mappingInfo)
                 ?? (mappingInfo.JsonValueReaderWriter is { } readerWriter
+                    && readerWriter.ValueType.IsAssignableFrom(clrType)
                     ? CreateMapping(clrType, jsonValueReaderWriter: readerWriter)
                     : null));
     }

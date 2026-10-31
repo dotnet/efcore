@@ -66,7 +66,9 @@ public class CosmosVectorTypeMapping : CosmosTypeMapping
                 mapping.Comparer,
                 mapping.KeyComparer,
                 elementMapping: mapping.ElementTypeMapping,
-                jsonValueReaderWriter: mapping.JsonValueReaderWriter),
+                jsonValueReaderWriter: mapping.Converter?.GetType() == typeof(BytesToStringConverter)
+                    ? new JsonCollectionOfStructsReaderWriter<byte[], byte>(JsonByteReaderWriter.Instance)
+                    : mapping.JsonValueReaderWriter),
             vectorType)
     {
     }
@@ -122,6 +124,22 @@ public class CosmosVectorTypeMapping : CosmosTypeMapping
     /// </summary>
     public override SqlParameter CreateParameter(string name, object? value)
     {
+        if (JsonValueReaderWriter != null)
+        {
+            value = value switch
+            {
+                ReadOnlyMemory<byte> memory when ClrType == typeof(byte[]) => memory.ToArray(),
+                ReadOnlyMemory<sbyte> memory when ClrType == typeof(sbyte[]) => memory.ToArray(),
+                ReadOnlyMemory<float> memory when ClrType == typeof(float[]) => memory.ToArray(),
+                byte[] array when ClrType == typeof(ReadOnlyMemory<byte>) => ReadOnlyMemoryConverter<byte>.ToMemory(array),
+                sbyte[] array when ClrType == typeof(ReadOnlyMemory<sbyte>) => ReadOnlyMemoryConverter<sbyte>.ToMemory(array),
+                float[] array when ClrType == typeof(ReadOnlyMemory<float>) => ReadOnlyMemoryConverter<float>.ToMemory(array),
+                _ => value
+            };
+
+            return base.CreateParameter(name, value);
+        }
+
         // This is a hack to write vector types of bytes as byte arrays in queries, instead of strings
         if (value is ReadOnlyMemory<byte> romBytes)
         {

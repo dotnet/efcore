@@ -9,6 +9,60 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 public partial class RelationalModelValidatorTest
 {
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
+    public void Validates_default_reader_writer_against_JSON_store_type(bool collection, bool converted)
+    {
+        var builder = CreateConventionModelBuilder(
+            c => c.DefaultTypeMapping<int>().HasJsonValueReaderWriter<JsonStringReaderWriter>());
+        IMutableProperty property;
+        if (collection)
+        {
+            var collectionBuilder = builder.Entity<JsonCollectionReaderWriterOwner>().PrimitiveCollection(e => e.Numbers);
+            if (converted)
+            {
+                collectionBuilder.ElementType().HasConversion<string>();
+            }
+
+            property = collectionBuilder.Metadata;
+        }
+        else
+        {
+            var owned = builder.Entity<JsonReaderWriterOwner>().OwnsOne(e => e.Value);
+            owned.ToJson();
+            var propertyBuilder = owned.Property(e => e.Number);
+            if (converted)
+            {
+                propertyBuilder.HasConversion<string>();
+            }
+
+            property = propertyBuilder.Metadata;
+        }
+
+        if (!converted)
+        {
+            VerifyError(
+                CoreStrings.JsonValueReaderWriterPropertyMismatch(
+                    property.DeclaringType.DisplayName(), property.Name + (collection ? "[]" : ""),
+                    nameof(JsonStringReaderWriter), "string", "int"),
+                builder);
+            return;
+        }
+
+        var model = Validate(builder);
+        var readerWriter = model.FindEntityType(property.DeclaringType.Name)!.FindProperty(property.Name)!
+            .GetTypeMapping().JsonValueReaderWriter!;
+        if (collection)
+        {
+            Assert.Equal("[\"42\",null]", readerWriter.ToJsonString(new List<int?> { 42, null }));
+            Assert.Equal(new List<int?> { 42, null }, Assert.IsAssignableFrom<IEnumerable<int?>>(readerWriter.FromJsonString("[\"42\",null]")));
+        }
+        else
+        {
+            Assert.Equal("\"42\"", readerWriter.ToJsonString(42));
+            Assert.Equal(42, readerWriter.FromJsonString("\"42\""));
+        }
+    }
+
     [Theory, InlineData(false), InlineData(true)]
     public void Accepts_reader_writer_for_concrete_JSON_collection_type(bool genericBuilder)
     {

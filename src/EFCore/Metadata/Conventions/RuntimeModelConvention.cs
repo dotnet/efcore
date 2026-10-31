@@ -423,7 +423,9 @@ public class RuntimeModelConvention : IModelFinalizedConvention
             element.GetProviderClrType(),
             element.GetValueConverter(),
             element.GetValueComparer(),
-            element.GetJsonValueReaderWriter(),
+            element[CoreAnnotationNames.JsonValueReaderWriterType] != null
+                ? element.GetJsonValueReaderWriter()
+                : null,
             element.GetTypeMapping());
 
     /// <summary>
