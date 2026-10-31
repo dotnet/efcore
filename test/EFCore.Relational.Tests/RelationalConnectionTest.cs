@@ -1095,7 +1095,7 @@ public class RelationalConnectionTest
     public void Interceptor_aggregators_implement_all_interface_methods(Type interceptorType, Type aggregatorType)
     {
         var compositeType = Assert.Single(
-            aggregatorType.GetNestedTypes(BindingFlags.NonPublic).Where(interceptorType.IsAssignableFrom));
+            aggregatorType.GetNestedTypes(BindingFlags.NonPublic), interceptorType.IsAssignableFrom);
 
         Assert.All(
             compositeType.GetInterfaceMap(interceptorType).TargetMethods,
