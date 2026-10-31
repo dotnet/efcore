@@ -95,6 +95,75 @@ WHERE CAST(JSON_VALUE([j].[IntList], '$[' + CAST(@id AS nvarchar(max)) + ']') AS
 """);
     }
 
+    public override async Task ThenInclude(bool collection, bool multiple, bool async)
+    {
+        await base.ThenInclude(collection, multiple, async);
+
+        if (collection)
+        {
+            if (multiple)
+            {
+                AssertSql(
+                    """
+SELECT [n3].[Id], [n3].[Name], [n3].[ParentId], [n3].[ReferenceId], [s].[Id], [s].[Name], [s].[ParentId], [s].[ReferenceId], [s].[Id0], [s].[Name0], [s].[ParentId0], [s].[ReferenceId0], [s].[Id1], [s].[Name1], [s].[ParentId1], [s].[ReferenceId1]
+FROM (
+    SELECT TOP(1) [n].[Id], [n].[Name], [n].[ParentId], [n].[ReferenceId]
+    FROM [Nodes] AS [n]
+    WHERE [n].[Name] = N'Root'
+) AS [n3]
+LEFT JOIN (
+    SELECT [n0].[Id], [n0].[Name], [n0].[ParentId], [n0].[ReferenceId], [n1].[Id] AS [Id0], [n1].[Name] AS [Name0], [n1].[ParentId] AS [ParentId0], [n1].[ReferenceId] AS [ReferenceId0], [n2].[Id] AS [Id1], [n2].[Name] AS [Name1], [n2].[ParentId] AS [ParentId1], [n2].[ReferenceId] AS [ReferenceId1]
+    FROM [Nodes] AS [n0]
+    LEFT JOIN [Nodes] AS [n1] ON [n0].[ReferenceId] = [n1].[Id]
+    LEFT JOIN [Nodes] AS [n2] ON [n1].[ReferenceId] = [n2].[Id]
+) AS [s] ON [n3].[Id] = [s].[ParentId]
+ORDER BY [n3].[Id]
+""");
+            }
+            else
+            {
+                AssertSql(
+                    """
+SELECT [n2].[Id], [n2].[Name], [n2].[ParentId], [n2].[ReferenceId], [s].[Id], [s].[Name], [s].[ParentId], [s].[ReferenceId], [s].[Id0], [s].[Name0], [s].[ParentId0], [s].[ReferenceId0]
+FROM (
+    SELECT TOP(1) [n].[Id], [n].[Name], [n].[ParentId], [n].[ReferenceId]
+    FROM [Nodes] AS [n]
+    WHERE [n].[Name] = N'Root'
+) AS [n2]
+LEFT JOIN (
+    SELECT [n0].[Id], [n0].[Name], [n0].[ParentId], [n0].[ReferenceId], [n1].[Id] AS [Id0], [n1].[Name] AS [Name0], [n1].[ParentId] AS [ParentId0], [n1].[ReferenceId] AS [ReferenceId0]
+    FROM [Nodes] AS [n0]
+    LEFT JOIN [Nodes] AS [n1] ON [n0].[ReferenceId] = [n1].[Id]
+) AS [s] ON [n2].[Id] = [s].[ParentId]
+ORDER BY [n2].[Id]
+""");
+            }
+        }
+        else if (multiple)
+        {
+            AssertSql(
+                """
+SELECT TOP(1) [n].[Id], [n].[Name], [n].[ParentId], [n].[ReferenceId], [n0].[Id], [n0].[Name], [n0].[ParentId], [n0].[ReferenceId], [n1].[Id], [n1].[Name], [n1].[ParentId], [n1].[ReferenceId], [n2].[Id], [n2].[Name], [n2].[ParentId], [n2].[ReferenceId]
+FROM [Nodes] AS [n]
+LEFT JOIN [Nodes] AS [n0] ON [n].[ReferenceId] = [n0].[Id]
+LEFT JOIN [Nodes] AS [n1] ON [n0].[ReferenceId] = [n1].[Id]
+LEFT JOIN [Nodes] AS [n2] ON [n1].[ReferenceId] = [n2].[Id]
+WHERE [n].[Name] = N'Root'
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+SELECT TOP(1) [n].[Id], [n].[Name], [n].[ParentId], [n].[ReferenceId], [n0].[Id], [n0].[Name], [n0].[ParentId], [n0].[ReferenceId], [n1].[Id], [n1].[Name], [n1].[ParentId], [n1].[ReferenceId]
+FROM [Nodes] AS [n]
+LEFT JOIN [Nodes] AS [n0] ON [n].[ReferenceId] = [n0].[Id]
+LEFT JOIN [Nodes] AS [n1] ON [n0].[ReferenceId] = [n1].[Id]
+WHERE [n].[Name] = N'Root'
+""");
+        }
+    }
+
     public override async Task JsonScalar()
     {
         await base.JsonScalar();
