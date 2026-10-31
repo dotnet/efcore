@@ -5,6 +5,7 @@
 
 using System.Runtime.CompilerServices;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
@@ -343,6 +344,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                     "MyEntity", e =>
                     {
                         e.Property<int>("Id").HasConversion(typeof(int), new FakeValueComparer());
+                        e.Property<int>("Int").HasConversion<int, CustomValueComparer<int>>();
+                        e.Property<int?>("NullableInt").HasConversion<int, CustomValueComparer<int>>();
+                        e.Property<int?>("NullableIntWithNullableComparer").HasConversion<int, CustomValueComparer<int?>>();
                         e.HasKey("Id");
                     }),
                 model =>
@@ -354,6 +358,28 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                             is Expression<Func<int, int>> lambda
                         && lambda.Body is ConstantExpression constant
                         && ((int)constant.Value!) == 1);
+
+                    var intComparer = Assert.IsType<CustomValueComparer<int>>(entityType.FindProperty("Int")!.GetValueComparer());
+                    Assert.True(intComparer.Equals(7, 7));
+                    Assert.False(intComparer.Equals(7, 8));
+                    Assert.Equal(7, intComparer.Snapshot(7));
+
+                    var nullableComparer = Assert.IsType<NullableValueComparer<int>>(
+                        entityType.FindProperty("NullableInt")!.GetValueComparer());
+                    Assert.IsType<CustomValueComparer<int>>(((IInfrastructure<ValueComparer>)nullableComparer).Instance);
+                    var explicitlyNullableComparer = Assert.IsType<CustomValueComparer<int?>>(
+                        entityType.FindProperty("NullableIntWithNullableComparer")!.GetValueComparer());
+
+                    foreach (var comparer in new ValueComparer<int?>[] { nullableComparer, explicitlyNullableComparer })
+                    {
+                        Assert.True(comparer.Equals(null, null));
+                        Assert.False(comparer.Equals(null, 7));
+                        Assert.False(comparer.Equals(7, null));
+                        Assert.True(comparer.Equals(7, 7));
+                        Assert.False(comparer.Equals(7, 8));
+                        Assert.Null(comparer.Snapshot(null));
+                        Assert.Equal(7, comparer.Snapshot(7));
+                    }
                 });
 
         private class FakeValueComparer() : ValueComparer<int>((l, r) => false, v => 0, v => 1)
