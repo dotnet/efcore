@@ -17,6 +17,18 @@ public class AdHocPrecompiledQuerySqliteTest(NonSharedFixture fixture, ITestOutp
         return optionsBuilder;
     }
 
+    public override async Task Coalesce_nullable_long_in_anonymous_projection()
+    {
+        await base.Coalesce_nullable_long_in_anonymous_projection();
+
+        AssertSql(
+            """
+SELECT COALESCE("r"."SizeBytes", 0) AS "SizeBytes"
+FROM "Records" AS "r"
+ORDER BY "r"."Id"
+""");
+    }
+
     protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqliteTestStoreFactory.Instance;
 
