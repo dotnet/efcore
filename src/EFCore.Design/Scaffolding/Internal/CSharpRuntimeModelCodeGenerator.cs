@@ -2496,6 +2496,15 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                         .AppendLine(");");
                 }
 
+                // Complex collection elements are tracked by their own entries, so their complex types need their own factories and counts,
+                // which aren't created at runtime when the entity type ones are preset
+                if (parameters.ForNativeAot
+                    && complexProperty.IsCollection)
+                {
+                    GenerateMemberReferences(complexType, complexTypeParameters, false);
+                    CreateSnapshotFactories((IRuntimeComplexType)complexType, complexTypeParameters, memberAccessReplacements);
+                }
+
                 CreateAnnotations(complexType, _annotationCodeGenerator.Generate, complexTypeParameters);
                 CreateAnnotations(complexProperty, _annotationCodeGenerator.Generate, complexPropertyParameters);
 
@@ -3006,7 +3015,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
 
             if (parameters.ForNativeAot)
             {
-                GenerateMemberReferences(entityType, parameters);
+                GenerateMemberReferences(entityType, parameters, true);
 
                 foreach (var key in entityType.GetDeclaredKeys())
                 {
@@ -3093,99 +3102,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                     mainBuilder.AppendLine(";");
                 }
 
-                var runtimeType = (IRuntimeEntityType)entityType;
-                var unsafeAccessors = new HashSet<string>();
-
-                var originalValuesFactory = OriginalValuesFactoryFactory.Instance.CreateExpression(runtimeType);
-                mainBuilder
-                    .Append(parameters.TargetName).AppendLine(".SetOriginalValuesFactory(")
-                    .IncrementIndent()
-                    .AppendLines(
-                        _code.Expression(
-                            originalValuesFactory, parameters.Namespaces, unsafeAccessors,
-                            (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements),
-                        skipFinalNewline: true)
-                    .AppendLine(");")
-                    .DecrementIndent();
-
-                var storeGeneratedValuesFactory = StoreGeneratedValuesFactoryFactory.Instance.CreateEmptyExpression(runtimeType);
-                mainBuilder
-                    .Append(parameters.TargetName).AppendLine(".SetStoreGeneratedValuesFactory(")
-                    .IncrementIndent()
-                    .AppendLines(
-                        _code.Expression(
-                            storeGeneratedValuesFactory, parameters.Namespaces, unsafeAccessors,
-                            (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements),
-                        skipFinalNewline: true)
-                    .AppendLine(");")
-                    .DecrementIndent();
-
-                var temporaryValuesFactory = TemporaryValuesFactoryFactory.Instance.CreateExpression(runtimeType);
-                mainBuilder
-                    .Append(parameters.TargetName).AppendLine(".SetTemporaryValuesFactory(")
-                    .IncrementIndent()
-                    .AppendLines(
-                        _code.Expression(
-                            temporaryValuesFactory, parameters.Namespaces, unsafeAccessors,
-                            (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements),
-                        skipFinalNewline: true)
-                    .AppendLine(");")
-                    .DecrementIndent();
-
-                var shadowValuesFactory = ShadowValuesFactoryFactory.Instance.CreateExpression(runtimeType);
-                mainBuilder
-                    .Append(parameters.TargetName).AppendLine(".SetShadowValuesFactory(")
-                    .IncrementIndent()
-                    .AppendLines(
-                        _code.Expression(
-                            shadowValuesFactory, parameters.Namespaces, unsafeAccessors,
-                            (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements),
-                        skipFinalNewline: true)
-                    .AppendLine(");")
-                    .DecrementIndent();
-
-                var emptyShadowValuesFactory = EmptyShadowValuesFactoryFactory.Instance.CreateEmptyExpression(runtimeType);
-                mainBuilder
-                    .Append(parameters.TargetName).AppendLine(".SetEmptyShadowValuesFactory(")
-                    .IncrementIndent()
-                    .AppendLines(
-                        _code.Expression(
-                            emptyShadowValuesFactory, parameters.Namespaces, unsafeAccessors,
-                            (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements),
-                        skipFinalNewline: true)
-                    .AppendLine(");")
-                    .DecrementIndent();
-
-                var relationshipSnapshotFactory = RelationshipSnapshotFactoryFactory.Instance.CreateExpression(runtimeType);
-                mainBuilder
-                    .Append(parameters.TargetName).AppendLine(".SetRelationshipSnapshotFactory(")
-                    .IncrementIndent()
-                    .AppendLines(
-                        _code.Expression(
-                            relationshipSnapshotFactory, parameters.Namespaces, unsafeAccessors,
-                            (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements),
-                        skipFinalNewline: true)
-                    .AppendLine(");")
-                    .DecrementIndent();
-
-                AddNamespace(typeof(PropertyCounts), parameters.Namespaces);
-                var counts = runtimeType.CalculateCounts();
-                mainBuilder
-                    .Append(parameters.TargetName).AppendLine(".SetCounts(new PropertyCounts(")
-                    .IncrementIndent()
-                    .Append("propertyCount: ").Append(_code.Literal(counts.PropertyCount)).AppendLine(",")
-                    .Append("navigationCount: ").Append(_code.Literal(counts.NavigationCount)).AppendLine(",")
-                    .Append("complexPropertyCount: ").Append(_code.Literal(counts.ComplexPropertyCount)).AppendLine(",")
-                    .Append("complexCollectionCount: ").Append(_code.Literal(counts.ComplexCollectionCount)).AppendLine(",")
-                    .Append("originalValueCount: ").Append(_code.Literal(counts.OriginalValueCount)).AppendLine(",")
-                    .Append("shadowCount: ").Append(_code.Literal(counts.ShadowCount)).AppendLine(",")
-                    .Append("relationshipCount: ").Append(_code.Literal(counts.RelationshipCount)).AppendLine(",")
-                    .Append("storeGeneratedCount: ").Append(_code.Literal(counts.StoreGeneratedCount)).AppendLine("));")
-                    .DecrementIndent();
-
-                Check.DebugAssert(
-                    unsafeAccessors.Count == 0,
-                    "Generated unsafe accessors not handled: " + string.Join(Environment.NewLine, unsafeAccessors));
+                CreateSnapshotFactories((IRuntimeEntityType)entityType, parameters, memberAccessReplacements);
             }
 
             CreateAnnotations(entityType, _annotationCodeGenerator.Generate, parameters);
@@ -3199,51 +3116,143 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             .AppendLine("}")
             .AppendLine()
             .AppendLine("static partial void Customize(RuntimeEntityType runtimeEntityType);");
+    }
 
-        void GenerateMemberReferences(
-            ITypeBase structuralType,
-            CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+    /// <summary>
+    ///     Generates variables referencing the properties and complex properties of a type that aren't in scope yet.
+    /// </summary>
+    /// <param name="structuralType">The type.</param>
+    /// <param name="parameters">The parameters with the variables in scope.</param>
+    /// <param name="includeComplexCollections">Whether to also reference the members of complex collection element types.</param>
+    private void GenerateMemberReferences(
+        ITypeBase structuralType,
+        CSharpRuntimeAnnotationCodeGeneratorParameters parameters,
+        bool includeComplexCollections)
+    {
+        var mainBuilder = parameters.MainBuilder;
+        foreach (var property in structuralType.GetProperties())
         {
-            var mainBuilder = parameters.MainBuilder;
-            foreach (var property in structuralType.GetProperties())
+            if (parameters.ScopeVariables.ContainsKey(property))
             {
-                var variableName = _code.Identifier(property.Name, property, parameters.ScopeObjects, capitalize: false);
-
-                mainBuilder
-                    .Append($"var {variableName} = ")
-                    .Append($"{parameters.ScopeVariables[structuralType]}.FindProperty({_code.Literal(property.Name)})");
-                if (nullable)
-                {
-                    mainBuilder.Append("!");
-                }
-
-                mainBuilder.AppendLine(";");
+                continue;
             }
 
-            foreach (var complexProperty in structuralType.GetComplexProperties())
+            var variableName = _code.Identifier(property.Name, property, parameters.ScopeObjects, capitalize: false);
+
+            mainBuilder
+                .Append($"var {variableName} = ")
+                .Append($"{parameters.ScopeVariables[structuralType]}.FindProperty({_code.Literal(property.Name)})");
+            if (parameters.UseNullableReferenceTypes)
             {
-                var variableName = _code.Identifier(complexProperty.Name, complexProperty, parameters.ScopeObjects, capitalize: false);
+                mainBuilder.Append("!");
+            }
+
+            mainBuilder.AppendLine(";");
+        }
+
+        foreach (var complexProperty in structuralType.GetComplexProperties())
+        {
+            if (!parameters.ScopeVariables.TryGetValue(complexProperty, out var variableName))
+            {
+                variableName = _code.Identifier(complexProperty.Name, complexProperty, parameters.ScopeObjects, capitalize: false);
 
                 mainBuilder
                     .Append($"var {variableName} = ")
                     .Append($"{parameters.ScopeVariables[structuralType]}.FindComplexProperty({_code.Literal(complexProperty.Name)})");
-                if (nullable)
+                if (parameters.UseNullableReferenceTypes)
                 {
                     mainBuilder.Append("!");
                 }
 
                 mainBuilder.AppendLine(";");
-
-                var typeVariableName = _code.Identifier(
-                    complexProperty.ComplexType.ShortName(), complexProperty.ComplexType, parameters.ScopeObjects, capitalize: false);
-
-                mainBuilder
-                    .Append($"var {typeVariableName} = ")
-                    .AppendLine($"{variableName}.ComplexType;");
-
-                GenerateMemberReferences(complexProperty.ComplexType, parameters);
             }
+
+            if (complexProperty.IsCollection
+                && !includeComplexCollections)
+            {
+                continue;
+            }
+
+            var typeVariableName = _code.Identifier(
+                complexProperty.ComplexType.ShortName(), complexProperty.ComplexType, parameters.ScopeObjects, capitalize: false);
+
+            mainBuilder
+                .Append($"var {typeVariableName} = ")
+                .AppendLine($"{variableName}.ComplexType;");
+
+            GenerateMemberReferences(complexProperty.ComplexType, parameters, includeComplexCollections);
         }
+    }
+
+    /// <summary>
+    ///     Generates the calls that preset the snapshot factories and property counts of a runtime type.
+    /// </summary>
+    /// <param name="structuralType">The type.</param>
+    /// <param name="parameters">The parameters with the variable referencing the type as the target.</param>
+    /// <param name="memberAccessReplacements">The replacements for inaccessible members.</param>
+    private void CreateSnapshotFactories(
+        IRuntimeTypeBase structuralType,
+        CSharpRuntimeAnnotationCodeGeneratorParameters parameters,
+        Dictionary<MemberInfo, QualifiedName> memberAccessReplacements)
+    {
+        var mainBuilder = parameters.MainBuilder;
+        var unsafeAccessors = new HashSet<string>();
+
+        CreateFactory(
+            nameof(RuntimeTypeBase.SetOriginalValuesFactory),
+            OriginalValuesFactoryFactory.Instance.CreateExpression(structuralType));
+        CreateFactory(
+            nameof(RuntimeTypeBase.SetStoreGeneratedValuesFactory),
+            StoreGeneratedValuesFactoryFactory.Instance.CreateEmptyExpression(structuralType));
+        CreateFactory(
+            nameof(RuntimeTypeBase.SetTemporaryValuesFactory),
+            TemporaryValuesFactoryFactory.Instance.CreateExpression(structuralType));
+        CreateFactory(
+            nameof(RuntimeTypeBase.SetShadowValuesFactory),
+            ShadowValuesFactoryFactory.Instance.CreateExpression(structuralType));
+        CreateFactory(
+            nameof(RuntimeTypeBase.SetEmptyShadowValuesFactory),
+            EmptyShadowValuesFactoryFactory.Instance.CreateEmptyExpression(structuralType));
+
+        if (structuralType is IRuntimeEntityType entityType)
+        {
+            CreateFactory(
+                nameof(RuntimeEntityType.SetRelationshipSnapshotFactory),
+                RelationshipSnapshotFactoryFactory.Instance.CreateExpression(entityType));
+        }
+
+        AddNamespace(typeof(PropertyCounts), parameters.Namespaces);
+        var counts = structuralType.CalculateCounts();
+        mainBuilder
+            .Append(parameters.TargetName).AppendLine(".SetCounts(new PropertyCounts(")
+            .IncrementIndent()
+            .Append("propertyCount: ").Append(_code.Literal(counts.PropertyCount)).AppendLine(",")
+            .Append("navigationCount: ").Append(_code.Literal(counts.NavigationCount)).AppendLine(",")
+            .Append("complexPropertyCount: ").Append(_code.Literal(counts.ComplexPropertyCount)).AppendLine(",")
+            .Append("complexCollectionCount: ").Append(_code.Literal(counts.ComplexCollectionCount)).AppendLine(",")
+            .Append("originalValueCount: ").Append(_code.Literal(counts.OriginalValueCount)).AppendLine(",")
+            .Append("shadowCount: ").Append(_code.Literal(counts.ShadowCount)).AppendLine(",")
+            .Append("relationshipCount: ").Append(_code.Literal(counts.RelationshipCount)).AppendLine(",")
+            .Append("storeGeneratedCount: ").Append(_code.Literal(counts.StoreGeneratedCount)).AppendLine("));")
+            .DecrementIndent();
+
+        Check.DebugAssert(
+            unsafeAccessors.Count == 0,
+            "Generated unsafe accessors not handled: " + string.Join(Environment.NewLine, unsafeAccessors));
+
+        return;
+
+        void CreateFactory(string methodName, LambdaExpression factory)
+            => mainBuilder
+                .Append(parameters.TargetName).Append(".").Append(methodName).AppendLine("(")
+                .IncrementIndent()
+                .AppendLines(
+                    _code.Expression(
+                        factory, parameters.Namespaces, unsafeAccessors,
+                        (IReadOnlyDictionary<object, string>)parameters.ScopeVariables, memberAccessReplacements),
+                    skipFinalNewline: true)
+                .AppendLine(");")
+                .DecrementIndent();
     }
 
     private static void CreateAnnotations<TAnnotatable>(

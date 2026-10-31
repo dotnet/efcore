@@ -82,7 +82,7 @@ variants:
 `);
     const outputRoot = join(root, 'artifacts/results');
     const execution = runVally(['experiment', 'run', experimentPath, '--output-dir', outputRoot,
-      '--param', 'RUNS=1', '--workers', '1'], { cwd: root });
+      '--param', 'RUNS=1', '--workers', '1'], { cwd: root, judgeTimeout: '10m' });
     assert.ok([0, 1].includes(execution.status), execution.stderr);
     const experimentDirectory = await findExperimentRunDirectory(outputRoot);
     const planPath = join(experimentDirectory, 'plan-snapshot.json');
@@ -110,7 +110,7 @@ variants:
     const loaderPath = join(root, 'judge-loader.mjs');
     const fakeClientSource = `export async function createCopilotLlmClient() {
       return { supportsWorkspaceDelivery: true, shutdown() {}, judge: async (options) => {
-        const timeoutMs = Math.min(options.timeoutMs ?? 120_000, 120_000);
+        const timeoutMs = options.timeoutMs ?? 600_000;
         if (timeoutMs !== 600000) throw new Error('The comparison did not receive the extended judge timeout.');
         return { latencyMs: 0, args: {
           rubric_results: [{ criterion: 'Inspect the anchor.', winner: 'B', magnitude: 'much-better', reasoning: 'Contract probe.' }],
@@ -130,9 +130,12 @@ variants:
     const comparisonPath = join(outputRoot, 'comparison.jsonl');
     const comparisonDirectory = await prepareComparison(experimentDirectory, join(outputRoot, 'comparison-input'));
     const comparisonResult = runVally(['compare', comparisonDirectory, '--output', comparisonPath], {
-      cwd: root, env: { NODE_OPTIONS: `--import=${pathToFileURL(preloadPath).href}` },
+      cwd: root,
+      judgeTimeout: '10m',
+      env: { NODE_OPTIONS: `--import=${pathToFileURL(preloadPath).href}` },
     });
-    assert.equal(comparisonResult.status, 0, comparisonResult.stderr);
+    assert.equal(comparisonResult.status, 0,
+      comparisonResult.stderr + comparisonResult.stdout + await readFile(comparisonPath, 'utf8'));
     const comparisons = (await readFile(comparisonPath, 'utf8')).split(/\r?\n/).filter(Boolean).map(JSON.parse);
     assert.equal(comparisons.length, 1);
     const comparison = comparisons[0];
@@ -458,7 +461,7 @@ test('native scoring timeout reaches graders and bounds the whole grading pass',
   }
 });
 
-test('judge timeout loader removes the SDK cap without changing the native package', async () => {
+test('judge timeout loader preserves explicit timeouts without changing the native package', async () => {
   const root = await mkdtemp(join(tmpdir(), 'efcore-native-judge-timeout-'));
   try {
     const clientUrl = new URL('./graders/llm/llm-client.js', import.meta.resolve('@microsoft/vally')).href;
@@ -469,9 +472,10 @@ test('judge timeout loader removes the SDK cap without changing the native packa
       export class CopilotClient {
         async start() {}
         async stop() { return []; }
+        async listModels() { return [{ id: 'mock' }]; }
         async createSession(options) {
           return {
-            on() {}, async abort() {}, async disconnect() {},
+            on() { return () => {}; }, async abort() {}, async disconnect() {},
             async sendAndWait(message, timeoutMs) {
               globalThis.sdkTimeoutMs = timeoutMs;
               await options.tools[0].handler({ passed: true });
@@ -504,7 +508,7 @@ test('judge timeout loader removes the SDK cap without changing the native packa
     const originalSource = await readFile(fileURLToPath(clientUrl), 'utf8');
     const adapterUrl = new URL('../src/judge-timeout.mjs', import.meta.url).href;
     const timeoutLoaderUrl = new URL('../src/judge-timeout-loader.mjs', import.meta.url).href;
-    for (const [adapted, remainingBudget, expected] of [[false, '10m', 120_000], [true, '15m', 600_000], [true, '30s', 30_000]]) {
+    for (const [adapted, remainingBudget, expected] of [[false, '10m', 600_000], [true, '15m', 600_000], [true, '30s', 30_000]]) {
       await writeFile(preloadPath, `import { register } from 'node:module';
         register(${JSON.stringify(pathToFileURL(loaderPath).href)}, import.meta.url);
         ${adapted ? `register(${JSON.stringify(timeoutLoaderUrl)}, import.meta.url, {
@@ -531,17 +535,20 @@ test('judge timeout loader removes the SDK cap without changing the native packa
     }`);
     await writeFile(preloadPath, `import { register } from 'node:module';
       register(${JSON.stringify(pathToFileURL(loaderPath).href)}, import.meta.url);`);
-    for (const command of ['experiment', 'compare']) {
+    for (const [command, subcommand, fixture] of [['experiment', 'run', 'fixture'], ['compare', undefined, 'fixture']]) {
+      const commandArguments = subcommand ? [command, subcommand, fixture] : [command, fixture];
       for (const [timeout, expected] of [[undefined, 600_000], ['15m', 900_000], ['30s', 30_000]]) {
         const result = spawnSync(process.execPath, ['--import', pathToFileURL(preloadPath).href,
           fileURLToPath(new URL('../src/vally.mjs', import.meta.url)),
-          ...(timeout ? ['--judge-timeout', timeout] : []), command, 'fixture'],
+          ...(timeout ? ['--judge-timeout', timeout] : []), ...commandArguments],
         { encoding: 'utf8', env: { ...process.env, EF_HARNESS_JUDGE_TIMEOUT_MS: '1' } });
         assert.equal(result.status, 0, result.stderr);
         const lines = result.stdout.trim().split(/\r?\n/).map(JSON.parse);
         assert.deepEqual(lines, [
           { sdkTimeoutMs: expected, verdict: { passed: true } },
-          [command, 'fixture'],
+          subcommand
+            ? [command, subcommand, ...(timeout ? ['--judge-timeout', timeout] : []), fixture]
+            : [command, ...(timeout ? ['--judge-timeout', timeout] : []), fixture],
         ]);
       }
     }
@@ -834,7 +841,7 @@ test('eval rejects invalid timeouts and unsupported execution overrides before d
     const invalidJudgeDefault = spawnSync(process.execPath, [cliPath, 'eval', 'example', '--repo-root', root,
       '--output', output], { encoding: 'utf8' });
     assert.notEqual(invalidJudgeDefault.status, 0);
-    assert.match(invalidJudgeDefault.stderr, /defaults.judge_timeout must be a positive duration/);
+    assert.match(invalidJudgeDefault.stderr, /defaults.judge_timeout must be a duration string with a unit suffix/);
     assert.equal(await readFile(sentinel, 'utf8'), 'keep');
     await writeFile(evalPath, evalYaml('example'));
     const overflow = spawnSync(process.execPath, [cliPath, 'eval', 'example', '--repo-root', root,

@@ -151,6 +151,12 @@
   <data name="ComplexCollectionNotMappedToJson" xml:space="preserve">
     <value>The complex collection property '{entityType}.{property}' must be mapped to a JSON column. Use 'ToJson()' to configure this complex collection as mapped to a JSON column.</value>
   </data>
+  <data name="ComplexCollectionSharedJsonColumn" xml:space="preserve">
+    <value>The complex collection '{complexCollection}' and the complex property '{complexProperty}' are both mapped to JSON column '{column}' in table '{table}', but a complex collection can't share a JSON column with a complex property that isn't a collection. Configure a different JSON column name for one of them by passing it to 'ToJson()'.</value>
+  </data>
+  <data name="ComplexPropertiesSharedJsonColumn" xml:space="preserve">
+    <value>The complex properties '{complexProperty1}' and '{complexProperty2}' are both mapped to JSON column '{column}' in table '{table}'. Configure a different JSON column name for one of them by passing it to 'ToJson()'.</value>
+  </data>
   <data name="ComplexPropertyBothJsonColumnAndJsonPropertyName" xml:space="preserve">
     <value>Complex property '{complexProperty}' cannot have both a JSON column name ('{columnName}') and a JSON property name ('{propertyName}') configured. Use 'ToJson()' to map to a JSON column or 'HasJsonPropertyName()' to map as a JSON property within a containing JSON column, but not both.</value>
   </data>
@@ -1089,6 +1095,9 @@
   </data>
   <data name="NestedCollectionsNotSupported" xml:space="preserve">
     <value>The property '{propertyType} {type}.{property}' is a primitive collection of a primitive collection. Nested primitive collections are not yet supported with relational database providers.</value>
+  </data>
+  <data name="NestedComplexPropertyJsonColumn" xml:space="preserve">
+    <value>Complex property '{complexProperty}' is mapped to JSON column '{column}', but its containing type '{containingType}' is already mapped to JSON column '{containingColumn}'. Only call 'ToJson()' on the outermost type mapped to JSON.</value>
   </data>
   <data name="NestedComplexPropertyJsonWithTableSharing" xml:space="preserve">
     <value>Complex property '{complexProperty}' is mapped to JSON but its containing type '{containingType}' is not. Map the root complex type to JSON. See https://github.com/dotnet/efcore/issues/36558.</value>

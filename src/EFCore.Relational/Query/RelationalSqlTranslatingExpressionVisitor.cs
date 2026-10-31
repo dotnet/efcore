@@ -3,6 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -1323,21 +1324,20 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
 
                 SqlExpression? condition = null;
                 // Property is being shared with principal side, so we need to make it conditional access
-                var allRequiredNonPkProperties =
-                    entityType.GetProperties().Where(p => !p.IsNullable && !p.IsPrimaryKey()).ToList();
+                var allRequiredNonPkProperties = entityType.GetRequiredNonPkProperties();
                 if (allRequiredNonPkProperties.Count > 0)
                 {
-                    condition = allRequiredNonPkProperties.Select(projection.BindProperty)
+                    condition = allRequiredNonPkProperties.Select(projection.BindColumn)
                         .Select(c => _sqlExpressionFactory.NotEqual(c, _sqlExpressionFactory.Constant(null, c.Type)))
                         .Aggregate(_sqlExpressionFactory.AndAlso);
                 }
 
                 if (nonPrincipalSharedNonPkProperties.Count != 0
-                    && nonPrincipalSharedNonPkProperties.All(p => p.IsNullable))
+                    && nonPrincipalSharedNonPkProperties.All(p => p.IsNullable()))
                 {
                     // If all non principal shared properties are nullable then we need additional condition
                     var atLeastOneNonNullValueInNullableColumnsCondition = nonPrincipalSharedNonPkProperties
-                        .Select(projection.BindProperty)
+                        .Select(projection.BindColumn)
                         .Select(c => _sqlExpressionFactory.NotEqual(c, _sqlExpressionFactory.Constant(null, c.Type)))
                         .Aggregate(_sqlExpressionFactory.OrElse);
 

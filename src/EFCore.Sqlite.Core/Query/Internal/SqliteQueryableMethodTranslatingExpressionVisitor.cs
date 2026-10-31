@@ -464,22 +464,19 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         // First step: build a SelectExpression that will execute json_each and project all properties and navigations out, e.g.
         // (SELECT value ->> 'a' AS a, value ->> 'b' AS b FROM json_each(c."JsonColumn", '$.Something.SomeCollection')
 
+        var jsonElements = new List<(string JsonPropertyName, JsonScalarExpression Expression)>();
+
         // We're only interested in properties which actually exist in the JSON, filter out uninteresting synthetic keys
         foreach (var property in structuralType.GetPropertiesInHierarchy())
         {
             if (jsonQueryExpression.FindJsonElement(property) is { PropertyName: { } jsonPropertyName } element)
             {
-                // HACK: currently the only way to project multiple values from a SelectExpression is to simulate a Select out to an anonymous
-                // type; this requires the MethodInfos of the anonymous type properties, from which the projection alias gets taken.
-                // So we create fake members to hold the JSON property name for the alias.
-                var projectionMember = new ProjectionMember().Append(new FakeMemberInfo(jsonPropertyName));
-
-                propertyJsonScalarExpression[projectionMember] = new JsonScalarExpression(
+                jsonElements.Add((jsonPropertyName, new JsonScalarExpression(
                     jsonColumn,
                     [new PathSegment(jsonPropertyName)],
                     property.ClrType.UnwrapNullableType(),
                     element.StoreTypeMapping!,
-                    property.IsNullable);
+                    property.IsNullable)));
             }
         }
 
@@ -493,14 +490,12 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                 var jsonNavigationName = jsonQueryExpression.GetJsonElement(navigation).PropertyName;
                 Check.DebugAssert(jsonNavigationName is not null, "Invalid navigation found on JSON-mapped entity");
 
-                var projectionMember = new ProjectionMember().Append(new FakeMemberInfo(jsonNavigationName));
-
-                propertyJsonScalarExpression[projectionMember] = new JsonScalarExpression(
+                jsonElements.Add((jsonNavigationName, new JsonScalarExpression(
                     jsonColumn,
                     [new PathSegment(jsonNavigationName)],
                     typeof(string),
                     textTypeMapping,
-                    !navigation.ForeignKey.IsRequiredDependent);
+                    !navigation.ForeignKey.IsRequiredDependent)));
             }
         }
 
@@ -509,14 +504,35 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
             var jsonNavigationName = jsonQueryExpression.GetJsonElement(complexProperty).PropertyName;
             Check.DebugAssert(jsonNavigationName is not null, "Invalid complex property found on JSON-mapped structural type");
 
-            var projectionMember = new ProjectionMember().Append(new FakeMemberInfo(jsonNavigationName));
-
-            propertyJsonScalarExpression[projectionMember] = new JsonScalarExpression(
+            jsonElements.Add((jsonNavigationName, new JsonScalarExpression(
                 jsonColumn,
                 [new PathSegment(jsonNavigationName)],
                 typeof(string),
                 textTypeMapping,
-                jsonQueryExpression.IsNullable || complexProperty.IsNullable);
+                jsonQueryExpression.IsNullable || complexProperty.IsNullable)));
+        }
+
+        // json_each's key column (the index of the element in the array, which orders the elements) is projected out of the subquery
+        // next to the JSON properties, and aliases are unique case-insensitively, so a JSON property named "key" in any casing needs
+        // another alias (see GetJsonElementColumnName).
+        var keyJsonPropertyAlias = JsonEachKeyColumnName;
+        for (var i = 0;
+             jsonElements.Any(e => string.Equals(e.JsonPropertyName, keyJsonPropertyAlias, StringComparison.OrdinalIgnoreCase));
+             i++)
+        {
+            keyJsonPropertyAlias = JsonEachKeyColumnName + i;
+        }
+
+        foreach (var (jsonPropertyName, expression) in jsonElements)
+        {
+            // HACK: currently the only way to project multiple values from a SelectExpression is to simulate a Select out to an anonymous
+            // type; this requires the MethodInfos of the anonymous type properties, from which the projection alias gets taken.
+            // So we create fake members to hold the JSON property name for the alias.
+            var alias = string.Equals(jsonPropertyName, JsonEachKeyColumnName, StringComparison.OrdinalIgnoreCase)
+                ? keyJsonPropertyAlias
+                : jsonPropertyName;
+
+            propertyJsonScalarExpression[new ProjectionMember().Append(new FakeMemberInfo(alias))] = expression;
         }
 
         selectExpression.ReplaceProjection(propertyJsonScalarExpression);
@@ -558,6 +574,19 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                     typeof(ValueBuffer)),
                 false));
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override string GetJsonElementColumnName(TableExpressionBase tableExpressionBase, string jsonPropertyName)
+        => tableExpressionBase is SelectExpression subquery
+            && subquery.Projection.FirstOrDefault(p => p.Expression is JsonScalarExpression { Path: [{ PropertyName: var propertyName }] }
+                && propertyName == jsonPropertyName) is { } projection
+                ? projection.Alias
+                : jsonPropertyName;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -768,6 +797,19 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         existingSetterValue = jsonSet;
         return null;
     }
+
+#pragma warning disable EF9001 // Window function support is experimental
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override bool CanTranslateAggregateAsWindowFunction(SqlFunctionExpression function)
+        // The decimal aggregates are user-defined (see SqliteRelationalConnection), and SQLite only accepts an OVER clause on a
+        // user-defined aggregate registered as a window function.
+        => function.Name is not ("ef_sum" or "ef_avg" or "ef_min" or "ef_max");
+#pragma warning restore EF9001
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

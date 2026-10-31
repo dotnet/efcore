@@ -1515,8 +1515,26 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 == Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod)
             {
                 var index = methodCallExpression.Arguments[1].GetConstantValue<int>();
-                var property = methodCallExpression.Arguments[2].GetConstantValue<IProperty?>();
+                var propertyBase = methodCallExpression.Arguments[2].GetConstantValue<IPropertyBase?>();
                 var mappingParameter = (ParameterExpression)((MethodCallExpression)methodCallExpression.Arguments[0]).Object!;
+
+                if (propertyBase is IComplexProperty complexProperty)
+                {
+                    // The JSON column of a complex property is only checked for null to find out whether an optional dependent
+                    // exists, so the document isn't read. Its JSON reader registers the column with a buffered reader.
+                    Expression jsonIndexExpression = Constant(_materializationContextBindings[mappingParameter][complexProperty]);
+                    if (_indexMapParameter != null)
+                    {
+                        jsonIndexExpression = ArrayIndex(_indexMapParameter, jsonIndexExpression);
+                    }
+
+                    return Condition(
+                        Call(_dataReaderParameter, IsDbNullMethod, jsonIndexExpression),
+                        Default(methodCallExpression.Type),
+                        Convert(Constant(true), methodCallExpression.Type));
+                }
+
+                var property = (IProperty?)propertyBase;
 
                 if (_jsonMaterializationContextToJsonReaderDataAndKeyValuesParameterMapping
                     .TryGetValue(mappingParameter, out var mappedParameter))
@@ -3732,9 +3750,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                 RelationalStrings.JsonProjectingQueryableOperationNoTrackingWithIdentityResolution(
                                     nameof(QueryTrackingBehavior.NoTrackingWithIdentityResolution)));
 
-                        case JsonProjectionInfo jsonEntityProjectionInfo:
+                        case JsonProjectionInfo jsonEntityProjectionInfo
+                            when entityShaperExpression.StructuralType is IEntityType jsonEntityType:
                         {
-                            var jsonEntityType = (IEntityType)entityShaperExpression.StructuralType;
                             if (_insideInclude)
                             {
                                 if (!_includedJsonEntityTypes.Contains(jsonEntityType))

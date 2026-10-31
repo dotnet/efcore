@@ -770,4 +770,70 @@ LEFT JOIN [OrderTotalTax] AS [o0] ON [o].[Id] = [o0].[OrderId]
 GROUP BY [o].[Region]
 """);
     }
+
+    public override async Task Owned_collection_select_many_without_result_selector(bool async)
+    {
+        await base.Owned_collection_select_many_without_result_selector(async);
+        AssertSql(
+            """
+SELECT [v0].[Id], [v0].[PrintMargin_Foo], [v0].[Id0], [v0].[DocumentTestId], [v0].[Number]
+FROM [DocumentTest] AS [d]
+CROSS APPLY (
+    SELECT [d].[Id], [v].[Id] AS [Id0], [v].[DocumentTestId], [v].[Number], [d].[PrintMargin_Foo]
+    FROM [VersionTest] AS [v]
+    WHERE [d].[Id] = [v].[DocumentTestId]
+) AS [v0]
+""");
+    }
+
+    public override async Task Owned_collection_select_many_with_result_selector(bool async)
+    {
+        await base.Owned_collection_select_many_with_result_selector(async);
+        AssertSql(
+            """
+SELECT [d].[Id], [d].[PrintMargin_Foo], [v].[Id], [v].[DocumentTestId], [v].[Number]
+FROM [DocumentTest] AS [d]
+INNER JOIN [VersionTest] AS [v] ON [d].[Id] = [v].[DocumentTestId]
+""");
+    }
+
+    public override async Task Owned_collection_select_many_without_result_selector_owned_in_separate_table(bool async)
+    {
+        await base.Owned_collection_select_many_without_result_selector_owned_in_separate_table(async);
+        AssertSql(
+            """
+SELECT [v0].[Id], [p].[DocumentTestId], [p].[Foo], [v0].[Id0], [v0].[DocumentTestId], [v0].[Number]
+FROM [DocumentTest] AS [d]
+CROSS APPLY (
+    SELECT [d].[Id], [v].[Id] AS [Id0], [v].[DocumentTestId], [v].[Number]
+    FROM [VersionTest] AS [v]
+    WHERE [d].[Id] = [v].[DocumentTestId]
+) AS [v0]
+LEFT JOIN [PrintMargins] AS [p] ON [d].[Id] = [p].[DocumentTestId]
+""");
+    }
+
+    public override async Task Owned_entity_where_after_include(bool async)
+    {
+        await base.Owned_entity_where_after_include(async);
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[BaseEntityProperty], [b].[Information_Boolean], [b].[Information_NavId], [n].[Id]
+FROM [BaseMyClass] AS [b]
+LEFT JOIN [Nav] AS [n] ON [b].[Information_NavId] = [n].[Id]
+WHERE [b].[Id] = 1 AND [b].[Information_Boolean] = CAST(1 AS bit)
+""");
+    }
+
+    public override async Task Owned_entity_where_before_include(bool async)
+    {
+        await base.Owned_entity_where_before_include(async);
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[BaseEntityProperty], [b].[Information_Boolean], [b].[Information_NavId], [n].[Id]
+FROM [BaseMyClass] AS [b]
+LEFT JOIN [Nav] AS [n] ON [b].[Information_NavId] = [n].[Id]
+WHERE [b].[Id] = 1 AND [b].[Information_Boolean] = CAST(1 AS bit)
+""");
+    }
 }
