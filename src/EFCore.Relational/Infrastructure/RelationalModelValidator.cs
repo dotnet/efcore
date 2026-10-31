@@ -298,6 +298,17 @@ public class RelationalModelValidator(
             }
         }
 
+        if (complexProperty.ComplexType.FindAnnotation(RelationalAnnotationNames.ContainerColumnName)?.Value is string containerColumnName
+            && complexProperty.DeclaringType.IsMappedToJson())
+        {
+            throw new InvalidOperationException(
+                RelationalStrings.NestedComplexPropertyJsonColumn(
+                    $"{complexProperty.DeclaringType.DisplayName()}.{complexProperty.Name}",
+                    containerColumnName,
+                    complexProperty.DeclaringType.DisplayName(),
+                    complexProperty.DeclaringType.GetContainerColumnName()));
+        }
+
         if (complexProperty.ComplexType.IsMappedToJson())
         {
             if (!complexProperty.DeclaringType.IsMappedToJson()
@@ -1033,9 +1044,168 @@ public class RelationalModelValidator(
             ValidateOptionalDependents(nonJsonMappedTypes, table, logger);
         }
 
-        if (mappedTypes.Count != nonJsonMappedTypes.Count)
+        ValidateJsonColumns(mappedTypes, table, logger);
+    }
+
+    /// <summary>
+    ///     Validates the JSON-mapped owned entity types and complex properties in the given table, including that they aren't
+    ///     mapped to the same JSON column, except for complex properties on types that can't share a row.
+    /// </summary>
+    /// <param name="mappedTypes">The entity types mapped to the table.</param>
+    /// <param name="table">The identifier of the table.</param>
+    /// <param name="logger">The logger to use.</param>
+    protected virtual void ValidateJsonColumns(
+        IReadOnlyList<IEntityType> mappedTypes,
+        in StoreObjectIdentifier table,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        var jsonColumns = new Dictionary<string, List<ITypeBase>>();
+        var complexProperties = new HashSet<IComplexProperty>();
+        var hasJsonEntityTypes = false;
+        foreach (var entityType in mappedTypes)
         {
-            ValidateJsonTable(mappedTypes, table, logger);
+            if (entityType.IsMappedToJson())
+            {
+                hasJsonEntityTypes = true;
+                ValidateJsonOwnedEntityType(entityType, table, logger);
+
+                if (!entityType.FindOwnership()!.PrincipalEntityType.IsMappedToJson())
+                {
+                    Validate(entityType, entityType.GetContainerColumnName()!, jsonColumns, table);
+                }
+
+                continue;
+            }
+
+            // Inherited complex properties are reached through each type in the table, but are only mapped once
+            foreach (var complexProperty in entityType.GetComplexProperties())
+            {
+                if (complexProperties.Add(complexProperty))
+                {
+                    ValidateComplexProperty(complexProperty, jsonColumns, table);
+                }
+            }
+        }
+
+        if (hasJsonEntityTypes)
+        {
+            var nonOwnedTypes = mappedTypes.Where(x => !x.IsOwned());
+            var nonOwnedTypesCount = nonOwnedTypes.Count();
+            if (nonOwnedTypesCount == 0)
+            {
+                var nonJsonType = mappedTypes.FirstOrDefault(x => !x.IsMappedToJson());
+                if (nonJsonType != null)
+                {
+                    // must be an owned collection (mapped to a separate table) that owns a JSON type
+                    // Issue #28441
+                    throw new InvalidOperationException(
+                        RelationalStrings.JsonEntityOwnedByNonJsonOwnedType(
+                            nonJsonType.DisplayName(), table.DisplayName()));
+                }
+            }
+
+            var distinctRootTypes = nonOwnedTypes.Select(x => x.GetRootType()).Distinct().ToList();
+            if (distinctRootTypes.Count > 1)
+            {
+                // Issue #28442
+                throw new InvalidOperationException(
+                    RelationalStrings.JsonEntityWithTableSplittingIsNotSupported);
+            }
+
+            ValidateJsonEntityRoot(table, distinctRootTypes[0]);
+        }
+
+        return;
+
+        static void ValidateComplexProperty(
+            IComplexProperty complexProperty,
+            Dictionary<string, List<ITypeBase>> jsonColumns,
+            in StoreObjectIdentifier table)
+        {
+            if (complexProperty.ComplexType.GetContainerColumnName() == null)
+            {
+                foreach (var nestedComplexProperty in complexProperty.ComplexType.GetComplexProperties())
+                {
+                    ValidateComplexProperty(nestedComplexProperty, jsonColumns, table);
+                }
+
+                return;
+            }
+
+            // The JSON column of an inherited complex property can be in another table, e.g. with TPT
+            var columnName = complexProperty.ComplexType.GetContainerColumnName(table);
+            if (columnName != null)
+            {
+                Validate(complexProperty.ComplexType, columnName, jsonColumns, table);
+            }
+        }
+
+        static void Validate(
+            ITypeBase jsonType,
+            string columnName,
+            Dictionary<string, List<ITypeBase>> jsonColumns,
+            in StoreObjectIdentifier table)
+        {
+            if (!jsonColumns.TryGetValue(columnName, out var existingJsonTypes))
+            {
+                jsonColumns[columnName] = [jsonType];
+                return;
+            }
+
+            foreach (var existingJsonType in existingJsonTypes)
+            {
+                if (jsonType is not IComplexType complexType
+                    || existingJsonType is not IComplexType existingComplexType)
+                {
+                    // Issue #28592
+                    // TODO: handle JSON columns on views, issue #28584
+                    throw new InvalidOperationException(
+                        RelationalStrings.JsonEntityMultipleRootsMappedToTheSameJsonColumn(columnName, table.Name));
+                }
+
+                // Only types in different branches of the same hierarchy never share a row, so they can share the column.
+                // Unrelated types sharing the table, e.g. a principal and dependent, share a row. Dependents of sibling types don't,
+                // but querying a dependent doesn't filter by its principal's type, so it would read the other type's JSON.
+                var rootType = GetRootPrincipal(complexType.ContainingEntityType);
+                var existingRootType = GetRootPrincipal(existingComplexType.ContainingEntityType);
+                if (rootType.GetRootType() != existingRootType.GetRootType()
+                    || rootType.IsAssignableFrom(existingRootType)
+                    || existingRootType.IsAssignableFrom(rootType))
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.ComplexPropertiesSharedJsonColumn(
+                            $"{existingComplexType.ComplexProperty.DeclaringType.DisplayName()}.{existingComplexType.ComplexProperty.Name}",
+                            $"{complexType.ComplexProperty.DeclaringType.DisplayName()}.{complexType.ComplexProperty.Name}",
+                            columnName,
+                            table.DisplayName()));
+                }
+
+                // Sibling types can't map a complex collection and a non-collection complex property to the same JSON column
+                if (complexType.ComplexProperty.IsCollection != existingComplexType.ComplexProperty.IsCollection)
+                {
+                    var (complexCollection, complexProperty) = complexType.ComplexProperty.IsCollection
+                        ? (complexType.ComplexProperty, existingComplexType.ComplexProperty)
+                        : (existingComplexType.ComplexProperty, complexType.ComplexProperty);
+                    throw new InvalidOperationException(
+                        RelationalStrings.ComplexCollectionSharedJsonColumn(
+                            $"{complexCollection.DeclaringType.DisplayName()}.{complexCollection.Name}",
+                            $"{complexProperty.DeclaringType.DisplayName()}.{complexProperty.Name}",
+                            columnName,
+                            table.DisplayName()));
+                }
+            }
+
+            existingJsonTypes.Add(jsonType);
+        }
+
+        static IEntityType GetRootPrincipal(IEntityType entityType)
+        {
+            while (entityType.FindOwnership() is { } ownership)
+            {
+                entityType = ownership.PrincipalEntityType;
+            }
+
+            return entityType;
         }
     }
 
@@ -1075,25 +1245,13 @@ public class RelationalModelValidator(
                 .Select(e => e.GetColumnName(tableIdentifier))
                 .Where(e => e != null)
                 .ToList();
-            var requiredNonSharedColumnFound = false;
-            foreach (var property in entityType.GetProperties())
-            {
-                if (property.IsPrimaryKey()
-                    || property.IsNullable)
+            var requiredNonSharedColumnFound = entityType.GetRequiredNonPkProperties().Any(p => p switch
                 {
-                    continue;
-                }
-
-                var columnName = property.GetColumnName(tableIdentifier);
-                if (columnName != null)
-                {
-                    if (!principalColumns.Contains(columnName))
-                    {
-                        requiredNonSharedColumnFound = true;
-                        break;
-                    }
-                }
-            }
+                    IProperty property => property.GetColumnName(tableIdentifier),
+                    IComplexProperty complexProperty => complexProperty.ComplexType.GetContainerColumnName(tableIdentifier),
+                    _ => null
+                } is { } columnName
+                && !principalColumns.Contains(columnName));
 
             if (!requiredNonSharedColumnFound)
             {
@@ -3060,111 +3218,20 @@ public class RelationalModelValidator(
     }
 
     /// <summary>
-    ///     Validates the JSON entities mapped to a table.
+    ///     Validates an owned entity type mapped to a JSON column in a table.
     /// </summary>
-    /// <param name="mappedTypes">The entity types mapped to the table.</param>
+    /// <param name="entityType">The entity type to validate.</param>
     /// <param name="table">The table identifier.</param>
     /// <param name="logger">The logger to use.</param>
-    protected virtual void ValidateJsonTable(
-        IReadOnlyList<IEntityType> mappedTypes,
+    protected virtual void ValidateJsonOwnedEntityType(
+        IEntityType entityType,
         in StoreObjectIdentifier table,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
-        var jsonColumnMappings = new Dictionary<string, List<ITypeBase>>();
-        foreach (var entityType in mappedTypes)
-        {
-            if (entityType.FindOwnership() is not { } ownership
-                || !entityType.IsMappedToJson())
-            {
-                continue;
-            }
-
-            ValidateJsonEntityNavigations(table, entityType);
-            ValidateJsonEntityKey(table, entityType);
-            ValidateJsonEntityProperties(table, entityType);
-            ValidateJsonEntitySingularMapping(table, entityType);
-
-            if (ownership.PrincipalEntityType.IsMappedToJson())
-            {
-                continue;
-            }
-
-            var columnName = entityType.GetContainerColumnName();
-            Check.DebugAssert(columnName != null);
-
-            if (!jsonColumnMappings.TryGetValue(columnName, out var sources))
-            {
-                sources = [];
-                jsonColumnMappings[columnName] = sources;
-            }
-
-            sources.Add(entityType);
-        }
-
-        var nonOwnedTypes = mappedTypes.Where(x => !x.IsOwned());
-        var nonOwnedTypesCount = nonOwnedTypes.Count();
-        if (nonOwnedTypesCount == 0)
-        {
-            var nonJsonType = mappedTypes.FirstOrDefault(x => !x.IsMappedToJson());
-            if (nonJsonType != null)
-            {
-                // must be an owned collection (mapped to a separate table) that owns a JSON type
-                // Issue #28441
-                throw new InvalidOperationException(
-                    RelationalStrings.JsonEntityOwnedByNonJsonOwnedType(
-                        nonJsonType.DisplayName(), table.DisplayName()));
-            }
-        }
-
-        var distinctRootTypes = nonOwnedTypes.Select(x => x.GetRootType()).Distinct().ToList();
-        if (distinctRootTypes.Count > 1)
-        {
-            // Issue #28442
-            throw new InvalidOperationException(
-                RelationalStrings.JsonEntityWithTableSplittingIsNotSupported);
-        }
-
-        var rootType = distinctRootTypes[0];
-        foreach (var entityType in mappedTypes)
-        {
-            if (!entityType.IsMappedToJson())
-            {
-                ValidateNestedComplexTypes(jsonColumnMappings, entityType);
-            }
-        }
-
-        var conflictingColumn = jsonColumnMappings.FirstOrDefault(kvp => kvp.Value.Count > 1);
-        if (conflictingColumn.Key != null)
-        {
-            // TODO: handle JSON columns on views, issue #28584
-            throw new InvalidOperationException(
-                RelationalStrings.JsonEntityMultipleRootsMappedToTheSameJsonColumn(
-                    conflictingColumn.Key, table.Name));
-        }
-
-        ValidateJsonEntityRoot(table, rootType);
-
-        static void ValidateNestedComplexTypes(Dictionary<string, List<ITypeBase>> jsonColumnMappings, ITypeBase structuralType)
-        {
-            foreach (var complexProperty in structuralType.GetComplexProperties())
-            {
-                var columnName = complexProperty.ComplexType.GetContainerColumnName();
-                if (!string.IsNullOrEmpty(columnName))
-                {
-                    if (!jsonColumnMappings.TryGetValue(columnName, out var sources))
-                    {
-                        sources = [];
-                        jsonColumnMappings[columnName] = sources;
-                    }
-
-                    sources.Add(complexProperty.ComplexType);
-                }
-                else
-                {
-                    ValidateNestedComplexTypes(jsonColumnMappings, complexProperty.ComplexType);
-                }
-            }
-        }
+        ValidateJsonEntityNavigations(table, entityType);
+        ValidateJsonEntityKey(table, entityType);
+        ValidateJsonEntityProperties(table, entityType);
+        ValidateJsonEntitySingularMapping(table, entityType);
     }
 
     /// <summary>

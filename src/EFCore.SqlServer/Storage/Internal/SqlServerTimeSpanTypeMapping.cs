@@ -4,6 +4,7 @@
 using System.Data;
 using System.Globalization;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
@@ -120,6 +121,11 @@ public class SqlServerTimeSpanTypeMapping : TimeSpanTypeMapping
         if (value is not TimeSpan timeSpan)
         {
             return string.Format(CultureInfo.InvariantCulture, SqlLiteralFormatString, value);
+        }
+
+        if (timeSpan < TimeSpan.Zero || timeSpan >= TimeSpan.FromDays(1))
+        {
+            throw new OverflowException(SqlServerStrings.TimeSpanLiteralOutOfRange(timeSpan));
         }
 
         var precision = Precision is >= 0 and <= 7 ? Precision.Value : 7;

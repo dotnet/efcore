@@ -56,8 +56,8 @@ internal class SqliteParameterBinder(sqlite3_stmt stmt, sqlite3 handle, int inde
         SqliteException.ThrowExceptionForRC(rc, handle);
     }
 
+    // A size of 0 (the default) or -1 sets no limit; only a positive size truncates.
     private bool ShouldTruncate(int length)
-        => size.HasValue
-            && length > size.Value
-            && size.Value != -1;
+        => size > 0
+            && length > size.Value;
 }

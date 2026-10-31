@@ -1308,10 +1308,10 @@ FROM [EntityType] AS [e]
 
         AssertSql(
             """
-SELECT [t].[Id], [t].[ChildProperty], NULL AS [ChildProperty1], [t].[PropertyInsideComplexThing], [t].[ChildComplexProperty_PropertyInsideComplexThing], NULL AS [ChildComplexProperty_PropertyInsideComplexThing1], N'TpcChild1' AS [Discriminator]
+SELECT [t].[Id], [t].[ChildProperty], NULL AS [ChildProperty1], [t].[BaseComplexProperty_PropertyInsideComplexThing], [t].[ChildComplexProperty_PropertyInsideComplexThing], NULL AS [ChildComplexProperty_PropertyInsideComplexThing1], N'TpcChild1' AS [Discriminator]
 FROM [TpcChild1] AS [t]
 UNION ALL
-SELECT [t0].[Id], NULL AS [ChildProperty], [t0].[ChildProperty] AS [ChildProperty1], [t0].[PropertyInsideComplexThing], NULL AS [ChildComplexProperty_PropertyInsideComplexThing], [t0].[ChildComplexProperty_PropertyInsideComplexThing] AS [ChildComplexProperty_PropertyInsideComplexThing1], N'TpcChild2' AS [Discriminator]
+SELECT [t0].[Id], NULL AS [ChildProperty], [t0].[ChildProperty] AS [ChildProperty1], [t0].[BaseComplexProperty_PropertyInsideComplexThing], NULL AS [ChildComplexProperty_PropertyInsideComplexThing], [t0].[ChildComplexProperty_PropertyInsideComplexThing] AS [ChildComplexProperty_PropertyInsideComplexThing1], N'TpcChild2' AS [Discriminator]
 FROM [TpcChild2] AS [t0]
 """);
     }
@@ -1648,6 +1648,74 @@ LEFT JOIN (
             ) AS [s] ON [p3].[Id] = [s].[ParentsId]
             ORDER BY [p3].[Id]
             """);
+    }
+
+    public override async Task Json_complex_properties_on_sibling_types_mapped_to_same_column()
+    {
+        await base.Json_complex_properties_on_sibling_types_mapped_to_same_column();
+
+        AssertSql(
+            """
+SELECT TOP(2) [a].[Id], [a].[Discriminator], [a].[Name], [a].[Details]
+FROM [Animal] AS [a]
+WHERE [a].[Discriminator] = N'Cat'
+""",
+            //
+            """
+@p0='{"Lives":8}' (Nullable = false) (Size = 11)
+@p1='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [Animal] SET [Details] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+""",
+            //
+            """
+SELECT [a].[Id], [a].[Discriminator], [a].[Name], [a].[Details], [a].[Details]
+FROM [Animal] AS [a]
+ORDER BY [a].[Name]
+""",
+            //
+            """
+SELECT TOP(2) [a].[Id], [a].[Discriminator], [a].[Name], [a].[Details]
+FROM [Animal] AS [a]
+WHERE [a].[Discriminator] = N'Dog' AND JSON_VALUE([a].[Details], '$.Breed') = N'Collie'
+""");
+    }
+
+    public override async Task Json_complex_properties_on_base_and_derived_types_mapped_to_same_column_with_TPT()
+    {
+        await base.Json_complex_properties_on_base_and_derived_types_mapped_to_same_column_with_TPT();
+
+        AssertSql(
+            """
+SELECT TOP(2) [a].[Id], [a].[Name], [a].[Details], [d].[Details]
+FROM [Animal] AS [a]
+INNER JOIN [Dog] AS [d] ON [a].[Id] = [d].[Id]
+""",
+            //
+            """
+@p0='{"Weight":31}' (Nullable = false) (Size = 13)
+@p1='1'
+@p2='{"Breed":"Border Collie"}' (Nullable = false) (Size = 25)
+@p3='1'
+
+SET NOCOUNT ON;
+UPDATE [Animal] SET [Details] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+UPDATE [Dog] SET [Details] = @p2
+OUTPUT 1
+WHERE [Id] = @p3;
+""",
+            //
+            """
+SELECT TOP(2) [a].[Id], [a].[Name], [a].[Details], [d].[Details]
+FROM [Animal] AS [a]
+INNER JOIN [Dog] AS [d] ON [a].[Id] = [d].[Id]
+""");
     }
 
     #endregion Non-shared test resources

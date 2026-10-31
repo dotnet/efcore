@@ -102,8 +102,8 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     private void LocalViewCollectionChanged(object? _, NotifyCollectionChangedEventArgs args)
     {
         Check.DebugAssert(
-            args.Action is NotifyCollectionChangedAction.Add or NotifyCollectionChangedAction.Remove,
-            "action is not Add or Remove");
+            args.Action is NotifyCollectionChangedAction.Add or NotifyCollectionChangedAction.Remove or NotifyCollectionChangedAction.Reset,
+            "action is not Add, Remove or Reset");
 
         if (_triggeringLocalViewChange)
         {
@@ -114,7 +114,11 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
         {
             _triggeringObservableChange = true;
 
-            if (args.Action == NotifyCollectionChangedAction.Remove)
+            if (args.Action == NotifyCollectionChangedAction.Reset)
+            {
+                _observable!.Clear();
+            }
+            else if (args.Action == NotifyCollectionChangedAction.Remove)
             {
                 Check.DebugAssert(args.OldItems!.Count == 1, $"OldItems.Count is {args.OldItems.Count}");
                 _observable!.Remove((TEntity)args.OldItems[0]!);
@@ -342,7 +346,9 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
 
     private void StateManagerChangedHandler(InternalEntityEntry entry, EntityState previousState)
     {
-        if (_triggeringStateManagerChange)
+        // Entries tracked by the temporary state managers used for identity resolution aren't tracked by the context
+        if (_triggeringStateManagerChange
+            || entry.StateManager != _context.GetDependencies().StateManager)
         {
             return;
         }
@@ -512,6 +518,20 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
         PropertyChanged = null;
         PropertyChanging = null;
         CollectionChanged = null;
+    }
+
+    internal void OnStateManagerCleared()
+    {
+        // The change tracker stopped tracking everything without reporting each entity, so tell the existing
+        // subscribers (including the observable collection and binding list) that the view is now empty
+        OnCountPropertyChanging();
+
+        _count = 0;
+        _countChanges = 0;
+
+        OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+
+        OnCountPropertyChanged();
     }
 
     /// <summary>

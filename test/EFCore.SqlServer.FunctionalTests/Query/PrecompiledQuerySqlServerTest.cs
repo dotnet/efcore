@@ -1659,6 +1659,32 @@ WHERE [b].[Id] = 7
 """);
     }
 
+    public override async Task Terminating_with_ConfigureAwait()
+    {
+        await base.Terminating_with_ConfigureAwait();
+
+        AssertSql(
+            """
+SELECT TOP(1) [b].[Id], [b].[Name], [b].[Json]
+FROM [Blogs] AS [b]
+WHERE [b].[Id] = 8
+""");
+    }
+
+    public override async Task Terminating_followed_by_instance_method_call()
+    {
+        await base.Terminating_followed_by_instance_method_call();
+
+        AssertSql(
+            """
+@id='8'
+
+SELECT COUNT(*)
+FROM [Blogs] AS [b]
+WHERE [b].[Id] = @id
+""");
+    }
+
     #endregion Reducing terminating operators
 
     #region SQL expression quotability

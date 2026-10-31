@@ -3,6 +3,7 @@
 
 using System.ComponentModel;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -674,7 +675,16 @@ public class ChangeTracker : IResettableService
     ///     </para>
     /// </remarks>
     public virtual void Clear()
-        => StateManager.Clear(resetting: false);
+    {
+        StateManager.Clear(resetting: false);
+
+        // The context stays in use, so local views keep their subscribers (e.g. data bound ObservableCollections) and are
+        // told that they are now empty. The sets are copied first, since a subscriber could create a set that wasn't used yet.
+        foreach (var set in ((IDbSetCache)Context).GetSets().ToList())
+        {
+            (set as ILocalViewOwner)?.OnStateManagerCleared();
+        }
+    }
 
     /// <summary>
     ///     <para>

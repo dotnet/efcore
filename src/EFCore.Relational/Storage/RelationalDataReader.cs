@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Storage.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Storage;
 
 /// <summary>
@@ -25,8 +27,10 @@ public class RelationalDataReader : IDisposable, IAsyncDisposable
     private IRelationalCommandDiagnosticsLogger? _logger;
     private DateTimeOffset _startTime;
     private SharedStopwatch _stopwatch;
+    private RelationalCommandErrorReporter? _commandErrorReporter;
 
     private int _readCount;
+    private int _failureReported;
 
     private bool _closed;
     private bool _disposed;
@@ -51,12 +55,17 @@ public class RelationalDataReader : IDisposable, IAsyncDisposable
         _reader = reader;
         _commandId = commandId;
         _logger = logger;
+        _commandErrorReporter = null;
         _readCount = 0;
+        _failureReported = 0;
         _closed = false;
         _disposed = false;
         _startTime = DateTimeOffset.UtcNow;
         _stopwatch = SharedStopwatch.StartNew();
     }
+
+    internal void ConfigureCommandErrorReporter(RelationalCommandErrorReporter? commandErrorReporter)
+        => _commandErrorReporter = commandErrorReporter;
 
     /// <summary>
     ///     Gets the underlying relational connection being used.
@@ -90,7 +99,20 @@ public class RelationalDataReader : IDisposable, IAsyncDisposable
     {
         _readCount++;
 
-        return _reader.Read();
+        if (_commandErrorReporter == null)
+        {
+            return _reader.Read();
+        }
+
+        try
+        {
+            return _reader.Read();
+        }
+        catch (Exception exception)
+        {
+            ReportCommandError(exception);
+            throw;
+        }
     }
 
     /// <summary>
@@ -102,8 +124,104 @@ public class RelationalDataReader : IDisposable, IAsyncDisposable
     {
         _readCount++;
 
-        return _reader.ReadAsync(cancellationToken);
+        if (_commandErrorReporter == null)
+        {
+            return _reader.ReadAsync(cancellationToken);
+        }
+
+        Task<bool> readTask;
+        try
+        {
+            readTask = _reader.ReadAsync(cancellationToken);
+        }
+        catch (Exception exception)
+        {
+            readTask = Task.FromException<bool>(exception);
+        }
+
+        return readTask.IsCompletedSuccessfully
+            ? readTask
+            : ReadAsyncWithReporting(readTask, cancellationToken);
     }
+
+    internal bool NextResult()
+    {
+        if (_commandErrorReporter == null)
+        {
+            return _reader.NextResult();
+        }
+
+        try
+        {
+            return _reader.NextResult();
+        }
+        catch (Exception exception)
+        {
+            ReportCommandError(exception);
+            throw;
+        }
+    }
+
+    internal Task<bool> NextResultAsync(CancellationToken cancellationToken = default)
+    {
+        if (_commandErrorReporter == null)
+        {
+            return _reader.NextResultAsync(cancellationToken);
+        }
+
+        Task<bool> nextResultTask;
+        try
+        {
+            nextResultTask = _reader.NextResultAsync(cancellationToken);
+        }
+        catch (Exception exception)
+        {
+            nextResultTask = Task.FromException<bool>(exception);
+        }
+
+        return nextResultTask.IsCompletedSuccessfully
+            ? nextResultTask
+            : NextResultAsyncWithReporting(nextResultTask, cancellationToken);
+    }
+
+    private async Task<bool> ReadAsyncWithReporting(Task<bool> readTask, CancellationToken cancellationToken)
+    {
+        try
+        {
+            return await readTask.ConfigureAwait(false);
+        }
+        catch (Exception exception)
+        {
+            await ReportCommandErrorAsync(exception, cancellationToken).ConfigureAwait(false);
+            throw;
+        }
+    }
+
+    private async Task<bool> NextResultAsyncWithReporting(Task<bool> nextResultTask, CancellationToken cancellationToken)
+    {
+        try
+        {
+            return await nextResultTask.ConfigureAwait(false);
+        }
+        catch (Exception exception)
+        {
+            await ReportCommandErrorAsync(exception, cancellationToken).ConfigureAwait(false);
+            throw;
+        }
+    }
+
+    private void ReportCommandError(Exception exception)
+    {
+        if (Interlocked.Exchange(ref _failureReported, 1) == 0)
+        {
+            _commandErrorReporter!.Value.Report(exception);
+        }
+    }
+
+    private Task ReportCommandErrorAsync(Exception exception, CancellationToken cancellationToken)
+        => Interlocked.Exchange(ref _failureReported, 1) == 0
+            ? _commandErrorReporter!.Value.ReportAsync(exception, cancellationToken)
+            : Task.CompletedTask;
 
     /// <summary>
     ///     Closes the reader.
@@ -189,6 +307,7 @@ public class RelationalDataReader : IDisposable, IAsyncDisposable
                 _command = null!;
                 _relationalConnection = null!;
                 _logger = null;
+                _commandErrorReporter = null;
             }
         }
     }
@@ -285,6 +404,7 @@ public class RelationalDataReader : IDisposable, IAsyncDisposable
                 _command = null!;
                 _relationalConnection = null!;
                 _logger = null;
+                _commandErrorReporter = null;
             }
         }
     }

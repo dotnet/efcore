@@ -3,6 +3,7 @@
 
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using static Microsoft.EntityFrameworkCore.TestUtilities.PrecompiledQueryTestHelpers;
 
@@ -144,6 +145,89 @@ _ = context.JsonEntities.Where(b => b.JsonThing.StringProperty == "foo").ToList(
     public class JsonThing
     {
         public string StringProperty { get; set; } = null!;
+    }
+
+    [Fact]
+    public virtual async Task Materialize_sealed_entity()
+    {
+        var contextFactory = await InitializeNonSharedTest<SealedContext>(
+            seed: async context =>
+            {
+                context.Entities.Add(new SealedEntity { Id = 1, Name = "Sealed" });
+                await context.SaveChangesAsync();
+            });
+
+        await Test(
+            """
+await using var context = new AdHocPrecompiledQueryRelationalTestBase.SealedContext(dbContextOptions);
+var entity = await context.Entities.SingleAsync();
+Assert.Equal(1, entity.Id);
+Assert.Equal("Sealed", entity.Name);
+""",
+            typeof(SealedContext),
+            contextFactory.GetOptions());
+    }
+
+    [Fact]
+    public virtual async Task Materialize_sealed_entity_implementing_injectable_service()
+    {
+        var contextFactory = await InitializeNonSharedTest<SealedContext>(
+            seed: async context =>
+            {
+                context.InjectableEntities.Add(new SealedInjectableEntity { Id = 1, Name = "Injectable" });
+                await context.SaveChangesAsync();
+            });
+
+        await Test(
+            """
+await using var context = new AdHocPrecompiledQueryRelationalTestBase.SealedContext(dbContextOptions);
+var entity = await context.InjectableEntities.SingleAsync();
+Assert.Equal(1, entity.Id);
+Assert.Equal("Injectable", entity.Name);
+Assert.Equal(1, entity.InjectionCount);
+""",
+            typeof(SealedContext),
+            contextFactory.GetOptions());
+    }
+
+    public class SealedContext(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<SealedEntity> Entities { get; set; } = null!;
+        public DbSet<SealedInjectableEntity> InjectableEntities { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<SealedEntity>().Property(e => e.Id).ValueGeneratedNever();
+            modelBuilder.Entity<SealedInjectableEntity>().Property(e => e.Id).ValueGeneratedNever();
+            modelBuilder.Entity<SealedInjectableEntity>().Ignore(e => e.InjectionCount);
+        }
+    }
+
+    public sealed class SealedEntity
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = null!;
+    }
+
+    public sealed class SealedInjectableEntity : IInjectableService
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = null!;
+        public int InjectionCount { get; private set; }
+
+        void IInjectableService.Injected(
+            DbContext context,
+            object entity,
+            QueryTrackingBehavior? queryTrackingBehavior,
+            ITypeBase structuralType)
+            => InjectionCount++;
+
+        bool IInjectableService.Detaching(DbContext context, object entity)
+            => false;
+
+        void IInjectableService.Attaching(DbContext context, IEntityType entityType, object entity)
+        {
+        }
     }
 
     [Fact]
@@ -453,6 +537,71 @@ var posts = await context.Posts.ToListAsync();
             r => r.Value,
             v => new Rating(v));
     }
+
+    #region Window functions
+
+    [Fact]
+    public virtual async Task GroupBy_elements_and_aggregates_as_window_functions()
+    {
+        var contextFactory = await InitializeNonSharedTest<WindowFunctionContext>(
+            onConfiguring: o => UseWindowFunctionAggregates(o));
+        var options = contextFactory.GetOptions();
+
+        await Test(
+            """
+await using var context = new AdHocPrecompiledQueryRelationalTestBase.WindowFunctionContext(dbContextOptions);
+context.Employees.AddRange(
+    new AdHocPrecompiledQueryRelationalTestBase.WindowFunctionEmployee { DepartmentName = "Engineering", Salary = 100 },
+    new AdHocPrecompiledQueryRelationalTestBase.WindowFunctionEmployee { DepartmentName = "Engineering", Salary = 200 },
+    new AdHocPrecompiledQueryRelationalTestBase.WindowFunctionEmployee { DepartmentName = "Sales", Salary = 50 });
+await context.SaveChangesAsync();
+
+// With more nullable parameters than SQL is pregenerated for, the SQL tree itself is quoted into the generated code.
+string? excluded1 = "Finance", excluded2 = "Legal", excluded3 = "Marketing", excluded4 = "Support";
+var departments = await context.Employees
+    .Where(e => e.DepartmentName != excluded1 && e.DepartmentName != excluded2 && e.DepartmentName != excluded3 && e.DepartmentName != excluded4)
+    .GroupBy(e => e.DepartmentName)
+    .Select(g => new { Employees = g.ToList(), Total = g.Sum(e => e.Salary), Count = g.LongCount() })
+    .ToListAsync();
+
+Assert.Collection(
+    departments.OrderBy(d => d.Total),
+    sales =>
+    {
+        Assert.Single(sales.Employees);
+        Assert.Equal(50, sales.Total);
+        Assert.Equal(1L, sales.Count);
+    },
+    engineering =>
+    {
+        Assert.Equal(2, engineering.Employees.Count);
+        Assert.Equal(300, engineering.Total);
+        Assert.Equal(2L, engineering.Count);
+    });
+""",
+            typeof(WindowFunctionContext),
+            options,
+            interceptorCodeAsserter: code => Assert.Contains("new WindowFunctionExpression(", code));
+    }
+
+    /// <summary>
+    ///     Enables the window function translation on the given options, using the provider's own options builder.
+    /// </summary>
+    protected abstract DbContextOptionsBuilder UseWindowFunctionAggregates(DbContextOptionsBuilder optionsBuilder);
+
+    public class WindowFunctionContext(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<WindowFunctionEmployee> Employees { get; set; } = null!;
+    }
+
+    public class WindowFunctionEmployee
+    {
+        public int Id { get; set; }
+        public string DepartmentName { get; set; } = "";
+        public int Salary { get; set; }
+    }
+
+    #endregion
 
     #region Invalid runtime constant name
 

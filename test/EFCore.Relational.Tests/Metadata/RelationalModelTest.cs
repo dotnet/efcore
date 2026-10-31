@@ -557,11 +557,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
                     Assert.Null(customerView.EntityTypeMappings.Single().IsSharedTablePrincipal);
                     Assert.Null(customerView.EntityTypeMappings.Single().IsSplitEntityTypePrincipal);
-                    Assert.Equal(5, customerView.Columns.Count());
+                    Assert.Equal(6, customerView.Columns.Count());
+                    Assert.Same(
+                        abstractBaseType.FindComplexProperty(nameof(AbstractBase.Tag))!.ComplexType.FindProperty(nameof(Tag.Name)),
+                        Assert.Single(customerView.FindColumn("Tag_Name")!.PropertyMappings).Property);
 
                     Assert.Single(specialCustomerView.EntityTypeMappings);
 
-                    Assert.Equal(9, specialCustomerView.Columns.Count());
+                    Assert.Equal(10, specialCustomerView.Columns.Count());
 
                     Assert.False(specialtyColumn.IsNullable);
 
@@ -571,7 +574,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     Assert.False(extraSpecialCustomerView.EntityTypeMappings.Last().IsSharedTablePrincipal);
                     Assert.Null(extraSpecialCustomerView.EntityTypeMappings.Last().IsSplitEntityTypePrincipal);
 
-                    Assert.Equal(11, extraSpecialCustomerView.Columns.Count());
+                    Assert.Equal(12, extraSpecialCustomerView.Columns.Count());
                 }
             }
         }
@@ -798,6 +801,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var customerPk = specialCustomerType.FindPrimaryKey()!;
 
             var complexType = abstractBaseType.GetComplexProperties().Single().ComplexType;
+
+            foreach (var columnMapping in complexType.GetTableMappings().SelectMany(m => m.ColumnMappings))
+            {
+                Assert.Equal("Tag_Name", columnMapping.Column.Name);
+                Assert.Same(complexType.FindProperty(nameof(Tag.Name)), columnMapping.Property);
+            }
 
             if (mapping == Mapping.TPT)
             {
@@ -3658,8 +3667,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.All(datePropertyMappings, m => Assert.Equal("Date", m.Element.PropertyName));
         }
 
-        [Fact]
-        public void Json_element_tree_is_merged_for_existing_json_columns()
+        [Theory, InlineData(false), InlineData(true)]
+        public void Json_element_tree_is_merged_for_existing_json_columns(bool defaultMapping)
         {
             var modelBuilder = CreateConventionModelBuilder();
 
@@ -3669,19 +3678,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     b => b.ToJson("complex_data"));
 
             var model = Finalize(modelBuilder);
-            var table = model.Tables.Single();
+            var entityType = model.Model.FindEntityType(typeof(EntityWithNestedComplexProperty))!;
+            var table = defaultMapping
+                ? entityType.GetDefaultMappings().Single().Table
+                : model.Tables.Single();
             var jsonColumn = table.FindColumn("complex_data")!;
 
             var jsonObject = Assert.IsAssignableFrom<IRelationalJsonObject>(jsonColumn.JsonElement);
             var nestedObject = Assert.IsAssignableFrom<IRelationalJsonObject>(jsonObject.FindProperty("Nested"));
             Assert.NotNull(nestedObject.FindProperty("Number"));
 
-            var entityType = model.Model.FindEntityType(typeof(EntityWithNestedComplexProperty))!;
             var complexProperty = entityType.FindComplexProperty(nameof(EntityWithNestedComplexProperty.ComplexProperty))!;
             var nestedComplexProperty = complexProperty.ComplexType.FindComplexProperty(nameof(OuterComplexData.Nested))!;
 
             Assert.Same(jsonColumn, table.FindColumn(complexProperty));
             Assert.Same(jsonColumn, table.FindColumn(nestedComplexProperty));
+            Assert.Same(
+                table,
+                defaultMapping
+                    ? nestedComplexProperty.ComplexType.GetDefaultMappings().Single().Table
+                    : nestedComplexProperty.ComplexType.GetTableMappings().Single().Table);
 
             var numberProperty = nestedComplexProperty.ComplexType.FindProperty(nameof(NestedComplexData.Number))!;
             var numberMappings = numberProperty.GetJsonElementMappings().ToList();
@@ -3689,8 +3705,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.All(numberMappings, m => Assert.Equal("Number", m.Element.PropertyName));
         }
 
-        [Fact]
-        public void Json_element_tree_is_built_for_complex_property_json_columns()
+        [Theory, InlineData(false), InlineData(true)]
+        public void Json_element_tree_is_built_for_complex_property_json_columns(bool defaultMapping)
         {
             var modelBuilder = CreateConventionModelBuilder();
 
@@ -3699,7 +3715,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     e => e.ComplexProperty, b => b.ToJson("complex_data"));
 
             var model = Finalize(modelBuilder);
-            var table = model.Tables.Single();
+            var entityType = model.Model.FindEntityType(typeof(EntityWithComplexProperty))!;
+            var table = defaultMapping
+                ? entityType.GetDefaultMappings().Single().Table
+                : model.Tables.Single();
 
             // Validate JsonElement on column
             var jsonColumn = table.FindColumn("complex_data")!;
@@ -3730,7 +3749,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.False(numberProp.IsNullable);
 
             // Validate FindColumn(IPropertyBase) with complex property
-            var entityType = model.Model.FindEntityType(typeof(EntityWithComplexProperty))!;
             var complexProperty = entityType.FindComplexProperty(nameof(EntityWithComplexProperty.ComplexProperty))!;
             var column = table.FindColumn(complexProperty);
             Assert.NotNull(column);
@@ -3738,13 +3756,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(root, column.JsonElement);
 
             // Validate GetJsonElementMappings for complex property
-            var complexMappings = complexProperty.GetJsonElementMappings().ToList();
+            var complexMappings = complexProperty.GetJsonElementMappings().Where(m => m.TableMapping.Table == table).ToList();
             Assert.Single(complexMappings);
             Assert.Same(root, complexMappings[0].Element);
 
             // Validate scalar properties have mappings
             var valueProperty = complexProperty.ComplexType.FindProperty("Value")!;
-            var valueMappings = valueProperty.GetJsonElementMappings().ToList();
+            var valueMappings = valueProperty.GetJsonElementMappings().Where(m => m.TableMapping.Table == table).ToList();
             Assert.Single(valueMappings);
             Assert.Equal("Value", valueMappings[0].Element.PropertyName);
             Assert.Same((RelationalTypeMapping)valueProperty.GetTypeMapping(), valueMappings[0].Element.StoreTypeMapping);

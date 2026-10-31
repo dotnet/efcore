@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 /// <inheritdoc />
@@ -37,11 +39,14 @@ public class RelationalCompiledQueryCacheKeyGenerator : CompiledQueryCacheKeyGen
     {
         var relationalOptions = RelationalOptionsExtension.Extract(RelationalDependencies.ContextOptions);
 
+#pragma warning disable EF9001 // Window function support is experimental
         return new RelationalCompiledQueryCacheKey(
             base.GenerateCacheKeyCore(query, async),
             relationalOptions.UseRelationalNulls,
             relationalOptions.QuerySplittingBehavior,
-            shouldBuffer: ExecutionStrategy.Current?.RetriesOnFailure ?? Dependencies.IsRetryingExecutionStrategy);
+            shouldBuffer: ExecutionStrategy.Current?.RetriesOnFailure ?? Dependencies.IsRetryingExecutionStrategy,
+            relationalOptions.UseWindowFunctionAggregates);
+#pragma warning restore EF9001
     }
 
     /// <summary>
@@ -60,6 +65,7 @@ public class RelationalCompiledQueryCacheKeyGenerator : CompiledQueryCacheKeyGen
         private readonly bool _useRelationalNulls;
         private readonly QuerySplittingBehavior? _querySplittingBehavior;
         private readonly bool _shouldBuffer;
+        private readonly bool _useWindowFunctionAggregates;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="RelationalCompiledQueryCacheKey" /> class.
@@ -73,11 +79,35 @@ public class RelationalCompiledQueryCacheKeyGenerator : CompiledQueryCacheKeyGen
             bool useRelationalNulls,
             QuerySplittingBehavior? querySplittingBehavior,
             bool shouldBuffer)
+#pragma warning disable EF9001 // Window function support is experimental
+            : this(compiledQueryCacheKey, useRelationalNulls, querySplittingBehavior, shouldBuffer, useWindowFunctionAggregates: false)
+#pragma warning restore EF9001
+        {
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="RelationalCompiledQueryCacheKey" /> class.
+        /// </summary>
+        /// <param name="compiledQueryCacheKey">The non-relational cache key.</param>
+        /// <param name="useRelationalNulls">True to use relational null logic.</param>
+        /// <param name="querySplittingBehavior"><see cref="QuerySplittingBehavior" /> to use when loading related collections.</param>
+        /// <param name="shouldBuffer"><see langword="true" /> if the query should be buffered.</param>
+        /// <param name="useWindowFunctionAggregates">
+        ///     <see langword="true" /> if aggregates projected alongside the elements of a grouping are translated as window functions.
+        /// </param>
+        [Experimental(EFDiagnostics.ExperimentalApi)]
+        public RelationalCompiledQueryCacheKey(
+            CompiledQueryCacheKey compiledQueryCacheKey,
+            bool useRelationalNulls,
+            QuerySplittingBehavior? querySplittingBehavior,
+            bool shouldBuffer,
+            bool useWindowFunctionAggregates)
         {
             _compiledQueryCacheKey = compiledQueryCacheKey;
             _useRelationalNulls = useRelationalNulls;
             _querySplittingBehavior = querySplittingBehavior;
             _shouldBuffer = shouldBuffer;
+            _useWindowFunctionAggregates = useWindowFunctionAggregates;
         }
 
         /// <inheritdoc />
@@ -90,11 +120,12 @@ public class RelationalCompiledQueryCacheKeyGenerator : CompiledQueryCacheKeyGen
             => _compiledQueryCacheKey.Equals(other._compiledQueryCacheKey)
                 && _useRelationalNulls == other._useRelationalNulls
                 && _querySplittingBehavior == other._querySplittingBehavior
-                && _shouldBuffer == other._shouldBuffer;
+                && _shouldBuffer == other._shouldBuffer
+                && _useWindowFunctionAggregates == other._useWindowFunctionAggregates;
 
         /// <inheritdoc />
         public override int GetHashCode()
             => HashCode.Combine(
-                _compiledQueryCacheKey, _useRelationalNulls, _querySplittingBehavior, _shouldBuffer);
+                _compiledQueryCacheKey, _useRelationalNulls, _querySplittingBehavior, _shouldBuffer, _useWindowFunctionAggregates);
     }
 }
