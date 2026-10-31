@@ -137,7 +137,8 @@ public class QueryFilterRewritingConvention : IModelFinalizingConvention
 
                 if (entityType == null)
                 {
-                    if (_model.IsShared(entityClrType))
+                    if (_model.IsShared(entityClrType)
+                        || ((IModel)_model).FindEntityTypes(entityClrType).Any(e => e.HasSharedClrType))
                     {
                         throw new InvalidOperationException(CoreStrings.InvalidSetSharedType(entityClrType.ShortDisplayName()));
                     }

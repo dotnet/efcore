@@ -4115,6 +4115,9 @@
           "Member": "static string InvalidSetTypeOwned(object? typeName, object? ownerType);"
         },
         {
+          "Member": "static string InvalidSetTypeWithName(object? typeName, object? entityTypeName);"
+        },
+        {
           "Member": "static string InvalidStructuredJsonPathIndexCount(object? indicesCount, object? arraySegmentCount);"
         },
         {
