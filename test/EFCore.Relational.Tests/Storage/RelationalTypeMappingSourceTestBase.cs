@@ -1,10 +1,91 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Globalization;
+using System.Text.Json;
+using Microsoft.EntityFrameworkCore.Storage.Json;
+
 namespace Microsoft.EntityFrameworkCore.Storage;
 
 public abstract class RelationalTypeMappingSourceTestBase
 {
+    [Theory, InlineData(false), InlineData(true)]
+    public void JSON_reader_writer_defaults_apply_to_model_aware_type_lookup(bool converted)
+    {
+        var builder = CreateModelBuilder(c =>
+        {
+            var configuration = c.DefaultTypeMapping<int>();
+            if (converted)
+            {
+                configuration.HasConversion<string>().HasJsonValueReaderWriter<JsonStringReaderWriter>();
+            }
+            else
+            {
+                configuration.HasJsonValueReaderWriter<JsonInt32AsStringReaderWriter>();
+            }
+        });
+        var model = builder.FinalizeModel();
+        var source = CreateRelationalTypeMappingSource(model);
+
+        var mapping = source.GetMapping(typeof(int), model);
+        Assert.Equal(typeof(int), mapping.JsonValueReaderWriter!.ValueType);
+        Assert.Equal("\"42\"", mapping.JsonValueReaderWriter!.ToJsonString(42));
+        Assert.Equal(42, mapping.JsonValueReaderWriter.FromJsonString("\"42\""));
+        if (converted)
+        {
+            Assert.Equal(typeof(int), mapping.Converter!.ModelClrType);
+            Assert.Equal(typeof(string), mapping.Converter.ProviderClrType);
+            Assert.Equal("42", mapping.Converter.ConvertToProvider(42));
+            Assert.Equal(42, mapping.Converter.ConvertFromProvider("42"));
+        }
+
+        Assert.Same(mapping, source.GetMapping(typeof(int?), model));
+        Assert.NotSame(mapping, source.GetMapping(typeof(int)));
+    }
+
+    [Fact]
+    public void JSON_reader_writer_defaults_do_not_leak_between_models()
+    {
+        var customized = CreateModelBuilder(c =>
+            c.DefaultTypeMapping<int>().HasJsonValueReaderWriter<JsonInt32AsStringReaderWriter>()).FinalizeModel();
+        var unconfigured = CreateModelBuilder().FinalizeModel();
+        var source = CreateRelationalTypeMappingSource(customized);
+
+        Assert.Equal("\"42\"", source.GetMapping(typeof(int), customized).JsonValueReaderWriter!.ToJsonString(42));
+        Assert.Equal("42", source.GetMapping(typeof(int), unconfigured).JsonValueReaderWriter!.ToJsonString(42));
+        Assert.Equal("\"42\"", source.GetMapping(typeof(int), customized).JsonValueReaderWriter!.ToJsonString(42));
+    }
+
+    [Fact]
+    public void JSON_reader_writer_defaults_reuse_mappings_for_properties_and_elements()
+    {
+        var builder = CreateModelBuilder(c =>
+            c.DefaultTypeMapping<int>().HasJsonValueReaderWriter<JsonInt32AsStringReaderWriter>());
+        builder.Entity("Owner").Property<int>("Id");
+        builder.Entity("Owner").PrimitiveCollection<List<int>>("Numbers");
+        var model = builder.FinalizeModel();
+        var source = CreateRelationalTypeMappingSource(model);
+        var property = model.FindEntityType("Owner")!.FindProperty("Id")!;
+        var element = model.FindEntityType("Owner")!.FindProperty("Numbers")!.GetElementType()!;
+
+        Assert.Same(source.GetMapping(property), source.GetMapping(property));
+        Assert.Same(source.FindMapping(element), source.FindMapping(element));
+        Assert.Same(source.GetMapping(property).JsonValueReaderWriter, source.FindMapping(element)!.JsonValueReaderWriter);
+        Assert.Equal("\"42\"", source.FindMapping(element)!.JsonValueReaderWriter!.ToJsonString(42));
+    }
+
+    public sealed class JsonInt32AsStringReaderWriter : JsonValueReaderWriter<int>
+    {
+        public override int FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
+            => int.Parse(manager.CurrentReader.GetString()!, CultureInfo.InvariantCulture);
+
+        public override void ToJsonTyped(Utf8JsonWriter writer, int value)
+            => writer.WriteStringValue(value.ToString(CultureInfo.InvariantCulture));
+
+        public override Expression ConstructorExpression
+            => Expression.New(typeof(JsonInt32AsStringReaderWriter));
+    }
+
     protected IMutableEntityType CreateEntityType<TEntity>()
     {
         var builder = CreateModelBuilder();

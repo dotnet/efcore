@@ -1,12 +1,371 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 public partial class RelationalModelValidatorTest
 {
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
+    public void Validates_default_reader_writer_against_JSON_store_type(bool collection, bool converted)
+    {
+        var builder = CreateConventionModelBuilder(
+            c => c.DefaultTypeMapping<int>().HasJsonValueReaderWriter<JsonStringReaderWriter>());
+        IMutableProperty property;
+        if (collection)
+        {
+            var collectionBuilder = builder.Entity<JsonCollectionReaderWriterOwner>().PrimitiveCollection(e => e.Numbers);
+            if (converted)
+            {
+                collectionBuilder.ElementType().HasConversion<string>();
+            }
+
+            property = collectionBuilder.Metadata;
+        }
+        else
+        {
+            var owned = builder.Entity<JsonReaderWriterOwner>().OwnsOne(e => e.Value);
+            owned.ToJson();
+            var propertyBuilder = owned.Property(e => e.Number);
+            if (converted)
+            {
+                propertyBuilder.HasConversion<string>();
+            }
+
+            property = propertyBuilder.Metadata;
+        }
+
+        if (!converted)
+        {
+            VerifyError(
+                CoreStrings.JsonValueReaderWriterPropertyMismatch(
+                    property.DeclaringType.DisplayName(), property.Name + (collection ? "[]" : ""),
+                    nameof(JsonStringReaderWriter), "string", "int"),
+                builder);
+            return;
+        }
+
+        var model = Validate(builder);
+        var readerWriter = model.FindEntityType(property.DeclaringType.Name)!.FindProperty(property.Name)!
+            .GetTypeMapping().JsonValueReaderWriter!;
+        if (collection)
+        {
+            Assert.Equal("[\"42\",null]", readerWriter.ToJsonString(new List<int?> { 42, null }));
+            Assert.Equal(new List<int?> { 42, null }, Assert.IsAssignableFrom<IEnumerable<int?>>(readerWriter.FromJsonString("[\"42\",null]")));
+        }
+        else
+        {
+            Assert.Equal("\"42\"", readerWriter.ToJsonString(42));
+            Assert.Equal(42, readerWriter.FromJsonString("\"42\""));
+        }
+    }
+
+    [Theory, InlineData(false), InlineData(true)]
+    public void Accepts_reader_writer_for_concrete_JSON_collection_type(bool genericBuilder)
+    {
+        var builder = CreateConventionModelBuilder();
+        var owned = builder.Entity<JsonReaderWriterOwner>().OwnsOne(e => e.Value);
+        owned.ToJson();
+        var collection = owned.PrimitiveCollection<List<int>>("Numbers");
+        if (genericBuilder)
+        {
+            collection.HasJsonValueReaderWriter<IntListReaderWriter>();
+        }
+        else
+        {
+            ((PrimitiveCollectionBuilder)collection).HasJsonValueReaderWriter(typeof(IntListReaderWriter));
+        }
+
+        var model = Validate(builder);
+        var property = model.FindEntityType(typeof(JsonReaderWriterOwner))!.FindNavigation(nameof(JsonReaderWriterOwner.Value))!
+            .TargetEntityType.FindProperty("Numbers")!;
+        var readerWriter = property.GetTypeMapping().JsonValueReaderWriter!;
+        Assert.Equal("[1,2]", readerWriter.ToJsonString(new List<int> { 1, 2 }));
+        Assert.Equal(new List<int> { 1, 2 }, Assert.IsType<List<int>>(readerWriter.FromJsonString("[1,2]")));
+    }
+
+    [Theory, InlineData(false), InlineData(true)]
+    public void Accepts_reader_writer_for_primitive_collection_on_complex_type(bool genericBuilder)
+    {
+        var builder = CreateConventionModelBuilder();
+        var collection = builder.Entity<JsonComplexCollectionReaderWriterOwner>().ComplexProperty(e => e.Value)
+            .PrimitiveCollection(e => e.Numbers);
+        if (genericBuilder)
+        {
+            collection.HasJsonValueReaderWriter<IntListReaderWriter>();
+        }
+        else
+        {
+            ((ComplexTypePrimitiveCollectionBuilder)collection).HasJsonValueReaderWriter(typeof(IntListReaderWriter));
+        }
+
+        var model = Validate(builder);
+        var property = model.FindEntityType(typeof(JsonComplexCollectionReaderWriterOwner))!
+            .FindComplexProperty(nameof(JsonComplexCollectionReaderWriterOwner.Value))!
+            .ComplexType.FindProperty(nameof(JsonIntListValue.Numbers))!;
+        var readerWriter = property.GetTypeMapping().JsonValueReaderWriter!;
+        Assert.Same(IntListReaderWriter.Instance, readerWriter);
+        Assert.Equal("[1,2]", readerWriter.ToJsonString(new List<int> { 1, 2 }));
+        Assert.Equal(new List<int> { 1, 2 }, Assert.IsType<List<int>>(readerWriter.FromJsonString("[1,2]")));
+    }
+
+    public sealed class IntListReaderWriter : JsonValueReaderWriter<List<int>>
+    {
+        private static readonly JsonCollectionOfStructsReaderWriter<List<int>, int> ReaderWriter = new(JsonInt32ReaderWriter.Instance);
+
+        public static IntListReaderWriter Instance { get; } = new();
+
+        public override List<int> FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
+            => (List<int>)ReaderWriter.FromJsonTyped(ref manager, existingObject);
+
+        public override void ToJsonTyped(Utf8JsonWriter writer, List<int> value)
+            => ReaderWriter.ToJsonTyped(writer, value);
+
+        public override Expression ConstructorExpression
+            => Expression.Property(null, typeof(IntListReaderWriter), nameof(Instance));
+    }
+
+    [Theory, InlineData(false), InlineData(true)]
+    public void Configured_enum_reader_writer_overrides_legacy_convention(bool typeMappingDefault)
+    {
+        var builder = CreateConventionModelBuilder(
+            c =>
+            {
+                if (typeMappingDefault)
+                {
+                    c.DefaultTypeMapping<DayOfWeek>()
+                        .HasJsonValueReaderWriter<Storage.RelationalTypeMappingSourceTestBase.JsonInt32AsStringReaderWriter>();
+                }
+            });
+        var owned = builder.Entity<JsonReaderWriterOwner>().OwnsOne(e => e.Value);
+        owned.ToJson();
+        var propertyBuilder = owned.Property<DayOfWeek>("Day");
+        if (!typeMappingDefault)
+        {
+            propertyBuilder
+                .HasJsonValueReaderWriter<Storage.RelationalTypeMappingSourceTestBase.JsonInt32AsStringReaderWriter>();
+        }
+
+        var model = Validate(builder);
+        var property = model.FindEntityType(typeof(JsonReaderWriterOwner))!.FindNavigation(nameof(JsonReaderWriterOwner.Value))!
+            .TargetEntityType.FindProperty("Day")!;
+        var readerWriter = property.GetTypeMapping().JsonValueReaderWriter!;
+        Assert.Equal("\"1\"", readerWriter.ToJsonString(DayOfWeek.Monday));
+        Assert.Equal(DayOfWeek.Monday, readerWriter.FromJsonString("\"1\""));
+    }
+
+    [Fact]
+    public void Member_reader_writer_overrides_type_mapping_default()
+    {
+        var builder = CreateConventionModelBuilder(
+            c => c.DefaultTypeMapping<int>().HasJsonValueReaderWriter<JsonInt32ReaderWriter>());
+        var owned = builder.Entity<JsonReaderWriterOwner>().OwnsOne(e => e.Value);
+        owned.ToJson();
+        owned.Property(e => e.Number)
+            .HasJsonValueReaderWriter<Storage.RelationalTypeMappingSourceTestBase.JsonInt32AsStringReaderWriter>();
+
+        var model = Validate(builder);
+        var property = model.FindEntityType(typeof(JsonReaderWriterOwner))!.FindNavigation(nameof(JsonReaderWriterOwner.Value))!
+            .TargetEntityType.FindProperty(nameof(JsonReaderWriterValue.Number))!;
+        Assert.Equal("\"42\"", property.GetTypeMapping().JsonValueReaderWriter!.ToJsonString(42));
+        Assert.Equal(42, property.GetTypeMapping().JsonValueReaderWriter!.FromJsonString("\"42\""));
+    }
+
+    [Fact]
+    public void Accepts_reader_writers_on_JSON_complex_type_and_collection_members()
+    {
+        var builder = CreateConventionModelBuilder();
+        var entity = builder.Entity<JsonComplexReaderWriterOwner>();
+        entity.ComplexProperty(e => e.Value).ToJson().Property(e => e.Number)
+            .HasConversion<string>().HasJsonValueReaderWriter<JsonStringReaderWriter>();
+        entity.ComplexCollection(e => e.Values).ToJson().Property(e => e.Number)
+            .HasConversion<string>().HasJsonValueReaderWriter<JsonStringReaderWriter>();
+
+        var model = Validate(builder);
+        var entityType = model.FindEntityType(typeof(JsonComplexReaderWriterOwner))!;
+        foreach (var complexProperty in entityType.GetComplexProperties())
+        {
+            var property = complexProperty.ComplexType.FindProperty(nameof(JsonReaderWriterValue.Number))!;
+            var readerWriter = property.GetTypeMapping().JsonValueReaderWriter!;
+            Assert.Equal("\"42\"", readerWriter.ToJsonString(42));
+            Assert.Equal(42, readerWriter.FromJsonString("\"42\""));
+        }
+    }
+
+    [Fact]
+    public void Accepts_reader_writer_on_JSON_collection_element_with_conversion()
+    {
+        var builder = CreateConventionModelBuilder();
+        builder.Entity<JsonCollectionReaderWriterOwner>().PrimitiveCollection(e => e.Numbers).ElementType()
+            .HasConversion<string>().HasJsonValueReaderWriter<JsonStringReaderWriter>();
+
+        var model = Validate(builder);
+        var property = model.FindEntityType(typeof(JsonCollectionReaderWriterOwner))!
+            .FindProperty(nameof(JsonCollectionReaderWriterOwner.Numbers))!;
+        var readerWriter = property.GetTypeMapping().JsonValueReaderWriter!;
+        Assert.Equal("[\"42\",null]", readerWriter.ToJsonString(new List<int?> { 42, null }));
+        Assert.Equal(new List<int?> { 42, null }, Assert.IsAssignableFrom<IEnumerable<int?>>(readerWriter.FromJsonString("[\"42\",null]")));
+    }
+
+    [Fact]
+    public void Rejects_reader_writer_with_incompatible_JSON_collection_element_store_type()
+    {
+        var builder = CreateConventionModelBuilder();
+        var property = builder.Entity<JsonCollectionReaderWriterOwner>().PrimitiveCollection(e => e.Numbers);
+        property.ElementType().HasJsonValueReaderWriter<JsonStringReaderWriter>();
+
+        VerifyError(
+            CoreStrings.JsonValueReaderWriterPropertyMismatch(
+                property.Metadata.DeclaringType.DisplayName(), property.Metadata.Name + "[]", nameof(JsonStringReaderWriter),
+                "string", "int"),
+            builder);
+    }
+
+    [Fact]
+    public void Rejects_reader_writer_on_non_JSON_member()
+    {
+        var builder = CreateConventionModelBuilder();
+        var property = builder.Entity<JsonReaderWriterOwner>().Property(e => e.Id)
+            .HasJsonValueReaderWriter<JsonInt32ReaderWriter>().Metadata;
+        builder.Entity<JsonReaderWriterOwner>().Ignore(e => e.Value);
+
+        VerifyError(
+            CoreStrings.JsonValueReaderWriterOnNonJsonProperty(
+                property.DeclaringType.DisplayName(), property.Name, nameof(JsonInt32ReaderWriter)),
+            builder);
+    }
+
+    [Fact]
+    public void Rejects_reader_writer_on_non_JSON_member_with_string_conversion()
+    {
+        var builder = CreateConventionModelBuilder();
+        var property = builder.Entity<JsonReaderWriterOwner>().Property(e => e.Id)
+            .HasConversion<string>()
+            .HasJsonValueReaderWriter<JsonStringReaderWriter>().Metadata;
+        builder.Entity<JsonReaderWriterOwner>().Ignore(e => e.Value);
+
+        VerifyError(
+            CoreStrings.JsonValueReaderWriterOnNonJsonProperty(
+                property.DeclaringType.DisplayName(), property.Name, nameof(JsonStringReaderWriter)),
+            builder);
+    }
+
+    [Theory, InlineData(false), InlineData(true)]
+    public void Accepts_reader_writer_for_converted_JSON_member_regardless_of_configuration_order(bool configureReaderWriterFirst)
+    {
+        var builder = CreateConventionModelBuilder();
+        var propertyBuilder = builder.Entity<JsonReaderWriterOwner>().OwnsOne(e => e.Value).Property(e => e.Number);
+        if (configureReaderWriterFirst)
+        {
+            propertyBuilder.HasJsonValueReaderWriter<JsonStringReaderWriter>();
+        }
+
+        propertyBuilder.HasConversion<string>();
+        builder.Entity<JsonReaderWriterOwner>().OwnsOne(e => e.Value).ToJson();
+        if (!configureReaderWriterFirst)
+        {
+            propertyBuilder.HasJsonValueReaderWriter<JsonStringReaderWriter>();
+        }
+
+        var model = Validate(builder);
+        var property = model.FindEntityType(typeof(JsonReaderWriterOwner))!.FindNavigation(nameof(JsonReaderWriterOwner.Value))!
+            .TargetEntityType.FindProperty(nameof(JsonReaderWriterValue.Number))!;
+        var readerWriter = property.GetTypeMapping().JsonValueReaderWriter!;
+        Assert.Equal("\"42\"", readerWriter.ToJsonString(42));
+        Assert.Equal(42, readerWriter.FromJsonString("\"42\""));
+    }
+
+    [Theory, InlineData(false), InlineData(true)]
+    public void Rejects_reader_writer_for_model_type_instead_of_JSON_store_type(bool configureReaderWriterFirst)
+    {
+        var builder = CreateConventionModelBuilder();
+        var property = builder.Entity<JsonReaderWriterOwner>().OwnsOne(e => e.Value).Property(e => e.Number);
+        if (configureReaderWriterFirst)
+        {
+            property.HasJsonValueReaderWriter<JsonInt32ReaderWriter>();
+        }
+
+        property.HasConversion<string>();
+        builder.Entity<JsonReaderWriterOwner>().OwnsOne(e => e.Value).ToJson();
+        if (!configureReaderWriterFirst)
+        {
+            property.HasJsonValueReaderWriter<JsonInt32ReaderWriter>();
+        }
+
+        VerifyError(
+            CoreStrings.JsonValueReaderWriterPropertyMismatch(
+                property.Metadata.DeclaringType.DisplayName(), property.Metadata.Name, nameof(JsonInt32ReaderWriter), "int", "string"),
+            builder);
+    }
+
+    [Fact]
+    public void Does_not_validate_type_mapping_default_as_member_configuration()
+    {
+        var builder = CreateConventionModelBuilder(
+            c => c.DefaultTypeMapping<int>().HasJsonValueReaderWriter<JsonInt32ReaderWriter>());
+        builder.Entity<JsonReaderWriterOwner>().Ignore(e => e.Value);
+
+        var model = Validate(builder);
+        var property = model.FindEntityType(typeof(JsonReaderWriterOwner))!.FindProperty(nameof(JsonReaderWriterOwner.Id))!;
+        Assert.Null(property.GetJsonValueReaderWriter());
+        Assert.Same(JsonInt32ReaderWriter.Instance, property.GetTypeMapping().JsonValueReaderWriter);
+    }
+
+    [Fact]
+    public void Clearing_member_reader_writer_restores_default_without_JSON_location_error()
+    {
+        var builder = CreateConventionModelBuilder(
+            c => c.DefaultTypeMapping<int>().HasJsonValueReaderWriter<JsonInt32ReaderWriter>());
+        builder.Entity<JsonReaderWriterOwner>().Ignore(e => e.Value);
+        builder.Entity<JsonReaderWriterOwner>().Property(e => e.Id)
+            .HasJsonValueReaderWriter<JsonStringReaderWriter>()
+            .HasJsonValueReaderWriter(null);
+
+        var model = Validate(builder);
+        Assert.Same(
+            JsonInt32ReaderWriter.Instance,
+            model.FindEntityType(typeof(JsonReaderWriterOwner))!.FindProperty(nameof(JsonReaderWriterOwner.Id))!
+                .GetTypeMapping().JsonValueReaderWriter);
+    }
+
+    private class JsonReaderWriterOwner
+    {
+        public int Id { get; set; }
+        public JsonReaderWriterValue Value { get; set; } = null!;
+    }
+
+    private class JsonReaderWriterValue
+    {
+        public int? Number { get; set; }
+    }
+
+    private class JsonComplexReaderWriterOwner
+    {
+        public int Id { get; set; }
+        public JsonReaderWriterValue Value { get; set; } = null!;
+        public List<JsonReaderWriterValue> Values { get; set; } = [];
+    }
+
+    private class JsonCollectionReaderWriterOwner
+    {
+        public int Id { get; set; }
+        public List<int?> Numbers { get; set; } = [];
+    }
+
+    private class JsonComplexCollectionReaderWriterOwner
+    {
+        public int Id { get; set; }
+        public JsonIntListValue Value { get; set; } = null!;
+    }
+
+    private class JsonIntListValue
+    {
+        public List<int> Numbers { get; set; } = [];
+    }
+
     [Fact]
     public void Throw_when_non_json_entity_has_column_type_set()
     {

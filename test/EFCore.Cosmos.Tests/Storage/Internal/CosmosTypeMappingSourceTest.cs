@@ -1,12 +1,136 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Text.Json;
+using Microsoft.Azure.Cosmos;
+using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
 public class CosmosTypeMappingSourceTest
 {
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
+    public void Configured_string_reader_preserves_Guid_conversion(bool nullable, bool typeMappingDefault)
+    {
+        var builder = CosmosTestHelpers.Instance.CreateConventionBuilder(
+            configureConventions: c =>
+            {
+                if (typeMappingDefault)
+                {
+                    c.DefaultTypeMapping<Guid>().HasJsonValueReaderWriter<JsonStringReaderWriter>();
+                }
+            });
+        var property = builder.Entity<MyType>().Property(nullable ? typeof(Guid?) : typeof(Guid), "Value");
+        if (!typeMappingDefault)
+        {
+            property.HasJsonValueReaderWriter<JsonStringReaderWriter>();
+        }
+
+        var model = builder.FinalizeModel();
+        var mapping = CreateTypeMappingSource(model).FindMapping(
+            model.FindEntityType(typeof(MyType))!.FindProperty("Value")!)!;
+        var value = Guid.Parse("a8f13d1e-4ef7-4a3a-bcc3-e29f6c264ccb");
+
+        Assert.IsType<GuidToStringConverter>(mapping.Converter);
+        Assert.Equal("\"a8f13d1e-4ef7-4a3a-bcc3-e29f6c264ccb\"", mapping.JsonValueReaderWriter!.ToJsonString(value));
+        Assert.Equal(value, mapping.JsonValueReaderWriter.FromJsonString("\"a8f13d1e-4ef7-4a3a-bcc3-e29f6c264ccb\""));
+    }
+
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
+    public void Vector_mapping_uses_configured_json_reader_writer(bool readOnlyMemory, bool memberConfiguration)
+    {
+        var clrType = readOnlyMemory ? typeof(ReadOnlyMemory<float>) : typeof(float[]);
+        var builder = CosmosTestHelpers.Instance.CreateConventionBuilder(configureConventions: c =>
+        {
+            if (!memberConfiguration)
+            {
+                c.DefaultTypeMapping(clrType).HasJsonValueReaderWriter<JsonFloatArrayReaderWriter>();
+            }
+        });
+        var property = builder.Entity<MyType>().Property(clrType, "Vector").IsVectorProperty(DistanceFunction.Cosine, 3);
+        if (memberConfiguration)
+        {
+            property.HasJsonValueReaderWriter<JsonFloatArrayReaderWriter>();
+        }
+
+        var model = builder.FinalizeModel();
+        var mapping = Assert.IsType<CosmosVectorTypeMapping>(
+            CreateTypeMappingSource(model).FindMapping(model.FindEntityType(typeof(MyType))!.FindProperty("Vector")!));
+        var readerWriter = mapping.JsonValueReaderWriter!;
+        var innerReaderWriter = readerWriter is IJsonConvertedValueReaderWriter converted
+            ? converted.InnerReaderWriter
+            : readerWriter;
+
+        Assert.IsType<JsonFloatArrayReaderWriter>(innerReaderWriter);
+        Assert.Equal(DistanceFunction.Cosine, mapping.VectorType.DistanceFunction);
+        Assert.Equal(3, mapping.VectorType.Dimensions);
+        if (readOnlyMemory)
+        {
+            Assert.Equal("[10,20,30]", readerWriter.ToJsonString(new ReadOnlyMemory<float>([1, 2, 3])));
+            Assert.Equal(new float[] { 1, 2, 3 }, Assert.IsType<ReadOnlyMemory<float>>(readerWriter.FromJsonString("[10,20,30]")).ToArray());
+        }
+        else
+        {
+            Assert.Equal("[10,20,30]", readerWriter.ToJsonString(new float[] { 1, 2, 3 }));
+            Assert.Equal(new float[] { 1, 2, 3 }, Assert.IsType<float[]>(readerWriter.FromJsonString("[10,20,30]")));
+        }
+
+        Assert.Equal(
+            "[10,20,30]",
+            System.Text.Encoding.UTF8.GetString(
+                Assert.IsType<SqlRawJsonParameter>(mapping.CreateParameter("p", new float[] { 1, 2, 3 })).ValueJson.Span));
+        Assert.Equal(
+            "[10,20,30]",
+            System.Text.Encoding.UTF8.GetString(
+                Assert.IsType<SqlRawJsonParameter>(mapping.CreateParameter("p", new ReadOnlyMemory<float>([1, 2, 3]))).ValueJson.Span));
+    }
+
+    [Fact]
+    public void Default_json_reader_writer_reuses_model_aware_mapping()
+    {
+        var builder = CosmosTestHelpers.Instance.CreateConventionBuilder(configureConventions: c =>
+            c.DefaultTypeMapping<float[]>().HasJsonValueReaderWriter<JsonFloatArrayReaderWriter>());
+        var model = builder.FinalizeModel();
+        var source = CreateTypeMappingSource(model);
+
+        var mapping = source.FindMapping(typeof(float[]), model)!;
+
+        Assert.Same(mapping, source.FindMapping(typeof(float[]), model));
+        Assert.IsType<JsonFloatArrayReaderWriter>(mapping.JsonValueReaderWriter);
+        Assert.Equal("[10,20,30]", mapping.JsonValueReaderWriter!.ToJsonString(new float[] { 1, 2, 3 }));
+    }
+
+    [Fact]
+    public void Byte_vector_mapping_does_not_reuse_base64_reader_from_scalar_mapping()
+    {
+        var model = CreateModelBuilder().FinalizeModel();
+        var mapping = Assert.IsAssignableFrom<CosmosTypeMapping>(CreateTypeMappingSource(model).FindMapping(typeof(byte[]), model));
+        var vectorMapping = new CosmosVectorTypeMapping(mapping, new CosmosVectorType(DistanceFunction.Cosine, 2));
+
+        Assert.Null(vectorMapping.Converter);
+        Assert.Equal("[0,255]", vectorMapping.JsonValueReaderWriter!.ToJsonString(new byte[] { 0, 255 }));
+        Assert.Equal(
+            "[0,255]",
+            System.Text.Encoding.UTF8.GetString(
+                Assert.IsType<SqlRawJsonParameter>(vectorMapping.CreateParameter("p", new byte[] { 0, 255 })).ValueJson.Span));
+    }
+
+    public sealed class JsonFloatArrayReaderWriter : JsonValueReaderWriter<float[]>
+    {
+        private static readonly JsonCollectionOfStructsReaderWriter<float[], float> ReaderWriter = new(JsonFloatReaderWriter.Instance);
+
+        public override float[] FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
+            => ((float[])ReaderWriter.FromJsonTyped(ref manager, existingObject)).Select(v => v / 10).ToArray();
+
+        public override void ToJsonTyped(Utf8JsonWriter writer, float[] value)
+            => ReaderWriter.ToJsonTyped(writer, value.Select(v => v * 10).ToArray());
+
+        public override Expression ConstructorExpression
+            => Expression.New(typeof(JsonFloatArrayReaderWriter));
+    }
+
     [Fact]
     public void Can_map_sbyte()
         => Can_map_scalar_by_clr_type<sbyte, JsonSByteReaderWriter>(1, "1");

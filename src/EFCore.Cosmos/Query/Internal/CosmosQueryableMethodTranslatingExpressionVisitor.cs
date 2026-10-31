@@ -1624,7 +1624,9 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             return false;
         }
 
-        select.ApplyOffset(offset);
+        select.ApplyOffset(
+            new PaginationTypeMappingVisitor(_sqlExpressionFactory, _typeMappingSource)
+                .VisitAndConvert(offset, nameof(TryApplyOffset)));
         return true;
     }
 
@@ -1635,8 +1637,23 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             return false;
         }
 
-        select.ApplyLimit(limit);
+        select.ApplyLimit(
+            new PaginationTypeMappingVisitor(_sqlExpressionFactory, _typeMappingSource)
+                .VisitAndConvert(limit, nameof(TryApplyLimit)));
         return true;
+    }
+
+    private sealed class PaginationTypeMappingVisitor(ISqlExpressionFactory sqlExpressionFactory, ITypeMappingSource typeMappingSource)
+        : ExpressionVisitor
+    {
+        protected override Expression VisitExtension(Expression expression)
+        {
+            var visited = base.VisitExtension(expression);
+            return visited is SqlExpression sqlExpression
+                && typeMappingSource.FindMapping(sqlExpression.Type) is { } mapping
+                    ? sqlExpressionFactory.SetTypeMapping(sqlExpression, mapping)
+                    : visited;
+        }
     }
 
     private bool TryPushdownIntoSubquery(SelectExpression select)

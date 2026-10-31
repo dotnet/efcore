@@ -246,6 +246,34 @@ public class InternalElementTypeBuilder : AnnotatableBuilder<ElementType, Intern
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public virtual InternalElementTypeBuilder? HasJsonValueReaderWriter(Type? readerWriterType, ConfigurationSource configurationSource)
+    {
+        if (!CanSetJsonValueReaderWriter(readerWriterType, configurationSource))
+        {
+            return null;
+        }
+
+        Metadata.SetJsonValueReaderWriterType(readerWriterType, configurationSource);
+
+        return this;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool CanSetJsonValueReaderWriter(Type? readerWriterType, ConfigurationSource? configurationSource)
+        => configurationSource.Overrides(Metadata.GetJsonValueReaderWriterTypeConfigurationSource())
+            || (Type?)Metadata[CoreAnnotationNames.JsonValueReaderWriterType] == readerWriterType;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual InternalElementTypeBuilder? HasConverter(
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
         Type? converterType,
@@ -538,6 +566,26 @@ public class InternalElementTypeBuilder : AnnotatableBuilder<ElementType, Intern
     /// </summary>
     bool IConventionElementTypeBuilder.CanSetConversion(ValueConverter? converter, bool fromDataAnnotation)
         => CanSetConversion(converter, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    IConventionElementTypeBuilder? IConventionElementTypeBuilder.HasJsonValueReaderWriter(Type? readerWriterType, bool fromDataAnnotation)
+        => HasJsonValueReaderWriter(
+            readerWriterType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    bool IConventionElementTypeBuilder.CanSetJsonValueReaderWriter(Type? readerWriterType, bool fromDataAnnotation)
+        => CanSetJsonValueReaderWriter(
+            readerWriterType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

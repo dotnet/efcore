@@ -1,14 +1,85 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Globalization;
+using System.Text.Json;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos;
 
 public class PartitionKeyBuilderExtensionsTest
 {
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
+    public void Routing_uses_configured_JSON_representation(bool typeMappingDefault, bool converted)
+    {
+        var builder = CosmosTestHelpers.Instance.CreateConventionBuilder(
+            configureConventions: c =>
+            {
+                if (typeMappingDefault)
+                {
+                    c.DefaultTypeMapping<int>().HasJsonValueReaderWriter<Int32AsStringReaderWriter>();
+                }
+            });
+        builder.Entity<Customer3>().HasPartitionKey(e => e.NullableInt);
+        var propertyBuilder = builder.Entity<Customer3>().Property(e => e.NullableInt);
+        if (!typeMappingDefault)
+        {
+            propertyBuilder.HasJsonValueReaderWriter<Int32AsStringReaderWriter>();
+        }
+
+        var counter = new ConversionCounter();
+        if (converted)
+        {
+            propertyBuilder.HasConversion(new ValueConverter<int, int>(v => counter.Convert(v), v => v));
+        }
+
+        var property = builder.FinalizeModel().FindEntityType(typeof(Customer3))!.FindProperty(nameof(Customer3.NullableInt))!;
+        Assert.Equal(
+            new PartitionKey(converted ? "43" : "42"),
+            new PartitionKeyBuilder().Add(42, property).Build());
+        Assert.Equal(converted ? 1 : 0, counter.Calls);
+        Assert.Equal(PartitionKey.Null, new PartitionKeyBuilder().Add(null, property).Build());
+        if (converted)
+        {
+            Assert.Equal(new PartitionKey("43"), new PartitionKeyBuilder().Add("42", property).Build());
+            Assert.Equal(2, counter.Calls);
+        }
+        else
+        {
+            Assert.Equal(
+                CosmosStrings.PartitionKeyBadValueType("int", nameof(Customer3), nameof(Customer3.NullableInt), "string"),
+                Assert.Throws<InvalidOperationException>(() => new PartitionKeyBuilder().Add("42", property)).Message);
+        }
+    }
+
+    private sealed class ConversionCounter
+    {
+        public int Calls { get; private set; }
+
+        public int Convert(int value)
+        {
+            Calls++;
+            return value + 1;
+        }
+    }
+
+    public sealed class Int32AsStringReaderWriter : JsonValueReaderWriter<int>
+    {
+        public static Int32AsStringReaderWriter Instance { get; } = new();
+
+        public override int FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
+            => int.Parse(manager.CurrentReader.GetString()!, CultureInfo.InvariantCulture);
+
+        public override void ToJsonTyped(Utf8JsonWriter writer, int value)
+            => writer.WriteStringValue(value.ToString(CultureInfo.InvariantCulture));
+
+        public override Expression ConstructorExpression
+            => Expression.Property(null, typeof(Int32AsStringReaderWriter), nameof(Instance));
+    }
+
     [Fact]
     public void Add_expected_value_types()
     {

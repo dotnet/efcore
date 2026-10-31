@@ -2,7 +2,10 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Globalization;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -416,6 +419,345 @@ public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSh
     }
 
     #endregion 39113
+
+    #region 31316
+
+    [Theory]
+    [InlineData(DateTimeKind.Utc)]
+    [InlineData(DateTimeKind.Unspecified)]
+    public virtual async Task Legacy_datetime_format_is_used_for_server_comparisons(DateTimeKind kind)
+    {
+        var timestamps = new[]
+        {
+            new DateTime(2026, 1, 1, 0, 0, 0, kind),
+            new DateTime(2026, 1, 1, 0, 0, 0, 123, kind),
+            new DateTime(2026, 1, 1, 0, 0, 0, 999, kind),
+            new DateTime(2026, 1, 1, 0, 0, 1, kind),
+            new DateTime(2026, 1, 2, 0, 0, 0, kind)
+        };
+        var contextFactory = await InitializeNonSharedTest<LegacyDateTimeContext>(
+            onConfiguring: options => options.EnableSensitiveDataLogging(),
+            seed: async context =>
+            {
+                for (var i = 0; i < timestamps.Length; i++)
+                {
+                    context.Items.Add(
+                        new LegacyDateTimeContext.Item
+                        {
+                            Id = i + 1,
+                            Timestamp = timestamps[i],
+                            OptionalTimestamp = i == 2 ? null : timestamps[i],
+                            Timestamps = [timestamps[i]],
+                            DefaultTimestamp = timestamps[i]
+                        });
+                }
+
+                await context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+        var suffix = kind == DateTimeKind.Utc ? "Z" : "";
+        var container = context.Database.GetCosmosClient().GetContainer(
+            context.Database.GetCosmosDatabaseId(), "Entities");
+
+        for (var i = 0; i < 2; i++)
+        {
+            using var response = await container.ReadItemStreamAsync(
+                (i + 1).ToString(CultureInfo.InvariantCulture), Azure.Cosmos.PartitionKey.None);
+            response.EnsureSuccessStatusCode();
+            using var document = await JsonDocument.ParseAsync(response.Content);
+            var expected = i == 0 ? $"2026-01-01T00:00:00.000{suffix}" : $"2026-01-01T00:00:00.123{suffix}";
+            var expectedDefault = i == 0 ? $"2026-01-01T00:00:00.0000000{suffix}" : $"2026-01-01T00:00:00.1230000{suffix}";
+
+            Assert.Equal(expected, document.RootElement.GetProperty("Timestamp").GetString());
+            Assert.Equal(expected, document.RootElement.GetProperty("OptionalTimestamp").GetString());
+            Assert.Equal(expected, document.RootElement.GetProperty("Timestamps")[0].GetString());
+            Assert.Equal(expectedDefault, document.RootElement.GetProperty("DefaultTimestamp").GetString());
+        }
+
+        var boundary = timestamps[1];
+        var upper = timestamps[3];
+
+        Assert.Equal(
+            new[] { 2 },
+            await context.Items.Where(x => x.Timestamp == boundary).Select(x => x.Id).ToArrayAsync());
+
+        var constantQuery = kind == DateTimeKind.Utc
+            ? context.Items.Where(x => x.Timestamp == new DateTime(2026, 1, 1, 0, 0, 0, 123, DateTimeKind.Utc))
+            : context.Items.Where(x => x.Timestamp == new DateTime(2026, 1, 1, 0, 0, 0, 123, DateTimeKind.Unspecified));
+        Assert.Equal(new[] { 2 }, await constantQuery.Select(x => x.Id).ToArrayAsync());
+
+        Assert.Equal(
+            new[] { 1 },
+            await context.Items.Where(x => x.Timestamp < boundary).Select(x => x.Id).ToArrayAsync());
+        Assert.Equal(
+            new[] { 4, 5 },
+            (await context.Items.Where(x => x.Timestamp >= upper).Select(x => x.Id).ToArrayAsync()).Order().ToArray());
+        Assert.Equal(
+            new[] { 2, 3 },
+            (await context.Items.Where(x => x.Timestamp >= boundary && x.Timestamp < upper).Select(x => x.Id).ToArrayAsync())
+            .Order().ToArray());
+        Assert.Equal(
+            new[] { 2 },
+            await context.Items.Where(x => x.OptionalTimestamp == boundary).Select(x => x.Id).ToArrayAsync());
+        Assert.Equal(
+            new[] { 3 },
+            await context.Items.Where(x => x.OptionalTimestamp == null).Select(x => x.Id).ToArrayAsync());
+        Assert.Equal(
+            new[] { 2 },
+            await context.Items.Where(x => x.Timestamps.Contains(boundary)).Select(x => x.Id).ToArrayAsync());
+        Assert.Equal(
+            new[] { 2 },
+            await context.Items.Where(x => x.DefaultTimestamp == boundary).Select(x => x.Id).ToArrayAsync());
+        Assert.Equal(
+            new[] { 2 },
+            await context.Items.Where(x => x.Timestamp == boundary && x.DefaultTimestamp == boundary).Select(x => x.Id).ToArrayAsync());
+        Assert.Equal(
+            new[] { 2 },
+            await context.Items.Where(x => x.DefaultTimestamp == boundary && x.Timestamp == boundary).Select(x => x.Id).ToArrayAsync());
+
+        var constantRangeQuery = kind == DateTimeKind.Utc
+            ? context.Items.Where(x => x.Timestamp >= new DateTime(2026, 1, 1, 0, 0, 1, DateTimeKind.Utc))
+            : context.Items.Where(x => x.Timestamp >= new DateTime(2026, 1, 1, 0, 0, 1, DateTimeKind.Unspecified));
+        Assert.Equal(
+            new[] { 4, 5 },
+            (await constantRangeQuery.Select(x => x.Id).ToArrayAsync()).Order().ToArray());
+
+        var items = (await context.Items.ToListAsync()).OrderBy(x => x.Id).ToArray();
+        Assert.Equal([1, 2, 3, 4, 5], items.Select(x => x.Id).ToArray());
+        for (var i = 0; i < items.Length; i++)
+        {
+            Assert.Equal(timestamps[i], items[i].Timestamp);
+            Assert.Equal(kind, items[i].Timestamp.Kind);
+            Assert.Equal(i == 2 ? (DateTime?)null : timestamps[i], items[i].OptionalTimestamp);
+            Assert.Equal([timestamps[i]], items[i].Timestamps);
+            Assert.Equal(kind, items[i].Timestamps[0].Kind);
+            Assert.Equal(timestamps[i], items[i].DefaultTimestamp);
+        }
+
+        AssertSql(
+            $"""
+@boundary='2026-01-01T00:00:00.123{suffix}'
+
+SELECT VALUE c["Id"]
+FROM root c
+WHERE (c["Timestamp"] = @boundary)
+""",
+            //
+            $"""
+SELECT VALUE c["Id"]
+FROM root c
+WHERE (c["Timestamp"] = "2026-01-01T00:00:00.123{suffix}")
+""",
+            //
+            $"""
+@boundary='2026-01-01T00:00:00.123{suffix}'
+
+SELECT VALUE c["Id"]
+FROM root c
+WHERE (c["Timestamp"] < @boundary)
+""",
+            //
+            $"""
+@upper='2026-01-01T00:00:01.000{suffix}'
+
+SELECT VALUE c["Id"]
+FROM root c
+WHERE (c["Timestamp"] >= @upper)
+""",
+            //
+            $"""
+@boundary='2026-01-01T00:00:00.123{suffix}'
+@upper='2026-01-01T00:00:01.000{suffix}'
+
+SELECT VALUE c["Id"]
+FROM root c
+WHERE ((c["Timestamp"] >= @boundary) AND (c["Timestamp"] < @upper))
+""",
+            //
+            $"""
+@boundary='2026-01-01T00:00:00.123{suffix}'
+
+SELECT VALUE c["Id"]
+FROM root c
+WHERE (c["OptionalTimestamp"] = @boundary)
+""",
+            //
+            """
+SELECT VALUE c["Id"]
+FROM root c
+WHERE (c["OptionalTimestamp"] = null)
+""",
+            //
+            $"""
+@boundary='2026-01-01T00:00:00.123{suffix}'
+
+SELECT VALUE c["Id"]
+FROM root c
+WHERE ARRAY_CONTAINS(c["Timestamps"], @boundary)
+""",
+            //
+            $"""
+@boundary='2026-01-01T00:00:00.1230000{suffix}'
+
+SELECT VALUE c["Id"]
+FROM root c
+WHERE (c["DefaultTimestamp"] = @boundary)
+""",
+            //
+            $"""
+@boundary='2026-01-01T00:00:00.123{suffix}'
+@boundary0='2026-01-01T00:00:00.1230000{suffix}'
+
+SELECT VALUE c["Id"]
+FROM root c
+WHERE ((c["Timestamp"] = @boundary) AND (c["DefaultTimestamp"] = @boundary0))
+""",
+            //
+            $"""
+@boundary='2026-01-01T00:00:00.1230000{suffix}'
+@boundary0='2026-01-01T00:00:00.123{suffix}'
+
+SELECT VALUE c["Id"]
+FROM root c
+WHERE ((c["DefaultTimestamp"] = @boundary) AND (c["Timestamp"] = @boundary0))
+""",
+            //
+            $"""
+SELECT VALUE c["Id"]
+FROM root c
+WHERE (c["Timestamp"] >= "2026-01-01T00:00:01.000{suffix}")
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+""");
+    }
+
+    protected class LegacyDateTimeContext(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Item> Items
+            => Set<Item>();
+
+        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+            => configurationBuilder.DefaultTypeMapping<DateTime>()
+                .HasJsonValueReaderWriter<LegacyDateTimeJsonReaderWriter>();
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Item>().ToContainer("Entities").HasNoDiscriminator();
+            modelBuilder.Entity<Item>().Property(x => x.DefaultTimestamp)
+                .HasJsonValueReaderWriter<JsonDateTimeReaderWriter>();
+        }
+
+        public class Item
+        {
+            public int Id { get; set; }
+            public DateTime Timestamp { get; set; }
+            public DateTime? OptionalTimestamp { get; set; }
+            public List<DateTime> Timestamps { get; set; } = [];
+            public DateTime DefaultTimestamp { get; set; }
+        }
+    }
+
+    public sealed class LegacyDateTimeJsonReaderWriter : JsonValueReaderWriter<DateTime>
+    {
+        private static readonly JsonDateTimeReaderWriter ReaderWriter = new("yyyy-MM-dd'T'HH:mm:ss.fffK");
+
+        public static LegacyDateTimeJsonReaderWriter Instance { get; } = new();
+
+        public override DateTime FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
+            => ReaderWriter.FromJsonTyped(ref manager, existingObject);
+
+        public override void ToJsonTyped(Utf8JsonWriter writer, DateTime value)
+            => ReaderWriter.ToJsonTyped(writer, value);
+
+        public override Expression ConstructorExpression
+            => Expression.Property(null, typeof(LegacyDateTimeJsonReaderWriter), nameof(Instance));
+    }
+
+    [Theory, InlineData(false), InlineData(true)]
+    public async Task Custom_partition_reader_writer_is_used_for_save_read_query_update_and_delete(bool typeMappingDefault)
+    {
+        var factory = await InitializeNonSharedTest<PoolableDbContext>(
+            onModelCreating: b =>
+            {
+                b.Entity<FormattedPartitionKeyItem>().ToContainer("Entities").HasNoDiscriminator();
+                b.Entity<FormattedPartitionKeyItem>().HasPartitionKey(e => e.Partition);
+                if (!typeMappingDefault)
+                {
+                    b.Entity<FormattedPartitionKeyItem>().Property(e => e.Partition)
+                        .HasJsonValueReaderWriter<Int32AsStringReaderWriter>();
+                }
+            },
+            configureConventions: c =>
+            {
+                if (typeMappingDefault)
+                {
+                    c.DefaultTypeMapping<int>().HasJsonValueReaderWriter<Int32AsStringReaderWriter>();
+                }
+            },
+            seed: context =>
+            {
+                context.AddRange(
+                    new FormattedPartitionKeyItem { Id = 1, Partition = 42, Name = "initial" },
+                    new FormattedPartitionKeyItem { Id = 1, Partition = 43, Name = "other" });
+                return context.SaveChangesAsync();
+            });
+        var partition = 42;
+        await using (var context = factory.CreateDbContext())
+        {
+            var count = 1;
+            var page = await context.Set<FormattedPartitionKeyItem>().Where(e => e.Id == count)
+                .OrderBy(e => e.Partition).Skip(count).Take(count).ToListAsync();
+            Assert.Equal(43, Assert.Single(page).Partition);
+            page = await context.Set<FormattedPartitionKeyItem>().Where(e => e.Id == count)
+                .OrderBy(e => e.Partition).Skip(count - 1).Take(count).ToListAsync();
+            Assert.Equal(42, Assert.Single(page).Partition);
+
+            var item = await context.Set<FormattedPartitionKeyItem>().SingleAsync(e => e.Id == 1 && e.Partition == partition);
+            Assert.Equal("initial", item.Name);
+            item.Name = "updated";
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = factory.CreateDbContext())
+        {
+            var item = await context.Set<FormattedPartitionKeyItem>().WithPartitionKey(partition)
+                .SingleAsync(e => e.Name == "updated");
+            Assert.Equal(42, item.Partition);
+            context.Remove(item);
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = factory.CreateDbContext())
+        {
+            Assert.False(await context.Set<FormattedPartitionKeyItem>().WithPartitionKey(partition).AnyAsync());
+            Assert.Equal("other", (await context.Set<FormattedPartitionKeyItem>().WithPartitionKey(43).SingleAsync()).Name);
+        }
+    }
+
+    private sealed class FormattedPartitionKeyItem
+    {
+        public int Id { get; set; }
+        public int Partition { get; set; }
+        public string Name { get; set; } = null!;
+    }
+
+    public sealed class Int32AsStringReaderWriter : JsonValueReaderWriter<int>
+    {
+        public override int FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
+            => int.Parse(manager.CurrentReader.GetString()!, CultureInfo.InvariantCulture);
+
+        public override void ToJsonTyped(Utf8JsonWriter writer, int value)
+            => writer.WriteStringValue(value.ToString(CultureInfo.InvariantCulture));
+
+        public override Expression ConstructorExpression
+            => Expression.New(typeof(Int32AsStringReaderWriter));
+    }
+
+    #endregion 31316
 
     #region 35094
 

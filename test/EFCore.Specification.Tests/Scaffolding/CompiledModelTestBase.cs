@@ -107,11 +107,6 @@ namespace TestNamespace
             eb.Property(e => e.Id).ValueGeneratedNever();
             eb.HasAlternateKey(e => e.Id);
 
-            eb.Property(e => e.AlternateId).Metadata.SetJsonValueReaderWriterType(
-                jsonColumns
-                    ? typeof(MyJsonGuidReaderWriter)
-                    : typeof(JsonGuidReaderWriter));
-
             eb.OwnsOne(
                 e => e.Owned, ob =>
                 {

@@ -4,10 +4,47 @@
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 // ReSharper disable InconsistentNaming
 
+using Microsoft.EntityFrameworkCore.Storage.Json;
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 public class ModelTest
 {
+    [Fact]
+    public void Reading_configured_reader_writer_type_does_not_create_an_instance()
+    {
+        var configuration = new PropertyConfiguration(typeof(int));
+        var builder = new TypeMappingConfigurationBuilder<int>(configuration);
+        builder.HasJsonValueReaderWriter<UninstantiableJsonIntReaderWriter>();
+
+        Assert.Equal(typeof(UninstantiableJsonIntReaderWriter), configuration.GetJsonValueReaderWriterType());
+
+        ITypeMappingConfiguration runtimeConfiguration = new RuntimeModel(
+            skipDetectChanges: false, Guid.Empty, entityTypeCount: 0, typeConfigurationCount: 1).AddTypeMappingConfiguration(
+            typeof(int), jsonValueReaderWriterType: configuration.GetJsonValueReaderWriterType());
+        Assert.Equal(typeof(UninstantiableJsonIntReaderWriter), runtimeConfiguration.GetJsonValueReaderWriterType());
+    }
+
+    private abstract class UninstantiableJsonIntReaderWriter : JsonValueReaderWriter<int>;
+
+    [Fact]
+    public void Type_mapping_defaults_survive_runtime_model_creation()
+    {
+        var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder(
+            configureConventions: c => c.DefaultTypeMapping<int>().HasJsonValueReaderWriter<JsonInt32ReaderWriter>());
+        builder.Entity("Owner").Property<int>("Id");
+
+        var model = builder.FinalizeModel();
+        var configuration = model.FindTypeMappingConfiguration(typeof(int))!;
+        Assert.Equal(typeof(JsonInt32ReaderWriter), configuration.GetJsonValueReaderWriterType());
+        Assert.Same(
+            JsonInt32ReaderWriter.Instance,
+            model.FindEntityType("Owner")!.FindProperty("Id")!.GetTypeMapping().JsonValueReaderWriter);
+        Assert.Same(
+            JsonInt32ReaderWriter.Instance,
+            new TypeMappingInfo(typeof(int), configuration).JsonValueReaderWriter);
+    }
+
     [Fact]
     public void Model_throws_when_readonly()
     {

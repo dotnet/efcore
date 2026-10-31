@@ -2,12 +2,102 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Storage;
 
 public abstract class RelationalTypeMappingTest
 {
+    [Fact]
+    public void Replacing_mapping_reader_writer_preserves_existing_converter()
+    {
+        var mapping = StringTypeMapping.Default.WithComposedConverter(new NumberToStringConverter<int>());
+
+        var replacement = mapping.WithJsonValueReaderWriter(JsonStringReaderWriter.Instance);
+
+        Assert.NotSame(mapping, replacement);
+        Assert.Same(mapping.Converter, replacement.Converter);
+        Assert.Equal(typeof(int), replacement.JsonValueReaderWriter!.ValueType);
+        Assert.Equal("\"42\"", replacement.JsonValueReaderWriter.ToJsonString(42));
+        Assert.Equal(42, replacement.JsonValueReaderWriter.FromJsonString("\"42\""));
+        Assert.Equal("\"42\"", mapping.JsonValueReaderWriter!.ToJsonString(42));
+    }
+
+    [Fact]
+    public void Replacing_mapping_reader_writer_preserves_configured_reader_writer_conversion()
+    {
+        var mapping = IntTypeMapping.Default.WithComposedConverter(new CastingConverter<long, int>());
+        var readerWriter = new JsonConvertedValueReaderWriter<int, string>(
+            JsonStringReaderWriter.Instance, new NumberToStringConverter<int>());
+
+        var replacement = mapping.WithJsonValueReaderWriter(readerWriter);
+
+        Assert.Same(mapping.Converter, replacement.Converter);
+        Assert.Equal(typeof(long), replacement.JsonValueReaderWriter!.ValueType);
+        Assert.Equal("\"42\"", replacement.JsonValueReaderWriter.ToJsonString(42L));
+        Assert.Equal(42L, replacement.JsonValueReaderWriter.FromJsonString("\"42\""));
+        Assert.Equal("42", mapping.JsonValueReaderWriter!.ToJsonString(42L));
+    }
+
+    [Fact]
+    public void Legacy_datetime_mapping_does_not_mutate_provider_default()
+    {
+        var mapping = DateTimeTypeMapping.Default;
+        var readerWriter = new JsonDateTimeReaderWriter("yyyy-MM-dd'T'HH:mm:ss.fffK");
+        var timestamp = new DateTime(2026, 1, 1, 0, 0, 0, 123, DateTimeKind.Utc);
+
+        var replacement = mapping.WithJsonValueReaderWriter(readerWriter);
+
+        Assert.NotSame(mapping, replacement);
+        Assert.Same(readerWriter, replacement.JsonValueReaderWriter);
+        Assert.Equal("\"2026-01-01T00:00:00.123Z\"", replacement.JsonValueReaderWriter!.ToJsonString(timestamp));
+        Assert.Equal(timestamp, replacement.JsonValueReaderWriter.FromJsonString("\"2026-01-01T00:00:00.123Z\""));
+        Assert.Same(JsonDateTimeReaderWriter.Instance, mapping.JsonValueReaderWriter);
+        Assert.Equal("\"2026-01-01T00:00:00.1230000Z\"", mapping.JsonValueReaderWriter!.ToJsonString(timestamp));
+    }
+
+    [Theory, InlineData(false), InlineData(true)]
+    public void Does_not_clone_mapping_when_reader_writer_is_unchanged(bool converted)
+    {
+        var mapping = converted
+            ? StringTypeMapping.Default.WithComposedConverter(new NumberToStringConverter<int>())
+            : IntTypeMapping.Default;
+        var readerWriter = mapping.JsonValueReaderWriter!;
+
+        Assert.Same(mapping, mapping.WithJsonValueReaderWriter(readerWriter));
+        Assert.Equal(converted ? "\"42\"" : "42", readerWriter.ToJsonString(42));
+        Assert.Equal(42, readerWriter.FromJsonString(converted ? "\"42\"" : "42"));
+    }
+
+    [Fact]
+    public void Wraps_converter_when_raw_reader_writer_is_already_installed()
+    {
+        var mapping = StringTypeMapping.Default.WithComposedConverter(
+            new NumberToStringConverter<int>(), jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+
+        var replacement = mapping.WithJsonValueReaderWriter(JsonStringReaderWriter.Instance);
+
+        Assert.NotSame(mapping, replacement);
+        Assert.Same(mapping.Converter, replacement.Converter);
+        Assert.Equal(typeof(int), replacement.JsonValueReaderWriter!.ValueType);
+        Assert.Equal("\"42\"", replacement.JsonValueReaderWriter.ToJsonString(42));
+        Assert.Equal(42, replacement.JsonValueReaderWriter.FromJsonString("\"42\""));
+    }
+
+    [Fact]
+    public void Preserves_installed_model_reader_writer_with_builtin_converter()
+    {
+        var readerWriter = JsonWarningEnumReaderWriter<DayOfWeek>.Instance;
+        var mapping = IntTypeMapping.Default.WithComposedConverter(
+            new EnumToNumberConverter<DayOfWeek, int>(), jsonValueReaderWriter: readerWriter);
+
+        Assert.Same(mapping, mapping.WithJsonValueReaderWriter(readerWriter));
+        Assert.Same(readerWriter, mapping.JsonValueReaderWriter);
+        Assert.Equal("1", readerWriter.ToJsonString(DayOfWeek.Monday));
+        Assert.Equal(DayOfWeek.Monday, readerWriter.FromJsonString("1"));
+    }
+
     protected class FakeValueConverter<TModel, TProvider>()
         : ValueConverter<TModel, TProvider>(_ => (TProvider)(object)_!, _ => (TModel)(object)_!)
     {

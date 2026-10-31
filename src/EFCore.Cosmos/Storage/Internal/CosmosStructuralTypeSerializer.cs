@@ -60,16 +60,14 @@ public class CosmosStructuralTypeSerializer
 
         _discriminatorProperty = structuralType.FindDiscriminatorProperty() is { } dp
             ? (dp, dp.GetJsonPropertyName(),
-                dp.GetJsonValueReaderWriter()
-                ?? dp.GetTypeMapping().JsonValueReaderWriter ?? throw new UnreachableException("Property without JsonValueReaderWriter"))
+                dp.GetTypeMapping().JsonValueReaderWriter ?? throw new UnreachableException("Property without JsonValueReaderWriter"))
             : null;
         _ordinalKeyProperty = structuralType.GetProperties().SingleOrDefault(p => p.IsOrdinalKeyProperty());
         _scalarProperties =
         [
             .. structuralType.GetProperties().Where(p => p.IsPersisted() && p != _discriminatorProperty?.Property).Select(p
                 => (p, p.GetJsonPropertyName(),
-                    p.GetJsonValueReaderWriter()
-                    ?? p.GetTypeMapping().JsonValueReaderWriter
+                    p.GetTypeMapping().JsonValueReaderWriter
                     ?? throw new UnreachableException("Property without JsonValueReaderWriter")))
         ];
         _complexProperties =

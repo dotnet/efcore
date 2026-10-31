@@ -210,6 +210,14 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
                         jsonValueReaderWriter: mappingInfo.JsonValueReaderWriter);
                 }
 
+                if (mapping != null
+                    && mappingInfo.JsonValueReaderWriter != null)
+                {
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                    mapping = (RelationalTypeMapping)mapping.WithJsonValueReaderWriter(mappingInfo.JsonValueReaderWriter);
+#pragma warning restore EF1001
+                }
+
                 return mapping;
             },
             this);

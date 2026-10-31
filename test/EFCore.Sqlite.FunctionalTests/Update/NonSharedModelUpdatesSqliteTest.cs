@@ -5,6 +5,27 @@ namespace Microsoft.EntityFrameworkCore.Update;
 
 public class NonSharedModelUpdatesSqliteTest(NonSharedFixture fixture) : NonSharedModelUpdatesTestBase(fixture)
 {
+    public override async Task Custom_JSON_scalar_writer_is_preserved_on_single_property_update(bool async, bool typeMappingDefault)
+    {
+        await base.Custom_JSON_scalar_writer_is_preserved_on_single_property_update(async, typeMappingDefault);
+
+        AssertSql(
+            """
+@p0='{"Number":"43","Text":"unchanged"}' (Nullable = false) (Size = 34)
+@p1='1'
+
+UPDATE "JsonScalarOwners" SET "Data" = @p0
+WHERE "Id" = @p1
+RETURNING 1;
+""",
+            //
+            """
+SELECT "j"."Id", "j"."Data"
+FROM "JsonScalarOwners" AS "j"
+LIMIT 2
+""");
+    }
+
     public override async Task Principal_and_dependent_roundtrips_with_cycle_breaking(bool async)
     {
         await base.Principal_and_dependent_roundtrips_with_cycle_breaking(async);
