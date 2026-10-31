@@ -1689,5 +1689,94 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
 
     #endregion
 
+    #region 35863
+
+    [Fact]
+    public virtual async Task Materialize_json_collection_with_null_element_throws()
+    {
+        var contextFactory = await InitializeContext35863();
+        await using var context = contextFactory.CreateDbContext();
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => context.Set<Context35863.Item>().Where(x => x.Id == 1).ToListAsync());
+
+        Assert.Equal(
+            RelationalStrings.JsonEntityCollectionNullElement(
+                typeof(Context35863.ItemDetails).ShortDisplayName(),
+                nameof(Context35863.ItemDetails.SubItems)),
+            exception.Message);
+    }
+
+    [Fact]
+    public virtual async Task Materialize_json_collection_with_non_object_element_throws()
+    {
+        var contextFactory = await InitializeContext35863();
+        await using var context = contextFactory.CreateDbContext();
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => context.Set<Context35863.Item>().Where(x => x.Id == 2).ToListAsync());
+
+        Assert.Equal(
+            RelationalStrings.JsonEntityCollectionExpectedObject(
+                typeof(Context35863.ItemDetails).ShortDisplayName(),
+                nameof(Context35863.ItemDetails.SubItems)),
+            exception.Message);
+    }
+
+    private Task<ContextFactory<Context35863>> InitializeContext35863()
+        => InitializeNonSharedTest<Context35863>(
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            onModelCreating: m => m.Entity<Context35863.Item>(b =>
+            {
+                b.ToTable("Items");
+                b.Property(x => x.Id).ValueGeneratedNever();
+                b.OwnsOne(
+                    x => x.Details, d =>
+                    {
+                        d.ToJson();
+                        if (JsonColumnType != null)
+                        {
+                            d.HasColumnType(JsonColumnType);
+                        }
+
+                        d.OwnsMany(x => x.SubItems);
+                    });
+            }),
+            seed: async context =>
+            {
+                var sqlGenerationHelper = context.GetService<ISqlGenerationHelper>();
+
+                await context.Database.ExecuteSqlRawAsync(
+                    $$$"""INSERT INTO {{{Q("Items")}}} ({{{Q("Id")}}}, {{{Q("Details")}}}) VALUES (1, '{{"Description":"Item 1 details","SubItems":[null]}}')""");
+
+                await context.Database.ExecuteSqlRawAsync(
+                    $$$"""INSERT INTO {{{Q("Items")}}} ({{{Q("Id")}}}, {{{Q("Details")}}}) VALUES (2, '{{"Description":"Item 2 details","SubItems":[42]}}')""");
+
+                string Q(string name)
+                    => sqlGenerationHelper.DelimitIdentifier(name);
+            });
+
+    protected class Context35863(DbContextOptions options) : DbContext(options)
+    {
+        public class Item
+        {
+            public int Id { get; set; }
+            public ItemDetails Details { get; set; } = null!;
+        }
+
+        public class ItemDetails
+        {
+            public string Description { get; set; } = null!;
+            public List<SubItem> SubItems { get; set; } = [];
+        }
+
+        public class SubItem
+        {
+            public string Name { get; set; } = null!;
+        }
+    }
+
+    #endregion
+
     #endregion
 }
