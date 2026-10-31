@@ -615,19 +615,21 @@ test('judge timeout loader scales comparison deadlines and fails closed on nativ
   }
 });
 
-test('all evals specify and resolve judge defaults and overrides through Vally', async () => {
+test('all evals specify and resolve model and judge defaults and overrides through Vally', async () => {
   const components = await discoverComponents();
   assert.ok(components.length > 0);
   for (const component of components) {
     const evalPath = join(defaultRepoRoot, component.eval);
     const authored = parse(await readFile(evalPath, 'utf8'));
-    assert.equal(authored.defaults.judge_model, '${JUDGE_MODEL=gpt-5.6-terra}', component.id);
-    assert.equal(authored.defaults.judge_reasoning_effort, '${JUDGE_REASONING_EFFORT=medium}', component.id);
+    assert.equal(authored.defaults.model, '${MODEL=gpt-6.1-terra}', component.id);
+    assert.equal(authored.defaults.judge_model, '${JUDGE_MODEL=gpt-6.1-sol}', component.id);
+    assert.equal(authored.defaults.judge_reasoning_effort, '${JUDGE_REASONING_EFFORT=low}', component.id);
     assert.equal(authored.defaults.judge_timeout, '${JUDGE_TIMEOUT=10m}', component.id);
     assert.equal(authored.scoring.timeout, '${SCORING_TIMEOUT=10m}', component.id);
     const defaults = (await loadEvalWithParams(evalPath)).spec.defaults;
-    assert.equal(defaults.judge_reasoning_effort, 'medium', component.id);
-    assert.equal(defaults.judge_model, 'gpt-5.6-terra', component.id);
+    assert.equal(defaults.judge_reasoning_effort, 'low', component.id);
+    assert.equal(defaults.model, 'gpt-6.1-terra', component.id);
+    assert.equal(defaults.judge_model, 'gpt-6.1-sol', component.id);
     assert.equal(defaults.judge_timeout, '10m', component.id);
     assert.equal(authored.defaults.timeout, undefined, component.id);
     assert.equal(defaults.timeout, undefined, component.id);
@@ -639,10 +641,11 @@ test('all evals specify and resolve judge defaults and overrides through Vally',
         `${component.id}/${stimulus.name}`);
     }
     const overridden = (await loadEvalWithParams(evalPath, {
-      cliParams: { JUDGE_REASONING_EFFORT: 'high', JUDGE_MODEL: 'gpt-6.1-sol', JUDGE_TIMEOUT: '12m', SCORING_TIMEOUT: '15m', EVAL_TIMEOUT: '45m' },
+      cliParams: { MODEL: 'gpt-6.1-sol', JUDGE_REASONING_EFFORT: 'high', JUDGE_MODEL: 'gpt-6.1-terra', JUDGE_TIMEOUT: '12m', SCORING_TIMEOUT: '15m', EVAL_TIMEOUT: '45m' },
     })).spec;
     assert.equal(overridden.defaults.judge_reasoning_effort, 'high', component.id);
-    assert.equal(overridden.defaults.judge_model, 'gpt-6.1-sol');
+    assert.equal(overridden.defaults.model, 'gpt-6.1-sol', component.id);
+    assert.equal(overridden.defaults.judge_model, 'gpt-6.1-terra', component.id);
     assert.equal(overridden.defaults.judge_timeout, '12m', component.id);
     assert.equal(overridden.scoring.timeout, '15m', component.id);
     assert.equal(overridden.defaults.timeout, undefined, component.id);
