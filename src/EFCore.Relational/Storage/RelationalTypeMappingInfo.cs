@@ -272,16 +272,14 @@ public readonly record struct RelationalTypeMappingInfo
         int? precision = null,
         int? scale = null)
     {
-        _coreTypeMappingInfo = new TypeMappingInfo(
-            typeMappingConfiguration.GetValueConverter()?.ProviderClrType ?? type,
-            elementTypeMapping,
-            keyOrIndex: false,
-            unicode ?? typeMappingConfiguration.IsUnicode(),
-            size ?? typeMappingConfiguration.GetMaxLength(),
-            rowVersion: false,
-            precision ?? typeMappingConfiguration.GetPrecision(),
-            scale ?? typeMappingConfiguration.GetScale(),
-            key: false);
+        _coreTypeMappingInfo = new TypeMappingInfo(type, typeMappingConfiguration, elementTypeMapping) with
+        {
+            IsUnicode = unicode ?? typeMappingConfiguration.IsUnicode(),
+            Size = size ?? typeMappingConfiguration.GetMaxLength(),
+            IsRowVersion = false,
+            Precision = precision ?? typeMappingConfiguration.GetPrecision(),
+            Scale = scale ?? typeMappingConfiguration.GetScale()
+        };
 
         IsFixedLength = (bool?)typeMappingConfiguration[RelationalAnnotationNames.IsFixedLength];
         StoreTypeName = storeTypeName;

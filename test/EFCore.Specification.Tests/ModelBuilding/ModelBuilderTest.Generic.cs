@@ -818,6 +818,12 @@ public abstract partial class ModelBuilderTest
     protected class GenericTestPropertyBuilder<TProperty>(PropertyBuilder<TProperty> propertyBuilder)
         : TestPropertyBuilder<TProperty>, IInfrastructure<PropertyBuilder<TProperty>>
     {
+        public override TestPropertyBuilder<TProperty> HasJsonValueReaderWriter<TReaderWriter>()
+            => Wrap(PropertyBuilder.HasJsonValueReaderWriter<TReaderWriter>());
+
+        public override TestPropertyBuilder<TProperty> HasJsonValueReaderWriter(Type? readerWriterType)
+            => Wrap(PropertyBuilder.HasJsonValueReaderWriter(readerWriterType));
+
         protected PropertyBuilder<TProperty> PropertyBuilder { get; } = propertyBuilder;
 
         public override IMutableProperty Metadata
@@ -967,6 +973,12 @@ public abstract partial class ModelBuilderTest
     protected class GenericTestPrimitiveCollectionBuilder<TProperty>(PrimitiveCollectionBuilder<TProperty> primitiveCollectionBuilder)
         : TestPrimitiveCollectionBuilder<TProperty>, IInfrastructure<PrimitiveCollectionBuilder<TProperty>>
     {
+        public override TestPrimitiveCollectionBuilder<TProperty> HasJsonValueReaderWriter<TReaderWriter>()
+            => Wrap(PrimitiveCollectionBuilder.HasJsonValueReaderWriter<TReaderWriter>());
+
+        public override TestPrimitiveCollectionBuilder<TProperty> HasJsonValueReaderWriter(Type? readerWriterType)
+            => Wrap(PrimitiveCollectionBuilder.HasJsonValueReaderWriter(readerWriterType));
+
         protected PrimitiveCollectionBuilder<TProperty> PrimitiveCollectionBuilder { get; } = primitiveCollectionBuilder;
 
         public override IMutableProperty Metadata
@@ -1037,6 +1049,12 @@ public abstract partial class ModelBuilderTest
         TestComplexTypePropertyBuilder<TProperty>,
         IInfrastructure<ComplexTypePropertyBuilder<TProperty>>
     {
+        public override TestComplexTypePropertyBuilder<TProperty> HasJsonValueReaderWriter<TReaderWriter>()
+            => Wrap(PropertyBuilder.HasJsonValueReaderWriter<TReaderWriter>());
+
+        public override TestComplexTypePropertyBuilder<TProperty> HasJsonValueReaderWriter(Type? readerWriterType)
+            => Wrap(PropertyBuilder.HasJsonValueReaderWriter(readerWriterType));
+
         protected ComplexTypePropertyBuilder<TProperty> PropertyBuilder { get; } = propertyBuilder;
 
         public override IMutableProperty Metadata
@@ -1184,6 +1202,12 @@ public abstract partial class ModelBuilderTest
         TestComplexCollectionTypePropertyBuilder<TProperty>,
         IInfrastructure<ComplexCollectionTypePropertyBuilder<TProperty>>
     {
+        public override TestComplexCollectionTypePropertyBuilder<TProperty> HasJsonValueReaderWriter<TReaderWriter>()
+            => Wrap(PropertyBuilder.HasJsonValueReaderWriter<TReaderWriter>());
+
+        public override TestComplexCollectionTypePropertyBuilder<TProperty> HasJsonValueReaderWriter(Type? readerWriterType)
+            => Wrap(PropertyBuilder.HasJsonValueReaderWriter(readerWriterType));
+
         protected ComplexCollectionTypePropertyBuilder<TProperty> PropertyBuilder { get; } = propertyBuilder;
 
         public override IMutableProperty Metadata
@@ -1308,6 +1332,12 @@ public abstract partial class ModelBuilderTest
         TestComplexTypePrimitiveCollectionBuilder<TProperty>,
         IInfrastructure<ComplexTypePrimitiveCollectionBuilder<TProperty>>
     {
+        public override TestComplexTypePrimitiveCollectionBuilder<TProperty> HasJsonValueReaderWriter<TReaderWriter>()
+            => Wrap(PrimitiveCollectionBuilder.HasJsonValueReaderWriter<TReaderWriter>());
+
+        public override TestComplexTypePrimitiveCollectionBuilder<TProperty> HasJsonValueReaderWriter(Type? readerWriterType)
+            => Wrap(PrimitiveCollectionBuilder.HasJsonValueReaderWriter(readerWriterType));
+
         protected ComplexTypePrimitiveCollectionBuilder<TProperty> PrimitiveCollectionBuilder { get; } = primitiveCollectionBuilder;
 
         public override IMutableProperty Metadata

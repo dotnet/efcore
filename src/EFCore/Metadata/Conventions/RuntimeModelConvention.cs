@@ -300,7 +300,8 @@ public class RuntimeModelConvention : IModelFinalizedConvention
             typeConfiguration.GetPrecision(),
             typeConfiguration.GetScale(),
             typeConfiguration.GetProviderClrType(),
-            valueConverter);
+            valueConverter,
+            typeConfiguration.GetJsonValueReaderWriterType());
     }
 
     /// <summary>

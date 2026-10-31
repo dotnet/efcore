@@ -3,6 +3,7 @@
 
 using System.ComponentModel;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -688,6 +689,35 @@ public class PropertyBuilder : IInfrastructure<IConventionPropertyBuilder>
 
         Builder.HasValueComparer(comparerType, ConfigurationSource.Explicit);
         Builder.HasProviderValueComparer(providerComparerType, ConfigurationSource.Explicit);
+
+        return this;
+    }
+
+    /// <summary>
+    ///     Configures the JSON reader/writer for this property's store values. The property must be mapped to JSON.
+    /// </summary>
+    /// <remarks>
+    ///     When a value converter is used, the reader/writer must handle the converter's provider values.
+    ///     This configuration overrides the model-wide JSON reader/writer default for the property's CLR type.
+    /// </remarks>
+    /// <typeparam name="TReaderWriter">The JSON reader/writer type.</typeparam>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public virtual PropertyBuilder HasJsonValueReaderWriter<TReaderWriter>()
+        where TReaderWriter : JsonValueReaderWriter
+        => HasJsonValueReaderWriter(typeof(TReaderWriter));
+
+    /// <summary>
+    ///     Configures the JSON reader/writer for this property's store values. The property must be mapped to JSON.
+    /// </summary>
+    /// <remarks>
+    ///     When a value converter is used, the reader/writer must handle the converter's provider values.
+    ///     Clearing this configuration restores the model-wide default or the provider's JSON reader/writer.
+    /// </remarks>
+    /// <param name="readerWriterType">The JSON reader/writer type, or <see langword="null" /> to clear the configuration.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public virtual PropertyBuilder HasJsonValueReaderWriter(Type? readerWriterType)
+    {
+        Builder.HasJsonValueReaderWriter(readerWriterType, ConfigurationSource.Explicit);
 
         return this;
     }

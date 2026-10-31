@@ -8,6 +8,7 @@ using System.Text.Json;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 using IColumnMapping = Microsoft.EntityFrameworkCore.Metadata.IColumnMapping;
 using ITableMapping = Microsoft.EntityFrameworkCore.Metadata.ITableMapping;
 
@@ -686,6 +687,8 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
 
             // Patch one scalar at a time, except for complex collections and null changes of complex properties
             if (modifiedMembers.Count == 1
+                && (modifiedMembers[0].IsPrimitiveCollection
+                    || !HasCustomJsonValueReaderWriter(modifiedMembers[0]))
                 && !entry.EntityType.GetFlattenedComplexProperties().Any(cp => cp.IsCollection && entry.IsModified(cp))
                 && GetComplexPropertyPath(entry, modifiedMembers[0]) is { } complexPropertyPath)
             {
@@ -1026,6 +1029,17 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
         }
     }
 
+    private static bool HasCustomJsonValueReaderWriter(IProperty property)
+    {
+        var readerWriterType = property.GetJsonValueReaderWriter()?.GetType()
+            ?? property.DeclaringType.Model.FindTypeMappingConfiguration(property.ClrType.UnwrapNullableType())
+                ?.GetJsonValueReaderWriterType();
+
+        return readerWriterType is not null
+            && (!readerWriterType.IsGenericType
+                || readerWriterType.GetGenericTypeDefinition() != typeof(JsonWarningEnumReaderWriter<>));
+    }
+
     /// <summary>
     ///     Performs processing specifically needed for column modifications that correspond to single-property JSON updates.
     /// </summary>
@@ -1148,7 +1162,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
             var propertyValue = entry.GetCurrentValue(property);
             writer.WritePropertyName(jsonPropertyName);
 
-            var jsonValueReaderWriter = property.GetJsonValueReaderWriter() ?? property.GetTypeMapping().JsonValueReaderWriter;
+            var jsonValueReaderWriter = property.GetTypeMapping().JsonValueReaderWriter;
             if (propertyValue is not null || jsonValueReaderWriter?.HandlesNullWrites == true)
             {
                 Check.DebugAssert(jsonValueReaderWriter is not null, "Missing JsonValueReaderWriter on JSON property");

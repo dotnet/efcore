@@ -85,8 +85,7 @@ public partial class PrincipalBaseEntityType
             fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("AlternateId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
             propertyAccessMode: PropertyAccessMode.FieldDuringConstruction,
             afterSaveBehavior: PropertySaveBehavior.Throw,
-            sentinel: new Guid("00000000-0000-0000-0000-000000000000"),
-            jsonValueReaderWriter: new CompiledModelTestBase.MyJsonGuidReaderWriter());
+            sentinel: new Guid("00000000-0000-0000-0000-000000000000"));
         alternateId.SetGetter(
             Guid (CompiledModelTestBase.PrincipalBase instance) => instance.AlternateId,
             bool (CompiledModelTestBase.PrincipalBase instance) => instance.AlternateId == new Guid("00000000-0000-0000-0000-000000000000"));

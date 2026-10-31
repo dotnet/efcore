@@ -49,9 +49,11 @@ public class RelationalMapToJsonConvention : IModelFinalizingConvention
             {
                 // If the enum is mapped with no conversion, then use the reader/writer that handles legacy string values and warns.
                 if (enumProperty.GetValueConverter() == null
-                    && enumProperty.GetProviderClrType() == null)
+                    && enumProperty.GetProviderClrType() == null
+                    && ((IModel)modelBuilder.Metadata).FindTypeMappingConfiguration(enumProperty.ClrType.UnwrapNullableType())
+                        ?.GetJsonValueReaderWriterType() == null)
                 {
-                    enumProperty.SetJsonValueReaderWriterType(
+                    enumProperty.Builder.HasJsonValueReaderWriter(
                         typeof(JsonWarningEnumReaderWriter<>).MakeGenericType(enumProperty.ClrType.UnwrapNullableType()));
                 }
             }

@@ -140,20 +140,30 @@ public class SqliteTypeMappingSource : RelationalTypeMappingSource
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     /// <remarks>
-    ///     Finds the type mapping for a given property. This method is overridden to special-case <c>byte[]</c>
-    ///     properties inside JSON columns, returning a mapping that works with hex-encoded string representation.
+    ///     Finds the type mapping for a given property, accounting for the JSON representation of binary and date/time values.
     /// </remarks>
     /// <param name="property">The property for which mapping is to be found.</param>
     /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
     public override RelationalTypeMapping? FindMapping(IProperty property)
     {
         var mapping = base.FindMapping(property);
-        if (mapping is SqliteByteArrayTypeMapping byteArrayMapping && property.DeclaringType.IsMappedToJson())
-        {
-            return byteArrayMapping.WithJsonColumn();
-        }
-        return mapping;
+        return property.DeclaringType.IsMappedToJson()
+            ? mapping switch
+            {
+                SqliteByteArrayTypeMapping byteArrayMapping => SqliteJsonByteArrayTypeMapping.Create(byteArrayMapping),
+                SqliteDateTimeTypeMapping dateTimeMapping => SqliteJsonDateTimeTypeMapping.Create(dateTimeMapping),
+                _ => mapping
+            }
+            : mapping;
     }
+
+    /// <inheritdoc />
+    public override RelationalTypeMapping? FindMapping(IElementType elementType)
+        => base.FindMapping(elementType) is { } mapping
+            ? mapping is SqliteDateTimeTypeMapping dateTimeMapping
+                ? SqliteJsonDateTimeTypeMapping.Create(dateTimeMapping)
+                : mapping
+            : null;
 
     private RelationalTypeMapping? FindRawMapping(RelationalTypeMappingInfo mappingInfo)
     {

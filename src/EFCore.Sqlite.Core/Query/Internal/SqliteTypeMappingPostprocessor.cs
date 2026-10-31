@@ -3,6 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Sqlite.Storage.Json.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 
@@ -119,7 +120,17 @@ public class SqliteTypeMappingPostprocessor : RelationalTypeMappingPostprocessor
             return jsonEachExpression;
         }
 
-        if (_typeMappingSource.FindMapping(parameterExpression.Type, _model, inferredTypeMapping) is not SqliteStringTypeMapping
+        var elementTypeMapping = inferredTypeMapping;
+        if (elementTypeMapping is SqliteDateTimeTypeMapping and not SqliteJsonDateTimeTypeMapping)
+        {
+            // A JSON parameter compared to a native column must use the native column's representation.
+#pragma warning disable EF1001 // Internal EF Core API usage.
+            elementTypeMapping = (RelationalTypeMapping)elementTypeMapping.WithJsonValueReaderWriter(
+                SqliteJsonDateTimeReaderWriter.Instance);
+#pragma warning restore EF1001
+        }
+
+        if (_typeMappingSource.FindMapping(parameterExpression.Type, _model, elementTypeMapping) is not SqliteStringTypeMapping
             parameterTypeMapping)
         {
             throw new InvalidOperationException("Type mapping for 'string' could not be found or was not a SqliteStringTypeMapping");

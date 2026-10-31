@@ -117,6 +117,12 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="JsonValueReaderWriterOnNonJsonProperty" xml:space="preserve">
+    <value>The JSON reader/writer '{readerWriter}' is configured on '{structuralType}.{property}', but this member is not mapped to JSON. Map the member to JSON or remove its JSON reader/writer configuration.</value>
+  </data>
+  <data name="JsonValueReaderWriterPropertyMismatch" xml:space="preserve">
+    <value>The JSON reader/writer '{readerWriter}' configured on '{structuralType}.{property}' reads and writes '{valueType}', but the member's store value type is '{storeType}'. Configure a reader/writer compatible with the store value type.</value>
+  </data>
   <data name="AbstractLeafEntityType" xml:space="preserve">
     <value>The entity type '{entityType}' cannot be instantiated because its corresponding CLR type is abstract and there is no derived entity type in the model that corresponds to a concrete CLR type. Add a concrete derived entity type to the model or change the entity type to use a concrete CLR type.</value>
   </data>

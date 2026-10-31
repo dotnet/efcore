@@ -3,6 +3,7 @@
 
 using System.ComponentModel;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -398,6 +399,33 @@ public class ComplexTypePrimitiveCollectionBuilder : IInfrastructure<IConvention
     public virtual ComplexTypePrimitiveCollectionBuilder UsePropertyAccessMode(PropertyAccessMode propertyAccessMode)
     {
         Builder.UsePropertyAccessMode(propertyAccessMode, ConfigurationSource.Explicit);
+
+        return this;
+    }
+
+    /// <summary>
+    ///     Configures the JSON reader/writer for the collection as a whole, rather than its individual elements.
+    /// </summary>
+    /// <remarks>
+    ///     This configuration overrides the model-wide JSON reader/writer default for the collection's CLR type.
+    /// </remarks>
+    /// <typeparam name="TReaderWriter">The JSON reader/writer type.</typeparam>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public virtual ComplexTypePrimitiveCollectionBuilder HasJsonValueReaderWriter<TReaderWriter>()
+        where TReaderWriter : JsonValueReaderWriter
+        => HasJsonValueReaderWriter(typeof(TReaderWriter));
+
+    /// <summary>
+    ///     Configures the JSON reader/writer for the collection as a whole, rather than its individual elements.
+    /// </summary>
+    /// <remarks>
+    ///     Clearing this configuration restores the model-wide default or the provider's JSON reader/writer.
+    /// </remarks>
+    /// <param name="readerWriterType">The JSON reader/writer type, or <see langword="null" /> to clear the configuration.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public virtual ComplexTypePrimitiveCollectionBuilder HasJsonValueReaderWriter(Type? readerWriterType)
+    {
+        Builder.HasJsonValueReaderWriter(readerWriterType, ConfigurationSource.Explicit);
 
         return this;
     }

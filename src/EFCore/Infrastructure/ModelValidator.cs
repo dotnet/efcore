@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
@@ -1358,6 +1359,12 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
         IProperty property,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
+        ValidateJsonValueReaderWriter(property, null);
+        if (property.GetElementType() is { } elementType)
+        {
+            ValidateJsonValueReaderWriter(property, elementType);
+        }
+
         var converter = property.GetValueConverter();
         if (converter != null
             && property[CoreAnnotationNames.ValueComparer] == null)
@@ -1396,6 +1403,55 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
                     property.DeclaringType.DisplayName(),
                     property.Name,
                     actualProviderClrType.ShortDisplayName()));
+        }
+    }
+
+    /// <summary>
+    ///     Returns whether a property or its primitive collection elements are stored as JSON.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <returns>Whether the property is stored as JSON.</returns>
+    protected virtual bool IsJsonProperty(IProperty property)
+        => false;
+
+    private void ValidateJsonValueReaderWriter(IProperty property, IElementType? elementType)
+    {
+        var configurationSource = elementType == null
+            ? (property as IConventionProperty)?.GetJsonValueReaderWriterTypeConfigurationSource()
+            : (elementType as IConventionElementType)?.GetJsonValueReaderWriterTypeConfigurationSource();
+        if (!configurationSource.OverridesStrictly(ConfigurationSource.Convention))
+        {
+            return;
+        }
+
+        var readerWriter = elementType == null
+            ? property.GetJsonValueReaderWriter()
+            : elementType.GetJsonValueReaderWriter();
+        if (readerWriter == null)
+        {
+            return;
+        }
+
+        var memberName = elementType == null ? property.Name : property.Name + "[]";
+        if (!IsJsonProperty(property))
+        {
+            throw new InvalidOperationException(
+                CoreStrings.JsonValueReaderWriterOnNonJsonProperty(
+                    property.DeclaringType.DisplayName(), memberName, readerWriter.GetType().ShortDisplayName()));
+        }
+
+        var mapping = elementType == null ? property.GetTypeMapping() : elementType.GetTypeMapping();
+        var converter = mapping.Converter;
+        var storeType = (converter != null
+                && !converter.GetType().GetGenericTypeImplementations(typeof(CollectionToJsonStringConverter<>)).Any()
+                    ? converter.ProviderClrType
+                    : elementType?.ClrType ?? property.ClrType).UnwrapNullableType();
+        if (!readerWriter.ValueType.UnwrapNullableType().IsAssignableFrom(storeType))
+        {
+            throw new InvalidOperationException(
+                CoreStrings.JsonValueReaderWriterPropertyMismatch(
+                    property.DeclaringType.DisplayName(), memberName, readerWriter.GetType().ShortDisplayName(),
+                    readerWriter.ValueType.ShortDisplayName(), storeType.ShortDisplayName()));
         }
     }
 

@@ -246,6 +246,25 @@ public interface IConventionElementTypeBuilder : IConventionAnnotatableBuilder
         bool fromDataAnnotation = false);
 
     /// <summary>
+    ///     Configures the JSON reader/writer for elements of the collection.
+    /// </summary>
+    /// <param name="readerWriterType">
+    ///     A type that inherits from <see cref="Storage.Json.JsonValueReaderWriter{TValue}" />,
+    ///     or <see langword="null" /> to use the reader/writer from the type mapping.
+    /// </param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The same builder if the configuration was applied, or <see langword="null" /> otherwise.</returns>
+    IConventionElementTypeBuilder? HasJsonValueReaderWriter(Type? readerWriterType, bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Returns whether the JSON reader/writer can be configured from the current configuration source.
+    /// </summary>
+    /// <param name="readerWriterType">The reader/writer type, or <see langword="null" /> to remove the configuration.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns><see langword="true" /> if the JSON reader/writer can be configured.</returns>
+    bool CanSetJsonValueReaderWriter(Type? readerWriterType, bool fromDataAnnotation = false);
+
+    /// <summary>
     ///     Configures the <see cref="CoreTypeMapping" /> for elements of the collection.
     /// </summary>
     /// <param name="typeMapping">The type mapping, or <see langword="null" /> to remove any previously set type mapping.</param>
