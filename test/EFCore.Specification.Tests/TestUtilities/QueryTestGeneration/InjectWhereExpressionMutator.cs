@@ -1,8 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable disable
-
 using System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration;
@@ -40,17 +38,17 @@ public class InjectWhereExpressionMutator(DbContext context) : ExpressionMutator
         var boolProperties = properties.Where(p => p.PropertyType == typeof(bool)).ToList();
         if (boolProperties.Any())
         {
-            candidateExpressions.Add(Expression.Property(prm, random.Choose(boolProperties)));
+            candidateExpressions.Add(Expression.Property(prm, random.Choose(boolProperties)!));
         }
 
         // compare two properties
         var propertiesOfTheSameType = properties.GroupBy(p => p.PropertyType).Where(g => g.Count() > 1).ToList();
         if (propertiesOfTheSameType.Any())
         {
-            var propertyGroup = random.Choose(propertiesOfTheSameType).ToList();
+            var propertyGroup = random.Choose(propertiesOfTheSameType)!.ToList();
 
-            var firstProperty = random.Choose(propertyGroup);
-            var secondProperty = random.Choose(propertyGroup.Where(p => p != firstProperty).ToList());
+            var firstProperty = random.Choose(propertyGroup)!;
+            var secondProperty = random.Choose(propertyGroup.Where(p => p != firstProperty).ToList())!;
 
             candidateExpressions.Add(
                 Expression.NotEqual(Expression.Property(prm, firstProperty), Expression.Property(prm, secondProperty)));
@@ -59,7 +57,7 @@ public class InjectWhereExpressionMutator(DbContext context) : ExpressionMutator
         // compare property to constant
         if (properties.Any())
         {
-            var property = random.Choose(properties);
+            var property = random.Choose(properties)!;
             candidateExpressions.Add(
                 Expression.NotEqual(
                     Expression.Property(prm, property),
@@ -86,7 +84,7 @@ public class InjectWhereExpressionMutator(DbContext context) : ExpressionMutator
             }
         }
 
-        var lambdaBody = random.Choose(candidateExpressions);
+        var lambdaBody = random.Choose(candidateExpressions)!;
 
         var negated = random.Next(6) > 3;
         if (negated)
@@ -100,8 +98,6 @@ public class InjectWhereExpressionMutator(DbContext context) : ExpressionMutator
 
         return injector.Visit(expression);
     }
-
-#nullable restore
 
     private class ExpressionFinder(InjectWhereExpressionMutator mutator) : ExpressionVisitor
     {

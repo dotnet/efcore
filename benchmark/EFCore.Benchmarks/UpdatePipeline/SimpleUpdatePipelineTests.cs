@@ -17,9 +17,9 @@ public class SimpleUpdatePipelineTests
 {
     public abstract class UpdatePipelineBase
     {
-        protected OrdersFixtureBase _fixture;
-        protected OrdersContextBase _context;
-        private IDbContextTransaction _transaction;
+        protected OrdersFixtureBase _fixture = null!;
+        protected OrdersContextBase _context = null!;
+        private IDbContextTransaction _transaction = null!;
         private int _recordsAffected = -1;
 
         public abstract OrdersFixtureBase CreateFixture();

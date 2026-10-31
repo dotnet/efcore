@@ -26,7 +26,7 @@ public class InternalMixedEntityEntryTest : InternalEntityEntryTestBase<
 
     public class Root : IRoot
     {
-        public FirstDependent First { get; set; }
+        public FirstDependent First { get; set; } = null!;
 
         IFirstDependent IRoot.First
         {
@@ -37,7 +37,7 @@ public class InternalMixedEntityEntryTest : InternalEntityEntryTestBase<
 
     public class FirstDependent : IFirstDependent
     {
-        public Root Root { get; set; }
+        public Root Root { get; set; } = null!;
 
         IRoot IFirstDependent.Root
         {
@@ -45,7 +45,7 @@ public class InternalMixedEntityEntryTest : InternalEntityEntryTestBase<
             set => Root = (Root)value;
         }
 
-        public SecondDependent Second { get; set; }
+        public SecondDependent Second { get; set; } = null!;
 
         ISecondDependent IFirstDependent.Second
         {
@@ -56,7 +56,7 @@ public class InternalMixedEntityEntryTest : InternalEntityEntryTestBase<
 
     public class SecondDependent : ISecondDependent
     {
-        public FirstDependent First { get; set; }
+        public FirstDependent First { get; set; } = null!;
 
         IFirstDependent ISecondDependent.First
         {
@@ -67,12 +67,12 @@ public class InternalMixedEntityEntryTest : InternalEntityEntryTestBase<
 
     public class CompositeRoot : ICompositeRoot
     {
-        public ICompositeFirstDependent First { get; set; }
+        public ICompositeFirstDependent First { get; set; } = null!;
     }
 
     public class CompositeFirstDependent : ICompositeFirstDependent
     {
-        public CompositeRoot Root { get; set; }
+        public CompositeRoot Root { get; set; } = null!;
 
         ICompositeRoot ICompositeFirstDependent.Root
         {
@@ -80,7 +80,7 @@ public class InternalMixedEntityEntryTest : InternalEntityEntryTestBase<
             set => Root = (CompositeRoot)value;
         }
 
-        public CompositeSecondDependent Second { get; set; }
+        public CompositeSecondDependent Second { get; set; } = null!;
 
         ICompositeSecondDependent ICompositeFirstDependent.Second
         {
@@ -91,7 +91,7 @@ public class InternalMixedEntityEntryTest : InternalEntityEntryTestBase<
 
     public class CompositeSecondDependent : ICompositeSecondDependent
     {
-        public CompositeFirstDependent First { get; set; }
+        public CompositeFirstDependent First { get; set; } = null!;
 
         ICompositeFirstDependent ICompositeSecondDependent.First
         {

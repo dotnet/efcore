@@ -8,8 +8,6 @@ using System.Runtime.CompilerServices;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : ApiConsistencyTestBase<TFixture>.ApiConsistencyFixtureBase, new()
 {
@@ -24,31 +22,31 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
             || method.Name == "op_Inequality"
             || method.Name == "PrintMembers"
             // Ignore synthesized copy constructors on records
-            || method is ConstructorInfo
-            && method.GetParameters().Length == 1
-            && method.GetParameters()[0] is var firstParam
-            && firstParam.Name == "original"
-            && firstParam.ParameterType == method.DeclaringType;
+            || (method is ConstructorInfo
+                && method.GetParameters().Length == 1
+                && method.GetParameters()[0] is var firstParam
+                && firstParam.Name == "original"
+                && firstParam.ParameterType == method.DeclaringType);
 
     protected virtual TFixture Fixture { get; } = fixture;
 
-    [ConditionalFact]
+    [Fact]
     public void Exceptions_are_valid()
     {
-        Assert.DoesNotContain(null, Fixture.AsyncMethodExceptions);
-        Assert.DoesNotContain(null, Fixture.MetadataMethodExceptions);
-        Assert.DoesNotContain(null, Fixture.UnmatchedMetadataMethods);
-        Assert.DoesNotContain(null, Fixture.VirtualMethodExceptions);
-        Assert.DoesNotContain(null, Fixture.NotAnnotatedMethods);
-        Assert.DoesNotContain(null, Fixture.NonCancellableAsyncMethods);
+        Assert.DoesNotContain(null!, Fixture.AsyncMethodExceptions);
+        Assert.DoesNotContain(null!, Fixture.MetadataMethodExceptions);
+        Assert.DoesNotContain(null!, Fixture.UnmatchedMetadataMethods);
+        Assert.DoesNotContain(null!, Fixture.VirtualMethodExceptions);
+        Assert.DoesNotContain(null!, Fixture.NotAnnotatedMethods);
+        Assert.DoesNotContain(null!, Fixture.NonCancellableAsyncMethods);
 
         foreach (var unmatched in Fixture.UnmatchedMirrorMethods)
         {
-            Assert.DoesNotContain(null, unmatched.Value);
+            Assert.DoesNotContain(null!, unmatched.Value);
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Fluent_api_methods_should_not_return_void()
     {
         var voidMethods
@@ -64,7 +62,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
             "\r\n-- Missing fluent returns --\r\n" + string.Join(Environment.NewLine, voidMethods));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Generic_fluent_api_methods_should_return_generic_types()
     {
         var nonGenericMethods = new List<(Type Type, MethodInfo Method)>();
@@ -77,7 +75,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
 
             if (type.IsGenericType
                 && type.BaseType != typeof(object)
-                && !type.BaseType.IsGenericType)
+                && !type.BaseType!.IsGenericType)
             {
                 foreach (var method in type.BaseType.GetMethods(PublicInstance))
                 {
@@ -208,7 +206,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
         return parameterType;
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Builders_have_matching_methods()
     {
         foreach (var tuple in Fixture.MirrorTypes)
@@ -222,7 +220,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
                     && !(Fixture.UnmatchedMirrorMethods.TryGetValue(tuple.Value, out var unmatchedMirrorMethods)
                         && unmatchedMirrorMethods.Contains(method)))
                 {
-                    MethodInfo matchingMethod = null;
+                    MethodInfo matchingMethod = null!;
                     foreach (var targetMethod in tuple.Value.GetMethods(PublicInstance | BindingFlags.DeclaredOnly))
                     {
                         if (targetMethod.Name == method.Name
@@ -260,7 +258,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Metadata_types_have_expected_structure()
     {
         var errors = Fixture.MetadataTypes.Select(ValidateMetadata)
@@ -272,10 +270,10 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
             "\r\n-- Errors: --\r\n" + string.Join(Environment.NewLine, errors));
     }
 
-    private static readonly string MetadataNamespace = typeof(IReadOnlyModel).Namespace;
-    private static readonly string MetadataBuilderNamespace = typeof(IConventionModelBuilder).Namespace;
+    private static readonly string MetadataNamespace = typeof(IReadOnlyModel).Namespace!;
+    private static readonly string MetadataBuilderNamespace = typeof(IConventionModelBuilder).Namespace!;
 
-    protected virtual string ValidateMetadata(KeyValuePair<Type, (Type, Type, Type, Type)> types)
+    protected virtual string? ValidateMetadata(KeyValuePair<Type, (Type, Type, Type?, Type?)> types)
     {
         var readOnlyType = types.Key;
         var (mutableType, conventionType, conventionBuilderType, runtimeType) = types.Value;
@@ -310,7 +308,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
 
             if (!typeof(IAnnotatable).IsAssignableFrom(runtimeType))
             {
-                return $"{runtimeType.Name} should derive from IAnnotatable";
+                return $"{runtimeType!.Name} should derive from IAnnotatable";
             }
 
             if (conventionBuilderType != null
@@ -369,7 +367,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
         return null;
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Mutable_metadata_types_have_matching_methods()
     {
         var errors =
@@ -390,7 +388,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
             "\r\n-- Mismatches: --\r\n" + string.Join(Environment.NewLine, errors));
     }
 
-    protected virtual string MatchMutable((MethodInfo Readonly, MethodInfo Mutable) methodTuple)
+    protected virtual string? MatchMutable((MethodInfo Readonly, MethodInfo Mutable) methodTuple)
     {
         var (readonlyMethod, mutableMethod) = methodTuple;
 
@@ -399,12 +397,12 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
             if (mutableMethod == null)
             {
                 return "No IMutable equivalent of "
-                    + $"{readonlyMethod.DeclaringType.Name}.{readonlyMethod.Name}({Format(readonlyMethod.GetParameters())})";
+                    + $"{readonlyMethod.DeclaringType!.Name}.{readonlyMethod.Name}({Format(readonlyMethod.GetParameters())})";
             }
 
             if (mutableMethod.ReturnType != expectedReturnTypes.Mutable)
             {
-                return $"{mutableMethod.DeclaringType.Name}.{mutableMethod.Name}({Format(mutableMethod.GetParameters())})"
+                return $"{mutableMethod.DeclaringType!.Name}.{mutableMethod.Name}({Format(mutableMethod.GetParameters())})"
                     + $" expected to have {expectedReturnTypes.Mutable.ShortDisplayName()} return type";
             }
         }
@@ -417,12 +415,12 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
                 if (mutableMethod == null)
                 {
                     return "No IMutable equivalent of "
-                        + $"{readonlyMethod.DeclaringType.Name}.{readonlyMethod.Name}({Format(readonlyMethod.GetParameters())})";
+                        + $"{readonlyMethod.DeclaringType!.Name}.{readonlyMethod.Name}({Format(readonlyMethod.GetParameters())})";
                 }
 
                 if (mutableMethod.ReturnType.TryGetSequenceType() != expectedReturnTypes.Mutable)
                 {
-                    return $"{mutableMethod.DeclaringType.Name}.{mutableMethod.Name}({Format(mutableMethod.GetParameters())})"
+                    return $"{mutableMethod.DeclaringType!.Name}.{mutableMethod.Name}({Format(mutableMethod.GetParameters())})"
                         + $" expected to have a return type that derives from IEnumerable<{expectedReturnTypes.Mutable}>.";
                 }
             }
@@ -431,7 +429,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
         return null;
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Convention_metadata_types_have_matching_methods()
     {
         var errors =
@@ -462,30 +460,29 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
         }
     }
 
-    protected virtual string MatchConvention((MethodInfo Mutable, MethodInfo Convention) methodTuple)
+    protected virtual string? MatchConvention((MethodInfo Mutable, MethodInfo Convention) methodTuple)
     {
         var (mutableMethod, conventionMethod) = methodTuple;
 
-        Type expectedReturnType;
         if (mutableMethod.ReturnType == typeof(void))
         {
             if (conventionMethod == null)
             {
                 return "No IConvention equivalent of "
-                    + $"{mutableMethod.DeclaringType.Name}.{mutableMethod.Name}({Format(mutableMethod.GetParameters())})";
+                    + $"{mutableMethod.DeclaringType!.Name}.{mutableMethod.Name}({Format(mutableMethod.GetParameters())})";
             }
         }
-        else if (Fixture.MutableMetadataTypes.TryGetValue(mutableMethod.ReturnType, out expectedReturnType))
+        else if (Fixture.MutableMetadataTypes.TryGetValue(mutableMethod.ReturnType, out var expectedReturnType))
         {
             if (conventionMethod == null)
             {
                 return "No IConvention equivalent of "
-                    + $"{mutableMethod.DeclaringType.Name}.{mutableMethod.Name}({Format(mutableMethod.GetParameters())})";
+                    + $"{mutableMethod.DeclaringType!.Name}.{mutableMethod.Name}({Format(mutableMethod.GetParameters())})";
             }
 
             if (conventionMethod.ReturnType != expectedReturnType)
             {
-                return $"{conventionMethod.DeclaringType.Name}.{conventionMethod.Name}({Format(conventionMethod.GetParameters())})"
+                return $"{conventionMethod.DeclaringType!.Name}.{conventionMethod.Name}({Format(conventionMethod.GetParameters())})"
                     + $" expected to have {expectedReturnType.ShortDisplayName()} return type";
             }
         }
@@ -498,12 +495,12 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
                 if (conventionMethod == null)
                 {
                     return "No IConvention equivalent of "
-                        + $"{mutableMethod.DeclaringType.Name}.{mutableMethod.Name}({Format(mutableMethod.GetParameters())})";
+                        + $"{mutableMethod.DeclaringType!.Name}.{mutableMethod.Name}({Format(mutableMethod.GetParameters())})";
                 }
 
                 if (conventionMethod.ReturnType.TryGetSequenceType() != expectedReturnType)
                 {
-                    return $"{conventionMethod.DeclaringType.Name}.{conventionMethod.Name}({Format(conventionMethod.GetParameters())})"
+                    return $"{conventionMethod.DeclaringType!.Name}.{conventionMethod.Name}({Format(conventionMethod.GetParameters())})"
                         + $" expected to have a return type that derives from IEnumerable<{expectedReturnType.Name}>.";
                 }
             }
@@ -512,7 +509,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
         return null;
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Convention_metadata_types_have_expected_methods()
     {
         var errors =
@@ -525,7 +522,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
             "\r\n-- Errors: --\r\n" + string.Join(Environment.NewLine, errors));
     }
 
-    protected virtual string ValidateConventionMethods(IReadOnlyList<MethodInfo> methods)
+    protected virtual string? ValidateConventionMethods(IReadOnlyList<MethodInfo> methods)
     {
         if (methods.Count == 0)
         {
@@ -547,12 +544,12 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
                 var expectedName = "Get" + methodTuple.Key[3..] + "ConfigurationSource";
                 if (!methodLookup.TryGetValue(expectedName, out var getAspectConfigurationSource))
                 {
-                    return $"{type.Name} expected to have a {expectedName}() method";
+                    return $"{type!.Name} expected to have a {expectedName}() method";
                 }
 
                 if (getAspectConfigurationSource.ReturnType != typeof(ConfigurationSource?))
                 {
-                    return $"{type.Name}.{getAspectConfigurationSource.Name}({Format(getAspectConfigurationSource.GetParameters())})"
+                    return $"{type!.Name}.{getAspectConfigurationSource.Name}({Format(getAspectConfigurationSource.GetParameters())})"
                         + " expected to have ConfigurationSource? return type";
                 }
             }
@@ -561,7 +558,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
         return null;
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Convention_builder_types_have_expected_methods()
     {
         var errors =
@@ -574,7 +571,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
             "\r\n-- Errors: --\r\n" + string.Join(Environment.NewLine, errors));
     }
 
-    protected virtual string ValidateConventionBuilderMethods(IReadOnlyList<MethodInfo> methods)
+    protected virtual string? ValidateConventionBuilderMethods(IReadOnlyList<MethodInfo> methods)
     {
         if (methods == null
             || methods.Count == 0)
@@ -590,7 +587,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
             methodLookup[Fixture.MetadataMethodNameTransformers.TryGetValue(method, out var name) ? name : method.Name] = method;
         }
 
-        foreach (var interfaceType in builderType.GetDeclaredInterfaces())
+        foreach (var interfaceType in builderType!.GetDeclaredInterfaces())
         {
             foreach (var method in interfaceType.GetMethods())
             {
@@ -628,7 +625,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
                     || methodName.StartsWith("To", StringComparison.Ordinal)
                     || methodName.StartsWith("With", StringComparison.Ordinal))
                 {
-                    return $"{declaringType.Name} expected to have a {expectedName} method";
+                    return $"{declaringType!.Name} expected to have a {expectedName} method";
                 }
 
                 var otherExpectedName = "Can" + methodName;
@@ -643,13 +640,13 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
 
                 if (!methodLookup.TryGetValue(otherExpectedName, out canSetMethod))
                 {
-                    return $"{declaringType.Name} expected to have a {expectedName} or {otherExpectedName} method";
+                    return $"{declaringType!.Name} expected to have a {expectedName} or {otherExpectedName} method";
                 }
             }
 
             if (canSetMethod.ReturnType != typeof(bool))
             {
-                return $"{declaringType.Name}.{canSetMethod.Name}({Format(canSetMethod.GetParameters())})"
+                return $"{declaringType!.Name}.{canSetMethod.Name}({Format(canSetMethod.GetParameters())})"
                     + $" expected to have return type of 'bool'";
             }
 
@@ -658,7 +655,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
             if (parameters.Length > parameterIndex
                 && parameters[parameterIndex].ParameterType != canSetMethod.GetParameters()[parameterIndex].ParameterType)
             {
-                return $"{declaringType.Name}.{canSetMethod.Name}({Format(canSetMethod.GetParameters())})"
+                return $"{declaringType!.Name}.{canSetMethod.Name}({Format(canSetMethod.GetParameters())})"
                     + $" expected to have the first parameter of type {parameters[parameterIndex].ParameterType.ShortDisplayName()}";
             }
         }
@@ -666,12 +663,12 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
         return null;
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Convention_builder_methods_have_matching_returns()
     {
         var errors =
             Fixture.MetadataTypes.Select(t =>
-                    ValidateConventionBuilderMethodReturns(t.Value.ConventionBuilder, t.Value.Convention))
+                    ValidateConventionBuilderMethodReturns(t.Value.ConventionBuilder!, t.Value.Convention))
                 .Where(e => e != null)
                 .ToList();
 
@@ -681,7 +678,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
             + string.Join(Environment.NewLine, errors));
     }
 
-    protected virtual string ValidateConventionBuilderMethodReturns(Type builderType, Type conventionType)
+    protected virtual string? ValidateConventionBuilderMethodReturns(Type builderType, Type conventionType)
     {
         if (builderType == null)
         {
@@ -806,18 +803,15 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
             }
         }
 
-        if (unmatchedMethods.Count == 0)
-        {
-            return null;
-        }
-
-        return string.Join(
-            Environment.NewLine,
-            unmatchedMethods.Select(m
-                => $"{m.ReturnType.ShortDisplayName()} {m.Type.Name}.{m.Method.Name}{FormatGenericArguments(m.Method)}({Format(m.Method.GetParameters())})"));
+        return unmatchedMethods.Count == 0
+            ? null
+            : string.Join(
+                Environment.NewLine,
+                unmatchedMethods.Select(m
+                    => $"{m.ReturnType.ShortDisplayName()} {m.Type.Name}.{m.Method.Name}{FormatGenericArguments(m.Method)}({Format(m.Method.GetParameters())})"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Runtime_metadata_types_have_matching_methods()
     {
         var errors =
@@ -837,30 +831,29 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
             "\r\n-- Mismatches: --\r\n" + string.Join(Environment.NewLine, errors));
     }
 
-    protected virtual string MatchRuntime((MethodInfo ReadOnly, MethodInfo Runtime) methodTuple)
+    protected virtual string? MatchRuntime((MethodInfo ReadOnly, MethodInfo Runtime) methodTuple)
     {
         var (readOnlyMethod, runtimeMethod) = methodTuple;
 
-        Type expectedReturnType;
         if (readOnlyMethod.ReturnType == typeof(void))
         {
             if (runtimeMethod == null)
             {
                 return "No IRuntime equivalent of "
-                    + $"{readOnlyMethod.DeclaringType.Name}.{readOnlyMethod.Name}({Format(readOnlyMethod.GetParameters())})";
+                    + $"{readOnlyMethod.DeclaringType!.Name}.{readOnlyMethod.Name}({Format(readOnlyMethod.GetParameters())})";
             }
         }
-        else if (Fixture.MutableMetadataTypes.TryGetValue(readOnlyMethod.ReturnType, out expectedReturnType))
+        else if (Fixture.MutableMetadataTypes.TryGetValue(readOnlyMethod.ReturnType, out var expectedReturnType))
         {
             if (runtimeMethod == null)
             {
                 return "No IRuntime equivalent of "
-                    + $"{readOnlyMethod.DeclaringType.Name}.{readOnlyMethod.Name}({Format(readOnlyMethod.GetParameters())})";
+                    + $"{readOnlyMethod.DeclaringType!.Name}.{readOnlyMethod.Name}({Format(readOnlyMethod.GetParameters())})";
             }
 
             if (runtimeMethod.ReturnType != expectedReturnType)
             {
-                return $"{runtimeMethod.DeclaringType.Name}.{runtimeMethod.Name}({Format(runtimeMethod.GetParameters())})"
+                return $"{runtimeMethod.DeclaringType!.Name}.{runtimeMethod.Name}({Format(runtimeMethod.GetParameters())})"
                     + $" expected to have {expectedReturnType.ShortDisplayName()} return type";
             }
         }
@@ -873,12 +866,12 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
                 if (runtimeMethod == null)
                 {
                     return "No IRuntime equivalent of "
-                        + $"{readOnlyMethod.DeclaringType.Name}.{readOnlyMethod.Name}({Format(readOnlyMethod.GetParameters())})";
+                        + $"{readOnlyMethod.DeclaringType!.Name}.{readOnlyMethod.Name}({Format(readOnlyMethod.GetParameters())})";
                 }
 
                 if (runtimeMethod.ReturnType.TryGetSequenceType() != expectedReturnType)
                 {
-                    return $"{runtimeMethod.DeclaringType.Name}.{runtimeMethod.Name}({Format(runtimeMethod.GetParameters())})"
+                    return $"{runtimeMethod.DeclaringType!.Name}.{runtimeMethod.Name}({Format(runtimeMethod.GetParameters())})"
                         + $" expected to have a return type that derives from IEnumerable<{expectedReturnType.Name}>.";
                 }
             }
@@ -887,7 +880,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
         return null;
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Readonly_metadata_methods_have_expected_name()
     {
         var errors =
@@ -901,7 +894,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
             "\r\n-- Errors: --\r\n" + string.Join(Environment.NewLine, errors));
     }
 
-    protected string ValidateMethodName(MethodInfo method)
+    protected string? ValidateMethodName(MethodInfo method)
     {
         var name = method.Name;
         if (name.StartsWith("get_", StringComparison.Ordinal))
@@ -910,7 +903,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
             if (name.StartsWith("Get", StringComparison.Ordinal)
                 && !Fixture.MetadataMethodExceptions.Contains(method))
             {
-                return $"{method.DeclaringType.ShortDisplayName()}.{name}({Format(method.GetParameters())}) expected to not have "
+                return $"{method.DeclaringType!.ShortDisplayName()}.{name}({Format(method.GetParameters())}) expected to not have "
                     + "Get prefix";
             }
         }
@@ -918,7 +911,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
         return null;
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Mutable_metadata_methods_have_expected_shape()
     {
         var errors =
@@ -932,7 +925,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
             "\r\n-- Errors: --\r\n" + string.Join(Environment.NewLine, errors));
     }
 
-    protected virtual string ValidateMutableMethod(MethodInfo mutableMethod)
+    protected virtual string? ValidateMutableMethod(MethodInfo mutableMethod)
     {
         var message = ValidateMethodName(mutableMethod);
         if (message != null)
@@ -958,12 +951,12 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
             {
                 if (mutableMethod.ReturnType != typeof(void))
                 {
-                    return $"{mutableMethod.DeclaringType.Name}.{name}({Format(parameters)}) expected to have a void return type";
+                    return $"{mutableMethod.DeclaringType!.Name}.{name}({Format(parameters)}) expected to have a void return type";
                 }
             }
             else
             {
-                return $"{mutableMethod.DeclaringType.Name}.{name}({Format(parameters)}) expected to have an IMutable or "
+                return $"{mutableMethod.DeclaringType!.Name}.{name}({Format(parameters)}) expected to have an IMutable or "
                     + $"{firstParameter.ParameterType.ShortDisplayName()} return type";
             }
         }
@@ -971,12 +964,12 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
         return null;
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Convention_metadata_methods_have_expected_shape()
     {
         var errors =
             Fixture.MetadataMethods
-                .SelectMany(m => m.Convention.Select(mi => ValidateConventionMethod(mi, m.Convention[0].DeclaringType)))
+                .SelectMany(m => m.Convention.Select(mi => ValidateConventionMethod(mi, m.Convention[0].DeclaringType!)))
                 .Where(e => e != null)
                 .ToList();
 
@@ -985,7 +978,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
             "\r\n-- Errors: --\r\n" + string.Join(Environment.NewLine, errors));
     }
 
-    protected virtual string ValidateConventionMethod(MethodInfo conventionMethod, Type type)
+    protected virtual string? ValidateConventionMethod(MethodInfo conventionMethod, Type type)
     {
         var message = ValidateMethodName(conventionMethod);
         if (message != null)
@@ -1011,7 +1004,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
             && !Fixture.ConventionMetadataTypes.ContainsKey(conventionMethod.ReturnType))
         {
             return
-                $"{conventionMethod.DeclaringType.ShortDisplayName()}.{name}({Format(parameters)}) expected to have an IConvention or "
+                $"{conventionMethod.DeclaringType!.ShortDisplayName()}.{name}({Format(parameters)}) expected to have an IConvention or "
                 + $"{firstParameter.ParameterType.ShortDisplayName()} return type";
         }
 
@@ -1028,14 +1021,14 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
                 || !Equals(lastParameter.DefaultValue, false))
             {
                 return
-                    $"{conventionMethod.DeclaringType.ShortDisplayName()}.{name}({Format(parameters)}) expected to have a 'bool fromDataAnnotation = false' parameter";
+                    $"{conventionMethod.DeclaringType!.ShortDisplayName()}.{name}({Format(parameters)}) expected to have a 'bool fromDataAnnotation = false' parameter";
             }
         }
 
         return null;
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Service_implementations_should_use_dependencies_parameter_object()
     {
         var serviceCollection = new ServiceCollection();
@@ -1044,7 +1037,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
 
         var badServiceTypes
             = (from sd in serviceCollection
-               where sd.ServiceType.Namespace.StartsWith("Microsoft.Entity", StringComparison.Ordinal)
+               where sd.ServiceType.Namespace!.StartsWith("Microsoft.Entity", StringComparison.Ordinal)
                    && sd.ServiceType != typeof(IDiagnosticsLogger<>)
                    && sd.ServiceType != typeof(LoggingDefinitions)
                let it = TryGetImplementationType(sd)
@@ -1077,9 +1070,9 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
     private static Type TryGetImplementationType(ServiceDescriptor descriptor)
         => descriptor.ImplementationType
             ?? descriptor.ImplementationInstance?.GetType()
-            ?? descriptor.ImplementationFactory?.GetType().GenericTypeArguments[1];
+            ?? descriptor.ImplementationFactory?.GetType().GenericTypeArguments[1]!;
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Private_classes_should_be_sealed()
     {
         var nonSealedPrivates
@@ -1087,7 +1080,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
                where type.IsNestedPrivate
                    && !type.IsSealed
                    && !type.IsAbstract
-                   && !type.DeclaringType.GetNestedTypes(BindingFlags.NonPublic).Any(t => t.BaseType == type)
+                   && !type.DeclaringType!.GetNestedTypes(BindingFlags.NonPublic).Any(t => t.BaseType == type)
                select type.FullName)
             .ToList();
 
@@ -1096,7 +1089,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
             "\r\n-- Private class is not sealed --\r\n" + string.Join(Environment.NewLine, nonSealedPrivates));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Public_inheritable_apis_should_be_virtual()
     {
         var nonVirtualMethods
@@ -1122,7 +1115,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
             "\r\n-- Missing virtual APIs --\r\n" + string.Join(Environment.NewLine, nonVirtualMethods));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Async_methods_should_have_overload_with_cancellation_token_and_end_with_async_suffix()
     {
         var asyncMethods
@@ -1152,7 +1145,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
                            && methodWithoutToken.DeclaringType == methodWithToken.DeclaringType)
                    && !Fixture.AsyncMethodExceptions.Contains(methodWithoutToken)
                // ReSharper disable once PossibleNullReferenceException
-               select methodWithoutToken.DeclaringType.Name + "." + methodWithoutToken.Name)
+               select methodWithoutToken.DeclaringType!.Name + "." + methodWithoutToken.Name)
             .ToList();
 
         Assert.False(
@@ -1164,7 +1157,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
                 .Where(method => !method.Name.EndsWith("Async", StringComparison.Ordinal)
                     && method.DeclaringType != null
                     && !Fixture.AsyncMethodExceptions.Contains(method))
-                .Select(method => method.DeclaringType.Name + "." + method.Name)
+                .Select(method => method.DeclaringType!.Name + "." + method.Name)
                 .ToList();
 
         Assert.False(
@@ -1172,19 +1165,19 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
             "\r\n-- Missing async suffix --\r\n" + string.Join(Environment.NewLine, missingSuffixMethods));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Public_api_bool_parameters_should_not_be_prefixed()
     {
         var prefixes = new[] { "is", "can", "has" };
 
         var parameters = (
                 from type in GetAllTypes(TargetAssembly.GetExportedTypes())
-                where !type.Namespace.Contains("Internal", StringComparison.Ordinal)
+                where !type.Namespace!.Contains("Internal", StringComparison.Ordinal)
                 from method in type.GetTypeInfo().DeclaredMethods
                 where !method.IsPrivate
                 from parameter in method.GetParameters()
                 where parameter.ParameterType.UnwrapNullableType() == typeof(bool)
-                    && prefixes.Any(p => parameter.Name.StartsWith(p, StringComparison.Ordinal))
+                    && prefixes.Any(p => parameter.Name!.StartsWith(p, StringComparison.Ordinal))
                 select $"{type.FullName}.{method.Name}[{parameter.Name}]")
             .ToList();
 
@@ -1223,16 +1216,22 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
         private readonly MethodInfo _targetMethod = targetMethod;
         private readonly ApiConsistencyTestBase<TFixture> _tests = tests;
 
-        public bool Equals(Type sourceParameterType, Type targetParameterType)
+        public bool Equals(Type? sourceParameterType, Type? targetParameterType)
         {
             if (sourceParameterType == targetParameterType)
             {
                 return true;
             }
 
+            if (sourceParameterType is null
+                || targetParameterType is null)
+            {
+                return false;
+            }
+
             var sourceType = _sourceMethod.DeclaringType;
             var targetType = _targetMethod.DeclaringType;
-            if (_targetMethod.DeclaringType.IsGenericType
+            if (_targetMethod.DeclaringType!.IsGenericType
                 && sourceParameterType
                 == _tests.GetEquivalentGenericType(
                     sourceParameterType, _targetMethod.DeclaringType.GetGenericArguments(),
@@ -1241,8 +1240,8 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
                 return true;
             }
 
-            if (sourceType.IsGenericType
-                && targetType.IsGenericType
+            if (sourceType!.IsGenericType
+                && targetType!.IsGenericType
                 && sourceParameterType.IsGenericType
                 && sourceParameterType.GetGenericTypeDefinition() == typeof(Expression<>)
                 && targetParameterType.IsGenericType
@@ -1304,27 +1303,27 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
             { typeof(DbContextOptionsBuilder), typeof(DbContextOptionsBuilder<>) }
         };
 
-        public virtual Dictionary<Type, Type> MirrorTypes { get; } = new();
+        public virtual Dictionary<Type, Type> MirrorTypes { get; } = [];
 
         public virtual HashSet<MethodInfo> VirtualMethodExceptions { get; } = [];
         public virtual HashSet<MethodInfo> NotAnnotatedMethods { get; } = [];
         public virtual HashSet<MethodInfo> AsyncMethodExceptions { get; } = [];
         public virtual HashSet<MethodInfo> UnmatchedMetadataMethods { get; } = [];
-        public virtual Dictionary<Type, HashSet<MethodInfo>> UnmatchedMirrorMethods { get; } = new();
-        public virtual Dictionary<MethodInfo, string> MetadataMethodNameTransformers { get; } = new();
+        public virtual Dictionary<Type, HashSet<MethodInfo>> UnmatchedMirrorMethods { get; } = [];
+        public virtual Dictionary<MethodInfo, string> MetadataMethodNameTransformers { get; } = [];
         public virtual HashSet<MethodInfo> MetadataMethodExceptions { get; } = [];
 
         public virtual HashSet<PropertyInfo> ComputedDependencyProperties { get; } =
         [
             typeof(ProviderConventionSetBuilderDependencies).GetProperty(
-                nameof(ProviderConventionSetBuilderDependencies.ContextType)),
-            typeof(QueryCompilationContextDependencies).GetProperty(nameof(QueryCompilationContextDependencies.ContextType)),
+                nameof(ProviderConventionSetBuilderDependencies.ContextType))!,
+            typeof(QueryCompilationContextDependencies).GetProperty(nameof(QueryCompilationContextDependencies.ContextType))!,
             typeof(QueryCompilationContextDependencies).GetProperty(
-                nameof(QueryCompilationContextDependencies.QueryTrackingBehavior)),
-            typeof(QueryContextDependencies).GetProperty(nameof(QueryContextDependencies.StateManager))
+                nameof(QueryCompilationContextDependencies.QueryTrackingBehavior))!,
+            typeof(QueryContextDependencies).GetProperty(nameof(QueryContextDependencies.StateManager))!
         ];
 
-        public Dictionary<Type, (Type Mutable, Type Convention, Type ConventionBuilder, Type Runtime)> MetadataTypes { get; }
+        public Dictionary<Type, (Type Mutable, Type Convention, Type? ConventionBuilder, Type? Runtime)> MetadataTypes { get; }
             = new()
             {
                 {
@@ -1437,8 +1436,8 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
                 }
             };
 
-        public Dictionary<Type, Type> MutableMetadataTypes { get; } = new();
-        public Dictionary<Type, Type> ConventionMetadataTypes { get; } = new();
+        public Dictionary<Type, Type> MutableMetadataTypes { get; } = [];
+        public Dictionary<Type, Type> ConventionMetadataTypes { get; } = [];
         public virtual HashSet<MethodInfo> NonCancellableAsyncMethods { get; } = [];
 
         public virtual
@@ -1446,15 +1445,21 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
                 Type MutableExtensions,
                 Type ConventionExtensions,
                 Type ConventionBuilderExtensions,
-                Type RuntimeExtensions)> MetadataExtensionTypes { get; }
-            = new();
+                Type RuntimeExtensions)> MetadataExtensionTypes
+        {
+            get;
+        }
+            = [];
 
         public List<(IReadOnlyList<MethodInfo> ReadOnly,
                 IReadOnlyList<MethodInfo> Mutable,
                 IReadOnlyList<MethodInfo> Convention,
                 IReadOnlyList<MethodInfo> ConventionBuilder,
                 IReadOnlyList<MethodInfo> Runtime)>
-            MetadataMethods { get; } = [];
+            MetadataMethods
+        {
+            get;
+        } = [];
 
         protected static MethodInfo GetMethod(
             Type type,
@@ -1469,31 +1474,32 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
 
         protected virtual void Initialize()
         {
-            foreach (var typeTuple in MetadataTypes.Values)
+            foreach (var (Mutable, Convention, ConventionBuilder, Runtime) in MetadataTypes.Values)
             {
-                MutableMetadataTypes[typeTuple.Mutable] = typeTuple.Convention;
-                ConventionMetadataTypes[typeTuple.Convention] = typeTuple.ConventionBuilder;
+                MutableMetadataTypes[Mutable] = Convention;
+                ConventionMetadataTypes[Convention] = ConventionBuilder!;
             }
 
             foreach (var extensionTypePair in MetadataExtensionTypes)
             {
                 var type = extensionTypePair.Key;
-                var extensionTypeTuple = extensionTypePair.Value;
+                var (ReadonlyExtensions, MutableExtensions, ConventionExtensions, ConventionBuilderExtensions, RuntimeExtensions) =
+                    extensionTypePair.Value;
                 var (mutableType, conventionType, conventionBuilderType, runtimeType) = MetadataTypes[type];
-                var readOnlyMethods = extensionTypeTuple.ReadonlyExtensions?.GetMethods(BindingFlags.Public | BindingFlags.Static)
+                var readOnlyMethods = ReadonlyExtensions?.GetMethods(BindingFlags.Public | BindingFlags.Static)
                         .Where(m => !IsObsolete(m) && m.GetParameters().First().ParameterType == type).ToArray()
                     ?? [];
-                var mutableMethods = extensionTypeTuple.MutableExtensions?.GetMethods(BindingFlags.Public | BindingFlags.Static)
+                var mutableMethods = MutableExtensions?.GetMethods(BindingFlags.Public | BindingFlags.Static)
                         .Where(m => !IsObsolete(m) && m.GetParameters().First().ParameterType == mutableType).ToArray()
                     ?? [];
-                var conventionMethods = extensionTypeTuple.ConventionExtensions?.GetMethods(BindingFlags.Public | BindingFlags.Static)
+                var conventionMethods = ConventionExtensions?.GetMethods(BindingFlags.Public | BindingFlags.Static)
                         .Where(m => !IsObsolete(m) && m.GetParameters().First().ParameterType == conventionType).ToArray()
                     ?? [];
-                var conventionBuilderMethods = extensionTypeTuple.ConventionBuilderExtensions
+                var conventionBuilderMethods = ConventionBuilderExtensions
                         ?.GetMethods(BindingFlags.Public | BindingFlags.Static)
                         .Where(m => !IsObsolete(m) && m.GetParameters().First().ParameterType == conventionBuilderType).ToArray()
                     ?? [];
-                var runtimeMethods = extensionTypeTuple.RuntimeExtensions?.GetMethods(BindingFlags.Public | BindingFlags.Static)
+                var runtimeMethods = RuntimeExtensions?.GetMethods(BindingFlags.Public | BindingFlags.Static)
                         .Where(m => !IsObsolete(m) && m.GetParameters().First().ParameterType == runtimeType).ToArray()
                     ?? [];
                 MetadataMethods.Add((readOnlyMethods, mutableMethods, conventionMethods, conventionBuilderMethods, runtimeMethods));

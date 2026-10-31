@@ -3,11 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 
-#nullable disable
-
 public class LocustLeader
 {
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
     public short ThreatLevel { get; set; }
     public byte ThreatLevelByte { get; set; }
     public byte? ThreatLevelNullableByte { get; set; }

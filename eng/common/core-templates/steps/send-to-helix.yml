@@ -6,7 +6,6 @@ parameters:
   HelixTargetQueues: ''                  # required -- semicolon-delimited list of Helix queues to test on; see https://helix.dot.net/ for a list of queues
   HelixAccessToken: ''                   # optional -- legacy access token; not forwarded when HelixUseEntraAuthentication is true
   HelixUseEntraAuthentication: false     # optional -- use refreshable Entra authentication instead of a PAT or anonymous access
-  HelixEntraScope: ''                    # optional -- explicit Entra scope required for custom HelixBaseUri hosts
   HelixAzureSubscription: ''             # required when HelixUseEntraAuthentication is true -- workload identity federation service connection name authorized for Helix
   HelixProjectPath: 'eng/common/helixpublish.proj'  # optional -- path to the project file to build relative to BUILD_SOURCESDIRECTORY
   HelixProjectArguments: ''              # optional -- arguments passed to the build command
@@ -68,7 +67,6 @@ steps:
         HelixBuild: ${{ parameters.HelixBuild }}
         HelixConfiguration:  ${{ parameters.HelixConfiguration }}
         HelixTargetQueues: ${{ parameters.HelixTargetQueues }}
-        HelixEntraScope: ${{ parameters.HelixEntraScope }}
         HelixPreCommands: ${{ parameters.HelixPreCommands }}
         HelixPostCommands: ${{ parameters.HelixPostCommands }}
         WorkItemDirectory: ${{ parameters.WorkItemDirectory }}
@@ -116,7 +114,6 @@ steps:
         HelixBuild: ${{ parameters.HelixBuild }}
         HelixConfiguration:  ${{ parameters.HelixConfiguration }}
         HelixTargetQueues: ${{ parameters.HelixTargetQueues }}
-        HelixEntraScope: ${{ parameters.HelixEntraScope }}
         HelixPreCommands: ${{ parameters.HelixPreCommands }}
         HelixPostCommands: ${{ parameters.HelixPostCommands }}
         WorkItemDirectory: ${{ parameters.WorkItemDirectory }}

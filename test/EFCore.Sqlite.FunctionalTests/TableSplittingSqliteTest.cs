@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.TransportationModel;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class TableSplittingSqliteTest(NonSharedFixture fixture, ITestOutputHelper testOutputHelper)
     : TableSplittingTestBase(fixture, testOutputHelper)
 {
@@ -38,6 +36,6 @@ SELECT NOT EXISTS (
             .Property(e => e.Computed).HasComputedColumnSql("1");
     }
 
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqliteTestStoreFactory.Instance;
 }

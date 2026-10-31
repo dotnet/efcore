@@ -105,6 +105,29 @@ public interface IConventionPropertyBuilder : IConventionPropertyBaseBuilder<ICo
     bool CanSetIsConcurrencyToken(bool? concurrencyToken, bool fromDataAnnotation = false);
 
     /// <summary>
+    ///     Configures whether this property is automatically loaded when the entity is queried from the database.
+    /// </summary>
+    /// <param name="autoLoaded">
+    ///     A value indicating whether this property is automatically loaded.
+    ///     <see langword="null" /> to reset to default.
+    /// </param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>
+    ///     The same builder instance if the configuration was applied,
+    ///     <see langword="null" /> otherwise.
+    /// </returns>
+    IConventionPropertyBuilder? IsAutoLoaded(bool? autoLoaded, bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Returns a value indicating whether the property can be configured as auto-loaded
+    ///     from the current configuration source.
+    /// </summary>
+    /// <param name="autoLoaded">A value indicating whether this property is auto-loaded.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns><see langword="true" /> if the auto-loaded can be configured for this property.</returns>
+    bool CanSetIsAutoLoaded(bool? autoLoaded, bool fromDataAnnotation = false);
+
+    /// <summary>
     ///     Configures the value that will be used to determine if the property has been set or not. If the property is set to the
     ///     sentinel value, then it is considered not set. By default, the sentinel value is the CLR default value for the type of
     ///     the property.
@@ -547,22 +570,4 @@ public interface IConventionPropertyBuilder : IConventionPropertyBaseBuilder<ICo
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
         Type? comparerType,
         bool fromDataAnnotation = false);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [EntityFrameworkInternal]
-    IConventionElementTypeBuilder? SetElementType(Type? elementType, bool fromDataAnnotation = false);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [EntityFrameworkInternal]
-    bool CanSetElementType(Type? elementType, bool fromDataAnnotation = false);
 }

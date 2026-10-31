@@ -60,7 +60,6 @@ WHERE [Id] = @p0;
 """);
     }
 
-
     public override async Task Modify_element_in_complex_collection_mapped_to_json()
     {
         await base.Modify_element_in_complex_collection_mapped_to_json();

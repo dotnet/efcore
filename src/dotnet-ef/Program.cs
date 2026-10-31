@@ -9,6 +9,11 @@ internal static class Program
 {
     private static int Main(string[] args)
     {
+        // Redirect Console.Out to stderr so that help text and diagnostics
+        // don't pollute stdout. Actual data output uses the original stdout saved by Reporter.
+        Reporter.SetStdOut(Console.Out);
+        Console.SetOut(Console.Error);
+
         var app = new CommandLineApplication(throwOnUnexpectedArg: false) { Name = "dotnet ef" };
 
         new RootCommand().Configure(app);

@@ -3,18 +3,16 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.OptionalDependent;
 
-#nullable disable
-
 public class OptionalDependentJsonSomeRequired
 {
-    public string OpProp1 { get; set; }
+    public string? OpProp1 { get; set; }
     public int? OpProp2 { get; set; }
 
     public double ReqProp { get; set; }
 
-    public OptionalDependentNestedJsonAllOptional OpNav1 { get; set; }
-    public OptionalDependentNestedJsonSomeRequired OpNav2 { get; set; }
+    public OptionalDependentNestedJsonAllOptional? OpNav1 { get; set; }
+    public OptionalDependentNestedJsonSomeRequired? OpNav2 { get; set; }
 
-    public OptionalDependentNestedJsonAllOptional ReqNav1 { get; set; }
-    public OptionalDependentNestedJsonSomeRequired ReqNav2 { get; set; }
+    public OptionalDependentNestedJsonAllOptional ReqNav1 { get; set; } = null!;
+    public OptionalDependentNestedJsonSomeRequired ReqNav2 { get; set; } = null!;
 }

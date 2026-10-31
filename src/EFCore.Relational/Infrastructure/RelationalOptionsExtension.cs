@@ -418,24 +418,18 @@ public abstract class RelationalOptionsExtension : IDbContextOptionsExtension
                 .OfType<RelationalOptionsExtension>()
                 .ToList();
 
-        if (relationalOptionsExtensions.Count == 0)
-        {
-            throw new InvalidOperationException(RelationalStrings.NoProviderConfigured);
-        }
-
-        if (relationalOptionsExtensions.Count > 1)
-        {
-            throw new InvalidOperationException(RelationalStrings.MultipleProvidersConfigured);
-        }
-
-        return relationalOptionsExtensions[0];
+        return relationalOptionsExtensions.Count == 0
+            ? throw new InvalidOperationException(RelationalStrings.NoProviderConfigured)
+            : relationalOptionsExtensions.Count > 1
+                ? throw new InvalidOperationException(RelationalStrings.MultipleProvidersConfigured)
+                : relationalOptionsExtensions[0];
     }
 
     /// <summary>
     ///     Adds the services required to make the selected options work. This is used when there
     ///     is no external <see cref="IServiceProvider" /> and EF is maintaining its own service
     ///     provider internally. This allows database providers (and other extensions) to register their
-    ///     required services when EF is creating an service provider.
+    ///     required services when EF is creating a service provider.
     /// </summary>
     /// <param name="services">The collection to add services to.</param>
     public abstract void ApplyServices(IServiceCollection services);
@@ -463,7 +457,8 @@ public abstract class RelationalOptionsExtension : IDbContextOptionsExtension
                 .TryWithExplicit(RelationalEventId.IndexPropertiesMappedToNonOverlappingTables, WarningBehavior.Throw)
                 .TryWithExplicit(RelationalEventId.ForeignKeyPropertiesMappedToUnrelatedTables, WarningBehavior.Throw)
                 .TryWithExplicit(RelationalEventId.StoredProcedureConcurrencyTokenNotMapped, WarningBehavior.Throw)
-                .TryWithExplicit(RelationalEventId.PendingModelChangesWarning, WarningBehavior.Throw));
+                .TryWithExplicit(RelationalEventId.PendingModelChangesWarning, WarningBehavior.Throw)
+                .TryWithExplicit(RelationalEventId.MigrationsNotFound, WarningBehavior.Throw));
 
     /// <summary>
     ///     Information/metadata for a <see cref="RelationalOptionsExtension" />.

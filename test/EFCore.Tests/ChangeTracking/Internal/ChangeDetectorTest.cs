@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 public class ChangeDetectorTest
 {
-    [ConditionalFact]
+    [Fact]
     public void PropertyChanging_does_not_snapshot_if_eager_snapshots_are_in_use()
     {
         var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(BuildModel());
@@ -27,12 +27,12 @@ public class ChangeDetectorTest
 
         contextServices
             .GetRequiredService<IChangeDetector>()
-            .PropertyChanging(entry, entry.EntityType.FindProperty("DependentId"));
+            .PropertyChanging(entry, entry.EntityType.FindProperty("DependentId")!);
 
         Assert.False(entry.HasRelationshipSnapshot);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void PropertyChanging_snapshots_original_and_FK_value_if_lazy_snapshots_are_in_use()
     {
         var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(BuildNotifyingModel());
@@ -43,7 +43,7 @@ public class ChangeDetectorTest
         Assert.False(entry.EntityType.UseEagerSnapshots());
         Assert.False(entry.HasRelationshipSnapshot);
 
-        var property = entry.EntityType.FindProperty("DependentId");
+        var property = entry.EntityType.FindProperty("DependentId")!;
 
         contextServices
             .GetRequiredService<IChangeDetector>()
@@ -62,7 +62,7 @@ public class ChangeDetectorTest
         Assert.Equal(777, entry.GetCurrentValue(property));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void PropertyChanging_does_not_snapshot_original_values_for_properties_with_no_original_value_tracking()
     {
         var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(BuildNotifyingModel());
@@ -71,7 +71,7 @@ public class ChangeDetectorTest
 
         Assert.False(entry.EntityType.UseEagerSnapshots());
 
-        var property = entry.EntityType.FindProperty("Name");
+        var property = entry.EntityType.FindProperty("Name")!;
 
         contextServices
             .GetRequiredService<IChangeDetector>()
@@ -86,7 +86,7 @@ public class ChangeDetectorTest
         Assert.Equal("Pickle", entry.GetCurrentValue(property));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void PropertyChanging_snapshots_reference_navigations_if_lazy_snapshots_are_in_use()
     {
         var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(BuildNotifyingModel());
@@ -98,7 +98,7 @@ public class ChangeDetectorTest
         Assert.False(entry.EntityType.UseEagerSnapshots());
         Assert.False(entry.HasRelationshipSnapshot);
 
-        var navigation = entry.EntityType.FindNavigation("Category");
+        var navigation = entry.EntityType.FindNavigation("Category")!;
 
         contextServices
             .GetRequiredService<IChangeDetector>()
@@ -116,7 +116,7 @@ public class ChangeDetectorTest
         Assert.NotSame(category, entry.GetCurrentValue(navigation));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void PropertyChanging_snapshots_PK_for_relationships_if_lazy_snapshots_are_in_use()
     {
         var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(BuildNotifyingModel());
@@ -128,7 +128,7 @@ public class ChangeDetectorTest
         Assert.False(entry.EntityType.UseEagerSnapshots());
         Assert.False(entry.HasRelationshipSnapshot);
 
-        var property = entry.EntityType.FindProperty("Id");
+        var property = entry.EntityType.FindProperty("Id")!;
 
         contextServices
             .GetRequiredService<IChangeDetector>()
@@ -146,7 +146,7 @@ public class ChangeDetectorTest
         Assert.Equal(newId, entry.GetCurrentValue(property));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Detects_scalar_property_change()
     {
         var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(BuildModel());
@@ -162,10 +162,10 @@ public class ChangeDetectorTest
         changeDetector.DetectChanges(entry);
 
         Assert.Equal(EntityState.Modified, entry.EntityState);
-        Assert.True(entry.IsModified(entry.EntityType.FindProperty("Name")));
+        Assert.True(entry.IsModified(entry.EntityType.FindProperty("Name")!));
     }
 
-    [ConditionalTheory, InlineData(true, true, true), InlineData(false, true, true), InlineData(true, false, true),
+    [Theory, InlineData(true, true, true), InlineData(false, true, true), InlineData(true, false, true),
      InlineData(false, false, true), InlineData(true, true, false), InlineData(false, true, false), InlineData(true, false, false),
      InlineData(false, false, false)]
     public void Can_insert_with_array_comparer(bool useTypeMapping, bool useStateChange, bool nullValue)
@@ -173,7 +173,7 @@ public class ChangeDetectorTest
         using var context = useTypeMapping ? new BaxterWithMappingContext() : new BaxterContext();
         var value = nullValue ? null : new[] { 1, 2, 3, 4 };
 
-        var baxter = new Baxter { Id = Guid.NewGuid(), Demands = value };
+        var baxter = new Baxter { Id = Guid.NewGuid(), Demands = value! };
 
         var entityEntry = context.Entry(baxter);
 
@@ -199,7 +199,7 @@ public class ChangeDetectorTest
         }
         else
         {
-            baxter.Demands[1] = 767;
+            baxter.Demands![1] = 767;
         }
 
         context.ChangeTracker.DetectChanges();
@@ -208,23 +208,25 @@ public class ChangeDetectorTest
         Assert.Equal(new[] { 1, 767, 3, 4 }, entityEntry.Property(e => e.Demands).CurrentValue);
     }
 
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public void Detects_scalar_property_change_with_custom_comparer(bool useTypeMapping)
     {
         using var context = useTypeMapping ? new BaxterWithMappingContext() : new BaxterContext();
         var baxter = context.Attach(
             new Baxter { Id = Guid.NewGuid(), Demands = [1, 2, 3, 4] }).Entity;
 
-        baxter.Demands[2] = 33;
+        baxter.Demands![2] = 33;
 
         var entityEntry = context.Entry(baxter);
+    #pragma warning disable CS8620
         AssertDetected(entityEntry, entityEntry.Property(e => e.Demands));
+    #pragma warning restore CS8620
 
         context.SaveChanges();
 
         Assert.Equal(EntityState.Unchanged, entityEntry.State);
 
-        baxter.Demands[1] = 767;
+        baxter.Demands![1] = 767;
 
         context.ChangeTracker.DetectChanges();
 
@@ -232,7 +234,7 @@ public class ChangeDetectorTest
         Assert.Equal(new[] { 1, 767, 3, 4 }, entityEntry.Property(e => e.Demands).CurrentValue);
     }
 
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public void Detects_scalar_shadow_property_change_with_custom_comparer(bool useTypeMapping)
     {
         using var context = useTypeMapping ? new BaxterWithMappingContext() : new BaxterContext();
@@ -280,7 +282,7 @@ public class ChangeDetectorTest
     private class Baxter
     {
         public Guid Id { get; set; }
-        public int[] Demands { get; set; }
+        public int[]? Demands { get; set; }
     }
 
     private class BaxterWithMappingContext : BaxterContext
@@ -302,11 +304,11 @@ public class ChangeDetectorTest
         }
 
         public override CoreTypeMapping WithComposedConverter(
-            ValueConverter converter,
-            ValueComparer comparer = null,
-            ValueComparer keyComparer = null,
-            CoreTypeMapping elementMapping = null,
-            JsonValueReaderWriter jsonValueReaderWriter = null)
+            ValueConverter? converter,
+            ValueComparer? comparer = null,
+            ValueComparer? keyComparer = null,
+            CoreTypeMapping? elementMapping = null,
+            JsonValueReaderWriter? jsonValueReaderWriter = null)
             => new ConcreteTypeMapping(
                 Parameters.WithComposedConverter(
                     converter, comparer, keyComparer, elementMapping, jsonValueReaderWriter));
@@ -330,7 +332,7 @@ public class ChangeDetectorTest
             var intArrayComparer = new ValueComparer<int[]>(
                 (l, r) => (l == null || r == null) ? (l == r) : l.SequenceEqual(r),
                 v => v == null ? 0 : v.Aggregate(0, (t, e) => (t * 397) ^ e),
-                v => v == null ? null : v.ToArray());
+                v => v == null ? null! : v.ToArray());
 
             var intArrayConverter = new ValueConverter<int[], string>(
                 v => string.Join(",", v.Select(i => i.ToString())),
@@ -363,7 +365,7 @@ public class ChangeDetectorTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Skips_detection_of_scalar_property_change_for_notification_entities()
     {
         var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(BuildModelWithChanged());
@@ -380,10 +382,10 @@ public class ChangeDetectorTest
         changeDetector.DetectChanges(stateManager);
 
         Assert.Equal(EntityState.Unchanged, entry.EntityState);
-        Assert.False(entry.IsModified(entry.EntityType.FindProperty("Name")));
+        Assert.False(entry.IsModified(entry.EntityType.FindProperty("Name")!));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Skips_local_detection_of_scalar_property_change_for_notification_entities()
     {
         var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(BuildModelWithChanged());
@@ -399,10 +401,10 @@ public class ChangeDetectorTest
         changeDetector.DetectChanges(entry);
 
         Assert.Equal(EntityState.Unchanged, entry.EntityState);
-        Assert.False(entry.IsModified(entry.EntityType.FindProperty("Name")));
+        Assert.False(entry.IsModified(entry.EntityType.FindProperty("Name")!));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Detects_principal_key_change()
     {
         var contextServices = CreateContextServices();
@@ -418,12 +420,12 @@ public class ChangeDetectorTest
 
         changeDetector.DetectChanges(entry);
 
-        Assert.Equal(78, entry.GetRelationshipSnapshotValue(entry.EntityType.FindProperty("PrincipalId")));
+        Assert.Equal(78, entry.GetRelationshipSnapshotValue(entry.EntityType.FindProperty("PrincipalId")!));
 
         var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
         Assert.Same(entry, testListener.KeyChange.Item1);
-        Assert.Same(entry.EntityType.FindProperty("PrincipalId"), testListener.KeyChange.Item2);
+        Assert.Same(entry.EntityType.FindProperty("PrincipalId")!, testListener.KeyChange.Item2);
         Assert.Single(testListener.KeyChange.Item3);
         Assert.Empty(testListener.KeyChange.Item4);
         Assert.Equal(77, testListener.KeyChange.Item5);
@@ -433,7 +435,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.CollectionChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Detects_principal_key_changing_back_to_original_value()
     {
         var contextServices = CreateContextServices();
@@ -456,7 +458,7 @@ public class ChangeDetectorTest
         var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
         Assert.Same(entry, testListener.KeyChange.Item1);
-        Assert.Same(entry.EntityType.FindProperty("PrincipalId"), testListener.KeyChange.Item2);
+        Assert.Same(entry.EntityType.FindProperty("PrincipalId")!, testListener.KeyChange.Item2);
         Assert.Single(testListener.KeyChange.Item3);
         Assert.Empty(testListener.KeyChange.Item4);
         Assert.Equal(78, testListener.KeyChange.Item5);
@@ -466,7 +468,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.CollectionChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Reacts_to_principal_key_change_in_sidecar()
     {
         var contextServices = CreateContextServices();
@@ -478,7 +480,7 @@ public class ChangeDetectorTest
         var entry = stateManager.GetOrCreateEntry(category);
         entry.SetEntityState(EntityState.Added);
 
-        var property = entry.EntityType.FindProperty("PrincipalId");
+        var property = entry.EntityType.FindProperty("PrincipalId")!;
         entry.PrepareToSave();
 
         entry[property] = 78;
@@ -498,7 +500,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.CollectionChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Detects_primary_key_change()
     {
         var contextServices = CreateContextServices();
@@ -522,7 +524,7 @@ public class ChangeDetectorTest
         var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
         Assert.Same(entry, testListener.KeyChange.Item1);
-        Assert.Same(entry.EntityType.FindProperty("Id"), testListener.KeyChange.Item2);
+        Assert.Same(entry.EntityType.FindProperty("Id")!, testListener.KeyChange.Item2);
         Assert.Single(testListener.KeyChange.Item3);
         Assert.Empty(testListener.KeyChange.Item4);
         Assert.Equal(-1, testListener.KeyChange.Item5);
@@ -532,7 +534,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.CollectionChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Reacts_to_primary_key_change_in_sidecar()
     {
         var contextServices = CreateContextServices();
@@ -549,7 +551,7 @@ public class ChangeDetectorTest
         var entry = stateManager.GetOrCreateEntry(category);
         entry.SetEntityState(EntityState.Added);
 
-        var property = entry.EntityType.FindProperty("Id");
+        var property = entry.EntityType.FindProperty("Id")!;
         entry.PrepareToSave();
 
         entry[property] = 78;
@@ -559,7 +561,7 @@ public class ChangeDetectorTest
         var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
         Assert.Same(entry, testListener.KeyChange.Item1);
-        Assert.Same(entry.EntityType.FindProperty("Id"), testListener.KeyChange.Item2);
+        Assert.Same(entry.EntityType.FindProperty("Id")!, testListener.KeyChange.Item2);
         Assert.Single(testListener.KeyChange.Item3);
         Assert.Empty(testListener.KeyChange.Item4);
         Assert.Equal(-1, testListener.KeyChange.Item5);
@@ -569,7 +571,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.CollectionChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Ignores_no_change_to_principal_key()
     {
         var contextServices = CreateContextServices();
@@ -592,7 +594,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.CollectionChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Ignores_no_change_to_principal_key_in_sidecar()
     {
         var contextServices = CreateContextServices();
@@ -605,7 +607,7 @@ public class ChangeDetectorTest
         entry.SetEntityState(EntityState.Added);
         entry.PrepareToSave();
 
-        var property = entry.EntityType.FindProperty("PrincipalId");
+        var property = entry.EntityType.FindProperty("PrincipalId")!;
 
         entry[property] = 77;
 
@@ -618,7 +620,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.CollectionChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Detects_foreign_key_change()
     {
         var contextServices = CreateContextServices();
@@ -637,7 +639,7 @@ public class ChangeDetectorTest
         var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
         Assert.Same(entry, testListener.KeyChange.Item1);
-        Assert.Same(entry.EntityType.FindProperty("DependentId"), testListener.KeyChange.Item2);
+        Assert.Same(entry.EntityType.FindProperty("DependentId")!, testListener.KeyChange.Item2);
         Assert.Empty(testListener.KeyChange.Item3);
         Assert.Single(testListener.KeyChange.Item4);
         Assert.Equal(77, testListener.KeyChange.Item5);
@@ -647,7 +649,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.CollectionChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Detects_foreign_key_changing_back_to_original_value()
     {
         var contextServices = CreateContextServices();
@@ -670,7 +672,7 @@ public class ChangeDetectorTest
         var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
         Assert.Same(entry, testListener.KeyChange.Item1);
-        Assert.Same(entry.EntityType.FindProperty("DependentId"), testListener.KeyChange.Item2);
+        Assert.Same(entry.EntityType.FindProperty("DependentId")!, testListener.KeyChange.Item2);
         Assert.Empty(testListener.KeyChange.Item3);
         Assert.Single(testListener.KeyChange.Item4);
         Assert.Equal(78, testListener.KeyChange.Item5);
@@ -680,7 +682,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.CollectionChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Reacts_to_foreign_key_change_in_sidecar()
     {
         var contextServices = CreateContextServices();
@@ -693,7 +695,7 @@ public class ChangeDetectorTest
         entry.SetEntityState(EntityState.Unchanged);
         entry.PrepareToSave();
 
-        var property = entry.EntityType.FindProperty("DependentId");
+        var property = entry.EntityType.FindProperty("DependentId")!;
         entry[property] = 78;
 
         changeDetector.DetectChanges(entry);
@@ -711,7 +713,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.CollectionChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Ignores_no_change_to_foreign_key()
     {
         var contextServices = CreateContextServices();
@@ -734,7 +736,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.CollectionChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Ignores_no_change_to_foreign_key_in_sidecar()
     {
         var contextServices = CreateContextServices();
@@ -747,7 +749,7 @@ public class ChangeDetectorTest
         entry.SetEntityState(EntityState.Unchanged);
         entry.PrepareToSave();
 
-        var property = entry.EntityType.FindProperty("DependentId");
+        var property = entry.EntityType.FindProperty("DependentId")!;
         entry[property] = 77;
 
         changeDetector.DetectChanges(entry);
@@ -759,7 +761,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.CollectionChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Detects_reference_navigation_change()
     {
         var contextServices = CreateContextServices();
@@ -778,14 +780,14 @@ public class ChangeDetectorTest
         entry.SetEntityState(EntityState.Unchanged);
 
         var newCategory = new Category { Id = 1, PrincipalId = 2 };
-        product.Category = newCategory;
+        product.Category = newCategory!;
 
         changeDetector.DetectChanges(entry);
 
         var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
         Assert.Same(entry, testListener.ReferenceChange.Item1);
-        Assert.Same(entry.EntityType.FindNavigation("Category"), testListener.ReferenceChange.Item2);
+        Assert.Same(entry.EntityType.FindNavigation("Category")!, testListener.ReferenceChange.Item2);
         Assert.Equal(originalCategory, testListener.ReferenceChange.Item3);
         Assert.Equal(newCategory, testListener.ReferenceChange.Item4);
 
@@ -796,7 +798,7 @@ public class ChangeDetectorTest
         Assert.Equal(2, testListener.KeyChange.Item6);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void Detects_reference_navigation_changing_back_to_original_value(bool useNull)
     {
         var contextServices = CreateContextServices();
@@ -827,7 +829,7 @@ public class ChangeDetectorTest
                 PrincipalId = 2,
                 TagId = 778
             };
-        product.Category = newCategory;
+        product.Category = newCategory!;
 
         changeDetector.DetectChanges(entry);
 
@@ -838,7 +840,7 @@ public class ChangeDetectorTest
         var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
         Assert.Same(entry, testListener.ReferenceChange.Item1);
-        Assert.Same(entry.EntityType.FindNavigation("Category"), testListener.ReferenceChange.Item2);
+        Assert.Same(entry.EntityType.FindNavigation("Category")!, testListener.ReferenceChange.Item2);
         Assert.Equal(newCategory, testListener.ReferenceChange.Item3);
         Assert.Equal(originalCategory, testListener.ReferenceChange.Item4);
 
@@ -847,7 +849,7 @@ public class ChangeDetectorTest
         Assert.Equal(1, testListener.KeyChange.Item6);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Ignores_no_change_to_reference_navigation()
     {
         var contextServices = CreateContextServices();
@@ -876,7 +878,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.KeyChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Detects_adding_to_collection_navigation()
     {
         var contextServices = CreateContextServices();
@@ -905,20 +907,20 @@ public class ChangeDetectorTest
         var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
         Assert.Same(entry, testListener.CollectionChange.Item1);
-        Assert.Same(entry.EntityType.FindNavigation("Products"), testListener.CollectionChange.Item2);
+        Assert.Same(entry.EntityType.FindNavigation("Products")!, testListener.CollectionChange.Item2);
         Assert.Equal([product3], testListener.CollectionChange.Item3);
         Assert.Empty(testListener.CollectionChange.Item4);
 
         var productEntry = stateManager.GetOrCreateEntry(product3);
         Assert.Same(productEntry, testListener.ReferenceChange.Item1);
-        Assert.Same(productEntry.EntityType.FindNavigation("Category"), testListener.ReferenceChange.Item2);
+        Assert.Same(productEntry.EntityType.FindNavigation("Category")!, testListener.ReferenceChange.Item2);
         Assert.Null(testListener.ReferenceChange.Item3);
         Assert.Equal(category, testListener.ReferenceChange.Item4);
 
         Assert.Null(testListener.KeyChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Detects_removing_from_collection_navigation()
     {
         var contextServices = CreateContextServices();
@@ -944,7 +946,7 @@ public class ChangeDetectorTest
         var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
         Assert.Same(entry, testListener.CollectionChange.Item1);
-        Assert.Same(entry.EntityType.FindNavigation("Products"), testListener.CollectionChange.Item2);
+        Assert.Same(entry.EntityType.FindNavigation("Products")!, testListener.CollectionChange.Item2);
         Assert.Empty(testListener.CollectionChange.Item3);
         Assert.Equal([product1], testListener.CollectionChange.Item4);
 
@@ -952,7 +954,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.ReferenceChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Ignores_no_change_to_collection_navigation()
     {
         var contextServices = CreateContextServices();
@@ -983,7 +985,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.ReferenceChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Skips_detecting_changes_to_primary_principal_key_for_notification_entities()
     {
         var contextServices = CreateContextServices(BuildModelWithChanged());
@@ -1006,7 +1008,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.CollectionChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Skips_detecting_changes_to_foreign_key_for_notification_entities()
     {
         var contextServices = CreateContextServices(BuildModelWithChanged());
@@ -1029,7 +1031,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.CollectionChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Skips_detecting_changes_to_reference_navigation_for_notification_entities()
     {
         var contextServices = CreateContextServices(BuildModelWithChanged());
@@ -1058,7 +1060,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.KeyChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Skips_detecting_changes_to_notifying_collections()
     {
         var contextServices = CreateContextServices(BuildModelWithChanged());
@@ -1077,20 +1079,20 @@ public class ChangeDetectorTest
         var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
         Assert.Same(entry, testListener.CollectionChange.Item1);
-        Assert.Same(entry.EntityType.FindNavigation("Products"), testListener.CollectionChange.Item2);
+        Assert.Same(entry.EntityType.FindNavigation("Products")!, testListener.CollectionChange.Item2);
         Assert.Equal([product3], testListener.CollectionChange.Item3);
         Assert.Empty(testListener.CollectionChange.Item4);
 
         var productEntry = stateManager.GetOrCreateEntry(product3);
         Assert.Same(productEntry, testListener.ReferenceChange.Item1);
-        Assert.Same(productEntry.EntityType.FindNavigation("Category"), testListener.ReferenceChange.Item2);
+        Assert.Same(productEntry.EntityType.FindNavigation("Category")!, testListener.ReferenceChange.Item2);
         Assert.Null(testListener.ReferenceChange.Item3);
         Assert.Equal(category, testListener.ReferenceChange.Item4);
 
         Assert.Null(testListener.KeyChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Brings_in_single_new_entity_set_on_reference_navigation()
     {
         var contextServices = CreateContextServices();
@@ -1119,7 +1121,7 @@ public class ChangeDetectorTest
         Assert.Equal(EntityState.Added, testAttacher.Attached.Item2);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Brings_in_new_entity_set_on_principal_of_one_to_one_navigation()
     {
         var contextServices = CreateContextServices();
@@ -1147,7 +1149,7 @@ public class ChangeDetectorTest
         Assert.Equal(EntityState.Added, testAttacher.Attached.Item2);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Brings_in_new_entity_set_on_dependent_of_one_to_one_navigation()
     {
         var contextServices = CreateContextServices();
@@ -1170,7 +1172,7 @@ public class ChangeDetectorTest
         Assert.Equal(EntityState.Added, testAttacher.Attached.Item2);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Brings_in_single_new_entity_set_on_collection_navigation()
     {
         var contextServices = CreateContextServices();
@@ -1200,7 +1202,7 @@ public class ChangeDetectorTest
         Assert.Equal(EntityState.Added, testAttacher.Attached.Item2);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Brings_in_new_entity_set_on_principal_of_one_to_one_self_ref()
     {
         var contextServices = CreateContextServices();
@@ -1223,7 +1225,7 @@ public class ChangeDetectorTest
         Assert.Equal(EntityState.Added, testAttacher.Attached.Item2);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Brings_in_new_entity_set_on_dependent_of_one_to_one_self_ref()
     {
         var contextServices = CreateContextServices();
@@ -1246,7 +1248,7 @@ public class ChangeDetectorTest
         Assert.Equal(EntityState.Added, testAttacher.Attached.Item2);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Handles_notification_of_principal_key_change()
     {
         var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1262,7 +1264,7 @@ public class ChangeDetectorTest
         var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
         Assert.Same(entry, testListener.KeyChange.Item1);
-        Assert.Same(entry.EntityType.FindProperty("PrincipalId"), testListener.KeyChange.Item2);
+        Assert.Same(entry.EntityType.FindProperty("PrincipalId")!, testListener.KeyChange.Item2);
         Assert.Single(testListener.KeyChange.Item3);
         Assert.Empty(testListener.KeyChange.Item4);
         Assert.Equal(77, testListener.KeyChange.Item5);
@@ -1272,7 +1274,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.CollectionChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Handles_notification_of_principal_key_changing_back_to_original_value()
     {
         var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1289,7 +1291,7 @@ public class ChangeDetectorTest
         var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
         Assert.Same(entry, testListener.KeyChange.Item1);
-        Assert.Same(entry.EntityType.FindProperty("PrincipalId"), testListener.KeyChange.Item2);
+        Assert.Same(entry.EntityType.FindProperty("PrincipalId")!, testListener.KeyChange.Item2);
         Assert.Single(testListener.KeyChange.Item3);
         Assert.Empty(testListener.KeyChange.Item4);
         Assert.Equal(78, testListener.KeyChange.Item5);
@@ -1299,7 +1301,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.CollectionChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Handles_notification_of_primary_key_change()
     {
         var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1320,7 +1322,7 @@ public class ChangeDetectorTest
         var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
         Assert.Same(entry, testListener.KeyChange.Item1);
-        Assert.Same(entry.EntityType.FindProperty("Id"), testListener.KeyChange.Item2);
+        Assert.Same(entry.EntityType.FindProperty("Id")!, testListener.KeyChange.Item2);
         Assert.Single(testListener.KeyChange.Item3);
         Assert.Empty(testListener.KeyChange.Item4);
         Assert.Equal(-1, testListener.KeyChange.Item5);
@@ -1330,7 +1332,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.CollectionChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Handles_notification_of_no_change_to_principal_key()
     {
         var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1350,7 +1352,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.CollectionChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Handles_notification_of_foreign_key_change()
     {
         var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1366,7 +1368,7 @@ public class ChangeDetectorTest
         var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
         Assert.Same(entry, testListener.KeyChange.Item1);
-        Assert.Same(entry.EntityType.FindProperty("DependentId"), testListener.KeyChange.Item2);
+        Assert.Same(entry.EntityType.FindProperty("DependentId")!, testListener.KeyChange.Item2);
         Assert.Empty(testListener.KeyChange.Item3);
         Assert.Single(testListener.KeyChange.Item4);
         Assert.Equal(77, testListener.KeyChange.Item5);
@@ -1376,7 +1378,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.CollectionChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Handles_notification_of_foreign_key_changing_back_to_original_value()
     {
         var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1393,7 +1395,7 @@ public class ChangeDetectorTest
         var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
         Assert.Same(entry, testListener.KeyChange.Item1);
-        Assert.Same(entry.EntityType.FindProperty("DependentId"), testListener.KeyChange.Item2);
+        Assert.Same(entry.EntityType.FindProperty("DependentId")!, testListener.KeyChange.Item2);
         Assert.Empty(testListener.KeyChange.Item3);
         Assert.Single(testListener.KeyChange.Item4);
         Assert.Equal(78, testListener.KeyChange.Item5);
@@ -1403,7 +1405,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.CollectionChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Handles_notification_of_no_change_to_foreign_key()
     {
         var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1423,7 +1425,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.CollectionChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Handles_notification_of_reference_navigation_change()
     {
         var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1446,7 +1448,7 @@ public class ChangeDetectorTest
         var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
         Assert.Same(entry, testListener.ReferenceChange.Item1);
-        Assert.Same(entry.EntityType.FindNavigation("Category"), testListener.ReferenceChange.Item2);
+        Assert.Same(entry.EntityType.FindNavigation("Category")!, testListener.ReferenceChange.Item2);
         Assert.Equal(originalCategory, testListener.ReferenceChange.Item3);
         Assert.Equal(newCategory, testListener.ReferenceChange.Item4);
 
@@ -1455,7 +1457,7 @@ public class ChangeDetectorTest
         Assert.Equal(2, testListener.KeyChange.Item6);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void Handles_notification_of_reference_navigation_changing_back_to_original_value(bool useNull)
     {
         var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1486,13 +1488,13 @@ public class ChangeDetectorTest
                 TagId = 778
             };
 
-        product.Category = newCategory;
+        product.Category = newCategory!;
         product.Category = originalCategory;
 
         var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
         Assert.Same(entry, testListener.ReferenceChange.Item1);
-        Assert.Same(entry.EntityType.FindNavigation("Category"), testListener.ReferenceChange.Item2);
+        Assert.Same(entry.EntityType.FindNavigation("Category")!, testListener.ReferenceChange.Item2);
         Assert.Equal(newCategory, testListener.ReferenceChange.Item3);
         Assert.Equal(originalCategory, testListener.ReferenceChange.Item4);
 
@@ -1501,7 +1503,7 @@ public class ChangeDetectorTest
         Assert.Equal(1, testListener.KeyChange.Item6);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Handles_notification_of_no_change_to_reference_navigation()
     {
         var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1527,7 +1529,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.KeyChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Handles_notification_of_adding_to_collection_navigation()
     {
         var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1551,20 +1553,20 @@ public class ChangeDetectorTest
         var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
         Assert.Same(entry, testListener.CollectionChange.Item1);
-        Assert.Same(entry.EntityType.FindNavigation("Products"), testListener.CollectionChange.Item2);
+        Assert.Same(entry.EntityType.FindNavigation("Products")!, testListener.CollectionChange.Item2);
         Assert.Equal([product3], testListener.CollectionChange.Item3);
         Assert.Empty(testListener.CollectionChange.Item4);
 
         var productEntry = stateManager.GetOrCreateEntry(product3);
         Assert.Same(productEntry, testListener.ReferenceChange.Item1);
-        Assert.Same(productEntry.EntityType.FindNavigation("Category"), testListener.ReferenceChange.Item2);
+        Assert.Same(productEntry.EntityType.FindNavigation("Category")!, testListener.ReferenceChange.Item2);
         Assert.Null(testListener.ReferenceChange.Item3);
         Assert.Equal(category, testListener.ReferenceChange.Item4);
 
         Assert.Null(testListener.KeyChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Handles_notification_of_removing_from_collection_navigation()
     {
         var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1590,7 +1592,7 @@ public class ChangeDetectorTest
         var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
         Assert.Same(entry, testListener.CollectionChange.Item1);
-        Assert.Same(entry.EntityType.FindNavigation("Products"), testListener.CollectionChange.Item2);
+        Assert.Same(entry.EntityType.FindNavigation("Products")!, testListener.CollectionChange.Item2);
         Assert.Empty(testListener.CollectionChange.Item3);
         Assert.Equal([product1], testListener.CollectionChange.Item4);
 
@@ -1598,7 +1600,7 @@ public class ChangeDetectorTest
         Assert.Null(testListener.KeyChange);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Brings_in_single_new_entity_on_notification_of_set_on_reference_navigation()
     {
         var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1624,7 +1626,7 @@ public class ChangeDetectorTest
         Assert.Equal(EntityState.Added, testAttacher.Attached.Item2);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Brings_in_new_entity_on_notification_of_set_on_principal_of_one_to_one_navigation()
     {
         var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1649,7 +1651,7 @@ public class ChangeDetectorTest
         Assert.Equal(EntityState.Added, testAttacher.Attached.Item2);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Brings_in_new_entity_on_notification_of_set_on_dependent_of_one_to_one_navigation()
     {
         var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1669,7 +1671,7 @@ public class ChangeDetectorTest
         Assert.Equal(EntityState.Added, testAttacher.Attached.Item2);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Brings_in_single_new_entity_on_notification_of_set_on_collection_navigation()
     {
         var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1696,7 +1698,7 @@ public class ChangeDetectorTest
         Assert.Equal(EntityState.Added, testAttacher.Attached.Item2);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Brings_in_new_entity_on_notification_of_set_on_principal_of_one_to_one_self_ref()
     {
         var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1716,7 +1718,7 @@ public class ChangeDetectorTest
         Assert.Equal(EntityState.Added, testAttacher.Attached.Item2);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Brings_in_new_entity_on_notification_of_set_on_dependent_of_one_to_one_self_ref()
     {
         var contextServices = CreateContextServices(BuildNotifyingModel());
@@ -1740,12 +1742,12 @@ public class ChangeDetectorTest
     {
         public int Id { get; set; }
         public int? PrincipalId { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
         public virtual ICollection<Product> Products { get; } = new List<Product>();
 
         public int TagId { get; set; }
-        public CategoryTag Tag { get; set; }
+        public CategoryTag Tag { get; set; } = null!;
     }
 
     private class CategoryTag
@@ -1753,19 +1755,19 @@ public class ChangeDetectorTest
         public int Id { get; set; }
 
         public int CategoryId { get; set; }
-        public Category Category { get; set; }
+        public Category Category { get; set; } = null!;
     }
 
     private class Product
     {
         public Guid Id { get; set; }
         public int? DependentId { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
-        public virtual Category Category { get; set; }
+        public virtual Category Category { get; set; } = null!;
 
         public int TagId { get; set; }
-        public ProductTag Tag { get; set; }
+        public ProductTag Tag { get; set; } = null!;
     }
 
     private class ProductTag
@@ -1773,7 +1775,7 @@ public class ChangeDetectorTest
         public int Id { get; set; }
 
         public int ProductId { get; set; }
-        public Product Product { get; set; }
+        public Product Product { get; set; } = null!;
     }
 
     private class Person
@@ -1781,8 +1783,8 @@ public class ChangeDetectorTest
         public int Id { get; set; }
 
         public int HusbandId { get; set; }
-        public Person Husband { get; set; }
-        public Person Wife { get; set; }
+        public Person Husband { get; set; } = null!;
+        public Person Wife { get; set; } = null!;
     }
 
     private static IModel BuildModel()
@@ -1821,9 +1823,9 @@ public class ChangeDetectorTest
     {
         private int _id;
         private int? _principalId;
-        private string _name;
+        private string _name = null!;
         private int _tagId;
-        private NotifyingCategoryTag _tag;
+        private NotifyingCategoryTag _tag = null!;
 
         public int Id
         {
@@ -1862,7 +1864,7 @@ public class ChangeDetectorTest
     {
         private int _id;
         private int _categoryId;
-        private NotifyingCategory _category;
+        private NotifyingCategory _category = null!;
 
         public int Id
         {
@@ -1887,10 +1889,10 @@ public class ChangeDetectorTest
     {
         private Guid _id;
         private int? _dependentId;
-        private string _name;
-        private NotifyingCategory _category;
+        private string _name = null!;
+        private NotifyingCategory _category = null!;
         private int _tagId;
-        private NotifyingProductTag _tag;
+        private NotifyingProductTag _tag = null!;
 
         public Guid Id
         {
@@ -1933,7 +1935,7 @@ public class ChangeDetectorTest
     {
         private int _id;
         private int _productId;
-        private NotifyingProduct _product;
+        private NotifyingProduct _product = null!;
 
         public int Id
         {
@@ -1958,8 +1960,8 @@ public class ChangeDetectorTest
     {
         private int _id;
         private int _husbandId;
-        private NotifyingPerson _husband;
-        private NotifyingPerson _wife;
+        private NotifyingPerson _husband = null!;
+        private NotifyingPerson _wife = null!;
 
         public int Id
         {
@@ -1996,8 +1998,8 @@ public class ChangeDetectorTest
             NotifyChanged(propertyName);
         }
 
-        public event PropertyChangingEventHandler PropertyChanging;
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangingEventHandler? PropertyChanging;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         private void NotifyChanged(string propertyName)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -2042,13 +2044,13 @@ public class ChangeDetectorTest
     private class CategoryWithChanged : INotifyPropertyChanged
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
         public virtual ICollection<ProductWithChanged> Products { get; set; } = new ObservableCollection<ProductWithChanged>();
 
         // Actual implementation not needed for tests
 #pragma warning disable 67
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 #pragma warning restore 67
     }
 
@@ -2056,13 +2058,13 @@ public class ChangeDetectorTest
     {
         public int Id { get; set; }
         public int? DependentId { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
-        public virtual CategoryWithChanged Category { get; set; }
+        public virtual CategoryWithChanged Category { get; set; } = null!;
 
         // Actual implementation not needed for tests
 #pragma warning disable 67
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 #pragma warning restore 67
     }
 
@@ -2081,14 +2083,14 @@ public class ChangeDetectorTest
 
     private static InternalEntityEntry CreateInternalEntry<TEntity>(
         IServiceProvider contextServices,
-        TEntity entity = null)
+        TEntity? entity = null)
         where TEntity : class, new()
         => contextServices.GetRequiredService<IStateManager>()
             .GetOrCreateEntry(
                 entity ?? new TEntity(),
-                contextServices.GetRequiredService<IModel>().FindEntityType(typeof(TEntity)));
+                contextServices.GetRequiredService<IModel>().FindEntityType(typeof(TEntity))!);
 
-    private static IServiceProvider CreateContextServices(IModel model = null)
+    private static IServiceProvider CreateContextServices(IModel? model = null)
         => InMemoryTestHelpers.Instance.CreateContextServices(
             new ServiceCollection()
                 .AddScoped<TestRelationshipListener>()
@@ -2098,7 +2100,7 @@ public class ChangeDetectorTest
 
     private class TestAttacher(IEntityEntryGraphIterator graphIterator) : EntityGraphAttacher(graphIterator)
     {
-        public Tuple<InternalEntityEntry, EntityState> Attached { get; set; }
+        public Tuple<InternalEntityEntry, EntityState> Attached { get; set; } = null!;
 
         public override void AttachGraph(
             InternalEntityEntry rootEntry,
@@ -2116,20 +2118,20 @@ public class ChangeDetectorTest
         attacher, new StructuralTypeMaterializerSource(
             new StructuralTypeMaterializerSourceDependencies([])))
     {
-        public Tuple<InternalEntityEntry, IProperty, IEnumerable<IKey>, IEnumerable<IForeignKey>, object, object> KeyChange
+        public Tuple<InternalEntityEntry, IProperty, IEnumerable<IKey>, IEnumerable<IForeignKey>, object?, object?> KeyChange
         {
             get;
             set;
-        }
+        } = null!;
 
-        public Tuple<InternalEntityEntry, INavigationBase, object, object> ReferenceChange { get; set; }
-        public Tuple<InternalEntityEntry, INavigationBase, IEnumerable<object>, IEnumerable<object>> CollectionChange { get; set; }
+        public Tuple<InternalEntityEntry, INavigationBase, object?, object?> ReferenceChange { get; set; } = null!;
+        public Tuple<InternalEntityEntry, INavigationBase, IEnumerable<object>, IEnumerable<object>> CollectionChange { get; set; } = null!;
 
         public override void NavigationReferenceChanged(
             InternalEntityEntry entry,
             INavigationBase navigationBase,
-            object oldValue,
-            object newValue)
+            object? oldValue,
+            object? newValue)
         {
             ReferenceChange = Tuple.Create(entry, navigationBase, oldValue, newValue);
 
@@ -2154,8 +2156,8 @@ public class ChangeDetectorTest
             IProperty property,
             IEnumerable<IKey> containingPrincipalKeys,
             IEnumerable<IForeignKey> containingForeignKeys,
-            object oldValue,
-            object newValue)
+            object? oldValue,
+            object? newValue)
         {
             KeyChange = Tuple.Create(entry, property, containingPrincipalKeys, containingForeignKeys, oldValue, newValue);
 

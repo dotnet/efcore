@@ -86,8 +86,8 @@ public sealed class ProjectionExpression : Expression, IRelationalQuotableExpres
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is ProjectionExpression projectionExpression
-                && Equals(projectionExpression));
+                || (obj is ProjectionExpression projectionExpression
+                    && Equals(projectionExpression)));
 
     private bool Equals(ProjectionExpression projectionExpression)
         => Alias == projectionExpression.Alias && Expression.Equals(projectionExpression.Expression);

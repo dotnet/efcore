@@ -52,7 +52,7 @@ public interface IStoreFunction : ITableBase
     /// <summary>
     ///     Gets the column mapped to the given property. Returns <see langword="null" /> if no column is mapped to the given property.
     /// </summary>
-    new IFunctionColumn? FindColumn(IProperty property);
+    new IFunctionColumn? FindColumn(IPropertyBase propertyBase);
 
     /// <summary>
     ///     <para>

@@ -13,5 +13,5 @@ public class EmployeePayHistory
     public byte PayFrequency { get; set; }
     public decimal Rate { get; set; }
 
-    public virtual Employee BusinessEntity { get; set; }
+    public virtual Employee BusinessEntity { get; set; } = null!;
 }

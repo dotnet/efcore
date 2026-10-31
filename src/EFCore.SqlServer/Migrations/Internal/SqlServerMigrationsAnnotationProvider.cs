@@ -35,14 +35,14 @@ public class SqlServerMigrationsAnnotationProvider : MigrationsAnnotationProvide
     /// <inheritdoc />
     public override IEnumerable<IAnnotation> ForRemove(IColumn column)
     {
-        if (column.Table[SqlServerAnnotationNames.IsTemporal] as bool? == true)
+        if ((column.Table[SqlServerAnnotationNames.IsTemporal] as bool?) == true)
         {
-            if (column[SqlServerAnnotationNames.TemporalIsPeriodStartColumn] as bool? == true)
+            if ((column[SqlServerAnnotationNames.TemporalIsPeriodStartColumn] as bool?) == true)
             {
                 yield return new Annotation(SqlServerAnnotationNames.TemporalIsPeriodStartColumn, true);
             }
 
-            if (column[SqlServerAnnotationNames.TemporalIsPeriodEndColumn] as bool? == true)
+            if ((column[SqlServerAnnotationNames.TemporalIsPeriodEndColumn] as bool?) == true)
             {
                 yield return new Annotation(SqlServerAnnotationNames.TemporalIsPeriodEndColumn, true);
             }
@@ -55,9 +55,33 @@ public class SqlServerMigrationsAnnotationProvider : MigrationsAnnotationProvide
     }
 
     /// <inheritdoc />
+    public override IEnumerable<IAnnotation> ForRemove(ITableIndex index)
+    {
+        if (index[SqlServerAnnotationNames.FullTextIndex] is string keyIndex)
+        {
+            yield return new Annotation(SqlServerAnnotationNames.FullTextIndex, keyIndex);
+
+            if (index[SqlServerAnnotationNames.FullTextCatalog] is string catalog)
+            {
+                yield return new Annotation(SqlServerAnnotationNames.FullTextCatalog, catalog);
+            }
+
+            if (index[SqlServerAnnotationNames.FullTextChangeTracking] is FullTextChangeTracking changeTracking)
+            {
+                yield return new Annotation(SqlServerAnnotationNames.FullTextChangeTracking, changeTracking);
+            }
+
+            if (index.FindAnnotation(SqlServerAnnotationNames.FullTextLanguages) is IAnnotation languagesAnnotation)
+            {
+                yield return languagesAnnotation;
+            }
+        }
+    }
+
+    /// <inheritdoc />
     public override IEnumerable<IAnnotation> ForRename(ITable table)
     {
-        if (table[SqlServerAnnotationNames.IsTemporal] as bool? == true)
+        if ((table[SqlServerAnnotationNames.IsTemporal] as bool?) == true)
         {
             yield return new Annotation(SqlServerAnnotationNames.IsTemporal, true);
 
@@ -82,12 +106,12 @@ public class SqlServerMigrationsAnnotationProvider : MigrationsAnnotationProvide
     /// <inheritdoc />
     public override IEnumerable<IAnnotation> ForRename(IColumn column)
     {
-        if (column[SqlServerAnnotationNames.TemporalIsPeriodStartColumn] as bool? == true)
+        if ((column[SqlServerAnnotationNames.TemporalIsPeriodStartColumn] as bool?) == true)
         {
             yield return new Annotation(SqlServerAnnotationNames.TemporalIsPeriodStartColumn, true);
         }
 
-        if (column[SqlServerAnnotationNames.TemporalIsPeriodEndColumn] as bool? == true)
+        if ((column[SqlServerAnnotationNames.TemporalIsPeriodEndColumn] as bool?) == true)
         {
             yield return new Annotation(SqlServerAnnotationNames.TemporalIsPeriodEndColumn, true);
         }

@@ -13,12 +13,12 @@ public class ProductSubcategory
 
     public int ProductSubcategoryID { get; set; }
     public DateTime ModifiedDate { get; set; }
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
     public int ProductCategoryID { get; set; }
 #pragma warning disable IDE1006 // Naming Styles
     public Guid rowguid { get; set; }
 #pragma warning restore IDE1006 // Naming Styles
 
     public virtual ICollection<Product> Product { get; set; }
-    public virtual ProductCategory ProductCategory { get; set; }
+    public virtual ProductCategory ProductCategory { get; set; } = null!;
 }

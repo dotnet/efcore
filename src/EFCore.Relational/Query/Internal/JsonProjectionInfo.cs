@@ -19,10 +19,12 @@ public readonly struct JsonProjectionInfo
     /// </summary>
     public JsonProjectionInfo(
         int jsonColumnIndex,
-        List<(IProperty?, int?, int?)> keyAccessInfo)
+        List<(IProperty?, int?, int?)> keyAccessInfo,
+        IColumnBase? jsonColumn = null)
     {
         JsonColumnIndex = jsonColumnIndex;
         KeyAccessInfo = keyAccessInfo;
+        JsonColumn = jsonColumn;
     }
 
     /// <summary>
@@ -52,4 +54,16 @@ public readonly struct JsonProjectionInfo
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </remarks>
     public List<(IProperty? KeyProperty, int? ConstantKeyValue, int? KeyProjectionIndex)> KeyAccessInfo { get; }
+
+    /// <summary>
+    ///     The relational-model column containing the JSON document, or null when this projection was built from
+    ///     a synthetic JSON expansion (OPENJSON / json_each) that has no underlying IColumnBase.
+    /// </summary>
+    /// <remarks>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </remarks>
+    public IColumnBase? JsonColumn { get; }
 }

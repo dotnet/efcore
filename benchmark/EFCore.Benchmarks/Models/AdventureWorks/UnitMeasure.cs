@@ -16,9 +16,9 @@ public class UnitMeasure
         ProductVendor = new HashSet<ProductVendor>();
     }
 
-    public string UnitMeasureCode { get; set; }
+    public string UnitMeasureCode { get; set; } = null!;
     public DateTime ModifiedDate { get; set; }
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     public virtual ICollection<BillOfMaterials> BillOfMaterials { get; set; }
     public virtual ICollection<Product> Product { get; set; }

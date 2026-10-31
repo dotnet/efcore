@@ -18,55 +18,55 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 public class BackingFieldConventionTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Auto_property_name_matching_field_is_used_as_first_preference()
         => FieldMatchTest<TheDarkSideOfTheMoon>("ComfortablyNumb", "<ComfortablyNumb>k__BackingField");
 
-    [ConditionalFact]
+    [Fact]
     public void Property_name_matching_field_is_used_as_next_preference()
         => FieldMatchTest<TheDarkSideOfTheMoon>("IsThereAnybodyOutThere", "IsThereAnybodyOutThere");
 
-    [ConditionalFact]
+    [Fact]
     public void Camel_case_matching_field_is_used_as_next_preference()
         => FieldMatchTest<TheDarkSideOfTheMoon>("Breathe", "breathe");
 
-    [ConditionalFact]
+    [Fact]
     public void Camel_case_matching_field_is_not_used_if_type_is_not_compatible()
         => FieldMatchTest<TheDarkSideOfTheMoon>("OnTheRun", "_onTheRun");
 
-    [ConditionalFact]
+    [Fact]
     public void Underscore_camel_case_matching_field_is_used_as_next_preference()
         => FieldMatchTest<TheDarkSideOfTheMoon>("Time", "_time");
 
-    [ConditionalFact]
+    [Fact]
     public void Underscore_suffix_camel_case_matching_field_is_used_as_next_preference()
         => FieldMatchTest<TheDarkSideOfTheMoon>("Time", "_time");
 
-    [ConditionalFact]
+    [Fact]
     public void Underscore_camel_case_matching_field_is_not_used_if_type_is_not_compatible()
         => FieldMatchTest<TheDarkSideOfTheMoon>("TheGreatGigInTheSky", "_TheGreatGigInTheSky");
 
-    [ConditionalFact]
+    [Fact]
     public void Underscore_matching_field_is_used_as_next_preference()
         => FieldMatchTest<TheDarkSideOfTheMoon>("Money", "_Money");
 
-    [ConditionalFact]
+    [Fact]
     public void Underscore_matching_field_is_not_used_if_type_is_not_compatible()
         => FieldMatchTest<TheDarkSideOfTheMoon>("UsAndThem", "m_usAndThem");
 
-    [ConditionalFact]
+    [Fact]
     public void M_Underscore_camel_case_matching_field_is_used_as_next_preference()
         => FieldMatchTest<TheDarkSideOfTheMoon>("AnyColourYouLike", "m_anyColourYouLike");
 
-    [ConditionalFact]
+    [Fact]
     public void M_underscore_camel_case_matching_field_is_not_used_if_type_is_not_compatible()
         => FieldMatchTest<TheDarkSideOfTheMoon>("BrainDamage", "m_BrainDamage");
 
-    [ConditionalFact]
+    [Fact]
     public void M_underscore_matching_field_is_used_as_next_preference()
         => FieldMatchTest<TheDarkSideOfTheMoon>("Eclipse", "m_Eclipse");
 
-    [ConditionalFact]
+    [Fact]
     public void M_underscore_matching_field_is_not_used_if_type_is_not_compatible()
     {
         var entityType = CreateModel().AddEntityType(typeof(TheDarkSideOfTheMoon));
@@ -78,47 +78,47 @@ public class BackingFieldConventionTest
         Assert.Null(property.GetFieldName());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Property_name_matching_field_is_used_as_first_preference_for_field_only()
         => FieldMatchTest<TheDarkerSideOfTheMoon>("IsThereAnybodyOutThere", "IsThereAnybodyOutThere");
 
-    [ConditionalFact]
+    [Fact]
     public void Camel_case_matching_field_is_not_used_as_next_preference_for_field_only()
         => FieldMatchTest<TheDarkerSideOfTheMoon>("Breathe", null);
 
-    [ConditionalFact]
+    [Fact]
     public void Camel_case_matching_field_is_not_used_if_type_is_not_compatible_for_field_only()
         => FieldMatchTest<TheDarkerSideOfTheMoon>("OnTheRun", null);
 
-    [ConditionalFact]
+    [Fact]
     public void Underscore_camel_case_matching_field_is_not_used_as_next_preference_for_field_only()
         => FieldMatchTest<TheDarkerSideOfTheMoon>("Time", null);
 
-    [ConditionalFact]
+    [Fact]
     public void Underscore_camel_case_matching_field_is_not_used_if_type_is_not_compatible_for_field_only()
         => FieldMatchTest<TheDarkerSideOfTheMoon>("TheGreatGigInTheSky", null);
 
-    [ConditionalFact]
+    [Fact]
     public void Underscore_matching_field_is_not_used_as_next_preference_for_field_only()
         => FieldMatchTest<TheDarkerSideOfTheMoon>("Money", null);
 
-    [ConditionalFact]
+    [Fact]
     public void Underscore_matching_field_is_not_used_if_type_is_not_compatible_for_field_only()
         => FieldMatchTest<TheDarkerSideOfTheMoon>("UsAndThem", null);
 
-    [ConditionalFact]
+    [Fact]
     public void M_underscore_camel_case_matching_field_is_not_used_as_next_preference_for_field_only()
         => FieldMatchTest<TheDarkerSideOfTheMoon>("AnyColourYouLike", null);
 
-    [ConditionalFact]
+    [Fact]
     public void M_underscore_camel_case_matching_field_is_not_used_if_type_is_not_compatible_for_field_only()
         => FieldMatchTest<TheDarkerSideOfTheMoon>("BrainDamage", null);
 
-    [ConditionalFact]
+    [Fact]
     public void M_underscore_matching_field_is_not_used_as_next_preference_for_field_only()
         => FieldMatchTest<TheDarkerSideOfTheMoon>("Eclipse", null);
 
-    [ConditionalFact]
+    [Fact]
     public void M_underscore_matching_field_is_not_used_if_type_is_not_compatible_for_field_only()
     {
         var entityType = CreateModel().AddEntityType(typeof(TheDarkerSideOfTheMoon));
@@ -130,7 +130,7 @@ public class BackingFieldConventionTest
         Assert.Null(property.GetFieldName());
     }
 
-    private void FieldMatchTest<TEntity>(string propertyName, string fieldName)
+    private void FieldMatchTest<TEntity>(string propertyName, string? fieldName)
     {
         var entityType = CreateModel().AddEntityType(typeof(TEntity));
         var property = entityType.AddProperty(propertyName, typeof(int));
@@ -141,7 +141,7 @@ public class BackingFieldConventionTest
         Assert.Equal(fieldName, property.GetFieldName());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Field_in_base_type_is_matched()
     {
         var entityType = CreateModel().AddEntityType(typeof(TheDarkSide));
@@ -153,7 +153,7 @@ public class BackingFieldConventionTest
         Assert.Equal("_theGreatGigInTheSky", property.GetFieldName());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Matched_field_on_base_class_is_found()
     {
         var entityType = CreateModel().AddEntityType(typeof(TheDarkSide));
@@ -165,11 +165,11 @@ public class BackingFieldConventionTest
         Assert.Equal("_onBase", property.GetFieldName());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Multiple_matches_throws()
     {
         var entityType = CreateModel().AddEntityType(typeof(AlwaysLookOnTheBrightSideOfLife));
-        var property = entityType.AddProperty("OnTheRun", typeof(int));
+        var property = entityType.AddProperty("OnTheRun", typeof(int))!;
 
         RunConvention(property);
         Assert.Equal(
@@ -178,7 +178,7 @@ public class BackingFieldConventionTest
             Assert.Throws<InvalidOperationException>(() => Validate(property)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Object_field_non_object_property_matches_and_throws_ambiguous()
     {
         var entityType = CreateModel().AddEntityType(typeof(HesNotTheMessiah));
@@ -191,7 +191,7 @@ public class BackingFieldConventionTest
             Assert.Throws<InvalidOperationException>(() => Validate(property)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Object_property_non_object_field_matches_and_throws_ambiguous()
     {
         var entityType = CreateModel().AddEntityType(typeof(HesAVeryNaughtyBoy));
@@ -204,7 +204,7 @@ public class BackingFieldConventionTest
             Assert.Throws<InvalidOperationException>(() => Validate(property)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Explicitly_set_FieldInfo_is_used()
     {
         var entityType = CreateModel().AddEntityType(typeof(AlwaysLookOnTheBrightSideOfLife));
@@ -219,11 +219,11 @@ public class BackingFieldConventionTest
         Assert.Equal("m_onTheRun", property.GetFieldName());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void FieldInfo_set_by_annotation_is_used()
     {
-        var entityType = ((IConventionModel)CreateModel()).AddEntityType(typeof(AlwaysLookOnTheBrightSideOfLife));
-        var property = entityType.AddProperty("OnTheRun", typeof(int));
+        var entityType = ((IConventionModel)CreateModel()).AddEntityType(typeof(AlwaysLookOnTheBrightSideOfLife))!;
+        var property = entityType.AddProperty("OnTheRun", typeof(int))!;
 
         RunConvention((IMutableProperty)property);
 
@@ -234,7 +234,7 @@ public class BackingFieldConventionTest
         Assert.Equal("m_onTheRun", property.GetFieldName());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Backing_field_is_not_discovered_for_indexer_property()
     {
         var entityType = CreateModel().AddEntityType(typeof(IndexedClass));
@@ -246,7 +246,7 @@ public class BackingFieldConventionTest
         Assert.Null(property.GetFieldName());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Setting_field_on_indexer_property_throws()
     {
         var entityType = CreateModel().AddEntityType(typeof(IndexedClass));
@@ -283,7 +283,7 @@ public class BackingFieldConventionTest
     private class TheDarkSideOfTheMoon
 #pragma warning restore RCS1222 // Merge preprocessor directives.
     {
-        private readonly string m_SpeakToMe;
+        private readonly string? m_SpeakToMe;
         private int _notSpeakToMe;
 
         public int SpeakToMe
@@ -302,16 +302,16 @@ public class BackingFieldConventionTest
 
         public int Breathe
         {
-            get { return (int)breathe; }
+            get { return (int)breathe!; }
             set { breathe = value; }
         }
 
-        private readonly string onTheRun;
+        private readonly string? onTheRun;
         private int? _onTheRun;
 
         public int OnTheRun
         {
-            get { return (int)_onTheRun; }
+            get { return (int)_onTheRun!; }
             set { _onTheRun = value; }
         }
 
@@ -319,7 +319,7 @@ public class BackingFieldConventionTest
 
         public int Time
         {
-            get { return (int)_time; }
+            get { return (int)_time!; }
             set { _time = value; }
         }
 
@@ -327,16 +327,16 @@ public class BackingFieldConventionTest
 
         public int Time2
         {
-            get { return (int)_time; }
+            get { return (int)_time!; }
             set { _time = value; }
         }
 
-        private readonly string _theGreatGigInTheSky;
+        private readonly string? _theGreatGigInTheSky;
         private int? _TheGreatGigInTheSky;
 
         public int TheGreatGigInTheSky
         {
-            get { return (int)_TheGreatGigInTheSky; }
+            get { return (int)_TheGreatGigInTheSky!; }
             set { _TheGreatGigInTheSky = value; }
         }
 
@@ -344,16 +344,16 @@ public class BackingFieldConventionTest
 
         public int Money
         {
-            get { return (int)_Money; }
+            get { return (int)_Money!; }
             set { _Money = value; }
         }
 
-        private readonly string _UsAndThem;
+        private readonly string? _UsAndThem;
         private int? m_usAndThem;
 
         public int UsAndThem
         {
-            get { return (int)m_usAndThem; }
+            get { return (int)m_usAndThem!; }
             set { m_usAndThem = value; }
         }
 
@@ -361,16 +361,16 @@ public class BackingFieldConventionTest
 
         public int AnyColourYouLike
         {
-            get { return (int)m_anyColourYouLike; }
+            get { return (int)m_anyColourYouLike!; }
             set { m_anyColourYouLike = value; }
         }
 
-        private readonly string m_brainDamage;
+        private readonly string? m_brainDamage;
         private int? m_BrainDamage;
 
         public int BrainDamage
         {
-            get { return (int)m_BrainDamage; }
+            get { return (int)m_BrainDamage!; }
             set { m_BrainDamage = value; }
         }
 
@@ -378,35 +378,35 @@ public class BackingFieldConventionTest
 
         public int Eclipse
         {
-            get { return (int)m_Eclipse; }
+            get { return (int)m_Eclipse!; }
             set { m_Eclipse = value; }
         }
     }
 
     private class TheDarkerSideOfTheMoon
     {
-        private readonly string m_SpeakToMe;
+        private readonly string? m_SpeakToMe;
 
         private readonly int IsThereAnybodyOutThere;
 
         private int? breathe;
 
-        private readonly string onTheRun;
+        private readonly string? onTheRun;
         private int? _onTheRun;
 
         private int? _time;
 
-        private readonly string _theGreatGigInTheSky;
+        private readonly string? _theGreatGigInTheSky;
         private int? _TheGreatGigInTheSky;
 
         private int? _Money;
 
-        private readonly string _UsAndThem;
+        private readonly string? _UsAndThem;
         private int? m_usAndThem;
 
         private int? m_anyColourYouLike;
 
-        private readonly string m_brainDamage;
+        private readonly string? m_brainDamage;
         private int? m_BrainDamage;
 
         private int? m_Eclipse;
@@ -415,7 +415,7 @@ public class BackingFieldConventionTest
     private class TheDarkSide : OfTheMoon
     {
         public static readonly PropertyInfo OnBaseProperty
-            = typeof(TheDarkSide).GetProperty(nameof(OnBase));
+            = typeof(TheDarkSide).GetProperty(nameof(OnBase))!;
 
         public int OnBase
         {
@@ -431,13 +431,13 @@ public class BackingFieldConventionTest
     private class OfTheMoon
     {
         public static readonly PropertyInfo TheGreatGigInTheSkyProperty =
-            typeof(OfTheMoon).GetProperty(nameof(TheGreatGigInTheSky));
+            typeof(OfTheMoon).GetProperty(nameof(TheGreatGigInTheSky))!;
 
         private int? _theGreatGigInTheSky;
 
         public int TheGreatGigInTheSky
         {
-            get { return (int)_theGreatGigInTheSky; }
+            get { return (int)_theGreatGigInTheSky!; }
             set { _theGreatGigInTheSky = value; }
         }
 
@@ -449,20 +449,20 @@ public class BackingFieldConventionTest
 
     private class AlwaysLookOnTheBrightSideOfLife
     {
-        private readonly string onTheRun;
+        private readonly string? onTheRun;
         private int? _onTheRun;
         private int? m_onTheRun;
 
         public int OnTheRun
         {
-            get { return (int)m_onTheRun; }
+            get { return (int)m_onTheRun!; }
             set { m_onTheRun = value; }
         }
     }
 
     private class HesNotTheMessiah
     {
-        private object _onTheRun;
+        private object? _onTheRun;
         private int m_onTheRun;
 
         public int OnTheRun
@@ -474,7 +474,7 @@ public class BackingFieldConventionTest
 
     private class HesAVeryNaughtyBoy
     {
-        private object _onTheRun;
+        private object? _onTheRun;
         private int m_onTheRun;
 
         public object OnTheRun
@@ -486,13 +486,13 @@ public class BackingFieldConventionTest
 
     private class IndexedClass
     {
-        private string nation;
-        private string _nation;
-        private string _Nation;
-        private string m_nation;
-        private string m_Nation;
+        private string? nation;
+        private string? _nation;
+        private string? _Nation;
+        private string? m_nation;
+        private string? m_Nation;
 
-        public object this[string name]
+        public object? this[string name]
         {
             get => null;
             set { }

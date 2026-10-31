@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public abstract partial class ModelBuilding101TestBase
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredNrtTest()
         => Model101Test();
 
@@ -18,7 +18,7 @@ public abstract partial class ModelBuilding101TestBase
         public class Blog
         {
             public int Id { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
@@ -74,7 +74,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [InverseProperty("Blog")]
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -96,7 +96,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyOptionalNrtTest()
         => Model101Test();
 
@@ -105,7 +105,7 @@ public abstract partial class ModelBuilding101TestBase
         public class Blog
         {
             public int Id { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
@@ -161,7 +161,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [InverseProperty("Blog")]
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -183,7 +183,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredWithShadowFkNrtTest()
         => Model101Test();
 
@@ -192,7 +192,7 @@ public abstract partial class ModelBuilding101TestBase
         public class Blog
         {
             public int Id { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
@@ -247,7 +247,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [InverseProperty("Blog")]
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -266,7 +266,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyOptionalWithShadowFkNrtTest()
         => Model101Test();
 
@@ -275,7 +275,7 @@ public abstract partial class ModelBuilding101TestBase
         public class Blog
         {
             public int Id { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
@@ -330,7 +330,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [InverseProperty("Blog")]
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -349,7 +349,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredNoNavigationToPrincipalNrtTest()
         => Model101Test();
 
@@ -358,7 +358,7 @@ public abstract partial class ModelBuilding101TestBase
         public class Blog
         {
             public int Id { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
@@ -411,7 +411,7 @@ public abstract partial class ModelBuilding101TestBase
             public class Blog
             {
                 public int Id { get; set; }
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -430,7 +430,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyOptionalNoNavigationToPrincipalNrtTest()
         => Model101Test();
 
@@ -439,7 +439,7 @@ public abstract partial class ModelBuilding101TestBase
         public class Blog
         {
             public int Id { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
@@ -492,7 +492,7 @@ public abstract partial class ModelBuilding101TestBase
             public class Blog
             {
                 public int Id { get; set; }
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -509,7 +509,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredWithShadowFkAndNoNavigationToPrincipalNrtTest()
         => Model101Test();
 
@@ -518,7 +518,7 @@ public abstract partial class ModelBuilding101TestBase
         public class Blog
         {
             public int Id { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
@@ -564,7 +564,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyOptionalWithShadowFkAndNoNavigationToPrincipalNrtTest()
         => Model101Test();
 
@@ -573,7 +573,7 @@ public abstract partial class ModelBuilding101TestBase
         public class Blog
         {
             public int Id { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
@@ -625,7 +625,7 @@ public abstract partial class ModelBuilding101TestBase
             public class Blog
             {
                 public int Id { get; set; }
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -641,7 +641,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredNoNavigationToDependentsNrtTest()
         => Model101Test();
 
@@ -724,7 +724,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyOptionalNoNavigationToDependentsNrtTest()
         => Model101Test();
 
@@ -807,7 +807,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredWithShadowFkAndNoNavigationToDependentsNrtTest()
         => Model101Test();
 
@@ -886,7 +886,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyOptionalWithShadowFkAndNoNavigationToDependentsNrtTest()
         => Model101Test();
 
@@ -965,7 +965,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredNoNavigationsNrtTest()
         => Model101Test();
 
@@ -1046,7 +1046,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyOptionalNoNavigationsNrtTest()
         => Model101Test();
 
@@ -1125,7 +1125,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredWithShadowFkAndNoNavigationsNrtTest()
         => Model101Test();
 
@@ -1179,7 +1179,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyOptionalWithShadowFkAndNoNavigationsNrtTest()
         => Model101Test();
 
@@ -1232,7 +1232,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredWithAlternateKeyNrtTest()
         => Model101Test();
 
@@ -1242,7 +1242,7 @@ public abstract partial class ModelBuilding101TestBase
         {
             public int Id { get; set; }
             public int AlternateId { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
@@ -1297,7 +1297,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int AlternateId { get; set; }
 
                 [InverseProperty("Blog")]
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -1325,7 +1325,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyOptionalWithAlternateKeyNrtTest()
         => Assert.Throws<EqualException>(() => Model101Test()); // Issue #30346
 
@@ -1335,7 +1335,7 @@ public abstract partial class ModelBuilding101TestBase
         {
             public int Id { get; set; }
             public int AlternateId { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
@@ -1390,7 +1390,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int AlternateId { get; set; }
 
                 [InverseProperty("Blog")]
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -1418,7 +1418,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredWithShadowFkWithAlternateKeyNrtTest()
         => Assert.Throws<EqualException>(() => Model101Test()); // Issue #30344
 
@@ -1428,7 +1428,7 @@ public abstract partial class ModelBuilding101TestBase
         {
             public int Id { get; set; }
             public int AlternateId { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
@@ -1482,7 +1482,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int AlternateId { get; set; }
 
                 [InverseProperty("Blog")]
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -1507,7 +1507,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyOptionalWithShadowFkWithAlternateKeyNrtTest()
         => Assert.Throws<EqualException>(() => Model101Test()); // Issue #30346
 
@@ -1517,7 +1517,7 @@ public abstract partial class ModelBuilding101TestBase
         {
             public int Id { get; set; }
             public int AlternateId { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
@@ -1571,7 +1571,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int AlternateId { get; set; }
 
                 [InverseProperty("Blog")]
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -1596,7 +1596,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredWithCompositeKeyNrtTest()
         => Model101Test();
 
@@ -1606,7 +1606,7 @@ public abstract partial class ModelBuilding101TestBase
         {
             public int Id1 { get; set; }
             public int Id2 { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
@@ -1680,7 +1680,7 @@ public abstract partial class ModelBuilding101TestBase
             {
                 public int Id1 { get; set; }
                 public int Id2 { get; set; }
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -1707,7 +1707,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id2 { get; set; }
 
                 [InverseProperty("Blog")]
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -1728,7 +1728,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyOptionalWithCompositeKeyNrtTest()
         => Model101Test();
 
@@ -1738,7 +1738,7 @@ public abstract partial class ModelBuilding101TestBase
         {
             public int Id1 { get; set; }
             public int Id2 { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
@@ -1812,7 +1812,7 @@ public abstract partial class ModelBuilding101TestBase
             {
                 public int Id1 { get; set; }
                 public int Id2 { get; set; }
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -1839,7 +1839,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id2 { get; set; }
 
                 [InverseProperty("Blog")]
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -1860,7 +1860,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredWithShadowFkWithCompositeKeyNrtTest()
         => Model101Test();
 
@@ -1870,7 +1870,7 @@ public abstract partial class ModelBuilding101TestBase
         {
             public int Id1 { get; set; }
             public int Id2 { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
@@ -1942,7 +1942,7 @@ public abstract partial class ModelBuilding101TestBase
             {
                 public int Id1 { get; set; }
                 public int Id2 { get; set; }
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -1967,7 +1967,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id2 { get; set; }
 
                 [InverseProperty("Blog")]
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -1986,7 +1986,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyOptionalWithShadowFkWithCompositeKeyNrtTest()
         => Model101Test();
 
@@ -1996,7 +1996,7 @@ public abstract partial class ModelBuilding101TestBase
         {
             public int Id1 { get; set; }
             public int Id2 { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
@@ -2068,7 +2068,7 @@ public abstract partial class ModelBuilding101TestBase
             {
                 public int Id1 { get; set; }
                 public int Id2 { get; set; }
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -2093,7 +2093,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id2 { get; set; }
 
                 [InverseProperty("Blog")]
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -2112,7 +2112,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManySelfReferencingNrtTest()
         => Model101Test();
 
@@ -2124,7 +2124,7 @@ public abstract partial class ModelBuilding101TestBase
 
             public int? ManagerId { get; set; }
             public Employee? Manager { get; set; }
-            public ICollection<Employee> Reports { get; } = new List<Employee>();
+            public ICollection<Employee> Reports { get; } = [];
         }
 
         public class Context0 : Context101
@@ -2165,7 +2165,7 @@ public abstract partial class ModelBuilding101TestBase
                 public Employee? Manager { get; set; }
 
                 [InverseProperty("Manager")]
-                public ICollection<Employee> Reports { get; } = new List<Employee>();
+                public ICollection<Employee> Reports { get; } = [];
             }
 
             public DbSet<Employee> Employees
@@ -2173,7 +2173,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredWithoutCascadeDeleteNrtTest()
         => Model101Test();
 
@@ -2182,7 +2182,7 @@ public abstract partial class ModelBuilding101TestBase
         public class Blog
         {
             public int Id { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
@@ -2236,7 +2236,7 @@ public abstract partial class ModelBuilding101TestBase
             public class Blog
             {
                 public int Id { get; set; }
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -2262,7 +2262,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [InverseProperty("Blog")]
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post

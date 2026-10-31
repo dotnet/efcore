@@ -86,7 +86,7 @@ public abstract class PropertyAttributeConventionBase<TAttribute> :
     }
 
     /// <summary>
-    ///     Called after a complex property is added to an type-like object.
+    ///     Called after a complex property is added to a type-like object.
     /// </summary>
     /// <param name="propertyBuilder">The builder for the complex property.</param>
     /// <param name="context">Additional information associated with convention execution.</param>

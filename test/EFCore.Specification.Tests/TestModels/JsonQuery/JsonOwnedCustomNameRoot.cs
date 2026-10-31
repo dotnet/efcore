@@ -5,12 +5,10 @@ using System.Text.Json.Serialization;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
-#nullable disable
-
 public class JsonOwnedCustomNameRoot
 {
     [JsonPropertyName("CustomName")]
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     public int Number { get; set; }
 
@@ -18,8 +16,8 @@ public class JsonOwnedCustomNameRoot
     public JsonEnum Enum { get; set; }
 
     [JsonPropertyName("Custom#OwnedReferenceBranch`-=[]\\;',./~!@#$%^&*()_+{}|:\"<>?独角兽π獨角獸")]
-    public JsonOwnedCustomNameBranch OwnedReferenceBranch { get; set; }
+    public JsonOwnedCustomNameBranch? OwnedReferenceBranch { get; set; }
 
     [JsonPropertyName("CustomOwnedCollectionBranch")]
-    public List<JsonOwnedCustomNameBranch> OwnedCollectionBranch { get; set; }
+    public List<JsonOwnedCustomNameBranch> OwnedCollectionBranch { get; set; } = null!;
 }

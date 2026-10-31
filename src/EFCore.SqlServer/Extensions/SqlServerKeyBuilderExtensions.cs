@@ -48,7 +48,7 @@ public static class SqlServerKeyBuilderExtensions
     public static KeyBuilder<TEntity> IsClustered<TEntity>(
         this KeyBuilder<TEntity> keyBuilder,
         bool clustered = true)
-        => (KeyBuilder<TEntity>)IsClustered((KeyBuilder)keyBuilder, clustered);
+        => (KeyBuilder<TEntity>)((KeyBuilder)keyBuilder).IsClustered(clustered);
 
     /// <summary>
     ///     Configures whether the key is clustered when targeting SQL Server.
@@ -129,7 +129,7 @@ public static class SqlServerKeyBuilderExtensions
     public static KeyBuilder<TEntity> HasFillFactor<TEntity>(
         this KeyBuilder<TEntity> keyBuilder,
         int fillFactor)
-        => (KeyBuilder<TEntity>)HasFillFactor((KeyBuilder)keyBuilder, fillFactor);
+        => (KeyBuilder<TEntity>)((KeyBuilder)keyBuilder).HasFillFactor(fillFactor);
 
     /// <summary>
     ///     Configures whether the key is created with fill factor option when targeting SQL Server.

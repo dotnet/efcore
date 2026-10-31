@@ -12,7 +12,7 @@ public class ProductDescription
         => ProductModelProductDescriptionCulture = new HashSet<ProductModelProductDescriptionCulture>();
 
     public int ProductDescriptionID { get; set; }
-    public string Description { get; set; }
+    public string Description { get; set; } = null!;
     public DateTime ModifiedDate { get; set; }
 #pragma warning disable IDE1006 // Naming Styles
     public Guid rowguid { get; set; }

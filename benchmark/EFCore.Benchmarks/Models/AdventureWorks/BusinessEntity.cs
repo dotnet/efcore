@@ -22,7 +22,7 @@ public class BusinessEntity
 
     public virtual ICollection<BusinessEntityAddress> BusinessEntityAddress { get; set; }
     public virtual ICollection<BusinessEntityContact> BusinessEntityContact { get; set; }
-    public virtual Person Person { get; set; }
-    public virtual Store Store { get; set; }
-    public virtual Vendor Vendor { get; set; }
+    public virtual Person? Person { get; set; }
+    public virtual Store? Store { get; set; }
+    public virtual Vendor? Vendor { get; set; }
 }

@@ -688,7 +688,7 @@ INNER JOIN (
     SELECT * FROM "Orders" WHERE "OrderID" <> 1
 ) AS [m0] ON [m].[CustomerID] = [m0].[CustomerID]
 LEFT JOIN [Order Details] AS [o] ON [m0].[OrderID] = [o].[OrderID]
-ORDER BY [m].[CustomerID], [m0].[OrderID], [o].[OrderID]
+ORDER BY [m].[CustomerID], [m0].[OrderID], [o].[OrderID], [o].[ProductID]
 """);
     }
 
@@ -1031,7 +1031,7 @@ LEFT JOIN (
         Assert.Equal(RelationalStrings.FromSqlNonComposable, exception.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void FromSql_output_parameter_works_with_transient_errors()
     {
         using var context = Fixture.CreateContext();

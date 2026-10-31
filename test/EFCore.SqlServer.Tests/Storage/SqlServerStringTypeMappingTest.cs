@@ -1,11 +1,11 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 public class SqlServerStringTypeMappingTest
 {
-    [ConditionalTheory, InlineData("", "''"), InlineData("'Sup", "'''Sup'"), InlineData("I'm", "'I''m'"), InlineData("lovin'", "'lovin'''"),
+    [Theory, InlineData("", "''"), InlineData("'Sup", "'''Sup'"), InlineData("I'm", "'I''m'"), InlineData("lovin'", "'lovin'''"),
      InlineData("it", "'it'"), InlineData("'", "''''"), InlineData("''", "''''''"), InlineData("I'm lovin'", "'I''m lovin'''"),
      InlineData("I'm lovin' it", "'I''m lovin'' it'"), InlineData("\r", "char(13)"), InlineData("\n", "char(10)"),
      InlineData("\r\n", "CONCAT(CAST(char(13) AS varchar(max)), char(10))"),
@@ -21,7 +21,7 @@ public class SqlServerStringTypeMappingTest
         Assert.Equal(expected, mapping.GenerateProviderValueSqlLiteral(value));
     }
 
-    [ConditionalTheory, InlineData("", "N''"), InlineData("'Sup", "N'''Sup'"), InlineData("I'm", "N'I''m'"),
+    [Theory, InlineData("", "N''"), InlineData("'Sup", "N'''Sup'"), InlineData("I'm", "N'I''m'"),
      InlineData("lovin'", "N'lovin'''"), InlineData("it", "N'it'"), InlineData("'", "N''''"), InlineData("''", "N''''''"),
      InlineData("I'm lovin'", "N'I''m lovin'''"), InlineData("I'm lovin' it", "N'I''m lovin'' it'"), InlineData("\r", "nchar(13)"),
      InlineData("\n", "nchar(10)"), InlineData("\r\n", "CONCAT(CAST(nchar(13) AS nvarchar(max)), nchar(10))"),

@@ -5,8 +5,6 @@ using Microsoft.Data.SqlClient;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class SqlExecutorSqlServerTest : SqlExecutorTestBase<NorthwindQuerySqlServerFixture<SqlExecutorModelCustomizer>>
 {
     public SqlExecutorSqlServerTest(NorthwindQuerySqlServerFixture<SqlExecutorModelCustomizer> fixture, ITestOutputHelper testOutputHelper)

@@ -63,12 +63,6 @@ parameters:
   type: boolean
   default: false
 
-# Explicit Entra scope for a custom Helix API host (--helix-entra-scope).
-# Production and staging scopes are inferred when omitted.
-- name: helixEntraScope
-  type: string
-  default: ''
-
 # Workload identity federation service connection name authorized for Helix. Required when
 # useEntraAuthentication is true.
 - name: azureSubscription
@@ -144,7 +138,6 @@ jobs:
   variables:
     HELIX_MONITOR_BASE_URI: ${{ parameters.helixBaseUri }}
     HELIX_MONITOR_USE_ENTRA_AUTHENTICATION: ${{ parameters.useEntraAuthentication }}
-    HELIX_MONITOR_ENTRA_SCOPE: ${{ parameters.helixEntraScope }}
     HELIX_MONITOR_POLLING_INTERVAL_SECONDS: ${{ parameters.pollingIntervalSeconds }}
     HELIX_MONITOR_FAIL_ON_FAILED_TESTS: ${{ parameters.failWorkItemsWithFailedTests }}
     HELIX_MONITOR_ALLOW_NO_HELIX_JOBS: ${{ parameters.allowNoHelixJobs }}

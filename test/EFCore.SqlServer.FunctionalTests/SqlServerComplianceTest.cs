@@ -3,12 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class SqlServerComplianceTest : RelationalComplianceTestBase
 {
-    protected override ICollection<Type> IgnoredTestBases
-        => new HashSet<Type>();
+    protected override ICollection<Type> IgnoredTestBases { get; } = [];
 
     protected override Assembly TargetAssembly { get; } = typeof(SqlServerComplianceTest).Assembly;
 }
