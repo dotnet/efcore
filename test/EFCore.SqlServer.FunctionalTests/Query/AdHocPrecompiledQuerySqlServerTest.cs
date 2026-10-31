@@ -10,6 +10,7 @@ public class AdHocPrecompiledQuerySqlServerTest(NonSharedFixture fixture, ITestO
 {
     protected override bool AlwaysPrintGeneratedSources
         => false;
+
     public override async Task ExecuteUpdate_with_value_type_setters(bool async, bool useLambda)
     {
         await base.ExecuteUpdate_with_value_type_setters(async, useLambda);
