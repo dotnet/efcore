@@ -1143,7 +1143,7 @@ FROM [JsonEntitiesBasic] AS [j]
 WHERE EXISTS (
     SELECT 1
     FROM OPENJSON([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch') WITH ([OwnedReferenceLeaf] nvarchar(max) '$.OwnedReferenceLeaf' AS JSON) AS [o]
-    WHERE JSON_VALUE([o].[OwnedReferenceLeaf], '$.SomethingSomething' RETURNING nvarchar(max)) = N'e1_r_c1_r')
+    WHERE JSON_VALUE([o].[OwnedReferenceLeaf], '$.SomethingSomething') = N'e1_r_c1_r')
 """);
         }
         else
@@ -1212,7 +1212,7 @@ FROM [JsonEntitiesBasic] AS [j]
 WHERE (
     SELECT [o0].[c]
     FROM (
-        SELECT JSON_VALUE([o].[OwnedReferenceLeaf], '$.SomethingSomething' RETURNING nvarchar(max)) AS [c], [o].[Date]
+        SELECT JSON_VALUE([o].[OwnedReferenceLeaf], '$.SomethingSomething') AS [c], [o].[Date]
         FROM OPENJSON([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch') WITH (
             [Date] datetime2 '$.Date',
             [OwnedReferenceLeaf] nvarchar(max) '$.OwnedReferenceLeaf' AS JSON
@@ -1274,7 +1274,7 @@ WHERE (
             [OwnedCollectionLeaf] nvarchar(max) '$.OwnedCollectionLeaf' AS JSON,
             [OwnedReferenceLeaf] nvarchar(max) '$.OwnedReferenceLeaf' AS JSON
         ) AS [o]
-        WHERE JSON_VALUE([o].[OwnedReferenceLeaf], '$.SomethingSomething' RETURNING nvarchar(max)) = N'e1_r_c2_r'
+        WHERE JSON_VALUE([o].[OwnedReferenceLeaf], '$.SomethingSomething') = N'e1_r_c2_r'
     ) AS [o0]) = 1
 """);
         }
@@ -4493,7 +4493,7 @@ INNER JOIN [OtherTable] AS [o] ON [m].[Id] = [o].[Id]
 
         switch (JsonColumnType)
         {
-            case "json":
+            case "json" when !SqlServerTestEnvironment.IsAzureSql:
                 AssertSql(
                     """
 SELECT [p].[value]
@@ -4506,6 +4506,7 @@ CROSS APPLY OPENJSON([o].[partNumbers]) WITH ([value] varchar(32) '$') AS [p]
 WHERE [c].[Vin] = '1FA6P8TH8J5123456' AND [c].[DealerId] = 'DEALER-001' AND [o].[packageId] = N'PKG-SPORT'
 """);
                 break;
+            case "json":
             case "nvarchar(max)":
                 AssertSql(
                     """

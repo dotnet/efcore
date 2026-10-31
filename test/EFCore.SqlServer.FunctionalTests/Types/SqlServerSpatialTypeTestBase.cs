@@ -66,9 +66,10 @@ public abstract class SqlServerSpatialTypeTestBase<T, TFixture>(TFixture fixture
     public abstract class SqlServerSpatialTypeFixture : SqlServerTypeFixture<T>
     {
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder)
-                .UseSqlServer(o => o.UseNetTopologySuite())
-                .ConfigureWarnings(w => w.Ignore(CoreEventId.MappedPropertyIgnoredWarning));
+        {
+            new SqlServerDbContextOptionsBuilder(base.AddOptions(builder)).UseNetTopologySuite();
+            return builder.ConfigureWarnings(w => w.Ignore(CoreEventId.MappedPropertyIgnoredWarning));
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

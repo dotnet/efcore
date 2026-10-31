@@ -54,9 +54,8 @@ public class SqlServerValueGenerationStrategyThrowTest(
         public virtual DbSet<Fred> Freds { get; set; } = null!;
 
         // use the normal behavior of ConflictingValueGenerationStrategiesWarning
-        // defined in UseSqlServer()
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder.UseSqlServer();
+            => _ = SqlServerTestEnvironment.IsAzureSql ? optionsBuilder.UseAzureSql() : optionsBuilder.UseSqlServer();
     }
 }
 
@@ -91,8 +90,7 @@ public class SqlServerValueGenerationStrategyNoThrowTest(
 
         // override the normal behavior of ConflictingValueGenerationStrategiesWarning
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder
-                .UseSqlServer()
+            => (SqlServerTestEnvironment.IsAzureSql ? optionsBuilder.UseAzureSql() : optionsBuilder.UseSqlServer())
                 .ConfigureWarnings(b => b.Log(SqlServerEventId.ConflictingValueGenerationStrategiesWarning));
     }
 }

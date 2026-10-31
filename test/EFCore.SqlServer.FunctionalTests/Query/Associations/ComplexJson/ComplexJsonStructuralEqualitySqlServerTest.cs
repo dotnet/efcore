@@ -269,8 +269,10 @@ WHERE JSON_QUERY([r].[RequiredAssociate], '$.NestedCollection') = @entity_equali
         // elements down to their columns and doing column-by-column comparison. See #32576.
         if (Fixture.UsingJsonType)
         {
+            var jsonType = SqlServerTestEnvironment.IsAzureSql ? "nvarchar(max)" : "json";
+
             AssertSql(
-                """
+                $$"""
 SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
 WHERE EXISTS (
@@ -278,7 +280,7 @@ WHERE EXISTS (
     FROM OPENJSON([r].[RequiredAssociate], '$.NestedCollection') WITH (
         [Id] int '$.Id',
         [Int] int '$.Int',
-        [Ints] json '$.Ints' AS JSON,
+        [Ints] {{jsonType}} '$.Ints' AS JSON,
         [Name] nvarchar(max) '$.Name',
         [String] nvarchar(max) '$.String'
     ) AS [n]
@@ -314,8 +316,10 @@ WHERE EXISTS (
         // elements down to their columns and doing column-by-column comparison. See #32576.
         if (Fixture.UsingJsonType)
         {
+            var jsonType = SqlServerTestEnvironment.IsAzureSql ? "nvarchar(max)" : "json";
+
             AssertSql(
-                """
+                $$"""
 @entity_equality_nested_Id='1002' (Nullable = true)
 @entity_equality_nested_Int='8' (Nullable = true)
 @entity_equality_nested_Ints='[1,2,3]' (Size = 7)
@@ -329,7 +333,7 @@ WHERE EXISTS (
     FROM OPENJSON([r].[RequiredAssociate], '$.NestedCollection') WITH (
         [Id] int '$.Id',
         [Int] int '$.Int',
-        [Ints] json '$.Ints' AS JSON,
+        [Ints] {{jsonType}} '$.Ints' AS JSON,
         [Name] nvarchar(max) '$.Name',
         [String] nvarchar(max) '$.String'
     ) AS [n]
@@ -368,8 +372,10 @@ WHERE EXISTS (
 
         if (Fixture.UsingJsonType)
         {
+            var jsonType = SqlServerTestEnvironment.IsAzureSql ? "nvarchar(max)" : "json";
+
             AssertSql(
-                """
+                $$"""
 @get_Item_Int='106'
 @entity_equality_get_Item_Id='3003' (Nullable = true)
 @entity_equality_get_Item_Int='108' (Nullable = true)
@@ -384,7 +390,7 @@ WHERE EXISTS (
     FROM OPENJSON([r].[RequiredAssociate], '$.NestedCollection') WITH (
         [Id] int '$.Id',
         [Int] int '$.Int',
-        [Ints] json '$.Ints' AS JSON,
+        [Ints] {{jsonType}} '$.Ints' AS JSON,
         [Name] nvarchar(max) '$.Name',
         [String] nvarchar(max) '$.String'
     ) AS [n]
@@ -424,8 +430,10 @@ WHERE EXISTS (
 
         if (Fixture.UsingJsonType)
         {
+            var jsonType = SqlServerTestEnvironment.IsAzureSql ? "nvarchar(max)" : "json";
+
             AssertSql(
-                """
+                $$"""
 @get_Item_Id='302'
 @entity_equality_get_Item_Id='303' (Nullable = true)
 @entity_equality_get_Item_Int='130' (Nullable = true)
@@ -443,12 +451,12 @@ WHERE EXISTS (
     FROM OPENJSON([r].[AssociateCollection], '$') WITH (
         [Id] int '$.Id',
         [Int] int '$.Int',
-        [Ints] json '$.Ints' AS JSON,
+        [Ints] {{jsonType}} '$.Ints' AS JSON,
         [Name] nvarchar(max) '$.Name',
         [String] nvarchar(max) '$.String',
-        [NestedCollection] json '$.NestedCollection' AS JSON,
-        [OptionalNestedAssociate] json '$.OptionalNestedAssociate' AS JSON,
-        [RequiredNestedAssociate] json '$.RequiredNestedAssociate' AS JSON
+        [NestedCollection] {{jsonType}} '$.NestedCollection' AS JSON,
+        [OptionalNestedAssociate] {{jsonType}} '$.OptionalNestedAssociate' AS JSON,
+        [RequiredNestedAssociate] {{jsonType}} '$.RequiredNestedAssociate' AS JSON
     ) AS [a]
     WHERE [a].[Id] > @get_Item_Id AND [a].[Id] = @entity_equality_get_Item_Id AND [a].[Int] = @entity_equality_get_Item_Int AND CAST([a].[Ints] AS nvarchar(max)) = CAST(@entity_equality_get_Item_Ints AS nvarchar(max)) AND [a].[Name] = @entity_equality_get_Item_Name AND [a].[String] = @entity_equality_get_Item_String AND CAST([a].[NestedCollection] AS nvarchar(max)) = CAST(@entity_equality_get_Item_NestedCollection AS nvarchar(max)) AND CAST([a].[OptionalNestedAssociate] AS nvarchar(max)) = CAST(@entity_equality_get_Item_OptionalNestedAssociate AS nvarchar(max)) AND CAST([a].[RequiredNestedAssociate] AS nvarchar(max)) = CAST(@entity_equality_get_Item_RequiredNestedAssociate AS nvarchar(max)))
 """);

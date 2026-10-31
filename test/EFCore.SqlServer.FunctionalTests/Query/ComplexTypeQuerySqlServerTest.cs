@@ -1731,5 +1731,12 @@ INNER JOIN [Dog] AS [d] ON [a].[Id] = [d].[Id]
     {
         protected override ITestStoreFactory TestStoreFactory
             => SqlServerTestStoreFactory.Instance;
+
+        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+        {
+            base.ConfigureConventions(configurationBuilder);
+
+            configurationBuilder.Properties<List<string>>().HaveColumnType("nvarchar(max)");
+        }
     }
 }

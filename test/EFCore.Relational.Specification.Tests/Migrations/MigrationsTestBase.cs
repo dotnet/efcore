@@ -1628,13 +1628,15 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
     [Fact]
     public virtual async Task Convert_string_column_to_a_json_column_containing_reference()
     {
+        var columnType = TypeMappingSource.FindMapping(typeof(string))!.StoreType;
+
         await Test(
             builder => builder.Entity(
                 "Entity", e =>
                 {
                     e.Property<int>("Id").ValueGeneratedOnAdd();
                     e.HasKey("Id");
-                    e.Property<string>("Name");
+                    e.Property<string>("Name").HasColumnType(columnType);
                 }),
             builder => builder.Entity(
                 "Entity", e =>
@@ -1645,7 +1647,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     e.OwnsOne(
                         "Owned", "OwnedReference", o =>
                         {
-                            o.ToJson("Name");
+                            o.ToJson("Name").HasColumnType(columnType);
                             o.OwnsOne("Nested", "NestedReference", n => n.Property<int>("Number"));
                             o.OwnsMany("Nested2", "NestedCollection", n => n.Property<int>("Number2"));
                             o.Property<DateTime>("Date");
@@ -1660,7 +1662,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     c => Assert.Equal("Name", c.Name));
             });
 
-        AssertSql();
+            AssertSql();
     }
 
     [Fact]
@@ -1702,13 +1704,15 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
     [Fact]
     public virtual async Task Convert_string_column_to_a_json_column_containing_collection()
     {
+        var columnType = TypeMappingSource.FindMapping(typeof(string))!.StoreType;
+
         await Test(
             builder => builder.Entity(
                 "Entity", e =>
                 {
                     e.Property<int>("Id").ValueGeneratedOnAdd();
                     e.HasKey("Id");
-                    e.Property<string>("Name");
+                    e.Property<string>("Name").HasColumnType(columnType);
                 }),
             builder => builder.Entity(
                 "Entity", e =>
@@ -1722,7 +1726,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                             o.OwnsOne("Nested3", "NestedReference2", n => n.Property<int>("Number3"));
                             o.OwnsMany("Nested4", "NestedCollection2", n => n.Property<int>("Number4"));
                             o.Property<DateTime>("Date2");
-                            o.ToJson("Name");
+                            o.ToJson("Name").HasColumnType(columnType);
                         });
                 }),
             model =>
@@ -1734,7 +1738,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     c => Assert.Equal("Name", c.Name));
             });
 
-        AssertSql();
+            AssertSql();
     }
 
     [Fact]
