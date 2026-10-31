@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.TestModels.BasicTypesModel;
+
 namespace Microsoft.EntityFrameworkCore.Query.Translations.Temporal;
 
 public class TimeSpanTranslationsSqlServerTest : TimeSpanTranslationsTestBase<BasicTypesQuerySqlServerFixture>
@@ -81,6 +83,103 @@ WHERE DATEPART(microsecond, [b].[TimeSpan]) % 1000 = 912
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
 WHERE DATEPART(nanosecond, [b].[TimeSpan]) % 1000 = 400
+""");
+    }
+
+    public override async Task TotalDays()
+    {
+        await base.TotalDays();
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE CAST(CAST(DATEPART(hour, [b].[TimeSpan]) * 3600 + DATEPART(minute, [b].[TimeSpan]) * 60 + DATEPART(second, [b].[TimeSpan]) AS bigint) * CAST(10000000 AS bigint) + DATEPART(nanosecond, [b].[TimeSpan]) / CAST(100 AS bigint) AS float) / 864000000000.0E0 > 0.10000000000000001E0
+""");
+    }
+
+    public override async Task TotalHours()
+    {
+        await base.TotalHours();
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE CAST(CAST(DATEPART(hour, [b].[TimeSpan]) * 3600 + DATEPART(minute, [b].[TimeSpan]) * 60 + DATEPART(second, [b].[TimeSpan]) AS bigint) * CAST(10000000 AS bigint) + DATEPART(nanosecond, [b].[TimeSpan]) / CAST(100 AS bigint) AS float) / 36000000000.0E0 > 2.5E0
+""");
+    }
+
+    public override async Task TotalMinutes()
+    {
+        await base.TotalMinutes();
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE CAST(CAST(DATEPART(hour, [b].[TimeSpan]) * 3600 + DATEPART(minute, [b].[TimeSpan]) * 60 + DATEPART(second, [b].[TimeSpan]) AS bigint) * CAST(10000000 AS bigint) + DATEPART(nanosecond, [b].[TimeSpan]) / CAST(100 AS bigint) AS float) / 600000000.0E0 > 120.25E0
+""");
+    }
+
+    public override async Task TotalSeconds()
+    {
+        await base.TotalSeconds();
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE CAST(CAST(DATEPART(hour, [b].[TimeSpan]) * 3600 + DATEPART(minute, [b].[TimeSpan]) * 60 + DATEPART(second, [b].[TimeSpan]) AS bigint) * CAST(10000000 AS bigint) + DATEPART(nanosecond, [b].[TimeSpan]) / CAST(100 AS bigint) AS float) / 10000000.0E0 > 7215.3999999999996E0
+""");
+    }
+
+    public override async Task TotalMilliseconds()
+    {
+        await base.TotalMilliseconds();
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE CAST(CAST(DATEPART(hour, [b].[TimeSpan]) * 3600 + DATEPART(minute, [b].[TimeSpan]) * 60 + DATEPART(second, [b].[TimeSpan]) AS bigint) * CAST(10000000 AS bigint) + DATEPART(nanosecond, [b].[TimeSpan]) / CAST(100 AS bigint) AS float) / 10000.0E0 > 7215456.2000000002E0
+""");
+    }
+
+    public override async Task TotalMicroseconds()
+    {
+        await base.TotalMicroseconds();
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE CAST(CAST(DATEPART(hour, [b].[TimeSpan]) * 3600 + DATEPART(minute, [b].[TimeSpan]) * 60 + DATEPART(second, [b].[TimeSpan]) AS bigint) * CAST(10000000 AS bigint) + DATEPART(nanosecond, [b].[TimeSpan]) / CAST(100 AS bigint) AS float) / 10.0E0 > 7215456200.3000002E0
+""");
+    }
+
+    public override async Task TotalNanoseconds()
+    {
+        await base.TotalNanoseconds();
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE CAST(CAST(DATEPART(hour, [b].[TimeSpan]) * 3600 + DATEPART(minute, [b].[TimeSpan]) * 60 + DATEPART(second, [b].[TimeSpan]) AS bigint) * CAST(10000000 AS bigint) + DATEPART(nanosecond, [b].[TimeSpan]) / CAST(100 AS bigint) AS float) * 100.0E0 > 7215456200300.0E0
+""");
+    }
+
+    // The ticks are divided once, as in .NET, so the projected values are the same doubles.
+    [Fact]
+    public virtual async Task TotalHours_in_projection()
+    {
+        await AssertQuery(ss => ss.Set<BasicTypesEntity>().Select(b => b.TimeSpan.TotalHours));
+
+        AssertSql(
+            """
+SELECT CAST(CAST(DATEPART(hour, [b].[TimeSpan]) * 3600 + DATEPART(minute, [b].[TimeSpan]) * 60 + DATEPART(second, [b].[TimeSpan]) AS bigint) * CAST(10000000 AS bigint) + DATEPART(nanosecond, [b].[TimeSpan]) / CAST(100 AS bigint) AS float) / 36000000000.0E0
+FROM [BasicTypesEntities] AS [b]
 """);
     }
 

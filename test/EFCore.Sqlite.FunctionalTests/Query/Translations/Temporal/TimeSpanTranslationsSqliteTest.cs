@@ -59,6 +59,62 @@ public class TimeSpanTranslationsSqliteTest : TimeSpanTranslationsTestBase<Basic
         AssertSql();
     }
 
+    // Translate TimeSpan members, #18844
+    public override async Task TotalDays()
+    {
+        await AssertTranslationFailed(base.TotalDays);
+
+        AssertSql();
+    }
+
+    // Translate TimeSpan members, #18844
+    public override async Task TotalHours()
+    {
+        await AssertTranslationFailed(base.TotalHours);
+
+        AssertSql();
+    }
+
+    // Translate TimeSpan members, #18844
+    public override async Task TotalMinutes()
+    {
+        await AssertTranslationFailed(base.TotalMinutes);
+
+        AssertSql();
+    }
+
+    // Translate TimeSpan members, #18844
+    public override async Task TotalSeconds()
+    {
+        await AssertTranslationFailed(base.TotalSeconds);
+
+        AssertSql();
+    }
+
+    // Translate TimeSpan members, #18844
+    public override async Task TotalMilliseconds()
+    {
+        await AssertTranslationFailed(base.TotalMilliseconds);
+
+        AssertSql();
+    }
+
+    // Translate TimeSpan members, #18844
+    public override async Task TotalMicroseconds()
+    {
+        await AssertTranslationFailed(base.TotalMicroseconds);
+
+        AssertSql();
+    }
+
+    // Translate TimeSpan members, #18844
+    public override async Task TotalNanoseconds()
+    {
+        await AssertTranslationFailed(base.TotalNanoseconds);
+
+        AssertSql();
+    }
+
     [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
