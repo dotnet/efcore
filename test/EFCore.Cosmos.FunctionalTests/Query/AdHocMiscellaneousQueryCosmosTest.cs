@@ -677,6 +677,86 @@ FROM root c
             => Expression.Property(null, typeof(LegacyDateTimeJsonReaderWriter), nameof(Instance));
     }
 
+    [Theory, InlineData(false), InlineData(true)]
+    public async Task Custom_partition_reader_writer_is_used_for_save_read_query_update_and_delete(bool typeMappingDefault)
+    {
+        var factory = await InitializeNonSharedTest<PoolableDbContext>(
+            onModelCreating: b =>
+            {
+                b.Entity<FormattedPartitionKeyItem>().ToContainer("Entities").HasNoDiscriminator();
+                b.Entity<FormattedPartitionKeyItem>().HasPartitionKey(e => e.Partition);
+                if (!typeMappingDefault)
+                {
+                    b.Entity<FormattedPartitionKeyItem>().Property(e => e.Partition)
+                        .HasJsonValueReaderWriter<Int32AsStringReaderWriter>();
+                }
+            },
+            configureConventions: c =>
+            {
+                if (typeMappingDefault)
+                {
+                    c.DefaultTypeMapping<int>().HasJsonValueReaderWriter<Int32AsStringReaderWriter>();
+                }
+            },
+            seed: context =>
+            {
+                context.AddRange(
+                    new FormattedPartitionKeyItem { Id = 1, Partition = 42, Name = "initial" },
+                    new FormattedPartitionKeyItem { Id = 1, Partition = 43, Name = "other" });
+                return context.SaveChangesAsync();
+            });
+        var partition = 42;
+        await using (var context = factory.CreateDbContext())
+        {
+            var count = 1;
+            var page = await context.Set<FormattedPartitionKeyItem>().Where(e => e.Id == count)
+                .OrderBy(e => e.Partition).Skip(count).Take(count).ToListAsync();
+            Assert.Equal(43, Assert.Single(page).Partition);
+            page = await context.Set<FormattedPartitionKeyItem>().Where(e => e.Id == count)
+                .OrderBy(e => e.Partition).Skip(count - 1).Take(count).ToListAsync();
+            Assert.Equal(42, Assert.Single(page).Partition);
+
+            var item = await context.Set<FormattedPartitionKeyItem>().SingleAsync(e => e.Id == 1 && e.Partition == partition);
+            Assert.Equal("initial", item.Name);
+            item.Name = "updated";
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = factory.CreateDbContext())
+        {
+            var item = await context.Set<FormattedPartitionKeyItem>().WithPartitionKey(partition)
+                .SingleAsync(e => e.Name == "updated");
+            Assert.Equal(42, item.Partition);
+            context.Remove(item);
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = factory.CreateDbContext())
+        {
+            Assert.False(await context.Set<FormattedPartitionKeyItem>().WithPartitionKey(partition).AnyAsync());
+            Assert.Equal("other", (await context.Set<FormattedPartitionKeyItem>().WithPartitionKey(43).SingleAsync()).Name);
+        }
+    }
+
+    private sealed class FormattedPartitionKeyItem
+    {
+        public int Id { get; set; }
+        public int Partition { get; set; }
+        public string Name { get; set; } = null!;
+    }
+
+    public sealed class Int32AsStringReaderWriter : JsonValueReaderWriter<int>
+    {
+        public override int FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
+            => int.Parse(manager.CurrentReader.GetString()!, CultureInfo.InvariantCulture);
+
+        public override void ToJsonTyped(Utf8JsonWriter writer, int value)
+            => writer.WriteStringValue(value.ToString(CultureInfo.InvariantCulture));
+
+        public override Expression ConstructorExpression
+            => Expression.New(typeof(Int32AsStringReaderWriter));
+    }
+
     #endregion 31316
 
     #region 35094

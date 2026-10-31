@@ -1,7 +1,10 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Globalization;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Internal;
@@ -32,7 +35,8 @@ public static class PartitionKeyBuilderExtensions
                     : value;
         }
 
-        var converter = property?.GetTypeMapping().Converter;
+        var mapping = property?.GetTypeMapping();
+        var converter = mapping?.Converter;
         if (converter != null)
         {
             value = converter.ConvertToProvider(value);
@@ -40,7 +44,7 @@ public static class PartitionKeyBuilderExtensions
 
         if (value == null)
         {
-            builder.AddNullValue();
+            AddValue(null);
         }
         else
         {
@@ -53,7 +57,7 @@ public static class PartitionKeyBuilderExtensions
                         CheckType(typeof(string));
                     }
 
-                    builder.Add(stringValue);
+                    AddValue(stringValue);
                     break;
 
                 case bool boolValue:
@@ -62,7 +66,7 @@ public static class PartitionKeyBuilderExtensions
                         CheckType(typeof(bool));
                     }
 
-                    builder.Add(boolValue);
+                    AddValue(boolValue);
                     break;
 
                 case var _ when value.GetType().IsNumeric():
@@ -71,7 +75,7 @@ public static class PartitionKeyBuilderExtensions
                         CheckType(value.GetType());
                     }
 
-                    builder.Add(Convert.ToDouble(value));
+                    AddValue(value);
                     break;
 
                 default:
@@ -93,5 +97,74 @@ public static class PartitionKeyBuilderExtensions
         }
 
         return builder;
+
+        void AddValue(object? providerValue)
+        {
+            var readerWriter = property?.GetJsonValueReaderWriter();
+            if (readerWriter == null
+                && property?.DeclaringType.Model.FindTypeMappingConfiguration(property.ClrType.UnwrapNullableType())
+                    ?.GetJsonValueReaderWriterType() != null)
+            {
+                readerWriter = mapping?.JsonValueReaderWriter;
+            }
+#pragma warning disable EF1001 // Internal EF Core API usage.
+            if (readerWriter is IJsonConvertedValueReaderWriter converted
+                && ReferenceEquals(converted.Converter, converter))
+            {
+                readerWriter = converted.InnerReaderWriter;
+            }
+#pragma warning restore EF1001
+
+            if (readerWriter != null
+                && (providerValue != null || readerWriter.HandlesNullWrites))
+            {
+                if (providerValue != null
+                    && !readerWriter.ValueType.IsInstanceOfType(providerValue)
+                    && providerValue.GetType().IsNumeric()
+                    && readerWriter.ValueType.IsNumeric())
+                {
+                    providerValue = Convert.ChangeType(providerValue, readerWriter.ValueType, CultureInfo.InvariantCulture);
+                }
+
+                using var document = JsonDocument.Parse(readerWriter.ToJsonString(providerValue));
+                var jsonValue = document.RootElement;
+                switch (jsonValue.ValueKind)
+                {
+                    case JsonValueKind.Null:
+                        builder.AddNullValue();
+                        break;
+                    case JsonValueKind.String:
+                        builder.Add(jsonValue.GetString()!);
+                        break;
+                    case JsonValueKind.True:
+                    case JsonValueKind.False:
+                        builder.Add(jsonValue.GetBoolean());
+                        break;
+                    case JsonValueKind.Number:
+                        builder.Add(jsonValue.GetDouble());
+                        break;
+                    default:
+                        throw new InvalidOperationException(CosmosStrings.PartitionKeyBadValue(typeof(JsonElement)));
+                }
+
+                return;
+            }
+
+            switch (providerValue)
+            {
+                case null:
+                    builder.AddNullValue();
+                    break;
+                case string stringValue:
+                    builder.Add(stringValue);
+                    break;
+                case bool boolValue:
+                    builder.Add(boolValue);
+                    break;
+                default:
+                    builder.Add(Convert.ToDouble(providerValue));
+                    break;
+            }
+        }
     }
 }

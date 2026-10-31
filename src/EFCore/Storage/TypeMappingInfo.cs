@@ -107,9 +107,11 @@ public readonly record struct TypeMappingInfo
         ClrType = (customConverter?.ProviderClrType ?? elementType.ClrType).UnwrapNullableType();
         Scale = fallbackScale ?? mappingHints?.Scale;
         Precision = fallbackPrecision ?? mappingHints?.Precision;
-        JsonValueReaderWriter = (elementType[CoreAnnotationNames.JsonValueReaderWriterType] != null
-                ? elementType.GetJsonValueReaderWriter()
-                : null)
+        JsonValueReaderWriter = (elementType is RuntimeElementType runtimeElementType
+                ? runtimeElementType.ConfiguredJsonValueReaderWriter
+                : elementType[CoreAnnotationNames.JsonValueReaderWriterType] != null
+                    ? elementType.GetJsonValueReaderWriter()
+                    : null)
             ?? GetJsonValueReaderWriter(
                 elementType.CollectionProperty.DeclaringType.Model.FindTypeMappingConfiguration(elementType.ClrType.UnwrapNullableType()));
     }

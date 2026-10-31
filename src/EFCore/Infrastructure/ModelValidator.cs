@@ -1419,21 +1419,28 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
         var configurationSource = elementType == null
             ? (property as IConventionProperty)?.GetJsonValueReaderWriterTypeConfigurationSource()
             : (elementType as IConventionElementType)?.GetJsonValueReaderWriterTypeConfigurationSource();
-        if (!configurationSource.OverridesStrictly(ConfigurationSource.Convention))
+        var memberConfiguration = configurationSource.OverridesStrictly(ConfigurationSource.Convention);
+        var jsonProperty = IsJsonProperty(property);
+        if (!memberConfiguration && !jsonProperty)
         {
             return;
         }
 
-        var readerWriter = elementType == null
-            ? property.GetJsonValueReaderWriter()
-            : elementType.GetJsonValueReaderWriter();
+        var clrType = (elementType?.ClrType ?? property.ClrType).UnwrapNullableType();
+        var readerWriter = memberConfiguration
+            ? elementType == null
+                ? property.GetJsonValueReaderWriter()
+                : elementType.GetJsonValueReaderWriter()
+            : property.DeclaringType.Model.FindTypeMappingConfiguration(clrType) is { } configuration
+                ? new TypeMappingInfo(clrType, configuration).JsonValueReaderWriter
+                : null;
         if (readerWriter == null)
         {
             return;
         }
 
         var memberName = elementType == null ? property.Name : property.Name + "[]";
-        if (!IsJsonProperty(property))
+        if (!jsonProperty)
         {
             throw new InvalidOperationException(
                 CoreStrings.JsonValueReaderWriterOnNonJsonProperty(
