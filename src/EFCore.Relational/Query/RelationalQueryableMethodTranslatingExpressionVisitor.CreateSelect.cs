@@ -644,7 +644,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             containerColumn,
             containerColumnClrType,
             containerColumnTypeMapping,
-            isNullable);
+            // The column can also be null when the declaring type is an optional dependent
+            isNullable || containerColumn?.IsNullable == true);
 
         var jsonQuery = new JsonQueryExpression(
             complexType,
@@ -735,7 +736,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         {
             SqlExpression? predicate = null;
             var projection = GetMappedProjection(selectExpression);
-            var requiredNonPkProperties = entityType.GetProperties().Where(p => !p.IsNullable && !p.IsPrimaryKey()).ToList();
+            var requiredNonPkProperties = entityType.GetRequiredNonPkProperties();
             if (requiredNonPkProperties.Count > 0)
             {
                 predicate = requiredNonPkProperties.Select(e => IsNotNull(e, projection))
@@ -745,7 +746,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             var allNonSharedNonPkProperties = entityType.GetNonPrincipalSharedNonPkProperties(table);
             // We don't need condition for nullable property if there exist at least one required property which is non shared.
             if (allNonSharedNonPkProperties.Count != 0
-                && allNonSharedNonPkProperties.All(p => p.IsNullable))
+                && allNonSharedNonPkProperties.All(p => p.IsNullable()))
             {
                 var atLeastOneNonNullValueInNullablePropertyCondition = allNonSharedNonPkProperties
                     .Select(p => IsNotNull(p, projection))
@@ -771,8 +772,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             => (StructuralTypeProjectionExpression)selectExpression.GetProjection(
                 new ProjectionBindingExpression(selectExpression, new ProjectionMember(), typeof(ValueBuffer)));
 
-        SqlExpression IsNotNull(IProperty property, StructuralTypeProjectionExpression projection)
-            => _sqlExpressionFactory.IsNotNull(projection.BindProperty(property));
+        SqlExpression IsNotNull(IPropertyBase property, StructuralTypeProjectionExpression projection)
+            => _sqlExpressionFactory.IsNotNull(projection.BindColumn(property));
     }
 
     private void AddJsonNavigationBindings(
@@ -886,7 +887,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             if (element.PropertyName is { } jsonPropertyName)
             {
                 propertyExpressions[property] = CreateColumnExpression(
-                    tableExpressionBase, jsonPropertyName, property.ClrType,
+                    tableExpressionBase, GetJsonElementColumnName(tableExpressionBase, jsonPropertyName), property.ClrType,
                     element.StoreTypeMapping!,
                     /* jsonQueryExpression.IsNullable || */ property.IsNullable); // TODO: Issue #28887
             }
@@ -902,8 +903,10 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             var isNullable = jsonQueryExpression.IsNullable || complexProperty.IsNullable;
 
             var containerColumnExpression = new ColumnExpression(
-                jsonQueryExpression.GetJsonElement(complexProperty).PropertyName
-                ?? throw new UnreachableException($"No JSON property name for complex property {complexProperty.Name}"),
+                GetJsonElementColumnName(
+                    tableExpressionBase,
+                    jsonQueryExpression.GetJsonElement(complexProperty).PropertyName
+                    ?? throw new UnreachableException($"No JSON property name for complex property {complexProperty.Name}")),
                 tableAlias,
                 // Nested container projects a sub-document of the same underlying JSON column, so preserve the model column
                 // for downstream FindJsonElement matching.
@@ -945,7 +948,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                 // the specific JSON property (projected as a relational column) which holds the JSON subtree for the target entity.
                 // Pass the underlying model column through so FindJsonElement matches for properties of the nested entity.
                 var column = new ColumnExpression(
-                    jsonNavigationName, tableAlias, jsonColumn.Column, jsonColumn.Type, jsonColumn.TypeMapping, isNullable);
+                    GetJsonElementColumnName(tableExpressionBase, jsonNavigationName!), tableAlias, jsonColumn.Column, jsonColumn.Type,
+                    jsonColumn.TypeMapping, isNullable);
 
                 // need to remap key property map to use target entity key properties
                 var newKeyPropertyMap = new Dictionary<IProperty, ColumnExpression>();
@@ -985,6 +989,16 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             [(identifierColumn, identifierColumnTypeMapping.Comparer)],
             _sqlAliasManager);
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    protected virtual string GetJsonElementColumnName(TableExpressionBase tableExpressionBase, string jsonPropertyName)
+        => jsonPropertyName;
 
     private static ColumnExpression CreateColumnExpression(
         IProperty property,

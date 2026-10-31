@@ -255,6 +255,8 @@ public class ExpressionPrinter : ExpressionVisitor
             case ExpressionType.And:
             case ExpressionType.Or:
             case ExpressionType.ExclusiveOr:
+            case ExpressionType.LeftShift:
+            case ExpressionType.RightShift:
                 VisitBinary((BinaryExpression)expression);
                 break;
 
@@ -406,7 +408,7 @@ public class ExpressionPrinter : ExpressionVisitor
             }
 
             var expressions = blockExpression.Expressions.Count > 0
-                ? blockExpression.Expressions.Except([blockExpression.Result])
+                ? blockExpression.Expressions.Take(blockExpression.Expressions.Count - 1)
                 : blockExpression.Expressions;
 
             foreach (var expression in expressions)

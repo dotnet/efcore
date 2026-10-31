@@ -2137,7 +2137,7 @@ LEFT JOIN (
         ) AS [j1]
     ) AS [j4]
     WHERE 1 < [j4].[row] AND [j4].[row] <= 6
-) AS [j5] ON [j3].[Key] = [j5].[Key]
+) AS [j5] ON [j3].[Key] = [j5].[Key] OR ([j3].[Key] IS NULL AND [j5].[Key] IS NULL)
 ORDER BY [j3].[Key], [j5].[Key], [j5].[Id]
 """);
     }
@@ -4227,6 +4227,137 @@ N'e1')
 SELECT TOP(2) [m].[Id], [m].[PropertyInMainTable], [o].[PropertyInOtherTable], [m].[Json]
 FROM [MyEntity] AS [m]
 INNER JOIN [OtherTable] AS [o] ON [m].[Id] = [o].[Id]
+""");
+    }
+
+    public override async Task Project_complex_collection_with_property_named_key()
+    {
+        await base.Project_complex_collection_with_property_named_key();
+
+        AssertSql(
+            """
+SELECT [e0].[Id], JSON_VALUE([i].[value], '$.key') AS [key0], JSON_VALUE([i].[value], '$.Value') AS [Value], [i].[key]
+FROM (
+    SELECT TOP(2) [e].[Id], [e].[Items]
+    FROM [Entity] AS [e]
+) AS [e0]
+OUTER APPLY OPENJSON([e0].[Items], '$') AS [i]
+ORDER BY [e0].[Id], CAST([i].[key] AS int)
+""");
+    }
+
+    public override async Task Project_complex_collection_with_property_named_key_with_Take()
+    {
+        await base.Project_complex_collection_with_property_named_key_with_Take();
+
+        AssertSql(
+            """
+SELECT [e0].[Id], [i0].[key0], [i0].[key]
+FROM (
+    SELECT TOP(2) [e].[Id], [e].[Items]
+    FROM [Entity] AS [e]
+) AS [e0]
+OUTER APPLY (
+    SELECT TOP(1) JSON_VALUE([i].[value], '$.key') AS [key0], [i].[key], CAST([i].[key] AS int) AS [c]
+    FROM OPENJSON([e0].[Items], '$') AS [i]
+    ORDER BY CAST([i].[key] AS int)
+) AS [i0]
+ORDER BY [e0].[Id], [i0].[c]
+""");
+    }
+
+    public override async Task Filter_complex_collection_with_property_named_key()
+    {
+        await base.Filter_complex_collection_with_property_named_key();
+
+        AssertSql(
+            """
+SELECT COUNT(*)
+FROM [Entity] AS [e]
+WHERE EXISTS (
+    SELECT 1
+    FROM OPENJSON([e].[Items], '$') WITH ([key0] nvarchar(max) '$.key') AS [i]
+    WHERE [i].[key0] = N'k1')
+""");
+    }
+
+    public override async Task Project_complex_collection_with_property_named_Key()
+    {
+        await base.Project_complex_collection_with_property_named_Key();
+
+        AssertSql(
+            """
+SELECT [e0].[Id], JSON_VALUE([i].[value], '$.Key') AS [Key], JSON_VALUE([i].[value], '$.Value') AS [Value], [i].[key]
+FROM (
+    SELECT TOP(2) [e].[Id], [e].[Items]
+    FROM [Entity] AS [e]
+) AS [e0]
+OUTER APPLY OPENJSON([e0].[Items], '$') AS [i]
+ORDER BY [e0].[Id], CAST([i].[key] AS int)
+""");
+    }
+
+    public override async Task Project_complex_collection_with_properties_named_key_and_key0()
+    {
+        await base.Project_complex_collection_with_properties_named_key_and_key0();
+
+        AssertSql(
+            """
+SELECT [e0].[Id], JSON_VALUE([i].[value], '$.key') AS [key1], JSON_VALUE([i].[value], '$.key0') AS [key0], [i].[key]
+FROM (
+    SELECT TOP(2) [e].[Id], [e].[Items]
+    FROM [Entity] AS [e]
+) AS [e0]
+OUTER APPLY OPENJSON([e0].[Items], '$') AS [i]
+ORDER BY [e0].[Id], CAST([i].[key] AS int)
+""");
+    }
+
+    public override async Task Project_complex_collection_with_property_named_key0()
+    {
+        await base.Project_complex_collection_with_property_named_key0();
+
+        AssertSql(
+            """
+SELECT [e0].[Id], JSON_VALUE([i].[value], '$.code') AS [code], JSON_VALUE([i].[value], '$.key0') AS [key0], [i].[key]
+FROM (
+    SELECT TOP(2) [e].[Id], [e].[Items]
+    FROM [Entity] AS [e]
+) AS [e0]
+OUTER APPLY OPENJSON([e0].[Items], '$') AS [i]
+ORDER BY [e0].[Id], CAST([i].[key] AS int)
+""");
+    }
+
+    public override async Task Project_complex_collection_with_nested_complex_property_named_key()
+    {
+        await base.Project_complex_collection_with_nested_complex_property_named_key();
+
+        AssertSql(
+            """
+SELECT [e0].[Id], JSON_VALUE([i].[value], '$.Name') AS [Name], JSON_VALUE([i].[value], '$.key.Code'), [i].[key]
+FROM (
+    SELECT TOP(2) [e].[Id], [e].[Items]
+    FROM [Entity] AS [e]
+) AS [e0]
+OUTER APPLY OPENJSON([e0].[Items], '$') AS [i]
+ORDER BY [e0].[Id], CAST([i].[key] AS int)
+""");
+    }
+
+    public override async Task Project_owned_collection_with_property_named_key()
+    {
+        await base.Project_owned_collection_with_property_named_key();
+
+        AssertSql(
+            """
+SELECT [e0].[Id], JSON_VALUE([i].[value], '$.key') AS [key0], JSON_VALUE([i].[value], '$.Value') AS [Value], [i].[key]
+FROM (
+    SELECT TOP(2) [e].[Id], [e].[Items]
+    FROM [Entity] AS [e]
+) AS [e0]
+OUTER APPLY OPENJSON([e0].[Items], '$') AS [i]
+ORDER BY [e0].[Id], CAST([i].[key] AS int)
 """);
     }
 

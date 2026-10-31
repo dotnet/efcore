@@ -170,6 +170,7 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
         _code
             .AppendLine()
             .AppendLine("#pragma warning disable EF9100 // Precompiled query is experimental")
+            .AppendLine("#pragma warning disable EF9001 // The query may use experimental APIs, e.g. window functions")
             // Auto-generated code has the nullable context disabled, but the interceptor signatures contain nullable annotations
             .AppendLine("#nullable enable annotations")
             .AppendLine()

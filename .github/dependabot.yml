@@ -3,6 +3,9 @@ registries:
   dotnet-public:
     type: nuget-feed
     url: https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-public/nuget/v3/index.json
+  dotnet-npm:
+    type: npm-registry
+    url: https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-public-npm/npm/registry/
 updates:
   - package-ecosystem: "nuget"
     directory: "/"
@@ -290,6 +293,8 @@ updates:
 
   - package-ecosystem: "npm"
     directory: "/eng/harness-evaluation"
+    registries:
+      - dotnet-npm
     open-pull-requests-limit: 5
     schedule:
       interval: "weekly"

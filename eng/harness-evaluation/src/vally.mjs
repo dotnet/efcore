@@ -7,8 +7,11 @@ const require = createRequire(import.meta.url);
 const entryUrl = pathToFileURL(join(dirname(require.resolve('@microsoft/vally-cli/package.json')), 'dist/index.js'));
 let timeoutMs = defaultJudgeTimeoutMs;
 if (process.argv[2] === '--judge-timeout') {
-  timeoutMs = timeoutMilliseconds(process.argv[3], '--judge-timeout');
+  const judgeTimeout = process.argv[3];
+  timeoutMs = timeoutMilliseconds(judgeTimeout, '--judge-timeout');
   process.argv.splice(2, 2);
+  const commandIndex = process.argv[2] === 'experiment' && process.argv[3] === 'run' ? 4 : 3;
+  process.argv.splice(commandIndex, 0, '--judge-timeout', judgeTimeout);
 }
 judgeTimeoutLimits(timeoutMs);
 

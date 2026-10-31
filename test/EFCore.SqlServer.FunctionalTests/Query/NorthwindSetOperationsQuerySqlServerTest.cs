@@ -1259,7 +1259,7 @@ FROM (
     LEFT JOIN [Customers] AS [c0] ON [o0].[CustomerID] = [c0].[CustomerID]
     WHERE [o0].[OrderID] < 10250
 ) AS [u]
-LEFT JOIN [Orders] AS [o1] ON [u].[CustomerID] = [o1].[CustomerID]
+LEFT JOIN [Orders] AS [o1] ON [u].[CustomerID] = [o1].[CustomerID] OR ([u].[CustomerID] IS NULL AND [o1].[CustomerID] IS NULL)
 ORDER BY [u].[CustomerID], [u].[OrderDate]
 """);
     }

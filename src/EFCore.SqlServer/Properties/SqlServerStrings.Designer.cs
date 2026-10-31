@@ -446,6 +446,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 periodType, entityType, periodProperty, periodColumn, expectedColumnName);
 
         /// <summary>
+        ///     The temporal operator '{operatorName}' cannot be used in a compiled query with arguments that vary per invocation. Temporal points in time and ranges are written into the SQL as literals, and a compiled query reuses a single SQL string, so the arguments must be constants. Either use constant arguments, or execute the query without EF.CompileQuery or EF.CompileAsyncQuery.
+        /// </summary>
+        public static string TemporalOperatorRequiresConstantArgumentInCompiledQuery(object? operatorName)
+            => string.Format(
+                GetString("TemporalOperatorRequiresConstantArgumentInCompiledQuery", nameof(operatorName)),
+                operatorName);
+
+        /// <summary>
         ///     Only root entity type should be marked as temporal. Entity type: '{entityType}'.
         /// </summary>
         public static string TemporalOnlyOnRoot(object? entityType)
@@ -500,6 +508,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             => string.Format(
                 GetString("TemporalSetOperationOnMismatchedSources", nameof(entityType)),
                 entityType);
+
+        /// <summary>
+        ///     The TimeSpan value '{timeSpan}' is outside the valid range for a SQL Server 'time' literal. Values must be greater than or equal to zero and less than 24 hours.
+        /// </summary>
+        public static string TimeSpanLiteralOutOfRange(object? timeSpan)
+            => string.Format(
+                GetString("TimeSpanLiteralOutOfRange", nameof(timeSpan)),
+                timeSpan);
 
         /// <summary>
         ///     The provided time zone offset '{offset}' is outside the valid range for SQL Server. Time zone offsets must be between -14:00 and +14:00.
