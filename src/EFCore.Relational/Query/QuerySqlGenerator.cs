@@ -372,8 +372,15 @@ public class QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : Exp
     {
         Visit(projectionExpression.Expression);
 
+        // ClrTypeChangeExpression doesn't affect the generated SQL, so look through it when checking whether the alias is redundant
+        var projectedExpression = projectionExpression.Expression;
+        while (projectedExpression is ClrTypeChangeExpression clrTypeChangeExpression)
+        {
+            projectedExpression = clrTypeChangeExpression.Operand;
+        }
+
         if (projectionExpression.Alias != string.Empty
-            && !(projectionExpression.Expression is ColumnExpression column && column.Name == projectionExpression.Alias))
+            && !(projectedExpression is ColumnExpression column && column.Name == projectionExpression.Alias))
         {
             _relationalCommandBuilder
                 .Append(AliasSeparator)

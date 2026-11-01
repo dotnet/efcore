@@ -32,7 +32,7 @@ public class RelationalMethodCallTranslatorProvider : IMethodCallTranslatorProvi
             new CollateTranslator(),
             new ContainsTranslator(sqlExpressionFactory),
             new LikeTranslator(sqlExpressionFactory),
-            new EnumMethodTranslator(sqlExpressionFactory, dependencies.RelationalTypeMappingSource),
+            new EnumMethodTranslator(sqlExpressionFactory),
             new GetValueOrDefaultTranslator(sqlExpressionFactory),
             new ComparisonTranslator(sqlExpressionFactory),
             new ByteArraySequenceEqualTranslator(sqlExpressionFactory),

@@ -199,7 +199,7 @@ ORDER BY "u"."Id"
 """,
             //
             """
-SELECT CAST("u"."Role" AS TEXT)
+SELECT "u"."Role"
 FROM "Users" AS "u"
 ORDER BY "u"."Id"
 """,
