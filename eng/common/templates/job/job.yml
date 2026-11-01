@@ -223,7 +223,7 @@ jobs:
       inputs:
         PathtoPublish: '$(System.DefaultWorkingDirectory)/artifacts/log/$(_BuildConfig)'
         PublishLocation: Container
-        ArtifactName: ${{ coalesce(parameters.enablePublishBuildArtifacts.artifactName, '$(Agent.Os)_$(Agent.JobName)') }}_Attempt_$(System.JobAttempt)
+        ArtifactName: ${{ coalesce(parameters.enablePublishBuildArtifacts.artifactName, '$(Agent.Os)_$(Agent.JobName)' ) }}
       continueOnError: true
       condition: always()
 
