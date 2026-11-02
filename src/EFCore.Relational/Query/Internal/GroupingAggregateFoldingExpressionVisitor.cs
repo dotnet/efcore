@@ -144,6 +144,11 @@ internal sealed class GroupingAggregateFoldingExpressionVisitor : ExpressionVisi
         "least", "degrees", "radians", "sin", "cos", "tan", "asin", "acos", "atan", "atn2", "atan2", "sinh", "cosh", "tanh", "asinh",
         "acosh", "atanh",
 
+        // Dates and times
+        "dateadd", "datediff", "datediff_big", "datepart", "datetrunc", "datefromparts", "timefromparts", "datetimefromparts",
+        "datetime2fromparts", "datetimeoffsetfromparts", "smalldatetimefromparts", "switchoffset", "todatetimeoffset", "isdate",
+        "strftime", "date", "julianday",
+
         // Conversion
         "convert"
     };

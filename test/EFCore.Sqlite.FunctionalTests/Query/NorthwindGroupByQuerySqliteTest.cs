@@ -124,6 +124,30 @@ GROUP BY "o"."CustomerID"
 """);
     }
 
+    public override async Task GroupBy_aggregate_under_date_part_as_element_of_inline_collection_Contains(bool async)
+    {
+        await base.GroupBy_aggregate_under_date_part_as_element_of_inline_collection_Contains(async);
+
+        AssertSql(
+            """
+SELECT "o"."CustomerID" AS "Key", 1998 IN (0) OR (1998 = CAST(strftime('%Y', MAX("o"."OrderDate")) AS INTEGER) AND MAX("o"."OrderDate") IS NOT NULL) AS "A"
+FROM "Orders" AS "o"
+GROUP BY "o"."CustomerID"
+""");
+    }
+
+    public override async Task GroupBy_aggregate_under_date_add_as_element_of_inline_collection_Contains(bool async)
+    {
+        await base.GroupBy_aggregate_under_date_add_as_element_of_inline_collection_Contains(async);
+
+        AssertSql(
+            """
+SELECT "o"."CustomerID" AS "Key", '1998-05-07 00:00:00' IN ('0001-01-01 00:00:00') OR ('1998-05-07 00:00:00' = rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', MAX("o"."OrderDate"), CAST(1.0 AS TEXT) || ' days'), '0'), '.') AND MAX("o"."OrderDate") IS NOT NULL) AS "A"
+FROM "Orders" AS "o"
+GROUP BY "o"."CustomerID"
+""");
+    }
+
     // With a single argument, SQLite's max is the aggregate, so g.Count() inside its argument mustn't be folded into it.
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task GroupBy_Max_with_aggregate_over_grouping_in_inline_collection(bool async)
