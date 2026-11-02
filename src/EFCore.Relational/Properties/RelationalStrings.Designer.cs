@@ -1048,6 +1048,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 expression);
 
         /// <summary>
+        ///     The value '{value}' of type '{valueType}' cannot be assigned to the property '{property}' of type '{propertyType}' in an ExecuteMerge WhenMatched setter.
+        /// </summary>
+        public static string ExecuteMergeUpdateValueTypeMismatch(object? value, object? valueType, object? property, object? propertyType)
+            => string.Format(
+                GetString("ExecuteMergeUpdateValueTypeMismatch", nameof(value), nameof(valueType), nameof(property), nameof(propertyType)),
+                value, valueType, property, propertyType);
+
+        /// <summary>
         ///     The operation '{operation}' is being applied on entity type '{entityType}', which uses entity splitting. 'ExecuteDelete'/'ExecuteUpdate'/'ExecuteMerge' operations on entity types using entity splitting are not supported.
         /// </summary>
         public static string ExecuteOperationOnEntitySplitting(object? operation, object? entityType)

@@ -1178,6 +1178,27 @@ RETURNING "Label";
         AssertSql();
     }
 
+    public override async Task When_matched_source_member_of_incompatible_type_throws(bool async)
+    {
+        await base.When_matched_source_member_of_incompatible_type_throws(async);
+
+        AssertSql();
+    }
+
+    public override async Task When_matched_target_member_of_incompatible_type_throws(bool async)
+    {
+        await base.When_matched_target_member_of_incompatible_type_throws(async);
+
+        AssertSql();
+    }
+
+    public override async Task Returning_selector_capturing_instance_throws(bool async)
+    {
+        await base.Returning_selector_capturing_instance_throws(async);
+
+        AssertSql();
+    }
+
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Returning_on_table_without_returning_clause_throws(bool async)
     {

@@ -106,6 +106,28 @@ public abstract class ExecuteMergeRelationalTestBase<TFixture>(TFixture fixture)
             });
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task When_matched_source_member_of_incompatible_type_throws(bool async)
+        => AssertMergeThrows(
+            context => Merge(
+                async, context.Visits,
+                [new DailyVisit { UserId = 1, Day = "mon", Visits = 3 }],
+                merge => merge
+                    .Match(t => new { t.UserId, t.Day }, s => new { s.UserId, s.Day })
+                    .WhenMatched(u => u.SetProperty<object>(t => t.Visits, (t, s) => s.Day))),
+            RelationalStrings.ExecuteMergeUpdateValueTypeMismatch("s.Day", "string", nameof(DailyVisit.Visits), "int"));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task When_matched_target_member_of_incompatible_type_throws(bool async)
+        => AssertMergeThrows(
+            context => Merge(
+                async, context.Visits,
+                [new DailyVisit { UserId = 1, Day = "mon", Visits = 3 }],
+                merge => merge
+                    .Match(t => new { t.UserId, t.Day }, s => new { s.UserId, s.Day })
+                    .WhenMatched(u => u.SetProperty<object>(t => t.Visits, (t, s) => t.Day))),
+            RelationalStrings.ExecuteMergeUpdateValueTypeMismatch("t.Day", "string", nameof(DailyVisit.Visits), "int"));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task When_matched_with_narrowing_conversion_throws(bool async)
         => AssertMergeThrows(
             context => Merge(
@@ -335,6 +357,13 @@ public abstract class ExecuteMergeRelationalTestBase<TFixture>(TFixture fixture)
                 async, context.Blogs, [new Blog { Id = 3, Name = "Blog3" }], merge => { }, t => new { t.Id, Prefix = prefix }),
             RelationalStrings.ExecuteMergeReturningUnsupportedExpression("@prefix"));
     }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Returning_selector_capturing_instance_throws(bool async)
+        => AssertMergeThrows(
+            context => MergeReturning(
+                async, context.Blogs, [new Blog { Id = 3, Name = "Blog3" }], merge => { }, t => new { t.Id, Owner = this }),
+            CoreStrings.ClientProjectionCapturingConstantInTree(GetType().FullName!));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Null_source_throws(bool async)

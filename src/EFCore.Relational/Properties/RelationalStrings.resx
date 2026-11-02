@@ -514,6 +514,9 @@
   <data name="ExecuteMergeUnsupportedExpression" xml:space="preserve">
     <value>Unsupported expression '{expression}' in an ExecuteMerge setter value.</value>
   </data>
+  <data name="ExecuteMergeUpdateValueTypeMismatch" xml:space="preserve">
+    <value>The value '{value}' of type '{valueType}' cannot be assigned to the property '{property}' of type '{propertyType}' in an ExecuteMerge WhenMatched setter.</value>
+  </data>
   <data name="ExecuteOperationOnEntitySplitting" xml:space="preserve">
     <value>The operation '{operation}' is being applied on entity type '{entityType}', which uses entity splitting. 'ExecuteDelete'/'ExecuteUpdate'/'ExecuteMerge' operations on entity types using entity splitting are not supported.</value>
   </data>

@@ -394,6 +394,10 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                 MethodCallExpression { Arguments: [var instance, ConstantExpression { Value: string }] } methodCall
                     when methodCall.Method.IsEFPropertyMethod() && instance.UnwrapTypeConversion(out _) == targetParam
                     => ReadColumn(methodCall),
+                // As for regular projections, a captured instance (e.g. 'this') would be rooted by the cached shaper.
+                ConstantExpression { Value: not null } constant when visitor._typeMappingSource.FindMapping(constant.Type) is null
+                    => throw new InvalidOperationException(
+                        CoreStrings.ClientProjectionCapturingConstantInTree(constant.Type.DisplayName())),
                 NewExpression or MemberInitExpression or ConstantExpression
                     or UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked }
                     => base.Visit(node),
@@ -513,6 +517,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                     throw new InvalidOperationException(RelationalStrings.ExecuteMergeSourceMemberNotInserted(member.Print()));
                 }
 
+                ValidateUpdateValueType(member, member.Type, property);
+
                 // The excluded value has been converted by its own column's value converter, so it can only be assigned to a column
                 // that converts the same way; prefer the column being set.
                 var (excludedColumn, excludedProperty) = excludedColumns
@@ -535,6 +541,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                 var targetColumn = table.FindColumn(targetProperty)
                     ?? throw new InvalidOperationException(
                         RelationalStrings.ExecuteMergePropertyNotMapped(targetProperty.Name, table.Name));
+
+                ValidateUpdateValueType(member, targetProperty.ClrType, property);
 
                 // The column holds its own converter's provider value, so it can only be copied to a column that converts the same way.
                 if (targetColumn.StoreTypeMapping.Converter != column.StoreTypeMapping.Converter)
@@ -563,6 +571,17 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 
             default:
                 throw new InvalidOperationException(RelationalStrings.ExecuteMergeUnsupportedExpression(expression.Print()));
+        }
+    }
+
+    // A boxed value (e.g. from SetProperty<object>) would otherwise let a column of one type be written into another.
+    private static void ValidateUpdateValueType(Expression value, Type valueType, IProperty property)
+    {
+        if (!property.ClrType.IsAssignableFrom(valueType))
+        {
+            throw new InvalidOperationException(
+                RelationalStrings.ExecuteMergeUpdateValueTypeMismatch(
+                    value.Print(), valueType.ShortDisplayName(), property.Name, property.ClrType.ShortDisplayName()));
         }
     }
 
