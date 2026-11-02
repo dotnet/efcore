@@ -2242,6 +2242,18 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
             elementSorter: e => e.Key);
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Property_Select_Count_with_not_null_predicate_over_function(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .GroupBy(c => c.Country)
+                .Select(g => new { g.Key, Count = g.Count(c => c.Region!.ToUpper() != null) }),
+            ss => ss.Set<Customer>()
+                .GroupBy(c => c.Country)
+                .Select(g => new { g.Key, Count = g.Count(c => c.Region != null) }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_orderby_projection_with_coalesce_operation(bool async)
         => AssertQuery(
             async,
