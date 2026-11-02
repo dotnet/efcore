@@ -69,10 +69,10 @@ SELECT "o"."CustomerID" AS "Key", COALESCE((
     SELECT 2 IN (0) OR (2 = (
         SELECT COUNT(*)
         FROM "Orders" AS "o0"
-        WHERE "o"."CustomerID" = "o0"."CustomerID" OR ("o"."CustomerID" IS NULL AND "o0"."CustomerID" IS NULL) OR ("o"."CustomerID" IS NULL AND "o0"."CustomerID" IS NULL) OR ("o"."CustomerID" IS NULL AND "o0"."CustomerID" IS NULL)) AND (
+        WHERE "o"."CustomerID" = "o0"."CustomerID" OR ("o"."CustomerID" IS NULL AND "o0"."CustomerID" IS NULL)) AND (
         SELECT COUNT(*)
         FROM "Orders" AS "o0"
-        WHERE "o"."CustomerID" = "o0"."CustomerID" OR ("o"."CustomerID" IS NULL AND "o0"."CustomerID" IS NULL) OR ("o"."CustomerID" IS NULL AND "o0"."CustomerID" IS NULL) OR ("o"."CustomerID" IS NULL AND "o0"."CustomerID" IS NULL)) IS NOT NULL)
+        WHERE "o"."CustomerID" = "o0"."CustomerID" OR ("o"."CustomerID" IS NULL AND "o0"."CustomerID" IS NULL)) IS NOT NULL)
     FROM "Employees" AS "e"
     GROUP BY "o"."CustomerID"
     LIMIT 1), 0) AS "A"
