@@ -483,6 +483,7 @@ public abstract partial class ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
+            modelBuilder.Entity<UniProduct>();
             modelBuilder.Entity<UniCategory>().Navigation(e => e.Products)
                 .AutoInclude()
                 .EnableLazyLoading(false)
