@@ -85,7 +85,8 @@ public class CSharpRuntimeModelCodeGeneratorTest
 
         Assert.Null(element[CoreAnnotationNames.JsonValueReaderWriterType]);
         var mapping = compiledProperty.GetTypeMapping();
-        Assert.IsType<Int32AsStringReaderWriter>(element.GetJsonValueReaderWriter());
+        Assert.IsType<Int32AsStringReaderWriter>(element.GetTypeMapping().JsonValueReaderWriter);
+        Assert.Same(element.GetTypeMapping().JsonValueReaderWriter, element.GetJsonValueReaderWriter());
         var readerWriter = mapping.JsonValueReaderWriter!;
         Assert.Equal("[\"42\",\"43\"]", readerWriter.ToJsonString(new List<int> { 42, 43 }));
         Assert.Equal(new List<int> { 42, 43 }, Assert.IsAssignableFrom<IEnumerable<int>>(readerWriter.FromJsonString("[\"42\",\"43\"]")));

@@ -66,6 +66,7 @@ public class CosmosVectorTypeMapping : CosmosTypeMapping
                 mapping.Comparer,
                 mapping.KeyComparer,
                 elementMapping: mapping.ElementTypeMapping,
+                // Replace the converter-backed writer only because BytesToStringConverter is discarded above.
                 jsonValueReaderWriter: mapping.Converter?.GetType() == typeof(BytesToStringConverter)
                     ? new JsonCollectionOfStructsReaderWriter<byte[], byte>(JsonByteReaderWriter.Instance)
                     : mapping.JsonValueReaderWriter),

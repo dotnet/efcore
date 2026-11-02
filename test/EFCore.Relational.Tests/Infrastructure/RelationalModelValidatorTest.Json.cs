@@ -3,6 +3,7 @@
 
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
@@ -157,6 +158,37 @@ public partial class RelationalModelValidatorTest
         Assert.Equal(DayOfWeek.Monday, readerWriter.FromJsonString("\"1\""));
     }
 
+    [Theory, InlineData(false), InlineData(true)]
+    public void Validates_convention_enum_reader_writer_against_JSON_store_type(bool converted)
+    {
+        var builder = CreateConventionModelBuilder();
+        var owned = builder.Entity<JsonReaderWriterOwner>().OwnsOne(e => e.Value);
+        owned.ToJson();
+        var propertyBuilder = owned.Property<DayOfWeek>("Day");
+        if (converted)
+        {
+            propertyBuilder.HasConversion<string>();
+        }
+
+        var property = propertyBuilder.Metadata;
+        ((IConventionProperty)property).SetJsonValueReaderWriterType(typeof(JsonWarningEnumReaderWriter<DayOfWeek>));
+        if (converted)
+        {
+            VerifyError(
+                CoreStrings.JsonValueReaderWriterPropertyMismatch(
+                    property.DeclaringType.DisplayName(), property.Name, "JsonWarningEnumReaderWriter<DayOfWeek>", "DayOfWeek", "string"),
+                builder);
+            return;
+        }
+
+        var model = Validate(builder);
+        var readerWriter = model.FindEntityType(property.DeclaringType.Name)!.FindProperty(property.Name)!.GetTypeMapping()
+            .JsonValueReaderWriter!;
+        Assert.Same(JsonWarningEnumReaderWriter<DayOfWeek>.Instance, readerWriter);
+        Assert.Equal("1", readerWriter.ToJsonString(DayOfWeek.Monday));
+        Assert.Equal(DayOfWeek.Monday, readerWriter.FromJsonString("1"));
+    }
+
     [Fact]
     public void Member_reader_writer_overrides_type_mapping_default()
     {
@@ -210,12 +242,16 @@ public partial class RelationalModelValidatorTest
         Assert.Equal(new List<int?> { 42, null }, Assert.IsAssignableFrom<IEnumerable<int?>>(readerWriter.FromJsonString("[\"42\",null]")));
     }
 
-    [Fact]
-    public void Rejects_reader_writer_with_incompatible_JSON_collection_element_store_type()
+    [Theory]
+    [InlineData(ConfigurationSource.Convention)]
+    [InlineData(ConfigurationSource.DataAnnotation)]
+    [InlineData(ConfigurationSource.Explicit)]
+    public void Rejects_reader_writer_with_incompatible_JSON_collection_element_store_type(ConfigurationSource configurationSource)
     {
         var builder = CreateConventionModelBuilder();
         var property = builder.Entity<JsonCollectionReaderWriterOwner>().PrimitiveCollection(e => e.Numbers);
-        property.ElementType().HasJsonValueReaderWriter<JsonStringReaderWriter>();
+        ((ElementType)property.Metadata.GetElementType()!)
+            .SetJsonValueReaderWriterType(typeof(JsonStringReaderWriter), configurationSource);
 
         VerifyError(
             CoreStrings.JsonValueReaderWriterPropertyMismatch(
@@ -224,12 +260,15 @@ public partial class RelationalModelValidatorTest
             builder);
     }
 
-    [Fact]
-    public void Rejects_reader_writer_on_non_JSON_member()
+    [Theory]
+    [InlineData(ConfigurationSource.Convention)]
+    [InlineData(ConfigurationSource.DataAnnotation)]
+    [InlineData(ConfigurationSource.Explicit)]
+    public void Rejects_reader_writer_on_non_JSON_member(ConfigurationSource configurationSource)
     {
         var builder = CreateConventionModelBuilder();
-        var property = builder.Entity<JsonReaderWriterOwner>().Property(e => e.Id)
-            .HasJsonValueReaderWriter<JsonInt32ReaderWriter>().Metadata;
+        var property = builder.Entity<JsonReaderWriterOwner>().Property(e => e.Id).Metadata;
+        ((Metadata.Internal.Property)property).SetJsonValueReaderWriterType(typeof(JsonInt32ReaderWriter), configurationSource);
         builder.Entity<JsonReaderWriterOwner>().Ignore(e => e.Value);
 
         VerifyError(

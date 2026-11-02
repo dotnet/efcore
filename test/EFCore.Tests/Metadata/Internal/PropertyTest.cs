@@ -548,9 +548,11 @@ public class PropertyTest
         var property = new RuntimeModel(skipDetectChanges: false, modelId: Guid.Empty, entityTypeCount: 1, typeConfigurationCount: 0)
             .AddEntityType("Entity", typeof(object)).AddProperty("Values", typeof(List<string>));
         var readerWriter = new SimpleJasonValueReaderWriter();
-        var element = property.SetElementType(typeof(string), jsonValueReaderWriter: readerWriter);
+        var mapping = new InMemory.Storage.Internal.InMemoryTypeMapping(typeof(string), jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        var element = property.SetElementType(typeof(string), jsonValueReaderWriter: readerWriter, typeMapping: mapping);
 
         Assert.Null(element[CoreAnnotationNames.JsonValueReaderWriterType]);
+        Assert.Same(readerWriter, element.GetJsonValueReaderWriter());
         Assert.Same(readerWriter, new TypeMappingInfo(element).JsonValueReaderWriter);
     }
 
@@ -564,8 +566,9 @@ public class PropertyTest
         var element = property.SetElementType(typeof(string), typeMapping: mapping);
 
         Assert.Same(JsonStringReaderWriter.Instance, element.GetJsonValueReaderWriter());
-        var readerWriter = Assert.IsType<SimpleJasonValueReaderWriter>(new TypeMappingInfo(element).JsonValueReaderWriter);
-        Assert.Same(readerWriter, new TypeMappingInfo(typeof(string), configuration).JsonValueReaderWriter);
+        Assert.Same(JsonStringReaderWriter.Instance, element.TypeMapping.JsonValueReaderWriter);
+        Assert.IsType<SimpleJasonValueReaderWriter>(new TypeMappingInfo(element).JsonValueReaderWriter);
+        Assert.IsType<SimpleJasonValueReaderWriter>(new TypeMappingInfo(typeof(string), configuration).JsonValueReaderWriter);
     }
 
     [Fact]
