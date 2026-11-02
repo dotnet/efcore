@@ -121,6 +121,30 @@ public abstract class NorthwindGroupByQueryRelationalTestBase<TFixture>(TFixture
                 }),
             elementSorter: e => e.Key);
 
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_string_aggregate_StartsWith_constant_as_element_of_inline_collection_Contains(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().GroupBy(c => c.City)
+                .Select(g => new
+                {
+                    g.Key, A = new[] { string.Join("|", g.Select(c => c.CustomerID)).StartsWith("ALF") ? "y" : "n", "" }.Contains("y")
+                }),
+            elementSorter: e => e.Key);
+
+    // A pattern which isn't a constant or parameter can't be escaped for LIKE, so it is compared against a prefix of the aggregate.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_string_aggregate_StartsWith_column_as_element_of_inline_collection_Contains(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().GroupBy(c => c.CustomerID.Substring(0, 1))
+                .Select(g => new
+                {
+                    g.Key,
+                    A = new[] { string.Join("|", g.Select(c => c.CustomerID)).StartsWith(g.Key) ? "y" : "n", "" }.Contains("y")
+                }),
+            elementSorter: e => e.Key);
+
     // Folded into the inner query, an aggregate over the outer grouping that also names the inner query's columns would be evaluated
     // over the inner query's rows; with no subquery to fall back to, it can't be translated.
     [Theory, MemberData(nameof(IsAsyncData))]
