@@ -58,8 +58,8 @@ public class CSharpRuntimeModelCodeGeneratorTest
         }
     }
 
-    [Theory, InlineData(false), InlineData(true)]
-    public void Compiled_model_preserves_element_reader_without_type_annotation(bool typeMappingDefault)
+    [Theory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
+    public void Compiled_model_preserves_element_reader_without_type_annotation(bool typeMappingDefault, bool nativeAot)
     {
         var builder = SqliteTestHelpers.Instance.CreateConventionBuilder(
             configureConventions: c =>
@@ -75,7 +75,7 @@ public class CSharpRuntimeModelCodeGeneratorTest
             elementBuilder.HasJsonValueReaderWriter<Int32AsStringReaderWriter>();
         }
 
-        var compiledType = CompileModel(builder.FinalizeModel(designTime: true), nativeAot: false);
+        var compiledType = CompileModel(builder.FinalizeModel(designTime: true), nativeAot);
         var compiledModel = (IModel)compiledType.GetProperty("Instance")!.GetValue(null)!;
 
         using var runtimeServices = new ServiceCollection().AddEntityFrameworkSqlite().BuildServiceProvider();
@@ -86,16 +86,21 @@ public class CSharpRuntimeModelCodeGeneratorTest
         Assert.Null(element[CoreAnnotationNames.JsonValueReaderWriterType]);
         var mapping = compiledProperty.GetTypeMapping();
         Assert.IsType<Int32AsStringReaderWriter>(element.GetTypeMapping().JsonValueReaderWriter);
-        Assert.Same(element.GetTypeMapping().JsonValueReaderWriter, element.GetJsonValueReaderWriter());
+        var elementReader = Assert.IsType<Int32AsStringReaderWriter>(element.GetJsonValueReaderWriter());
+        Assert.Equal("\"42\"", elementReader.ToJsonString(42));
+        using var command = new Microsoft.Data.Sqlite.SqliteCommand();
+        Assert.Equal(
+            "42",
+            ((RelationalTypeMapping)element.GetTypeMapping()).CreateParameter(command, "p", 42).Value);
         var readerWriter = mapping.JsonValueReaderWriter!;
         Assert.Equal("[\"42\",\"43\"]", readerWriter.ToJsonString(new List<int> { 42, 43 }));
         Assert.Equal(new List<int> { 42, 43 }, Assert.IsAssignableFrom<IEnumerable<int>>(readerWriter.FromJsonString("[\"42\",\"43\"]")));
         if (typeMappingDefault)
         {
-            Assert.Same(
+            Assert.IsType<Int32AsStringReaderWriter>(
                 compiledModel.FindEntityType(typeof(CollectionOwner))!.FindProperty(nameof(CollectionOwner.Id))!.GetTypeMapping()
-                    .JsonValueReaderWriter,
-                mapping.ElementTypeMapping!.JsonValueReaderWriter);
+                    .JsonValueReaderWriter);
+            Assert.Equal("\"42\"", mapping.ElementTypeMapping!.JsonValueReaderWriter!.ToJsonString(42));
         }
     }
 
@@ -121,6 +126,7 @@ public class CSharpRuntimeModelCodeGeneratorTest
         build.References.Add(BuildReference.ByName("Microsoft.EntityFrameworkCore"));
         build.References.Add(BuildReference.ByName("Microsoft.EntityFrameworkCore.Abstractions"));
         build.References.Add(BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational"));
+        build.References.Add(BuildReference.ByName("Microsoft.EntityFrameworkCore.Sqlite"));
         build.References.Add(BuildReference.ByName(typeof(CSharpRuntimeModelCodeGeneratorTest).Assembly.GetName().Name!));
 
         return build.BuildInMemory().GetType("TestNamespace.DbContextModel", throwOnError: true)!;

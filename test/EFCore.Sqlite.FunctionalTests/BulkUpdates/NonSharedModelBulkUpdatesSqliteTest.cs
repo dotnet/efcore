@@ -8,6 +8,24 @@ public class NonSharedModelBulkUpdatesSqliteTest(NonSharedFixture fixture) : Non
     protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqliteTestStoreFactory.Instance;
 
+    public override async Task Update_JSON_scalar_with_custom_reader_writer(bool async, bool typeMappingDefault)
+    {
+        await base.Update_JSON_scalar_with_custom_reader_writer(async, typeMappingDefault);
+        AssertSql(
+            """
+@complex_type_json_p_0='"44"' (Size = 4)
+
+UPDATE "JsonWriterItems" AS "j"
+SET "Data" = json_set("j"."Data", '$.Number', json(@complex_type_json_p_0))
+""",
+            //
+            """
+SELECT "j"."Id", "j"."NativeNumber", "j"."Data"
+FROM "JsonWriterItems" AS "j"
+LIMIT 2
+""");
+    }
+
     [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

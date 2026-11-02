@@ -2,6 +2,10 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Globalization;
+using System.Linq.Expressions;
+using System.Text.Json;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
@@ -9,6 +13,175 @@ public abstract class NonSharedModelBulkUpdatesRelationalTestBase(NonSharedFixtu
 {
     protected override string NonSharedStoreName
         => "NonSharedModelBulkUpdatesTests";
+
+    [Theory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
+    public virtual async Task Update_JSON_scalar_with_custom_reader_writer(bool async, bool typeMappingDefault)
+    {
+        var factory = await InitializeNonSharedTest<PoolableDbContext>(
+            onModelCreating: b =>
+            {
+                var entity = b.Entity<JsonWriterItem>().ToTable("JsonWriterItems");
+                entity.Property(e => e.Id).ValueGeneratedNever();
+                var data = entity.ComplexProperty(e => e.Data).ToJson();
+                if (!typeMappingDefault)
+                {
+                    data.Property(e => e.Number).HasJsonValueReaderWriter<IntAsStringReaderWriter>();
+                    data.Property(e => e.Timestamp).HasJsonValueReaderWriter<UnixDateTimeReaderWriter>();
+                    data.Property(e => e.Enabled).HasJsonValueReaderWriter<BoolAsStringReaderWriter>();
+                }
+            },
+            configureConventions: c =>
+            {
+                if (typeMappingDefault)
+                {
+                    c.DefaultTypeMapping<int>().HasJsonValueReaderWriter<IntAsStringReaderWriter>();
+                    c.DefaultTypeMapping<DateTime>().HasJsonValueReaderWriter<UnixDateTimeReaderWriter>();
+                    c.DefaultTypeMapping<bool>().HasJsonValueReaderWriter<BoolAsStringReaderWriter>();
+                }
+            },
+            seed: context =>
+            {
+                context.Add(
+                    new JsonWriterItem
+                    {
+                        Id = 1, NativeNumber = 7,
+                        Data = new JsonWriterData { Number = 1, Timestamp = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc) }
+                    });
+                return context.SaveChangesAsync();
+            });
+        await using var context = factory.CreateDbContext();
+        await context.Database.OpenConnectionAsync();
+        var query = context.Set<JsonWriterItem>();
+        var expectedEnabled = false;
+        Assert.Equal(
+            1, async
+                ? await query.ExecuteUpdateAsync(s => s.SetProperty(e => e.Data.Number, 42))
+                : query.ExecuteUpdate(s => s.SetProperty(e => e.Data.Number, 42)));
+        await AssertData(42, new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+
+        var timestamp = new DateTime(2026, 2, 1, 0, 0, 0, DateTimeKind.Utc);
+        Assert.Equal(
+            1, async
+                ? await query.ExecuteUpdateAsync(s => s.SetProperty(e => e.Data.Timestamp, timestamp))
+                : query.ExecuteUpdate(s => s.SetProperty(e => e.Data.Timestamp, timestamp)));
+        await AssertData(42, timestamp);
+
+        Assert.Equal(
+            1, async
+                ? await query.ExecuteUpdateAsync(s => s.SetProperty(e => e.Data.Enabled, false))
+                : query.ExecuteUpdate(s => s.SetProperty(e => e.Data.Enabled, false)));
+        await AssertData(42, timestamp);
+        var enabled = true;
+        Assert.Equal(
+            1, async
+                ? await query.ExecuteUpdateAsync(s => s.SetProperty(e => e.Data.Enabled, enabled))
+                : query.ExecuteUpdate(s => s.SetProperty(e => e.Data.Enabled, enabled)));
+        expectedEnabled = enabled;
+        await AssertData(42, timestamp);
+
+        for (var number = 43; number <= 44; number++)
+        {
+            ClearLog();
+            Assert.Equal(
+                1, async
+                    ? await query.ExecuteUpdateAsync(s => s.SetProperty(e => e.Data.Number, number))
+                    : query.ExecuteUpdate(s => s.SetProperty(e => e.Data.Number, number)));
+            await AssertData(number, timestamp);
+        }
+
+        await AssertTranslationFailedWithDetails(
+            RelationalStrings.ExecuteUpdateCannotSetJsonPropertyToArbitraryExpression,
+            async () =>
+            {
+                if (async)
+                {
+                    await query.ExecuteUpdateAsync(s => s.SetProperty(e => e.Data.Number, e => e.Data.Number + 1));
+                }
+                else
+                {
+                    query.ExecuteUpdate(s => s.SetProperty(e => e.Data.Number, e => e.Data.Number + 1));
+                }
+            });
+        await AssertTranslationFailedWithDetails(
+            RelationalStrings.ExecuteUpdateCannotSetJsonPropertyToNonJsonColumn,
+            async () =>
+            {
+                if (async)
+                {
+                    await query.ExecuteUpdateAsync(s => s.SetProperty(e => e.Data.Number, e => e.NativeNumber));
+                }
+                else
+                {
+                    query.ExecuteUpdate(s => s.SetProperty(e => e.Data.Number, e => e.NativeNumber));
+                }
+            });
+
+        async Task AssertData(int expectedNumber, DateTime expectedTimestamp)
+        {
+            var item = async ? await query.AsNoTracking().SingleAsync() : query.AsNoTracking().Single();
+            Assert.Equal(expectedNumber, item.Data.Number);
+            Assert.Equal(expectedTimestamp, item.Data.Timestamp);
+            Assert.Equal(expectedEnabled, item.Data.Enabled);
+            Assert.Equal(7, item.NativeNumber);
+            await using var command = context.Database.GetDbConnection().CreateCommand();
+            command.CommandText = ((RelationalTestStore)NonSharedTestStore)
+                .NormalizeDelimitersInRawString("SELECT [Data] FROM [JsonWriterItems]");
+            var json = async ? await command.ExecuteScalarAsync() : command.ExecuteScalar();
+            using var document = JsonDocument.Parse(Assert.IsType<string>(json));
+            Assert.Equal(expectedNumber.ToString(CultureInfo.InvariantCulture), document.RootElement.GetProperty("Number").GetString());
+            Assert.Equal(expectedEnabled ? "yes" : "no", document.RootElement.GetProperty("Enabled").GetString());
+            Assert.Equal(
+                new DateTimeOffset(expectedTimestamp).ToUnixTimeMilliseconds(),
+                document.RootElement.GetProperty("Timestamp").GetInt64());
+        }
+    }
+
+    protected class JsonWriterItem
+    {
+        public int Id { get; set; }
+        public int NativeNumber { get; set; }
+        public JsonWriterData Data { get; set; } = null!;
+    }
+
+    protected class JsonWriterData
+    {
+        public int Number { get; set; }
+        public DateTime Timestamp { get; set; }
+        public bool Enabled { get; set; }
+    }
+
+    public sealed class BoolAsStringReaderWriter : JsonValueReaderWriter<bool>
+    {
+        public static BoolAsStringReaderWriter Instance { get; } = new();
+        public override bool FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
+            => manager.CurrentReader.GetString() == "yes";
+        public override void ToJsonTyped(Utf8JsonWriter writer, bool value)
+            => writer.WriteStringValue(value ? "yes" : "no");
+        public override Expression ConstructorExpression
+            => Expression.Property(null, typeof(BoolAsStringReaderWriter), nameof(Instance));
+    }
+
+    public sealed class IntAsStringReaderWriter : JsonValueReaderWriter<int>
+    {
+        public static IntAsStringReaderWriter Instance { get; } = new();
+        public override int FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
+            => int.Parse(manager.CurrentReader.GetString()!, CultureInfo.InvariantCulture);
+        public override void ToJsonTyped(Utf8JsonWriter writer, int value)
+            => writer.WriteStringValue(value.ToString(CultureInfo.InvariantCulture));
+        public override Expression ConstructorExpression
+            => Expression.Property(null, typeof(IntAsStringReaderWriter), nameof(Instance));
+    }
+
+    public sealed class UnixDateTimeReaderWriter : JsonValueReaderWriter<DateTime>
+    {
+        public static UnixDateTimeReaderWriter Instance { get; } = new();
+        public override DateTime FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
+            => DateTimeOffset.FromUnixTimeMilliseconds(manager.CurrentReader.GetInt64()).UtcDateTime;
+        public override void ToJsonTyped(Utf8JsonWriter writer, DateTime value)
+            => writer.WriteNumberValue(new DateTimeOffset(value).ToUnixTimeMilliseconds());
+        public override Expression ConstructorExpression
+            => Expression.Property(null, typeof(UnixDateTimeReaderWriter), nameof(Instance));
+    }
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Delete_aggregate_root_when_table_sharing_with_non_owned_throws(bool async)

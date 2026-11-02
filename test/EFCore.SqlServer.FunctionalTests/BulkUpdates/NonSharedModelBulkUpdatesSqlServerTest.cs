@@ -8,6 +8,25 @@ public class NonSharedModelBulkUpdatesSqlServerTest(NonSharedFixture fixture) : 
     protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
+    public override async Task Update_JSON_scalar_with_custom_reader_writer(bool async, bool typeMappingDefault)
+    {
+        await base.Update_JSON_scalar_with_custom_reader_writer(async, typeMappingDefault);
+        AssertSql(
+            """
+@complex_type_json_p_0='44' (Size = 2)
+
+SET NOCOUNT OFF;
+UPDATE [j]
+SET [j].[Data] = JSON_MODIFY([j].[Data], '$.Number', @complex_type_json_p_0)
+FROM [JsonWriterItems] AS [j]
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[NativeNumber], [j].[Data]
+FROM [JsonWriterItems] AS [j]
+""");
+    }
+
     [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

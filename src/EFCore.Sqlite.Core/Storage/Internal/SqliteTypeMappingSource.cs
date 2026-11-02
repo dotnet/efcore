@@ -1,6 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Json;
+
 namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 
 /// <summary>
@@ -140,7 +143,7 @@ public class SqliteTypeMappingSource : RelationalTypeMappingSource
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     /// <remarks>
-    ///     Finds the type mapping for a given property, accounting for the JSON representation of binary and date/time values.
+    ///     Finds the type mapping for a given property, accounting for its JSON representation.
     /// </remarks>
     /// <param name="property">The property for which mapping is to be found.</param>
     /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
@@ -152,7 +155,7 @@ public class SqliteTypeMappingSource : RelationalTypeMappingSource
             {
                 SqliteByteArrayTypeMapping byteArrayMapping => SqliteJsonByteArrayTypeMapping.Create(byteArrayMapping),
                 SqliteDateTimeTypeMapping dateTimeMapping => SqliteJsonDateTimeTypeMapping.Create(dateTimeMapping),
-                _ => mapping
+                _ => FindJsonMapping(mapping)
             }
             : mapping;
     }
@@ -162,8 +165,27 @@ public class SqliteTypeMappingSource : RelationalTypeMappingSource
         => base.FindMapping(elementType) is { } mapping
             ? mapping is SqliteDateTimeTypeMapping dateTimeMapping
                 ? SqliteJsonDateTimeTypeMapping.Create(dateTimeMapping)
-                : mapping
+                : FindJsonMapping(mapping)
             : null;
+
+    private RelationalTypeMapping? FindJsonMapping(RelationalTypeMapping? mapping)
+        => mapping is null or SqliteJsonScalarTypeMapping
+            || mapping.ElementTypeMapping is not null
+            || mapping.JsonValueReaderWriter is null
+            || mapping.JsonValueReaderWriter.GetType().IsGenericType
+            && mapping.JsonValueReaderWriter.GetType().GetGenericTypeDefinition() == typeof(JsonWarningEnumReaderWriter<>)
+            || FindMapping(mapping.Converter?.ProviderClrType ?? mapping.ClrType) is { } nativeMapping
+            && GetProviderReaderWriter(mapping)?.GetType() == GetProviderReaderWriter(nativeMapping)?.GetType()
+                ? mapping
+                : new SqliteJsonScalarTypeMapping(mapping);
+
+#pragma warning disable EF1001 // Internal EF Core API usage.
+    internal static JsonValueReaderWriter? GetProviderReaderWriter(CoreTypeMapping mapping)
+        => mapping.JsonValueReaderWriter is IJsonConvertedValueReaderWriter converted
+            && ReferenceEquals(converted.Converter, mapping.Converter)
+                ? converted.InnerReaderWriter
+                : mapping.JsonValueReaderWriter;
+#pragma warning restore EF1001
 
     private RelationalTypeMapping? FindRawMapping(RelationalTypeMappingInfo mappingInfo)
     {

@@ -1,12 +1,171 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Globalization;
+using System.Linq.Expressions;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public class OwnedEntityQuerySqliteTest(NonSharedFixture fixture) : OwnedEntityQueryRelationalTestBase(fixture)
 {
+    [Theory, InlineData(false), InlineData(true)]
+    public async Task Configured_JSON_scalar_representations_server_comparisons(bool async)
+    {
+        var date = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        byte[] bytes = [1, 2, 255];
+        var factory = await InitializeNonSharedTest<JsonScalarContext>(
+            seed: async context =>
+            {
+                context.Add(
+                    new JsonScalarContext.Item
+                    {
+                        Id = 1, Number = 43, Timestamp = date, Bytes = bytes,
+                        Data = new JsonScalarContext.JsonData { Number = 43, Timestamp = date, Bytes = bytes, ByteArrays = [bytes] },
+                        Numbers = [43], Timestamps = [date], ByteArrays = [bytes]
+                    });
+                await context.SaveChangesAsync();
+            });
+        await using var context = factory.CreateDbContext();
+        var number = 43;
+        await AssertIds(context.Set<JsonScalarContext.Item>().Where(e => e.Data.Number == number));
+        await AssertIds(context.Set<JsonScalarContext.Item>().Where(e => e.Data.Number == 43));
+        await AssertIds(context.Set<JsonScalarContext.Item>().Where(e => e.Data.Timestamp == date));
+        await AssertIds(context.Set<JsonScalarContext.Item>().Where(e => e.Data.Timestamp == new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)));
+        await AssertIds(context.Set<JsonScalarContext.Item>().Where(e => e.Data.Bytes == bytes));
+        await AssertIds(context.Set<JsonScalarContext.Item>().Where(e => e.Data.Bytes == new byte[] { 1, 2, 255 }));
+        await AssertIds(context.Set<JsonScalarContext.Item>().Where(e => e.Numbers.Contains(number)));
+        await AssertIds(context.Set<JsonScalarContext.Item>().Where(e => e.Timestamps.Contains(date)));
+        await AssertIds(context.Set<JsonScalarContext.Item>().Where(e => e.ByteArrays.Contains(bytes)));
+        await AssertIds(context.Set<JsonScalarContext.Item>().Where(e => e.Data.ByteArrays[0] == bytes));
+        var comparisonArrays = new[] { bytes };
+        var comparisonDates = new[] { date };
+        var comparisonNumbers = new[] { number };
+        await AssertIds(context.Set<JsonScalarContext.Item>().Where(e => EF.Parameter(comparisonArrays).Contains(e.Data.Bytes)));
+        await AssertIds(context.Set<JsonScalarContext.Item>().Where(e => EF.Parameter(comparisonArrays).Contains(e.Bytes)));
+        await AssertIds(context.Set<JsonScalarContext.Item>().Where(e => EF.Parameter(comparisonDates).Contains(e.Data.Timestamp)));
+        await AssertIds(context.Set<JsonScalarContext.Item>().Where(e => EF.Parameter(comparisonDates).Contains(e.Timestamp)));
+        await AssertIds(context.Set<JsonScalarContext.Item>().Where(e => EF.Parameter(comparisonNumbers).Contains(e.Data.Number)));
+        await AssertIds(context.Set<JsonScalarContext.Item>().Where(e => EF.Parameter(comparisonNumbers).Contains(e.Number)));
+        ClearLog();
+        await AssertIds(context.Set<JsonScalarContext.Item>().Where(e => e.Number == number && e.Data.Number == number));
+        await AssertIds(context.Set<JsonScalarContext.Item>().Where(e => e.Timestamp == date && e.Data.Timestamp == date));
+        await AssertIds(context.Set<JsonScalarContext.Item>().Where(e => e.Bytes == bytes && e.Data.Bytes == bytes));
+        var projection = context.Set<JsonScalarContext.Item>()
+            .Select(e => new { e.Data.Number, e.Data.Timestamp, e.Data.Bytes, FirstBytes = e.ByteArrays[0] });
+        var values = async ? await projection.SingleAsync() : projection.Single();
+        Assert.Equal(43, values.Number);
+        Assert.Equal(date, values.Timestamp);
+        Assert.Equal(bytes, values.Bytes);
+        Assert.Equal(bytes, values.FirstBytes);
+        AssertSql(
+            """
+@number='43'
+@number0='43' (Nullable = false) (Size = 2)
+
+SELECT "i"."Id"
+FROM "Item" AS "i"
+WHERE "i"."Number" = @number AND "i"."Data" ->> 'Number' = @number0
+""",
+            //
+            """
+@date='2026-01-01T00:00:00.0000000Z' (DbType = DateTime)
+@date0='1767225600000'
+
+SELECT "i"."Id"
+FROM "Item" AS "i"
+WHERE "i"."Timestamp" = @date AND "i"."Data" ->> 'Timestamp' = @date0
+""",
+            //
+            """
+@bytes='0x0102FF' (Size = 3)
+@bytes0='AQL/' (Size = 4)
+
+SELECT "i"."Id"
+FROM "Item" AS "i"
+WHERE "i"."Bytes" = @bytes AND "i"."Data" ->> 'Bytes' = @bytes0
+""",
+            //
+            """
+SELECT "i"."Data" ->> 'Number' AS "Number", "i"."Data" ->> 'Timestamp' AS "Timestamp", "i"."Data" ->> 'Bytes' AS "Bytes", "i"."ByteArrays" ->> 0 AS "FirstBytes"
+FROM "Item" AS "i"
+LIMIT 2
+""");
+        var query = context.Set<JsonScalarContext.Item>().AsNoTracking();
+        var item = async ? await query.SingleAsync() : query.Single();
+        Assert.Equal(43, item.Data.Number);
+        Assert.Equal(date, item.Data.Timestamp);
+        Assert.Equal(bytes, item.Data.Bytes);
+        Assert.Equal(bytes, Assert.Single(item.Data.ByteArrays));
+
+        async Task AssertIds(IQueryable<JsonScalarContext.Item> source)
+        {
+            var ids = source.Select(e => e.Id);
+            var actual = async ? await ids.ToArrayAsync() : ids.ToArray();
+            Assert.Equal([1], actual);
+        }
+    }
+
+    private class JsonScalarContext(DbContextOptions options) : DbContext(options)
+    {
+        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+        {
+            configurationBuilder.DefaultTypeMapping<int>().HasJsonValueReaderWriter<IntAsStringReaderWriter>();
+            configurationBuilder.DefaultTypeMapping<DateTime>().HasJsonValueReaderWriter<UnixDateTimeReaderWriter>();
+            configurationBuilder.DefaultTypeMapping<byte[]>().HasJsonValueReaderWriter<JsonByteArrayReaderWriter>();
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Item>().Property(e => e.Id).ValueGeneratedNever();
+            modelBuilder.Entity<Item>().OwnsOne(e => e.Data, owned => owned.ToJson());
+        }
+
+        public class Item
+        {
+            public int Id { get; set; }
+            public int Number { get; set; }
+            public DateTime Timestamp { get; set; }
+            public byte[] Bytes { get; set; } = null!;
+            public List<int> Numbers { get; set; } = [];
+            public List<DateTime> Timestamps { get; set; } = [];
+            public List<byte[]> ByteArrays { get; set; } = [];
+            public JsonData Data { get; set; } = null!;
+        }
+
+        public class JsonData
+        {
+            public int Number { get; set; }
+            public DateTime Timestamp { get; set; }
+            public byte[] Bytes { get; set; } = null!;
+            public List<byte[]> ByteArrays { get; set; } = [];
+        }
+    }
+
+    public sealed class IntAsStringReaderWriter : JsonValueReaderWriter<int>
+    {
+        public static IntAsStringReaderWriter Instance { get; } = new();
+        public override int FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
+            => int.Parse(manager.CurrentReader.GetString()!, CultureInfo.InvariantCulture);
+        public override void ToJsonTyped(Utf8JsonWriter writer, int value)
+            => writer.WriteStringValue(value.ToString(CultureInfo.InvariantCulture));
+        public override Expression ConstructorExpression
+            => Expression.Property(null, typeof(IntAsStringReaderWriter), nameof(Instance));
+    }
+
+    public sealed class UnixDateTimeReaderWriter : JsonValueReaderWriter<DateTime>
+    {
+        public static UnixDateTimeReaderWriter Instance { get; } = new();
+        public override DateTime FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
+            => DateTimeOffset.FromUnixTimeMilliseconds(manager.CurrentReader.GetInt64()).UtcDateTime;
+        public override void ToJsonTyped(Utf8JsonWriter writer, DateTime value)
+            => writer.WriteNumberValue(new DateTimeOffset(value).ToUnixTimeMilliseconds());
+        public override Expression ConstructorExpression
+            => Expression.Property(null, typeof(UnixDateTimeReaderWriter), nameof(Instance));
+    }
+
     [Theory, InlineData(false, DateTimeKind.Utc), InlineData(true, DateTimeKind.Utc),
      InlineData(false, DateTimeKind.Unspecified), InlineData(true, DateTimeKind.Unspecified)]
     public override async Task Legacy_DateTime_reader_writer_server_comparisons(bool async, DateTimeKind kind)

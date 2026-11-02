@@ -994,6 +994,13 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         }
 #pragma warning restore EF9002
 
+#pragma warning disable EF1001 // Internal EF Core API usage.
+        if (HasCustomJsonValueReaderWriter(target.TypeMapping!))
+        {
+            return false;
+        }
+#pragma warning restore EF1001
+
         // geometry/geography are "user-defined types" and therefore not supported by JSON_OBJECT(), which we
         // use below for serializing arbitrary relational expressions to JSON. Special-case them and serialize
         // as WKT.

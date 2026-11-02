@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Data;
+
 namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 
 /// <summary>
@@ -45,6 +47,14 @@ public class SqliteJsonByteArrayTypeMapping : SqliteByteArrayTypeMapping
     protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
         => new SqliteJsonByteArrayTypeMapping(parameters);
 
+    /// <inheritdoc />
+    public override MethodInfo GetDataReaderMethod()
+        => typeof(DbDataReader).GetMethod(nameof(DbDataReader.GetValue), [typeof(int)])!;
+
+    /// <inheritdoc />
+    public override Expression CustomizeDataReaderExpression(Expression expression)
+        => SqliteJsonScalarTypeMapping.ReadJsonExpression(this, expression);
+
     internal static SqliteJsonByteArrayTypeMapping Create(SqliteByteArrayTypeMapping mapping)
         => mapping as SqliteJsonByteArrayTypeMapping
             ?? (mapping.HasDefaultParameters
@@ -52,11 +62,15 @@ public class SqliteJsonByteArrayTypeMapping : SqliteByteArrayTypeMapping
                 : new SqliteJsonByteArrayTypeMapping(mapping));
 
     /// <inheritdoc />
-    protected override void ConfigureParameter(DbParameter parameter)
-    {
-        if (parameter is Data.Sqlite.SqliteParameter sqliteParameter)
-        {
-            sqliteParameter.SqliteType = Data.Sqlite.SqliteType.Text;
-        }
-    }
+    public override DbParameter CreateParameter(
+        DbCommand command,
+        string name,
+        object? value,
+        bool? nullable = null,
+        ParameterDirection direction = ParameterDirection.Input)
+        => SqliteJsonScalarTypeMapping.CreateJsonParameter(this, command, name, value, nullable, direction);
+
+    /// <inheritdoc />
+    public override string GenerateSqlLiteral(object? value)
+        => SqliteJsonScalarTypeMapping.GenerateJsonSqlLiteral(this, value);
 }
