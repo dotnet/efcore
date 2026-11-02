@@ -3616,6 +3616,83 @@ ORDER BY [p1].[Tag]
 """);
     }
 
+    public override async Task Union_value_converted_reference_type_with_collection(bool async)
+    {
+        await base.Union_value_converted_reference_type_with_collection(async);
+
+        AssertSql(
+            """
+SELECT [u].[Tag], [p1].[Id]
+FROM (
+    SELECT [p].[Tag]
+    FROM [Posts] AS [p]
+    WHERE [p].[Id] < 3
+    UNION
+    SELECT [p0].[Tag]
+    FROM [Posts] AS [p0]
+    WHERE [p0].[Id] > 1
+) AS [u]
+LEFT JOIN [Posts] AS [p1] ON [u].[Tag] = [p1].[Tag]
+ORDER BY [u].[Tag]
+""");
+    }
+
+    public override async Task Union_entity_with_value_converted_key_with_collection(bool async)
+    {
+        await base.Union_entity_with_value_converted_key_with_collection(async);
+
+        AssertSql(
+            """
+SELECT [u].[Name], [u].[Id], [p].[Id]
+FROM (
+    SELECT [b].[Id], [b].[Name]
+    FROM [Blogs] AS [b]
+    WHERE [b].[Name] = N'efcore'
+    UNION
+    SELECT [b0].[Id], [b0].[Name]
+    FROM [Blogs] AS [b0]
+    WHERE [b0].[Name] = N'linq'
+) AS [u]
+LEFT JOIN [Post] AS [p] ON [u].[Id] = [p].[BlogId]
+ORDER BY [u].[Id]
+""");
+    }
+
+    public override async Task Union_entity_with_value_converted_key_with_split_collection(bool async)
+    {
+        await base.Union_entity_with_value_converted_key_with_split_collection(async);
+
+        AssertSql(
+            """
+SELECT [u].[Name], [u].[Id]
+FROM (
+    SELECT [b].[Id], [b].[Name]
+    FROM [Blogs] AS [b]
+    WHERE [b].[Name] = N'efcore'
+    UNION
+    SELECT [b0].[Id], [b0].[Name]
+    FROM [Blogs] AS [b0]
+    WHERE [b0].[Name] = N'linq'
+) AS [u]
+ORDER BY [u].[Id]
+""",
+            //
+            """
+SELECT [p1].[Id], [u].[Id]
+FROM (
+    SELECT [b].[Id], [b].[Name]
+    FROM [Blogs] AS [b]
+    WHERE [b].[Name] = N'efcore'
+    UNION
+    SELECT [b0].[Id], [b0].[Name]
+    FROM [Blogs] AS [b0]
+    WHERE [b0].[Name] = N'linq'
+) AS [u]
+INNER JOIN [Post] AS [p1] ON [u].[Id] = [p1].[BlogId]
+ORDER BY [u].[Id]
+""");
+    }
+
     public override async Task Distinct_value_converted_reference_type_with_collection(bool async)
     {
         await base.Distinct_value_converted_reference_type_with_collection(async);

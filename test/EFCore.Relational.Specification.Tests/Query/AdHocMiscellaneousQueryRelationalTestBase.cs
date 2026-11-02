@@ -2253,6 +2253,120 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
+        // A set operation's projected columns become its identifiers.
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Union_value_converted_reference_type_with_collection(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<ContextConvertedReferenceKey>(seed: c => c.SeedAsync());
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Posts.Where(p => p.Id < 3).Select(p => p.Tag)
+                .Union(context.Posts.Where(p => p.Id > 1).Select(p => p.Tag))
+                .Select(t => new { Tag = t, Ids = context.Posts.Where(p => p.Tag == t).Select(p => p.Id).ToList() });
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            Assert.Collection(
+                result.OrderBy(t => t.Tag.Name),
+                efcore =>
+                {
+                    Assert.Equal("efcore", efcore.Tag.Name);
+                    Assert.Equal([1, 2], efcore.Ids.Order());
+                },
+                linq =>
+                {
+                    Assert.Equal("linq", linq.Tag.Name);
+                    Assert.Equal([3], linq.Ids);
+                });
+        }
+
+        // An entity's key becomes the identifier of a set operation over it.
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_entity_with_value_converted_key_with_collection(bool async)
+            => AssertUnionEntityWithConvertedKey(async, splitQuery: false);
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_entity_with_value_converted_key_with_split_collection(bool async)
+            => AssertUnionEntityWithConvertedKey(async, splitQuery: true);
+
+        private async Task AssertUnionEntityWithConvertedKey(bool async, bool splitQuery)
+        {
+            var contextFactory = await InitializeNonSharedTest<ContextConvertedEntityKey>(seed: c => c.SeedAsync());
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Blogs.Where(b => b.Name == "efcore")
+                .Union(context.Blogs.Where(b => b.Name == "linq"))
+                .Select(b => new { b.Name, PostIds = b.Posts.Select(p => p.Id).ToList() });
+            if (splitQuery)
+            {
+                query = query.AsSplitQuery();
+            }
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            Assert.Collection(
+                result.OrderBy(b => b.Name),
+                efcore =>
+                {
+                    Assert.Equal("efcore", efcore.Name);
+                    Assert.Equal([1, 2], efcore.PostIds.Order());
+                },
+                linq =>
+                {
+                    Assert.Equal("linq", linq.Name);
+                    Assert.Equal([3], linq.PostIds);
+                });
+        }
+
+        // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+        protected class ContextConvertedEntityKey(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<Blog> Blogs
+                => Set<Blog>();
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Blog>().Property(b => b.Id).HasConversion(k => k.Value, v => new BlogKey(v)).ValueGeneratedNever();
+                modelBuilder.Entity<Post>().Property(p => p.Id).ValueGeneratedNever();
+                modelBuilder.Entity<Post>().Property(p => p.BlogId).HasConversion(k => k.Value, v => new BlogKey(v));
+            }
+
+            public Task SeedAsync()
+            {
+                AddRange(
+                    new Blog
+                    {
+                        Id = new BlogKey(10),
+                        Name = "efcore",
+                        Posts = [new Post { Id = 1 }, new Post { Id = 2 }]
+                    },
+                    new Blog
+                    {
+                        Id = new BlogKey(20),
+                        Name = "linq",
+                        Posts = [new Post { Id = 3 }]
+                    });
+
+                return SaveChangesAsync();
+            }
+
+            public class Blog
+            {
+                public BlogKey Id { get; set; } = null!;
+                public string Name { get; set; } = null!;
+                public List<Post> Posts { get; set; } = [];
+            }
+
+            public class Post
+            {
+                public int Id { get; set; }
+                public BlogKey BlogId { get; set; } = null!;
+            }
+
+            // A strongly typed key, as commonly converted.
+            public record BlogKey(int Value);
+        }
+
         // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
         protected class ContextConvertedReferenceKey(DbContextOptions options) : DbContext(options)
         {
