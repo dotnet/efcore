@@ -15,6 +15,7 @@ Non-relational provider with its own parallel query pipeline. Uses JSON for docu
 - Partition key configuration required for performance
 - `ETag` for optimistic concurrency
 - No cross-container joins
+- Partition-key routing must preserve the composed document reader's null-write policy before unwrapping its provider reader. An original null differs from a non-null value converted to null.
 
 ## Query Type Mapping
 

@@ -129,6 +129,13 @@ public class SqliteTypeMappingPostprocessor : RelationalTypeMappingPostprocessor
                 SqliteJsonDateTimeReaderWriter.Instance);
 #pragma warning restore EF1001
         }
+        else if (elementTypeMapping is SqliteByteArrayTypeMapping and not SqliteJsonByteArrayTypeMapping)
+        {
+#pragma warning disable EF1001 // Internal EF Core API usage.
+            elementTypeMapping = (RelationalTypeMapping)elementTypeMapping.WithJsonValueReaderWriter(
+                SqliteJsonByteArrayReaderWriter.Instance);
+#pragma warning restore EF1001
+        }
 
         if (_typeMappingSource.FindMapping(parameterExpression.Type, _model, elementTypeMapping) is not SqliteStringTypeMapping
             parameterTypeMapping)

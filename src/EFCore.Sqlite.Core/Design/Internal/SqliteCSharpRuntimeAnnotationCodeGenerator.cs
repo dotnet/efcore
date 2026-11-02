@@ -3,6 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Design.Internal;
 
@@ -63,5 +64,22 @@ public class SqliteCSharpRuntimeAnnotationCodeGenerator : RelationalCSharpRuntim
         }
 
         base.Generate(column, parameters);
+    }
+
+    /// <inheritdoc />
+    protected override CoreTypeMapping? CreateDefaultTypeMapping(
+        CoreTypeMapping typeMapping,
+        CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+    {
+        if (typeMapping is not SqliteJsonScalarTypeMapping jsonMapping)
+        {
+            return base.CreateDefaultTypeMapping(typeMapping, parameters);
+        }
+
+        AddNamespace(typeof(SqliteJsonScalarTypeMapping), parameters.Namespaces);
+        parameters.MainBuilder.Append("new SqliteJsonScalarTypeMapping(");
+        Create(jsonMapping.SourceMapping, parameters);
+        parameters.MainBuilder.Append(")");
+        return new SqliteJsonScalarTypeMapping(jsonMapping.SourceMapping);
     }
 }

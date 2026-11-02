@@ -678,6 +678,76 @@ FROM root c
     }
 
     [Theory, InlineData(false), InlineData(true)]
+    public async Task Nullable_converted_partition_uses_document_reader_null_policy(bool typeMappingDefault)
+    {
+        var factory = await InitializeNonSharedTest<PoolableDbContext>(
+            onModelCreating: b =>
+            {
+                var entity = b.Entity<NullablePartitionKeyItem>().ToContainer("Entities").HasNoDiscriminator();
+                entity.HasKey(e => e.Id);
+                entity.HasPartitionKey(e => e.Partition);
+                var property = entity.Property(e => e.Partition)
+                    .HasConversion(new ValueConverter<string?, string?>(v => v, v => v));
+                if (!typeMappingDefault)
+                {
+                    property.HasJsonValueReaderWriter<NullPartitionReaderWriter>();
+                }
+            },
+            configureConventions: c =>
+            {
+                if (typeMappingDefault)
+                {
+                    c.DefaultTypeMapping<string>().HasJsonValueReaderWriter<NullPartitionReaderWriter>();
+                }
+            },
+            seed: context =>
+            {
+                context.Add(new NullablePartitionKeyItem { Id = 1, Partition = null, Name = "initial" });
+                return context.SaveChangesAsync();
+            });
+        await using (var context = factory.CreateDbContext())
+        {
+            var item = await context.Set<NullablePartitionKeyItem>().SingleAsync(e => e.Partition == null);
+            Assert.Null(item.Partition);
+            Assert.Equal("initial", item.Name);
+            item.Name = "updated";
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = factory.CreateDbContext())
+        {
+            var item = await context.Set<NullablePartitionKeyItem>().SingleAsync(e => e.Partition == null);
+            Assert.Equal("updated", item.Name);
+            context.Remove(item);
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = factory.CreateDbContext())
+        {
+            Assert.False(await context.Set<NullablePartitionKeyItem>().AnyAsync(e => e.Partition == null));
+        }
+    }
+
+    private sealed class NullablePartitionKeyItem
+    {
+        public int Id { get; set; }
+        public string? Partition { get; set; }
+        public string Name { get; set; } = null!;
+    }
+
+    public sealed class NullPartitionReaderWriter : JsonValueReaderWriter<string>
+    {
+        public static NullPartitionReaderWriter Instance { get; } = new();
+        public override bool HandlesNullWrites => true;
+        public override string FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
+            => manager.CurrentReader.GetString()!;
+        public override void ToJsonTyped(Utf8JsonWriter writer, string value)
+            => writer.WriteStringValue(value ?? "sentinel");
+        public override Expression ConstructorExpression
+            => Expression.Property(null, typeof(NullPartitionReaderWriter), nameof(Instance));
+    }
+
+    [Theory, InlineData(false), InlineData(true)]
     public async Task Custom_partition_reader_writer_is_used_for_save_read_query_update_and_delete(bool typeMappingDefault)
     {
         var factory = await InitializeNonSharedTest<PoolableDbContext>(

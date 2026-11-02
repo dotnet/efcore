@@ -13,6 +13,60 @@ namespace Microsoft.EntityFrameworkCore.Cosmos;
 
 public class PartitionKeyBuilderExtensionsTest
 {
+    [Theory, InlineData(false), InlineData(true)]
+    public void Routing_preserves_composed_reader_null_policy(bool typeMappingDefault)
+    {
+        var builder = CosmosTestHelpers.Instance.CreateConventionBuilder(
+            configureConventions: c =>
+            {
+                if (typeMappingDefault)
+                {
+                    c.DefaultTypeMapping<string>().HasJsonValueReaderWriter<NullSentinelReaderWriter>();
+                }
+            });
+        builder.Entity<Customer2>().HasKey(e => e.Id);
+        builder.Entity<Customer2>().HasPartitionKey(e => e.NullableString);
+        var counter = new StringConversionCounter();
+        var propertyBuilder = builder.Entity<Customer2>().Property(e => e.NullableString)
+            .HasConversion(new ValueConverter<string?, string?>(v => counter.Convert(v), v => v));
+        if (!typeMappingDefault)
+        {
+            propertyBuilder.HasJsonValueReaderWriter<NullSentinelReaderWriter>();
+        }
+
+        var property = builder.FinalizeModel().FindEntityType(typeof(Customer2))!.FindProperty(nameof(Customer2.NullableString))!;
+        Assert.False(property.GetTypeMapping().JsonValueReaderWriter!.HandlesNullWrites);
+        Assert.Equal(PartitionKey.Null, new PartitionKeyBuilder().Add(null, property).Build());
+        Assert.Equal(0, counter.Calls);
+        Assert.Equal(new PartitionKey("sentinel"), new PartitionKeyBuilder().Add("converted-null", property).Build());
+        Assert.Equal(1, counter.Calls);
+        Assert.Equal(new PartitionKey("partition"), new PartitionKeyBuilder().Add("partition", property).Build());
+        Assert.Equal(2, counter.Calls);
+    }
+
+    private sealed class StringConversionCounter
+    {
+        public int Calls { get; private set; }
+
+        public string? Convert(string? value)
+        {
+            Calls++;
+            return value == "converted-null" ? null! : value;
+        }
+    }
+
+    public sealed class NullSentinelReaderWriter : JsonValueReaderWriter<string>
+    {
+        public static NullSentinelReaderWriter Instance { get; } = new();
+        public override bool HandlesNullWrites => true;
+        public override string FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
+            => manager.CurrentReader.GetString()!;
+        public override void ToJsonTyped(Utf8JsonWriter writer, string value)
+            => writer.WriteStringValue(value ?? "sentinel");
+        public override Expression ConstructorExpression
+            => Expression.Property(null, typeof(NullSentinelReaderWriter), nameof(Instance));
+    }
+
     [Fact]
     public void Routing_uses_resolved_property_reader_writer()
     {

@@ -137,8 +137,8 @@ public class SqliteTypeMappingTest : RelationalTypeMappingTest
         byte[] value = [1, 2, 255];
         var parameter = Assert.IsType<SqliteParameter>(mapping.CreateParameter(command, "p", value));
         Assert.Equal(SqliteType.Text, parameter.SqliteType);
-        Assert.Equal(value, parameter.Value);
-        Assert.Equal("X'0102FF'", mapping.GenerateSqlLiteral(value));
+        Assert.Equal("0102FF", parameter.Value);
+        Assert.Equal("'0102FF'", mapping.GenerateSqlLiteral(value));
         Assert.Equal(DBNull.Value, mapping.CreateParameter(command, "p", null, nullable: true).Value);
 
         command.CommandText = "SELECT typeof(@p), @p";
@@ -174,7 +174,7 @@ public class SqliteTypeMappingTest : RelationalTypeMappingTest
         using var command = new SqliteCommand();
         var parameter = Assert.IsType<SqliteParameter>(mapping.CreateParameter(command, "p", 42L));
         Assert.Equal(SqliteType.Text, parameter.SqliteType);
-        Assert.Equal((byte[])converter.ConvertToProvider(42L)!, Assert.IsType<byte[]>(parameter.Value));
+        Assert.Equal(Convert.ToHexString((byte[])converter.ConvertToProvider(42L)!), parameter.Value);
     }
 
     [Theory, InlineData(DateTimeKind.Utc), InlineData(DateTimeKind.Unspecified)]

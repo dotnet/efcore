@@ -1,7 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Text.Json;
+using System.Data;
 using Microsoft.EntityFrameworkCore.Sqlite.Storage.Json.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
@@ -50,6 +50,14 @@ public class SqliteJsonDateTimeTypeMapping : SqliteDateTimeTypeMapping
     protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
         => new SqliteJsonDateTimeTypeMapping(parameters);
 
+    /// <inheritdoc />
+    public override MethodInfo GetDataReaderMethod()
+        => typeof(DbDataReader).GetMethod(nameof(DbDataReader.GetValue), [typeof(int)])!;
+
+    /// <inheritdoc />
+    public override Expression CustomizeDataReaderExpression(Expression expression)
+        => SqliteJsonScalarTypeMapping.ReadJsonExpression(this, expression);
+
     internal static SqliteDateTimeTypeMapping Create(SqliteDateTimeTypeMapping mapping)
         => mapping is SqliteJsonDateTimeTypeMapping || GetProviderJsonValueReaderWriter(mapping) is SqliteJsonDateTimeReaderWriter
             ? mapping
@@ -64,22 +72,15 @@ public class SqliteJsonDateTimeTypeMapping : SqliteDateTimeTypeMapping
 #pragma warning restore EF1001
 
     /// <inheritdoc />
-    protected override void ConfigureParameter(DbParameter parameter)
-    {
-        if (parameter.Value is { } value
-            && value != DBNull.Value)
-        {
-            parameter.Value = (object?)GetJsonString(value) ?? DBNull.Value;
-        }
-    }
+    public override DbParameter CreateParameter(
+        DbCommand command,
+        string name,
+        object? value,
+        bool? nullable = null,
+        ParameterDirection direction = ParameterDirection.Input)
+        => SqliteJsonScalarTypeMapping.CreateJsonParameter(this, command, name, value, nullable, direction);
 
     /// <inheritdoc />
-    protected override string GenerateNonNullSqlLiteral(object value)
-        => SqliteStringTypeMapping.Default.GenerateSqlLiteral(GetJsonString(value));
-
-    private string? GetJsonString(object value)
-    {
-        using var document = JsonDocument.Parse(GetProviderJsonValueReaderWriter(this).ToJsonString(value));
-        return document.RootElement.GetString();
-    }
+    public override string GenerateSqlLiteral(object? value)
+        => SqliteJsonScalarTypeMapping.GenerateJsonSqlLiteral(this, value);
 }

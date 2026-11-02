@@ -37,6 +37,7 @@ public static class PartitionKeyBuilderExtensions
 
         var mapping = property?.GetTypeMapping();
         var converter = mapping?.Converter;
+        var writeNull = value is not null || mapping?.JsonValueReaderWriter?.HandlesNullWrites == true;
         if (converter != null)
         {
             value = converter.ConvertToProvider(value);
@@ -74,6 +75,7 @@ public static class PartitionKeyBuilderExtensions
 #pragma warning restore EF1001
 
         if (readerWriter != null
+            && writeNull
             && (value != null || readerWriter.HandlesNullWrites))
         {
             if (value != null
