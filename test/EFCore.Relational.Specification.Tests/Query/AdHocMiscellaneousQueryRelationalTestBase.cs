@@ -2288,6 +2288,66 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        // A final GroupBy's key is compared as LINQ would compare it, as the model value: database values that the converter reads as
+        // the same one belong to the same grouping, unlike a collection's identifiers, which are compared as provider values.
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Final_GroupBy_value_converted_key_read_as_same_value_from_different_database_values(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<ContextLossyConvertedKey>(seed: c => c.SeedAsync());
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Items.GroupBy(i => i.Number);
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            Assert.Collection(
+                result.OrderBy(g => g.Key),
+                one =>
+                {
+                    Assert.Equal(1, one.Key);
+                    Assert.Equal([1, 2, 4], one.Select(i => i.Id).Order());
+                },
+                two =>
+                {
+                    Assert.Equal(2, two.Key);
+                    Assert.Equal([3], two.Select(i => i.Id));
+                });
+        }
+
+        // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+        protected class ContextLossyConvertedKey(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<Item> Items
+                => Set<Item>();
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Item>().Property(i => i.Id).ValueGeneratedNever();
+                modelBuilder.Entity<Item>().Property(i => i.Number).HasConversion(n => n.ToString(), s => int.Parse(s));
+            }
+
+            // "1" and "01" are both read as 1; EF only writes the former, so the rows are inserted directly.
+            public Task SeedAsync()
+            {
+                var sqlGenerationHelper = this.GetService<ISqlGenerationHelper>();
+                var entityType = Model.FindEntityType(typeof(Item))!;
+                var table = StoreObjectIdentifier.Table(entityType.GetTableName()!, entityType.GetSchema());
+                var tableName = sqlGenerationHelper.DelimitIdentifier(table.Name, table.Schema);
+                var idColumn = sqlGenerationHelper.DelimitIdentifier(entityType.FindProperty(nameof(Item.Id))!.GetColumnName(table)!);
+                var numberColumn = sqlGenerationHelper.DelimitIdentifier(
+                    entityType.FindProperty(nameof(Item.Number))!.GetColumnName(table)!);
+
+                return Database.ExecuteSqlRawAsync(
+                    $"INSERT INTO {tableName} ({idColumn}, {numberColumn}) VALUES (1, '1'), (2, '01'), (3, '2'), (4, '1')");
+            }
+
+            public class Item
+            {
+                public int Id { get; set; }
+                public int Number { get; set; }
+            }
+        }
+
         // A distinct complex type is identified by all its columns, which include a converted property's.
         [Theory, MemberData(nameof(IsAsyncData))]
         public virtual async Task Distinct_complex_type_with_value_converted_reference_type_with_collection(bool async)

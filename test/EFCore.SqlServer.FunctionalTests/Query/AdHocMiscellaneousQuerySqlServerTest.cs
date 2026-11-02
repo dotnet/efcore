@@ -3648,6 +3648,18 @@ ORDER BY [p0].[Tag]
 """);
     }
 
+    public override async Task Final_GroupBy_value_converted_key_read_as_same_value_from_different_database_values(bool async)
+    {
+        await base.Final_GroupBy_value_converted_key_read_as_same_value_from_different_database_values(async);
+
+        AssertSql(
+            """
+SELECT [i].[Number], [i].[Id]
+FROM [Items] AS [i]
+ORDER BY [i].[Number]
+""");
+    }
+
     public override async Task Distinct_complex_type_with_value_converted_reference_type_with_collection(bool async)
     {
         await base.Distinct_complex_type_with_value_converted_reference_type_with_collection(async);
