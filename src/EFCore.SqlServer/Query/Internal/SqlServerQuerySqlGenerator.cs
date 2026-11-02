@@ -19,6 +19,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 /// </summary>
 public class SqlServerQuerySqlGenerator : QuerySqlGenerator
 {
+    private static readonly bool UseOldBehavior38615 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue38615", out var enabled) && enabled;
+
     private readonly IRelationalTypeMappingSource _typeMappingSource;
     private readonly ISqlGenerationHelper _sqlGenerationHelper;
     private readonly ISqlServerSingletonOptions _sqlServerSingletonOptions;
@@ -797,7 +800,8 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
                 // OPENJSON() WITH clause AS JSON option requires nvarchar(max) on platforms that don't support the json data
                 // type in OPENJSON (i.e. Azure SQL). SQL Server 2025 (17.x) added native support for json in OPENJSON WITH.
                 // See: https://learn.microsoft.com/sql/t-sql/data-types/json-data-type#limitations
-                if (columnInfo.AsJson
+                if (!UseOldBehavior38615
+                    && columnInfo.AsJson
                     && columnInfo.TypeMapping.StoreType == "json"
                     && (_sqlServerSingletonOptions.EngineType != SqlServerEngineType.SqlServer
                         || _sqlServerSingletonOptions.SqlServerCompatibilityLevel < 170))
