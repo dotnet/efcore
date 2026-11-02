@@ -145,6 +145,25 @@ public abstract class NorthwindGroupByQueryRelationalTestBase<TFixture>(TFixture
                 }),
             elementSorter: e => e.Key);
 
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_under_date_part_as_element_of_inline_collection_Contains(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(o => o.CustomerID)
+                .Select(g => new { g.Key, A = new[] { g.Max(o => o.OrderDate)!.Value.Year, 0 }.Contains(1998) }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_under_date_add_as_element_of_inline_collection_Contains(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(o => o.CustomerID)
+                .Select(g => new
+                {
+                    g.Key, A = new[] { g.Max(o => o.OrderDate)!.Value.AddDays(1), DateTime.MinValue }.Contains(new DateTime(1998, 5, 7))
+                }),
+            elementSorter: e => e.Key);
+
     // Folded into the inner query, an aggregate over the outer grouping that also names the inner query's columns would be evaluated
     // over the inner query's rows; with no subquery to fall back to, it can't be translated.
     [Theory, MemberData(nameof(IsAsyncData))]

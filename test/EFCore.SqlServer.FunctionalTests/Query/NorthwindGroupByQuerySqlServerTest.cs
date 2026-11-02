@@ -5708,6 +5708,36 @@ GROUP BY [c0].[Key]
 """);
     }
 
+    public override async Task GroupBy_aggregate_under_date_part_as_element_of_inline_collection_Contains(bool async)
+    {
+        await base.GroupBy_aggregate_under_date_part_as_element_of_inline_collection_Contains(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID] AS [Key], CASE
+    WHEN 1998 IN (0) OR (1998 = DATEPART(year, MAX([o].[OrderDate])) AND MAX([o].[OrderDate]) IS NOT NULL) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [A]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]
+""");
+    }
+
+    public override async Task GroupBy_aggregate_under_date_add_as_element_of_inline_collection_Contains(bool async)
+    {
+        await base.GroupBy_aggregate_under_date_add_as_element_of_inline_collection_Contains(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID] AS [Key], CASE
+    WHEN '1998-05-07T00:00:00.000' IN ('0001-01-01T00:00:00.000') OR ('1998-05-07T00:00:00.000' = DATEADD(day, CAST(1.0E0 AS int), MAX([o].[OrderDate])) AND MAX([o].[OrderDate]) IS NOT NULL) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [A]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]
+""");
+    }
+
     public override async Task GroupBy_string_aggregate_as_element_of_inline_collection_Contains_from_inner_query(bool async)
     {
         await base.GroupBy_string_aggregate_as_element_of_inline_collection_Contains_from_inner_query(async);
