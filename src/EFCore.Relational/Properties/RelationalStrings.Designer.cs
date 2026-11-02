@@ -1024,6 +1024,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 member);
 
         /// <summary>
+        ///     The source member '{member}' of type '{memberType}' cannot be inserted into the property '{property}' of type '{propertyType}' in ExecuteMerge.
+        /// </summary>
+        public static string ExecuteMergeSourceMemberTypeMismatch(object? member, object? memberType, object? property, object? propertyType)
+            => string.Format(
+                GetString("ExecuteMergeSourceMemberTypeMismatch", nameof(member), nameof(memberType), nameof(property), nameof(propertyType)),
+                member, memberType, property, propertyType);
+
+        /// <summary>
         ///     The property '{targetProperty}' is referenced in an ExecuteMerge WhenMatched value for '{property}', but the two properties use different value converters.
         /// </summary>
         public static string ExecuteMergeTargetPropertyConverterMismatch(object? targetProperty, object? property)

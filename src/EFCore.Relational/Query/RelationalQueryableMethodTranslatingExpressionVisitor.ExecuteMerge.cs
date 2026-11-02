@@ -96,7 +96,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         // the primary key, matched by the same-named source member. The conflict-column value must come from the source-side selector of
         // the match, not the same-named source member, so that Match(t => t.Id, s => s.ExternalId) actually matches on ExternalId.
         string[] conflictColumns;
-        var conflictSourceMembers = new Dictionary<string, MemberInfo>();
+        var conflictSourceMembers = new Dictionary<string, (MemberInfo Member, string Name)>();
         var conflictProperties = new List<(IProperty Property, string SourceMember)>();
         if (matches.Count == 0)
         {
@@ -109,7 +109,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             foreach (var match in matches)
             {
                 var (targetColumns, targetProperties) = ResolveColumnNamesAndProperties(match.TargetKeySelector, entityType, table);
-                var sourceMembers = ResolveKeySourceMembers(match.SourceKeySelector);
+                var sourceMembers = ResolveKeySourceMembers(match.SourceKeySelector, entityType);
                 Check.DebugAssert(
                     targetColumns.Length == sourceMembers.Length, "Match target and source key selectors have different arities.");
                 for (var i = 0; i < targetColumns.Length; i++)
@@ -167,7 +167,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                 case LambdaExpression valueSelector:
                     sourceMember = GetDirectSourceMemberName(valueSelector.Body, valueSelector.Parameters[0])
                         ?? throw new InvalidOperationException(RelationalStrings.ExecuteMergeUnsupportedExpression(valueSelector.Print()));
-                    valueMembers[i] = FindSourceMember(sourceType, sourceMember);
+                    valueMembers[i] = FindSourceMember(sourceType, sourceMember, entityType);
                     break;
 
                 // A constant insert value from the SetProperty(property, value) overload is funcletized to a query parameter; emit
@@ -189,14 +189,13 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 
                 // No explicit insert setter: use the match source selector for conflict columns, otherwise the same-named source member.
                 case null when conflictSourceMembers.TryGetValue(column.Name, out var conflictSourceMember):
-                    valueMembers[i] = conflictSourceMember;
-                    sourceMember = conflictSourceMember.Name;
+                    (valueMembers[i], sourceMember) = conflictSourceMember;
                     break;
 
                 // Read the same-named member off the source row. The source type may differ from the target entity (e.g. a DTO), so
                 // we can't use the target property's getter here — look the member up on the actual source type instead.
                 case null:
-                    valueMembers[i] = FindSourceMember(sourceType, property.Name);
+                    valueMembers[i] = FindSourceMember(sourceType, property.Name, entityType);
                     sourceMember = property.Name;
                     break;
 
@@ -206,6 +205,15 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 
             if (sourceMember is not null)
             {
+                // The column's type mapping would otherwise coerce a value of another type, or fail only when executed.
+                var memberType = valueMembers[i]!.GetMemberType();
+                if (!property.ClrType.IsAssignableFrom(memberType))
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.ExecuteMergeSourceMemberTypeMismatch(
+                            sourceMember, memberType.ShortDisplayName(), property.Name, property.ClrType.ShortDisplayName()));
+                }
+
                 if (!excludedColumnsBySourceMember.TryGetValue(sourceMember, out var excludedColumns))
                 {
                     excludedColumnsBySourceMember[sourceMember] = excludedColumns = [];
@@ -558,8 +566,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         }
     }
 
-    // Casts that only change nullability, box, or cast to a base type keep the value; others (e.g. narrowing or checked casts) would
-    // need translating, which isn't supported yet.
+    // Casts that lift to nullable, box, or cast to a base type keep the value; others (e.g. narrowing or checked casts) would need
+    // translating, which isn't supported yet. A nullable-to-non-nullable cast throws on null, while SQL would just use NULL.
     private static Expression UnwrapValuePreservingConversions(Expression expression)
     {
         while (expression is UnaryExpression
@@ -568,8 +576,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             } convert)
         {
             if (convert.Type != typeof(object)
-                && !convert.Type.IsAssignableFrom(convert.Operand.Type)
-                && convert.Type.UnwrapNullableType() != convert.Operand.Type.UnwrapNullableType())
+                && !convert.Type.IsAssignableFrom(convert.Operand.Type))
             {
                 throw new InvalidOperationException(RelationalStrings.ExecuteMergeUnsupportedExpression(convert.Print()));
             }
@@ -633,8 +640,16 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         return (names, properties);
     }
 
-    private static MemberInfo FindSourceMember(Type sourceType, string memberName)
+    private static MemberInfo FindSourceMember(Type sourceType, string memberName, IEntityType entityType)
     {
+        // Entity source rows are read through the model, which also finds non-public properties and backing fields.
+        if (entityType.ClrType.IsAssignableFrom(sourceType)
+            && entityType.FindProperty(memberName) is { } property
+            && !property.IsShadowProperty())
+        {
+            return property.GetMemberInfo(forMaterialization: false, forSet: false);
+        }
+
         var member = (MemberInfo?)sourceType.GetProperty(memberName) ?? sourceType.GetField(memberName);
         if (member is null)
         {
@@ -645,7 +660,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         return member;
     }
 
-    private static MemberInfo[] ResolveKeySourceMembers(LambdaExpression selector)
+    // The member read from an entity source may be a backing field, so its name is returned separately.
+    private static (MemberInfo Member, string Name)[] ResolveKeySourceMembers(LambdaExpression selector, IEntityType entityType)
     {
         var parameter = selector.Parameters[0];
         IReadOnlyList<Expression> members = selector.Body switch
@@ -654,12 +670,12 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             _ => [selector.Body]
         };
 
-        var sourceMembers = new MemberInfo[members.Count];
+        var sourceMembers = new (MemberInfo, string)[members.Count];
         for (var i = 0; i < members.Count; i++)
         {
             var memberName = GetDirectSourceMemberName(members[i], parameter)
                 ?? throw new InvalidOperationException(RelationalStrings.ExecuteMergeUnsupportedExpression(selector.Print()));
-            sourceMembers[i] = FindSourceMember(parameter.Type, memberName);
+            sourceMembers[i] = (FindSourceMember(parameter.Type, memberName, entityType), memberName);
         }
 
         return sourceMembers;

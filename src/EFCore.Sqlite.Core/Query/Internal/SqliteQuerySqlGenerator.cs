@@ -65,8 +65,19 @@ public class SqliteQuerySqlGenerator(QuerySqlGeneratorDependencies dependencies)
         var helper = Dependencies.SqlGenerationHelper;
 
         Sql.Append("INSERT INTO ")
-            .Append(helper.DelimitIdentifier(mergeExpression.Table.Name, mergeExpression.Table.Schema))
-            .Append(" (");
+            .Append(helper.DelimitIdentifier(mergeExpression.Table.Name, mergeExpression.Table.Schema));
+
+        // A target table named "excluded" would shadow the excluded pseudo-row in DO UPDATE, so give it another name.
+        if (string.Equals(mergeExpression.Table.Name, "excluded", StringComparison.OrdinalIgnoreCase))
+        {
+            var alias = mergeExpression.Table.Alias is { } tableAlias
+                && !string.Equals(tableAlias, "excluded", StringComparison.OrdinalIgnoreCase)
+                    ? tableAlias
+                    : "t";
+            Sql.Append(AliasSeparator).Append(helper.DelimitIdentifier(alias));
+        }
+
+        Sql.Append(" (");
         AppendDelimitedColumns(mergeExpression.InsertColumns);
         Sql.AppendLine(")");
 

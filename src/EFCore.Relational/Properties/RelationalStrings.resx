@@ -505,6 +505,9 @@
   <data name="ExecuteMergeSourceMemberNotInserted" xml:space="preserve">
     <value>The source member '{member}' is referenced in an ExecuteMerge WhenMatched value, but is not inserted unchanged into any target column. WhenMatched can only reference source members whose values are inserted as-is.</value>
   </data>
+  <data name="ExecuteMergeSourceMemberTypeMismatch" xml:space="preserve">
+    <value>The source member '{member}' of type '{memberType}' cannot be inserted into the property '{property}' of type '{propertyType}' in ExecuteMerge.</value>
+  </data>
   <data name="ExecuteMergeTargetPropertyConverterMismatch" xml:space="preserve">
     <value>The property '{targetProperty}' is referenced in an ExecuteMerge WhenMatched value for '{property}', but the two properties use different value converters.</value>
   </data>

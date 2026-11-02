@@ -383,19 +383,90 @@ public abstract class ExecuteMergeRelationalTestBase<TFixture>(TFixture fixture)
             RelationalStrings.ExecuteMergePropertyNotFound(nameof(Blog.Name), nameof(BlogWithoutName)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
-    public virtual Task Default_insert_source_member_of_incompatible_type_is_not_inlined(bool async)
-        => AssertMerge(
-            async context =>
-            {
-                // The string Id is mapped as the int Id column, so inlining it as a literal would inject the DELETE.
-                await Assert.ThrowsAnyAsync<Exception>(
-                    () => Merge(
-                        async, context.Blogs,
-                        new BlogRowWithStringId[] { new() { Id = "3, 'x', NULL); DELETE FROM Blogs; --", Name = "x" } },
-                        merge => { }));
+    public virtual Task Default_insert_source_member_of_incompatible_type_throws(bool async)
+        => AssertMergeThrows(
+            context => Merge(
+                async, context.Blogs,
+                new BlogRowWithStringId[] { new() { Id = "3, 'x', NULL); DELETE FROM Blogs; --", Name = "x" } },
+                merge => { }),
+            RelationalStrings.ExecuteMergeSourceMemberTypeMismatch(nameof(Blog.Id), "string", nameof(Blog.Id), "int"));
 
-                Assert.Equal(2, await context.Blogs.CountAsync());
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Default_insert_nullable_source_member_for_non_nullable_property_throws(bool async)
+        => AssertMergeThrows(
+            context => Merge(
+                async, context.Accounts,
+                new AccountRowWithNullables[] { new() { Id = 2, ExternalId = null, Balance = null } },
+                merge => { }),
+            RelationalStrings.ExecuteMergeSourceMemberTypeMismatch(nameof(Account.Balance), "int?", nameof(Account.Balance), "int"));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Match_with_nullable_to_non_nullable_source_conversion_throws(bool async)
+        => AssertMergeThrows(
+            // The cast throws for a null ExternalId, while SQL would match on NULL instead.
+            context => Merge(
+                async, context.Accounts,
+                new AccountRowWithNullables[] { new() { Id = 1, ExternalId = null, Balance = 10 } },
+                merge => merge.Match(t => t.Id, s => (int)s.ExternalId!)),
+            RelationalStrings.ExecuteMergeUnsupportedExpression("(int)s.ExternalId"));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task When_not_matched_with_nullable_to_non_nullable_conversion_throws(bool async)
+        => AssertMergeThrows(
+            context => Merge(
+                async, context.Accounts,
+                new AccountRowWithNullables[] { new() { Id = 2, ExternalId = null, Balance = 10 } },
+                merge => merge.WhenNotMatched(insert => insert
+                    .SetProperty(t => t.Id, s => s.Id)
+                    .SetProperty(t => t.ExternalId, s => (int)s.ExternalId!)
+                    .SetProperty(t => t.Balance, 0))),
+            RelationalStrings.ExecuteMergeUnsupportedExpression("(int)s.ExternalId"));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task When_matched_with_nullable_to_non_nullable_conversion_throws(bool async)
+        => AssertMergeThrows(
+            context => Merge(
+                async, context.Accounts,
+                new AccountRowWithNullables[] { new() { Id = 1, ExternalId = 10, Balance = null } },
+                merge => merge
+                    .WhenMatched(u => u.SetProperty(t => t.Balance, (t, s) => (int)s.Balance!))
+                    .WhenNotMatched(insert => insert
+                        .SetProperty(t => t.Id, s => s.Id)
+                        .SetProperty(t => t.Balance, 0))),
+            RelationalStrings.ExecuteMergeUnsupportedExpression("(int)s.Balance"));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Default_insert_reads_non_public_property_of_entity_source(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<TokenContext>();
+        await using var context = contextFactory.CreateDbContext();
+
+        var affected = await Merge(async, context.Set<Token>(), [Token.Create(1, "a")], merge => { });
+
+        Assert.Equal(1, affected);
+        Assert.Equal("a", (await context.Set<Token>().SingleAsync()).GetSecret());
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task When_matched_on_table_named_excluded_reads_source_values(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<ExcludedWidgetContext>(
+            seed: context =>
+            {
+                context.Add(new Widget { Id = 1, Name = "old" });
+                return context.SaveChangesAsync();
             });
+        await using var context = contextFactory.CreateDbContext();
+
+        // The table shares its name with SQLite's excluded pseudo-row, which must still refer to the source row.
+        var affected = await Merge(
+            async, context.Set<Widget>(),
+            [new Widget { Id = 1, Name = "new" }],
+            merge => merge.WhenMatched(u => u.SetProperty(t => t.Name, (t, s) => s.Name)));
+
+        Assert.Equal(1, affected);
+        Assert.Equal("new", (await context.Set<Widget>().SingleAsync()).Name);
+    }
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task On_entity_mapped_to_table_and_view_targets_table(bool async)
@@ -528,6 +599,47 @@ public abstract class ExecuteMergeRelationalTestBase<TFixture>(TFixture fixture)
         public string Id { get; set; } = null!;
         public string Name { get; set; } = null!;
         public string? Note { get; set; }
+    }
+
+    protected class AccountRowWithNullables
+    {
+        public int Id { get; set; }
+        public int? ExternalId { get; set; }
+        public int? Balance { get; set; }
+    }
+
+    protected class TokenContext(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Token>(
+                b =>
+                {
+                    b.Property(e => e.Id).ValueGeneratedNever();
+                    b.Property<string>("Secret");
+                });
+    }
+
+    protected class Token
+    {
+        public int Id { get; set; }
+        private string Secret { get; set; } = null!;
+
+        public string GetSecret()
+            => Secret;
+
+        public static Token Create(int id, string secret)
+            => new() { Id = id, Secret = secret };
+    }
+
+    protected class ExcludedWidgetContext(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Widget>(
+                b =>
+                {
+                    b.Property(e => e.Id).ValueGeneratedNever();
+                    b.ToTable("excluded");
+                });
     }
 
     protected class WidgetContext(DbContextOptions options) : DbContext(options)
