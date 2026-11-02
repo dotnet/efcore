@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
                 startupProject, targetFrameworkVersion);
 
         /// <summary>
-        ///     Startup project '{startupProject}' targets framework '.NETStandard'. There is no runtime associated with this framework, and projects targeting it cannot be executed directly. To use the Entity Framework Core Tools with this project, add an executable project targeting .NET Core that references this project, and set it as the startup project using --startup-project; or, update this project to cross-target .NET Core. For more information on using the Entity Framework Tools with .NET Standard projects, see https://go.microsoft.com/fwlink/?linkid=2034781
+        ///     Project '{startupProject}' targets framework '.NETStandard'. There is no runtime associated with this framework, and projects targeting it cannot be executed directly. EF Core MSBuild integration requires a self-sufficient context project targeting .NET Core. Update the context project to target or cross-target .NET Core and, if necessary, implement IDesignTimeDbContextFactory&lt;TContext&gt; in that project. A separate startup project is not supported. For more information, see https://learn.microsoft.com/ef/core/cli/msbuild#limitations
         /// </summary>
         public static string NETStandardStartupProject(object? startupProject)
             => string.Format(
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
                 startupProject);
 
         /// <summary>
-        ///     Startup project '{startupProject}' cannot be executed directly. To use the Entity Framework Core Tools with this project, add an executable project targeting .NET Core that references this project, and set it as the startup project using --startup-project.
+        ///     The startup assembly '{startupProject}' specified by EFStartupAssembly must have a lowercase '.exe' extension. EF Core MSBuild integration requires a self-sufficient context project. If necessary, implement IDesignTimeDbContextFactory&lt;TContext&gt; in that project. A separate startup project is not supported. For more information, see https://learn.microsoft.com/ef/core/cli/msbuild#limitations
         /// </summary>
         public static string NotExecutableStartupProject(object? startupProject)
             => string.Format(
@@ -62,5 +62,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             return value;
         }
     }
-}
 
+
+}
