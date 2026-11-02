@@ -136,12 +136,13 @@ internal sealed class GroupingAggregateFoldingExpressionVisitor : ExpressionVisi
         "coalesce", "isnull", "ifnull", "nullif", "iif",
 
         // Strings
-        "lower", "upper", "ltrim", "rtrim", "trim", "substring", "substr", "len", "length", "replace", "charindex", "patindex",
-        "instr",
+        "lower", "upper", "ltrim", "rtrim", "trim", "substring", "substr", "left", "right", "len", "length", "datalength", "replace",
+        "charindex", "patindex", "instr",
 
         // Math
-        "abs", "round", "trunc", "floor", "ceiling", "sign", "sqrt", "power", "pow", "exp", "log", "ln", "greatest", "least",
-        "degrees", "radians", "sin", "cos", "tan", "asin", "acos", "atan", "sinh", "cosh", "tanh", "asinh", "acosh", "atanh",
+        "abs", "round", "trunc", "floor", "ceiling", "sign", "sqrt", "power", "pow", "exp", "log", "ln", "log10", "log2", "greatest",
+        "least", "degrees", "radians", "sin", "cos", "tan", "asin", "acos", "atan", "atn2", "atan2", "sinh", "cosh", "tanh", "asinh",
+        "acosh", "atanh",
 
         // Conversion
         "convert"

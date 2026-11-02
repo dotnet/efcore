@@ -5669,6 +5669,45 @@ GROUP BY [c].[City]
 """);
     }
 
+    public override async Task GroupBy_string_aggregate_StartsWith_constant_as_element_of_inline_collection_Contains(bool async)
+    {
+        await base.GroupBy_string_aggregate_StartsWith_constant_as_element_of_inline_collection_Contains(async);
+
+        AssertSql(
+            """
+SELECT [c].[City] AS [Key], CASE
+    WHEN N'y' IN (CASE
+        WHEN COALESCE(STRING_AGG([c].[CustomerID], N'|'), N'') LIKE N'ALF%' THEN N'y'
+        ELSE N'n'
+    END, N'') THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [A]
+FROM [Customers] AS [c]
+GROUP BY [c].[City]
+""");
+    }
+
+    public override async Task GroupBy_string_aggregate_StartsWith_column_as_element_of_inline_collection_Contains(bool async)
+    {
+        await base.GroupBy_string_aggregate_StartsWith_column_as_element_of_inline_collection_Contains(async);
+
+        AssertSql(
+            """
+SELECT [c0].[Key], CASE
+    WHEN N'y' IN (CASE
+        WHEN [c0].[Key] IS NOT NULL AND LEFT(COALESCE(STRING_AGG([c0].[CustomerID], N'|'), N''), LEN([c0].[Key])) = [c0].[Key] THEN N'y'
+        ELSE N'n'
+    END, N'') THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [A]
+FROM (
+    SELECT [c].[CustomerID], SUBSTRING([c].[CustomerID], 0 + 1, 1) AS [Key]
+    FROM [Customers] AS [c]
+) AS [c0]
+GROUP BY [c0].[Key]
+""");
+    }
+
     public override async Task GroupBy_string_aggregate_as_element_of_inline_collection_Contains_from_inner_query(bool async)
     {
         await base.GroupBy_string_aggregate_as_element_of_inline_collection_Contains_from_inner_query(async);
@@ -5738,6 +5777,40 @@ SELECT [o].[OrderID]
 FROM [Order Details] AS [o]
 GROUP BY [o].[OrderID]
 HAVING 0.0E0 IN (ROUND(STDEVP(CAST([o].[Quantity] AS float)), 2), -1.0E0)
+""");
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task GroupBy_Log10_statistical_aggregate_as_element_of_inline_collection_Contains_in_predicate(bool async)
+    {
+        await using var context = CreateContext();
+
+        // The population standard deviation is zero exactly when every quantity in the order is the same, and log10(0 + 1) is zero.
+        var expected = context.Set<OrderDetail>().AsEnumerable().GroupBy(od => od.OrderID)
+            .Where(g => g.Select(od => od.Quantity).Distinct().Count() == 1)
+            .Select(g => g.Key)
+            .Order()
+            .ToList();
+        ClearLog();
+
+        var query = context.Set<OrderDetail>().GroupBy(od => od.OrderID)
+            .Where(g => new[]
+            {
+                Math.Log10(EF.Functions.StandardDeviationPopulation(g.Select(od => (double)od.Quantity))!.Value + 1), -1
+            }.Contains(0))
+            .Select(g => g.Key);
+
+        var results = async ? await query.ToListAsync() : query.ToList();
+
+        Assert.NotEmpty(expected);
+        Assert.Equal(expected, results.Order());
+
+        AssertSql(
+            """
+SELECT [o].[OrderID]
+FROM [Order Details] AS [o]
+GROUP BY [o].[OrderID]
+HAVING 0.0E0 IN (LOG10(STDEVP(CAST([o].[Quantity] AS float)) + 1.0E0), -1.0E0)
 """);
     }
 
