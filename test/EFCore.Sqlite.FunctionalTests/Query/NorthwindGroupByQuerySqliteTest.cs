@@ -106,6 +106,48 @@ GROUP BY "o"."OrderID"
 """);
     }
 
+    // SQLite translates Math.Max to its scalar max with several arguments, which g.Count() can be folded under.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task GroupBy_aggregate_under_Math_Max_as_element_of_inline_collection_Contains(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(o => o.CustomerID)
+                .Select(g => new { g.Key, A = new[] { Math.Max(g.Count(), 2), 0 }.Contains(2) }),
+            elementSorter: e => e.Key);
+
+        AssertSql(
+            """
+SELECT "o"."CustomerID" AS "Key", 2 IN (max(COUNT(*), 2), 0) AS "A"
+FROM "Orders" AS "o"
+GROUP BY "o"."CustomerID"
+""");
+    }
+
+    // With a single argument, SQLite's max is the aggregate, so g.Count() inside its argument mustn't be folded into it.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task GroupBy_Max_with_aggregate_over_grouping_in_inline_collection(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ss.Set<OrderDetail>().GroupBy(od => od.OrderID)
+                .Select(g => new { g.Key, M = g.Max(od => new[] { g.Count(), 0 }.Contains(2) ? od.Quantity : 0) }),
+            elementSorter: e => e.Key);
+
+        AssertSql(
+            """
+SELECT "o"."OrderID" AS "Key", MAX(CASE
+    WHEN 2 IN ((
+        SELECT COUNT(*)
+        FROM "Order Details" AS "o0"
+        WHERE "o"."OrderID" = "o0"."OrderID"), 0) THEN "o"."Quantity"
+    ELSE 0
+END) AS "M"
+FROM "Order Details" AS "o"
+GROUP BY "o"."OrderID"
+""");
+    }
+
     // SQLite evaluates random() per row, where SQL Server's RAND() is a runtime constant - so this is the provider that
     // can catch the grouping element's filter being emitted more than once. Every order has OrderID > 0, so All holds for
     // every group whichever rows the filter samples, which is what the expected query asserts directly; EF.Functions.Random

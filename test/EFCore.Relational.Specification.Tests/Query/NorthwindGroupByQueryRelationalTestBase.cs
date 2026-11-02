@@ -110,6 +110,17 @@ public abstract class NorthwindGroupByQueryRelationalTestBase<TFixture>(TFixture
                 }),
             elementSorter: e => e.Key);
 
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_trimmed_string_aggregate_as_element_of_inline_collection_Contains(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().GroupBy(c => c.City)
+                .Select(g => new
+                {
+                    g.Key, IsAlfki = new[] { string.Join("|", g.Select(c => c.CustomerID)).Trim(), "" }.Contains("ALFKI")
+                }),
+            elementSorter: e => e.Key);
+
     // Folded into the inner query, an aggregate over the outer grouping that also names the inner query's columns would be evaluated
     // over the inner query's rows; with no subquery to fall back to, it can't be translated.
     [Theory, MemberData(nameof(IsAsyncData))]

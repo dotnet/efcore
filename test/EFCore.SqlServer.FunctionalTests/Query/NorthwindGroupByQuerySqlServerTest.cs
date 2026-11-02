@@ -5654,6 +5654,21 @@ GROUP BY [c].[City]
 """);
     }
 
+    public override async Task GroupBy_trimmed_string_aggregate_as_element_of_inline_collection_Contains(bool async)
+    {
+        await base.GroupBy_trimmed_string_aggregate_as_element_of_inline_collection_Contains(async);
+
+        AssertSql(
+            """
+SELECT [c].[City] AS [Key], CASE
+    WHEN N'ALFKI' IN (LTRIM(RTRIM(COALESCE(STRING_AGG([c].[CustomerID], N'|'), N''))), N'') THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [IsAlfki]
+FROM [Customers] AS [c]
+GROUP BY [c].[City]
+""");
+    }
+
     public override async Task GroupBy_string_aggregate_as_element_of_inline_collection_Contains_from_inner_query(bool async)
     {
         await base.GroupBy_string_aggregate_as_element_of_inline_collection_Contains_from_inner_query(async);
@@ -5689,6 +5704,40 @@ SELECT [o].[OrderID]
 FROM [Order Details] AS [o]
 GROUP BY [o].[OrderID]
 HAVING 0.0E0 IN (STDEVP(CAST([o].[Quantity] AS float)), -1.0E0)
+""");
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task GroupBy_rounded_statistical_aggregate_as_element_of_inline_collection_Contains_in_predicate(bool async)
+    {
+        await using var context = CreateContext();
+
+        // The population standard deviation is zero exactly when every quantity in the order is the same.
+        var expected = context.Set<OrderDetail>().AsEnumerable().GroupBy(od => od.OrderID)
+            .Where(g => g.Select(od => od.Quantity).Distinct().Count() == 1)
+            .Select(g => g.Key)
+            .Order()
+            .ToList();
+        ClearLog();
+
+        var query = context.Set<OrderDetail>().GroupBy(od => od.OrderID)
+            .Where(g => new[]
+            {
+                Math.Round(EF.Functions.StandardDeviationPopulation(g.Select(od => (double)od.Quantity))!.Value, 2), -1
+            }.Contains(0))
+            .Select(g => g.Key);
+
+        var results = async ? await query.ToListAsync() : query.ToList();
+
+        Assert.NotEmpty(expected);
+        Assert.Equal(expected, results.Order());
+
+        AssertSql(
+            """
+SELECT [o].[OrderID]
+FROM [Order Details] AS [o]
+GROUP BY [o].[OrderID]
+HAVING 0.0E0 IN (ROUND(STDEVP(CAST([o].[Quantity] AS float)), 2), -1.0E0)
 """);
     }
 
