@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections.Concurrent;
-using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 
@@ -17,9 +15,6 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 /// </remarks>
 public readonly record struct TypeMappingInfo
 {
-    private static readonly ConditionalWeakTable<ITypeMappingConfiguration, ConcurrentDictionary<Type, JsonValueReaderWriter?>>
-        JsonValueReaderWriters = new();
-
     /// <summary>
     ///     Creates a new instance of <see cref="TypeMappingInfo" />.
     /// </summary>
@@ -107,13 +102,17 @@ public readonly record struct TypeMappingInfo
         ClrType = (customConverter?.ProviderClrType ?? elementType.ClrType).UnwrapNullableType();
         Scale = fallbackScale ?? mappingHints?.Scale;
         Precision = fallbackPrecision ?? mappingHints?.Precision;
-        JsonValueReaderWriter = (elementType is RuntimeElementType runtimeElementType
-                ? runtimeElementType.ConfiguredJsonValueReaderWriter
-                : elementType[CoreAnnotationNames.JsonValueReaderWriterType] != null
-                    ? elementType.GetJsonValueReaderWriter()
-                    : null)
-            ?? GetJsonValueReaderWriter(
-                elementType.CollectionProperty.DeclaringType.Model.FindTypeMappingConfiguration(elementType.ClrType.UnwrapNullableType()));
+
+        // The public getter can resolve or reuse a type mapping. Read only configured readers here
+        // to avoid recursive mapping resolution and stale defaults.
+        JsonValueReaderWriter = elementType switch
+        {
+            RuntimeElementType runtimeElementType => runtimeElementType.ConfiguredJsonValueReaderWriter,
+            _ when elementType[CoreAnnotationNames.JsonValueReaderWriterType] != null => elementType.GetJsonValueReaderWriter(),
+            _ => null
+        };
+        JsonValueReaderWriter ??= GetJsonValueReaderWriter(
+            elementType.CollectionProperty.DeclaringType.Model.FindTypeMappingConfiguration(elementType.ClrType.UnwrapNullableType()));
     }
 
     /// <summary>
@@ -390,8 +389,5 @@ public readonly record struct TypeMappingInfo
     public JsonValueReaderWriter? JsonValueReaderWriter { get; init; }
 
     private static JsonValueReaderWriter? GetJsonValueReaderWriter(ITypeMappingConfiguration? configuration)
-        => configuration?.GetJsonValueReaderWriterType() is { } readerWriterType
-            ? JsonValueReaderWriters.GetValue(configuration, static _ => new())
-                .GetOrAdd(readerWriterType, JsonValueReaderWriter.CreateFromType)
-            : null;
+        => JsonValueReaderWriter.CreateFromType(configuration?.GetJsonValueReaderWriterType());
 }

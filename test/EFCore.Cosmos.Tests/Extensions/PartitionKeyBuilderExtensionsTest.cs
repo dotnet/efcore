@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Text.Json;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 
@@ -12,6 +13,19 @@ namespace Microsoft.EntityFrameworkCore.Cosmos;
 
 public class PartitionKeyBuilderExtensionsTest
 {
+    [Fact]
+    public void Routing_uses_resolved_property_reader_writer()
+    {
+        var property = new RuntimeModel(skipDetectChanges: false, modelId: Guid.Empty, entityTypeCount: 1, typeConfigurationCount: 0)
+            .AddEntityType("Customer", typeof(Customer1)).AddProperty(
+                nameof(Customer1.Int),
+                typeof(int),
+                typeMapping: new CosmosTypeMapping(typeof(int), jsonValueReaderWriter: Int32AsStringReaderWriter.Instance));
+
+        Assert.Null(property.GetJsonValueReaderWriter());
+        Assert.Equal(new PartitionKey("42"), new PartitionKeyBuilder().Add(42, property).Build());
+    }
+
     [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
     public void Routing_uses_configured_JSON_representation(bool typeMappingDefault, bool converted)
     {
@@ -41,11 +55,15 @@ public class PartitionKeyBuilderExtensionsTest
             new PartitionKey(converted ? "43" : "42"),
             new PartitionKeyBuilder().Add(42, property).Build());
         Assert.Equal(converted ? 1 : 0, counter.Calls);
+        Assert.Equal(
+            new PartitionKey(converted ? "43" : "42"),
+            new PartitionKeyBuilder().Add(42L, property).Build());
+        Assert.Equal(converted ? 2 : 0, counter.Calls);
         Assert.Equal(PartitionKey.Null, new PartitionKeyBuilder().Add(null, property).Build());
         if (converted)
         {
             Assert.Equal(new PartitionKey("43"), new PartitionKeyBuilder().Add("42", property).Build());
-            Assert.Equal(2, counter.Calls);
+            Assert.Equal(3, counter.Calls);
         }
         else
         {
@@ -78,6 +96,29 @@ public class PartitionKeyBuilderExtensionsTest
 
         public override Expression ConstructorExpression
             => Expression.Property(null, typeof(Int32AsStringReaderWriter), nameof(Instance));
+    }
+
+    [Fact]
+    public void Add_without_property_uses_native_values()
+    {
+        Assert.Equal(PartitionKey.Null, new PartitionKeyBuilder().Add(null, property: null).Build());
+        Assert.Equal(new PartitionKey("partition"), new PartitionKeyBuilder().Add("partition", property: null).Build());
+        Assert.Equal(new PartitionKey(true), new PartitionKeyBuilder().Add(true, property: null).Build());
+        Assert.Equal(new PartitionKey(42), new PartitionKeyBuilder().Add(42, property: null).Build());
+        Assert.Equal(new PartitionKey(1.25), new PartitionKeyBuilder().Add(1.25, property: null).Build());
+        Assert.Equal(
+            CosmosStrings.PartitionKeyBadValue(typeof(Guid)),
+            Assert.Throws<InvalidOperationException>(() => new PartitionKeyBuilder().Add(Guid.Empty, property: null)).Message);
+    }
+
+    [Fact]
+    public void Add_preserves_unconfigured_numeric_values_of_different_CLR_types()
+    {
+        using var context = new PartitionKeyContext();
+        var property = FindProperty(context, typeof(Customer1), nameof(Customer1.Int));
+
+        Assert.Equal(new PartitionKey(1.25), new PartitionKeyBuilder().Add(1.25, property).Build());
+        Assert.Equal(new PartitionKey(long.MaxValue), new PartitionKeyBuilder().Add(long.MaxValue, property).Build());
     }
 
     [Fact]

@@ -39,8 +39,8 @@ public abstract class RelationalTypeMappingSourceTestBase
             Assert.Equal(42, mapping.Converter.ConvertFromProvider("42"));
         }
 
-        Assert.Same(mapping, source.GetMapping(typeof(int?), model));
-        Assert.NotSame(mapping, source.GetMapping(typeof(int)));
+        Assert.Equal("\"42\"", source.GetMapping(typeof(int?), model).JsonValueReaderWriter!.ToJsonString(42));
+        Assert.Equal("42", source.GetMapping(typeof(int)).JsonValueReaderWriter!.ToJsonString(42));
     }
 
     [Fact]
@@ -57,7 +57,7 @@ public abstract class RelationalTypeMappingSourceTestBase
     }
 
     [Fact]
-    public void JSON_reader_writer_defaults_reuse_mappings_for_properties_and_elements()
+    public void JSON_reader_writer_defaults_apply_to_properties_and_elements()
     {
         var builder = CreateModelBuilder(c =>
             c.DefaultTypeMapping<int>().HasJsonValueReaderWriter<JsonInt32AsStringReaderWriter>());
@@ -68,10 +68,12 @@ public abstract class RelationalTypeMappingSourceTestBase
         var property = model.FindEntityType("Owner")!.FindProperty("Id")!;
         var element = model.FindEntityType("Owner")!.FindProperty("Numbers")!.GetElementType()!;
 
-        Assert.Same(source.GetMapping(property), source.GetMapping(property));
-        Assert.Same(source.FindMapping(element), source.FindMapping(element));
-        Assert.Same(source.GetMapping(property).JsonValueReaderWriter, source.FindMapping(element)!.JsonValueReaderWriter);
-        Assert.Equal("\"42\"", source.FindMapping(element)!.JsonValueReaderWriter!.ToJsonString(42));
+        var propertyReaderWriter = source.GetMapping(property).JsonValueReaderWriter!;
+        var elementReaderWriter = source.FindMapping(element)!.JsonValueReaderWriter!;
+        Assert.Equal("\"42\"", propertyReaderWriter.ToJsonString(42));
+        Assert.Equal(42, propertyReaderWriter.FromJsonString("\"42\""));
+        Assert.Equal("\"42\"", elementReaderWriter.ToJsonString(42));
+        Assert.Equal(42, elementReaderWriter.FromJsonString("\"42\""));
     }
 
     public sealed class JsonInt32AsStringReaderWriter : JsonValueReaderWriter<int>

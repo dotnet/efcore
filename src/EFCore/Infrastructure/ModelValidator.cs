@@ -1419,15 +1419,15 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
         var configurationSource = elementType == null
             ? (property as IConventionProperty)?.GetJsonValueReaderWriterTypeConfigurationSource()
             : (elementType as IConventionElementType)?.GetJsonValueReaderWriterTypeConfigurationSource();
-        var memberConfiguration = configurationSource.OverridesStrictly(ConfigurationSource.Convention);
+        var isConfigured = configurationSource.Overrides(ConfigurationSource.Convention);
         var jsonProperty = IsJsonProperty(property);
-        if (!memberConfiguration && !jsonProperty)
+        if (!isConfigured && !jsonProperty)
         {
             return;
         }
 
         var clrType = (elementType?.ClrType ?? property.ClrType).UnwrapNullableType();
-        var readerWriter = memberConfiguration
+        var readerWriter = isConfigured
             ? elementType == null
                 ? property.GetJsonValueReaderWriter()
                 : elementType.GetJsonValueReaderWriter()
@@ -1453,6 +1453,15 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
                 && !converter.GetType().GetGenericTypeImplementations(typeof(CollectionToJsonStringConverter<>)).Any()
                     ? converter.ProviderClrType
                     : elementType?.ClrType ?? property.ClrType).UnwrapNullableType();
+        if (clrType.IsEnum
+            && readerWriter.ValueType.UnwrapNullableType() == clrType
+            && storeType == clrType.GetEnumUnderlyingType()
+            && converter?.GetType().GetGenericTypeImplementations(typeof(EnumToNumberConverter<,>)).Any() == true)
+        {
+            // Enum readers can serialize the enum directly instead of using its underlying-number converter.
+            storeType = clrType;
+        }
+
         if (!readerWriter.ValueType.UnwrapNullableType().IsAssignableFrom(storeType))
         {
             throw new InvalidOperationException(

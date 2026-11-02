@@ -305,7 +305,7 @@ namespace TestNamespace
             Assert.NotNull(ipAddressElementType.GetTypeMapping().JsonValueReaderWriter);
             Assert.NotNull(ipAddressElementType.GetValueComparer());
             Assert.Null(ipAddressElementType.GetValueConverter());
-            Assert.Null(ipAddressElementType.GetJsonValueReaderWriter());
+            Assert.Same(ipAddressElementType.GetTypeMapping().JsonValueReaderWriter, ipAddressElementType.GetJsonValueReaderWriter());
         }
 
         Assert.Null(model.FindEntityType(typeof(AbstractBase)));

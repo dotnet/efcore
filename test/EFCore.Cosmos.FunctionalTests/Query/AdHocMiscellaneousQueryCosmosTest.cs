@@ -743,6 +743,151 @@ FROM root c
         public int Id { get; set; }
         public int Partition { get; set; }
         public string Name { get; set; } = null!;
+        public List<int> Numbers { get; set; } = [];
+    }
+
+    [Fact]
+    public async Task Pagination_and_array_indexes_use_native_numbers_with_JSON_reader_writer_defaults()
+    {
+        var factory = await InitializeNonSharedTest<PoolableDbContext>(
+            onConfiguring: options => options.EnableSensitiveDataLogging(),
+            onModelCreating: b =>
+            {
+                b.Entity<FormattedPartitionKeyItem>().ToContainer("Entities").HasNoDiscriminator();
+                b.Entity<FormattedPartitionKeyItem>().HasPartitionKey(e => e.Partition);
+            },
+            configureConventions: c => c.DefaultTypeMapping<int>().HasJsonValueReaderWriter<Int32AsStringReaderWriter>(),
+            seed: context =>
+            {
+                context.AddRange(
+                    new FormattedPartitionKeyItem { Id = 1, Partition = 42, Name = "first", Numbers = [10, 20, 30] },
+                    new FormattedPartitionKeyItem { Id = 1, Partition = 43, Name = "second", Numbers = [40, 50, 60] });
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = factory.CreateDbContext();
+        var count = 1;
+        var query = context.Set<FormattedPartitionKeyItem>().Where(e => e.Id == count).OrderBy(e => e.Partition);
+
+        var page = await query.Skip(count).Take(count)
+            .Select(e => e.Numbers.Skip((e.Id == count ? count : 0) + count - count).Take(count).ToArray()).ToArrayAsync();
+        Assert.Equal([50], Assert.Single(page));
+
+        page = await query.Skip(count - 1).Take(count)
+            .Select(e => e.Numbers.Take(count + 1).Skip(count).ToArray()).ToArrayAsync();
+        Assert.Equal([20], Assert.Single(page));
+
+        Assert.Equal(
+            42,
+            (await query.Where(e => e.Numbers.ElementAt(count) == 20).FirstAsync()).Partition);
+
+        AssertSql(
+            """
+@count='1'
+@count0='1'
+@p='1'
+
+SELECT VALUE ARRAY_SLICE(c["Numbers"], ((((c["Id"] = @count) ? @count0 : 0) + @count0) - @count0), @count0)
+FROM root c
+WHERE (c["Id"] = @count)
+ORDER BY c["Partition"]
+OFFSET @p LIMIT @p
+""",
+            //
+            """
+@p3='2'
+@count='1'
+@count0='1'
+@p='0'
+@p2='1'
+
+SELECT VALUE ARRAY_SLICE(ARRAY_SLICE(c["Numbers"], 0, @p3), @count)
+FROM root c
+WHERE (c["Id"] = @count0)
+ORDER BY c["Partition"]
+OFFSET @p LIMIT @p2
+""",
+            //
+            """
+@count='1'
+@count0='1'
+
+SELECT VALUE c
+FROM root c
+WHERE ((c["Id"] = @count) AND (c["Numbers"][@count0] = "20"))
+ORDER BY c["Partition"]
+OFFSET 0 LIMIT 1
+""");
+    }
+
+    [Fact]
+    public async Task Count_and_LongCount_use_native_numbers_with_JSON_reader_writer_defaults()
+    {
+        var factory = await InitializeNonSharedTest<PoolableDbContext>(
+            onConfiguring: options => options.EnableSensitiveDataLogging(),
+            onModelCreating: b =>
+            {
+                b.Entity<FormattedPartitionKeyItem>().ToContainer("Entities").HasNoDiscriminator();
+                b.Entity<FormattedPartitionKeyItem>().HasPartitionKey(e => e.Partition);
+            },
+            configureConventions: c => c.DefaultTypeMapping<int>().HasJsonValueReaderWriter<Int32AsStringReaderWriter>(),
+            seed: context =>
+            {
+                context.AddRange(
+                    new FormattedPartitionKeyItem { Id = 1, Partition = 42, Name = "first" },
+                    new FormattedPartitionKeyItem { Id = 2, Partition = 43, Name = "second" });
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = factory.CreateDbContext();
+        var query = context.Set<FormattedPartitionKeyItem>();
+        var id = 1;
+
+        Assert.Equal(2, await query.CountAsync());
+        Assert.Equal(1, await query.CountAsync(e => e.Id == id));
+        Assert.Equal(0, await query.CountAsync(e => e.Id == 0));
+        Assert.Equal(2L, await query.LongCountAsync());
+        Assert.Equal(1L, await query.LongCountAsync(e => e.Id == id));
+        Assert.Equal(0L, await query.LongCountAsync(e => e.Id == 0));
+
+        AssertSql(
+            """
+SELECT VALUE COUNT(1)
+FROM root c
+""",
+            //
+            """
+@id='1'
+
+SELECT VALUE COUNT(1)
+FROM root c
+WHERE (c["Id"] = @id)
+""",
+            //
+            """
+SELECT VALUE COUNT(1)
+FROM root c
+WHERE (c["Id"] = "0")
+""",
+            //
+            """
+SELECT VALUE COUNT(1)
+FROM root c
+""",
+            //
+            """
+@id='1'
+
+SELECT VALUE COUNT(1)
+FROM root c
+WHERE (c["Id"] = @id)
+""",
+            //
+            """
+SELECT VALUE COUNT(1)
+FROM root c
+WHERE (c["Id"] = "0")
+""");
     }
 
     public sealed class Int32AsStringReaderWriter : JsonValueReaderWriter<int>

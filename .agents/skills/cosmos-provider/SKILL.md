@@ -16,6 +16,10 @@ Non-relational provider with its own parallel query pipeline. Uses JSON for docu
 - `ETag` for optimistic concurrency
 - No cross-container joins
 
+## Query Type Mapping
+
+- Pagination counts, array indexes, generated numeric bounds, and COUNT results need model-independent numeric mappings. Supply expected mappings before model-default inference; do not recursively remap predicate or data operands.
+
 ## Azure Cosmos DB Emulator for Tests
 
 - `TestEnvironment.InitializeAsync()` auto-starts a `Testcontainers.CosmosDb` container when `Test__Cosmos__DefaultConnection` is not set. Set the env var to use an existing emulator instead.
