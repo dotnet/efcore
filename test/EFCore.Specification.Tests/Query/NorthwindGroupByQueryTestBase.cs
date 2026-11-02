@@ -2176,6 +2176,72 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
             ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Select(g => g.LongCount(o => o.OrderID < 10300)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Property_Select_Where_not_null_Count(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().GroupBy(c => c.Country).Select(g => new { g.Key, Count = g.Where(c => c.Region != null).Count() }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Property_Select_Where_not_null_Any(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().GroupBy(c => c.Country).Select(g => new { g.Key, Any = g.Where(c => c.Region != null).Any() }),
+            elementSorter: e => e.Key);
+
+    // The predicate holds for every customer, so All must be true for every country; were the null check on the grouping element
+    // to replace the count of rows failing the predicate, All would instead come out false for every country with a region.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Property_Select_Where_not_null_All(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .GroupBy(c => c.Country)
+                .Select(g => new { g.Key, All = g.Where(c => c.Region != null).All(c => c.CustomerID != "ZZZZZ") }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Property_Select_Count_with_not_null_predicate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().GroupBy(c => c.Country).Select(g => new { g.Key, Count = g.Count(c => c.Region != null) }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Property_Select_LongCount_with_HasValue_predicate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Select(g => new { g.Key, Count = g.LongCount(o => o.OrderDate.HasValue) }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Property_Select_Select_Count_with_not_null_predicate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .GroupBy(c => c.Country)
+                .Select(g => new { g.Key, Count = g.Select(c => c.Fax).Count(f => f != null) }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Property_Select_Select_Distinct_Count_with_not_null_predicate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .GroupBy(c => c.Country)
+                .Select(g => new { g.Key, Count = g.Select(c => c.Region).Distinct().Count(r => r != null) }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Property_Select_Count_with_not_null_and_other_predicate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .GroupBy(c => c.Country)
+                .Select(g => new { g.Key, Count = g.Count(c => c.Region != null && c.City != "London") }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_orderby_projection_with_coalesce_operation(bool async)
         => AssertQuery(
             async,

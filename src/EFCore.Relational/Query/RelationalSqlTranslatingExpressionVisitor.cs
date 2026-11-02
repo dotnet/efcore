@@ -1619,7 +1619,8 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
             count = TranslateAggregateMethod(
                 source,
                 QueryableMethods.LongCountWithoutPredicate.MakeGenericMethod(source.Selector.Type),
-                []) as SqlExpression;
+                [],
+                forQuantifier: true) as SqlExpression;
 
             return count != null;
         }
@@ -1731,7 +1732,8 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
     private SqlExpression? TranslateAggregateMethod(
         EnumerableExpression enumerableExpression,
         MethodInfo method,
-        List<SqlExpression> scalarArguments)
+        List<SqlExpression> scalarArguments,
+        bool forQuantifier = false)
     {
         _throwForNotTranslatedEfProperty = false;
         var selector = TranslateInternal(enumerableExpression.Selector);
@@ -1740,9 +1742,36 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
         {
             enumerableExpression = enumerableExpression.ApplySelector(selector);
         }
+        // Any/All are counted through here too, but what they count is decided by their marker, which this would replace -
+        // for All that drops the very predicate being tested.
+        else if (!forQuantifier
+                 && method.DeclaringType == typeof(Queryable)
+                 && method.Name is nameof(Queryable.Count) or nameof(Queryable.LongCount)
+                 && !enumerableExpression.IsDistinct
+                 && TryGetNullCheckedOperand(enumerableExpression.Predicate) is SqlExpression nullCheckedOperand)
+        {
+            // Counting rows where x isn't null is just COUNT(x), which unlike COUNT(CASE WHEN x IS NOT NULL THEN 1 END) can use
+            // an index on x. With DISTINCT applied this would instead count the distinct values of x.
+            enumerableExpression = new EnumerableExpression(nullCheckedOperand);
+        }
 
         return Dependencies.AggregateMethodCallTranslatorProvider.Translate(
             _model, method, enumerableExpression, scalarArguments, _queryCompilationContext.Logger);
+
+        static SqlExpression? TryGetNullCheckedOperand(SqlExpression? predicate)
+            => predicate switch
+            {
+                SqlUnaryExpression { OperatorType: ExpressionType.NotEqual, Operand: var operand } => operand,
+                SqlBinaryExpression
+                    {
+                        OperatorType: ExpressionType.NotEqual, Left: var left, Right: SqlConstantExpression { Value: null }
+                    } => left,
+                SqlBinaryExpression
+                    {
+                        OperatorType: ExpressionType.NotEqual, Left: SqlConstantExpression { Value: null }, Right: var right
+                    } => right,
+                _ => null
+            };
     }
 
     private Expression RemapLambda(EnumerableExpression enumerableExpression, LambdaExpression lambdaExpression)
