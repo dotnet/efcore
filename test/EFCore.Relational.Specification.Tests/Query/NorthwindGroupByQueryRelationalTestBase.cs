@@ -99,6 +99,8 @@ public abstract class NorthwindGroupByQueryRelationalTestBase<TFixture>(TFixture
                 .Where(g => new[] { string.Join("|", g.Select(c => c.CustomerID)), "" }.Contains("ALFKI"))
                 .Select(g => g.Key));
 
+    // The expected query lowercases invariantly: under a culture such as tr-TR, ToLower would turn the I of ALFKI into a dotless ı,
+    // which the database's LOWER doesn't.
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_wrapped_string_aggregate_as_element_of_inline_collection_Contains(bool async)
         => AssertQuery(
@@ -107,6 +109,12 @@ public abstract class NorthwindGroupByQueryRelationalTestBase<TFixture>(TFixture
                 .Select(g => new
                 {
                     g.Key, IsAlfki = new[] { string.Join("|", g.Select(c => c.CustomerID)).ToLower(), "" }.Contains("alfki")
+                }),
+            ss => ss.Set<Customer>().GroupBy(c => c.City)
+                .Select(g => new
+                {
+                    g.Key,
+                    IsAlfki = new[] { string.Join("|", g.Select(c => c.CustomerID)).ToLowerInvariant(), "" }.Contains("alfki")
                 }),
             elementSorter: e => e.Key);
 
