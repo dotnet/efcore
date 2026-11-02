@@ -5065,10 +5065,10 @@ SELECT [o].[CustomerID] AS [Key], ISNULL((
         WHEN 2 IN (COUNT(*)) OR (2 = (
             SELECT COUNT(*)
             FROM [Orders] AS [o0]
-            WHERE [o].[CustomerID] = [o0].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL) OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL) OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)) AND (
+            WHERE [o].[CustomerID] = [o0].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)) AND (
             SELECT COUNT(*)
             FROM [Orders] AS [o0]
-            WHERE [o].[CustomerID] = [o0].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL) OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL) OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)) IS NOT NULL) THEN CAST(1 AS bit)
+            WHERE [o].[CustomerID] = [o0].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)) IS NOT NULL) THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END
     FROM [Employees] AS [e]
