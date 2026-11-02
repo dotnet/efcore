@@ -2220,7 +2220,7 @@ WHERE [f].[Taste] = CAST(1 AS tinyint)
 
         AssertSql(
             """
-SELECT CAST([f].[Taste] AS tinyint) AS [Bar]
+SELECT [f].[Taste] AS [Bar]
 FROM [Foods] AS [f]
 """);
     }
