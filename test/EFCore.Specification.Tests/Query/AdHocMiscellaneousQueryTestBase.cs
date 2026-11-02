@@ -2412,4 +2412,126 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     }
 
     #endregion
+
+    #region 34411
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Count_over_collection_of_nested_projection_with_conditional_null(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context34411>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Entities
+            .Select(
+                f => new Context34411.DtoEntity
+                {
+                    ID = f.ID,
+                    Type = f.Type == null
+                        ? null
+                        : new Context34411.DtoEntityType
+                        {
+                            ID = f.Type.ID,
+                            Tags = f.Type.Tags.Select(t => new Context34411.DtoTag { ID = t.ID })
+                        }
+                })
+            .OrderBy(f => f.ID)
+            .Select(f => new Context34411.FinalResult { Value = f.Type!.Tags.Count() });
+
+        var result = async
+            ? await query.ToListAsync()
+            : query.ToList();
+
+        Assert.Equal([3, 0, 1, 3], result.Select(r => r.Value));
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Count_over_collection_of_nested_projection_with_conditional_null_on_false_side(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context34411>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Entities
+            .Select(
+                f => new Context34411.DtoEntity
+                {
+                    ID = f.ID,
+                    Type = f.Type != null
+                        ? new Context34411.DtoEntityType
+                        {
+                            ID = f.Type.ID,
+                            Tags = f.Type.Tags.Select(t => new Context34411.DtoTag { ID = t.ID })
+                        }
+                        : null
+                })
+            .OrderBy(f => f.ID)
+            .Select(f => new Context34411.FinalResult { Value = f.Type!.Tags.Count() });
+
+        var result = async
+            ? await query.ToListAsync()
+            : query.ToList();
+
+        Assert.Equal([3, 0, 1, 3], result.Select(r => r.Value));
+    }
+
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context34411(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Entity> Entities { get; set; } = null!;
+
+        public Task SeedAsync()
+        {
+            var manyTags = new EntityType { Tags = new List<Tag> { new(), new(), new() } };
+            var noTags = new EntityType { Tags = new List<Tag>() };
+            var oneTag = new EntityType { Tags = new List<Tag> { new() } };
+
+            Entities.AddRange(
+                new Entity { Type = manyTags },
+                new Entity { Type = noTags },
+                new Entity { Type = oneTag },
+                new Entity { Type = manyTags });
+
+            return SaveChangesAsync();
+        }
+
+        public class Entity
+        {
+            public int ID { get; set; }
+            public EntityType? Type { get; set; }
+        }
+
+        public class EntityType
+        {
+            public int ID { get; set; }
+            public IEnumerable<Tag> Tags { get; set; } = null!;
+        }
+
+        public class Tag
+        {
+            public int ID { get; set; }
+        }
+
+        public class DtoEntity
+        {
+            public int ID { get; set; }
+            public DtoEntityType? Type { get; set; }
+        }
+
+        public class DtoEntityType
+        {
+            public int ID { get; set; }
+            public IEnumerable<DtoTag> Tags { get; set; } = null!;
+        }
+
+        public class DtoTag
+        {
+            public int ID { get; set; }
+        }
+
+        public class FinalResult
+        {
+            public decimal Value { get; set; }
+        }
+    }
+
+    #endregion
 }

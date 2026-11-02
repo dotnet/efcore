@@ -3716,6 +3716,40 @@ FROM [Entities] AS [e]
 """);
     }
 
+    public override async Task Count_over_collection_of_nested_projection_with_conditional_null(bool async)
+    {
+        await base.Count_over_collection_of_nested_projection_with_conditional_null(async);
+
+        AssertSql(
+            """
+SELECT CASE
+    WHEN [e0].[ID] IS NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, [e].[ID], [t].[ID]
+FROM [Entities] AS [e]
+LEFT JOIN [EntityType] AS [e0] ON [e].[TypeID] = [e0].[ID]
+LEFT JOIN [Tag] AS [t] ON [e0].[ID] = [t].[EntityTypeID]
+ORDER BY [e].[ID]
+""");
+    }
+
+    public override async Task Count_over_collection_of_nested_projection_with_conditional_null_on_false_side(bool async)
+    {
+        await base.Count_over_collection_of_nested_projection_with_conditional_null_on_false_side(async);
+
+        AssertSql(
+            """
+SELECT CASE
+    WHEN [e0].[ID] IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, [e].[ID], [t].[ID]
+FROM [Entities] AS [e]
+LEFT JOIN [EntityType] AS [e0] ON [e].[TypeID] = [e0].[ID]
+LEFT JOIN [Tag] AS [t] ON [e0].[ID] = [t].[EntityTypeID]
+ORDER BY [e].[ID]
+""");
+    }
+
     #endregion
 
     [Fact]
