@@ -25,6 +25,7 @@ public class SqlServerAggregateMethodCallTranslatorProvider : RelationalAggregat
 
         AddTranslators(
         [
+            new SqlServerLargeObjectCountMethodTranslator(sqlExpressionFactory),
             new SqlServerLongCountMethodTranslator(sqlExpressionFactory),
             new SqlServerStatisticsAggregateMethodTranslator(sqlExpressionFactory, typeMappingSource),
             new SqlServerStringAggregateMethodTranslator(sqlExpressionFactory, typeMappingSource)
