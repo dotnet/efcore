@@ -122,8 +122,10 @@ internal sealed class GroupingAggregateFoldingExpressionVisitor : ExpressionVisi
     }
 
     // There's no representation of whether a function is an aggregate, and providers emit their own as plain functions (SQLite's
-    // ef_sum, for one), so only the null-handling functions translation wraps aggregates in are taken to be scalar; an aggregate
-    // folded under any other function would risk being nested in another aggregate.
+    // ef_sum, for one), so only the null-handling functions translation wraps aggregates in, and the case conversions string
+    // aggregates are commonly wrapped in, are taken to be scalar; an aggregate folded under any other function would risk being nested
+    // in another aggregate.
     private static bool IsKnownScalarFunction(SqlFunctionExpression function)
-        => function.Name.ToLower(CultureInfo.InvariantCulture) is "coalesce" or "isnull" or "ifnull" or "nullif" or "iif";
+        => function.Name.ToLower(CultureInfo.InvariantCulture)
+            is "coalesce" or "isnull" or "ifnull" or "nullif" or "iif" or "lower" or "upper";
 }

@@ -5639,6 +5639,21 @@ HAVING N'ALFKI' IN (COALESCE(STRING_AGG([c].[CustomerID], N'|'), N''), N'')
 """);
     }
 
+    public override async Task GroupBy_wrapped_string_aggregate_as_element_of_inline_collection_Contains(bool async)
+    {
+        await base.GroupBy_wrapped_string_aggregate_as_element_of_inline_collection_Contains(async);
+
+        AssertSql(
+            """
+SELECT [c].[City] AS [Key], CASE
+    WHEN N'alfki' IN (LOWER(COALESCE(STRING_AGG([c].[CustomerID], N'|'), N'')), N'') THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [IsAlfki]
+FROM [Customers] AS [c]
+GROUP BY [c].[City]
+""");
+    }
+
     public override async Task GroupBy_string_aggregate_as_element_of_inline_collection_Contains_from_inner_query(bool async)
     {
         await base.GroupBy_string_aggregate_as_element_of_inline_collection_Contains_from_inner_query(async);
