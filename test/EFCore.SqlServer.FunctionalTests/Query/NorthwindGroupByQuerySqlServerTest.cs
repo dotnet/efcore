@@ -3846,6 +3846,20 @@ GROUP BY [c].[Country]
 """);
     }
 
+    public override async Task GroupBy_Property_Select_Count_with_not_null_predicate_over_function(bool async)
+    {
+        await base.GroupBy_Property_Select_Count_with_not_null_predicate_over_function(async);
+
+        AssertSql(
+            """
+SELECT [c].[Country] AS [Key], COUNT(CASE
+    WHEN [c].[Region] IS NOT NULL THEN 1
+END) AS [Count]
+FROM [Customers] AS [c]
+GROUP BY [c].[Country]
+""");
+    }
+
     public override async Task GroupBy_orderby_projection_with_coalesce_operation(bool async)
     {
         await base.GroupBy_orderby_projection_with_coalesce_operation(async);

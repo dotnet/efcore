@@ -1748,28 +1748,34 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                  && method.DeclaringType == typeof(Queryable)
                  && method.Name is nameof(Queryable.Count) or nameof(Queryable.LongCount)
                  && !enumerableExpression.IsDistinct
-                 && TryGetNullCheckedOperand(enumerableExpression.Predicate) is SqlExpression nullCheckedOperand)
+                 && TryGetNullCheckedColumn(enumerableExpression.Predicate) is ColumnExpression nullCheckedColumn)
         {
             // Counting rows where x isn't null is just COUNT(x), which unlike COUNT(CASE WHEN x IS NOT NULL THEN 1 END) can use
             // an index on x. With DISTINCT applied this would instead count the distinct values of x.
-            enumerableExpression = new EnumerableExpression(nullCheckedOperand);
+            enumerableExpression = new EnumerableExpression(nullCheckedColumn);
         }
 
         return Dependencies.AggregateMethodCallTranslatorProvider.Translate(
             _model, method, enumerableExpression, scalarArguments, _queryCompilationContext.Logger);
 
-        static SqlExpression? TryGetNullCheckedOperand(SqlExpression? predicate)
+        // Only a column: null semantics later reduce a null check over a function or an operator to null checks over its
+        // operands, so f(x) IS NOT NULL never evaluates f, while COUNT(f(x)) would evaluate it for every row.
+        static ColumnExpression? TryGetNullCheckedColumn(SqlExpression? predicate)
             => predicate switch
             {
-                SqlUnaryExpression { OperatorType: ExpressionType.NotEqual, Operand: var operand } => operand,
+                SqlUnaryExpression { OperatorType: ExpressionType.NotEqual, Operand: ColumnExpression column } => column,
                 SqlBinaryExpression
                     {
-                        OperatorType: ExpressionType.NotEqual, Left: var left, Right: SqlConstantExpression { Value: null }
-                    } => left,
+                        OperatorType: ExpressionType.NotEqual,
+                        Left: ColumnExpression column,
+                        Right: SqlConstantExpression { Value: null }
+                    } => column,
                 SqlBinaryExpression
                     {
-                        OperatorType: ExpressionType.NotEqual, Left: SqlConstantExpression { Value: null }, Right: var right
-                    } => right,
+                        OperatorType: ExpressionType.NotEqual,
+                        Left: SqlConstantExpression { Value: null },
+                        Right: ColumnExpression column
+                    } => column,
                 _ => null
             };
     }
