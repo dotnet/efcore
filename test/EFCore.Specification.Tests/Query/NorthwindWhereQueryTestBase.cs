@@ -1926,6 +1926,22 @@ public abstract class NorthwindWhereQueryTestBase<TFixture>(TFixture fixture) : 
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task EF_Constant_with_enum_cast(bool async)
+    {
+        var id = OrderIdEnum.First;
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Order>().Where(o => o.OrderID == EF.Constant((int)id)),
+            ss => ss.Set<Order>().Where(o => o.OrderID == 10248));
+    }
+
+    private enum OrderIdEnum
+    {
+        First = 10248
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task EF_Constant_does_not_parameterized_as_part_of_bigger_subtree(bool async)
     {
         var id = "ALF";

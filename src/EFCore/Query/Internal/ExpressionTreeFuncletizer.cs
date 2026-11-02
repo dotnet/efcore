@@ -949,7 +949,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                     // Even EF.Constant will be parameter here.
                     // To have a query cache hit, the constantization will happen later in pipeline.
                     argumentState = argumentState with { StateType = StateType.EvaluatableWithCapturedVariable };
-                    var evaluatedArgument = ProcessEvaluatableRoot(argument, ref argumentState);
+                    var evaluatedArgument = ProcessEvaluatableRoot(argument, ref argumentState, forceEvaluation: true);
                     if (!_parameterize && evaluatedArgument is not QueryParameterExpression)
                     {
                         throw new InvalidOperationException(CoreStrings.EFMethodNotSupportedInCompiledQueries("EF.Constant<T>"));
