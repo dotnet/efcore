@@ -112,11 +112,11 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
-@complex_type_Fixture_OtherValue='POLYGON ((20 20, 20 30, 30 30, 30 20, 20 20))' (Size = 4000)
+@Fixture_OtherValue='POLYGON ((20 20, 20 30, 30 30, 30 20, 20 20))' (Size = 45)
 
 SET NOCOUNT OFF;
 UPDATE [j]
-SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', @complex_type_Fixture_OtherValue)
+SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', @Fixture_OtherValue)
 FROM [JsonTypeEntity] AS [j]
 """);
         }

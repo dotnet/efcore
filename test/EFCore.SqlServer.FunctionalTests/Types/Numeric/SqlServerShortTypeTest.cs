@@ -135,7 +135,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
-@Fixture_OtherValue='32767'
+@Fixture_OtherValue='32767' (Nullable = true)
 
 SET NOCOUNT OFF;
 UPDATE [j]
