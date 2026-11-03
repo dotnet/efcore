@@ -1364,7 +1364,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 22841
 
-    [Fact(Skip = "Issue #34727 - flaky test")]
+    [Fact]
     public virtual async Task SaveChangesAsync_accepts_changes_with_ConfigureAwait_true()
     {
         var contextFactory = await InitializeNonSharedTest<Context22841>();
@@ -1376,9 +1376,12 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         var origSynchronizationContext = SynchronizationContext.Current;
         SynchronizationContext.SetSynchronizationContext(trackingSynchronizationContext);
 
-        // Do a dispatch once to make sure we're in the new synchronization context. This is necessary in case the below happens
-        // to complete synchronously, which shouldn't happen in principle - but just to be safe.
-        await Task.Delay(1).ConfigureAwait(true);
+        // Hop onto the synchronization context's thread, so that the rest of the test (including any parts of AddAsync/SaveChangesAsync
+        // that complete synchronously) runs there. Task.Yield() always posts to the current synchronization context, whereas
+        // Task.Delay(1) may already have completed by the time it's awaited (e.g. on a loaded machine), in which case the
+        // continuation runs inline on the original thread (#34727).
+        await Task.Yield();
+        Assert.Same(trackingSynchronizationContext.Thread, Thread.CurrentThread);
 
         bool? isMySyncContext = null;
         Action callback = () => isMySyncContext =
