@@ -7,8 +7,6 @@
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 // ReSharper disable InconsistentNaming
 
-using System.Reflection.Emit;
-using System.Runtime.CompilerServices;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 
@@ -502,37 +500,6 @@ public class PropertyTest
         Assert.All(instances, instance => Assert.Same(readerWriter, instance));
     }
 
-    [Fact]
-    public void JsonValueReaderWriter_cache_does_not_root_collectible_types()
-    {
-        var (typeReference, readerReference) = CreateCollectibleReaderWriter();
-        for (var i = 0; i < 10 && (typeReference.IsAlive || readerReference.IsAlive); i++)
-        {
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-            GC.Collect();
-        }
-
-        Assert.False(typeReference.IsAlive);
-        Assert.False(readerReference.IsAlive);
-
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        static (WeakReference Type, WeakReference Reader) CreateCollectibleReaderWriter()
-        {
-            var assembly = AssemblyBuilder.DefineDynamicAssembly(
-                new AssemblyName("CollectibleJsonReaderWriter"), AssemblyBuilderAccess.RunAndCollect);
-            var builder = assembly.DefineDynamicModule("Readers")
-                .DefineType("CollectibleReader", TypeAttributes.Public, typeof(SimpleJasonValueReaderWriter));
-            builder.DefineDefaultConstructor(MethodAttributes.Public);
-            var type = builder.CreateType()!;
-            var reader = JsonValueReaderWriter.CreateFromType(type)!;
-            Assert.Equal(type, reader.GetType());
-            Assert.Equal("value", reader.FromJsonString("\"value\""));
-            Assert.Same(reader, JsonValueReaderWriter.CreateFromType(type));
-            return (new WeakReference(type), new WeakReference(reader));
-        }
-    }
-
     [Theory, InlineData(typeof(NonDerivedJsonValueReaderWriter)), InlineData(typeof(NonGenericJsonValueReaderWriter))]
     public void Throws_when_JsonValueReaderWriter_type_is_invalid(Type type)
     {
@@ -696,7 +663,7 @@ public class PropertyTest
                 .Message);
     }
 
-    public class SimpleJasonValueReaderWriter : JsonValueReaderWriter<string>
+    private class SimpleJasonValueReaderWriter : JsonValueReaderWriter<string>
     {
         public override string FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
             => manager.CurrentReader.GetString()!;

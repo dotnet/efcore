@@ -63,7 +63,7 @@ FROM [RootEntity] AS [r]
         {
             AssertExecuteUpdateSql(
                 """
-@p='foo_updated' (Size = 4000)
+@p='foo_updated' (Size = 11)
 
 SET NOCOUNT OFF;
 UPDATE [r]
@@ -121,7 +121,7 @@ FROM [RootEntity] AS [r]
         {
             AssertExecuteUpdateSql(
                 """
-@p='foo_updated' (Size = 4000)
+@p='foo_updated' (Size = 11)
 
 SET NOCOUNT OFF;
 UPDATE [r]
@@ -151,7 +151,7 @@ FROM [RootEntity] AS [r]
         {
             AssertExecuteUpdateSql(
                 """
-@p='foo_updated' (Size = 4000)
+@p='foo_updated' (Size = 11)
 
 SET NOCOUNT OFF;
 UPDATE [r]
@@ -602,7 +602,7 @@ WHERE (
         {
             AssertExecuteUpdateSql(
                 """
-@p='99'
+@p='99' (Nullable = true)
 
 SET NOCOUNT OFF;
 UPDATE [r]
@@ -660,7 +660,7 @@ WHERE [r].[OptionalAssociate] IS NOT NULL
         {
             AssertExecuteUpdateSql(
                 """
-@p='foo_updated' (Size = 4000)
+@p='foo_updated' (Size = 11)
 
 SET NOCOUNT OFF;
 UPDATE [r]
@@ -695,7 +695,7 @@ WHERE [r].[OptionalAssociate] IS NOT NULL
         {
             AssertExecuteUpdateSql(
                 """
-@p='foo_updated' (Size = 4000)
+@p='foo_updated' (Size = 11)
 
 SET NOCOUNT OFF;
 UPDATE [r]

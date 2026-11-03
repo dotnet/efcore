@@ -116,12 +116,12 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
-@complex_type_Fixture_OtherValue='MULTILINESTRING ((10 10, 11 11)
-(12 12, 13 13))' (Size = 4000)
+@Fixture_OtherValue='MULTILINESTRING ((10 10, 11 11)
+(12 12, 13 13))' (Size = 48)
 
 SET NOCOUNT OFF;
 UPDATE [j]
-SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', @complex_type_Fixture_OtherValue)
+SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', @Fixture_OtherValue)
 FROM [JsonTypeEntity] AS [j]
 """);
         }
