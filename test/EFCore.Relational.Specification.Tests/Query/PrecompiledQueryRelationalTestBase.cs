@@ -169,6 +169,28 @@ _ = await context.Blogs.Select(b => new Blog(i, b.Name)).ToListAsync();
         => Test("_ = await context.Blogs.Select(b => new Blog { Id = b.Id, Name = b.Name }).ToListAsync();");
 
     [Fact]
+    public virtual Task MemberInit_with_required_init_only_properties()
+        => Test(
+            """
+var id = 8;
+var blog = await context.Blogs.Where(b => b.Id == id)
+    .Select(b => new RequiredBlogDto
+    {
+        Id = b.Id,
+        Name = b.Name,
+        Details = new RequiredBlogDto { Id = b.Id, Name = b.Name }
+    })
+    .FirstOrDefaultAsync();
+
+Assert.NotNull(blog);
+Assert.Equal(8, blog.Id);
+Assert.Equal("Blog1", blog.Name);
+Assert.NotNull(blog.Details);
+Assert.Equal(8, blog.Details.Id);
+Assert.Equal("Blog1", blog.Details.Name);
+""");
+
+    [Fact]
     public virtual Task MemberInit_contains_captured_variable()
         => Test(
             """
@@ -1402,6 +1424,13 @@ await using var context = new PrecompiledQueryContext(dbContextOptions);
         public string? Text { get; set; }
 
         public JsonBranch Inner { get; set; } = null!;
+    }
+
+    public class RequiredBlogDto
+    {
+        public int Id { get; init; }
+        public required string? Name { get; init; }
+        public RequiredBlogDto? Details { get; init; }
     }
 
     public class JsonBranch
