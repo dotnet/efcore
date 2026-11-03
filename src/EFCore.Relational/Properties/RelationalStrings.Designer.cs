@@ -1264,6 +1264,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("JsonEmptyString");
 
         /// <summary>
+        ///     The JSON array for '{entityType}.{navigation}' contains a non-object element when a JSON object was expected.
+        /// </summary>
+        public static string JsonEntityCollectionExpectedObject(object? entityType, object? navigation)
+            => string.Format(
+                GetString("JsonEntityCollectionExpectedObject", nameof(entityType), nameof(navigation)),
+                entityType, navigation);
+
+        /// <summary>
+        ///     The JSON array for '{entityType}.{navigation}' contains a null element. Null elements are not allowed in this collection.
+        /// </summary>
+        public static string JsonEntityCollectionNullElement(object? entityType, object? navigation)
+            => string.Format(
+                GetString("JsonEntityCollectionNullElement", nameof(entityType), nameof(navigation)),
+                entityType, navigation);
+
+        /// <summary>
         ///     Entity '{jsonType}' is mapped to JSON column '{containingColumn}', but its owner '{ownerType}' is mapped to a different JSON column '{ownerContainingColumn}'. All owned entities must be mapped to the same JSON column. Only call 'ToJson()' on the outermost owned entity type.
         /// </summary>
         public static string JsonEntityMappedToDifferentColumnThanOwner(object? jsonType, object? containingColumn, object? ownerType, object? ownerContainingColumn)

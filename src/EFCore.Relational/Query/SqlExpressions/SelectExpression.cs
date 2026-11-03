@@ -806,6 +806,9 @@ public sealed partial class SelectExpression : TableExpressionBase
                             mappedExpression = new ProjectionBindingExpression(selectExpression, existingIndex, column.Type.MakeNullable());
                         }
 
+                        // Unlike a collection's identifiers, these are the grouping's key, which LINQ compares as the model values
+                        // it materializes to: a converter reading different database values as the same one puts their rows in
+                        // one grouping. So they're read through the converter, rather than as provider values.
                         updatedExpressions.Add(
                             mappedExpression.Type.IsValueType
                                 ? Convert(mappedExpression, typeof(object))
@@ -1208,11 +1211,13 @@ public sealed partial class SelectExpression : TableExpressionBase
                                 var projectionBindingExpression = new ProjectionBindingExpression(
                                     selectExpression, existingIndex, column.Type.MakeNullable());
 
+                                var (accessor, accessorComparer) = CreateIdentifierAccessor(
+                                    projectionBindingExpression, column, comparer);
                                 updatedExpressions.Add(
-                                    projectionBindingExpression.Type.IsValueType
-                                        ? Convert(projectionBindingExpression, typeof(object))
-                                        : projectionBindingExpression);
-                                comparers.Add(comparer);
+                                    accessor.Type.IsValueType
+                                        ? Convert(accessor, typeof(object))
+                                        : accessor);
+                                comparers.Add(accessorComparer);
                             }
 
                             return (NewArrayInit(typeof(object), updatedExpressions), comparers);
@@ -1921,6 +1926,19 @@ public sealed partial class SelectExpression : TableExpressionBase
             shaperExpression,
             new ShapedQueryExpression(clonedSelectExpression, rebuiltShaperExpression));
     }
+
+    // A collection's rows are told apart on the client by their identifier values. The database told them apart by their provider
+    // values, so a converted identifier is read and compared as one, rather than through its converter, which can turn the same
+    // database value into instances the model type's comparer doesn't consider equal - every row would then look like the start of a
+    // new collection, and the shaper would never move past it - or into different values altogether, as a write converter that isn't
+    // deterministic does. A final GroupBy's key isn't one of these: see its GetIdentifierAccessor.
+    private static (Expression Accessor, ValueComparer Comparer) CreateIdentifierAccessor(
+        ProjectionBindingExpression projectionBinding,
+        SqlExpression column,
+        ValueComparer comparer)
+        => column.TypeMapping is { Converter: not null } typeMapping
+            ? (new ProviderValueProjectionBindingExpression(projectionBinding, typeMapping), typeMapping.ProviderValueComparer)
+            : (projectionBinding, comparer);
 
     // Keeps the first row of each group in place of the grouping. Rows are numbered with
     // ROW_NUMBER() OVER(PARTITION BY <grouping terms> ORDER BY <orderings>) and filtered to 1, as AddJoin does for a group's element.

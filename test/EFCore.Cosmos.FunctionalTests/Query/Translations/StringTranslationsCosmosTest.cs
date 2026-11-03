@@ -295,6 +295,35 @@ WHERE ((LENGTH(c["String"]) > 2) AND (INDEX_OF(c["String"], @pattern, @start) = 
 """);
     }
 
+    public override async Task IndexOf_with_whitespace_parameter()
+    {
+        await base.IndexOf_with_whitespace_parameter();
+
+        AssertSql(
+            """
+@pattern=' '
+
+SELECT VALUE c
+FROM root c
+WHERE (INDEX_OF(c["String"], @pattern) = -1)
+""");
+    }
+
+    public override async Task IndexOf_with_whitespace_parameter_and_parameter_starting_position()
+    {
+        await base.IndexOf_with_whitespace_parameter_and_parameter_starting_position();
+
+        AssertSql(
+            """
+@pattern=' '
+@start='2'
+
+SELECT VALUE c
+FROM root c
+WHERE ((LENGTH(c["String"]) > 2) AND (INDEX_OF(c["String"], @pattern, @start) = -1))
+""");
+    }
+
     public override Task IndexOf_after_ToString()
         => AssertTranslationFailed(base.IndexOf_after_ToString);
 

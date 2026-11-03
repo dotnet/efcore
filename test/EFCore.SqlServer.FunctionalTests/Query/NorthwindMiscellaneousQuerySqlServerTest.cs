@@ -5726,7 +5726,7 @@ FROM (
     WHERE [c].[CustomerID] NOT IN (N'VAFFE', N'DRACD')
 ) AS [c0]
 ORDER BY CHARINDEX(@searchTerm, [c0].[City]) - CASE
-    WHEN @searchTerm = N'' THEN 0
+    WHEN @searchTerm LIKE N'' THEN 0
     ELSE 1
 END, [c0].[City]
 """);

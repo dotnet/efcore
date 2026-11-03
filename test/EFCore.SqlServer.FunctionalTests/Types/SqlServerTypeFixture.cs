@@ -12,5 +12,5 @@ public abstract class SqlServerTypeFixture<T> : RelationalTypeFixtureBase<T>
         => SqlServerTestEnvironment.SetCompatibilityLevelFromEnvironment(base.AddOptions(builder));
 
     public virtual bool UsingJsonType
-        => SqlServerTestEnvironment.SqlServerMajorVersion >= 17;
+        => SqlServerTestEnvironment.IsJsonTypeSupported;
 }

@@ -2586,9 +2586,8 @@ WHERE [j].[Id] = 2
 
         var updatedP0 = value == true ? "@p0=NULL (Nullable = false)" : "@p0="
             + updateParameter
-            + @" (Nullable = false) (Size = "
-            + updateParameterSize
-            + @")";
+            + " (Nullable = false)"
+            + (SqlServerTestEnvironment.IsAzureSql && value == true ? "" : $" (Size = {updateParameterSize})");
 
         var updatedP0Reference = value switch
         {

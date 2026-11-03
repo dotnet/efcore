@@ -184,7 +184,7 @@ FROM [BasicTypesEntities] AS [b]
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
 WHERE CAST(CHARINDEX(@pattern, [b].[String]) AS int) - CASE
-    WHEN @pattern = N'' THEN 0
+    WHEN @pattern LIKE N'' THEN 0
     ELSE 1
 END = 1
 """);
@@ -201,7 +201,7 @@ END = 1
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
 WHERE CAST(CHARINDEX(@pattern, [b].[String]) AS int) - CASE
-    WHEN @pattern = N'' THEN 0
+    WHEN @pattern LIKE N'' THEN 0
     ELSE 1
 END = 1
 """);
@@ -283,9 +283,44 @@ WHERE CAST(LEN([b].[String]) AS int) > 2
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
 WHERE CAST(LEN([b].[String]) AS int) > 2 AND CAST(CHARINDEX(@pattern, [b].[String], @start + 1) AS int) - CASE
-    WHEN @pattern = N'' THEN -@start
+    WHEN @pattern LIKE N'' THEN -@start
     ELSE 1
 END = 2
+""");
+    }
+
+    public override async Task IndexOf_with_whitespace_parameter()
+    {
+        await base.IndexOf_with_whitespace_parameter();
+
+        AssertSql(
+            """
+@pattern=' ' (Size = 4000)
+
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE CAST(CHARINDEX(@pattern, [b].[String]) AS int) - CASE
+    WHEN @pattern LIKE N'' THEN 0
+    ELSE 1
+END = -1
+""");
+    }
+
+    public override async Task IndexOf_with_whitespace_parameter_and_parameter_starting_position()
+    {
+        await base.IndexOf_with_whitespace_parameter_and_parameter_starting_position();
+
+        AssertSql(
+            """
+@pattern=' ' (Size = 4000)
+@start='2'
+
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE CAST(LEN([b].[String]) AS int) > 2 AND CAST(CHARINDEX(@pattern, [b].[String], @start + 1) AS int) - CASE
+    WHEN @pattern LIKE N'' THEN -@start
+    ELSE 1
+END = -1
 """);
     }
 
@@ -310,7 +345,7 @@ WHERE CHARINDEX('55', CONVERT(varchar(11), [b].[Int])) - 1 = 1
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
 WHERE CHARINDEX(CONVERT(varchar(11), [b].[Int]), '12559') - CASE
-    WHEN CONVERT(varchar(11), [b].[Int]) = '' THEN 0
+    WHEN CONVERT(varchar(11), [b].[Int]) LIKE '' THEN 0
     ELSE 1
 END = 1
 """);
@@ -327,7 +362,7 @@ END = 1
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
 WHERE CAST(CHARINDEX(@pattern, CAST([b].[Int] AS nvarchar(max))) AS int) - CASE
-    WHEN @pattern = N'' THEN 0
+    WHEN @pattern LIKE N'' THEN 0
     ELSE 1
 END <> -1
 """);
