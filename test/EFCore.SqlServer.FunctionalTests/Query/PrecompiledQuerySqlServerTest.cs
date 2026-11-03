@@ -354,6 +354,66 @@ ORDER BY [b].[Name]
 """);
     }
 
+    public override async Task Skip_Take_with_parameters()
+    {
+        await base.Skip_Take_with_parameters();
+
+        AssertSql(
+            """
+@p='0'
+@p1='3'
+
+SELECT [p].[Id]
+FROM [Posts] AS [p]
+ORDER BY [p].[Id]
+OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
+""",
+            """
+@p='1'
+@p1='2'
+
+SELECT [p].[Id]
+FROM [Posts] AS [p]
+ORDER BY [p].[Id]
+OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
+""",
+            """
+@p='1'
+@p1='1'
+
+SELECT [p].[Id]
+FROM [Posts] AS [p]
+ORDER BY [p].[Id]
+OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
+""",
+            """
+@p='5'
+@p1='1'
+
+SELECT [p].[Id]
+FROM [Posts] AS [p]
+ORDER BY [p].[Id]
+OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
+""");
+    }
+
+    public override async Task Skip_Take_with_captured_parameters_in_local_function()
+    {
+        await base.Skip_Take_with_captured_parameters_in_local_function();
+
+        AssertSql(
+            """
+@p='1'
+@p1='2'
+
+SELECT [p].[Id]
+FROM [Posts] AS [p]
+WHERE [p].[Id] > 10
+ORDER BY [p].[Id]
+OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
+""");
+    }
+
     public override async Task Select_changes_type()
     {
         await base.Select_changes_type();
