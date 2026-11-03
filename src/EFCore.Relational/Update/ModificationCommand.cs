@@ -1041,17 +1041,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
         using var document = JsonDocument.Parse(
             value is null && !readerWriter.HandlesNullWrites ? "null" : readerWriter.ToJsonString(value));
         var element = document.RootElement;
-        value = element.ValueKind switch
-        {
-            JsonValueKind.Null => null,
-            JsonValueKind.String => element.GetString(),
-            JsonValueKind.Number when element.TryGetInt64(out var number) => number,
-            JsonValueKind.Number when element.TryGetDecimal(out var number) => number,
-            JsonValueKind.Number => element.GetDouble(),
-            JsonValueKind.True => true,
-            JsonValueKind.False => false,
-            _ => element.GetRawText()
-        };
+        value = Query.Internal.RelationalJsonUtilities.ReadJsonScalar(element, value, readerWriter);
         parameters = parameters with
         {
             Value = value,

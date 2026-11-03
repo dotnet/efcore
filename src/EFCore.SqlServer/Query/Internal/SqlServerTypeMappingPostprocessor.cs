@@ -74,32 +74,32 @@ public class SqlServerTypeMappingPostprocessor : RelationalTypeMappingPostproces
         // In the usual case, some operation performed against the elements of the collection (e.g. comparison to a column) provides us with
         // an element type mapping; infer the collection's type mapping from that.
         // NOTE: This assumes that the OPENJSON always returns only a single column, which is currently true but won't always be.
-        RelationalTypeMapping? parameterTypeMapping;
-
-        if (TryGetInferredTypeMapping(openJsonExpression.Alias, "value", out var elementTypeMapping))
-        {
-            // We need to apply the inferred type mapping in two places: the collection type mapping on the parameter expanded by OPENJSON,
-            // and on the WITH clause determining the conversion out on the SQL Server side
-
-            // First, find the collection type mapping and apply it to the parameter
-            parameterTypeMapping = _typeMappingSource.FindMapping(parameterExpression.Type, _model, elementTypeMapping);
-        }
-        else
+        if (!TryGetInferredTypeMapping(openJsonExpression.Alias, "value", out var elementTypeMapping))
         {
             // We have no inferred type mapping for the element type. This means that there was nothing in the query done
             // against the elements of the collection (e.g. comparison to a column), which tells us what type mapping it is.
             // In normal circumstances, such an expression would get client-evaluated in the funceltizer (no reference to a
             // column/database-side object), but with compiled queries the collection parameter gets preserved as-is.
             // The only thing we can do is apply the default type mapping.
-            parameterTypeMapping = _typeMappingSource.FindMapping(parameterExpression.Type, QueryCompilationContext.Model);
-
-            if (parameterTypeMapping is not { ElementTypeMapping: RelationalTypeMapping e })
+            if (_typeMappingSource.FindMapping(parameterExpression.Type, _model)
+                is not { ElementTypeMapping: RelationalTypeMapping e })
             {
                 throw new UnreachableException("Default type mapping has no element type mapping");
             }
 
             elementTypeMapping = e;
         }
+
+        // OPENJSON's WITH clause reads native provider values, independently of document formatting.
+        if (_typeMappingSource.FindMapping(elementTypeMapping.Converter?.ProviderClrType ?? elementTypeMapping.ClrType)
+            ?.JsonValueReaderWriter is { } nativeReaderWriter)
+        {
+#pragma warning disable EF1001 // Internal EF Core API usage.
+            elementTypeMapping = (RelationalTypeMapping)elementTypeMapping.WithJsonValueReaderWriter(nativeReaderWriter);
+#pragma warning restore EF1001
+        }
+
+        var parameterTypeMapping = _typeMappingSource.FindMapping(parameterExpression.Type, _model, elementTypeMapping);
 
         return parameterTypeMapping is not SqlServerStringTypeMapping { ElementTypeMapping: not null }
             and not SqlServerJsonTypeMapping { ElementTypeMapping: not null }

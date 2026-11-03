@@ -635,6 +635,82 @@ FROM root c
 """);
     }
 
+    [Theory, InlineData(false), InlineData(true)]
+    public async Task Contains_uses_collection_element_reader_writer_override(bool legacyDefault)
+    {
+        var timestamp = new DateTime(2026, 1, 1, 0, 0, 0, 123, DateTimeKind.Utc);
+        var factory = await InitializeNonSharedTest<PoolableDbContext>(
+            onConfiguring: options => options.EnableSensitiveDataLogging(),
+            onModelCreating: b =>
+            {
+                var entity = b.Entity<LegacyDateTimeContext.Item>().ToContainer("Entities").HasNoDiscriminator();
+                entity.PrimitiveCollection(e => e.Timestamps).ElementType().HasJsonValueReaderWriter(
+                    legacyDefault ? typeof(JsonDateTimeReaderWriter) : typeof(LegacyDateTimeJsonReaderWriter));
+            },
+            configureConventions: c => c.DefaultTypeMapping<DateTime>().HasJsonValueReaderWriter(
+                legacyDefault ? typeof(LegacyDateTimeJsonReaderWriter) : typeof(JsonDateTimeReaderWriter)),
+            seed: async context =>
+            {
+                context.Add(new LegacyDateTimeContext.Item { Id = 1, Timestamps = [timestamp] });
+                await context.SaveChangesAsync();
+            });
+        await using var context = factory.CreateDbContext();
+        TestSqlLoggerFactory.Clear();
+        Assert.Equal(
+            new[] { 1 },
+            await context.Set<LegacyDateTimeContext.Item>().Where(e => e.Timestamps.Contains(timestamp)).Select(e => e.Id).ToArrayAsync());
+        var expectedTimestamp = legacyDefault ? "2026-01-01T00:00:00.1230000Z" : "2026-01-01T00:00:00.123Z";
+        AssertSql(
+            $"""
+@timestamp='{expectedTimestamp}'
+
+SELECT VALUE c["Id"]
+FROM root c
+WHERE ARRAY_CONTAINS(c["Timestamps"], @timestamp)
+""");
+    }
+
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
+    public async Task Inline_Contains_uses_property_reader_writer(bool legacyDefault, bool memberOverride)
+    {
+        var timestamp = new DateTime(2026, 1, 1, 0, 0, 0, 123, DateTimeKind.Utc);
+        var legacyMember = memberOverride ? !legacyDefault : legacyDefault;
+        var factory = await InitializeNonSharedTest<PoolableDbContext>(
+            onConfiguring: options => options.EnableSensitiveDataLogging(),
+            configureConventions: c => c.DefaultTypeMapping<DateTime>().HasJsonValueReaderWriter(
+                legacyDefault ? typeof(LegacyDateTimeJsonReaderWriter) : typeof(JsonDateTimeReaderWriter)),
+            onModelCreating: b =>
+            {
+                var entity = b.Entity<LegacyDateTimeContext.Item>().ToContainer("Entities").HasNoDiscriminator();
+                if (memberOverride)
+                {
+                    entity.Property(e => e.Timestamp).HasJsonValueReaderWriter(
+                        legacyMember ? typeof(LegacyDateTimeJsonReaderWriter) : typeof(JsonDateTimeReaderWriter));
+                }
+            },
+            seed: async context =>
+            {
+                context.Add(new LegacyDateTimeContext.Item { Id = 1, Timestamp = timestamp });
+                await context.SaveChangesAsync();
+            });
+        await using var context = factory.CreateDbContext();
+        TestSqlLoggerFactory.Clear();
+        Assert.Equal(
+            new[] { 1 },
+            await context.Set<LegacyDateTimeContext.Item>()
+                .Where(e => new[] { e.Timestamp }.AsQueryable().Contains(timestamp))
+                .Select(e => e.Id).ToArrayAsync());
+        var expectedTimestamp = legacyMember ? "2026-01-01T00:00:00.123Z" : "2026-01-01T00:00:00.1230000Z";
+        AssertSql(
+            $"""
+@timestamp='{expectedTimestamp}'
+
+SELECT VALUE c["Id"]
+FROM root c
+WHERE (@timestamp = c["Timestamp"])
+""");
+    }
+
     protected class LegacyDateTimeContext(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Item> Items
@@ -964,8 +1040,13 @@ WHERE (c["Id"] = "0")
     public async Task Computed_boolean_projections_use_native_JSON_with_reader_writer_defaults()
     {
         var factory = await InitializeNonSharedTest<PoolableDbContext>(
-            onModelCreating: b => b.Entity<FormattedBooleanItem>().ToContainer("Entities").HasNoDiscriminator(),
-            configureConventions: c => c.DefaultTypeMapping<bool>().HasJsonValueReaderWriter<BoolAsStringReaderWriter>(),
+            onModelCreating: b =>
+            {
+                b.Entity<FormattedBooleanItem>().ToContainer("Entities").HasNoDiscriminator();
+                b.Entity<FormattedBooleanItem>().Property(e => e.Enabled)
+                    .HasConversion(new Storage.ValueConversion.BoolToStringConverter("no", "yes"));
+            },
+            configureConventions: c => c.DefaultTypeMapping<bool>().HasJsonValueReaderWriter<JsonStringReaderWriter>(),
             seed: context =>
             {
                 context.AddRange(
@@ -1018,18 +1099,6 @@ ORDER BY c["Id"]
         public bool Enabled { get; set; }
         public string Name { get; set; } = "abc";
         public List<int> Numbers { get; set; } = [];
-    }
-
-    public sealed class BoolAsStringReaderWriter : JsonValueReaderWriter<bool>
-    {
-        public override bool FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
-            => manager.CurrentReader.GetString() == "yes";
-
-        public override void ToJsonTyped(Utf8JsonWriter writer, bool value)
-            => writer.WriteStringValue(value ? "yes" : "no");
-
-        public override Expression ConstructorExpression
-            => Expression.New(typeof(BoolAsStringReaderWriter));
     }
 
     [Theory,

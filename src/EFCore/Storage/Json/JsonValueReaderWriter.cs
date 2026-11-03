@@ -1,7 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections.Concurrent;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 
@@ -15,15 +15,15 @@ namespace Microsoft.EntityFrameworkCore.Storage.Json;
 ///         Implementations of this type must inherit from the generic <see cref="JsonValueReaderWriter{TValue}" />.
 ///     </para>
 ///     <para>
-///         A reader/writer controls JSON serialization, not the value conversion used by relational type mappings.
-///         For providers such as SQL Server, changes to the stored value or its type must be expressed using a value converter
-///         so that server-side queries and scalar projections use the same representation. The reader/writer must then handle
-///         the converter's provider values.
+///         A reader/writer formats values without changing their meaning. Changes to a value or its storage type must be
+///         expressed using a value converter, with the reader/writer handling the converter's provider values. The formatter
+///         must preserve the value read by the provider's normal scalar materialization. This cannot be validated; an
+///         incompatible formatter can cause failures at runtime.
 ///     </para>
 /// </remarks>
 public abstract class JsonValueReaderWriter
 {
-    private static readonly ConcurrentDictionary<Type, JsonValueReaderWriter?> Instances = new();
+    private static readonly ConditionalWeakTable<Type, JsonValueReaderWriter?> Instances = new();
 
     /// <summary>
     ///     Ensures the external types extend from the generic <see cref="JsonValueReaderWriter{TValue}" />
@@ -99,15 +99,25 @@ public abstract class JsonValueReaderWriter
     /// <param name="value">The value to write.</param>
     /// <returns>The JSON representation of the given value.</returns>
     public string ToJsonString(object? value)
+        => Encoding.UTF8.GetString(ToJsonBytes(value).Span);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual ReadOnlyMemory<byte> ToJsonBytes(object? value, JsonWriterOptions options = default)
     {
         using var stream = new MemoryStream();
-        using var writer = new Utf8JsonWriter(stream);
+        using var writer = new Utf8JsonWriter(stream, options);
 
         ToJson(writer, value);
 
         writer.Flush();
 
-        return Encoding.UTF8.GetString(stream.GetBuffer(), 0, (int)stream.Length);
+        return stream.GetBuffer().AsMemory(0, (int)stream.Length);
     }
 
     /// <summary>
@@ -156,7 +166,7 @@ public abstract class JsonValueReaderWriter
     public static JsonValueReaderWriter? CreateFromType(Type? readerWriterType)
         => readerWriterType == null
             ? null
-            : Instances.GetOrAdd(
+            : Instances.GetValue(
                 readerWriterType,
                 static type =>
                 {

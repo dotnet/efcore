@@ -256,6 +256,25 @@ WHERE "j"."Reference" ->> 'BoolConvertedToStringYN' = 'Y'
 """);
     }
 
+    public override async Task Json_predicate_on_byte(bool async)
+    {
+        await base.Json_predicate_on_byte(async);
+
+        foreach (var limit in new[] { -1, 256 })
+        {
+            await AssertQuery(
+                async,
+                ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference!.TestByte < EF.Parameter(limit)),
+                ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference!.TestByte < limit),
+                assertEmpty: limit == -1);
+            await AssertQuery(
+                async,
+                ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference!.TestByte < EF.Constant(limit)),
+                ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference!.TestByte < limit),
+                assertEmpty: limit == -1);
+        }
+    }
+
     public override async Task Json_predicate_on_byte_array(bool async)
     {
         await base.Json_predicate_on_byte_array(async);
@@ -264,7 +283,7 @@ WHERE "j"."Reference" ->> 'BoolConvertedToStringYN' = 'Y'
             """
 SELECT "j"."Id", "j"."TestBooleanCollection", "j"."TestByteCollection", "j"."TestCharacterCollection", "j"."TestDateTimeCollection", "j"."TestDateTimeOffsetCollection", "j"."TestDecimalCollection", "j"."TestDefaultStringCollection", "j"."TestDoubleCollection", "j"."TestEnumCollection", "j"."TestEnumWithIntConverterCollection", "j"."TestGuidCollection", "j"."TestInt16Collection", "j"."TestInt32Collection", "j"."TestInt64Collection", "j"."TestMaxLengthStringCollection", "j"."TestNullableEnumCollection", "j"."TestNullableEnumWithConverterThatHandlesNullsCollection", "j"."TestNullableEnumWithIntConverterCollection", "j"."TestNullableInt32Collection", "j"."TestSignedByteCollection", "j"."TestSingleCollection", "j"."TestTimeSpanCollection", "j"."TestUnsignedInt16Collection", "j"."TestUnsignedInt32Collection", "j"."TestUnsignedInt64Collection", "j"."Collection", "j"."Reference"
 FROM "JsonEntitiesAllTypes" AS "j"
-WHERE "j"."Reference" ->> 'TestByteArray' <> '010203' OR "j"."Reference" ->> 'TestByteArray' IS NULL
+WHERE unhex("j"."Reference" ->> 'TestByteArray') <> X'010203' OR "j"."Reference" ->> 'TestByteArray' IS NULL
 """);
     }
 

@@ -185,11 +185,11 @@ FROM [RootEntity] AS [r]
 
         AssertExecuteUpdateSql(
             """
-@complex_type_p='{"Id":1000,"Int":80,"Ints":[1,2,3],"Name":"Updated associate name","String":"Updated nested string","NestedCollection":[],"OptionalNestedAssociate":null,"RequiredNestedAssociate":{"Id":1000,"Int":80,"Ints":[1,2,3],"Name":"Updated nested name","String":"Updated nested string"}}' (Size = 277)
+@p='{"Id":1000,"Int":80,"Ints":[1,2,3],"Name":"Updated associate name","String":"Updated nested string","NestedCollection":[],"OptionalNestedAssociate":null,"RequiredNestedAssociate":{"Id":1000,"Int":80,"Ints":[1,2,3],"Name":"Updated nested name","String":"Updated nested string"}}' (Size = 277)
 
 SET NOCOUNT OFF;
 UPDATE [r]
-SET [r].[RequiredAssociate] = @complex_type_p
+SET [r].[RequiredAssociate] = @p
 FROM [RootEntity] AS [r]
 """);
     }
@@ -202,11 +202,11 @@ FROM [RootEntity] AS [r]
         {
             AssertExecuteUpdateSql(
                 """
-@complex_type_p='{"Id":1000,"Int":80,"Ints":[1,2,4],"Name":"Updated nested name","String":"Updated nested string"}' (Size = 97)
+@p='{"Id":1000,"Int":80,"Ints":[1,2,4],"Name":"Updated nested name","String":"Updated nested string"}' (Size = 97)
 
 SET NOCOUNT OFF;
 UPDATE [r]
-SET [RequiredAssociate].modify('$.RequiredNestedAssociate', @complex_type_p)
+SET [RequiredAssociate].modify('$.RequiredNestedAssociate', @p)
 FROM [RootEntity] AS [r]
 """);
         }
@@ -214,11 +214,11 @@ FROM [RootEntity] AS [r]
         {
             AssertExecuteUpdateSql(
                 """
-@complex_type_p='{"Id":1000,"Int":80,"Ints":[1,2,4],"Name":"Updated nested name","String":"Updated nested string"}' (Size = 97)
+@p='{"Id":1000,"Int":80,"Ints":[1,2,4],"Name":"Updated nested name","String":"Updated nested string"}' (Size = 97)
 
 SET NOCOUNT OFF;
 UPDATE [r]
-SET [r].[RequiredAssociate] = JSON_MODIFY([r].[RequiredAssociate], '$.RequiredNestedAssociate', JSON_QUERY(@complex_type_p))
+SET [r].[RequiredAssociate] = JSON_MODIFY([r].[RequiredAssociate], '$.RequiredNestedAssociate', JSON_QUERY(@p))
 FROM [RootEntity] AS [r]
 """);
         }
@@ -269,11 +269,11 @@ FROM [RootEntity] AS [r]
 
         AssertExecuteUpdateSql(
             """
-@complex_type_p='{"Id":1000,"Int":70,"Ints":[1,2,4],"Name":"Updated associate name","String":"Updated associate string","NestedCollection":[],"OptionalNestedAssociate":null,"RequiredNestedAssociate":{"Id":1000,"Int":80,"Ints":[1,2,4],"Name":"Updated nested name","String":"Updated nested string"}}' (Size = 280)
+@p='{"Id":1000,"Int":70,"Ints":[1,2,4],"Name":"Updated associate name","String":"Updated associate string","NestedCollection":[],"OptionalNestedAssociate":null,"RequiredNestedAssociate":{"Id":1000,"Int":80,"Ints":[1,2,4],"Name":"Updated nested name","String":"Updated nested string"}}' (Size = 280)
 
 SET NOCOUNT OFF;
 UPDATE [r]
-SET [r].[RequiredAssociate] = @complex_type_p
+SET [r].[RequiredAssociate] = @p
 FROM [RootEntity] AS [r]
 """);
     }
@@ -386,11 +386,11 @@ FROM [RootEntity] AS [r]
 
         AssertExecuteUpdateSql(
             """
-@complex_type_p='[{"Id":1000,"Int":80,"Ints":[1,2,4],"Name":"Updated associate name1","String":"Updated associate string1","NestedCollection":[],"OptionalNestedAssociate":null,"RequiredNestedAssociate":{"Id":1000,"Int":80,"Ints":[1,2,4],"Name":"Updated nested name1","String":"Updated nested string1"}},{"Id":1001,"Int":81,"Ints":[1,2,4],"Name":"Updated associate name2","String":"Updated associate string2","NestedCollection":[],"OptionalNestedAssociate":null,"RequiredNestedAssociate":{"Id":1001,"Int":81,"Ints":[1,2,4],"Name":"Updated nested name2","String":"Updated nested string2"}}]' (Size = 571)
+@p='[{"Id":1000,"Int":80,"Ints":[1,2,4],"Name":"Updated associate name1","String":"Updated associate string1","NestedCollection":[],"OptionalNestedAssociate":null,"RequiredNestedAssociate":{"Id":1000,"Int":80,"Ints":[1,2,4],"Name":"Updated nested name1","String":"Updated nested string1"}},{"Id":1001,"Int":81,"Ints":[1,2,4],"Name":"Updated associate name2","String":"Updated associate string2","NestedCollection":[],"OptionalNestedAssociate":null,"RequiredNestedAssociate":{"Id":1001,"Int":81,"Ints":[1,2,4],"Name":"Updated nested name2","String":"Updated nested string2"}}]' (Size = 571)
 
 SET NOCOUNT OFF;
 UPDATE [r]
-SET [r].[AssociateCollection] = @complex_type_p
+SET [r].[AssociateCollection] = @p
 FROM [RootEntity] AS [r]
 """);
     }
@@ -403,11 +403,11 @@ FROM [RootEntity] AS [r]
         {
             AssertExecuteUpdateSql(
                 """
-@complex_type_p='[{"Id":1000,"Int":80,"Ints":[1,2,4],"Name":"Updated nested name1","String":"Updated nested string1"},{"Id":1001,"Int":81,"Ints":[1,2,4],"Name":"Updated nested name2","String":"Updated nested string2"}]' (Size = 201)
+@p='[{"Id":1000,"Int":80,"Ints":[1,2,4],"Name":"Updated nested name1","String":"Updated nested string1"},{"Id":1001,"Int":81,"Ints":[1,2,4],"Name":"Updated nested name2","String":"Updated nested string2"}]' (Size = 201)
 
 SET NOCOUNT OFF;
 UPDATE [r]
-SET [RequiredAssociate].modify('$.NestedCollection', @complex_type_p)
+SET [RequiredAssociate].modify('$.NestedCollection', @p)
 FROM [RootEntity] AS [r]
 """);
         }
@@ -415,11 +415,11 @@ FROM [RootEntity] AS [r]
         {
             AssertExecuteUpdateSql(
                 """
-@complex_type_p='[{"Id":1000,"Int":80,"Ints":[1,2,4],"Name":"Updated nested name1","String":"Updated nested string1"},{"Id":1001,"Int":81,"Ints":[1,2,4],"Name":"Updated nested name2","String":"Updated nested string2"}]' (Size = 201)
+@p='[{"Id":1000,"Int":80,"Ints":[1,2,4],"Name":"Updated nested name1","String":"Updated nested string1"},{"Id":1001,"Int":81,"Ints":[1,2,4],"Name":"Updated nested name2","String":"Updated nested string2"}]' (Size = 201)
 
 SET NOCOUNT OFF;
 UPDATE [r]
-SET [r].[RequiredAssociate] = JSON_MODIFY([r].[RequiredAssociate], '$.NestedCollection', JSON_QUERY(@complex_type_p))
+SET [r].[RequiredAssociate] = JSON_MODIFY([r].[RequiredAssociate], '$.NestedCollection', JSON_QUERY(@p))
 FROM [RootEntity] AS [r]
 """);
         }

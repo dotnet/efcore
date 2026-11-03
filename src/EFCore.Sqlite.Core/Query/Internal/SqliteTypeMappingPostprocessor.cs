@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Sqlite.Storage.Json.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 
@@ -47,6 +46,13 @@ public class SqliteTypeMappingPostprocessor : RelationalTypeMappingPostprocessor
     {
         switch (expression)
         {
+            case JsonScalarExpression { TypeMapping: { } scalarMapping } jsonScalarExpression:
+                return SqliteQueryableMethodTranslatingExpressionVisitor.ApplyJsonSqlConversion(
+                    (SqlExpression)base.VisitExtension(jsonScalarExpression),
+                    _sqlExpressionFactory,
+                    scalarMapping,
+                    jsonScalarExpression.IsNullable);
+
             case JsonEachExpression jsonEachExpression
                 when TryGetInferredTypeMapping(
                     jsonEachExpression.Alias,
@@ -121,19 +127,13 @@ public class SqliteTypeMappingPostprocessor : RelationalTypeMappingPostprocessor
         }
 
         var elementTypeMapping = inferredTypeMapping;
-        if (elementTypeMapping is SqliteDateTimeTypeMapping and not SqliteJsonDateTimeTypeMapping)
-        {
-            // A JSON parameter compared to a native column must use the native column's representation.
-#pragma warning disable EF1001 // Internal EF Core API usage.
-            elementTypeMapping = (RelationalTypeMapping)elementTypeMapping.WithJsonValueReaderWriter(
-                SqliteJsonDateTimeReaderWriter.Instance);
-#pragma warning restore EF1001
-        }
-        else if (elementTypeMapping is SqliteByteArrayTypeMapping and not SqliteJsonByteArrayTypeMapping)
+        if (elementTypeMapping is not SqliteJsonScalarTypeMapping
+            && _typeMappingSource.FindMapping(elementTypeMapping.Converter?.ProviderClrType ?? elementTypeMapping.ClrType)
+                ?.JsonValueReaderWriter is { } nativeReaderWriter)
         {
 #pragma warning disable EF1001 // Internal EF Core API usage.
             elementTypeMapping = (RelationalTypeMapping)elementTypeMapping.WithJsonValueReaderWriter(
-                SqliteJsonByteArrayReaderWriter.Instance);
+                nativeReaderWriter);
 #pragma warning restore EF1001
         }
 

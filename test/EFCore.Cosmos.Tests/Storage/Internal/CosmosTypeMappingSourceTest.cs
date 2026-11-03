@@ -11,6 +11,134 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
 public class CosmosTypeMappingSourceTest
 {
+    [Theory]
+    [InlineData(typeof(Dictionary<string, DateTime>))]
+    [InlineData(typeof(IDictionary<string, DateTime>))]
+    [InlineData(typeof(IReadOnlyDictionary<string, DateTime>))]
+    [InlineData(typeof(ReadOnlyMemory<DateTime>))]
+    public void Nested_elements_use_model_reader_writer_defaults(Type collectionType)
+    {
+        var builder = CosmosTestHelpers.Instance.CreateConventionBuilder(configureConventions: c =>
+            c.DefaultTypeMapping<DateTime>().HasJsonValueReaderWriter<LegacyDateTimeReaderWriter>());
+        builder.Entity<MyType>().Property(collectionType, "Times");
+        var model = builder.FinalizeModel();
+        var source = CreateTypeMappingSource(model);
+        var date = new DateTime(2026, 1, 1, 0, 0, 0, 123, DateTimeKind.Utc);
+        var memory = collectionType == typeof(ReadOnlyMemory<DateTime>);
+        object value = memory
+            ? new ReadOnlyMemory<DateTime>([date])
+            : new Dictionary<string, DateTime> { ["date"] = date };
+        var expected = memory ? "[\"2026-01-01T00:00:00.123Z\"]" : "{\"date\":\"2026-01-01T00:00:00.123Z\"}";
+        var property = model.FindEntityType(typeof(MyType))!.FindProperty("Times")!;
+
+        foreach (var mapping in new[] { source.FindMapping(property)!, source.FindMapping(collectionType, model)! })
+        {
+            var reader = mapping.JsonValueReaderWriter!;
+            Assert.Equal(expected, reader.ToJsonString(value));
+            var result = reader.FromJsonString(expected);
+            if (memory)
+            {
+                Assert.Equal(new[] { date }, Assert.IsType<ReadOnlyMemory<DateTime>>(result).ToArray());
+            }
+            else
+            {
+                Assert.Equal(
+                    new[] { new KeyValuePair<string, DateTime>("date", date) },
+                    Assert.IsAssignableFrom<IEnumerable<KeyValuePair<string, DateTime>>>(result));
+            }
+        }
+
+        Assert.Contains(".1230000Z", source.FindMapping(collectionType)!.JsonValueReaderWriter!.ToJsonString(value));
+    }
+
+    [Fact]
+    public void Reader_writer_defaults_flow_recursively_into_dictionary_collections()
+    {
+        var builder = CosmosTestHelpers.Instance.CreateConventionBuilder(configureConventions: c =>
+            c.DefaultTypeMapping<DateTime>().HasJsonValueReaderWriter<LegacyDateTimeReaderWriter>());
+        var model = builder.FinalizeModel();
+        var mapping = CreateTypeMappingSource(model).FindMapping(typeof(Dictionary<string, List<DateTime>>), model)!;
+        var date = new DateTime(2026, 1, 1, 0, 0, 0, 123, DateTimeKind.Utc);
+        var reader = mapping.JsonValueReaderWriter!;
+        var json = reader.ToJsonString(new Dictionary<string, List<DateTime>> { ["dates"] = [date] });
+        Assert.Equal("{\"dates\":[\"2026-01-01T00:00:00.123Z\"]}", json);
+        Assert.Equal(
+            new[] { date },
+            Assert.IsAssignableFrom<IEnumerable<KeyValuePair<string, List<DateTime>>>>(reader.FromJsonString(json)).Single().Value);
+    }
+
+    [Theory]
+    [InlineData(typeof(Dictionary<string, float[]>))]
+    [InlineData(typeof(IDictionary<string, float[]>))]
+    [InlineData(typeof(IReadOnlyDictionary<string, float[]>))]
+    [InlineData(typeof(Dictionary<string, string[]>))]
+    [InlineData(typeof(IDictionary<string, string[]>))]
+    [InlineData(typeof(IReadOnlyDictionary<string, string[]>))]
+    public void Dictionary_values_use_configured_collection_reader_writer(Type dictionaryType)
+    {
+        var references = dictionaryType.GenericTypeArguments[1] == typeof(string[]);
+        var builder = CosmosTestHelpers.Instance.CreateConventionBuilder(configureConventions: c =>
+        {
+            c.DefaultTypeMapping<float[]>().HasJsonValueReaderWriter<JsonFloatArrayReaderWriter>();
+            c.DefaultTypeMapping<string[]>().HasJsonValueReaderWriter<JsonStringArrayReaderWriter>();
+        });
+        builder.Entity<MyType>().Property(dictionaryType, "Values");
+        var model = builder.FinalizeModel();
+        var source = CreateTypeMappingSource(model);
+        var property = model.FindEntityType(typeof(MyType))!.FindProperty("Values")!;
+        object value = references
+            ? new Dictionary<string, string[]> { ["values"] = ["one", "two"], ["empty"] = [] }
+            : new Dictionary<string, float[]> { ["values"] = [1, 2], ["empty"] = [] };
+        var expected = references ? "{\"values\":[\"one\",\"two\"],\"empty\":[]}" : "{\"values\":[1,2],\"empty\":[]}";
+
+        foreach (var mapping in new[] { source.FindMapping(property)!, source.FindMapping(dictionaryType, model)! })
+        {
+            var reader = mapping.JsonValueReaderWriter!;
+            Assert.Equal(expected, reader.ToJsonString(value));
+            var result = reader.FromJsonString(expected);
+            if (references)
+            {
+                var dictionary = Assert.IsType<Dictionary<string, string[]>>(result);
+                Assert.Equal(new[] { "values", "empty" }, dictionary.Keys);
+                Assert.Equal(new[] { "one", "two" }, dictionary["values"]);
+                Assert.Empty(dictionary["empty"]);
+            }
+            else
+            {
+                var dictionary = Assert.IsType<Dictionary<string, float[]>>(result);
+                Assert.Equal(new[] { "values", "empty" }, dictionary.Keys);
+                Assert.Equal(new float[] { 1, 2 }, dictionary["values"]);
+                Assert.Empty(dictionary["empty"]);
+            }
+        }
+    }
+
+    public sealed class JsonStringArrayReaderWriter : JsonValueReaderWriter<string[]>
+    {
+        private static readonly JsonCollectionOfReferencesReaderWriter<string[], string> Reader =
+            new(JsonStringReaderWriter.Instance);
+
+        public override string[] FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
+            => (string[])Reader.FromJsonTyped(ref manager, existingObject);
+
+        public override void ToJsonTyped(Utf8JsonWriter writer, string[] value)
+            => Reader.ToJsonTyped(writer, value);
+
+        public override Expression ConstructorExpression
+            => Expression.New(typeof(JsonStringArrayReaderWriter));
+    }
+
+    public sealed class LegacyDateTimeReaderWriter : JsonValueReaderWriter<DateTime>
+    {
+        private static readonly JsonDateTimeReaderWriter Reader = new("yyyy-MM-dd'T'HH:mm:ss.fffK");
+        public override DateTime FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
+            => Reader.FromJsonTyped(ref manager, existingObject);
+        public override void ToJsonTyped(Utf8JsonWriter writer, DateTime value)
+            => Reader.ToJsonTyped(writer, value);
+        public override Expression ConstructorExpression
+            => Expression.New(typeof(LegacyDateTimeReaderWriter));
+    }
+
     [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
     public void Configured_string_reader_preserves_Guid_conversion(bool nullable, bool typeMappingDefault)
     {
@@ -68,21 +196,21 @@ public class CosmosTypeMappingSourceTest
         Assert.Equal(3, mapping.VectorType.Dimensions);
         if (readOnlyMemory)
         {
-            Assert.Equal("[10,20,30]", readerWriter.ToJsonString(new ReadOnlyMemory<float>([1, 2, 3])));
-            Assert.Equal(new float[] { 1, 2, 3 }, Assert.IsType<ReadOnlyMemory<float>>(readerWriter.FromJsonString("[10,20,30]")).ToArray());
+            Assert.Equal("[1,2,3]", readerWriter.ToJsonString(new ReadOnlyMemory<float>([1, 2, 3])));
+            Assert.Equal(new float[] { 1, 2, 3 }, Assert.IsType<ReadOnlyMemory<float>>(readerWriter.FromJsonString("[1,2,3]")).ToArray());
         }
         else
         {
-            Assert.Equal("[10,20,30]", readerWriter.ToJsonString(new float[] { 1, 2, 3 }));
-            Assert.Equal(new float[] { 1, 2, 3 }, Assert.IsType<float[]>(readerWriter.FromJsonString("[10,20,30]")));
+            Assert.Equal("[1,2,3]", readerWriter.ToJsonString(new float[] { 1, 2, 3 }));
+            Assert.Equal(new float[] { 1, 2, 3 }, Assert.IsType<float[]>(readerWriter.FromJsonString("[1,2,3]")));
         }
 
         Assert.Equal(
-            "[10,20,30]",
+            "[1,2,3]",
             System.Text.Encoding.UTF8.GetString(
                 Assert.IsType<SqlRawJsonParameter>(mapping.CreateParameter("p", new float[] { 1, 2, 3 })).ValueJson.Span));
         Assert.Equal(
-            "[10,20,30]",
+            "[1,2,3]",
             System.Text.Encoding.UTF8.GetString(
                 Assert.IsType<SqlRawJsonParameter>(mapping.CreateParameter("p", new ReadOnlyMemory<float>([1, 2, 3]))).ValueJson.Span));
     }
@@ -99,8 +227,8 @@ public class CosmosTypeMappingSourceTest
 
         Assert.Same(mapping, source.FindMapping(typeof(float[]), model));
         var readerWriter = Assert.IsType<JsonFloatArrayReaderWriter>(mapping.JsonValueReaderWriter);
-        Assert.Equal("[10,20,30]", readerWriter.ToJsonString(new float[] { 1, 2, 3 }));
-        Assert.Equal(new float[] { 1, 2, 3 }, Assert.IsType<float[]>(readerWriter.FromJsonString("[10,20,30]")));
+        Assert.Equal("[1,2,3]", readerWriter.ToJsonString(new float[] { 1, 2, 3 }));
+        Assert.Equal(new float[] { 1, 2, 3 }, Assert.IsType<float[]>(readerWriter.FromJsonString("[1,2,3]")));
     }
 
     [Fact]
@@ -123,10 +251,10 @@ public class CosmosTypeMappingSourceTest
         private static readonly JsonCollectionOfStructsReaderWriter<float[], float> ReaderWriter = new(JsonFloatReaderWriter.Instance);
 
         public override float[] FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
-            => ((float[])ReaderWriter.FromJsonTyped(ref manager, existingObject)).Select(v => v / 10).ToArray();
+            => (float[])ReaderWriter.FromJsonTyped(ref manager, existingObject);
 
         public override void ToJsonTyped(Utf8JsonWriter writer, float[] value)
-            => ReaderWriter.ToJsonTyped(writer, value.Select(v => v * 10).ToArray());
+            => ReaderWriter.ToJsonTyped(writer, value);
 
         public override Expression ConstructorExpression
             => Expression.New(typeof(JsonFloatArrayReaderWriter));

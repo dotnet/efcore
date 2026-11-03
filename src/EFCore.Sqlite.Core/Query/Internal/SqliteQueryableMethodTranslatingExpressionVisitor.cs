@@ -713,14 +713,6 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                     projectionColumn.TypeMapping,
                     projectionColumn.IsNullable);
 
-                // If we have a type mapping (i.e. translating over a column rather than a parameter), apply any necessary server-side
-                // conversions.
-                if (projectionColumn.TypeMapping is not null)
-                {
-                    translation = ApplyJsonSqlConversion(
-                        translation, _sqlExpressionFactory, projectionColumn.TypeMapping, projectionColumn.IsNullable);
-                }
-
 #pragma warning disable EF1001
                 result = source.UpdateQueryExpression(new SelectExpression(translation, _sqlAliasManager));
 #pragma warning restore EF1001
@@ -744,10 +736,9 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         [NotNullWhen(true)] out SqlExpression? jsonValue)
     {
 #pragma warning disable EF1001 // Internal EF Core API usage.
-        if (target.TypeMapping!.ElementTypeMapping is null
-            && value is SqlConstantExpression or SqlParameterExpression)
+        if (value is SqlConstantExpression or SqlParameterExpression)
         {
-            var serialized = SerializeJsonValue(value, target.TypeMapping, raw: true);
+            var serialized = SerializeJsonValue(value, target.TypeMapping!, raw: true);
             jsonValue = serialized is null
                 ? null
                 : _sqlExpressionFactory.Function(
@@ -756,7 +747,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
             return jsonValue is not null;
         }
 
-        if (!CanSerializeScalarToJsonInSql(target.TypeMapping))
+        if (!HaveCompatibleJsonRepresentations(target.TypeMapping!, value))
         {
             jsonValue = null;
             return false;
@@ -930,7 +921,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
             // hex string or NULL, hence unhex simply propagates the nullability
             // from its argument.
 
-            ByteArrayTypeMapping and not SqliteJsonByteArrayTypeMapping
+            _ when (typeMapping.Converter?.ProviderClrType ?? typeMapping.ClrType) == typeof(byte[])
                 => sqlExpressionFactory.Function(
                     "unhex",
                     [expression],

@@ -104,8 +104,33 @@ public class SqliteTypeMappingTest : RelationalTypeMappingTest
             new DateTime(2015, 3, 12, 13, 36, 37, 371, DateTimeKind.Utc),
             "'2015-03-12 13:36:37.371'");
 
+    [Theory]
+    [InlineData(typeof(byte), 43, "43")]
+    [InlineData(typeof(byte), 256, "256")]
+    [InlineData(typeof(byte), -1, "-1")]
+    [InlineData(typeof(sbyte), -43, "-43")]
+    [InlineData(typeof(sbyte), 128, "128")]
+    [InlineData(typeof(short), 32768, "32768")]
+    [InlineData(typeof(ushort), -1, "-1")]
+    [InlineData(typeof(char), 99, "'c'")]
+    public void JSON_scalar_literals_normalize_promoted_values(Type type, int value, string expected)
+    {
+        var mapping = new SqliteJsonScalarTypeMapping(GetMapping(type));
+        Assert.Equal(expected, mapping.GenerateSqlLiteral(value));
+        using var command = new SqliteCommand();
+        var parameter = mapping.CreateParameter(command, "p", value);
+        if (type == typeof(char))
+        {
+            Assert.Equal("c", parameter.Value);
+        }
+        else
+        {
+            Assert.Equal(value, Convert.ToInt32(parameter.Value));
+        }
+    }
+
     [Theory, InlineData(null), InlineData("custom_blob")]
-    public void JSON_byte_array_mapping_preserves_text_parameters_and_reuses_default(string? storeType)
+    public void JSON_byte_array_mapping_preserves_native_materialization_and_parameters(string? storeType)
     {
         var modelBuilder = SqliteTestHelpers.Instance.CreateConventionBuilder();
         modelBuilder.Entity("Owner").Property<int>("Id");
@@ -121,12 +146,8 @@ public class SqliteTypeMappingTest : RelationalTypeMappingTest
             });
         var model = modelBuilder.FinalizeModel();
         var property = model.FindEntityType("Owner")!.FindNavigation("Data")!.TargetEntityType.FindProperty("Value")!;
-        var mapping = Assert.IsType<SqliteJsonByteArrayTypeMapping>(CreateTypeMapper().FindMapping(property));
-        if (storeType == null)
-        {
-            Assert.Same(SqliteJsonByteArrayTypeMapping.Default, mapping);
-        }
-        else
+        var mapping = Assert.IsType<SqliteJsonScalarTypeMapping>(CreateTypeMapper().FindMapping(property));
+        if (storeType != null)
         {
             Assert.Equal(storeType, mapping.StoreType);
         }
@@ -136,9 +157,9 @@ public class SqliteTypeMappingTest : RelationalTypeMappingTest
         using var command = connection.CreateCommand();
         byte[] value = [1, 2, 255];
         var parameter = Assert.IsType<SqliteParameter>(mapping.CreateParameter(command, "p", value));
-        Assert.Equal(SqliteType.Text, parameter.SqliteType);
-        Assert.Equal("0102FF", parameter.Value);
-        Assert.Equal("'0102FF'", mapping.GenerateSqlLiteral(value));
+        Assert.Equal(SqliteType.Blob, parameter.SqliteType);
+        Assert.Equal(value, parameter.Value);
+        Assert.Equal("X'0102FF'", mapping.GenerateSqlLiteral(value));
         Assert.Equal(DBNull.Value, mapping.CreateParameter(command, "p", null, nullable: true).Value);
 
         command.CommandText = "SELECT typeof(@p), @p";
@@ -146,19 +167,19 @@ public class SqliteTypeMappingTest : RelationalTypeMappingTest
         using (var reader = command.ExecuteReader())
         {
             Assert.True(reader.Read());
-            Assert.Equal("text", reader.GetString(0));
-            Assert.Equal("0102FF", reader.GetString(1));
+            Assert.Equal("blob", reader.GetString(0));
+            Assert.Equal(value, reader.GetFieldValue<byte[]>(1));
         }
 
         var nativeParameter = Assert.IsType<SqliteParameter>(SqliteByteArrayTypeMapping.Default.CreateParameter(command, "p", value));
         Assert.Equal(SqliteType.Blob, nativeParameter.SqliteType);
         Assert.Equal(value, nativeParameter.Value);
 
-        var clone = Assert.IsType<SqliteJsonByteArrayTypeMapping>(
+        var clone = Assert.IsType<SqliteJsonScalarTypeMapping>(
             mapping.Clone(new RelationalTypeMappingInfo(storeTypeName: "another_blob", size: 32)));
         Assert.Equal("another_blob", clone.StoreType);
         Assert.Equal(32, clone.Size);
-        Assert.Equal(SqliteType.Text, Assert.IsType<SqliteParameter>(clone.CreateParameter(command, "p", value)).SqliteType);
+        Assert.Equal(SqliteType.Blob, Assert.IsType<SqliteParameter>(clone.CreateParameter(command, "p", value)).SqliteType);
     }
 
     [Fact]
@@ -166,15 +187,15 @@ public class SqliteTypeMappingTest : RelationalTypeMappingTest
     {
         var converter = new NumberToBytesConverter<long>();
         var nativeMapping = (SqliteByteArrayTypeMapping)SqliteByteArrayTypeMapping.Default.WithComposedConverter(converter);
-        var mapping = new SqliteJsonByteArrayTypeMapping(nativeMapping);
+        var mapping = new SqliteJsonScalarTypeMapping(nativeMapping);
 
         Assert.Same(nativeMapping.Converter, mapping.Converter);
         Assert.Same(nativeMapping.JsonValueReaderWriter, mapping.JsonValueReaderWriter);
 
         using var command = new SqliteCommand();
         var parameter = Assert.IsType<SqliteParameter>(mapping.CreateParameter(command, "p", 42L));
-        Assert.Equal(SqliteType.Text, parameter.SqliteType);
-        Assert.Equal(Convert.ToHexString((byte[])converter.ConvertToProvider(42L)!), parameter.Value);
+        Assert.Equal(SqliteType.Blob, parameter.SqliteType);
+        Assert.Equal((byte[])converter.ConvertToProvider(42L)!, parameter.Value);
     }
 
     [Theory, InlineData(DateTimeKind.Utc), InlineData(DateTimeKind.Unspecified)]
@@ -188,7 +209,7 @@ public class SqliteTypeMappingTest : RelationalTypeMappingTest
 
         using var command = new SqliteCommand();
         Assert.Equal(expected, jsonMapping.CreateParameter(command, "p", value).Value);
-        Assert.Equal(DbType.String, jsonMapping.DbType);
+        Assert.Equal(DbType.DateTime, jsonMapping.DbType);
         Assert.Equal("'" + expected + "'", jsonMapping.GenerateSqlLiteral(value));
         Assert.Equal(DBNull.Value, jsonMapping.CreateParameter(command, "p", null, nullable: true).Value);
         Assert.Equal("NULL", jsonMapping.GenerateSqlLiteral(null));
@@ -198,13 +219,14 @@ public class SqliteTypeMappingTest : RelationalTypeMappingTest
         Assert.Equal("'2026-01-01 00:00:00.123'", mapping.GenerateSqlLiteral(value));
 
         var clone = jsonMapping.Clone(new RelationalTypeMappingInfo(storeTypeName: "datetime"));
-        Assert.IsType<SqliteJsonDateTimeTypeMapping>(clone);
-        Assert.Equal(DbType.String, clone.DbType);
+        Assert.IsType<SqliteJsonScalarTypeMapping>(clone);
+        Assert.Equal(DbType.DateTime, clone.DbType);
         Assert.Equal(expected, clone.CreateParameter(command, "p", value).Value);
         Assert.Equal("'" + expected + "'", clone.GenerateSqlLiteral(value));
 
-        var reconstructed = SqliteJsonDateTimeTypeMapping.Default.Clone(jsonValueReaderWriter: jsonMapping.JsonValueReaderWriter);
-        Assert.IsType<SqliteJsonDateTimeTypeMapping>(reconstructed);
+        var reconstructed = new SqliteJsonScalarTypeMapping(
+            SqliteDateTimeTypeMapping.Default.Clone(jsonValueReaderWriter: jsonMapping.JsonValueReaderWriter));
+        Assert.IsType<SqliteJsonScalarTypeMapping>(reconstructed);
         Assert.Equal(expected, reconstructed.CreateParameter(command, "p", value).Value);
         Assert.Equal("'" + expected + "'", reconstructed.GenerateSqlLiteral(value));
     }
@@ -268,9 +290,7 @@ public class SqliteTypeMappingTest : RelationalTypeMappingTest
         var model = modelBuilder.FinalizeModel();
         var property = model.FindEntityType("Owner")!.FindNavigation("Data")!.TargetEntityType.FindProperty("Value")!;
         var mapping = CreateTypeMapper().FindMapping(property);
-        return customReaderWriter
-            ? Assert.IsType<SqliteJsonDateTimeTypeMapping>(mapping)
-            : Assert.IsType<SqliteDateTimeTypeMapping>(mapping);
+        return Assert.IsType<SqliteJsonScalarTypeMapping>(mapping);
     }
 
     public sealed class LegacyDateTimeJsonReaderWriter : JsonValueReaderWriter<DateTime>

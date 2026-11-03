@@ -427,12 +427,6 @@ public class SqliteQuerySqlGenerator(QuerySqlGeneratorDependencies dependencies)
     /// </summary>
     protected override Expression VisitJsonScalar(JsonScalarExpression jsonScalarExpression)
     {
-        var jsonProjection = jsonScalarExpression is { Path.Count: > 0, TypeMapping: SqliteJsonScalarTypeMapping { IsJsonProjection: true } };
-        if (jsonProjection)
-        {
-            Sql.Append("NULLIF(");
-        }
-
         Visit(jsonScalarExpression.Json);
 
         // TODO: Stop producing empty JsonScalarExpressions, #30768
@@ -460,7 +454,7 @@ public class SqliteQuerySqlGenerator(QuerySqlGeneratorDependencies dependencies)
                         continue;
                     }
 
-                    Sql.Append(jsonProjection ? " -> " : " ->> ");
+                    Sql.Append(" ->> ");
 
                     var delimitedPropertyName = Dependencies.SqlGenerationHelper.DelimitJsonPathElement(propertyName);
 
@@ -486,7 +480,7 @@ public class SqliteQuerySqlGenerator(QuerySqlGeneratorDependencies dependencies)
                         continue;
                     }
 
-                    Sql.Append(jsonProjection ? " -> " : " ->> ");
+                    Sql.Append(" ->> ");
 
                     // No need to start a $. JSONPATH string if we're the last segment or the next segment isn't a constant
                     if (isLast || path[i + 1] is { ArrayIndex: not null and not SqlConstantExpression })
@@ -508,7 +502,7 @@ public class SqliteQuerySqlGenerator(QuerySqlGeneratorDependencies dependencies)
                         inJsonpathString = false;
                     }
 
-                    Sql.Append(jsonProjection ? " -> " : " ->> ");
+                    Sql.Append(" ->> ");
 
                     Check.DebugAssert(pathSegment.ArrayIndex is not null);
 
@@ -532,11 +526,6 @@ public class SqliteQuerySqlGenerator(QuerySqlGeneratorDependencies dependencies)
         if (inJsonpathString)
         {
             Sql.Append("'");
-        }
-
-        if (jsonProjection)
-        {
-            Sql.Append(", 'null')");
         }
 
         return jsonScalarExpression;

@@ -370,7 +370,7 @@ public partial class PrincipalBaseEntityType
                 new JsonConvertedValueReaderWriter<IPAddress, string>(
                     JsonStringReaderWriter.Instance,
                     IPAddressToStringConverter.Instance)),
-            elementMapping: SqliteStringTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteStringTypeMapping.Default.Clone(
                 comparer: ValueComparer<IPAddress>.Default,
                 providerValueComparer: DefaultValueComparer<string>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -378,7 +378,9 @@ public partial class PrincipalBaseEntityType
                 converter: IPAddressToStringConverter.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<IPAddress, string>(
                     JsonStringReaderWriter.Instance,
-                    IPAddressToStringConverter.Instance)));
+                    IPAddressToStringConverter.Instance))).Clone(
+                comparer: ValueComparer<IPAddress>.Default,
+                providerValueComparer: DefaultValueComparer<string>.Default));
         var refTypeArrayElementType = refTypeArray.SetElementType(typeof(IPAddress));
         refTypeArrayElementType.TypeMapping = refTypeArray.TypeMapping.ElementTypeMapping;
 
@@ -421,7 +423,8 @@ public partial class PrincipalBaseEntityType
                 JsonStringReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
                 JsonStringReaderWriter.Instance),
-            elementMapping: SqliteStringTypeMapping.Default);
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteStringTypeMapping.Default).Clone(
+                comparer: DefaultValueComparer<string>.Default));
         var refTypeEnumerableElementType = refTypeEnumerable.SetElementType(typeof(string));
         refTypeEnumerableElementType.TypeMapping = refTypeEnumerable.TypeMapping.ElementTypeMapping;
 
@@ -464,7 +467,8 @@ public partial class PrincipalBaseEntityType
                 JsonStringReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
                 JsonStringReaderWriter.Instance),
-            elementMapping: SqliteStringTypeMapping.Default);
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteStringTypeMapping.Default).Clone(
+                comparer: DefaultValueComparer<string>.Default));
         var refTypeIListElementType = refTypeIList.SetElementType(typeof(string));
         refTypeIListElementType.TypeMapping = refTypeIList.TypeMapping.ElementTypeMapping;
 
@@ -511,7 +515,7 @@ public partial class PrincipalBaseEntityType
                 new JsonConvertedValueReaderWriter<IPAddress, string>(
                     JsonStringReaderWriter.Instance,
                     IPAddressToStringConverter.Instance)),
-            elementMapping: SqliteStringTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteStringTypeMapping.Default.Clone(
                 comparer: ValueComparer<IPAddress>.Default,
                 providerValueComparer: DefaultValueComparer<string>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -519,7 +523,9 @@ public partial class PrincipalBaseEntityType
                 converter: IPAddressToStringConverter.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<IPAddress, string>(
                     JsonStringReaderWriter.Instance,
-                    IPAddressToStringConverter.Instance)));
+                    IPAddressToStringConverter.Instance))).Clone(
+                comparer: ValueComparer<IPAddress>.Default,
+                providerValueComparer: DefaultValueComparer<string>.Default));
         var refTypeListElementType = refTypeList.SetElementType(typeof(IPAddress));
         refTypeListElementType.TypeMapping = refTypeList.TypeMapping.ElementTypeMapping;
 
@@ -562,7 +568,8 @@ public partial class PrincipalBaseEntityType
                 SqliteJsonDateTimeReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<DateTime[], DateTime>(
                 SqliteJsonDateTimeReaderWriter.Instance),
-            elementMapping: SqliteDateTimeTypeMapping.Default);
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteDateTimeTypeMapping.Default).Clone(
+                comparer: DefaultValueComparer<DateTime>.Default));
         var valueTypeArrayElementType = valueTypeArray.SetElementType(typeof(DateTime));
         valueTypeArrayElementType.TypeMapping = valueTypeArray.TypeMapping.ElementTypeMapping;
 
@@ -605,9 +612,10 @@ public partial class PrincipalBaseEntityType
                 JsonByteReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<byte>, byte>(
                 JsonByteReaderWriter.Instance),
-            elementMapping: ByteTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(ByteTypeMapping.Default.Clone(
                 mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "INTEGER")));
+                    storeTypeName: "INTEGER"))).Clone(
+                comparer: DefaultValueComparer<byte>.Default));
         var valueTypeEnumerableElementType = valueTypeEnumerable.SetElementType(typeof(byte));
         valueTypeEnumerableElementType.TypeMapping = valueTypeEnumerable.TypeMapping.ElementTypeMapping;
 
@@ -650,9 +658,10 @@ public partial class PrincipalBaseEntityType
                 JsonByteReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<byte>, byte>(
                 JsonByteReaderWriter.Instance),
-            elementMapping: ByteTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(ByteTypeMapping.Default.Clone(
                 mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "INTEGER")));
+                    storeTypeName: "INTEGER"))).Clone(
+                comparer: DefaultValueComparer<byte>.Default));
         var valueTypeIListElementType = valueTypeIList.SetElementType(typeof(byte));
         valueTypeIListElementType.TypeMapping = valueTypeIList.TypeMapping.ElementTypeMapping;
 
@@ -695,9 +704,10 @@ public partial class PrincipalBaseEntityType
                 JsonInt16ReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<short>, short>(
                 JsonInt16ReaderWriter.Instance),
-            elementMapping: ShortTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(ShortTypeMapping.Default.Clone(
                 mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "INTEGER")));
+                    storeTypeName: "INTEGER"))).Clone(
+                comparer: DefaultValueComparer<short>.Default));
         var valueTypeListElementType = valueTypeList.SetElementType(typeof(short));
         valueTypeListElementType.TypeMapping = valueTypeList.TypeMapping.ElementTypeMapping;
 
