@@ -492,7 +492,7 @@ FROM [RootEntity] AS [r]
 
         AssertExecuteUpdateSql(
             """
-@p='99'
+@p='99' (Nullable = true)
 
 SET NOCOUNT OFF;
 UPDATE [r]

@@ -53,6 +53,7 @@ public abstract class NonSharedModelBulkUpdatesRelationalTestBase(NonSharedFixtu
         await context.Database.OpenConnectionAsync();
         var query = context.Set<JsonWriterItem>();
         var expectedEnabled = false;
+        var expectedNativeNumber = 7;
         Assert.Equal(
             1, async
                 ? await query.ExecuteUpdateAsync(s => s.SetProperty(e => e.Data.Number, 42))
@@ -84,8 +85,13 @@ public abstract class NonSharedModelBulkUpdatesRelationalTestBase(NonSharedFixtu
             ClearLog();
             Assert.Equal(
                 1, async
-                    ? await query.ExecuteUpdateAsync(s => s.SetProperty(e => e.Data.Number, number))
-                    : query.ExecuteUpdate(s => s.SetProperty(e => e.Data.Number, number)));
+                    ? await query.ExecuteUpdateAsync(s => s
+                        .SetProperty(e => e.NativeNumber, number)
+                        .SetProperty(e => e.Data.Number, number))
+                    : query.ExecuteUpdate(s => s
+                        .SetProperty(e => e.NativeNumber, number)
+                        .SetProperty(e => e.Data.Number, number)));
+            expectedNativeNumber = number;
             await AssertData(number, timestamp);
         }
 
@@ -122,7 +128,7 @@ public abstract class NonSharedModelBulkUpdatesRelationalTestBase(NonSharedFixtu
             Assert.Equal(expectedNumber, item.Data.Number);
             Assert.Equal(expectedTimestamp, item.Data.Timestamp);
             Assert.Equal(expectedEnabled, item.Data.Enabled);
-            Assert.Equal(7, item.NativeNumber);
+            Assert.Equal(expectedNativeNumber, item.NativeNumber);
             await using var command = context.Database.GetDbConnection().CreateCommand();
             command.CommandText = ((RelationalTestStore)NonSharedTestStore)
                 .NormalizeDelimitersInRawString("SELECT [Data] FROM [JsonWriterItems]");
