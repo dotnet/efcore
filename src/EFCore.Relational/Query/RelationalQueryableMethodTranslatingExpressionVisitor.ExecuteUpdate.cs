@@ -959,16 +959,20 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 
             case SqlParameterExpression parameter:
                 var queryParameter = _queryCompilationContext.RegisterRuntimeParameter(
-                    $"{ExecuteUpdateRuntimeParameterPrefix}json_{parameter.Name}_{_jsonParameterIndex++}",
+                    $"{ExecuteUpdateRuntimeParameterPrefix}json_{parameter.InvariantName}_{_jsonParameterIndex++}",
                     Expression.Lambda(
                         Expression.Call(
                             raw ? RawParameterJsonSerializerMethod : ParameterJsonSerializerMethod,
                             QueryCompilationContext.QueryContextParameter,
-                            Expression.Constant(parameter.Name),
+                            Expression.Constant(parameter.InvariantName),
                             Expression.Constant(readerWriter, typeof(JsonValueReaderWriter))),
                         QueryCompilationContext.QueryContextParameter));
-                return _sqlExpressionFactory.ApplyTypeMapping(
-                    _sqlTranslator.Translate(queryParameter, applyDefaultTypeMapping: false),
+                return new SqlParameterExpression(
+                    invariantName: queryParameter.Name,
+                    name: parameter.Name,
+                    queryParameter.Type,
+                    queryParameter.Type.IsNullableType(),
+                    queryParameter.TranslationMode,
                     raw ? _typeMappingSource.FindMapping(typeof(string)) : RelationalTypeMapping.NullMapping);
 
             default:

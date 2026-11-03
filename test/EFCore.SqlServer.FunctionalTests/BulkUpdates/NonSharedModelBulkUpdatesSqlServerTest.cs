@@ -13,11 +13,13 @@ public class NonSharedModelBulkUpdatesSqlServerTest(NonSharedFixture fixture) : 
         await base.Update_JSON_scalar_with_custom_reader_writer(async, typeMappingDefault);
         AssertSql(
             """
-@complex_type_json_p_0='44' (Size = 2)
+@p='44'
+@p0='44' (Size = 2)
 
 SET NOCOUNT OFF;
 UPDATE [j]
-SET [j].[Data] = JSON_MODIFY([j].[Data], '$.Number', @complex_type_json_p_0)
+SET [j].[NativeNumber] = @p,
+    [j].[Data] = JSON_MODIFY([j].[Data], '$.Number', @p0)
 FROM [JsonWriterItems] AS [j]
 """,
             //

@@ -13,10 +13,12 @@ public class NonSharedModelBulkUpdatesSqliteTest(NonSharedFixture fixture) : Non
         await base.Update_JSON_scalar_with_custom_reader_writer(async, typeMappingDefault);
         AssertSql(
             """
-@complex_type_json_p_0='"44"' (Size = 4)
+@p='44'
+@p0='"44"' (Size = 4)
 
 UPDATE "JsonWriterItems" AS "j"
-SET "Data" = json_set("j"."Data", '$.Number', json(@complex_type_json_p_0))
+SET "NativeNumber" = @p,
+    "Data" = json_set("j"."Data", '$.Number', json(@p0))
 """,
             //
             """

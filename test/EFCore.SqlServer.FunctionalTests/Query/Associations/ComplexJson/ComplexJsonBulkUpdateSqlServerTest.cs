@@ -51,11 +51,11 @@ WHERE [r].[Name] = @deletableEntity_Name
         {
             AssertExecuteUpdateSql(
                 """
-@complex_type_json_p_0='foo_updated' (Size = 11)
+@p='foo_updated' (Size = 11)
 
 SET NOCOUNT OFF;
 UPDATE [r]
-SET [RequiredAssociate].modify('$.String', @complex_type_json_p_0)
+SET [RequiredAssociate].modify('$.String', @p)
 FROM [RootEntity] AS [r]
 """);
         }
@@ -109,11 +109,11 @@ WHERE JSON_VALUE([r].[RequiredAssociate], '$.String') = N'{ this may/look:like J
         {
             AssertExecuteUpdateSql(
                 """
-@complex_type_json_p_0='foo_updated' (Size = 11)
+@p='foo_updated' (Size = 11)
 
 SET NOCOUNT OFF;
 UPDATE [r]
-SET [RequiredAssociate].modify('$.RequiredNestedAssociate.String', @complex_type_json_p_0)
+SET [RequiredAssociate].modify('$.RequiredNestedAssociate.String', @p)
 FROM [RootEntity] AS [r]
 """);
         }
@@ -139,11 +139,11 @@ FROM [RootEntity] AS [r]
         {
             AssertExecuteUpdateSql(
                 """
-@complex_type_json_p_0='foo_updated' (Size = 11)
+@p='foo_updated' (Size = 11)
 
 SET NOCOUNT OFF;
 UPDATE [r]
-SET [RequiredAssociate].modify('$.String', @complex_type_json_p_0)
+SET [RequiredAssociate].modify('$.String', @p)
 FROM [RootEntity] AS [r]
 """);
         }
@@ -587,11 +587,11 @@ FROM [RootEntity] AS [r]
         {
             AssertExecuteUpdateSql(
                 """
-@complex_type_json_p_0='99' (Nullable = true)
+@p='99' (Nullable = true)
 
 SET NOCOUNT OFF;
 UPDATE [r]
-SET [RequiredAssociate].modify('$.Ints[1]', @complex_type_json_p_0)
+SET [RequiredAssociate].modify('$.Ints[1]', @p)
 FROM [RootEntity] AS [r]
 WHERE (
     SELECT COUNT(*)
@@ -627,12 +627,12 @@ WHERE (
         // is not used (it only supports modifying a single property)
         AssertExecuteUpdateSql(
             """
-@complex_type_json_p_2='foo_updated' (Size = 11)
-@complex_type_json_p1_3='20' (Nullable = true)
+@p='foo_updated' (Size = 11)
+@p1='20' (Nullable = true)
 
 SET NOCOUNT OFF;
 UPDATE [r]
-SET [r].[RequiredAssociate] = JSON_MODIFY(JSON_MODIFY([r].[RequiredAssociate], '$.String', @complex_type_json_p_2), '$.Int', @complex_type_json_p1_3)
+SET [r].[RequiredAssociate] = JSON_MODIFY(JSON_MODIFY([r].[RequiredAssociate], '$.String', @p), '$.Int', @p1)
 FROM [RootEntity] AS [r]
 """);
     }
@@ -645,13 +645,13 @@ FROM [RootEntity] AS [r]
         {
             AssertExecuteUpdateSql(
                 """
-@complex_type_json_p_0='foo_updated' (Size = 11)
+@p='foo_updated' (Size = 11)
 
 SET NOCOUNT OFF;
 UPDATE [r]
 SET [r].[Name] = [r].[Name] + N'Modified',
     [RequiredAssociate].modify('$.String', JSON_VALUE([r].[OptionalAssociate], '$.String' RETURNING nvarchar(max))),
-    [OptionalAssociate].modify('$.RequiredNestedAssociate.String', @complex_type_json_p_0)
+    [OptionalAssociate].modify('$.RequiredNestedAssociate.String', @p)
 FROM [RootEntity] AS [r]
 WHERE [r].[OptionalAssociate] IS NOT NULL
 """);
@@ -681,12 +681,12 @@ WHERE [r].[OptionalAssociate] IS NOT NULL
         {
             AssertExecuteUpdateSql(
                 """
-@complex_type_json_p_0='foo_updated' (Size = 11)
+@p='foo_updated' (Size = 11)
 
 SET NOCOUNT OFF;
 UPDATE [r]
 SET [RequiredAssociate].modify('$.String', JSON_VALUE([r].[OptionalAssociate], '$.String' RETURNING nvarchar(max))),
-    [OptionalAssociate].modify('$.String', @complex_type_json_p_0)
+    [OptionalAssociate].modify('$.String', @p)
 FROM [RootEntity] AS [r]
 WHERE [r].[OptionalAssociate] IS NOT NULL
 """);

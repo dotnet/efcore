@@ -1734,7 +1734,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         bool allowOptimizedExpansion,
         out bool nullable)
     {
-        if (ParametersDecorator.IsNull(sqlParameterExpression.Name))
+        if (ParametersDecorator.IsNull(sqlParameterExpression.InvariantName))
         {
             nullable = true;
 
@@ -1751,7 +1751,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
             var parameters = ParametersDecorator.GetAndDisableCaching();
 
             return _sqlExpressionFactory.Constant(
-                parameters[sqlParameterExpression.Name],
+                parameters[sqlParameterExpression.InvariantName],
                 sqlParameterExpression.Type,
                 sensitive: true,
                 sqlParameterExpression.TypeMapping);
@@ -2339,7 +2339,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 // not_null_value_parameter is null -> false
                 // not_null_value_parameter is not null -> true
                 return _sqlExpressionFactory.Constant(
-                    ParametersDecorator.IsNull(sqlParameterOperand.Name) ^ sqlUnaryExpression.OperatorType == ExpressionType.NotEqual,
+                    ParametersDecorator.IsNull(sqlParameterOperand.InvariantName) ^ sqlUnaryExpression.OperatorType == ExpressionType.NotEqual,
                     sqlUnaryExpression.TypeMapping);
 
             case ColumnExpression columnOperand

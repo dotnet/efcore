@@ -209,10 +209,10 @@ WHERE "r"."RequiredAssociateId" = "a"."Id"
 
         AssertExecuteUpdateSql(
             """
-@p='99'
+@p='99' (Size = 2)
 
 UPDATE "AssociateType" AS "a0"
-SET "Ints" = json_set("a0"."Ints", '$[1]', @p)
+SET "Ints" = json_set("a0"."Ints", '$[1]', json(@p))
 FROM "RootEntity" AS "r"
 INNER JOIN "AssociateType" AS "a" ON "r"."RequiredAssociateId" = "a"."Id"
 WHERE json_array_length("a"."Ints") >= 2 AND "r"."RequiredAssociateId" = "a0"."Id"

@@ -586,11 +586,11 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
                 if (parameter.IsNullable)
                 {
                     nullableParameterList.Add(parameter);
-                    parameters[parameter.Name] = null;
+                    parameters[parameter.InvariantName] = null;
                 }
                 else
                 {
-                    parameters[parameter.Name] = GenerateNonNullParameterValue(parameter.Type);
+                    parameters[parameter.InvariantName] = GenerateNonNullParameterValue(parameter.Type);
                 }
             }
 
@@ -639,20 +639,20 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
                 if (parameterIndex < numNullableParameters - 1)
                 {
                     var parameter = nullableParameterList[parameterIndex];
-                    parameters[parameter.Name] = null;
+                    parameters[parameter.InvariantName] = null;
                     ifNull = Core(parameterIndex + 1);
                     if (!canCache)
                     {
                         return null!;
                     }
 
-                    parameters[parameter.Name] = GenerateNonNullParameterValue(parameter.Type);
+                    parameters[parameter.InvariantName] = GenerateNonNullParameterValue(parameter.Type);
                     ifNotNull = Core(parameterIndex + 1);
 
                     ifThenElse =
                         IfThenElse(
                             Equal(
-                                Property(parameterDictionaryParameter, "Item", Constant(currentParameter.Name)),
+                                Property(parameterDictionaryParameter, "Item", Constant(currentParameter.InvariantName)),
                                 Constant(null, typeof(object))),
                             ifNull,
                             ifNotNull);
@@ -671,7 +671,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
                     ifThenElse =
                         IfThenElse(
                             Equal(
-                                Property(parameterDictionaryParameter, "Item", Constant(currentParameter.Name)),
+                                Property(parameterDictionaryParameter, "Item", Constant(currentParameter.InvariantName)),
                                 Constant(null, typeof(object))),
                             Assign(resultParameter, ifNull),
                             Assign(resultParameter, ifNotNull));
@@ -684,7 +684,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
                 Expression LastParameter(bool withNull)
                 {
                     var parameter = nullableParameterList[parameterIndex];
-                    parameters[parameter.Name] = withNull ? null : GenerateNonNullParameterValue(parameter.Type);
+                    parameters[parameter.InvariantName] = withNull ? null : GenerateNonNullParameterValue(parameter.Type);
 
                     return GenerateRelationalCommandExpression(parameters, out canCache);
                 }
