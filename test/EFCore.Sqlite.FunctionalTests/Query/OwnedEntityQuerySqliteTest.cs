@@ -1,11 +1,11 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Globalization;
 using System.Linq.Expressions;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -138,7 +138,7 @@ WHERE "i"."Bytes" = @bytes AND "i"."Data" ->> 'Bytes' = @bytes0
 """,
             //
             """
-SELECT NULLIF("i"."Data" -> 'Number', 'null') AS "Number", NULLIF("i"."Data" -> 'ScaledNumber', 'null') AS "ScaledNumber", NULLIF("i"."Data" -> 'ConvertedNumber', 'null') AS "ConvertedNumber", NULLIF("i"."Data" -> 'Enabled', 'null') AS "Enabled", NULLIF("i"."Data" -> 'Disabled', 'null') AS "Disabled", NULLIF("i"."Data" -> 'OptionalEnabled', 'null') AS "OptionalEnabled", NULLIF("i"."Data" -> 'LiteralEnabled', 'null') AS "LiteralEnabled", NULLIF("i"."Data" -> 'NumericEnabled', 'null') AS "NumericEnabled", "i"."Data" ->> 'Timestamp' AS "Timestamp", "i"."Data" ->> 'Bytes' AS "Bytes", NULLIF("i"."ByteArrays" -> 0, 'null') AS "FirstBytes"
+SELECT "i"."Data" ->> 'Number' AS "Number", "i"."Data" ->> 'ScaledNumber' AS "ScaledNumber", "i"."Data" ->> 'ConvertedNumber' AS "ConvertedNumber", "i"."Data" ->> 'Enabled' AS "Enabled", "i"."Data" ->> 'Disabled' AS "Disabled", "i"."Data" ->> 'OptionalEnabled' AS "OptionalEnabled", "i"."Data" ->> 'LiteralEnabled' AS "LiteralEnabled", "i"."Data" ->> 'NumericEnabled' AS "NumericEnabled", "i"."Data" ->> 'Timestamp' AS "Timestamp", "i"."Data" ->> 'Bytes' AS "Bytes", "i"."ByteArrays" ->> 0 AS "FirstBytes"
 FROM "Item" AS "i"
 LIMIT 2
 """);
@@ -244,25 +244,42 @@ LIMIT 2
     {
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
         {
-            configurationBuilder.DefaultTypeMapping<int>().HasJsonValueReaderWriter<IntAsStringReaderWriter>();
-            configurationBuilder.DefaultTypeMapping<DateTime>().HasJsonValueReaderWriter<UnixDateTimeReaderWriter>();
-            configurationBuilder.DefaultTypeMapping<byte[]>().HasJsonValueReaderWriter<JsonByteArrayReaderWriter>();
-            configurationBuilder.DefaultTypeMapping<bool>().HasJsonValueReaderWriter<BoolAsStringReaderWriter>();
+            configurationBuilder.DefaultTypeMapping<int>().HasJsonValueReaderWriter<JsonStringReaderWriter>();
+            configurationBuilder.DefaultTypeMapping<DateTime>().HasJsonValueReaderWriter<JsonInt64ReaderWriter>();
+            configurationBuilder.DefaultTypeMapping<byte[]>().HasJsonValueReaderWriter<JsonStringReaderWriter>();
+            configurationBuilder.DefaultTypeMapping<bool>().HasJsonValueReaderWriter<JsonStringReaderWriter>();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Item>().Property(e => e.Id).ValueGeneratedNever();
+            var timestampConverter = new ValueConverter<DateTime, long>(
+                v => new DateTimeOffset(v).ToUnixTimeMilliseconds(),
+                v => DateTimeOffset.FromUnixTimeMilliseconds(v).UtcDateTime);
+            var bytesConverter = new ValueConverter<byte[], string>(
+                v => Convert.ToBase64String(v), v => Convert.FromBase64String(v));
+            modelBuilder.Entity<Item>().PrimitiveCollection(e => e.Numbers).ElementType().HasConversion<string>();
+            modelBuilder.Entity<Item>().PrimitiveCollection(e => e.Timestamps).ElementType().HasConversion(timestampConverter);
+            modelBuilder.Entity<Item>().PrimitiveCollection(e => e.ByteArrays).ElementType().HasConversion(bytesConverter);
             modelBuilder.Entity<Item>().OwnsOne(
                 e => e.Data, owned =>
                 {
                     owned.ToJson();
-                    owned.Property(e => e.ScaledNumber).HasJsonValueReaderWriter<ScaledIntReaderWriter>();
+                    owned.Property(e => e.Number).HasConversion<string>();
+                    owned.Property(e => e.ScaledNumber).HasConversion(v => v * 10, v => v / 10)
+                        .HasJsonValueReaderWriter<JsonInt32ReaderWriter>();
                     owned.Property(e => e.ConvertedNumber)
-                        .HasConversion(v => v + 1, v => v - 1)
-                        .HasJsonValueReaderWriter<ScaledIntReaderWriter>();
+                        .HasConversion(v => (v + 1) * 10, v => v / 10 - 1)
+                        .HasJsonValueReaderWriter<JsonInt32ReaderWriter>();
+                    owned.Property(e => e.Enabled).HasConversion(new BoolToStringConverter("no", "yes"));
+                    owned.Property(e => e.Disabled).HasConversion(new BoolToStringConverter("no", "yes"));
+                    owned.Property(e => e.OptionalEnabled).HasConversion(new BoolToStringConverter("no", "yes"));
                     owned.Property(e => e.LiteralEnabled).HasJsonValueReaderWriter<LiteralBoolReaderWriter>();
-                    owned.Property(e => e.NumericEnabled).HasJsonValueReaderWriter<NumericBoolReaderWriter>();
+                    owned.Property(e => e.NumericEnabled).HasConversion<int>().HasJsonValueReaderWriter<JsonInt32ReaderWriter>();
+                    owned.Property(e => e.Timestamp).HasConversion(timestampConverter);
+                    owned.Property(e => e.Bytes).HasConversion(
+                        bytesConverter, ChangeTracking.ValueComparer.CreateDefault(typeof(byte[]), favorStructuralComparisons: true));
+                    owned.PrimitiveCollection(e => e.ByteArrays).ElementType().HasConversion(bytesConverter);
                 });
         }
 
@@ -294,57 +311,6 @@ LIMIT 2
         }
     }
 
-    public sealed class IntAsStringReaderWriter : JsonValueReaderWriter<int>
-    {
-        public static IntAsStringReaderWriter Instance { get; } = new();
-        public override int FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
-            => int.Parse(manager.CurrentReader.GetString()!, CultureInfo.InvariantCulture);
-        public override void ToJsonTyped(Utf8JsonWriter writer, int value)
-            => writer.WriteStringValue(value.ToString(CultureInfo.InvariantCulture));
-        public override Expression ConstructorExpression
-            => Expression.Property(null, typeof(IntAsStringReaderWriter), nameof(Instance));
-    }
-
-    public sealed class UnixDateTimeReaderWriter : JsonValueReaderWriter<DateTime>
-    {
-        public static UnixDateTimeReaderWriter Instance { get; } = new();
-        public override DateTime FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
-            => DateTimeOffset.FromUnixTimeMilliseconds(manager.CurrentReader.GetInt64()).UtcDateTime;
-        public override void ToJsonTyped(Utf8JsonWriter writer, DateTime value)
-            => writer.WriteNumberValue(new DateTimeOffset(value).ToUnixTimeMilliseconds());
-        public override Expression ConstructorExpression
-            => Expression.Property(null, typeof(UnixDateTimeReaderWriter), nameof(Instance));
-    }
-
-    public sealed class ScaledIntReaderWriter : JsonValueReaderWriter<int>
-    {
-        public override int FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
-            => manager.CurrentReader.GetInt32() / 10;
-
-        public override void ToJsonTyped(Utf8JsonWriter writer, int value)
-            => writer.WriteNumberValue(value * 10);
-
-        public override Expression ConstructorExpression
-            => Expression.New(typeof(ScaledIntReaderWriter));
-    }
-
-    public sealed class BoolAsStringReaderWriter : JsonValueReaderWriter<bool>
-    {
-        public override bool FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
-            => manager.CurrentReader.GetString() switch
-            {
-                "yes" => true,
-                "no" => false,
-                _ => throw new InvalidOperationException()
-            };
-
-        public override void ToJsonTyped(Utf8JsonWriter writer, bool value)
-            => writer.WriteStringValue(value ? "yes" : "no");
-
-        public override Expression ConstructorExpression
-            => Expression.New(typeof(BoolAsStringReaderWriter));
-    }
-
     public sealed class LiteralBoolReaderWriter : JsonValueReaderWriter<bool>
     {
         public override bool FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
@@ -355,18 +321,6 @@ LIMIT 2
 
         public override Expression ConstructorExpression
             => Expression.New(typeof(LiteralBoolReaderWriter));
-    }
-
-    public sealed class NumericBoolReaderWriter : JsonValueReaderWriter<bool>
-    {
-        public override bool FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
-            => manager.CurrentReader.GetInt32() != 0;
-
-        public override void ToJsonTyped(Utf8JsonWriter writer, bool value)
-            => writer.WriteNumberValue(value ? 1 : 0);
-
-        public override Expression ConstructorExpression
-            => Expression.New(typeof(NumericBoolReaderWriter));
     }
 
     [Theory, InlineData(false, DateTimeKind.Utc), InlineData(true, DateTimeKind.Utc),

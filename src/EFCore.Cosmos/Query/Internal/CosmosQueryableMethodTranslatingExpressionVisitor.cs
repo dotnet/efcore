@@ -526,7 +526,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         // Simplify x.Array.Contains[1] => ARRAY_CONTAINS(x.Array, 1) insert of IN+subquery
         if (source.TryExtractArray(out var array, ignoreOrderings: true)
             && array is SqlExpression scalarArray // TODO: Contains over arrays of structural types, #34027
-            && TranslateExpression(item) is { } translatedItem)
+            && TranslateExpression(item, scalarArray.TypeMapping?.ElementTypeMapping) is { } translatedItem)
         {
             if (array is ArrayConstantExpression arrayConstant)
             {
@@ -1482,11 +1482,12 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             translatedItems[i] = translatedItem;
         }
 
-        // TODO: Temporary hack - need to perform proper derivation of the array type mapping from the element (e.g. for
-        // value conversion). #34026.
+        // TODO: Infer a common element mapping when inline items use different conversions. #34026.
         var elementClrType = inlineQueryRootExpression.ElementType;
-        var elementTypeMapping = _typeMappingSource.FindMapping(elementClrType)!;
-        var arrayTypeMapping = _typeMappingSource.FindMapping(typeof(IEnumerable<>).MakeGenericType(elementClrType));
+        var elementTypeMapping = translatedItems.FirstOrDefault()?.TypeMapping
+            ?? _typeMappingSource.FindMapping(elementClrType, _queryCompilationContext.Model)!;
+        var arrayTypeMapping = _typeMappingSource.FindMapping(
+            typeof(IEnumerable<>).MakeGenericType(elementClrType), _queryCompilationContext.Model, elementTypeMapping);
         var inlineArray = new ArrayConstantExpression(elementClrType, translatedItems, arrayTypeMapping);
 
         var sourceAlias = _aliasManager.GenerateSourceAlias(inlineArray);

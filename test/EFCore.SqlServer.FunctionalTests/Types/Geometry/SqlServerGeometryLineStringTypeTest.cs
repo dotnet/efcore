@@ -100,11 +100,11 @@ WHERE [Id] = @p1;
         {
             AssertSql(
                 """
-@complex_type_Fixture_OtherValue='LINESTRING (30 40, 35 45, 40 50)' (Size = 4000)
+@Fixture_OtherValue='LINESTRING (30 40, 35 45, 40 50)' (Size = 32)
 
 SET NOCOUNT OFF;
 UPDATE [j]
-SET [JsonContainer].modify('$.Value', @complex_type_Fixture_OtherValue)
+SET [JsonContainer].modify('$.Value', @Fixture_OtherValue)
 FROM [JsonTypeEntity] AS [j]
 """);
         }

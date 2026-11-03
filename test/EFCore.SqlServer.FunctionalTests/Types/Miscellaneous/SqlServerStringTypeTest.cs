@@ -123,7 +123,7 @@ WHERE [Id] = @p1;
         {
             AssertSql(
                 """
-@Fixture_OtherValue='bar' (Size = 4000)
+@Fixture_OtherValue='bar' (Size = 3)
 
 SET NOCOUNT OFF;
 UPDATE [j]

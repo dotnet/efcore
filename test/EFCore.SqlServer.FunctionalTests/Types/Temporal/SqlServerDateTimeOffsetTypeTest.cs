@@ -125,11 +125,11 @@ WHERE [Id] = @p1;
         {
             AssertSql(
                 """
-@complex_type_Fixture_OtherValue='2020-01-05T12:30:45+03:00' (Size = 4000)
+@Fixture_OtherValue='2020-01-05T12:30:45+03:00' (Size = 25)
 
 SET NOCOUNT OFF;
 UPDATE [j]
-SET [JsonContainer].modify('$.Value', @complex_type_Fixture_OtherValue)
+SET [JsonContainer].modify('$.Value', @Fixture_OtherValue)
 FROM [JsonTypeEntity] AS [j]
 """);
         }

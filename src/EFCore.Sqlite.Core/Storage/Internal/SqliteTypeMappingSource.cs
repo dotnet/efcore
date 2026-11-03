@@ -150,42 +150,19 @@ public class SqliteTypeMappingSource : RelationalTypeMappingSource
     public override RelationalTypeMapping? FindMapping(IProperty property)
     {
         var mapping = base.FindMapping(property);
-        return property.DeclaringType.IsMappedToJson()
-            ? mapping switch
-            {
-                SqliteByteArrayTypeMapping byteArrayMapping => SqliteJsonByteArrayTypeMapping.Create(byteArrayMapping),
-                SqliteDateTimeTypeMapping dateTimeMapping => SqliteJsonDateTimeTypeMapping.Create(dateTimeMapping),
-                _ => FindJsonMapping(mapping)
-            }
-            : mapping;
+        return property.DeclaringType.IsMappedToJson() ? FindJsonMapping(mapping) : mapping;
     }
 
     /// <inheritdoc />
     public override RelationalTypeMapping? FindMapping(IElementType elementType)
-        => base.FindMapping(elementType) is { } mapping
-            ? mapping is SqliteDateTimeTypeMapping dateTimeMapping
-                ? SqliteJsonDateTimeTypeMapping.Create(dateTimeMapping)
-                : FindJsonMapping(mapping)
-            : null;
+        => FindJsonMapping(base.FindMapping(elementType));
 
-    private RelationalTypeMapping? FindJsonMapping(RelationalTypeMapping? mapping)
+    private static RelationalTypeMapping? FindJsonMapping(RelationalTypeMapping? mapping)
         => mapping is null or SqliteJsonScalarTypeMapping
             || mapping.ElementTypeMapping is not null
             || mapping.JsonValueReaderWriter is null
-            || mapping.JsonValueReaderWriter.GetType().IsGenericType
-            && mapping.JsonValueReaderWriter.GetType().GetGenericTypeDefinition() == typeof(JsonWarningEnumReaderWriter<>)
-            || FindMapping(mapping.Converter?.ProviderClrType ?? mapping.ClrType) is { } nativeMapping
-            && GetProviderReaderWriter(mapping)?.GetType() == GetProviderReaderWriter(nativeMapping)?.GetType()
                 ? mapping
                 : new SqliteJsonScalarTypeMapping(mapping);
-
-#pragma warning disable EF1001 // Internal EF Core API usage.
-    internal static JsonValueReaderWriter? GetProviderReaderWriter(CoreTypeMapping mapping)
-        => mapping.JsonValueReaderWriter is IJsonConvertedValueReaderWriter converted
-            && ReferenceEquals(converted.Converter, mapping.Converter)
-                ? converted.InnerReaderWriter
-                : mapping.JsonValueReaderWriter;
-#pragma warning restore EF1001
 
     private RelationalTypeMapping? FindRawMapping(RelationalTypeMappingInfo mappingInfo)
     {

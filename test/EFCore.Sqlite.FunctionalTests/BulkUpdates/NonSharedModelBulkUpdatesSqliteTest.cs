@@ -28,6 +28,26 @@ LIMIT 2
 """);
     }
 
+    public override async Task Update_JSON_columns_with_same_parameter_and_different_conversions(bool async)
+    {
+        await base.Update_JSON_columns_with_same_parameter_and_different_conversions(async);
+        AssertSql(
+            """
+@p='{"Number":42}' (Size = 13)
+@p0='{"Number":"42"}' (Size = 15)
+
+UPDATE "JsonPairItem" AS "j"
+SET "First" = @p,
+    "Second" = @p0
+""",
+            //
+            """
+SELECT "j"."Id", "j"."First", "j"."Second"
+FROM "JsonPairItem" AS "j"
+LIMIT 2
+""");
+    }
+
     [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

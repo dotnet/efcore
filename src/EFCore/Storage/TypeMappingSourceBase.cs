@@ -131,6 +131,26 @@ public abstract class TypeMappingSourceBase : ITypeMappingSource
         => FindMapping(member);
 
     /// <summary>
+    ///     Finds a model-aware element mapping for a collection type when element metadata is not available.
+    /// </summary>
+    /// <param name="mappingInfo">The mapping info for the collection.</param>
+    /// <param name="model">The model containing type mapping defaults.</param>
+    /// <returns>The element mapping, or <see langword="null" /> if the type is not a supported collection.</returns>
+    protected virtual CoreTypeMapping? FindElementMapping(TypeMappingInfo mappingInfo, IModel model)
+        => mappingInfo.ClrType is { } type
+            // These are scalar values even though they implement IEnumerable<T>.
+            && type != typeof(string)
+            && type != typeof(byte[])
+            // Dictionary values need provider-specific mappings, not mappings for KeyValuePair<TKey, TValue>.
+            && !type.GetGenericTypeImplementations(typeof(IDictionary<,>)).Any()
+            && !type.GetGenericTypeImplementations(typeof(IReadOnlyDictionary<,>)).Any()
+            && type.TryGetElementType(typeof(IEnumerable<>)) is { } elementType
+            // Avoid recursively resolving a sequence whose element type is the sequence itself.
+            && elementType != type
+                ? FindMapping(elementType, model)
+                : null;
+
+    /// <summary>
     ///     Attempts to find a JSON-based type mapping for a collection of primitive types.
     /// </summary>
     /// <param name="mappingInfo">The mapping info being used.</param>
@@ -152,7 +172,8 @@ public abstract class TypeMappingSourceBase : ITypeMappingSource
             && modelClrType != typeof(string)
             && modelClrType.TryGetElementType(typeof(IEnumerable<>)) is { } elementType
             && elementType != modelClrType
-            && !modelClrType.GetGenericTypeImplementations(typeof(IDictionary<,>)).Any())
+            && !modelClrType.GetGenericTypeImplementations(typeof(IDictionary<,>)).Any()
+            && !modelClrType.GetGenericTypeImplementations(typeof(IReadOnlyDictionary<,>)).Any())
         {
             elementMapping ??= FindMapping(elementType);
 

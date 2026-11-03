@@ -7,6 +7,8 @@
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 // ReSharper disable InconsistentNaming
 
+using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 
@@ -481,6 +483,14 @@ public class PropertyTest
         => Assert.Null(JsonValueReaderWriter.CreateFromType(null));
 
     [Fact]
+    public void JsonValueReaderWriter_factory_caches_null_instance()
+    {
+        Assert.Null(JsonValueReaderWriter.CreateFromType(typeof(JsonValueReaderWriterWithNullInstance)));
+        Assert.Null(JsonValueReaderWriter.CreateFromType(typeof(JsonValueReaderWriterWithNullInstance)));
+        Assert.Equal(1, JsonValueReaderWriterWithNullInstance.AccessCount);
+    }
+
+    [Fact]
     public void JsonValueReaderWriter_factory_returns_same_instance_across_threads()
     {
         var instances = new JsonValueReaderWriter?[32];
@@ -490,6 +500,37 @@ public class PropertyTest
 
         var readerWriter = Assert.IsType<SimpleJasonValueReaderWriter>(instances[0]);
         Assert.All(instances, instance => Assert.Same(readerWriter, instance));
+    }
+
+    [Fact]
+    public void JsonValueReaderWriter_cache_does_not_root_collectible_types()
+    {
+        var (typeReference, readerReference) = CreateCollectibleReaderWriter();
+        for (var i = 0; i < 10 && (typeReference.IsAlive || readerReference.IsAlive); i++)
+        {
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
+        }
+
+        Assert.False(typeReference.IsAlive);
+        Assert.False(readerReference.IsAlive);
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        static (WeakReference Type, WeakReference Reader) CreateCollectibleReaderWriter()
+        {
+            var assembly = AssemblyBuilder.DefineDynamicAssembly(
+                new AssemblyName("CollectibleJsonReaderWriter"), AssemblyBuilderAccess.RunAndCollect);
+            var builder = assembly.DefineDynamicModule("Readers")
+                .DefineType("CollectibleReader", TypeAttributes.Public, typeof(SimpleJasonValueReaderWriter));
+            builder.DefineDefaultConstructor(MethodAttributes.Public);
+            var type = builder.CreateType()!;
+            var reader = JsonValueReaderWriter.CreateFromType(type)!;
+            Assert.Equal(type, reader.GetType());
+            Assert.Equal("value", reader.FromJsonString("\"value\""));
+            Assert.Same(reader, JsonValueReaderWriter.CreateFromType(type));
+            return (new WeakReference(type), new WeakReference(reader));
+        }
     }
 
     [Theory, InlineData(typeof(NonDerivedJsonValueReaderWriter)), InlineData(typeof(NonGenericJsonValueReaderWriter))]
@@ -655,7 +696,7 @@ public class PropertyTest
                 .Message);
     }
 
-    private class SimpleJasonValueReaderWriter : JsonValueReaderWriter<string>
+    public class SimpleJasonValueReaderWriter : JsonValueReaderWriter<string>
     {
         public override string FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
             => manager.CurrentReader.GetString()!;
@@ -667,6 +708,20 @@ public class PropertyTest
 
         public override Expression ConstructorExpression
             => _instanceLambda.Body;
+    }
+
+    private class JsonValueReaderWriterWithNullInstance : SimpleJasonValueReaderWriter
+    {
+        public static int AccessCount { get; private set; }
+
+        public static JsonValueReaderWriterWithNullInstance? Instance
+        {
+            get
+            {
+                AccessCount++;
+                return null;
+            }
+        }
     }
 
     private class JasonValueReaderWriterWithPrivateInstance : JsonValueReaderWriter<string>

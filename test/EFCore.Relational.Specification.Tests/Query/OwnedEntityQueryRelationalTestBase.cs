@@ -32,6 +32,7 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
                     {
                         Id = index + 1,
                         Number = value,
+                        NativeFlag = index == 1,
                         Timestamp = date.AddSeconds(index - 1),
                         Data = new ConvertedJsonScalarContext.JsonData
                         {
@@ -39,7 +40,8 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
                             UpperNumber = value + 10,
                             OptionalNumber = index == 0 ? null : value,
                             Timestamp = date.AddSeconds(index - 1),
-                            OptionalTimestamp = index == 0 ? null : date.AddSeconds(index - 1)
+                            OptionalTimestamp = index == 0 ? null : date.AddSeconds(index - 1),
+                            Flags = [index == 1, true]
                         }
                     }));
                 await context.SaveChangesAsync();
@@ -86,6 +88,18 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
         Assert.Equal(Enumerable.Range(-1, 3).Select(offset => date.AddSeconds(offset)), items.Select(e => e.Data.Timestamp));
         Assert.Equal(new DateTime?[] { null, date, date.AddSeconds(1) }, items.Select(e => e.Data.OptionalTimestamp));
 
+        var union = context.Items.Select(e => e.Data.Number).Union(context.Items.Select(e => e.Data.UpperNumber)).Order();
+        Assert.Equal(new[] { 3, 13, 43, 53, 143, 153 }, async ? await union.ToArrayAsync() : union.ToArray());
+        var conditional = context.Items.OrderBy(e => e.Id).Select(e => e.Id == 1 ? e.Data.Number : e.Data.UpperNumber);
+        Assert.Equal(new[] { 3, 53, 153 }, async ? await conditional.ToArrayAsync() : conditional.ToArray());
+        var coalesce = context.Items.OrderBy(e => e.Id).Select(e => e.Data.OptionalNumber ?? e.Data.UpperNumber);
+        Assert.Equal(new[] { 13, 43, 143 }, async ? await coalesce.ToArrayAsync() : coalesce.ToArray());
+        var firstFlags = context.Items.OrderBy(e => e.Id).Select(e => e.Data.Flags.First());
+        Assert.Equal(new[] { false, true, false }, async ? await firstFlags.ToArrayAsync() : firstFlags.ToArray());
+        bool[] flags = [true];
+        await AssertIds(context.Items.Where(e => EF.Parameter(flags).Contains(e.NativeFlag)), 2);
+        await AssertIds(context.Items.Where(e => EF.Parameter(flags).Contains(e.Data.Flags.First())), 2);
+
         ClearLog();
         await AssertIds(context.Items.Where(e => e.Data.Number == number), 2);
         await AssertIds(context.Items.Where(e => e.Data.Timestamp == date), 2);
@@ -114,6 +128,7 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
         {
             configurationBuilder.DefaultTypeMapping<int>().HasJsonValueReaderWriter<JsonInt32ReaderWriter>();
             configurationBuilder.DefaultTypeMapping<long>().HasJsonValueReaderWriter<JsonInt64ReaderWriter>();
+            configurationBuilder.DefaultTypeMapping<bool>().HasJsonValueReaderWriter<JsonStringReaderWriter>();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -136,6 +151,7 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
                     owned.Property(e => e.OptionalTimestamp)
                         .HasConversion(timestampConverter)
                         .HasJsonValueReaderWriter<JsonInt64ReaderWriter>();
+                    owned.PrimitiveCollection(e => e.Flags).ElementType().HasConversion(new BoolToStringConverter("no", "yes"));
                 });
         }
 
@@ -143,6 +159,7 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
         {
             public int Id { get; set; }
             public int Number { get; set; }
+            public bool NativeFlag { get; set; }
             public DateTime Timestamp { get; set; }
             public JsonData Data { get; set; } = null!;
         }
@@ -154,6 +171,7 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
             public int? OptionalNumber { get; set; }
             public DateTime Timestamp { get; set; }
             public DateTime? OptionalTimestamp { get; set; }
+            public List<bool> Flags { get; set; } = [];
         }
     }
 

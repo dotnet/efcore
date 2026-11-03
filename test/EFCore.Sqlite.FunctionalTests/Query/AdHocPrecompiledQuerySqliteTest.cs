@@ -9,7 +9,7 @@ public class AdHocPrecompiledQuerySqliteTest(NonSharedFixture fixture, ITestOutp
     : AdHocPrecompiledQueryRelationalTestBase(fixture, testOutputHelper)
 {
     [Fact]
-    public async Task JSON_scalar_reader_writers_are_lifted_in_precompiled_projections()
+    public async Task Converted_JSON_scalars_use_native_precompiled_projections()
     {
         var factory = await InitializeNonSharedTest<JsonScalarReaderContext>(
             seed: async context =>
@@ -55,11 +55,12 @@ Assert.Equal(new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc), result.Timesta
                 e => e.Data, owned =>
                 {
                     owned.ToJson();
-                    owned.Property(e => e.Number).HasJsonValueReaderWriter<OwnedEntityQuerySqliteTest.ScaledIntReaderWriter>();
+                    owned.Property(e => e.Number).HasConversion(v => v * 10, v => v / 10);
                     owned.Property(e => e.ConvertedNumber)
-                        .HasConversion(new ValueConverter<int, int>(v => v + 1, v => v - 1))
-                        .HasJsonValueReaderWriter<OwnedEntityQuerySqliteTest.ScaledIntReaderWriter>();
-                    owned.Property(e => e.Timestamp).HasJsonValueReaderWriter<OwnedEntityQuerySqliteTest.UnixDateTimeReaderWriter>();
+                        .HasConversion(new ValueConverter<int, int>(v => (v + 1) * 10, v => v / 10 - 1));
+                    owned.Property(e => e.Timestamp).HasConversion(
+                        v => new DateTimeOffset(v).ToUnixTimeMilliseconds(),
+                        v => DateTimeOffset.FromUnixTimeMilliseconds(v).UtcDateTime);
                 });
         }
 

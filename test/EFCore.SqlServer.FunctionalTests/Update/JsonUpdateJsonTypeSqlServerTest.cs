@@ -602,8 +602,8 @@ WHERE [j].[Id] = 1
 
         AssertSql(
             """
-@p0='14'
-@p1='25'
+@p0='14' (Size = 1)
+@p1='25' (Size = 1)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;

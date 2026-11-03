@@ -1,9 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Globalization;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Storage.Json;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 // ReSharper disable MethodHasAsyncOverload
 
@@ -28,11 +28,17 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
                     e => e.Data, owned =>
                     {
                         owned.ToJson();
+                        owned.Property(e => e.Number).HasConversion<string>();
+                        owned.Property(e => e.Enabled).HasConversion(new BoolToStringConverter("no", "yes"));
+                        owned.Property(e => e.Timestamp).HasConversion(
+                            new ValueConverter<DateTime, long>(
+                                v => new DateTimeOffset(v).ToUnixTimeMilliseconds(),
+                                v => DateTimeOffset.FromUnixTimeMilliseconds(v).UtcDateTime));
                         if (!typeMappingDefault)
                         {
-                            owned.Property(e => e.Number).HasJsonValueReaderWriter<Int32AsStringJsonReaderWriter>();
-                            owned.Property(e => e.Enabled).HasJsonValueReaderWriter<BoolAsStringJsonReaderWriter>();
-                            owned.Property(e => e.Timestamp).HasJsonValueReaderWriter<UnixDateTimeJsonReaderWriter>();
+                            owned.Property(e => e.Number).HasJsonValueReaderWriter<JsonStringReaderWriter>();
+                            owned.Property(e => e.Enabled).HasJsonValueReaderWriter<JsonStringReaderWriter>();
+                            owned.Property(e => e.Timestamp).HasJsonValueReaderWriter<JsonInt64ReaderWriter>();
                         }
                     });
             },
@@ -40,9 +46,9 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
             {
                 if (typeMappingDefault)
                 {
-                    configurationBuilder.DefaultTypeMapping<int>().HasJsonValueReaderWriter<Int32AsStringJsonReaderWriter>();
-                    configurationBuilder.DefaultTypeMapping<bool>().HasJsonValueReaderWriter<BoolAsStringJsonReaderWriter>();
-                    configurationBuilder.DefaultTypeMapping<DateTime>().HasJsonValueReaderWriter<UnixDateTimeJsonReaderWriter>();
+                    configurationBuilder.DefaultTypeMapping<int>().HasJsonValueReaderWriter<JsonStringReaderWriter>();
+                    configurationBuilder.DefaultTypeMapping<bool>().HasJsonValueReaderWriter<JsonStringReaderWriter>();
+                    configurationBuilder.DefaultTypeMapping<DateTime>().HasJsonValueReaderWriter<JsonInt64ReaderWriter>();
                 }
             },
             seed: async context =>
@@ -65,6 +71,21 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
             var entity = async
                 ? await context.Set<JsonScalarOwner>().SingleAsync()
                 : context.Set<JsonScalarOwner>().Single();
+            await context.Database.OpenConnectionAsync();
+            foreach (var smallNumber in new[] { 1E-30, 1.5E-28 })
+            {
+                entity.Data.SmallNumber = smallNumber;
+                await Save(context);
+                var scalar = context.Set<JsonScalarOwner>().AsNoTracking().Select(e => e.Data.SmallNumber);
+                Assert.Equal(smallNumber, async ? await scalar.SingleAsync() : scalar.Single());
+                await using var command = context.Database.GetDbConnection().CreateCommand();
+                command.CommandText = ((RelationalTestStore)NonSharedTestStore)
+                    .NormalizeDelimitersInRawString("SELECT [Data] FROM [JsonScalarOwners]");
+                using var document = JsonDocument.Parse(
+                    Assert.IsType<string>(async ? await command.ExecuteScalarAsync() : command.ExecuteScalar()));
+                Assert.Equal(smallNumber, document.RootElement.GetProperty(nameof(JsonScalarData.SmallNumber)).GetDouble());
+            }
+
             entity.Data.Number = 43;
             context.ChangeTracker.DetectChanges();
 
@@ -108,6 +129,7 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
         Assert.True(updated.Data.Enabled);
         Assert.Equal(new DateTime(2026, 2, 1, 0, 0, 0, DateTimeKind.Utc), updated.Data.Timestamp);
         Assert.Equal("a\"b\\c\n", updated.Data.EscapedText);
+        Assert.Equal(1.5E-28, updated.Data.SmallNumber);
 
         async Task Save(DbContext context)
         {
@@ -135,42 +157,7 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
         public string EscapedText { get; set; } = null!;
         public bool Enabled { get; set; }
         public DateTime Timestamp { get; set; }
-    }
-
-    public sealed class Int32AsStringJsonReaderWriter : JsonValueReaderWriter<int>
-    {
-        public static Int32AsStringJsonReaderWriter Instance { get; } = new();
-
-        public override int FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
-            => int.Parse(manager.CurrentReader.GetString()!, CultureInfo.InvariantCulture);
-
-        public override void ToJsonTyped(Utf8JsonWriter writer, int value)
-            => writer.WriteStringValue(value.ToString(CultureInfo.InvariantCulture));
-
-        public override Expression ConstructorExpression
-            => Expression.Property(null, typeof(Int32AsStringJsonReaderWriter), nameof(Instance));
-    }
-
-    public sealed class BoolAsStringJsonReaderWriter : JsonValueReaderWriter<bool>
-    {
-        public static BoolAsStringJsonReaderWriter Instance { get; } = new();
-        public override bool FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
-            => manager.CurrentReader.GetString() == "yes";
-        public override void ToJsonTyped(Utf8JsonWriter writer, bool value)
-            => writer.WriteStringValue(value ? "yes" : "no");
-        public override Expression ConstructorExpression
-            => Expression.Property(null, typeof(BoolAsStringJsonReaderWriter), nameof(Instance));
-    }
-
-    public sealed class UnixDateTimeJsonReaderWriter : JsonValueReaderWriter<DateTime>
-    {
-        public static UnixDateTimeJsonReaderWriter Instance { get; } = new();
-        public override DateTime FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
-            => DateTimeOffset.FromUnixTimeMilliseconds(manager.CurrentReader.GetInt64()).UtcDateTime;
-        public override void ToJsonTyped(Utf8JsonWriter writer, DateTime value)
-            => writer.WriteNumberValue(new DateTimeOffset(value).ToUnixTimeMilliseconds());
-        public override Expression ConstructorExpression
-            => Expression.Property(null, typeof(UnixDateTimeJsonReaderWriter), nameof(Instance));
+        public double SmallNumber { get; set; }
     }
 
     [Theory, MemberData(nameof(IsAsyncData))] // Issue #29356

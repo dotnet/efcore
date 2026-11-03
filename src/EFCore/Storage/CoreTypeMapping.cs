@@ -329,24 +329,18 @@ public abstract class CoreTypeMapping
     public virtual CoreTypeMapping WithJsonValueReaderWriter(JsonValueReaderWriter jsonValueReaderWriter)
     {
         if (ReferenceEquals(JsonValueReaderWriter, jsonValueReaderWriter)
-            && (Converter == null
-                || (jsonValueReaderWriter is IJsonConvertedValueReaderWriter convertedReaderWriter
-                    && ReferenceEquals(convertedReaderWriter.Converter, Converter))
-                || (jsonValueReaderWriter.ValueType == ClrType
-                    && !jsonValueReaderWriter.ValueType.IsAssignableFrom(Converter.ProviderClrType))))
+            && jsonValueReaderWriter.ValueType.IsAssignableFrom(ClrType))
         {
             return this;
         }
 
-        if (Converter is { } converter
-            && !converter.GetType().GetGenericTypeImplementations(typeof(CollectionToJsonStringConverter<>)).Any())
-        {
-            jsonValueReaderWriter = CreateJsonValueReaderWriter(converter, jsonValueReaderWriter);
-        }
-
-        return ReferenceEquals(JsonValueReaderWriter, jsonValueReaderWriter)
-            ? this
-            : Clone(Parameters with { JsonValueReaderWriter = jsonValueReaderWriter });
+        return Clone(
+            Parameters with
+            {
+                JsonValueReaderWriter = Converter is { } converter
+                    ? CreateJsonValueReaderWriter(converter, jsonValueReaderWriter)
+                    : jsonValueReaderWriter
+            });
     }
 
     private static JsonValueReaderWriter CreateJsonValueReaderWriter(ValueConverter converter, JsonValueReaderWriter readerWriter)

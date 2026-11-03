@@ -713,7 +713,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                     case SqlParameterExpression parameter:
                     {
                         var queryParameter = _queryCompilationContext.RegisterRuntimeParameter(
-                            $"{ExecuteUpdateRuntimeParameterPrefix}{parameter.Name}",
+                            $"json_{parameter.InvariantName}_{_jsonParameterIndex++}",
                             Expression.Lambda(
                                 Expression.Call(
                                     RelationalJsonUtilities.SerializeComplexTypeToJsonMethod,
@@ -722,13 +722,17 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                                         Expression.Property(
                                             QueryCompilationContext.QueryContextParameter, nameof(QueryContext.Parameters)),
                                         indexer: typeof(Dictionary<string, object>).GetProperty("Item", [typeof(string)]),
-                                        [Expression.Constant(parameter.Name, typeof(string))]),
+                                        [Expression.Constant(parameter.InvariantName, typeof(string))]),
                                     Expression.Constant(jsonQuery.IsCollection)),
                                 QueryCompilationContext.QueryContextParameter));
 
-                        serializedValue = _sqlExpressionFactory.ApplyTypeMapping(
-                            _sqlTranslator.Translate(queryParameter, applyDefaultTypeMapping: false),
-                            jsonColumn.TypeMapping)!;
+                        serializedValue = new SqlParameterExpression(
+                            invariantName: queryParameter.Name,
+                            name: parameter.Name,
+                            queryParameter.Type,
+                            queryParameter.Type.IsNullableType(),
+                            queryParameter.TranslationMode,
+                            jsonColumn.TypeMapping);
                         break;
                     }
 
@@ -846,14 +850,13 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         var typeMapping = value.TypeMapping;
         Check.DebugAssert(typeMapping is not null);
 
-        if (typeMapping.ElementTypeMapping is null
-            && value is SqlConstantExpression or SqlParameterExpression)
+        if (value is SqlConstantExpression or SqlParameterExpression)
         {
-            jsonValue = SerializeJsonValue(value, target.TypeMapping!, raw: false);
+            jsonValue = SerializeJsonValue(value, target.TypeMapping!, raw: target.TypeMapping!.ElementTypeMapping is not null);
             return jsonValue is not null;
         }
 
-        if (!CanSerializeScalarToJsonInSql(target.TypeMapping!))
+        if (!HaveCompatibleJsonRepresentations(target.TypeMapping!, value))
         {
             jsonValue = null;
             return false;
@@ -916,26 +919,54 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    protected virtual bool CanSerializeScalarToJsonInSql(RelationalTypeMapping mapping)
+    protected virtual bool HaveCompatibleJsonRepresentations(
+        RelationalTypeMapping targetMapping, SqlExpression source)
     {
-        if (mapping.ElementTypeMapping is not null)
+        var sourceMapping = source.TypeMapping!;
+        return (source is JsonScalarExpression or ColumnExpression or SqlConstantExpression or SqlParameterExpression
+                || sourceMapping.Converter is null
+                || sourceMapping.Converter.ModelClrType == sourceMapping.Converter.ProviderClrType)
+            && HaveCompatibleJsonMappings(
+                targetMapping, sourceMapping, source is JsonScalarExpression || sourceMapping.ElementTypeMapping is not null);
+    }
+
+    private bool HaveCompatibleJsonMappings(
+        RelationalTypeMapping targetMapping, RelationalTypeMapping sourceMapping, bool jsonSource)
+    {
+        if (targetMapping.ElementTypeMapping is RelationalTypeMapping targetElementMapping
+            && sourceMapping.ElementTypeMapping is RelationalTypeMapping sourceElementMapping)
+        {
+            return HaveCompatibleJsonMappings(targetElementMapping, sourceElementMapping, jsonSource: true);
+        }
+
+        var providerType = targetMapping.Converter?.ProviderClrType ?? targetMapping.ClrType;
+        if (providerType != (sourceMapping.Converter?.ProviderClrType ?? sourceMapping.ClrType)
+            || !ExpressionEqualityComparer.Instance.Equals(
+                targetMapping.Converter?.ConvertToProviderExpression, sourceMapping.Converter?.ConvertToProviderExpression)
+            || !ExpressionEqualityComparer.Instance.Equals(
+                targetMapping.Converter?.ConvertFromProviderExpression, sourceMapping.Converter?.ConvertFromProviderExpression))
+        {
+            return false;
+        }
+
+        if (providerType.IsNumeric() || providerType == typeof(string) || providerType == typeof(bool))
         {
             return true;
         }
 
-        var readerWriter = mapping.JsonValueReaderWriter;
 #pragma warning disable EF1001 // Internal EF Core API usage.
-        if (readerWriter is IJsonConvertedValueReaderWriter converted)
-        {
-            readerWriter = converted.InnerReaderWriter;
-        }
+        var targetReader = targetMapping.JsonValueReaderWriter is IJsonConvertedValueReaderWriter targetConverted
+            ? targetConverted.InnerReaderWriter
+            : targetMapping.JsonValueReaderWriter;
+        var sourceReader = jsonSource
+            ? sourceMapping.JsonValueReaderWriter is IJsonConvertedValueReaderWriter sourceConverted
+                ? sourceConverted.InnerReaderWriter
+                : sourceMapping.JsonValueReaderWriter
+            : _typeMappingSource.FindMapping(providerType, storeTypeName: sourceMapping.StoreType)?.JsonValueReaderWriter;
+        return targetReader is not null
+            && sourceReader is not null
+            && ExpressionEqualityComparer.Instance.Equals(targetReader.ConstructorExpression, sourceReader.ConstructorExpression);
 #pragma warning restore EF1001
-
-        return readerWriter is null
-            || readerWriter.GetType().IsGenericType
-            && readerWriter.GetType().GetGenericTypeDefinition() == typeof(JsonWarningEnumReaderWriter<>)
-            || readerWriter.GetType()
-                == _typeMappingSource.FindMapping(mapping.Converter?.ProviderClrType ?? mapping.ClrType)?.JsonValueReaderWriter?.GetType();
     }
 
     /// <summary>
@@ -948,18 +979,22 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
     protected virtual SqlExpression? SerializeJsonValue(SqlExpression value, RelationalTypeMapping mapping, bool raw)
     {
         var readerWriter = mapping.JsonValueReaderWriter!;
+        var jsonTypeMapping = raw
+            ? _typeMappingSource.FindMapping(
+                typeof(string), storeTypeName: mapping.ElementTypeMapping is null ? null : mapping.StoreType)
+            : null;
         switch (value)
         {
             case SqlConstantExpression constant:
                 var json = SerializeJson(constant.Value, readerWriter);
-                var scalar = raw ? json : ReadJsonScalar(json);
+                var scalar = raw ? json : ReadJsonScalar(json, constant.Value, readerWriter);
                 return new SqlConstantExpression(
                     scalar, scalar?.GetType() ?? typeof(string),
-                    _typeMappingSource.FindMapping(scalar?.GetType() ?? typeof(string)));
+                    raw ? jsonTypeMapping : _typeMappingSource.FindMapping(scalar?.GetType() ?? typeof(string)));
 
             case SqlParameterExpression parameter:
                 var queryParameter = _queryCompilationContext.RegisterRuntimeParameter(
-                    $"{ExecuteUpdateRuntimeParameterPrefix}json_{parameter.InvariantName}_{_jsonParameterIndex++}",
+                    $"json_{parameter.InvariantName}_{_jsonParameterIndex++}",
                     Expression.Lambda(
                         Expression.Call(
                             raw ? RawParameterJsonSerializerMethod : ParameterJsonSerializerMethod,
@@ -973,7 +1008,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                     queryParameter.Type,
                     queryParameter.Type.IsNullableType(),
                     queryParameter.TranslationMode,
-                    raw ? _typeMappingSource.FindMapping(typeof(string)) : RelationalTypeMapping.NullMapping);
+                    raw ? jsonTypeMapping : RelationalTypeMapping.NullMapping);
 
             default:
                 return null;
@@ -983,26 +1018,19 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
     private static string SerializeJson(object? value, JsonValueReaderWriter readerWriter)
         => value is null && !readerWriter.HandlesNullWrites ? "null" : readerWriter.ToJsonString(value);
 
-    private static object? ReadJsonScalar(string json)
+    private static object? ReadJsonScalar(string json, object? value, JsonValueReaderWriter readerWriter)
     {
         using var document = JsonDocument.Parse(json);
         var element = document.RootElement;
-        return element.ValueKind switch
-        {
-            JsonValueKind.Null => null,
-            JsonValueKind.String => element.GetString(),
-            JsonValueKind.Number when element.TryGetInt64(out var number) => number,
-            JsonValueKind.Number when element.TryGetDecimal(out var number) => number,
-            JsonValueKind.Number => element.GetDouble(),
-            JsonValueKind.True => true,
-            JsonValueKind.False => false,
-            _ => throw new InvalidOperationException(RelationalStrings.ExecuteUpdateCannotSetJsonPropertyToArbitraryExpression)
-        };
+        return element.ValueKind is JsonValueKind.Object or JsonValueKind.Array
+            ? throw new InvalidOperationException(RelationalStrings.ExecuteUpdateCannotSetJsonPropertyToArbitraryExpression)
+            : RelationalJsonUtilities.ReadJsonScalar(element, value, readerWriter);
     }
 
     private static object? ParameterJsonSerializer(
         QueryContext context, string parameterName, JsonValueReaderWriter readerWriter)
-        => ReadJsonScalar(SerializeJson(context.Parameters[parameterName], readerWriter));
+        => ReadJsonScalar(
+            SerializeJson(context.Parameters[parameterName], readerWriter), context.Parameters[parameterName], readerWriter);
 
     private static string RawParameterJsonSerializer(
         QueryContext context, string parameterName, JsonValueReaderWriter readerWriter)

@@ -23117,6 +23117,9 @@
           "Member": "TypeMappingSourceBase(Microsoft.EntityFrameworkCore.Storage.TypeMappingSourceDependencies dependencies);"
         },
         {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping? FindElementMapping(Microsoft.EntityFrameworkCore.Storage.TypeMappingInfo mappingInfo, Microsoft.EntityFrameworkCore.Metadata.IModel model);"
+        },
+        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping? FindMapping(in Microsoft.EntityFrameworkCore.Storage.TypeMappingInfo mappingInfo);"
         },
         {
