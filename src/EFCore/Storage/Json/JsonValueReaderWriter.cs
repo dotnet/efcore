@@ -11,7 +11,15 @@ namespace Microsoft.EntityFrameworkCore.Storage.Json;
 ///     Reads and writes the JSON value for a given model or provider value.
 /// </summary>
 /// <remarks>
-///     Implementations of this type must inherit from the generic <see cref="JsonValueReaderWriter{TValue}" />
+///     <para>
+///         Implementations of this type must inherit from the generic <see cref="JsonValueReaderWriter{TValue}" />.
+///     </para>
+///     <para>
+///         A reader/writer controls JSON serialization, not the value conversion used by relational type mappings.
+///         For providers such as SQL Server, changes to the stored value or its type must be expressed using a value converter
+///         so that server-side queries and scalar projections use the same representation. The reader/writer must then handle
+///         the converter's provider values.
+///     </para>
 /// </remarks>
 public abstract class JsonValueReaderWriter
 {

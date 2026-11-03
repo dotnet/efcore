@@ -281,6 +281,7 @@ public class ElementTypeBuilder : IInfrastructure<IConventionElementTypeBuilder>
     /// <remarks>
     ///     The collection must be stored as JSON. When an element value converter is used, the reader/writer must handle
     ///     the converter's provider values. This configuration overrides the model-wide default for the element's CLR type.
+    ///     To change the provider representation for server-side queries, configure an element value converter as well.
     /// </remarks>
     /// <typeparam name="TReaderWriter">The JSON reader/writer type.</typeparam>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
@@ -294,6 +295,7 @@ public class ElementTypeBuilder : IInfrastructure<IConventionElementTypeBuilder>
     /// <remarks>
     ///     The collection must be stored as JSON. When an element value converter is used, the reader/writer must handle
     ///     the converter's provider values. Clearing this configuration restores the model-wide default or the provider's reader/writer.
+    ///     To change the provider representation for server-side queries, configure an element value converter as well.
     /// </remarks>
     /// <param name="readerWriterType">The JSON reader/writer type, or <see langword="null" /> to clear the configuration.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>

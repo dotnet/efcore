@@ -165,6 +165,7 @@ public class TypeMappingConfigurationBuilder
     /// <remarks>
     ///     Member-specific JSON reader/writer configuration takes precedence over this default. When a value converter
     ///     is used, the reader/writer must handle the converter's provider values.
+    ///     To change the provider representation for server-side queries, configure a value converter as well.
     /// </remarks>
     /// <typeparam name="TReaderWriter">The JSON reader/writer type.</typeparam>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
@@ -178,6 +179,7 @@ public class TypeMappingConfigurationBuilder
     /// <remarks>
     ///     Member-specific JSON reader/writer configuration takes precedence over this default. When a value converter
     ///     is used, the reader/writer must handle the converter's provider values.
+    ///     To change the provider representation for server-side queries, configure a value converter as well.
     /// </remarks>
     /// <param name="readerWriterType">The JSON reader/writer type, or <see langword="null" /> to clear the configuration.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
