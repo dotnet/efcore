@@ -45,7 +45,7 @@ public class RelationalMapToJsonConvention : IModelFinalizingConvention
         {
             foreach (var enumProperty in jsonEntityType
                          .GetDeclaredProperties()
-                         .Where(p => p.ClrType.UnwrapNullableType().IsEnum))
+                         .Where(p => p.GetJsonPropertyName() != null && p.ClrType.UnwrapNullableType().IsEnum))
             {
                 // If the enum is mapped with no conversion, then use the reader/writer that handles legacy string values and warns.
                 if (enumProperty.GetValueConverter() == null

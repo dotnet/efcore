@@ -35,15 +35,25 @@ public class SqliteJsonScalarTypeMapping : RelationalTypeMapping
     {
     }
 
-    private SqliteJsonScalarTypeMapping(RelationalTypeMappingParameters parameters, RelationalTypeMapping sourceMapping)
+    private SqliteJsonScalarTypeMapping(
+        RelationalTypeMappingParameters parameters,
+        RelationalTypeMapping sourceMapping,
+        bool jsonProjection = false)
         : base(parameters)
-        => SourceMapping = sourceMapping;
+    {
+        SourceMapping = sourceMapping;
+        IsJsonProjection = jsonProjection;
+    }
 
     internal RelationalTypeMapping SourceMapping { get; }
+    internal bool IsJsonProjection { get; }
+
+    internal SqliteJsonScalarTypeMapping ForJsonProjection()
+        => new(Parameters, SourceMapping, jsonProjection: true);
 
     /// <inheritdoc />
     protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
-        => new SqliteJsonScalarTypeMapping(parameters, SourceMapping);
+        => new SqliteJsonScalarTypeMapping(parameters, SourceMapping, IsJsonProjection);
 
     /// <inheritdoc />
     public override Expression GenerateCodeLiteral(object value)
@@ -51,14 +61,14 @@ public class SqliteJsonScalarTypeMapping : RelationalTypeMapping
 
     /// <inheritdoc />
     public override MethodInfo GetDataReaderMethod()
-        => (Converter?.ProviderClrType ?? ClrType) == typeof(byte[])
+        => IsJsonProjection || (Converter?.ProviderClrType ?? ClrType) == typeof(byte[])
             ? typeof(DbDataReader).GetMethod(nameof(DbDataReader.GetValue), [typeof(int)])!
             : SourceMapping.GetDataReaderMethod();
 
     /// <inheritdoc />
     public override Expression CustomizeDataReaderExpression(Expression expression)
-        => (Converter?.ProviderClrType ?? ClrType) == typeof(byte[])
-            ? ReadJsonExpression(this, expression)
+        => IsJsonProjection || (Converter?.ProviderClrType ?? ClrType) == typeof(byte[])
+            ? ReadJsonExpression(this, expression, IsJsonProjection)
             : SourceMapping.CustomizeDataReaderExpression(expression);
 
     /// <inheritdoc />
@@ -92,16 +102,18 @@ public class SqliteJsonScalarTypeMapping : RelationalTypeMapping
         return scalarMapping.GenerateSqlLiteral(scalar);
     }
 
-    internal static Expression ReadJsonExpression(RelationalTypeMapping mapping, Expression expression)
+    internal static Expression ReadJsonExpression(RelationalTypeMapping mapping, Expression expression, bool jsonText = false)
     {
         var readerWriter = SqliteTypeMappingSource.GetProviderReaderWriter(mapping)!;
         var converter = ReferenceEquals(readerWriter, mapping.JsonValueReaderWriter) ? mapping.Converter : null;
         return Expression.Convert(
             Expression.Call(
-                typeof(SqliteJsonScalarTypeMapping).GetMethod(nameof(ReadJsonValue))!,
+                typeof(SqliteJsonScalarTypeMapping).GetMethod(
+                    nameof(ReadJsonValue), [typeof(object), typeof(JsonValueReaderWriter), typeof(ValueConverter), typeof(bool)])!,
                 expression,
                 Expression.Constant(readerWriter, typeof(JsonValueReaderWriter)),
-                Expression.Constant(converter, typeof(ValueConverter))),
+                Expression.Constant(converter, typeof(ValueConverter)),
+                Expression.Constant(jsonText)),
             mapping.Converter?.ProviderClrType ?? mapping.ClrType);
     }
 
@@ -112,9 +124,19 @@ public class SqliteJsonScalarTypeMapping : RelationalTypeMapping
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static object? ReadJsonValue(object value, JsonValueReaderWriter readerWriter, ValueConverter? converter)
+        => ReadJsonValue(value, readerWriter, converter, jsonText: false);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static object? ReadJsonValue(object value, JsonValueReaderWriter readerWriter, ValueConverter? converter, bool jsonText)
     {
         var json = value switch
         {
+            string text when jsonText => text,
             string text => "\"" + JsonEncodedText.Encode(text) + "\"",
             long number => number.ToString(CultureInfo.InvariantCulture),
             double number => number.ToString("R", CultureInfo.InvariantCulture),

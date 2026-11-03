@@ -159,6 +159,39 @@ public partial class RelationalModelValidatorTest
     }
 
     [Theory, InlineData(false), InlineData(true)]
+    public void Enum_ownership_key_is_not_configured_with_JSON_reader_writer(bool collection)
+    {
+        var builder = CreateConventionModelBuilder();
+        var owner = builder.Entity<JsonComplexReaderWriterOwner>();
+        owner.Property<DayOfWeek>("EnumId");
+        owner.HasKey("EnumId");
+        if (collection)
+        {
+            owner.Ignore(e => e.Value);
+            var owned = owner.OwnsMany(e => e.Values);
+            owned.ToJson();
+            owned.Property<DayOfWeek>("Day");
+        }
+        else
+        {
+            owner.Ignore(e => e.Values);
+            var owned = owner.OwnsOne(e => e.Value);
+            owned.ToJson();
+            owned.Property<DayOfWeek>("Day");
+        }
+
+        var model = Validate(builder);
+        var ownedType = model.FindEntityType(typeof(JsonComplexReaderWriterOwner))!
+            .FindNavigation(collection ? nameof(JsonComplexReaderWriterOwner.Values) : nameof(JsonComplexReaderWriterOwner.Value))!
+            .TargetEntityType;
+        var keys = ownedType.FindPrimaryKey()!.Properties;
+        var key = Assert.Single(keys, p => p.ClrType == typeof(DayOfWeek));
+        Assert.Null(key.GetJsonPropertyName());
+        Assert.All(keys, p => Assert.Null(p.GetJsonValueReaderWriter()));
+        Assert.IsType<JsonWarningEnumReaderWriter<DayOfWeek>>(ownedType.FindProperty("Day")!.GetJsonValueReaderWriter());
+    }
+
+    [Theory, InlineData(false), InlineData(true)]
     public void Validates_convention_enum_reader_writer_against_JSON_store_type(bool converted)
     {
         var builder = CreateConventionModelBuilder();
