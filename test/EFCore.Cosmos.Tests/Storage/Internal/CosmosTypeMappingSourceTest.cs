@@ -98,8 +98,9 @@ public class CosmosTypeMappingSourceTest
         var mapping = source.FindMapping(typeof(float[]), model)!;
 
         Assert.Same(mapping, source.FindMapping(typeof(float[]), model));
-        Assert.IsType<JsonFloatArrayReaderWriter>(mapping.JsonValueReaderWriter);
-        Assert.Equal("[10,20,30]", mapping.JsonValueReaderWriter!.ToJsonString(new float[] { 1, 2, 3 }));
+        var readerWriter = Assert.IsType<JsonFloatArrayReaderWriter>(mapping.JsonValueReaderWriter);
+        Assert.Equal("[10,20,30]", readerWriter.ToJsonString(new float[] { 1, 2, 3 }));
+        Assert.Equal(new float[] { 1, 2, 3 }, Assert.IsType<float[]>(readerWriter.FromJsonString("[10,20,30]")));
     }
 
     [Fact]

@@ -707,15 +707,22 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         [NotNullWhen(true)] out SqlExpression? jsonValue)
     {
 #pragma warning disable EF1001 // Internal EF Core API usage.
-        if (HasCustomJsonValueReaderWriter(target.TypeMapping!))
+        if (target.TypeMapping!.ElementTypeMapping is null
+            && value is SqlConstantExpression or SqlParameterExpression)
         {
-            var serialized = SerializeCustomJsonValue(value, target.TypeMapping!, raw: true);
+            var serialized = SerializeJsonValue(value, target.TypeMapping, raw: true);
             jsonValue = serialized is null
                 ? null
                 : _sqlExpressionFactory.Function(
                     "json", [serialized], nullable: true, argumentsPropagateNullability: [true],
                     typeof(string), _typeMappingSource.FindMapping(typeof(string)));
             return jsonValue is not null;
+        }
+
+        if (!CanSerializeScalarToJsonInSql(target.TypeMapping))
+        {
+            jsonValue = null;
+            return false;
         }
 #pragma warning restore EF1001
 

@@ -189,6 +189,26 @@ public partial class RelationalModelValidatorTest
         Assert.Equal(DayOfWeek.Monday, readerWriter.FromJsonString("1"));
     }
 
+    [Theory]
+    [InlineData(typeof(long))]
+    [InlineData(typeof(decimal))]
+    [InlineData(typeof(double))]
+    public void Accepts_enum_reader_writer_with_numeric_conversion(Type providerType)
+    {
+        var builder = CreateConventionModelBuilder();
+        var owned = builder.Entity<JsonReaderWriterOwner>().OwnsOne(e => e.Value);
+        owned.ToJson();
+        var property = owned.Property<DayOfWeek>("Day").HasConversion(providerType).Metadata;
+        ((IConventionProperty)property).SetJsonValueReaderWriterType(typeof(JsonWarningEnumReaderWriter<DayOfWeek>));
+
+        var model = Validate(builder);
+        var mapping = model.FindEntityType(property.DeclaringType.Name)!.FindProperty(property.Name)!.GetTypeMapping();
+        Assert.Equal(providerType, mapping.Converter!.ProviderClrType);
+        var readerWriter = Assert.IsType<JsonWarningEnumReaderWriter<DayOfWeek>>(mapping.JsonValueReaderWriter);
+        Assert.Equal("1", readerWriter.ToJsonString(DayOfWeek.Monday));
+        Assert.Equal(DayOfWeek.Monday, readerWriter.FromJsonString("1"));
+    }
+
     [Fact]
     public void Member_reader_writer_overrides_type_mapping_default()
     {

@@ -447,7 +447,7 @@ public class PropertyTest
 
     [Theory, InlineData(typeof(SimpleJasonValueReaderWriter)), InlineData(typeof(JasonValueReaderWriterWithPrivateInstance)),
      InlineData(typeof(JasonValueReaderWriterWithBadInstance))]
-    public void Creates_instance_of_JsonValueReaderWriter_using_constructor(Type type)
+    public void Caches_instance_of_JsonValueReaderWriter_using_constructor(Type type)
     {
         var model = CreateModel();
         var entityType = model.AddEntityType(typeof(object));
@@ -456,8 +456,9 @@ public class PropertyTest
 
         var instance1 = property.GetJsonValueReaderWriter();
         var instance2 = property.GetJsonValueReaderWriter();
-        Assert.NotNull(instance1);
-        Assert.NotEqual(instance1, instance2);
+        Assert.IsType(type, instance1);
+        Assert.Same(instance1, instance2);
+        Assert.Same(instance1, JsonValueReaderWriter.CreateFromType(type));
     }
 
     [Theory, InlineData(typeof(SimpleJasonValueReaderWriterWithInstance)),
@@ -473,6 +474,22 @@ public class PropertyTest
         var instance2 = property.GetJsonValueReaderWriter();
         Assert.NotNull(instance1);
         Assert.Same(instance1, instance2);
+    }
+
+    [Fact]
+    public void JsonValueReaderWriter_factory_returns_null_for_null_type()
+        => Assert.Null(JsonValueReaderWriter.CreateFromType(null));
+
+    [Fact]
+    public void JsonValueReaderWriter_factory_returns_same_instance_across_threads()
+    {
+        var instances = new JsonValueReaderWriter?[32];
+        Parallel.For(
+            0, instances.Length,
+            i => instances[i] = JsonValueReaderWriter.CreateFromType(typeof(SimpleJasonValueReaderWriter)));
+
+        var readerWriter = Assert.IsType<SimpleJasonValueReaderWriter>(instances[0]);
+        Assert.All(instances, instance => Assert.Same(readerWriter, instance));
     }
 
     [Theory, InlineData(typeof(NonDerivedJsonValueReaderWriter)), InlineData(typeof(NonGenericJsonValueReaderWriter))]
@@ -503,12 +520,12 @@ public class PropertyTest
     }
 
     [Fact]
-    public void Property_reader_writer_is_cached_only_after_model_finalization()
+    public void Property_reader_writer_cache_respects_configuration_changes()
     {
         var model = CreateModel();
         var property = model.AddEntityType(typeof(object)).AddProperty("Value", typeof(string));
         property.SetJsonValueReaderWriterType(typeof(SimpleJasonValueReaderWriter));
-        Assert.IsType<SimpleJasonValueReaderWriter>(property.GetJsonValueReaderWriter());
+        var readerWriter = Assert.IsType<SimpleJasonValueReaderWriter>(property.GetJsonValueReaderWriter());
         property.SetJsonValueReaderWriterType(typeof(JsonStringReaderWriter));
         Assert.Same(JsonStringReaderWriter.Instance, property.GetJsonValueReaderWriter());
         property.SetJsonValueReaderWriterType(null);
@@ -517,18 +534,17 @@ public class PropertyTest
         property.SetJsonValueReaderWriterType(typeof(SimpleJasonValueReaderWriter));
         model.FinalizeModel();
 
-        var readerWriter = Assert.IsType<SimpleJasonValueReaderWriter>(property.GetJsonValueReaderWriter());
         Assert.Same(readerWriter, property.GetJsonValueReaderWriter());
     }
 
     [Fact]
-    public void Element_reader_writer_is_cached_only_after_model_finalization()
+    public void Element_reader_writer_cache_respects_configuration_changes()
     {
         var model = CreateModel();
         var element = model.AddEntityType(typeof(object)).AddPrimitiveCollection("Values", typeof(List<string>), typeof(string))
             .GetElementType()!;
         element.SetJsonValueReaderWriterType(typeof(SimpleJasonValueReaderWriter));
-        Assert.IsType<SimpleJasonValueReaderWriter>(element.GetJsonValueReaderWriter());
+        var readerWriter = Assert.IsType<SimpleJasonValueReaderWriter>(element.GetJsonValueReaderWriter());
         element.SetJsonValueReaderWriterType(typeof(JsonStringReaderWriter));
         Assert.Same(JsonStringReaderWriter.Instance, element.GetJsonValueReaderWriter());
         element.SetJsonValueReaderWriterType(null);
@@ -537,7 +553,6 @@ public class PropertyTest
         element.SetJsonValueReaderWriterType(typeof(SimpleJasonValueReaderWriter));
         model.FinalizeModel();
 
-        var readerWriter = Assert.IsType<SimpleJasonValueReaderWriter>(element.GetJsonValueReaderWriter());
         Assert.Same(readerWriter, element.GetJsonValueReaderWriter());
         Assert.Same(readerWriter, new TypeMappingInfo((IElementType)element).JsonValueReaderWriter);
     }

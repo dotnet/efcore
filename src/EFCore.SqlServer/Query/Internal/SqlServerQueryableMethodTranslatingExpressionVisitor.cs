@@ -995,7 +995,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
 #pragma warning restore EF9002
 
 #pragma warning disable EF1001 // Internal EF Core API usage.
-        if (HasCustomJsonValueReaderWriter(target.TypeMapping!))
+        if (!CanSerializeScalarToJsonInSql(target.TypeMapping!))
         {
             return false;
         }

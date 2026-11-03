@@ -11,10 +11,37 @@ public class NonSharedModelUpdatesSqliteTest(NonSharedFixture fixture) : NonShar
 
         AssertSql(
             """
-@p0='{"Number":"43","Text":"unchanged"}' (Nullable = false) (Size = 34)
+@p0='"43"' (Nullable = false) (Size = 4)
 @p1='1'
 
-UPDATE "JsonScalarOwners" SET "Data" = @p0
+UPDATE "JsonScalarOwners" SET "Data" = json_set("Data", '$.Number', json(@p0))
+WHERE "Id" = @p1
+RETURNING 1;
+""",
+            //
+            """
+@p0='"yes"' (Nullable = false) (Size = 5)
+@p1='1'
+
+UPDATE "JsonScalarOwners" SET "Data" = json_set("Data", '$.Enabled', json(@p0))
+WHERE "Id" = @p1
+RETURNING 1;
+""",
+            //
+            """
+@p0='1769904000000' (Nullable = false) (Size = 13)
+@p1='1'
+
+UPDATE "JsonScalarOwners" SET "Data" = json_set("Data", '$.Timestamp', json(@p0))
+WHERE "Id" = @p1
+RETURNING 1;
+""",
+            //
+            """
+@p0='"a\u0022b\\c\n"' (Nullable = false) (Size = 15)
+@p1='1'
+
+UPDATE "JsonScalarOwners" SET "Data" = json_set("Data", '$.EscapedText', json(@p0))
 WHERE "Id" = @p1
 RETURNING 1;
 """,

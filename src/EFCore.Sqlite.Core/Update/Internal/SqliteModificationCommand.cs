@@ -41,33 +41,12 @@ public class SqliteModificationCommand : ModificationCommand
     /// </summary>
     protected override void ProcessSinglePropertyJsonUpdate(ref ColumnModificationParameters parameters)
     {
-        var property = parameters.Property!;
-
-        var propertyProviderClrType = (property.GetTypeMapping().Converter?.ProviderClrType ?? property.ClrType).UnwrapNullableType();
-
-        // SQLite has no bool type, so if we simply sent the bool as-is, we'd get 1/0 in the JSON document.
-        // To get an actual unquoted true/false value, we pass "true"/"false" string through the json() minifier, which does this.
-        // See https://sqlite.org/forum/info/91d09974c3754ea6.
-        // Here we convert the .NET bool to a "true"/"false" string, and SqliteUpdateSqlGenerator will add the enclosing json().
-        if (propertyProviderClrType == typeof(bool))
+        var readerWriter = parameters.Property!.GetTypeMapping().JsonValueReaderWriter!;
+        parameters = parameters with
         {
-            var value = property.GetTypeMapping().Converter is { } converter
-                ? converter.ConvertToProvider(parameters.Value)
-                : parameters.Value;
-
-            parameters = parameters with
-            {
-                Value = value switch
-                {
-                    true => "true",
-                    false => "false",
-                    _ => throw new UnreachableException()
-                }
-            };
-
-            return;
-        }
-
-        base.ProcessSinglePropertyJsonUpdate(ref parameters);
+            Value = parameters.Value is null && !readerWriter.HandlesNullWrites
+                ? "null"
+                : readerWriter.ToJsonString(parameters.Value)
+        };
     }
 }

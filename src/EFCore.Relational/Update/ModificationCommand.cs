@@ -682,9 +682,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
             }
 
             var modifiedMembers = entry.EntityType.GetFlattenedProperties().Where(entry.IsModified).ToList();
-            if (modifiedMembers.Count == 1
-                && (modifiedMembers[0].IsPrimitiveCollection
-                    || !HasCustomJsonValueReaderWriter(modifiedMembers[0])))
+            if (modifiedMembers.Count == 1)
             {
                 result.Add(
                     new JsonPartialUpdatePathEntry(
@@ -992,51 +990,38 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
         }
     }
 
-    private static bool HasCustomJsonValueReaderWriter(IProperty property)
-    {
-        var readerWriterType = property.GetJsonValueReaderWriter()?.GetType()
-            ?? property.DeclaringType.Model.FindTypeMappingConfiguration(property.ClrType.UnwrapNullableType())
-                ?.GetJsonValueReaderWriterType();
-
-        return readerWriterType is not null
-            && (!readerWriterType.IsGenericType
-                || readerWriterType.GetGenericTypeDefinition() != typeof(JsonWarningEnumReaderWriter<>));
-    }
-
     /// <summary>
     ///     Performs processing specifically needed for column modifications that correspond to single-property JSON updates.
     /// </summary>
     /// <remarks>
-    ///     By default, strings, numeric types and bool and sent as a regular relational parameter, since database functions responsible for
-    ///     patching JSON documents support this. Other types get converted to JSON via the normal means and sent as a string parameter.
+    ///     Values are serialized through the property's JSON reader/writer. Scalars are sent as relational values,
+    ///     while objects and arrays are sent as JSON text.
     /// </remarks>
     protected virtual void ProcessSinglePropertyJsonUpdate(ref ColumnModificationParameters parameters)
     {
-        var property = parameters.Property!;
-        var mapping = property.GetRelationalTypeMapping();
-        var propertyProviderClrType = (mapping.Converter?.ProviderClrType ?? property.ClrType).UnwrapNullableType();
+        var readerWriter = parameters.Property!.GetRelationalTypeMapping().JsonValueReaderWriter!;
         var value = parameters.Value;
-
-        // On most databases, the function which patches a JSON document (e.g. SQL Server JSON_MODIFY) accepts relational string, numeric
-        // and bool types directly, without serializing it to a JSON string. So by default, for those cases simply return the value as-is,
-        // with the property's type mapping which will take care of sending the parameter with the relational value.
-        // Note that we haven't yet applied a value converter if one is configured, in order to allow for it to get applied later with
-        // the regular parameter flow.
-        if (value == null
-            || propertyProviderClrType == typeof(string)
-            || propertyProviderClrType == typeof(bool)
-            || propertyProviderClrType.IsNumeric())
+        using var document = JsonDocument.Parse(
+            value is null && !readerWriter.HandlesNullWrites ? "null" : readerWriter.ToJsonString(value));
+        var element = document.RootElement;
+        value = element.ValueKind switch
         {
-            parameters = parameters with { Value = value, TypeMapping = mapping };
-        }
-        else
+            JsonValueKind.Null => null,
+            JsonValueKind.String => element.GetString(),
+            JsonValueKind.Number when element.TryGetInt64(out var number) => number,
+            JsonValueKind.Number when element.TryGetDecimal(out var number) => number,
+            JsonValueKind.Number => element.GetDouble(),
+            JsonValueKind.True => true,
+            JsonValueKind.False => false,
+            _ => element.GetRawText()
+        };
+        parameters = parameters with
         {
-            var jsonValueReaderWriter = mapping.JsonValueReaderWriter;
-            value = jsonValueReaderWriter?.ToJsonString(value)[1..^1] // The JSON string contains enclosing quotes, remove these.
-                ?? (mapping.Converter == null ? value : mapping.Converter.ConvertToProvider(value));
-
-            parameters = parameters with { Value = value };
-        }
+            Value = value,
+            TypeMapping = element.ValueKind is JsonValueKind.Object or JsonValueKind.Array
+                ? parameters.TypeMapping
+                : RelationalTypeMapping.NullMapping
+        };
     }
 
     private void WriteJson(

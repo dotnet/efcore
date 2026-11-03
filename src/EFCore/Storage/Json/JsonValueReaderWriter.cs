@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections.Concurrent;
 using System.Text;
 using System.Text.Json;
 
@@ -14,6 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Json;
 /// </remarks>
 public abstract class JsonValueReaderWriter
 {
+    private static readonly ConcurrentDictionary<Type, JsonValueReaderWriter?> Instances = new();
+
     /// <summary>
     ///     Ensures the external types extend from the generic <see cref="JsonValueReaderWriter{TValue}" />
     /// </summary>
@@ -130,39 +133,42 @@ public abstract class JsonValueReaderWriter
     }
 
     /// <summary>
-    ///     Creates a <see cref="JsonValueReaderWriter{TValue}" /> instance of the given type, using the <c>Instance</c>
-    ///     property to get th singleton instance if possible.
+    ///     Gets or creates a cached <see cref="JsonValueReaderWriter{TValue}" /> instance of the given type, using the <c>Instance</c>
+    ///     property to get the singleton instance if possible.
     /// </summary>
+    /// <remarks>
+    ///     Reader/writer instances are shared and must be thread-safe.
+    /// </remarks>
     /// <param name="readerWriterType">The type, which must inherit from <see cref="JsonValueReaderWriter{TValue}" />.</param>
-    /// <returns>The reader/writer instance./</returns>
+    /// <returns>The reader/writer instance.</returns>
     /// <exception cref="InvalidOperationException">
     ///     if the type does not represent a
     ///     <see cref="JsonValueReaderWriter{TValue}" /> that can be instantiated.
     /// </exception>
     public static JsonValueReaderWriter? CreateFromType(Type? readerWriterType)
-    {
-        if (readerWriterType != null)
-        {
-            var instanceProperty = readerWriterType.GetAnyProperty("Instance");
-            try
-            {
-                return instanceProperty != null
-                    && instanceProperty.IsStatic()
-                    && instanceProperty.GetMethod?.IsPublic == true
-                    && readerWriterType.IsAssignableFrom(instanceProperty.PropertyType)
-                        ? (JsonValueReaderWriter?)instanceProperty.GetValue(null)
-                        : (JsonValueReaderWriter?)Activator.CreateInstance(readerWriterType);
-            }
-            catch (Exception e)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.CannotCreateJsonValueReaderWriter(
-                        readerWriterType.ShortDisplayName()), e);
-            }
-        }
-
-        return null;
-    }
+        => readerWriterType == null
+            ? null
+            : Instances.GetOrAdd(
+                readerWriterType,
+                static type =>
+                {
+                    var instanceProperty = type.GetAnyProperty("Instance");
+                    try
+                    {
+                        return instanceProperty != null
+                            && instanceProperty.IsStatic()
+                            && instanceProperty.GetMethod?.IsPublic == true
+                            && type.IsAssignableFrom(instanceProperty.PropertyType)
+                                ? (JsonValueReaderWriter?)instanceProperty.GetValue(null)
+                                : (JsonValueReaderWriter?)Activator.CreateInstance(type);
+                    }
+                    catch (Exception e)
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.CannotCreateJsonValueReaderWriter(
+                                type.ShortDisplayName()), e);
+                    }
+                });
 
     /// <summary>
     ///     The expression representing construction of this object.

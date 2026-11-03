@@ -311,10 +311,10 @@ LIMIT 2
 
         AssertSql(
             """
-@p0='2111-11-11 00:00:00' (Nullable = false) (Size = 19)
+@p0='"2111-11-11 00:00:00"' (Nullable = false) (Size = 21)
 @p1='1'
 
-UPDATE "JsonEntitiesBasic" SET "OwnedCollectionRoot" = json_set("OwnedCollectionRoot", '$[0].OwnedCollectionBranch[0].Date', @p0)
+UPDATE "JsonEntitiesBasic" SET "OwnedCollectionRoot" = json_set("OwnedCollectionRoot", '$[0].OwnedCollectionBranch[0].Date', json(@p0))
 WHERE "Id" = @p1
 RETURNING 1;
 """,
@@ -332,10 +332,10 @@ LIMIT 2
 
         AssertSql(
             """
-@p0='Modified' (Nullable = false) (Size = 8)
+@p0='"Modified"' (Nullable = false) (Size = 10)
 @p1='1'
 
-UPDATE "JsonEntitiesBasic" SET "OwnedCollectionRoot" = json_set("OwnedCollectionRoot", '$[0].Name', @p0)
+UPDATE "JsonEntitiesBasic" SET "OwnedCollectionRoot" = json_set("OwnedCollectionRoot", '$[0].Name', json(@p0))
 WHERE "Id" = @p1
 RETURNING 1;
 """,
@@ -353,10 +353,10 @@ LIMIT 2
 
         AssertSql(
             """
-@p0='Modified' (Nullable = false) (Size = 8)
+@p0='"Modified"' (Nullable = false) (Size = 10)
 @p1='1'
 
-UPDATE "JsonEntitiesBasic" SET "OwnedCollectionRoot" = json_set("OwnedCollectionRoot", '$[1].Name', @p0)
+UPDATE "JsonEntitiesBasic" SET "OwnedCollectionRoot" = json_set("OwnedCollectionRoot", '$[1].Name', json(@p0))
 WHERE "Id" = @p1
 RETURNING 1;
 """,
@@ -501,11 +501,11 @@ LIMIT 2
 
         AssertSql(
             """
-@p0='2'
-@p1='2'
+@p0='2' (Nullable = false) (Size = 1)
+@p1='2' (Nullable = false) (Size = 1)
 @p2='1'
 
-UPDATE "JsonEntitiesBasic" SET "OwnedCollectionRoot" = json_set("OwnedCollectionRoot", '$[1].OwnedCollectionBranch[1].Enum', @p0), "OwnedReferenceRoot" = json_set("OwnedReferenceRoot", '$.OwnedReferenceBranch.Enum', @p1)
+UPDATE "JsonEntitiesBasic" SET "OwnedCollectionRoot" = json_set("OwnedCollectionRoot", '$[1].OwnedCollectionBranch[1].Enum', json(@p0)), "OwnedReferenceRoot" = json_set("OwnedReferenceRoot", '$.OwnedReferenceBranch.Enum', json(@p1))
 WHERE "Id" = @p2
 RETURNING 1;
 """,
@@ -523,11 +523,11 @@ LIMIT 2
 
         AssertSql(
             """
-@p0='1024'
-@p1='999'
+@p0='1024' (Nullable = false) (Size = 4)
+@p1='999' (Nullable = false) (Size = 3)
 @p2='1'
 
-UPDATE "JsonEntitiesBasic" SET "OwnedCollectionRoot" = json_set("OwnedCollectionRoot", '$[1].Number', @p0), "OwnedReferenceRoot" = json_set("OwnedReferenceRoot", '$.Number', @p1)
+UPDATE "JsonEntitiesBasic" SET "OwnedCollectionRoot" = json_set("OwnedCollectionRoot", '$[1].Number', json(@p0)), "OwnedReferenceRoot" = json_set("OwnedReferenceRoot", '$.Number', json(@p1))
 WHERE "Id" = @p2
 RETURNING 1;
 """,
@@ -568,11 +568,11 @@ LIMIT 2
 
         AssertSql(
             """
-@p0='14'
-@p1='25'
+@p0='14' (Nullable = false) (Size = 2)
+@p1='25' (Nullable = false) (Size = 2)
 @p2='1'
 
-UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestByte', @p0), "Reference" = json_set("Reference", '$.TestByte', @p1)
+UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestByte', json(@p0)), "Reference" = json_set("Reference", '$.TestByte', json(@p1))
 WHERE "Id" = @p2
 RETURNING 1;
 """,
@@ -591,10 +591,10 @@ LIMIT 2
 
         AssertSql(
             """
-@p0='t' (DbType = String)
+@p0='"t"' (Nullable = false) (Size = 3)
 @p1='1'
 
-UPDATE "JsonEntitiesAllTypes" SET "Reference" = json_set("Reference", '$.TestCharacter', @p0)
+UPDATE "JsonEntitiesAllTypes" SET "Reference" = json_set("Reference", '$.TestCharacter', json(@p0))
 WHERE "Id" = @p1
 RETURNING 1;
 """,
@@ -613,11 +613,11 @@ LIMIT 2
 
         AssertSql(
             """
-@p0='3000-01-01 12:34:56' (Nullable = false) (Size = 19)
-@p1='3000-01-01 12:34:56' (Nullable = false) (Size = 19)
+@p0='"3000-01-01 12:34:56"' (Nullable = false) (Size = 21)
+@p1='"3000-01-01 12:34:56"' (Nullable = false) (Size = 21)
 @p2='1'
 
-UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestDateTime', @p0), "Reference" = json_set("Reference", '$.TestDateTime', @p1)
+UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestDateTime', json(@p0)), "Reference" = json_set("Reference", '$.TestDateTime', json(@p1))
 WHERE "Id" = @p2
 RETURNING 1;
 """,
@@ -636,11 +636,11 @@ LIMIT 2
 
         AssertSql(
             """
-@p0='3000-01-01 12:34:56-04:00' (Nullable = false) (Size = 25)
-@p1='3000-01-01 12:34:56-04:00' (Nullable = false) (Size = 25)
+@p0='"3000-01-01 12:34:56-04:00"' (Nullable = false) (Size = 27)
+@p1='"3000-01-01 12:34:56-04:00"' (Nullable = false) (Size = 27)
 @p2='1'
 
-UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestDateTimeOffset', @p0), "Reference" = json_set("Reference", '$.TestDateTimeOffset', @p1)
+UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestDateTimeOffset', json(@p0)), "Reference" = json_set("Reference", '$.TestDateTimeOffset', json(@p1))
 WHERE "Id" = @p2
 RETURNING 1;
 """,
@@ -659,11 +659,11 @@ LIMIT 2
 
         AssertSql(
             """
-@p0='-13579.01'
-@p1='-13579.01'
+@p0='"-13579.01"' (Nullable = false) (Size = 11)
+@p1='"-13579.01"' (Nullable = false) (Size = 11)
 @p2='1'
 
-UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestDecimal', @p0), "Reference" = json_set("Reference", '$.TestDecimal', @p1)
+UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestDecimal', json(@p0)), "Reference" = json_set("Reference", '$.TestDecimal', json(@p1))
 WHERE "Id" = @p2
 RETURNING 1;
 """,
@@ -682,11 +682,11 @@ LIMIT 2
 
         AssertSql(
             """
-@p0='-1.23579'
-@p1='-1.23579'
+@p0='-1.23579' (Nullable = false) (Size = 8)
+@p1='-1.23579' (Nullable = false) (Size = 8)
 @p2='1'
 
-UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestDouble', @p0), "Reference" = json_set("Reference", '$.TestDouble', @p1)
+UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestDouble', json(@p0)), "Reference" = json_set("Reference", '$.TestDouble', json(@p1))
 WHERE "Id" = @p2
 RETURNING 1;
 """,
@@ -705,11 +705,11 @@ LIMIT 2
 
         AssertSql(
             """
-@p0='12345678-1234-4321-5555-987654321000' (Nullable = false) (Size = 36)
-@p1='12345678-1234-4321-5555-987654321000' (Nullable = false) (Size = 36)
+@p0='"12345678-1234-4321-5555-987654321000"' (Nullable = false) (Size = 38)
+@p1='"12345678-1234-4321-5555-987654321000"' (Nullable = false) (Size = 38)
 @p2='1'
 
-UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestGuid', @p0), "Reference" = json_set("Reference", '$.TestGuid', @p1)
+UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestGuid', json(@p0)), "Reference" = json_set("Reference", '$.TestGuid', json(@p1))
 WHERE "Id" = @p2
 RETURNING 1;
 """,
@@ -728,11 +728,11 @@ LIMIT 2
 
         AssertSql(
             """
-@p0='-3234'
-@p1='-3234'
+@p0='-3234' (Nullable = false) (Size = 5)
+@p1='-3234' (Nullable = false) (Size = 5)
 @p2='1'
 
-UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestInt16', @p0), "Reference" = json_set("Reference", '$.TestInt16', @p1)
+UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestInt16', json(@p0)), "Reference" = json_set("Reference", '$.TestInt16', json(@p1))
 WHERE "Id" = @p2
 RETURNING 1;
 """,
@@ -751,11 +751,11 @@ LIMIT 2
 
         AssertSql(
             """
-@p0='-3234'
-@p1='-3234'
+@p0='-3234' (Nullable = false) (Size = 5)
+@p1='-3234' (Nullable = false) (Size = 5)
 @p2='1'
 
-UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestInt32', @p0), "Reference" = json_set("Reference", '$.TestInt32', @p1)
+UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestInt32', json(@p0)), "Reference" = json_set("Reference", '$.TestInt32', json(@p1))
 WHERE "Id" = @p2
 RETURNING 1;
 """,
@@ -774,11 +774,11 @@ LIMIT 2
 
         AssertSql(
             """
-@p0='-3234'
-@p1='-3234'
+@p0='-3234' (Nullable = false) (Size = 5)
+@p1='-3234' (Nullable = false) (Size = 5)
 @p2='1'
 
-UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestInt64', @p0), "Reference" = json_set("Reference", '$.TestInt64', @p1)
+UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestInt64', json(@p0)), "Reference" = json_set("Reference", '$.TestInt64', json(@p1))
 WHERE "Id" = @p2
 RETURNING 1;
 """,
@@ -797,11 +797,11 @@ LIMIT 2
 
         AssertSql(
             """
-@p0='-108'
-@p1='-108'
+@p0='-108' (Nullable = false) (Size = 4)
+@p1='-108' (Nullable = false) (Size = 4)
 @p2='1'
 
-UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestSignedByte', @p0), "Reference" = json_set("Reference", '$.TestSignedByte', @p1)
+UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestSignedByte', json(@p0)), "Reference" = json_set("Reference", '$.TestSignedByte', json(@p1))
 WHERE "Id" = @p2
 RETURNING 1;
 """,
@@ -820,11 +820,11 @@ LIMIT 2
 
         AssertSql(
             """
-@p0='-7.234'
-@p1='-7.234'
+@p0='-7.234' (Nullable = false) (Size = 6)
+@p1='-7.234' (Nullable = false) (Size = 6)
 @p2='1'
 
-UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestSingle', @p0), "Reference" = json_set("Reference", '$.TestSingle', @p1)
+UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestSingle', json(@p0)), "Reference" = json_set("Reference", '$.TestSingle', json(@p1))
 WHERE "Id" = @p2
 RETURNING 1;
 """,
@@ -843,11 +843,11 @@ LIMIT 2
 
         AssertSql(
             """
-@p0='10:01:01.007' (Nullable = false) (Size = 12)
-@p1='10:01:01.007' (Nullable = false) (Size = 12)
+@p0='"10:01:01.007"' (Nullable = false) (Size = 14)
+@p1='"10:01:01.007"' (Nullable = false) (Size = 14)
 @p2='1'
 
-UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestTimeSpan', @p0), "Reference" = json_set("Reference", '$.TestTimeSpan', @p1)
+UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestTimeSpan', json(@p0)), "Reference" = json_set("Reference", '$.TestTimeSpan', json(@p1))
 WHERE "Id" = @p2
 RETURNING 1;
 """,
@@ -866,11 +866,11 @@ LIMIT 2
 
         AssertSql(
             """
-@p0='1534'
-@p1='1534'
+@p0='1534' (Nullable = false) (Size = 4)
+@p1='1534' (Nullable = false) (Size = 4)
 @p2='1'
 
-UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestUnsignedInt16', @p0), "Reference" = json_set("Reference", '$.TestUnsignedInt16', @p1)
+UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestUnsignedInt16', json(@p0)), "Reference" = json_set("Reference", '$.TestUnsignedInt16', json(@p1))
 WHERE "Id" = @p2
 RETURNING 1;
 """,
@@ -889,11 +889,11 @@ LIMIT 2
 
         AssertSql(
             """
-@p0='1237775789'
-@p1='1237775789'
+@p0='1237775789' (Nullable = false) (Size = 10)
+@p1='1237775789' (Nullable = false) (Size = 10)
 @p2='1'
 
-UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestUnsignedInt32', @p0), "Reference" = json_set("Reference", '$.TestUnsignedInt32', @p1)
+UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestUnsignedInt32', json(@p0)), "Reference" = json_set("Reference", '$.TestUnsignedInt32', json(@p1))
 WHERE "Id" = @p2
 RETURNING 1;
 """,
@@ -912,11 +912,11 @@ LIMIT 2
 
         AssertSql(
             """
-@p0='1234555555123456789'
-@p1='1234555555123456789'
+@p0='1234555555123456789' (Nullable = false) (Size = 19)
+@p1='1234555555123456789' (Nullable = false) (Size = 19)
 @p2='1'
 
-UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestUnsignedInt64', @p0), "Reference" = json_set("Reference", '$.TestUnsignedInt64', @p1)
+UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestUnsignedInt64', json(@p0)), "Reference" = json_set("Reference", '$.TestUnsignedInt64', json(@p1))
 WHERE "Id" = @p2
 RETURNING 1;
 """,
@@ -935,11 +935,11 @@ LIMIT 2
 
         AssertSql(
             """
-@p0='122354'
-@p1='64528'
+@p0='122354' (Nullable = false) (Size = 6)
+@p1='64528' (Nullable = false) (Size = 5)
 @p2='1'
 
-UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestNullableInt32', @p0), "Reference" = json_set("Reference", '$.TestNullableInt32', @p1)
+UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestNullableInt32', json(@p0)), "Reference" = json_set("Reference", '$.TestNullableInt32', json(@p1))
 WHERE "Id" = @p2
 RETURNING 1;
 """,
@@ -958,11 +958,11 @@ LIMIT 2
 
         AssertSql(
             """
-@p0=NULL (Nullable = false) (DbType = Int32)
-@p1=NULL (Nullable = false) (DbType = Int32)
+@p0='null' (Nullable = false) (Size = 4)
+@p1='null' (Nullable = false) (Size = 4)
 @p2='1'
 
-UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestNullableInt32', @p0), "Reference" = json_set("Reference", '$.TestNullableInt32', @p1)
+UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestNullableInt32', json(@p0)), "Reference" = json_set("Reference", '$.TestNullableInt32', json(@p1))
 WHERE "Id" = @p2
 RETURNING 1;
 """,
@@ -981,11 +981,11 @@ LIMIT 2
 
         AssertSql(
             """
-@p0=NULL (Nullable = false) (DbType = DateTime)
-@p1=NULL (Nullable = false) (DbType = DateTime)
+@p0='null' (Nullable = false) (Size = 4)
+@p1='null' (Nullable = false) (Size = 4)
 @p2='1'
 
-UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestNullableDateTime', @p0), "Reference" = json_set("Reference", '$.TestNullableDateTime', @p1)
+UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestNullableDateTime', json(@p0)), "Reference" = json_set("Reference", '$.TestNullableDateTime', json(@p1))
 WHERE "Id" = @p2
 RETURNING 1;
 """,
@@ -1004,11 +1004,11 @@ LIMIT 2
 
         AssertSql(
             """
-@p0=NULL (Nullable = false) (DbType = Date)
-@p1=NULL (Nullable = false) (DbType = Date)
+@p0='null' (Nullable = false) (Size = 4)
+@p1='null' (Nullable = false) (Size = 4)
 @p2='1'
 
-UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestNullableDateOnly', @p0), "Reference" = json_set("Reference", '$.TestNullableDateOnly', @p1)
+UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestNullableDateOnly', json(@p0)), "Reference" = json_set("Reference", '$.TestNullableDateOnly', json(@p1))
 WHERE "Id" = @p2
 RETURNING 1;
 """,
@@ -1027,11 +1027,11 @@ LIMIT 2
 
         AssertSql(
             """
-@p0='-3'
-@p1='-3'
+@p0='-3' (Nullable = false) (Size = 2)
+@p1='-3' (Nullable = false) (Size = 2)
 @p2='1'
 
-UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestEnum', @p0), "Reference" = json_set("Reference", '$.TestEnum', @p1)
+UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestEnum', json(@p0)), "Reference" = json_set("Reference", '$.TestEnum', json(@p1))
 WHERE "Id" = @p2
 RETURNING 1;
 """,
@@ -1050,11 +1050,11 @@ LIMIT 2
 
         AssertSql(
             """
-@p0='-3'
-@p1='-3'
+@p0='-3' (Nullable = false) (Size = 2)
+@p1='-3' (Nullable = false) (Size = 2)
 @p2='1'
 
-UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestEnumWithIntConverter', @p0), "Reference" = json_set("Reference", '$.TestEnumWithIntConverter', @p1)
+UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestEnumWithIntConverter', json(@p0)), "Reference" = json_set("Reference", '$.TestEnumWithIntConverter', json(@p1))
 WHERE "Id" = @p2
 RETURNING 1;
 """,
@@ -1073,11 +1073,11 @@ LIMIT 2
 
         AssertSql(
             """
-@p0='-3'
-@p1='-3'
+@p0='-3' (Nullable = false) (Size = 2)
+@p1='-3' (Nullable = false) (Size = 2)
 @p2='1'
 
-UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestEnum', @p0), "Reference" = json_set("Reference", '$.TestEnum', @p1)
+UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestEnum', json(@p0)), "Reference" = json_set("Reference", '$.TestEnum', json(@p1))
 WHERE "Id" = @p2
 RETURNING 1;
 """,
@@ -1096,11 +1096,11 @@ LIMIT 2
 
         AssertSql(
             """
-@p0=NULL (Nullable = false) (DbType = Int32)
-@p1=NULL (Nullable = false) (DbType = Int32)
+@p0='null' (Nullable = false) (Size = 4)
+@p1='null' (Nullable = false) (Size = 4)
 @p2='1'
 
-UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestNullableEnum', @p0), "Reference" = json_set("Reference", '$.TestNullableEnum', @p1)
+UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestNullableEnum', json(@p0)), "Reference" = json_set("Reference", '$.TestNullableEnum', json(@p1))
 WHERE "Id" = @p2
 RETURNING 1;
 """,
@@ -1119,11 +1119,11 @@ LIMIT 2
 
         AssertSql(
             """
-@p0='-1'
-@p1='-3'
+@p0='-1' (Nullable = false) (Size = 2)
+@p1='-3' (Nullable = false) (Size = 2)
 @p2='1'
 
-UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestNullableEnumWithIntConverter', @p0), "Reference" = json_set("Reference", '$.TestNullableEnumWithIntConverter', @p1)
+UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestNullableEnumWithIntConverter', json(@p0)), "Reference" = json_set("Reference", '$.TestNullableEnumWithIntConverter', json(@p1))
 WHERE "Id" = @p2
 RETURNING 1;
 """,
@@ -1142,11 +1142,11 @@ LIMIT 2
 
         AssertSql(
             """
-@p0=NULL (Nullable = false) (DbType = Int32)
-@p1=NULL (Nullable = false) (DbType = Int32)
+@p0='null' (Nullable = false) (Size = 4)
+@p1='null' (Nullable = false) (Size = 4)
 @p2='1'
 
-UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestNullableEnumWithIntConverter', @p0), "Reference" = json_set("Reference", '$.TestNullableEnumWithIntConverter', @p1)
+UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestNullableEnumWithIntConverter', json(@p0)), "Reference" = json_set("Reference", '$.TestNullableEnumWithIntConverter', json(@p1))
 WHERE "Id" = @p2
 RETURNING 1;
 """,
@@ -1165,11 +1165,11 @@ LIMIT 2
 
         AssertSql(
             """
-@p0='Three' (Nullable = false) (Size = 5)
-@p1='One' (Nullable = false) (Size = 3)
+@p0='"Three"' (Nullable = false) (Size = 7)
+@p1='"One"' (Nullable = false) (Size = 5)
 @p2='1'
 
-UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestNullableEnumWithConverterThatHandlesNulls', @p0), "Reference" = json_set("Reference", '$.TestNullableEnumWithConverterThatHandlesNulls', @p1)
+UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestNullableEnumWithConverterThatHandlesNulls', json(@p0)), "Reference" = json_set("Reference", '$.TestNullableEnumWithConverterThatHandlesNulls', json(@p1))
 WHERE "Id" = @p2
 RETURNING 1;
 """,
@@ -1188,11 +1188,11 @@ LIMIT 2
 
         AssertSql(
             """
-@p0='Null' (Nullable = false) (Size = 4)
-@p1='Null' (Nullable = false) (Size = 4)
+@p0='"Null"' (Nullable = false) (Size = 6)
+@p1='"Null"' (Nullable = false) (Size = 6)
 @p2='1'
 
-UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestNullableEnumWithConverterThatHandlesNulls', @p0), "Reference" = json_set("Reference", '$.TestNullableEnumWithConverterThatHandlesNulls', @p1)
+UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestNullableEnumWithConverterThatHandlesNulls', json(@p0)), "Reference" = json_set("Reference", '$.TestNullableEnumWithConverterThatHandlesNulls', json(@p1))
 WHERE "Id" = @p2
 RETURNING 1;
 """,
@@ -1297,10 +1297,10 @@ LIMIT 2
 
         AssertSql(
             """
-@p0='0'
+@p0='0' (Nullable = false) (Size = 1)
 @p1='1'
 
-UPDATE "JsonEntitiesConverters" SET "Reference" = json_set("Reference", '$.BoolConvertedToIntZeroOne', @p0)
+UPDATE "JsonEntitiesConverters" SET "Reference" = json_set("Reference", '$.BoolConvertedToIntZeroOne', json(@p0))
 WHERE "Id" = @p1
 RETURNING 1;
 """,
@@ -1319,10 +1319,10 @@ LIMIT 2
 
         AssertSql(
             """
-@p0='True' (Nullable = false) (Size = 4)
+@p0='"True"' (Nullable = false) (Size = 6)
 @p1='1'
 
-UPDATE "JsonEntitiesConverters" SET "Reference" = json_set("Reference", '$.BoolConvertedToStringTrueFalse', @p0)
+UPDATE "JsonEntitiesConverters" SET "Reference" = json_set("Reference", '$.BoolConvertedToStringTrueFalse', json(@p0))
 WHERE "Id" = @p1
 RETURNING 1;
 """,
@@ -1341,10 +1341,10 @@ LIMIT 2
 
         AssertSql(
             """
-@p0='N' (Nullable = false) (Size = 1)
+@p0='"N"' (Nullable = false) (Size = 3)
 @p1='1'
 
-UPDATE "JsonEntitiesConverters" SET "Reference" = json_set("Reference", '$.BoolConvertedToStringYN', @p0)
+UPDATE "JsonEntitiesConverters" SET "Reference" = json_set("Reference", '$.BoolConvertedToStringYN', json(@p0))
 WHERE "Id" = @p1
 RETURNING 1;
 """,
@@ -1474,11 +1474,11 @@ LIMIT 2
 
         AssertSql(
             """
-@p0='0E' (Nullable = false) (Size = 2)
-@p1='191A' (Nullable = false) (Size = 4)
+@p0='"0E"' (Nullable = false) (Size = 4)
+@p1='"191A"' (Nullable = false) (Size = 6)
 @p2='1'
 
-UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestByteCollection', @p0), "Reference" = json_set("Reference", '$.TestByteCollection', @p1)
+UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestByteCollection', json(@p0)), "Reference" = json_set("Reference", '$.TestByteCollection', json(@p1))
 WHERE "Id" = @p2
 RETURNING 1;
 """,
@@ -1906,8 +1906,8 @@ LIMIT 2
 
         AssertSql(
             """
-@p0=NULL (Nullable = false)
-@p1=NULL (Nullable = false)
+@p0='null' (Nullable = false) (Size = 4)
+@p1='null' (Nullable = false) (Size = 4)
 @p2='1'
 
 UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestNullableInt32Collection', json(@p0)), "Reference" = json_set("Reference", '$.TestNullableInt32Collection', json(@p1))
@@ -1998,8 +1998,8 @@ LIMIT 2
 
         AssertSql(
             """
-@p0=NULL (Nullable = false)
-@p1=NULL (Nullable = false)
+@p0='null' (Nullable = false) (Size = 4)
+@p1='null' (Nullable = false) (Size = 4)
 @p2='1'
 
 UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestNullableEnumCollection', json(@p0)), "Reference" = json_set("Reference", '$.TestNullableEnumCollection', json(@p1))
@@ -2044,8 +2044,8 @@ LIMIT 2
 
         AssertSql(
             """
-@p0=NULL (Nullable = false)
-@p1=NULL (Nullable = false)
+@p0='null' (Nullable = false) (Size = 4)
+@p1='null' (Nullable = false) (Size = 4)
 @p2='1'
 
 UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestNullableEnumWithIntConverterCollection', json(@p0)), "Reference" = json_set("Reference", '$.TestNullableEnumWithIntConverterCollection', json(@p1))
@@ -2089,8 +2089,8 @@ LIMIT 2
         await base.Edit_single_property_collection_of_nullable_enum_with_converter_that_handles_nulls_set_to_null();
         AssertSql(
             """
-@p0=NULL (Nullable = false)
-@p1=NULL (Nullable = false)
+@p0='null' (Nullable = false) (Size = 4)
+@p1='null' (Nullable = false) (Size = 4)
 @p2='1'
 
 UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestNullableEnumWithConverterThatHandlesNullsCollection', json(@p0)), "Reference" = json_set("Reference", '$.TestNullableEnumWithConverterThatHandlesNullsCollection', json(@p1))
@@ -2367,17 +2367,14 @@ LIMIT 2
 
         var updateParameter = value switch
         {
-            true => "NULL (Nullable = false)",
+            true => "'null' (Nullable = false) (Size = 4)",
             false => "'[\"Z\"]' (Nullable = false) (Size = 5)",
             _ => "'[]' (Nullable = false) (Size = 2)"
         };
 
         AssertSql(
-            @"@p0='[{""TestBoolean"":false,""TestBooleanCollection"":[],""TestByte"":0,""TestByteArray"":null,""TestByteCollection"":null,""TestCharacter"":""\u0000"",""TestCharacterCollection"":"
-            + characterCollection
-            + @",""TestDateOnly"":""0001-01-01"",""TestDateOnlyCollection"":[],""TestDateTime"":""0001-01-01 00:00:00"",""TestDateTimeCollection"":[],""TestDateTimeOffset"":""0001-01-01 00:00:00+00:00"",""TestDateTimeOffsetCollection"":[],""TestDecimal"":""0.0"",""TestDecimalCollection"":[],""TestDefaultString"":null,""TestDefaultStringCollection"":[],""TestDouble"":0,""TestDoubleCollection"":[],""TestEnum"":0,""TestEnumCollection"":[],""TestEnumWithIntConverter"":0,""TestEnumWithIntConverterCollection"":[],""TestGuid"":""00000000-0000-0000-0000-000000000000"",""TestGuidCollection"":[],""TestInt16"":0,""TestInt16Collection"":[],""TestInt32"":0,""TestInt32Collection"":[],""TestInt64"":0,""TestInt64Collection"":[],""TestMaxLengthString"":null,""TestMaxLengthStringCollection"":[],""TestNullableDateOnly"":null,""TestNullableDateTime"":null,""TestNullableEnum"":null,""TestNullableEnumCollection"":[],""TestNullableEnumWithConverterThatHandlesNulls"":""Null"",""TestNullableEnumWithConverterThatHandlesNullsCollection"":[],""TestNullableEnumWithIntConverter"":null,""TestNullableEnumWithIntConverterCollection"":[],""TestNullableInt32"":null,""TestNullableInt32Collection"":[],""TestSignedByte"":0,""TestSignedByteCollection"":[],""TestSingle"":0,""TestSingleCollection"":[],""TestTimeOnly"":""00:00:00"",""TestTimeOnlyCollection"":[],""TestTimeSpan"":""0:00:00"",""TestTimeSpanCollection"":[],""TestUnsignedInt16"":0,""TestUnsignedInt16Collection"":[],""TestUnsignedInt32"":0,""TestUnsignedInt32Collection"":[],""TestUnsignedInt64"":0,""TestUnsignedInt64Collection"":[]}]' (Nullable = false) (Size = "
-            + parameterSize
-            + @")
+            $$"""
+@p0='[{"TestBoolean":false,"TestBooleanCollection":[],"TestByte":0,"TestByteArray":null,"TestByteCollection":null,"TestCharacter":"\u0000","TestCharacterCollection":{{characterCollection}},"TestDateOnly":"0001-01-01","TestDateOnlyCollection":[],"TestDateTime":"0001-01-01 00:00:00","TestDateTimeCollection":[],"TestDateTimeOffset":"0001-01-01 00:00:00+00:00","TestDateTimeOffsetCollection":[],"TestDecimal":"0.0","TestDecimalCollection":[],"TestDefaultString":null,"TestDefaultStringCollection":[],"TestDouble":0,"TestDoubleCollection":[],"TestEnum":0,"TestEnumCollection":[],"TestEnumWithIntConverter":0,"TestEnumWithIntConverterCollection":[],"TestGuid":"00000000-0000-0000-0000-000000000000","TestGuidCollection":[],"TestInt16":0,"TestInt16Collection":[],"TestInt32":0,"TestInt32Collection":[],"TestInt64":0,"TestInt64Collection":[],"TestMaxLengthString":null,"TestMaxLengthStringCollection":[],"TestNullableDateOnly":null,"TestNullableDateTime":null,"TestNullableEnum":null,"TestNullableEnumCollection":[],"TestNullableEnumWithConverterThatHandlesNulls":"Null","TestNullableEnumWithConverterThatHandlesNullsCollection":[],"TestNullableEnumWithIntConverter":null,"TestNullableEnumWithIntConverterCollection":[],"TestNullableInt32":null,"TestNullableInt32Collection":[],"TestSignedByte":0,"TestSignedByteCollection":[],"TestSingle":0,"TestSingleCollection":[],"TestTimeOnly":"00:00:00","TestTimeOnlyCollection":[],"TestTimeSpan":"0:00:00","TestTimeSpanCollection":[],"TestUnsignedInt16":0,"TestUnsignedInt16Collection":[],"TestUnsignedInt32":0,"TestUnsignedInt32Collection":[],"TestUnsignedInt64":0,"TestUnsignedInt64Collection":[]}]' (Nullable = false) (Size = {{parameterSize}})
 @p1='7624'
 @p2='[]' (Size = 2)
 @p3=NULL (DbType = Binary)
@@ -2405,8 +2402,9 @@ LIMIT 2
 @p25='[]' (Size = 2)
 @p26='[]' (Size = 2)
 
-INSERT INTO ""JsonEntitiesAllTypes"" (""Collection"", ""Id"", ""TestBooleanCollection"", ""TestByteCollection"", ""TestCharacterCollection"", ""TestDateTimeCollection"", ""TestDateTimeOffsetCollection"", ""TestDecimalCollection"", ""TestDefaultStringCollection"", ""TestDoubleCollection"", ""TestEnumCollection"", ""TestEnumWithIntConverterCollection"", ""TestGuidCollection"", ""TestInt16Collection"", ""TestInt32Collection"", ""TestInt64Collection"", ""TestMaxLengthStringCollection"", ""TestNullableEnumCollection"", ""TestNullableEnumWithConverterThatHandlesNullsCollection"", ""TestNullableEnumWithIntConverterCollection"", ""TestNullableInt32Collection"", ""TestSignedByteCollection"", ""TestSingleCollection"", ""TestTimeSpanCollection"", ""TestUnsignedInt16Collection"", ""TestUnsignedInt32Collection"", ""TestUnsignedInt64Collection"")
-VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19, @p20, @p21, @p22, @p23, @p24, @p25, @p26);",
+INSERT INTO "JsonEntitiesAllTypes" ("Collection", "Id", "TestBooleanCollection", "TestByteCollection", "TestCharacterCollection", "TestDateTimeCollection", "TestDateTimeOffsetCollection", "TestDecimalCollection", "TestDefaultStringCollection", "TestDoubleCollection", "TestEnumCollection", "TestEnumWithIntConverterCollection", "TestGuidCollection", "TestInt16Collection", "TestInt32Collection", "TestInt64Collection", "TestMaxLengthStringCollection", "TestNullableEnumCollection", "TestNullableEnumWithConverterThatHandlesNullsCollection", "TestNullableEnumWithIntConverterCollection", "TestNullableInt32Collection", "TestSignedByteCollection", "TestSingleCollection", "TestTimeSpanCollection", "TestUnsignedInt16Collection", "TestUnsignedInt32Collection", "TestUnsignedInt64Collection")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19, @p20, @p21, @p22, @p23, @p24, @p25, @p26);
+""",
             //
             """
 SELECT "j"."Id", "j"."TestBooleanCollection", "j"."TestByteCollection", "j"."TestCharacterCollection", "j"."TestDateTimeCollection", "j"."TestDateTimeOffsetCollection", "j"."TestDecimalCollection", "j"."TestDefaultStringCollection", "j"."TestDoubleCollection", "j"."TestEnumCollection", "j"."TestEnumWithIntConverterCollection", "j"."TestGuidCollection", "j"."TestInt16Collection", "j"."TestInt32Collection", "j"."TestInt64Collection", "j"."TestMaxLengthStringCollection", "j"."TestNullableEnumCollection", "j"."TestNullableEnumWithConverterThatHandlesNullsCollection", "j"."TestNullableEnumWithIntConverterCollection", "j"."TestNullableInt32Collection", "j"."TestSignedByteCollection", "j"."TestSingleCollection", "j"."TestTimeSpanCollection", "j"."TestUnsignedInt16Collection", "j"."TestUnsignedInt32Collection", "j"."TestUnsignedInt64Collection", "j"."Collection", "j"."Reference"
@@ -2415,14 +2413,14 @@ WHERE "j"."Id" = 7624
 LIMIT 2
 """,
             //
-            "@p0="
-            + updateParameter
-            + @"
+            $"""
+@p0={updateParameter}
 @p1='7624'
 
-UPDATE ""JsonEntitiesAllTypes"" SET ""Collection"" = json_set(""Collection"", '$[0].TestCharacterCollection', json(@p0))
-WHERE ""Id"" = @p1
-RETURNING 1;",
+UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestCharacterCollection', json(@p0))
+WHERE "Id" = @p1
+RETURNING 1;
+""",
             //
             """
 SELECT "j"."Id", "j"."TestBooleanCollection", "j"."TestByteCollection", "j"."TestCharacterCollection", "j"."TestDateTimeCollection", "j"."TestDateTimeOffsetCollection", "j"."TestDecimalCollection", "j"."TestDefaultStringCollection", "j"."TestDoubleCollection", "j"."TestEnumCollection", "j"."TestEnumWithIntConverterCollection", "j"."TestGuidCollection", "j"."TestInt16Collection", "j"."TestInt32Collection", "j"."TestInt64Collection", "j"."TestMaxLengthStringCollection", "j"."TestNullableEnumCollection", "j"."TestNullableEnumWithConverterThatHandlesNullsCollection", "j"."TestNullableEnumWithIntConverterCollection", "j"."TestNullableInt32Collection", "j"."TestSignedByteCollection", "j"."TestSingleCollection", "j"."TestTimeSpanCollection", "j"."TestUnsignedInt16Collection", "j"."TestUnsignedInt32Collection", "j"."TestUnsignedInt64Collection", "j"."Collection", "j"."Reference"

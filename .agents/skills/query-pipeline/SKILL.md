@@ -15,7 +15,6 @@ user-invocable: false
 
 ## Translation
 
-- SQLite JSON scalar bindings must use the configured representation, not native-column formatting; binary/date projections also need JSON decoding. Keep native BLOB hex decoding separate from JSON text comparisons.
 - Translation fallback must distinguish established unsupported shapes from unexpected defects. Do not turn arbitrary exceptions into a successful fallback.
 - Check whether a failed rewrite mutated state that fallback will reuse. For test coordination, establish the actual collection, assembly, and async-flow boundaries before claiming shared static state can race; theory rows are not inherently parallel, and reset in `finally` is not mutual exclusion.
 

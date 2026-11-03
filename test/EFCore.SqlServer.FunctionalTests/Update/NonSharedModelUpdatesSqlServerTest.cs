@@ -11,12 +11,46 @@ public class NonSharedModelUpdatesSqlServerTest(NonSharedFixture fixture) : NonS
 
         AssertSql(
             """
-@p0='{"Number":"43","Text":"unchanged"}' (Nullable = false) (Size = 34)
+@p0='43' (Nullable = false) (Size = 2)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonScalarOwners] SET [Data] = @p0
+UPDATE [JsonScalarOwners] SET [Data] = JSON_MODIFY([Data], 'strict $.Number', @p0)
+OUTPUT 1
+WHERE [Id] = @p1;
+""",
+            //
+            """
+@p0='yes' (Nullable = false) (Size = 3)
+@p1='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [JsonScalarOwners] SET [Data] = JSON_MODIFY([Data], 'strict $.Enabled', @p0)
+OUTPUT 1
+WHERE [Id] = @p1;
+""",
+            //
+            """
+@p0='1769904000000'
+@p1='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [JsonScalarOwners] SET [Data] = JSON_MODIFY([Data], 'strict $.Timestamp', @p0)
+OUTPUT 1
+WHERE [Id] = @p1;
+""",
+            //
+            """
+@p0='a"b\c
+' (Nullable = false) (Size = 6)
+@p1='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [JsonScalarOwners] SET [Data] = JSON_MODIFY([Data], 'strict $.EscapedText', @p0)
 OUTPUT 1
 WHERE [Id] = @p1;
 """,

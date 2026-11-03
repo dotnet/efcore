@@ -1455,10 +1455,10 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
                     : elementType?.ClrType ?? property.ClrType).UnwrapNullableType();
         if (clrType.IsEnum
             && readerWriter.ValueType.UnwrapNullableType() == clrType
-            && storeType == clrType.GetEnumUnderlyingType()
+            && storeType.IsNumeric()
             && converter?.GetType().GetGenericTypeImplementations(typeof(EnumToNumberConverter<,>)).Any() == true)
         {
-            // Enum readers can serialize the enum directly instead of using its underlying-number converter.
+            // Enum readers can serialize the enum directly instead of using its numeric converter.
             storeType = clrType;
         }
 
