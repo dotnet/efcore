@@ -15416,6 +15416,12 @@
           "Member": "static string JsonElementMappingNotFound(object? structuralType, object? name, object? columnName);"
         },
         {
+          "Member": "static string JsonEntityCollectionExpectedObject(object? entityType, object? navigation);"
+        },
+        {
+          "Member": "static string JsonEntityCollectionNullElement(object? entityType, object? navigation);"
+        },
+        {
           "Member": "static string JsonEntityMappedToDifferentColumnThanOwner(object? jsonType, object? containingColumn, object? ownerType, object? ownerContainingColumn);"
         },
         {

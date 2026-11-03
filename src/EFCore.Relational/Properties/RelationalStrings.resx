@@ -595,6 +595,12 @@
   <data name="JsonEmptyString" xml:space="preserve">
     <value>The database returned the empty string when a JSON object was expected.</value>
   </data>
+  <data name="JsonEntityCollectionExpectedObject" xml:space="preserve">
+    <value>The JSON array for '{entityType}.{navigation}' contains a non-object element when a JSON object was expected.</value>
+  </data>
+  <data name="JsonEntityCollectionNullElement" xml:space="preserve">
+    <value>The JSON array for '{entityType}.{navigation}' contains a null element. Null elements are not allowed in this collection.</value>
+  </data>
   <data name="JsonEntityMappedToDifferentColumnThanOwner" xml:space="preserve">
     <value>Entity '{jsonType}' is mapped to JSON column '{containingColumn}', but its owner '{ownerType}' is mapped to a different JSON column '{ownerContainingColumn}'. All owned entities must be mapped to the same JSON column. Only call 'ToJson()' on the outermost owned entity type.</value>
   </data>
