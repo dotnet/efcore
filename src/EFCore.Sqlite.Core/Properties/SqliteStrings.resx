@@ -129,6 +129,12 @@
   <data name="DuplicateColumnNameSridMismatch" xml:space="preserve">
     <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different SRIDs.</value>
   </data>
+  <data name="ExecuteMergeReturningNotSupported" xml:space="preserve">
+    <value>SQLite version {sqliteVersion} is being used, but version 3.35.0 or higher is required for 'ExecuteMergeReturning'.</value>
+  </data>
+  <data name="ExecuteMergeReturningWithoutReturningClause" xml:space="preserve">
+    <value>'ExecuteMergeReturning' cannot be used with the table '{table}', since it is configured to not use the SQL RETURNING clause.</value>
+  </data>
   <data name="ExecuteUpdateJsonPartialUpdateDoesNotSupportUlong" xml:space="preserve">
     <value>ExecuteUpdate partial updates of ulong properties within JSON columns is not supported.</value>
   </data>

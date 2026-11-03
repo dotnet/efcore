@@ -52,6 +52,22 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
                 entityType1, property1, entityType2, property2, columnName, table);
 
         /// <summary>
+        ///     SQLite version {sqliteVersion} is being used, but version 3.35.0 or higher is required for 'ExecuteMergeReturning'.
+        /// </summary>
+        public static string ExecuteMergeReturningNotSupported(object? sqliteVersion)
+            => string.Format(
+                GetString("ExecuteMergeReturningNotSupported", nameof(sqliteVersion)),
+                sqliteVersion);
+
+        /// <summary>
+        ///     'ExecuteMergeReturning' cannot be used with the table '{table}', since it is configured to not use the SQL RETURNING clause.
+        /// </summary>
+        public static string ExecuteMergeReturningWithoutReturningClause(object? table)
+            => string.Format(
+                GetString("ExecuteMergeReturningWithoutReturningClause", nameof(table)),
+                table);
+
+        /// <summary>
         ///     ExecuteUpdate partial updates of ulong properties within JSON columns is not supported.
         /// </summary>
         public static string ExecuteUpdateJsonPartialUpdateDoesNotSupportUlong
