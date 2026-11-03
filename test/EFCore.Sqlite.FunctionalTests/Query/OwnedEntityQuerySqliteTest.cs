@@ -11,6 +11,37 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class OwnedEntityQuerySqliteTest(NonSharedFixture fixture) : OwnedEntityQueryRelationalTestBase(fixture)
 {
+    [Theory, InlineData(false), InlineData(true)]
+    public override async Task JSON_reader_writer_with_value_converter_server_comparisons_and_projections(bool async)
+    {
+        await base.JSON_reader_writer_with_value_converter_server_comparisons_and_projections(async);
+
+        AssertSql(
+            """
+@number='430'
+
+SELECT "i"."Id"
+FROM "Items" AS "i"
+WHERE "i"."Data" ->> 'Number' = @number
+ORDER BY "i"."Id"
+""",
+            //
+            """
+@date='1767225600000'
+
+SELECT "i"."Id"
+FROM "Items" AS "i"
+WHERE "i"."Data" ->> 'Timestamp' = @date
+ORDER BY "i"."Id"
+""",
+            //
+            """
+SELECT "i"."Data" ->> 'Number' AS "Number", "i"."Data" ->> 'UpperNumber' AS "UpperNumber", "i"."Data" ->> 'OptionalNumber' AS "OptionalNumber", "i"."Data" ->> 'Timestamp' AS "Timestamp", "i"."Data" ->> 'OptionalTimestamp' AS "OptionalTimestamp"
+FROM "Items" AS "i"
+ORDER BY "i"."Id"
+""");
+    }
+
     [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
     public async Task Configured_JSON_scalar_representations_server_comparisons(bool async, bool enabled)
     {

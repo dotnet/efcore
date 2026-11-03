@@ -4,6 +4,7 @@
 using System.Linq.Expressions;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Storage.Json;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -17,6 +18,144 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
 
     protected void AssertSql(params string[] expected)
         => TestSqlLoggerFactory.AssertBaseline(expected);
+
+    [Theory, InlineData(false), InlineData(true)]
+    public virtual async Task JSON_reader_writer_with_value_converter_server_comparisons_and_projections(bool async)
+    {
+        var date = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        int[] numbers = [3, 43, 143];
+        var factory = await InitializeNonSharedTest<ConvertedJsonScalarContext>(
+            seed: async context =>
+            {
+                context.AddRange(
+                    numbers.Select((value, index) => new ConvertedJsonScalarContext.Item
+                    {
+                        Id = index + 1,
+                        Number = value,
+                        Timestamp = date.AddSeconds(index - 1),
+                        Data = new ConvertedJsonScalarContext.JsonData
+                        {
+                            Number = value,
+                            UpperNumber = value + 10,
+                            OptionalNumber = index == 0 ? null : value,
+                            Timestamp = date.AddSeconds(index - 1),
+                            OptionalTimestamp = index == 0 ? null : date.AddSeconds(index - 1)
+                        }
+                    }));
+                await context.SaveChangesAsync();
+            });
+        await using var context = factory.CreateDbContext();
+        var number = 43;
+        await AssertIds(context.Items.Where(e => e.Data.Number == number), 2);
+        await AssertIds(context.Items.Where(e => e.Data.Number == 43), 2);
+        await AssertIds(context.Items.Where(e => e.Data.Number < number), 1);
+        await AssertIds(context.Items.Where(e => e.Data.Number >= number), 2, 3);
+        await AssertIds(context.Items.Where(e => e.Data.Number < e.Data.UpperNumber), 1, 2, 3);
+        await AssertIds(context.Items.Where(e => e.Data.OptionalNumber == number), 2);
+        await AssertIds(context.Items.Where(e => e.Data.OptionalNumber == null), 1);
+        await AssertIds(context.Items.Where(e => e.Data.Timestamp == date), 2);
+        await AssertIds(context.Items.Where(e => e.Data.Timestamp < date), 1);
+        await AssertIds(context.Items.Where(e => e.Data.Timestamp >= date), 2, 3);
+        await AssertIds(
+            context.Items.Where(e => e.Data.Timestamp == new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)), 2);
+        await AssertIds(context.Items.Where(e => e.Data.OptionalTimestamp == date), 2);
+        await AssertIds(context.Items.Where(e => e.Data.OptionalTimestamp == null), 1);
+        await AssertIds(context.Items.Where(e => e.Number == number && e.Data.Number == number), 2);
+        await AssertIds(context.Items.Where(e => e.Timestamp == date && e.Data.Timestamp == date), 2);
+        var ordered = context.Items.OrderBy(e => e.Data.Number).Select(e => e.Id);
+        var orderedIds = async ? await ordered.ToArrayAsync() : ordered.ToArray();
+        Assert.Equal([1, 2, 3], orderedIds);
+
+        await context.Database.OpenConnectionAsync();
+        await using (var command = context.Database.GetDbConnection().CreateCommand())
+        {
+            command.CommandText = ((RelationalTestStore)NonSharedTestStore)
+                .NormalizeDelimitersInRawString("SELECT [Data] FROM [Items] WHERE [Id] = 2");
+            var json = async ? await command.ExecuteScalarAsync() : command.ExecuteScalar();
+            using var document = JsonDocument.Parse(Assert.IsType<string>(json));
+            Assert.Equal(430, document.RootElement.GetProperty("Number").GetInt32());
+            Assert.Equal(
+                new DateTimeOffset(date).ToUnixTimeMilliseconds(), document.RootElement.GetProperty("Timestamp").GetInt64());
+        }
+
+        var query = context.Items.AsNoTracking().OrderBy(e => e.Id);
+        var items = async ? await query.ToArrayAsync() : query.ToArray();
+        Assert.Equal(numbers, items.Select(e => e.Data.Number));
+        Assert.Equal(numbers.Select(n => n + 10), items.Select(e => e.Data.UpperNumber));
+        Assert.Equal(new int?[] { null, 43, 143 }, items.Select(e => e.Data.OptionalNumber));
+        Assert.Equal(Enumerable.Range(-1, 3).Select(offset => date.AddSeconds(offset)), items.Select(e => e.Data.Timestamp));
+        Assert.Equal(new DateTime?[] { null, date, date.AddSeconds(1) }, items.Select(e => e.Data.OptionalTimestamp));
+
+        ClearLog();
+        await AssertIds(context.Items.Where(e => e.Data.Number == number), 2);
+        await AssertIds(context.Items.Where(e => e.Data.Timestamp == date), 2);
+        var projection = context.Items.OrderBy(e => e.Id)
+            .Select(e => new { e.Data.Number, e.Data.UpperNumber, e.Data.OptionalNumber, e.Data.Timestamp, e.Data.OptionalTimestamp });
+        var values = async ? await projection.ToArrayAsync() : projection.ToArray();
+        Assert.Equal(numbers, values.Select(e => e.Number));
+        Assert.Equal(numbers.Select(n => n + 10), values.Select(e => e.UpperNumber));
+        Assert.Equal(new int?[] { null, 43, 143 }, values.Select(e => e.OptionalNumber));
+        Assert.Equal(Enumerable.Range(-1, 3).Select(offset => date.AddSeconds(offset)), values.Select(e => e.Timestamp));
+        Assert.Equal(new DateTime?[] { null, date, date.AddSeconds(1) }, values.Select(e => e.OptionalTimestamp));
+
+        async Task AssertIds(IQueryable<ConvertedJsonScalarContext.Item> source, params int[] expected)
+        {
+            var ids = source.OrderBy(e => e.Id).Select(e => e.Id);
+            Assert.Equal(expected, async ? await ids.ToArrayAsync() : ids.ToArray());
+        }
+    }
+
+    protected class ConvertedJsonScalarContext(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Item> Items
+            => Set<Item>();
+
+        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+        {
+            configurationBuilder.DefaultTypeMapping<int>().HasJsonValueReaderWriter<JsonInt32ReaderWriter>();
+            configurationBuilder.DefaultTypeMapping<long>().HasJsonValueReaderWriter<JsonInt64ReaderWriter>();
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Item>().Property(e => e.Id).ValueGeneratedNever();
+            modelBuilder.Entity<Item>().OwnsOne(
+                e => e.Data, owned =>
+                {
+                    owned.ToJson();
+                    var numberConverter = new ValueConverter<int, int>(v => v * 10, v => v / 10);
+                    var timestampConverter = new ValueConverter<DateTime, long>(
+                        v => new DateTimeOffset(v).ToUnixTimeMilliseconds(),
+                        v => DateTimeOffset.FromUnixTimeMilliseconds(v).UtcDateTime);
+                    owned.Property(e => e.Number).HasConversion(numberConverter);
+                    owned.Property(e => e.UpperNumber).HasConversion(numberConverter);
+                    owned.Property(e => e.OptionalNumber).HasConversion(numberConverter);
+                    owned.Property(e => e.Timestamp)
+                        .HasConversion(timestampConverter)
+                        .HasJsonValueReaderWriter<JsonInt64ReaderWriter>();
+                    owned.Property(e => e.OptionalTimestamp)
+                        .HasConversion(timestampConverter)
+                        .HasJsonValueReaderWriter<JsonInt64ReaderWriter>();
+                });
+        }
+
+        public class Item
+        {
+            public int Id { get; set; }
+            public int Number { get; set; }
+            public DateTime Timestamp { get; set; }
+            public JsonData Data { get; set; } = null!;
+        }
+
+        public class JsonData
+        {
+            public int Number { get; set; }
+            public int UpperNumber { get; set; }
+            public int? OptionalNumber { get; set; }
+            public DateTime Timestamp { get; set; }
+            public DateTime? OptionalTimestamp { get; set; }
+        }
+    }
 
     [Theory, InlineData(false, DateTimeKind.Utc), InlineData(true, DateTimeKind.Utc),
      InlineData(false, DateTimeKind.Unspecified), InlineData(true, DateTimeKind.Unspecified)]

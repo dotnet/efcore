@@ -521,6 +521,7 @@ public class ComplexCollectionTypePropertyBuilder : IInfrastructure<IConventionP
     /// <remarks>
     ///     When a value converter is used, the reader/writer must handle the converter's provider values.
     ///     This configuration overrides the model-wide JSON reader/writer default for the property's CLR type.
+    ///     To change the provider representation for server-side queries, configure a value converter as well.
     /// </remarks>
     /// <typeparam name="TReaderWriter">The JSON reader/writer type.</typeparam>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
@@ -534,6 +535,7 @@ public class ComplexCollectionTypePropertyBuilder : IInfrastructure<IConventionP
     /// <remarks>
     ///     When a value converter is used, the reader/writer must handle the converter's provider values.
     ///     Clearing this configuration restores the model-wide default or the provider's JSON reader/writer.
+    ///     To change the provider representation for server-side queries, configure a value converter as well.
     /// </remarks>
     /// <param name="readerWriterType">The JSON reader/writer type, or <see langword="null" /> to clear the configuration.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
