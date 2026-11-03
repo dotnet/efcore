@@ -3,6 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
+using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 
@@ -49,7 +50,7 @@ public class SqliteQueryTranslationPostprocessor : RelationalQueryTranslationPos
 
         _applyValidator.Visit(result);
 
-        return result;
+        return new JsonProjectionRewritingVisitor().Visit(result);
     }
 
     /// <summary>
@@ -60,6 +61,41 @@ public class SqliteQueryTranslationPostprocessor : RelationalQueryTranslationPos
     /// </summary>
     protected override Expression ProcessTypeMappings(Expression expression)
         => new SqliteTypeMappingPostprocessor(Dependencies, RelationalDependencies, RelationalQueryCompilationContext).Process(expression);
+
+    private sealed class JsonProjectionRewritingVisitor : ExpressionVisitor
+    {
+        protected override Expression VisitExtension(Expression expression)
+        {
+            if (expression is ShapedQueryExpression shapedQuery)
+            {
+                return shapedQuery.Update(
+                    Visit(shapedQuery.QueryExpression), Visit(shapedQuery.ShaperExpression));
+            }
+
+            if (expression is SelectExpression select)
+            {
+                // Only change values read by the shaper; subquery projections must retain their SQL representation.
+                return select.Update(
+                    select.Tables, select.Predicate, select.GroupBy, select.Having,
+                    select.Projection.Select(p => (ProjectionExpression)Visit(p)).ToArray(),
+                    select.Orderings, select.Offset, select.Limit);
+            }
+
+            if (expression is ProjectionExpression projection)
+            {
+                return projection.Expression is JsonScalarExpression
+                    {
+                        Path.Count: > 0, TypeMapping: SqliteJsonScalarTypeMapping mapping
+                    } jsonScalar
+                    ? projection.Update(
+                        new JsonScalarExpression(
+                            jsonScalar.Json, jsonScalar.Path, jsonScalar.Type, mapping.ForJsonProjection(), jsonScalar.IsNullable))
+                    : projection;
+            }
+
+            return base.VisitExtension(expression);
+        }
+    }
 
     private sealed class ApplyValidatingVisitor : ExpressionVisitor
     {
