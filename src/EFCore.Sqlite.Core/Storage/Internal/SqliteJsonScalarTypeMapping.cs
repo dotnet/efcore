@@ -5,6 +5,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Globalization;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
@@ -111,8 +112,22 @@ public class SqliteJsonScalarTypeMapping : RelationalTypeMapping
                 typeof(SqliteJsonScalarTypeMapping).GetMethod(
                     nameof(ReadJsonValue), [typeof(object), typeof(JsonValueReaderWriter), typeof(ValueConverter), typeof(bool)])!,
                 expression,
-                Expression.Constant(readerWriter, typeof(JsonValueReaderWriter)),
-                Expression.Constant(converter, typeof(ValueConverter)),
+                new LiftableConstantExpression(
+                    readerWriter,
+                    Expression.Lambda<Func<MaterializerLiftableConstantContext, object>>(
+                        Expression.Convert(readerWriter.ConstructorExpression, typeof(object)),
+                        Expression.Parameter(typeof(MaterializerLiftableConstantContext), "c")),
+                    "jsonValueReaderWriter",
+                    typeof(JsonValueReaderWriter)),
+                converter is null
+                    ? Expression.Constant(null, typeof(ValueConverter))
+                    : new LiftableConstantExpression(
+                        converter,
+                        Expression.Lambda<Func<MaterializerLiftableConstantContext, object>>(
+                            Expression.Convert(converter.ConstructorExpression, typeof(object)),
+                            Expression.Parameter(typeof(MaterializerLiftableConstantContext), "c")),
+                        "jsonValueConverter",
+                        typeof(ValueConverter)),
                 Expression.Constant(jsonText)),
             mapping.Converter?.ProviderClrType ?? mapping.ClrType);
     }

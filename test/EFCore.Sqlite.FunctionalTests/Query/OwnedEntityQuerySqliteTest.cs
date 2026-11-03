@@ -150,6 +150,27 @@ LIMIT 2
             .Select(e => e.Id);
         var ids = async ? await pushedDown.ToArrayAsync() : pushedDown.ToArray();
         Assert.Equal([1], ids);
+        var liftedProjection = context.Set<JsonScalarContext.Item>()
+            .Select(e => new
+            {
+                e.Id, e.Data.Number, e.Data.ScaledNumber, e.Data.ConvertedNumber, e.Data.Enabled,
+                e.Data.OptionalEnabled, e.Data.LiteralEnabled, e.Data.NumericEnabled
+            })
+            .OrderBy(e => e.Id)
+            .Take(1)
+            .Where(e => e.ScaledNumber == number)
+            .Select(e => new
+            {
+                e.Number, e.ScaledNumber, e.ConvertedNumber, e.Enabled, e.OptionalEnabled, e.LiteralEnabled, e.NumericEnabled
+            });
+        var lifted = async ? await liftedProjection.SingleAsync() : liftedProjection.Single();
+        Assert.Equal(43, lifted.Number);
+        Assert.Equal(43, lifted.ScaledNumber);
+        Assert.Equal(43, lifted.ConvertedNumber);
+        Assert.Equal(enabled, lifted.Enabled);
+        Assert.Null(lifted.OptionalEnabled);
+        Assert.Equal(enabled, lifted.LiteralEnabled);
+        Assert.Equal(enabled, lifted.NumericEnabled);
         var query = context.Set<JsonScalarContext.Item>().AsNoTracking();
         var item = async ? await query.SingleAsync() : query.Single();
         Assert.Equal(43, item.Data.Number);
@@ -170,6 +191,53 @@ LIMIT 2
             var actual = async ? await ids.ToArrayAsync() : ids.ToArray();
             Assert.Equal([1], actual);
         }
+    }
+
+    [Theory, InlineData(false), InlineData(true)]
+    public async Task Configured_JSON_scalar_projections_preserve_distinct_after_pushdown(bool async)
+    {
+        var factory = await InitializeNonSharedTest<JsonScalarContext>(
+            seed: async context =>
+            {
+                for (var id = 1; id <= 3; id++)
+                {
+                    context.Add(
+                        new JsonScalarContext.Item
+                        {
+                            Id = id,
+                            Bytes = [1],
+                            Data = new JsonScalarContext.JsonData
+                            {
+                                ScaledNumber = id == 3 ? 143 : 43,
+                                Enabled = id == 3,
+                                Bytes = [1]
+                            }
+                        });
+                }
+
+                await context.SaveChangesAsync();
+            });
+        await using var context = factory.CreateDbContext();
+        var number = 43;
+        var query = context.Set<JsonScalarContext.Item>()
+            .Select(e => new { e.Data.ScaledNumber, e.Data.Enabled })
+            .Distinct()
+            .OrderBy(e => e.ScaledNumber)
+            .Take(3)
+            .Where(e => e.ScaledNumber >= number);
+        var results = async ? await query.ToArrayAsync() : query.ToArray();
+        Assert.Collection(
+            results,
+            v =>
+            {
+                Assert.Equal(43, v.ScaledNumber);
+                Assert.False(v.Enabled);
+            },
+            v =>
+            {
+                Assert.Equal(143, v.ScaledNumber);
+                Assert.True(v.Enabled);
+            });
     }
 
     private class JsonScalarContext(DbContextOptions options) : DbContext(options)
