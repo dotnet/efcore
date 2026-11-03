@@ -960,6 +960,166 @@ WHERE (c["Id"] = "0")
 """);
     }
 
+    [Fact]
+    public async Task Computed_boolean_projections_use_native_JSON_with_reader_writer_defaults()
+    {
+        var factory = await InitializeNonSharedTest<PoolableDbContext>(
+            onModelCreating: b => b.Entity<FormattedBooleanItem>().ToContainer("Entities").HasNoDiscriminator(),
+            configureConventions: c => c.DefaultTypeMapping<bool>().HasJsonValueReaderWriter<BoolAsStringReaderWriter>(),
+            seed: context =>
+            {
+                context.AddRange(
+                    new FormattedBooleanItem { Id = 1, Enabled = true, Numbers = [1, 2] },
+                    new FormattedBooleanItem { Id = 2, Enabled = false, Numbers = [] });
+                return context.SaveChangesAsync();
+            });
+        await using var context = factory.CreateDbContext();
+        var values = await context.Set<FormattedBooleanItem>().OrderBy(e => e.Id)
+            .Select(e => new
+            {
+                e.Enabled,
+                Comparison = e.Id > 1,
+                IsContained = new[] { 1, 3 }.Contains(e.Id),
+                HasElements = e.Numbers.Any(n => n > 1),
+                StartsWith = e.Name.StartsWith("a")
+            }).ToArrayAsync();
+        Assert.Collection(
+            values,
+            v =>
+            {
+                Assert.True(v.Enabled);
+                Assert.False(v.Comparison);
+                Assert.True(v.IsContained);
+                Assert.True(v.HasElements);
+                Assert.True(v.StartsWith);
+            },
+            v =>
+            {
+                Assert.False(v.Enabled);
+                Assert.True(v.Comparison);
+                Assert.False(v.IsContained);
+                Assert.False(v.HasElements);
+                Assert.True(v.StartsWith);
+            });
+        AssertSql(
+            """
+SELECT c["Enabled"], (c["Id"] > 1) AS Comparison, c["Id"] IN (1, 3) AS IsContained, EXISTS (
+    SELECT 1
+    FROM n IN c["Numbers"]
+    WHERE (n > 1)) AS HasElements, STARTSWITH(c["Name"], "a") AS StartsWith
+FROM root c
+ORDER BY c["Id"]
+""");
+    }
+
+    private sealed class FormattedBooleanItem
+    {
+        public int Id { get; set; }
+        public bool Enabled { get; set; }
+        public string Name { get; set; } = "abc";
+        public List<int> Numbers { get; set; } = [];
+    }
+
+    public sealed class BoolAsStringReaderWriter : JsonValueReaderWriter<bool>
+    {
+        public override bool FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
+            => manager.CurrentReader.GetString() == "yes";
+
+        public override void ToJsonTyped(Utf8JsonWriter writer, bool value)
+            => writer.WriteStringValue(value ? "yes" : "no");
+
+        public override Expression ConstructorExpression
+            => Expression.New(typeof(BoolAsStringReaderWriter));
+    }
+
+    [Theory,
+     InlineData(false, false, false), InlineData(false, true, false), InlineData(true, false, false), InlineData(true, true, false),
+     InlineData(false, false, true), InlineData(false, true, true), InlineData(true, false, true), InlineData(true, true, true)]
+    public async Task Custom_string_reader_writer_preserves_resource_IDs(bool typeMappingDefault, bool shadowId, bool convertedKey)
+    {
+        var factory = await InitializeNonSharedTest<PoolableDbContext>(
+            onModelCreating: b =>
+            {
+                var entity = b.Entity<FormattedIdItem>();
+                entity.ToContainer("Entities").HasNoDiscriminator();
+                entity.HasPartitionKey(e => e.Partition);
+                if (convertedKey)
+                {
+                    entity.Property(e => e.Id).HasConversion(v => "converted:" + v, v => v.Substring("converted:".Length));
+                }
+
+                if (shadowId)
+                {
+                    entity.HasShadowId();
+                }
+
+                if (!typeMappingDefault)
+                {
+                    if (shadowId)
+                    {
+                        entity.Property<string>("__id").HasJsonValueReaderWriter<PrefixedStringReaderWriter>();
+                    }
+                    else
+                    {
+                        entity.Property(e => e.Id).HasJsonValueReaderWriter<PrefixedStringReaderWriter>();
+                    }
+                }
+            },
+            configureConventions: c =>
+            {
+                if (typeMappingDefault)
+                {
+                    c.DefaultTypeMapping<string>().HasJsonValueReaderWriter<PrefixedStringReaderWriter>();
+                }
+            },
+            seed: context =>
+            {
+                context.Add(new FormattedIdItem { Id = "42", Partition = "tenant", Name = "initial" });
+                return context.SaveChangesAsync();
+            });
+
+        await using (var context = factory.CreateDbContext())
+        {
+            var item = await context.Set<FormattedIdItem>().SingleAsync(e => e.Id == "42" && e.Partition == "tenant");
+            Assert.Equal("initial", item.Name);
+            Assert.Contains("ReadItem", TestSqlLoggerFactory.SqlStatements.Last());
+            item.Name = "updated";
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = factory.CreateDbContext())
+        {
+            var item = await context.Set<FormattedIdItem>().SingleAsync(e => e.Id == "42" && e.Partition == "tenant");
+            Assert.Equal("updated", item.Name);
+            context.Remove(item);
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = factory.CreateDbContext())
+        {
+            Assert.False(await context.Set<FormattedIdItem>().AnyAsync());
+        }
+    }
+
+    private sealed class FormattedIdItem
+    {
+        public string Id { get; set; } = null!;
+        public string Partition { get; set; } = null!;
+        public string Name { get; set; } = null!;
+    }
+
+    public sealed class PrefixedStringReaderWriter : JsonValueReaderWriter<string>
+    {
+        public override string FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
+            => manager.CurrentReader.GetString()!["prefix:".Length..];
+
+        public override void ToJsonTyped(Utf8JsonWriter writer, string value)
+            => writer.WriteStringValue("prefix:" + value);
+
+        public override Expression ConstructorExpression
+            => Expression.New(typeof(PrefixedStringReaderWriter));
+    }
+
     public sealed class Int32AsStringReaderWriter : JsonValueReaderWriter<int>
     {
         public override int FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)

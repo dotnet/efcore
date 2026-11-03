@@ -111,8 +111,10 @@ public class CosmosStructuralTypeSerializer
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual string GetJsonId(IUpdateEntry entry)
-        => (string)entry.GetCurrentProviderValue(
-            _jsonIdProperty ?? throw new UnreachableException("Can not get json id for non root document type"))!;
+    {
+        var property = _jsonIdProperty ?? throw new UnreachableException("Can not get json id for non root document type");
+        return property.SerializeJsonId(entry.GetCurrentProviderValue(property));
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

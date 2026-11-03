@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
+using Microsoft.EntityFrameworkCore.Cosmos.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 
@@ -89,7 +90,15 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             }
 
             resourceId = jsonIdDefinition.GenerateIdString(values);
-            return string.IsNullOrEmpty(resourceId) ? throw new InvalidOperationException(CosmosStrings.InvalidResourceId) : true;
+            if (string.IsNullOrEmpty(resourceId))
+            {
+                throw new InvalidOperationException(CosmosStrings.InvalidResourceId);
+            }
+
+            var idProperty = _rootEntityType.GetProperties()
+                .Single(p => p.GetJsonPropertyName() == CosmosJsonIdConvention.IdPropertyJsonName);
+            resourceId = idProperty.SerializeJsonId(resourceId);
+            return true;
         }
 
         private sealed class AsyncEnumerator : IAsyncEnumerator<T>

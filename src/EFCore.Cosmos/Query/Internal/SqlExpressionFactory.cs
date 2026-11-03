@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel model)
     : ISqlExpressionFactory
 {
-    private readonly CoreTypeMapping _boolTypeMapping = typeMappingSource.FindMapping(typeof(bool), model)!;
+    private readonly CoreTypeMapping _boolTypeMapping = typeMappingSource.FindMapping(typeof(bool))!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -28,7 +28,11 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
     public virtual SqlExpression? ApplyDefaultTypeMapping(SqlExpression? sqlExpression)
         => sqlExpression is not { TypeMapping: null }
             ? sqlExpression
-            : ApplyTypeMapping(sqlExpression, typeMappingSource.FindMapping(sqlExpression.Type, model));
+            : ApplyTypeMapping(
+                sqlExpression,
+                sqlExpression is SqlFunctionExpression && sqlExpression.Type.UnwrapNullableType() == typeof(bool)
+                    ? _boolTypeMapping
+                    : typeMappingSource.FindMapping(sqlExpression.Type, model));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
