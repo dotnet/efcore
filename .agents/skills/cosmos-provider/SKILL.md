@@ -15,11 +15,6 @@ Non-relational provider with its own parallel query pipeline. Uses JSON for docu
 - Partition key configuration required for performance
 - `ETag` for optimistic concurrency
 - No cross-container joins
-- Partition-key routing must preserve the composed document reader's null-write policy before unwrapping its provider reader. An original null differs from a non-null value converted to null.
-
-## Query Type Mapping
-
-- Pagination counts, array indexes, generated numeric bounds, and COUNT results need model-independent numeric mappings. Supply expected mappings before model-default inference; do not recursively remap predicate or data operands.
 
 ## Azure Cosmos DB Emulator for Tests
 
