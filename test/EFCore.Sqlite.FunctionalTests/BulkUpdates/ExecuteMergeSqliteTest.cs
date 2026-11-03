@@ -1199,6 +1199,73 @@ RETURNING "Label";
         AssertSql();
     }
 
+    public override async Task When_matched_parameter_of_incompatible_type_throws(bool async)
+    {
+        await base.When_matched_parameter_of_incompatible_type_throws(async);
+
+        AssertSql();
+    }
+
+    public override async Task When_matched_captured_value_of_incompatible_type_throws(bool async)
+    {
+        await base.When_matched_captured_value_of_incompatible_type_throws(async);
+
+        AssertSql();
+    }
+
+    public override async Task When_not_matched_parameter_of_incompatible_type_throws(bool async)
+    {
+        await base.When_not_matched_parameter_of_incompatible_type_throws(async);
+
+        AssertSql();
+    }
+
+    public override async Task Boxed_parameters_of_property_type(bool async)
+    {
+        await base.Boxed_parameters_of_property_type(async);
+
+        AssertSql(
+            """
+@p21='1'
+@p22='mon' (Size = 3)
+@p1='20' (Nullable = true)
+@p23='2'
+@p24='tue' (Size = 3)
+@p='10' (Nullable = true)
+
+INSERT INTO "Visits" ("UserId", "Day", "Visits")
+VALUES (@p21, @p22, @p1),
+(@p23, @p24, @p1)
+ON CONFLICT ("UserId", "Day") DO UPDATE SET
+"Visits" = @p;
+""",
+            //
+            """
+SELECT "v"."UserId", "v"."Day", "v"."Visits"
+FROM "Visits" AS "v"
+ORDER BY "v"."UserId"
+""");
+    }
+
+    public override async Task Nullable_value_type_property(bool async)
+    {
+        await base.Nullable_value_type_property(async);
+
+        AssertSql(
+            """
+@p1='1'
+@p3='2'
+@p4='5' (Nullable = true)
+
+INSERT INTO "Starred" ("Id", "Stars")
+VALUES (@p1, NULL),
+(@p3, @p4)
+ON CONFLICT ("Id") DO UPDATE SET
+"Stars" = excluded."Stars"
+RETURNING "Stars";
+""");
+    }
+
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Returning_on_table_without_returning_clause_throws(bool async)
     {

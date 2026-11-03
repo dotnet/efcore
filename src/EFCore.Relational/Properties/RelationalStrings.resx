@@ -487,6 +487,9 @@
   <data name="ExecuteMergeOnTph" xml:space="preserve">
     <value>ExecuteMerge is not supported on entity type '{entityType}', which is using the TPH mapping strategy in a hierarchy with more than one type.</value>
   </data>
+  <data name="ExecuteMergeParameterTypeMismatch" xml:space="preserve">
+    <value>A value of type '{valueType}' cannot be written to the column '{column}', which is mapped to a property of type '{propertyType}', in ExecuteMerge.</value>
+  </data>
   <data name="ExecuteMergePropertyNotFound" xml:space="preserve">
     <value>The property '{property}' was not found on entity type '{entityType}' in ExecuteMerge.</value>
   </data>

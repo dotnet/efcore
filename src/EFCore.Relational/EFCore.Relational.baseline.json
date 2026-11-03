@@ -15424,6 +15424,9 @@
           "Member": "static string ExecuteMergeOnTph(object? entityType);"
         },
         {
+          "Member": "static string ExecuteMergeParameterTypeMismatch(object? valueType, object? column, object? propertyType);"
+        },
+        {
           "Member": "static string ExecuteMergePropertyNotFound(object? property, object? entityType);"
         },
         {
@@ -15442,10 +15445,16 @@
           "Member": "static string ExecuteMergeSourceMemberNotInserted(object? member);"
         },
         {
+          "Member": "static string ExecuteMergeSourceMemberTypeMismatch(object? member, object? memberType, object? property, object? propertyType);"
+        },
+        {
           "Member": "static string ExecuteMergeTargetPropertyConverterMismatch(object? targetProperty, object? property);"
         },
         {
           "Member": "static string ExecuteMergeUnsupportedExpression(object? expression);"
+        },
+        {
+          "Member": "static string ExecuteMergeUpdateValueTypeMismatch(object? value, object? valueType, object? property, object? propertyType);"
         },
         {
           "Member": "static string ExecuteOperationOnEntitySplitting(object? operation, object? entityType);"

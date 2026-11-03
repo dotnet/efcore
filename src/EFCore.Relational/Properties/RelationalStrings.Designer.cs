@@ -976,6 +976,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
+        ///     A value of type '{valueType}' cannot be written to the column '{column}', which is mapped to a property of type '{propertyType}', in ExecuteMerge.
+        /// </summary>
+        public static string ExecuteMergeParameterTypeMismatch(object? valueType, object? column, object? propertyType)
+            => string.Format(
+                GetString("ExecuteMergeParameterTypeMismatch", nameof(valueType), nameof(column), nameof(propertyType)),
+                valueType, column, propertyType);
+
+        /// <summary>
         ///     The property '{property}' was not found on entity type '{entityType}' in ExecuteMerge.
         /// </summary>
         public static string ExecuteMergePropertyNotFound(object? property, object? entityType)

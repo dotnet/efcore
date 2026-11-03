@@ -128,6 +128,67 @@ public abstract class ExecuteMergeRelationalTestBase<TFixture>(TFixture fixture)
             RelationalStrings.ExecuteMergeUpdateValueTypeMismatch("t.Day", "string", nameof(DailyVisit.Visits), "int"));
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task When_matched_parameter_of_incompatible_type_throws(bool async)
+        => AssertMergeExecutionThrows(
+            context => Merge(
+                async, context.Visits,
+                [new DailyVisit { UserId = 1, Day = "mon", Visits = 3 }],
+                merge => merge
+                    .Match(t => new { t.UserId, t.Day }, s => new { s.UserId, s.Day })
+                    .WhenMatched(u => u.SetProperty<object>(t => t.Visits, "not-an-int"))),
+            RelationalStrings.ExecuteMergeParameterTypeMismatch("string", nameof(DailyVisit.Visits), "int"));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task When_matched_captured_value_of_incompatible_type_throws(bool async)
+    {
+        object value = "not-an-int";
+
+        return AssertMergeExecutionThrows(
+            context => Merge(
+                async, context.Visits,
+                [new DailyVisit { UserId = 1, Day = "mon", Visits = 3 }],
+                merge => merge
+                    .Match(t => new { t.UserId, t.Day }, s => new { s.UserId, s.Day })
+                    .WhenMatched(u => u.SetProperty<object>(t => t.Visits, (t, s) => value))),
+            RelationalStrings.ExecuteMergeParameterTypeMismatch("string", nameof(DailyVisit.Visits), "int"));
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task When_not_matched_parameter_of_incompatible_type_throws(bool async)
+        => AssertMergeExecutionThrows(
+            context => Merge(
+                async, context.Visits,
+                [new DailyVisit { UserId = 2, Day = "tue", Visits = 3 }],
+                merge => merge
+                    .Match(t => new { t.UserId, t.Day }, s => new { s.UserId, s.Day })
+                    .WhenNotMatched(insert => insert
+                        .SetProperty(t => t.UserId, s => s.UserId)
+                        .SetProperty(t => t.Day, s => s.Day)
+                        .SetProperty<object>(t => t.Visits, "not-an-int"))),
+            RelationalStrings.ExecuteMergeParameterTypeMismatch("string", nameof(DailyVisit.Visits), "int"));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Boxed_parameters_of_property_type(bool async)
+        => AssertMerge(
+            async context =>
+            {
+                var affected = await Merge(
+                    async, context.Visits,
+                    [new DailyVisit { UserId = 1, Day = "mon", Visits = 3 }, new DailyVisit { UserId = 2, Day = "tue", Visits = 3 }],
+                    merge => merge
+                        .Match(t => new { t.UserId, t.Day }, s => new { s.UserId, s.Day })
+                        .WhenMatched(u => u.SetProperty<object>(t => t.Visits, 10))
+                        .WhenNotMatched(insert => insert
+                            .SetProperty(t => t.UserId, s => s.UserId)
+                            .SetProperty(t => t.Day, s => s.Day)
+                            .SetProperty<object>(t => t.Visits, 20)));
+
+                Assert.Equal(2, affected);
+                var visits = await context.Visits.OrderBy(v => v.UserId).ToListAsync();
+                Assert.Equal([10, 20], visits.Select(v => v.Visits));
+            });
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task When_matched_with_narrowing_conversion_throws(bool async)
         => AssertMergeThrows(
             context => Merge(
@@ -477,6 +538,26 @@ public abstract class ExecuteMergeRelationalTestBase<TFixture>(TFixture fixture)
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Nullable_value_type_property(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<StarredContext>(
+            seed: context =>
+            {
+                context.Add(new Starred { Id = 1, Stars = 3 });
+                return context.SaveChangesAsync();
+            });
+        await using var context = contextFactory.CreateDbContext();
+
+        var stars = await MergeReturning(
+            async, context.Set<Starred>(),
+            [new Starred { Id = 1, Stars = null }, new Starred { Id = 2, Stars = 5 }],
+            merge => merge.WhenMatched(u => u.SetProperty(t => t.Stars, (t, s) => s.Stars)),
+            t => t.Stars);
+
+        Assert.Equal(new int?[] { null, 5 }, stars.OrderBy(s => s));
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task When_matched_on_table_named_excluded_reads_source_values(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<ExcludedWidgetContext>(
@@ -628,6 +709,27 @@ public abstract class ExecuteMergeRelationalTestBase<TFixture>(TFixture fixture)
         public string Id { get; set; } = null!;
         public string Name { get; set; } = null!;
         public string? Note { get; set; }
+    }
+
+    // Errors raised while binding the parameters at execution aren't wrapped in a translation exception.
+    protected Task AssertMergeExecutionThrows(Func<ExecuteMergeContext, Task> merge, string expectedMessage)
+        => AssertMerge(
+            async context =>
+            {
+                var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => merge(context));
+                Assert.Equal(expectedMessage, exception.Message);
+            });
+
+    protected class StarredContext(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Starred>(b => b.Property(e => e.Id).ValueGeneratedNever());
+    }
+
+    protected class Starred
+    {
+        public int Id { get; set; }
+        public int? Stars { get; set; }
     }
 
     protected class AccountRowWithNullables

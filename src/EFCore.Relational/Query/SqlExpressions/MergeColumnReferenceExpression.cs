@@ -28,7 +28,7 @@ public sealed class MergeColumnReferenceExpression : SqlExpression
     /// <param name="type">The <see cref="System.Type" /> of the expression.</param>
     /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
     public MergeColumnReferenceExpression(string columnName, bool fromExcluded, Type type, RelationalTypeMapping? typeMapping)
-        : base(type, typeMapping)
+        : base(type.UnwrapNullableType(), typeMapping)
     {
         ColumnName = columnName;
         FromExcluded = fromExcluded;

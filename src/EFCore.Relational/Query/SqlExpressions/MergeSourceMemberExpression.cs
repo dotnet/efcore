@@ -24,7 +24,7 @@ public sealed class MergeSourceMemberExpression : SqlExpression
     /// <param name="type">The <see cref="System.Type" /> of the expression.</param>
     /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
     public MergeSourceMemberExpression(MemberInfo member, Type type, RelationalTypeMapping? typeMapping)
-        : base(type, typeMapping)
+        : base(type.UnwrapNullableType(), typeMapping)
     {
         Member = member;
     }

@@ -439,6 +439,22 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         var rows = (IEnumerable?)parameters[sourceParameterName]
             ?? throw new InvalidOperationException(RelationalStrings.ExecuteMergeNullSource);
         var template = mergeExpression.SourceRows[0].Values;
+
+        // A setter value parameter (e.g. from SetProperty<object>) is only known now; the column's type mapping wouldn't convert a value
+        // of another type, so it would be written as-is.
+        for (var i = 0; i < template.Count; i++)
+        {
+            ValidateMergeParameterValue(template[i], mergeExpression.InsertColumns[i]);
+        }
+
+        if (mergeExpression.UpdateSetters is { } updateSetters)
+        {
+            foreach (var setter in updateSetters)
+            {
+                ValidateMergeParameterValue(setter.Value, setter.ColumnName);
+            }
+        }
+
         var sourceRows = new List<RowValueExpression>();
         var parameterCounter = 0;
         foreach (var row in rows)
@@ -451,7 +467,8 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                     var parameterName = Uniquifier.Uniquify(
                         sourceParameterName, parameters, maxLength: int.MaxValue, uniquifier: ++parameterCounter);
                     parameters.Add(parameterName, sourceMember.GetValue(row));
-                    values[i] = new SqlParameterExpression(parameterName, sourceMember.Type, sourceMember.TypeMapping);
+                    values[i] = new SqlParameterExpression(
+                        parameterName, sourceMember.Member.GetMemberType(), sourceMember.TypeMapping);
                 }
                 else
                 {
@@ -463,6 +480,18 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         }
 
         return sourceRows;
+
+        void ValidateMergeParameterValue(SqlExpression value, string columnName)
+        {
+            if (value is SqlParameterExpression { TypeMapping: { } typeMapping } parameter
+                && parameters[parameter.Name] is { } parameterValue
+                && !typeMapping.ClrType.UnwrapNullableType().IsInstanceOfType(parameterValue))
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.ExecuteMergeParameterTypeMismatch(
+                        parameterValue.GetType().ShortDisplayName(), columnName, typeMapping.ClrType.ShortDisplayName()));
+            }
+        }
     }
 
     /// <summary>
