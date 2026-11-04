@@ -10218,6 +10218,29 @@
       ]
     },
     {
+      "Type": "static class Microsoft.EntityFrameworkCore.RelationalComplexTypeBuilderExtensions",
+      "Methods": [
+        {
+          "Member": "static bool CanSetContainerColumnName(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionComplexTypeBuilder complexTypeBuilder, string? columnName, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static bool CanSetContainerColumnType(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionComplexTypeBuilder complexTypeBuilder, string? columnType, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static bool CanSetJsonPropertyName(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionComplexTypeBuilder complexTypeBuilder, string? name, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionComplexTypeBuilder? HasContainerColumnName(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionComplexTypeBuilder complexTypeBuilder, string? columnName, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionComplexTypeBuilder? HasContainerColumnType(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionComplexTypeBuilder complexTypeBuilder, string? columnType, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionComplexTypeBuilder? HasJsonPropertyName(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionComplexTypeBuilder complexTypeBuilder, string? name, bool fromDataAnnotation = false);"
+        }
+      ]
+    },
+    {
       "Type": "static class Microsoft.EntityFrameworkCore.RelationalComplexTypePrimitiveCollectionBuilderExtensions",
       "Methods": [
         {
@@ -11164,6 +11187,12 @@
           "Member": "static bool CanSetComment(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, string? comment, bool fromDataAnnotation = false);"
         },
         {
+          "Member": "static bool CanSetContainerColumnName(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, string? columnName, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static bool CanSetContainerColumnType(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, string? columnType, bool fromDataAnnotation = false);"
+        },
+        {
           "Member": "static bool CanSetFunction(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, string? name, bool fromDataAnnotation = false);"
         },
         {
@@ -11277,6 +11306,12 @@
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder? HasComment(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, string? comment, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder? HasContainerColumnName(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, string? columnName, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder? HasContainerColumnType(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, string? columnType, bool fromDataAnnotation = false);"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder? HasJsonPropertyName(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, string? name, bool fromDataAnnotation = false);"
@@ -14518,13 +14553,16 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Metadata.Conventions.RelationalPropertyJsonPropertyNameAttributeConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.PropertyAttributeConventionBase<System.Text.Json.Serialization.JsonPropertyNameAttribute>, Microsoft.EntityFrameworkCore.Metadata.Conventions.IComplexPropertyAddedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IComplexPropertyFieldChangedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IModelFinalizingConvention",
+      "Type": "class Microsoft.EntityFrameworkCore.Metadata.Conventions.RelationalPropertyJsonPropertyNameAttributeConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.PropertyAttributeConventionBase<System.Text.Json.Serialization.JsonPropertyNameAttribute>, Microsoft.EntityFrameworkCore.Metadata.Conventions.IComplexPropertyAddedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IComplexPropertyFieldChangedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IComplexTypeAnnotationChangedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IEntityTypeAnnotationChangedConvention",
       "Methods": [
         {
           "Member": "RelationalPropertyJsonPropertyNameAttributeConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies, Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.RelationalConventionSetBuilderDependencies relationalDependencies);"
         },
         {
-          "Member": "virtual void ProcessModelFinalizing(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder modelBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder> context);"
+          "Member": "virtual void ProcessComplexTypeAnnotationChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionComplexTypeBuilder complexTypeBuilder, string name, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? annotation, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? oldAnnotation, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation> context);"
+        },
+        {
+          "Member": "virtual void ProcessEntityTypeAnnotationChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, string name, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? annotation, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? oldAnnotation, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation> context);"
         }
       ],
       "Properties": [
