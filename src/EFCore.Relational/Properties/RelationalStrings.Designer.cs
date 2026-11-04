@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 actualType, requestedType);
 
         /// <summary>
-        ///     The expression '{expression}' cannot be batched. Batch expressions must return an IQueryable or invoke 'ExecuteDelete' or 'ExecuteUpdate' (use the synchronous methods even with 'BatchAsync').
+        ///     The expression '{expression}' cannot be batched. Batch expressions must return an IQueryable or invoke 'ExecuteDelete' or 'ExecuteUpdate'.
         /// </summary>
         public static string BatchQueryUnsupportedExpression(object? expression)
             => string.Format(

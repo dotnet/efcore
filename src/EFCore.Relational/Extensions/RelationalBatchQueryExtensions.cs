@@ -199,7 +199,7 @@ public static class RelationalBatchQueryExtensions
         Expression<Func<TContext, object>> queryExpression)
         where TContext : DbContext
     {
-        if (queryExpression.Compile()(context) is not IQueryable queryable)
+        if (queryExpression.Compile(preferInterpretation: true)(context) is not IQueryable queryable)
         {
             throw new InvalidOperationException(RelationalStrings.BatchQueryUnsupportedExpression(queryExpression.Print()));
         }
@@ -223,7 +223,7 @@ public static class RelationalBatchQueryExtensions
         var slot = RelationalBatchNonQueryCapture.Begin();
         try
         {
-            queryExpression.Compile()(context);
+            queryExpression.Compile(preferInterpretation: true)(context);
         }
         finally
         {

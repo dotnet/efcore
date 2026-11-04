@@ -164,7 +164,7 @@
     <value>The current batch result set contains elements of type '{actualType}', which cannot be returned as '{requestedType}'.</value>
   </data>
   <data name="BatchQueryUnsupportedExpression" xml:space="preserve">
-    <value>The expression '{expression}' cannot be batched. Batch expressions must return an IQueryable or invoke 'ExecuteDelete' or 'ExecuteUpdate' (use the synchronous methods even with 'BatchAsync').</value>
+    <value>The expression '{expression}' cannot be batched. Batch expressions must return an IQueryable or invoke 'ExecuteDelete' or 'ExecuteUpdate'.</value>
   </data>
   <data name="BatchQueryUnsupportedParameter" xml:space="preserve">
     <value>The query cannot be executed as part of a batch because it contains a parameter of type '{parameterType}'. User-provided DbParameter instances cannot be batched.</value>
