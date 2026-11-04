@@ -2506,9 +2506,7 @@ GROUP BY [o].[CustomerID]
         AssertSql(
             """
 SELECT [o].[CustomerID] AS [Key], CASE
-    WHEN COUNT_BIG(CASE
-        WHEN [o].[EmployeeID] IS NOT NULL THEN 1
-    END) > CAST(0 AS bigint) THEN ISNULL(SUM([o].[EmployeeID]), 0)
+    WHEN COUNT_BIG([o].[EmployeeID]) > CAST(0 AS bigint) THEN ISNULL(SUM([o].[EmployeeID]), 0)
 END AS [Employees]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
@@ -3757,9 +3755,7 @@ GROUP BY [c].[Country]
         AssertSql(
             """
 SELECT [c].[Country] AS [Key], CASE
-    WHEN COUNT_BIG(CASE
-        WHEN [c].[Region] IS NOT NULL THEN 1
-    END) > CAST(0 AS bigint) THEN CAST(1 AS bit)
+    WHEN COUNT_BIG([c].[Region]) > CAST(0 AS bigint) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [Any]
 FROM [Customers] AS [c]
@@ -3855,6 +3851,18 @@ GROUP BY [c].[Country]
 SELECT [c].[Country] AS [Key], COUNT(CASE
     WHEN [c].[Region] IS NOT NULL THEN 1
 END) AS [Count]
+FROM [Customers] AS [c]
+GROUP BY [c].[Country]
+""");
+    }
+
+    public override async Task GroupBy_Property_Select_Where_not_null_Select_other_column_Count(bool async)
+    {
+        await base.GroupBy_Property_Select_Where_not_null_Select_other_column_Count(async);
+
+        AssertSql(
+            """
+SELECT [c].[Country] AS [Key], COUNT([c].[Region]) AS [Count]
 FROM [Customers] AS [c]
 GROUP BY [c].[Country]
 """);

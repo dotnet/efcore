@@ -1619,8 +1619,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
             count = TranslateAggregateMethod(
                 source,
                 QueryableMethods.LongCountWithoutPredicate.MakeGenericMethod(source.Selector.Type),
-                [],
-                forQuantifier: true) as SqlExpression;
+                []) as SqlExpression;
 
             return count != null;
         }
@@ -1732,8 +1731,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
     private SqlExpression? TranslateAggregateMethod(
         EnumerableExpression enumerableExpression,
         MethodInfo method,
-        List<SqlExpression> scalarArguments,
-        bool forQuantifier = false)
+        List<SqlExpression> scalarArguments)
     {
         _throwForNotTranslatedEfProperty = false;
         var selector = TranslateInternal(enumerableExpression.Selector);
@@ -1742,13 +1740,12 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
         {
             enumerableExpression = enumerableExpression.ApplySelector(selector);
         }
-        // Any/All are counted through here too, but what they count is decided by their marker, which this would replace -
-        // for All that drops the very predicate being tested.
-        else if (!forQuantifier
-                 && method.DeclaringType == typeof(Queryable)
-                 && method.Name is nameof(Queryable.Count) or nameof(Queryable.LongCount)
-                 && !enumerableExpression.IsDistinct
-                 && TryGetNullCheckedColumn(enumerableExpression.Predicate) is ColumnExpression nullCheckedColumn)
+
+        if (method.DeclaringType == typeof(Queryable)
+            && method.Name is nameof(Queryable.Count) or nameof(Queryable.LongCount)
+            && !enumerableExpression.IsDistinct
+            && TryGetNullCheckedColumn(enumerableExpression.Predicate) is ColumnExpression nullCheckedColumn
+            && IsCountOverNullableColumnSupported(nullCheckedColumn, selector))
         {
             // Counting rows where x isn't null is just COUNT(x), which unlike COUNT(CASE WHEN x IS NOT NULL THEN 1 END) can use
             // an index on x. With DISTINCT applied this would instead count the distinct values of x.
@@ -1779,6 +1776,20 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                 _ => null
             };
     }
+
+    /// <summary>
+    ///     Determines whether a count of the rows where <paramref name="column" /> is not null can be translated as a count over
+    ///     the column itself.
+    /// </summary>
+    /// <remarks>
+    ///     Only a <paramref name="selector" /> that counts rows can be replaced. A translated selector decides what is counted: for
+    ///     example, the count that <c>All</c> over a grouping translates to carries the quantifier's own predicate in its selector.
+    /// </remarks>
+    /// <param name="column">The column being checked for null.</param>
+    /// <param name="selector">The translation of the selector being counted.</param>
+    /// <returns><see langword="true" /> if the count can be translated over the column; <see langword="false" /> otherwise.</returns>
+    protected virtual bool IsCountOverNullableColumnSupported(ColumnExpression column, Expression? selector)
+        => selector is not SqlExpression;
 
     private Expression RemapLambda(EnumerableExpression enumerableExpression, LambdaExpression lambdaExpression)
     {

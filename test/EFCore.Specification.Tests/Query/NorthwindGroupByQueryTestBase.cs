@@ -2253,6 +2253,16 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
                 .Select(g => new { g.Key, Count = g.Count(c => c.Region != null) }),
             elementSorter: e => e.Key);
 
+    // Count counts elements rather than values, so a customer with a region and no fax is still counted.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Property_Select_Where_not_null_Select_other_column_Count(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .GroupBy(c => c.Country)
+                .Select(g => new { g.Key, Count = g.Where(c => c.Region != null).Select(c => c.Fax).Count() }),
+            elementSorter: e => e.Key);
+
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_orderby_projection_with_coalesce_operation(bool async)
         => AssertQuery(
