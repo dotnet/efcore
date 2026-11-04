@@ -1002,24 +1002,35 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
         var mapping = property.GetRelationalTypeMapping();
         var propertyProviderClrType = (mapping.Converter?.ProviderClrType ?? property.ClrType).UnwrapNullableType();
         var value = parameters.Value;
+        var customJsonValueReaderWriter = property.GetJsonValueReaderWriter();
 
-        // On most databases, the function which patches a JSON document (e.g. SQL Server JSON_MODIFY) accepts relational string, numeric
+        // On most databases, the function
         // and bool types directly, without serializing it to a JSON string. So by default, for those cases simply return the value as-is,
         // with the property's type mapping which will take care of sending the parameter with the relational value.
         // Note that we haven't yet applied a value converter if one is configured, in order to allow for it to get applied later with
         // the regular parameter flow.
         if (value == null
-            || propertyProviderClrType == typeof(string)
-            || propertyProviderClrType == typeof(bool)
-            || propertyProviderClrType.IsNumeric())
+            || (customJsonValueReaderWriter == null
+                && (propertyProviderClrType == typeof(string)
+                    || propertyProviderClrType == typeof(bool)
+                    || propertyProviderClrType.IsNumeric())))
         {
             parameters = parameters with { Value = value, TypeMapping = mapping };
         }
         else
         {
-            var jsonValueReaderWriter = mapping.JsonValueReaderWriter;
-            value = jsonValueReaderWriter?.ToJsonString(value)[1..^1] // The JSON string contains enclosing quotes, remove these.
-                ?? (mapping.Converter == null ? value : mapping.Converter.ConvertToProvider(value));
+            var jsonValueReaderWriter = customJsonValueReaderWriter ?? mapping.JsonValueReaderWriter;
+            if (jsonValueReaderWriter != null)
+            {
+                var json = jsonValueReaderWriter.ToJsonString(value);
+                value = json.Length >= 2 && json[0] == '"' && json[^1] == '"'
+                    ? json[1..^1] // The JSON string contains enclosing quotes, remove these.
+                    : json;
+            }
+            else if (mapping.Converter != null)
+            {
+                value = mapping.Converter.ConvertToProvider(value);
+            }
 
             parameters = parameters with { Value = value };
         }
