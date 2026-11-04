@@ -128,6 +128,7 @@ public sealed class ProjectTest(ITestOutputHelper output)
             File.WriteAllText(
                 csFile, $"""
                 #:property TargetFramework={TargetFramework}
+                #:property NuGetAudit=false
                 Console.WriteLine("Hello");
                 """);
 
