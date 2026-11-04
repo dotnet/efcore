@@ -106,9 +106,6 @@ public class SequentialGuidEndToEndTest : IAsyncLifetime
     public async Task InitializeAsync()
         => TestStore = await SqlServerTestStore.CreateInitializedAsync("SequentialGuidEndToEndTest");
 
-    public Task DisposeAsync()
-    {
-        TestStore.Dispose();
-        return Task.CompletedTask;
-    }
+    public async Task DisposeAsync()
+        => await TestStore.DisposeAsync();
 }

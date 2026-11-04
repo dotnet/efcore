@@ -152,7 +152,7 @@ public class SqlAliasManager
 
     private sealed class TableAliasCollector : ExpressionVisitor
     {
-        private readonly HashSet<string> _tableAliases = new();
+        private readonly HashSet<string> _tableAliases = [];
 
         internal static HashSet<string> Collect(Expression expression)
         {
@@ -168,7 +168,7 @@ public class SqlAliasManager
                 case ShapedQueryExpression shapedQuery:
                     return shapedQuery.UpdateQueryExpression(Visit(shapedQuery.QueryExpression));
 
-                case TableExpressionBase { Alias: string alias }:
+                case TableExpressionBase { Alias: { } alias }:
                     _tableAliases.Add(alias);
                     return base.VisitExtension(node);
 
@@ -189,7 +189,7 @@ public class SqlAliasManager
                 ShapedQueryExpression shapedQuery => shapedQuery.UpdateQueryExpression(Visit(shapedQuery.QueryExpression)),
 
                 // Note that this skips joins (which wrap the table that has the actual alias), as well as the top-level select
-                TableExpressionBase { Alias: string alias } table when aliasRewritingMap.TryGetValue(alias, out var newAlias)
+                TableExpressionBase { Alias: { } alias } table when aliasRewritingMap.TryGetValue(alias, out var newAlias)
                     => base.VisitExtension(table.WithAlias(newAlias)),
 
                 ColumnExpression column when aliasRewritingMap.TryGetValue(column.TableAlias, out var newTableAlias)

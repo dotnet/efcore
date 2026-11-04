@@ -24,9 +24,7 @@ public abstract class TrackGraphTestBase
             return traversal;
         }
 
-        [ConditionalTheory] // Issue #26461
-        [InlineData(false)]
-        [InlineData(true)]
+        [ConditionalTheory, InlineData(false), InlineData(true)] // Issue #26461
         public async Task Can_iterate_over_graph_using_public_surface(bool async)
         {
             using var context = new EarlyLearningCenter(GetType().Name);
@@ -152,11 +150,7 @@ public abstract class TrackGraphTestBase
             + ":"
             + entry.Property(entry.Metadata.FindPrimaryKey().Properties[0].Name).CurrentValue;
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(false, true)]
-    [InlineData(true, false)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
     public void Can_attach_nullable_PK_parent_with_child_collection(bool useAttach, bool setKeys)
     {
         using var context = new EarlyLearningCenter(GetType().Name);
@@ -224,11 +218,7 @@ public abstract class TrackGraphTestBase
         Assert.Equal(categoryId, product2Entry.Property("CategoryId").CurrentValue);
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(false, true)]
-    [InlineData(true, false)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
     public void Can_attach_nullable_PK_parent_with_one_to_one_children(bool useAttach, bool setKeys)
     {
         using var context = new EarlyLearningCenter(GetType().Name);
@@ -264,15 +254,9 @@ public abstract class TrackGraphTestBase
         Assert.Same(category, category.Info.Category);
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false, false)]
-    [InlineData(false, true, false)]
-    [InlineData(true, false, false)]
-    [InlineData(true, true, false)]
-    [InlineData(false, false, true)]
-    [InlineData(false, true, true)]
-    [InlineData(true, false, true)]
-    [InlineData(true, true, true)]
+    [ConditionalTheory, InlineData(false, false, false), InlineData(false, true, false), InlineData(true, false, false),
+     InlineData(true, true, false), InlineData(false, false, true), InlineData(false, true, true), InlineData(true, false, true),
+     InlineData(true, true, true)]
     public void Can_attach_parent_with_owned_dependent(bool useAttach, bool setPrincipalKey, bool setDependentKey)
     {
         using var context = new EarlyLearningCenter(GetType().Name);
@@ -339,11 +323,7 @@ public abstract class TrackGraphTestBase
         Assert.Equal(1, dependentEntry2b.Property(dependentEntry2b.Metadata.FindPrimaryKey().Properties[0]).CurrentValue);
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(false, true)]
-    [InlineData(true, false)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
     public void Can_attach_owned_dependent_with_reference_to_parent(bool useAttach, bool setDependentKey)
     {
         using var context = new EarlyLearningCenter(GetType().Name);
@@ -713,11 +693,7 @@ public abstract class TrackGraphTestBase
         Assert.False(context.ChangeTracker.HasChanges());
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(false, true)]
-    [InlineData(true, false)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
     public void Can_add_owned_dependent_with_reference_to_parent(bool useAdd, bool setDependentKey)
     {
         using var context = new EarlyLearningCenter(GetType().Name);
@@ -781,11 +757,7 @@ public abstract class TrackGraphTestBase
         Assert.Equal(1, dependentEntry2b.Property(dependentEntry2b.Metadata.FindPrimaryKey().Properties[0]).CurrentValue);
     }
 
-    [ConditionalTheory] // Issue #12590
-    [InlineData(false, false)]
-    [InlineData(false, true)]
-    [InlineData(true, false)]
-    [InlineData(true, true)]
+    [ConditionalTheory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)] // Issue #12590
     public void Dependents_are_detached_not_deleted_when_principal_is_detached(bool delayCascade, bool trackNewDependents)
     {
         using var context = new EarlyLearningCenter(GetType().Name);
@@ -1229,13 +1201,12 @@ public abstract class TrackGraphTestBase
     private class TheShadows : DbContext
     {
         protected internal override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<Dark>(
-                b =>
-                {
-                    b.Property<int>("Id").ValueGeneratedOnAdd();
-                    b.Property<int>("SomeInt");
-                    b.Property<string>("SomeString");
-                });
+            => modelBuilder.Entity<Dark>(b =>
+            {
+                b.Property<int>("Id").ValueGeneratedOnAdd();
+                b.Property<int>("SomeInt");
+                b.Property<string>("SomeString");
+            });
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -1379,32 +1350,29 @@ public abstract class TrackGraphTestBase
         protected internal override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder
-                .Entity<NullbileProduct>(
-                    b =>
-                    {
-                        b.Property<int?>("Id");
-                        b.Property<int?>("CategoryId");
-                        b.HasKey("Id");
-                    });
+                .Entity<NullbileProduct>(b =>
+                {
+                    b.Property<int?>("Id");
+                    b.Property<int?>("CategoryId");
+                    b.HasKey("Id");
+                });
 
             modelBuilder
-                .Entity<NullbileCategoryInfo>(
-                    b =>
-                    {
-                        b.Property<int?>("Id");
-                        b.Property<int?>("CategoryId");
-                        b.HasKey("Id");
-                    });
+                .Entity<NullbileCategoryInfo>(b =>
+                {
+                    b.Property<int?>("Id");
+                    b.Property<int?>("CategoryId");
+                    b.HasKey("Id");
+                });
 
             modelBuilder
-                .Entity<NullbileCategory>(
-                    b =>
-                    {
-                        b.Property<int?>("Id");
-                        b.HasKey("Id");
-                        b.HasMany(e => e.Products).WithOne(e => e.Category).HasForeignKey("CategoryId");
-                        b.HasOne(e => e.Info).WithOne(e => e.Category).HasForeignKey<NullbileCategoryInfo>("CategoryId");
-                    });
+                .Entity<NullbileCategory>(b =>
+                {
+                    b.Property<int?>("Id");
+                    b.HasKey("Id");
+                    b.HasMany(e => e.Products).WithOne(e => e.Category).HasForeignKey("CategoryId");
+                    b.HasOne(e => e.Info).WithOne(e => e.Category).HasForeignKey<NullbileCategoryInfo>("CategoryId");
+                });
 
             modelBuilder.Entity<Sweet>().OwnsOne(
                 e => e.Dreams, b =>
@@ -1430,14 +1398,12 @@ public abstract class TrackGraphTestBase
                 .Entity<Product>().HasOne(e => e.Details).WithOne(e => e.Product)
                 .HasForeignKey<ProductDetails>(e => e.Id);
 
-            modelBuilder.Entity<OrderDetails>(
-                b =>
-                {
-                    b.HasKey(
-                        e => new { e.OrderId, e.ProductId });
-                    b.HasOne(e => e.Order).WithMany(e => e.OrderDetails).HasForeignKey(e => e.OrderId);
-                    b.HasOne(e => e.Product).WithMany(e => e.OrderDetails).HasForeignKey(e => e.ProductId);
-                });
+            modelBuilder.Entity<OrderDetails>(b =>
+            {
+                b.HasKey(e => new { e.OrderId, e.ProductId });
+                b.HasOne(e => e.Order).WithMany(e => e.OrderDetails).HasForeignKey(e => e.OrderId);
+                b.HasOne(e => e.Product).WithMany(e => e.OrderDetails).HasForeignKey(e => e.ProductId);
+            });
         }
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

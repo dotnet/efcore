@@ -47,6 +47,11 @@ public class SqlServerMigrationsAnnotationProvider : MigrationsAnnotationProvide
                 yield return new Annotation(SqlServerAnnotationNames.TemporalIsPeriodEndColumn, true);
             }
         }
+
+        if (column[RelationalAnnotationNames.DefaultConstraintName] is string defaultConstraintName)
+        {
+            yield return new Annotation(RelationalAnnotationNames.DefaultConstraintName, defaultConstraintName);
+        }
     }
 
     /// <inheritdoc />

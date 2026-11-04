@@ -125,7 +125,7 @@ public static class RelationalOwnedNavigationBuilderExtensions
         this OwnedNavigationBuilder navigationBuilder,
         string? name)
     {
-        Check.NullButNotEmpty(name, nameof(name));
+        Check.NullButNotEmpty(name);
 
         if (!navigationBuilder.Metadata.PrincipalEntityType.IsOwned())
         {

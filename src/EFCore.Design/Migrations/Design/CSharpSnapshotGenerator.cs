@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text;
-using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -93,17 +92,16 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
             GenerateEntityType(modelBuilderName, entityType, stringBuilder);
         }
 
-        foreach (var entityType in nonOwnedTypes.Where(
-                     e => e.GetDeclaredForeignKeys().Any()
-                         || e.GetDeclaredReferencingForeignKeys().Any(fk => fk.IsOwnership)))
+        foreach (var entityType in nonOwnedTypes.Where(e => e.GetDeclaredForeignKeys().Any()
+                     || e.GetDeclaredReferencingForeignKeys().Any(fk => fk.IsOwnership)))
         {
             stringBuilder.AppendLine();
 
             GenerateEntityTypeRelationships(modelBuilderName, entityType, stringBuilder);
         }
 
-        foreach (var entityType in nonOwnedTypes.Where(
-                     e => e.GetDeclaredNavigations().Any(n => n is { IsOnDependent: false, ForeignKey.IsOwnership: false })))
+        foreach (var entityType in nonOwnedTypes.Where(e
+                     => e.GetDeclaredNavigations().Any(n => n is { IsOnDependent: false, ForeignKey.IsOwnership: false })))
         {
             stringBuilder.AppendLine();
 
@@ -132,7 +130,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
             {
                 entityTypeName = entityType.ClrType.DisplayName();
             }
-            else if (entityTypeName == ownership!.PrincipalEntityType.GetOwnedName(entityType.ShortName(), ownerNavigation))
+            else if (entityTypeName == ownership.PrincipalEntityType.GetOwnedName(entityType.ShortName(), ownerNavigation))
             {
                 entityTypeName = entityType.ShortName();
             }
@@ -454,7 +452,11 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         // Note that GenerateAnnotations below does the corresponding decrement
         stringBuilder.IncrementIndent();
 
-        if (property.IsConcurrencyToken)
+        // ComplexCollectionTypePropertyBuilder doesn't have IsConcurrencyToken method
+        var isInComplexCollection = property.DeclaringType is IComplexType complexType
+            && complexType.ComplexProperty.IsCollection;
+
+        if (!isInComplexCollection && property.IsConcurrencyToken)
         {
             stringBuilder
                 .AppendLine()
@@ -468,7 +470,8 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 .Append(".IsRequired()");
         }
 
-        if (property.ValueGenerated != ValueGenerated.Never)
+        // ComplexCollectionTypePropertyBuilder doesn't have ValueGenerated* methods
+        if (!isInComplexCollection && property.ValueGenerated != ValueGenerated.Never)
         {
             stringBuilder
                 .AppendLine()
@@ -500,11 +503,20 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
             .FilterIgnoredAnnotations(property.GetAnnotations())
             .ToDictionary(a => a.Name, a => a);
 
-        GenerateFluentApiForMaxLength(property, stringBuilder);
-        GenerateFluentApiForPrecisionAndScale(property, stringBuilder);
+        // ComplexCollectionTypePropertyBuilder doesn't have HasMaxLength or HasPrecision methods
+        var isInComplexCollection = property.DeclaringType is IComplexType complexType
+            && complexType.ComplexProperty.IsCollection;
+
+        if (!isInComplexCollection)
+        {
+            GenerateFluentApiForMaxLength(property, stringBuilder);
+            GenerateFluentApiForPrecisionAndScale(property, stringBuilder);
+        }
+
         GenerateFluentApiForIsUnicode(property, stringBuilder);
 
-        if (!annotations.ContainsKey(RelationalAnnotationNames.ColumnType))
+        if (!annotations.ContainsKey(RelationalAnnotationNames.ColumnType)
+            && !property.DeclaringType.IsMappedToJson())
         {
             annotations[RelationalAnnotationNames.ColumnType] = new Annotation(
                 RelationalAnnotationNames.ColumnType,
@@ -514,7 +526,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         if (annotations.ContainsKey(RelationalAnnotationNames.DefaultValue)
             && property.TryGetDefaultValue(out var defaultValue)
             && defaultValue != DBNull.Value
-            && FindValueConverter(property) is ValueConverter valueConverter)
+            && FindValueConverter(property) is { } valueConverter)
         {
             annotations[RelationalAnnotationNames.DefaultValue] = new Annotation(
                 RelationalAnnotationNames.DefaultValue,
@@ -566,10 +578,17 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         var complexType = complexProperty.ComplexType;
         var complexTypeBuilderName = GenerateNestedBuilderName(builderName);
 
+        var propertyType = Code.Reference(Model.DefaultPropertyBagType);
+        if (complexProperty.IsCollection)
+        {
+            propertyType = $"List<{propertyType}>";
+        }
+
         stringBuilder
             .AppendLine()
             .Append(builderName)
-            .Append($".ComplexProperty<{Code.Reference(Model.DefaultPropertyBagType)}>(")
+            .Append(complexProperty.IsCollection ? ".ComplexCollection(" : ".ComplexProperty(")
+            .Append($"typeof({propertyType}), ")
             .Append($"{Code.Literal(complexProperty.Name)}, {Code.Literal(complexType.Name)}, ")
             .Append(complexTypeBuilderName)
             .AppendLine(" =>");
@@ -580,7 +599,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
 
             using (stringBuilder.Indent())
             {
-                if (complexProperty.IsNullable != complexProperty.ClrType.IsNullableType())
+                if (!complexProperty.IsNullable)
                 {
                     stringBuilder
                         .AppendLine()
@@ -629,6 +648,53 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         IComplexProperty property,
         IndentedStringBuilder stringBuilder)
     {
+        var discriminatorProperty = property.ComplexType.FindDiscriminatorProperty();
+        if (discriminatorProperty != null)
+        {
+            stringBuilder
+                .AppendLine()
+                .Append(propertyBuilderName)
+                .Append('.')
+                .Append("HasDiscriminator");
+
+            if (discriminatorProperty.DeclaringType == property.ComplexType)
+            {
+                var propertyClrType = FindValueConverter(discriminatorProperty)?.ProviderClrType
+                        .MakeNullable(discriminatorProperty.IsNullable)
+                    ?? discriminatorProperty.ClrType;
+                stringBuilder
+                    .Append('<')
+                    .Append(Code.Reference(propertyClrType))
+                    .Append(">(")
+                    .Append(Code.Literal(discriminatorProperty.Name))
+                    .Append(')');
+            }
+            else
+            {
+                stringBuilder
+                    .Append("()");
+            }
+
+            var discriminatorValue = property.ComplexType.GetDiscriminatorValue();
+            if (discriminatorValue != null)
+            {
+                var valueConverter = FindValueConverter(discriminatorProperty);
+                if (valueConverter != null)
+                {
+                    discriminatorValue = valueConverter.ConvertToProvider(discriminatorValue);
+                }
+
+                stringBuilder
+                    .Append('.')
+                    .Append("HasValue")
+                    .Append('(')
+                    .Append(Code.UnknownLiteral(discriminatorValue))
+                    .Append(')');
+            }
+
+            stringBuilder.AppendLine(";");
+        }
+
         var propertyAnnotations = Dependencies.AnnotationCodeGenerator
             .FilterIgnoredAnnotations(property.GetAnnotations())
             .ToDictionary(a => a.Name, a => a);
@@ -637,12 +703,26 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
             .FilterIgnoredAnnotations(property.ComplexType.GetAnnotations())
             .ToDictionary(a => a.Name, a => a);
 
+        // Add ContainerColumnType annotation if complex type is mapped to JSON but the type annotation is missing
+        if (typeAnnotations.ContainsKey(RelationalAnnotationNames.ContainerColumnName)
+            && !typeAnnotations.ContainsKey(RelationalAnnotationNames.ContainerColumnType))
+        {
+            var containerColumnType = property.ComplexType.GetContainerColumnType()
+                ?? Dependencies.RelationalTypeMappingSource.FindMapping(typeof(JsonTypePlaceholder))?.StoreType;
+            if (containerColumnType != null)
+            {
+                typeAnnotations[RelationalAnnotationNames.ContainerColumnType] = new Annotation(
+                    RelationalAnnotationNames.ContainerColumnType,
+                    containerColumnType);
+            }
+        }
+
         GenerateAnnotations(
             propertyBuilderName, property, stringBuilder, propertyAnnotations,
             inChainedCall: false, hasAnnotationMethodInfo: HasPropertyAnnotationMethodInfo);
 
         GenerateAnnotations(
-            propertyBuilderName, property, stringBuilder, typeAnnotations,
+            propertyBuilderName, property.ComplexType, stringBuilder, typeAnnotations,
             inChainedCall: false, hasAnnotationMethodInfo: HasTypeAnnotationMethodInfo);
     }
 
@@ -666,10 +746,9 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
 
         if (primaryKey?.DeclaringEntityType.IsOwned() != true)
         {
-            foreach (var key in keys.Where(
-                         key => key != primaryKey
-                             && (!key.GetReferencingForeignKeys().Any()
-                                 || key.GetAnnotations().Any(a => a.Name != RelationalAnnotationNames.UniqueConstraintMappings))))
+            foreach (var key in keys.Where(key => key != primaryKey
+                         && (!key.GetReferencingForeignKeys().Any()
+                             || key.GetAnnotations().Any(a => a.Name != RelationalAnnotationNames.UniqueConstraintMappings))))
             {
                 GenerateKey(entityTypeBuilderName, key, stringBuilder);
             }
@@ -843,7 +922,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
             && !annotations.ContainsKey(RelationalAnnotationNames.ContainerColumnType))
         {
             var containerColumnType = entityType.GetContainerColumnType()
-                ?? Dependencies.RelationalTypeMappingSource.FindMapping(typeof(JsonElement))?.StoreType;
+                ?? Dependencies.RelationalTypeMappingSource.FindMapping(typeof(JsonTypePlaceholder))?.StoreType;
             if (containerColumnType != null)
             {
                 annotations[RelationalAnnotationNames.ContainerColumnType] = new Annotation(
@@ -914,8 +993,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                     .Append('.')
                     .Append("HasDiscriminator");
 
-                if (discriminatorProperty.DeclaringType == entityType
-                    && discriminatorProperty.Name != "Discriminator")
+                if (discriminatorProperty.DeclaringType == entityType)
                 {
                     var propertyClrType = FindValueConverter(discriminatorProperty)?.ProviderClrType
                             .MakeNullable(discriminatorProperty.IsNullable)
@@ -948,13 +1026,10 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 if (discriminatorValueAnnotation?.Value != null)
                 {
                     var value = discriminatorValueAnnotation.Value;
-                    if (discriminatorProperty != null)
+                    var valueConverter = FindValueConverter(discriminatorProperty);
+                    if (valueConverter != null)
                     {
-                        var valueConverter = FindValueConverter(discriminatorProperty);
-                        if (valueConverter != null)
-                        {
-                            value = valueConverter.ConvertToProvider(value);
-                        }
+                        value = valueConverter.ConvertToProvider(value);
                     }
 
                     stringBuilder
@@ -978,17 +1053,17 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         IndentedStringBuilder stringBuilder,
         Dictionary<string, IAnnotation> annotations)
     {
-        annotations.TryGetAndRemove(RelationalAnnotationNames.TableName, out IAnnotation tableNameAnnotation);
+        annotations.TryGetAndRemove(RelationalAnnotationNames.TableName, out IAnnotation? tableNameAnnotation);
         var table = StoreObjectIdentifier.Create(entityType, StoreObjectType.Table);
         var tableName = (string?)tableNameAnnotation?.Value ?? table?.Name;
 
-        annotations.TryGetAndRemove(RelationalAnnotationNames.Schema, out IAnnotation schemaAnnotation);
+        annotations.TryGetAndRemove(RelationalAnnotationNames.Schema, out IAnnotation? schemaAnnotation);
         var schema = (string?)schemaAnnotation?.Value ?? table?.Schema;
 
-        annotations.TryGetAndRemove(RelationalAnnotationNames.IsTableExcludedFromMigrations, out IAnnotation isExcludedAnnotation);
+        annotations.TryGetAndRemove(RelationalAnnotationNames.IsTableExcludedFromMigrations, out IAnnotation? isExcludedAnnotation);
         var isExcludedFromMigrations = (isExcludedAnnotation?.Value as bool?) == true;
 
-        annotations.TryGetAndRemove(RelationalAnnotationNames.Comment, out IAnnotation commentAnnotation);
+        annotations.TryGetAndRemove(RelationalAnnotationNames.Comment, out IAnnotation? commentAnnotation);
         var comment = (string?)commentAnnotation?.Value;
 
         var hasTriggers = entityType.GetDeclaredTriggers().Any(t => t.GetTableName() == tableName! && t.GetTableSchema() == schema);
@@ -1074,7 +1149,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                     {
                         stringBuilder
                             .AppendLine()
-                            .AppendLine($"t.{nameof(TableBuilder.HasComment)}({Code.Literal(comment!)});");
+                            .AppendLine($"t.{nameof(TableBuilder.HasComment)}({Code.Literal(comment)});");
                     }
 
                     if (hasTriggers)
@@ -1139,8 +1214,8 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         IndentedStringBuilder stringBuilder,
         Dictionary<string, IAnnotation> annotations)
     {
-        annotations.TryGetAndRemove(RelationalAnnotationNames.ViewName, out IAnnotation viewNameAnnotation);
-        annotations.TryGetAndRemove(RelationalAnnotationNames.ViewSchema, out IAnnotation viewSchemaAnnotation);
+        annotations.TryGetAndRemove(RelationalAnnotationNames.ViewName, out IAnnotation? viewNameAnnotation);
+        annotations.TryGetAndRemove(RelationalAnnotationNames.ViewSchema, out IAnnotation? viewSchemaAnnotation);
         annotations.Remove(RelationalAnnotationNames.ViewDefinitionSql);
 
         var view = StoreObjectIdentifier.Create(entityType, StoreObjectType.View);
@@ -1397,7 +1472,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
             .FilterIgnoredAnnotations(trigger.GetAnnotations())
             .ToDictionary(a => a.Name, a => a);
 
-        if (annotations.TryGetAndRemove(RelationalAnnotationNames.Name, out IAnnotation nameAnnotation))
+        if (annotations.TryGetAndRemove(RelationalAnnotationNames.Name, out IAnnotation? nameAnnotation))
         {
             stringBuilder
                 .AppendLine()
@@ -1838,7 +1913,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         IProperty property,
         IndentedStringBuilder stringBuilder)
     {
-        if (property.GetMaxLength() is int maxLength)
+        if (property.GetMaxLength() is { } maxLength)
         {
             stringBuilder
                 .AppendLine()
@@ -1854,7 +1929,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         IProperty property,
         IndentedStringBuilder stringBuilder)
     {
-        if (property.GetPrecision() is int precision)
+        if (property.GetPrecision() is { } precision)
         {
             stringBuilder
                 .AppendLine()
@@ -1863,7 +1938,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 .Append("(")
                 .Append(Code.Literal(precision));
 
-            if (property.GetScale() is int scale)
+            if (property.GetScale() is { } scale)
             {
                 if (scale != 0)
                 {
@@ -1881,7 +1956,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         IProperty property,
         IndentedStringBuilder stringBuilder)
     {
-        if (property.IsUnicode() is bool unicode)
+        if (property.IsUnicode() is { } unicode)
         {
             stringBuilder
                 .AppendLine()
@@ -1992,7 +2067,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
 
         if (entityType.HasSharedClrType
             && entityTypeName
-            == ownership!.PrincipalEntityType.GetOwnedName(
+            == ownership.PrincipalEntityType.GetOwnedName(
                 entityType.ClrType.ShortDisplayName(), ownership.PrincipalToDependent!.Name))
         {
             entityTypeName = entityType.ClrType.DisplayName();

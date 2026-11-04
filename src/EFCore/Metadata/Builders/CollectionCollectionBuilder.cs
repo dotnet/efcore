@@ -107,7 +107,7 @@ public class CollectionCollectionBuilder
     public virtual EntityTypeBuilder UsingEntity(
         Type joinEntityType)
     {
-        Check.NotNull(joinEntityType, nameof(joinEntityType));
+        Check.NotNull(joinEntityType);
 
         return Using(joinEntityName: null, joinEntityType, configureRight: null, configureLeft: null);
     }
@@ -120,7 +120,7 @@ public class CollectionCollectionBuilder
     public virtual EntityTypeBuilder UsingEntity(
         string joinEntityName)
     {
-        Check.NotEmpty(joinEntityName, nameof(joinEntityName));
+        Check.NotEmpty(joinEntityName);
 
         return Using(joinEntityName, joinEntityType: null, configureRight: null, configureLeft: null);
     }
@@ -135,8 +135,8 @@ public class CollectionCollectionBuilder
         string joinEntityName,
         Type joinEntityType)
     {
-        Check.NotEmpty(joinEntityName, nameof(joinEntityName));
-        Check.NotNull(joinEntityType, nameof(joinEntityType));
+        Check.NotEmpty(joinEntityName);
+        Check.NotNull(joinEntityType);
 
         return Using(joinEntityName, joinEntityType, configureRight: null, configureLeft: null);
     }
@@ -149,7 +149,7 @@ public class CollectionCollectionBuilder
     public virtual EntityTypeBuilder UsingEntity(
         Action<EntityTypeBuilder> configureJoinEntityType)
     {
-        Check.NotNull(configureJoinEntityType, nameof(configureJoinEntityType));
+        Check.NotNull(configureJoinEntityType);
         Check.DebugAssert(LeftNavigation.JoinEntityType != null, "LeftNavigation.JoinEntityType is null");
         Check.DebugAssert(RightNavigation.JoinEntityType != null, "RightNavigation.JoinEntityType is null");
         Check.DebugAssert(
@@ -171,7 +171,7 @@ public class CollectionCollectionBuilder
         Type joinEntityType,
         Action<EntityTypeBuilder> configureJoinEntityType)
     {
-        Check.NotNull(configureJoinEntityType, nameof(configureJoinEntityType));
+        Check.NotNull(configureJoinEntityType);
 
         configureJoinEntityType(UsingEntity(joinEntityType));
 
@@ -188,7 +188,7 @@ public class CollectionCollectionBuilder
         string joinEntityName,
         Action<EntityTypeBuilder> configureJoinEntityType)
     {
-        Check.NotNull(configureJoinEntityType, nameof(configureJoinEntityType));
+        Check.NotNull(configureJoinEntityType);
 
         configureJoinEntityType(UsingEntity(joinEntityName));
 
@@ -207,7 +207,7 @@ public class CollectionCollectionBuilder
         Type joinEntityType,
         Action<EntityTypeBuilder> configureJoinEntityType)
     {
-        Check.NotNull(configureJoinEntityType, nameof(configureJoinEntityType));
+        Check.NotNull(configureJoinEntityType);
 
         configureJoinEntityType(UsingEntity(joinEntityName, joinEntityType));
 
@@ -224,8 +224,8 @@ public class CollectionCollectionBuilder
         Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureRight,
         Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureLeft)
     {
-        Check.NotNull(configureRight, nameof(configureRight));
-        Check.NotNull(configureLeft, nameof(configureLeft));
+        Check.NotNull(configureRight);
+        Check.NotNull(configureLeft);
 
         return Using(joinEntityName: null, joinEntityType: null, configureRight, configureLeft);
     }
@@ -242,9 +242,9 @@ public class CollectionCollectionBuilder
         Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureRight,
         Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureLeft)
     {
-        Check.NotNull(joinEntityType, nameof(joinEntityType));
-        Check.NotNull(configureRight, nameof(configureRight));
-        Check.NotNull(configureLeft, nameof(configureLeft));
+        Check.NotNull(joinEntityType);
+        Check.NotNull(configureRight);
+        Check.NotNull(configureLeft);
 
         return Using(joinEntityName: null, joinEntityType, configureRight, configureLeft);
     }
@@ -261,9 +261,9 @@ public class CollectionCollectionBuilder
         Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureRight,
         Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureLeft)
     {
-        Check.NotEmpty(joinEntityName, nameof(joinEntityName));
-        Check.NotNull(configureRight, nameof(configureRight));
-        Check.NotNull(configureLeft, nameof(configureLeft));
+        Check.NotEmpty(joinEntityName);
+        Check.NotNull(configureRight);
+        Check.NotNull(configureLeft);
 
         return Using(joinEntityName, joinEntityType: null, configureRight, configureLeft);
     }
@@ -282,10 +282,10 @@ public class CollectionCollectionBuilder
         Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureRight,
         Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureLeft)
     {
-        Check.NotEmpty(joinEntityName, nameof(joinEntityName));
-        Check.NotNull(joinEntityType, nameof(joinEntityType));
-        Check.NotNull(configureRight, nameof(configureRight));
-        Check.NotNull(configureLeft, nameof(configureLeft));
+        Check.NotEmpty(joinEntityName);
+        Check.NotNull(joinEntityType);
+        Check.NotNull(configureRight);
+        Check.NotNull(configureLeft);
 
         return Using(joinEntityName, joinEntityType, configureRight, configureLeft);
     }
@@ -302,7 +302,7 @@ public class CollectionCollectionBuilder
         Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureLeft,
         Action<EntityTypeBuilder> configureJoinEntityType)
     {
-        Check.NotNull(configureJoinEntityType, nameof(configureJoinEntityType));
+        Check.NotNull(configureJoinEntityType);
 
         configureJoinEntityType(UsingEntity(configureRight, configureLeft));
 
@@ -323,7 +323,7 @@ public class CollectionCollectionBuilder
         Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureLeft,
         Action<EntityTypeBuilder> configureJoinEntityType)
     {
-        Check.NotNull(configureJoinEntityType, nameof(configureJoinEntityType));
+        Check.NotNull(configureJoinEntityType);
 
         configureJoinEntityType(UsingEntity(joinEntityType, configureRight, configureLeft));
 
@@ -344,7 +344,7 @@ public class CollectionCollectionBuilder
         Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureLeft,
         Action<EntityTypeBuilder> configureJoinEntityType)
     {
-        Check.NotNull(configureJoinEntityType, nameof(configureJoinEntityType));
+        Check.NotNull(configureJoinEntityType);
 
         configureJoinEntityType(UsingEntity(joinEntityName, configureRight, configureLeft));
 
@@ -367,7 +367,7 @@ public class CollectionCollectionBuilder
         Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureLeft,
         Action<EntityTypeBuilder> configureJoinEntityType)
     {
-        Check.NotNull(configureJoinEntityType, nameof(configureJoinEntityType));
+        Check.NotNull(configureJoinEntityType);
 
         configureJoinEntityType(UsingEntity(joinEntityName, joinEntityType, configureRight, configureLeft));
 

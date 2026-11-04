@@ -10,14 +10,17 @@ public class QueryExpressionInterceptionWithDiagnosticsCosmosTest(
     : QueryExpressionInterceptionTestBase(fixture),
         IClassFixture<QueryExpressionInterceptionWithDiagnosticsCosmosTest.InterceptionCosmosFixture>
 {
-    public override Task Intercept_query_passively(bool async, bool inject)
-        => CosmosTestHelpers.Instance.NoSyncTest(async, a => base.Intercept_query_passively(a, inject));
+    public override Task Intercept_query_passively(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(async, a => base.Intercept_query_passively(a));
 
-    public override Task Intercept_query_with_multiple_interceptors(bool async, bool inject)
-        => CosmosTestHelpers.Instance.NoSyncTest(async, a => base.Intercept_query_with_multiple_interceptors(a, inject));
+    public override Task Intercept_query_with_multiple_interceptors(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(async, a => base.Intercept_query_with_multiple_interceptors(a));
 
-    public override Task Intercept_to_change_query_expression(bool async, bool inject)
-        => CosmosTestHelpers.Instance.NoSyncTest(async, a => base.Intercept_to_change_query_expression(a, inject));
+    public override Task Intercept_to_change_query_expression(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(async, a => base.Intercept_to_change_query_expression(a));
+
+    public override Task Interceptor_does_not_leak_across_contexts(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(async, a => base.Interceptor_does_not_leak_across_contexts(a));
 
     public class InterceptionCosmosFixture : InterceptionFixtureBase
     {

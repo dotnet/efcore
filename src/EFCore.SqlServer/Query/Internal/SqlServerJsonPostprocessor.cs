@@ -18,6 +18,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 ///     * When the column type in the WITH clause is a SQL Server "CLR type" - these are incompatible with WITH (e.g. hierarchy id).
 ///     2. Rewrite JsonScalarExpression (JSON_VALUE()) to OPENJSON for when JSON_VALUE() isn't compatible with the type (e.g. binary data
 ///     which needs to be base64-decoded).
+///     3. Restore native json inputs to JSON operations when OPENJSON's WITH clause only supports nvarchar(max).
 /// </summary>
 /// <remarks>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -28,13 +29,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 public sealed class SqlServerJsonPostprocessor(
     IRelationalTypeMappingSource typeMappingSource,
     ISqlExpressionFactory sqlExpressionFactory,
-    SqlAliasManager sqlAliasManager)
+    SqlAliasManager? sqlAliasManager)
     : ExpressionVisitor
 {
-    private readonly List<OuterApplyExpression> _openjsonOuterAppliesToAdd = new();
+    private static readonly bool UseOldBehavior39277 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue39277", out var enabled) && enabled;
+
+    private readonly List<OuterApplyExpression> _openjsonOuterAppliesToAdd = [];
     private readonly Dictionary<(string, string), ColumnInfo> _columnsToRewrite = new();
+    private readonly HashSet<(string, string)> _jsonColumnsToCast = [];
 
     private RelationalTypeMapping? _nvarcharMaxTypeMapping;
+    private bool _supportsJsonTypeInOpenJson;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -43,8 +49,19 @@ public sealed class SqlServerJsonPostprocessor(
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public Expression Process(Expression expression)
+        => Process(expression, supportsJsonTypeInOpenJson: true);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    internal Expression Process(Expression expression, bool supportsJsonTypeInOpenJson)
     {
         _columnsToRewrite.Clear();
+        _jsonColumnsToCast.Clear();
+        _supportsJsonTypeInOpenJson = supportsJsonTypeInOpenJson;
 
         return Visit(expression);
     }
@@ -75,6 +92,19 @@ public sealed class SqlServerJsonPostprocessor(
                 for (var i = 0; i < selectExpression.Tables.Count; i++)
                 {
                     var table = selectExpression.Tables[i];
+
+                    if (!UseOldBehavior39277
+                        && !_supportsJsonTypeInOpenJson
+                        && table.UnwrapJoin() is SqlServerOpenJsonExpression { ColumnInfos: { } jsonColumnInfos } jsonTable)
+                    {
+                        foreach (var columnInfo in jsonColumnInfos)
+                        {
+                            if (columnInfo is { AsJson: true, TypeMapping.StoreType: "json" })
+                            {
+                                _jsonColumnsToCast.Add((jsonTable.Alias, columnInfo.Name));
+                            }
+                        }
+                    }
 
                     if (table.UnwrapJoin() is SqlServerOpenJsonExpression { ColumnInfos: { } columnInfos } openJsonExpression
                         // Condition 1: an ordering/projection still refers to the OPENJSON's [key] column - it needs to be preserved.
@@ -177,6 +207,19 @@ public sealed class SqlServerJsonPostprocessor(
                     _openjsonOuterAppliesToAdd.Clear();
                 }
 
+                if (!_supportsJsonTypeInOpenJson
+                    && result.Alias is { } selectAlias)
+                {
+                    foreach (var projection in result.Projection)
+                    {
+                        if (projection.Expression is ColumnExpression column
+                            && _jsonColumnsToCast.Contains((column.TableAlias, column.Name)))
+                        {
+                            _jsonColumnsToCast.Add((selectAlias, projection.Alias));
+                        }
+                    }
+                }
+
                 return result;
             }
 
@@ -218,6 +261,9 @@ public sealed class SqlServerJsonPostprocessor(
                     jsonScalarExpression.IsNullable);
             }
 
+            // TODO: With the new RETURNING clause the following should not longer be needed - but support for varbinary
+            // isn't there yet. See #36474.
+
             // Some SQL Server types cannot be reliably parsed with JSON_VALUE(): binary/varbinary are encoded in base64 in the JSON,
             // but JSON_VALUE() returns a string and there's no SQL Server function to parse base64. However, OPENJSON/WITH does do base64
             // decoding.
@@ -229,6 +275,11 @@ public sealed class SqlServerJsonPostprocessor(
                     ?? (jsonScalar.Json as ColumnExpression)?.Name
                     ?? "Json";
 
+                // We need to generate an alias here; we always have a manager except
+                // when called from SqlNullabilityProcessor (where there's no manager),
+                // but in that scenario we never have to deal with JsonScalarExpression,
+                // only OpenJsonExpression.
+                Check.DebugAssert(sqlAliasManager is not null);
                 var tableAlias = sqlAliasManager.GenerateTableAlias(name);
                 var join =
                     new OuterApplyExpression(
@@ -249,21 +300,46 @@ public sealed class SqlServerJsonPostprocessor(
                     jsonScalar.IsNullable);
             }
 
-            case SqlServerOpenJsonExpression openJsonExpression:
-                // Currently, OPENJSON does not accept a "json" type, so we must cast the value to a string.
-                // We do this for both the case where is a string type mapping for a top-level property with the store type
-                // of "json", and when there is an "element" type mapping to something in the document but is now being used
-                // with OPENJSON.
-                return openJsonExpression.JsonExpression.TypeMapping
-                    is SqlServerStringTypeMapping { StoreType: "json" }
-                    or SqlServerOwnedJsonTypeMapping { StoreType: "json" }
-                    ? openJsonExpression.Update(
-                        new SqlUnaryExpression(
-                            ExpressionType.Convert,
-                            (SqlExpression)Visit(openJsonExpression.JsonExpression),
-                            typeof(string),
-                            typeMappingSource.FindMapping(typeof(string))!))
-                    : base.Visit(expression);
+            case JsonScalarExpression
+                {
+                    Json: ColumnExpression { TypeMapping: { StoreType: "json" } jsonTypeMapping } columnExpression,
+                    Path.Count: > 0
+                } jsonScalar
+                when jsonScalar.TypeMapping is not SqlServerStructuralJsonTypeMapping
+                && jsonScalar.TypeMapping?.ElementTypeMapping is null
+                && _jsonColumnsToCast.Contains((columnExpression.TableAlias, columnExpression.Name)):
+            {
+                var visited = (JsonScalarExpression)base.Visit(jsonScalar);
+
+                return visited.Update(sqlExpressionFactory.Convert(
+                    columnExpression.ApplyTypeMapping(jsonTypeMapping.WithStoreTypeAndSize("nvarchar(max)", null)),
+                    columnExpression.Type,
+                    jsonTypeMapping));
+            }
+
+            // The SQL Server json type cannot be compared ("The JSON data type cannot be compared or sorted, except when using the
+            // IS NULL operator"). So we find comparisons that involve the json type, and apply a conversion to string (nvarchar(max))
+            // to both sides. We exempt this when one of the sides is a constant null (not required).
+            case SqlBinaryExpression
+                {
+                    OperatorType: ExpressionType.Equal or ExpressionType.NotEqual,
+                    Left: var left,
+                    Right: var right
+                } comparison
+                when (left.TypeMapping?.StoreType is "json" || right.TypeMapping?.StoreType is "json")
+                && left is not SqlConstantExpression { Value: null }
+                && right is not SqlConstantExpression { Value: null }:
+            {
+                return comparison.Update(
+                    sqlExpressionFactory.Convert(
+                        left,
+                        typeof(string),
+                        typeMappingSource.FindMapping(typeof(string))),
+                    sqlExpressionFactory.Convert(
+                        right,
+                        typeof(string),
+                        typeMappingSource.FindMapping(typeof(string))));
+            }
 
             default:
                 return base.Visit(expression);
@@ -274,7 +350,7 @@ public sealed class SqlServerJsonPostprocessor(
                 || (sqlExpression is SqlUnaryExpression
                     {
                         OperatorType: ExpressionType.Convert,
-                        Operand: SqlExpression operand
+                        Operand: var operand
                     }
                     && IsKeyColumn(operand, openJsonTableAlias));
 

@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -10,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 {
     /// <inheritdoc />
-    protected override NonQueryExpression? TranslateExecuteDelete(ShapedQueryExpression source)
+    protected override DeleteExpression? TranslateExecuteDelete(ShapedQueryExpression source)
     {
         source = source.UpdateShaperExpression(new IncludePruner().Visit(source.ShaperExpression));
 
@@ -20,73 +19,110 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             return null;
         }
 
-        var mappingStrategy = entityType.GetMappingStrategy();
-        if (mappingStrategy == RelationalAnnotationNames.TptMappingStrategy)
+        if (entityType.IsMappedToJson())
         {
             AddTranslationErrorDetails(
-                RelationalStrings.ExecuteOperationOnTPT(
-                    nameof(EntityFrameworkQueryableExtensions.ExecuteDelete), entityType.DisplayName()));
+                RelationalStrings.ExecuteOperationOnOwnedJsonIsNotSupported("ExecuteDelete", entityType.DisplayName()));
             return null;
         }
 
-        if (mappingStrategy == RelationalAnnotationNames.TpcMappingStrategy
-            && entityType.GetDirectlyDerivedTypes().Any())
+        switch (entityType.GetMappingStrategy())
         {
-            // We allow TPC is it is leaf type
-            AddTranslationErrorDetails(
-                RelationalStrings.ExecuteOperationOnTPC(
-                    nameof(EntityFrameworkQueryableExtensions.ExecuteDelete), entityType.DisplayName()));
-            return null;
-        }
-
-        if (entityType.GetViewOrTableMappings().Count() != 1)
-        {
-            AddTranslationErrorDetails(
-                RelationalStrings.ExecuteOperationOnEntitySplitting(
-                    nameof(EntityFrameworkQueryableExtensions.ExecuteDelete), entityType.DisplayName()));
-            return null;
-        }
-
-        // First, check if the provider has a native translation for the delete represented by the select expression.
-        // The default relational implementation handles simple, universally-supported cases (i.e. no operators except for predicate).
-        // Providers may override IsValidSelectExpressionForExecuteDelete to add support for more cases via provider-specific DELETE syntax.
-        var selectExpression = (SelectExpression)source.QueryExpression;
-        if (IsValidSelectExpressionForExecuteDelete(selectExpression, shaper, out var tableExpression))
-        {
-            if (AreOtherNonOwnedEntityTypesInTheTable(entityType.GetRootType(), tableExpression.Table))
-            {
+            case RelationalAnnotationNames.TptMappingStrategy:
                 AddTranslationErrorDetails(
-                    RelationalStrings.ExecuteDeleteOnTableSplitting(tableExpression.Table.SchemaQualifiedName));
-
+                    RelationalStrings.ExecuteOperationOnTPT(
+                        nameof(EntityFrameworkQueryableExtensions.ExecuteDelete), entityType.DisplayName()));
                 return null;
+
+            // Note that we do allow TPC if the target is a leaf type
+            case RelationalAnnotationNames.TpcMappingStrategy when entityType.GetDirectlyDerivedTypes().Any():
+                AddTranslationErrorDetails(
+                    RelationalStrings.ExecuteOperationOnTPC(
+                        nameof(EntityFrameworkQueryableExtensions.ExecuteDelete), entityType.DisplayName()));
+                return null;
+        }
+
+        // Find the table model that maps to the entity type; there must be exactly one (e.g. no entity splitting).
+        ITable targetTable;
+        switch (entityType.GetTableMappings().ToList())
+        {
+            case []:
+                throw new InvalidOperationException(
+                    RelationalStrings.ExecuteUpdateDeleteOnEntityNotMappedToTable(entityType.DisplayName()));
+
+            case [var singleTableMapping]:
+                targetTable = singleTableMapping.Table;
+                break;
+
+            default:
+                AddTranslationErrorDetails(
+                    RelationalStrings.ExecuteOperationOnEntitySplitting(
+                        nameof(EntityFrameworkQueryableExtensions.ExecuteDelete), entityType.DisplayName()));
+                return null;
+        }
+
+        var selectExpression = (SelectExpression)source.QueryExpression;
+
+        // Find the table expression in the SelectExpression that corresponds to the projected entity type.
+        var projectionBindingExpression = (ProjectionBindingExpression)shaper.ValueBufferExpression;
+        var projection = (StructuralTypeProjectionExpression)selectExpression.GetProjection(projectionBindingExpression);
+        var column = projection.BindProperty(shaper.StructuralType.GetProperties().First());
+        var tableExpression = selectExpression.GetTable(column, out var tableIndex);
+
+        // If the projected table expression (the thing to be deleted) isn't a TableExpression (e.g. it's a set operation), we can't
+        // translate to a simple DELETE (which requires a simple target table), and must fall back to rewriting as a subquery.
+        if (tableExpression.UnwrapJoin() is TableExpression unwrappedTableExpression)
+        {
+            // In normal cases, the table expression will be refer to the same table model we found above for the entity type.
+            if (unwrappedTableExpression.Table is ITable)
+            {
+                Check.DebugAssert(
+                    unwrappedTableExpression.Table == targetTable,
+                    "Projected table is a table, but not the same one mapped to the entity type");
+            }
+            else
+            {
+                // If the entity is also mapped to a view, the SelectExpression will refer to the view instead, since translation happens
+                // with the assumption that we're querying, not deleting.
+                // For this case, we must replace the TableExpression in the SelectExpression - referring to the view - with the one that
+                // refers to the mutable table.
+                Check.DebugAssert(
+                    unwrappedTableExpression.Table.EntityTypeMappings.Any(etm => etm.TypeBase == entityType),
+                    "Projected table is not mapped to the entity type projected by the shaper");
+
+                unwrappedTableExpression = new TableExpression(unwrappedTableExpression.Alias, targetTable);
+                tableExpression = tableExpression is JoinExpressionBase join
+                    ? join.Update(unwrappedTableExpression)
+                    : unwrappedTableExpression;
+                var newTables = selectExpression.Tables.ToList();
+                newTables[tableIndex] = tableExpression;
+
+                // Note that we need to keep the select mutable, because if IsValidSelectExpressionForExecuteDelete below returns false,
+                // we need to compose on top of it.
+                selectExpression.SetTables(newTables);
             }
 
-            selectExpression.ReplaceProjection(new List<Expression>());
-            selectExpression.ApplyProjection();
-
-            return new NonQueryExpression(new DeleteExpression(tableExpression, selectExpression));
-
-            static bool AreOtherNonOwnedEntityTypesInTheTable(IEntityType rootType, ITableBase table)
+            // Finally, check if the provider has a native translation for the delete represented by the select expression.
+            // The default relational implementation handles simple, universally-supported cases (i.e. no operators except for predicate).
+            // Providers may override IsValidSelectExpressionForExecuteDelete to add support for more cases via provider-specific DELETE syntax.
+            if (IsValidSelectExpressionForExecuteDelete(selectExpression))
             {
-                foreach (var entityTypeMapping in table.EntityTypeMappings)
+                if (AreOtherNonOwnedEntityTypesInTheTable(entityType.GetRootType(), targetTable))
                 {
-                    var typeBase = entityTypeMapping.TypeBase;
-                    if ((entityTypeMapping.IsSharedTablePrincipal == true
-                            && typeBase != rootType)
-                        || (entityTypeMapping.IsSharedTablePrincipal == false
-                            && typeBase is IEntityType entityType
-                            && entityType.GetRootType() != rootType
-                            && !entityType.IsOwned()))
-                    {
-                        return true;
-                    }
+                    AddTranslationErrorDetails(
+                        RelationalStrings.ExecuteDeleteOnTableSplitting(unwrappedTableExpression.Table.SchemaQualifiedName));
+
+                    return null;
                 }
 
-                return false;
+                selectExpression.ReplaceProjection(new List<Expression>());
+                selectExpression.ApplyProjection();
+
+                return new DeleteExpression(unwrappedTableExpression, selectExpression);
             }
         }
 
-        // The provider doesn't natively support the delete.
+        // We can't translate to a simple delete (e.g. the provider doesn't support one of the clauses).
         // As a fallback, we place the original query in a Contains subquery, which will get translated via the regular entity equality/
         // containment mechanism (InExpression for non-composite keys, Any for composite keys)
         var pk = entityType.FindPrimaryKey();
@@ -109,6 +145,25 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             Expression.Quote(Expression.Lambda(predicateBody, entityParameter)));
 
         return TranslateExecuteDelete((ShapedQueryExpression)Visit(newSource));
+
+        static bool AreOtherNonOwnedEntityTypesInTheTable(IEntityType rootType, ITableBase table)
+        {
+            foreach (var entityTypeMapping in table.EntityTypeMappings)
+            {
+                var typeBase = entityTypeMapping.TypeBase;
+                if ((entityTypeMapping.IsSharedTablePrincipal == true
+                        && typeBase != rootType)
+                    || (entityTypeMapping.IsSharedTablePrincipal == false
+                        && typeBase is IEntityType entityType
+                        && entityType.GetRootType() != rootType
+                        && !entityType.IsOwned()))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 
     /// <summary>
@@ -126,32 +181,27 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
     ///     </para>
     /// </remarks>
     /// <param name="selectExpression">The select expression to validate.</param>
-    /// <param name="shaper">The structural type shaper expression on which the delete operation is being applied.</param>
-    /// <param name="tableExpression">The table expression from which rows are being deleted.</param>
     /// <returns>
     ///     Returns <see langword="true" /> if the current select expression can be used for delete as-is, <see langword="false" /> otherwise.
     /// </returns>
+    protected virtual bool IsValidSelectExpressionForExecuteDelete(SelectExpression selectExpression)
+        => selectExpression is
+        {
+            Tables: [TableExpression],
+            Orderings: [],
+            Offset: null,
+            Limit: null,
+            GroupBy: [],
+            Having: null
+        };
+
+    /// <summary>
+    ///     This method has been obsoleted, use the method accepting a single SelectExpression parameter instead.
+    /// </summary>
+    [Obsolete("This method has been obsoleted, use the method accepting a single SelectExpression parameter instead.", error: true)]
     protected virtual bool IsValidSelectExpressionForExecuteDelete(
         SelectExpression selectExpression,
         StructuralTypeShaperExpression shaper,
         [NotNullWhen(true)] out TableExpression? tableExpression)
-    {
-        if (selectExpression is
-            {
-                Tables: [TableExpression expression],
-                Orderings: [],
-                Offset: null,
-                Limit: null,
-                GroupBy: [],
-                Having: null
-            })
-        {
-            tableExpression = expression;
-
-            return true;
-        }
-
-        tableExpression = null;
-        return false;
-    }
+        => throw new UnreachableException();
 }

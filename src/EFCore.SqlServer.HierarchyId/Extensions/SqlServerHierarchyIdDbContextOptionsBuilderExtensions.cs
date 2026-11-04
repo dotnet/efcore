@@ -16,8 +16,9 @@ public static class SqlServerHierarchyIdDbContextOptionsBuilderExtensions
     /// </summary>
     /// <param name="optionsBuilder">The builder being used to configure SQL Server.</param>
     /// <returns>The options builder so that further configuration can be chained.</returns>
-    public static SqlServerDbContextOptionsBuilder UseHierarchyId(
-        this SqlServerDbContextOptionsBuilder optionsBuilder)
+    public static T UseHierarchyId<T>(
+        this T optionsBuilder)
+        where T : SqlEngineDbContextOptionsBuilderBase<T>
     {
         var coreOptionsBuilder = ((IRelationalDbContextOptionsBuilderInfrastructure)optionsBuilder).OptionsBuilder;
 

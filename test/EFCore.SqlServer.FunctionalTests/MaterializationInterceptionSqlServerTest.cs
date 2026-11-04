@@ -3,8 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class MaterializationInterceptionSqlServerTest :
-    MaterializationInterceptionTestBase<MaterializationInterceptionSqlServerTest.SqlServerLibraryContext>
+public class MaterializationInterceptionSqlServerTest(NonSharedFixture fixture) :
+    MaterializationInterceptionTestBase<MaterializationInterceptionSqlServerTest.SqlServerLibraryContext>(fixture)
 {
     public class SqlServerLibraryContext(DbContextOptions options) : LibraryContext(options)
     {

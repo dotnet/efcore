@@ -26,7 +26,7 @@ public static class RelationalForeignKeyBuilderExtensions
         this ReferenceCollectionBuilder referenceCollectionBuilder,
         string? name)
     {
-        Check.NullButNotEmpty(name, nameof(name));
+        Check.NullButNotEmpty(name);
 
         referenceCollectionBuilder.Metadata.SetConstraintName(name);
 
@@ -65,7 +65,7 @@ public static class RelationalForeignKeyBuilderExtensions
         this ReferenceReferenceBuilder referenceReferenceBuilder,
         string? name)
     {
-        Check.NullButNotEmpty(name, nameof(name));
+        Check.NullButNotEmpty(name);
 
         referenceReferenceBuilder.Metadata.SetConstraintName(name);
 
@@ -104,7 +104,7 @@ public static class RelationalForeignKeyBuilderExtensions
         this OwnershipBuilder ownershipBuilder,
         string? name)
     {
-        Check.NullButNotEmpty(name, nameof(name));
+        Check.NullButNotEmpty(name);
 
         ownershipBuilder.Metadata.SetConstraintName(name);
 

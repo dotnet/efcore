@@ -92,6 +92,7 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_refTypeArray", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field,
                 nullable: true);
+            var refTypeArrayElementType = refTypeArray.SetElementType(typeof(IPAddress));
             refTypeArray.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var refTypeEnumerable = runtimeEntityType.AddProperty(
@@ -101,6 +102,7 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_refTypeEnumerable", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field,
                 nullable: true);
+            var refTypeEnumerableElementType = refTypeEnumerable.SetElementType(typeof(string));
             refTypeEnumerable.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var refTypeIList = runtimeEntityType.AddProperty(
@@ -110,6 +112,7 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_refTypeIList", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field,
                 nullable: true);
+            var refTypeIListElementType = refTypeIList.SetElementType(typeof(string));
             refTypeIList.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var refTypeList = runtimeEntityType.AddProperty(
@@ -119,6 +122,7 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_refTypeList", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field,
                 nullable: true);
+            var refTypeListElementType = refTypeList.SetElementType(typeof(IPAddress));
             refTypeList.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var valueTypeArray = runtimeEntityType.AddProperty(
@@ -128,6 +132,7 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_valueTypeArray", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field,
                 nullable: true);
+            var valueTypeArrayElementType = valueTypeArray.SetElementType(typeof(DateTime));
             valueTypeArray.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var valueTypeEnumerable = runtimeEntityType.AddProperty(
@@ -137,6 +142,7 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_valueTypeEnumerable", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field,
                 nullable: true);
+            var valueTypeEnumerableElementType = valueTypeEnumerable.SetElementType(typeof(byte));
             valueTypeEnumerable.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var valueTypeIList = runtimeEntityType.AddProperty(
@@ -146,6 +152,7 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("<ValueTypeIList>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field,
                 nullable: true);
+            var valueTypeIListElementType = valueTypeIList.SetElementType(typeof(byte));
             valueTypeIList.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var valueTypeList = runtimeEntityType.AddProperty(
@@ -155,6 +162,7 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_valueTypeList", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field,
                 nullable: true);
+            var valueTypeListElementType = valueTypeList.SetElementType(typeof(short));
             valueTypeList.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var context = runtimeEntityType.AddServiceProperty(

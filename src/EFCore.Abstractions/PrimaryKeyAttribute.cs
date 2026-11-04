@@ -31,8 +31,8 @@ public sealed class PrimaryKeyAttribute : Attribute
     /// <param name="additionalPropertyNames">The additional properties which constitute the primary key, if any, in order.</param>
     public PrimaryKeyAttribute(string propertyName, params string[] additionalPropertyNames)
     {
-        Check.NotEmpty(propertyName, nameof(propertyName));
-        Check.HasNoEmptyElements(additionalPropertyNames, nameof(additionalPropertyNames));
+        Check.NotEmpty(propertyName);
+        Check.HasNoEmptyElements(additionalPropertyNames);
 
         PropertyNames = new List<string> { propertyName };
         ((List<string>)PropertyNames).AddRange(additionalPropertyNames);

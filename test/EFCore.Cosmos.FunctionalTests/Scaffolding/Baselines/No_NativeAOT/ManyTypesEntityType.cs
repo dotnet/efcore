@@ -40,7 +40,6 @@ namespace TestNamespace
                 typeof(CompiledModelTestBase.ManyTypesId),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Id", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                valueGenerated: ValueGenerated.OnAdd,
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 valueConverter: new CompiledModelTestBase.ManyTypesIdConverter());
             id.SetSentinelFromProviderValue(0);
@@ -63,18 +62,21 @@ namespace TestNamespace
                 typeof(bool[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("BoolArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<BoolArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            var boolArrayElementType = boolArray.SetElementType(typeof(bool));
 
             var boolNestedCollection = runtimeEntityType.AddProperty(
                 "BoolNestedCollection",
                 typeof(bool[][]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("BoolNestedCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<BoolNestedCollection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            var boolNestedCollectionElementType = boolNestedCollection.SetElementType(typeof(bool[]));
 
             var boolReadOnlyCollection = runtimeEntityType.AddProperty(
                 "BoolReadOnlyCollection",
                 typeof(IReadOnlyCollection<bool>),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("BoolReadOnlyCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("_boolReadOnlyCollection", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            var boolReadOnlyCollectionElementType = boolReadOnlyCollection.SetElementType(typeof(bool));
 
             var boolToStringConverterProperty = runtimeEntityType.AddProperty(
                 "BoolToStringConverterProperty",
@@ -156,12 +158,14 @@ namespace TestNamespace
                 typeof(char[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("CharArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<CharArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            var charArrayElementType = charArray.SetElementType(typeof(char));
 
             var charNestedCollection = runtimeEntityType.AddProperty(
                 "CharNestedCollection",
                 typeof(char[][]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("CharNestedCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<CharNestedCollection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            var charNestedCollectionElementType = charNestedCollection.SetElementType(typeof(char[]));
 
             var charToStringConverterProperty = runtimeEntityType.AddProperty(
                 "CharToStringConverterProperty",
@@ -252,6 +256,7 @@ namespace TestNamespace
                 typeof(decimal[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("DecimalArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<DecimalArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            var decimalArrayElementType = decimalArray.SetElementType(typeof(decimal));
 
             var decimalNumberToBytesConverterProperty = runtimeEntityType.AddProperty(
                 "DecimalNumberToBytesConverterProperty",
@@ -281,6 +286,7 @@ namespace TestNamespace
                 typeof(double[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("DoubleArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<DoubleArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            var doubleArrayElementType = doubleArray.SetElementType(typeof(double));
 
             var doubleNumberToBytesConverterProperty = runtimeEntityType.AddProperty(
                 "DoubleNumberToBytesConverterProperty",
@@ -446,6 +452,7 @@ namespace TestNamespace
                 typeof(float[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("FloatArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<FloatArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            var floatArrayElementType = floatArray.SetElementType(typeof(float));
 
             var guid = runtimeEntityType.AddProperty(
                 "Guid",
@@ -502,6 +509,7 @@ namespace TestNamespace
                 typeof(short[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Int16Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Int16Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            var int16ArrayElementType = int16Array.SetElementType(typeof(short));
 
             var int32 = runtimeEntityType.AddProperty(
                 "Int32",
@@ -515,18 +523,21 @@ namespace TestNamespace
                 typeof(int[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Int32Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Int32Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            var int32ArrayElementType = int32Array.SetElementType(typeof(int));
 
             var int32NestedCollection = runtimeEntityType.AddProperty(
                 "Int32NestedCollection",
                 typeof(int[][]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Int32NestedCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Int32NestedCollection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            var int32NestedCollectionElementType = int32NestedCollection.SetElementType(typeof(int[]));
 
             var int32ReadOnlyCollection = runtimeEntityType.AddProperty(
                 "Int32ReadOnlyCollection",
                 typeof(IReadOnlyCollection<int>),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Int32ReadOnlyCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("_int32ReadOnlyCollection", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            var int32ReadOnlyCollectionElementType = int32ReadOnlyCollection.SetElementType(typeof(int));
 
             var int64 = runtimeEntityType.AddProperty(
                 "Int64",
@@ -540,12 +551,14 @@ namespace TestNamespace
                 typeof(long[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Int64Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Int64Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            var int64ArrayElementType = int64Array.SetElementType(typeof(long));
 
             var int64NestedCollection = runtimeEntityType.AddProperty(
                 "Int64NestedCollection",
                 typeof(IList<long[]>[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Int64NestedCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Int64NestedCollection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            var int64NestedCollectionElementType = int64NestedCollection.SetElementType(typeof(IList<long[]>));
 
             var int8 = runtimeEntityType.AddProperty(
                 "Int8",
@@ -559,12 +572,14 @@ namespace TestNamespace
                 typeof(sbyte[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Int8Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Int8Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            var int8ArrayElementType = int8Array.SetElementType(typeof(sbyte));
 
             var int8NestedCollection = runtimeEntityType.AddProperty(
                 "Int8NestedCollection",
                 typeof(sbyte[][][]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Int8NestedCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Int8NestedCollection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            var int8NestedCollectionElementType = int8NestedCollection.SetElementType(typeof(sbyte[][]));
 
             var intNumberToBytesConverterProperty = runtimeEntityType.AddProperty(
                 "IntNumberToBytesConverterProperty",
@@ -602,6 +617,8 @@ namespace TestNamespace
                 typeof(bool?[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableBoolArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableBoolArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            var nullableBoolArrayElementType = nullableBoolArray.SetElementType(typeof(bool?),
+                nullable: true);
 
             var nullableBytes = runtimeEntityType.AddProperty(
                 "NullableBytes",
@@ -622,6 +639,8 @@ namespace TestNamespace
                 typeof(char?[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableCharArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableCharArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            var nullableCharArrayElementType = nullableCharArray.SetElementType(typeof(char?),
+                nullable: true);
 
             var nullableDateOnly = runtimeEntityType.AddProperty(
                 "NullableDateOnly",
@@ -649,6 +668,8 @@ namespace TestNamespace
                 typeof(decimal?[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableDecimalArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableDecimalArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            var nullableDecimalArrayElementType = nullableDecimalArray.SetElementType(typeof(decimal?),
+                nullable: true);
 
             var nullableDouble = runtimeEntityType.AddProperty(
                 "NullableDouble",
@@ -662,6 +683,8 @@ namespace TestNamespace
                 typeof(double?[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableDoubleArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableDoubleArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            var nullableDoubleArrayElementType = nullableDoubleArray.SetElementType(typeof(double?),
+                nullable: true);
 
             var nullableEnum16 = runtimeEntityType.AddProperty(
                 "NullableEnum16",
@@ -787,6 +810,8 @@ namespace TestNamespace
                 typeof(float?[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableFloatArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableFloatArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            var nullableFloatArrayElementType = nullableFloatArray.SetElementType(typeof(float?),
+                nullable: true);
 
             var nullableGuid = runtimeEntityType.AddProperty(
                 "NullableGuid",
@@ -814,6 +839,8 @@ namespace TestNamespace
                 typeof(short?[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableInt16Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableInt16Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            var nullableInt16ArrayElementType = nullableInt16Array.SetElementType(typeof(short?),
+                nullable: true);
 
             var nullableInt32 = runtimeEntityType.AddProperty(
                 "NullableInt32",
@@ -827,12 +854,15 @@ namespace TestNamespace
                 typeof(int?[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableInt32Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableInt32Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            var nullableInt32ArrayElementType = nullableInt32Array.SetElementType(typeof(int?),
+                nullable: true);
 
             var nullableInt32NestedCollection = runtimeEntityType.AddProperty(
                 "NullableInt32NestedCollection",
                 typeof(int?[][]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableInt32NestedCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableInt32NestedCollection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            var nullableInt32NestedCollectionElementType = nullableInt32NestedCollection.SetElementType(typeof(int?[]));
 
             var nullableInt64 = runtimeEntityType.AddProperty(
                 "NullableInt64",
@@ -846,12 +876,15 @@ namespace TestNamespace
                 typeof(long?[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableInt64Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableInt64Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            var nullableInt64ArrayElementType = nullableInt64Array.SetElementType(typeof(long?),
+                nullable: true);
 
             var nullableInt64NestedCollection = runtimeEntityType.AddProperty(
                 "NullableInt64NestedCollection",
                 typeof(List<long?[][]>),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableInt64NestedCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableInt64NestedCollection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            var nullableInt64NestedCollectionElementType = nullableInt64NestedCollection.SetElementType(typeof(long?[][]));
 
             var nullableInt8 = runtimeEntityType.AddProperty(
                 "NullableInt8",
@@ -865,6 +898,8 @@ namespace TestNamespace
                 typeof(sbyte?[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableInt8Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableInt8Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            var nullableInt8ArrayElementType = nullableInt8Array.SetElementType(typeof(sbyte?),
+                nullable: true);
 
             var nullablePhysicalAddress = runtimeEntityType.AddProperty(
                 "NullablePhysicalAddress",
@@ -885,12 +920,15 @@ namespace TestNamespace
                 typeof(string[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableStringArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableStringArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            var nullableStringArrayElementType = nullableStringArray.SetElementType(typeof(string),
+                nullable: true);
 
             var nullableStringNestedCollection = runtimeEntityType.AddProperty(
                 "NullableStringNestedCollection",
                 typeof(string[][]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableStringNestedCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableStringNestedCollection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            var nullableStringNestedCollectionElementType = nullableStringNestedCollection.SetElementType(typeof(string[]));
 
             var nullableTimeOnly = runtimeEntityType.AddProperty(
                 "NullableTimeOnly",
@@ -918,6 +956,8 @@ namespace TestNamespace
                 typeof(ushort?[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableUInt16Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableUInt16Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            var nullableUInt16ArrayElementType = nullableUInt16Array.SetElementType(typeof(ushort?),
+                nullable: true);
 
             var nullableUInt32 = runtimeEntityType.AddProperty(
                 "NullableUInt32",
@@ -931,6 +971,8 @@ namespace TestNamespace
                 typeof(uint?[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableUInt32Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableUInt32Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            var nullableUInt32ArrayElementType = nullableUInt32Array.SetElementType(typeof(uint?),
+                nullable: true);
 
             var nullableUInt64 = runtimeEntityType.AddProperty(
                 "NullableUInt64",
@@ -944,6 +986,8 @@ namespace TestNamespace
                 typeof(ulong?[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableUInt64Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableUInt64Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            var nullableUInt64ArrayElementType = nullableUInt64Array.SetElementType(typeof(ulong?),
+                nullable: true);
 
             var nullableUInt8 = runtimeEntityType.AddProperty(
                 "NullableUInt8",
@@ -957,6 +1001,8 @@ namespace TestNamespace
                 typeof(byte?[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableUInt8Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableUInt8Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            var nullableUInt8ArrayElementType = nullableUInt8Array.SetElementType(typeof(byte?),
+                nullable: true);
 
             var nullableUri = runtimeEntityType.AddProperty(
                 "NullableUri",
@@ -996,18 +1042,21 @@ namespace TestNamespace
                 typeof(string[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("StringArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<StringArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            var stringArrayElementType = stringArray.SetElementType(typeof(string));
 
             var stringNestedCollection = runtimeEntityType.AddProperty(
                 "StringNestedCollection",
                 typeof(string[][]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("StringNestedCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<StringNestedCollection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            var stringNestedCollectionElementType = stringNestedCollection.SetElementType(typeof(string[]));
 
             var stringReadOnlyCollection = runtimeEntityType.AddProperty(
                 "StringReadOnlyCollection",
                 typeof(IReadOnlyCollection<string>),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("StringReadOnlyCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("_stringReadOnlyCollection", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            var stringReadOnlyCollectionElementType = stringReadOnlyCollection.SetElementType(typeof(string));
 
             var stringToBoolConverterProperty = runtimeEntityType.AddProperty(
                 "StringToBoolConverterProperty",
@@ -1167,6 +1216,7 @@ namespace TestNamespace
                 typeof(ushort[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("UInt16Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<UInt16Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            var uInt16ArrayElementType = uInt16Array.SetElementType(typeof(ushort));
 
             var uInt32 = runtimeEntityType.AddProperty(
                 "UInt32",
@@ -1180,6 +1230,7 @@ namespace TestNamespace
                 typeof(uint[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("UInt32Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<UInt32Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            var uInt32ArrayElementType = uInt32Array.SetElementType(typeof(uint));
 
             var uInt64 = runtimeEntityType.AddProperty(
                 "UInt64",
@@ -1193,6 +1244,7 @@ namespace TestNamespace
                 typeof(ulong[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("UInt64Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<UInt64Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            var uInt64ArrayElementType = uInt64Array.SetElementType(typeof(ulong));
 
             var uInt8 = runtimeEntityType.AddProperty(
                 "UInt8",
@@ -1212,6 +1264,7 @@ namespace TestNamespace
                 typeof(IReadOnlyCollection<byte>),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("UInt8ReadOnlyCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("_uInt8ReadOnlyCollection", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            var uInt8ReadOnlyCollectionElementType = uInt8ReadOnlyCollection.SetElementType(typeof(byte));
 
             var uri = runtimeEntityType.AddProperty(
                 "Uri",

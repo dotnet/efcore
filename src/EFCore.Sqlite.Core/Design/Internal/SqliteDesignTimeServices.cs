@@ -27,6 +27,7 @@ public class SqliteDesignTimeServices : IDesignTimeServices
         serviceCollection.AddEntityFrameworkSqlite();
 #pragma warning disable EF1001 // Internal EF Core API usage.
         new EntityFrameworkRelationalDesignServicesBuilder(serviceCollection)
+            .TryAdd<IAnnotationCodeGenerator, SqliteAnnotationCodeGenerator>()
             .TryAdd<ICSharpRuntimeAnnotationCodeGenerator, SqliteCSharpRuntimeAnnotationCodeGenerator>()
 #pragma warning restore EF1001 // Internal EF Core API usage.
             .TryAdd<IDatabaseModelFactory, SqliteDatabaseModelFactory>()

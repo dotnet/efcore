@@ -93,8 +93,8 @@ public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
         if (caseExpression is { Operand: null, ElseResult: null, WhenClauses.Count: 3 }
             && caseExpression.WhenClauses.All(c => c is { Test: SqlBinaryExpression, Result: SqlConstantExpression { Value: int } }))
         {
-            var whenClauses = caseExpression.WhenClauses.Select(
-                c => new { Test = (SqlBinaryExpression)c.Test, ResultValue = (int)((SqlConstantExpression)c.Result).Value! }).ToList();
+            var whenClauses = caseExpression.WhenClauses.Select(c
+                => new { Test = (SqlBinaryExpression)c.Test, ResultValue = (int)((SqlConstantExpression)c.Result).Value! }).ToList();
 
             if (whenClauses[0].Test.Left.Equals(whenClauses[1].Test.Left)
                 && whenClauses[1].Test.Left.Equals(whenClauses[2].Test.Left)
@@ -222,55 +222,55 @@ public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
         var left = (SqlExpression)Visit(sqlBinaryExpression.Left);
         var right = (SqlExpression)Visit(sqlBinaryExpression.Right);
 
-        if (sqlBinaryExpression.OperatorType is ExpressionType.AndAlso or ExpressionType.OrElse)
+        if (sqlBinaryExpression.OperatorType is not (ExpressionType.AndAlso or ExpressionType.OrElse)
+            || !TryGetInExpressionCandidateInfo(left, out var leftCandidateInfo)
+            || !TryGetInExpressionCandidateInfo(right, out var rightCandidateInfo)
+            || leftCandidateInfo.ColumnExpression != rightCandidateInfo.ColumnExpression
+            || leftCandidateInfo.OperationType != rightCandidateInfo.OperationType)
         {
-            if (TryGetInExpressionCandidateInfo(left, out var leftCandidateInfo)
-                && TryGetInExpressionCandidateInfo(right, out var rightCandidateInfo)
-                && leftCandidateInfo.ColumnExpression == rightCandidateInfo.ColumnExpression
-                && leftCandidateInfo.OperationType == rightCandidateInfo.OperationType)
+            return sqlBinaryExpression.Update(left, right);
+        }
+
+        // for relational nulls we can't combine comparisons that contain null
+        // a != 1 && a != null would be converted to a NOT IN (1, null), which never returns any results
+        // we need to keep it in the original form so that a != null gets converted to a IS NOT NULL instead
+        // for c# null semantics it's fine because null semantics visitor extracts null back into proper null checks
+        var leftValues = leftCandidateInfo.ValueOrValues switch
+        {
+            IReadOnlyList<SqlExpression> v => v,
+            SqlConstantExpression c when !_useRelationalNulls || c.Value is not null => [c],
+            _ => null
+        };
+
+        var rightValues = rightCandidateInfo.ValueOrValues switch
+        {
+            IReadOnlyList<SqlExpression> v => v,
+            SqlConstantExpression c when !_useRelationalNulls || c.Value is not null => [c],
+            _ => null
+        };
+
+        if (leftValues is not null && rightValues is not null)
+        {
+            // Union:
+            // a IN (1, 2) || a IN (2, 3) -> a IN (1, 2, 3)
+            // a IN (1, 2) || a = 3 -> a IN (1, 2, 3)
+            // a NOT IN (1, 2) && a <> 3 -> a NOT IN (1, 2, 3)
+
+            // Intersection:
+            // a IN (1, 2, 3) && a IN (2, 3, 4) -> a IN (2, 3)
+            var inExpression = _sqlExpressionFactory.In(
+                leftCandidateInfo.ColumnExpression,
+                (leftCandidateInfo.OperationType, sqlBinaryExpression.OperatorType) is
+                (ExpressionType.Equal, ExpressionType.OrElse) or (ExpressionType.NotEqual, ExpressionType.AndAlso)
+                    ? leftValues.Union(rightValues).ToArray()
+                    : leftValues.Intersect(rightValues).ToArray());
+
+            return leftCandidateInfo.OperationType switch
             {
-                // for relational nulls we can't combine comparisons that contain null
-                // a != 1 && a != null would be converted to a NOT IN (1, null), which never returns any results
-                // we need to keep it in the original form so that a != null gets converted to a IS NOT NULL instead
-                // for c# null semantics it's fine because null semantics visitor extracts null back into proper null checks
-                var leftValues = leftCandidateInfo.ValueOrValues switch
-                {
-                    IReadOnlyList<SqlExpression> v => v,
-                    SqlConstantExpression c when !_useRelationalNulls || c.Value is not null => new[] { c },
-                    _ => null
-                };
-
-                var rightValues = rightCandidateInfo.ValueOrValues switch
-                {
-                    IReadOnlyList<SqlExpression> v => v,
-                    SqlConstantExpression c when !_useRelationalNulls || c.Value is not null => new[] { c },
-                    _ => null
-                };
-
-                if (leftValues is not null && rightValues is not null)
-                {
-                    // Union:
-                    // a IN (1, 2) || a IN (2, 3) -> a IN (1, 2, 3)
-                    // a IN (1, 2) || a = 3 -> a IN (1, 2, 3)
-                    // a NOT IN (1, 2) && a <> 3 -> a NOT IN (1, 2, 3)
-
-                    // Intersection:
-                    // a IN (1, 2, 3) && a IN (2, 3, 4) -> a IN (2, 3)
-                    var inExpression = _sqlExpressionFactory.In(
-                        leftCandidateInfo.ColumnExpression,
-                        (leftCandidateInfo.OperationType, sqlBinaryExpression.OperatorType) is
-                        (ExpressionType.Equal, ExpressionType.OrElse) or (ExpressionType.NotEqual, ExpressionType.AndAlso)
-                            ? leftValues.Union(rightValues).ToArray()
-                            : leftValues.Intersect(rightValues).ToArray());
-
-                    return leftCandidateInfo.OperationType switch
-                    {
-                        ExpressionType.Equal => inExpression,
-                        ExpressionType.NotEqual => _sqlExpressionFactory.Not(inExpression),
-                        _ => throw new UnreachableException()
-                    };
-                }
-            }
+                ExpressionType.Equal => inExpression,
+                ExpressionType.NotEqual => _sqlExpressionFactory.Not(inExpression),
+                _ => throw new UnreachableException()
+            };
         }
 
         return sqlBinaryExpression.Update(left, right);

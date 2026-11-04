@@ -42,7 +42,7 @@ public class ConstructorBindingConvention : IModelFinalizingConvention
                 && ConfigurationSource.Convention.Overrides(entityType.GetConstructorBindingConfigurationSource()))
             {
                 Dependencies.ConstructorBindingFactory.GetBindings(
-                    (IMutableEntityType)entityType, out var constructorBinding, out var serviceOnlyBinding);
+                    (IConventionEntityType)entityType, out var constructorBinding, out var serviceOnlyBinding);
 
                 entityType.Builder.HasConstructorBinding(constructorBinding, ConfigurationSource.Convention);
                 entityType.Builder.HasServiceOnlyConstructorBinding(serviceOnlyBinding, ConfigurationSource.Convention);

@@ -26,7 +26,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         this EntityTypeBuilder entityTypeBuilder,
         string? name)
     {
-        Check.NullButNotEmpty(name, nameof(name));
+        Check.NullButNotEmpty(name);
 
         entityTypeBuilder.Metadata.SetTableName(name);
         entityTypeBuilder.Metadata.SetSchema(null);
@@ -47,7 +47,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         this EntityTypeBuilder entityTypeBuilder,
         Action<TableBuilder> buildAction)
     {
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(buildAction);
 
         buildAction(new TableBuilder(null, entityTypeBuilder));
 
@@ -69,8 +69,8 @@ public static partial class RelationalEntityTypeBuilderExtensions
         string name,
         Action<TableBuilder> buildAction)
     {
-        Check.NotNull(name, nameof(name));
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(name);
+        Check.NotNull(buildAction);
 
         entityTypeBuilder.Metadata.SetTableName(name);
         entityTypeBuilder.Metadata.SetSchema(null);
@@ -110,7 +110,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         Action<TableBuilder<TEntity>> buildAction)
         where TEntity : class
     {
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(buildAction);
 
         var entityTypeConventionBuilder = entityTypeBuilder.GetInfrastructure();
         if (entityTypeConventionBuilder.Metadata[RelationalAnnotationNames.TableName] == null)
@@ -156,8 +156,8 @@ public static partial class RelationalEntityTypeBuilderExtensions
         string name,
         string? schema)
     {
-        Check.NotNull(name, nameof(name));
-        Check.NullButNotEmpty(schema, nameof(schema));
+        Check.NotNull(name);
+        Check.NullButNotEmpty(schema);
 
         entityTypeBuilder.Metadata.SetTableName(name);
         entityTypeBuilder.Metadata.SetSchema(schema);
@@ -181,9 +181,9 @@ public static partial class RelationalEntityTypeBuilderExtensions
         string? schema,
         Action<TableBuilder> buildAction)
     {
-        Check.NotNull(name, nameof(name));
-        Check.NullButNotEmpty(schema, nameof(schema));
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(name);
+        Check.NullButNotEmpty(schema);
+        Check.NotNull(buildAction);
 
         entityTypeBuilder.Metadata.SetTableName(name);
         entityTypeBuilder.Metadata.SetSchema(schema);
@@ -229,9 +229,9 @@ public static partial class RelationalEntityTypeBuilderExtensions
         Action<TableBuilder<TEntity>> buildAction)
         where TEntity : class
     {
-        Check.NotNull(name, nameof(name));
-        Check.NullButNotEmpty(schema, nameof(schema));
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(name);
+        Check.NullButNotEmpty(schema);
+        Check.NotNull(buildAction);
 
         entityTypeBuilder.Metadata.SetTableName(name);
         entityTypeBuilder.Metadata.SetSchema(schema);
@@ -254,7 +254,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         this OwnedNavigationBuilder ownedNavigationBuilder,
         string? name)
     {
-        Check.NullButNotEmpty(name, nameof(name));
+        Check.NullButNotEmpty(name);
 
         ownedNavigationBuilder.OwnedEntityType.SetTableName(name);
         ownedNavigationBuilder.OwnedEntityType.SetSchema(null);
@@ -275,7 +275,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         this OwnedNavigationBuilder ownedNavigationBuilder,
         Action<OwnedNavigationTableBuilder> buildAction)
     {
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(buildAction);
 
         buildAction(new OwnedNavigationTableBuilder(null, ownedNavigationBuilder));
 
@@ -299,7 +299,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         where TOwnerEntity : class
         where TDependentEntity : class
     {
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(buildAction);
 
         buildAction(new OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity>(null, ownedNavigationBuilder));
 
@@ -339,8 +339,8 @@ public static partial class RelationalEntityTypeBuilderExtensions
         string name,
         Action<OwnedNavigationTableBuilder> buildAction)
     {
-        Check.NotNull(name, nameof(name));
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(name);
+        Check.NotNull(buildAction);
 
         ownedNavigationBuilder.OwnedEntityType.SetTableName(name);
         ownedNavigationBuilder.OwnedEntityType.SetSchema(null);
@@ -384,8 +384,8 @@ public static partial class RelationalEntityTypeBuilderExtensions
         string name,
         string? schema)
     {
-        Check.NotNull(name, nameof(name));
-        Check.NullButNotEmpty(schema, nameof(schema));
+        Check.NotNull(name);
+        Check.NullButNotEmpty(schema);
 
         ownedNavigationBuilder.OwnedEntityType.SetTableName(name);
         ownedNavigationBuilder.OwnedEntityType.SetSchema(schema);
@@ -410,9 +410,9 @@ public static partial class RelationalEntityTypeBuilderExtensions
         string? schema,
         Action<OwnedNavigationTableBuilder> buildAction)
     {
-        Check.NotNull(name, nameof(name));
-        Check.NullButNotEmpty(schema, nameof(schema));
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(name);
+        Check.NullButNotEmpty(schema);
+        Check.NotNull(buildAction);
 
         ownedNavigationBuilder.OwnedEntityType.SetTableName(name);
         ownedNavigationBuilder.OwnedEntityType.SetSchema(schema);
@@ -465,9 +465,9 @@ public static partial class RelationalEntityTypeBuilderExtensions
         where TOwnerEntity : class
         where TDependentEntity : class
     {
-        Check.NotNull(name, nameof(name));
-        Check.NullButNotEmpty(schema, nameof(schema));
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(name);
+        Check.NullButNotEmpty(schema);
+        Check.NotNull(buildAction);
 
         ownedNavigationBuilder.OwnedEntityType.SetTableName(name);
         ownedNavigationBuilder.OwnedEntityType.SetSchema(schema);
@@ -532,9 +532,9 @@ public static partial class RelationalEntityTypeBuilderExtensions
         string? schema,
         Action<SplitTableBuilder> buildAction)
     {
-        Check.NotNull(name, nameof(name));
-        Check.NullButNotEmpty(schema, nameof(schema));
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(name);
+        Check.NullButNotEmpty(schema);
+        Check.NotNull(buildAction);
 
         buildAction(
             new SplitTableBuilder(
@@ -563,9 +563,9 @@ public static partial class RelationalEntityTypeBuilderExtensions
         Action<SplitTableBuilder<TEntity>> buildAction)
         where TEntity : class
     {
-        Check.NotNull(name, nameof(name));
-        Check.NullButNotEmpty(schema, nameof(schema));
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(name);
+        Check.NullButNotEmpty(schema);
+        Check.NotNull(buildAction);
 
         buildAction(
             new SplitTableBuilder<TEntity>(
@@ -630,9 +630,9 @@ public static partial class RelationalEntityTypeBuilderExtensions
         string? schema,
         Action<OwnedNavigationSplitTableBuilder> buildAction)
     {
-        Check.NotNull(name, nameof(name));
-        Check.NullButNotEmpty(schema, nameof(schema));
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(name);
+        Check.NullButNotEmpty(schema);
+        Check.NotNull(buildAction);
 
         buildAction(
             new OwnedNavigationSplitTableBuilder(
@@ -664,9 +664,9 @@ public static partial class RelationalEntityTypeBuilderExtensions
         where TOwnerEntity : class
         where TDependentEntity : class
     {
-        Check.NotNull(name, nameof(name));
-        Check.NullButNotEmpty(schema, nameof(schema));
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(name);
+        Check.NullButNotEmpty(schema);
+        Check.NotNull(buildAction);
 
         buildAction(
             new OwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity>(
@@ -748,7 +748,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         string? name,
         bool fromDataAnnotation = false)
     {
-        Check.NullButNotEmpty(name, nameof(name));
+        Check.NullButNotEmpty(name);
 
         return entityTypeBuilder.CanSetAnnotation(RelationalAnnotationNames.TableName, name, fromDataAnnotation);
     }
@@ -795,7 +795,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         string? schema,
         bool fromDataAnnotation = false)
     {
-        Check.NullButNotEmpty(schema, nameof(schema));
+        Check.NullButNotEmpty(schema);
 
         return entityTypeBuilder.CanSetAnnotation(RelationalAnnotationNames.Schema, schema, fromDataAnnotation);
     }

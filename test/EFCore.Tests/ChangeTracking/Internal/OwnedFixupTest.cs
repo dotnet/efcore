@@ -26,9 +26,8 @@ public class OwnedFixupTest
         public Thing Thing { get; set; }
     }
 
-    [ConditionalTheory] // Issue #18982
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory,
+     InlineData(false), InlineData(true)] // Issue #18982
     public void Detaching_owner_does_not_delete_owned_entities(bool delayCascade)
     {
         using var context = new FixupContext();
@@ -149,16 +148,16 @@ public class OwnedFixupTest
             Assert.Throws<InvalidOperationException>(() => context.Entry(principal).Reference(p => p.Child2).TargetEntry).Message);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added, true)]
-    [InlineData(EntityState.Added, false)]
-    [InlineData(EntityState.Added, null)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Modified, null)]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Unchanged, null)]
+    [ConditionalTheory,
+     InlineData(EntityState.Added, true),
+     InlineData(EntityState.Added, false),
+     InlineData(EntityState.Added, null),
+     InlineData(EntityState.Modified, true),
+     InlineData(EntityState.Modified, false),
+     InlineData(EntityState.Modified, null),
+     InlineData(EntityState.Unchanged, true),
+     InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Unchanged, null)]
     public void Add_principal_with_dependent_unidirectional_nav(EntityState entityState, bool? useTrackGraph)
     {
         using var context = new FixupContext();
@@ -237,16 +236,16 @@ public class OwnedFixupTest
             });
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added, true)]
-    [InlineData(EntityState.Added, false)]
-    [InlineData(EntityState.Added, null)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Modified, null)]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Unchanged, null)]
+    [ConditionalTheory,
+     InlineData(EntityState.Added, true),
+     InlineData(EntityState.Added, false),
+     InlineData(EntityState.Added, null),
+     InlineData(EntityState.Modified, true),
+     InlineData(EntityState.Modified, false),
+     InlineData(EntityState.Modified, null),
+     InlineData(EntityState.Unchanged, true),
+     InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Unchanged, null)]
     public void Add_principal_with_dependent_both_navs(EntityState entityState, bool? useTrackGraph)
     {
         using var context = new FixupContext();
@@ -342,16 +341,16 @@ public class OwnedFixupTest
             });
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added, true)]
-    [InlineData(EntityState.Added, false)]
-    [InlineData(EntityState.Added, null)]
-    [InlineData(EntityState.Modified, true)]
-    [InlineData(EntityState.Modified, false)]
-    [InlineData(EntityState.Modified, null)]
-    [InlineData(EntityState.Unchanged, true)]
-    [InlineData(EntityState.Unchanged, false)]
-    [InlineData(EntityState.Unchanged, null)]
+    [ConditionalTheory,
+     InlineData(EntityState.Added, true),
+     InlineData(EntityState.Added, false),
+     InlineData(EntityState.Added, null),
+     InlineData(EntityState.Modified, true),
+     InlineData(EntityState.Modified, false),
+     InlineData(EntityState.Modified, null),
+     InlineData(EntityState.Unchanged, true),
+     InlineData(EntityState.Unchanged, false),
+     InlineData(EntityState.Unchanged, null)]
     public void Add_principal_with_dependent_principal_nav(EntityState entityState, bool? useTrackGraph)
     {
         using var context = new FixupContext();
@@ -446,61 +445,61 @@ public class OwnedFixupTest
             });
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added, true, CollectionType.HashSet)]
-    [InlineData(EntityState.Added, false, CollectionType.HashSet)]
-    [InlineData(EntityState.Added, null, CollectionType.HashSet)]
-    [InlineData(EntityState.Modified, true, CollectionType.HashSet)]
-    [InlineData(EntityState.Modified, false, CollectionType.HashSet)]
-    [InlineData(EntityState.Modified, null, CollectionType.HashSet)]
-    [InlineData(EntityState.Unchanged, true, CollectionType.HashSet)]
-    [InlineData(EntityState.Unchanged, false, CollectionType.HashSet)]
-    [InlineData(EntityState.Unchanged, null, CollectionType.HashSet)]
-    [InlineData(EntityState.Added, true, CollectionType.List)]
-    [InlineData(EntityState.Added, false, CollectionType.List)]
-    [InlineData(EntityState.Added, null, CollectionType.List)]
-    [InlineData(EntityState.Modified, true, CollectionType.List)]
-    [InlineData(EntityState.Modified, false, CollectionType.List)]
-    [InlineData(EntityState.Modified, null, CollectionType.List)]
-    [InlineData(EntityState.Unchanged, true, CollectionType.List)]
-    [InlineData(EntityState.Unchanged, false, CollectionType.List)]
-    [InlineData(EntityState.Unchanged, null, CollectionType.List)]
-    [InlineData(EntityState.Added, true, CollectionType.SortedSet)]
-    [InlineData(EntityState.Added, false, CollectionType.SortedSet)]
-    [InlineData(EntityState.Added, null, CollectionType.SortedSet)]
-    [InlineData(EntityState.Modified, true, CollectionType.SortedSet)]
-    [InlineData(EntityState.Modified, false, CollectionType.SortedSet)]
-    [InlineData(EntityState.Modified, null, CollectionType.SortedSet)]
-    [InlineData(EntityState.Unchanged, true, CollectionType.SortedSet)]
-    [InlineData(EntityState.Unchanged, false, CollectionType.SortedSet)]
-    [InlineData(EntityState.Unchanged, null, CollectionType.SortedSet)]
-    [InlineData(EntityState.Added, true, CollectionType.Collection)]
-    [InlineData(EntityState.Added, false, CollectionType.Collection)]
-    [InlineData(EntityState.Added, null, CollectionType.Collection)]
-    [InlineData(EntityState.Modified, true, CollectionType.Collection)]
-    [InlineData(EntityState.Modified, false, CollectionType.Collection)]
-    [InlineData(EntityState.Modified, null, CollectionType.Collection)]
-    [InlineData(EntityState.Unchanged, true, CollectionType.Collection)]
-    [InlineData(EntityState.Unchanged, false, CollectionType.Collection)]
-    [InlineData(EntityState.Unchanged, null, CollectionType.Collection)]
-    [InlineData(EntityState.Added, true, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Added, false, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Added, null, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Modified, true, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Modified, false, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Modified, null, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Unchanged, true, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Unchanged, false, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Unchanged, null, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Added, true, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Added, false, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Added, null, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Modified, true, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Modified, false, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Modified, null, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Unchanged, true, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Unchanged, false, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Unchanged, null, CollectionType.ObservableHashSet)]
+    [ConditionalTheory,
+     InlineData(EntityState.Added, true, CollectionType.HashSet),
+     InlineData(EntityState.Added, false, CollectionType.HashSet),
+     InlineData(EntityState.Added, null, CollectionType.HashSet),
+     InlineData(EntityState.Modified, true, CollectionType.HashSet),
+     InlineData(EntityState.Modified, false, CollectionType.HashSet),
+     InlineData(EntityState.Modified, null, CollectionType.HashSet),
+     InlineData(EntityState.Unchanged, true, CollectionType.HashSet),
+     InlineData(EntityState.Unchanged, false, CollectionType.HashSet),
+     InlineData(EntityState.Unchanged, null, CollectionType.HashSet),
+     InlineData(EntityState.Added, true, CollectionType.List),
+     InlineData(EntityState.Added, false, CollectionType.List),
+     InlineData(EntityState.Added, null, CollectionType.List),
+     InlineData(EntityState.Modified, true, CollectionType.List),
+     InlineData(EntityState.Modified, false, CollectionType.List),
+     InlineData(EntityState.Modified, null, CollectionType.List),
+     InlineData(EntityState.Unchanged, true, CollectionType.List),
+     InlineData(EntityState.Unchanged, false, CollectionType.List),
+     InlineData(EntityState.Unchanged, null, CollectionType.List),
+     InlineData(EntityState.Added, true, CollectionType.SortedSet),
+     InlineData(EntityState.Added, false, CollectionType.SortedSet),
+     InlineData(EntityState.Added, null, CollectionType.SortedSet),
+     InlineData(EntityState.Modified, true, CollectionType.SortedSet),
+     InlineData(EntityState.Modified, false, CollectionType.SortedSet),
+     InlineData(EntityState.Modified, null, CollectionType.SortedSet),
+     InlineData(EntityState.Unchanged, true, CollectionType.SortedSet),
+     InlineData(EntityState.Unchanged, false, CollectionType.SortedSet),
+     InlineData(EntityState.Unchanged, null, CollectionType.SortedSet),
+     InlineData(EntityState.Added, true, CollectionType.Collection),
+     InlineData(EntityState.Added, false, CollectionType.Collection),
+     InlineData(EntityState.Added, null, CollectionType.Collection),
+     InlineData(EntityState.Modified, true, CollectionType.Collection),
+     InlineData(EntityState.Modified, false, CollectionType.Collection),
+     InlineData(EntityState.Modified, null, CollectionType.Collection),
+     InlineData(EntityState.Unchanged, true, CollectionType.Collection),
+     InlineData(EntityState.Unchanged, false, CollectionType.Collection),
+     InlineData(EntityState.Unchanged, null, CollectionType.Collection),
+     InlineData(EntityState.Added, true, CollectionType.ObservableCollection),
+     InlineData(EntityState.Added, false, CollectionType.ObservableCollection),
+     InlineData(EntityState.Added, null, CollectionType.ObservableCollection),
+     InlineData(EntityState.Modified, true, CollectionType.ObservableCollection),
+     InlineData(EntityState.Modified, false, CollectionType.ObservableCollection),
+     InlineData(EntityState.Modified, null, CollectionType.ObservableCollection),
+     InlineData(EntityState.Unchanged, true, CollectionType.ObservableCollection),
+     InlineData(EntityState.Unchanged, false, CollectionType.ObservableCollection),
+     InlineData(EntityState.Unchanged, null, CollectionType.ObservableCollection),
+     InlineData(EntityState.Added, true, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Added, false, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Added, null, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Modified, true, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Modified, false, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Modified, null, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Unchanged, true, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Unchanged, false, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Unchanged, null, CollectionType.ObservableHashSet)]
     public void Add_principal_with_dependent_unidirectional_nav_collection(
         EntityState entityState,
         bool? useTrackGraph,
@@ -599,61 +598,61 @@ public class OwnedFixupTest
             });
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added, true, CollectionType.HashSet)]
-    [InlineData(EntityState.Added, false, CollectionType.HashSet)]
-    [InlineData(EntityState.Added, null, CollectionType.HashSet)]
-    [InlineData(EntityState.Modified, true, CollectionType.HashSet)]
-    [InlineData(EntityState.Modified, false, CollectionType.HashSet)]
-    [InlineData(EntityState.Modified, null, CollectionType.HashSet)]
-    [InlineData(EntityState.Unchanged, true, CollectionType.HashSet)]
-    [InlineData(EntityState.Unchanged, false, CollectionType.HashSet)]
-    [InlineData(EntityState.Unchanged, null, CollectionType.HashSet)]
-    [InlineData(EntityState.Added, true, CollectionType.List)]
-    [InlineData(EntityState.Added, false, CollectionType.List)]
-    [InlineData(EntityState.Added, null, CollectionType.List)]
-    [InlineData(EntityState.Modified, true, CollectionType.List)]
-    [InlineData(EntityState.Modified, false, CollectionType.List)]
-    [InlineData(EntityState.Modified, null, CollectionType.List)]
-    [InlineData(EntityState.Unchanged, true, CollectionType.List)]
-    [InlineData(EntityState.Unchanged, false, CollectionType.List)]
-    [InlineData(EntityState.Unchanged, null, CollectionType.List)]
-    [InlineData(EntityState.Added, true, CollectionType.SortedSet)]
-    [InlineData(EntityState.Added, false, CollectionType.SortedSet)]
-    [InlineData(EntityState.Added, null, CollectionType.SortedSet)]
-    [InlineData(EntityState.Modified, true, CollectionType.SortedSet)]
-    [InlineData(EntityState.Modified, false, CollectionType.SortedSet)]
-    [InlineData(EntityState.Modified, null, CollectionType.SortedSet)]
-    [InlineData(EntityState.Unchanged, true, CollectionType.SortedSet)]
-    [InlineData(EntityState.Unchanged, false, CollectionType.SortedSet)]
-    [InlineData(EntityState.Unchanged, null, CollectionType.SortedSet)]
-    [InlineData(EntityState.Added, true, CollectionType.Collection)]
-    [InlineData(EntityState.Added, false, CollectionType.Collection)]
-    [InlineData(EntityState.Added, null, CollectionType.Collection)]
-    [InlineData(EntityState.Modified, true, CollectionType.Collection)]
-    [InlineData(EntityState.Modified, false, CollectionType.Collection)]
-    [InlineData(EntityState.Modified, null, CollectionType.Collection)]
-    [InlineData(EntityState.Unchanged, true, CollectionType.Collection)]
-    [InlineData(EntityState.Unchanged, false, CollectionType.Collection)]
-    [InlineData(EntityState.Unchanged, null, CollectionType.Collection)]
-    [InlineData(EntityState.Added, true, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Added, false, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Added, null, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Modified, true, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Modified, false, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Modified, null, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Unchanged, true, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Unchanged, false, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Unchanged, null, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Added, true, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Added, false, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Added, null, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Modified, true, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Modified, false, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Modified, null, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Unchanged, true, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Unchanged, false, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Unchanged, null, CollectionType.ObservableHashSet)]
+    [ConditionalTheory,
+     InlineData(EntityState.Added, true, CollectionType.HashSet),
+     InlineData(EntityState.Added, false, CollectionType.HashSet),
+     InlineData(EntityState.Added, null, CollectionType.HashSet),
+     InlineData(EntityState.Modified, true, CollectionType.HashSet),
+     InlineData(EntityState.Modified, false, CollectionType.HashSet),
+     InlineData(EntityState.Modified, null, CollectionType.HashSet),
+     InlineData(EntityState.Unchanged, true, CollectionType.HashSet),
+     InlineData(EntityState.Unchanged, false, CollectionType.HashSet),
+     InlineData(EntityState.Unchanged, null, CollectionType.HashSet),
+     InlineData(EntityState.Added, true, CollectionType.List),
+     InlineData(EntityState.Added, false, CollectionType.List),
+     InlineData(EntityState.Added, null, CollectionType.List),
+     InlineData(EntityState.Modified, true, CollectionType.List),
+     InlineData(EntityState.Modified, false, CollectionType.List),
+     InlineData(EntityState.Modified, null, CollectionType.List),
+     InlineData(EntityState.Unchanged, true, CollectionType.List),
+     InlineData(EntityState.Unchanged, false, CollectionType.List),
+     InlineData(EntityState.Unchanged, null, CollectionType.List),
+     InlineData(EntityState.Added, true, CollectionType.SortedSet),
+     InlineData(EntityState.Added, false, CollectionType.SortedSet),
+     InlineData(EntityState.Added, null, CollectionType.SortedSet),
+     InlineData(EntityState.Modified, true, CollectionType.SortedSet),
+     InlineData(EntityState.Modified, false, CollectionType.SortedSet),
+     InlineData(EntityState.Modified, null, CollectionType.SortedSet),
+     InlineData(EntityState.Unchanged, true, CollectionType.SortedSet),
+     InlineData(EntityState.Unchanged, false, CollectionType.SortedSet),
+     InlineData(EntityState.Unchanged, null, CollectionType.SortedSet),
+     InlineData(EntityState.Added, true, CollectionType.Collection),
+     InlineData(EntityState.Added, false, CollectionType.Collection),
+     InlineData(EntityState.Added, null, CollectionType.Collection),
+     InlineData(EntityState.Modified, true, CollectionType.Collection),
+     InlineData(EntityState.Modified, false, CollectionType.Collection),
+     InlineData(EntityState.Modified, null, CollectionType.Collection),
+     InlineData(EntityState.Unchanged, true, CollectionType.Collection),
+     InlineData(EntityState.Unchanged, false, CollectionType.Collection),
+     InlineData(EntityState.Unchanged, null, CollectionType.Collection),
+     InlineData(EntityState.Added, true, CollectionType.ObservableCollection),
+     InlineData(EntityState.Added, false, CollectionType.ObservableCollection),
+     InlineData(EntityState.Added, null, CollectionType.ObservableCollection),
+     InlineData(EntityState.Modified, true, CollectionType.ObservableCollection),
+     InlineData(EntityState.Modified, false, CollectionType.ObservableCollection),
+     InlineData(EntityState.Modified, null, CollectionType.ObservableCollection),
+     InlineData(EntityState.Unchanged, true, CollectionType.ObservableCollection),
+     InlineData(EntityState.Unchanged, false, CollectionType.ObservableCollection),
+     InlineData(EntityState.Unchanged, null, CollectionType.ObservableCollection),
+     InlineData(EntityState.Added, true, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Added, false, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Added, null, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Modified, true, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Modified, false, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Modified, null, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Unchanged, true, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Unchanged, false, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Unchanged, null, CollectionType.ObservableHashSet)]
     public void Add_principal_with_dependent_both_navs_collection(
         EntityState entityState,
         bool? useTrackGraph,
@@ -749,61 +748,61 @@ public class OwnedFixupTest
             });
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added, true, CollectionType.HashSet)]
-    [InlineData(EntityState.Added, false, CollectionType.HashSet)]
-    [InlineData(EntityState.Added, null, CollectionType.HashSet)]
-    [InlineData(EntityState.Modified, true, CollectionType.HashSet)]
-    [InlineData(EntityState.Modified, false, CollectionType.HashSet)]
-    [InlineData(EntityState.Modified, null, CollectionType.HashSet)]
-    [InlineData(EntityState.Unchanged, true, CollectionType.HashSet)]
-    [InlineData(EntityState.Unchanged, false, CollectionType.HashSet)]
-    [InlineData(EntityState.Unchanged, null, CollectionType.HashSet)]
-    [InlineData(EntityState.Added, true, CollectionType.List)]
-    [InlineData(EntityState.Added, false, CollectionType.List)]
-    [InlineData(EntityState.Added, null, CollectionType.List)]
-    [InlineData(EntityState.Modified, true, CollectionType.List)]
-    [InlineData(EntityState.Modified, false, CollectionType.List)]
-    [InlineData(EntityState.Modified, null, CollectionType.List)]
-    [InlineData(EntityState.Unchanged, true, CollectionType.List)]
-    [InlineData(EntityState.Unchanged, false, CollectionType.List)]
-    [InlineData(EntityState.Unchanged, null, CollectionType.List)]
-    [InlineData(EntityState.Added, true, CollectionType.SortedSet)]
-    [InlineData(EntityState.Added, false, CollectionType.SortedSet)]
-    [InlineData(EntityState.Added, null, CollectionType.SortedSet)]
-    [InlineData(EntityState.Modified, true, CollectionType.SortedSet)]
-    [InlineData(EntityState.Modified, false, CollectionType.SortedSet)]
-    [InlineData(EntityState.Modified, null, CollectionType.SortedSet)]
-    [InlineData(EntityState.Unchanged, true, CollectionType.SortedSet)]
-    [InlineData(EntityState.Unchanged, false, CollectionType.SortedSet)]
-    [InlineData(EntityState.Unchanged, null, CollectionType.SortedSet)]
-    [InlineData(EntityState.Added, true, CollectionType.Collection)]
-    [InlineData(EntityState.Added, false, CollectionType.Collection)]
-    [InlineData(EntityState.Added, null, CollectionType.Collection)]
-    [InlineData(EntityState.Modified, true, CollectionType.Collection)]
-    [InlineData(EntityState.Modified, false, CollectionType.Collection)]
-    [InlineData(EntityState.Modified, null, CollectionType.Collection)]
-    [InlineData(EntityState.Unchanged, true, CollectionType.Collection)]
-    [InlineData(EntityState.Unchanged, false, CollectionType.Collection)]
-    [InlineData(EntityState.Unchanged, null, CollectionType.Collection)]
-    [InlineData(EntityState.Added, true, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Added, false, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Added, null, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Modified, true, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Modified, false, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Modified, null, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Unchanged, true, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Unchanged, false, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Unchanged, null, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Added, true, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Added, false, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Added, null, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Modified, true, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Modified, false, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Modified, null, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Unchanged, true, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Unchanged, false, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Unchanged, null, CollectionType.ObservableHashSet)]
+    [ConditionalTheory,
+     InlineData(EntityState.Added, true, CollectionType.HashSet),
+     InlineData(EntityState.Added, false, CollectionType.HashSet),
+     InlineData(EntityState.Added, null, CollectionType.HashSet),
+     InlineData(EntityState.Modified, true, CollectionType.HashSet),
+     InlineData(EntityState.Modified, false, CollectionType.HashSet),
+     InlineData(EntityState.Modified, null, CollectionType.HashSet),
+     InlineData(EntityState.Unchanged, true, CollectionType.HashSet),
+     InlineData(EntityState.Unchanged, false, CollectionType.HashSet),
+     InlineData(EntityState.Unchanged, null, CollectionType.HashSet),
+     InlineData(EntityState.Added, true, CollectionType.List),
+     InlineData(EntityState.Added, false, CollectionType.List),
+     InlineData(EntityState.Added, null, CollectionType.List),
+     InlineData(EntityState.Modified, true, CollectionType.List),
+     InlineData(EntityState.Modified, false, CollectionType.List),
+     InlineData(EntityState.Modified, null, CollectionType.List),
+     InlineData(EntityState.Unchanged, true, CollectionType.List),
+     InlineData(EntityState.Unchanged, false, CollectionType.List),
+     InlineData(EntityState.Unchanged, null, CollectionType.List),
+     InlineData(EntityState.Added, true, CollectionType.SortedSet),
+     InlineData(EntityState.Added, false, CollectionType.SortedSet),
+     InlineData(EntityState.Added, null, CollectionType.SortedSet),
+     InlineData(EntityState.Modified, true, CollectionType.SortedSet),
+     InlineData(EntityState.Modified, false, CollectionType.SortedSet),
+     InlineData(EntityState.Modified, null, CollectionType.SortedSet),
+     InlineData(EntityState.Unchanged, true, CollectionType.SortedSet),
+     InlineData(EntityState.Unchanged, false, CollectionType.SortedSet),
+     InlineData(EntityState.Unchanged, null, CollectionType.SortedSet),
+     InlineData(EntityState.Added, true, CollectionType.Collection),
+     InlineData(EntityState.Added, false, CollectionType.Collection),
+     InlineData(EntityState.Added, null, CollectionType.Collection),
+     InlineData(EntityState.Modified, true, CollectionType.Collection),
+     InlineData(EntityState.Modified, false, CollectionType.Collection),
+     InlineData(EntityState.Modified, null, CollectionType.Collection),
+     InlineData(EntityState.Unchanged, true, CollectionType.Collection),
+     InlineData(EntityState.Unchanged, false, CollectionType.Collection),
+     InlineData(EntityState.Unchanged, null, CollectionType.Collection),
+     InlineData(EntityState.Added, true, CollectionType.ObservableCollection),
+     InlineData(EntityState.Added, false, CollectionType.ObservableCollection),
+     InlineData(EntityState.Added, null, CollectionType.ObservableCollection),
+     InlineData(EntityState.Modified, true, CollectionType.ObservableCollection),
+     InlineData(EntityState.Modified, false, CollectionType.ObservableCollection),
+     InlineData(EntityState.Modified, null, CollectionType.ObservableCollection),
+     InlineData(EntityState.Unchanged, true, CollectionType.ObservableCollection),
+     InlineData(EntityState.Unchanged, false, CollectionType.ObservableCollection),
+     InlineData(EntityState.Unchanged, null, CollectionType.ObservableCollection),
+     InlineData(EntityState.Added, true, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Added, false, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Added, null, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Modified, true, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Modified, false, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Modified, null, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Unchanged, true, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Unchanged, false, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Unchanged, null, CollectionType.ObservableHashSet)]
     public void Add_principal_with_dependent_principal_nav_collection(
         EntityState entityState,
         bool? useTrackGraph,
@@ -924,10 +923,10 @@ public class OwnedFixupTest
             });
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Unchanged)]
+    [ConditionalTheory,
+     InlineData(EntityState.Added),
+     InlineData(EntityState.Modified),
+     InlineData(EntityState.Unchanged)]
     public void Instance_changed_unidirectional(EntityState entityState)
     {
         using var context = new FixupContext();
@@ -998,10 +997,10 @@ public class OwnedFixupTest
         Assert.False(context.ChangeTracker.HasChanges());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Unchanged)]
+    [ConditionalTheory,
+     InlineData(EntityState.Added),
+     InlineData(EntityState.Modified),
+     InlineData(EntityState.Unchanged)]
     public void Instance_changed_bidirectional(EntityState entityState)
     {
         using var context = new FixupContext();
@@ -1096,25 +1095,25 @@ public class OwnedFixupTest
         Assert.Same(subDependent22, dependent2.SubChild2);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added, CollectionType.HashSet)]
-    [InlineData(EntityState.Modified, CollectionType.HashSet)]
-    [InlineData(EntityState.Unchanged, CollectionType.HashSet)]
-    [InlineData(EntityState.Added, CollectionType.List)]
-    [InlineData(EntityState.Modified, CollectionType.List)]
-    [InlineData(EntityState.Unchanged, CollectionType.List)]
-    [InlineData(EntityState.Added, CollectionType.SortedSet)]
-    [InlineData(EntityState.Modified, CollectionType.SortedSet)]
-    [InlineData(EntityState.Unchanged, CollectionType.SortedSet)]
-    [InlineData(EntityState.Added, CollectionType.Collection)]
-    [InlineData(EntityState.Modified, CollectionType.Collection)]
-    [InlineData(EntityState.Unchanged, CollectionType.Collection)]
-    [InlineData(EntityState.Added, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Modified, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Unchanged, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Added, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Modified, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Unchanged, CollectionType.ObservableHashSet)]
+    [ConditionalTheory,
+     InlineData(EntityState.Added, CollectionType.HashSet),
+     InlineData(EntityState.Modified, CollectionType.HashSet),
+     InlineData(EntityState.Unchanged, CollectionType.HashSet),
+     InlineData(EntityState.Added, CollectionType.List),
+     InlineData(EntityState.Modified, CollectionType.List),
+     InlineData(EntityState.Unchanged, CollectionType.List),
+     InlineData(EntityState.Added, CollectionType.SortedSet),
+     InlineData(EntityState.Modified, CollectionType.SortedSet),
+     InlineData(EntityState.Unchanged, CollectionType.SortedSet),
+     InlineData(EntityState.Added, CollectionType.Collection),
+     InlineData(EntityState.Modified, CollectionType.Collection),
+     InlineData(EntityState.Unchanged, CollectionType.Collection),
+     InlineData(EntityState.Added, CollectionType.ObservableCollection),
+     InlineData(EntityState.Modified, CollectionType.ObservableCollection),
+     InlineData(EntityState.Unchanged, CollectionType.ObservableCollection),
+     InlineData(EntityState.Added, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Modified, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Unchanged, CollectionType.ObservableHashSet)]
     public void Instance_changed_unidirectional_collection(EntityState entityState, CollectionType collectionType)
     {
         using var context = new FixupContext();
@@ -1203,25 +1202,25 @@ public class OwnedFixupTest
         Assert.Contains(dependent2.SubChildCollection, e => ReferenceEquals(e, subDependent2));
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added, CollectionType.HashSet)]
-    [InlineData(EntityState.Modified, CollectionType.HashSet)]
-    [InlineData(EntityState.Unchanged, CollectionType.HashSet)]
-    [InlineData(EntityState.Added, CollectionType.List)]
-    [InlineData(EntityState.Modified, CollectionType.List)]
-    [InlineData(EntityState.Unchanged, CollectionType.List)]
-    [InlineData(EntityState.Added, CollectionType.SortedSet)]
-    [InlineData(EntityState.Modified, CollectionType.SortedSet)]
-    [InlineData(EntityState.Unchanged, CollectionType.SortedSet)]
-    [InlineData(EntityState.Added, CollectionType.Collection)]
-    [InlineData(EntityState.Modified, CollectionType.Collection)]
-    [InlineData(EntityState.Unchanged, CollectionType.Collection)]
-    [InlineData(EntityState.Added, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Modified, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Unchanged, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Added, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Modified, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Unchanged, CollectionType.ObservableHashSet)]
+    [ConditionalTheory,
+     InlineData(EntityState.Added, CollectionType.HashSet),
+     InlineData(EntityState.Modified, CollectionType.HashSet),
+     InlineData(EntityState.Unchanged, CollectionType.HashSet),
+     InlineData(EntityState.Added, CollectionType.List),
+     InlineData(EntityState.Modified, CollectionType.List),
+     InlineData(EntityState.Unchanged, CollectionType.List),
+     InlineData(EntityState.Added, CollectionType.SortedSet),
+     InlineData(EntityState.Modified, CollectionType.SortedSet),
+     InlineData(EntityState.Unchanged, CollectionType.SortedSet),
+     InlineData(EntityState.Added, CollectionType.Collection),
+     InlineData(EntityState.Modified, CollectionType.Collection),
+     InlineData(EntityState.Unchanged, CollectionType.Collection),
+     InlineData(EntityState.Added, CollectionType.ObservableCollection),
+     InlineData(EntityState.Modified, CollectionType.ObservableCollection),
+     InlineData(EntityState.Unchanged, CollectionType.ObservableCollection),
+     InlineData(EntityState.Added, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Modified, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Unchanged, CollectionType.ObservableHashSet)]
     public void Instance_changed_bidirectional_collection(EntityState entityState, CollectionType collectionType)
     {
         using var context = new FixupContext();
@@ -1312,10 +1311,10 @@ public class OwnedFixupTest
         Assert.Contains(dependent2.SubChildCollection, e => ReferenceEquals(e, subDependent2));
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Unchanged)]
+    [ConditionalTheory,
+     InlineData(EntityState.Added),
+     InlineData(EntityState.Modified),
+     InlineData(EntityState.Unchanged)]
     public void Identity_changed_unidirectional(EntityState entityState)
     {
         using var context = new FixupContext();
@@ -1394,10 +1393,10 @@ public class OwnedFixupTest
         Assert.Same(subDependent, dependent.SubChild);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Unchanged)]
+    [ConditionalTheory,
+     InlineData(EntityState.Added),
+     InlineData(EntityState.Modified),
+     InlineData(EntityState.Unchanged)]
     public void Identity_changed_bidirectional(EntityState entityState)
     {
         using var context = new FixupContext();
@@ -1487,25 +1486,25 @@ public class OwnedFixupTest
         Assert.Same(dependent, subDependent2.Parent);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added, CollectionType.HashSet)]
-    [InlineData(EntityState.Modified, CollectionType.HashSet)]
-    [InlineData(EntityState.Unchanged, CollectionType.HashSet)]
-    [InlineData(EntityState.Added, CollectionType.List)]
-    [InlineData(EntityState.Modified, CollectionType.List)]
-    [InlineData(EntityState.Unchanged, CollectionType.List)]
-    [InlineData(EntityState.Added, CollectionType.SortedSet)]
-    [InlineData(EntityState.Modified, CollectionType.SortedSet)]
-    [InlineData(EntityState.Unchanged, CollectionType.SortedSet)]
-    [InlineData(EntityState.Added, CollectionType.Collection)]
-    [InlineData(EntityState.Modified, CollectionType.Collection)]
-    [InlineData(EntityState.Unchanged, CollectionType.Collection)]
-    [InlineData(EntityState.Added, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Modified, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Unchanged, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Added, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Modified, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Unchanged, CollectionType.ObservableHashSet)]
+    [ConditionalTheory,
+     InlineData(EntityState.Added, CollectionType.HashSet),
+     InlineData(EntityState.Modified, CollectionType.HashSet),
+     InlineData(EntityState.Unchanged, CollectionType.HashSet),
+     InlineData(EntityState.Added, CollectionType.List),
+     InlineData(EntityState.Modified, CollectionType.List),
+     InlineData(EntityState.Unchanged, CollectionType.List),
+     InlineData(EntityState.Added, CollectionType.SortedSet),
+     InlineData(EntityState.Modified, CollectionType.SortedSet),
+     InlineData(EntityState.Unchanged, CollectionType.SortedSet),
+     InlineData(EntityState.Added, CollectionType.Collection),
+     InlineData(EntityState.Modified, CollectionType.Collection),
+     InlineData(EntityState.Unchanged, CollectionType.Collection),
+     InlineData(EntityState.Added, CollectionType.ObservableCollection),
+     InlineData(EntityState.Modified, CollectionType.ObservableCollection),
+     InlineData(EntityState.Unchanged, CollectionType.ObservableCollection),
+     InlineData(EntityState.Added, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Modified, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Unchanged, CollectionType.ObservableHashSet)]
     public void Identity_changed_unidirectional_collection(EntityState entityState, CollectionType collectionType)
     {
         using var context = new FixupContext();
@@ -1584,25 +1583,25 @@ public class OwnedFixupTest
         Assert.Contains(dependent.SubChildCollection, e => ReferenceEquals(e, subDependent));
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added, CollectionType.HashSet)]
-    [InlineData(EntityState.Modified, CollectionType.HashSet)]
-    [InlineData(EntityState.Unchanged, CollectionType.HashSet)]
-    [InlineData(EntityState.Added, CollectionType.List)]
-    [InlineData(EntityState.Modified, CollectionType.List)]
-    [InlineData(EntityState.Unchanged, CollectionType.List)]
-    [InlineData(EntityState.Added, CollectionType.SortedSet)]
-    [InlineData(EntityState.Modified, CollectionType.SortedSet)]
-    [InlineData(EntityState.Unchanged, CollectionType.SortedSet)]
-    [InlineData(EntityState.Added, CollectionType.Collection)]
-    [InlineData(EntityState.Modified, CollectionType.Collection)]
-    [InlineData(EntityState.Unchanged, CollectionType.Collection)]
-    [InlineData(EntityState.Added, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Modified, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Unchanged, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Added, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Modified, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Unchanged, CollectionType.ObservableHashSet)]
+    [ConditionalTheory,
+     InlineData(EntityState.Added, CollectionType.HashSet),
+     InlineData(EntityState.Modified, CollectionType.HashSet),
+     InlineData(EntityState.Unchanged, CollectionType.HashSet),
+     InlineData(EntityState.Added, CollectionType.List),
+     InlineData(EntityState.Modified, CollectionType.List),
+     InlineData(EntityState.Unchanged, CollectionType.List),
+     InlineData(EntityState.Added, CollectionType.SortedSet),
+     InlineData(EntityState.Modified, CollectionType.SortedSet),
+     InlineData(EntityState.Unchanged, CollectionType.SortedSet),
+     InlineData(EntityState.Added, CollectionType.Collection),
+     InlineData(EntityState.Modified, CollectionType.Collection),
+     InlineData(EntityState.Unchanged, CollectionType.Collection),
+     InlineData(EntityState.Added, CollectionType.ObservableCollection),
+     InlineData(EntityState.Modified, CollectionType.ObservableCollection),
+     InlineData(EntityState.Unchanged, CollectionType.ObservableCollection),
+     InlineData(EntityState.Added, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Modified, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Unchanged, CollectionType.ObservableHashSet)]
     public void Identity_changed_bidirectional_collection(EntityState entityState, CollectionType collectionType)
     {
         using var context = new FixupContext();
@@ -1683,10 +1682,10 @@ public class OwnedFixupTest
         Assert.Same(dependent, subDependent.Parent);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Unchanged)]
+    [ConditionalTheory,
+     InlineData(EntityState.Added),
+     InlineData(EntityState.Modified),
+     InlineData(EntityState.Unchanged)]
     public void Identity_swapped_unidirectional(EntityState entityState)
     {
         using var context = new FixupContext();
@@ -1790,10 +1789,10 @@ public class OwnedFixupTest
         Assert.Same(subDependent2, dependent2.SubChild);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Unchanged)]
+    [ConditionalTheory,
+     InlineData(EntityState.Added),
+     InlineData(EntityState.Modified),
+     InlineData(EntityState.Unchanged)]
     public void Identity_swapped_bidirectional(EntityState entityState)
     {
         using var context = new FixupContext();
@@ -1939,25 +1938,25 @@ public class OwnedFixupTest
         Assert.Same(subDependent22, dependent2.SubChild2);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added, CollectionType.HashSet)]
-    [InlineData(EntityState.Modified, CollectionType.HashSet)]
-    [InlineData(EntityState.Unchanged, CollectionType.HashSet)]
-    [InlineData(EntityState.Added, CollectionType.List)]
-    [InlineData(EntityState.Modified, CollectionType.List)]
-    [InlineData(EntityState.Unchanged, CollectionType.List)]
-    [InlineData(EntityState.Added, CollectionType.SortedSet)]
-    [InlineData(EntityState.Modified, CollectionType.SortedSet)]
-    [InlineData(EntityState.Unchanged, CollectionType.SortedSet)]
-    [InlineData(EntityState.Added, CollectionType.Collection)]
-    [InlineData(EntityState.Modified, CollectionType.Collection)]
-    [InlineData(EntityState.Unchanged, CollectionType.Collection)]
-    [InlineData(EntityState.Added, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Modified, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Unchanged, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Added, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Modified, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Unchanged, CollectionType.ObservableHashSet)]
+    [ConditionalTheory,
+     InlineData(EntityState.Added, CollectionType.HashSet),
+     InlineData(EntityState.Modified, CollectionType.HashSet),
+     InlineData(EntityState.Unchanged, CollectionType.HashSet),
+     InlineData(EntityState.Added, CollectionType.List),
+     InlineData(EntityState.Modified, CollectionType.List),
+     InlineData(EntityState.Unchanged, CollectionType.List),
+     InlineData(EntityState.Added, CollectionType.SortedSet),
+     InlineData(EntityState.Modified, CollectionType.SortedSet),
+     InlineData(EntityState.Unchanged, CollectionType.SortedSet),
+     InlineData(EntityState.Added, CollectionType.Collection),
+     InlineData(EntityState.Modified, CollectionType.Collection),
+     InlineData(EntityState.Unchanged, CollectionType.Collection),
+     InlineData(EntityState.Added, CollectionType.ObservableCollection),
+     InlineData(EntityState.Modified, CollectionType.ObservableCollection),
+     InlineData(EntityState.Unchanged, CollectionType.ObservableCollection),
+     InlineData(EntityState.Added, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Modified, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Unchanged, CollectionType.ObservableHashSet)]
     public void Identity_swapped_unidirectional_collection(EntityState entityState, CollectionType collectionType)
     {
         using var context = new FixupContext();
@@ -2090,25 +2089,25 @@ public class OwnedFixupTest
         Assert.Contains(dependent2.SubChildCollection, e => ReferenceEquals(e, subDependent2));
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added, CollectionType.HashSet)]
-    [InlineData(EntityState.Modified, CollectionType.HashSet)]
-    [InlineData(EntityState.Unchanged, CollectionType.HashSet)]
-    [InlineData(EntityState.Added, CollectionType.List)]
-    [InlineData(EntityState.Modified, CollectionType.List)]
-    [InlineData(EntityState.Unchanged, CollectionType.List)]
-    [InlineData(EntityState.Added, CollectionType.SortedSet)]
-    [InlineData(EntityState.Modified, CollectionType.SortedSet)]
-    [InlineData(EntityState.Unchanged, CollectionType.SortedSet)]
-    [InlineData(EntityState.Added, CollectionType.Collection)]
-    [InlineData(EntityState.Modified, CollectionType.Collection)]
-    [InlineData(EntityState.Unchanged, CollectionType.Collection)]
-    [InlineData(EntityState.Added, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Modified, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Unchanged, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Added, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Modified, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Unchanged, CollectionType.ObservableHashSet)]
+    [ConditionalTheory,
+     InlineData(EntityState.Added, CollectionType.HashSet),
+     InlineData(EntityState.Modified, CollectionType.HashSet),
+     InlineData(EntityState.Unchanged, CollectionType.HashSet),
+     InlineData(EntityState.Added, CollectionType.List),
+     InlineData(EntityState.Modified, CollectionType.List),
+     InlineData(EntityState.Unchanged, CollectionType.List),
+     InlineData(EntityState.Added, CollectionType.SortedSet),
+     InlineData(EntityState.Modified, CollectionType.SortedSet),
+     InlineData(EntityState.Unchanged, CollectionType.SortedSet),
+     InlineData(EntityState.Added, CollectionType.Collection),
+     InlineData(EntityState.Modified, CollectionType.Collection),
+     InlineData(EntityState.Unchanged, CollectionType.Collection),
+     InlineData(EntityState.Added, CollectionType.ObservableCollection),
+     InlineData(EntityState.Modified, CollectionType.ObservableCollection),
+     InlineData(EntityState.Unchanged, CollectionType.ObservableCollection),
+     InlineData(EntityState.Added, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Modified, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Unchanged, CollectionType.ObservableHashSet)]
     public void Identity_swapped_bidirectional_collection(EntityState entityState, CollectionType collectionType)
     {
         using var context = new FixupContext();
@@ -2245,10 +2244,10 @@ public class OwnedFixupTest
         Assert.Contains(dependent2.SubChildCollection, e => ReferenceEquals(e, subDependent2));
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Unchanged)]
+    [ConditionalTheory,
+     InlineData(EntityState.Added),
+     InlineData(EntityState.Modified),
+     InlineData(EntityState.Unchanged)]
     public void Parent_changed_unidirectional(EntityState entityState)
     {
         using var context = new FixupContext();
@@ -2336,10 +2335,10 @@ public class OwnedFixupTest
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Unchanged)]
+    [ConditionalTheory,
+     InlineData(EntityState.Added),
+     InlineData(EntityState.Modified),
+     InlineData(EntityState.Unchanged)]
     public void Parent_changed_bidirectional(EntityState entityState)
     {
         using var context = new FixupContext();
@@ -2450,25 +2449,25 @@ public class OwnedFixupTest
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added, CollectionType.HashSet)]
-    [InlineData(EntityState.Modified, CollectionType.HashSet)]
-    [InlineData(EntityState.Unchanged, CollectionType.HashSet)]
-    [InlineData(EntityState.Added, CollectionType.List)]
-    [InlineData(EntityState.Modified, CollectionType.List)]
-    [InlineData(EntityState.Unchanged, CollectionType.List)]
-    [InlineData(EntityState.Added, CollectionType.SortedSet)]
-    [InlineData(EntityState.Modified, CollectionType.SortedSet)]
-    [InlineData(EntityState.Unchanged, CollectionType.SortedSet)]
-    [InlineData(EntityState.Added, CollectionType.Collection)]
-    [InlineData(EntityState.Modified, CollectionType.Collection)]
-    [InlineData(EntityState.Unchanged, CollectionType.Collection)]
-    [InlineData(EntityState.Added, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Modified, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Unchanged, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Added, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Modified, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Unchanged, CollectionType.ObservableHashSet)]
+    [ConditionalTheory,
+     InlineData(EntityState.Added, CollectionType.HashSet),
+     InlineData(EntityState.Modified, CollectionType.HashSet),
+     InlineData(EntityState.Unchanged, CollectionType.HashSet),
+     InlineData(EntityState.Added, CollectionType.List),
+     InlineData(EntityState.Modified, CollectionType.List),
+     InlineData(EntityState.Unchanged, CollectionType.List),
+     InlineData(EntityState.Added, CollectionType.SortedSet),
+     InlineData(EntityState.Modified, CollectionType.SortedSet),
+     InlineData(EntityState.Unchanged, CollectionType.SortedSet),
+     InlineData(EntityState.Added, CollectionType.Collection),
+     InlineData(EntityState.Modified, CollectionType.Collection),
+     InlineData(EntityState.Unchanged, CollectionType.Collection),
+     InlineData(EntityState.Added, CollectionType.ObservableCollection),
+     InlineData(EntityState.Modified, CollectionType.ObservableCollection),
+     InlineData(EntityState.Unchanged, CollectionType.ObservableCollection),
+     InlineData(EntityState.Added, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Modified, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Unchanged, CollectionType.ObservableHashSet)]
     public void Parent_changed_unidirectional_collection(EntityState entityState, CollectionType collectionType)
     {
         using var context = new FixupContext();
@@ -2572,25 +2571,25 @@ public class OwnedFixupTest
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added, CollectionType.HashSet)]
-    [InlineData(EntityState.Modified, CollectionType.HashSet)]
-    [InlineData(EntityState.Unchanged, CollectionType.HashSet)]
-    [InlineData(EntityState.Added, CollectionType.List)]
-    [InlineData(EntityState.Modified, CollectionType.List)]
-    [InlineData(EntityState.Unchanged, CollectionType.List)]
-    [InlineData(EntityState.Added, CollectionType.SortedSet)]
-    [InlineData(EntityState.Modified, CollectionType.SortedSet)]
-    [InlineData(EntityState.Unchanged, CollectionType.SortedSet)]
-    [InlineData(EntityState.Added, CollectionType.Collection)]
-    [InlineData(EntityState.Modified, CollectionType.Collection)]
-    [InlineData(EntityState.Unchanged, CollectionType.Collection)]
-    [InlineData(EntityState.Added, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Modified, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Unchanged, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Added, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Modified, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Unchanged, CollectionType.ObservableHashSet)]
+    [ConditionalTheory,
+     InlineData(EntityState.Added, CollectionType.HashSet),
+     InlineData(EntityState.Modified, CollectionType.HashSet),
+     InlineData(EntityState.Unchanged, CollectionType.HashSet),
+     InlineData(EntityState.Added, CollectionType.List),
+     InlineData(EntityState.Modified, CollectionType.List),
+     InlineData(EntityState.Unchanged, CollectionType.List),
+     InlineData(EntityState.Added, CollectionType.SortedSet),
+     InlineData(EntityState.Modified, CollectionType.SortedSet),
+     InlineData(EntityState.Unchanged, CollectionType.SortedSet),
+     InlineData(EntityState.Added, CollectionType.Collection),
+     InlineData(EntityState.Modified, CollectionType.Collection),
+     InlineData(EntityState.Unchanged, CollectionType.Collection),
+     InlineData(EntityState.Added, CollectionType.ObservableCollection),
+     InlineData(EntityState.Modified, CollectionType.ObservableCollection),
+     InlineData(EntityState.Unchanged, CollectionType.ObservableCollection),
+     InlineData(EntityState.Added, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Modified, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Unchanged, CollectionType.ObservableHashSet)]
     public void Parent_changed_bidirectional_collection(EntityState entityState, CollectionType collectionType)
     {
         using var context = new FixupContext();
@@ -2696,10 +2695,10 @@ public class OwnedFixupTest
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Unchanged)]
+    [ConditionalTheory,
+     InlineData(EntityState.Added),
+     InlineData(EntityState.Modified),
+     InlineData(EntityState.Unchanged)]
     public void Parent_swapped_unidirectional(EntityState entityState)
     {
         using var context = new FixupContext();
@@ -2816,10 +2815,10 @@ public class OwnedFixupTest
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Unchanged)]
+    [ConditionalTheory,
+     InlineData(EntityState.Added),
+     InlineData(EntityState.Modified),
+     InlineData(EntityState.Unchanged)]
     public void Parent_swapped_bidirectional(EntityState entityState)
     {
         using var context = new FixupContext();
@@ -2984,25 +2983,25 @@ public class OwnedFixupTest
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added, CollectionType.HashSet)]
-    [InlineData(EntityState.Modified, CollectionType.HashSet)]
-    [InlineData(EntityState.Unchanged, CollectionType.HashSet)]
-    [InlineData(EntityState.Added, CollectionType.List)]
-    [InlineData(EntityState.Modified, CollectionType.List)]
-    [InlineData(EntityState.Unchanged, CollectionType.List)]
-    [InlineData(EntityState.Added, CollectionType.SortedSet)]
-    [InlineData(EntityState.Modified, CollectionType.SortedSet)]
-    [InlineData(EntityState.Unchanged, CollectionType.SortedSet)]
-    [InlineData(EntityState.Added, CollectionType.Collection)]
-    [InlineData(EntityState.Modified, CollectionType.Collection)]
-    [InlineData(EntityState.Unchanged, CollectionType.Collection)]
-    [InlineData(EntityState.Added, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Modified, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Unchanged, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Added, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Modified, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Unchanged, CollectionType.ObservableHashSet)]
+    [ConditionalTheory,
+     InlineData(EntityState.Added, CollectionType.HashSet),
+     InlineData(EntityState.Modified, CollectionType.HashSet),
+     InlineData(EntityState.Unchanged, CollectionType.HashSet),
+     InlineData(EntityState.Added, CollectionType.List),
+     InlineData(EntityState.Modified, CollectionType.List),
+     InlineData(EntityState.Unchanged, CollectionType.List),
+     InlineData(EntityState.Added, CollectionType.SortedSet),
+     InlineData(EntityState.Modified, CollectionType.SortedSet),
+     InlineData(EntityState.Unchanged, CollectionType.SortedSet),
+     InlineData(EntityState.Added, CollectionType.Collection),
+     InlineData(EntityState.Modified, CollectionType.Collection),
+     InlineData(EntityState.Unchanged, CollectionType.Collection),
+     InlineData(EntityState.Added, CollectionType.ObservableCollection),
+     InlineData(EntityState.Modified, CollectionType.ObservableCollection),
+     InlineData(EntityState.Unchanged, CollectionType.ObservableCollection),
+     InlineData(EntityState.Added, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Modified, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Unchanged, CollectionType.ObservableHashSet)]
     public void Parent_swapped_unidirectional_collection(EntityState entityState, CollectionType collectionType)
     {
         using var context = new FixupContext();
@@ -3138,25 +3137,25 @@ public class OwnedFixupTest
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added, CollectionType.HashSet)]
-    [InlineData(EntityState.Modified, CollectionType.HashSet)]
-    [InlineData(EntityState.Unchanged, CollectionType.HashSet)]
-    [InlineData(EntityState.Added, CollectionType.List)]
-    [InlineData(EntityState.Modified, CollectionType.List)]
-    [InlineData(EntityState.Unchanged, CollectionType.List)]
-    [InlineData(EntityState.Added, CollectionType.SortedSet)]
-    [InlineData(EntityState.Modified, CollectionType.SortedSet)]
-    [InlineData(EntityState.Unchanged, CollectionType.SortedSet)]
-    [InlineData(EntityState.Added, CollectionType.Collection)]
-    [InlineData(EntityState.Modified, CollectionType.Collection)]
-    [InlineData(EntityState.Unchanged, CollectionType.Collection)]
-    [InlineData(EntityState.Added, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Modified, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Unchanged, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Added, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Modified, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Unchanged, CollectionType.ObservableHashSet)]
+    [ConditionalTheory,
+     InlineData(EntityState.Added, CollectionType.HashSet),
+     InlineData(EntityState.Modified, CollectionType.HashSet),
+     InlineData(EntityState.Unchanged, CollectionType.HashSet),
+     InlineData(EntityState.Added, CollectionType.List),
+     InlineData(EntityState.Modified, CollectionType.List),
+     InlineData(EntityState.Unchanged, CollectionType.List),
+     InlineData(EntityState.Added, CollectionType.SortedSet),
+     InlineData(EntityState.Modified, CollectionType.SortedSet),
+     InlineData(EntityState.Unchanged, CollectionType.SortedSet),
+     InlineData(EntityState.Added, CollectionType.Collection),
+     InlineData(EntityState.Modified, CollectionType.Collection),
+     InlineData(EntityState.Unchanged, CollectionType.Collection),
+     InlineData(EntityState.Added, CollectionType.ObservableCollection),
+     InlineData(EntityState.Modified, CollectionType.ObservableCollection),
+     InlineData(EntityState.Unchanged, CollectionType.ObservableCollection),
+     InlineData(EntityState.Added, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Modified, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Unchanged, CollectionType.ObservableHashSet)]
     public void Parent_swapped_bidirectional_collection(EntityState entityState, CollectionType collectionType)
     {
         using var context = new FixupContext();
@@ -3300,10 +3299,10 @@ public class OwnedFixupTest
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Unchanged)]
+    [ConditionalTheory,
+     InlineData(EntityState.Added),
+     InlineData(EntityState.Modified),
+     InlineData(EntityState.Unchanged)]
     public void Parent_and_identity_changed_unidirectional(EntityState entityState)
     {
         using var context = new FixupContext();
@@ -3381,10 +3380,10 @@ public class OwnedFixupTest
         Assert.Same(subDependent, dependent.SubChild);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Unchanged)]
+    [ConditionalTheory,
+     InlineData(EntityState.Added),
+     InlineData(EntityState.Modified),
+     InlineData(EntityState.Unchanged)]
     public void Parent_and_identity_changed_bidirectional(EntityState entityState)
     {
         using var context = new FixupContext();
@@ -3495,25 +3494,25 @@ public class OwnedFixupTest
         Assert.Same(dependent, subDependent2.Parent);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added, CollectionType.HashSet)]
-    [InlineData(EntityState.Modified, CollectionType.HashSet)]
-    [InlineData(EntityState.Unchanged, CollectionType.HashSet)]
-    [InlineData(EntityState.Added, CollectionType.List)]
-    [InlineData(EntityState.Modified, CollectionType.List)]
-    [InlineData(EntityState.Unchanged, CollectionType.List)]
-    [InlineData(EntityState.Added, CollectionType.SortedSet)]
-    [InlineData(EntityState.Modified, CollectionType.SortedSet)]
-    [InlineData(EntityState.Unchanged, CollectionType.SortedSet)]
-    [InlineData(EntityState.Added, CollectionType.Collection)]
-    [InlineData(EntityState.Modified, CollectionType.Collection)]
-    [InlineData(EntityState.Unchanged, CollectionType.Collection)]
-    [InlineData(EntityState.Added, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Modified, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Unchanged, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Added, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Modified, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Unchanged, CollectionType.ObservableHashSet)]
+    [ConditionalTheory,
+     InlineData(EntityState.Added, CollectionType.HashSet),
+     InlineData(EntityState.Modified, CollectionType.HashSet),
+     InlineData(EntityState.Unchanged, CollectionType.HashSet),
+     InlineData(EntityState.Added, CollectionType.List),
+     InlineData(EntityState.Modified, CollectionType.List),
+     InlineData(EntityState.Unchanged, CollectionType.List),
+     InlineData(EntityState.Added, CollectionType.SortedSet),
+     InlineData(EntityState.Modified, CollectionType.SortedSet),
+     InlineData(EntityState.Unchanged, CollectionType.SortedSet),
+     InlineData(EntityState.Added, CollectionType.Collection),
+     InlineData(EntityState.Modified, CollectionType.Collection),
+     InlineData(EntityState.Unchanged, CollectionType.Collection),
+     InlineData(EntityState.Added, CollectionType.ObservableCollection),
+     InlineData(EntityState.Modified, CollectionType.ObservableCollection),
+     InlineData(EntityState.Unchanged, CollectionType.ObservableCollection),
+     InlineData(EntityState.Added, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Modified, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Unchanged, CollectionType.ObservableHashSet)]
     public void Parent_and_identity_changed_unidirectional_collection(EntityState entityState, CollectionType collectionType)
     {
         using var context = new FixupContext();
@@ -3604,25 +3603,25 @@ public class OwnedFixupTest
         Assert.Contains(dependent.SubChildCollection, e => ReferenceEquals(e, subDependent));
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added, CollectionType.HashSet)]
-    [InlineData(EntityState.Modified, CollectionType.HashSet)]
-    [InlineData(EntityState.Unchanged, CollectionType.HashSet)]
-    [InlineData(EntityState.Added, CollectionType.List)]
-    [InlineData(EntityState.Modified, CollectionType.List)]
-    [InlineData(EntityState.Unchanged, CollectionType.List)]
-    [InlineData(EntityState.Added, CollectionType.SortedSet)]
-    [InlineData(EntityState.Modified, CollectionType.SortedSet)]
-    [InlineData(EntityState.Unchanged, CollectionType.SortedSet)]
-    [InlineData(EntityState.Added, CollectionType.Collection)]
-    [InlineData(EntityState.Modified, CollectionType.Collection)]
-    [InlineData(EntityState.Unchanged, CollectionType.Collection)]
-    [InlineData(EntityState.Added, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Modified, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Unchanged, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Added, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Modified, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Unchanged, CollectionType.ObservableHashSet)]
+    [ConditionalTheory,
+     InlineData(EntityState.Added, CollectionType.HashSet),
+     InlineData(EntityState.Modified, CollectionType.HashSet),
+     InlineData(EntityState.Unchanged, CollectionType.HashSet),
+     InlineData(EntityState.Added, CollectionType.List),
+     InlineData(EntityState.Modified, CollectionType.List),
+     InlineData(EntityState.Unchanged, CollectionType.List),
+     InlineData(EntityState.Added, CollectionType.SortedSet),
+     InlineData(EntityState.Modified, CollectionType.SortedSet),
+     InlineData(EntityState.Unchanged, CollectionType.SortedSet),
+     InlineData(EntityState.Added, CollectionType.Collection),
+     InlineData(EntityState.Modified, CollectionType.Collection),
+     InlineData(EntityState.Unchanged, CollectionType.Collection),
+     InlineData(EntityState.Added, CollectionType.ObservableCollection),
+     InlineData(EntityState.Modified, CollectionType.ObservableCollection),
+     InlineData(EntityState.Unchanged, CollectionType.ObservableCollection),
+     InlineData(EntityState.Added, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Modified, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Unchanged, CollectionType.ObservableHashSet)]
     public void Parent_and_identity_changed_bidirectional_collection(EntityState entityState, CollectionType collectionType)
     {
         using var context = new FixupContext();
@@ -3723,10 +3722,10 @@ public class OwnedFixupTest
         Assert.Same(dependent, subDependent.Parent);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Unchanged)]
+    [ConditionalTheory,
+     InlineData(EntityState.Added),
+     InlineData(EntityState.Modified),
+     InlineData(EntityState.Unchanged)]
     public void Parent_and_identity_swapped_unidirectional(EntityState entityState)
     {
         using var context = new FixupContext();
@@ -3838,10 +3837,10 @@ public class OwnedFixupTest
         Assert.Same(subDependent2, dependent2.SubChild);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added)]
-    [InlineData(EntityState.Modified)]
-    [InlineData(EntityState.Unchanged)]
+    [ConditionalTheory,
+     InlineData(EntityState.Added),
+     InlineData(EntityState.Modified),
+     InlineData(EntityState.Unchanged)]
     public void Parent_and_identity_swapped_bidirectional(EntityState entityState)
     {
         using var context = new FixupContext();
@@ -3959,25 +3958,25 @@ public class OwnedFixupTest
         Assert.Same(dependent2, subDependent2.Parent);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added, CollectionType.HashSet)]
-    [InlineData(EntityState.Modified, CollectionType.HashSet)]
-    [InlineData(EntityState.Unchanged, CollectionType.HashSet)]
-    [InlineData(EntityState.Added, CollectionType.List)]
-    [InlineData(EntityState.Modified, CollectionType.List)]
-    [InlineData(EntityState.Unchanged, CollectionType.List)]
-    [InlineData(EntityState.Added, CollectionType.SortedSet)]
-    [InlineData(EntityState.Modified, CollectionType.SortedSet)]
-    [InlineData(EntityState.Unchanged, CollectionType.SortedSet)]
-    [InlineData(EntityState.Added, CollectionType.Collection)]
-    [InlineData(EntityState.Modified, CollectionType.Collection)]
-    [InlineData(EntityState.Unchanged, CollectionType.Collection)]
-    [InlineData(EntityState.Added, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Modified, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Unchanged, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Added, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Modified, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Unchanged, CollectionType.ObservableHashSet)]
+    [ConditionalTheory,
+     InlineData(EntityState.Added, CollectionType.HashSet),
+     InlineData(EntityState.Modified, CollectionType.HashSet),
+     InlineData(EntityState.Unchanged, CollectionType.HashSet),
+     InlineData(EntityState.Added, CollectionType.List),
+     InlineData(EntityState.Modified, CollectionType.List),
+     InlineData(EntityState.Unchanged, CollectionType.List),
+     InlineData(EntityState.Added, CollectionType.SortedSet),
+     InlineData(EntityState.Modified, CollectionType.SortedSet),
+     InlineData(EntityState.Unchanged, CollectionType.SortedSet),
+     InlineData(EntityState.Added, CollectionType.Collection),
+     InlineData(EntityState.Modified, CollectionType.Collection),
+     InlineData(EntityState.Unchanged, CollectionType.Collection),
+     InlineData(EntityState.Added, CollectionType.ObservableCollection),
+     InlineData(EntityState.Modified, CollectionType.ObservableCollection),
+     InlineData(EntityState.Unchanged, CollectionType.ObservableCollection),
+     InlineData(EntityState.Added, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Modified, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Unchanged, CollectionType.ObservableHashSet)]
     public void Parent_and_identity_swapped_unidirectional_collection(EntityState entityState, CollectionType collectionType)
     {
         using var context = new FixupContext();
@@ -4122,25 +4121,25 @@ public class OwnedFixupTest
         Assert.Contains(dependent2.SubChildCollection, e => ReferenceEquals(e, subDependent2));
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added, CollectionType.HashSet)]
-    [InlineData(EntityState.Modified, CollectionType.HashSet)]
-    [InlineData(EntityState.Unchanged, CollectionType.HashSet)]
-    [InlineData(EntityState.Added, CollectionType.List)]
-    [InlineData(EntityState.Modified, CollectionType.List)]
-    [InlineData(EntityState.Unchanged, CollectionType.List)]
-    [InlineData(EntityState.Added, CollectionType.SortedSet)]
-    [InlineData(EntityState.Modified, CollectionType.SortedSet)]
-    [InlineData(EntityState.Unchanged, CollectionType.SortedSet)]
-    [InlineData(EntityState.Added, CollectionType.Collection)]
-    [InlineData(EntityState.Modified, CollectionType.Collection)]
-    [InlineData(EntityState.Unchanged, CollectionType.Collection)]
-    [InlineData(EntityState.Added, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Modified, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Unchanged, CollectionType.ObservableCollection)]
-    [InlineData(EntityState.Added, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Modified, CollectionType.ObservableHashSet)]
-    [InlineData(EntityState.Unchanged, CollectionType.ObservableHashSet)]
+    [ConditionalTheory,
+     InlineData(EntityState.Added, CollectionType.HashSet),
+     InlineData(EntityState.Modified, CollectionType.HashSet),
+     InlineData(EntityState.Unchanged, CollectionType.HashSet),
+     InlineData(EntityState.Added, CollectionType.List),
+     InlineData(EntityState.Modified, CollectionType.List),
+     InlineData(EntityState.Unchanged, CollectionType.List),
+     InlineData(EntityState.Added, CollectionType.SortedSet),
+     InlineData(EntityState.Modified, CollectionType.SortedSet),
+     InlineData(EntityState.Unchanged, CollectionType.SortedSet),
+     InlineData(EntityState.Added, CollectionType.Collection),
+     InlineData(EntityState.Modified, CollectionType.Collection),
+     InlineData(EntityState.Unchanged, CollectionType.Collection),
+     InlineData(EntityState.Added, CollectionType.ObservableCollection),
+     InlineData(EntityState.Modified, CollectionType.ObservableCollection),
+     InlineData(EntityState.Unchanged, CollectionType.ObservableCollection),
+     InlineData(EntityState.Added, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Modified, CollectionType.ObservableHashSet),
+     InlineData(EntityState.Unchanged, CollectionType.ObservableHashSet)]
     public void Parent_and_identity_swapped_bidirectional_collection(EntityState entityState, CollectionType collectionType)
     {
         using var context = new FixupContext();
@@ -4297,31 +4296,31 @@ public class OwnedFixupTest
         Assert.Same(dependent2, subDependent2.Parent);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Added, true, true, true)]
-    [InlineData(EntityState.Modified, true, true, true)]
-    [InlineData(EntityState.Unchanged, true, true, true)]
-    [InlineData(EntityState.Added, true, true, false)]
-    [InlineData(EntityState.Modified, true, true, false)]
-    [InlineData(EntityState.Unchanged, true, true, false)]
-    [InlineData(EntityState.Added, true, false, true)]
-    [InlineData(EntityState.Modified, true, false, true)]
-    [InlineData(EntityState.Unchanged, true, false, true)]
-    [InlineData(EntityState.Added, true, false, false)]
-    [InlineData(EntityState.Modified, true, false, false)]
-    [InlineData(EntityState.Unchanged, true, false, false)]
-    [InlineData(EntityState.Added, false, true, true)]
-    [InlineData(EntityState.Modified, false, true, true)]
-    [InlineData(EntityState.Unchanged, false, true, true)]
-    [InlineData(EntityState.Added, false, true, false)]
-    [InlineData(EntityState.Modified, false, true, false)]
-    [InlineData(EntityState.Unchanged, false, true, false)]
-    [InlineData(EntityState.Added, false, false, true)]
-    [InlineData(EntityState.Modified, false, false, true)]
-    [InlineData(EntityState.Unchanged, false, false, true)]
-    [InlineData(EntityState.Added, false, false, false)]
-    [InlineData(EntityState.Modified, false, false, false)]
-    [InlineData(EntityState.Unchanged, false, false, false)]
+    [ConditionalTheory,
+     InlineData(EntityState.Added, true, true, true),
+     InlineData(EntityState.Modified, true, true, true),
+     InlineData(EntityState.Unchanged, true, true, true),
+     InlineData(EntityState.Added, true, true, false),
+     InlineData(EntityState.Modified, true, true, false),
+     InlineData(EntityState.Unchanged, true, true, false),
+     InlineData(EntityState.Added, true, false, true),
+     InlineData(EntityState.Modified, true, false, true),
+     InlineData(EntityState.Unchanged, true, false, true),
+     InlineData(EntityState.Added, true, false, false),
+     InlineData(EntityState.Modified, true, false, false),
+     InlineData(EntityState.Unchanged, true, false, false),
+     InlineData(EntityState.Added, false, true, true),
+     InlineData(EntityState.Modified, false, true, true),
+     InlineData(EntityState.Unchanged, false, true, true),
+     InlineData(EntityState.Added, false, true, false),
+     InlineData(EntityState.Modified, false, true, false),
+     InlineData(EntityState.Unchanged, false, true, false),
+     InlineData(EntityState.Added, false, false, true),
+     InlineData(EntityState.Modified, false, false, true),
+     InlineData(EntityState.Unchanged, false, false, true),
+     InlineData(EntityState.Added, false, false, false),
+     InlineData(EntityState.Modified, false, false, false),
+     InlineData(EntityState.Unchanged, false, false, false)]
     public void Can_set_nested_dependent_to_null(EntityState entityState, bool null1, bool null2, bool nullC)
     {
         using var context = new FixupContext();
@@ -4383,9 +4382,9 @@ public class OwnedFixupTest
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory,
+     InlineData(false),
+     InlineData(true)]
     public void Fixup_works_when_changing_state_from_Detached_to_Modified(bool detachDependent)
     {
         using var context = new OwnedModifiedContext(Guid.NewGuid().ToString());
@@ -4933,7 +4932,7 @@ public class OwnedFixupTest
             var user = new User();
 
             user.SetRoles(
-                new[] { new Role { Value = "Pascal" }, new Role { Value = "Smalltalk" }, new Role { Value = "COBOL" } });
+                [new Role { Value = "Pascal" }, new Role { Value = "Smalltalk" }, new Role { Value = "COBOL" }]);
 
             context.Add(user);
 
@@ -4983,9 +4982,9 @@ public class OwnedFixupTest
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory,
+     InlineData(false),
+     InlineData(true)]
     public async Task SaveChanges_when_owner_has_PK_with_default_values(bool async)
     {
         using (var context = new OneRowContext(async))
@@ -5083,21 +5082,20 @@ public class OwnedFixupTest
             => optionsBuilder.UseInMemoryDatabase(_databaseName);
 
         protected internal override void OnModelCreating(ModelBuilder builder)
-            => builder.Entity<User>(
-                m =>
-                {
-                    m.HasKey(x => x.UserId);
-                    m.OwnsMany(
-                        x => x.Roles,
-                        b =>
-                        {
-                            b.Property<Guid>("RoleAssignmentId");
-                            b.HasKey("RoleAssignmentId");
-                            b.Property(x => x.Value);
-                            b.Property<Guid>("UserId");
-                            b.WithOwner().HasForeignKey("UserId");
-                        }).UsePropertyAccessMode(PropertyAccessMode.Field);
-                });
+            => builder.Entity<User>(m =>
+            {
+                m.HasKey(x => x.UserId);
+                m.OwnsMany(
+                    x => x.Roles,
+                    b =>
+                    {
+                        b.Property<Guid>("RoleAssignmentId");
+                        b.HasKey("RoleAssignmentId");
+                        b.Property(x => x.Value);
+                        b.Property<Guid>("UserId");
+                        b.WithOwner().HasForeignKey("UserId");
+                    }).UsePropertyAccessMode(PropertyAccessMode.Field);
+            });
     }
 
     private class Parent : IComparable<Parent>
@@ -5257,250 +5255,248 @@ public class OwnedFixupTest
 
         protected internal override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Parent>(
-                pb =>
-                {
-                    pb.Property(p => p.Id).ValueGeneratedNever();
-                    pb.OwnsOne(
-                        p => p.Child1, cb =>
-                        {
-                            cb.Property<int?>("ParentId");
-                            cb.WithOwner(c => c.Parent)
-                                .HasForeignKey("ParentId");
+            modelBuilder.Entity<Parent>(pb =>
+            {
+                pb.Property(p => p.Id).ValueGeneratedNever();
+                pb.OwnsOne(
+                    p => p.Child1, cb =>
+                    {
+                        cb.Property<int?>("ParentId");
+                        cb.WithOwner(c => c.Parent)
+                            .HasForeignKey("ParentId");
 
-                            cb.OwnsOne(
-                                c => c.SubChild1, sb =>
-                                {
-                                    sb.Property<int>("ParentId");
-                                    sb.WithOwner(c => c.Parent)
-                                        .HasForeignKey("ParentId");
-                                });
+                        cb.OwnsOne(
+                            c => c.SubChild1, sb =>
+                            {
+                                sb.Property<int>("ParentId");
+                                sb.WithOwner(c => c.Parent)
+                                    .HasForeignKey("ParentId");
+                            });
 
-                            cb.OwnsOne(
-                                c => c.SubChild2, sb =>
-                                {
-                                    sb.Property<int>("ParentId");
-                                    sb.WithOwner(c => c.Parent)
-                                        .HasForeignKey("ParentId");
-                                });
+                        cb.OwnsOne(
+                            c => c.SubChild2, sb =>
+                            {
+                                sb.Property<int>("ParentId");
+                                sb.WithOwner(c => c.Parent)
+                                    .HasForeignKey("ParentId");
+                            });
 
-                            cb.OwnsMany(
-                                c => c.SubChildCollection, sb =>
-                                {
-                                    sb.Property<int>("ParentId");
-                                    sb.WithOwner(c => c.Parent)
-                                        .HasForeignKey("ParentId");
-                                });
-                        });
+                        cb.OwnsMany(
+                            c => c.SubChildCollection, sb =>
+                            {
+                                sb.Property<int>("ParentId");
+                                sb.WithOwner(c => c.Parent)
+                                    .HasForeignKey("ParentId");
+                            });
+                    });
 
-                    pb.OwnsOne(
-                        p => p.Child2, cb =>
-                        {
-                            cb.Property<int?>("ParentId");
-                            cb.WithOwner(c => c.Parent)
-                                .HasForeignKey("ParentId");
+                pb.OwnsOne(
+                    p => p.Child2, cb =>
+                    {
+                        cb.Property<int?>("ParentId");
+                        cb.WithOwner(c => c.Parent)
+                            .HasForeignKey("ParentId");
 
-                            cb.OwnsOne(
-                                c => c.SubChild1, sb =>
-                                {
-                                    sb.Property<int>("ParentId");
-                                    sb.WithOwner(c => c.Parent)
-                                        .HasForeignKey("ParentId");
-                                });
+                        cb.OwnsOne(
+                            c => c.SubChild1, sb =>
+                            {
+                                sb.Property<int>("ParentId");
+                                sb.WithOwner(c => c.Parent)
+                                    .HasForeignKey("ParentId");
+                            });
 
-                            cb.OwnsOne(
-                                c => c.SubChild2, sb =>
-                                {
-                                    sb.Property<int>("ParentId");
-                                    sb.WithOwner(c => c.Parent)
-                                        .HasForeignKey("ParentId");
-                                });
+                        cb.OwnsOne(
+                            c => c.SubChild2, sb =>
+                            {
+                                sb.Property<int>("ParentId");
+                                sb.WithOwner(c => c.Parent)
+                                    .HasForeignKey("ParentId");
+                            });
 
-                            cb.OwnsMany(
-                                c => c.SubChildCollection, sb =>
-                                {
-                                    sb.Property<int>("ParentId");
-                                    sb.WithOwner(c => c.Parent)
-                                        .HasForeignKey("ParentId");
-                                });
-                        });
+                        cb.OwnsMany(
+                            c => c.SubChildCollection, sb =>
+                            {
+                                sb.Property<int>("ParentId");
+                                sb.WithOwner(c => c.Parent)
+                                    .HasForeignKey("ParentId");
+                            });
+                    });
 
-                    pb.OwnsMany(
-                        p => p.ChildCollection1, cb =>
-                        {
-                            cb.Property<int?>("ParentId");
-                            cb.WithOwner(c => c.Parent)
-                                .HasForeignKey("ParentId");
+                pb.OwnsMany(
+                    p => p.ChildCollection1, cb =>
+                    {
+                        cb.Property<int?>("ParentId");
+                        cb.WithOwner(c => c.Parent)
+                            .HasForeignKey("ParentId");
 
-                            cb.OwnsOne(
-                                c => c.SubChild1, sb =>
-                                {
-                                    sb.Property<int>("ParentId");
-                                    sb.Property<int>("ChildId");
-                                    sb.WithOwner(c => c.Parent)
-                                        .HasForeignKey("ParentId", "ChildId");
-                                });
+                        cb.OwnsOne(
+                            c => c.SubChild1, sb =>
+                            {
+                                sb.Property<int>("ParentId");
+                                sb.Property<int>("ChildId");
+                                sb.WithOwner(c => c.Parent)
+                                    .HasForeignKey("ParentId", "ChildId");
+                            });
 
-                            cb.OwnsOne(
-                                c => c.SubChild2, sb =>
-                                {
-                                    sb.Property<int>("ParentId");
-                                    sb.Property<int>("ChildId");
-                                    sb.WithOwner(c => c.Parent)
-                                        .HasForeignKey("ParentId", "ChildId");
-                                });
+                        cb.OwnsOne(
+                            c => c.SubChild2, sb =>
+                            {
+                                sb.Property<int>("ParentId");
+                                sb.Property<int>("ChildId");
+                                sb.WithOwner(c => c.Parent)
+                                    .HasForeignKey("ParentId", "ChildId");
+                            });
 
-                            cb.OwnsMany(
-                                c => c.SubChildCollection, sb =>
-                                {
-                                    sb.Property<int>("ParentId");
-                                    sb.Property<int>("ChildId");
-                                    sb.WithOwner(c => c.Parent)
-                                        .HasForeignKey("ParentId", "ChildId");
-                                });
-                        });
+                        cb.OwnsMany(
+                            c => c.SubChildCollection, sb =>
+                            {
+                                sb.Property<int>("ParentId");
+                                sb.Property<int>("ChildId");
+                                sb.WithOwner(c => c.Parent)
+                                    .HasForeignKey("ParentId", "ChildId");
+                            });
+                    });
 
-                    pb.OwnsMany(
-                        p => p.ChildCollection2, cb =>
-                        {
-                            cb.Property<int?>("ParentId");
-                            cb.WithOwner(c => c.Parent)
-                                .HasForeignKey("ParentId");
+                pb.OwnsMany(
+                    p => p.ChildCollection2, cb =>
+                    {
+                        cb.Property<int?>("ParentId");
+                        cb.WithOwner(c => c.Parent)
+                            .HasForeignKey("ParentId");
 
-                            cb.OwnsOne(
-                                c => c.SubChild1, sb =>
-                                {
-                                    sb.Property<int>("ParentId");
-                                    sb.Property<int>("ChildId");
-                                    sb.WithOwner(c => c.Parent)
-                                        .HasForeignKey("ParentId", "ChildId");
-                                });
+                        cb.OwnsOne(
+                            c => c.SubChild1, sb =>
+                            {
+                                sb.Property<int>("ParentId");
+                                sb.Property<int>("ChildId");
+                                sb.WithOwner(c => c.Parent)
+                                    .HasForeignKey("ParentId", "ChildId");
+                            });
 
-                            cb.OwnsOne(
-                                c => c.SubChild2, sb =>
-                                {
-                                    sb.Property<int>("ParentId");
-                                    sb.Property<int>("ChildId");
-                                    sb.WithOwner(c => c.Parent)
-                                        .HasForeignKey("ParentId", "ChildId");
-                                });
+                        cb.OwnsOne(
+                            c => c.SubChild2, sb =>
+                            {
+                                sb.Property<int>("ParentId");
+                                sb.Property<int>("ChildId");
+                                sb.WithOwner(c => c.Parent)
+                                    .HasForeignKey("ParentId", "ChildId");
+                            });
 
-                            cb.OwnsMany(
-                                c => c.SubChildCollection, sb =>
-                                {
-                                    sb.Property<int>("ParentId");
-                                    sb.Property<int>("ChildId");
-                                    sb.WithOwner(c => c.Parent)
-                                        .HasForeignKey("ParentId", "ChildId");
-                                });
-                        });
-                });
+                        cb.OwnsMany(
+                            c => c.SubChildCollection, sb =>
+                            {
+                                sb.Property<int>("ParentId");
+                                sb.Property<int>("ChildId");
+                                sb.WithOwner(c => c.Parent)
+                                    .HasForeignKey("ParentId", "ChildId");
+                            });
+                    });
+            });
 
-            modelBuilder.Entity<ParentPN>(
-                pb =>
-                {
-                    pb.Property(p => p.Id).ValueGeneratedNever();
+            modelBuilder.Entity<ParentPN>(pb =>
+            {
+                pb.Property(p => p.Id).ValueGeneratedNever();
 
-                    pb.OwnsOne(
-                        p => p.Child1, cb =>
-                        {
-                            cb.Property<int?>("ParentId");
-                            cb.WithOwner()
-                                .HasForeignKey("ParentId");
+                pb.OwnsOne(
+                    p => p.Child1, cb =>
+                    {
+                        cb.Property<int?>("ParentId");
+                        cb.WithOwner()
+                            .HasForeignKey("ParentId");
 
-                            cb.OwnsOne(
-                                c => c.SubChild, sb =>
-                                {
-                                    sb.Property<int>("ParentId");
-                                    sb.WithOwner()
-                                        .HasForeignKey("ParentId");
-                                });
+                        cb.OwnsOne(
+                            c => c.SubChild, sb =>
+                            {
+                                sb.Property<int>("ParentId");
+                                sb.WithOwner()
+                                    .HasForeignKey("ParentId");
+                            });
 
-                            cb.OwnsMany(
-                                c => c.SubChildCollection, sb =>
-                                {
-                                    sb.Property<int>("ParentId");
-                                    sb.WithOwner()
-                                        .HasForeignKey("ParentId");
-                                });
-                        });
+                        cb.OwnsMany(
+                            c => c.SubChildCollection, sb =>
+                            {
+                                sb.Property<int>("ParentId");
+                                sb.WithOwner()
+                                    .HasForeignKey("ParentId");
+                            });
+                    });
 
-                    pb.OwnsOne(
-                        p => p.Child2, cb =>
-                        {
-                            cb.Property<int?>("ParentId");
-                            cb.WithOwner()
-                                .HasForeignKey("ParentId");
+                pb.OwnsOne(
+                    p => p.Child2, cb =>
+                    {
+                        cb.Property<int?>("ParentId");
+                        cb.WithOwner()
+                            .HasForeignKey("ParentId");
 
-                            cb.OwnsOne(
-                                c => c.SubChild, sb =>
-                                {
-                                    sb.Property<int>("ParentId");
-                                    sb.WithOwner()
-                                        .HasForeignKey("ParentId");
-                                });
+                        cb.OwnsOne(
+                            c => c.SubChild, sb =>
+                            {
+                                sb.Property<int>("ParentId");
+                                sb.WithOwner()
+                                    .HasForeignKey("ParentId");
+                            });
 
-                            cb.OwnsMany(
-                                c => c.SubChildCollection, sb =>
-                                {
-                                    sb.Property<int>("ParentId");
-                                    sb.WithOwner()
-                                        .HasForeignKey("ParentId");
-                                });
-                        });
+                        cb.OwnsMany(
+                            c => c.SubChildCollection, sb =>
+                            {
+                                sb.Property<int>("ParentId");
+                                sb.WithOwner()
+                                    .HasForeignKey("ParentId");
+                            });
+                    });
 
-                    pb.OwnsMany(
-                        p => p.ChildCollection1, cb =>
-                        {
-                            cb.Property<int?>("ParentId");
-                            cb.WithOwner()
-                                .HasForeignKey("ParentId");
+                pb.OwnsMany(
+                    p => p.ChildCollection1, cb =>
+                    {
+                        cb.Property<int?>("ParentId");
+                        cb.WithOwner()
+                            .HasForeignKey("ParentId");
 
-                            cb.OwnsOne(
-                                c => c.SubChild, sb =>
-                                {
-                                    sb.Property<int>("ParentId");
-                                    sb.Property<int>("ChildId");
-                                    sb.WithOwner()
-                                        .HasForeignKey("ParentId", "ChildId");
-                                });
+                        cb.OwnsOne(
+                            c => c.SubChild, sb =>
+                            {
+                                sb.Property<int>("ParentId");
+                                sb.Property<int>("ChildId");
+                                sb.WithOwner()
+                                    .HasForeignKey("ParentId", "ChildId");
+                            });
 
-                            cb.OwnsMany(
-                                c => c.SubChildCollection, sb =>
-                                {
-                                    sb.Property<int>("ParentId");
-                                    sb.Property<int>("ChildId");
-                                    sb.WithOwner()
-                                        .HasForeignKey("ParentId", "ChildId");
-                                });
-                        });
+                        cb.OwnsMany(
+                            c => c.SubChildCollection, sb =>
+                            {
+                                sb.Property<int>("ParentId");
+                                sb.Property<int>("ChildId");
+                                sb.WithOwner()
+                                    .HasForeignKey("ParentId", "ChildId");
+                            });
+                    });
 
-                    pb.OwnsMany(
-                        p => p.ChildCollection2, cb =>
-                        {
-                            cb.Property<int?>("ParentId");
-                            cb.WithOwner()
-                                .HasForeignKey("ParentId");
+                pb.OwnsMany(
+                    p => p.ChildCollection2, cb =>
+                    {
+                        cb.Property<int?>("ParentId");
+                        cb.WithOwner()
+                            .HasForeignKey("ParentId");
 
-                            cb.OwnsOne(
-                                c => c.SubChild, sb =>
-                                {
-                                    sb.Property<int>("ParentId");
-                                    sb.Property<int>("ChildId");
-                                    sb.WithOwner()
-                                        .HasForeignKey("ParentId", "ChildId");
-                                });
+                        cb.OwnsOne(
+                            c => c.SubChild, sb =>
+                            {
+                                sb.Property<int>("ParentId");
+                                sb.Property<int>("ChildId");
+                                sb.WithOwner()
+                                    .HasForeignKey("ParentId", "ChildId");
+                            });
 
-                            cb.OwnsMany(
-                                c => c.SubChildCollection, sb =>
-                                {
-                                    sb.Property<int>("ParentId");
-                                    sb.Property<int>("ChildId");
-                                    sb.WithOwner()
-                                        .HasForeignKey("ParentId", "ChildId");
-                                });
-                        });
-                });
+                        cb.OwnsMany(
+                            c => c.SubChildCollection, sb =>
+                            {
+                                sb.Property<int>("ParentId");
+                                sb.Property<int>("ChildId");
+                                sb.WithOwner()
+                                    .HasForeignKey("ParentId", "ChildId");
+                            });
+                    });
+            });
 
             modelBuilder.Entity<Thing>().OwnsMany(
                 p => p.OwnedByThings, a =>
@@ -5518,8 +5514,7 @@ public class OwnedFixupTest
 
             if (!_ignoreDuplicates)
             {
-                optionsBuilder.ConfigureWarnings(
-                    w => w.Default(WarningBehavior.Throw).Log(CoreEventId.ManyServiceProvidersCreatedWarning));
+                optionsBuilder.ConfigureWarnings(w => w.Default(WarningBehavior.Throw).Log(CoreEventId.ManyServiceProvidersCreatedWarning));
             }
         }
     }

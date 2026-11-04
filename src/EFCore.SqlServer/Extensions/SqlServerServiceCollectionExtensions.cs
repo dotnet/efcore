@@ -61,12 +61,11 @@ public static class SqlServerServiceCollectionExtensions
         Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null,
         Action<DbContextOptionsBuilder>? optionsAction = null)
         where TContext : DbContext
-        => serviceCollection.AddDbContext<TContext>(
-            (_, options) =>
-            {
-                optionsAction?.Invoke(options);
-                options.UseSqlServer(connectionString, sqlServerOptionsAction);
-            });
+        => serviceCollection.AddDbContext<TContext>((_, options) =>
+        {
+            optionsAction?.Invoke(options);
+            options.UseSqlServer(connectionString, sqlServerOptionsAction);
+        });
 
     /// <summary>
     ///     <para>
@@ -135,12 +134,11 @@ public static class SqlServerServiceCollectionExtensions
         Action<AzureSqlDbContextOptionsBuilder>? azureSqlOptionsAction = null,
         Action<DbContextOptionsBuilder>? optionsAction = null)
         where TContext : DbContext
-        => serviceCollection.AddDbContext<TContext>(
-            (_, options) =>
-            {
-                optionsAction?.Invoke(options);
-                options.UseAzureSql(connectionString, azureSqlOptionsAction);
-            });
+        => serviceCollection.AddDbContext<TContext>((_, options) =>
+        {
+            optionsAction?.Invoke(options);
+            options.UseAzureSql(connectionString, azureSqlOptionsAction);
+        });
 
     /// <summary>
     ///     <para>
@@ -209,12 +207,11 @@ public static class SqlServerServiceCollectionExtensions
         Action<AzureSynapseDbContextOptionsBuilder>? azureSynapseOptionsAction = null,
         Action<DbContextOptionsBuilder>? optionsAction = null)
         where TContext : DbContext
-        => serviceCollection.AddDbContext<TContext>(
-            (_, options) =>
-            {
-                optionsAction?.Invoke(options);
-                options.UseAzureSynapse(connectionString, azureSynapseOptionsAction);
-            });
+        => serviceCollection.AddDbContext<TContext>((_, options) =>
+        {
+            optionsAction?.Invoke(options);
+            options.UseAzureSynapse(connectionString, azureSynapseOptionsAction);
+        });
 
     /// <summary>
     ///     <para>
@@ -279,13 +276,12 @@ public static class SqlServerServiceCollectionExtensions
             .TryAdd<IQueryableMethodTranslatingExpressionVisitorFactory, SqlServerQueryableMethodTranslatingExpressionVisitorFactory>()
             .TryAdd<IExceptionDetector, SqlServerExceptionDetector>()
             .TryAdd<ISingletonOptions, ISqlServerSingletonOptions>(p => p.GetRequiredService<ISqlServerSingletonOptions>())
-            .TryAddProviderSpecificServices(
-                b => b
-                    .TryAddSingleton<ISqlServerSingletonOptions, SqlServerSingletonOptions>()
-                    .TryAddSingleton<ISqlServerValueGeneratorCache, SqlServerValueGeneratorCache>()
-                    .TryAddSingleton<ISqlServerUpdateSqlGenerator, SqlServerUpdateSqlGenerator>()
-                    .TryAddSingleton<ISqlServerSequenceValueGeneratorFactory, SqlServerSequenceValueGeneratorFactory>()
-                    .TryAddScoped<ISqlServerConnection, SqlServerConnection>())
+            .TryAddProviderSpecificServices(b => b
+                .TryAddSingleton<ISqlServerSingletonOptions, SqlServerSingletonOptions>()
+                .TryAddSingleton<ISqlServerValueGeneratorCache, SqlServerValueGeneratorCache>()
+                .TryAddSingleton<ISqlServerUpdateSqlGenerator, SqlServerUpdateSqlGenerator>()
+                .TryAddSingleton<ISqlServerSequenceValueGeneratorFactory, SqlServerSequenceValueGeneratorFactory>()
+                .TryAddScoped<ISqlServerConnection, SqlServerConnection>())
             .TryAddCoreServices();
 
         return serviceCollection;

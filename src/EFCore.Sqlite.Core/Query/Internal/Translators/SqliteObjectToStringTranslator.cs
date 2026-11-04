@@ -76,25 +76,23 @@ public class SqliteObjectToStringTranslator : IMethodCallTranslator
             {
                 return _sqlExpressionFactory.Case(
                     instance,
-                    new[]
-                    {
+                    [
                         new CaseWhenClause(
                             _sqlExpressionFactory.Constant(false),
                             _sqlExpressionFactory.Constant(false.ToString())),
                         new CaseWhenClause(
                             _sqlExpressionFactory.Constant(true),
                             _sqlExpressionFactory.Constant(true.ToString()))
-                    },
+                    ],
                     _sqlExpressionFactory.Constant(string.Empty));
             }
 
             return _sqlExpressionFactory.Case(
-                new[]
-                {
+                [
                     new CaseWhenClause(
                         instance,
                         _sqlExpressionFactory.Constant(true.ToString()))
-                },
+                ],
                 _sqlExpressionFactory.Constant(false.ToString()));
         }
 

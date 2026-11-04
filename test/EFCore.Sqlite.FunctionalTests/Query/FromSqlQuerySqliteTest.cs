@@ -32,13 +32,13 @@ WHERE instr("m"."ContactName", 'z') > 0
         Assert.Equal(
             """
 .param set p0 'London'
-.param set @__contactTitle_1 'Sales Representative'
+.param set @contactTitle 'Sales Representative'
 
 SELECT "m"."CustomerID", "m"."Address", "m"."City", "m"."CompanyName", "m"."ContactName", "m"."ContactTitle", "m"."Country", "m"."Fax", "m"."Phone", "m"."PostalCode", "m"."Region"
 FROM (
     SELECT * FROM "Customers" WHERE "City" = @p0
 ) AS "m"
-WHERE "m"."ContactTitle" = @__contactTitle_1
+WHERE "m"."ContactTitle" = @contactTitle
 """, queryString, ignoreLineEndingDifferences: true);
 
         return queryString;

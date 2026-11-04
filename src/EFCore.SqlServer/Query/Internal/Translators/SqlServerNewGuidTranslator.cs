@@ -40,9 +40,9 @@ public class SqlServerNewGuidTranslator : IMethodCallTranslator
         => MethodInfo.Equals(method)
             ? _sqlExpressionFactory.Function(
                 "NEWID",
-                Enumerable.Empty<SqlExpression>(),
+                [],
                 nullable: false,
-                argumentsPropagateNullability: Enumerable.Empty<bool>(),
+                argumentsPropagateNullability: [],
                 method.ReturnType)
             : null;
 }

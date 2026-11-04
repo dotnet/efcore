@@ -80,9 +80,9 @@ public partial class ConventionDispatcher
             return name;
         }
 
-        public override string? OnDiscriminatorPropertySet(IConventionEntityTypeBuilder entityTypeBuilder, string? name)
+        public override string? OnDiscriminatorPropertySet(IConventionTypeBaseBuilder structuralTypeBuilder, string? name)
         {
-            Add(new OnDiscriminatorPropertySetNode(entityTypeBuilder, name));
+            Add(new OnDiscriminatorPropertySetNode(structuralTypeBuilder, name));
             return name;
         }
 
@@ -523,13 +523,13 @@ public partial class ConventionDispatcher
             => dispatcher._immediateConventionScope.OnEntityTypeMemberIgnored(EntityTypeBuilder, Name);
     }
 
-    private sealed class OnDiscriminatorPropertySetNode(IConventionEntityTypeBuilder entityTypeBuilder, string? name) : ConventionNode
+    private sealed class OnDiscriminatorPropertySetNode(IConventionTypeBaseBuilder structuralTypeBuilder, string? name) : ConventionNode
     {
-        public IConventionEntityTypeBuilder EntityTypeBuilder { get; } = entityTypeBuilder;
+        public IConventionTypeBaseBuilder StructuralTypeBuilder { get; } = structuralTypeBuilder;
         public string? Name { get; } = name;
 
         public override void Run(ConventionDispatcher dispatcher)
-            => dispatcher._immediateConventionScope.OnDiscriminatorPropertySet(EntityTypeBuilder, Name);
+            => dispatcher._immediateConventionScope.OnDiscriminatorPropertySet(StructuralTypeBuilder, Name);
     }
 
     private sealed class OnEntityTypeBaseTypeChangedNode(

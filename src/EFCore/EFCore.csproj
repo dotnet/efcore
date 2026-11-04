@@ -22,6 +22,7 @@ Microsoft.EntityFrameworkCore.DbSet
     <Using Include="System.Diagnostics" />
     <Using Include="System.Linq.Expressions" />
     <Using Include="System.Reflection" />
+    <Using Include="System.Diagnostics.CodeAnalysis" />
     <Using Include="Microsoft.EntityFrameworkCore" />
     <Using Include="Microsoft.EntityFrameworkCore.ChangeTracking" />
     <Using Include="Microsoft.EntityFrameworkCore.Diagnostics" />

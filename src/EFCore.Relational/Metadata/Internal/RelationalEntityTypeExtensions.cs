@@ -29,7 +29,7 @@ public static class RelationalEntityTypeExtensions
         this IEntityType entityType,
         StoreObjectIdentifier storeObject)
         => entityType.IsMappedToJson()
-            ? Enumerable.Empty<IForeignKey>()
+            ? []
             : entityType.GetDeclaredReferencingForeignKeys().Where(fk => fk.IsRowInternal(storeObject));
 
     /// <summary>

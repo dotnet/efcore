@@ -57,8 +57,8 @@ public class CosmosDbContextOptionsExtensionsTests
         // The region will be validated by the Cosmos SDK, because the region list is not constant
         Test(o => o.Region("FakeRegion"), o => Assert.Equal("FakeRegion", o.Region));
         Test(
-            o => o.PreferredRegions(new[] { Regions.AustraliaCentral, Regions.EastAsia }),
-            o => Assert.Equal(new[] { Regions.AustraliaCentral, Regions.EastAsia }, o.PreferredRegions));
+            o => o.PreferredRegions([Regions.AustraliaCentral, Regions.EastAsia]),
+            o => Assert.Equal([Regions.AustraliaCentral, Regions.EastAsia], o.PreferredRegions));
         Test(o => o.ConnectionMode(ConnectionMode.Direct), o => Assert.Equal(ConnectionMode.Direct, o.ConnectionMode));
         Test(o => o.GatewayModeMaxConnectionLimit(3), o => Assert.Equal(3, o.GatewayModeMaxConnectionLimit));
         Test(o => o.MaxRequestsPerTcpConnection(3), o => Assert.Equal(3, o.MaxRequestsPerTcpConnection));
@@ -197,10 +197,9 @@ public class CosmosDbContextOptionsExtensionsTests
 
     private void Throws<T>(Action<CosmosDbContextOptionsBuilder> cosmosOptionsAction)
         where T : Exception
-        => Assert.Throws<T>(
-            () => new DbContextOptionsBuilder().UseCosmos(
-                "serviceEndPoint",
-                "authKeyOrResourceToken",
-                "databaseName",
-                cosmosOptionsAction));
+        => Assert.Throws<T>(() => new DbContextOptionsBuilder().UseCosmos(
+            "serviceEndPoint",
+            "authKeyOrResourceToken",
+            "databaseName",
+            cosmosOptionsAction));
 }

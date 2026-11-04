@@ -41,7 +41,7 @@ public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
     /// <param name="options">The options to be configured.</param>
     public DbContextOptionsBuilder(DbContextOptions options)
     {
-        Check.NotNull(options, nameof(options));
+        Check.NotNull(options);
 
         _options = options;
     }
@@ -80,7 +80,7 @@ public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
     /// <param name="model">The model to be used.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public virtual DbContextOptionsBuilder UseModel(IModel model)
-        => WithOption(e => e.WithModel(Check.NotNull(model, nameof(model))));
+        => WithOption(e => e.WithModel(Check.NotNull(model)));
 
     /// <summary>
     ///     Sets the <see cref="ILoggerFactory" /> that will be used to create <see cref="ILogger" /> instances
@@ -173,7 +173,7 @@ public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
         LogLevel minimumLevel = LogLevel.Debug,
         DbContextLoggerOptions? options = null)
     {
-        Check.NotNull(events, nameof(events));
+        Check.NotNull(events);
 
         var eventsArray = events.ToArray();
 
@@ -219,7 +219,7 @@ public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
         LogLevel minimumLevel = LogLevel.Debug,
         DbContextLoggerOptions? options = null)
     {
-        Check.NotNull(categories, nameof(categories));
+        Check.NotNull(categories);
 
         var categoriesArray = categories.ToArray();
 
@@ -289,8 +289,8 @@ public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
         Func<EventId, LogLevel, bool> filter,
         DbContextLoggerOptions? options = null)
     {
-        Check.NotNull(action, nameof(action));
-        Check.NotNull(filter, nameof(filter));
+        Check.NotNull(action);
+        Check.NotNull(filter);
 
         return LogTo(new FormattingDbContextLogger(action, filter, options ?? DbContextLoggerOptions.DefaultWithLocalTime));
     }
@@ -322,8 +322,8 @@ public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
         Func<EventId, LogLevel, bool> filter,
         Action<EventData> logger)
     {
-        Check.NotNull(logger, nameof(logger));
-        Check.NotNull(filter, nameof(filter));
+        Check.NotNull(logger);
+        Check.NotNull(filter);
 
         return LogTo(new DelegatingDbContextLogger(logger, filter));
     }
@@ -577,7 +577,7 @@ public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
     public virtual DbContextOptionsBuilder ConfigureWarnings(
         Action<WarningsConfigurationBuilder> warningsConfigurationBuilderAction)
     {
-        Check.NotNull(warningsConfigurationBuilderAction, nameof(warningsConfigurationBuilderAction));
+        Check.NotNull(warningsConfigurationBuilderAction);
 
         warningsConfigurationBuilderAction(new WarningsConfigurationBuilder(this));
 
@@ -671,7 +671,7 @@ public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public virtual DbContextOptionsBuilder AddInterceptors(IEnumerable<IInterceptor> interceptors)
     {
-        Check.NotNull(interceptors, nameof(interceptors));
+        Check.NotNull(interceptors);
 
         var singletonInterceptors = interceptors.OfType<ISingletonInterceptor>().ToList();
         var builder = this;
