@@ -1,6 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Sqlite.Update.Internal;
 
 /// <summary>
@@ -48,8 +50,12 @@ public class SqliteModificationCommand : ModificationCommand
         // SQLite has no bool type, so if we simply sent the bool as-is, we'd get 1/0 in the JSON document.
         // To get an actual unquoted true/false value, we pass "true"/"false" string through the json() minifier, which does this.
         // See https://sqlite.org/forum/info/91d09974c3754ea6.
-        // Here we convert the .NET bool to a "true"/"false" string, and SqliteUpdateSqlGenerator will add the enclosing json().
-        if (propertyProviderClrType == typeof(bool))
+        // Here we convert the .NET bool to a "true"/"false" string, and send it as a JSON fragment, which SqliteUpdateSqlGenerator
+        // encloses in json(). A JSON reader/writer configured on the property may write the value differently, which the base handles.
+        if (propertyProviderClrType == typeof(bool)
+#pragma warning disable EF1001 // Internal EF Core API usage.
+            && property.FindJsonFromPropertyReaderWriter(parameters.Value) == null)
+#pragma warning restore EF1001 // Internal EF Core API usage.
         {
             var value = property.GetTypeMapping().Converter is { } converter
                 ? converter.ConvertToProvider(parameters.Value)
@@ -62,7 +68,8 @@ public class SqliteModificationCommand : ModificationCommand
                     true => "true",
                     false => "false",
                     _ => throw new UnreachableException()
-                }
+                },
+                Property = null
             };
 
             return;

@@ -395,6 +395,126 @@ RETURNING 1;
 """);
     }
 
+    public override async Task Edit_single_property_with_custom_reader_writer_string()
+    {
+        await base.Edit_single_property_with_custom_reader_writer_string();
+
+        AssertSql(
+            """
+@p0='#D' (Nullable = false) (Size = 2)
+@p1='1'
+
+UPDATE "TaggedWidgets" SET "Tag" = json_set("Tag", '$.Code', @p0)
+WHERE "Id" = @p1
+RETURNING 1;
+""");
+    }
+
+    public override async Task Edit_single_property_with_custom_reader_writer_int()
+    {
+        await base.Edit_single_property_with_custom_reader_writer_int();
+
+        AssertSql(
+            """
+@p0='#6' (Nullable = false) (Size = 2)
+@p1='1'
+
+UPDATE "TaggedWidgets" SET "Tag" = json_set("Tag", '$.Rank', @p0)
+WHERE "Id" = @p1
+RETURNING 1;
+""");
+    }
+
+    public override async Task Edit_single_property_with_custom_reader_writer_bool()
+    {
+        await base.Edit_single_property_with_custom_reader_writer_bool();
+
+        AssertSql(
+            """
+@p0='0' (Nullable = false) (Size = 1)
+@p1='1'
+
+UPDATE "TaggedWidgets" SET "Tag" = json_set("Tag", '$.IsActive', json(@p0))
+WHERE "Id" = @p1
+RETURNING 1;
+""");
+    }
+
+    public override async Task Edit_single_property_with_custom_reader_writer_to_null()
+    {
+        await base.Edit_single_property_with_custom_reader_writer_to_null();
+
+        AssertSql(
+            """
+@p0='(null)' (Nullable = false) (Size = 6)
+@p1='1'
+
+UPDATE "TaggedWidgets" SET "Tag" = json_set("Tag", '$.Note', @p0)
+WHERE "Id" = @p1
+RETURNING 1;
+""");
+    }
+
+    public override async Task Edit_single_property_with_custom_reader_writer_and_value_converter()
+    {
+        await base.Edit_single_property_with_custom_reader_writer_and_value_converter();
+
+        AssertSql(
+            """
+@p0='#6' (Nullable = false) (Size = 2)
+@p1='1'
+
+UPDATE "TaggedWidgets" SET "Tag" = json_set("Tag", '$.Level', @p0)
+WHERE "Id" = @p1
+RETURNING 1;
+""");
+    }
+
+    public override async Task Edit_single_property_with_custom_reader_writer_non_finite()
+    {
+        await base.Edit_single_property_with_custom_reader_writer_non_finite();
+
+        AssertSql(
+            """
+@p0='#NaN' (Nullable = false) (Size = 4)
+@p1='1'
+
+UPDATE "TaggedWidgets" SET "Tag" = json_set("Tag", '$.Score', @p0)
+WHERE "Id" = @p1
+RETURNING 1;
+""");
+    }
+
+    public override async Task Edit_single_property_with_custom_reader_writer_small_number()
+    {
+        await base.Edit_single_property_with_custom_reader_writer_small_number();
+
+        AssertSql(
+            """
+@p0='1E-30' (Nullable = false) (Size = 5)
+@p1='1'
+
+UPDATE "TaggedWidgets" SET "Tag" = json_set("Tag", '$.Amount', json(@p0))
+WHERE "Id" = @p1
+RETURNING 1;
+""");
+    }
+
+    public override async Task Edit_single_property_with_custom_reader_writer_large_number()
+    {
+        await base.Edit_single_property_with_custom_reader_writer_large_number();
+
+        AssertSql(
+            """
+@p0='100000000000000000000000000001' (Nullable = false) (Size = 30)
+@p1='1'
+
+UPDATE "TaggedWidgets" SET "Tag" = json_set("Tag", '$.Amount', json(@p0))
+WHERE "Id" = @p1
+RETURNING 1;
+""");
+    }
+
     public class ComplexCollectionJsonUpdateSqliteFixture : ComplexCollectionJsonUpdateFixtureBase
     {
         protected override ITestStoreFactory TestStoreFactory

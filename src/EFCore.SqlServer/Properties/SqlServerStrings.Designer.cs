@@ -322,6 +322,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 index, entityType, option);
 
         /// <summary>
+        ///     The JSON number written for property '{entityType}.{property}' by its JSON reader/writer can't be updated in the JSON document on SQL Server without changing its value, since it can't be represented exactly as a decimal or float.
+        /// </summary>
+        public static string JsonNumberNotPreservedInPartialUpdate(object? entityType, object? property)
+            => string.Format(
+                GetString("JsonNumberNotPreservedInPartialUpdate", nameof(entityType), nameof(property)),
+                entityType, property);
+
+        /// <summary>
         ///     A non-constant array index or property name was used when navigating inside a JSON document, but EF Core's SQL Server compatibility level is set to {compatibilityLevel}; this is only supported with compatibility level 140 (SQL Server 2017) or higher.
         /// </summary>
         public static string JsonValuePathExpressionsNotSupported(object? compatibilityLevel)

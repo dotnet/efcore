@@ -994,7 +994,9 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
     /// </summary>
     /// <remarks>
     ///     By default, strings, numeric types and bool and sent as a regular relational parameter, since database functions responsible for
-    ///     patching JSON documents support this. Other types get converted to JSON via the normal means and sent as a string parameter.
+    ///     patching JSON documents support this. Other types, and values written by a JSON reader/writer configured on the property
+    ///     (including null when it handles null writes), get converted to JSON via the normal means. A JSON string is then sent as a string
+    ///     parameter, and other JSON is sent like the JSON of a non-scalar value, with no <see cref="ColumnModificationParameters.Property" />.
     /// </remarks>
     protected virtual void ProcessSinglePropertyJsonUpdate(ref ColumnModificationParameters parameters)
     {
@@ -1002,27 +1004,36 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
         var mapping = property.GetRelationalTypeMapping();
         var propertyProviderClrType = (mapping.Converter?.ProviderClrType ?? property.ClrType).UnwrapNullableType();
         var value = parameters.Value;
+        var json = property.FindJsonFromPropertyReaderWriter(value);
 
         // On most databases, the function which patches a JSON document (e.g. SQL Server JSON_MODIFY) accepts relational string, numeric
         // and bool types directly, without serializing it to a JSON string. So by default, for those cases simply return the value as-is,
         // with the property's type mapping which will take care of sending the parameter with the relational value.
         // Note that we haven't yet applied a value converter if one is configured, in order to allow for it to get applied later with
         // the regular parameter flow.
-        if (value == null
-            || propertyProviderClrType == typeof(string)
-            || propertyProviderClrType == typeof(bool)
-            || propertyProviderClrType.IsNumeric())
+        if (json == null
+            && (value == null
+                || propertyProviderClrType == typeof(string)
+                || propertyProviderClrType == typeof(bool)
+                || propertyProviderClrType.IsNumeric()))
         {
             parameters = parameters with { Value = value, TypeMapping = mapping };
-        }
-        else
-        {
-            var jsonValueReaderWriter = mapping.JsonValueReaderWriter;
-            value = jsonValueReaderWriter?.ToJsonString(value)[1..^1] // The JSON string contains enclosing quotes, remove these.
-                ?? (mapping.Converter == null ? value : mapping.Converter.ConvertToProvider(value));
 
-            parameters = parameters with { Value = value };
+            return;
         }
+
+        json ??= mapping.JsonValueReaderWriter?.ToJsonString(value);
+        if (json == null)
+        {
+            parameters = parameters with { Value = mapping.Converter == null ? value : mapping.Converter.ConvertToProvider(value) };
+
+            return;
+        }
+
+        var element = JsonElement.Parse(json);
+        parameters = element.ValueKind == JsonValueKind.String
+            ? parameters with { Value = element.GetString() }
+            : parameters with { Value = json, Property = null };
     }
 
     private void WriteJson(

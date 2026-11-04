@@ -159,24 +159,7 @@ public class SqliteUpdateSqlGenerator : UpdateAndSelectSqlGenerator
 
             if (columnModification.Property is { IsPrimitiveCollection: false })
             {
-                var providerClrType = (columnModification.Property.GetTypeMapping().Converter?.ProviderClrType
-                    ?? columnModification.Property.ClrType).UnwrapNullableType();
-
-                // SQLite has no bool type, so if we simply sent the bool as-is, we'd get 1/0 in the JSON document.
-                // To get an actual unquoted true/false value, we pass "true"/"false" string through the json() minifier, which does this.
-                // See https://sqlite.org/forum/info/91d09974c3754ea6.
-                // SqliteModificationCommand converted the .NET bool to a "true"/"false" string, here we add the enclosing json().
-                if (providerClrType == typeof(bool))
-                {
-                    stringBuilder.Append("json(");
-                }
-
                 base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
-
-                if (providerClrType == typeof(bool))
-                {
-                    stringBuilder.Append(")");
-                }
             }
             else
             {

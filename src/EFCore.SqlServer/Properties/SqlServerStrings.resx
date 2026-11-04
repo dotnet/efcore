@@ -234,6 +234,9 @@
   <data name="JsonIndexUnsupportedOption" xml:space="preserve">
     <value>JSON index '{index}' on entity type '{entityType}' was configured with the '{option}' option, which is not supported on JSON indexes.</value>
   </data>
+  <data name="JsonNumberNotPreservedInPartialUpdate" xml:space="preserve">
+    <value>The JSON number written for property '{entityType}.{property}' by its JSON reader/writer can't be updated in the JSON document on SQL Server without changing its value, since it can't be represented exactly as a decimal or float.</value>
+  </data>
   <data name="JsonValuePathExpressionsNotSupported" xml:space="preserve">
     <value>A non-constant array index or property name was used when navigating inside a JSON document, but EF Core's SQL Server compatibility level is set to {compatibilityLevel}; this is only supported with compatibility level 140 (SQL Server 2017) or higher.</value>
   </data>

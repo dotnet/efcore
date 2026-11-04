@@ -3,6 +3,7 @@
 
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Linq.Expressions;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
@@ -1060,6 +1061,90 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                     (await Assert.ThrowsAsync<InvalidOperationException>(() => context.SaveChangesAsync())).Message);
             });
 
+    [Fact]
+    public virtual Task Edit_single_property_with_custom_reader_writer_string()
+        => EditTagAsync(t => t.Code = "D", t => Assert.Equal("D", t.Code), nameof(WidgetTag.Code), "\"#D\"");
+
+    [Fact]
+    public virtual Task Edit_single_property_with_custom_reader_writer_int()
+        => EditTagAsync(t => t.Rank = 6, t => Assert.Equal(6, t.Rank), nameof(WidgetTag.Rank), "\"#6\"");
+
+    [Fact]
+    public virtual Task Edit_single_property_with_custom_reader_writer_bool()
+        => EditTagAsync(t => t.IsActive = false, t => Assert.False(t.IsActive), nameof(WidgetTag.IsActive), "0");
+
+    [Fact]
+    public virtual Task Edit_single_property_with_custom_reader_writer_to_null()
+        => EditTagAsync(t => t.Note = null, t => Assert.Null(t.Note), nameof(WidgetTag.Note), "\"(null)\"");
+
+    [Fact]
+    public virtual Task Edit_single_property_with_custom_reader_writer_and_value_converter()
+        => EditTagAsync(t => t.Level = 6, t => Assert.Equal(6, t.Level), nameof(WidgetTag.Level), "\"#6\"");
+
+    [Fact]
+    public virtual Task Edit_single_property_with_custom_reader_writer_non_finite()
+        => EditTagAsync(t => t.Score = double.NaN, t => Assert.Equal(double.NaN, t.Score), nameof(WidgetTag.Score), "\"#NaN\"");
+
+    [Fact]
+    public virtual Task Edit_single_property_with_custom_reader_writer_small_number()
+        => EditTagAmountAsync("1E-30");
+
+    [Fact]
+    public virtual Task Edit_single_property_with_custom_reader_writer_large_number()
+        => EditTagAmountAsync("100000000000000000000000000001");
+
+    // The database may write the number in another form, so it is compared by value
+    private Task EditTagAmountAsync(string number)
+        => EditTagAsync(
+            t => t.Amount = number,
+            t => AssertJsonNumber(number, t.Amount),
+            nameof(WidgetTag.Amount),
+            stored => AssertJsonNumber(number, stored.GetRawText()));
+
+    private static void AssertJsonNumber(string expected, string actual)
+        => Assert.True(
+            JsonElement.DeepEquals(JsonElement.Parse(expected), JsonElement.Parse(actual)),
+            $"Expected the JSON number {expected}, but got {actual}.");
+
+    private Task EditTagAsync(Action<WidgetTag> edit, Action<WidgetTag> assert, string jsonPropertyName, string expectedJson)
+        => EditTagAsync(edit, assert, jsonPropertyName, stored => Assert.Equal(expectedJson, stored.GetRawText()));
+
+    private Task EditTagAsync(Action<WidgetTag> edit, Action<WidgetTag> assert, string jsonPropertyName, Action<JsonElement> assertStored)
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                // Changing a single property patches just that value in the JSON document rather than rewriting the document
+                edit((await context.Set<TaggedWidget>().SingleAsync()).Tag);
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                using (SuspendRecordingEvents())
+                {
+                    // The readers only accept values in the format their writers produce
+                    assert((await context.Set<TaggedWidget>().SingleAsync()).Tag);
+
+                    var document = await GetStoredDocumentAsync(context, "TaggedWidgets", "Tag", id: 1);
+                    assertStored(JsonDocument.Parse(document).RootElement.GetProperty(jsonPropertyName));
+                }
+            });
+
+    private static Task<string> GetStoredDocumentAsync(DbContext context, string table, string column, int id)
+    {
+        var sqlGenerationHelper = context.GetService<ISqlGenerationHelper>();
+
+        return context.Database
+            .SqlQueryRaw<string>($"SELECT {Q(column)} AS {Q("Value")} FROM {Q(table)} WHERE {Q("Id")} = {id}")
+            .SingleAsync();
+
+        string Q(string name)
+            => sqlGenerationHelper.DelimitIdentifier(name);
+    }
+
     private static async Task SetStoredDocumentAsync(DbContext context, string table, string column, int id, string json)
     {
         // Identifiers are delimited by the provider so that any provider can run this test; the document is inlined rather than
@@ -1097,6 +1182,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
         public DbSet<StructWidget> StructWidgets { get; set; } = null!;
         public DbSet<CodeWidget> CodeWidgets { get; set; } = null!;
         public DbSet<OwnedCodeWidget> OwnedCodeWidgets { get; set; } = null!;
+        public DbSet<TaggedWidget> TaggedWidgets { get; set; } = null!;
         public DbSet<EntityWithNullableMeta> EntitiesWithNullableMeta { get; set; } = null!;
         public DbSet<EntityWithNestedCollections> EntitiesWithNestedCollections { get; set; } = null!;
     }
@@ -1183,6 +1269,24 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
         public List<int> Codes { get; set; } = [];
     }
 
+    protected class TaggedWidget
+    {
+        public int Id { get; set; }
+        public required WidgetTag Tag { get; set; }
+    }
+
+    // Each property has a reader/writer with its own JSON format
+    protected class WidgetTag
+    {
+        public required string Code { get; set; }
+        public int Rank { get; set; }
+        public bool IsActive { get; set; }
+        public string? Note { get; set; }
+        public int Level { get; set; }
+        public double Score { get; set; }
+        public required string Amount { get; set; }
+    }
+
     protected class CodeData
     {
         public List<CodeItem> Items { get; set; } = [];
@@ -1245,6 +1349,112 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
 
             writer.WriteEndArray();
         }
+    }
+
+    protected class PrefixedStringReaderWriter : JsonValueReaderWriter<string>
+    {
+        private static readonly ConstructorInfo Constructor = typeof(PrefixedStringReaderWriter).GetConstructor([])!;
+
+        [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
+        public override Expression ConstructorExpression
+            => Expression.New(Constructor);
+
+        public override string FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
+            => ReadPrefixed(manager.CurrentReader.GetString()!);
+
+        public override void ToJsonTyped(Utf8JsonWriter writer, string value)
+            => writer.WriteStringValue("#" + value);
+
+        public static string ReadPrefixed(string json)
+            => json.StartsWith('#') ? json[1..] : throw new FormatException($"'{json}' is missing its '#' prefix.");
+    }
+
+    protected class PrefixedInt32ReaderWriter : JsonValueReaderWriter<int>
+    {
+        private static readonly ConstructorInfo Constructor = typeof(PrefixedInt32ReaderWriter).GetConstructor([])!;
+
+        [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
+        public override Expression ConstructorExpression
+            => Expression.New(Constructor);
+
+        public override int FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
+            => int.Parse(PrefixedStringReaderWriter.ReadPrefixed(manager.CurrentReader.GetString()!));
+
+        public override void ToJsonTyped(Utf8JsonWriter writer, int value)
+            => writer.WriteStringValue("#" + value);
+    }
+
+    protected class NumericBoolReaderWriter : JsonValueReaderWriter<bool>
+    {
+        private static readonly ConstructorInfo Constructor = typeof(NumericBoolReaderWriter).GetConstructor([])!;
+
+        [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
+        public override Expression ConstructorExpression
+            => Expression.New(Constructor);
+
+        public override bool FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
+            => manager.CurrentReader.GetInt32() switch
+            {
+                0 => false,
+                1 => true,
+                var value => throw new FormatException($"'{value}' is not 0 or 1.")
+            };
+
+        public override void ToJsonTyped(Utf8JsonWriter writer, bool value)
+            => writer.WriteNumberValue(value ? 1 : 0);
+    }
+
+    // Writes null as a sentinel rather than as JSON null
+    protected class NullSentinelStringReaderWriter : JsonValueReaderWriter<string?>
+    {
+        private static readonly ConstructorInfo Constructor = typeof(NullSentinelStringReaderWriter).GetConstructor([])!;
+
+        [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
+        public override Expression ConstructorExpression
+            => Expression.New(Constructor);
+
+        public override bool HandlesNullWrites
+            => true;
+
+        public override string? FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
+            => manager.CurrentReader.GetString() is var value && value == "(null)" ? null : value;
+
+        public override void ToJsonTyped(Utf8JsonWriter writer, string? value)
+            => writer.WriteStringValue(value ?? "(null)");
+    }
+
+    // Writes values the type mapping's reader/writer can't, such as NaN
+    protected class PrefixedDoubleReaderWriter : JsonValueReaderWriter<double>
+    {
+        private static readonly ConstructorInfo Constructor = typeof(PrefixedDoubleReaderWriter).GetConstructor([])!;
+
+        [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
+        public override Expression ConstructorExpression
+            => Expression.New(Constructor);
+
+        public override double FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
+            => double.Parse(PrefixedStringReaderWriter.ReadPrefixed(manager.CurrentReader.GetString()!), CultureInfo.InvariantCulture);
+
+        public override void ToJsonTyped(Utf8JsonWriter writer, double value)
+            => writer.WriteStringValue("#" + value.ToString(CultureInfo.InvariantCulture));
+    }
+
+    // Writes a string of digits as a JSON number, as one for an arbitrary-precision number would
+    protected class RawNumberReaderWriter : JsonValueReaderWriter<string>
+    {
+        private static readonly ConstructorInfo Constructor = typeof(RawNumberReaderWriter).GetConstructor([])!;
+
+        [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
+        public override Expression ConstructorExpression
+            => Expression.New(Constructor);
+
+        public override string FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
+            => manager.CurrentReader.TokenType == JsonTokenType.Number
+                ? Encoding.UTF8.GetString(manager.CurrentReader.ValueSpan)
+                : throw new FormatException($"'{manager.CurrentReader.TokenType}' is not a number.");
+
+        public override void ToJsonTyped(Utf8JsonWriter writer, string value)
+            => writer.WriteRawValue(value);
     }
 
     protected class StructWidget
@@ -1409,6 +1619,25 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 b.Navigation(x => x.Owned).IsRequired();
             });
 
+            modelBuilder.Entity<TaggedWidget>(b =>
+            {
+                b.Property(x => x.Id).ValueGeneratedNever();
+
+                b.OwnsOne(
+                    x => x.Tag, tb =>
+                    {
+                        tb.ToJson();
+                        tb.Property(t => t.Code).Metadata.SetJsonValueReaderWriterType(typeof(PrefixedStringReaderWriter));
+                        tb.Property(t => t.Rank).Metadata.SetJsonValueReaderWriterType(typeof(PrefixedInt32ReaderWriter));
+                        tb.Property(t => t.IsActive).Metadata.SetJsonValueReaderWriterType(typeof(NumericBoolReaderWriter));
+                        tb.Property(t => t.Note).Metadata.SetJsonValueReaderWriterType(typeof(NullSentinelStringReaderWriter));
+                        tb.Property(t => t.Level).HasConversion<long>().Metadata
+                            .SetJsonValueReaderWriterType(typeof(PrefixedInt32ReaderWriter));
+                        tb.Property(t => t.Score).Metadata.SetJsonValueReaderWriterType(typeof(PrefixedDoubleReaderWriter));
+                        tb.Property(t => t.Amount).Metadata.SetJsonValueReaderWriterType(typeof(RawNumberReaderWriter));
+                    });
+            });
+
             modelBuilder.Entity<EntityWithNullableMeta>(b =>
             {
                 b.Property(x => x.Id).ValueGeneratedNever();
@@ -1516,6 +1745,22 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 });
 
             context.Add(new OwnedCodeWidget { Id = 1, Owned = new OwnedCodes { Label = "O1", Codes = [4] } });
+
+            context.Add(
+                new TaggedWidget
+                {
+                    Id = 1,
+                    Tag = new WidgetTag
+                    {
+                        Code = "C",
+                        Rank = 5,
+                        IsActive = true,
+                        Note = "N",
+                        Level = 5,
+                        Score = 0.5,
+                        Amount = "1"
+                    }
+                });
 
             var entityWithNullableMeta = new EntityWithNullableMeta
             {

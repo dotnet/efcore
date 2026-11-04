@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.SqlServer.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Update;
 
 public class ComplexCollectionJsonUpdateSqlServerTest : ComplexCollectionJsonUpdateTestBase<
@@ -444,6 +446,136 @@ UPDATE [CodeWidgets] SET [Data] = @p0
 OUTPUT 1
 WHERE [Id] = @p1;
 """);
+    }
+
+    public override async Task Edit_single_property_with_custom_reader_writer_string()
+    {
+        await base.Edit_single_property_with_custom_reader_writer_string();
+
+        AssertSql(
+            """
+@p0='{"":"#D"}' (Nullable = false) (Size = 9)
+@p1='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [TaggedWidgets] SET [Tag] = JSON_MODIFY([Tag], 'strict $.Code', JSON_VALUE(@p0, '$.""'))
+OUTPUT 1
+WHERE [Id] = @p1;
+""");
+    }
+
+    public override async Task Edit_single_property_with_custom_reader_writer_int()
+    {
+        await base.Edit_single_property_with_custom_reader_writer_int();
+
+        AssertSql(
+            """
+@p0='{"":"#6"}' (Nullable = false) (Size = 9)
+@p1='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [TaggedWidgets] SET [Tag] = JSON_MODIFY([Tag], 'strict $.Rank', JSON_VALUE(@p0, '$.""'))
+OUTPUT 1
+WHERE [Id] = @p1;
+""");
+    }
+
+    public override async Task Edit_single_property_with_custom_reader_writer_bool()
+    {
+        await base.Edit_single_property_with_custom_reader_writer_bool();
+
+        AssertSql(
+            """
+@p0='0' (Precision = 1)
+@p1='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [TaggedWidgets] SET [Tag] = JSON_MODIFY([Tag], 'strict $.IsActive', @p0)
+OUTPUT 1
+WHERE [Id] = @p1;
+""");
+    }
+
+    public override async Task Edit_single_property_with_custom_reader_writer_to_null()
+    {
+        await base.Edit_single_property_with_custom_reader_writer_to_null();
+
+        AssertSql(
+            """
+@p0='{"":"(null)"}' (Nullable = false) (Size = 13)
+@p1='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [TaggedWidgets] SET [Tag] = JSON_MODIFY([Tag], 'strict $.Note', JSON_VALUE(@p0, '$.""'))
+OUTPUT 1
+WHERE [Id] = @p1;
+""");
+    }
+
+    public override async Task Edit_single_property_with_custom_reader_writer_and_value_converter()
+    {
+        await base.Edit_single_property_with_custom_reader_writer_and_value_converter();
+
+        AssertSql(
+            """
+@p0='{"":"#6"}' (Nullable = false) (Size = 9)
+@p1='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [TaggedWidgets] SET [Tag] = JSON_MODIFY([Tag], 'strict $.Level', JSON_VALUE(@p0, '$.""'))
+OUTPUT 1
+WHERE [Id] = @p1;
+""");
+    }
+
+    public override async Task Edit_single_property_with_custom_reader_writer_non_finite()
+    {
+        await base.Edit_single_property_with_custom_reader_writer_non_finite();
+
+        AssertSql(
+            """
+@p0='{"":"#NaN"}' (Nullable = false) (Size = 11)
+@p1='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [TaggedWidgets] SET [Tag] = JSON_MODIFY([Tag], 'strict $.Score', JSON_VALUE(@p0, '$.""'))
+OUTPUT 1
+WHERE [Id] = @p1;
+""");
+    }
+
+    public override async Task Edit_single_property_with_custom_reader_writer_small_number()
+    {
+        await base.Edit_single_property_with_custom_reader_writer_small_number();
+
+        AssertSql(
+            """
+@p0='1E-30'
+@p1='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [TaggedWidgets] SET [Tag] = JSON_MODIFY([Tag], 'strict $.Amount', @p0)
+OUTPUT 1
+WHERE [Id] = @p1;
+""");
+    }
+
+    // Neither a decimal nor a float parameter holds this number exactly, so it can't be patched without changing it
+    public override async Task Edit_single_property_with_custom_reader_writer_large_number()
+    {
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            base.Edit_single_property_with_custom_reader_writer_large_number);
+
+        Assert.Equal(
+            SqlServerStrings.JsonNumberNotPreservedInPartialUpdate(nameof(WidgetTag), nameof(WidgetTag.Amount)),
+            exception.Message);
     }
 
     public class ComplexCollectionJsonUpdateSqlServerFixture : ComplexCollectionJsonUpdateFixtureBase
