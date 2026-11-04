@@ -165,17 +165,25 @@ public class RelationalStructuralTypeShaperExpression : StructuralTypeShaperExpr
         }
 
         var newValueBufferExpression = ValueBufferExpression;
-        if (StructuralType is IComplexType
-            && ValueBufferExpression is StructuralTypeProjectionExpression structuralTypeProjectionExpression)
+        if (StructuralType is IComplexType)
         {
-            // for complex types we also need to go inside and mark all properties there as nullable
-            // so that when they get extracted during apply projection, they have correct nullabilities
-            // for entity types (containing complex types) we are ok - if the pushdown already happened we iterate over all complex shaper
-            // and call MakeNullable, so we get here. If pushdown hasn't happened yet (so the complex cache is not populated yet)
-            // it's enough to mark shaper itself as nullable - when we eventually create shapers for the complex types
-            // in GenerateComplexPropertyShaperExpression, we generate the columns as nullable if the shaper itself is nullable
-            // see issue #33547 for more details
-            newValueBufferExpression = structuralTypeProjectionExpression.MakeNullable();
+            newValueBufferExpression = ValueBufferExpression switch
+            {
+                // for complex types we also need to go inside and mark all properties there as nullable
+                // so that when they get extracted during apply projection, they have correct nullabilities
+                // for entity types (containing complex types) we are ok - if the pushdown already happened we iterate over all complex shaper
+                // and call MakeNullable, so we get here. If pushdown hasn't happened yet (so the complex cache is not populated yet)
+                // it's enough to mark shaper itself as nullable - when we eventually create shapers for the complex types
+                // in GenerateComplexPropertyShaperExpression, we generate the columns as nullable if the shaper itself is nullable
+                // see issue #33547 for more details
+                StructuralTypeProjectionExpression structuralTypeProjectionExpression => structuralTypeProjectionExpression.MakeNullable(),
+
+                // for complex types mapped to JSON we similarly need to mark the JSON query as nullable, so that scalar properties
+                // bound from it (e.g. in a predicate over the optional side of a LEFT JOIN) are nullable and get null semantics compensation
+                JsonQueryExpression jsonQueryExpression => jsonQueryExpression.MakeNullable(),
+
+                _ => ValueBufferExpression
+            };
         }
 
         // Marking nullable requires re-computation of Discriminator condition
