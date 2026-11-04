@@ -32,6 +32,31 @@ public abstract class PrecompiledQueryRelationalTestBase
     #region Expression types
 
     [Fact]
+    public virtual Task Class_constant_in_predicate()
+        => FullSourceTest(
+            """
+public static class TestContainer
+{
+    private const int BlogId = 8;
+
+    public static async Task Test(DbContextOptions dbContextOptions)
+    {
+        await using var context = new PrecompiledQueryContext(dbContextOptions);
+        var blog = await ExecuteAsync(context, CancellationToken.None);
+        Assert.NotNull(blog);
+        Assert.Equal(8, blog.Id);
+        Assert.Equal("Blog1", blog.Name);
+    }
+
+    private static Task<Blog?> ExecuteAsync(PrecompiledQueryContext suppliedContext, CancellationToken cancellationToken)
+    {
+        var context = suppliedContext;
+        return context.Blogs.SingleOrDefaultAsync(b => b.Id == BlogId, cancellationToken);
+    }
+}
+""");
+
+    [Fact]
     public virtual Task BinaryExpression()
         => Test(
             """
