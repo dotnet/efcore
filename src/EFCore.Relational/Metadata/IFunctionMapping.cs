@@ -11,8 +11,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information and examples.
 /// </remarks>
-public interface IFunctionMapping : ITableMappingBase
+public interface IFunctionMapping : ITableMappingBase, IComparable<IFunctionMapping>
 {
+    /// <inheritdoc />
+    int IComparable<IFunctionMapping>.CompareTo(IFunctionMapping? other)
+        => ((ITableMappingBase)this).CompareTo(other);
+
     /// <summary>
     ///     Gets the value indicating whether this is the function mapping
     ///     that should be used when the entity type is queried.
