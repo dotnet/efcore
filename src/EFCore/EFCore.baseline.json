@@ -4145,6 +4145,12 @@
           "Member": "static string IQueryableNotAsync(object? genericParameter);"
         },
         {
+          "Member": "static string JsonCollectionExpectedArray(object? elementType, object? tokenType);"
+        },
+        {
+          "Member": "static string JsonCollectionInvalidElement(object? elementType, object? tokenType);"
+        },
+        {
           "Member": "static string JsonReaderInvalidTokenType(object? tokenType);"
         },
         {
