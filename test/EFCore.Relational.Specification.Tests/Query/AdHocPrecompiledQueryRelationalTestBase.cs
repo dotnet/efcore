@@ -16,6 +16,65 @@ public abstract class AdHocPrecompiledQueryRelationalTestBase : NonSharedModelTe
         : base(fixture)
         => TestOutputHelper = testOutputHelper;
 
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public virtual async Task ExecuteUpdate_with_value_type_setters(bool async, bool useLambda)
+    {
+        var contextFactory = await InitializeNonSharedTest<UpdateContext>();
+
+        await Test(
+            $$"""
+await using var context = new AdHocPrecompiledQueryRelationalTestBase.UpdateContext(dbContextOptions);
+var now = new DateTime(2026, 1, 1);
+context.Keys.Add(new AdHocPrecompiledQueryRelationalTestBase.UpdateKey
+{
+    IsEnabled = true,
+    ExpiresAt = now.AddDays(-1)
+});
+await context.SaveChangesAsync();
+context.ChangeTracker.Clear();
+
+var rowsAffected = {{(async ? "await" : "")}} context.Keys.{{(async ? "ExecuteUpdateAsync" : "ExecuteUpdate")}}(
+    setters => setters.SetProperty(k => k.IsEnabled, {{(useLambda ? "k => false" : "false")}}));
+Assert.Equal(1, rowsAffected);
+Assert.False((await context.Keys.AsNoTracking().SingleAsync()).IsEnabled);
+
+rowsAffected = {{(async ? "await" : "")}} context.Keys.Where(k => k.ExpiresAt != null && k.ExpiresAt < now)
+    .{{(async ? "ExecuteUpdateAsync" : "ExecuteUpdate")}}(
+        setters => setters.SetProperty(k => k.UpdatedAt, {{(useLambda ? "k => now" : "now")}}));
+Assert.Equal(1, rowsAffected);
+Assert.Equal(now, (await context.Keys.AsNoTracking().SingleAsync()).UpdatedAt);
+
+now = now.AddDays(1);
+rowsAffected = {{(async ? "await" : "")}} context.Keys.Where(k => !k.IsEnabled && k.ExpiresAt != null && k.ExpiresAt < now)
+    .{{(async ? "ExecuteUpdateAsync" : "ExecuteUpdate")}}(
+        setters => setters.SetProperty(k => k.IsEnabled, {{(useLambda ? "k => true" : "true")}})
+            .SetProperty(k => k.UpdatedAt, {{(useLambda ? "k => now" : "now")}}));
+Assert.Equal(1, rowsAffected);
+var key = await context.Keys.AsNoTracking().SingleAsync();
+Assert.True(key.IsEnabled);
+Assert.Equal(now, key.UpdatedAt);
+""",
+            typeof(UpdateContext),
+            contextFactory.GetOptions());
+    }
+
+    public class UpdateContext(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<UpdateKey> Keys { get; set; } = null!;
+    }
+
+    public class UpdateKey
+    {
+        public int Id { get; set; }
+        public bool IsEnabled { get; set; }
+        public DateTime? ExpiresAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+    }
+
     [Fact]
     public virtual async Task Index_no_evaluatability()
     {
