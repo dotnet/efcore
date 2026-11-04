@@ -44,6 +44,19 @@ public class EntityProjectionExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    /// <remarks>
+    ///     These are the properties of the entity type hierarchy, including the properties of its complex types, or only the
+    ///     properties of a complex type when the projection is for a complex type (see <see cref="ProjectComplexType" />).
+    /// </remarks>
+    public virtual IEnumerable<IProperty> Properties
+        => _readExpressionMap.Keys;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public override Type Type
         => EntityType.ClrType;
 
@@ -74,8 +87,9 @@ public class EntityProjectionExpression : Expression, IPrintableExpression
         var readExpressionMap = new Dictionary<IProperty, MethodCallExpression>();
         foreach (var (property, methodCallExpression) in _readExpressionMap)
         {
-            if (derivedType.IsAssignableFrom(property.DeclaringType)
-                || property.DeclaringType.IsAssignableFrom(derivedType))
+            var declaringEntityType = property.DeclaringType.ContainingEntityType;
+            if (derivedType.IsAssignableFrom(declaringEntityType)
+                || declaringEntityType.IsAssignableFrom(derivedType))
             {
                 readExpressionMap[property] = methodCallExpression;
             }
@@ -90,18 +104,25 @@ public class EntityProjectionExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    /// <remarks>
+    ///     Complex types are stored flattened with their containing entity type, so a projected complex type only
+    ///     needs the properties of the complex type from the projection of the entity type.
+    /// </remarks>
+    public virtual EntityProjectionExpression ProjectComplexType(IComplexType complexType)
+        => new(EntityType, complexType.GetFlattenedProperties().ToDictionary(p => p, BindProperty));
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual MethodCallExpression BindProperty(IProperty property)
     {
-        if (property.DeclaringType is not IEntityType entityType)
-        {
-            if (EntityType != property.DeclaringType)
-            {
-                throw new InvalidOperationException(
-                    InMemoryStrings.UnableToBindMemberToEntityProjection("property", property.Name, EntityType.DisplayName()));
-            }
-        }
-        else if (!EntityType.IsAssignableFrom(entityType)
-                 && !entityType.IsAssignableFrom(EntityType))
+        // Properties of complex types are bound through the entity type containing them.
+        var entityType = property.DeclaringType.ContainingEntityType;
+        if (!EntityType.IsAssignableFrom(entityType)
+            && !entityType.IsAssignableFrom(EntityType))
         {
             throw new InvalidOperationException(
                 InMemoryStrings.UnableToBindMemberToEntityProjection("property", property.Name, EntityType.DisplayName()));

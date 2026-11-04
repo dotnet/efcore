@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal;
@@ -440,15 +441,26 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
                 return shaper;
 
             default:
-                var translation = TranslateExpression(expression);
-                if (translation == null)
+                var translation = _expressionTranslator.TranslateProjection(expression);
+                switch (translation)
                 {
-                    return null;
-                }
+                    case null:
+                        if (_expressionTranslator.TranslationErrorDetails != null)
+                        {
+                            AddTranslationErrorDetails(_expressionTranslator.TranslationErrorDetails);
+                        }
 
-                return translation.Type == expression.Type
-                    ? translation
-                    : Expression.Convert(translation, expression.Type);
+                        return null;
+
+                    // Grouping by a complex type
+                    case StructuralTypeShaperExpression:
+                        return translation;
+
+                    default:
+                        return translation.Type == expression.Type
+                            ? translation
+                            : Expression.Convert(translation, expression.Type);
+                }
         }
     }
 
@@ -1442,18 +1454,16 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
         var inMemoryQueryExpression1 = (InMemoryQueryExpression)source1.QueryExpression;
         var inMemoryQueryExpression2 = (InMemoryQueryExpression)source2.QueryExpression;
 
+        // This also validates the shapers, so is done before the set operation is applied.
+        var makeNullable = setOperationMethodInfo != EnumerableMethods.Intersect;
+        var shaperExpression = MatchShaperNullabilityForSetOperation(
+            source1.ShaperExpression, source2.ShaperExpression, makeNullable);
+
         inMemoryQueryExpression1.ApplySetOperation(setOperationMethodInfo, inMemoryQueryExpression2);
 
-        if (setOperationMethodInfo.Equals(EnumerableMethods.Except))
-        {
-            return source1;
-        }
-
-        var makeNullable = setOperationMethodInfo != EnumerableMethods.Intersect;
-
-        return source1.UpdateShaperExpression(
-            MatchShaperNullabilityForSetOperation(
-                source1.ShaperExpression, source2.ShaperExpression, makeNullable));
+        return setOperationMethodInfo.Equals(EnumerableMethods.Except)
+            ? source1
+            : source1.UpdateShaperExpression(shaperExpression);
     }
 
     private static Expression MatchShaperNullabilityForSetOperation(Expression shaper1, Expression shaper2, bool makeNullable)
@@ -1462,6 +1472,17 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
         {
             case StructuralTypeShaperExpression entityShaperExpression1
                 when shaper2 is StructuralTypeShaperExpression entityShaperExpression2:
+                // Complex types are projected over the projection of their containing entity type, so different complex types
+                // (e.g. ShippingAddress and BillingAddress) would read different properties from the combined rows.
+                if (entityShaperExpression1.StructuralType is IComplexType
+                    && entityShaperExpression1.StructuralType != entityShaperExpression2.StructuralType)
+                {
+                    throw new InvalidOperationException(
+                        InMemoryStrings.SetOperationOverDifferentStructuralTypes(
+                            entityShaperExpression1.StructuralType.DisplayName(),
+                            entityShaperExpression2.StructuralType.DisplayName()));
+                }
+
                 return entityShaperExpression1.IsNullable != entityShaperExpression2.IsNullable
                     ? entityShaperExpression1.MakeNullable(makeNullable)
                     : entityShaperExpression1;

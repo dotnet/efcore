@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal;
@@ -137,15 +138,32 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
         return TranslateInternal(expression);
     }
 
-    private Expression? TranslateInternal(Expression expression)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual Expression? TranslateProjection(Expression expression)
     {
+        TranslationErrorDetails = null;
+
         var result = Visit(expression);
 
-        return result == QueryCompilationContext.NotTranslatedExpression
+        // A complex type projected out via Select is returned as a shaper so that it can be materialized.
+        return result is StructuralTypeReferenceExpression { StructuralType: IComplexType, Parameter: { } shaper }
+            ? shaper
+            : ProcessTranslation(result);
+    }
+
+    private Expression? TranslateInternal(Expression expression)
+        => ProcessTranslation(Visit(expression));
+
+    private Expression? ProcessTranslation(Expression result)
+        => result == QueryCompilationContext.NotTranslatedExpression
             || _entityReferenceFindingExpressionVisitor.Find(result)
                 ? null
                 : result;
-    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1117,15 +1135,26 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
             return null;
         }
 
-        var entityType = typeReference.StructuralType;
+        var structuralType = typeReference.StructuralType;
 
         var property = member.MemberInfo != null
-            ? entityType.FindProperty(member.MemberInfo)
-            : entityType.FindProperty(member.Name!);
+            ? structuralType.FindProperty(member.MemberInfo)
+            : structuralType.FindProperty(member.Name!);
 
         if (property != null)
         {
             return BindProperty(typeReference, property, type);
+        }
+
+        var complexProperty = member.MemberInfo != null
+            ? structuralType.FindComplexProperty(member.MemberInfo)
+            : structuralType.FindComplexProperty(member.Name!);
+
+        // Properties of non-collection complex types are stored flattened with the containing entity, so the complex type
+        // is bound over the same projection as the entity.
+        if (complexProperty is { IsCollection: false })
+        {
+            return new StructuralTypeReferenceExpression(typeReference, complexProperty);
         }
 
         AddTranslationErrorDetails(
@@ -1331,6 +1360,12 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
         bool equalsMethod,
         [NotNullWhen(true)] out Expression? result)
     {
+        if (left is StructuralTypeReferenceExpression { StructuralType: IComplexType }
+            || right is StructuralTypeReferenceExpression { StructuralType: IComplexType })
+        {
+            return TryRewriteComplexTypeEquality(nodeType, left, right, out result);
+        }
+
         var leftEntityReference = left is StructuralTypeReferenceExpression { StructuralType: IEntityType } l ? l : null;
         var rightEntityReference = right is StructuralTypeReferenceExpression { StructuralType: IEntityType } r ? r : null;
 
@@ -1423,15 +1458,77 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
         return true;
     }
 
-    private Expression CreatePropertyAccessExpression(Expression target, IProperty property)
+    private bool TryRewriteComplexTypeEquality(
+        ExpressionType nodeType,
+        Expression left,
+        Expression right,
+        [NotNullWhen(true)] out Expression? result)
     {
+        if (left is StructuralTypeReferenceExpression leftReference
+            && right is StructuralTypeReferenceExpression rightReference
+            && leftReference.Type != rightReference.Type)
+        {
+            // Only complex types of the same CLR type can be compared.
+            result = null;
+            return false;
+        }
+
+        var complexType = (left as StructuralTypeReferenceExpression ?? (StructuralTypeReferenceExpression)right).StructuralType;
+
+        if (left is StructuralTypeReferenceExpression { Subquery: not null }
+            || right is StructuralTypeReferenceExpression { Subquery: not null })
+        {
+            // Comparing each property would require evaluating the subquery once per property.
+            throw new InvalidOperationException(InMemoryStrings.SubqueryOverComplexTypesNotSupported(complexType.DisplayName()));
+        }
+
+        // Compare each property on the left to the same property on the right, including properties of nested complex types.
+        // The properties of a complex type on the other side are bound by name, since it is a different complex type
+        // when e.g. ShippingAddress is compared to BillingAddress.
+        result = Visit(
+            complexType.GetFlattenedProperties()
+                .Select(p =>
+                {
+                    var propertyPath = GetPropertyPath(complexType, p);
+
+                    return Expression.MakeBinary(
+                        nodeType,
+                        CreatePropertyAccessExpression(left, propertyPath),
+                        CreatePropertyAccessExpression(right, propertyPath));
+                })
+                .Aggregate((l, r) => nodeType == ExpressionType.Equal
+                    ? Expression.AndAlso(l, r)
+                    : Expression.OrElse(l, r)));
+
+        return true;
+
+        static IReadOnlyList<IPropertyBase> GetPropertyPath(ITypeBase complexType, IProperty property)
+        {
+            var propertyPath = new List<IPropertyBase> { property };
+            for (var declaringType = property.DeclaringType; declaringType != complexType;)
+            {
+                var complexProperty = ((IComplexType)declaringType).ComplexProperty;
+                propertyPath.Insert(0, complexProperty);
+                declaringType = complexProperty.DeclaringType;
+            }
+
+            return propertyPath;
+        }
+    }
+
+    private Expression CreatePropertyAccessExpression(Expression target, IProperty property)
+        => CreatePropertyAccessExpression(target, [property]);
+
+    // Creates an expression accessing the property at the end of the given path, where all preceding path elements are
+    // non-collection complex properties.
+    private Expression CreatePropertyAccessExpression(Expression target, IReadOnlyList<IPropertyBase> propertyPath)
+    {
+        var property = propertyPath[^1];
         switch (target)
         {
             case ConstantExpression constantExpression:
                 return Expression.Constant(
-                    constantExpression.Value is null
-                        ? null
-                        : property.GetGetter().GetClrValue(constantExpression.Value),
+                    GetPropertyPathValue(constantExpression.Value, propertyPath),
                     property.ClrType.MakeNullable());
 
             case MethodCallExpression { Method.IsGenericMethod: true } methodCallExpression
@@ -1442,38 +1539,59 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
                         ParameterValueExtractorMethod.MakeGenericMethod(property.ClrType.MakeNullable()),
                         QueryCompilationContext.QueryContextParameter,
                         Expression.Constant(parameterName, typeof(string)),
-                        Expression.Constant(property, typeof(IProperty))),
+                        Expression.Constant(propertyPath, typeof(IReadOnlyList<IPropertyBase>))),
                     QueryCompilationContext.QueryContextParameter);
 
-                var newParameterName = $"{RuntimeParameterPrefix}{parameterName}_{property.Name}";
+                var newParameterName = $"{RuntimeParameterPrefix}{parameterName}_{string.Join("_", propertyPath.Select(p => p.Name))}";
 
                 return _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
 
             case MemberInitExpression memberInitExpression
-                when memberInitExpression.Bindings.SingleOrDefault(mb => mb.Member.Name == property.Name) is MemberAssignment
+                when memberInitExpression.Bindings.SingleOrDefault(mb => mb.Member.Name == propertyPath[0].Name) is MemberAssignment
                     memberAssignment:
-                return memberAssignment.Expression.Type.IsNullableType()
-                    ? memberAssignment.Expression
-                    : Expression.Convert(memberAssignment.Expression, property.ClrType.MakeNullable());
+                return propertyPath.Count > 1
+                    ? CreatePropertyAccessExpression(memberAssignment.Expression, propertyPath.Skip(1).ToList())
+                    : memberAssignment.Expression.Type.IsNullableType()
+                        ? memberAssignment.Expression
+                        : Expression.Convert(memberAssignment.Expression, property.ClrType.MakeNullable());
+
+            // E.g. a struct complex type parameter boxed for comparison
+            case UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } unaryExpression:
+                return CreatePropertyAccessExpression(unaryExpression.Operand, propertyPath);
 
             case NewExpression newExpression
                 when CanEvaluate(newExpression):
-                return CreatePropertyAccessExpression(GetValue(newExpression), property);
+                return CreatePropertyAccessExpression(GetValue(newExpression), propertyPath);
 
             case MemberInitExpression memberInitExpression
                 when CanEvaluate(memberInitExpression):
-                return CreatePropertyAccessExpression(GetValue(memberInitExpression), property);
+                return CreatePropertyAccessExpression(GetValue(memberInitExpression), propertyPath);
 
             default:
-                return target.CreateEFPropertyExpression(property);
+                return propertyPath.Aggregate(target, (e, p) => e.CreateEFPropertyExpression(p));
         }
     }
 
-    private static T? ParameterValueExtractor<T>(QueryContext context, string baseParameterName, IProperty property)
+    private static object? GetPropertyPathValue(object? value, IReadOnlyList<IPropertyBase> propertyPath)
     {
-        var baseParameter = context.Parameters[baseParameterName];
-        return baseParameter == null ? (T?)(object?)null : (T?)property.GetGetter().GetClrValue(baseParameter);
+        foreach (var property in propertyPath)
+        {
+            if (value == null)
+            {
+                return null;
+            }
+
+            value = property.GetGetter().GetClrValue(value);
+        }
+
+        return value;
     }
+
+    private static T? ParameterValueExtractor<T>(
+        QueryContext context,
+        string baseParameterName,
+        IReadOnlyList<IPropertyBase> propertyPath)
+        => (T?)GetPropertyPathValue(context.Parameters[baseParameterName], propertyPath);
 
     private static List<TProperty?>? ParameterListValueExtractor<TEntity, TProperty>(
         QueryContext context,
@@ -1668,6 +1786,18 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
         {
             Subquery = subquery;
             StructuralType = ((StructuralTypeShaperExpression)subquery.ShaperExpression).StructuralType;
+        }
+
+        public StructuralTypeReferenceExpression(StructuralTypeReferenceExpression typeReference, IComplexProperty complexProperty)
+        {
+            Parameter = typeReference.Parameter is { } parameter
+                ? new StructuralTypeShaperExpression(
+                    complexProperty.ComplexType,
+                    parameter.ValueBufferExpression,
+                    parameter.IsNullable || complexProperty.IsNullable)
+                : null;
+            Subquery = typeReference.Subquery;
+            StructuralType = complexProperty.ComplexType;
         }
 
         private StructuralTypeReferenceExpression(StructuralTypeReferenceExpression typeReference, IEntityType type)

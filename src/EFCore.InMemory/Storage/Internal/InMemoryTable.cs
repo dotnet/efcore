@@ -5,6 +5,7 @@ using System.Collections;
 using System.Globalization;
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 
@@ -342,6 +343,14 @@ public class InMemoryTable<TKey> : IInMemoryTable
 
     private static object? SnapshotValue(IProperty property, ValueComparer? comparer, IUpdateEntry entry)
     {
+        // Properties of a null complex type are stored as null, even if they have a value (e.g. a shadow discriminator),
+        // so that the complex type is materialized as null.
+        if (property.DeclaringType is IComplexType complexType
+            && IsNull(complexType.ComplexProperty, entry))
+        {
+            return null;
+        }
+
         var value = SnapshotValue(comparer, entry.GetCurrentValue(property));
 
         var converter = property.GetValueConverter()
@@ -358,6 +367,12 @@ public class InMemoryTable<TKey> : IInMemoryTable
     private static object? SnapshotValue(ValueComparer? comparer, object? value)
         => comparer == null ? value : comparer.Snapshot(value);
 
+    private static bool IsNull(IComplexProperty complexProperty, IUpdateEntry entry)
+        => (complexProperty.DeclaringType is IComplexType complexType
+                && IsNull(complexType.ComplexProperty, entry))
+            || (complexProperty.IsNullable
+                && entry.GetCurrentValue(complexProperty) == null);
+
     private bool HasNullabilityError(
         IProperty property,
         object? propertyValue,
@@ -368,7 +383,7 @@ public class InMemoryTable<TKey> : IInMemoryTable
             return false;
         }
 
-        if (!IsNullable(property) && propertyValue == null)
+        if (!property.IsStoreNullable() && propertyValue == null)
         {
             nullabilityErrors.Add(property);
 
@@ -377,16 +392,6 @@ public class InMemoryTable<TKey> : IInMemoryTable
 
         return false;
     }
-
-    private static bool IsNullable(IProperty property)
-        => property.IsNullable
-            || (property.DeclaringType is IComplexType complexType
-                && IsNullable(complexType.ComplexProperty));
-
-    private static bool IsNullable(IComplexProperty property)
-        => property.IsNullable
-            || (property.DeclaringType is IComplexType complexType
-                && IsNullable(complexType.ComplexProperty));
 
     private void ThrowNullabilityErrorException(
         IUpdateEntry entry,

@@ -149,8 +149,14 @@
   <data name="NullabilityErrorExceptionSensitive" xml:space="preserve">
     <value>Required properties '{requiredProperties}' are missing for the instance of entity type '{entityType}' with the key value '{keyValue}'.</value>
   </data>
+  <data name="SetOperationOverDifferentStructuralTypes" xml:space="preserve">
+    <value>Set operations over different entity or complex types are not supported ('{type1}' and '{type2}').</value>
+  </data>
   <data name="SetOperationsNotAllowedAfterClientEvaluation" xml:space="preserve">
     <value>Unable to translate set operation after client projection has been applied. Consider moving the set operation before the last 'Select' call.</value>
+  </data>
+  <data name="SubqueryOverComplexTypesNotSupported" xml:space="preserve">
+    <value>The query requires a subquery over complex type '{complexType}'. Subqueries over complex types are currently unsupported.</value>
   </data>
   <data name="UnableToBindMemberToEntityProjection" xml:space="preserve">
     <value>Unable to bind '{memberType}' '{member}' to entity projection of '{entityType}'.</value>

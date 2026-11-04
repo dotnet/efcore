@@ -80,10 +80,26 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Internal
                 requiredProperties, entityType, keyValue);
 
         /// <summary>
+        ///     Set operations over different entity or complex types are not supported ('{type1}' and '{type2}').
+        /// </summary>
+        public static string SetOperationOverDifferentStructuralTypes(object? type1, object? type2)
+            => string.Format(
+                GetString("SetOperationOverDifferentStructuralTypes", nameof(type1), nameof(type2)),
+                type1, type2);
+
+        /// <summary>
         ///     Unable to translate set operation after client projection has been applied. Consider moving the set operation before the last 'Select' call.
         /// </summary>
         public static string SetOperationsNotAllowedAfterClientEvaluation
             => GetString("SetOperationsNotAllowedAfterClientEvaluation");
+
+        /// <summary>
+        ///     The query requires a subquery over complex type '{complexType}'. Subqueries over complex types are currently unsupported.
+        /// </summary>
+        public static string SubqueryOverComplexTypesNotSupported(object? complexType)
+            => string.Format(
+                GetString("SubqueryOverComplexTypesNotSupported", nameof(complexType)),
+                complexType);
 
         /// <summary>
         ///     Unable to bind '{memberType}' '{member}' to entity projection of '{entityType}'.

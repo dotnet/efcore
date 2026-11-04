@@ -70,15 +70,16 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
             {
                 case StructuralTypeShaperExpression shaper:
                 {
+                    // A complex type is projected over the same value buffer as its containing entity, so it isn't cached by it.
+                    if (shaper.StructuralType is IComplexType)
+                    {
+                        return AddStructuralTypeMaterialization(shaper, shaper.Type);
+                    }
+
                     var key = shaper.ValueBufferExpression;
                     if (!_mapping.TryGetValue(key, out var variable))
                     {
-                        variable = Parameter(shaper.StructuralType.ClrType);
-                        _variables.Add(variable);
-                        var innerShaper =
-                            _inMemoryShapedQueryCompilingExpressionVisitor.InjectStructuralTypeMaterializers(shaper);
-                        innerShaper = Visit(innerShaper);
-                        _expressions.Add(Assign(variable, innerShaper));
+                        variable = AddStructuralTypeMaterialization(shaper, shaper.StructuralType.ClrType);
                         _mapping[key] = variable;
                     }
 
@@ -198,6 +199,17 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
             }
 
             return base.VisitExtension(extensionExpression);
+        }
+
+        private ParameterExpression AddStructuralTypeMaterialization(StructuralTypeShaperExpression shaper, Type type)
+        {
+            var variable = Parameter(type);
+            _variables.Add(variable);
+            var innerShaper = _inMemoryShapedQueryCompilingExpressionVisitor.InjectStructuralTypeMaterializers(shaper);
+            innerShaper = Visit(innerShaper);
+            _expressions.Add(Assign(variable, innerShaper));
+
+            return variable;
         }
 
         protected override Expression VisitBinary(BinaryExpression binaryExpression)

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal;
@@ -57,9 +58,11 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
         ServerQueryExpression = new InMemoryTableExpression(entityType);
         var propertyExpressionsMap = new Dictionary<IProperty, MethodCallExpression>();
         var selectorExpressions = new List<Expression>();
-        foreach (var property in entityType.GetAllBaseTypesInclusive().SelectMany(et => et.GetDeclaredProperties()))
+        foreach (var property in entityType.GetAllBaseTypesInclusive().SelectMany(et => et.GetFlattenedDeclaredProperties()))
         {
-            var propertyExpression = CreateReadValueExpression(property.ClrType, property.GetIndex(), property);
+            // Properties on a nullable complex type are read as nullable since they are null when the complex type is.
+            var propertyExpression = CreateReadValueExpression(
+                property.IsStoreNullable() ? property.ClrType.MakeNullable() : property.ClrType, property.GetIndex(), property);
             selectorExpressions.Add(propertyExpression);
 
             Check.DebugAssert(
@@ -81,7 +84,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
                         Constant(e.GetDiscriminatorValue(), discriminatorProperty.ClrType)))
                     .Aggregate(OrElse);
 
-                foreach (var property in derivedEntityType.GetDeclaredProperties())
+                foreach (var property in derivedEntityType.GetFlattenedDeclaredProperties())
                 {
                     // We read nullable value from property of derived type since it could be null.
                     var typeToRead = property.ClrType.MakeNullable();
@@ -199,7 +202,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
         EntityProjectionExpression AddEntityProjection(EntityProjectionExpression entityProjectionExpression)
         {
             var readExpressionMap = new Dictionary<IProperty, MethodCallExpression>();
-            foreach (var property in entityProjectionExpression.EntityType.GetPropertiesInHierarchy())
+            foreach (var property in entityProjectionExpression.Properties)
             {
                 var expression = entityProjectionExpression.BindProperty(property);
                 selectorExpressions.Add(expression);
@@ -265,7 +268,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
                     case EntityProjectionExpression entityProjectionExpression:
                     {
                         var indexMap = new Dictionary<IProperty, int>();
-                        foreach (var property in entityProjectionExpression.EntityType.GetPropertiesInHierarchy())
+                        foreach (var property in entityProjectionExpression.Properties)
                         {
                             selectorExpressions.Add(entityProjectionExpression.BindProperty(property));
                             indexMap[property] = selectorExpressions.Count - 1;
@@ -306,7 +309,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
                 if (expression is EntityProjectionExpression entityProjectionExpression)
                 {
                     var indexMap = new Dictionary<IProperty, int>();
-                    foreach (var property in entityProjectionExpression.EntityType.GetPropertiesInHierarchy())
+                    foreach (var property in entityProjectionExpression.Properties)
                     {
                         selectorExpressions.Add(entityProjectionExpression.BindProperty(property));
                         indexMap[property] = selectorExpressions.Count - 1;
@@ -383,7 +386,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
                     && value2 is EntityProjectionExpression entityProjection2)
                 {
                     var map = new Dictionary<IProperty, MethodCallExpression>();
-                    foreach (var property in entityProjection1.EntityType.GetPropertiesInHierarchy())
+                    foreach (var property in entityProjection1.Properties)
                     {
                         var expressionToAdd1 = entityProjection1.BindProperty(property);
                         var expressionToAdd2 = entityProjection2.BindProperty(property);
@@ -674,7 +677,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
         var outerIndex = selectorExpressions.Count;
         var innerEntityProjection = (EntityProjectionExpression)innerQueryExpression._projectionMapping[new ProjectionMember()];
         var innerReadExpressionMap = new Dictionary<IProperty, MethodCallExpression>();
-        foreach (var property in innerEntityProjection.EntityType.GetPropertiesInHierarchy())
+        foreach (var property in innerEntityProjection.Properties)
         {
             var propertyExpression = innerEntityProjection.BindProperty(property);
             propertyExpression = MakeReadValueNullable(propertyExpression);
@@ -874,7 +877,13 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
                     (EntityProjectionExpression)((InMemoryQueryExpression)projectionBindingExpression.QueryExpression)
                     .GetProjection(projectionBindingExpression);
                 var readExpressions = new Dictionary<IProperty, MethodCallExpression>();
-                foreach (var property in entityProjectionExpression.EntityType.GetPropertiesInHierarchy())
+
+                // A complex type is projected over the projection of its containing entity type, but only its own properties
+                // make up the grouping key.
+                var properties = shaper.StructuralType is IComplexType complexType
+                    ? complexType.GetFlattenedProperties()
+                    : entityProjectionExpression.Properties;
+                foreach (var property in properties)
                 {
                     readExpressions[property] = (MethodCallExpression)GetGroupingKey(
                         entityProjectionExpression.BindProperty(property),
@@ -1159,7 +1168,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
     private static EntityProjectionExpression MakeEntityProjectionNullable(EntityProjectionExpression entityProjectionExpression)
     {
         var readExpressionMap = new Dictionary<IProperty, MethodCallExpression>();
-        foreach (var property in entityProjectionExpression.EntityType.GetPropertiesInHierarchy())
+        foreach (var property in entityProjectionExpression.Properties)
         {
             readExpressionMap[property] = MakeReadValueNullable(entityProjectionExpression.BindProperty(property));
         }
@@ -1267,7 +1276,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
         bool makeNullable)
     {
         var readExpressionMap = new Dictionary<IProperty, MethodCallExpression>();
-        foreach (var property in entityProjectionExpression.EntityType.GetPropertiesInHierarchy())
+        foreach (var property in entityProjectionExpression.Properties)
         {
             var expression = entityProjectionExpression.BindProperty(property);
             if (makeNullable)

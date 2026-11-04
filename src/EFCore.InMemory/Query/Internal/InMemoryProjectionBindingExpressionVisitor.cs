@@ -183,17 +183,25 @@ public class InMemoryProjectionBindingExpressionVisitor : ExpressionVisitor
                         break;
                 }
 
-                var translation = _expressionTranslatingExpressionVisitor.Translate(expression);
-                return translation != null
-                    ? AddClientProjection(translation, expression.Type.MakeNullable())
-                    : base.Visit(expression);
+                var translation = _expressionTranslatingExpressionVisitor.TranslateProjection(expression);
+                return translation switch
+                {
+                    StructuralTypeShaperExpression shaper => VisitComplexTypeShaper(shaper, expression.Type),
+                    not null => AddClientProjection(translation, expression.Type.MakeNullable()),
+                    null => base.Visit(expression)
+                };
             }
             else
             {
-                var translation = _expressionTranslatingExpressionVisitor.Translate(expression);
+                var translation = _expressionTranslatingExpressionVisitor.TranslateProjection(expression);
                 if (translation == null)
                 {
                     return QueryCompilationContext.NotTranslatedExpression;
+                }
+
+                if (translation is StructuralTypeShaperExpression shaper)
+                {
+                    return VisitComplexTypeShaper(shaper, expression.Type);
                 }
 
                 _projectionMapping[_projectionMembers.Peek()] = translation;
@@ -204,6 +212,15 @@ public class InMemoryProjectionBindingExpressionVisitor : ExpressionVisitor
 
         return base.Visit(expression);
     }
+
+    // The complex type may have been converted to a nullable type, e.g. (AddressStruct?)c.ShippingAddress.
+    private Expression VisitComplexTypeShaper(StructuralTypeShaperExpression shaper, Type type)
+        => VisitExtension(type != shaper.Type && type == shaper.Type.MakeNullable() ? MakeClrTypeNullable(shaper) : shaper);
+
+#pragma warning disable EF1001 // Internal EF Core API usage.
+    private static StructuralTypeShaperExpression MakeClrTypeNullable(StructuralTypeShaperExpression shaper)
+        => shaper.MakeClrTypeNullable();
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -269,6 +286,20 @@ public class InMemoryProjectionBindingExpressionVisitor : ExpressionVisitor
                 ? (EntityProjectionExpression)((InMemoryQueryExpression)projectionBindingExpression.QueryExpression)
                 .GetProjection(projectionBindingExpression)
                 : (EntityProjectionExpression)shaper.ValueBufferExpression;
+
+            if (shaper.StructuralType is IComplexType complexType)
+            {
+                // Complex types are stored flattened with their containing entity type, so only the properties of the
+                // complex type are projected; this also makes e.g. Distinct compare only those properties.
+                entityProjectionExpression = entityProjectionExpression.ProjectComplexType(complexType);
+
+                if (complexType.ComplexProperty.IsNullable)
+                {
+                    // A nullable complex property gets a nullable CLR type here, which is fixed up in MatchTypes.
+                    shaper = MakeClrTypeNullable(shaper);
+                }
+            }
+
             if (_indexBasedBinding)
             {
                 if (!_entityProjectionCache!.TryGetValue(entityProjectionExpression, out var entityProjectionBinding))
