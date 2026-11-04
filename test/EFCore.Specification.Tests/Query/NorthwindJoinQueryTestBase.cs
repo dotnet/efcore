@@ -708,7 +708,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
                 (c, g) => new { c.CustomerID, Sum = g.Sum(x => x.CustomerID!.Length) }),
             elementSorter: e => e.CustomerID);
 
-    [Theory(Skip = "issue 35028"), MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupJoin_aggregate_nested_anonymous_key_selectors(bool async)
         => AssertTranslationFailed(() => AssertQuery(
             async,
@@ -939,7 +939,23 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
                   select new { a = o != null ? o.OrderID : -1 });
 
 #pragma warning disable CS8619 // Nullability of reference types in value doesn't match target type
-    [Theory(Skip = "issue #35028"), MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Join_with_key_selectors_being_nested_anonymous_objects_single_nullable_member(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A")).Join(
+                ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("B")),
+                x => new { Nested = new { x.Region } },
+                x => new { Nested = new { x.Region } },
+                (c1, c2) => new { c1, c2 }),
+            elementSorter: e => (e.c1.CustomerID, e.c2.CustomerID),
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.c1, a.c1);
+                AssertEqual(e.c2, a.c2);
+            });
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Join_with_key_selectors_being_nested_anonymous_objects(bool async)
         => AssertQuery(
             async,

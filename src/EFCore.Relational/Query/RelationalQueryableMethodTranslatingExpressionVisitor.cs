@@ -1403,13 +1403,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         var innerNew = (NewExpression)innerKey;
 
         SqlExpression? result = null;
-        for (var i = 0; i < outerNew.Arguments.Count; i++)
-        {
-            var joinPredicate = CreateJoinPredicate(outerNew.Arguments[i], innerNew.Arguments[i]);
-            result = result == null
-                ? joinPredicate
-                : _sqlExpressionFactory.AndAlso(result, joinPredicate);
-        }
+        var comparisonCount = 0;
+        AddComparisons(outerNew, innerNew);
 
         // In LINQ equijoins, null is not equal null, just like in SQL
         // (https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/join-clause#the-equals-operator)
@@ -1425,7 +1420,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         // To work around this, we add an always-true predicate here, and the AND will cause
         // SqlNullabilityProcessor.ProcessJoinPredicate() to go into the multiple-property anonymous type logic,
         // and not bypass null compensation.
-        if (outerNew.Arguments.Count == 1)
+        if (comparisonCount == 1)
         {
             result = _sqlExpressionFactory.AndAlso(
                 result!,
@@ -1433,6 +1428,25 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         }
 
         return result ?? _sqlExpressionFactory.Constant(true);
+
+        // Anonymous types can be nested in the key selectors; flatten them, since nested ones can't be translated as a single comparison.
+        void AddComparisons(NewExpression outer, NewExpression inner)
+        {
+            for (var i = 0; i < outer.Arguments.Count; i++)
+            {
+                if (outer.Arguments[i] is NewExpression nestedOuter && inner.Arguments[i] is NewExpression nestedInner)
+                {
+                    AddComparisons(nestedOuter, nestedInner);
+                    continue;
+                }
+
+                var joinPredicate = CreateJoinPredicate(outer.Arguments[i], inner.Arguments[i]);
+                result = result == null
+                    ? joinPredicate
+                    : _sqlExpressionFactory.AndAlso(result, joinPredicate);
+                comparisonCount++;
+            }
+        }
 
         SqlExpression CreateJoinPredicate(Expression outerKey, Expression innerKey)
             => TranslateExpression(Infrastructure.ExpressionExtensions.CreateEqualsExpression(outerKey, innerKey))!;
