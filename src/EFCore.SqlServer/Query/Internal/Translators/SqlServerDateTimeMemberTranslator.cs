@@ -179,8 +179,81 @@ public class SqlServerDateTimeMemberTranslator(
                         argumentsPropagateNullability: Statics.FalseTrue,
                         returnType),
 
+                nameof(DateTime.Ticks)
+                    when declaringType == typeof(DateTime)
+                    && instance is ColumnExpression or SqlParameterExpression
+                    => Ticks(instance),
+
                 _ => null
             };
+
+        // DATEDIFF_BIG isn't available before SQL Server 2016, so the ticks are built from days, seconds within the day and
+        // the fraction of the second, each of which fits in an int.
+        SqlExpression? Ticks(SqlExpression dateTime)
+        {
+            // Parameters reach member translators without a type mapping.
+            dateTime = sqlExpressionFactory.ApplyDefaultTypeMapping(dateTime);
+            // The type mapping keeps the store type as configured, which SQL Server accepts in any case and in brackets.
+            var storeType = dateTime.TypeMapping?.StoreTypeNameBase.Trim('[', ']').ToLowerInvariant();
+            if (storeType is not ("datetime2" or "datetime" or "smalldatetime" or "date"))
+            {
+                return null;
+            }
+
+            var days = DateDiff("day", sqlExpressionFactory.Constant(DateTime.MinValue, typeMappingSource.FindMapping("datetime2")));
+            var ticks = Multiply(days, TimeSpan.TicksPerDay);
+
+            if (storeType == "date")
+            {
+                return ticks;
+            }
+
+            var seconds = DateDiff(
+                "second",
+                sqlExpressionFactory.Function(
+                    "CONVERT",
+                    [sqlExpressionFactory.Fragment("date"), dateTime],
+                    nullable: true,
+                    argumentsPropagateNullability: Statics.FalseTrue,
+                    typeof(DateTime)));
+            ticks = sqlExpressionFactory.Add(ticks, Multiply(seconds, TimeSpan.TicksPerSecond));
+
+            if (storeType == "smalldatetime")
+            {
+                return ticks;
+            }
+
+            var nanoseconds = sqlExpressionFactory.Function(
+                "DATEPART",
+                [sqlExpressionFactory.Fragment("nanosecond"), dateTime],
+                nullable: true,
+                argumentsPropagateNullability: Statics.FalseTrue,
+                typeof(int));
+
+            // datetime is stored in 1/300 s units, which SqlClient rounds to the nearest millisecond when reading a DateTime.
+            var fraction = storeType == "datetime"
+                ? sqlExpressionFactory.Multiply(
+                    sqlExpressionFactory.Divide(
+                        sqlExpressionFactory.Add(nanoseconds, sqlExpressionFactory.Constant(500_000)),
+                        sqlExpressionFactory.Constant(1_000_000)),
+                    sqlExpressionFactory.Constant((int)TimeSpan.TicksPerMillisecond))
+                : sqlExpressionFactory.Divide(nanoseconds, sqlExpressionFactory.Constant(100));
+
+            return sqlExpressionFactory.Add(ticks, sqlExpressionFactory.Convert(fraction, typeof(long)));
+
+            SqlExpression DateDiff(string part, SqlExpression start)
+                => sqlExpressionFactory.Function(
+                    "DATEDIFF",
+                    [sqlExpressionFactory.Fragment(part), start, dateTime],
+                    nullable: true,
+                    argumentsPropagateNullability: [false, true, true],
+                    typeof(int));
+
+            SqlExpression Multiply(SqlExpression value, long factor)
+                => sqlExpressionFactory.Multiply(
+                    sqlExpressionFactory.Convert(value, typeof(long)),
+                    sqlExpressionFactory.Constant(factor));
+        }
 
         SqlExpression DatePart(string part)
             => sqlExpressionFactory.Function(
