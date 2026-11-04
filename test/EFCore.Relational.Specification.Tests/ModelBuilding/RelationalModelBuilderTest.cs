@@ -4,6 +4,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
+using System.Text.Json.Serialization;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
@@ -838,6 +839,91 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             Assert.True(complexType.IsMappedToJson());
             Assert.Equal("customer_data", complexType.GetContainerColumnName());
             Assert.Equal("jsonb", complexType.GetContainerColumnType());
+        }
+
+        [Fact]
+        public virtual void Complex_property_mapped_to_json_uses_JsonPropertyNameAttribute_for_nested_complex_properties()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<JsonEntityWithJsonPropertyNames>()
+                .ComplexProperty(
+                    e => e.Details, b =>
+                    {
+                        b.ToJson("details");
+                        b.ComplexProperty(d => d.Author);
+                        b.ComplexCollection(d => d.Tags);
+                    });
+
+            var model = modelBuilder.FinalizeModel();
+            var detailsProperty = model.FindEntityType(typeof(JsonEntityWithJsonPropertyNames))!.FindComplexProperty(
+                nameof(JsonEntityWithJsonPropertyNames.Details))!;
+            var detailsType = detailsProperty.ComplexType;
+
+            Assert.Equal("details", detailsType.GetContainerColumnName());
+            Assert.Null(detailsProperty.GetJsonPropertyName());
+            Assert.Equal("t", detailsType.FindProperty(nameof(JsonComplexWithJsonPropertyNames.Title))!.GetJsonPropertyName());
+
+            var authorProperty = detailsType.FindComplexProperty(nameof(JsonComplexWithJsonPropertyNames.Author))!;
+            Assert.Equal("a", authorProperty.GetJsonPropertyName());
+            Assert.Equal(
+                "n", authorProperty.ComplexType.FindProperty(nameof(JsonNestedWithJsonPropertyName.Name))!.GetJsonPropertyName());
+
+            var tagsProperty = detailsType.FindComplexProperty(nameof(JsonComplexWithJsonPropertyNames.Tags))!;
+            Assert.True(tagsProperty.IsCollection);
+            Assert.Equal("tg", tagsProperty.GetJsonPropertyName());
+            Assert.Equal(
+                "n", tagsProperty.ComplexType.FindProperty(nameof(JsonNestedWithJsonPropertyName.Name))!.GetJsonPropertyName());
+        }
+
+        [Fact]
+        public virtual void JsonPropertyNameAttribute_on_nested_complex_properties_can_be_overridden()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<JsonEntityWithJsonPropertyNames>()
+                .ComplexProperty(
+                    e => e.Details, b =>
+                    {
+                        b.ToJson("details");
+                        b.ComplexProperty(d => d.Author, ab => ab.HasJsonPropertyName("author"));
+                        b.ComplexCollection(d => d.Tags, tb => tb.HasJsonPropertyName(null));
+                    });
+
+            var model = modelBuilder.FinalizeModel();
+            var detailsType = model.FindEntityType(typeof(JsonEntityWithJsonPropertyNames))!.FindComplexProperty(
+                nameof(JsonEntityWithJsonPropertyNames.Details))!.ComplexType;
+
+            Assert.Equal(
+                "author", detailsType.FindComplexProperty(nameof(JsonComplexWithJsonPropertyNames.Author))!.GetJsonPropertyName());
+            Assert.Equal(
+                nameof(JsonComplexWithJsonPropertyNames.Tags),
+                detailsType.FindComplexProperty(nameof(JsonComplexWithJsonPropertyNames.Tags))!.GetJsonPropertyName());
+        }
+
+        [Fact]
+        public virtual void JsonPropertyNameAttribute_on_complex_properties_is_ignored_when_not_mapped_to_json()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<JsonEntityWithJsonPropertyNames>()
+                .ComplexProperty(
+                    e => e.Details, b =>
+                    {
+                        b.ComplexProperty(d => d.Author);
+                        b.Ignore(d => d.Tags);
+                    });
+
+            var model = modelBuilder.FinalizeModel();
+            var detailsProperty = model.FindEntityType(typeof(JsonEntityWithJsonPropertyNames))!.FindComplexProperty(
+                nameof(JsonEntityWithJsonPropertyNames.Details))!;
+            var authorProperty = detailsProperty.ComplexType.FindComplexProperty(nameof(JsonComplexWithJsonPropertyNames.Author))!;
+
+            Assert.False(detailsProperty.ComplexType.IsMappedToJson());
+            Assert.Null(detailsProperty.GetJsonPropertyName());
+            Assert.Null(detailsProperty.ComplexType.FindAnnotation(RelationalAnnotationNames.JsonPropertyName));
+            Assert.Null(authorProperty.GetJsonPropertyName());
+            Assert.Null(authorProperty.ComplexType.FindAnnotation(RelationalAnnotationNames.JsonPropertyName));
         }
     }
 
@@ -1705,6 +1791,32 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         public OwnedEntityExtraLevel? OwnedReference2 { get; set; }
         public List<OwnedEntityExtraLevel>? OwnedCollection1 { get; set; }
         public List<OwnedEntityExtraLevel>? OwnedCollection2 { get; set; }
+    }
+
+    protected class JsonEntityWithJsonPropertyNames
+    {
+        public int Id { get; set; }
+
+        [JsonPropertyName("d")]
+        public JsonComplexWithJsonPropertyNames Details { get; set; } = null!;
+    }
+
+    protected class JsonComplexWithJsonPropertyNames
+    {
+        [JsonPropertyName("t")]
+        public string? Title { get; set; }
+
+        [JsonPropertyName("a")]
+        public JsonNestedWithJsonPropertyName Author { get; set; } = null!;
+
+        [JsonPropertyName("tg")]
+        public List<JsonNestedWithJsonPropertyName> Tags { get; set; } = [];
+    }
+
+    protected class JsonNestedWithJsonPropertyName
+    {
+        [JsonPropertyName("n")]
+        public string? Name { get; set; }
     }
 
     public abstract class RelationalModelBuilderFixture : ModelBuilderFixtureBase;

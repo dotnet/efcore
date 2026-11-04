@@ -11,7 +11,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
 /// </remarks>
-public class RelationalPropertyJsonPropertyNameAttributeConvention : PropertyAttributeConventionBase<JsonPropertyNameAttribute>
+public class RelationalPropertyJsonPropertyNameAttributeConvention : PropertyAttributeConventionBase<JsonPropertyNameAttribute>,
+    IComplexPropertyAddedConvention,
+    IComplexPropertyFieldChangedConvention,
+    IModelFinalizingConvention
 {
     /// <summary>
     ///     Creates a new instance of <see cref="RelationalPropertyJsonPropertyNameAttributeConvention" />.
@@ -39,6 +42,57 @@ public class RelationalPropertyJsonPropertyNameAttributeConvention : PropertyAtt
         if (!string.IsNullOrWhiteSpace(attribute.Name))
         {
             propertyBuilder.HasJsonPropertyName(attribute.Name, fromDataAnnotation: true);
+        }
+    }
+
+    /// <inheritdoc />
+    protected override void ProcessPropertyAdded(
+        IConventionComplexPropertyBuilder propertyBuilder,
+        JsonPropertyNameAttribute attribute,
+        MemberInfo clrMember,
+        IConventionContext context)
+    {
+        if (!string.IsNullOrWhiteSpace(attribute.Name))
+        {
+            propertyBuilder.Metadata.ComplexType.Builder.HasAnnotation(
+                RelationalAnnotationNames.JsonPropertyName, attribute.Name, fromDataAnnotation: true);
+        }
+    }
+
+    /// <inheritdoc />
+    public virtual void ProcessModelFinalizing(
+        IConventionModelBuilder modelBuilder,
+        IConventionContext<IConventionModelBuilder> context)
+    {
+        foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
+        {
+            if (!entityType.IsMappedToJson())
+            {
+                ProcessComplexProperties(entityType);
+            }
+        }
+    }
+
+    private static void ProcessComplexProperties(IConventionTypeBase structuralType)
+    {
+        foreach (var complexProperty in structuralType.GetDeclaredComplexProperties())
+        {
+            // The JSON property name is only used for complex properties declared on a type mapped to JSON
+            if (complexProperty.GetJsonPropertyNameConfigurationSource() == ConfigurationSource.DataAnnotation)
+            {
+                complexProperty.ComplexType.Builder.HasNoAnnotation(
+                    RelationalAnnotationNames.JsonPropertyName, fromDataAnnotation: true);
+            }
+
+            if (complexProperty.ComplexType.IsMappedToJson())
+            {
+                continue;
+            }
+
+            foreach (var complexType in complexProperty.ComplexType.GetDerivedTypesInclusive())
+            {
+                ProcessComplexProperties(complexType);
+            }
         }
     }
 }
