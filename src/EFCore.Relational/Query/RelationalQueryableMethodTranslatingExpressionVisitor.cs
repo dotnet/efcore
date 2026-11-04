@@ -1386,7 +1386,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         return null;
     }
 
-    private SqlExpression CreateJoinPredicate(
+    private SqlExpression? CreateJoinPredicate(
         ShapedQueryExpression outer,
         LambdaExpression outerKeySelector,
         ShapedQueryExpression inner,
@@ -1404,7 +1404,10 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
         SqlExpression? result = null;
         var comparisonCount = 0;
-        AddComparisons(outerNew, innerNew);
+        if (!TryAddComparisons(outerNew, innerNew))
+        {
+            return null;
+        }
 
         // In LINQ equijoins, null is not equal null, just like in SQL
         // (https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/join-clause#the-equals-operator)
@@ -1424,32 +1427,46 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         {
             result = _sqlExpressionFactory.AndAlso(
                 result!,
-                CreateJoinPredicate(Expression.Constant(true), Expression.Constant(true)));
+                CreateJoinPredicate(Expression.Constant(true), Expression.Constant(true))!);
         }
 
         return result ?? _sqlExpressionFactory.Constant(true);
 
-        // Anonymous types can be nested in the key selectors; flatten them, since nested ones can't be translated as a single comparison.
-        void AddComparisons(NewExpression outer, NewExpression inner)
+        // Anonymous types can be nested in the key selectors; flatten them, since a nested anonymous type can't be translated as a
+        // single comparison. Other constructed types (e.g. DateTimeOffset) are compared as a whole, as their equality isn't
+        // necessarily member-wise.
+        bool TryAddComparisons(NewExpression outer, NewExpression inner)
         {
             for (var i = 0; i < outer.Arguments.Count; i++)
             {
-                if (outer.Arguments[i] is NewExpression nestedOuter && inner.Arguments[i] is NewExpression nestedInner)
+                if (outer.Arguments[i] is NewExpression nestedOuter
+                    && nestedOuter.Type.IsAnonymousType()
+                    && inner.Arguments[i] is NewExpression nestedInner)
                 {
-                    AddComparisons(nestedOuter, nestedInner);
+                    if (!TryAddComparisons(nestedOuter, nestedInner))
+                    {
+                        return false;
+                    }
+
                     continue;
                 }
 
-                var joinPredicate = CreateJoinPredicate(outer.Arguments[i], inner.Arguments[i]);
+                if (CreateJoinPredicate(outer.Arguments[i], inner.Arguments[i]) is not { } joinPredicate)
+                {
+                    return false;
+                }
+
                 result = result == null
                     ? joinPredicate
                     : _sqlExpressionFactory.AndAlso(result, joinPredicate);
                 comparisonCount++;
             }
+
+            return true;
         }
 
-        SqlExpression CreateJoinPredicate(Expression outerKey, Expression innerKey)
-            => TranslateExpression(Infrastructure.ExpressionExtensions.CreateEqualsExpression(outerKey, innerKey))!;
+        SqlExpression? CreateJoinPredicate(Expression outerKey, Expression innerKey)
+            => TranslateExpression(Infrastructure.ExpressionExtensions.CreateEqualsExpression(outerKey, innerKey));
     }
 
     /// <inheritdoc />

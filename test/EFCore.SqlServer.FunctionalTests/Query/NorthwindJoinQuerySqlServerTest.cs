@@ -690,7 +690,8 @@ FROM [Customers] AS [c]
 
     public override async Task GroupJoin_aggregate_nested_anonymous_key_selectors(bool async)
     {
-        await base.GroupJoin_aggregate_nested_anonymous_key_selectors(async);
+        // The GroupJoin is translated to a correlated predicate, where nested anonymous type equality isn't supported
+        await AssertTranslationFailed(() => base.GroupJoin_aggregate_nested_anonymous_key_selectors(async));
 
         AssertSql();
     }
@@ -1197,6 +1198,23 @@ INNER JOIN (
     WHERE [c0].[CustomerID] LIKE N'B%'
 ) AS [c1] ON [c].[Region] = [c1].[Region] OR ([c].[Region] IS NULL AND [c1].[Region] IS NULL)
 WHERE [c].[CustomerID] LIKE N'A%'
+""");
+    }
+
+    public override async Task Join_with_key_selectors_being_nested_anonymous_objects_with_constructed_member(bool async)
+    {
+        await base.Join_with_key_selectors_being_nested_anonymous_objects_with_constructed_member(async);
+
+        AssertSql(
+            """
+SELECT [o].[OrderID] AS [Id1], [o1].[OrderID] AS [Id2]
+FROM [Orders] AS [o]
+INNER JOIN (
+    SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[OrderDate]
+    FROM [Orders] AS [o0]
+    WHERE [o0].[OrderID] < 10260
+) AS [o1] ON ([o].[CustomerID] = [o1].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o1].[CustomerID] IS NULL)) AND (TODATETIMEOFFSET([o].[OrderDate], '+00:00') = TODATETIMEOFFSET(DATEADD(hour, CAST(2.0E0 AS int), [o1].[OrderDate]), '+02:00') OR ([o].[OrderDate] IS NULL AND [o1].[OrderDate] IS NULL))
+WHERE [o].[OrderID] < 10260
 """);
     }
 

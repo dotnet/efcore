@@ -710,14 +710,14 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupJoin_aggregate_nested_anonymous_key_selectors(bool async)
-        => AssertTranslationFailed(() => AssertQuery(
+        => AssertQuery(
             async,
             ss => ss.Set<Customer>().GroupJoin(
                 ss.Set<Order>(),
                 x => new { x.CustomerID, Nested = new { x.City, Year = 1996 } },
                 x => new { x.CustomerID, Nested = new { City = "London", x.OrderDate!.Value.Year } },
                 (c, g) => new { c.CustomerID, Sum = g.Sum(int (x) => x.CustomerID!.Length) }),
-            elementSorter: e => e.CustomerID));
+            elementSorter: e => e.CustomerID);
         #pragma warning restore CS8619
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -954,6 +954,21 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
                 AssertEqual(e.c1, a.c1);
                 AssertEqual(e.c2, a.c2);
             });
+
+    // DateTimeOffset equality compares instants, so its constructor arguments must not be compared one by one.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Join_with_key_selectors_being_nested_anonymous_objects_with_constructed_member(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().Where(o => o.OrderID < 10260).Join(
+                ss.Set<Order>().Where(o => o.OrderID < 10260),
+                o => new { o.CustomerID, Nested = new { Date = new DateTimeOffset(o.OrderDate!.Value, TimeSpan.Zero) } },
+                o => new
+                {
+                    o.CustomerID, Nested = new { Date = new DateTimeOffset(o.OrderDate!.Value.AddHours(2), new TimeSpan(2, 0, 0)) }
+                },
+                (o1, o2) => new { Id1 = o1.OrderID, Id2 = o2.OrderID }),
+            elementSorter: e => (e.Id1, e.Id2));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Join_with_key_selectors_being_nested_anonymous_objects(bool async)
