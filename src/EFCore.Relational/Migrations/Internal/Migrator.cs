@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Runtime.CompilerServices;
 using System.Transactions;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using IsolationLevel = System.Data.IsolationLevel;
@@ -173,15 +174,14 @@ public class Migrator : IMigrator
                     : state.DatabaseLock.ReacquireIfNeeded(connectionOpened, useTransaction);
             }
 
-            PopulateMigrations(
+            var (migrationsToApply, migrationsToRevert, actualTargetMigration) = PopulateReleasableMigrations(
                 _historyRepository.GetAppliedMigrations().Select(t => t.MigrationId),
-                targetMigration,
-                out var migratorData);
+                targetMigration);
 
-            var commandLists = GetMigrationCommandLists(migratorData);
+            var commandLists = GetMigrationCommandLists(migrationsToApply, migrationsToRevert, actualTargetMigration);
             foreach (var commandList in commandLists)
             {
-                var (id, getCommands) = commandList;
+                var (id, getCommands, releaseMigration) = commandList;
                 if (id != state.CurrentMigrationId)
                 {
                     state.CurrentMigrationId = id;
@@ -190,6 +190,7 @@ public class Migrator : IMigrator
 
                 _migrationCommandExecutor.ExecuteNonQuery(
                     getCommands(), _connection, state, commitTransaction: useTransaction, MigrationTransactionIsolationLevel);
+                releaseMigration();
             }
 
             var coreOptionsExtension =
@@ -323,15 +324,14 @@ public class Migrator : IMigrator
                         .ConfigureAwait(false);
             }
 
-            PopulateMigrations(
+            var (migrationsToApply, migrationsToRevert, actualTargetMigration) = PopulateReleasableMigrations(
                 (await _historyRepository.GetAppliedMigrationsAsync(cancellationToken).ConfigureAwait(false)).Select(t => t.MigrationId),
-                targetMigration,
-                out var migratorData);
+                targetMigration);
 
-            var commandLists = GetMigrationCommandLists(migratorData);
+            var commandLists = GetMigrationCommandLists(migrationsToApply, migrationsToRevert, actualTargetMigration);
             foreach (var commandList in commandLists)
             {
-                var (id, getCommands) = commandList;
+                var (id, getCommands, releaseMigration) = commandList;
                 if (id != state.CurrentMigrationId)
                 {
                     state.CurrentMigrationId = id;
@@ -342,6 +342,7 @@ public class Migrator : IMigrator
                         getCommands(), _connection, state, commitTransaction: useTransaction, MigrationTransactionIsolationLevel,
                         cancellationToken)
                     .ConfigureAwait(false);
+                releaseMigration();
             }
 
             var coreOptionsExtension =
@@ -457,12 +458,11 @@ public class Migrator : IMigrator
         }
     }
 
-    private IEnumerable<(string, Func<IReadOnlyList<MigrationCommand>>)> GetMigrationCommandLists(MigratorData parameters)
+    private IEnumerable<(string, Func<IReadOnlyList<MigrationCommand>>, Action)> GetMigrationCommandLists(
+        IReadOnlyList<Migration> migrationsToApply,
+        IReadOnlyList<Migration> migrationsToRevert,
+        Migration? actualTargetMigration)
     {
-        var migrationsToApply = parameters.AppliedMigrations;
-        var migrationsToRevert = parameters.RevertedMigrations;
-        var actualTargetMigration = parameters.TargetMigration;
-
         for (var i = 0; i < migrationsToRevert.Count; i++)
         {
             var migration = migrationsToRevert[i];
@@ -484,12 +484,14 @@ public class Migrator : IMigrator
                         }
 
                         return commands;
-                    }
+                    }, () => ReleaseMigrationReference(migrationsToRevert, index)
             );
         }
 
-        foreach (var migration in migrationsToApply)
+        for (var i = 0; i < migrationsToApply.Count; i++)
         {
+            var migration = migrationsToApply[i];
+            var index = i;
             yield return (migration.GetId(), () =>
                     {
                         _logger.MigrationApplying(this, migration);
@@ -502,7 +504,7 @@ public class Migrator : IMigrator
                         }
 
                         return commands;
-                    }
+                    }, () => ReleaseMigrationReference(migrationsToApply, index)
             );
         }
 
@@ -510,6 +512,32 @@ public class Migrator : IMigrator
         {
             _logger.MigrationsNotApplied(this);
         }
+    }
+
+    private static void ReleaseMigrationReference(IReadOnlyList<Migration> migrations, int index)
+    {
+        if (migrations is ReleasableMigrationList list)
+        {
+            list[index] = null!;
+        }
+    }
+
+    private sealed class ReleasableMigrationList(IEnumerable<Migration> migrations)
+        : List<Migration>(migrations);
+
+    private static IReadOnlyList<Migration> MakeReleasable(IReadOnlyList<Migration> migrations)
+        => migrations is List<Migration> ? new ReleasableMigrationList(migrations) : migrations;
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private (IReadOnlyList<Migration>, IReadOnlyList<Migration>, Migration?) PopulateReleasableMigrations(
+        IEnumerable<string> appliedMigrationEntries,
+        string? targetMigration)
+    {
+        PopulateMigrations(appliedMigrationEntries, targetMigration, out var parameters);
+        return (
+            MakeReleasable(parameters.AppliedMigrations),
+            MakeReleasable(parameters.RevertedMigrations),
+            parameters.TargetMigration);
     }
 
     /// <summary>
@@ -633,7 +661,8 @@ public class Migrator : IMigrator
                 .Select(t => t.Key);
         }
 
-        PopulateMigrations(appliedMigrations, toMigration, out var migratorData);
+        var (migrationsToApply, migrationsToRevert, actualTargetMigration) = PopulateReleasableMigrations(
+            appliedMigrations, toMigration);
 
         var builder = new IndentedStringBuilder();
 
@@ -648,9 +677,6 @@ public class Migrator : IMigrator
         var idempotencyEnd = idempotent
             ? _historyRepository.GetEndIfScript()
             : null;
-        var migrationsToApply = migratorData.AppliedMigrations;
-        var migrationsToRevert = migratorData.RevertedMigrations;
-        var actualTargetMigration = migratorData.TargetMigration;
         for (var i = 0; i < migrationsToRevert.Count; i++)
         {
             var migration = migrationsToRevert[i];
@@ -667,10 +693,12 @@ public class Migrator : IMigrator
             GenerateSqlScript(
                 GenerateDownSql(migration, previousMigration, options),
                 builder, _sqlGenerationHelper, noTransactions, idempotencyCondition, idempotencyEnd);
+            ReleaseMigrationReference(migrationsToRevert, i);
         }
 
-        foreach (var migration in migrationsToApply)
+        for (var i = 0; i < migrationsToApply.Count; i++)
         {
+            var migration = migrationsToApply[i];
             _logger.MigrationGeneratingUpScript(this, migration, fromMigration, toMigration, idempotent);
 
             var idempotencyCondition = idempotent
@@ -680,6 +708,7 @@ public class Migrator : IMigrator
             GenerateSqlScript(
                 GenerateUpSql(migration, options),
                 builder, _sqlGenerationHelper, noTransactions, idempotencyCondition, idempotencyEnd);
+            ReleaseMigrationReference(migrationsToApply, i);
         }
 
         return builder.ToString();
