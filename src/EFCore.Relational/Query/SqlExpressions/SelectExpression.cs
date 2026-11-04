@@ -1954,6 +1954,61 @@ public sealed partial class SelectExpression : TableExpressionBase
             Limit == null && Offset == null && !IsDistinct && Having == null,
             "Grouped SelectExpression has state over the groups.");
 
+        var partitions = RemoveGrouping();
+
+        var one = sqlExpressionFactory.ApplyDefaultTypeMapping(sqlExpressionFactory.Constant(1));
+        var rowNumberExpression = new RowNumberExpression(partitions, GetRowNumberOrderings(orderings, _identifier), one.TypeMapping);
+        var sqlRemappingVisitor = PushdownIntoSubqueryInternal();
+        var subquery = (SelectExpression)_tables[0];
+        var rowNumberColumn = subquery.GenerateOuterColumn(subquery.Alias!, rowNumberExpression, "row");
+        ApplyPredicate(sqlExpressionFactory.LessThanOrEqual(rowNumberColumn, one));
+
+        return sqlRemappingVisitor.Visit(projection);
+    }
+
+    // Keeps the rows of each group in place of the grouping, optionally only those numbered after `lowerBound` and up to `upperBound` by
+    // ROW_NUMBER() OVER(PARTITION BY <grouping terms> ORDER BY <orderings>), which is how a Skip or a Take applies to each group.
+    // `projection` is an expression over the grouping terms (e.g. the key selector), returned remapped to the new columns.
+    // Internal infrastructure: only called from RelationalQueryableMethodTranslatingExpressionVisitor.
+    [return: NotNullIfNotNull(nameof(projection))]
+    internal Expression? ApplyRowsPerGroup(
+        Expression? projection,
+        IReadOnlyList<OrderingExpression> orderings,
+        SqlExpression? lowerBound,
+        SqlExpression? upperBound,
+        ISqlExpressionFactory sqlExpressionFactory)
+    {
+        Check.DebugAssert(_groupBy.Count > 0, "The selectExpression doesn't have grouping terms.");
+        Check.DebugAssert(
+            Limit == null && Offset == null && !IsDistinct && Having == null,
+            "Grouped SelectExpression has state over the groups.");
+
+        var partitions = RemoveGrouping();
+        if (lowerBound is null && upperBound is null)
+        {
+            return projection;
+        }
+
+        var typeMapping = sqlExpressionFactory.ApplyDefaultTypeMapping(sqlExpressionFactory.Constant(1)).TypeMapping;
+        var rowNumberExpression = new RowNumberExpression(partitions, GetRowNumberOrderings(orderings, _identifier), typeMapping);
+        var sqlRemappingVisitor = PushdownIntoSubqueryInternal();
+        var subquery = (SelectExpression)_tables[0];
+        var rowNumberColumn = subquery.GenerateOuterColumn(subquery.Alias!, rowNumberExpression, "row");
+        if (lowerBound is not null)
+        {
+            ApplyPredicate(sqlExpressionFactory.GreaterThan(rowNumberColumn, lowerBound));
+        }
+
+        if (upperBound is not null)
+        {
+            ApplyPredicate(sqlExpressionFactory.LessThanOrEqual(rowNumberColumn, upperBound));
+        }
+
+        return sqlRemappingVisitor.Visit(projection);
+    }
+
+    private List<SqlExpression> RemoveGrouping()
+    {
         var partitions = _groupBy.ToList();
         _groupBy.Clear();
 
@@ -1965,14 +2020,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             _preGroupByIdentifier = null;
         }
 
-        var one = sqlExpressionFactory.ApplyDefaultTypeMapping(sqlExpressionFactory.Constant(1));
-        var rowNumberExpression = new RowNumberExpression(partitions, GetRowNumberOrderings(orderings, _identifier), one.TypeMapping);
-        var sqlRemappingVisitor = PushdownIntoSubqueryInternal();
-        var subquery = (SelectExpression)_tables[0];
-        var rowNumberColumn = subquery.GenerateOuterColumn(subquery.Alias!, rowNumberExpression, "row");
-        ApplyPredicate(sqlExpressionFactory.LessThanOrEqual(rowNumberColumn, one));
-
-        return sqlRemappingVisitor.Visit(projection);
+        return partitions;
     }
 
     // ROW_NUMBER() needs an ordering. Without one, number by the identifier, or in no particular order.

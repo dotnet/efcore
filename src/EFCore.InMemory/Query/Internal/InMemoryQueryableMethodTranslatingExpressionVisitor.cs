@@ -936,6 +936,11 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
     /// </summary>
     protected override ShapedQueryExpression? TranslateSelectMany(ShapedQueryExpression source, LambdaExpression selector)
     {
+        if (source.ShaperExpression is GroupByShaperExpression)
+        {
+            return null;
+        }
+
         var innerParameter = Expression.Parameter(selector.ReturnType.GetSequenceType(), "i");
         var resultSelector = Expression.Lambda(
             innerParameter, Expression.Parameter(source.Type.GetSequenceType()), innerParameter);

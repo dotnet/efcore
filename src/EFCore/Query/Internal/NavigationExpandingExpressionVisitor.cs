@@ -819,13 +819,26 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                             groupBySource,
                             methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
 
+                    case nameof(Queryable.SelectMany)
+                        when genericMethod == QueryableMethods.SelectManyWithoutCollectionSelector:
+                        return ProcessSelectMany(
+                            groupBySource,
+                            methodCallExpression.Arguments[1].UnwrapLambdaFromQuote(),
+                            null);
+
+                    case nameof(Queryable.SelectMany)
+                        when genericMethod == QueryableMethods.SelectManyWithCollectionSelector:
+                        return ProcessSelectMany(
+                            groupBySource,
+                            methodCallExpression.Arguments[1].UnwrapLambdaFromQuote(),
+                            methodCallExpression.Arguments[2].UnwrapLambdaFromQuote());
+
                     default:
                         // Average/Max/Min/Sum
                         // Distinct
                         // Contains
                         // First/Single/Last(OrDefault)
                         // Join, LeftJoin, GroupJoin
-                        // SelectMany
                         // Concat/Except/Intersect/Union
                         // Cast/OfType
                         // Include/ThenInclude/NotQuiteInclude
@@ -2124,6 +2137,63 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                     ? Expression.MakeMemberAccess(
                         newParameter, newParameter.Type.GetProperty(nameof(IGrouping<object, object>.Key))!)
                     : base.VisitMember(memberExpression);
+    }
+
+    private NavigationExpansionExpression ProcessSelectMany(
+        GroupByNavigationExpansionExpression groupBySource,
+        LambdaExpression collectionSelector,
+        LambdaExpression? resultSelector)
+    {
+        var groupingParameter = collectionSelector.Parameters[0];
+        var elementType = collectionSelector.ReturnType.GetSequenceType();
+
+        var collection = collectionSelector.Body.UnwrapTypeConversion(out _) == groupingParameter
+            ? Expression.Call(QueryableMethods.AsQueryable.MakeGenericMethod(elementType), groupingParameter)
+            : collectionSelector.Body;
+
+        // A result selector is a projection of each element which can also see its grouping, so it's composed over the collection as one.
+        // The elements are then all that flows out of the SelectMany, which has no grouping left to reference afterwards.
+        if (resultSelector != null)
+        {
+            var resultSelectorBody = ReplacingExpressionVisitor.Replace(
+                resultSelector.Parameters[0], groupingParameter, resultSelector.Body);
+
+            collection = Expression.Call(
+                QueryableMethods.Select.MakeGenericMethod(elementType, resultSelector.ReturnType),
+                collection.Type.TryGetElementType(typeof(IQueryable<>)) == null
+                    ? Expression.Call(QueryableMethods.AsQueryable.MakeGenericMethod(elementType), collection)
+                    : collection,
+                Expression.Quote(Expression.Lambda(resultSelectorBody, resultSelector.Parameters[1])));
+        }
+
+        var groupingElementReplacingExpressionVisitor =
+            new GroupingElementReplacingExpressionVisitor(groupingParameter, groupBySource);
+        var collectionBody = groupingElementReplacingExpressionVisitor.Visit(collection);
+        if (groupingElementReplacingExpressionVisitor.ContainsGrouping
+            || UnwrapCollectionMaterialization(Visit(collectionBody)) is not NavigationExpansionExpression collectionSource)
+        {
+            throw new InvalidOperationException(CoreStrings.TranslationFailed(collectionSelector.Print()));
+        }
+
+        collectionSource = (NavigationExpansionExpression)_pendingSelectorExpandingExpressionVisitor.Visit(collectionSource);
+        var navigationTree = new NavigationTreeExpression(SnapshotExpression(collectionSource.PendingSelector));
+        var resultElementType = collectionSource.PendingSelector.Type;
+
+        // The collection selector body is IQueryable, we need to adjust the type to IEnumerable, to match the SelectMany signature
+        // therefore the delegate type is specified explicitly
+        var newCollectionSelector = Expression.Lambda(
+            typeof(Func<,>).MakeGenericType(
+                groupBySource.SourceElementType,
+                typeof(IEnumerable<>).MakeGenericType(resultElementType)),
+            Reduce(collectionSource),
+            groupBySource.CurrentParameter);
+
+        var newSource = Expression.Call(
+            QueryableMethods.SelectManyWithoutCollectionSelector.MakeGenericMethod(groupBySource.SourceElementType, resultElementType),
+            groupBySource.Source,
+            Expression.Quote(newCollectionSelector));
+
+        return new NavigationExpansionExpression(newSource, navigationTree, navigationTree, GetParameterName("e"));
     }
 
     private GroupByNavigationExpansionExpression ProcessSkipTake(

@@ -80,4 +80,338 @@ public abstract class NorthwindGroupByQueryRelationalTestBase<TFixture>(TFixture
                 e, a,
                 elementSorter: c => c.CustomerID,
                 elementAsserter: (ee, aa) => AssertInclude(ee, aa, new ExpectedInclude<Customer>(c => c.Orders))));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_SelectMany(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().GroupBy(c => c.City).SelectMany(g => g));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task OrderBy_GroupBy_SelectMany(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().OrderBy(o => o.OrderID)
+                .GroupBy(o => o.CustomerID)
+                .SelectMany(g => g));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task OrderBy_GroupBy_SelectMany_shadow(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Employee>().OrderBy(e => e.EmployeeID)
+                .GroupBy(e => e.EmployeeID)
+                .SelectMany(g => g)
+                .Select(g => EF.Property<string>(g, "Title")));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_SelectMany_OrderBy(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .SelectMany(g => g.OrderBy(o => o.OrderID)));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_SelectMany_OrderBy_Take(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .SelectMany(g => g.OrderByDescending(o => o.OrderDate).ThenBy(o => o.OrderID).Take(2)));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_SelectMany_OrderBy_Take_parameter(bool async)
+    {
+        var count = 2;
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .SelectMany(g => g.OrderBy(o => o.OrderID).Take(count)));
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_SelectMany_OrderBy_Skip(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .SelectMany(g => g.OrderBy(o => o.OrderID).Skip(2)));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_SelectMany_OrderBy_Skip_Take(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .SelectMany(g => g.OrderBy(o => o.OrderID).Skip(1).Take(2)));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_SelectMany_OrderBy_Take_Skip(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .SelectMany(g => g.OrderBy(o => o.OrderID).Take(3).Skip(1)));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_SelectMany_Take_without_OrderBy_Count(bool async)
+        => AssertCount(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .SelectMany(g => g.Take(1)));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_SelectMany_OrderBy_Take_Select(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .SelectMany(g => g.OrderBy(o => o.OrderID).Take(2).Select(o => new { o.OrderID, o.OrderDate })),
+            elementSorter: e => e.OrderID);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_SelectMany_Select_key(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .SelectMany(g => g.Select(o => new { g.Key, o.OrderID })),
+            elementSorter: e => e.OrderID);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_SelectMany_result_selector(bool async)
+        => AssertQuery(
+            async,
+            ss => from g in ss.Set<Order>().GroupBy(o => o.CustomerID)
+                  from o in g
+                  select new { g.Key, o.OrderID },
+            elementSorter: e => e.OrderID);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_SelectMany_OrderBy_Take_result_selector(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => new { o.CustomerID, o.EmployeeID })
+                .SelectMany(
+                    g => g.OrderBy(o => o.OrderID).Take(1),
+                    (g, o) => new { g.Key.CustomerID, g.Key.EmployeeID, o.OrderID }),
+            elementSorter: e => e.OrderID);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_nullable_key_SelectMany_OrderBy_Take(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Employee>()
+                .GroupBy(e => e.ReportsTo)
+                .SelectMany(g => g.OrderBy(e => e.EmployeeID).Take(1)));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_computed_key_SelectMany_OrderBy_Take(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.OrderDate!.Value.Year)
+                .SelectMany(g => g.OrderBy(o => o.OrderID).Take(2)));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_OrderBy_key_SelectMany_OrderBy_Take(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .OrderBy(g => g.Key)
+                .SelectMany(g => g.OrderBy(o => o.OrderID).Take(1)));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_SelectMany_OrderBy_Take_composed(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .SelectMany(g => g.OrderBy(o => o.OrderID).Take(2))
+                .Where(o => o.OrderID > 10500)
+                .OrderBy(o => o.OrderID)
+                .Take(5)
+                .Select(o => o.OrderID),
+            assertOrder: true);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_SelectMany_OrderBy_Take_navigation(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .SelectMany(g => g.OrderBy(o => o.OrderID).Take(1))
+                .Select(o => new { o.OrderID, o.Customer!.City }),
+            elementSorter: e => e.OrderID);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_SelectMany_Where_Sum(bool async)
+        => AssertSum(
+            async,
+            ss => ss.Set<Order>()
+                .Where(o => o.OrderID < 10400)
+                .GroupBy(o => o.CustomerID)
+                .SelectMany(g => g.OrderBy(o => o.OrderID).Take(1))
+                .Select(o => o.OrderID));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_SelectMany_OrderBy_Skip_Take_parameters(bool async)
+    {
+        var skip = 1;
+        var take = 2;
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .SelectMany(g => g.OrderBy(o => o.OrderID).Skip(skip).Take(take)));
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_computed_key_SelectMany_OrderBy_Take_Select_key(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.OrderDate!.Value.Year)
+                .SelectMany(g => g.OrderBy(o => o.OrderID).Take(2).Select(o => new { g.Key, o.OrderID })),
+            elementSorter: e => e.OrderID);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_composite_key_member_SelectMany_OrderBy_Take_Select(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => new { o.CustomerID, o.EmployeeID })
+                .SelectMany(g => g.OrderBy(o => o.OrderID).Take(1).Select(o => new { g.Key.EmployeeID, o.OrderID })),
+            elementSorter: e => e.OrderID);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_navigation_key_SelectMany_OrderBy_Take(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.Customer!.City)
+                .SelectMany(g => g.OrderBy(o => o.OrderID).Take(1)));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_element_selector_SelectMany(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID, o => o.OrderID)
+                .SelectMany(g => g));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_element_selector_SelectMany_OrderBy_Take(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID, o => new { o.OrderID, o.EmployeeID })
+                .SelectMany(g => g.OrderBy(e => e.OrderID).Take(1)),
+            elementSorter: e => e.OrderID);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_SelectMany_ToList(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .SelectMany(g => g.ToList()));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_SelectMany_OrderBy_Take_Include(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .SelectMany(g => g.OrderBy(o => o.OrderID).Take(1))
+                .Include(o => o.Customer),
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Order>(o => o.Customer!)));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_SelectMany_OrderBy_Take_Include_collection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .Where(o => o.OrderID < 10400)
+                .GroupBy(o => o.CustomerID)
+                .SelectMany(g => g.OrderBy(o => o.OrderID).Take(1))
+                .Include(o => o.OrderDetails),
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Order>(o => o.OrderDetails)));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Include_GroupBy_SelectMany_OrderBy_Take(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .Include(o => o.Customer)
+                .GroupBy(o => o.CustomerID)
+                .SelectMany(g => g.OrderBy(o => o.OrderID).Take(1)),
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Order>(o => o.Customer!)));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Select_GroupBy_SelectMany(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().Select(o => new ProjectedType { Order = o.OrderID, Customer = o.CustomerID })
+                .GroupBy(p => p.Customer)
+                .SelectMany(g => g),
+            elementSorter: g => g.Order);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_SelectMany_Where_over_grouping_fails(bool async)
+        => AssertTranslationFailed(() => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .SelectMany(g => g.Where(o => o.OrderID > 10500).Take(1))));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_SelectMany_OrderBy_over_Take_fails(bool async)
+        => AssertTranslationFailed(() => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .SelectMany(g => g.Take(2).OrderBy(o => o.OrderID))));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_SelectMany_collection_in_element_selector_fails(bool async)
+        => AssertTranslationFailed(() => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .SelectMany(g => g.Select(o => new { o.OrderID, o.OrderDetails }))));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Where_SelectMany_fails(bool async)
+        => AssertTranslationFailed(() => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .Where(g => g.Count() > 1)
+                .SelectMany(g => g)));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Take_SelectMany_fails(bool async)
+        => AssertTranslationFailed(() => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .OrderBy(g => g.Key)
+                .Take(2)
+                .SelectMany(g => g)));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_SelectMany_in_subquery_fails(bool async)
+        => AssertTranslationFailed(() => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Select(c => c.Orders.GroupBy(o => o.EmployeeID).SelectMany(g => g).ToList()),
+            elementSorter: e => e.Count,
+            elementAsserter: (e, a) => AssertCollection(e, a)));
 }
