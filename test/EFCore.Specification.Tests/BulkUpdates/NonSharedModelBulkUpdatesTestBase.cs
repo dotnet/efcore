@@ -177,6 +177,43 @@ public abstract class NonSharedModelBulkUpdatesTestBase(NonSharedFixture fixture
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Delete_entity_with_many_to_many_auto_include(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context35523>();
+        await AssertDelete(async, contextFactory.CreateDbContext, ss => ss.Set<Context35523_Left>(), rowsAffectedCount: 0);
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Delete_entity_with_many_to_many_explicit_include(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context35523>();
+        await AssertDelete(
+            async, contextFactory.CreateDbContext,
+            ss => ss.Set<Context35523_Right>().Include(r => r.Lefts),
+            rowsAffectedCount: 0);
+    }
+
+    protected class Context35523(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Context35523_Left>().Navigation(o => o.Rights).AutoInclude();
+    }
+
+    public class Context35523_Left
+    {
+        public int Id { get; set; }
+
+        public List<Context35523_Right> Rights { get; set; } = null!;
+    }
+
+    public class Context35523_Right
+    {
+        public int Id { get; set; }
+
+        public List<Context35523_Left> Lefts { get; set; } = null!;
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Delete_predicate_based_on_optional_navigation(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context28745>();

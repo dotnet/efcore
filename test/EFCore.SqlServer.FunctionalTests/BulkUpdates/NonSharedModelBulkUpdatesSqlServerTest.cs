@@ -177,6 +177,30 @@ FROM [Context30572_Principal] AS [c]
 """);
     }
 
+    public override async Task Delete_entity_with_many_to_many_auto_include(bool async)
+    {
+        await base.Delete_entity_with_many_to_many_auto_include(async);
+
+        AssertSql(
+            """
+SET NOCOUNT OFF;
+DELETE FROM [c]
+FROM [Context35523_Left] AS [c]
+""");
+    }
+
+    public override async Task Delete_entity_with_many_to_many_explicit_include(bool async)
+    {
+        await base.Delete_entity_with_many_to_many_explicit_include(async);
+
+        AssertSql(
+            """
+SET NOCOUNT OFF;
+DELETE FROM [c]
+FROM [Context35523_Right] AS [c]
+""");
+    }
+
     public override async Task Delete_predicate_based_on_optional_navigation(bool async)
     {
         await base.Delete_predicate_based_on_optional_navigation(async);
