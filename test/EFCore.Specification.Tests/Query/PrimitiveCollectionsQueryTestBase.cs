@@ -1336,6 +1336,18 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
     public virtual Task Column_collection_Any()
         => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints.Any()));
 
+    [Fact]
+    public virtual Task Column_collection_Array_Exists()
+        => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => Array.Exists(c.Ints, i => i > 10)));
+
+    [Fact]
+    public virtual Task Parameter_collection_Array_Exists()
+    {
+        var ints = new[] { 10, 999 };
+
+        return AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => Array.Exists(ints, i => i == c.Int)));
+    }
+
     // If this test is failing because of DistinctAfterOrderByWithoutRowLimitingOperatorWarning, this is because EF warns/errors by
     // default for Distinct after OrderBy (without Skip/Take); but you likely have a naturally-ordered JSON collection, where the
     // ordering has been added by the provider as part of the collection translation.

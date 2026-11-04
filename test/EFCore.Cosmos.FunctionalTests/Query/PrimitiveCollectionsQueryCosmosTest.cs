@@ -1761,6 +1761,35 @@ WHERE (ARRAY_LENGTH(c["Ints"]) > 0)
 """);
     }
 
+    public override async Task Column_collection_Array_Exists()
+    {
+        await base.Column_collection_Array_Exists();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE EXISTS (
+    SELECT 1
+    FROM i IN c["Ints"]
+    WHERE (i > 10))
+""");
+    }
+
+    public override async Task Parameter_collection_Array_Exists()
+    {
+        await base.Parameter_collection_Array_Exists();
+
+        AssertSql(
+            """
+@ints='[10,999]'
+
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(@ints, c["Int"])
+""");
+    }
+
     public override async Task Column_collection_Distinct()
     {
         // TODO: Subquery pushdown, #33968
