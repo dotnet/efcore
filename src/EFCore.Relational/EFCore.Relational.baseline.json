@@ -14893,6 +14893,9 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression? GenerateLeast(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression> expressions, System.Type resultType);"
         },
         {
+          "Member": "virtual bool IsCountOverNullableColumnSupported(Microsoft.EntityFrameworkCore.Query.SqlExpressions.ColumnExpression column, System.Linq.Expressions.Expression? selector);"
+        },
+        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression? Translate(System.Linq.Expressions.Expression expression, bool applyDefaultTypeMapping = true);"
         }
       ],
