@@ -13,7 +13,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 /// </remarks>
 public class RelationalPropertyJsonPropertyNameAttributeConvention : PropertyAttributeConventionBase<JsonPropertyNameAttribute>,
     IComplexPropertyAddedConvention,
-    IComplexPropertyFieldChangedConvention
+    IComplexPropertyFieldChangedConvention,
+    IModelFinalizingConvention
 {
     /// <summary>
     ///     Creates a new instance of <see cref="RelationalPropertyJsonPropertyNameAttributeConvention" />.
@@ -57,4 +58,10 @@ public class RelationalPropertyJsonPropertyNameAttributeConvention : PropertyAtt
         }
     }
 
+    /// <inheritdoc />
+    public virtual void ProcessModelFinalizing(
+        IConventionModelBuilder modelBuilder,
+        IConventionContext<IConventionModelBuilder> context)
+    {
+    }
 }

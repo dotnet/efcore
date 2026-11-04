@@ -14553,16 +14553,13 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Metadata.Conventions.RelationalPropertyJsonPropertyNameAttributeConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.PropertyAttributeConventionBase<System.Text.Json.Serialization.JsonPropertyNameAttribute>, Microsoft.EntityFrameworkCore.Metadata.Conventions.IComplexPropertyAddedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IComplexPropertyFieldChangedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IComplexTypeAnnotationChangedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IEntityTypeAnnotationChangedConvention",
+      "Type": "class Microsoft.EntityFrameworkCore.Metadata.Conventions.RelationalPropertyJsonPropertyNameAttributeConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.PropertyAttributeConventionBase<System.Text.Json.Serialization.JsonPropertyNameAttribute>, Microsoft.EntityFrameworkCore.Metadata.Conventions.IComplexPropertyAddedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IComplexPropertyFieldChangedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IModelFinalizingConvention",
       "Methods": [
         {
           "Member": "RelationalPropertyJsonPropertyNameAttributeConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies, Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.RelationalConventionSetBuilderDependencies relationalDependencies);"
         },
         {
-          "Member": "virtual void ProcessComplexTypeAnnotationChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionComplexTypeBuilder complexTypeBuilder, string name, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? annotation, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? oldAnnotation, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation> context);"
-        },
-        {
-          "Member": "virtual void ProcessEntityTypeAnnotationChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, string name, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? annotation, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? oldAnnotation, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation> context);"
+          "Member": "virtual void ProcessModelFinalizing(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder modelBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder> context);"
         }
       ],
       "Properties": [
