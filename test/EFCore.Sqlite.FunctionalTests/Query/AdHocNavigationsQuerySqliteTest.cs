@@ -10,6 +10,33 @@ public class AdHocNavigationsQuerySqliteTest(NonSharedFixture fixture) : AdHocNa
     protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqliteTestStoreFactory.Instance;
 
+    public override async Task Where_over_projection_with_conjunctive_null_checks(bool async)
+    {
+        await base.Where_over_projection_with_conjunctive_null_checks(async);
+
+        AssertSql(
+            """
+SELECT "p"."Id", "c"."Id" IS NOT NULL AND "g"."Id" IS NOT NULL, "c"."GrandChildId"
+FROM "Parents" AS "p"
+LEFT JOIN "Children" AS "c" ON "p"."ChildId" = "c"."Id"
+LEFT JOIN "GrandChildren" AS "g" ON "c"."GrandChildId" = "g"."Id"
+WHERE CASE
+    WHEN "c"."Id" IS NOT NULL AND "g"."Id" IS NOT NULL THEN "c"."GrandChildId"
+END IS NOT NULL
+""",
+            //
+            """
+SELECT "p"."Id", "c"."Id" IS NULL OR "g"."Id" IS NULL, "c"."GrandChildId"
+FROM "Parents" AS "p"
+LEFT JOIN "Children" AS "c" ON "p"."ChildId" = "c"."Id"
+LEFT JOIN "GrandChildren" AS "g" ON "c"."GrandChildId" = "g"."Id"
+WHERE CASE
+    WHEN "c"."Id" IS NULL OR "g"."Id" IS NULL THEN NULL
+    ELSE "c"."GrandChildId"
+END IS NOT NULL
+""");
+    }
+
     public override async Task Projection_with_multiple_includes_and_subquery_with_set_operation()
     {
         Assert.Equal(
