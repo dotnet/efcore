@@ -10,7 +10,7 @@ public class AdHocPrecompiledQuerySqlServerTest(NonSharedFixture fixture, ITestO
 {
     protected override bool AlwaysPrintGeneratedSources
         => false;
-
+          
     protected override DbContextOptionsBuilder UseWindowFunctionAggregates(DbContextOptionsBuilder optionsBuilder)
     {
 #pragma warning disable EF9001 // UseWindowFunctionAggregates is experimental
@@ -54,6 +54,18 @@ SELECT [e].[DepartmentName], DENSE_RANK() OVER(ORDER BY [e].[DepartmentName]), [
 FROM [Employees] AS [e]
 WHERE [e].[DepartmentName] <> @excluded1 AND [e].[DepartmentName] <> @excluded2 AND [e].[DepartmentName] <> @excluded3 AND [e].[DepartmentName] <> @excluded4
 ORDER BY [e].[DepartmentName]
+""");
+    }
+
+    public override async Task Coalesce_nullable_long_in_anonymous_projection()
+    {
+        await base.Coalesce_nullable_long_in_anonymous_projection();
+
+        AssertSql(
+            """
+SELECT ISNULL([r].[SizeBytes], CAST(0 AS bigint)) AS [SizeBytes]
+FROM [Records] AS [r]
+ORDER BY [r].[Id]
 """);
     }
 

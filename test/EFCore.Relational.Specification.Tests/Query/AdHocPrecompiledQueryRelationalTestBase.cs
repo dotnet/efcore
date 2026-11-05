@@ -17,6 +17,39 @@ public abstract class AdHocPrecompiledQueryRelationalTestBase : NonSharedModelTe
         => TestOutputHelper = testOutputHelper;
 
     [Fact]
+    public virtual async Task Coalesce_nullable_long_in_anonymous_projection()
+    {
+        var contextFactory = await InitializeNonSharedTest<NullableLongContext>(seed: async context =>
+        {
+            context.Records.AddRange(
+                new NullableLongRecord { SizeBytes = null },
+                new NullableLongRecord { SizeBytes = 8L });
+            await context.SaveChangesAsync();
+        });
+
+        await Test(
+            """
+await using var context = new AdHocPrecompiledQueryRelationalTestBase.NullableLongContext(dbContextOptions);
+
+var rows = await context.Records.OrderBy(r => r.Id).Select(r => new { SizeBytes = r.SizeBytes ?? 0L }).ToListAsync();
+Assert.Equal(new long[] { 0L, 8L }, rows.Select(r => r.SizeBytes));
+""",
+            typeof(NullableLongContext),
+            contextFactory.GetOptions());
+    }
+
+    public class NullableLongContext(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<NullableLongRecord> Records { get; set; } = null!;
+    }
+
+    public class NullableLongRecord
+    {
+        public int Id { get; set; }
+        public long? SizeBytes { get; set; }
+    }
+
+    [Fact]
     public virtual async Task Index_no_evaluatability()
     {
         var contextFactory = await InitializeNonSharedTest<JsonContext>();

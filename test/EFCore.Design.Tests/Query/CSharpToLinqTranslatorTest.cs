@@ -81,6 +81,24 @@ public class CSharpToLinqTranslatorTest
             """(object?)"foo" ?? (object)"bar" """);
 
     [Fact]
+    public void Coalesce_nullable_long_with_non_nullable_fallback()
+        => AssertExpression(
+            () => new long?[] { }.Select(value => value ?? 0L),
+            "new long?[] { }.Select(value => value ?? 0L)");
+
+    [Fact]
+    public void Coalesce_nullable_long_with_nullable_fallback()
+        => AssertExpression(
+            () => new long?[] { }.Select(value => value ?? (long?)0L),
+            "new long?[] { }.Select(value => value ?? (long?)0L)");
+
+    [Fact]
+    public void Coalesce_nullable_int_with_non_nullable_fallback()
+        => AssertExpression(
+            () => new int?[] { }.Select(value => value ?? 0),
+            "new int?[] { }.Select(value => value ?? 0)");
+
+    [Fact]
     public void ElementAccess_over_array()
         => AssertExpression(
             () => new[] { 1, 2, 3 }[1],
