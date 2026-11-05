@@ -68,6 +68,14 @@ public sealed class ProjectTest(ITestOutputHelper output)
         Assert.Null(RootCommand.ResolveOption(primary, alias, configValue: null));
     }
 
+    [Theory]
+    [InlineData("C:\\src\\app.cs(1,2): ResolveAssemblyReference WaRnInG NU1903: warning in the message", true)]
+    [InlineData("tool : subcategory WARNING : warning in the message", true)]
+    [InlineData("tool : error MSB1234: message: warning NU1903: not a warning diagnostic", false)]
+    [InlineData("An unrelated stderr line", false)]
+    public void IsWarningDiagnostic_classifies_MSBuild_diagnostic_lines(string line, bool expected)
+        => Assert.Equal(expected, Project.IsWarningDiagnostic(line));
+
     [Fact, SkipOnCI("Test does not run on CI")]
     public void Csproj_metadata_can_be_extracted()
     {

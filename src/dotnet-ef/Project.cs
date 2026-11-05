@@ -12,6 +12,46 @@ internal class Project
 {
     private const string MissingAssetsFileErrorCode = "NETSDK1004";
 
+    internal static bool IsWarningDiagnostic(string line)
+    {
+        var colonIndex = line.IndexOf(':');
+        while (colonIndex >= 0)
+        {
+            var header = line[..colonIndex].TrimEnd();
+            var lastSpaceIndex = header.LastIndexOf(' ');
+            var lastWord = header[(lastSpaceIndex + 1)..];
+            if (lastWord.Equals("warning", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            if (lastSpaceIndex >= 0)
+            {
+                var previousHeader = header[..lastSpaceIndex].TrimEnd();
+                var previousSpaceIndex = previousHeader.LastIndexOf(' ');
+                var category = previousHeader[(previousSpaceIndex + 1)..];
+                if (category.Equals("warning", StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+
+                if (category.Equals("error", StringComparison.OrdinalIgnoreCase))
+                {
+                    return false;
+                }
+            }
+
+            if (lastWord.Equals("error", StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            colonIndex = line.IndexOf(':', colonIndex + 1);
+        }
+
+        return false;
+    }
+
     private readonly string _file;
     private readonly string? _framework;
     private readonly string? _configuration;
@@ -117,7 +157,7 @@ internal class Project
                 }
 
                 error.AppendLine(line);
-                if (line.Contains(": warning ", StringComparison.OrdinalIgnoreCase))
+                if (IsWarningDiagnostic(line))
                 {
                     Reporter.WriteWarning(line);
                 }
