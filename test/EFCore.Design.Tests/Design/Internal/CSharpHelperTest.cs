@@ -613,6 +613,14 @@ public class CSharpHelperTest
     }
 
     [Fact]
+    public void XmlComment_escapes_only_xml_markup_characters()
+    {
+        var result = new CSharpHelper(TypeMappingSource).XmlComment("It's a \"quoted\" <b>bold</b> & 'single-quoted' comment");
+
+        Assert.Equal("It's a \"quoted\" &lt;b&gt;bold&lt;/b&gt; &amp; 'single-quoted' comment", result);
+    }
+
+    [Fact]
     public void Really_unknown_literal_with_no_mapping_support()
     {
         var typeMapping = CreateTypeMappingSource<SimpleTestType>(null);
