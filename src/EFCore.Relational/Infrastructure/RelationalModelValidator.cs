@@ -279,7 +279,9 @@ public class RelationalModelValidator(
                 RelationalStrings.ComplexPropertyOptionalTableSharing(complexProperty.ComplexType.DisplayName(), complexProperty.Name));
         }
 
-        if (complexProperty.GetJsonPropertyName() != null)
+        if (complexProperty.GetJsonPropertyName() != null
+            && ((IConventionAnnotation?)complexProperty.ComplexType.FindAnnotation(RelationalAnnotationNames.JsonPropertyName))
+                ?.GetConfigurationSource() != ConfigurationSource.DataAnnotation)
         {
             if (complexProperty.ComplexType.FindAnnotation(RelationalAnnotationNames.ContainerColumnName)?.Value is string columnName)
             {
