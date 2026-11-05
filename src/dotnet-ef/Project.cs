@@ -117,7 +117,14 @@ internal class Project
                 }
 
                 error.AppendLine(line);
-                Reporter.WriteError(line);
+                if (line.Contains(": warning ", StringComparison.OrdinalIgnoreCase))
+                {
+                    Reporter.WriteWarning(line);
+                }
+                else
+                {
+                    Reporter.WriteError(line);
+                }
             });
         if (exitCode != 0)
         {
