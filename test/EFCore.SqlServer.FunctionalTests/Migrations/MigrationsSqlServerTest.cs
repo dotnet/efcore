@@ -797,6 +797,70 @@ ALTER TABLE [Entity] ADD [OwnedRequiredReference] nvarchar(max) NOT NULL DEFAULT
 """);
     }
 
+    [Theory,
+     InlineData(false, false),
+     InlineData(true, false),
+     InlineData(null, false),
+     InlineData(false, true),
+     InlineData(true, true),
+     InlineData(null, true)]
+    public virtual async Task Add_column_computed_includes_not_null_if_persisted_and_not_nullable(bool? stored, bool nullable)
+    {
+        await Test(
+            builder => builder.Entity(
+                "People", e =>
+                {
+                    e.Property<int>("Id");
+                    if (nullable)
+                    {
+                        e.Property<DateTime?>("FullDate");
+                    }
+                    else
+                    {
+                        e.Property<DateTime>("FullDate");
+                    }
+                }),
+            builder => {},
+            builder =>
+            {
+                if(nullable)
+                {
+                    builder.Entity("People").Property<DateTime?>("ComputedDate")
+                        .HasComputedColumnSql("CAST([FullDate] AS date)", stored);
+                }
+                else
+                {
+                    builder.Entity("People").Property<DateTime>("ComputedDate")
+                        .HasComputedColumnSql("CAST([FullDate] AS date)", stored);
+                }
+            },
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var computedDateColumn = Assert.Single(table.Columns, c => c.Name == "ComputedDate");
+                Assert.Equal(nullable || stored != true, computedDateColumn.IsNullable);
+                if (AssertComputedColumns)
+                {
+                    Assert.Contains("FullDate", computedDateColumn.ComputedColumnSql);
+                    Assert.Contains("date", computedDateColumn.ComputedColumnSql);
+                    if (stored != null)
+                    {
+                        Assert.Equal(stored, computedDateColumn.IsStored);
+                    }
+                }
+            });
+
+        var computedColumnTypeSql = stored == true ? " PERSISTED" : "";
+        // persisted computed columns can contain NOT NULL constraint but cannot contain NULL constraint
+        // non-persisted computed columns cannot contain neither NOT NULL nor NULL constraint
+        var nullableColumnType = stored == true && !nullable ? " NOT NULL" : "";
+
+        AssertSql(
+            $"""
+ALTER TABLE [People] ADD [ComputedDate] AS CAST([FullDate] AS date){computedColumnTypeSql}{nullableColumnType};
+""");
+    }
+
     public override async Task Add_column_with_computedSql(bool? stored)
     {
         await base.Add_column_with_computedSql(stored);
@@ -1299,7 +1363,7 @@ CREATE INDEX [IX_People_FirstName_LastName] ON [People] ([FirstName], [LastName]
     {
         await base.Alter_column_make_computed(stored);
 
-        var computedColumnTypeSql = stored == true ? " PERSISTED" : "";
+        var computedColumnTypeSql = stored == true ? " PERSISTED NOT NULL" : "";
 
         AssertSql(
             $"""
@@ -1362,7 +1426,7 @@ FROM [sys].[columns] [c]
 WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Sum';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [People] DROP COLUMN [Sum];
-ALTER TABLE [People] ADD [Sum] AS [X] + [Y] PERSISTED;
+ALTER TABLE [People] ADD [Sum] AS [X] + [Y] PERSISTED NOT NULL;
 """);
     }
 
