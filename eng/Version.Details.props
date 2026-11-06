@@ -42,7 +42,6 @@ This file should be imported by eng/Versions.props
     <MicrosoftNETCorePlatformsVersion>$(MicrosoftNETCorePlatformsPackageVersion)</MicrosoftNETCorePlatformsVersion>
     <SystemFormatsAsn1Version>$(SystemFormatsAsn1PackageVersion)</SystemFormatsAsn1Version>
     <SystemRuntimeCachingVersion>$(SystemRuntimeCachingPackageVersion)</SystemRuntimeCachingVersion>
-    <SystemSecurityCryptographyPkcsVersion>$(SystemSecurityCryptographyPkcsPackageVersion)</SystemSecurityCryptographyPkcsVersion>
     <SystemTextEncodingsWebVersion>$(SystemTextEncodingsWebPackageVersion)</SystemTextEncodingsWebVersion>
     <SystemTextJsonVersion>$(SystemTextJsonPackageVersion)</SystemTextJsonVersion>
   </PropertyGroup>

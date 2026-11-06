@@ -41,11 +41,11 @@
     <MicrosoftCodeAnalysisCSharpTestingVersion>1.1.4</MicrosoftCodeAnalysisCSharpTestingVersion>
     <AzureIdentityVersion>1.21.0</AzureIdentityVersion>
     <AzureResourceManagerCosmosDBVersion>1.5.0</AzureResourceManagerCosmosDBVersion>
-    <OpenTelemetryExporterInMemoryVersion>1.20.1</OpenTelemetryExporterInMemoryVersion>
+    <OpenTelemetryExporterInMemoryVersion>1.20.0</OpenTelemetryExporterInMemoryVersion>
     <SQLitePCLRawVersion>3.0.5</SQLitePCLRawVersion>
-    <SQLite3MCPCLRawBundleVersion>2.6.1</SQLite3MCPCLRawBundleVersion>
+    <SQLite3MCPCLRawBundleVersion>2.4.0</SQLite3MCPCLRawBundleVersion>
     <XUnitV3Version>4.0.1</XUnitV3Version>
-    <MicrosoftDotNetXUnitV3ExtensionsVersion>11.0.0-beta.26555.108</MicrosoftDotNetXUnitV3ExtensionsVersion>
+    <MicrosoftDotNetXUnitV3ExtensionsVersion>11.0.0-beta.26523.3</MicrosoftDotNetXUnitV3ExtensionsVersion>
     <MicrosoftTestingPlatformVersion>2.5.1</MicrosoftTestingPlatformVersion>
     <MicrosoftTestingExtensionsCodeCoverageVersion>18.12.0</MicrosoftTestingExtensionsCodeCoverageVersion>
   </PropertyGroup>
@@ -57,6 +57,6 @@
 
   <PropertyGroup Label="Tooling dependencies">
     <ICSharpCodeDecompilerVersion>11.1.0.9782</ICSharpCodeDecompilerVersion>
-    <SystemCommandLineVersion>2.0.14</SystemCommandLineVersion>
+    <SystemCommandLineVersion>2.0.13</SystemCommandLineVersion>
   </PropertyGroup>
 </Project>
