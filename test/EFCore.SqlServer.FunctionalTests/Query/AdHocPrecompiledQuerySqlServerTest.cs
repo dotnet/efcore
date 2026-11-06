@@ -19,6 +19,13 @@ public class AdHocPrecompiledQuerySqlServerTest(NonSharedFixture fixture, ITestO
         return optionsBuilder;
     }
 
+    public override async Task Decimal_projection_with_implicitly_converted_zero()
+    {
+        await base.Decimal_projection_with_implicitly_converted_zero();
+
+        AssertSql();
+    }
+
     public override async Task GroupBy_elements_and_aggregates_as_window_functions()
     {
         await base.GroupBy_elements_and_aggregates_as_window_functions();
