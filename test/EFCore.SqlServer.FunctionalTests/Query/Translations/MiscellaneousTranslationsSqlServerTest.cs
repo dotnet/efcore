@@ -886,6 +886,13 @@ FROM [BasicTypesEntities] AS [b]
 """);
     }
 
+    public override async Task Nullable_Compare()
+    {
+        await base.Nullable_Compare();
+
+        AssertSql();
+    }
+
     #endregion Compare
 
     [Fact]

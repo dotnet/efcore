@@ -391,5 +391,10 @@ public abstract class MiscellaneousTranslationsTestBase<TFixture>(TFixture fixtu
         return AssertQuery(ss => ss.Set<BasicTypesEntity>().Select(c => reversed.Compare(c.Int, 8)));
     }
 
+    [Fact]
+    public virtual Task Nullable_Compare()
+        => AssertTranslationFailed(() => AssertQuery(ss => ss.Set<NullableBasicTypesEntity>()
+            .Where(c => Nullable.Compare(c.Int, 8) == 0)));
+
     #endregion
 }

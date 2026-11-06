@@ -25,4 +25,7 @@ public class MiscellaneousTranslationsInMemoryTest(BasicTypesQueryInMemoryFixtur
 
     public override Task Default_Comparer_Compare()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => Comparer<int>.Default.Compare(c.Int, 8) > 0));
+
+    public override Task Nullable_Compare()
+        => AssertQuery(ss => ss.Set<NullableBasicTypesEntity>().Where(c => Nullable.Compare(c.Int, 8) == 0));
 }

@@ -398,6 +398,13 @@ WHERE (IIF((c["DateTime"] = @dateTime), 0, IIF((c["DateTime"] > @dateTime), 1, I
     """);
     }
 
+    public override async Task Nullable_Compare()
+    {
+        await base.Nullable_Compare();
+
+        AssertSql();
+    }
+
     #endregion Compare
 
     [Fact]
