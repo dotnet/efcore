@@ -479,6 +479,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         //   after the DefaultIfEmpty, and GroupBy applied after the left join then reduced via a to-one
         //   subquery / FirstOrDefault, also correctly materialize the whole non-entity object as null on a
         //   no-match (the marker survives the shaper rebuild across the subsequent join / grouping).
+        //   The same holds for RightJoin, where the OUTER side is the nullable one, when the outer is a GroupBy and/or
+        //   Distinct (optionally with Take over the GroupBy); a MemberInit DTO outer and a subsequent LeftJoin are covered too.
         // DEFERRED (still failing, tracked as #30915 follow-ups; these tests assert the throw /
         //   translation failure): constructor-bound (read-only) reference-type DTO and positional record
         //   struct (fail to translate: ReplacingExpressionVisitor's constructor-parameter fold is
@@ -486,8 +488,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         //   since only those BCL types have a closed, guaranteed constructor-to-property contract; an
         //   arbitrary named type's "matching name" convention can't be verified and could silently fold to
         //   the wrong value for a transforming constructor); plain inner with no aggregate / no
-        //   pushdown; Union and other set operations over the projection; and server-side OrderBy/Where
-        //   null-checks against the whole non-entity projection.
+        //   pushdown (including a plain RightJoin outer, one with only Where/Take over a plain Select, and one that is already a
+        //   join result); and a GroupBy followed by a client-evaluated Select (a pre-existing limitation of
+        //   LEFT JOIN as well); and server-side OrderBy/Where null-checks against the
+        //   whole non-entity projection.
 
         #region Category A: whole non-entity object projected from the nullable side
 
@@ -1490,12 +1494,302 @@ namespace Microsoft.EntityFrameworkCore.Query
                     context.Statuses, c => c.pickupStatusId, s => s.PickupStatusId, (countInfo, s) => new { s.PickupStatusId, countInfo })
                 .OrderBy(e => e.PickupStatusId);
 
-            // The RightJoin operator makes the OUTER (non-entity categories) the nullable side; the fix's
-            // marker is injected for the INNER nullable side of LEFT JOIN / DefaultIfEmpty only, so this
-            // RIGHT JOIN whole-object shape is not covered and still fails during materialization.
+            var result = await query.ToListAsync();
+
+            Assert.Equal(3, result.Count);
+
+            Assert.Equal(1, result[0].PickupStatusId);
+            Assert.NotNull(result[0].countInfo);
+            Assert.Equal(1, result[0].countInfo!.pickupStatusId);
+            Assert.Equal(2, result[0].countInfo!.Count);
+
+            // status 2 -> no match, the (outer) whole non-entity object is null
+            Assert.Equal(2, result[1].PickupStatusId);
+            Assert.Null(result[1].countInfo);
+
+            Assert.Equal(3, result[2].PickupStatusId);
+            Assert.NotNull(result[2].countInfo);
+            Assert.Equal(3, result[2].countInfo!.pickupStatusId);
+            Assert.Equal(1, result[2].countInfo!.Count);
+        }
+
+        private static void AssertRightJoinOuterNullable(
+            IEnumerable<(int PickupStatusId, int? Count)> rows,
+            int? count1 = 2)
+            => Assert.Equal([(1, count1), (2, (int?)null), (3, (int?)1)], rows.ToArray());
+
+        [Fact]
+        public virtual async Task RightJoin_whole_object_outer_nullable_MemberInit_dto()
+        {
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new Context30915.CountDto30915 { PickupStatusId = k, Count = els.Count() });
+
+            var query = categories
+                .RightJoin(
+                    context.Statuses, c => c.PickupStatusId, s => s.PickupStatusId, (countInfo, s) => new { s.PickupStatusId, countInfo })
+                .OrderBy(e => e.PickupStatusId);
+
+            var result = await query.ToListAsync();
+
+            AssertRightJoinOuterNullable(result.Select(e => (e.PickupStatusId, e.countInfo?.Count)));
+        }
+
+        [Fact]
+        public virtual async Task RightJoin_whole_object_outer_nullable_Distinct_outer()
+        {
+            // Distinct on the outer pushes it into a subquery, so the marker column is nulled by the RIGHT JOIN.
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .Select(r => new { r.PickupStatusId, Count = 1 })
+                .Distinct();
+
+            var query = categories
+                .RightJoin(
+                    context.Statuses, c => c.PickupStatusId, s => s.PickupStatusId, (countInfo, s) => new { s.PickupStatusId, countInfo })
+                .OrderBy(e => e.PickupStatusId);
+
+            var result = await query.ToListAsync();
+
+            AssertRightJoinOuterNullable(result.Select(e => (e.PickupStatusId, e.countInfo?.Count)), count1: 1);
+        }
+
+        [Fact]
+        public virtual async Task RightJoin_whole_object_outer_nullable_Take_outer()
+        {
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new { pickupStatusId = k, Count = els.Count() })
+                .OrderBy(c => c.pickupStatusId)
+                .Take(10);
+
+            var query = categories
+                .RightJoin(
+                    context.Statuses, c => c.pickupStatusId, s => s.PickupStatusId, (countInfo, s) => new { s.PickupStatusId, countInfo })
+                .OrderBy(e => e.PickupStatusId);
+
+            var result = await query.ToListAsync();
+
+            AssertRightJoinOuterNullable(result.Select(e => (e.PickupStatusId, e.countInfo?.Count)));
+        }
+
+        [Fact]
+        public virtual async Task RightJoin_whole_object_outer_nullable_then_LeftJoin()
+        {
+            // A subsequent join rebuilds the shaper containing the right-joined object; the marker must survive.
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new { pickupStatusId = k, Count = els.Count() });
+
+            var query = categories
+                .RightJoin(
+                    context.Statuses, c => c.pickupStatusId, s => s.PickupStatusId, (countInfo, s) => new { s.PickupStatusId, countInfo })
+                .LeftJoin(
+                    context.Statuses, e => e.PickupStatusId, s2 => s2.PickupStatusId,
+                    (e, s2) => new { e.PickupStatusId, e.countInfo, s2!.Name })
+                .OrderBy(e => e.PickupStatusId);
+
+            var result = await query.ToListAsync();
+
+            AssertRightJoinOuterNullable(result.Select(e => (e.PickupStatusId, e.countInfo?.Count)));
+        }
+
+        [Fact]
+        public virtual async Task RightJoin_whole_object_outer_nullable_plain_outer_no_pushdown()
+        {
+            // The outer needs no pushdown here, so (as for the plain-inner LEFT JOIN case) there is no subquery for the
+            // marker to be nulled through. Characterization of the current behavior.
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests.Select(r => new { r.PickupStatusId, Count = 1 });
+
+            var query = categories
+                .RightJoin(
+                    context.Statuses, c => c.PickupStatusId, s => s.PickupStatusId, (countInfo, s) => new { s.PickupStatusId, countInfo })
+                .OrderBy(e => e.PickupStatusId);
+
             var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
             Assert.Contains("Cannot read the Value property of a Nullable object that has no value", ex.Message);
-            // #30915 TODO: RightJoin (outer-nullable) whole-object not yet covered; flip to assert results if/when fixed.
+            // #30915 TODO: plain (no pushdown) outer not yet covered; flip to assert results if/when fixed.
+        }
+
+        private static string Format30915(int value)
+            => $"#{value}";
+
+        [Fact]
+        public virtual async Task RightJoin_whole_object_outer_nullable_client_projection_outer()
+        {
+            // A client-evaluated member in the outer puts it in the client-projection representation, which takes a
+            // different remapping path in AddJoin than the projection-mapping representation.
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .Select(r => new { r.PickupStatusId, Count = 1, Label = Format30915(r.PickupStatusId) })
+                .Distinct();
+
+            var query = categories
+                .RightJoin(
+                    context.Statuses, c => c.PickupStatusId, s => s.PickupStatusId, (countInfo, s) => new { s.PickupStatusId, countInfo })
+                .OrderBy(e => e.PickupStatusId);
+
+            var result = await query.ToListAsync();
+
+            AssertRightJoinOuterNullable(result.Select(e => (e.PickupStatusId, e.countInfo?.Count)), count1: 1);
+            Assert.Equal("#1", result[0].countInfo!.Label);
+        }
+
+        [Fact]
+        public virtual async Task RightJoin_whole_object_outer_nullable_client_projection_both_sides()
+        {
+            // Client projections on both the outer and the inner.
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .Select(r => new { r.PickupStatusId, Count = 1, Label = Format30915(r.PickupStatusId) })
+                .Distinct();
+
+            var query = categories
+                .RightJoin(
+                    context.Statuses.Select(s => new { s.PickupStatusId, Label = Format30915(s.PickupStatusId) }),
+                    c => c.PickupStatusId, s => s.PickupStatusId, (countInfo, s) => new { s.PickupStatusId, s.Label, countInfo })
+                .OrderBy(e => e.PickupStatusId);
+
+            var result = await query.ToListAsync();
+
+            AssertRightJoinOuterNullable(result.Select(e => (e.PickupStatusId, e.countInfo?.Count)), count1: 1);
+        }
+
+        [Fact]
+        public virtual async Task RightJoin_whole_object_outer_nullable_mapping_outer_client_projection_inner()
+        {
+            // Outer in the projection-mapping representation, inner in the client-projection representation.
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new { pickupStatusId = k, Count = els.Count() });
+
+            var query = categories
+                .RightJoin(
+                    context.Statuses.Select(s => new { s.PickupStatusId, Label = Format30915(s.PickupStatusId) }),
+                    c => c.pickupStatusId, s => s.PickupStatusId, (countInfo, s) => new { s.PickupStatusId, s.Label, countInfo })
+                .OrderBy(e => e.PickupStatusId);
+
+            var result = await query.ToListAsync();
+
+            AssertRightJoinOuterNullable(result.Select(e => (e.PickupStatusId, e.countInfo?.Count)));
+            Assert.Equal("#2", result[1].Label);
+        }
+
+        [Fact]
+        public virtual async Task FullJoin_whole_object_both_sides_nullable()
+        {
+            // Both sides of a FULL JOIN are nullable, so each gets its own marker.
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var left = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new { pickupStatusId = k, Count = els.Count() });
+
+            var right = context.Statuses
+                .Where(s => s.PickupStatusId != 1)
+                .Select(s => new { s.PickupStatusId, Name = s.Name })
+                .Distinct();
+
+            var query = left.FullJoin(right, l => l.pickupStatusId, r => r.PickupStatusId, (l, r) => new { l, r });
+
+            var result = (await query.ToListAsync())
+                .OrderBy(e => e.l?.pickupStatusId ?? e.r!.PickupStatusId)
+                .ToList();
+
+            Assert.Equal(3, result.Count);
+
+            // status 1 -> only on the left
+            Assert.Equal(2, result[0].l!.Count);
+            Assert.Null(result[0].r);
+
+            // status 2 -> only on the right
+            Assert.Null(result[1].l);
+            Assert.Equal(2, result[1].r!.PickupStatusId);
+
+            // status 3 -> on both sides
+            Assert.Equal(1, result[2].l!.Count);
+            Assert.Equal(3, result[2].r!.PickupStatusId);
+        }
+
+        [Fact]
+        public virtual async Task RightJoin_whole_object_outer_nullable_Where_over_plain_Select_outer()
+        {
+            // A Where over a plain Select outer pushes down, but the whole object is not gated on the marker (cause not diagnosed;
+            // the LEFT JOIN analogue differs, since an inner Where is folded into the ON clause).
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests.Select(r => new { r.PickupStatusId, Count = 1 }).Where(c => c.PickupStatusId > 0);
+
+            var query = categories
+                .RightJoin(
+                    context.Statuses, c => c.PickupStatusId, s => s.PickupStatusId, (countInfo, s) => new { s.PickupStatusId, countInfo })
+                .OrderBy(e => e.PickupStatusId);
+
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
+            Assert.Contains("Cannot read the Value property of a Nullable object that has no value", ex.Message);
+            // #30915 TODO: not yet covered; flip to assert results if/when fixed.
+        }
+
+        [Fact]
+        public virtual async Task RightJoin_whole_object_outer_nullable_Take_over_plain_Select_outer()
+        {
+            // A Take over a plain Select outer pushes down, but the whole object is not gated on the marker (cause not diagnosed).
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests.Select(r => new { r.PickupStatusId, Count = 1 }).OrderBy(c => c.PickupStatusId).Take(10);
+
+            var query = categories
+                .RightJoin(
+                    context.Statuses, c => c.PickupStatusId, s => s.PickupStatusId, (countInfo, s) => new { s.PickupStatusId, countInfo })
+                .OrderBy(e => e.PickupStatusId);
+
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
+            Assert.Contains("Cannot read the Value property of a Nullable object that has no value", ex.Message);
+            // #30915 TODO: not yet covered; flip to assert results if/when fixed.
+        }
+
+        [Fact]
+        public virtual async Task RightJoin_whole_object_outer_nullable_outer_is_join_result()
+        {
+            // The outer is itself the result of a join, so it needs no pushdown and the marker is inlined as a constant.
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new { pickupStatusId = k, Count = els.Count() });
+
+            var first = categories
+                .RightJoin(
+                    context.Statuses, c => c.pickupStatusId, s => s.PickupStatusId, (countInfo, s) => new { s.PickupStatusId, countInfo });
+
+            var query = first
+                // No request id (+ 10) matches a status id, so the (outer) join result is unmatched on every row.
+                .RightJoin(
+                    context.Requests, f => f.PickupStatusId, r => r.Id + 10, (f, r) => new { r.Id, f })
+                .OrderBy(e => e.Id);
+
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
+            Assert.Contains("Cannot read the Value property of a Nullable object that has no value", ex.Message);
+            // #30915 TODO: not yet covered; flip to assert results if/when fixed.
         }
 
         [Fact]
