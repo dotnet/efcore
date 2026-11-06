@@ -204,16 +204,10 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
 
         try
         {
-            var tasks = new List<Task>();
             for (var i = 0; i < 10; i++)
             {
-                foreach (var blog in blogs)
-                {
-                    tasks.Add(RemoveAndAddPosts(blog));
-                }
+                await Task.WhenAll(blogs.Select(RemoveAndAddPosts));
             }
-
-            await Task.WhenAll(tasks);
         }
         finally
         {

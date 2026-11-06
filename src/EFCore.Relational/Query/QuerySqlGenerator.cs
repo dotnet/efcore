@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 
@@ -76,11 +77,25 @@ public class QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : Exp
                 VisitDelete(deleteExpression);
                 break;
 
+            case MergeExpression mergeExpression:
+                GenerateTagsHeaderComment(mergeExpression.Tags);
+                VisitMerge(mergeExpression);
+                break;
+
             default:
                 base.Visit(queryExpression);
                 break;
         }
     }
+
+    /// <summary>
+    ///     Generates SQL for a <see cref="MergeExpression" /> (an upsert). The base implementation throws; providers that support merge
+    ///     override this to emit provider-specific SQL.
+    /// </summary>
+    /// <param name="mergeExpression">The merge expression to generate SQL for.</param>
+    [Experimental(EFDiagnostics.ExecuteMergeExperimental)]
+    protected virtual void VisitMerge(MergeExpression mergeExpression)
+        => throw new InvalidOperationException(RelationalStrings.ExecuteMergeNotSupportedByProvider);
 
     /// <summary>
     ///     The default alias separator.
@@ -116,6 +131,7 @@ public class QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : Exp
         => expression switch
         {
             ShapedQueryExpression e => e.UpdateQueryExpression(Visit(e.QueryExpression)),
+            AggregateFunctionExpression e => VisitAggregateFunction(e),
             AtTimeZoneExpression e => VisitAtTimeZone(e),
             CaseExpression e => VisitCase(e),
             CollateExpression e => VisitCollate(e),
@@ -139,6 +155,7 @@ public class QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : Exp
             RightJoinExpression e => VisitRightJoin(e),
             FullJoinExpression e => VisitFullJoin(e),
             RowNumberExpression e => VisitRowNumber(e),
+            DenseRankExpression e => VisitDenseRank(e),
             RowValueExpression e => VisitRowValue(e),
             ScalarSubqueryExpression e => VisitScalarSubquery(e),
             SelectExpression e => VisitSelect(e),
@@ -153,6 +170,9 @@ public class QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : Exp
             UpdateExpression e => VisitUpdate(e),
             JsonScalarExpression e => VisitJsonScalar(e),
             ValuesExpression e => VisitValues(e),
+#pragma warning disable EF9001 // Window function support is experimental
+            WindowFunctionExpression e => VisitWindowFunction(e),
+#pragma warning restore EF9001
 
             _ => throw new InvalidOperationException(
                 RelationalStrings.UnhandledExpressionInVisitor(expression, expression.GetType(), nameof(QuerySqlGenerator))),
@@ -404,6 +424,50 @@ public class QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : Exp
         }
 
         return sqlFunctionExpression;
+    }
+
+    /// <summary>
+    ///     Generates SQL for an aggregate function invocation.
+    /// </summary>
+    /// <param name="aggregateFunctionExpression">The <see cref="AggregateFunctionExpression" /> for which to generate SQL.</param>
+    protected virtual Expression VisitAggregateFunction(AggregateFunctionExpression aggregateFunctionExpression)
+    {
+        _relationalCommandBuilder.Append(aggregateFunctionExpression.Name);
+
+        _relationalCommandBuilder.Append("(");
+        GenerateList(aggregateFunctionExpression.Arguments, e => Visit(e));
+
+        if (aggregateFunctionExpression.Orderings.Count > 0)
+        {
+            GenerateAggregateFunctionOrderings(aggregateFunctionExpression, insideArgumentList: true);
+        }
+
+        _relationalCommandBuilder.Append(")");
+
+        if (aggregateFunctionExpression.Orderings.Count > 0)
+        {
+            GenerateAggregateFunctionOrderings(aggregateFunctionExpression, insideArgumentList: false);
+        }
+
+        return aggregateFunctionExpression;
+    }
+
+    /// <summary>
+    ///     Generates SQL for the orderings of an aggregate function invocation. This is called twice: once just before the closing
+    ///     parenthesis of the argument list, and once just after it. By default, generates <c>ORDER BY</c> inside the argument list,
+    ///     as specified by the SQL standard; providers can override this to generate e.g. a <c>WITHIN GROUP</c> clause instead.
+    /// </summary>
+    /// <param name="aggregateFunctionExpression">The <see cref="AggregateFunctionExpression" /> for which to generate SQL.</param>
+    /// <param name="insideArgumentList">Whether the SQL is generated inside the argument list or after it.</param>
+    protected virtual void GenerateAggregateFunctionOrderings(
+        AggregateFunctionExpression aggregateFunctionExpression,
+        bool insideArgumentList)
+    {
+        if (insideArgumentList)
+        {
+            _relationalCommandBuilder.Append(" ORDER BY ");
+            GenerateList(aggregateFunctionExpression.Orderings, e => Visit(e));
+        }
     }
 
     /// <summary>
@@ -1337,19 +1401,55 @@ public class QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : Exp
     /// <param name="rowNumberExpression">The <see cref="RowNumberExpression" /> for which to generate SQL.</param>
     protected virtual Expression VisitRowNumber(RowNumberExpression rowNumberExpression)
     {
-        _relationalCommandBuilder.Append("ROW_NUMBER() OVER(");
-        if (rowNumberExpression.Partitions.Any())
-        {
-            _relationalCommandBuilder.Append("PARTITION BY ");
-            GenerateList(rowNumberExpression.Partitions, e => Visit(e));
-            _relationalCommandBuilder.Append(" ");
-        }
-
-        _relationalCommandBuilder.Append("ORDER BY ");
-        GenerateList(rowNumberExpression.Orderings, e => Visit(e));
-        _relationalCommandBuilder.Append(")");
+        _relationalCommandBuilder.Append("ROW_NUMBER()");
+        GenerateOver(rowNumberExpression.Partitions, rowNumberExpression.Orderings);
 
         return rowNumberExpression;
+    }
+
+    private Expression VisitDenseRank(DenseRankExpression denseRankExpression)
+    {
+        _relationalCommandBuilder.Append("DENSE_RANK() OVER(ORDER BY ");
+        GenerateList(denseRankExpression.Orderings, e => Visit(e));
+        _relationalCommandBuilder.Append(")");
+
+        return denseRankExpression;
+    }
+
+    /// <summary>
+    ///     Generates SQL for a window function expression.
+    /// </summary>
+    /// <param name="windowFunctionExpression">The <see cref="WindowFunctionExpression" /> for which to generate SQL.</param>
+    [Experimental(EFDiagnostics.ExperimentalApi)]
+    protected virtual Expression VisitWindowFunction(WindowFunctionExpression windowFunctionExpression)
+    {
+        Visit(windowFunctionExpression.Function);
+        GenerateOver(windowFunctionExpression.Partitions, windowFunctionExpression.Orderings);
+
+        return windowFunctionExpression;
+    }
+
+    private void GenerateOver(IReadOnlyList<SqlExpression> partitions, IReadOnlyList<OrderingExpression> orderings)
+    {
+        _relationalCommandBuilder.Append(" OVER(");
+        if (partitions.Count > 0)
+        {
+            _relationalCommandBuilder.Append("PARTITION BY ");
+            GenerateList(partitions, e => Visit(e));
+
+            if (orderings.Count > 0)
+            {
+                _relationalCommandBuilder.Append(" ");
+            }
+        }
+
+        if (orderings.Count > 0)
+        {
+            _relationalCommandBuilder.Append("ORDER BY ");
+            GenerateList(orderings, e => Visit(e));
+        }
+
+        _relationalCommandBuilder.Append(")");
     }
 
     /// <summary>

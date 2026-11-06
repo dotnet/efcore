@@ -670,6 +670,346 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
 
     #endregion
 
+    #region 29593
+
+    // The dependent lives in its own table, so expanding it into the grouped query would need a join added to a query that has
+    // already been grouped. It keeps the correlated subquery it translates to today.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task GroupBy_aggregate_on_owned_navigation_mapped_to_its_own_table(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context29593>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+        ClearLog();
+
+        var query = context.Set<Context29593.Invoice>()
+            .GroupBy(e => e.Region)
+            .Select(g => new { g.Key, Total = g.Sum(e => e.Summary!.Amount) });
+
+        var result = async ? await query.ToListAsync() : query.ToList();
+
+        Assert.Equal(2, result.Count);
+        Assert.Equal(3, result.Single(e => e.Key == "east").Total);
+        Assert.Equal(12, result.Single(e => e.Key == "west").Total);
+    }
+
+    // The dependent's main fragment shares the owner's table, so it is expanded into the grouped query; the fragment holding
+    // Tax is reached through a join that the grouped query can carry.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task GroupBy_aggregate_on_owned_navigation_split_over_two_tables(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context29593>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+        ClearLog();
+
+        var query = context.Set<Context29593.Order>()
+            .GroupBy(e => e.Region)
+            .Select(g => new { g.Key, Total = g.Sum(e => e.Total!.Net), Tax = g.Sum(e => e.Total!.Tax) });
+
+        var result = async ? await query.ToListAsync() : query.ToList();
+
+        Assert.Equal(2, result.Count);
+        Assert.Equal(3, result.Single(e => e.Key == "east").Total);
+        Assert.Equal(30, result.Single(e => e.Key == "east").Tax);
+        Assert.Equal(12, result.Single(e => e.Key == "west").Total);
+        Assert.Equal(120, result.Single(e => e.Key == "west").Tax);
+    }
+
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context29593(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Invoice>().OwnsOne(e => e.Summary, b => b.ToTable("Summaries"));
+            modelBuilder.Entity<Order>().OwnsOne(
+                e => e.Total, b => b.SplitToTable("OrderTotalTax", t => t.Property(p => p.Tax)));
+        }
+
+        public Task SeedAsync()
+        {
+            AddRange(
+                new Invoice { Region = "east", Summary = new Summary { Amount = 1 } },
+                new Invoice { Region = "east", Summary = new Summary { Amount = 2 } },
+                new Invoice { Region = "west", Summary = new Summary { Amount = 12 } });
+
+            AddRange(
+                new Order { Region = "east", Total = new Total { Net = 1, Tax = 10 } },
+                new Order { Region = "east", Total = new Total { Net = 2, Tax = 20 } },
+                new Order { Region = "west", Total = new Total { Net = 12, Tax = 120 } });
+
+            return SaveChangesAsync();
+        }
+
+        public class Invoice
+        {
+            public int Id { get; set; }
+            public string Region { get; set; } = null!;
+            public Summary? Summary { get; set; }
+        }
+
+        public class Summary
+        {
+            public int Amount { get; set; }
+        }
+
+        public class Order
+        {
+            public int Id { get; set; }
+            public string Region { get; set; } = null!;
+            public Total? Total { get; set; }
+        }
+
+        public class Total
+        {
+            public int Net { get; set; }
+            public int Tax { get; set; }
+        }
+    }
+
+    #endregion
+
+    #region 35862
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Owned_collection_select_many_with_result_selector(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context35862>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Set<Context35862.DocumentTest>()
+            .SelectMany(x => x.Versions, (d, v) => new { d, v });
+        var result = async
+            ? await query.ToListAsync()
+            : query.ToList();
+        Assert.Equal(result.Count, 2);
+        Assert.Collection(
+            result.OrderBy(t => t.v.Number),
+            t =>
+            {
+                Assert.Equal("Foo", t.d.PrintMargin.Foo);
+                Assert.Equal(3, t.v.Number);
+            },
+            t =>
+            {
+                Assert.Equal("Foo", t.d.PrintMargin.Foo);
+                Assert.Equal(4, t.v.Number);
+            });
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Owned_collection_select_many_without_result_selector(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context35862>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Set<Context35862.DocumentTest>()
+            .SelectMany(x => x.Versions.Select(y => new { d = x, v = y }));
+        var result = async
+            ? await query.ToListAsync()
+            : query.ToList();
+        Assert.Equal(result.Count, 2);
+        Assert.Collection(
+            result.OrderBy(t => t.v.Number),
+            t =>
+            {
+                Assert.Equal("Foo", t.d.PrintMargin.Foo);
+                Assert.Equal(3, t.v.Number);
+            },
+            t =>
+            {
+                Assert.Equal("Foo", t.d.PrintMargin.Foo);
+                Assert.Equal(4, t.v.Number);
+            });
+    }
+
+    //When owned entity with separate table is projected with CROSS APPLY,
+    //don't reference the separate table column inside CROSS APPLY subquery
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Owned_collection_select_many_without_result_selector_owned_in_separate_table(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context35862SeparateTable>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Set<Context35862SeparateTable.DocumentTest>()
+            .SelectMany(x => x.Versions.Select(y => new { d = x, v = y }));
+        var result = async
+            ? await query.ToListAsync()
+            : query.ToList();
+        Assert.Equal(2, result.Count);
+        Assert.Collection(
+            result.OrderBy(t => t.v.Number),
+            t =>
+            {
+                Assert.Equal("Foo", t.d.PrintMargin.Foo);
+                Assert.Equal(3, t.v.Number);
+            },
+            t =>
+            {
+                Assert.Equal("Foo", t.d.PrintMargin.Foo);
+                Assert.Equal(4, t.v.Number);
+            });
+    }
+
+    protected class Context35862SeparateTable(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<DocumentTest>().OwnsOne(d => d.PrintMargin, b => b.ToTable("PrintMargins"));
+        }
+
+        public Task SeedAsync()
+        {
+            Add(new DocumentTest
+            {
+                Versions = new() { new VersionTest { Number = 3 }, new VersionTest { Number = 4 } },
+                PrintMargin = new OwnedThing { Foo = "Foo" },
+            });
+
+            return SaveChangesAsync();
+        }
+
+        public class DocumentTest
+        {
+            public int Id { get; init; }
+            public List<VersionTest> Versions { get; init; } = new List<VersionTest>();
+            public OwnedThing PrintMargin { get; init; } = null!;
+        }
+
+        public class VersionTest
+        {
+            public int Id { get; init; }
+            public int Number { get; init; }
+        }
+
+        public class OwnedThing
+        {
+            public string Foo { get; set; } = null!;
+        }
+    }
+
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context35862(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<DocumentTest>().OwnsOne(d => d.PrintMargin);
+        }
+
+        public Task SeedAsync()
+        {
+            Add(new DocumentTest
+            {
+                Versions = new() { new VersionTest { Number = 3 }, new VersionTest { Number = 4 } },
+                PrintMargin = new OwnedThing { Foo = "Foo" },
+            });
+
+            return SaveChangesAsync();
+        }
+
+        public class DocumentTest
+        {
+            public int Id { get; init; }
+            public List<VersionTest> Versions { get; init; } = new List<VersionTest>();
+            public OwnedThing PrintMargin { get; init; } = null!;
+        }
+
+        public class VersionTest
+        {
+            public int Id { get; init; }
+            public int Number { get; init; }
+        }
+        public class OwnedThing
+        {
+            public string Foo { get; set; } = null!;
+        }
+    }
+
+    #endregion
+
+    #region 30458
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Owned_entity_where_before_include (bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context30458>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Set<Context30458.BaseMyClass>()
+                .Where(x => x.Id == 1 && x.Information.Boolean)
+                .Include(x => x.Information.Nav) ;
+
+        var result = async ? await query.ToListAsync() : query.ToList();
+
+        Assert.Single(result);
+        Assert.Equal(true, result[0].Information.Boolean);
+        Assert.NotNull(result[0].Information.Nav);
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Owned_entity_where_after_include (bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context30458>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Set<Context30458.BaseMyClass>()
+                .Include(x => x.Information.Nav)
+                .Where(x => x.Id == 1 && x.Information.Boolean);
+
+        var result = async ? await query.ToListAsync() : query.ToList();
+        Assert.Single(result);
+        Assert.Equal(true, result[0].Information.Boolean);
+        Assert.NotNull(result[0].Information.Nav);
+    }
+
+    protected class Context30458(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<BaseMyClass>().OwnsOne(e => e.Information);
+        }
+
+        public Task SeedAsync()
+        {
+            Add(new BaseMyClass
+            {
+                BaseEntityProperty = true,
+                Information = new Information
+                {
+                    Boolean = true,
+                    Nav = new()
+                }
+            });
+            Add(new BaseMyClass
+            {
+                BaseEntityProperty = true,
+                Information = new Information
+                {
+                    Boolean = false,
+                    Nav = new()
+                }
+            });
+            return SaveChangesAsync();
+        }
+
+        public class BaseMyClass
+        {
+            public int Id { get; set; }
+            public bool BaseEntityProperty { get; set; }
+            public Information Information { get; set; } = null!;
+        }
+
+        public class Information
+        {
+            public bool Boolean { get; set; }
+            public Nav Nav { get; set; } = null!;
+        }
+
+        public class Nav
+        {
+            public int Id { get; set; }
+        }
+    }
+
+    #endregion
+
     protected override DbContextOptionsBuilder AddNonSharedOptions(DbContextOptionsBuilder builder)
         => base.AddNonSharedOptions(builder).ConfigureWarnings(c => c
             .Log(RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning)

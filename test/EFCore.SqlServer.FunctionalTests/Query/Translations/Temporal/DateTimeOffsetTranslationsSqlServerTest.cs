@@ -427,6 +427,39 @@ WHERE DATEPART(year, [b].[DateTime]) > 1 AND TODATETIMEOFFSET([b].[DateTime], @o
 """);
     }
 
+    public override async Task Select_Ctor_Parameter_DateTime_New_TimeSpan()
+    {
+        await base.Select_Ctor_Parameter_DateTime_New_TimeSpan();
+
+        AssertSql(
+            """
+SELECT TODATETIMEOFFSET([b].[DateTime], '+02:00')
+FROM [BasicTypesEntities] AS [b]
+WHERE DATEPART(year, [b].[DateTime]) > 1
+""");
+    }
+
+    // new DateTimeOffset(DateTime) with Unspecified kind: SQL Server doesn't have DateTimeKind, so this is always treated
+    // as UTC (+00:00). The expected query explicitly uses TimeSpan.Zero to match.
+    [Fact]
+    public virtual async Task Select_Ctor_Parameter_DateTime()
+    {
+        await AssertQuery(
+            ss => ss.Set<BasicTypesEntity>()
+                .Where(b => b.DateTime.Year > 1)
+                .Select(b => new DateTimeOffset(b.DateTime)),
+            ss => ss.Set<BasicTypesEntity>()
+                .Where(b => b.DateTime.Year > 1)
+                .Select(b => new DateTimeOffset(b.DateTime, TimeSpan.Zero)));
+
+        AssertSql(
+            """
+SELECT TODATETIMEOFFSET([b].[DateTime], '+00:00')
+FROM [BasicTypesEntities] AS [b]
+WHERE DATEPART(year, [b].[DateTime]) > 1
+""");
+    }
+
     [Fact]
     public virtual async Task Now_has_proper_type_mapping_for_constant_comparison()
     {

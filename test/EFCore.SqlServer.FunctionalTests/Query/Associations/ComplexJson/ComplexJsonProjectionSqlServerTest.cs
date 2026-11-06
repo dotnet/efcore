@@ -6,6 +6,28 @@ namespace Microsoft.EntityFrameworkCore.Query.Associations.ComplexJson;
 public class ComplexJsonProjectionSqlServerTest(ComplexJsonSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
     : ComplexJsonProjectionRelationalTestBase<ComplexJsonSqlServerFixture>(fixture, testOutputHelper)
 {
+    public override async Task Select_complex_properties_with_identity_resolution(bool async)
+    {
+        await base.Select_complex_properties_with_identity_resolution(async);
+
+        AssertSql(
+            """
+SELECT [r].[Id], [r].[RequiredAssociate], [r].[OptionalAssociate]
+FROM [RootEntity] AS [r]
+""");
+    }
+
+    public override async Task Select_complex_properties_with_identity_resolution_member_init(bool async)
+    {
+        await base.Select_complex_properties_with_identity_resolution_member_init(async);
+
+        AssertSql(
+            """
+SELECT [r].[Id], [r].[Name], [r].[RequiredAssociate], [r].[OptionalAssociate]
+FROM [RootEntity] AS [r]
+""");
+    }
+
     public override async Task Select_root(QueryTrackingBehavior queryTrackingBehavior)
     {
         await base.Select_root(queryTrackingBehavior);
@@ -266,7 +288,7 @@ ORDER BY [r].[Id]
     {
         await base.SelectMany_associate_collection(queryTrackingBehavior);
 
-        if (Fixture.UsingJsonType)
+        if (Fixture.UsingJsonType && !SqlServerTestEnvironment.IsAzureSql)
         {
             AssertSql(
                 """
@@ -308,7 +330,7 @@ CROSS APPLY OPENJSON([r].[AssociateCollection], '$') WITH (
     {
         await base.SelectMany_nested_collection_on_required_associate(queryTrackingBehavior);
 
-        if (Fixture.UsingJsonType)
+        if (Fixture.UsingJsonType && !SqlServerTestEnvironment.IsAzureSql)
         {
             AssertSql(
                 """
@@ -344,7 +366,7 @@ CROSS APPLY OPENJSON([r].[RequiredAssociate], '$.NestedCollection') WITH (
     {
         await base.SelectMany_nested_collection_on_optional_associate(queryTrackingBehavior);
 
-        if (Fixture.UsingJsonType)
+        if (Fixture.UsingJsonType && !SqlServerTestEnvironment.IsAzureSql)
         {
             AssertSql(
                 """

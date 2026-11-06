@@ -432,6 +432,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// </summary>
 
         /// <summary>
+        ///     The C# language version to use when generating code.
+        /// </summary>
+        public static string LanguageVersionDescription
+            => GetString("LanguageVersionDescription");
+
+        /// <summary>
         ///     Additionally generate all the code required for NativeAOT compilation and precompiled queries (experimental).
         /// </summary>
         public static string NativeAotDescription

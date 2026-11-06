@@ -1487,7 +1487,7 @@ FROM root c
                     """
 SELECT VALUE c
 FROM root c
-WHERE (((c["$type"] = "Order") AND (c["CustomerID"] = "QUICK")) AND (c["OrderDate"] > "1998-01-01T00:00:00"))
+WHERE (((c["$type"] = "Order") AND (c["CustomerID"] = "QUICK")) AND (c["OrderDate"] > "1998-01-01T00:00:00.0000000"))
 """);
             });
 
@@ -2545,6 +2545,13 @@ WHERE (c["id"] = @entity_equality_customer_CustomerID)
     {
         // #34327
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.EF_Constant_with_subtree(async));
+        Assert.Equal(CoreStrings.EFConstantNotSupported, exception.Message);
+    }
+
+    public override async Task EF_Constant_with_enum_cast(bool async)
+    {
+        // #34327
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.EF_Constant_with_enum_cast(async));
         Assert.Equal(CoreStrings.EFConstantNotSupported, exception.Message);
     }
 

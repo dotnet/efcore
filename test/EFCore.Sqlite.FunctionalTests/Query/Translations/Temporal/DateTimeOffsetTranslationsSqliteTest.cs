@@ -239,6 +239,17 @@ WHERE "b"."DateTimeOffset" = '1902-01-02 10:00:00.1234567+01:30'
 """);
     }
 
+    public override async Task Select_Ctor_Parameter_DateTime_New_TimeSpan()
+    {
+        await base.Select_Ctor_Parameter_DateTime_New_TimeSpan();
+
+        AssertSql("""
+SELECT "b"."DateTime", CAST('02:00:00' AS TEXT)
+FROM "BasicTypesEntities" AS "b"
+WHERE CAST(strftime('%Y', "b"."DateTime") AS INTEGER) > 1
+""");
+    }
+
     [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

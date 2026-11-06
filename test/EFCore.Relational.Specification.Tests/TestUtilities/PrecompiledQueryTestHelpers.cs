@@ -95,7 +95,7 @@ using static Microsoft.EntityFrameworkCore.Query.PrecompiledQueryRelationalTestB
             _metadataReferences,
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, nullableContextOptions: NullableContextOptions.Enable));
 
-        IReadOnlyList<ScaffoldedFile>? generatedFiles = null;
+        IReadOnlyList<ScaffoldedFile> generatedFiles = [];
 
         try
         {
@@ -127,7 +127,14 @@ using static Microsoft.EntityFrameworkCore.Query.PrecompiledQueryRelationalTestB
                 else
                 {
                     errorAsserter(precompilationErrors);
-                    return;
+
+                    // Carry on to compile what was generated: a query that failed to precompile must not leave the queries that
+                    // succeeded in a file that does not compile. A file in which every query failed is not generated at all, so
+                    // when every located query failed there is nothing to compile.
+                    if (generatedFiles.Count == 0)
+                    {
+                        return;
+                    }
                 }
 
                 interceptorCodeAsserter?.Invoke(generatedFiles.Single().Code);
@@ -138,8 +145,20 @@ using static Microsoft.EntityFrameworkCore.Query.PrecompiledQueryRelationalTestB
             }
 
             // We now have the code-generated interceptors; add them to the compilation and re-emit.
-            compilation = compilation.AddSyntaxTrees(
-                generatedFiles.Select(f => CSharpSyntaxTree.ParseText(f.Code, parseOptions, f.Path)));
+            var generatedSyntaxTrees = generatedFiles.Select(f => CSharpSyntaxTree.ParseText(f.Code, parseOptions, f.Path)).ToList();
+            compilation = compilation.AddSyntaxTrees(generatedSyntaxTrees);
+
+            // The generated code ends up in the user's project, so its nullable annotations must not produce warnings there (#37996).
+            var generatedCodeWarnings = compilation.GetDiagnostics()
+                .Where(d => d.Id == "CS8669"
+                    && d.Location.SourceTree is { } tree
+                    && generatedSyntaxTrees.Contains(tree))
+                .ToList();
+            if (generatedCodeWarnings.Count > 0)
+            {
+                Assert.Fail(
+                    "Generated code produced warnings:" + Environment.NewLine + string.Join(Environment.NewLine, generatedCodeWarnings));
+            }
 
             // We have the final compilation, including the interceptors. Emit and load it, and then invoke its entry point, which contains
             // the original test code with the EF LINQ query, etc.
@@ -171,14 +190,11 @@ using static Microsoft.EntityFrameworkCore.Query.PrecompiledQueryRelationalTestB
 
         void PrintGeneratedSources()
         {
-            if (generatedFiles is not null)
+            foreach (var generatedFile in generatedFiles)
             {
-                foreach (var generatedFile in generatedFiles)
-                {
-                    testOutputHelper.WriteLine($"Generated file {generatedFile.Path}: ");
-                    testOutputHelper.WriteLine("");
-                    testOutputHelper.WriteLine(generatedFile.Code);
-                }
+                testOutputHelper.WriteLine($"Generated file {generatedFile.Path}: ");
+                testOutputHelper.WriteLine("");
+                testOutputHelper.WriteLine(generatedFile.Code);
             }
         }
 

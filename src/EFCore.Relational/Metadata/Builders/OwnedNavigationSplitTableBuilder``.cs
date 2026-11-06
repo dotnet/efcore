@@ -45,6 +45,25 @@ public class OwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity> :
         => (OwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity>)base.ExcludeFromMigrations(excluded);
 
     /// <summary>
+    ///     Configures whether a row for this table might not exist even when the principal row exists in the main table
+    ///     for the entity type.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         When a fragment is optional, a row is only created for it when at least one non-key property mapped to the
+    ///         fragment has a non-<see langword="null" /> value. All non-key properties mapped to an optional fragment
+    ///         must be configured as nullable for that table.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-table-splitting">Table splitting</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <param name="optional">A value indicating whether a row for this table is optional.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public new virtual OwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity> IsOptional(bool optional = true)
+        => (OwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity>)base.IsOptional(optional);
+
+    /// <summary>
     ///     Maps the property to a column on the current table and returns an object that can be used
     ///     to provide table-specific configuration if the property is mapped to more than one table.
     /// </summary>

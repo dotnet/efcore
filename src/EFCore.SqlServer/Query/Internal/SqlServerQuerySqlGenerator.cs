@@ -656,22 +656,16 @@ public class SqlServerQuerySqlGenerator(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected virtual Expression VisitSqlServerAggregateFunction(SqlServerAggregateFunctionExpression aggregateFunctionExpression)
+    protected override void GenerateAggregateFunctionOrderings(
+        AggregateFunctionExpression aggregateFunctionExpression,
+        bool insideArgumentList)
     {
-        Sql.Append(aggregateFunctionExpression.Name);
-
-        Sql.Append("(");
-        GenerateList(aggregateFunctionExpression.Arguments, e => Visit(e));
-        Sql.Append(")");
-
-        if (aggregateFunctionExpression.Orderings.Count > 0)
+        if (!insideArgumentList)
         {
             Sql.Append(" WITHIN GROUP (ORDER BY ");
             GenerateList(aggregateFunctionExpression.Orderings, e => Visit(e));
             Sql.Append(")");
         }
-
-        return aggregateFunctionExpression;
     }
 
     /// <summary>
@@ -748,9 +742,6 @@ public class SqlServerQuerySqlGenerator(
 
                 return tableExpression;
             }
-
-            case SqlServerAggregateFunctionExpression aggregateFunctionExpression:
-                return VisitSqlServerAggregateFunction(aggregateFunctionExpression);
 
             case SqlServerOpenJsonExpression openJsonExpression:
                 return VisitOpenJsonExpression(openJsonExpression);

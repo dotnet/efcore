@@ -128,7 +128,8 @@ public class CandidateNamingService : ICandidateNamingService
 
         var ignoredCharacterCount = 2;
         if (commonPrefix.Length > 4
-            && commonPrefix.EndsWith("guid", StringComparison.OrdinalIgnoreCase))
+            && (commonPrefix.EndsWith("guid", StringComparison.OrdinalIgnoreCase)
+                || commonPrefix.EndsWith("uuid", StringComparison.OrdinalIgnoreCase)))
         {
             ignoredCharacterCount = 4;
         }

@@ -307,14 +307,12 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
         }
         else
         {
-            builder.ToTable(
-                table.Name, table.Schema, tb =>
-                {
-                    if (table.Comment != null)
-                    {
-                        tb.HasComment(table.Comment);
-                    }
-                });
+            builder.ToTable(table.Name, table.Schema);
+        }
+
+        if (table.Comment != null)
+        {
+            builder.Metadata.SetComment(table.Comment);
         }
 
         VisitColumns(builder, table.Columns);
@@ -706,6 +704,10 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
                         leftExistingIdentifiers,
                         singularizePluralizer: null,
                         uniquifier: NavigationUniquifier);
+
+                // The skip navigation is only added to the model below, so make the name visible to the right-hand
+                // side, which otherwise generates the same name when the join table references a single entity type.
+                leftExistingIdentifiers.Add(leftNavigationPropertyName);
 
                 var rightExistingIdentifiers = ExistingIdentifiers(rightEntityType);
                 var rightNavigationPropertyCandidateName =

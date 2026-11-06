@@ -27,6 +27,12 @@ public class CompiledModelCodeGenerationOptions
     public virtual string? Language { get; set; }
 
     /// <summary>
+    ///     Gets or sets the C# language version to use when generating code.
+    /// </summary>
+    /// <value> The C# language version string. </value>
+    public virtual string? LangVersion { get; set; }
+
+    /// <summary>
     ///     Gets or sets a value indicating whether nullable reference types are enabled.
     /// </summary>
     /// <value> A value indicating whether nullable reference types are enabled. </value>

@@ -178,8 +178,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor
                     {
                         Expression? condition = null;
                         // Optional dependent sharing table
-                        var requiredNonPkProperties = nullComparedEntityType.GetProperties().Where(p => !p.IsNullable && !p.IsPrimaryKey())
-                            .ToList();
+                        var requiredNonPkProperties = nullComparedEntityType.GetRequiredNonPkProperties();
                         if (requiredNonPkProperties.Count > 0)
                         {
                             condition = requiredNonPkProperties.Select(p => Infrastructure.ExpressionExtensions.CreateEqualsExpression(
@@ -192,7 +191,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor
                         var allNonPrincipalSharedNonPkProperties = nullComparedEntityType.GetNonPrincipalSharedNonPkProperties(table);
                         // We don't need condition for nullable property if there exist at least one required property which is non shared.
                         if (allNonPrincipalSharedNonPkProperties.Count != 0
-                            && allNonPrincipalSharedNonPkProperties.All(p => p.IsNullable))
+                            && allNonPrincipalSharedNonPkProperties.All(p => p.IsNullable()))
                         {
                             // if we don't have any required properties to properly check the nullability,
                             // we rely on optional ones (somewhat unreliably)

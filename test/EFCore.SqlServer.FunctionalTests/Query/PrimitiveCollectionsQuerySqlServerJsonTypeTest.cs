@@ -2724,6 +2724,44 @@ WHERE (
 """);
     }
 
+    public override async Task Project_collection_with_identity_select_split_query(bool async)
+    {
+        await base.Project_collection_with_identity_select_split_query(async);
+
+        AssertSql(
+            """
+SELECT [p].[Id]
+FROM [PrimitiveCollectionsEntity] AS [p]
+ORDER BY [p].[Id]
+""",
+            //
+            """
+SELECT [s1].[value], [p].[Id]
+FROM [PrimitiveCollectionsEntity] AS [p]
+CROSS APPLY OPENJSON([p].[Strings]) AS [s1]
+ORDER BY [p].[Id], CAST([s1].[key] AS int)
+""");
+    }
+
+    public override async Task Project_collection_with_identity_select_split_query_with_converter(bool async)
+    {
+        await base.Project_collection_with_identity_select_split_query_with_converter(async);
+
+        AssertSql(
+            """
+SELECT [t].[Id]
+FROM [TestEntity] AS [t]
+ORDER BY [t].[Id]
+""",
+            //
+            """
+SELECT [i1].[value], [t].[Id]
+FROM [TestEntity] AS [t]
+CROSS APPLY OPENJSON([t].[Ints]) AS [i1]
+ORDER BY [t].[Id], CAST([i1].[key] AS int)
+""");
+    }
+
     public override async Task Project_collection_of_ints_simple()
     {
         await base.Project_collection_of_ints_simple();

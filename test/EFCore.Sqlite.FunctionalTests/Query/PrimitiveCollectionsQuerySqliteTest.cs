@@ -2480,6 +2480,18 @@ WHERE (
 """);
     }
 
+    public override async Task Project_collection_with_identity_select_split_query(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Project_collection_with_identity_select_split_query(async))).Message);
+
+    public override async Task Project_collection_with_identity_select_split_query_with_converter(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Project_collection_with_identity_select_split_query_with_converter(async))).Message);
+
     public override async Task Project_collection_of_ints_simple()
     {
         await base.Project_collection_of_ints_simple();

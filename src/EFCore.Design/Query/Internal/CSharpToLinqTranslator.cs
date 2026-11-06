@@ -102,7 +102,15 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
 
         // Perform data flow analysis to detect all variables flowing into the query (e.g. captured variables)
         _dataFlowsIn.Clear();
-        foreach (var flowsIn in _semanticModel.AnalyzeDataFlow(node).DataFlowsIn)
+        var dataFlow = _semanticModel.AnalyzeDataFlow(node);
+
+        // Analysis fails when the query is the receiver of an instance call (dotnet/roslyn#86099)
+        for (var parent = node.Parent; !dataFlow.Succeeded && parent is ExpressionSyntax; parent = parent.Parent)
+        {
+            dataFlow = _semanticModel.AnalyzeDataFlow(parent);
+        }
+
+        foreach (var flowsIn in dataFlow.DataFlowsIn)
         {
             _dataFlowsIn[flowsIn] = null;
         }
@@ -255,6 +263,11 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
         var left = Visit(binary.Left);
         var right = Visit(binary.Right);
 
+        if (binary.IsKind(SyntaxKind.CoalesceExpression))
+        {
+            return Coalesce(left, right);
+        }
+
         if (Nullable.GetUnderlyingType(left.Type) == right.Type)
         {
             right = Convert(right, left.Type);
@@ -319,8 +332,6 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
                     ? type
                     : throw new InvalidOperationException(
                         $"Encountered {SyntaxKind.AsExpression} with non-constant type right argument: {right}")),
-            SyntaxKind.CoalesceExpression => Coalesce(left, right),
-
             _ => throw new ArgumentOutOfRangeException($"BinaryExpressionSyntax with {binary.Kind()}")
         };
     }
@@ -412,10 +423,16 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
             case ILocalSymbol s:
                 typeSymbol = s.Type;
                 break;
+            case IFieldSymbol { HasConstantValue: true } s:
+                var type = ResolveType(s.Type);
+                return Constant(type.IsEnum ? Enum.ToObject(type, s.ConstantValue!) : s.ConstantValue, type);
             case IFieldSymbol s:
                 typeSymbol = s.Type;
                 break;
             case IPropertySymbol s:
+                typeSymbol = s.Type;
+                break;
+            case IParameterSymbol s:
                 typeSymbol = s.Type;
                 break;
             case null:
@@ -453,6 +470,19 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
                             ResolveType(localSymbol.Type),
                             localSymbol.Name,
                             localSymbol.NullableAnnotation is NullableAnnotation.NotAnnotated)));
+        }
+
+        if (symbol is IParameterSymbol parameterSymbol && _dataFlowsIn.TryGetValue(parameterSymbol, out memberExpression))
+        {
+            return memberExpression
+                ?? (_dataFlowsIn[parameterSymbol] =
+                    Field(
+                        Constant(new FakeClosureFrameClass()),
+                        new FakeFieldInfo(
+                            typeof(FakeClosureFrameClass),
+                            ResolveType(parameterSymbol.Type),
+                            parameterSymbol.Name,
+                            parameterSymbol.NullableAnnotation is NullableAnnotation.NotAnnotated)));
         }
 
         throw new InvalidOperationException(

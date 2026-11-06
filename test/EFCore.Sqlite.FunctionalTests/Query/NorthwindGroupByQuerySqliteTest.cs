@@ -3,6 +3,7 @@
 
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
+using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -14,7 +15,7 @@ public class NorthwindGroupByQuerySqliteTest : NorthwindGroupByQueryRelationalTe
         Fixture.TestSqlLoggerFactory.Clear();
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
-
+    
     public override async Task SelectMany_DefaultIfEmpty_over_GroupBy(bool async)
     {
         await base.SelectMany_DefaultIfEmpty_over_GroupBy(async);
@@ -47,6 +48,36 @@ LEFT JOIN (
 ) AS "o0" ON "p"."ProductID" = "o0"."ProductID"
 """);
     }
+    
+    // SQLite evaluates random() per row, where SQL Server's RAND() is a runtime constant - so this is the provider that
+    // can catch the grouping element's filter being emitted more than once. Every order has OrderID > 0, so All holds for
+    // every group whichever rows the filter samples, which is what the expected query asserts directly; EF.Functions.Random
+    // has no client translation, so the two queries cannot be the same one.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task GroupBy_All_over_volatile_filtered_grouping_element(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .Select(g => new { g.Key, All = g.Where(o => EF.Functions.Random() > 0.5).All(o => o.OrderID > 0) }),
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .Select(g => new { g.Key, All = true }),
+            elementSorter: e => e.Key);
+
+        AssertSql(
+            """
+SELECT "o"."CustomerID" AS "Key", COUNT(CASE
+    WHEN abs(random() / 9.2233720368547799E+18) > 0.5 THEN CASE
+        WHEN "o"."OrderID" > 0 THEN NULL
+        ELSE 1
+    END
+END) = 0 AS "All"
+FROM "Orders" AS "o"
+GROUP BY "o"."CustomerID"
+""");
+    }
 
     public override Task Select_uncorrelated_collection_with_groupby_multiple_collections_work(bool async)
         => AssertApplyNotSupported(() => base.Select_uncorrelated_collection_with_groupby_multiple_collections_work(async));
@@ -56,6 +87,12 @@ LEFT JOIN (
 
     public override Task Select_uncorrelated_collection_with_groupby_when_outer_is_distinct(bool async)
         => AssertApplyNotSupported(() => base.Select_uncorrelated_collection_with_groupby_works(async));
+
+    public override Task SelectMany_correlated_GroupBy_Select_First_ordered(bool async)
+        => AssertApplyNotSupported(() => base.SelectMany_correlated_GroupBy_Select_First_ordered(async));
+
+    public override Task GroupBy_composite_key_member_in_projected_First_ordered(bool async)
+        => AssertApplyNotSupported(() => base.GroupBy_composite_key_member_in_projected_First_ordered(async));
 
     public override Task AsEnumerable_in_subquery_for_GroupBy(bool async)
         => AssertApplyNotSupported(() => base.AsEnumerable_in_subquery_for_GroupBy(async));
@@ -101,6 +138,17 @@ FROM (
 ) AS "o0"
 GROUP BY "o0"."Key"
 """);
+    }
+
+    public override async Task GroupBy_selecting_grouping_element_list_with_captured_instance(bool async)
+    {
+        Assert.Equal(
+            CoreStrings.ClientProjectionCapturingConstantInTree(
+                "Microsoft.EntityFrameworkCore.Query.NorthwindGroupByQuerySqliteTest"),
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.GroupBy_selecting_grouping_element_list_with_captured_instance(async))).Message);
+
+        AssertSql();
     }
 
     private void AssertSql(params string[] expected)

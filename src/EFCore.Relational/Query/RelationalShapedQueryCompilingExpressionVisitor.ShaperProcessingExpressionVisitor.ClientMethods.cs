@@ -491,7 +491,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             var dbDataReader = dataReaderContext.DataReader.DbDataReader;
             if (splitQueryCollectionContext.Parent is TIncludingEntity entity)
             {
-                while (dataReaderContext.HasNext ?? dbDataReader.Read())
+                while (dataReaderContext.HasNext ?? dataReaderContext.DataReader.Read())
                 {
                     if (!CompareIdentifiers(
                             identifierValueComparers,
@@ -590,7 +590,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             var dbDataReader = dataReaderContext.DataReader.DbDataReader;
             if (splitQueryCollectionContext.Parent is TIncludingEntity entity)
             {
-                while (dataReaderContext.HasNext ?? await dbDataReader.ReadAsync(queryContext.CancellationToken).ConfigureAwait(false))
+                while (dataReaderContext.HasNext ?? await dataReaderContext.DataReader.ReadAsync(queryContext.CancellationToken).ConfigureAwait(false))
                 {
                     if (!CompareIdentifiers(
                             identifierValueComparers,
@@ -860,7 +860,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 return;
             }
 
-            while (dataReaderContext.HasNext ?? dbDataReader.Read())
+            while (dataReaderContext.HasNext ?? dataReaderContext.DataReader.Read())
             {
                 if (!CompareIdentifiers(
                         identifierValueComparers,
@@ -954,7 +954,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 return;
             }
 
-            while (dataReaderContext.HasNext ?? await dbDataReader.ReadAsync(queryContext.CancellationToken).ConfigureAwait(false))
+            while (dataReaderContext.HasNext ?? await dataReaderContext.DataReader.ReadAsync(queryContext.CancellationToken).ConfigureAwait(false))
             {
                 if (!CompareIdentifiers(
                         identifierValueComparers,
@@ -1135,6 +1135,11 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
             switch (tokenType)
             {
+                // A required complex collection has no null to hand back: an explicit null in the document materializes as empty, the
+                // same as an absent key and as the Cosmos provider does. A nullable one keeps the null. See #38625.
+                case JsonTokenType.Null when structuralProperty is IComplexProperty { IsNullable: false }:
+                    return (TResult)structuralProperty.GetCollectionAccessor()!.Create();
+
                 case JsonTokenType.Null:
                     return default;
 
@@ -1175,10 +1180,19 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                     tokenType = manager.MoveNext();
                 }
+                else if (tokenType == JsonTokenType.Null)
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.JsonEntityCollectionNullElement(
+                            structuralProperty.DeclaringType.DisplayName(),
+                            structuralProperty.Name));
+                }
                 else
                 {
                     throw new InvalidOperationException(
-                        CoreStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
+                        RelationalStrings.JsonEntityCollectionExpectedObject(
+                            structuralProperty.DeclaringType.DisplayName(),
+                            structuralProperty.Name));
                 }
             }
 

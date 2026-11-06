@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
@@ -45,6 +46,43 @@ public class QuerySqlGeneratorTest
         CreateDummyQuerySqlGenerator().CheckComposableSql(sql.Replace("SELECT", "WITH"));
     }
 
+    [Fact]
+    public void AggregateFunction_without_orderings()
+    {
+        var generator = CreateDummyQuerySqlGenerator();
+
+        var sql = generator.GetCommand(CreateAggregateFunction([])).CommandText;
+
+        Assert.Equal("string_agg(a, ', ')", sql);
+        Assert.Empty(generator.OrderingsHookCalls);
+    }
+
+    [Fact]
+    public void AggregateFunction_with_orderings_generates_order_by_inside_argument_list()
+    {
+        var generator = CreateDummyQuerySqlGenerator();
+
+        var sql = generator.GetCommand(
+            CreateAggregateFunction(
+            [
+                new OrderingExpression(new SqlFragmentExpression("b"), ascending: true),
+                new OrderingExpression(new SqlFragmentExpression("c"), ascending: false)
+            ])).CommandText;
+
+        Assert.Equal("string_agg(a, ', ' ORDER BY b, c DESC)", sql);
+        Assert.Equal([(true, "string_agg(a, ', '"), (false, "string_agg(a, ', ' ORDER BY b, c DESC)")], generator.OrderingsHookCalls);
+    }
+
+    private static AggregateFunctionExpression CreateAggregateFunction(IReadOnlyList<OrderingExpression> orderings)
+        => new(
+            "string_agg",
+            [new SqlFragmentExpression("a"), new SqlFragmentExpression("', '")],
+            orderings,
+            nullable: true,
+            argumentsPropagateNullability: [false, false],
+            typeof(string),
+            typeMapping: null);
+
     private DummyQuerySqlGenerator CreateDummyQuerySqlGenerator()
         => new(
             new QuerySqlGeneratorDependencies(
@@ -60,7 +98,23 @@ public class QuerySqlGeneratorTest
 
     private class DummyQuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : QuerySqlGenerator(dependencies)
     {
+        public List<(bool InsideArgumentList, string SqlBefore)> OrderingsHookCalls { get; } = [];
+
         public new void CheckComposableSql(string sql)
             => base.CheckComposableSql(sql);
+
+        protected override void GenerateRootCommand(Expression queryExpression)
+            => Visit(queryExpression);
+
+        protected override void GenerateAggregateFunctionOrderings(
+            AggregateFunctionExpression aggregateFunctionExpression,
+            bool insideArgumentList)
+        {
+            var sqlBefore = Sql.Build().CommandText;
+
+            base.GenerateAggregateFunctionOrderings(aggregateFunctionExpression, insideArgumentList);
+
+            OrderingsHookCalls.Add((insideArgumentList, sqlBefore));
+        }
     }
 }

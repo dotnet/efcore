@@ -66,7 +66,7 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
 
                     commandIndex = lastHandledCommandIndex + 1;
 
-                    onResultSet = reader.DbDataReader.NextResult();
+                    onResultSet = reader.NextResult();
                 }
                 else
                 {
@@ -187,7 +187,7 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
 
                     commandIndex = lastHandledCommandIndex + 1;
 
-                    onResultSet = await reader.DbDataReader.NextResultAsync(cancellationToken).ConfigureAwait(false);
+                    onResultSet = await reader.NextResultAsync(cancellationToken).ConfigureAwait(false);
                 }
                 else
                 {

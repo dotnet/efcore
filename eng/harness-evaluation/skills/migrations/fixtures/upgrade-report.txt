@@ -1,0 +1,47 @@
+Scenario
+--------
+A SQL Server application last added a migration using Microsoft.EntityFrameworkCore,
+Microsoft.EntityFrameworkCore.Design, Microsoft.EntityFrameworkCore.SqlServer, and
+dotnet-ef 9.0.3. All four were upgraded together to 10.0.4. The target framework is
+now net10.0. The staged CustomerContext.cs is the application's unchanged model
+configuration; CustomerContextModelSnapshot.cs is the snapshot committed with
+the last migration. This report was collected with those released packages.
+
+There are no pending migrations or manual schema changes. The Customers table has
+an identity int primary key, Address_Line1 nvarchar(160) NOT NULL, and
+Address_ZipCode int NOT NULL. Running `dotnet ef migrations add CheckUpgrade`
+immediately after the package upgrade produces the following operations.
+
+Generated operations
+--------------------
+AlterColumnOperation
+  Table: Customers
+  Name: Address_ZipCode
+  ClrType: System.Int32
+  IsNullable: false
+  OldColumn.ClrType: System.Int32
+  OldColumn.IsNullable: true
+
+AlterColumnOperation
+  Table: Customers
+  Name: Address_Line1
+  ClrType: System.String
+  ColumnType: nvarchar(160)
+  IsNullable: false
+  OldColumn.ClrType: System.String
+  OldColumn.ColumnType: nvarchar(160)
+  OldColumn.IsNullable: true
+
+Both Up operations make the columns NOT NULL, which they already are in the
+database. Down would make them nullable. No type, length, key, or identity changes
+are emitted. Repeating scaffolding from a clean copy of the committed files gives
+the same result without applying any migrations.
+
+Team's proposed workaround
+--------------------------
+Replacing `address.IsRequired()` with `address.IsRequired(false)` in
+CustomerContext.OnModelCreating makes CheckUpgrade empty. The team proposes
+keeping that change because neither scalar property's configuration has changed
+and Customer.Address is still declared as a non-nullable CLR property. Existing
+application code always supplies an Address; the database still rejects NULL in
+both columns. The workaround is not applied in the staged current model.

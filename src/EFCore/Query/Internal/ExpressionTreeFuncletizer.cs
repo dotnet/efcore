@@ -949,7 +949,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                     // Even EF.Constant will be parameter here.
                     // To have a query cache hit, the constantization will happen later in pipeline.
                     argumentState = argumentState with { StateType = StateType.EvaluatableWithCapturedVariable };
-                    var evaluatedArgument = ProcessEvaluatableRoot(argument, ref argumentState);
+                    var evaluatedArgument = ProcessEvaluatableRoot(argument, ref argumentState, forceEvaluation: true);
                     if (!_parameterize && evaluatedArgument is not QueryParameterExpression)
                     {
                         throw new InvalidOperationException(CoreStrings.EFMethodNotSupportedInCompiledQueries("EF.Constant<T>"));
@@ -1182,7 +1182,40 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 throw new UnreachableException();
         }
 
-        return methodCall.Update(@object, ((IReadOnlyList<Expression>?)arguments) ?? methodCall.Arguments);
+        var finalArguments = ((IReadOnlyList<Expression>?)arguments) ?? methodCall.Arguments;
+
+        // Evaluating a DbSet-typed argument inlines its query root, which is typed IQueryable<T>
+        // rather than DbSet<T> (see the IQueryable case in ProcessEvaluatableRoot). That is what we
+        // want for e.g. Queryable.Count(IQueryable<T>), but it cannot be rebuilt into a method whose
+        // parameter is declared DbSet<T> -- FromSql and the SQL Server temporal operators are the
+        // notable cases -- and Update would throw ArgumentException. VisitMember already declines to
+        // inline DbSet-typed members for this reason, but that guard is bypassed when the parent
+        // processes the member as an evaluatable root instead. Keep the original argument in that
+        // case: a query root needs no inlining, it already is the root.
+        ParameterInfo[]? finalParameters = null;
+        for (var i = 0; i < finalArguments.Count; i++)
+        {
+            if (!ReferenceEquals(finalArguments[i], methodCall.Arguments[i]))
+            {
+                finalParameters ??= methodCall.Method.GetParameters();
+                var parameterType = finalParameters[i].ParameterType;
+                if (parameterType.IsConstructedGenericType
+                    && parameterType.GetGenericTypeDefinition() == typeof(DbSet<>)
+                    && !parameterType.IsAssignableFrom(finalArguments[i].Type)
+                    && parameterType.IsAssignableFrom(methodCall.Arguments[i].Type))
+                {
+                    if (finalArguments is not List<Expression> mutableArguments)
+                    {
+                        mutableArguments = finalArguments.ToList();
+                        finalArguments = mutableArguments;
+                    }
+
+                    mutableArguments[i] = methodCall.Arguments[i];
+                }
+            }
+        }
+
+        return methodCall.Update(@object, finalArguments);
 
         Expression HandleParameter(MethodCallExpression methodCall, string methodName)
         {
@@ -2255,18 +2288,27 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 case MemberExpression memberExpression:
                     var instanceValue = EvaluateCore(
                         memberExpression.Expression, ref evaluateAsParameter, out parameterName, out isContextAccessor);
+                    var name = SanitizeCompilerGeneratedName(memberExpression.Member.Name);
+                    parameterName = parameterName is null ? name : $"{parameterName}_{name}";
+
+                    // Captured reference types may have null placeholder values during precompilation.
+                    // Only the parameter name is needed; the member is evaluated at runtime.
+                    if (evaluateAsParameter
+                        && (_precompiledQuery || _calculatingPath)
+                        && instanceValue is null
+                        && memberExpression.Expression is not null)
+                    {
+                        return null;
+                    }
+
                     try
                     {
                         switch (memberExpression.Member)
                         {
                             case FieldInfo fieldInfo:
-                                var name = SanitizeCompilerGeneratedName(fieldInfo.Name);
-                                parameterName = parameterName is null ? name : $"{parameterName}_{name}";
                                 return fieldInfo.GetValue(instanceValue);
 
                             case PropertyInfo propertyInfo:
-                                name = SanitizeCompilerGeneratedName(propertyInfo.Name);
-                                parameterName = parameterName is null ? name : $"{parameterName}_{name}";
                                 return propertyInfo.GetValue(instanceValue);
                         }
                     }

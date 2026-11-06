@@ -105,6 +105,29 @@ public class StoreStoredProcedure : TableBase, IStoreStoredProcedure
     public virtual IStoreStoredProcedureParameter? FindParameter(string name)
         => _parametersSet.GetValueOrDefault(name);
 
+    /// <inheritdoc />
+    public override bool Equals(object? obj)
+        => ReferenceEquals(this, obj)
+            || (obj is StoreStoredProcedure other
+                && base.Equals(other)
+                && Parameters.Count == other.Parameters.Count
+                && Parameters.Zip(other.Parameters).All(
+                    p => p.First.StoreType == p.Second.StoreType && p.First.Name == p.Second.Name));
+
+    /// <inheritdoc />
+    public override int GetHashCode()
+    {
+        var hashCode = new HashCode();
+        hashCode.Add(base.GetHashCode());
+        foreach (var parameter in Parameters)
+        {
+            hashCode.Add(parameter.StoreType);
+            hashCode.Add(parameter.Name);
+        }
+
+        return hashCode.ToHashCode();
+    }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in

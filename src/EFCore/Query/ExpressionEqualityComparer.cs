@@ -72,16 +72,18 @@ public sealed class ExpressionEqualityComparer : IEqualityComparer<Expression?>
                         case null:
                             break;
 
-                        case IStructuralEquatable structuralEquatable:
-                            hash.Add(structuralEquatable.GetHashCode(StructuralComparisons.StructuralEqualityComparer));
-                            break;
-
+                        // Enumerables are compared element-wise, so they must also be hashed element-wise, regardless
+                        // of their concrete type (e.g. an array and a list containing the same elements).
                         case IEnumerable enumerable:
                             foreach (var item in enumerable)
                             {
                                 hash.Add(item?.GetHashCode() ?? 0);
                             }
 
+                            break;
+
+                        case IStructuralEquatable structuralEquatable:
+                            hash.Add(structuralEquatable.GetHashCode(StructuralComparisons.StructuralEqualityComparer));
                             break;
 
                         default:
@@ -358,17 +360,30 @@ public sealed class ExpressionEqualityComparer : IEqualityComparer<Expression?>
         {
             var (v1, v2) = (a.Value, b.Value);
 
-            return Equals(v1, v2)
-                || v1 switch
-                {
-                    IStructuralEquatable structuralEquatable1
-                        => structuralEquatable1.Equals(v2, StructuralComparisons.StructuralEqualityComparer),
+            if (Equals(v1, v2))
+            {
+                return true;
+            }
 
-                    IEnumerable enumerable1 when v2 is IEnumerable enumerable2
-                        => enumerable1.Cast<object?>().SequenceEqual(enumerable2.Cast<object?>()),
+            // Queryables are excluded from the hash code, so they can only be equal by reference (checked above).
+            // They must also not be compared element-wise here, since enumerating them can execute a query.
+            if (v1 is IQueryable || v2 is IQueryable)
+            {
+                return false;
+            }
 
-                    _ => false
-                };
+            // Both values are dispatched on, so that the comparison stays symmetric for values of different types
+            // (e.g. an array and a list containing the same elements).
+            return (v1, v2) switch
+            {
+                (IEnumerable enumerable1, IEnumerable enumerable2)
+                    => enumerable1.Cast<object?>().SequenceEqual(enumerable2.Cast<object?>()),
+
+                (IStructuralEquatable structuralEquatable1, not null)
+                    => structuralEquatable1.Equals(v2, StructuralComparisons.StructuralEqualityComparer),
+
+                _ => false
+            };
         }
 
         private bool CompareGoto(GotoExpression a, GotoExpression b)
