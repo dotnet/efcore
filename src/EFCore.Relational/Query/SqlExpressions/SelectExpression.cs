@@ -46,13 +46,14 @@ public sealed partial class SelectExpression : TableExpressionBase
     private readonly List<string?> _aliasForClientProjections = [];
     private CloningExpressionVisitor? _cloningExpressionVisitor;
 
-    // #30915: when the nullable (inner) side of an outer join projects a non-entity structure (anonymous type / DTO /
-    // GroupBy-with-aggregate), the shaper would otherwise construct that object even on a no-match (all-NULL) row, throwing
-    // "Nullable object must have a value". Entities are protected via their key-column null checks; non-entities have no such
-    // signal. AddJoin injects a marker column (NULL on no-match) into the inner subquery and records here the association
-    // (inner-shaper NewExpression/MemberInitExpression node -> its marker ProjectionBindingExpression). A later phase (the
-    // projection binder) consults this side-table when projecting the *whole* inner object to gate it to null on no-match.
-    // The inner shaper is intentionally left a bare New/MemberInit (NOT wrapped), so existing member-folds keep working.
+    // #30915: when the nullable side of an outer join (the inner side, or for RIGHT/FULL joins the outer side) projects a
+    // non-entity structure (anonymous type / DTO / GroupBy-with-aggregate), the shaper would otherwise construct that object
+    // even on a no-match (all-NULL) row, throwing "Nullable object must have a value". Entities are protected via their
+    // key-column null checks; non-entities have no such signal. AddJoin injects a marker column (NULL on no-match) into the
+    // nullable side's subquery and records here the association (nullable-side shaper NewExpression/MemberInitExpression node
+    // -> its marker ProjectionBindingExpression). A later phase (the projection binder) consults this side-table when
+    // projecting the *whole* nullable-side object to gate it to null on no-match.
+    // The shaper is intentionally left a bare New/MemberInit (NOT wrapped), so existing member-folds keep working.
     //
     // This is transient build-time state, consumed within the same join-building -> projection-binding window on this same
     // instance (the binder receives the identical New/MemberInit node and this SelectExpression instance). It is keyed on shaper
@@ -3078,9 +3079,11 @@ public sealed partial class SelectExpression : TableExpressionBase
         var outerNullable = joinType is JoinType.RightJoin or JoinType.FullJoin;
         var innerNullable = joinType is JoinType.LeftJoin or JoinType.OuterApply or JoinType.FullJoin;
 
-        // #30915: when the nullable (inner) side of an outer join projects a non-entity structure (anonymous type / DTO /
+        // #30915: when the nullable side of an outer join projects a non-entity structure (anonymous type / DTO /
         // GroupBy-with-aggregate), the shaper would construct that object even on a no-match (all-NULL) row, throwing
-        // "Nullable object must have a value". Inject a marker column into innerSelect now, *before* the AddJoin below pushes
+        // "Nullable object must have a value". The text below describes the inner side (LEFT JOIN / OUTER APPLY / FULL JOIN); the
+        // outer side of a RIGHT/FULL join is handled symmetrically in the block that follows.
+        // Inject a marker column into innerSelect now, *before* the AddJoin below pushes
         // innerSelect into a subquery: the pushdown lifts the marker constant into that subquery ("1 AS marker") and references
         // it as an outer column, so the outer join nulls it on no-match rows. If we instead added the constant after the join, it
         // would be inlined into the combined SELECT and never become NULL. The standalone marker binding returned here is bound
@@ -3095,6 +3098,13 @@ public sealed partial class SelectExpression : TableExpressionBase
             && innerShaper is NewExpression or MemberInitExpression;
         Expression? markerBinding = recordNullabilityMarker
             ? InjectNullabilityMarker(innerSelect)
+            : null;
+
+        // The same applies to the OUTER side of a RIGHT/FULL join, which becomes the nullable side. The marker is injected into
+        // this select before the join below pushes it into a subquery (which happens for the cases that can be fixed, such as a
+        // GroupBy or a Limit/Offset/Distinct outer); it is then remapped alongside the outer shaper in each branch.
+        Expression? outerMarkerBinding = outerNullable && (outerShaper is NewExpression or MemberInitExpression)
+            ? InjectNullabilityMarker(this)
             : null;
 
         AddJoin(joinType, ref innerSelect, out _, joinPredicate, isToOneJoin, isPrunableJoin);
@@ -3152,7 +3162,9 @@ public sealed partial class SelectExpression : TableExpressionBase
             {
                 // Since inner projections are populated, we need to populate outer also
                 var mapping = ConvertProjectionMappingToClientProjections(_projectionMapping, outerNullable);
-                outerShaper = new ProjectionMemberToIndexConvertingExpressionVisitor(this, mapping).Visit(outerShaper);
+                var outerToIndexConverter = new ProjectionMemberToIndexConvertingExpressionVisitor(this, mapping);
+                outerShaper = outerToIndexConverter.Visit(outerShaper);
+                outerMarkerBinding = outerMarkerBinding is null ? null : outerToIndexConverter.Visit(outerMarkerBinding);
 
                 var indexMap = new int[innerSelect._clientProjections.Count];
                 for (var i = 0; i < innerSelect._clientProjections.Count; i++)
@@ -3189,6 +3201,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                 // #30915: the outer remap above may rebuild New/MemberInit nodes recorded as nullability-marker keys;
                 // re-key each such marker onto its rebuilt node. See the method for the full rationale and fail-safe.
                 RekeyNonEntityNullabilityMarkersAfterOuterShaperRemap(outerRemapper, mapping);
+                outerMarkerBinding = outerMarkerBinding is null ? null : outerRemapper.Visit(outerMarkerBinding);
 
                 mapping.Clear();
 
@@ -3218,6 +3231,7 @@ public sealed partial class SelectExpression : TableExpressionBase
         }
 
         TryRecordNonEntityNullabilityMarker(innerShaper, markerBinding);
+        TryRecordNonEntityNullabilityMarker(outerShaper, outerMarkerBinding);
 
         return New(
             transparentIdentifierType.GetTypeInfo().DeclaredConstructors.Single(),
@@ -3245,7 +3259,7 @@ public sealed partial class SelectExpression : TableExpressionBase
     internal static readonly MemberInfo NullabilityMarkerMemberInfo
         = typeof(NullabilityMarkerHolder).GetField(nameof(NullabilityMarkerHolder.Marker))!;
 
-    // A synthetic projection member used as the key for the #30915 nullability marker in innerSelect._projectionMapping.
+    // A synthetic projection member used as the key for the #30915 nullability marker in the nullable side's _projectionMapping.
     private static readonly ProjectionMember NullabilityMarkerProjectionMember
         = new ProjectionMember().Append(NullabilityMarkerMemberInfo);
 
@@ -3261,11 +3275,12 @@ public sealed partial class SelectExpression : TableExpressionBase
     private static string? GetProjectionAlias(ProjectionMember projectionMember)
         => Equals(projectionMember.Last, NullabilityMarkerMemberInfo) ? NullabilityMarkerAlias : projectionMember.Last?.Name;
 
-    // Injects a constant "marker" projection into innerSelect (the nullable side of an outer join) and returns a
-    // ProjectionBindingExpression (typed int?) bound against innerSelect, in whichever projection representation innerSelect is
-    // currently using (client projections vs. projection mapping). The caller remaps the returned binding alongside the inner
-    // shaper; after the outer join the marker reads NULL exactly on no-match rows.
-    private static ProjectionBindingExpression InjectNullabilityMarker(SelectExpression innerSelect)
+    // Injects a constant "marker" projection into nullableSideSelect (the select on the nullable side of an outer join: the inner
+    // select, or for RIGHT/FULL joins this select as the outer) and returns a ProjectionBindingExpression (typed int?) bound
+    // against it, in whichever projection representation it is currently using (client projections vs. projection mapping). The
+    // caller remaps the returned binding alongside that side's shaper; after the outer join the marker reads NULL exactly on
+    // no-match rows.
+    private static ProjectionBindingExpression InjectNullabilityMarker(SelectExpression nullableSideSelect)
     {
         // A SqlFragmentExpression is used (rather than a SqlConstantExpression) because it is exempt from the type-mapping
         // postprocessor's "everything must have a type mapping" rule (a standalone projected constant cannot have a mapping
@@ -3274,15 +3289,15 @@ public sealed partial class SelectExpression : TableExpressionBase
         // the postprocessor leaves SqlFragmentExpression's mapping untouched.
         var marker = new SqlFragmentExpression("1", typeof(int), IntTypeMapping.Default);
 
-        if (innerSelect._clientProjections.Count > 0)
+        if (nullableSideSelect._clientProjections.Count > 0)
         {
-            innerSelect._clientProjections.Add(marker);
-            innerSelect._aliasForClientProjections.Add(NullabilityMarkerAlias);
-            return new ProjectionBindingExpression(innerSelect, innerSelect._clientProjections.Count - 1, typeof(int?));
+            nullableSideSelect._clientProjections.Add(marker);
+            nullableSideSelect._aliasForClientProjections.Add(NullabilityMarkerAlias);
+            return new ProjectionBindingExpression(nullableSideSelect, nullableSideSelect._clientProjections.Count - 1, typeof(int?));
         }
 
-        innerSelect._projectionMapping[NullabilityMarkerProjectionMember] = marker;
-        return new ProjectionBindingExpression(innerSelect, NullabilityMarkerProjectionMember, typeof(int?));
+        nullableSideSelect._projectionMapping[NullabilityMarkerProjectionMember] = marker;
+        return new ProjectionBindingExpression(nullableSideSelect, NullabilityMarkerProjectionMember, typeof(int?));
     }
 
     private void AddJoin(

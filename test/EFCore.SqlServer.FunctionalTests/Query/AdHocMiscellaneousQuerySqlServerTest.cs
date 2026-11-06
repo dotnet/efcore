@@ -3351,9 +3351,9 @@ ORDER BY [s].[PickupStatusId]
 
         AssertSql(
             """
-SELECT [s].[PickupStatusId], [r0].[pickupStatusId], [r0].[Count]
+SELECT [s].[PickupStatusId], [r0].[pickupStatusId], [r0].[Count], [r0].[marker]
 FROM (
-    SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count]
+    SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
     FROM [Requests] AS [r]
     GROUP BY [r].[PickupStatusId]
 ) AS [r0]
