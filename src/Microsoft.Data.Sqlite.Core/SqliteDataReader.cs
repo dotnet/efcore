@@ -738,17 +738,21 @@ public class SqliteDataReader : DbDataReader
             schemaRow[isLongColumn] = DBNull.Value;
 
             var eponymousVirtualTable = false;
-            if (tableName != null
+            if (databaseName != null
+                && tableName != null
                 && columnName != null)
             {
+                // The same table name can exist in the main, TEMP and attached databases, so always qualify it
+                var quotedDatabaseName = "\"" + databaseName.Replace("\"", "\"\"") + "\"";
                 using (var command = _command.Connection.CreateCommand())
                 {
                     command.CommandText = new StringBuilder()
                         .AppendLine("SELECT COUNT(*)")
-                        .AppendLine("FROM pragma_index_list($table) i, pragma_index_info(i.name) c")
+                        .AppendLine("FROM pragma_index_list($table, $schema) i, pragma_index_info(i.name, $schema) c")
                         .AppendLine("WHERE \"unique\" = 1 AND c.name = $column AND")
-                        .AppendLine("NOT EXISTS (SELECT * FROM pragma_index_info(i.name) c2 WHERE c2.name != c.name);").ToString();
+                        .AppendLine("NOT EXISTS (SELECT * FROM pragma_index_info(i.name, $schema) c2 WHERE c2.name != c.name);").ToString();
                     command.Parameters.AddWithValue("$table", tableName);
+                    command.Parameters.AddWithValue("$schema", databaseName);
                     command.Parameters.AddWithValue("$column", columnName);
 
                     var cnt = (long)command.ExecuteScalar()!;
@@ -758,7 +762,7 @@ public class SqliteDataReader : DbDataReader
                     var columnType = "typeof(\"" + columnName.Replace("\"", "\"\"") + "\")";
                     command.CommandText = new StringBuilder()
                         .AppendLine($"SELECT {columnType}")
-                        .AppendLine($"FROM \"{tableName.Replace("\"", "\"\"")}\"")
+                        .AppendLine($"FROM {quotedDatabaseName}.\"{tableName.Replace("\"", "\"\"")}\"")
                         .AppendLine($"WHERE {columnType} != 'null'")
                         .AppendLine($"GROUP BY {columnType}")
                         .AppendLine("ORDER BY count() DESC")
@@ -771,19 +775,14 @@ public class SqliteDataReader : DbDataReader
                             : SqliteDataRecord.GetFieldTypeFromSqliteType(
                                 SqliteDataRecord.Sqlite3AffinityType(dataTypeName));
 
-                    // The table may be in a TEMP or attached database, which have their own schema tables
-                    var schemaTableName = databaseName == null
-                        ? "sqlite_master"
-                        : "\"" + databaseName.Replace("\"", "\"\"") + "\".sqlite_master";
                     command.CommandText =
-                        $"SELECT COUNT(*) FROM {schemaTableName} WHERE name = $name AND type IN ('table', 'view')";
+                        $"SELECT COUNT(*) FROM {quotedDatabaseName}.sqlite_master WHERE name = $name AND type IN ('table', 'view')";
                     command.Parameters.AddWithValue("$name", tableName);
 
                     eponymousVirtualTable = (long)command.ExecuteScalar()! == 0L;
                 }
 
-                if (databaseName != null
-                    && !eponymousVirtualTable)
+                if (!eponymousVirtualTable)
                 {
                     var rc = sqlite3_table_column_metadata(
                         _command.Connection.Handle, databaseName, tableName, columnName, out var dataType, out var collSeq,

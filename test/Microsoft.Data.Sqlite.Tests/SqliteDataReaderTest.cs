@@ -2168,6 +2168,90 @@ public class SqliteDataReaderTest
         Assert.True((bool)schemaTable.Rows[2][SchemaTableColumn.AllowDBNull]);
     }
 
+    [Theory, InlineData("other", "main"), InlineData("main", "other"), InlineData("main", "temp"), InlineData("temp", "main")]
+    public void GetSchemaTable_uses_table_in_its_own_database(string database, string otherDatabase)
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        connection.ExecuteNonQuery("ATTACH DATABASE ':memory:' AS other;");
+        connection.ExecuteNonQuery($"CREATE TABLE {database}.Person (ID INTEGER UNIQUE, Age INTEGER);");
+        connection.ExecuteNonQuery($"INSERT INTO {database}.Person VALUES (1, 30);");
+        connection.ExecuteNonQuery($"CREATE TABLE {otherDatabase}.Person (ID TEXT, Age TEXT);");
+        connection.ExecuteNonQuery($"INSERT INTO {otherDatabase}.Person VALUES ('A', 'B');");
+
+        using var reader = connection.ExecuteReader($"SELECT ID, Age FROM {database}.Person;");
+        var schemaTable = reader.GetSchemaTable();
+
+        Assert.True((bool)schemaTable.Rows[0][SchemaTableColumn.IsUnique]);
+        Assert.Equal(typeof(long), schemaTable.Rows[0][SchemaTableColumn.DataType]);
+        Assert.False((bool)schemaTable.Rows[1][SchemaTableColumn.IsUnique]);
+        Assert.Equal(typeof(long), schemaTable.Rows[1][SchemaTableColumn.DataType]);
+    }
+
+    [Fact]
+    public void GetSchemaTable_uses_index_in_its_own_database_when_other_table_has_unique_index()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        connection.ExecuteNonQuery("ATTACH DATABASE ':memory:' AS other;");
+        connection.ExecuteNonQuery("CREATE TABLE Person (ID INTEGER UNIQUE);");
+        connection.ExecuteNonQuery("CREATE TABLE other.Person (ID INTEGER);");
+
+        using var reader = connection.ExecuteReader("SELECT ID FROM other.Person;");
+        var schemaTable = reader.GetSchemaTable();
+
+        Assert.False((bool)schemaTable.Rows[0][SchemaTableColumn.IsUnique]);
+    }
+
+    [Fact]
+    public void GetSchemaTable_uses_index_in_its_own_database_when_index_names_match()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        connection.ExecuteNonQuery("ATTACH DATABASE ':memory:' AS other;");
+        connection.ExecuteNonQuery("CREATE TABLE Person (ID INTEGER, Age INTEGER, UNIQUE (ID, Age));");
+        connection.ExecuteNonQuery("CREATE TABLE other.Person (ID INTEGER UNIQUE, Age INTEGER);");
+
+        using var reader = connection.ExecuteReader("SELECT ID FROM other.Person;");
+        var schemaTable = reader.GetSchemaTable();
+
+        Assert.True((bool)schemaTable.Rows[0][SchemaTableColumn.IsUnique]);
+    }
+
+    [Fact]
+    public void GetSchemaTable_works_when_same_named_table_in_main_database_lacks_column()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        connection.ExecuteNonQuery("ATTACH DATABASE ':memory:' AS other;");
+        connection.ExecuteNonQuery("CREATE TABLE Person (ID INTEGER);");
+        connection.ExecuteNonQuery("CREATE TABLE other.Person (ID INTEGER, Name TEXT);");
+        connection.ExecuteNonQuery("INSERT INTO other.Person VALUES (1, 'A');");
+
+        using var reader = connection.ExecuteReader("SELECT Name FROM other.Person;");
+        var schemaTable = reader.GetSchemaTable();
+
+        Assert.Equal("Name", schemaTable.Rows[0][SchemaTableColumn.BaseColumnName]);
+        Assert.Equal("other", schemaTable.Rows[0][SchemaTableOptionalColumn.BaseCatalogName]);
+        Assert.Equal(typeof(string), schemaTable.Rows[0][SchemaTableColumn.DataType]);
+    }
+
+    [Fact]
+    public void GetSchemaTable_works_when_database_name_needs_quoting()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        connection.ExecuteNonQuery("ATTACH DATABASE ':memory:' AS \"my \"\"db\";");
+        connection.ExecuteNonQuery("CREATE TABLE \"my \"\"db\".Person (ID INTEGER UNIQUE);");
+        connection.ExecuteNonQuery("INSERT INTO \"my \"\"db\".Person VALUES (1);");
+
+        using var reader = connection.ExecuteReader("SELECT ID FROM \"my \"\"db\".Person;");
+        var schemaTable = reader.GetSchemaTable();
+
+        Assert.True((bool)schemaTable.Rows[0][SchemaTableColumn.IsUnique]);
+        Assert.Equal(typeof(long), schemaTable.Rows[0][SchemaTableColumn.DataType]);
+    }
+
     [Theory,
      InlineData("(0), (1), ('A')", typeof(long)),
      InlineData("('Z'), (1), ('A')", typeof(string)),
