@@ -9,6 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 /// <summary>
 ///     A convention that finds backing fields for properties based on their names:
 ///     * &lt;[property name]&gt;k__BackingField
+///     * [property name]@
 ///     * _[camel-cased property name]
 ///     * _[property name]
 ///     * m_[camel-cased property name]
@@ -161,7 +162,8 @@ public class BackingFieldConvention :
 
         var sortedFields = fields.OrderBy(p => p.Key, StringComparer.Ordinal).ToArray();
 
-        var match = TryMatch(sortedFields, "<", propertyName, ">k__BackingField", null, null, entityClrType, propertyName);
+        var match = TryMatch(sortedFields, "<", propertyName, ">k__BackingField", null, null, entityClrType, propertyName)
+            ?? TryMatch(sortedFields, propertyName, "@", "", null, null, entityClrType, propertyName);
         if (match == null)
         {
             match = TryMatch(sortedFields, propertyName, "", "", propertyBase, null, entityClrType, propertyName);
