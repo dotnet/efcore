@@ -174,7 +174,7 @@ internal class RootCommand : CommandBase
                 using var reader = JsonDocument.Parse(file);
                 var projectAssets = reader.RootElement;
                 var packageFolders = projectAssets.GetProperty("packageFolders")
-                    .EnumerateObject().Select(p => p.Name.TrimEnd(Path.DirectorySeparatorChar)).ToList();
+                    .EnumerateObject().Select(p => Path.TrimEndingDirectorySeparator(p.Name)).ToList();
 
                 foreach (var packageFolder in packageFolders)
                 {
@@ -190,7 +190,7 @@ internal class RootCommand : CommandBase
                 args.Add("--runtimeconfig");
                 args.Add(runtimeConfig);
             }
-            else if (startupProject.RuntimeFrameworkVersion!.Length != 0)
+            else if (!string.IsNullOrEmpty(startupProject.RuntimeFrameworkVersion))
             {
                 args.Add("--fx-version");
                 args.Add(startupProject.RuntimeFrameworkVersion);
