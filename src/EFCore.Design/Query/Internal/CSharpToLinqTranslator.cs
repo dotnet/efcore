@@ -795,12 +795,31 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     /// </summary>
     public override Expression VisitMemberAccessExpression(MemberAccessExpressionSyntax memberAccess)
     {
-        var expression = Visit(memberAccess.Expression);
-
         if (_semanticModel.GetSymbolInfo(memberAccess).Symbol is not { } memberSymbol)
         {
             throw new InvalidOperationException($"MemberAccess: Couldn't find symbol for member: {memberAccess}");
         }
+
+        // First, if the member type is the user's DbContext type (e.g. a property on a local variable), return a constant over that
+        // DbContext type, without visiting the member's instance; the instance has no value at design time, and the member access can
+        // serve as the root for a LINQ query we can precompile. A member reached through a lambda parameter is part of the query itself
+        // (e.g. a DbContext service property on an entity type), so it's left as a regular member access.
+        var memberType = memberSymbol switch
+        {
+            IPropertySymbol p => p.Type,
+            IFieldSymbol f => f.Type,
+            _ => null
+        };
+
+        if (memberType is not null
+            && memberType.Equals(_userDbContextSymbol, SymbolEqualityComparer.Default)
+            && !memberAccess.Expression.DescendantNodesAndSelf().OfType<IdentifierNameSyntax>()
+                .Any(i => _parameterStack.Peek().ContainsKey(i.Identifier.Text)))
+        {
+            return Constant(_userDbContext);
+        }
+
+        var expression = Visit(memberAccess.Expression);
 
         var containingType = ResolveType(memberSymbol.ContainingType);
         var memberInfo = memberSymbol switch

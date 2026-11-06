@@ -2097,6 +2097,54 @@ FROM [Blogs] AS [b]
 """);
     }
 
+    public override async Task DbContext_as_property_of_local_variable()
+    {
+        await base.DbContext_as_property_of_local_variable();
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Name], [b].[Json]
+FROM [Blogs] AS [b]
+""");
+    }
+
+    public override async Task DbContext_as_field_of_static_field()
+    {
+        await base.DbContext_as_field_of_static_field();
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Name], [b].[Json]
+FROM [Blogs] AS [b]
+""");
+    }
+
+    public override async Task DbContext_as_property_accessed_through_this()
+    {
+        await base.DbContext_as_property_accessed_through_this();
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Name], [b].[Json]
+FROM [Blogs] AS [b]
+""");
+    }
+
+    public override async Task DbContext_as_member_in_nested_query()
+    {
+        await base.DbContext_as_member_in_nested_query();
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Name], [b].[Json]
+FROM [Blogs] AS [b]
+WHERE EXISTS (
+    SELECT 1
+    FROM [Blogs] AS [b0]
+    WHERE [b0].[Id] = [b].[Id] AND [b0].[Id] = 8)
+""");
+    }
+
     #endregion Different query roots
 
     #region Captured variable handling

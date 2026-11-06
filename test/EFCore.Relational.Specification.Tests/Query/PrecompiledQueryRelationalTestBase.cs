@@ -1145,6 +1145,109 @@ public static class TestContainer
 }
 """);
 
+    [Fact]
+    public virtual Task DbContext_as_property_of_local_variable()
+        => FullSourceTest(
+            """
+public static class TestContainer
+{
+    public static async Task Test(DbContextOptions dbContextOptions)
+    {
+        using var context = new PrecompiledQueryContext(dbContextOptions);
+        var lease = new ContextLease(context);
+
+        var blogs = await lease.Context.Blogs.ToListAsync();
+        Assert.Collection(
+            blogs.OrderBy(b => b.Id),
+            b => Assert.Equal(8, b.Id),
+            b => Assert.Equal(9, b.Id));
+    }
+
+    public sealed class ContextLease(PrecompiledQueryContext context)
+    {
+        public PrecompiledQueryContext Context { get; } = context;
+    }
+}
+""");
+
+    [Fact]
+    public virtual Task DbContext_as_field_of_static_field()
+        => FullSourceTest(
+            """
+public static class TestContainer
+{
+    private static ContextLease _lease;
+
+    public static async Task Test(DbContextOptions dbContextOptions)
+    {
+        using var context = new PrecompiledQueryContext(dbContextOptions);
+        _lease = new ContextLease { Context = context };
+
+        var blogs = await _lease.Context.Blogs.ToListAsync();
+        Assert.Collection(
+            blogs.OrderBy(b => b.Id),
+            b => Assert.Equal(8, b.Id),
+            b => Assert.Equal(9, b.Id));
+    }
+
+    private sealed class ContextLease
+    {
+        public PrecompiledQueryContext Context;
+    }
+}
+""");
+
+    [Fact]
+    public virtual Task DbContext_as_property_accessed_through_this()
+        => FullSourceTest(
+            """
+public static class TestContainer
+{
+    public static async Task Test(DbContextOptions dbContextOptions)
+    {
+        using var context = new PrecompiledQueryContext(dbContextOptions);
+
+        var blogs = await new BlogReader(context).GetBlogs();
+        Assert.Collection(
+            blogs.OrderBy(b => b.Id),
+            b => Assert.Equal(8, b.Id),
+            b => Assert.Equal(9, b.Id));
+    }
+
+    private sealed class BlogReader(PrecompiledQueryContext context)
+    {
+        private PrecompiledQueryContext Context { get; } = context;
+
+        public Task<List<Blog>> GetBlogs()
+            => this.Context.Blogs.ToListAsync();
+    }
+}
+""");
+
+    [Fact]
+    public virtual Task DbContext_as_member_in_nested_query()
+        => FullSourceTest(
+            """
+public static class TestContainer
+{
+    public static async Task Test(DbContextOptions dbContextOptions)
+    {
+        using var context = new PrecompiledQueryContext(dbContextOptions);
+        var lease = new ContextLease(context);
+
+        var blogs = await lease.Context.Blogs
+            .Where(b => lease.Context.Blogs.Any(b2 => b2.Id == b.Id && b2.Id == 8))
+            .ToListAsync();
+        Assert.Equal(8, Assert.Single(blogs).Id);
+    }
+
+    private sealed class ContextLease(PrecompiledQueryContext context)
+    {
+        public PrecompiledQueryContext Context { get; } = context;
+    }
+}
+""");
+
     #endregion Different DbContext expressions
 
     #region Captured variable handling
