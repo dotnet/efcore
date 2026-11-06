@@ -266,7 +266,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             response.Diagnostics.GetClientElapsedTime(),
             response.Headers.RequestCharge,
             response.Headers.ActivityId,
-            parameters.Document["id"].ToString(),
+            parameters.Document["id"]!.ToString(),
             parameters.ContainerId,
             partitionKey);
 
@@ -684,7 +684,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         {
             if (jsonReader.TokenType == JsonToken.StartObject)
             {
-                jObject = Serializer.Deserialize<JObject>(jsonReader);
+                jObject = Serializer.Deserialize<JObject>(jsonReader)!;
                 return true;
             }
         }
