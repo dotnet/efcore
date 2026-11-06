@@ -53,6 +53,30 @@ public class CosmosTypeMappingSource : TypeMappingSource
                 ? CreateVectorTypeMapping(property, new CosmosVectorType(distanceFunction, dimensions))
                 : base.FindMapping(property);
 
+    /// <inheritdoc />
+    protected override CoreTypeMapping? FindElementMapping(TypeMappingInfo mappingInfo, IModel model)
+    {
+        var clrType = mappingInfo.ClrType!;
+        // Cosmos maps ReadOnlyMemory<T> as a JSON array, although it does not implement IEnumerable<T>.
+        if (clrType.TryGetElementType(typeof(ReadOnlyMemory<>)) is { } memoryType)
+        {
+            return FindMapping(memoryType, model);
+        }
+
+        // These are the dictionary shapes supported by FindCollectionMapping; JSON object keys must be strings.
+        if (clrType.IsGenericType
+            && clrType.GetGenericTypeDefinition() is var definition
+            && (definition == typeof(Dictionary<,>)
+                || definition == typeof(IDictionary<,>)
+                || definition == typeof(IReadOnlyDictionary<,>))
+            && clrType.GenericTypeArguments[0] == typeof(string))
+        {
+            return FindMapping(clrType.GenericTypeArguments[1], model);
+        }
+
+        return base.FindElementMapping(mappingInfo, model);
+    }
+
     private CosmosVectorTypeMapping? CreateVectorTypeMapping(IProperty property, CosmosVectorType cosmosVectorType)
     {
         var clrType = property.ClrType;
@@ -64,10 +88,12 @@ public class CosmosTypeMappingSource : TypeMappingSource
         }
 
         var sequenceType = collectionType.GetSequenceType();
-        var elementMappingInfo = new TypeMappingInfo(sequenceType);
+        var mappingInfo = new TypeMappingInfo(property);
+        var elementMapping = property.GetElementType() is { } elementType
+            ? FindMapping(elementType)
+            : FindMapping(sequenceType, property.DeclaringType.Model);
 
-        CoreTypeMapping? _ = null;
-        if (!TryFindJsonCollectionMapping(elementMappingInfo, collectionType, null, ref _, out var _, out var readerWriter))
+        if (!TryFindJsonCollectionMapping(mappingInfo, collectionType, null, ref elementMapping, out _, out var readerWriter))
         {
             return null;
         }
@@ -98,7 +124,11 @@ public class CosmosTypeMappingSource : TypeMappingSource
             ? mapping
             : (base.FindMapping(mappingInfo) // This will find a mapping from plugins, and so must happen first. See #34041.
                 ?? FindPrimitiveMapping(mappingInfo)
-                ?? FindCollectionMapping(mappingInfo));
+                ?? FindCollectionMapping(mappingInfo)
+                ?? (mappingInfo.JsonValueReaderWriter is { } readerWriter
+                    && readerWriter.ValueType.IsAssignableFrom(clrType)
+                    ? CreateMapping(clrType, jsonValueReaderWriter: readerWriter)
+                    : null));
     }
 
     private CoreTypeMapping? FindPrimitiveMapping(in TypeMappingInfo mappingInfo)
@@ -108,12 +138,11 @@ public class CosmosTypeMappingSource : TypeMappingSource
         var memoryType = clrType.TryGetElementType(typeof(ReadOnlyMemory<>));
         if (memoryType != null)
         {
-            var elementMappingInfo = new TypeMappingInfo(memoryType);
-            CoreTypeMapping? typeMapping = null;
+            var typeMapping = mappingInfo.ElementTypeMapping;
             return !TryFindJsonCollectionMapping(
-                elementMappingInfo, memoryType.MakeArrayType(), null, ref typeMapping, out _, out var readerWriter)
+                mappingInfo, memoryType.MakeArrayType(), null, ref typeMapping, out _, out var readerWriter)
                 ? null
-                : CreateMapping(clrType, jsonValueReaderWriter: readerWriter)
+                : CreateMapping(clrType, elementMapping: typeMapping, jsonValueReaderWriter: readerWriter)
                     .WithComposedConverter(
                         (ValueConverter)Activator.CreateInstance(typeof(ReadOnlyMemoryConverter<>).MakeGenericType(memoryType))!,
                         (ValueComparer)Activator.CreateInstance(typeof(ReadOnlyMemoryComparer<>).MakeGenericType(memoryType))!);
@@ -161,10 +190,7 @@ public class CosmosTypeMappingSource : TypeMappingSource
         }
 
         // Next, attempt to resolve this as a dictionary (e.g. Dictionary<string, int>).
-        if (elementMapping is not null)
-        {
-            return null;
-        }
+        elementMapping = mappingInfo.ElementTypeMapping;
 
         var elementType = clrType.TryGetSequenceType();
         if (elementType == null)
@@ -190,7 +216,7 @@ public class CosmosTypeMappingSource : TypeMappingSource
 
                 elementType = genericArguments[1];
                 var elementMappingInfo = new TypeMappingInfo(elementType);
-                elementMapping = FindPrimitiveMapping(elementMappingInfo)
+                elementMapping ??= FindPrimitiveMapping(elementMappingInfo)
                     ?? FindCollectionMapping(elementMappingInfo);
 
                 if (elementMapping != null)
@@ -493,14 +519,13 @@ public class CosmosTypeMappingSource : TypeMappingSource
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
 #pragma warning disable EF1001
-    public sealed class CosmosJsonStringKeyedDictionaryCollectionValueReaderWriter<TConcreteCollection, TElement>(
+    public class CosmosJsonStringKeyedDictionaryCollectionValueReaderWriter<TConcreteCollection, TElement>(
         JsonValueReaderWriter elementReaderWriter)
         : JsonValueReaderWriter<IEnumerable<KeyValuePair<string, TConcreteCollection>>>, ICompositeJsonValueReaderWriter
         where TConcreteCollection : IEnumerable<TElement>
 #pragma warning restore EF1001
     {
-        private readonly JsonValueReaderWriter<IEnumerable<TElement>> _elementReaderWriter =
-            (JsonValueReaderWriter<IEnumerable<TElement>>)elementReaderWriter;
+        private readonly JsonValueReaderWriter _elementReaderWriter = elementReaderWriter;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -531,7 +556,7 @@ public class CosmosTypeMappingSource : TypeMappingSource
                         }
                         else
                         {
-                            dictionary.Add(key, (TConcreteCollection)_elementReaderWriter.FromJsonTyped(ref manager));
+                            dictionary.Add(key, (TConcreteCollection)_elementReaderWriter.FromJson(ref manager));
                         }
 
                         break;
@@ -557,7 +582,7 @@ public class CosmosTypeMappingSource : TypeMappingSource
                 writer.WritePropertyName(element.Key);
                 if (element.Value is not null)
                 {
-                    _elementReaderWriter.ToJsonTyped(writer, element.Value);
+                    _elementReaderWriter.ToJson(writer, element.Value);
                 }
                 else
                 {
@@ -593,83 +618,11 @@ public class CosmosTypeMappingSource : TypeMappingSource
 #pragma warning disable EF1001
     public sealed class CosmosJsonStringKeyedDictionaryReferenceCollectionValueReaderWriter<TConcreteCollection, TElement>(
         JsonValueReaderWriter elementReaderWriter)
-        : JsonValueReaderWriter<IEnumerable<KeyValuePair<string, TConcreteCollection>>>, ICompositeJsonValueReaderWriter
+        : CosmosJsonStringKeyedDictionaryCollectionValueReaderWriter<TConcreteCollection, TElement>(elementReaderWriter)
         where TConcreteCollection : IEnumerable<TElement>
         where TElement : class
 #pragma warning restore EF1001
     {
-        private readonly JsonValueReaderWriter<object> _elementReaderWriter = (JsonValueReaderWriter<object>)elementReaderWriter;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public override IEnumerable<KeyValuePair<string, TConcreteCollection>> FromJsonTyped(
-            ref Utf8JsonReaderManager manager,
-            object? existingObject = null)
-        {
-            if (manager.CurrentReader.TokenType != JsonTokenType.StartObject)
-            {
-                throw new InvalidOperationException(CoreStrings.JsonReaderInvalidTokenType(manager.CurrentReader.TokenType));
-            }
-
-            var dictionary = new Dictionary<string, TConcreteCollection>();
-            while (true)
-            {
-                switch (manager.MoveNext())
-                {
-                    case JsonTokenType.PropertyName:
-                        var key = manager.CurrentReader.GetString()!;
-                        manager.MoveNext();
-
-                        if (manager.CurrentReader.TokenType == JsonTokenType.Null)
-                        {
-                            dictionary.Add(key, default!);
-                        }
-                        else
-                        {
-                            dictionary.Add(key, (TConcreteCollection)_elementReaderWriter.FromJsonTyped(ref manager));
-                        }
-
-                        break;
-                    case JsonTokenType.EndObject:
-                        return dictionary;
-                    default:
-                        throw new InvalidOperationException(CoreStrings.JsonReaderInvalidTokenType(manager.CurrentReader.TokenType));
-                }
-            }
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public override void ToJsonTyped(Utf8JsonWriter writer, IEnumerable<KeyValuePair<string, TConcreteCollection>> value)
-        {
-            writer.WriteStartObject();
-            foreach (var element in value)
-            {
-                writer.WritePropertyName(element.Key);
-                if (element.Value is not null)
-                {
-                    _elementReaderWriter.ToJsonTyped(writer, element.Value);
-                }
-                else
-                {
-                    writer.WriteNullValue();
-                }
-            }
-
-            writer.WriteEndObject();
-        }
-
-        JsonValueReaderWriter ICompositeJsonValueReaderWriter.InnerReaderWriter
-            => _elementReaderWriter;
-
         private readonly ConstructorInfo _constructorInfo
             = typeof(CosmosJsonStringKeyedDictionaryReferenceCollectionValueReaderWriter<TConcreteCollection, TElement>)
                 .GetConstructor([typeof(JsonValueReaderWriter)])!;

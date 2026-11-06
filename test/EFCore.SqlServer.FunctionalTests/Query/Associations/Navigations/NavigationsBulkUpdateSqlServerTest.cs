@@ -217,7 +217,7 @@ INNER JOIN [NestedAssociateType] AS [n] ON [a].[RequiredNestedAssociateId] = [n]
 
         AssertExecuteUpdateSql(
             """
-@p='99'
+@p='99' (Nullable = true)
 
 SET NOCOUNT OFF;
 UPDATE [a0]

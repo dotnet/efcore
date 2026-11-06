@@ -105,13 +105,13 @@ WHERE [Id] = @p1;
         {
             AssertSql(
                 """
-@complex_type_Fixture_OtherValue='GEOMETRYCOLLECTION (POINT (10 10)
+@Fixture_OtherValue='GEOMETRYCOLLECTION (POINT (10 10)
 LINESTRING (11 11, 12 12)
-POLYGON ((13 13, 13 15, 15 15, 15 13, 13 13)))' (Size = 4000)
+POLYGON ((13 13, 13 15, 15 15, 15 13, 13 13)))' (Size = 108)
 
 SET NOCOUNT OFF;
 UPDATE [j]
-SET [JsonContainer].modify('$.Value', @complex_type_Fixture_OtherValue)
+SET [JsonContainer].modify('$.Value', @Fixture_OtherValue)
 FROM [JsonTypeEntity] AS [j]
 """);
         }
@@ -119,13 +119,13 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
-@complex_type_Fixture_OtherValue='GEOMETRYCOLLECTION (POINT (10 10)
+@Fixture_OtherValue='GEOMETRYCOLLECTION (POINT (10 10)
 LINESTRING (11 11, 12 12)
-POLYGON ((13 13, 13 15, 15 15, 15 13, 13 13)))' (Size = 4000)
+POLYGON ((13 13, 13 15, 15 15, 15 13, 13 13)))' (Size = 108)
 
 SET NOCOUNT OFF;
 UPDATE [j]
-SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', @complex_type_Fixture_OtherValue)
+SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', @Fixture_OtherValue)
 FROM [JsonTypeEntity] AS [j]
 """);
         }

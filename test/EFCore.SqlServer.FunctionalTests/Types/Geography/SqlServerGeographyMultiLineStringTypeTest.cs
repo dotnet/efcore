@@ -103,12 +103,12 @@ WHERE [Id] = @p1;
         {
             AssertSql(
                 """
-@complex_type_Fixture_OtherValue='MULTILINESTRING ((-121.9 46.95, -121.6 46.82)
-(-121.7 46.78, -121.4 46.55))' (Size = 4000)
+@Fixture_OtherValue='MULTILINESTRING ((-121.9 46.95, -121.6 46.82)
+(-121.7 46.78, -121.4 46.55))' (Size = 76)
 
 SET NOCOUNT OFF;
 UPDATE [j]
-SET [JsonContainer].modify('$.Value', @complex_type_Fixture_OtherValue)
+SET [JsonContainer].modify('$.Value', @Fixture_OtherValue)
 FROM [JsonTypeEntity] AS [j]
 """);
         }
@@ -116,12 +116,12 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
-@complex_type_Fixture_OtherValue='MULTILINESTRING ((-121.9 46.95, -121.6 46.82)
-(-121.7 46.78, -121.4 46.55))' (Size = 4000)
+@Fixture_OtherValue='MULTILINESTRING ((-121.9 46.95, -121.6 46.82)
+(-121.7 46.78, -121.4 46.55))' (Size = 76)
 
 SET NOCOUNT OFF;
 UPDATE [j]
-SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', @complex_type_Fixture_OtherValue)
+SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', @Fixture_OtherValue)
 FROM [JsonTypeEntity] AS [j]
 """);
         }

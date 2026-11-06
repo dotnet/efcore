@@ -1,6 +1,10 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Text.Json;
+using Microsoft.EntityFrameworkCore.Storage.Json;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+
 // ReSharper disable MethodHasAsyncOverload
 
 namespace Microsoft.EntityFrameworkCore.Update;
@@ -10,6 +14,151 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
 {
     protected override string NonSharedStoreName
         => "NonSharedModelUpdatesTestBase";
+
+    [Theory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
+    public virtual async Task Custom_JSON_scalar_writer_is_preserved_on_single_property_update(bool async, bool typeMappingDefault)
+    {
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
+            onModelCreating: modelBuilder =>
+            {
+                var entity = modelBuilder.Entity<JsonScalarOwner>();
+                entity.ToTable("JsonScalarOwners");
+                entity.Property(e => e.Id).ValueGeneratedNever();
+                entity.OwnsOne(
+                    e => e.Data, owned =>
+                    {
+                        owned.ToJson();
+                        owned.Property(e => e.Number).HasConversion<string>();
+                        owned.Property(e => e.Enabled).HasConversion(new BoolToStringConverter("no", "yes"));
+                        owned.Property(e => e.Timestamp).HasConversion(
+                            new ValueConverter<DateTime, long>(
+                                v => new DateTimeOffset(v).ToUnixTimeMilliseconds(),
+                                v => DateTimeOffset.FromUnixTimeMilliseconds(v).UtcDateTime));
+                        if (!typeMappingDefault)
+                        {
+                            owned.Property(e => e.Number).HasJsonValueReaderWriter<JsonStringReaderWriter>();
+                            owned.Property(e => e.Enabled).HasJsonValueReaderWriter<JsonStringReaderWriter>();
+                            owned.Property(e => e.Timestamp).HasJsonValueReaderWriter<JsonInt64ReaderWriter>();
+                        }
+                    });
+            },
+            configureConventions: configurationBuilder =>
+            {
+                if (typeMappingDefault)
+                {
+                    configurationBuilder.DefaultTypeMapping<int>().HasJsonValueReaderWriter<JsonStringReaderWriter>();
+                    configurationBuilder.DefaultTypeMapping<bool>().HasJsonValueReaderWriter<JsonStringReaderWriter>();
+                    configurationBuilder.DefaultTypeMapping<DateTime>().HasJsonValueReaderWriter<JsonInt64ReaderWriter>();
+                }
+            },
+            seed: async context =>
+            {
+                context.Add(
+                    new JsonScalarOwner
+                    {
+                        Id = 1,
+                        Data = new JsonScalarData
+                        {
+                            Number = 42, Text = "unchanged", EscapedText = "initial",
+                            Timestamp = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+                        }
+                    });
+                await context.SaveChangesAsync();
+            });
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var entity = async
+                ? await context.Set<JsonScalarOwner>().SingleAsync()
+                : context.Set<JsonScalarOwner>().Single();
+            await context.Database.OpenConnectionAsync();
+            foreach (var smallNumber in new[] { 1E-30, 1.5E-28 })
+            {
+                entity.Data.SmallNumber = smallNumber;
+                await Save(context);
+                var scalar = context.Set<JsonScalarOwner>().AsNoTracking().Select(e => e.Data.SmallNumber);
+                Assert.Equal(smallNumber, async ? await scalar.SingleAsync() : scalar.Single());
+                await using var command = context.Database.GetDbConnection().CreateCommand();
+                command.CommandText = ((RelationalTestStore)NonSharedTestStore)
+                    .NormalizeDelimitersInRawString("SELECT [Data] FROM [JsonScalarOwners]");
+                using var document = JsonDocument.Parse(
+                    Assert.IsType<string>(async ? await command.ExecuteScalarAsync() : command.ExecuteScalar()));
+                Assert.Equal(smallNumber, document.RootElement.GetProperty(nameof(JsonScalarData.SmallNumber)).GetDouble());
+            }
+
+            entity.Data.Number = 43;
+            context.ChangeTracker.DetectChanges();
+
+            Assert.Equal(
+                nameof(JsonScalarData.Number),
+                Assert.Single(context.Entry(entity.Data).Properties.Where(p => p.IsModified)).Metadata.Name);
+
+            TestSqlLoggerFactory.Clear();
+            await Save(context);
+            entity.Data.Enabled = true;
+            await Save(context);
+            entity.Data.Timestamp = new DateTime(2026, 2, 1, 0, 0, 0, DateTimeKind.Utc);
+            await Save(context);
+            entity.Data.EscapedText = "a\"b\\c\n";
+            await Save(context);
+        }
+
+        await using var verificationContext = contextFactory.CreateDbContext();
+        await verificationContext.Database.OpenConnectionAsync();
+        await using (var command = verificationContext.Database.GetDbConnection().CreateCommand())
+        {
+            command.CommandText = ((RelationalTestStore)NonSharedTestStore)
+                .NormalizeDelimitersInRawString("SELECT [Data] FROM [JsonScalarOwners] WHERE [Id] = 1");
+            var json = async ? await command.ExecuteScalarAsync() : command.ExecuteScalar();
+            using var document = JsonDocument.Parse(Assert.IsType<string>(json));
+            var number = document.RootElement.GetProperty(nameof(JsonScalarData.Number));
+            Assert.Equal(JsonValueKind.String, number.ValueKind);
+            Assert.Equal("43", number.GetString());
+            Assert.Equal("unchanged", document.RootElement.GetProperty(nameof(JsonScalarData.Text)).GetString());
+            Assert.Equal("yes", document.RootElement.GetProperty(nameof(JsonScalarData.Enabled)).GetString());
+            Assert.Equal(1769904000000L, document.RootElement.GetProperty(nameof(JsonScalarData.Timestamp)).GetInt64());
+            Assert.Equal("a\"b\\c\n", document.RootElement.GetProperty(nameof(JsonScalarData.EscapedText)).GetString());
+        }
+
+        var updated = async
+            ? await verificationContext.Set<JsonScalarOwner>().SingleAsync()
+            : verificationContext.Set<JsonScalarOwner>().Single();
+        Assert.Equal(1, updated.Id);
+        Assert.Equal(43, updated.Data.Number);
+        Assert.Equal("unchanged", updated.Data.Text);
+        Assert.True(updated.Data.Enabled);
+        Assert.Equal(new DateTime(2026, 2, 1, 0, 0, 0, DateTimeKind.Utc), updated.Data.Timestamp);
+        Assert.Equal("a\"b\\c\n", updated.Data.EscapedText);
+        Assert.Equal(1.5E-28, updated.Data.SmallNumber);
+
+        async Task Save(DbContext context)
+        {
+            if (async)
+            {
+                await context.SaveChangesAsync();
+            }
+            else
+            {
+                context.SaveChanges();
+            }
+        }
+    }
+
+    private class JsonScalarOwner
+    {
+        public int Id { get; set; }
+        public JsonScalarData Data { get; set; } = null!;
+    }
+
+    private class JsonScalarData
+    {
+        public int Number { get; set; }
+        public string Text { get; set; } = null!;
+        public string EscapedText { get; set; } = null!;
+        public bool Enabled { get; set; }
+        public DateTime Timestamp { get; set; }
+        public double SmallNumber { get; set; }
+    }
 
     [Theory, MemberData(nameof(IsAsyncData))] // Issue #29356
     public virtual async Task Principal_and_dependent_roundtrips_with_cycle_breaking(bool async)

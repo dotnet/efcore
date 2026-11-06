@@ -35,8 +35,9 @@ public abstract class BadDataJsonDeserializationTestBase
      InlineData("""{"Prop":[{"type":"Point","coordinates":[2.0,4.0]}]}"""), InlineData("""{"Prop":1}"""), InlineData("""{"Prop":true}"""),
      InlineData("""{"Prop":false}"""), InlineData("""{"Prop":"X"}""")]
     public virtual void Throws_for_bad_point_as_GeoJson(string json)
-        => Throws_for_bad_JSON_property_value<PointType, Point>(
-            b => b.Metadata.SetJsonValueReaderWriterType(typeof(JsonTypesTestBase.JsonGeoJsonReaderWriter)),
+        => Throws_for_bad_JSON_value<PointType, Point>(
+            b => b.Entity<PointType>().HasNoKey().Property(e => e.Point),
+            c => c.DefaultTypeMapping<Point>().HasJsonValueReaderWriter<JsonTypesTestBase.JsonGeoJsonReaderWriter>(),
             nameof(PointType.Point),
             json);
 
@@ -126,8 +127,7 @@ public abstract class BadDataJsonDeserializationTestBase
         using var context = new SingleTypeDbContext(OnConfiguring, buildModel, configureConventions);
         var property = context.Model.FindEntityType(typeof(TEntity))!.GetProperty(propertyName);
 
-        var jsonReaderWriter = property.GetJsonValueReaderWriter()
-            ?? property.GetTypeMapping().JsonValueReaderWriter!;
+        var jsonReaderWriter = property.GetTypeMapping().JsonValueReaderWriter!;
 
         var buffer = Encoding.UTF8.GetBytes(json);
         var readerManager = new Utf8JsonReaderManager(new JsonReaderData(buffer), null);

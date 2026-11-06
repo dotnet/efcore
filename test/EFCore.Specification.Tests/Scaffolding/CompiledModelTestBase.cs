@@ -107,11 +107,6 @@ namespace TestNamespace
             eb.Property(e => e.Id).ValueGeneratedNever();
             eb.HasAlternateKey(e => e.Id);
 
-            eb.Property(e => e.AlternateId).Metadata.SetJsonValueReaderWriterType(
-                jsonColumns
-                    ? typeof(MyJsonGuidReaderWriter)
-                    : typeof(JsonGuidReaderWriter));
-
             eb.OwnsOne(
                 e => e.Owned, ob =>
                 {
@@ -310,7 +305,7 @@ namespace TestNamespace
             Assert.NotNull(ipAddressElementType.GetTypeMapping().JsonValueReaderWriter);
             Assert.NotNull(ipAddressElementType.GetValueComparer());
             Assert.Null(ipAddressElementType.GetValueConverter());
-            Assert.Null(ipAddressElementType.GetJsonValueReaderWriter());
+            Assert.Same(ipAddressElementType.GetTypeMapping().JsonValueReaderWriter, ipAddressElementType.GetJsonValueReaderWriter());
         }
 
         Assert.Null(model.FindEntityType(typeof(AbstractBase)));

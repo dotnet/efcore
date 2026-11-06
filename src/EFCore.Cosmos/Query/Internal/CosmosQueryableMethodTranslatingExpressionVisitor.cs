@@ -18,6 +18,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     private readonly CosmosQueryCompilationContext _queryCompilationContext;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
     private readonly ITypeMappingSource _typeMappingSource;
+    private readonly CoreTypeMapping _intTypeMapping;
     private readonly IMemberTranslatorProvider _memberTranslatorProvider;
     private readonly IMethodCallTranslatorProvider _methodCallTranslatorProvider;
     private readonly ICosmosStructuralTypeSerializerProvider _structuralTypeSerializerProvider;
@@ -45,6 +46,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         _queryCompilationContext = queryCompilationContext;
         _sqlExpressionFactory = sqlExpressionFactory;
         _typeMappingSource = typeMappingSource;
+        _intTypeMapping = typeMappingSource.FindMapping(typeof(int))!;
         _memberTranslatorProvider = memberTranslatorProvider;
         _methodCallTranslatorProvider = methodCallTranslatorProvider;
         _structuralTypeSerializerProvider = structuralTypeSerializerProvider;
@@ -75,6 +77,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         _queryCompilationContext = parentVisitor._queryCompilationContext;
         _sqlExpressionFactory = parentVisitor._sqlExpressionFactory;
         _typeMappingSource = parentVisitor._typeMappingSource;
+        _intTypeMapping = parentVisitor._intTypeMapping;
         _memberTranslatorProvider = parentVisitor._memberTranslatorProvider;
         _methodCallTranslatorProvider = parentVisitor._methodCallTranslatorProvider;
         _structuralTypeSerializerProvider = parentVisitor._structuralTypeSerializerProvider;
@@ -465,7 +468,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         var projectionMapping = new Dictionary<ProjectionMember, Expression> { { new ProjectionMember(), topLevelTranslation } };
         subquery.ReplaceProjectionMapping(projectionMapping);
 
-        return !TryApplyLimit(subquery, TranslateExpression(Expression.Constant(1))!)
+        return !TryApplyLimit(subquery, _sqlExpressionFactory.Constant(1, _intTypeMapping))
             ? null
             : source
                 .UpdateShaperExpression(
@@ -523,7 +526,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         // Simplify x.Array.Contains[1] => ARRAY_CONTAINS(x.Array, 1) insert of IN+subquery
         if (source.TryExtractArray(out var array, ignoreOrderings: true)
             && array is SqlExpression scalarArray // TODO: Contains over arrays of structural types, #34027
-            && TranslateExpression(item) is { } translatedItem)
+            && TranslateExpression(item, scalarArray.TypeMapping?.ElementTypeMapping) is { } translatedItem)
         {
             if (array is ArrayConstantExpression arrayConstant)
             {
@@ -595,7 +598,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         Expression index,
         bool returnDefault)
     {
-        if (TranslateExpression(index) is not { } translatedIndex)
+        if (TranslateExpression(index, _intTypeMapping) is not { } translatedIndex)
         {
             return null;
         }
@@ -681,7 +684,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         }
 
         if (!TryApplyOffset(select, translatedIndex)
-            || !TryApplyLimit(select, TranslateExpression(Expression.Constant(1))!))
+            || !TryApplyLimit(select, _sqlExpressionFactory.Constant(1, _intTypeMapping)))
         {
             return null;
         }
@@ -734,7 +737,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
 
         var select = (SelectExpression)source.QueryExpression;
 
-        if (!TryApplyLimit(select, TranslateExpression(Expression.Constant(1))!))
+        if (!TryApplyLimit(select, _sqlExpressionFactory.Constant(1, _intTypeMapping)))
         {
             return null;
         }
@@ -827,7 +830,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         var select = (SelectExpression)source.QueryExpression;
         select.ReverseOrderings();
 
-        return !TryApplyLimit(select, TranslateExpression(Expression.Constant(1))!)
+        return !TryApplyLimit(select, _sqlExpressionFactory.Constant(1, _intTypeMapping))
             ? null
             : source.ShaperExpression.Type != returnType
                 ? source.UpdateShaperExpression(Expression.Convert(source.ShaperExpression, returnType))
@@ -1137,7 +1140,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         }
 
         var select = (SelectExpression)source.QueryExpression;
-        return !TryApplyLimit(select, TranslateExpression(Expression.Constant(2))!)
+        return !TryApplyLimit(select, _sqlExpressionFactory.Constant(2, _intTypeMapping))
             ? null
             : source.ShaperExpression.Type == returnType
                 ? source
@@ -1152,7 +1155,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     /// </summary>
     protected override ShapedQueryExpression? TranslateSkip(ShapedQueryExpression source, Expression count)
     {
-        if (TranslateExpression(count) is not { } translatedCount)
+        if (TranslateExpression(count, _intTypeMapping) is not { } translatedCount)
         {
             return null;
         }
@@ -1258,7 +1261,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     /// </summary>
     protected override ShapedQueryExpression? TranslateTake(ShapedQueryExpression source, Expression count)
     {
-        if (TranslateExpression(count) is not { } translatedCount)
+        if (TranslateExpression(count, _intTypeMapping) is not { } translatedCount)
         {
             return null;
         }
@@ -1287,7 +1290,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                 } previousSlice
                     ? previousSlice.Update([nestedArray, skipCount, translatedCount])
                     : _sqlExpressionFactory.Function(
-                        "ARRAY_SLICE", [scalarArray, TranslateExpression(Expression.Constant(0))!, translatedCount], scalarArray.Type,
+                        "ARRAY_SLICE", [scalarArray, _sqlExpressionFactory.Constant(0, _intTypeMapping), translatedCount], scalarArray.Type,
                         scalarArray.TypeMapping);
 
                 var alias = _aliasManager.GenerateSourceAlias(slice);
@@ -1308,7 +1311,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                 } previousSlice
                     ? previousSlice.Update([nestedArray, skipCount, translatedCount])
                     : new ObjectFunctionExpression(
-                        "ARRAY_SLICE", [array, TranslateExpression(Expression.Constant(0))!, translatedCount],
+                        "ARRAY_SLICE", [array, _sqlExpressionFactory.Constant(0, _intTypeMapping), translatedCount],
                         projectedStructuralTypeShaper.Type);
 
                 var alias = _aliasManager.GenerateSourceAlias(slice);
@@ -1479,11 +1482,12 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             translatedItems[i] = translatedItem;
         }
 
-        // TODO: Temporary hack - need to perform proper derivation of the array type mapping from the element (e.g. for
-        // value conversion). #34026.
+        // TODO: Infer a common element mapping when inline items use different conversions. #34026.
         var elementClrType = inlineQueryRootExpression.ElementType;
-        var elementTypeMapping = _typeMappingSource.FindMapping(elementClrType)!;
-        var arrayTypeMapping = _typeMappingSource.FindMapping(typeof(IEnumerable<>).MakeGenericType(elementClrType));
+        var elementTypeMapping = translatedItems.FirstOrDefault()?.TypeMapping
+            ?? _typeMappingSource.FindMapping(elementClrType, _queryCompilationContext.Model)!;
+        var arrayTypeMapping = _typeMappingSource.FindMapping(
+            typeof(IEnumerable<>).MakeGenericType(elementClrType), _queryCompilationContext.Model, elementTypeMapping);
         var inlineArray = new ArrayConstantExpression(elementClrType, translatedItems, arrayTypeMapping);
 
         var sourceAlias = _aliasManager.GenerateSourceAlias(inlineArray);
@@ -1685,8 +1689,8 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             source = translatedSource;
         }
 
-        var translation = _sqlExpressionFactory.ApplyDefaultTypeMapping(
-            _sqlExpressionFactory.Function("COUNT", [_sqlExpressionFactory.Constant(1)], typeof(int)));
+        var translation = _sqlExpressionFactory.Function(
+            "COUNT", [_sqlExpressionFactory.Constant(1, _intTypeMapping)], typeof(int), _intTypeMapping);
 
         var projectionMapping = new Dictionary<ProjectionMember, Expression> { { new ProjectionMember(), translation } };
 
@@ -1758,9 +1762,11 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             => source.QueryExpression is SelectExpression { Sources: [{ WithIn: false }, ..] };
     }
 
-    private SqlExpression? TranslateExpression(Expression expression)
+    private SqlExpression? TranslateExpression(Expression expression, CoreTypeMapping? typeMapping = null)
     {
-        var translation = _sqlTranslator.Translate(expression);
+        var translation = typeMapping is null
+            ? _sqlTranslator.Translate(expression)
+            : _sqlTranslator.Translate(expression, typeMapping);
         if (translation == null && _sqlTranslator.TranslationErrorDetails != null)
         {
             AddTranslationErrorDetails(_sqlTranslator.TranslationErrorDetails);

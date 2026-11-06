@@ -29,7 +29,8 @@ public sealed class RuntimeTypeMappingConfiguration : RuntimeAnnotatableBase, IT
         int? precision,
         int? scale,
         Type? providerClrType,
-        ValueConverter? valueConverter)
+        ValueConverter? valueConverter,
+        Type? jsonValueReaderWriterType = null)
     {
         ClrType = clrType;
 
@@ -59,6 +60,10 @@ public sealed class RuntimeTypeMappingConfiguration : RuntimeAnnotatableBase, IT
         }
 
         _valueConverter = valueConverter;
+        if (jsonValueReaderWriterType != null)
+        {
+            SetAnnotation(CoreAnnotationNames.JsonValueReaderWriterType, jsonValueReaderWriterType);
+        }
     }
 
     /// <summary>
@@ -95,4 +100,9 @@ public sealed class RuntimeTypeMappingConfiguration : RuntimeAnnotatableBase, IT
     [DebuggerStepThrough]
     Type? ITypeMappingConfiguration.GetProviderClrType()
         => (Type?)this[CoreAnnotationNames.ProviderClrType];
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    Type? ITypeMappingConfiguration.GetJsonValueReaderWriterType()
+        => (Type?)this[CoreAnnotationNames.JsonValueReaderWriterType];
 }

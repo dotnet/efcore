@@ -104,13 +104,13 @@ WHERE [Id] = @p1;
         {
             AssertSql(
                 """
-@complex_type_Fixture_OtherValue='MULTIPOINT ((15 15)
+@Fixture_OtherValue='MULTIPOINT ((15 15)
 (20 20)
-(25 25))' (Size = 4000)
+(25 25))' (Size = 38)
 
 SET NOCOUNT OFF;
 UPDATE [j]
-SET [JsonContainer].modify('$.Value', @complex_type_Fixture_OtherValue)
+SET [JsonContainer].modify('$.Value', @Fixture_OtherValue)
 FROM [JsonTypeEntity] AS [j]
 """);
         }
@@ -118,13 +118,13 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
-@complex_type_Fixture_OtherValue='MULTIPOINT ((15 15)
+@Fixture_OtherValue='MULTIPOINT ((15 15)
 (20 20)
-(25 25))' (Size = 4000)
+(25 25))' (Size = 38)
 
 SET NOCOUNT OFF;
 UPDATE [j]
-SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', @complex_type_Fixture_OtherValue)
+SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', @Fixture_OtherValue)
 FROM [JsonTypeEntity] AS [j]
 """);
         }

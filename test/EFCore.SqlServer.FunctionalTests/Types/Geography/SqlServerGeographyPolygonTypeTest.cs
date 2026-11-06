@@ -100,11 +100,11 @@ WHERE [Id] = @p1;
         {
             AssertSql(
                 """
-@complex_type_Fixture_OtherValue='POLYGON ((-121.3 46.6, -121.3 46.59, -121.28 46.59, -121.28 46.6, -121.3 46.6))' (Size = 4000)
+@Fixture_OtherValue='POLYGON ((-121.3 46.6, -121.3 46.59, -121.28 46.59, -121.28 46.6, -121.3 46.6))' (Size = 79)
 
 SET NOCOUNT OFF;
 UPDATE [j]
-SET [JsonContainer].modify('$.Value', @complex_type_Fixture_OtherValue)
+SET [JsonContainer].modify('$.Value', @Fixture_OtherValue)
 FROM [JsonTypeEntity] AS [j]
 """);
         }
@@ -112,11 +112,11 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
-@complex_type_Fixture_OtherValue='POLYGON ((-121.3 46.6, -121.3 46.59, -121.28 46.59, -121.28 46.6, -121.3 46.6))' (Size = 4000)
+@Fixture_OtherValue='POLYGON ((-121.3 46.6, -121.3 46.59, -121.28 46.59, -121.28 46.6, -121.3 46.6))' (Size = 79)
 
 SET NOCOUNT OFF;
 UPDATE [j]
-SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', @complex_type_Fixture_OtherValue)
+SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', @Fixture_OtherValue)
 FROM [JsonTypeEntity] AS [j]
 """);
         }

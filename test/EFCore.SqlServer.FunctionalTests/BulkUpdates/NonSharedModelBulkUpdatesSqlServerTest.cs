@@ -8,6 +8,48 @@ public class NonSharedModelBulkUpdatesSqlServerTest(NonSharedFixture fixture) : 
     protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
+    public override async Task Update_JSON_scalar_with_custom_reader_writer(bool async, bool typeMappingDefault)
+    {
+        await base.Update_JSON_scalar_with_custom_reader_writer(async, typeMappingDefault);
+        AssertSql(
+            """
+@p='44'
+@p0='44' (Size = 2)
+
+SET NOCOUNT OFF;
+UPDATE [j]
+SET [j].[NativeNumber] = @p,
+    [j].[Data] = JSON_MODIFY([j].[Data], '$.Number', @p0)
+FROM [JsonWriterItems] AS [j]
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[NativeNumber], [j].[Data]
+FROM [JsonWriterItems] AS [j]
+""");
+    }
+
+    public override async Task Update_JSON_columns_with_same_parameter_and_different_conversions(bool async)
+    {
+        await base.Update_JSON_columns_with_same_parameter_and_different_conversions(async);
+        AssertSql(
+            """
+@p='{"Number":42}' (Size = 13)
+@p0='{"Number":"42"}' (Size = 15)
+
+SET NOCOUNT OFF;
+UPDATE [j]
+SET [j].[First] = @p,
+    [j].[Second] = @p0
+FROM [JsonPairItem] AS [j]
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[First], [j].[Second]
+FROM [JsonPairItem] AS [j]
+""");
+    }
+
     [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

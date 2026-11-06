@@ -143,7 +143,8 @@ public partial class DataEntityType
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<ReadOnlyMemory<byte>, IEnumerable<byte>>(
                 new JsonCollectionOfStructsReaderWriter<byte[], byte>(
                     JsonByteReaderWriter.Instance),
-                new ValueConverter<ReadOnlyMemory<byte>, byte[]>(byte[] (ReadOnlyMemory<byte> v) => ReadOnlyMemoryConverter<byte>.ToArray(v), ReadOnlyMemory<byte> (byte[] v) => ReadOnlyMemoryConverter<byte>.ToMemory(v))));
+                new ValueConverter<ReadOnlyMemory<byte>, byte[]>(byte[] (ReadOnlyMemory<byte> v) => ReadOnlyMemoryConverter<byte>.ToArray(v), ReadOnlyMemory<byte> (byte[] v) => ReadOnlyMemoryConverter<byte>.ToMemory(v))),
+            elementMapping: CosmosTypeMapping<byte>.Default);
         bytes.SetSentinelFromProviderValue(new byte[0]);
 
         var list = runtimeEntityType.AddProperty(

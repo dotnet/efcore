@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Storage.Json;
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 /// <summary>
@@ -29,6 +31,15 @@ public class PropertyBuilder<TProperty> : PropertyBuilder
         : base(property)
     {
     }
+
+    /// <inheritdoc cref="PropertyBuilder.HasJsonValueReaderWriter{TReaderWriter}()" />
+    public new virtual PropertyBuilder<TProperty> HasJsonValueReaderWriter<TReaderWriter>()
+        where TReaderWriter : JsonValueReaderWriter
+        => (PropertyBuilder<TProperty>)base.HasJsonValueReaderWriter<TReaderWriter>();
+
+    /// <inheritdoc cref="PropertyBuilder.HasJsonValueReaderWriter(Type)" />
+    public new virtual PropertyBuilder<TProperty> HasJsonValueReaderWriter(Type? readerWriterType)
+        => (PropertyBuilder<TProperty>)base.HasJsonValueReaderWriter(readerWriterType);
 
     /// <summary>
     ///     Adds or updates an annotation on the property. If an annotation with the key specified in

@@ -2,6 +2,11 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Globalization;
+using System.Linq.Expressions;
+using System.Text.Json;
+using Microsoft.EntityFrameworkCore.Storage.Json;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
@@ -9,6 +14,264 @@ public abstract class NonSharedModelBulkUpdatesRelationalTestBase(NonSharedFixtu
 {
     protected override string NonSharedStoreName
         => "NonSharedModelBulkUpdatesTests";
+
+    [Theory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
+    public virtual async Task Update_JSON_scalar_with_custom_reader_writer(bool async, bool typeMappingDefault)
+    {
+        var factory = await InitializeNonSharedTest<PoolableDbContext>(
+            onModelCreating: b =>
+            {
+                var entity = b.Entity<JsonWriterItem>().ToTable("JsonWriterItems");
+                entity.Property(e => e.Id).ValueGeneratedNever();
+                var data = entity.ComplexProperty(e => e.Data).ToJson();
+                data.Property(e => e.Number).HasConversion<string>();
+                data.Property(e => e.Timestamp).HasConversion(
+                    new ValueConverter<DateTime, long>(
+                        v => new DateTimeOffset(v).ToUnixTimeMilliseconds(),
+                        v => DateTimeOffset.FromUnixTimeMilliseconds(v).UtcDateTime));
+                data.Property(e => e.Enabled).HasConversion(new BoolToStringConverter("no", "yes"));
+                data.PrimitiveCollection(e => e.Numbers).ElementType().HasJsonValueReaderWriter<JsonInt32ReaderWriter>();
+                data.PrimitiveCollection(e => e.EncodedNumbers).ElementType()
+                    .HasConversion<string>().HasJsonValueReaderWriter<JsonStringReaderWriter>();
+                data.PrimitiveCollection(e => e.OtherEncodedNumbers).ElementType()
+                    .HasConversion<string>().HasJsonValueReaderWriter<JsonStringReaderWriter>();
+                if (!typeMappingDefault)
+                {
+                    data.Property(e => e.Number).HasJsonValueReaderWriter<JsonStringReaderWriter>();
+                    data.Property(e => e.Timestamp).HasJsonValueReaderWriter<JsonInt64ReaderWriter>();
+                    data.Property(e => e.Enabled).HasJsonValueReaderWriter<JsonStringReaderWriter>();
+                }
+            },
+            configureConventions: c =>
+            {
+                if (typeMappingDefault)
+                {
+                    c.DefaultTypeMapping<int>().HasJsonValueReaderWriter<JsonStringReaderWriter>();
+                    c.DefaultTypeMapping<DateTime>().HasJsonValueReaderWriter<JsonInt64ReaderWriter>();
+                    c.DefaultTypeMapping<bool>().HasJsonValueReaderWriter<JsonStringReaderWriter>();
+                }
+            },
+            seed: context =>
+            {
+                context.Add(
+                    new JsonWriterItem
+                    {
+                        Id = 1, NativeNumber = 7,
+                        Data = new JsonWriterData
+                        {
+                            Number = 1, Timestamp = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                            Numbers = [42], EncodedNumbers = [1], OtherEncodedNumbers = [7]
+                        }
+                    });
+                return context.SaveChangesAsync();
+            });
+        await using var context = factory.CreateDbContext();
+        await context.Database.OpenConnectionAsync();
+        var query = context.Set<JsonWriterItem>();
+        var expectedEnabled = false;
+        var expectedNativeNumber = 7;
+        List<int> encodedNumbers = [2, 3];
+        Assert.Equal(
+            1, async
+                ? await query.ExecuteUpdateAsync(s => s.SetProperty(e => e.Data.EncodedNumbers, encodedNumbers))
+                : query.ExecuteUpdate(s => s.SetProperty(e => e.Data.EncodedNumbers, encodedNumbers)));
+        Assert.Equal(
+            new[] { 2, 3 }, async
+                ? await query.Select(e => e.Data.EncodedNumbers).SingleAsync()
+                : query.Select(e => e.Data.EncodedNumbers).Single());
+        Assert.Equal(
+            1, async
+                ? await query.ExecuteUpdateAsync(s => s.SetProperty(e => e.Data.EncodedNumbers, new List<int> { 4, 5 }))
+                : query.ExecuteUpdate(s => s.SetProperty(e => e.Data.EncodedNumbers, new List<int> { 4, 5 })));
+        Assert.Equal(
+            new[] { 4, 5 }, async
+                ? await query.Select(e => e.Data.EncodedNumbers).SingleAsync()
+                : query.Select(e => e.Data.EncodedNumbers).Single());
+        await AssertTranslationFailedWithDetails(
+            RelationalStrings.ExecuteUpdateCannotSetJsonPropertyToArbitraryExpression,
+            async () =>
+            {
+                if (async)
+                {
+                    await query.ExecuteUpdateAsync(s => s.SetProperty(e => e.Data.EncodedNumbers, e => e.Data.Numbers));
+                }
+                else
+                {
+                    query.ExecuteUpdate(s => s.SetProperty(e => e.Data.EncodedNumbers, e => e.Data.Numbers));
+                }
+            });
+        Assert.Equal(
+            1, async
+                ? await query.ExecuteUpdateAsync(s => s.SetProperty(e => e.Data.EncodedNumbers, e => e.Data.OtherEncodedNumbers))
+                : query.ExecuteUpdate(s => s.SetProperty(e => e.Data.EncodedNumbers, e => e.Data.OtherEncodedNumbers)));
+        foreach (var smallNumber in new[] { 1E-30, 1.5E-28 })
+        {
+            Assert.Equal(
+                1, async
+                    ? await query.ExecuteUpdateAsync(s => s.SetProperty(e => e.Data.SmallNumber, smallNumber))
+                    : query.ExecuteUpdate(s => s.SetProperty(e => e.Data.SmallNumber, smallNumber)));
+            var scalar = query.AsNoTracking().Select(e => e.Data.SmallNumber);
+            Assert.Equal(smallNumber, async ? await scalar.SingleAsync() : scalar.Single());
+            await using var command = context.Database.GetDbConnection().CreateCommand();
+            command.CommandText = ((RelationalTestStore)NonSharedTestStore)
+                .NormalizeDelimitersInRawString("SELECT [Data] FROM [JsonWriterItems]");
+            using var document = JsonDocument.Parse(
+                Assert.IsType<string>(async ? await command.ExecuteScalarAsync() : command.ExecuteScalar()));
+            Assert.Equal(smallNumber, document.RootElement.GetProperty(nameof(JsonWriterData.SmallNumber)).GetDouble());
+        }
+
+        Assert.Equal(
+            1, async
+                ? await query.ExecuteUpdateAsync(s => s.SetProperty(e => e.Data.Number, 42))
+                : query.ExecuteUpdate(s => s.SetProperty(e => e.Data.Number, 42)));
+        await AssertData(42, new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+
+        var timestamp = new DateTime(2026, 2, 1, 0, 0, 0, DateTimeKind.Utc);
+        Assert.Equal(
+            1, async
+                ? await query.ExecuteUpdateAsync(s => s.SetProperty(e => e.Data.Timestamp, timestamp))
+                : query.ExecuteUpdate(s => s.SetProperty(e => e.Data.Timestamp, timestamp)));
+        await AssertData(42, timestamp);
+
+        Assert.Equal(
+            1, async
+                ? await query.ExecuteUpdateAsync(s => s.SetProperty(e => e.Data.Enabled, false))
+                : query.ExecuteUpdate(s => s.SetProperty(e => e.Data.Enabled, false)));
+        await AssertData(42, timestamp);
+        var enabled = true;
+        Assert.Equal(
+            1, async
+                ? await query.ExecuteUpdateAsync(s => s.SetProperty(e => e.Data.Enabled, enabled))
+                : query.ExecuteUpdate(s => s.SetProperty(e => e.Data.Enabled, enabled)));
+        expectedEnabled = enabled;
+        await AssertData(42, timestamp);
+
+        for (var number = 43; number <= 44; number++)
+        {
+            ClearLog();
+            Assert.Equal(
+                1, async
+                    ? await query.ExecuteUpdateAsync(s => s
+                        .SetProperty(e => e.NativeNumber, number)
+                        .SetProperty(e => e.Data.Number, number))
+                    : query.ExecuteUpdate(s => s
+                        .SetProperty(e => e.NativeNumber, number)
+                        .SetProperty(e => e.Data.Number, number)));
+            expectedNativeNumber = number;
+            await AssertData(number, timestamp);
+        }
+
+        await AssertTranslationFailedWithDetails(
+            RelationalStrings.ExecuteUpdateCannotSetJsonPropertyToArbitraryExpression,
+            async () =>
+            {
+                if (async)
+                {
+                    await query.ExecuteUpdateAsync(s => s.SetProperty(e => e.Data.Number, e => e.Data.Number + 1));
+                }
+                else
+                {
+                    query.ExecuteUpdate(s => s.SetProperty(e => e.Data.Number, e => e.Data.Number + 1));
+                }
+            });
+        await AssertTranslationFailedWithDetails(
+            RelationalStrings.ExecuteUpdateCannotSetJsonPropertyToNonJsonColumn,
+            async () =>
+            {
+                if (async)
+                {
+                    await query.ExecuteUpdateAsync(s => s.SetProperty(e => e.Data.Number, e => e.NativeNumber));
+                }
+                else
+                {
+                    query.ExecuteUpdate(s => s.SetProperty(e => e.Data.Number, e => e.NativeNumber));
+                }
+            });
+
+        async Task AssertData(int expectedNumber, DateTime expectedTimestamp)
+        {
+            var item = async ? await query.AsNoTracking().SingleAsync() : query.AsNoTracking().Single();
+            Assert.Equal(expectedNumber, item.Data.Number);
+            Assert.Equal(expectedTimestamp, item.Data.Timestamp);
+            Assert.Equal(expectedEnabled, item.Data.Enabled);
+            Assert.Equal(expectedNativeNumber, item.NativeNumber);
+            Assert.Equal(1.5E-28, item.Data.SmallNumber);
+            Assert.Equal(new[] { 42 }, item.Data.Numbers);
+            Assert.Equal(new[] { 7 }, item.Data.EncodedNumbers);
+            await using var command = context.Database.GetDbConnection().CreateCommand();
+            command.CommandText = ((RelationalTestStore)NonSharedTestStore)
+                .NormalizeDelimitersInRawString("SELECT [Data] FROM [JsonWriterItems]");
+            var json = async ? await command.ExecuteScalarAsync() : command.ExecuteScalar();
+            using var document = JsonDocument.Parse(Assert.IsType<string>(json));
+            Assert.Equal(expectedNumber.ToString(CultureInfo.InvariantCulture), document.RootElement.GetProperty("Number").GetString());
+            Assert.Equal(expectedEnabled ? "yes" : "no", document.RootElement.GetProperty("Enabled").GetString());
+            Assert.Equal("7", Assert.Single(document.RootElement.GetProperty("EncodedNumbers").EnumerateArray()).GetString());
+            Assert.Equal(
+                new DateTimeOffset(expectedTimestamp).ToUnixTimeMilliseconds(),
+                document.RootElement.GetProperty("Timestamp").GetInt64());
+        }
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Update_JSON_columns_with_same_parameter_and_different_conversions(bool async)
+    {
+        var factory = await InitializeNonSharedTest<PoolableDbContext>(
+            onModelCreating: b =>
+            {
+                var entity = b.Entity<JsonPairItem>();
+                entity.Property(e => e.Id).ValueGeneratedNever();
+                entity.ComplexProperty(e => e.First).ToJson();
+                entity.ComplexProperty(e => e.Second).ToJson().Property(e => e.Number).HasConversion<string>();
+            },
+            seed: context =>
+            {
+                context.Add(
+                    new JsonPairItem { Id = 1, First = new JsonPairData { Number = 1 }, Second = new JsonPairData { Number = 2 } });
+                return context.SaveChangesAsync();
+            });
+        await using var context = factory.CreateDbContext();
+        var query = context.Set<JsonPairItem>();
+        var p = new JsonPairData { Number = 42 };
+        ClearLog();
+
+        Assert.Equal(
+            1, async
+                ? await query.ExecuteUpdateAsync(s => s.SetProperty(e => e.First, p).SetProperty(e => e.Second, p))
+                : query.ExecuteUpdate(s => s.SetProperty(e => e.First, p).SetProperty(e => e.Second, p)));
+        var item = async ? await query.AsNoTracking().SingleAsync() : query.AsNoTracking().Single();
+        Assert.Equal(42, item.First.Number);
+        Assert.Equal(42, item.Second.Number);
+    }
+
+    protected class JsonPairItem
+    {
+        public int Id { get; set; }
+        public JsonPairData First { get; set; } = null!;
+        public JsonPairData Second { get; set; } = null!;
+    }
+
+    protected class JsonPairData
+    {
+        public int Number { get; set; }
+    }
+
+    protected class JsonWriterItem
+    {
+        public int Id { get; set; }
+        public int NativeNumber { get; set; }
+        public JsonWriterData Data { get; set; } = null!;
+    }
+
+    protected class JsonWriterData
+    {
+        public int Number { get; set; }
+        public DateTime Timestamp { get; set; }
+        public bool Enabled { get; set; }
+        public double SmallNumber { get; set; }
+        public List<int> Numbers { get; set; } = [];
+        public List<int> EncodedNumbers { get; set; } = [];
+        public List<int> OtherEncodedNumbers { get; set; } = [];
+    }
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Delete_aggregate_root_when_table_sharing_with_non_owned_throws(bool async)

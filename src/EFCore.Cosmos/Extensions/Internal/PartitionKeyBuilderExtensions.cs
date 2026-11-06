@@ -1,7 +1,10 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Globalization;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Internal;
@@ -32,66 +35,82 @@ public static class PartitionKeyBuilderExtensions
                     : value;
         }
 
-        var converter = property?.GetTypeMapping().Converter;
+        var mapping = property?.GetTypeMapping();
+        var converter = mapping?.Converter;
+        var writeNull = value is not null || mapping?.JsonValueReaderWriter?.HandlesNullWrites == true;
         if (converter != null)
         {
             value = converter.ConvertToProvider(value);
         }
 
-        if (value == null)
+        if (value != null)
         {
-            builder.AddNullValue();
-        }
-        else
-        {
+            var valueType = value.GetType();
+            if (value is not string and not bool && !valueType.IsNumeric())
+            {
+                throw new InvalidOperationException(CosmosStrings.PartitionKeyBadValue(valueType));
+            }
+
             var expectedType = (converter?.ProviderClrType ?? property?.ClrType)?.UnwrapNullableType();
-            switch (value)
+            if (expectedType != null
+                && expectedType != valueType
+                && !(expectedType.IsNumeric() && valueType.IsNumeric()))
             {
-                case string stringValue:
-                    if (expectedType != null && expectedType != typeof(string))
-                    {
-                        CheckType(typeof(string));
-                    }
-
-                    builder.Add(stringValue);
-                    break;
-
-                case bool boolValue:
-                    if (expectedType != null && expectedType != typeof(bool))
-                    {
-                        CheckType(typeof(bool));
-                    }
-
-                    builder.Add(boolValue);
-                    break;
-
-                case var _ when value.GetType().IsNumeric():
-                    if (expectedType != null && !expectedType.IsNumeric())
-                    {
-                        CheckType(value.GetType());
-                    }
-
-                    builder.Add(Convert.ToDouble(value));
-                    break;
-
-                default:
-                    throw new InvalidOperationException(CosmosStrings.PartitionKeyBadValue(value.GetType()));
-            }
-
-            void CheckType(Type actualType)
-            {
-                if (expectedType != null && expectedType != actualType)
-                {
-                    throw new InvalidOperationException(
-                        CosmosStrings.PartitionKeyBadValueType(
-                            expectedType.ShortDisplayName(),
-                            property!.DeclaringType.DisplayName(),
-                            property.Name,
-                            actualType.DisplayName()));
-                }
+                throw new InvalidOperationException(
+                    CosmosStrings.PartitionKeyBadValueType(
+                        expectedType.ShortDisplayName(),
+                        property!.DeclaringType.DisplayName(),
+                        property.Name,
+                        valueType.DisplayName()));
             }
         }
 
-        return builder;
+        var readerWriter = mapping?.JsonValueReaderWriter;
+#pragma warning disable EF1001 // Internal EF Core API usage.
+        if (readerWriter is IJsonConvertedValueReaderWriter converted
+            && ReferenceEquals(converted.Converter, converter))
+        {
+            readerWriter = converted.InnerReaderWriter;
+        }
+#pragma warning restore EF1001
+
+        if (readerWriter != null
+            && writeNull
+            && (value != null || readerWriter.HandlesNullWrites))
+        {
+            if (value != null
+                && !readerWriter.ValueType.IsInstanceOfType(value)
+                && value.GetType().IsNumeric()
+                && readerWriter.ValueType.IsNumeric())
+            {
+                // Unconfigured numeric keys must not be narrowed to the property's CLR type.
+                if (property!.GetJsonValueReaderWriter() == null
+                    && property.DeclaringType.Model.FindTypeMappingConfiguration(property.ClrType.UnwrapNullableType())
+                        ?.GetJsonValueReaderWriterType() == null)
+                {
+                    return builder.Add(Convert.ToDouble(value));
+                }
+
+                value = Convert.ChangeType(value, readerWriter.ValueType, CultureInfo.InvariantCulture);
+            }
+
+            using var document = JsonDocument.Parse(readerWriter.ToJsonString(value));
+            value = document.RootElement.ValueKind switch
+            {
+                JsonValueKind.Null => null,
+                JsonValueKind.String => document.RootElement.GetString(),
+                JsonValueKind.True or JsonValueKind.False => document.RootElement.GetBoolean(),
+                JsonValueKind.Number => document.RootElement.GetDouble(),
+                _ => throw new InvalidOperationException(CosmosStrings.PartitionKeyBadValue(typeof(JsonElement)))
+            };
+        }
+
+        return value switch
+        {
+            null => builder.AddNullValue(),
+            string stringValue => builder.Add(stringValue),
+            bool boolValue => builder.Add(boolValue),
+            _ => builder.Add(Convert.ToDouble(value))
+        };
     }
 }

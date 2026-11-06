@@ -123,7 +123,7 @@ WHERE [Id] = @p1;
         {
             AssertSql(
                 """
-@Fixture_OtherValue='2147483647'
+@Fixture_OtherValue='2147483647' (Nullable = true)
 
 SET NOCOUNT OFF;
 UPDATE [j]
@@ -135,7 +135,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
-@Fixture_OtherValue='2147483647'
+@Fixture_OtherValue='2147483647' (Nullable = true)
 
 SET NOCOUNT OFF;
 UPDATE [j]

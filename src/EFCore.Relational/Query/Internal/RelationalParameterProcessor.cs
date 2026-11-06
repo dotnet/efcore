@@ -117,6 +117,9 @@ public class RelationalParameterProcessor : ExpressionVisitor
         if (_sqlParameters.TryGetValue(parameter.InvariantName, out var existingParameter)
             && existingParameter is { TypeMapping: { } existingTypeMapping }
             && string.Equals(existingTypeMapping.StoreType, typeMapping.StoreType, StringComparison.OrdinalIgnoreCase)
+            && existingTypeMapping.GetType() == typeMapping.GetType()
+            && existingTypeMapping.DbType == typeMapping.DbType
+            && ReferenceEquals(existingTypeMapping.JsonValueReaderWriter, typeMapping.JsonValueReaderWriter)
             && ((existingTypeMapping.Converter is null && typeMapping.Converter is null)
                 || (existingTypeMapping.Converter is not null && existingTypeMapping.Converter.Equals(typeMapping.Converter))))
         {

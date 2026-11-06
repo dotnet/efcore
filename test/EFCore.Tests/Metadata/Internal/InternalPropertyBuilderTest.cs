@@ -3,10 +3,72 @@
 
 // ReSharper disable InconsistentNaming
 
+using Microsoft.EntityFrameworkCore.Storage.Json;
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 public class InternalPropertyBuilderTest
 {
+    [Fact]
+    public void Convention_property_reader_writer_respects_configuration_sources()
+    {
+        var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+        var property = modelBuilder.Entity<Customer>().Property(e => e.Id);
+        var metadata = (IConventionProperty)property.Metadata;
+        var builder = metadata.Builder;
+
+        Assert.True(builder.CanSetJsonValueReaderWriter(typeof(JsonInt32ReaderWriter)));
+        Assert.Same(builder, builder.HasJsonValueReaderWriter(typeof(JsonInt32ReaderWriter)));
+        Assert.Equal(ConfigurationSource.Convention, metadata.GetJsonValueReaderWriterTypeConfigurationSource());
+        Assert.Same(builder, builder.HasJsonValueReaderWriter(typeof(JsonStringReaderWriter), fromDataAnnotation: true));
+        Assert.True(builder.CanSetJsonValueReaderWriter(typeof(JsonStringReaderWriter)));
+        Assert.Same(builder, builder.HasJsonValueReaderWriter(typeof(JsonStringReaderWriter)));
+        Assert.False(builder.CanSetJsonValueReaderWriter(typeof(JsonInt32ReaderWriter)));
+        Assert.Null(builder.HasJsonValueReaderWriter(typeof(JsonInt32ReaderWriter)));
+        Assert.False(builder.CanSetJsonValueReaderWriter(null));
+        Assert.Null(builder.HasJsonValueReaderWriter(null));
+        Assert.Same(JsonStringReaderWriter.Instance, property.Metadata.GetJsonValueReaderWriter());
+        Assert.Equal(ConfigurationSource.DataAnnotation, metadata.GetJsonValueReaderWriterTypeConfigurationSource());
+        Assert.Same(builder, builder.HasJsonValueReaderWriter(null, fromDataAnnotation: true));
+        Assert.Null(property.Metadata.GetJsonValueReaderWriter());
+
+        property.HasJsonValueReaderWriter<JsonInt32ReaderWriter>();
+        Assert.False(builder.CanSetJsonValueReaderWriter(null, fromDataAnnotation: true));
+        Assert.Null(builder.HasJsonValueReaderWriter(null, fromDataAnnotation: true));
+        Assert.Same(JsonInt32ReaderWriter.Instance, property.Metadata.GetJsonValueReaderWriter());
+        Assert.Equal(ConfigurationSource.Explicit, metadata.GetJsonValueReaderWriterTypeConfigurationSource());
+    }
+
+    [Fact]
+    public void Convention_element_reader_writer_respects_configuration_sources()
+    {
+        var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+        var element = modelBuilder.Entity<Customer>().PrimitiveCollection<List<int>>("Numbers").ElementType();
+        var metadata = (IConventionElementType)element.Metadata;
+        var builder = metadata.Builder;
+
+        Assert.True(builder.CanSetJsonValueReaderWriter(typeof(JsonInt32ReaderWriter)));
+        Assert.Same(builder, builder.HasJsonValueReaderWriter(typeof(JsonInt32ReaderWriter)));
+        Assert.Equal(ConfigurationSource.Convention, metadata.GetJsonValueReaderWriterTypeConfigurationSource());
+        Assert.Same(builder, builder.HasJsonValueReaderWriter(typeof(JsonStringReaderWriter), fromDataAnnotation: true));
+        Assert.True(builder.CanSetJsonValueReaderWriter(typeof(JsonStringReaderWriter)));
+        Assert.Same(builder, builder.HasJsonValueReaderWriter(typeof(JsonStringReaderWriter)));
+        Assert.False(builder.CanSetJsonValueReaderWriter(typeof(JsonInt32ReaderWriter)));
+        Assert.Null(builder.HasJsonValueReaderWriter(typeof(JsonInt32ReaderWriter)));
+        Assert.False(builder.CanSetJsonValueReaderWriter(null));
+        Assert.Null(builder.HasJsonValueReaderWriter(null));
+        Assert.Same(JsonStringReaderWriter.Instance, element.Metadata.GetJsonValueReaderWriter());
+        Assert.Equal(ConfigurationSource.DataAnnotation, metadata.GetJsonValueReaderWriterTypeConfigurationSource());
+        Assert.Same(builder, builder.HasJsonValueReaderWriter(null, fromDataAnnotation: true));
+        Assert.Null(element.Metadata.GetJsonValueReaderWriter());
+
+        element.HasJsonValueReaderWriter<JsonInt32ReaderWriter>();
+        Assert.False(builder.CanSetJsonValueReaderWriter(null, fromDataAnnotation: true));
+        Assert.Null(builder.HasJsonValueReaderWriter(null, fromDataAnnotation: true));
+        Assert.Same(JsonInt32ReaderWriter.Instance, element.Metadata.GetJsonValueReaderWriter());
+        Assert.Equal(ConfigurationSource.Explicit, metadata.GetJsonValueReaderWriterTypeConfigurationSource());
+    }
+
     [Fact]
     public void Property_added_by_name_is_non_shadow_if_matches_Clr_property()
     {

@@ -1,6 +1,11 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Linq.Expressions;
+using System.Text.Json;
+using Microsoft.EntityFrameworkCore.Storage.Json;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixture) : OwnedEntityQueryTestBase(fixture)
@@ -13,6 +18,328 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
 
     protected void AssertSql(params string[] expected)
         => TestSqlLoggerFactory.AssertBaseline(expected);
+
+    [Theory, InlineData(false), InlineData(true)]
+    public virtual async Task JSON_reader_writer_with_value_converter_server_comparisons_and_projections(bool async)
+    {
+        var date = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        int[] numbers = [3, 43, 143];
+        var factory = await InitializeNonSharedTest<ConvertedJsonScalarContext>(
+            seed: async context =>
+            {
+                context.AddRange(
+                    numbers.Select((value, index) => new ConvertedJsonScalarContext.Item
+                    {
+                        Id = index + 1,
+                        Number = value,
+                        NativeFlag = index == 1,
+                        Timestamp = date.AddSeconds(index - 1),
+                        Data = new ConvertedJsonScalarContext.JsonData
+                        {
+                            Number = value,
+                            UpperNumber = value + 10,
+                            OptionalNumber = index == 0 ? null : value,
+                            Timestamp = date.AddSeconds(index - 1),
+                            OptionalTimestamp = index == 0 ? null : date.AddSeconds(index - 1),
+                            Flags = [index == 1, true]
+                        }
+                    }));
+                await context.SaveChangesAsync();
+            });
+        await using var context = factory.CreateDbContext();
+        var number = 43;
+        await AssertIds(context.Items.Where(e => e.Data.Number == number), 2);
+        await AssertIds(context.Items.Where(e => e.Data.Number == 43), 2);
+        await AssertIds(context.Items.Where(e => e.Data.Number < number), 1);
+        await AssertIds(context.Items.Where(e => e.Data.Number >= number), 2, 3);
+        await AssertIds(context.Items.Where(e => e.Data.Number < e.Data.UpperNumber), 1, 2, 3);
+        await AssertIds(context.Items.Where(e => e.Data.OptionalNumber == number), 2);
+        await AssertIds(context.Items.Where(e => e.Data.OptionalNumber == null), 1);
+        await AssertIds(context.Items.Where(e => e.Data.Timestamp == date), 2);
+        await AssertIds(context.Items.Where(e => e.Data.Timestamp < date), 1);
+        await AssertIds(context.Items.Where(e => e.Data.Timestamp >= date), 2, 3);
+        await AssertIds(
+            context.Items.Where(e => e.Data.Timestamp == new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)), 2);
+        await AssertIds(context.Items.Where(e => e.Data.OptionalTimestamp == date), 2);
+        await AssertIds(context.Items.Where(e => e.Data.OptionalTimestamp == null), 1);
+        await AssertIds(context.Items.Where(e => e.Number == number && e.Data.Number == number), 2);
+        await AssertIds(context.Items.Where(e => e.Timestamp == date && e.Data.Timestamp == date), 2);
+        var ordered = context.Items.OrderBy(e => e.Data.Number).Select(e => e.Id);
+        var orderedIds = async ? await ordered.ToArrayAsync() : ordered.ToArray();
+        Assert.Equal([1, 2, 3], orderedIds);
+
+        await context.Database.OpenConnectionAsync();
+        await using (var command = context.Database.GetDbConnection().CreateCommand())
+        {
+            command.CommandText = ((RelationalTestStore)NonSharedTestStore)
+                .NormalizeDelimitersInRawString("SELECT [Data] FROM [Items] WHERE [Id] = 2");
+            var json = async ? await command.ExecuteScalarAsync() : command.ExecuteScalar();
+            using var document = JsonDocument.Parse(Assert.IsType<string>(json));
+            Assert.Equal(430, document.RootElement.GetProperty("Number").GetInt32());
+            Assert.Equal(
+                new DateTimeOffset(date).ToUnixTimeMilliseconds(), document.RootElement.GetProperty("Timestamp").GetInt64());
+        }
+
+        var query = context.Items.AsNoTracking().OrderBy(e => e.Id);
+        var items = async ? await query.ToArrayAsync() : query.ToArray();
+        Assert.Equal(numbers, items.Select(e => e.Data.Number));
+        Assert.Equal(numbers.Select(n => n + 10), items.Select(e => e.Data.UpperNumber));
+        Assert.Equal(new int?[] { null, 43, 143 }, items.Select(e => e.Data.OptionalNumber));
+        Assert.Equal(Enumerable.Range(-1, 3).Select(offset => date.AddSeconds(offset)), items.Select(e => e.Data.Timestamp));
+        Assert.Equal(new DateTime?[] { null, date, date.AddSeconds(1) }, items.Select(e => e.Data.OptionalTimestamp));
+
+        var union = context.Items.Select(e => e.Data.Number).Union(context.Items.Select(e => e.Data.UpperNumber)).Order();
+        Assert.Equal(new[] { 3, 13, 43, 53, 143, 153 }, async ? await union.ToArrayAsync() : union.ToArray());
+        var conditional = context.Items.OrderBy(e => e.Id).Select(e => e.Id == 1 ? e.Data.Number : e.Data.UpperNumber);
+        Assert.Equal(new[] { 3, 53, 153 }, async ? await conditional.ToArrayAsync() : conditional.ToArray());
+        var coalesce = context.Items.OrderBy(e => e.Id).Select(e => e.Data.OptionalNumber ?? e.Data.UpperNumber);
+        Assert.Equal(new[] { 13, 43, 143 }, async ? await coalesce.ToArrayAsync() : coalesce.ToArray());
+        var firstFlags = context.Items.OrderBy(e => e.Id).Select(e => e.Data.Flags.First());
+        Assert.Equal(new[] { false, true, false }, async ? await firstFlags.ToArrayAsync() : firstFlags.ToArray());
+        bool[] flags = [true];
+        await AssertIds(context.Items.Where(e => EF.Parameter(flags).Contains(e.NativeFlag)), 2);
+        await AssertIds(context.Items.Where(e => EF.Parameter(flags).Contains(e.Data.Flags.First())), 2);
+
+        ClearLog();
+        await AssertIds(context.Items.Where(e => e.Data.Number == number), 2);
+        await AssertIds(context.Items.Where(e => e.Data.Timestamp == date), 2);
+        var projection = context.Items.OrderBy(e => e.Id)
+            .Select(e => new { e.Data.Number, e.Data.UpperNumber, e.Data.OptionalNumber, e.Data.Timestamp, e.Data.OptionalTimestamp });
+        var values = async ? await projection.ToArrayAsync() : projection.ToArray();
+        Assert.Equal(numbers, values.Select(e => e.Number));
+        Assert.Equal(numbers.Select(n => n + 10), values.Select(e => e.UpperNumber));
+        Assert.Equal(new int?[] { null, 43, 143 }, values.Select(e => e.OptionalNumber));
+        Assert.Equal(Enumerable.Range(-1, 3).Select(offset => date.AddSeconds(offset)), values.Select(e => e.Timestamp));
+        Assert.Equal(new DateTime?[] { null, date, date.AddSeconds(1) }, values.Select(e => e.OptionalTimestamp));
+
+        async Task AssertIds(IQueryable<ConvertedJsonScalarContext.Item> source, params int[] expected)
+        {
+            var ids = source.OrderBy(e => e.Id).Select(e => e.Id);
+            Assert.Equal(expected, async ? await ids.ToArrayAsync() : ids.ToArray());
+        }
+    }
+
+    protected class ConvertedJsonScalarContext(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Item> Items
+            => Set<Item>();
+
+        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+        {
+            configurationBuilder.DefaultTypeMapping<int>().HasJsonValueReaderWriter<JsonInt32ReaderWriter>();
+            configurationBuilder.DefaultTypeMapping<long>().HasJsonValueReaderWriter<JsonInt64ReaderWriter>();
+            configurationBuilder.DefaultTypeMapping<bool>().HasJsonValueReaderWriter<JsonStringReaderWriter>();
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Item>().Property(e => e.Id).ValueGeneratedNever();
+            modelBuilder.Entity<Item>().OwnsOne(
+                e => e.Data, owned =>
+                {
+                    owned.ToJson();
+                    var numberConverter = new ValueConverter<int, int>(v => v * 10, v => v / 10);
+                    var timestampConverter = new ValueConverter<DateTime, long>(
+                        v => new DateTimeOffset(v).ToUnixTimeMilliseconds(),
+                        v => DateTimeOffset.FromUnixTimeMilliseconds(v).UtcDateTime);
+                    owned.Property(e => e.Number).HasConversion(numberConverter);
+                    owned.Property(e => e.UpperNumber).HasConversion(numberConverter);
+                    owned.Property(e => e.OptionalNumber).HasConversion(numberConverter);
+                    owned.Property(e => e.Timestamp)
+                        .HasConversion(timestampConverter)
+                        .HasJsonValueReaderWriter<JsonInt64ReaderWriter>();
+                    owned.Property(e => e.OptionalTimestamp)
+                        .HasConversion(timestampConverter)
+                        .HasJsonValueReaderWriter<JsonInt64ReaderWriter>();
+                    owned.PrimitiveCollection(e => e.Flags).ElementType().HasConversion(new BoolToStringConverter("no", "yes"));
+                });
+        }
+
+        public class Item
+        {
+            public int Id { get; set; }
+            public int Number { get; set; }
+            public bool NativeFlag { get; set; }
+            public DateTime Timestamp { get; set; }
+            public JsonData Data { get; set; } = null!;
+        }
+
+        public class JsonData
+        {
+            public int Number { get; set; }
+            public int UpperNumber { get; set; }
+            public int? OptionalNumber { get; set; }
+            public DateTime Timestamp { get; set; }
+            public DateTime? OptionalTimestamp { get; set; }
+            public List<bool> Flags { get; set; } = [];
+        }
+    }
+
+    [Theory, InlineData(false, DateTimeKind.Utc), InlineData(true, DateTimeKind.Utc),
+     InlineData(false, DateTimeKind.Unspecified), InlineData(true, DateTimeKind.Unspecified)]
+    public virtual async Task Legacy_DateTime_reader_writer_server_comparisons(bool async, DateTimeKind kind)
+    {
+        var boundary = new DateTime(2026, 1, 1, 0, 0, 0, 123, kind);
+        var upper = new DateTime(2026, 1, 1, 0, 0, 1, kind);
+        var contextFactory = await InitializeNonSharedTest<LegacyDateTimeContext>(
+            seed: async context =>
+            {
+                var dates = new[] { boundary.AddMilliseconds(-123), boundary, upper, upper.AddMilliseconds(1) };
+                context.AddRange(
+                    dates.Select((date, index) => new LegacyDateTimeContext.Item
+                    {
+                        Id = index + 1,
+                        NativeTimestamp = date,
+                        Timestamps = [date],
+                        Data = new LegacyDateTimeContext.JsonData
+                        {
+                            Timestamp = date,
+                            OptionalTimestamp = index == 0 ? null : date,
+                            DefaultTimestamp = date,
+                            Timestamps = [date]
+                        }
+                    }));
+                await context.SaveChangesAsync();
+            });
+        await using var context = contextFactory.CreateDbContext();
+
+        await context.Database.OpenConnectionAsync();
+        await using (var command = context.Database.GetDbConnection().CreateCommand())
+        {
+            command.CommandText = ((RelationalTestStore)NonSharedTestStore)
+                .NormalizeDelimitersInRawString("SELECT [Data] FROM [Items] WHERE [Id] = 2");
+            var json = async ? await command.ExecuteScalarAsync() : command.ExecuteScalar();
+            using var document = JsonDocument.Parse(Assert.IsType<string>(json));
+            var suffix = kind == DateTimeKind.Utc ? "Z" : "";
+            Assert.Equal("2026-01-01T00:00:00.123" + suffix, document.RootElement.GetProperty("Timestamp").GetString());
+            Assert.Equal(
+                "2026-01-01T00:00:00.123" + suffix,
+                document.RootElement.GetProperty("OptionalTimestamp").GetString());
+            Assert.Equal(
+                "2026-01-01T00:00:00.123" + suffix,
+                document.RootElement.GetProperty("Timestamps")[0].GetString());
+            Assert.Equal(
+                "2026-01-01T00:00:00.1230000" + suffix,
+                document.RootElement.GetProperty("DefaultTimestamp").GetString());
+        }
+
+        await AssertIds(context.Items.Where(e => e.Data.Timestamp == boundary), 2);
+        await AssertIds(context.Items.Where(e => e.Data.Timestamp < boundary), 1);
+        await AssertIds(context.Items.Where(e => e.Data.Timestamp >= upper), 3, 4);
+        await AssertIds(context.Items.Where(e => e.Data.Timestamp >= boundary && e.Data.Timestamp < upper), 2);
+        await AssertIds(context.Items.Where(e => e.Data.OptionalTimestamp == boundary), 2);
+        await AssertIds(context.Items.Where(e => e.Data.OptionalTimestamp == null), 1);
+        await AssertIds(context.Items.Where(e => e.Data.Timestamps.Contains(boundary)), 2);
+        await AssertIds(context.Items.Where(e => e.Timestamps.Contains(boundary)), 2);
+        await AssertIds(context.Items.Where(e => e.Timestamps[0] == boundary), 2);
+        await AssertIds(context.Items.Where(e => e.Data.DefaultTimestamp == boundary), 2);
+        await AssertIds(context.Items.Where(e => e.NativeTimestamp < upper), 1, 2);
+
+        await AssertIds(context.Items.Where(e => e.NativeTimestamp == boundary && e.Data.Timestamp == boundary), 2);
+        await AssertIds(context.Items.Where(e => e.Data.Timestamp == boundary && e.NativeTimestamp == boundary), 2);
+        await AssertIds(context.Items.Where(e => e.Data.Timestamp == boundary && e.Data.DefaultTimestamp == boundary), 2);
+        await AssertIds(context.Items.Where(e => e.Data.DefaultTimestamp == boundary && e.Data.Timestamp == boundary), 2);
+
+        var comparisonDates = new[] { boundary };
+        await AssertIds(context.Items.Where(e => comparisonDates.Contains(e.NativeTimestamp)), 2);
+        await AssertIds(context.Items.Where(e => EF.Parameter(comparisonDates).Contains(e.NativeTimestamp)), 2);
+        await AssertIds(context.Items.Where(e => EF.Parameter(comparisonDates).Contains(e.Data.Timestamp)), 2);
+
+        if (kind == DateTimeKind.Utc)
+        {
+            await AssertIds(context.Items.Where(e => e.Data.Timestamp == new DateTime(2026, 1, 1, 0, 0, 0, 123, DateTimeKind.Utc)), 2);
+            await AssertIds(context.Items.Where(e => e.Data.Timestamp >= new DateTime(2026, 1, 1, 0, 0, 1, DateTimeKind.Utc)), 3, 4);
+        }
+        else
+        {
+            await AssertIds(context.Items.Where(e => e.Data.Timestamp == new DateTime(2026, 1, 1, 0, 0, 0, 123)), 2);
+            await AssertIds(context.Items.Where(e => e.Data.Timestamp >= new DateTime(2026, 1, 1, 0, 0, 1)), 3, 4);
+        }
+
+        var query = context.Items.AsNoTracking().OrderBy(e => e.Id);
+        var items = async ? await query.ToListAsync() : query.ToList();
+        Assert.Equal(4, items.Count);
+        for (var index = 0; index < items.Count; index++)
+        {
+            var expected = index switch
+            {
+                0 => boundary.AddMilliseconds(-123),
+                1 => boundary,
+                2 => upper,
+                _ => upper.AddMilliseconds(1)
+            };
+            Assert.Equal(expected, items[index].Data.Timestamp);
+            Assert.Equal(kind, items[index].Data.Timestamp.Kind);
+            Assert.Equal(index == 0 ? (DateTime?)null : expected, items[index].Data.OptionalTimestamp);
+            Assert.Equal(expected, items[index].Data.DefaultTimestamp);
+            Assert.Equal([expected], items[index].Data.Timestamps);
+            Assert.Equal([expected], items[index].Timestamps);
+            Assert.Equal(expected, items[index].NativeTimestamp);
+        }
+
+        ClearLog();
+        await AssertIds(context.Items.Where(e => e.NativeTimestamp == boundary), 2);
+        await AssertIds(context.Items.Where(e => e.Data.Timestamp == boundary), 2);
+
+        async Task AssertIds(IQueryable<LegacyDateTimeContext.Item> source, params int[] expected)
+        {
+            var ids = source.Select(e => e.Id).OrderBy(id => id);
+            Assert.Equal(expected, async ? await ids.ToArrayAsync() : ids.ToArray());
+        }
+    }
+
+    protected class LegacyDateTimeContext(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Item> Items
+            => Set<Item>();
+
+        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+            => configurationBuilder.DefaultTypeMapping<DateTime>()
+                .HasJsonValueReaderWriter<LegacyDateTimeJsonReaderWriter>();
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Item>().Property(e => e.Id).ValueGeneratedNever();
+            modelBuilder.Entity<Item>().OwnsOne(
+                e => e.Data, owned =>
+                {
+                    owned.ToJson();
+                    owned.Property(e => e.DefaultTimestamp).HasJsonValueReaderWriter<JsonDateTimeReaderWriter>();
+                });
+        }
+
+        public class Item
+        {
+            public int Id { get; set; }
+            public DateTime NativeTimestamp { get; set; }
+            public List<DateTime> Timestamps { get; set; } = [];
+            public JsonData Data { get; set; } = null!;
+        }
+
+        public class JsonData
+        {
+            public DateTime Timestamp { get; set; }
+            public DateTime? OptionalTimestamp { get; set; }
+            public DateTime DefaultTimestamp { get; set; }
+            public List<DateTime> Timestamps { get; set; } = [];
+        }
+    }
+
+    public sealed class LegacyDateTimeJsonReaderWriter : JsonValueReaderWriter<DateTime>
+    {
+        private static readonly JsonDateTimeReaderWriter ReaderWriter = new("yyyy-MM-dd'T'HH:mm:ss.fffK");
+
+        public static LegacyDateTimeJsonReaderWriter Instance { get; } = new();
+
+        public override DateTime FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
+            => ReaderWriter.FromJsonTyped(ref manager, existingObject);
+
+        public override void ToJsonTyped(Utf8JsonWriter writer, DateTime value)
+            => ReaderWriter.ToJsonTyped(writer, value);
+
+        public override Expression ConstructorExpression
+            => Expression.Property(null, typeof(LegacyDateTimeJsonReaderWriter), nameof(Instance));
+    }
 
     #region 23198
 

@@ -233,6 +233,7 @@ public class RuntimeModel : RuntimeAnnotatableBase, IRuntimeModel
     ///     The type that the property value will be converted to before being sent to the database provider.
     /// </param>
     /// <param name="valueConverter">The custom <see cref="ValueConverter" /> for this type.</param>
+    /// <param name="jsonValueReaderWriterType">The JSON reader/writer type for this type.</param>
     /// <returns>The newly created property.</returns>
     public virtual RuntimeTypeMappingConfiguration AddTypeMappingConfiguration(
         Type clrType,
@@ -241,7 +242,8 @@ public class RuntimeModel : RuntimeAnnotatableBase, IRuntimeModel
         int? precision = null,
         int? scale = null,
         Type? providerPropertyType = null,
-        ValueConverter? valueConverter = null)
+        ValueConverter? valueConverter = null,
+        Type? jsonValueReaderWriterType = null)
     {
         var typeConfiguration = new RuntimeTypeMappingConfiguration(
             clrType,
@@ -250,7 +252,8 @@ public class RuntimeModel : RuntimeAnnotatableBase, IRuntimeModel
             precision,
             scale,
             providerPropertyType,
-            valueConverter);
+            valueConverter,
+            jsonValueReaderWriterType);
 
         _typeConfigurations.Add(clrType, typeConfiguration);
 

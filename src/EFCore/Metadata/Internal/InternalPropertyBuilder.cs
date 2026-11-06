@@ -606,6 +606,34 @@ public class InternalPropertyBuilder
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public virtual InternalPropertyBuilder? HasJsonValueReaderWriter(Type? readerWriterType, ConfigurationSource configurationSource)
+    {
+        if (!CanSetJsonValueReaderWriter(readerWriterType, configurationSource))
+        {
+            return null;
+        }
+
+        Metadata.SetJsonValueReaderWriterType(readerWriterType, configurationSource);
+
+        return this;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool CanSetJsonValueReaderWriter(Type? readerWriterType, ConfigurationSource? configurationSource)
+        => configurationSource.Overrides(Metadata.GetJsonValueReaderWriterTypeConfigurationSource())
+            || (Type?)Metadata[CoreAnnotationNames.JsonValueReaderWriterType] == readerWriterType;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual InternalPropertyBuilder? HasConverter(
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
         Type? converterType,
@@ -1440,6 +1468,26 @@ public class InternalPropertyBuilder
     /// </summary>
     bool IConventionPropertyBuilder.CanSetConversion(ValueConverter? converter, bool fromDataAnnotation)
         => CanSetConversion(converter, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    IConventionPropertyBuilder? IConventionPropertyBuilder.HasJsonValueReaderWriter(Type? readerWriterType, bool fromDataAnnotation)
+        => HasJsonValueReaderWriter(
+            readerWriterType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    bool IConventionPropertyBuilder.CanSetJsonValueReaderWriter(Type? readerWriterType, bool fromDataAnnotation)
+        => CanSetJsonValueReaderWriter(
+            readerWriterType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

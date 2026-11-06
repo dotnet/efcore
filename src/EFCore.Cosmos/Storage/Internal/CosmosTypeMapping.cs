@@ -102,20 +102,13 @@ public class CosmosTypeMapping : CoreTypeMapping
             return TryCreateElementwiseParameter(name, normalized) ?? new SqlValueParameter(name, ConvertToProviderValue(value));
         }
 
-        using var stream = new MemoryStream();
-        using (var writer = new Utf8JsonWriter(stream, CosmosClientWrapper.JsonWriterOptions))
-        {
-            if (normalized is not null || JsonValueReaderWriter!.HandlesNullWrites)
-            {
-                JsonValueReaderWriter!.ToJson(writer, normalized!);
-            }
-            else
-            {
-                writer.WriteNullValue();
-            }
-        }
-
-        return new SqlRawJsonParameter(name, stream.ToArray());
+#pragma warning disable EF1001 // Internal EF Core API usage.
+        return new SqlRawJsonParameter(
+            name,
+            normalized is null && !JsonValueReaderWriter!.HandlesNullWrites
+                ? "null"u8.ToArray()
+                : JsonValueReaderWriter!.ToJsonBytes(normalized, CosmosClientWrapper.JsonWriterOptions));
+#pragma warning restore EF1001
     }
 
     private SqlParameter? TryCreateElementwiseParameter(string name, object value)
@@ -136,18 +129,11 @@ public class CosmosTypeMapping : CoreTypeMapping
             writer.WriteStartArray();
             foreach (var element in elements)
             {
-                if (element is null)
+                if (element is null && !elementReaderWriter.HandlesNullWrites)
                 {
-                    if (elementReaderWriter.HandlesNullWrites)
-                    {
-                        elementReaderWriter.ToJson(writer, null);
-                    }
-                    else
-                    {
-                        writer.WriteNullValue();
-                    }
+                    writer.WriteNullValue();
                 }
-                else if (elementType.IsInstanceOfType(element))
+                else if (element is null || elementType.IsInstanceOfType(element))
                 {
                     elementReaderWriter.ToJson(writer, element);
                 }
@@ -190,21 +176,11 @@ public class CosmosTypeMapping : CoreTypeMapping
     public virtual string GenerateSqlLiteral(object? value)
     {
         value = NormalizeValue(value);
+#pragma warning disable EF1001 // Internal EF Core API usage.
         return value is not null || JsonValueReaderWriter!.HandlesNullWrites
-            ? ToCosmosJsonString(value)
+            ? Encoding.UTF8.GetString(JsonValueReaderWriter!.ToJsonBytes(value, CosmosClientWrapper.JsonWriterOptions).Span)
             : "null";
-    }
-
-    private string ToCosmosJsonString(object? value)
-    {
-        using var stream = new MemoryStream();
-        using var writer = new Utf8JsonWriter(stream, CosmosClientWrapper.JsonWriterOptions);
-
-        JsonValueReaderWriter!.ToJson(writer, value);
-
-        writer.Flush();
-
-        return Encoding.UTF8.GetString(stream.GetBuffer(), 0, (int)stream.Length);
+#pragma warning restore EF1001
     }
 
     private object? NormalizeValue(object? value)

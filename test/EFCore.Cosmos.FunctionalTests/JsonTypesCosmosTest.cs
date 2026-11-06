@@ -256,38 +256,6 @@ public class JsonTypesCosmosTest(NonSharedFixture fixture) : JsonTypesTestBase(f
         // No built-in JSON support for spatial types in the Cosmos provider
         => Assert.ThrowsAsync<InvalidOperationException>(base.Can_read_write_polygon_typed_as_geometry);
 
-    public override Task Can_read_write_point_as_GeoJson()
-        // No built-in JSON support for spatial types in the Cosmos provider
-        => Assert.ThrowsAsync<InvalidOperationException>(base.Can_read_write_point_as_GeoJson);
-
-    public override Task Can_read_write_point_with_Z_as_GeoJson()
-        // No built-in JSON support for spatial types in the Cosmos provider
-        => Assert.ThrowsAsync<InvalidOperationException>(base.Can_read_write_point_with_Z_as_GeoJson);
-
-    public override Task Can_read_write_point_with_M_as_GeoJson()
-        // No built-in JSON support for spatial types in the Cosmos provider
-        => Assert.ThrowsAsync<InvalidOperationException>(base.Can_read_write_point_with_M_as_GeoJson);
-
-    public override Task Can_read_write_point_with_Z_and_M_as_GeoJson()
-        // No built-in JSON support for spatial types in the Cosmos provider
-        => Assert.ThrowsAsync<InvalidOperationException>(base.Can_read_write_point_with_Z_and_M_as_GeoJson);
-
-    public override Task Can_read_write_line_string_as_GeoJson()
-        // No built-in JSON support for spatial types in the Cosmos provider
-        => Assert.ThrowsAsync<InvalidOperationException>(base.Can_read_write_line_string_as_GeoJson);
-
-    public override Task Can_read_write_multi_line_string_as_GeoJson()
-        // No built-in JSON support for spatial types in the Cosmos provider
-        => Assert.ThrowsAsync<InvalidOperationException>(base.Can_read_write_multi_line_string_as_GeoJson);
-
-    public override Task Can_read_write_polygon_as_GeoJson()
-        // No built-in JSON support for spatial types in the Cosmos provider
-        => Assert.ThrowsAsync<InvalidOperationException>(base.Can_read_write_polygon_as_GeoJson);
-
-    public override Task Can_read_write_polygon_typed_as_geometry_as_GeoJson()
-        // No built-in JSON support for spatial types in the Cosmos provider
-        => Assert.ThrowsAsync<InvalidOperationException>(base.Can_read_write_polygon_typed_as_geometry_as_GeoJson);
-
     public override Task Can_read_write_nullable_point()
         // No built-in JSON support for spatial types in the Cosmos provider
         => Assert.ThrowsAsync<InvalidOperationException>(base.Can_read_write_point);
@@ -304,29 +272,9 @@ public class JsonTypesCosmosTest(NonSharedFixture fixture) : JsonTypesTestBase(f
         // No built-in JSON support for spatial types in the Cosmos provider
         => Assert.ThrowsAsync<InvalidOperationException>(base.Can_read_write_polygon);
 
-    public override Task Can_read_write_nullable_point_as_GeoJson()
-        // No built-in JSON support for spatial types in the Cosmos provider
-        => Assert.ThrowsAsync<InvalidOperationException>(base.Can_read_write_point_as_GeoJson);
-
-    public override Task Can_read_write_nullable_line_string_as_GeoJson()
-        // No built-in JSON support for spatial types in the Cosmos provider
-        => Assert.ThrowsAsync<InvalidOperationException>(base.Can_read_write_line_string_as_GeoJson);
-
-    public override Task Can_read_write_nullable_multi_line_string_as_GeoJson()
-        // No built-in JSON support for spatial types in the Cosmos provider
-        => Assert.ThrowsAsync<InvalidOperationException>(base.Can_read_write_multi_line_string_as_GeoJson);
-
-    public override Task Can_read_write_nullable_polygon_as_GeoJson()
-        // No built-in JSON support for spatial types in the Cosmos provider
-        => Assert.ThrowsAsync<InvalidOperationException>(base.Can_read_write_polygon_as_GeoJson);
-
     public override Task Can_read_write_polygon_typed_as_nullable_geometry()
         // No built-in JSON support for spatial types in the Cosmos provider
         => Assert.ThrowsAsync<InvalidOperationException>(base.Can_read_write_polygon_typed_as_nullable_geometry);
-
-    public override Task Can_read_write_polygon_typed_as_nullable_geometry_as_GeoJson()
-        // No built-in JSON support for spatial types in the Cosmos provider
-        => Assert.ThrowsAsync<InvalidOperationException>(base.Can_read_write_polygon_typed_as_nullable_geometry_as_GeoJson);
 
     protected override ITestStoreFactory NonSharedTestStoreFactory
         => CosmosTestStoreFactory.Instance;
