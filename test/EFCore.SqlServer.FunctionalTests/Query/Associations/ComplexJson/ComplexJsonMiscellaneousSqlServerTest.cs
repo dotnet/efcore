@@ -187,6 +187,100 @@ WHERE CAST(JSON_VALUE([m].[RequiredAssociate], '$.Int') AS int) = 8
         }
     }
 
+    #region Left join
+
+    public override async Task Where_on_associate_scalar_property_over_left_join()
+    {
+        await base.Where_on_associate_scalar_property_over_left_join();
+
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                """
+SELECT [r].[Id]
+FROM [RootEntity] AS [r]
+LEFT JOIN [RootEntity] AS [r0] ON [r].[Id] + 1 = [r0].[Id]
+WHERE JSON_VALUE([r0].[RequiredAssociate], '$.Int' RETURNING int) <> 8 OR JSON_VALUE([r0].[RequiredAssociate], '$.Int' RETURNING int) IS NULL
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+SELECT [r].[Id]
+FROM [RootEntity] AS [r]
+LEFT JOIN [RootEntity] AS [r0] ON [r].[Id] + 1 = [r0].[Id]
+WHERE CAST(JSON_VALUE([r0].[RequiredAssociate], '$.Int') AS int) <> 8 OR CAST(JSON_VALUE([r0].[RequiredAssociate], '$.Int') AS int) IS NULL
+""");
+        }
+    }
+
+    public override async Task Where_on_nested_associate_scalar_property_over_left_join()
+    {
+        await base.Where_on_nested_associate_scalar_property_over_left_join();
+
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                """
+SELECT [r].[Id]
+FROM [RootEntity] AS [r]
+LEFT JOIN [RootEntity] AS [r0] ON [r].[Id] + 1 = [r0].[Id]
+WHERE JSON_VALUE([r0].[RequiredAssociate], '$.RequiredNestedAssociate.Int' RETURNING int) <> 8 OR JSON_VALUE([r0].[RequiredAssociate], '$.RequiredNestedAssociate.Int' RETURNING int) IS NULL
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+SELECT [r].[Id]
+FROM [RootEntity] AS [r]
+LEFT JOIN [RootEntity] AS [r0] ON [r].[Id] + 1 = [r0].[Id]
+WHERE CAST(JSON_VALUE([r0].[RequiredAssociate], '$.RequiredNestedAssociate.Int') AS int) <> 8 OR CAST(JSON_VALUE([r0].[RequiredAssociate], '$.RequiredNestedAssociate.Int') AS int) IS NULL
+""");
+        }
+    }
+
+    public override async Task Where_on_associate_scalar_property_over_left_join_subquery()
+    {
+        await base.Where_on_associate_scalar_property_over_left_join_subquery();
+
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                """
+@p='5'
+
+SELECT [r].[Id]
+FROM [RootEntity] AS [r]
+LEFT JOIN (
+    SELECT TOP(@p) [r0].[Id], [r0].[RequiredAssociate] AS [c1]
+    FROM [RootEntity] AS [r0]
+    ORDER BY [r0].[Id]
+) AS [r1] ON [r].[Id] + 1 = [r1].[Id]
+WHERE JSON_VALUE([r1].[c1], '$.Int' RETURNING int) <> 8 OR JSON_VALUE([r1].[c1], '$.Int' RETURNING int) IS NULL
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+@p='5'
+
+SELECT [r].[Id]
+FROM [RootEntity] AS [r]
+LEFT JOIN (
+    SELECT TOP(@p) [r0].[Id], [r0].[RequiredAssociate] AS [c1]
+    FROM [RootEntity] AS [r0]
+    ORDER BY [r0].[Id]
+) AS [r1] ON [r].[Id] + 1 = [r1].[Id]
+WHERE CAST(JSON_VALUE([r1].[c1], '$.Int') AS int) <> 8 OR CAST(JSON_VALUE([r1].[c1], '$.Int') AS int) IS NULL
+""");
+        }
+    }
+
+    #endregion Left join
+
     [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

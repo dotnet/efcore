@@ -467,7 +467,10 @@ public static class RelationalTypeBaseExtensions
     /// <param name="typeBase">The type to set the container column name for.</param>
     /// <param name="columnName">The name to set.</param>
     public static void SetContainerColumnName(this IMutableTypeBase typeBase, string? columnName)
-        => typeBase.SetOrRemoveAnnotation(RelationalAnnotationNames.ContainerColumnName, columnName);
+    {
+        typeBase.SetOrRemoveAnnotation(RelationalAnnotationNames.ContainerColumnName, columnName);
+        typeBase.RemoveAnnotation(RelationalComplexPropertyBuilderExtensions.DefaultContainerColumnNameAnnotation);
+    }
 
     /// <summary>
     ///     Sets the name of the container column to which the type is mapped.
@@ -480,7 +483,10 @@ public static class RelationalTypeBaseExtensions
         this IConventionTypeBase typeBase,
         string? columnName,
         bool fromDataAnnotation = false)
-        => (string?)typeBase.SetAnnotation(RelationalAnnotationNames.ContainerColumnName, columnName, fromDataAnnotation)?.Value;
+    {
+        typeBase.RemoveAnnotation(RelationalComplexPropertyBuilderExtensions.DefaultContainerColumnNameAnnotation);
+        return (string?)typeBase.SetAnnotation(RelationalAnnotationNames.ContainerColumnName, columnName, fromDataAnnotation)?.Value;
+    }
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the container column name.

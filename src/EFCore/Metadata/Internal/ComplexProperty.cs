@@ -43,10 +43,13 @@ public class ComplexProperty : PropertyBase, IMutableComplexProperty, IConventio
         DeclaringType = declaringType;
         IsCollection = collection;
         ComplexType = new ComplexType(
-            targetTypeName ?? declaringType.GetOwnedName(targetType.ShortDisplayName(), name),
+            targetTypeName ?? GetDefaultComplexTypeName(declaringType, name, targetType),
             targetType, this, configurationSource);
         _builder = new InternalComplexPropertyBuilder(this, declaringType.Model.Builder);
     }
+
+    internal static string GetDefaultComplexTypeName(IReadOnlyTypeBase declaringType, string propertyName, Type complexClrType)
+        => declaringType.GetOwnedName(complexClrType.ShortDisplayName(), propertyName);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
