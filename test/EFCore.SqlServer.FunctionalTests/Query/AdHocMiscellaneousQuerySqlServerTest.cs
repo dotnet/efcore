@@ -3967,6 +3967,76 @@ ORDER BY [e].[ID]
 
     #endregion
 
+    #region 26940
+
+    [Fact]
+    public async Task Count_with_not_null_predicate_over_large_object_column_type_in_any_case()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context26940>(seed: c => c.SeedAsync());
+
+        using var context = contextFactory.CreateDbContext();
+        var result = context.Entities
+            .GroupBy(e => e.GroupKey)
+            .Select(g => new
+            {
+                Text = g.Count(e => e.Text != null),
+                Ntext = g.LongCount(e => e.Ntext != null),
+                Image = g.Count(e => e.Image != null)
+            })
+            .Single();
+
+        Assert.Equal(1, result.Text);
+        Assert.Equal(1, result.Ntext);
+        Assert.Equal(1, result.Image);
+
+        AssertSql(
+            """
+SELECT TOP(2) COUNT(CASE
+    WHEN [e].[Text] IS NOT NULL THEN 1
+END) AS [Text], COUNT_BIG(CASE
+    WHEN [e].[Ntext] IS NOT NULL THEN 1
+END) AS [Ntext], COUNT(CASE
+    WHEN [e].[Image] IS NOT NULL THEN 1
+END) AS [Image]
+FROM [Entities] AS [e]
+GROUP BY [e].[GroupKey]
+""");
+    }
+
+    protected class Context26940(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Entity26940> Entities { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Entity26940>(
+                b =>
+                {
+                    b.Property(e => e.Text).HasColumnType("Text");
+                    b.Property(e => e.Ntext).HasColumnType("NTEXT");
+                    b.Property(e => e.Image).HasColumnType("[image]");
+                });
+
+        public Task SeedAsync()
+        {
+            AddRange(
+                new Entity26940 { GroupKey = 1, Text = "A", Ntext = "B", Image = [1] },
+                new Entity26940 { GroupKey = 1 });
+
+            return SaveChangesAsync();
+        }
+    }
+
+    protected class Entity26940
+    {
+        public int Id { get; set; }
+        public int GroupKey { get; set; }
+        public string? Text { get; set; }
+        public string? Ntext { get; set; }
+        public byte[]? Image { get; set; }
+    }
+
+    #endregion
+
     [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
