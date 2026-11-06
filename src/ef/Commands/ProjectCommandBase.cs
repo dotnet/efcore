@@ -27,10 +27,6 @@ internal abstract class ProjectCommandBase : EFCommandBase
     protected CommandOption? WorkingDir { get; private set; }
     protected CommandOption? Framework { get; private set; }
     protected CommandOption? Configuration { get; private set; }
-    protected CommandOption? DepsFile { get; private set; }
-    protected CommandOption? RuntimeConfig { get; private set; }
-    protected CommandOption? FxVersion { get; private set; }
-    protected CommandOption? AdditionalProbingPaths { get; private set; }
 
     public override void Configure(CommandLineApplication command)
     {
@@ -49,11 +45,6 @@ internal abstract class ProjectCommandBase : EFCommandBase
         Framework = command.Option("--framework <FRAMEWORK>", Resources.FrameworkDescription);
         Configuration = command.Option("--configuration <CONFIGURATION>", Resources.ConfigurationDescription);
         _designAssembly = command.Option("--design-assembly <PATH>", Resources.DesignAssemblyDescription);
-        DepsFile = command.Option("--deps-file <PATH>", Resources.DepsFileDescription);
-        RuntimeConfig = command.Option("--runtime-config <PATH>", Resources.RuntimeConfigDescription);
-        FxVersion = command.Option("--runtime-framework-version <VERSION>", Resources.RuntimeFrameworkVersionDescription);
-        AdditionalProbingPaths = command.Option(
-            "--additional-probing-path <PATH>", Resources.AdditionalProbingPathDescription, CommandOptionType.MultipleValue);
 
         base.Configure(command);
     }

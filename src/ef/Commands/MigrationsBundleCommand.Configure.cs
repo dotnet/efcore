@@ -22,6 +22,12 @@ internal partial class MigrationsBundleCommand : ContextCommandBase
         _selfContained = command.Option("--self-contained", Resources.SelfContainedDescription);
         _runtime = command.Option("-r|--target-runtime <RUNTIME_IDENTIFIER>", Resources.MigrationsBundleRuntimeDescription);
 
+        ConfigureHostOptions(command);
+
         base.Configure(command);
     }
+
+    // Implemented in MigrationsBundleCommand.cs, which is only compiled into ef.dll: dotnet-ef also
+    // compiles this file but must not expose (or swallow) the host options it forwards to ef.dll.
+    partial void ConfigureHostOptions(CommandLineApplication command);
 }

@@ -460,9 +460,6 @@
     <value>The wildcard '*' is not supported for this command.</value>
   </data>
   <data name="BundleContextDiscoveryFailed" xml:space="preserve">
-    <value>Could not determine the DbContext type for the bundle. Use --verbose to see errors.</value>
-  </data>
-  <data name="BundleContextDiscoveryFailedWithError" xml:space="preserve">
-    <value>Could not determine the DbContext type for the bundle. {error}</value>
+    <value>Could not determine the DbContext type for the bundle.</value>
   </data>
 </root>

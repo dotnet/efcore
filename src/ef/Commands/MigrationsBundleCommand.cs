@@ -1,6 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.DotNet.Cli.CommandLine;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Tools.Generators;
 using Microsoft.EntityFrameworkCore.Tools.Properties;
@@ -9,6 +10,22 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands;
 
 internal partial class MigrationsBundleCommand
 {
+    private CommandOption? _depsFile;
+    private CommandOption? _runtimeConfig;
+    private CommandOption? _fxVersion;
+    private CommandOption? _additionalProbingPaths;
+
+    // Host context forwarded by dotnet-ef so the out-of-process DbContext discovery child can be
+    // launched the same way as this process. See https://github.com/dotnet/efcore/issues/25555.
+    partial void ConfigureHostOptions(CommandLineApplication command)
+    {
+        _depsFile = command.Option("--deps-file <PATH>", Resources.DepsFileDescription);
+        _runtimeConfig = command.Option("--runtime-config <PATH>", Resources.RuntimeConfigDescription);
+        _fxVersion = command.Option("--runtime-framework-version <VERSION>", Resources.RuntimeFrameworkVersionDescription);
+        _additionalProbingPaths = command.Option(
+            "--additional-probing-path <PATH>", Resources.AdditionalProbingPathDescription, CommandOptionType.MultipleValue);
+    }
+
     protected override void Validate()
     {
         base.Validate();

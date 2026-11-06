@@ -263,6 +263,37 @@ internal class RootCommand : CommandBase
             args.Add("--prefix-output");
         }
 
+        // Only `migrations bundle` understands these (it launches a child ef.dll for DbContext discovery);
+        // every other ef.dll command rejects unrecognized options.
+        if (IsMigrationsBundle(commands))
+        {
+            args.AddRange(GetBundleHostArgs(depsFile, runtimeConfig, startupProject.RuntimeFrameworkVersion, additionalProbingPaths));
+        }
+
+        if (_applicationArgs!.Any())
+        {
+            args.Add("--");
+            args.AddRange(_applicationArgs!);
+        }
+
+        return Exe.Run(executable, args, startupProject.ProjectDir);
+    }
+
+    internal static bool IsMigrationsBundle(IReadOnlyList<string> commands)
+        => commands.Count >= 2
+            && string.Equals(commands[0], "migrations", StringComparison.OrdinalIgnoreCase)
+            && string.Equals(commands[1], "bundle", StringComparison.OrdinalIgnoreCase);
+
+    // The startup project's host context, forwarded so `migrations bundle` can launch its out-of-process
+    // discovery child the same way this tool launched ef.dll. See https://github.com/dotnet/efcore/issues/25555.
+    internal static IReadOnlyList<string> GetBundleHostArgs(
+        string depsFile,
+        string runtimeConfig,
+        string? runtimeFrameworkVersion,
+        IReadOnlyList<string> additionalProbingPaths)
+    {
+        var args = new List<string>();
+
         if (File.Exists(depsFile))
         {
             args.Add("--deps-file");
@@ -274,12 +305,12 @@ internal class RootCommand : CommandBase
             args.Add("--runtime-config");
             args.Add(runtimeConfig);
         }
-        else if (startupProject.RuntimeFrameworkVersion!.Length != 0)
+        else if (!string.IsNullOrEmpty(runtimeFrameworkVersion))
         {
-            // Mirrors the host --fx-version above so a child discovery process (migrations bundle)
-            // can pin the same shared framework when there's no runtimeconfig.json.
+            // Mirrors the host --fx-version so the child can pin the same shared framework when there is
+            // no runtimeconfig.json.
             args.Add("--runtime-framework-version");
-            args.Add(startupProject.RuntimeFrameworkVersion);
+            args.Add(runtimeFrameworkVersion);
         }
 
         foreach (var additionalProbingPath in additionalProbingPaths)
@@ -288,13 +319,7 @@ internal class RootCommand : CommandBase
             args.Add(additionalProbingPath);
         }
 
-        if (_applicationArgs!.Any())
-        {
-            args.Add("--");
-            args.AddRange(_applicationArgs!);
-        }
-
-        return Exe.Run(executable, args, startupProject.ProjectDir);
+        return args;
     }
 
     private static (string, string) ResolveProjects(
