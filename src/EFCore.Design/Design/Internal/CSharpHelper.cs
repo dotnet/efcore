@@ -5,7 +5,6 @@ using System.Collections;
 using System.Globalization;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using System.Security;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -1573,7 +1572,12 @@ public class CSharpHelper : ICSharpHelper
                 first = false;
             }
 
-            builder.Append(SecurityElement.Escape(line));
+            // Only escape the characters that are markup in XML text, so that quotes and apostrophes stay readable (#34714).
+            builder.Append(
+                line
+                    .Replace("&", "&amp;")
+                    .Replace("<", "&lt;")
+                    .Replace(">", "&gt;"));
         }
 
         return builder.ToString();
