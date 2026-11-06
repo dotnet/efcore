@@ -52,18 +52,10 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
                 path);
 
         /// <summary>
-        ///     Could not determine the DbContext type for the bundle. Use --verbose to see errors.
+        ///     Could not determine the DbContext type for the bundle.
         /// </summary>
         public static string BundleContextDiscoveryFailed
             => GetString("BundleContextDiscoveryFailed");
-
-        /// <summary>
-        ///     Could not determine the DbContext type for the bundle. {error}
-        /// </summary>
-        public static string BundleContextDiscoveryFailedWithError(object? error)
-            => string.Format(
-                GetString("BundleContextDiscoveryFailedWithError", nameof(error)),
-                error);
 
         /// <summary>
         ///     The configuration to use.

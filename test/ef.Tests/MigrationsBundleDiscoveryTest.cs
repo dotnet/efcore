@@ -1,15 +1,14 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Text;
+using Microsoft.DotNet.Cli.CommandLine;
 using Microsoft.EntityFrameworkCore.Tools.Commands;
 
 namespace Microsoft.EntityFrameworkCore.Tools;
 
 public class MigrationsBundleDiscoveryTest
 {
-    private static string DataLines(params string[] jsonLines)
-        => string.Join("\n", jsonLines.Select(l => Reporter.DataPrefix + l));
-
     [Fact]
     public void BuildDiscoveryArguments_assembles_host_and_tool_args_in_order()
     {
@@ -112,122 +111,237 @@ public class MigrationsBundleDiscoveryTest
     }
 
     [Fact]
-    public void ParseContextType_reads_type_from_prefixed_data_lines()
+    public void BuildDiscoveryArguments_keeps_prefix_output_and_no_color_together()
     {
-        var output = DataLines("{", "  \"type\": \"My.App.BlogContext\",", "  \"providerName\": \"x\"", "}");
-        Assert.Equal("My.App.BlogContext", MigrationsBundleCommand.ParseContextType(output));
+        var args = MigrationsBundleCommand.BuildDiscoveryArguments(
+            "/tools/ef.dll", depsFile: null, runtimeConfig: null, fxVersion: null,
+            additionalProbingPaths: Array.Empty<string>(),
+            commonProjectArgs: Array.Empty<string>(),
+            context: null, verbose: false, applicationArgs: Array.Empty<string>());
+
+        var prefix = args.ToList().IndexOf("--prefix-output");
+        Assert.True(prefix >= 0);
+        Assert.Equal("--no-color", args[prefix + 1]);
     }
 
     [Fact]
-    public void ParseContextType_ignores_unprefixed_app_stdout_even_with_braces()
+    public void BuildDiscoveryArguments_preserves_paths_with_spaces_and_non_ascii_characters()
     {
-        // The user's app/host writes to the same stdout during discovery. Lines without the data
-        // prefix — even ones containing braces — must not corrupt the parse. Regression test for #25555.
-        var output =
-            "Now listening on: http://localhost:5000 { not json }\n"
-            + DataLines("{", "  \"type\": \"My.App.BlogContext\",", "  \"providerName\": \"x\"", "}")
-            + "\n[12:00:00 INF] request finished }";
-        Assert.Equal("My.App.BlogContext", MigrationsBundleCommand.ParseContextType(output));
+        var args = MigrationsBundleCommand.BuildDiscoveryArguments(
+            @"C:\Program Files\ef tool\ef.dll",
+            depsFile: @"C:\proj ü\S.deps.json", runtimeConfig: @"C:\proj ü\S.runtimeconfig.json", fxVersion: null,
+            additionalProbingPaths: new[] { @"C:\nuget cache\ü" },
+            commonProjectArgs: Array.Empty<string>(),
+            context: null, verbose: false, applicationArgs: Array.Empty<string>());
+
+        Assert.Contains(@"C:\Program Files\ef tool\ef.dll", args);
+        Assert.Contains(@"C:\proj ü\S.deps.json", args);
+        Assert.Contains(@"C:\nuget cache\ü", args);
+
+        // They must survive being turned into a command line (quoted as single arguments).
+        var commandLine = Exe.ToArguments(args);
+        Assert.Contains("\"C:\\Program Files\\ef tool\\ef.dll\"", commandLine);
+        Assert.Contains("\"C:\\nuget cache\\ü\"", commandLine);
     }
 
     [Fact]
-    public void ParseContextType_throws_when_no_data_lines()
-        => Assert.Throws<CommandException>(
-            () => MigrationsBundleCommand.ParseContextType("startup banner { with braces }\nplain app output"));
+    public void ParseContextType_reads_type_from_json()
+        => Assert.Equal(
+            "My.App.BlogContext",
+            MigrationsBundleCommand.ParseContextType("{  \"type\": \"My.App.BlogContext\",  \"providerName\": \"x\"}"));
+
+    [Fact]
+    public void ParseContextType_throws_when_no_json()
+        => Assert.Throws<CommandException>(() => MigrationsBundleCommand.ParseContextType(""));
 
     [Fact]
     public void ParseContextType_throws_when_type_missing()
         => Assert.Throws<CommandException>(
-            () => MigrationsBundleCommand.ParseContextType(DataLines("{", "  \"providerName\": \"x\"", "}")));
+            () => MigrationsBundleCommand.ParseContextType("{ \"providerName\": \"x\" }"));
+
+    private sealed class Sink
+    {
+        public List<string> Messages { get; } = [];
+        public List<string> Other { get; } = [];
+        public StringBuilder Data { get; } = new();
+
+        public void Handle(string? line)
+            => MigrationsBundleCommand.HandleDiscoveryOutput(
+                line,
+                Data,
+                Other,
+                m => Messages.Add("error: " + m),
+                m => Messages.Add("warn: " + m),
+                m => Messages.Add("info: " + m),
+                m => Messages.Add("verbose: " + m));
+    }
 
     [Fact]
-    public void ExtractErrorMessage_returns_error_prefixed_text()
+    public void HandleDiscoveryOutput_forwards_prefixed_lines_to_matching_handler()
     {
-        var lines = new[]
+        var sink = new Sink();
+
+        foreach (var line in new[]
+                 {
+                     Reporter.InfoPrefix + "Finding DbContext classes...",
+                     Reporter.WarningPrefix + "careful",
+                     Reporter.VerbosePrefix + "details",
+                     Reporter.ErrorPrefix + "More than one DbContext was found. Use the '--context' option."
+                 })
         {
-            Reporter.InfoPrefix + "Finding DbContext classes...",
-            Reporter.ErrorPrefix + "More than one DbContext was found. Use the '--context' option.",
-            null
-        };
+            sink.Handle(line);
+        }
+
         Assert.Equal(
-            "More than one DbContext was found. Use the '--context' option.",
-            MigrationsBundleCommand.ExtractErrorMessage(lines));
+            new[]
+            {
+                "info: Finding DbContext classes...",
+                "warn: careful",
+                "verbose: details",
+                "error: More than one DbContext was found. Use the '--context' option."
+            },
+            sink.Messages);
+        Assert.Equal(0, sink.Data.Length);
+        Assert.Empty(sink.Other);
     }
 
     [Fact]
-    public void ExtractErrorMessage_joins_multiple_error_lines()
+    public void HandleDiscoveryOutput_collects_data_payloads_without_reporting_them()
     {
-        var lines = new[]
+        var sink = new Sink();
+
+        sink.Handle(Reporter.DataPrefix + "{");
+        sink.Handle("Now listening on: http://localhost:5000 { not json }");
+        sink.Handle(Reporter.DataPrefix + "  \"type\": \"My.App.BlogContext\"");
+        sink.Handle(null);
+        sink.Handle(Reporter.DataPrefix + "}");
+
+        Assert.Empty(sink.Messages);
+        Assert.Equal(new[] { "Now listening on: http://localhost:5000 { not json }" }, sink.Other);
+        Assert.Equal("My.App.BlogContext", MigrationsBundleCommand.ParseContextType(sink.Data.ToString()));
+    }
+
+    [Fact]
+    public void HandleDiscoveryOutput_keeps_unprefixed_output_separate()
+    {
+        var sink = new Sink();
+
+        sink.Handle("Unhandled exception. System.InvalidOperationException: boom");
+        sink.Handle("");
+        sink.Handle(null);
+
+        Assert.Empty(sink.Messages);
+        Assert.Equal(0, sink.Data.Length);
+        Assert.Equal(new[] { "Unhandled exception. System.InvalidOperationException: boom" }, sink.Other);
+    }
+
+    [Fact]
+    public void HandleDiscoveryOutput_handles_prefix_only_lines_trailing_carriage_returns_and_multi_line_errors()
+    {
+        var sink = new Sink();
+
+        sink.Handle(Reporter.ErrorPrefix);
+        sink.Handle(Reporter.ErrorPrefix + "first line\r");
+        sink.Handle(Reporter.ErrorPrefix + "second line");
+
+        Assert.Equal(new[] { "error: ", "error: first line", "error: second line" }, sink.Messages);
+    }
+
+    private sealed class TestBundleCommand : MigrationsBundleCommand
+    {
+        public string Discover(
+            IReadOnlyList<string> applicationArgs,
+            Func<IReadOnlyList<string>, Action<string?>, int> run,
+            List<string> messages)
+            => DiscoverContextType(
+                applicationArgs,
+                run,
+                m => messages.Add("error: " + m),
+                m => messages.Add("warn: " + m),
+                m => messages.Add("info: " + m),
+                m => messages.Add("verbose: " + m));
+
+        protected override void Validate()
         {
-            Reporter.ErrorPrefix + "Unable to create a 'DbContext' of type 'X'.",
-            Reporter.ErrorPrefix + "See https://go.microsoft.com/fwlink/?linkid=851728 for details."
-        };
-        Assert.Equal(
-            "Unable to create a 'DbContext' of type 'X'." + Environment.NewLine
-            + "See https://go.microsoft.com/fwlink/?linkid=851728 for details.",
-            MigrationsBundleCommand.ExtractErrorMessage(lines));
+        }
+
+        protected override int Execute(string[] args)
+            => 0;
+    }
+
+    private static TestBundleCommand CreateCommand(params string[] args)
+    {
+        var app = new CommandLineApplication { Name = "ef" };
+        var command = new TestBundleCommand();
+        command.Configure(app);
+        app.Execute(args);
+        return command;
     }
 
     [Fact]
-    public void ExtractErrorMessage_returns_null_when_no_error_lines()
-        => Assert.Null(MigrationsBundleCommand.ExtractErrorMessage(
-            new[] { Reporter.InfoPrefix + "info", Reporter.DataPrefix + "data" }));
-
-    [Fact]
-    public void CreateDiscoveryFailure_surfaces_error_from_stdout()
+    public void DiscoverContextType_returns_type_and_forwards_context_and_application_args()
     {
-        // Under --prefix-output the child's error lines arrive on STDOUT, interleaved with data/info.
-        // The failure must scan stdout (the captured output), not the stderr collection.
-        var stdout = string.Join(
-            "\n",
-            Reporter.InfoPrefix + "Finding DbContext classes...",
-            Reporter.ErrorPrefix + "More than one DbContext was found. Use the '--context' option.");
+        var command = CreateCommand("--assembly", "A.dll", "--context", "My.Context", "--deps-file", "S.deps.json");
+        IReadOnlyList<string>? launched = null;
+        var messages = new List<string>();
 
-        var ex = MigrationsBundleCommand.CreateDiscoveryFailure(stdout, Array.Empty<string?>());
+        var type = command.Discover(
+            new[] { "--environment", "Staging" },
+            (args, handleLine) =>
+            {
+                launched = args;
+                handleLine(Reporter.InfoPrefix + "Finding DbContext classes...");
+                handleLine("startup banner { }");
+                handleLine(Reporter.DataPrefix + "{ \"type\": \"My.App.BlogContext\" }");
+                return 0;
+            },
+            messages);
 
-        Assert.Contains("More than one DbContext was found. Use the '--context' option.", ex.Message);
+        Assert.Equal("My.App.BlogContext", type);
+        Assert.Contains("S.deps.json", launched!);
+        Assert.Contains("--assembly", launched!);
+        var contextIndex = launched!.ToList().IndexOf("--context");
+        Assert.Equal("My.Context", launched![contextIndex + 1]);
+        var separator = launched!.ToList().IndexOf("--");
+        Assert.Equal(new[] { "--", "--environment", "Staging" }, launched!.Skip(separator));
+
+        // Successful run: tagged output is reported, untagged output is demoted to verbose.
+        Assert.Equal(new[] { "info: Finding DbContext classes...", "verbose: startup banner { }" }, messages);
     }
 
     [Fact]
-    public void CreateDiscoveryFailure_falls_back_to_stderr_when_stdout_has_no_error()
+    public void DiscoverContextType_reports_child_errors_then_throws_on_non_zero_exit()
     {
-        var ex = MigrationsBundleCommand.CreateDiscoveryFailure(
-            Reporter.InfoPrefix + "no error here",
-            new[] { Reporter.ErrorPrefix + "Unhandled crash text." });
+        var command = CreateCommand("--assembly", "A.dll");
+        var messages = new List<string>();
 
-        Assert.Contains("Unhandled crash text.", ex.Message);
-    }
-
-    [Fact]
-    public void CreateDiscoveryFailure_is_generic_when_no_error_lines_anywhere()
-    {
-        var ex = MigrationsBundleCommand.CreateDiscoveryFailure("plain noise\nmore noise", Array.Empty<string?>());
+        var ex = Assert.Throws<CommandException>(
+            () => command.Discover(
+                Array.Empty<string>(),
+                (args, handleLine) =>
+                {
+                    handleLine(Reporter.ErrorPrefix + "More than one DbContext was found. Use the '--context' option.");
+                    handleLine("Unhandled exception. System.InvalidOperationException: boom");
+                    return 1;
+                },
+                messages));
 
         Assert.Equal(Properties.Resources.BundleContextDiscoveryFailed, ex.Message);
+        Assert.Equal(
+            new[]
+            {
+                "error: More than one DbContext was found. Use the '--context' option.",
+                "error: Unhandled exception. System.InvalidOperationException: boom"
+            },
+            messages);
     }
 
     [Fact]
-    public void CreateDiscoveryFailure_falls_back_to_raw_stderr_when_unprefixed()
+    public void DiscoverContextType_throws_when_child_succeeds_without_data()
     {
-        // Host-level failures (framework roll-forward, missing runtime, unhandled exceptions) write
-        // unprefixed text to stderr. It must still reach the user rather than collapsing into the
-        // generic message.
-        var ex = MigrationsBundleCommand.CreateDiscoveryFailure(
-            Reporter.InfoPrefix + "no error here",
-            new[] { "A fatal error was encountered.", "The required framework was not found." });
+        var command = CreateCommand("--assembly", "A.dll");
 
-        Assert.Contains("A fatal error was encountered.", ex.Message);
-        Assert.Contains("The required framework was not found.", ex.Message);
-    }
-
-    [Fact]
-    public void CreateDiscoveryFailure_prefers_prefixed_stderr_over_raw()
-    {
-        var ex = MigrationsBundleCommand.CreateDiscoveryFailure(
-            Reporter.InfoPrefix + "no error here",
-            new[] { "noise line", Reporter.ErrorPrefix + "Actionable error." });
-
-        Assert.Contains("Actionable error.", ex.Message);
-        Assert.DoesNotContain("noise line", ex.Message);
+        Assert.Throws<CommandException>(
+            () => command.Discover(Array.Empty<string>(), (args, handleLine) => 0, []));
     }
 }

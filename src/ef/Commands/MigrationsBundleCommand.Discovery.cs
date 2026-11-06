@@ -5,6 +5,7 @@
 using System.Text.Json;
 #endif
 using System.Text;
+using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Tools.Properties;
 
 namespace Microsoft.EntityFrameworkCore.Tools.Commands;
@@ -90,116 +91,122 @@ internal partial class MigrationsBundleCommand
         return args;
     }
 
-    // Builds the failure for a non-zero discovery child. Under --prefix-output the child writes its
-    // prefixed error lines to STDOUT (Reporter.WriteError -> WriteStdErr -> WriteLine -> stdout), so
-    // the actionable text is in the captured stdout, not stderr; scan stdout first, then stderr for
-    // prefixed lines, and finally fall back to the raw stderr capture for unprefixed failures.
+    // Routes one line of the discovery child's output as it arrives. The child runs with
+    // --prefix-output, so everything ef.dll itself reports (error/warn/info/verbose, and the data:
+    // lines carrying the result) is tagged, and all of it is written to stdout. Data payloads are
+    // collected for ParseContextType; tagged diagnostics go to the matching report method, so the
+    // user sees actionable guidance (e.g. the multi-context "--context" hint) immediately, without
+    // waiting for the child to exit. Untagged lines are output from the user's application or the
+    // runtime host (an unhandled exception, a framework roll-forward failure, startup noise): they are
+    // collected in 'other' so the caller can show them as errors if the child fails, or as verbose
+    // output if it succeeds. Callbacks for stdout and stderr arrive on different threads, so the
+    // collections are guarded by a lock on 'data'.
     // See https://github.com/dotnet/efcore/issues/25555.
-    internal static CommandException CreateDiscoveryFailure(string output, IEnumerable<string?> errorOutput)
+    internal static void HandleDiscoveryOutput(
+        string? line,
+        StringBuilder data,
+        List<string> other,
+        Action<string> onError,
+        Action<string> onWarning,
+        Action<string> onInformation,
+        Action<string> onVerbose)
     {
-        var errorLines = errorOutput as IReadOnlyCollection<string?> ?? errorOutput.ToList();
-
-        // Prefer prefixed error lines (actionable EF guidance like the multi-context "--context" hint):
-        // scan the child's stdout first (where --prefix-output routes its error: lines), then its stderr.
-        // As a last resort fall back to the raw stderr text, so host-level failures that carry no
-        // Reporter.ErrorPrefix (framework roll-forward, missing runtime, an unhandled exception) still
-        // reach the user instead of collapsing into the generic message.
-        var detail = ExtractErrorMessage(output.Split('\n').Select(l => l.TrimEnd('\r')))
-            ?? ExtractErrorMessage(errorLines)
-            ?? JoinRawErrorLines(errorLines);
-
-        return new CommandException(
-            detail != null
-                ? Resources.BundleContextDiscoveryFailedWithError(detail)
-                : Resources.BundleContextDiscoveryFailed);
-    }
-
-    // Joins the raw captured stderr lines verbatim, used as a last-resort fallback when the child
-    // produced no Reporter.ErrorPrefix-prefixed error text.
-    internal static string? JoinRawErrorLines(IEnumerable<string?> errorLines)
-    {
-        var builder = new StringBuilder();
-        foreach (var line in errorLines)
+        line = line?.TrimEnd('\r');
+        if (line == null || line.Length == 0)
         {
-            if (!string.IsNullOrEmpty(line))
-            {
-                if (builder.Length > 0)
-                {
-                    builder.Append(Environment.NewLine);
-                }
-
-                builder.Append(line);
-            }
+            return;
         }
 
-        return builder.Length > 0 ? builder.ToString() : null;
-    }
-
-    // Pulls the human-readable error text out of prefixed output lines (those beginning with
-    // Reporter.ErrorPrefix), so actionable discovery errors (e.g. the multi-context "--context"
-    // guidance) are surfaced instead of collapsed into a generic failure.
-    internal static string? ExtractErrorMessage(IEnumerable<string?> errorLines)
-    {
-        var builder = new StringBuilder();
-        foreach (var line in errorLines)
+        if (line.StartsWith(Reporter.DataPrefix, StringComparison.Ordinal))
         {
-            if (line != null
-                && line.StartsWith(Reporter.ErrorPrefix, StringComparison.Ordinal))
+            lock (data)
             {
-                if (builder.Length > 0)
-                {
-                    builder.Append(Environment.NewLine);
-                }
-
-                builder.Append(line.Substring(Reporter.ErrorPrefix.Length));
+                data.Append(line, Reporter.DataPrefix.Length, line.Length - Reporter.DataPrefix.Length);
             }
         }
-
-        return builder.Length > 0 ? builder.ToString() : null;
+        else if (line.StartsWith(Reporter.ErrorPrefix, StringComparison.Ordinal))
+        {
+            onError(line.Substring(Reporter.ErrorPrefix.Length));
+        }
+        else if (line.StartsWith(Reporter.WarningPrefix, StringComparison.Ordinal))
+        {
+            onWarning(line.Substring(Reporter.WarningPrefix.Length));
+        }
+        else if (line.StartsWith(Reporter.InfoPrefix, StringComparison.Ordinal))
+        {
+            onInformation(line.Substring(Reporter.InfoPrefix.Length));
+        }
+        else if (line.StartsWith(Reporter.VerbosePrefix, StringComparison.Ordinal))
+        {
+            onVerbose(line.Substring(Reporter.VerbosePrefix.Length));
+        }
+        else
+        {
+            lock (data)
+            {
+                other.Add(line);
+            }
+        }
     }
 
     private string DiscoverContextType(IReadOnlyList<string> applicationArgs)
+        => DiscoverContextType(
+            applicationArgs,
+            (args, handleLine) => Exe.Run("dotnet", args, handleOutput: handleLine, handleError: handleLine),
+            Reporter.WriteError,
+            Reporter.WriteWarning,
+            Reporter.WriteInformation,
+            Reporter.WriteVerbose);
+
+    // 'run' launches the child with the given arguments, passing each stdout/stderr line to the supplied
+    // callback, and returns its exit code. Split out from the Exe.Run call so it can be tested.
+    internal string DiscoverContextType(
+        IReadOnlyList<string> applicationArgs,
+        Func<IReadOnlyList<string>, Action<string?>, int> run,
+        Action<string> onError,
+        Action<string> onWarning,
+        Action<string> onInformation,
+        Action<string> onVerbose)
     {
 #if NET
         var efAssemblyPath = typeof(Program).Assembly.Location;
         var discoveryArgs = BuildDiscoveryArguments(
             efAssemblyPath,
-            DepsFile!.Value(),
-            RuntimeConfig!.Value(),
-            FxVersion!.Value(),
-            AdditionalProbingPaths!.Values.Where(v => v != null).Cast<string>().ToList(),
+            _depsFile!.Value(),
+            _runtimeConfig!.Value(),
+            _fxVersion!.Value(),
+            _additionalProbingPaths!.Values.Where(v => v != null).Cast<string>().ToList(),
             GetCommonProjectArgs(),
             Context!.Value(),
             Reporter.IsVerbose,
             applicationArgs);
 
-        var output = new StringBuilder();
-        var errorOutput = new List<string?>();
-        var exitCode = Exe.Run(
-            "dotnet",
+        var data = new StringBuilder();
+        var other = new List<string>();
+
+        var exitCode = run(
             discoveryArgs,
-            handleOutput: line =>
-            {
-                if (!string.IsNullOrEmpty(line))
-                {
-                    output.AppendLine(line);
-                }
-            },
-            handleError: line =>
-            {
-                if (!string.IsNullOrEmpty(line))
-                {
-                    errorOutput.Add(line);
-                    Reporter.WriteVerbose(line);
-                }
-            });
+            line => HandleDiscoveryOutput(line, data, other, onError, onWarning, onInformation, onVerbose));
 
         if (exitCode != 0)
         {
-            throw CreateDiscoveryFailure(output.ToString(), errorOutput);
+            // The tagged diagnostics have already been reported. Untagged output is most likely the
+            // reason for a failure the child could not report itself (unhandled exception, missing
+            // framework), so show it now.
+            foreach (var line in other)
+            {
+                onError(line);
+            }
+
+            throw new CommandException(Resources.BundleContextDiscoveryFailed);
         }
 
-        return ParseContextType(output.ToString());
+        foreach (var line in other)
+        {
+            onVerbose(line);
+        }
+
+        return ParseContextType(data.ToString());
 #else
         // The .NET Framework build of ef.dll is a build-only reference (see ef.csproj) and is never
         // executed by dotnet-ef, which always runs tools/net/ef.dll. Bundling is a .NET-only path.
@@ -207,24 +214,11 @@ internal partial class MigrationsBundleCommand
 #endif
     }
 
-    // Extracts the "type" field from the JSON emitted by `dbcontext info --json`. The child runs with
-    // --prefix-output, so its structured data lines start with Reporter.DataPrefix; only those lines
-    // are considered, so arbitrary stdout the user's app prints during discovery cannot corrupt the
-    // JSON. See https://github.com/dotnet/efcore/issues/25555.
-    internal static string ParseContextType(string output)
+    // Extracts the "type" field from the JSON that `dbcontext info --json` emitted, as collected from
+    // the child's data: lines by HandleDiscoveryOutput. See https://github.com/dotnet/efcore/issues/25555.
+    internal static string ParseContextType(string json)
     {
 #if NET
-        var builder = new StringBuilder();
-        foreach (var rawLine in output.Split('\n'))
-        {
-            var line = rawLine.TrimEnd('\r');
-            if (line.StartsWith(Reporter.DataPrefix, StringComparison.Ordinal))
-            {
-                builder.Append(line.Substring(Reporter.DataPrefix.Length));
-            }
-        }
-
-        var json = builder.ToString();
         var start = json.IndexOf('{');
         var end = json.LastIndexOf('}');
         if (start >= 0 && end > start)
