@@ -16,6 +16,17 @@ public class NorthwindGroupByQuerySqliteTest : NorthwindGroupByQueryRelationalTe
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
     
+    public override async Task GroupBy_aggregate_nesting_aggregate_over_grouping_through_navigation(bool async)
+    {
+        // The lift declines an aggregate over the grouping nested inside another aggregate's selector, leaving the
+        // correlated-subquery translation, which nests the inner aggregate inside the outer one. The database rejects that,
+        // as it did before the lift existed.
+        var exception = await Assert.ThrowsAsync<SqliteException>(
+            () => base.GroupBy_aggregate_nesting_aggregate_over_grouping_through_navigation(async));
+
+        Assert.Contains("misuse of aggregate function COUNT()", exception.Message);
+    }
+
     public override async Task SelectMany_DefaultIfEmpty_over_GroupBy(bool async)
     {
         await base.SelectMany_DefaultIfEmpty_over_GroupBy(async);
