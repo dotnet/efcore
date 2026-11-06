@@ -35,6 +35,7 @@ internal class SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnectio
 
     private bool _alreadyThrown;
     private bool _alreadyAddedChanges;
+    private bool? _databaseEncodingIsUtf8;
 
     public virtual object this[string name]
         => GetValue(GetOrdinal(name));
@@ -266,7 +267,7 @@ internal class SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnectio
 
     public virtual long GetChars(int ordinal, long dataOffset, char[]? buffer, int bufferOffset, int length)
     {
-        using var reader = new StreamReader(GetStream(ordinal), Encoding.UTF8);
+        using var reader = CreateTextReader(ordinal);
 
         if (buffer == null)
         {
@@ -400,7 +401,16 @@ internal class SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnectio
     public virtual TextReader GetTextReader(int ordinal)
         => IsDBNull(ordinal)
             ? new StringReader(string.Empty)
+            : CreateTextReader(ordinal);
+
+    private TextReader CreateTextReader(int ordinal)
+        // A stream exposes text in the database encoding. SQLite only converts it when it's read as a string.
+        => GetSqliteType(ordinal) == SQLITE_TEXT && !DatabaseEncodingIsUtf8()
+            ? new StringReader(GetString(ordinal))
             : new StreamReader(GetStream(ordinal), Encoding.UTF8);
+
+    private bool DatabaseEncodingIsUtf8()
+        => _databaseEncodingIsUtf8 ??= connection.ExecuteScalar<string>("PRAGMA encoding;") == "UTF-8";
 
     public bool Read()
     {
