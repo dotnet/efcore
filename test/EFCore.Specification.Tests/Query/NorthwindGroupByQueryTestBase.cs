@@ -3849,7 +3849,7 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
                 AssertCollection(e.Orders, a.Orders);
             });
 
-    [Theory(Skip = "Issue#27130"), MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_aggregate_from_multiple_query_in_same_projection(bool async)
         => AssertQuery(
             async,
@@ -3879,7 +3879,7 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
                 }),
             elementSorter: e => e.Key);
 
-    [Theory(Skip = "Issue#27130"), MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_aggregate_from_multiple_query_in_same_projection_3(bool async)
         => AssertQuery(
             async,
@@ -3890,6 +3890,213 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
                     A = ss.Set<Employee>().Where(e => e.City == "Seattle").GroupBy(e => e.City)
                         .Select(g2 => g2.Count() + g.Count())
                         .OrderBy(e => e)
+                        .FirstOrDefault()
+                }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_from_multiple_query_in_same_predicate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(e => e.CustomerID)
+                .Select(g => new
+                {
+                    g.Key,
+                    A = ss.Set<Employee>().GroupBy(e => e.City)
+                        .Where(g2 => g2.Count() + g.Count() > 5)
+                        .Select(g2 => g2.Key)
+                        .OrderBy(e => e)
+                        .FirstOrDefault()
+                }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_from_multiple_query_with_predicate_on_inner_key(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(e => e.CustomerID)
+                .Select(g => new
+                {
+                    g.Key,
+                    A = ss.Set<Employee>().Where(e => e.City == "Seattle").GroupBy(e => e.City)
+                        .Select(g2 => g.Count(o => g2.Key!.Length > 3))
+                        .OrderBy(e => e)
+                        .FirstOrDefault()
+                }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_from_multiple_query_with_predicate_on_both_keys(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(e => e.CustomerID)
+                .Select(g => new
+                {
+                    g.Key,
+                    A = ss.Set<Employee>().Where(e => e.City == "Seattle").GroupBy(e => e.City)
+                        .Select(g2 => g.Count(o => o.OrderID > g2.Key!.Length))
+                        .OrderBy(e => e)
+                        .FirstOrDefault()
+                }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_from_multiple_query_with_inner_aggregate_over_outer_key(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(e => e.CustomerID)
+                .Select(g => new
+                {
+                    g.Key,
+                    A = ss.Set<Employee>().Where(e => e.City == "Seattle").GroupBy(e => e.City)
+                        .Select(g2 => g2.Sum(int (e) => g.Key!.Length))
+                        .OrderBy(e => e)
+                        .FirstOrDefault()
+                }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_from_multiple_query_three_levels(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(e => e.CustomerID)
+                .Select(g => new
+                {
+                    g.Key,
+                    A = ss.Set<Employee>().Where(e => e.City == "Seattle").GroupBy(e => e.City)
+                        .Select(g2 => ss.Set<Product>().Where(p => p.ProductID < 3).GroupBy(p => p.Discontinued)
+                            .Select(g3 => g3.Count() + g2.Count())
+                            .OrderBy(e => e)
+                            .FirstOrDefault())
+                        .OrderBy(e => e)
+                        .FirstOrDefault()
+                }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_from_multiple_query_three_levels_with_middle_aggregate_over_outer_key(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(e => e.CustomerID)
+                .Select(g => new
+                {
+                    g.Key,
+                    A = ss.Set<Employee>().Where(e => e.City == "Seattle").GroupBy(e => e.City)
+                        .Select(g2 => ss.Set<Product>().Where(p => p.ProductID < 3).GroupBy(p => p.Discontinued)
+                            .Select(g3 => g3.Count() + g2.Sum(int (e) => g.Key!.Length))
+                            .OrderBy(e => e)
+                            .FirstOrDefault())
+                        .OrderBy(e => e)
+                        .FirstOrDefault()
+                }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_from_multiple_query_in_ungrouped_subquery(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(e => e.CustomerID)
+                .Select(g => new
+                {
+                    g.Key,
+                    A = ss.Set<Employee>().Where(e => e.City == "Seattle")
+                        .Select(e => g.Count())
+                        .OrderBy(e => e)
+                        .FirstOrDefault()
+                }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_from_multiple_query_in_aggregate_selector(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(e => e.CustomerID)
+                .Select(g => new
+                {
+                    g.Key,
+                    A = ss.Set<Employee>().Where(e => e.City == "Seattle").Sum(e => g.Count())
+                }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_from_multiple_query_in_grouping_key(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(e => e.CustomerID)
+                .Select(g => new
+                {
+                    g.Key,
+                    A = ss.Set<Employee>().Where(e => e.City == "Seattle").GroupBy(e => g.Count())
+                        .Select(g2 => g2.Key)
+                        .OrderBy(e => e)
+                        .FirstOrDefault()
+                }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_from_multiple_query_in_join_key(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(e => e.CustomerID)
+                .Select(g => new
+                {
+                    g.Key,
+                    A = ss.Set<Employee>().Where(e => e.City == "Seattle")
+                        .Join(ss.Set<Employee>(), e => g.Count(), e2 => (int)e2.EmployeeID, (e, e2) => e2)
+                        .Count()
+                }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_as_element_of_inline_collection_Contains(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(o => o.CustomerID)
+                .Select(g => new { g.Key, HasTwo = new[] { g.Count(), g.Max(o => o.OrderID), 0 }.Contains(2) }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_as_item_of_inline_collection_Contains(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(o => o.CustomerID)
+                .Select(g => new { g.Key, CountIsSmall = new[] { 1, 2, 3 }.Contains(g.Count()) }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_quantifier_as_element_of_inline_collection_Contains(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(o => o.CustomerID)
+                .Select(g => new { g.Key, HasLate = new[] { g.Any(o => o.OrderID > 11000), false }.Contains(true) }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_as_element_of_inline_collection_Contains_in_predicate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(o => o.CustomerID)
+                .Where(g => new[] { 1, 2, 3 }.Contains(g.Count()))
+                .Select(g => g.Key));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_as_element_of_inline_collection_composed_over(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(o => o.CustomerID)
+                .Select(g => new { g.Key, Large = new[] { g.Count(), 0, 5 }.Count(c => c > 4) }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_as_element_of_inline_collection_Contains_from_inner_query(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(o => o.CustomerID)
+                .Select(g => new
+                {
+                    g.Key,
+                    A = ss.Set<Employee>().Where(e => e.City == "Seattle").GroupBy(e => e.City)
+                        .Select(g2 => new[] { g.Count(), g2.Count() }.Contains(2))
                         .FirstOrDefault()
                 }),
             elementSorter: e => e.Key);

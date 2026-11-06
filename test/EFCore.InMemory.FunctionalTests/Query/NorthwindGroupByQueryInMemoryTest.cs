@@ -169,6 +169,10 @@ public class NorthwindGroupByQueryInMemoryTest(NorthwindQueryInMemoryFixture<Noo
     public override Task GroupBy_Select_First_ordered_composed(bool async)
         => base.GroupBy_Select_First_ordered_composed(async);
 
+    // The in-memory provider doesn't support composing LINQ operators over an inline collection.
+    public override Task GroupBy_aggregate_as_element_of_inline_collection_composed_over(bool async)
+        => AssertTranslationFailed(() => base.GroupBy_aggregate_as_element_of_inline_collection_composed_over(async));
+
     public override Task SelectMany_correlated_GroupBy_Select_First_ordered(bool async)
         => Assert.ThrowsAsync<NotImplementedException>(() => base.SelectMany_correlated_GroupBy_Select_First_ordered(async));
 }
