@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore;
 /// </remarks>
 /// <typeparam name="TConfiguration">The IEntityTypeConfiguration&lt;&gt; type to use.</typeparam>
 /// <typeparam name="TEntity">The entity type to be configured.</typeparam>
-[AttributeUsage(AttributeTargets.Class)]
+[AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
 public sealed class EntityTypeConfigurationAttribute<TConfiguration, TEntity> : EntityTypeConfigurationAttribute
     where TConfiguration : class, IEntityTypeConfiguration<TEntity>
     where TEntity : class
