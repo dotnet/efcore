@@ -6,6 +6,7 @@ using System.Text;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
+using SQLitePCL;
 
 namespace Microsoft.EntityFrameworkCore.Migrations;
 
@@ -26,6 +27,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations;
 /// </remarks>
 public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
 {
+    /// <summary>
+    /// The minimum SQLite version that supports <c>ALTER TABLE ADD CONSTRAINT</c> and <c>ALTER TABLE DROP CONSTRAINT</c>.
+    /// </summary>
+    /// <remarks>
+    /// SQLite 3.53.0 introduced support for dropping constraints, but it did not support quoted constraint names.
+    /// This was fixed in version 3.53.1, see https://sqlite.org/forum/forumpost/8bfbaec404 and https://sqlite.org/src/info/7f5afb12f4a5d35c
+    /// </remarks>
+    private const int AlterCheckConstraintMinimumSqliteVersionNumber = 3053001;
+
     /// <summary>
     ///     Creates a new <see cref="SqliteMigrationsSqlGenerator" /> instance.
     /// </summary>
@@ -73,9 +83,9 @@ public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
             {
                 case AddPrimaryKeyOperation:
                 case AddUniqueConstraintOperation:
-                case AddCheckConstraintOperation:
+                case AddCheckConstraintOperation when raw.sqlite3_libversion_number() < AlterCheckConstraintMinimumSqliteVersionNumber:
                 case AlterTableOperation:
-                case DropCheckConstraintOperation:
+                case DropCheckConstraintOperation when raw.sqlite3_libversion_number() < AlterCheckConstraintMinimumSqliteVersionNumber:
                 case DropForeignKeyOperation:
                 case DropPrimaryKeyOperation:
                 case DropUniqueConstraintOperation:
@@ -950,17 +960,6 @@ public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
     /// <param name="operation">The operation.</param>
     /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
     /// <param name="builder">The command builder to use to build the commands.</param>
-    protected override void Generate(AddCheckConstraintOperation operation, IModel? model, MigrationCommandListBuilder builder)
-        => throw new NotSupportedException(
-            SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
-
-    /// <summary>
-    ///     Throws <see cref="NotSupportedException" /> since this operation requires table rebuilds, which
-    ///     are not yet supported.
-    /// </summary>
-    /// <param name="operation">The operation.</param>
-    /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
-    /// <param name="builder">The command builder to use to build the commands.</param>
     /// <param name="terminate">Indicates whether or not to terminate the command after generating SQL for the operation.</param>
     protected override void Generate(
         DropColumnOperation operation,
@@ -1010,17 +1009,6 @@ public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
     /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
     /// <param name="builder">The command builder to use to build the commands.</param>
     protected override void Generate(DropUniqueConstraintOperation operation, IModel? model, MigrationCommandListBuilder builder)
-        => throw new NotSupportedException(
-            SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
-
-    /// <summary>
-    ///     Throws <see cref="NotSupportedException" /> since this operation requires table rebuilds, which
-    ///     are not yet supported.
-    /// </summary>
-    /// <param name="operation">The operation.</param>
-    /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
-    /// <param name="builder">The command builder to use to build the commands.</param>
-    protected override void Generate(DropCheckConstraintOperation operation, IModel? model, MigrationCommandListBuilder builder)
         => throw new NotSupportedException(
             SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
 
