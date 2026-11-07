@@ -75,6 +75,53 @@ FROM [Vehicles] AS [v]
 """);
     }
 
+    public override async Task Can_query_required_dependent_of_derived_type()
+    {
+        await base.Can_query_required_dependent_of_derived_type();
+
+        AssertSql(
+            """
+SELECT [a].[Id], [a].[Note]
+FROM [Animals] AS [a]
+WHERE [a].[Discriminator] = N'Cat'
+""");
+    }
+
+    public override async Task Can_query_required_dependent_of_derived_type_mapped_to_view()
+    {
+        await base.Can_query_required_dependent_of_derived_type_mapped_to_view();
+
+        AssertSql(
+            """
+SELECT [a].[Id], [a].[Note]
+FROM [AnimalsView] AS [a]
+WHERE [a].[Discriminator] = N'Cat'
+""");
+    }
+
+    public override async Task Can_query_required_dependent_of_required_dependent_of_derived_type()
+    {
+        await base.Can_query_required_dependent_of_required_dependent_of_derived_type();
+
+        AssertSql(
+            """
+SELECT [a].[Id], [a].[Text]
+FROM [Animals] AS [a]
+WHERE [a].[Discriminator] = N'Lion'
+""");
+    }
+
+    public override async Task Can_query_required_dependent_of_base_type_that_is_also_dependent_of_derived_type()
+    {
+        await base.Can_query_required_dependent_of_base_type_that_is_also_dependent_of_derived_type();
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Note]
+FROM [Pets] AS [p]
+""");
+    }
+
     public override async Task Can_query_shared_derived_hierarchy()
     {
         await base.Can_query_shared_derived_hierarchy();
