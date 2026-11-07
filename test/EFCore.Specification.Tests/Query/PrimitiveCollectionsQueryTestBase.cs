@@ -340,6 +340,15 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
     }
 
     [Fact]
+    public virtual async Task Parameter_collection_KeyedCollectionWithContains_of_ints_Contains_int()
+    {
+        var ints = new KeyedCollectionWithContains<string, int>(10, 999);
+
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ints.Contains(c.Int)));
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !ints.Contains(c.Int)));
+    }
+
+    [Fact]
     public virtual async Task Parameter_collection_of_ints_Contains_nullable_int()
     {
         var ints = new[] { 10, 999 };
@@ -2094,6 +2103,38 @@ internal class ReadOnlyCollectionWithContains<T>(params T[] items) : IReadOnlyCo
 
     public IEnumerator<T> GetEnumerator()
         => items.AsEnumerable().GetEnumerator();
+
+    IEnumerator IEnumerable.GetEnumerator()
+        => GetEnumerator();
+}
+
+internal class KeyedCollectionWithContains<TKey, TItem>(params TItem[] items) : ICollection<TItem>
+{
+    private readonly List<TItem> _items = [..items];
+
+    public int Count
+        => _items.Count;
+
+    public bool IsReadOnly
+        => true;
+
+    public void Add(TItem item)
+        => throw new NotSupportedException();
+
+    public void Clear()
+        => throw new NotSupportedException();
+
+    public bool Contains(TItem item)
+        => _items.Contains(item);
+
+    public void CopyTo(TItem[] array, int arrayIndex)
+        => _items.CopyTo(array, arrayIndex);
+
+    public bool Remove(TItem item)
+        => throw new NotSupportedException();
+
+    public IEnumerator<TItem> GetEnumerator()
+        => _items.GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator()
         => GetEnumerator();
