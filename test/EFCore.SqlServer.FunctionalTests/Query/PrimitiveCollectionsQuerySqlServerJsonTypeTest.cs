@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.Data.SqlClient;
 using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -23,6 +24,138 @@ public class PrimitiveCollectionsQuerySqlServerJsonTypeTest : PrimitiveCollectio
     [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
+
+    public override async Task Concat_of_column_collections_then_Contains()
+    {
+        await base.Concat_of_column_collections_then_Contains();
+
+        AssertSql(
+            """
+SELECT [u].[Ints]
+FROM (
+    SELECT [p].[Ints]
+    FROM [PrimitiveCollectionsEntity] AS [p]
+    UNION ALL
+    SELECT [p0].[Ints]
+    FROM [PrimitiveCollectionsEntity] AS [p0]
+) AS [u]
+WHERE JSON_CONTAINS([u].[Ints], 10) = 1
+""");
+    }
+
+    public override async Task Union_of_column_collections_then_Contains()
+    {
+        // The json data type isn't comparable, so it can't be used with UNION or DISTINCT (UNION ALL is fine)
+        await Assert.ThrowsAsync<SqlException>(() => base.Union_of_column_collections_then_Contains());
+
+        AssertSql();
+    }
+
+    public override async Task Concat_of_anonymous_types_with_column_collection_then_Contains()
+    {
+        await base.Concat_of_anonymous_types_with_column_collection_then_Contains();
+
+        AssertSql(
+            """
+SELECT [u].[Id], [u].[Ints]
+FROM (
+    SELECT [p].[Id], [p].[Ints]
+    FROM [PrimitiveCollectionsEntity] AS [p]
+    UNION ALL
+    SELECT [p0].[Id], [p0].[Ints]
+    FROM [PrimitiveCollectionsEntity] AS [p0]
+) AS [u]
+WHERE JSON_CONTAINS([u].[Ints], 10) = 1
+""");
+    }
+
+    public override async Task Concat_of_column_collections_then_Where_Count()
+    {
+        await base.Concat_of_column_collections_then_Where_Count();
+
+        AssertSql(
+            """
+SELECT [u].[Ints]
+FROM (
+    SELECT [p].[Ints]
+    FROM [PrimitiveCollectionsEntity] AS [p]
+    UNION ALL
+    SELECT [p0].[Ints]
+    FROM [PrimitiveCollectionsEntity] AS [p0]
+) AS [u]
+WHERE (
+    SELECT COUNT(*)
+    FROM OPENJSON([u].[Ints]) WITH ([value] int '$') AS [i]
+    WHERE [i].[value] > 10) = 2
+""");
+    }
+
+    public override async Task Concat_of_string_column_collections_then_Contains()
+    {
+        await base.Concat_of_string_column_collections_then_Contains();
+
+        AssertSql(
+            """
+SELECT [u].[Strings]
+FROM (
+    SELECT [p].[Strings]
+    FROM [PrimitiveCollectionsEntity] AS [p]
+    UNION ALL
+    SELECT [p0].[Strings]
+    FROM [PrimitiveCollectionsEntity] AS [p0]
+) AS [u]
+WHERE JSON_CONTAINS([u].[Strings], N'10') = 1
+""");
+    }
+
+    public override async Task Concat_of_column_collections_then_Contains_parameter()
+    {
+        await base.Concat_of_column_collections_then_Contains_parameter();
+
+        AssertSql(
+            """
+@value='10'
+
+SELECT [u].[Ints]
+FROM (
+    SELECT [p].[Ints]
+    FROM [PrimitiveCollectionsEntity] AS [p]
+    UNION ALL
+    SELECT [p0].[Ints]
+    FROM [PrimitiveCollectionsEntity] AS [p0]
+) AS [u]
+WHERE JSON_CONTAINS([u].[Ints], @value) = 1
+""");
+    }
+
+    public override async Task Concat_of_column_collections_then_Contains_then_Select_Count()
+    {
+        await base.Concat_of_column_collections_then_Contains_then_Select_Count();
+
+        AssertSql(
+            """
+SELECT (
+    SELECT COUNT(*)
+    FROM OPENJSON([u].[Ints]) WITH ([value] int '$') AS [i]
+    WHERE [i].[value] > 1)
+FROM (
+    SELECT [p].[Ints]
+    FROM [PrimitiveCollectionsEntity] AS [p]
+    UNION ALL
+    SELECT [p0].[Ints]
+    FROM [PrimitiveCollectionsEntity] AS [p0]
+) AS [u]
+WHERE JSON_CONTAINS([u].[Ints], 10) = 1
+""");
+    }
+
+    public override async Task Distinct_of_column_collection_then_Contains()
+    {
+        // The json data type isn't comparable, so it can't be used with UNION or DISTINCT (UNION ALL is fine)
+        await Assert.ThrowsAsync<SqlException>(() => base.Distinct_of_column_collection_then_Contains());
+
+        AssertSql();
+    }
 
     public override async Task Inline_collection_with_single_parameter_element_Contains()
     {
