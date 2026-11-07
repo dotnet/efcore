@@ -1761,6 +1761,70 @@ WHERE (ARRAY_LENGTH(c["Ints"]) > 0)
 """);
     }
 
+    public override async Task Concat_of_column_collections_then_Contains()
+    {
+        // Set operations and DISTINCT over whole documents aren't supported
+        await AssertTranslationFailed(base.Concat_of_column_collections_then_Contains);
+
+        AssertSql();
+    }
+
+    public override async Task Union_of_column_collections_then_Contains()
+    {
+        // Set operations and DISTINCT over whole documents aren't supported
+        await AssertTranslationFailed(base.Union_of_column_collections_then_Contains);
+
+        AssertSql();
+    }
+
+    public override async Task Concat_of_anonymous_types_with_column_collection_then_Contains()
+    {
+        // Set operations and DISTINCT over whole documents aren't supported
+        await AssertTranslationFailed(base.Concat_of_anonymous_types_with_column_collection_then_Contains);
+
+        AssertSql();
+    }
+
+    public override async Task Concat_of_column_collections_then_Where_Count()
+    {
+        // Set operations and DISTINCT over whole documents aren't supported
+        await AssertTranslationFailed(base.Concat_of_column_collections_then_Where_Count);
+
+        AssertSql();
+    }
+
+    public override async Task Concat_of_string_column_collections_then_Contains()
+    {
+        // Set operations and DISTINCT over whole documents aren't supported
+        await AssertTranslationFailed(base.Concat_of_string_column_collections_then_Contains);
+
+        AssertSql();
+    }
+
+    public override async Task Concat_of_column_collections_then_Contains_parameter()
+    {
+        // Set operations and DISTINCT over whole documents aren't supported
+        await AssertTranslationFailed(base.Concat_of_column_collections_then_Contains_parameter);
+
+        AssertSql();
+    }
+
+    public override async Task Concat_of_column_collections_then_Contains_then_Select_Count()
+    {
+        // Set operations and DISTINCT over whole documents aren't supported
+        await AssertTranslationFailed(base.Concat_of_column_collections_then_Contains_then_Select_Count);
+
+        AssertSql();
+    }
+
+    public override async Task Distinct_of_column_collection_then_Contains()
+    {
+        // Set operations and DISTINCT over whole documents aren't supported
+        await AssertTranslationFailed(base.Distinct_of_column_collection_then_Contains);
+
+        AssertSql();
+    }
+
     public override async Task Column_collection_Distinct()
     {
         // TODO: Subquery pushdown, #33968
