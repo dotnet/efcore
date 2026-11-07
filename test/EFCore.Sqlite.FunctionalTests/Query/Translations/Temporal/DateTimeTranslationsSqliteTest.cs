@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Xunit.Sdk;
+
 namespace Microsoft.EntityFrameworkCore.Query.Translations.Temporal;
 
 public class DateTimeTranslationsSqliteTest : DateTimeTranslationsTestBase<BasicTypesQuerySqliteFixture>
@@ -171,6 +173,21 @@ WHERE CAST(strftime('%S', "b"."DateTime") AS INTEGER) = 10
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
 WHERE CAST(substr(strftime('%f', "b"."DateTime"), 4) AS INTEGER) = 123
+""");
+    }
+
+    public override async Task Ticks()
+    {
+        // SQLite date functions only keep milliseconds, and julianday() adds floating-point error. Issue #39531.
+        await Assert.ThrowsAsync<EqualException>(base.Ticks);
+
+        AssertSql(
+            """
+@ticks='630298926101234960'
+
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE CAST((julianday("b"."DateTime") - 1721425.5) * 864000000000.0 AS INTEGER) = @ticks
 """);
     }
 

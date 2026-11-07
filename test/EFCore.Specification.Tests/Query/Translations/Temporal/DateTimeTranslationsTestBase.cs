@@ -75,6 +75,14 @@ public abstract class DateTimeTranslationsTestBase<TFixture>(TFixture fixture) :
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(o => o.DateTime.Millisecond == 123));
 
     [Fact]
+    public virtual Task Ticks()
+    {
+        var ticks = new DateTime(1998, 5, 4, 15, 30, 10, 123, 456).AddTicks(400).Ticks;
+
+        return AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(o => o.DateTime.Ticks == ticks));
+    }
+
+    [Fact]
     public virtual Task TimeOfDay()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(o => o.DateTime.TimeOfDay == TimeSpan.Zero));
 

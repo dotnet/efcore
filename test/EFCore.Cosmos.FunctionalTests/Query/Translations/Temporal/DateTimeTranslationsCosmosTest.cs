@@ -154,6 +154,14 @@ WHERE (DateTimePart("ms", c["DateTime"]) = 123)
 """);
     }
 
+    public override async Task Ticks()
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(base.Ticks);
+
+        AssertSql();
+    }
+
     public override async Task TimeOfDay()
     {
         // Cosmos client evaluation. Issue #17246.
