@@ -97,6 +97,47 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         Assert.Equal(SqlServerValueGenerationStrategy.Sequence, keyProperty.GetValueGenerationStrategy());
     }
 
+    [Theory]
+    [InlineData(ConstraintDeferrability.DeferrableInitiallyImmediate)]
+    [InlineData(ConstraintDeferrability.DeferrableInitiallyDeferred)]
+    public virtual void Throws_for_deferrable_foreign_key(ConstraintDeferrability deferrability)
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Animal>();
+        modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey(c => c.Name).HasPrincipalKey(p => p.Name)
+            .HasDeferrability(deferrability);
+
+        VerifyError(
+            SqlServerStrings.DeferrableForeignKeysNotSupported("{'" + nameof(Cat.Name) + "'}", nameof(Cat)),
+            modelBuilder);
+    }
+
+    [Fact]
+    public virtual void Passes_for_foreign_key_not_deferrable()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Animal>();
+        modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey(c => c.Name).HasPrincipalKey(p => p.Name)
+            .HasDeferrability(ConstraintDeferrability.NotDeferrable);
+        modelBuilder.Entity<Dog>().HasOne<Person>().WithMany().HasForeignKey(d => d.Name).HasPrincipalKey(p => p.Name);
+
+        Validate(modelBuilder);
+    }
+
+    public override void Detects_duplicate_foreignKey_names_within_hierarchy_with_different_deferrability()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Animal>();
+        modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey(c => c.Name).HasPrincipalKey(p => p.Name)
+            .HasConstraintName("FK_Animal_Person_Name").HasDeferrability(ConstraintDeferrability.DeferrableInitiallyDeferred);
+        modelBuilder.Entity<Dog>().HasOne<Person>().WithMany().HasForeignKey(d => d.Name).HasPrincipalKey(p => p.Name)
+            .HasConstraintName("FK_Animal_Person_Name");
+
+        VerifyError(
+            SqlServerStrings.DeferrableForeignKeysNotSupported("{'" + nameof(Cat.Name) + "'}", nameof(Cat)),
+            modelBuilder);
+    }
+
     [Fact]
     public virtual void Throws_for_identity_on_bad_type()
     {

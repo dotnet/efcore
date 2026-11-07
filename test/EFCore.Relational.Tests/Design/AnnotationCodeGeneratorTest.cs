@@ -83,6 +83,27 @@ public class AnnotationCodeGeneratorTest
         Assert.Equal(true, Assert.Single(result.Arguments));
     }
 
+    [Fact]
+    public void GenerateFluentApi_IForeignKey_works_with_HasDeferrability()
+    {
+        var modelBuilder = CreateModelBuilder();
+        modelBuilder.Entity(
+            "Blog", x =>
+            {
+                x.Property<int>("Id");
+                x.Property<int>("ParentId");
+                x.HasOne("Blog").WithMany().HasForeignKey("ParentId")
+                    .HasDeferrability(ConstraintDeferrability.DeferrableInitiallyDeferred);
+            });
+        var foreignKey = modelBuilder.Model.FindEntityType("Blog")!.GetForeignKeys().Single();
+
+        var annotations = foreignKey.GetAnnotations().ToDictionary(a => a.Name, a => a);
+        var result = CreateGenerator().GenerateFluentApiCalls((IForeignKey)foreignKey, annotations).Single();
+
+        Assert.Equal("HasDeferrability", result.Method);
+        Assert.Equal(ConstraintDeferrability.DeferrableInitiallyDeferred, Assert.Single(result.Arguments));
+    }
+
     private ModelBuilder CreateModelBuilder()
         => FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
 

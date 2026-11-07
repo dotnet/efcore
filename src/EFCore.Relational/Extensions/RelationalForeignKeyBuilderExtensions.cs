@@ -333,4 +333,165 @@ public static class RelationalForeignKeyBuilderExtensions
         bool? excluded,
         bool fromDataAnnotation = false)
         => relationship.CanSetAnnotation(RelationalAnnotationNames.IsForeignKeyExcludedFromMigrations, excluded, fromDataAnnotation);
+
+    /// <summary>
+    ///     Configures whether checking of the foreign key constraint can be deferred until the end of the transaction
+    ///     when targeting a relational database.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+    /// </remarks>
+    /// <param name="referenceCollectionBuilder">The builder being used to configure the relationship.</param>
+    /// <param name="deferrability">A value indicating whether checking of the foreign key constraint can be deferred.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static ReferenceCollectionBuilder HasDeferrability(
+        this ReferenceCollectionBuilder referenceCollectionBuilder,
+        ConstraintDeferrability deferrability)
+    {
+        referenceCollectionBuilder.Metadata.SetDeferrability(deferrability);
+
+        return referenceCollectionBuilder;
+    }
+
+    /// <summary>
+    ///     Configures whether checking of the foreign key constraint can be deferred until the end of the transaction
+    ///     when targeting a relational database.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+    /// </remarks>
+    /// <param name="referenceCollectionBuilder">The builder being used to configure the relationship.</param>
+    /// <param name="deferrability">A value indicating whether checking of the foreign key constraint can be deferred.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    /// <typeparam name="TEntity">The principal entity type in this relationship.</typeparam>
+    /// <typeparam name="TRelatedEntity">The dependent entity type in this relationship.</typeparam>
+    public static ReferenceCollectionBuilder<TEntity, TRelatedEntity> HasDeferrability<TEntity, TRelatedEntity>(
+        this ReferenceCollectionBuilder<TEntity, TRelatedEntity> referenceCollectionBuilder,
+        ConstraintDeferrability deferrability)
+        where TEntity : class
+        where TRelatedEntity : class
+        => (ReferenceCollectionBuilder<TEntity, TRelatedEntity>)((ReferenceCollectionBuilder)referenceCollectionBuilder)
+            .HasDeferrability(deferrability);
+
+    /// <summary>
+    ///     Configures whether checking of the foreign key constraint can be deferred until the end of the transaction
+    ///     when targeting a relational database.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+    /// </remarks>
+    /// <param name="referenceReferenceBuilder">The builder being used to configure the relationship.</param>
+    /// <param name="deferrability">A value indicating whether checking of the foreign key constraint can be deferred.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static ReferenceReferenceBuilder HasDeferrability(
+        this ReferenceReferenceBuilder referenceReferenceBuilder,
+        ConstraintDeferrability deferrability)
+    {
+        referenceReferenceBuilder.Metadata.SetDeferrability(deferrability);
+
+        return referenceReferenceBuilder;
+    }
+
+    /// <summary>
+    ///     Configures whether checking of the foreign key constraint can be deferred until the end of the transaction
+    ///     when targeting a relational database.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+    /// </remarks>
+    /// <param name="referenceReferenceBuilder">The builder being used to configure the relationship.</param>
+    /// <param name="deferrability">A value indicating whether checking of the foreign key constraint can be deferred.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    /// <typeparam name="TEntity">The entity type on one end of the relationship.</typeparam>
+    /// <typeparam name="TRelatedEntity">The entity type on the other end of the relationship.</typeparam>
+    public static ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasDeferrability<TEntity, TRelatedEntity>(
+        this ReferenceReferenceBuilder<TEntity, TRelatedEntity> referenceReferenceBuilder,
+        ConstraintDeferrability deferrability)
+        where TEntity : class
+        where TRelatedEntity : class
+        => (ReferenceReferenceBuilder<TEntity, TRelatedEntity>)((ReferenceReferenceBuilder)referenceReferenceBuilder)
+            .HasDeferrability(deferrability);
+
+    /// <summary>
+    ///     Configures whether checking of the foreign key constraint can be deferred until the end of the transaction
+    ///     when targeting a relational database.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+    /// </remarks>
+    /// <param name="ownershipBuilder">The builder being used to configure the relationship.</param>
+    /// <param name="deferrability">A value indicating whether checking of the foreign key constraint can be deferred.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static OwnershipBuilder HasDeferrability(
+        this OwnershipBuilder ownershipBuilder,
+        ConstraintDeferrability deferrability)
+    {
+        ownershipBuilder.Metadata.SetDeferrability(deferrability);
+
+        return ownershipBuilder;
+    }
+
+    /// <summary>
+    ///     Configures whether checking of the foreign key constraint can be deferred until the end of the transaction
+    ///     when targeting a relational database.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+    /// </remarks>
+    /// <param name="ownershipBuilder">The builder being used to configure the relationship.</param>
+    /// <param name="deferrability">A value indicating whether checking of the foreign key constraint can be deferred.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    /// <typeparam name="TEntity">The entity type on one end of the relationship.</typeparam>
+    /// <typeparam name="TDependentEntity">The entity type on the other end of the relationship.</typeparam>
+    public static OwnershipBuilder<TEntity, TDependentEntity> HasDeferrability<TEntity, TDependentEntity>(
+        this OwnershipBuilder<TEntity, TDependentEntity> ownershipBuilder,
+        ConstraintDeferrability deferrability)
+        where TEntity : class
+        where TDependentEntity : class
+        => (OwnershipBuilder<TEntity, TDependentEntity>)((OwnershipBuilder)ownershipBuilder).HasDeferrability(deferrability);
+
+    /// <summary>
+    ///     Configures whether checking of the foreign key constraint can be deferred until the end of the transaction
+    ///     when targeting a relational database.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+    /// </remarks>
+    /// <param name="relationship">The builder being used to configure the relationship.</param>
+    /// <param name="deferrability">A value indicating whether checking of the foreign key constraint can be deferred.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>
+    ///     The same builder instance if the configuration was applied,
+    ///     <see langword="null" /> otherwise.
+    /// </returns>
+    public static IConventionForeignKeyBuilder? HasDeferrability(
+        this IConventionForeignKeyBuilder relationship,
+        ConstraintDeferrability? deferrability,
+        bool fromDataAnnotation = false)
+    {
+        if (!relationship.CanSetDeferrability(deferrability, fromDataAnnotation))
+        {
+            return null;
+        }
+
+        relationship.Metadata.SetDeferrability(deferrability, fromDataAnnotation);
+        return relationship;
+    }
+
+    /// <summary>
+    ///     Returns a value indicating whether the deferrability of the foreign key constraint can be set
+    ///     from the current configuration source.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+    /// </remarks>
+    /// <param name="relationship">The builder being used to configure the relationship.</param>
+    /// <param name="deferrability">A value indicating whether checking of the foreign key constraint can be deferred.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns><see langword="true" /> if the configuration can be applied.</returns>
+    public static bool CanSetDeferrability(
+        this IConventionForeignKeyBuilder relationship,
+        ConstraintDeferrability? deferrability,
+        bool fromDataAnnotation = false)
+        => relationship.CanSetAnnotation(RelationalAnnotationNames.Deferrability, deferrability, fromDataAnnotation);
 }

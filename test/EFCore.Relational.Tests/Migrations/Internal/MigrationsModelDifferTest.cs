@@ -4111,6 +4111,118 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             });
 
     [Fact]
+    public void Add_deferrable_foreign_key()
+        => Execute(
+            common => common.Entity(
+                "Amoeba",
+                x =>
+                {
+                    x.ToTable("Amoeba", "dbo");
+                    x.Property<int>("Id");
+                    x.Property<int>("ParentId");
+                }),
+            _ => { },
+            target => target.Entity(
+                "Amoeba",
+                x => x.HasOne("Amoeba").WithMany().HasForeignKey("ParentId")
+                    .HasDeferrability(ConstraintDeferrability.DeferrableInitiallyDeferred)
+            ),
+            operations =>
+            {
+                Assert.Equal(2, operations.Count);
+                Assert.IsType<CreateIndexOperation>(operations[0]);
+
+                var addFkOperation = Assert.IsType<AddForeignKeyOperation>(operations[1]);
+                Assert.Equal("FK_Amoeba_Amoeba_ParentId", addFkOperation.Name);
+                Assert.Equal(ConstraintDeferrability.DeferrableInitiallyDeferred, addFkOperation.Deferrability);
+            });
+
+    [Fact]
+    public void Create_table_with_deferrable_foreign_key()
+        => Execute(
+            _ => { },
+            target => target.Entity(
+                "Amoeba",
+                x =>
+                {
+                    x.ToTable("Amoeba", "dbo");
+                    x.Property<int>("Id");
+                    x.Property<int>("ParentId");
+                    x.HasOne("Amoeba").WithMany().HasForeignKey("ParentId")
+                        .HasDeferrability(ConstraintDeferrability.DeferrableInitiallyImmediate);
+                }),
+            operations =>
+            {
+                var createTableOperation = Assert.Single(operations.OfType<CreateTableOperation>());
+                var addFkOperation = Assert.Single(createTableOperation.ForeignKeys);
+                Assert.Equal("FK_Amoeba_Amoeba_ParentId", addFkOperation.Name);
+                Assert.Equal(ConstraintDeferrability.DeferrableInitiallyImmediate, addFkOperation.Deferrability);
+            });
+
+    [Fact]
+    public void Alter_foreign_key_deferrability()
+        => Execute(
+            common => common.Entity(
+                "Amoeba",
+                x =>
+                {
+                    x.ToTable("Amoeba", "dbo");
+                    x.Property<int>("Id");
+                    x.Property<int>("ParentId");
+                }),
+            source => source.Entity(
+                "Amoeba",
+                x => x.HasOne("Amoeba").WithMany().HasForeignKey("ParentId").OnDelete(DeleteBehavior.Restrict)
+            ),
+            target => target.Entity(
+                "Amoeba",
+                x => x.HasOne("Amoeba").WithMany().HasForeignKey("ParentId").OnDelete(DeleteBehavior.Restrict)
+                    .HasDeferrability(ConstraintDeferrability.DeferrableInitiallyDeferred)
+            ),
+            upOps =>
+            {
+                Assert.Equal(2, upOps.Count);
+
+                var dropFkOperation = Assert.IsType<DropForeignKeyOperation>(upOps[0]);
+                Assert.Equal("dbo", dropFkOperation.Schema);
+                Assert.Equal("Amoeba", dropFkOperation.Table);
+                Assert.Equal("FK_Amoeba_Amoeba_ParentId", dropFkOperation.Name);
+
+                var addFkOperation = Assert.IsType<AddForeignKeyOperation>(upOps[1]);
+                Assert.Equal("FK_Amoeba_Amoeba_ParentId", addFkOperation.Name);
+                Assert.Equal(ReferentialAction.Restrict, addFkOperation.OnDelete);
+                Assert.Equal(ConstraintDeferrability.DeferrableInitiallyDeferred, addFkOperation.Deferrability);
+            },
+            downOps =>
+            {
+                Assert.Equal(2, downOps.Count);
+
+                Assert.IsType<DropForeignKeyOperation>(downOps[0]);
+
+                var addFkOperation = Assert.IsType<AddForeignKeyOperation>(downOps[1]);
+                Assert.Equal("FK_Amoeba_Amoeba_ParentId", addFkOperation.Name);
+                Assert.Equal(ReferentialAction.Restrict, addFkOperation.OnDelete);
+                Assert.Equal(ConstraintDeferrability.NotDeferrable, addFkOperation.Deferrability);
+            });
+
+    [Fact]
+    public void Deferrable_foreign_key_unchanged()
+        => Execute(
+            common => common.Entity(
+                "Amoeba",
+                x =>
+                {
+                    x.ToTable("Amoeba", "dbo");
+                    x.Property<int>("Id");
+                    x.Property<int>("ParentId");
+                    x.HasOne("Amoeba").WithMany().HasForeignKey("ParentId")
+                        .HasDeferrability(ConstraintDeferrability.DeferrableInitiallyDeferred);
+                }),
+            _ => { },
+            _ => { },
+            operations => Assert.Empty(operations));
+
+    [Fact]
     public void Add_optional_foreign_key()
         => Execute(
             source => source.Entity(

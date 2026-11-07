@@ -295,6 +295,14 @@ public class CSharpMigrationOperationGenerator : ICSharpMigrationOperationGenera
                     .Append(Code.Literal(operation.OnDelete));
             }
 
+            if (operation.Deferrability != ConstraintDeferrability.NotDeferrable)
+            {
+                builder
+                    .AppendLine(",")
+                    .Append("deferrability: ")
+                    .Append(Code.Literal(operation.Deferrability));
+            }
+
             builder.Append(")");
 
             Annotations(operation.GetAnnotations(), builder);
@@ -1306,6 +1314,14 @@ public class CSharpMigrationOperationGenerator : ICSharpMigrationOperationGenera
                                 .AppendLine(",")
                                 .Append("onDelete: ")
                                 .Append(Code.Literal(foreignKey.OnDelete));
+                        }
+
+                        if (foreignKey.Deferrability != ConstraintDeferrability.NotDeferrable)
+                        {
+                            builder
+                                .AppendLine(",")
+                                .Append("deferrability: ")
+                                .Append(Code.Literal(foreignKey.Deferrability));
                         }
 
                         builder.Append(")");

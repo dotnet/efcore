@@ -37,6 +37,7 @@ public class CreateTableBuilder<TColumns> : OperationBuilder<CreateTableOperatio
     /// <param name="principalSchema">The schema that contains the table to which the foreign key is constrained.</param>
     /// <param name="onUpdate">The <see cref="ReferentialAction" /> to use for updates.</param>
     /// <param name="onDelete">The <see cref="ReferentialAction" /> to use for deletes.</param>
+    /// <param name="deferrability">Whether checking of the foreign key constraint can be deferred until the end of the transaction.</param>
     /// <returns>The same builder so that multiple calls can be chained.</returns>
     public virtual OperationBuilder<AddForeignKeyOperation> ForeignKey(
         string name,
@@ -45,7 +46,8 @@ public class CreateTableBuilder<TColumns> : OperationBuilder<CreateTableOperatio
         string? principalColumn = null,
         string? principalSchema = null,
         ReferentialAction onUpdate = ReferentialAction.NoAction,
-        ReferentialAction onDelete = ReferentialAction.NoAction)
+        ReferentialAction onDelete = ReferentialAction.NoAction,
+        ConstraintDeferrability deferrability = ConstraintDeferrability.NotDeferrable)
         => ForeignKey(
             name,
             column,
@@ -53,7 +55,8 @@ public class CreateTableBuilder<TColumns> : OperationBuilder<CreateTableOperatio
             principalColumn == null ? null : [principalColumn],
             principalSchema,
             onUpdate,
-            onDelete);
+            onDelete,
+            deferrability);
 
     /// <summary>
     ///     Configures a multiple-column (composite) foreign key on the table.
@@ -65,6 +68,7 @@ public class CreateTableBuilder<TColumns> : OperationBuilder<CreateTableOperatio
     /// <param name="principalSchema">The schema that contains the table to which the foreign key is constrained.</param>
     /// <param name="onUpdate">The <see cref="ReferentialAction" /> to use for updates.</param>
     /// <param name="onDelete">The <see cref="ReferentialAction" /> to use for deletes.</param>
+    /// <param name="deferrability">Whether checking of the foreign key constraint can be deferred until the end of the transaction.</param>
     /// <returns>The same builder so that multiple calls can be chained.</returns>
     public virtual OperationBuilder<AddForeignKeyOperation> ForeignKey(
         string name,
@@ -73,7 +77,8 @@ public class CreateTableBuilder<TColumns> : OperationBuilder<CreateTableOperatio
         string[]? principalColumns,
         string? principalSchema = null,
         ReferentialAction onUpdate = ReferentialAction.NoAction,
-        ReferentialAction onDelete = ReferentialAction.NoAction)
+        ReferentialAction onDelete = ReferentialAction.NoAction,
+        ConstraintDeferrability deferrability = ConstraintDeferrability.NotDeferrable)
     {
         Check.NotEmpty(name);
         Check.NotNull(columns);
@@ -89,7 +94,8 @@ public class CreateTableBuilder<TColumns> : OperationBuilder<CreateTableOperatio
             PrincipalTable = principalTable,
             PrincipalColumns = principalColumns,
             OnUpdate = onUpdate,
-            OnDelete = onDelete
+            OnDelete = onDelete,
+            Deferrability = deferrability
         };
         Operation.ForeignKeys.Add(operation);
 

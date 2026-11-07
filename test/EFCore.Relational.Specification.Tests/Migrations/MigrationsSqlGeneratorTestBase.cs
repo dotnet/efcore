@@ -139,6 +139,78 @@ public abstract class MigrationsSqlGeneratorTestBase(
             });
 
     [Fact]
+    public virtual void AddForeignKeyOperation_deferrable_initially_deferred()
+        => Generate(
+            new AddForeignKeyOperation
+            {
+                Table = "People",
+                Name = "FK_People_People_SpouseId",
+                Columns = ["SpouseId"],
+                PrincipalTable = "People",
+                PrincipalColumns = ["Id"],
+                OnDelete = ReferentialAction.Cascade,
+                Deferrability = ConstraintDeferrability.DeferrableInitiallyDeferred
+            });
+
+    [Fact]
+    public virtual void AddForeignKeyOperation_deferrable_initially_immediate()
+        => Generate(
+            new AddForeignKeyOperation
+            {
+                Table = "People",
+                Name = "FK_People_People_SpouseId",
+                Columns = ["SpouseId"],
+                PrincipalTable = "People",
+                PrincipalColumns = ["Id"],
+                Deferrability = ConstraintDeferrability.DeferrableInitiallyImmediate
+            });
+
+    [Fact]
+    public virtual void CreateTableOperation_with_deferrable_initially_deferred_foreign_key()
+        => Generate(CreateTableOperationWithForeignKey(ConstraintDeferrability.DeferrableInitiallyDeferred));
+
+    [Fact]
+    public virtual void CreateTableOperation_with_deferrable_initially_immediate_foreign_key()
+        => Generate(CreateTableOperationWithForeignKey(ConstraintDeferrability.DeferrableInitiallyImmediate));
+
+    private static CreateTableOperation CreateTableOperationWithForeignKey(ConstraintDeferrability deferrability)
+        => new()
+        {
+            Name = "People",
+            Columns =
+            {
+                new AddColumnOperation
+                {
+                    Name = "Id",
+                    Table = "People",
+                    ClrType = typeof(int),
+                    ColumnType = "int"
+                },
+                new AddColumnOperation
+                {
+                    Name = "SpouseId",
+                    Table = "People",
+                    ClrType = typeof(int),
+                    ColumnType = "int",
+                    IsNullable = true
+                }
+            },
+            PrimaryKey = new AddPrimaryKeyOperation { Name = "PK_People", Columns = ["Id"] },
+            ForeignKeys =
+            {
+                new AddForeignKeyOperation
+                {
+                    Table = "People",
+                    Name = "FK_People_People_SpouseId",
+                    Columns = ["SpouseId"],
+                    PrincipalTable = "People",
+                    PrincipalColumns = ["Id"],
+                    Deferrability = deferrability
+                }
+            }
+        };
+
+    [Fact]
     public virtual void AlterColumnOperation_without_column_type()
         => Generate(
             new AlterColumnOperation
