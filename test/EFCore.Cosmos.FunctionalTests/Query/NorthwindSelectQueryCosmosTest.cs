@@ -61,9 +61,6 @@ WHERE (c["$type"] = "Order")
 
     public override Task Projection_when_arithmetic_expressions(bool async)
     {
-        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
-        CosmosTestEnvironment.SkipOnLinuxEmulator();
-
         return Fixture.NoSyncTest(
             async, async a =>
             {
@@ -126,9 +123,6 @@ FROM root c
 
     public override Task Project_to_object_array(bool async)
     {
-        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
-        CosmosTestEnvironment.SkipOnLinuxEmulator();
-
         return Fixture.NoSyncTest(
             async, async a =>
             {
@@ -346,9 +340,6 @@ WHERE (c["$type"] = "Product")
 
     public override Task Select_anonymous_with_object(bool async)
     {
-        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
-        CosmosTestEnvironment.SkipOnLinuxEmulator();
-
         return Fixture.NoSyncTest(
             async, async a =>
             {
@@ -1573,9 +1564,6 @@ OFFSET 0 LIMIT @p
 
     public override Task Ternary_in_client_eval_assigns_correct_types(bool async)
     {
-        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
-        CosmosTestEnvironment.SkipOnLinuxEmulator();
-
         return Fixture.NoSyncTest(
             async, async a =>
             {
@@ -1861,9 +1849,6 @@ WHERE ((c["Discriminator"] = "Order") AND STARTSWITH(c["CustomerID"], "A"))
 
     public override Task Projecting_nullable_struct(bool async)
     {
-        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
-        CosmosTestEnvironment.SkipOnLinuxEmulator();
-
         return Fixture.NoSyncTest(
             async, async a =>
             {
