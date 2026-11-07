@@ -401,7 +401,8 @@ public class DbContext :
         var entityType = Model.FindEntityType(type);
         if (entityType == null)
         {
-            if (Model.IsShared(type))
+            if (Model.IsShared(type)
+                || Model.FindEntityTypes(type).Any(e => e.HasSharedClrType))
             {
                 throw new InvalidOperationException(CoreStrings.InvalidSetSharedType(type.ShortDisplayName()));
             }
