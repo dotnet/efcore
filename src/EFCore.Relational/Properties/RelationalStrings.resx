@@ -682,6 +682,9 @@
   <data name="JsonEmptyString" xml:space="preserve">
     <value>The database returned the empty string when a JSON object was expected.</value>
   </data>
+  <data name="JsonEntityCollectionExpectedArray" xml:space="preserve">
+    <value>The JSON for '{entityType}.{navigation}' contains a '{tokenType}' token when a JSON array was expected.</value>
+  </data>
   <data name="JsonEntityCollectionExpectedObject" xml:space="preserve">
     <value>The JSON array for '{entityType}.{navigation}' contains a non-object element when a JSON object was expected.</value>
   </data>
@@ -774,6 +777,9 @@
   </data>
   <data name="JsonRequiredEntityWithNullJson" xml:space="preserve">
     <value>Entity {entity} is required but the JSON element containing it is 'null'.</value>
+  </data>
+  <data name="JsonStructuralTypeExpectedObject" xml:space="preserve">
+    <value>The JSON for '{structuralType}' contains a '{tokenType}' token when a JSON object was expected.</value>
   </data>
   <data name="JsonValueReadWriterMissingOnTypeMapping" xml:space="preserve">
     <value>Type mapping type '{typeMapping}', which is being used on property '{property}' on entity type '{entityType}' in a JSON document, has not defined a JsonValueReaderWriter.</value>

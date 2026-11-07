@@ -910,6 +910,12 @@
   <data name="IQueryableProviderNotAsync" xml:space="preserve">
     <value>The provider for the source 'IQueryable' doesn't implement 'IAsyncQueryProvider'. Only providers that implement 'IAsyncQueryProvider' can be used for Entity Framework asynchronous operations.</value>
   </data>
+  <data name="JsonCollectionExpectedArray" xml:space="preserve">
+    <value>The JSON for a collection of '{elementType}' contains a '{tokenType}' token when a JSON array was expected.</value>
+  </data>
+  <data name="JsonCollectionInvalidElement" xml:space="preserve">
+    <value>The JSON array for a collection of '{elementType}' contains a '{tokenType}' token, which is not a valid element.</value>
+  </data>
   <data name="JsonReaderInvalidTokenType" xml:space="preserve">
     <value>Invalid token type: '{tokenType}'.</value>
   </data>
