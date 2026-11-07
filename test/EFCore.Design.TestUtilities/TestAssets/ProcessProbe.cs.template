@@ -1,0 +1,37 @@
+using System.Diagnostics;
+using System.Text;
+
+switch (args[0])
+{
+    case "echo":
+        foreach (var argument in args.Skip(1))
+        {
+            Console.WriteLine(Convert.ToBase64String(Encoding.UTF8.GetBytes(argument)));
+        }
+
+        Console.Error.WriteLine("stderr");
+        return 0;
+    case "failure":
+        Console.Error.WriteLine("expected failure");
+        return 23;
+    case "wait":
+        Console.WriteLine(Environment.ProcessId);
+        Console.Out.Flush();
+        await Task.Delay(Timeout.InfiniteTimeSpan);
+        return 0;
+    case "tree":
+        var startInfo = new ProcessStartInfo(Environment.ProcessPath!);
+        startInfo.ArgumentList.Add(typeof(Program).Assembly.Location);
+        startInfo.ArgumentList.Add("wait");
+        using (var child = Process.Start(startInfo)!)
+        {
+            Console.WriteLine("parent:" + Environment.ProcessId);
+            Console.WriteLine("child:" + child.Id);
+            Console.Out.Flush();
+            await Task.Delay(Timeout.InfiniteTimeSpan);
+        }
+
+        return 0;
+    default:
+        throw new ArgumentException("Unknown process probe operation.");
+}

@@ -1,0 +1,15 @@
+using System.Runtime.CompilerServices;
+using Xunit;
+
+public sealed class NativeInfrastructureTests
+{
+    [Fact]
+    public void Runs_native_test_code()
+    {
+#if NATIVE_AOT
+        Assert.False(RuntimeFeature.IsDynamicCodeSupported);
+#else
+        Assert.True(RuntimeFeature.IsDynamicCodeSupported);
+#endif
+    }
+}
