@@ -41,31 +41,37 @@ public class SqliteDateTimeMethodTranslator(SqliteSqlExpressionFactory sqlExpres
             return null;
         }
 
-        var modifier = method.Name switch
+        SqlExpression[]? modifiers = method.Name switch
         {
-            nameof(DateTime.AddMilliseconds) => sqlExpressionFactory.Add(
-                sqlExpressionFactory.Convert(
-                    sqlExpressionFactory.Divide(arg, sqlExpressionFactory.Constant(1000.0)),
-                    typeof(string)),
-                sqlExpressionFactory.Constant(" seconds")),
+            nameof(DateTime.AddMilliseconds) =>
+            [
+                sqlExpressionFactory.Add(
+                    sqlExpressionFactory.Convert(
+                        sqlExpressionFactory.Divide(arg, sqlExpressionFactory.Constant(1000.0)),
+                        typeof(string)),
+                    sqlExpressionFactory.Constant(" seconds"))
+            ],
 
-            nameof(DateTime.AddTicks) => sqlExpressionFactory.Add(
-                sqlExpressionFactory.Convert(
-                    sqlExpressionFactory.Divide(arg, sqlExpressionFactory.Constant((double)TimeSpan.TicksPerSecond)),
-                    typeof(string)),
-                sqlExpressionFactory.Constant(" seconds")),
+            nameof(DateTime.AddTicks) =>
+            [
+                sqlExpressionFactory.Add(
+                    sqlExpressionFactory.Convert(
+                        sqlExpressionFactory.Divide(arg, sqlExpressionFactory.Constant((double)TimeSpan.TicksPerSecond)),
+                        typeof(string)),
+                    sqlExpressionFactory.Constant(" seconds"))
+            ],
 
-            nameof(DateTime.AddYears) => MakeModifier(arg, " years"),
-            nameof(DateTime.AddMonths) => MakeModifier(arg, " months"),
-            nameof(DateTime.AddDays) => MakeModifier(arg, " days"),
-            nameof(DateTime.AddHours) => MakeModifier(arg, " hours"),
-            nameof(DateTime.AddMinutes) => MakeModifier(arg, " minutes"),
-            nameof(DateTime.AddSeconds) => MakeModifier(arg, " seconds"),
+            nameof(DateTime.AddYears) => MakeClampedModifiers(arg, " years"),
+            nameof(DateTime.AddMonths) => MakeClampedModifiers(arg, " months"),
+            nameof(DateTime.AddDays) => [MakeModifier(arg, " days")],
+            nameof(DateTime.AddHours) => [MakeModifier(arg, " hours")],
+            nameof(DateTime.AddMinutes) => [MakeModifier(arg, " minutes")],
+            nameof(DateTime.AddSeconds) => [MakeModifier(arg, " seconds")],
 
             _ => null
         };
 
-        return modifier is null
+        return modifiers is null
             ? null
             : sqlExpressionFactory.Function(
                 "rtrim",
@@ -77,7 +83,7 @@ public class SqliteDateTimeMethodTranslator(SqliteSqlExpressionFactory sqlExpres
                                 method.ReturnType,
                                 "%Y-%m-%d %H:%M:%f",
                                 instance,
-                                modifiers: [modifier]),
+                                modifiers),
                             sqlExpressionFactory.Constant("0")
                         ],
                         nullable: true,
@@ -100,21 +106,23 @@ public class SqliteDateTimeMethodTranslator(SqliteSqlExpressionFactory sqlExpres
             return null;
         }
 
-        var unitSuffix = method.Name switch
+        SqlExpression[]? modifiers = method.Name switch
         {
-            nameof(DateOnly.AddYears) => " years",
-            nameof(DateOnly.AddMonths) => " months",
-            nameof(DateOnly.AddDays) => " days",
+            nameof(DateOnly.AddYears) => MakeClampedModifiers(arg, " years"),
+            nameof(DateOnly.AddMonths) => MakeClampedModifiers(arg, " months"),
+            nameof(DateOnly.AddDays) => [MakeModifier(arg, " days")],
             _ => null
         };
 
-        return unitSuffix is not null
-            ? sqlExpressionFactory.Date(
-                method.ReturnType,
-                instance,
-                modifiers: [MakeModifier(arg, unitSuffix)])
+        return modifiers is not null
+            ? sqlExpressionFactory.Date(method.ReturnType, instance, modifiers)
             : null;
     }
+
+    // By default SQLite overflows a day past the end of the resulting month into the next month (e.g. January 31 + 1 month gives
+    // March 3); 'floor' makes it the last day of the resulting month instead, which is what DateTime and DateOnly do.
+    private SqlExpression[] MakeClampedModifiers(SqlExpression argument, string unitSuffix)
+        => [MakeModifier(argument, unitSuffix), sqlExpressionFactory.Constant("floor")];
 
     private SqlExpression MakeModifier(SqlExpression argument, string unitSuffix)
         => sqlExpressionFactory.Add(
