@@ -556,6 +556,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 name);
 
         /// <summary>
+        ///     The model snapshot class '{snapshotName}' is declared in more than one file: {files}. Remove the stale ones manually.
+        /// </summary>
+        public static string MultipleExistingSnapshotFiles(object? snapshotName, object? files)
+            => string.Format(
+                GetString("MultipleExistingSnapshotFiles", nameof(snapshotName), nameof(files)),
+                snapshotName, files);
+
+        /// <summary>
         ///     Could not find symbol for anonymous object creation initializer:
         /// </summary>
         public static string NoAnonymousSymbol
@@ -768,6 +776,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 outputDirectoryName, readOnlyFiles);
 
         /// <summary>
+        ///     Neither the migration file '{migrationFile}' nor the model snapshot file '{snapshotFile}' was found under the project directory or the output directory, so nothing was removed. If the files are in another directory, specify it with the '--output-dir' option ('-OutputDir' in PowerShell).
+        /// </summary>
+        public static string RemoveMigrationFilesNotFound(object? migrationFile, object? snapshotFile)
+            => string.Format(
+                GetString("RemoveMigrationFilesNotFound", nameof(migrationFile), nameof(snapshotFile)),
+                migrationFile, snapshotFile);
+
+        /// <summary>
         ///     Removing migration '{name}'.
         /// </summary>
         public static string RemovingMigration(object? name)
@@ -840,7 +856,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 file, snapshotName);
 
         /// <summary>
-        ///     No file named '{file}' was found. A new model snapshot is being written to '{newFile}'. If the existing snapshot is in another location, use the output directory option to specify it, and remove the stale model snapshot class manually.
+        ///     No file named '{file}' was found. A new model snapshot is being written to '{newFile}'. If the existing snapshot is in another directory, specify it with the '--output-dir' option ('-OutputDir' in PowerShell), and remove the stale model snapshot class manually.
         /// </summary>
         public static string SnapshotFileNotFoundCreatingNew(object? file, object? newFile)
             => string.Format(

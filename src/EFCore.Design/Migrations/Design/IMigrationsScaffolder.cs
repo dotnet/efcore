@@ -57,7 +57,7 @@ public interface IMigrationsScaffolder
     /// <param name="offline">Remove the migration without connecting to the database.</param>
     /// <param name="outputDir">
     ///     An additional directory to look for the migration files in, for when they are not under the project directory.
-    ///     Paths are relative to the project directory.
+    ///     Paths are relative to the project directory. Implementations that do not override this method ignore it.
     /// </param>
     /// <returns>The removed migration files.</returns>
     MigrationFiles RemoveMigration(
@@ -67,7 +67,8 @@ public interface IMigrationsScaffolder
         string? language,
         bool dryRun,
         bool offline,
-        string? outputDir);
+        string? outputDir)
+        => RemoveMigration(projectDir, rootNamespace, force, language, dryRun, offline);
 
     /// <summary>
     ///     Saves a scaffolded migration to files.
