@@ -546,6 +546,9 @@
           "Member": "Microsoft.EntityFrameworkCore.Migrations.Design.MigrationFiles RemoveMigration(string projectDir, string? rootNamespace, bool force, string? language, bool dryRun = false, bool offline = false);"
         },
         {
+          "Member": "Microsoft.EntityFrameworkCore.Migrations.Design.MigrationFiles RemoveMigration(string projectDir, string? rootNamespace, bool force, string? language, bool dryRun, bool offline, string? outputDir);"
+        },
+        {
           "Member": "Microsoft.EntityFrameworkCore.Migrations.Design.MigrationFiles Save(string projectDir, Microsoft.EntityFrameworkCore.Migrations.Design.ScaffoldedMigration migration, string? outputDir, bool dryRun = false);"
         },
         {
@@ -774,6 +777,9 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Migrations.Design.MigrationFiles RemoveMigration(string projectDir, string? rootNamespace, bool force, string? language, bool dryRun = false, bool offline = false);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Migrations.Design.MigrationFiles RemoveMigration(string projectDir, string? rootNamespace, bool force, string? language, bool dryRun, bool offline, string? outputDir);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Migrations.Design.MigrationFiles Save(string projectDir, Microsoft.EntityFrameworkCore.Migrations.Design.ScaffoldedMigration migration, string? outputDir, bool dryRun);"
