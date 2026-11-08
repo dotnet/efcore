@@ -410,12 +410,17 @@ public class MigrationsScaffolder : IMigrationsScaffolder
     /// <returns>The saved migrations files.</returns>
     public virtual MigrationFiles Save(string projectDir, ScaffoldedMigration migration, string? outputDir, bool dryRun)
     {
+        if (outputDir != null)
+        {
+            outputDir = Path.GetFullPath(Path.Combine(projectDir, outputDir));
+        }
+
         var lastMigrationFileName = migration.PreviousMigrationId + migration.FileExtension;
         var migrationDirectory = outputDir ?? GetDirectory(projectDir, lastMigrationFileName, migration.MigrationSubNamespace);
         var migrationFile = Path.Combine(migrationDirectory, migration.MigrationId + migration.FileExtension);
         var migrationMetadataFile = Path.Combine(migrationDirectory, migration.MigrationId + ".Designer" + migration.FileExtension);
         var modelSnapshotFileName = migration.SnapshotName + migration.FileExtension;
-        var modelSnapshotDirectory = GetDirectory(projectDir, modelSnapshotFileName, migration.SnapshotSubnamespace);
+        var modelSnapshotDirectory = outputDir ?? GetDirectory(projectDir, modelSnapshotFileName, migration.SnapshotSubnamespace);
         var modelSnapshotFile = Path.Combine(modelSnapshotDirectory, modelSnapshotFileName);
 
         Dependencies.OperationReporter.WriteVerbose(DesignStrings.WritingMigration(migrationFile));

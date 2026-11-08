@@ -88,13 +88,7 @@ public class OperationExecutorTest(ITestOutputHelper testOutputHelper)
         Assert.Equal(Path.Combine(processedOutputDir, $"11112233445566_{migrationName}.Designer.cs"), metadataFileName);
         Assert.Equal(Path.Combine(processedOutputDir, $"11112233445566_{migrationName}.cs"), migrationFileName);
 
-        var snapshotDir = "";
-        foreach (var part in "My.Gnomespace.Data".Split('.'))
-        {
-            snapshotDir = Path.Combine(snapshotDir, part);
-        }
-
-        Assert.Equal(Path.Combine(snapshotDir, "GnomeContextModelSnapshot.cs"), snapshotFileName);
+        Assert.Equal(Path.Combine(processedOutputDir, "GnomeContextModelSnapshot.cs"), snapshotFileName);
 
         var metadataFile = File.ReadAllText(metadataFilePath);
         var migrationFile = File.ReadAllText(migrationFilePath);
@@ -283,7 +277,7 @@ partial class GnomeContextModelSnapshot : ModelSnapshot
 
         Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.cs", files.MigrationFile);
         Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.Designer.cs", files.MetadataFile);
-        Assert.Equal($@"{expectedSnapshotPrefix}putout{S}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+        Assert.Equal(Path.Combine(Path.GetDirectoryName(files.MigrationFile)!, "GnomeContextModelSnapshot.cs"), files.SnapshotFile);
 
         Assert.Equal("putout", files.Migration!.SnapshotSubnamespace);
         Assert.Equal("putout", files.Migration!.MigrationSubNamespace);
@@ -312,7 +306,7 @@ partial class GnomeContextModelSnapshot : ModelSnapshot
 
         Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.cs", files.MigrationFile);
         Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.Designer.cs", files.MetadataFile);
-        Assert.Equal($@"{expectedSnapshotPrefix}putout{S}output{S}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+        Assert.Equal(Path.Combine(Path.GetDirectoryName(files.MigrationFile)!, "GnomeContextModelSnapshot.cs"), files.SnapshotFile);
 
         Assert.Equal("putout.output", files.Migration!.SnapshotSubnamespace);
         Assert.Equal("putout.output", files.Migration!.MigrationSubNamespace);
@@ -341,7 +335,7 @@ partial class GnomeContextModelSnapshot : ModelSnapshot
 
         Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.cs", files.MigrationFile);
         Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.Designer.cs", files.MetadataFile);
-        Assert.Equal($@"{expectedSnapshotPrefix}Migrations{S}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+        Assert.Equal(Path.Combine(Path.GetDirectoryName(files.MigrationFile)!, "GnomeContextModelSnapshot.cs"), files.SnapshotFile);
 
         Assert.Equal("Migrations", files.Migration!.SnapshotSubnamespace);
         Assert.Equal("Migrations", files.Migration!.MigrationSubNamespace);
@@ -370,7 +364,7 @@ partial class GnomeContextModelSnapshot : ModelSnapshot
 
         Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.cs", files.MigrationFile);
         Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.Designer.cs", files.MetadataFile);
-        Assert.Equal($@"{expectedSnapshotPrefix}Migrations{S}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+        Assert.Equal(Path.Combine(Path.GetDirectoryName(files.MigrationFile)!, "GnomeContextModelSnapshot.cs"), files.SnapshotFile);
 
         Assert.Equal("Migrations", files.Migration!.SnapshotSubnamespace);
         Assert.Equal("Migrations", files.Migration!.MigrationSubNamespace);
@@ -393,13 +387,28 @@ partial class GnomeContextModelSnapshot : ModelSnapshot
 
         Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.cs", files.MigrationFile);
         Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.Designer.cs", files.MetadataFile);
-        Assert.Equal($@"{expectedSnapshotPrefix}Migrations{S}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+        Assert.Equal(Path.Combine(Path.GetDirectoryName(files.MigrationFile)!, "GnomeContextModelSnapshot.cs"), files.SnapshotFile);
 
         Assert.Equal("Migrations", files.Migration!.SnapshotSubnamespace);
         Assert.Equal("Migrations", files.Migration!.MigrationSubNamespace);
         Assert.Equal("Migrations", ExtractNamespace(files.Migration.MigrationCode));
         Assert.Equal("Migrations", ExtractNamespace(files.Migration.MetadataCode));
         Assert.Equal("Migrations", ExtractNamespace(files.Migration.SnapshotCode));
+    }
+
+    [Theory, InlineData(@"/SomePath/Infrastructure", @"../DatabaseMigration/Migrations", @"/SomePath/DatabaseMigration/Migrations"),
+     InlineData(@"SomePath/Infrastructure/", @"../DatabaseMigration/Migrations", @"SomePath/DatabaseMigration/Migrations")]
+    public void Relative_output_path_outside_project(string projectDir, string outputDir, string expectedDirectory)
+    {
+        expectedDirectory = Path.GetFullPath(expectedDirectory.Replace('/', S));
+        var files = GenerateFilesDryRun(projectDir, outputDir, "Application1.Infrastructure", null);
+
+        Assert.Equal(Path.Combine(expectedDirectory, "11112233445566_M.cs"), files.MigrationFile);
+        Assert.Equal(Path.Combine(expectedDirectory, "11112233445566_M.Designer.cs"), files.MetadataFile);
+        Assert.Equal(Path.Combine(expectedDirectory, "GnomeContextModelSnapshot.cs"), files.SnapshotFile);
+
+        Assert.Equal("Application1.Infrastructure.Migrations", ExtractNamespace(files.Migration!.MigrationCode));
+        Assert.Equal("Application1.Infrastructure.Migrations", ExtractNamespace(files.Migration.SnapshotCode));
     }
 
     [Theory, InlineData(@"/SomePath/SomeSubpath", @"/SomePath/SomeSubpath", "Acme.Parts"),
@@ -444,7 +453,7 @@ partial class GnomeContextModelSnapshot : ModelSnapshot
 
         Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.cs", files.MigrationFile);
         Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.Designer.cs", files.MetadataFile);
-        Assert.Equal($@"{expectedSnapshotPrefix}putout{S}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+        Assert.Equal(Path.Combine(Path.GetDirectoryName(files.MigrationFile)!, "GnomeContextModelSnapshot.cs"), files.SnapshotFile);
 
         Assert.Equal("putout", files.Migration!.SnapshotSubnamespace);
         Assert.Equal("putout", files.Migration!.MigrationSubNamespace);
@@ -474,7 +483,7 @@ partial class GnomeContextModelSnapshot : ModelSnapshot
 
         Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.cs", files.MigrationFile);
         Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.Designer.cs", files.MetadataFile);
-        Assert.Equal($@"{expectedSnapshotPrefix}putout{S}output{S}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+        Assert.Equal(Path.Combine(Path.GetDirectoryName(files.MigrationFile)!, "GnomeContextModelSnapshot.cs"), files.SnapshotFile);
 
         Assert.Equal("putout.output", files.Migration!.SnapshotSubnamespace);
         Assert.Equal("putout.output", files.Migration!.MigrationSubNamespace);
@@ -504,7 +513,7 @@ partial class GnomeContextModelSnapshot : ModelSnapshot
 
         Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.cs", files.MigrationFile);
         Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.Designer.cs", files.MetadataFile);
-        Assert.Equal($@"{expectedSnapshotPrefix}Migrations{S}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+        Assert.Equal(Path.Combine(Path.GetDirectoryName(files.MigrationFile)!, "GnomeContextModelSnapshot.cs"), files.SnapshotFile);
 
         Assert.Equal("Migrations", files.Migration!.SnapshotSubnamespace);
         Assert.Equal("Migrations", files.Migration!.MigrationSubNamespace);
@@ -534,7 +543,7 @@ partial class GnomeContextModelSnapshot : ModelSnapshot
 
         Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.cs", files.MigrationFile);
         Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.Designer.cs", files.MetadataFile);
-        Assert.Equal($@"{expectedSnapshotPrefix}Migrations{S}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+        Assert.Equal(Path.Combine(Path.GetDirectoryName(files.MigrationFile)!, "GnomeContextModelSnapshot.cs"), files.SnapshotFile);
 
         Assert.Equal("Migrations", files.Migration!.SnapshotSubnamespace);
         Assert.Equal("Migrations", files.Migration!.MigrationSubNamespace);
@@ -562,7 +571,7 @@ partial class GnomeContextModelSnapshot : ModelSnapshot
 
         Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.cs", files.MigrationFile);
         Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.Designer.cs", files.MetadataFile);
-        Assert.Equal($@"{expectedSnapshotPrefix}Migrations{S}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+        Assert.Equal(Path.Combine(Path.GetDirectoryName(files.MigrationFile)!, "GnomeContextModelSnapshot.cs"), files.SnapshotFile);
 
         Assert.Equal("Migrations", files.Migration!.SnapshotSubnamespace);
         Assert.Equal("Migrations", files.Migration!.MigrationSubNamespace);
@@ -620,7 +629,7 @@ partial class GnomeContextModelSnapshot : ModelSnapshot
 
         Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.cs", files.MigrationFile);
         Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.Designer.cs", files.MetadataFile);
-        Assert.Equal($@"{expectedSnapshotPrefix}{subNamespace.Replace('.', S)}{S}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+        Assert.Equal(Path.Combine(Path.GetDirectoryName(files.MigrationFile)!, "GnomeContextModelSnapshot.cs"), files.SnapshotFile);
 
         Assert.Equal(subNamespace, files.Migration!.SnapshotSubnamespace);
         Assert.Equal(subNamespace, files.Migration!.MigrationSubNamespace);
@@ -654,7 +663,7 @@ partial class GnomeContextModelSnapshot : ModelSnapshot
 
         Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.cs", files.MigrationFile);
         Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.Designer.cs", files.MetadataFile);
-        Assert.Equal($@"{expectedSnapshotPrefix}{subNamespace.Replace('.', S)}{S}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+        Assert.Equal(Path.Combine(Path.GetDirectoryName(files.MigrationFile)!, "GnomeContextModelSnapshot.cs"), files.SnapshotFile);
 
         Assert.Equal(subNamespace, files.Migration!.SnapshotSubnamespace);
         Assert.Equal(subNamespace, files.Migration!.MigrationSubNamespace);
@@ -688,7 +697,7 @@ partial class GnomeContextModelSnapshot : ModelSnapshot
 
         Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.cs", files.MigrationFile);
         Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.Designer.cs", files.MetadataFile);
-        Assert.Equal($@"{expectedSnapshotPrefix}{subNamespace.Replace('.', S)}{S}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+        Assert.Equal(Path.Combine(Path.GetDirectoryName(files.MigrationFile)!, "GnomeContextModelSnapshot.cs"), files.SnapshotFile);
 
         Assert.Equal(subNamespace, files.Migration!.SnapshotSubnamespace);
         Assert.Equal(subNamespace, files.Migration!.MigrationSubNamespace);
@@ -722,7 +731,7 @@ partial class GnomeContextModelSnapshot : ModelSnapshot
 
         Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.cs", files.MigrationFile);
         Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.Designer.cs", files.MetadataFile);
-        Assert.Equal($@"{expectedSnapshotPrefix}{subNamespace.Replace('.', S)}{S}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+        Assert.Equal(Path.Combine(Path.GetDirectoryName(files.MigrationFile)!, "GnomeContextModelSnapshot.cs"), files.SnapshotFile);
 
         Assert.Equal(subNamespace, files.Migration!.SnapshotSubnamespace);
         Assert.Equal(subNamespace, files.Migration!.MigrationSubNamespace);
@@ -752,7 +761,7 @@ partial class GnomeContextModelSnapshot : ModelSnapshot
 
         Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.cs", files.MigrationFile);
         Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.Designer.cs", files.MetadataFile);
-        Assert.Equal($@"{expectedSnapshotPrefix}{subNamespace.Replace('.', S)}{S}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+        Assert.Equal(Path.Combine(Path.GetDirectoryName(files.MigrationFile)!, "GnomeContextModelSnapshot.cs"), files.SnapshotFile);
 
         Assert.Equal(subNamespace, files.Migration!.SnapshotSubnamespace);
         Assert.Equal(subNamespace, files.Migration!.MigrationSubNamespace);
@@ -815,7 +824,7 @@ partial class GnomeContextModelSnapshot : ModelSnapshot
 
         Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.cs", files.MigrationFile);
         Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.Designer.cs", files.MetadataFile);
-        Assert.Equal($@"{expectedSnapshotPrefix}{subNamespace.Replace('.', S)}{S}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+        Assert.Equal(Path.Combine(Path.GetDirectoryName(files.MigrationFile)!, "GnomeContextModelSnapshot.cs"), files.SnapshotFile);
 
         Assert.Equal(subNamespace, files.Migration!.SnapshotSubnamespace);
         Assert.Equal(subNamespace, files.Migration!.MigrationSubNamespace);
@@ -851,7 +860,7 @@ partial class GnomeContextModelSnapshot : ModelSnapshot
 
         Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.cs", files.MigrationFile);
         Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.Designer.cs", files.MetadataFile);
-        Assert.Equal($@"{expectedSnapshotPrefix}{subNamespace.Replace('.', S)}{S}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+        Assert.Equal(Path.Combine(Path.GetDirectoryName(files.MigrationFile)!, "GnomeContextModelSnapshot.cs"), files.SnapshotFile);
 
         Assert.Equal(subNamespace, files.Migration!.SnapshotSubnamespace);
         Assert.Equal(subNamespace, files.Migration!.MigrationSubNamespace);
@@ -886,7 +895,7 @@ partial class GnomeContextModelSnapshot : ModelSnapshot
 
         Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.cs", files.MigrationFile);
         Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.Designer.cs", files.MetadataFile);
-        Assert.Equal($@"{expectedSnapshotPrefix}{subNamespace.Replace('.', S)}{S}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+        Assert.Equal(Path.Combine(Path.GetDirectoryName(files.MigrationFile)!, "GnomeContextModelSnapshot.cs"), files.SnapshotFile);
 
         Assert.Equal(subNamespace, files.Migration!.SnapshotSubnamespace);
         Assert.Equal(subNamespace, files.Migration!.MigrationSubNamespace);
@@ -921,7 +930,7 @@ partial class GnomeContextModelSnapshot : ModelSnapshot
 
         Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.cs", files.MigrationFile);
         Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.Designer.cs", files.MetadataFile);
-        Assert.Equal($@"{expectedSnapshotPrefix}{subNamespace.Replace('.', S)}{S}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+        Assert.Equal(Path.Combine(Path.GetDirectoryName(files.MigrationFile)!, "GnomeContextModelSnapshot.cs"), files.SnapshotFile);
 
         Assert.Equal(subNamespace, files.Migration!.SnapshotSubnamespace);
         Assert.Equal(subNamespace, files.Migration!.MigrationSubNamespace);
@@ -952,7 +961,7 @@ partial class GnomeContextModelSnapshot : ModelSnapshot
 
         Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.cs", files.MigrationFile);
         Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.Designer.cs", files.MetadataFile);
-        Assert.Equal($@"{expectedSnapshotPrefix}{subNamespace.Replace('.', S)}{S}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+        Assert.Equal(Path.Combine(Path.GetDirectoryName(files.MigrationFile)!, "GnomeContextModelSnapshot.cs"), files.SnapshotFile);
 
         Assert.Equal(subNamespace, files.Migration!.SnapshotSubnamespace);
         Assert.Equal(subNamespace, files.Migration!.MigrationSubNamespace);
