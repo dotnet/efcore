@@ -161,7 +161,9 @@ public class MigrationsScaffolderTest
         scaffolder.Save(project, migration, "Migrations/New", dryRun: false);
 
         Assert.True(File.Exists(otherContextsFile));
+    }
 
+    [Fact]
     public void RemoveMigration_finds_snapshot_in_output_dir_outside_project()
     {
         using var root = new TempDirectory();
@@ -170,7 +172,7 @@ public class MigrationsScaffolderTest
         var snapshotFile = CreateSnapshotFile(root, "other/Migrations");
         var scaffolder = CreateMigrationScaffolder<ContextWithSnapshot>();
 
-        var files = scaffolder.RemoveMigration(project, "WebApplication1", force: false, language: null, outputDir: "../other/Migrations");
+        var files = scaffolder.RemoveMigration(project, "WebApplication1", force: false, language: null, dryRun: false, offline: false, outputDir: "../other/Migrations");
 
         Assert.Equal(snapshotFile, files.SnapshotFile);
         Assert.False(File.Exists(snapshotFile));
@@ -190,7 +192,9 @@ public class MigrationsScaffolderTest
 
         Assert.Null(files.SnapshotFile);
         Assert.True(File.Exists(snapshotFile));
-        Assert.Contains(reporter.Messages, m => m.Level == LogLevel.Warning && m.Message.Contains(SnapshotFileName, StringComparison.Ordinal));
+        Assert.Contains(reporter.Messages, m => m.Level == LogLevel.Warning
+                && m.Message.Contains(SnapshotFileName, StringComparison.Ordinal)
+                && m.Message.Contains("model snapshot class", StringComparison.Ordinal));
     }
 
     [Fact]

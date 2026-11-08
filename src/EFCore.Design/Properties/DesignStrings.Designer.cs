@@ -872,7 +872,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 file, snapshotName);
 
         /// <summary>
-        ///     No file named '{file}' was found under the project directory. A new model snapshot is being written to '{newFile}'. If the migration files are in another location, use the output directory option to specify it and remove the stale model snapshot class manually.
+        ///     No file named '{file}' was found. A new model snapshot is being written to '{newFile}'. If the existing snapshot is in another location, use the output directory option to specify it, and remove the stale model snapshot class manually.
         /// </summary>
         public static string SnapshotFileNotFoundCreatingNew(object? file, object? newFile)
             => string.Format(

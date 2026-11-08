@@ -471,7 +471,7 @@ Change your target project to the migrations project by using the Package Manage
     <value>The file '{file}' already exists but does not declare the model snapshot class '{snapshotName}', so it was not overwritten. It probably belongs to a different DbContext. Use a different output directory.</value>
   </data>
   <data name="SnapshotFileNotFoundCreatingNew" xml:space="preserve">
-    <value>No file named '{file}' was found under the project directory. A new model snapshot is being written to '{newFile}'. If the migration files are in another location, use the output directory option to specify it and remove the stale model snapshot class manually.</value>
+    <value>No file named '{file}' was found. A new model snapshot is being written to '{newFile}'. If the existing snapshot is in another location, use the output directory option to specify it, and remove the stale model snapshot class manually.</value>
   </data>
   <data name="UnableToGenerateEntityType" xml:space="preserve">
     <value>Unable to generate entity type for table '{tableName}' since its primary key could not be scaffolded.</value>
