@@ -72,7 +72,8 @@ public class OperationExecutorTest(ITestOutputHelper testOutputHelper)
 
         Assert.True(resultHandler.HasResult);
         var files = (Hashtable)resultHandler.Result!;
-        Assert.Equal(3, files.Count);
+        Assert.Equal(4, files.Count);
+        Assert.Null(files["PreviousSnapshotFile"]);
         var metadataFilePath = (string)files["MetadataFile"]!;
         var migrationFilePath = (string)files["MigrationFile"]!;
         var snapshotFilePath = (string)files["SnapshotFile"]!;

@@ -91,6 +91,16 @@ function Add-Migration
        $dteProject.ProjectItems.AddFromFile($result.metadataFile) | Out-Null
 
        $dteProject.ProjectItems.AddFromFile($result.snapshotFile) | Out-Null
+
+       # The snapshot moves with the migration when an output directory is specified
+       if ($result.previousSnapshotFile)
+       {
+           $projectItem = GetProjectItem $dteProject $result.previousSnapshotFile
+           if ($projectItem)
+           {
+               $projectItem.Remove()
+           }
+       }
     }
 
     $DTE.ItemOperations.OpenFile($result.migrationFile) | Out-Null
