@@ -37,6 +37,24 @@ public interface IMigrationsScaffolder
     /// <param name="language">The project's language.</param>
     /// <param name="dryRun">If <see langword="true" />, then nothing is actually written to disk.</param>
     /// <param name="offline">Remove the migration without connecting to the database.</param>
+    /// <returns>The removed migration files.</returns>
+    MigrationFiles RemoveMigration(
+        string projectDir,
+        string? rootNamespace,
+        bool force,
+        string? language,
+        bool dryRun = false,
+        bool offline = false);
+
+    /// <summary>
+    ///     Removes the previous migration.
+    /// </summary>
+    /// <param name="projectDir">The project's root directory.</param>
+    /// <param name="rootNamespace">The project's root namespace.</param>
+    /// <param name="force">Revert the migration if it has been applied to the database.</param>
+    /// <param name="language">The project's language.</param>
+    /// <param name="dryRun">If <see langword="true" />, then nothing is actually written to disk.</param>
+    /// <param name="offline">Remove the migration without connecting to the database.</param>
     /// <param name="outputDir">
     ///     An additional directory to look for the migration files in, for when they are not under the project directory.
     ///     Paths are relative to the project directory.
@@ -47,9 +65,9 @@ public interface IMigrationsScaffolder
         string? rootNamespace,
         bool force,
         string? language,
-        bool dryRun = false,
-        bool offline = false,
-        string? outputDir = null);
+        bool dryRun,
+        bool offline,
+        string? outputDir);
 
     /// <summary>
     ///     Saves a scaffolded migration to files.
