@@ -120,6 +120,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 provider);
 
         /// <summary>
+        ///     The existing model snapshot class '{snapshotName}' was not found in a file under the project directory or the output directory, so a new snapshot is being written to '{newFile}'. If the existing snapshot file is in another directory, delete it, or specify that directory with the output directory option so it is replaced.
+        /// </summary>
+        public static string ExistingSnapshotFileNotFound(object? snapshotName, object? newFile)
+            => string.Format(
+                GetString("ExistingSnapshotFileNotFound", nameof(snapshotName), nameof(newFile)),
+                snapshotName, newFile);
+
+        /// <summary>
         ///     The C# language version '{languageVersion}' is not supported. Specify a valid C# language version, such as 'latest' or '15.0'.
         /// </summary>
         public static string InvalidCSharpLanguageVersion(object? languageVersion)
@@ -542,7 +550,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 kind, message);
 
         /// <summary>
-        ///     Moving model snapshot from '{oldFile}' to '{newFile}' because an output directory was specified.
+        ///     Moving model snapshot from '{oldFile}' to '{newFile}' to match the output directory.
         /// </summary>
         public static string MovingSnapshot(object? oldFile, object? newFile)
             => string.Format(
@@ -570,6 +578,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("MultipleContextsWithQualifiedName", nameof(name)),
                 name);
+
+        /// <summary>
+        ///     The model snapshot class '{snapshotName}' is declared in more than one file: {files}. No file was deleted; remove the stale ones manually.
+        /// </summary>
+        public static string MultipleExistingSnapshotFiles(object? snapshotName, object? files)
+            => string.Format(
+                GetString("MultipleExistingSnapshotFiles", nameof(snapshotName), nameof(files)),
+                snapshotName, files);
 
         /// <summary>
         ///     Could not find symbol for anonymous object creation initializer:
@@ -848,6 +864,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("SequencesRequireName");
 
         /// <summary>
+        ///     The file '{file}' already exists but does not declare the model snapshot class '{snapshotName}', so it was not overwritten. It probably belongs to a different DbContext. Use a different output directory.
+        /// </summary>
+        public static string SnapshotFileBelongsToAnotherType(object? file, object? snapshotName)
+            => string.Format(
+                GetString("SnapshotFileBelongsToAnotherType", nameof(file), nameof(snapshotName)),
+                file, snapshotName);
+
+        /// <summary>
         ///     Unable to generate entity type for table '{tableName}' since its primary key could not be scaffolded.
         /// </summary>
         public static string UnableToGenerateEntityType(object? tableName)
@@ -992,6 +1016,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static string WildcardNotSupported
             => GetString("WildcardNotSupported");
+
+        /// <summary>
+        ///     Would move model snapshot from '{oldFile}' to '{newFile}' to match the output directory.
+        /// </summary>
+        public static string WouldMoveSnapshot(object? oldFile, object? newFile)
+            => string.Format(
+                GetString("WouldMoveSnapshot", nameof(oldFile), nameof(newFile)),
+                oldFile, newFile);
 
         /// <summary>
         ///     Writing migration to '{file}'.

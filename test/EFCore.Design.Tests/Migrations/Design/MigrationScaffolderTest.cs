@@ -79,6 +79,7 @@ public class MigrationsScaffolderTest
         Assert.Equal(newFile, files.SnapshotFile);
         Assert.True(File.Exists(newFile));
         Assert.False(File.Exists(oldFile));
+        Assert.Equal(oldFile, files.PreviousSnapshotFile);
         Assert.Contains(
             reporter.Messages,
             m => m.Level == LogLevel.Information && m.Message == DesignStrings.MovingSnapshot(oldFile, newFile));
@@ -89,12 +90,18 @@ public class MigrationsScaffolderTest
     {
         using var project = new TempDirectory();
         var oldFile = CreateSnapshotFile(project, "Migrations/Old");
-        var scaffolder = CreateMigrationScaffolder<ContextWithSnapshot>();
+        var reporter = new TestOperationReporter();
+        var scaffolder = CreateMigrationScaffolder<ContextWithSnapshot>(reporter);
         var migration = scaffolder.ScaffoldMigration("M", "WebApplication1");
 
         var files = scaffolder.Save(project, migration, "Migrations/New", dryRun: true);
 
-        Assert.Equal(Path.Combine(project, "Migrations", "New", SnapshotFileName), files.SnapshotFile);
+        var newFile = Path.Combine(project, "Migrations", "New", SnapshotFileName);
+        Assert.Equal(newFile, files.SnapshotFile);
+        Assert.Null(files.PreviousSnapshotFile);
+        Assert.Contains(
+            reporter.Messages,
+            m => m.Level == LogLevel.Information && m.Message == DesignStrings.WouldMoveSnapshot(oldFile, newFile));
         Assert.True(File.Exists(oldFile));
         Assert.False(Directory.Exists(Path.Combine(project, "Migrations", "New")));
     }
@@ -156,6 +163,90 @@ public class MigrationsScaffolderTest
         Assert.True(File.Exists(otherContextsFile));
     }
 
+    [Fact]
+    public void Save_moves_the_snapshot_declaring_the_current_namespace_when_a_same_named_file_of_another_namespace_exists()
+    {
+        using var project = new TempDirectory();
+        var otherContextsFile = CreateSnapshotFile(project, "Migrations/A", snapshotNamespace: "Other.Namespace");
+        var oldFile = CreateSnapshotFile(project, "Migrations/B");
+        var scaffolder = CreateMigrationScaffolder<ContextWithSnapshot>();
+        var migration = scaffolder.ScaffoldMigration("M", "WebApplication1");
+
+        scaffolder.Save(project, migration, "Migrations/New", dryRun: false);
+
+        Assert.True(File.Exists(otherContextsFile));
+        Assert.False(File.Exists(oldFile));
+    }
+
+    [Fact]
+    public void Save_deletes_nothing_and_warns_when_the_snapshot_is_declared_in_several_files()
+    {
+        using var project = new TempDirectory();
+        var archivedFile = CreateSnapshotFile(project, "Archive");
+        var oldFile = CreateSnapshotFile(project, "Migrations/2025");
+        var reporter = new TestOperationReporter();
+        var scaffolder = CreateMigrationScaffolder<ContextWithSnapshot>(reporter);
+        var migration = scaffolder.ScaffoldMigration("M", "WebApplication1");
+
+        var files = scaffolder.Save(project, migration, "Migrations/2026", dryRun: false);
+
+        Assert.True(File.Exists(archivedFile));
+        Assert.True(File.Exists(oldFile));
+        Assert.Null(files.PreviousSnapshotFile);
+        Assert.Contains(
+            reporter.Messages,
+            m => m.Level == LogLevel.Warning && m.Message.Contains(archivedFile) && m.Message.Contains(oldFile));
+    }
+
+    [Fact]
+    public void Save_does_not_overwrite_snapshot_of_another_namespace_in_output_dir()
+    {
+        using var project = new TempDirectory();
+        var otherContextsFile = CreateSnapshotFile(project, "Migrations/Shared", snapshotNamespace: "Other.Namespace");
+        var originalContent = File.ReadAllText(otherContextsFile);
+        var oldFile = CreateSnapshotFile(project, "Migrations");
+        var scaffolder = CreateMigrationScaffolder<ContextWithSnapshot>();
+        var migration = scaffolder.ScaffoldMigration("M", "WebApplication1");
+
+        var ex = Assert.Throws<OperationException>(
+            () => scaffolder.Save(project, migration, "Migrations/Shared", dryRun: false));
+
+        Assert.Equal(DesignStrings.SnapshotFileBelongsToAnotherType(otherContextsFile, nameof(ContextWithSnapshotModelSnapshot)), ex.Message);
+        Assert.Equal(originalContent, File.ReadAllText(otherContextsFile));
+        Assert.True(File.Exists(oldFile));
+        Assert.Single(Directory.EnumerateFiles(Path.Combine(project, "Migrations", "Shared")));
+    }
+
+    [Fact]
+    public void Save_warns_when_the_existing_snapshot_cannot_be_found()
+    {
+        using var project = new TempDirectory();
+        var reporter = new TestOperationReporter();
+        var scaffolder = CreateMigrationScaffolder<ContextWithSnapshot>(reporter);
+        var migration = scaffolder.ScaffoldMigration("M", "WebApplication1");
+
+        var files = scaffolder.Save(project, migration, outputDir: null, dryRun: false);
+
+        Assert.Contains(
+            reporter.Messages,
+            m => m.Level == LogLevel.Warning
+                && m.Message == DesignStrings.ExistingSnapshotFileNotFound(nameof(ContextWithSnapshotModelSnapshot), files.SnapshotFile));
+    }
+
+    [Fact]
+    public void Save_does_not_warn_when_the_existing_snapshot_is_found()
+    {
+        using var project = new TempDirectory();
+        CreateSnapshotFile(project, "Migrations/Old");
+        var reporter = new TestOperationReporter();
+        var scaffolder = CreateMigrationScaffolder<ContextWithSnapshot>(reporter);
+        var migration = scaffolder.ScaffoldMigration("M", "WebApplication1");
+
+        scaffolder.Save(project, migration, outputDir: null, dryRun: false);
+
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Warning);
+    }
+
     private static readonly string SnapshotFileName = nameof(ContextWithSnapshotModelSnapshot) + ".cs";
 
     private static string CreateSnapshotFile(string projectDir, string relativeDir, string? fileName = null, string? snapshotNamespace = null)
@@ -163,7 +254,10 @@ public class MigrationsScaffolderTest
         var directory = Path.Combine(projectDir, relativeDir.Replace('/', Path.DirectorySeparatorChar));
         Directory.CreateDirectory(directory);
         var file = Path.Combine(directory, fileName ?? SnapshotFileName);
-        File.WriteAllText(file, $"// old snapshot{Environment.NewLine}namespace {snapshotNamespace ?? typeof(ContextWithSnapshotModelSnapshot).Namespace};");
+        File.WriteAllText(
+            file,
+            $"// old snapshot{Environment.NewLine}namespace {snapshotNamespace ?? typeof(ContextWithSnapshotModelSnapshot).Namespace};"
+            + $"{Environment.NewLine}class {Path.GetFileNameWithoutExtension(file)} {{ }}");
         return file;
     }
 

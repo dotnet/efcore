@@ -232,6 +232,9 @@ Consider changing your target project to the DbContext project by using the Pack
   <data name="ExistingFiles" xml:space="preserve">
     <value>The following file(s) already exist in directory '{outputDirectoryName}': {existingFiles}. Use the Force flag to overwrite these files.</value>
   </data>
+  <data name="ExistingSnapshotFileNotFound" xml:space="preserve">
+    <value>The existing model snapshot class '{snapshotName}' was not found in a file under the project directory or the output directory, so a new snapshot is being written to '{newFile}'. If the existing snapshot file is in another directory, delete it, or specify that directory with the output directory option so it is replaced.</value>
+  </data>
   <data name="FindingContextFactories" xml:space="preserve">
     <value>Finding IDesignTimeDbContextFactory implementations...</value>
   </data>
@@ -326,7 +329,7 @@ Change your target project to the migrations project by using the Package Manage
     <value>MSBuild Workspace failure: {kind} - {message}</value>
   </data>
   <data name="MovingSnapshot" xml:space="preserve">
-    <value>Moving model snapshot from '{oldFile}' to '{newFile}' because an output directory was specified.</value>
+    <value>Moving model snapshot from '{oldFile}' to '{newFile}' to match the output directory.</value>
   </data>
   <data name="MultipleContexts" xml:space="preserve">
     <value>More than one DbContext was found. Specify which one to use. Use the '-Context' parameter for PowerShell commands and the '--context' parameter for dotnet commands.</value>
@@ -339,6 +342,9 @@ Change your target project to the migrations project by using the Package Manage
   </data>
   <data name="InvalidCSharpLanguageVersion" xml:space="preserve">
     <value>The C# language version '{languageVersion}' is not supported. Specify a valid C# language version, such as 'latest' or '15.0'.</value>
+  </data>
+  <data name="MultipleExistingSnapshotFiles" xml:space="preserve">
+    <value>The model snapshot class '{snapshotName}' is declared in more than one file: {files}. No file was deleted; remove the stale ones manually.</value>
   </data>
   <data name="NoAnonymousSymbol" xml:space="preserve">
     <value>Could not find symbol for anonymous object creation initializer:</value>
@@ -461,6 +467,9 @@ Change your target project to the migrations project by using the Package Manage
   <data name="SequencesRequireName" xml:space="preserve">
     <value>Sequence name cannot be 'null' or empty. Entity Framework cannot model a sequence that does not have a name.</value>
   </data>
+  <data name="SnapshotFileBelongsToAnotherType" xml:space="preserve">
+    <value>The file '{file}' already exists but does not declare the model snapshot class '{snapshotName}', so it was not overwritten. It probably belongs to a different DbContext. Use a different output directory.</value>
+  </data>
   <data name="UnableToGenerateEntityType" xml:space="preserve">
     <value>Unable to generate entity type for table '{tableName}' since its primary key could not be scaffolded.</value>
   </data>
@@ -517,6 +526,9 @@ Change your target project to the migrations project by using the Package Manage
   </data>
   <data name="WildcardNotSupported" xml:space="preserve">
     <value>The wildcard '*' can only be used with commands that run for all contexts found. Specify a context name for this command.</value>
+  </data>
+  <data name="WouldMoveSnapshot" xml:space="preserve">
+    <value>Would move model snapshot from '{oldFile}' to '{newFile}' to match the output directory.</value>
   </data>
   <data name="WritingMigration" xml:space="preserve">
     <value>Writing migration to '{file}'.</value>
