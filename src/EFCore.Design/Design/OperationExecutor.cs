@@ -437,6 +437,10 @@ public class OperationExecutor : MarshalByRefObject
         ///         <see cref="O:Microsoft.Extensions.DependencyInjection.EntityFrameworkServiceCollectionExtensions.AddDbContext" /> or
         ///         <see cref="DbContext.OnConfiguring" />.
         ///     </para>
+        ///     <para>
+        ///         <c>outputDir</c>--An additional directory, relative to the project directory, in which to look for the migration
+        ///         files. Optional.
+        ///     </para>
         /// </remarks>
         /// <param name="executor">The operation executor.</param>
         /// <param name="resultHandler">The <see cref="IOperationResultHandler" />.</param>
@@ -455,14 +459,21 @@ public class OperationExecutor : MarshalByRefObject
             var offline = (bool?)args["offline"];
             var dryRun = (bool?)args["dryRun"]!;
             var connectionString = (string?)args["connectionString"];
+            var outputDir = args.Contains("outputDir") ? (string?)args["outputDir"] : null;
 
-            Execute(() => executor.RemoveMigrationImpl(contextType, force, offline == true, dryRun == true, connectionString));
+            Execute(() => executor.RemoveMigrationImpl(contextType, force, offline == true, dryRun == true, connectionString, outputDir));
         }
     }
 
-    private IDictionary RemoveMigrationImpl(string? contextType, bool force, bool offline, bool dryRun, string? connectionString)
+    private IDictionary RemoveMigrationImpl(
+        string? contextType,
+        bool force,
+        bool offline,
+        bool dryRun,
+        string? connectionString,
+        string? outputDir)
     {
-        var files = MigrationsOperations.RemoveMigration(contextType, force, offline, dryRun, connectionString);
+        var files = MigrationsOperations.RemoveMigration(contextType, force, offline, dryRun, connectionString, outputDir);
 
         return new Hashtable
         {

@@ -872,6 +872,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 file, snapshotName);
 
         /// <summary>
+        ///     No file named '{file}' was found under the project directory. A new model snapshot is being written to '{newFile}'. If the migration files are in another location, use the output directory option to specify it and remove the stale model snapshot class manually.
+        /// </summary>
+        public static string SnapshotFileNotFoundCreatingNew(object? file, object? newFile)
+            => string.Format(
+                GetString("SnapshotFileNotFoundCreatingNew", nameof(file), nameof(newFile)),
+                file, newFile);
+
+        /// <summary>
         ///     Unable to generate entity type for table '{tableName}' since its primary key could not be scaffolded.
         /// </summary>
         public static string UnableToGenerateEntityType(object? tableName)
