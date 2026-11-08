@@ -423,6 +423,18 @@ public class MigrationsScaffolder : IMigrationsScaffolder
         var modelSnapshotDirectory = outputDir ?? GetDirectory(projectDir, modelSnapshotFileName, migration.SnapshotSubnamespace);
         var modelSnapshotFile = Path.Combine(modelSnapshotDirectory, modelSnapshotFileName);
 
+        // An explicit output directory moves the snapshot with the migration; the old file must go or there would be two snapshots.
+        string? staleSnapshotFile = null;
+        if (outputDir != null && !dryRun)
+        {
+            var existingSnapshotFile = TryFindExistingSnapshot(projectDir, outputDir, modelSnapshotFileName);
+            if (existingSnapshotFile != null
+                && !Path.GetFullPath(existingSnapshotFile).Equals(Path.GetFullPath(modelSnapshotFile), StringComparison.OrdinalIgnoreCase))
+            {
+                staleSnapshotFile = existingSnapshotFile;
+            }
+        }
+
         Dependencies.OperationReporter.WriteVerbose(DesignStrings.WritingMigration(migrationFile));
 
         if (!dryRun)
@@ -435,6 +447,12 @@ public class MigrationsScaffolder : IMigrationsScaffolder
 
             Dependencies.OperationReporter.WriteVerbose(DesignStrings.WritingSnapshot(modelSnapshotFile));
             File.WriteAllText(modelSnapshotFile, migration.SnapshotCode, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+
+            if (staleSnapshotFile != null)
+            {
+                Dependencies.OperationReporter.WriteInformation(DesignStrings.MovingSnapshot(staleSnapshotFile, modelSnapshotFile));
+                File.Delete(staleSnapshotFile);
+            }
         }
 
         return new MigrationFiles
@@ -498,6 +516,27 @@ public class MigrationsScaffolder : IMigrationsScaffolder
         }
 
         return defaultDirectory;
+    }
+
+    /// <summary>
+    ///     Tries to find the current model snapshot file: first directly in the output directory, then anywhere under the project directory.
+    /// </summary>
+    /// <param name="projectDir">The project directory.</param>
+    /// <param name="outputDir">The output directory, or <see langword="null" />.</param>
+    /// <param name="snapshotFileName">The snapshot file name.</param>
+    /// <returns>The file path or null if none.</returns>
+    protected virtual string? TryFindExistingSnapshot(string projectDir, string? outputDir, string snapshotFileName)
+    {
+        if (outputDir != null)
+        {
+            var inOutputDir = Path.Combine(outputDir, snapshotFileName);
+            if (File.Exists(inOutputDir))
+            {
+                return inOutputDir;
+            }
+        }
+
+        return TryGetProjectFile(projectDir, snapshotFileName);
     }
 
     /// <summary>
