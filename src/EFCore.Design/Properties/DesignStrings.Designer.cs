@@ -534,6 +534,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 kind, message);
 
         /// <summary>
+        ///     Moving model snapshot from '{oldFile}' to '{newFile}' because an output directory was specified.
+        /// </summary>
+        public static string MovingSnapshot(object? oldFile, object? newFile)
+            => string.Format(
+                GetString("MovingSnapshot", nameof(oldFile), nameof(newFile)),
+                oldFile, newFile);
+
+        /// <summary>
         ///     More than one DbContext was found. Specify which one to use. Use the '-Context' parameter for PowerShell commands and the '--context' parameter for dotnet commands.
         /// </summary>
         public static string MultipleContexts
