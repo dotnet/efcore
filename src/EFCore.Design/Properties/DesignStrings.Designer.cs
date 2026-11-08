@@ -66,6 +66,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 contextType, rootException);
 
         /// <summary>
+        ///     The previous model snapshot '{file}' could not be deleted and must be removed manually: {message}
+        /// </summary>
+        public static string CannotDeleteOldSnapshot(object? file, object? message)
+            => string.Format(
+                GetString("CannotDeleteOldSnapshot", nameof(file), nameof(message)),
+                file, message);
+
+        /// <summary>
         ///     The exception '{rootException}' was thrown while attempting to find 'DbContext' types. For the different patterns supported at design time, see https://go.microsoft.com/fwlink/?linkid=851728
         /// </summary>
         public static string CannotFindDbContextTypes(object? rootException)
