@@ -114,7 +114,7 @@ internal class RootCommand : CommandBase
         var migrationsOutputDir = ResolveMigrationsOutputDir(_args!, project.EFMigrationsOutputDir);
         if (migrationsOutputDir != null)
         {
-            Reporter.WriteVerbose(Resources.UsingMigrationsOutputDir(migrationsOutputDir));
+            Reporter.WriteInformation(Resources.UsingMigrationsOutputDir(migrationsOutputDir));
             remainingArguments.Add("--output-dir");
             remainingArguments.Add(migrationsOutputDir);
         }
@@ -373,11 +373,12 @@ internal class RootCommand : CommandBase
                 ? configValue
                 : null;
 
-    // The EFMigrationsOutputDir project property is the default --output-dir for commands that add a migration.
+    // The EFMigrationsOutputDir project property is the default --output-dir for commands that add a migration, and for
+    // the command that removes one, which needs it to find the files again.
     internal static string? ResolveMigrationsOutputDir(IList<string> args, string? propertyValue)
         => !string.IsNullOrWhiteSpace(propertyValue)
             && args.Count >= 2
-            && ((args[0] == "migrations" && args[1] == "add")
+            && ((args[0] == "migrations" && args[1] is "add" or "remove")
                 || (args[0] == "database" && args[1] == "update" && ContainsOption(args, "--add")))
             && !ContainsOption(args, "-o", "--output-dir")
                 ? propertyValue

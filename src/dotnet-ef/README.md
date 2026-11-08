@@ -31,15 +31,19 @@ The available commands are listed in the following table.
 
 ## Default migrations output directory
 
-Set the `EFMigrationsOutputDir` property in the migrations project to avoid passing `--output-dir` to `dotnet ef migrations add` (and `dotnet ef database update --add`):
+Set the `EFMigrationsOutputDir` property in the migrations project to avoid passing `--output-dir` to `dotnet ef migrations add` and `dotnet ef database update --add`. It is also passed to `dotnet ef migrations remove`, so that the files can be found again:
 
 ```xml
 <PropertyGroup>
-  <EFMigrationsOutputDir>Data\Migrations</EFMigrationsOutputDir>
+  <EFMigrationsOutputDir>Data/Migrations</EFMigrationsOutputDir>
 </PropertyGroup>
 ```
 
-The path is relative to the project directory, and an explicit `--output-dir` takes precedence. The model snapshot is placed in the same directory. The Package Manager Console `Add-Migration` command does not use this property yet.
+- The path is relative to the project directory, and an explicit `-o`/`--output-dir` takes precedence.
+- The model snapshot is placed in the same directory, and an existing snapshot elsewhere in the project is moved there.
+- The property applies to every `DbContext` in the project. If the project has more than one context, leave it unset and pass `--output-dir` per context instead, or the contexts will share one directory.
+- The Package Manager Console `Add-Migration` and `Remove-Migration` commands do not use this property yet.
+- To set other defaults for the tool, such as the context, see the `.config/dotnet-ef.json` file.
 
 ## Getting started with EF Core
 
