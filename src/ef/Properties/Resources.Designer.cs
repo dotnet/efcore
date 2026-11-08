@@ -356,7 +356,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("MigrationsNamespaceDescription");
 
         /// <summary>
-        ///     The directory to put files in. Paths are relative to the project or file-based app directory. Defaults to "Migrations".
+        ///     The directory to put files in, including the model snapshot. Paths are relative to the project or file-based app directory. Defaults to "Migrations".
         /// </summary>
         public static string MigrationsOutputDirDescription
             => GetString("MigrationsOutputDirDescription");
