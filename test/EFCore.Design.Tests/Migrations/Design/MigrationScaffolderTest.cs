@@ -128,6 +128,38 @@ public class MigrationsScaffolderTest
         Assert.False(Directory.Exists(Path.Combine(project, "Migrations", "New")));
     }
 
+    [Fact]
+    public void RemoveMigration_finds_snapshot_in_output_dir_outside_project()
+    {
+        using var root = new TempDirectory();
+        var project = Path.Combine(root, "proj");
+        Directory.CreateDirectory(project);
+        var snapshotFile = CreateSnapshotFile(root, "other/Migrations");
+        var scaffolder = CreateMigrationScaffolder<ContextWithSnapshot>();
+
+        var files = scaffolder.RemoveMigration(project, "WebApplication1", force: false, language: null, outputDir: "../other/Migrations");
+
+        Assert.Equal(snapshotFile, files.SnapshotFile);
+        Assert.False(File.Exists(snapshotFile));
+    }
+
+    [Fact]
+    public void RemoveMigration_warns_when_snapshot_is_outside_project_and_no_output_dir()
+    {
+        using var root = new TempDirectory();
+        var project = Path.Combine(root, "proj");
+        Directory.CreateDirectory(project);
+        var snapshotFile = CreateSnapshotFile(root, "other/Migrations");
+        var reporter = new TestOperationReporter();
+        var scaffolder = CreateMigrationScaffolder<ContextWithSnapshot>(reporter);
+
+        var files = scaffolder.RemoveMigration(project, "WebApplication1", force: false, language: null);
+
+        Assert.Null(files.SnapshotFile);
+        Assert.True(File.Exists(snapshotFile));
+        Assert.Contains(reporter.Messages, m => m.Level == LogLevel.Warning && m.Message.Contains(SnapshotFileName, StringComparison.Ordinal));
+    }
+
     private static readonly string SnapshotFileName = nameof(ContextWithSnapshotModelSnapshot) + ".cs";
 
     private static string CreateSnapshotFile(string projectDir, string relativeDir, string? fileName = null)
@@ -142,7 +174,7 @@ public class MigrationsScaffolderTest
         return file;
     }
 
-    private IMigrationsScaffolder CreateMigrationScaffolder<TContext>()
+    private IMigrationsScaffolder CreateMigrationScaffolder<TContext>(TestOperationReporter? reporter = null)
         where TContext : DbContext, new()
     {
         var currentContext = new CurrentDbContext(new TContext());
@@ -154,7 +186,7 @@ public class MigrationsScaffolderTest
         var sqlServerAnnotationCodeGenerator = new SqlServerAnnotationCodeGenerator(
             new AnnotationCodeGeneratorDependencies(sqlServerTypeMappingSource));
         var code = new CSharpHelper(sqlServerTypeMappingSource);
-        var reporter = new TestOperationReporter();
+        reporter ??= new TestOperationReporter();
         var migrationAssembly
             = new MigrationsAssembly(
                 currentContext,

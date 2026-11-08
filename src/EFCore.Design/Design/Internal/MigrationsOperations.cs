@@ -330,7 +330,8 @@ public class MigrationsOperations
         bool force,
         bool offline,
         bool dryRun,
-        string? connectionString)
+        string? connectionString,
+        string? outputDir = null)
     {
         if (contextType == "*")
         {
@@ -351,7 +352,7 @@ public class MigrationsOperations
         using var scope = services.CreateScope();
         var scaffolder = scope.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
 
-        var files = scaffolder.RemoveMigration(_projectDir, _rootNamespace, force, _language, dryRun, offline);
+        var files = scaffolder.RemoveMigration(_projectDir, _rootNamespace, force, _language, dryRun, offline, outputDir);
 
         _reporter.WriteInformation(DesignStrings.Done);
 

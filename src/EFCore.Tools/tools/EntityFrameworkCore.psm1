@@ -411,6 +411,7 @@ function Get-Migration
 #
 
 Register-TabExpansion Remove-Migration @{
+    OutputDir = { <# Disabled. Otherwise, paths would be relative to the solution directory. #> }
     Context = { param($x) GetContextTypes $x.Project $x.StartupProject }
     Project = { GetProjects }
     StartupProject = { GetProjects }
@@ -431,6 +432,9 @@ Register-TabExpansion Remove-Migration @{
 
 .PARAMETER Connection
     The connection string to the database. Defaults to the one specified in AddDbContext or OnConfiguring.
+
+.PARAMETER OutputDir
+    An additional directory to look for the migration files in, if they are not under the project directory. Paths are relative to the project directory.
 
 .PARAMETER Context
     The DbContext to use.
@@ -456,6 +460,7 @@ function Remove-Migration
         [switch] $Force,
         [switch] $Offline,
         [string] $Connection,
+        [string] $OutputDir,
         [string] $Context,
         [string] $Project,
         [string] $StartupProject,
@@ -479,6 +484,11 @@ function Remove-Migration
     if ($Connection)
     {
         $params += '--connection', $Connection
+    }
+
+    if ($OutputDir)
+    {
+        $params += '--output-dir', $OutputDir
     }
 
     $params += GetParams $Context

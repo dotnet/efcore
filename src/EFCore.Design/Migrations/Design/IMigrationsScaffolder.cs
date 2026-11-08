@@ -37,6 +37,10 @@ public interface IMigrationsScaffolder
     /// <param name="language">The project's language.</param>
     /// <param name="dryRun">If <see langword="true" />, then nothing is actually written to disk.</param>
     /// <param name="offline">Remove the migration without connecting to the database.</param>
+    /// <param name="outputDir">
+    ///     An additional directory to look for the migration files in, for when they are not under the project directory.
+    ///     Paths are relative to the project directory.
+    /// </param>
     /// <returns>The removed migration files.</returns>
     MigrationFiles RemoveMigration(
         string projectDir,
@@ -44,7 +48,8 @@ public interface IMigrationsScaffolder
         bool force,
         string? language,
         bool dryRun = false,
-        bool offline = false);
+        bool offline = false,
+        string? outputDir = null);
 
     /// <summary>
     ///     Saves a scaffolded migration to files.

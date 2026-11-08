@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 
@@ -239,6 +240,10 @@ public class MigrationsScaffolder : IMigrationsScaffolder
     /// <param name="language">The project's language.</param>
     /// <param name="dryRun">If <see langword="true" />, then nothing is actually written to disk.</param>
     /// <param name="offline">Remove the migration without connecting to the database.</param>
+    /// <param name="outputDir">
+    ///     An additional directory to look for the migration files in, for when they are not under the project directory.
+    ///     Paths are relative to the project directory.
+    /// </param>
     /// <returns>The removed migration files.</returns>
     public virtual MigrationFiles RemoveMigration(
         string projectDir,
@@ -246,9 +251,15 @@ public class MigrationsScaffolder : IMigrationsScaffolder
         bool force,
         string? language,
         bool dryRun = false,
-        bool offline = false)
+        bool offline = false,
+        string? outputDir = null)
     {
         var files = new MigrationFiles();
+
+        if (outputDir != null)
+        {
+            outputDir = Path.GetFullPath(Path.Combine(projectDir, outputDir));
+        }
 
         var modelSnapshot = Dependencies.MigrationsAssembly.ModelSnapshot;
         if (modelSnapshot == null)
@@ -304,7 +315,7 @@ public class MigrationsScaffolder : IMigrationsScaffolder
                 }
 
                 var migrationFileName = migration.GetId() + codeGenerator.FileExtension;
-                var migrationFile = TryGetProjectFile(projectDir, migrationFileName);
+                var migrationFile = TryFindFile(projectDir, outputDir, migrationFileName);
                 if (migrationFile != null)
                 {
                     Dependencies.OperationReporter.WriteInformation(DesignStrings.RemovingMigration(migration.GetId()));
@@ -322,7 +333,7 @@ public class MigrationsScaffolder : IMigrationsScaffolder
                 }
 
                 var migrationMetadataFileName = migration.GetId() + ".Designer" + codeGenerator.FileExtension;
-                var migrationMetadataFile = TryGetProjectFile(projectDir, migrationMetadataFileName);
+                var migrationMetadataFile = TryFindFile(projectDir, outputDir, migrationMetadataFileName);
                 if (migrationMetadataFile != null)
                 {
                     if (!dryRun)
@@ -352,7 +363,7 @@ public class MigrationsScaffolder : IMigrationsScaffolder
 
         var modelSnapshotName = modelSnapshot.GetType().Name;
         var modelSnapshotFileName = modelSnapshotName + codeGenerator.FileExtension;
-        var modelSnapshotFile = TryGetProjectFile(projectDir, modelSnapshotFileName);
+        var modelSnapshotFile = TryFindExistingSnapshot(projectDir, outputDir, modelSnapshotFileName);
         if (model == null)
         {
             if (modelSnapshotFile != null)
@@ -385,9 +396,15 @@ public class MigrationsScaffolder : IMigrationsScaffolder
                 model,
                 latestMigrationId);
 
-            modelSnapshotFile ??= Path.Combine(
-                GetDirectory(projectDir, null, GetSubNamespace(rootNamespace, modelSnapshotNamespace)),
-                modelSnapshotFileName);
+            if (modelSnapshotFile == null)
+            {
+                modelSnapshotFile = Path.Combine(
+                    GetDirectory(projectDir, null, GetSubNamespace(rootNamespace, modelSnapshotNamespace)),
+                    modelSnapshotFileName);
+
+                Dependencies.OperationReporter.WriteWarning(
+                    DesignStrings.SnapshotFileNotFoundCreatingNew(modelSnapshotFileName, modelSnapshotFile));
+            }
 
             Dependencies.OperationReporter.WriteInformation(DesignStrings.RevertingSnapshot);
 
@@ -506,6 +523,26 @@ public class MigrationsScaffolder : IMigrationsScaffolder
 
         return defaultDirectory;
     }
+
+    /// <summary>
+    ///     Tries to find a file in the output directory, then anywhere under the project directory.
+    /// </summary>
+    private string? TryFindFile(string projectDir, string? outputDir, string fileName)
+    {
+        if (outputDir != null)
+        {
+            var inOutputDir = Path.Combine(outputDir, fileName);
+            if (File.Exists(inOutputDir))
+            {
+                return inOutputDir;
+            }
+        }
+
+        return TryGetProjectFile(projectDir, fileName);
+    }
+
+    private string? TryFindExistingSnapshot(string projectDir, string? outputDir, string snapshotFileName)
+        => TryFindFile(projectDir, outputDir, snapshotFileName);
 
     /// <summary>
     ///     Tries to find a file under the project directory.
