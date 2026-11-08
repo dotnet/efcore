@@ -352,7 +352,10 @@ public class MigrationsOperations
         using var scope = services.CreateScope();
         var scaffolder = scope.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
 
-        var files = scaffolder.RemoveMigration(_projectDir, _rootNamespace, force, _language, dryRun, offline, outputDir);
+        // Keep calling the original overload when there is nothing extra to pass, so that overrides of it still take effect.
+        var files = outputDir == null
+            ? scaffolder.RemoveMigration(_projectDir, _rootNamespace, force, _language, dryRun, offline)
+            : scaffolder.RemoveMigration(_projectDir, _rootNamespace, force, _language, dryRun, offline, outputDir);
 
         _reporter.WriteInformation(DesignStrings.Done);
 
