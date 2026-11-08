@@ -29,6 +29,18 @@ The available commands are listed in the following table.
 | [dotnet ef migrations remove](https://learn.microsoft.com/ef/core/cli/dotnet#dotnet-ef-migrations-remove)                                       | Removes the last migration.                                                 |
 | [dotnet ef migrations script](https://learn.microsoft.com/ef/core/cli/dotnet#dotnet-ef-migrations-script)                                       | Generates a SQL script from the migrations.                                 |
 
+## Default migrations output directory
+
+Set the `EFMigrationsOutputDir` property in the migrations project to avoid passing `--output-dir` to `dotnet ef migrations add` (and `dotnet ef database update --add`):
+
+```xml
+<PropertyGroup>
+  <EFMigrationsOutputDir>Data\Migrations</EFMigrationsOutputDir>
+</PropertyGroup>
+```
+
+The path is relative to the project directory, and an explicit `--output-dir` takes precedence. The model snapshot is placed in the same directory. The Package Manager Console `Add-Migration` command does not use this property yet.
+
 ## Getting started with EF Core
 
 See [Getting started with EF Core](https://learn.microsoft.com/ef/core/get-started/overview/install) for more information about EF NuGet packages, including which to install when getting started.

@@ -111,6 +111,14 @@ internal class RootCommand : CommandBase
             configuration,
             runtime);
 
+        var migrationsOutputDir = ResolveMigrationsOutputDir(_args!, project.EFMigrationsOutputDir);
+        if (migrationsOutputDir != null)
+        {
+            Reporter.WriteVerbose(Resources.UsingMigrationsOutputDir(migrationsOutputDir));
+            remainingArguments.Add("--output-dir");
+            remainingArguments.Add(migrationsOutputDir);
+        }
+
         if (!_noBuild!.HasValue())
         {
             Reporter.WriteInformation(Resources.BuildStarted);
@@ -363,6 +371,16 @@ internal class RootCommand : CommandBase
             && AppliesToContext(args)
             && !ContainsOption(args, "-c", "--context")
                 ? configValue
+                : null;
+
+    // The EFMigrationsOutputDir project property is the default --output-dir for commands that add a migration.
+    internal static string? ResolveMigrationsOutputDir(IList<string> args, string? propertyValue)
+        => !string.IsNullOrWhiteSpace(propertyValue)
+            && args.Count >= 2
+            && ((args[0] == "migrations" && args[1] == "add")
+                || (args[0] == "database" && args[1] == "update" && ContainsOption(args, "--add")))
+            && !ContainsOption(args, "-o", "--output-dir")
+                ? propertyValue
                 : null;
 
     internal static List<string> CreateRemainingArguments(

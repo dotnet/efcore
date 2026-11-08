@@ -666,6 +666,14 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
                 file);
 
         /// <summary>
+        ///     Using migrations output directory '{outputDir}' from the EFMigrationsOutputDir project property.
+        /// </summary>
+        public static string UsingMigrationsOutputDir(object? outputDir)
+            => string.Format(
+                GetString("UsingMigrationsOutputDir", nameof(outputDir)),
+                outputDir);
+
+        /// <summary>
         ///     Using project '{project}'.
         /// </summary>
         public static string UsingProject(object? project)
