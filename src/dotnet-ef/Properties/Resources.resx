@@ -420,6 +420,9 @@
   <data name="UsingFileBasedApp" xml:space="preserve">
     <value>Using file-based app '{file}'.</value>
   </data>
+  <data name="UsingMigrationsOutputDir" xml:space="preserve">
+    <value>Using migrations output directory '{outputDir}' from the EFMigrationsOutputDir project property.</value>
+  </data>
   <data name="UsingProject" xml:space="preserve">
     <value>Using project '{project}'.</value>
   </data>

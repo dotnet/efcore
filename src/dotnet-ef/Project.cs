@@ -44,6 +44,7 @@ internal class Project
     public string? TargetFileName { get; set; }
     public string? TargetFrameworkMoniker { get; set; }
     public string? Nullable { get; set; }
+    public string? EFMigrationsOutputDir { get; set; }
     public string? TargetFramework { get; set; }
     public string? TargetPlatformIdentifier { get; set; }
 
@@ -174,6 +175,7 @@ internal class Project
             TargetFileName = properties[nameof(TargetFileName)],
             TargetFrameworkMoniker = properties[nameof(TargetFrameworkMoniker)],
             Nullable = properties[nameof(Nullable)],
+            EFMigrationsOutputDir = properties[nameof(EFMigrationsOutputDir)],
             TargetFramework = properties[nameof(TargetFramework)],
             TargetPlatformIdentifier = properties[nameof(TargetPlatformIdentifier)]
         };
