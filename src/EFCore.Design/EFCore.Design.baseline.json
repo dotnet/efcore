@@ -683,6 +683,9 @@
           "Member": "virtual string? MigrationFile { get; set; }"
         },
         {
+          "Member": "virtual string? PreviousSnapshotFile { get; set; }"
+        },
+        {
           "Member": "virtual string? SnapshotFile { get; set; }"
         }
       ]
