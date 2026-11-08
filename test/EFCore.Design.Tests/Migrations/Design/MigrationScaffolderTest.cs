@@ -129,14 +129,41 @@ public class MigrationsScaffolderTest
         Assert.True(File.Exists(otherFile));
     }
 
+    [Fact]
+    public void Save_does_not_delete_same_named_file_when_context_has_no_snapshot()
+    {
+        using var project = new TempDirectory();
+        var otherContextsFile = CreateSnapshotFile(project, "Migrations/Other", "GenericContextModelSnapshot.cs", "Other.Namespace");
+        var scaffolder = CreateMigrationScaffolder<GenericContext<int>>();
+        var migration = scaffolder.ScaffoldMigration("M", "WebApplication1");
+
+        scaffolder.Save(project, migration, "Migrations/New", dryRun: false);
+
+        Assert.True(File.Exists(otherContextsFile));
+        Assert.True(File.Exists(Path.Combine(project, "Migrations", "New", "GenericContextModelSnapshot.cs")));
+    }
+
+    [Fact]
+    public void Save_does_not_delete_same_named_snapshot_in_another_namespace()
+    {
+        using var project = new TempDirectory();
+        var otherContextsFile = CreateSnapshotFile(project, "Migrations/Other", snapshotNamespace: "Other.Namespace");
+        var scaffolder = CreateMigrationScaffolder<ContextWithSnapshot>();
+        var migration = scaffolder.ScaffoldMigration("M", "WebApplication1");
+
+        scaffolder.Save(project, migration, "Migrations/New", dryRun: false);
+
+        Assert.True(File.Exists(otherContextsFile));
+    }
+
     private static readonly string SnapshotFileName = nameof(ContextWithSnapshotModelSnapshot) + ".cs";
 
-    private static string CreateSnapshotFile(string projectDir, string relativeDir, string? fileName = null)
+    private static string CreateSnapshotFile(string projectDir, string relativeDir, string? fileName = null, string? snapshotNamespace = null)
     {
         var directory = Path.Combine(projectDir, relativeDir.Replace('/', Path.DirectorySeparatorChar));
         Directory.CreateDirectory(directory);
         var file = Path.Combine(directory, fileName ?? SnapshotFileName);
-        File.WriteAllText(file, "// old snapshot");
+        File.WriteAllText(file, $"// old snapshot{Environment.NewLine}namespace {snapshotNamespace ?? typeof(ContextWithSnapshotModelSnapshot).Namespace};");
         return file;
     }
 

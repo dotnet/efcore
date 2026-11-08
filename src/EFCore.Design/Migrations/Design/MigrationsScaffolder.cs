@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 
@@ -425,10 +426,14 @@ public class MigrationsScaffolder : IMigrationsScaffolder
 
         // An explicit output directory moves the snapshot with the migration; the old file must go or there would be two snapshots.
         string? staleSnapshotFile = null;
-        if (outputDir != null && !dryRun)
+        var currentSnapshotNamespace = Dependencies.MigrationsAssembly.ModelSnapshot?.GetType().Namespace;
+        if (outputDir != null && !dryRun && currentSnapshotNamespace != null)
         {
+            // Only a file that declares this context's current snapshot may be replaced: snapshot file names are not
+            // unique across contexts or namespaces, so a name match alone is not enough to delete anything.
             var existingSnapshotFile = TryFindExistingSnapshot(projectDir, outputDir, modelSnapshotFileName);
             if (existingSnapshotFile != null
+                && DeclaresNamespace(existingSnapshotFile, currentSnapshotNamespace)
                 && !Path.GetFullPath(existingSnapshotFile).Equals(Path.GetFullPath(modelSnapshotFile), StringComparison.OrdinalIgnoreCase))
             {
                 staleSnapshotFile = existingSnapshotFile;
@@ -451,7 +456,14 @@ public class MigrationsScaffolder : IMigrationsScaffolder
             if (staleSnapshotFile != null)
             {
                 Dependencies.OperationReporter.WriteInformation(DesignStrings.MovingSnapshot(staleSnapshotFile, modelSnapshotFile));
-                File.Delete(staleSnapshotFile);
+                try
+                {
+                    File.Delete(staleSnapshotFile);
+                }
+                catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+                {
+                    Dependencies.OperationReporter.WriteWarning(DesignStrings.CannotDeleteOldSnapshot(staleSnapshotFile, ex.Message));
+                }
             }
         }
 
@@ -516,6 +528,13 @@ public class MigrationsScaffolder : IMigrationsScaffolder
         }
 
         return defaultDirectory;
+    }
+
+    private static bool DeclaresNamespace(string file, string @namespace)
+    {
+        var declaration = new Regex(@"^\s*namespace\s+" + Regex.Escape(@namespace) + @"\s*(;|\{|$)");
+
+        return File.ReadLines(file).Any(l => declaration.IsMatch(l));
     }
 
     /// <summary>

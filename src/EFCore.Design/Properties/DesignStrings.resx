@@ -135,6 +135,9 @@
   <data name="CannotCreateContextInstance" xml:space="preserve">
     <value>Unable to create a 'DbContext' of type '{contextType}'. The exception '{rootException}' was thrown while attempting to create an instance. For the different patterns supported at design time, see https://go.microsoft.com/fwlink/?linkid=851728</value>
   </data>
+  <data name="CannotDeleteOldSnapshot" xml:space="preserve">
+    <value>The previous model snapshot '{file}' could not be deleted and must be removed manually: {message}</value>
+  </data>
   <data name="CannotFindDbContextTypes" xml:space="preserve">
     <value>The exception '{rootException}' was thrown while attempting to find 'DbContext' types. For the different patterns supported at design time, see https://go.microsoft.com/fwlink/?linkid=851728</value>
   </data>
