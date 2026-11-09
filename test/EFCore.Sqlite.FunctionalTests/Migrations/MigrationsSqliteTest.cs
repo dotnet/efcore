@@ -2309,10 +2309,6 @@ CREATE TABLE "Customers" (
     protected override bool AssertCollations
         => false;
 
-    // Reverse engineering of index filters isn't supported in SQLite
-    protected override bool AssertIndexFilters
-        => false;
-
     // Reverse engineering of constraint names isn't supported in SQLite
     protected override bool AssertConstraintNames
         => false;

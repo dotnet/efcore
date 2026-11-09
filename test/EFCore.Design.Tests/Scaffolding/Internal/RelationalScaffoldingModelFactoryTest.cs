@@ -1249,6 +1249,206 @@ public class RelationalScaffoldingModelFactoryTest
         Assert.Equal(model.FindPrimaryKey(), fk.PrincipalKey);
     }
 
+    [Theory]
+    [InlineData(null, true)]
+    [InlineData("([BuddyId] IS NOT NULL)", true)]
+    [InlineData("[BuddyId] IS NOT NULL", true)]
+    [InlineData("(([BuddyId] IS NOT NULL))", true)]
+    [InlineData("([buddyid] is not null)", true)]
+    [InlineData("\"BuddyId\" IS NOT NULL", true)]
+    [InlineData("`BuddyId` IS NOT NULL", true)]
+    [InlineData("BuddyId IS NOT NULL", true)]
+    [InlineData("buddyid IS NOT NULL AND \"BuddyId\" IS NOT NULL", true)]
+    [InlineData("IsActive IS NOT NULL", false)]
+    [InlineData("BuddyId IS NOT NULL AND IsActive IS NOT NULL", false)]
+    [InlineData("BuddyId IS NOT NULL OR IsActive", false)]
+    [InlineData("([BuddyId] IS NOT NULL AND [BuddyId] IS NOT NULL)", true)]
+    [InlineData("([IsActive]=(1))", false)]
+    [InlineData("([OtherId] IS NOT NULL)", false)]
+    [InlineData("([BuddyId] IS NOT NULL AND [OtherId] IS NOT NULL)", false)]
+    [InlineData("([BuddyId] IS NOT NULL AND [IsActive]=(1))", false)]
+    [InlineData("([BuddyId] IS NOT NULL OR [IsActive]=(1))", false)]
+    [InlineData("([BuddyId]>(10))", false)]
+    [InlineData("([BuddyId] IS NULL)", false)]
+    [InlineData("Filter SQL", false)]
+    public void Unique_index_with_filter_makes_foreign_key_unique_only_for_null_guard(string? filter, bool expectedUnique)
+    {
+        var table = new DatabaseTable
+        {
+            Database = Database,
+            Name = "Friends",
+            Columns =
+            {
+                IdColumn,
+                new DatabaseColumn
+                {
+                    Table = Table,
+                    Name = "BuddyId",
+                    StoreType = "int",
+                    IsNullable = true
+                },
+                new DatabaseColumn
+                {
+                    Table = Table,
+                    Name = "IsActive",
+                    StoreType = "bit"
+                }
+            },
+            PrimaryKey = IdPrimaryKey
+        };
+        table.Indexes.Add(
+            new DatabaseIndex
+            {
+                Table = Table,
+                Name = "IX_Foo",
+                IsUnique = true,
+                Filter = filter,
+                Columns = { table.Columns.ElementAt(1) }
+            });
+        table.ForeignKeys.Add(
+            new DatabaseForeignKey
+            {
+                Table = table,
+                Name = "FK_Foo",
+                Columns = { table.Columns.ElementAt(1) },
+                PrincipalTable = table,
+                PrincipalColumns = { table.Columns.ElementAt(0) }
+            });
+
+        var model = _factory.Create(
+            new DatabaseModel { Tables = { table } },
+            new ModelReverseEngineerOptions { NoPluralize = true }).FindEntityType("Friends")!;
+
+        var fk = Assert.Single(model.GetForeignKeys());
+        Assert.Equal(expectedUnique, fk.IsUnique);
+
+        // The index itself is still scaffolded as unique, with its filter.
+        var index = Assert.Single(model.GetIndexes());
+        Assert.True(index.IsUnique);
+    }
+
+    [Theory]
+    [InlineData("[A] IS NOT NULL AND [B] IS NOT NULL", true)]
+    [InlineData("([A] IS NOT NULL AND [B] IS NOT NULL)", true)]
+    [InlineData("[A] IS NOT NULL", true)]
+    [InlineData("[B] IS NOT NULL", true)]
+    [InlineData("[A] IS NOT NULL AND [C] IS NOT NULL", false)]
+    [InlineData("[A] IS NOT NULL AND [B]=1", false)]
+    [InlineData("[A]=1", false)]
+    public void Composite_foreign_key_with_filtered_unique_index(string filter, bool expectedUnique)
+        => Assert.Equal(expectedUnique, ScaffoldedForeignKeyIsUnique(["A", "B"], (["A", "B"], true, filter)));
+
+    [Theory]
+    [InlineData("buddy_id", "([buddy_id] IS NOT NULL)", true)]
+    [InlineData("buddy_id", "([BuddyId] IS NOT NULL)", false)]
+    [InlineData("we]ird", "([we]]ird] IS NOT NULL)", true)]
+    [InlineData("we]ird", "([we]ird] IS NOT NULL)", false)]
+    [InlineData("a\"b", "\"a\"\"b\" IS NOT NULL", true)]
+    [InlineData("a\"b", "\"a\" IS NOT NULL", false)]
+    [InlineData("c`d", "`c``d` IS NOT NULL", true)]
+    [InlineData("c`d", "`c` IS NOT NULL", false)]
+    public void Filter_is_matched_against_database_column_names(string columnName, string filter, bool expectedUnique)
+        => Assert.Equal(expectedUnique, ScaffoldedForeignKeyIsUnique([columnName], ([columnName], true, filter)));
+
+    [Fact]
+    public void Foreign_key_is_unique_if_any_matching_unique_index_is_not_restricted()
+    {
+        Assert.True(ScaffoldedForeignKeyIsUnique(["A"], (["A"], true, "[B]=1"), (["A"], true, null)));
+        Assert.True(ScaffoldedForeignKeyIsUnique(["A"], (["A"], true, null), (["A"], true, "[B]=1")));
+        Assert.True(ScaffoldedForeignKeyIsUnique(["A"], (["A"], true, "[B]=1"), (["A"], true, "[A] IS NOT NULL")));
+        Assert.False(ScaffoldedForeignKeyIsUnique(["A"], (["A"], true, "[B]=1"), (["A"], false, null)));
+    }
+
+    [Fact]
+    public void Adversarial_index_filters_are_handled_quickly()
+    {
+        // Long or pathological filters must neither hang nor throw; unrecognized ones are treated as restricting.
+        foreach (var (filter, expectedUnique) in new[]
+        {
+            (new string(' ', 100_000) + "x", false),
+            (new string('(', 100_000) + "[A] IS NOT NULL" + new string(')', 100_000), true),
+            ("[A] IS NOT NULL" + new string(')', 100_000) + "x", false),
+            ("[A] IS NOT NULL" + string.Concat(Enumerable.Repeat(" AND [A] IS NOT NULL", 5_000)), true),
+            ("[A] IS NOT NULL" + string.Concat(Enumerable.Repeat(" AND [A] IS NOT NULL", 5_000)) + " AND x", false),
+            ("[" + new string(']', 100_000), false)
+        })
+        {
+            Assert.Equal(expectedUnique, ScaffoldedForeignKeyIsUnique(["A"], (["A"], true, filter)));
+        }
+    }
+
+    private static bool ScaffoldedForeignKeyIsUnique(
+        string[] foreignKeyColumns,
+        params (string[] Columns, bool IsUnique, string? Filter)[] indexes)
+    {
+        var principal = new DatabaseTable { Database = Database, Name = "Principal" };
+        var principalColumns = foreignKeyColumns
+            .Select((_, i) => new DatabaseColumn { Table = principal, Name = "P" + i, StoreType = "int" })
+            .ToList();
+        foreach (var column in principalColumns)
+        {
+            principal.Columns.Add(column);
+        }
+
+        var principalKey = new DatabasePrimaryKey { Table = principal, Name = "PK_Principal" };
+        foreach (var column in principalColumns)
+        {
+            principalKey.Columns.Add(column);
+        }
+
+        principal.PrimaryKey = principalKey;
+
+        var dependent = new DatabaseTable { Database = Database, Name = "Dependent" };
+        var id = new DatabaseColumn { Table = dependent, Name = "Id", StoreType = "int" };
+        dependent.Columns.Add(id);
+        dependent.PrimaryKey = new DatabasePrimaryKey { Table = dependent, Name = "PK_Dependent", Columns = { id } };
+
+        var columns = foreignKeyColumns
+            .Select(name => new DatabaseColumn { Table = dependent, Name = name, StoreType = "int", IsNullable = true })
+            .ToList();
+        foreach (var column in columns)
+        {
+            dependent.Columns.Add(column);
+        }
+
+        var i = 0;
+        foreach (var (indexColumns, isUnique, filter) in indexes)
+        {
+            var index = new DatabaseIndex
+            {
+                Table = dependent,
+                Name = "IX_" + i++,
+                IsUnique = isUnique,
+                Filter = filter
+            };
+            foreach (var name in indexColumns)
+            {
+                index.Columns.Add(columns.Single(c => c.Name == name));
+            }
+
+            dependent.Indexes.Add(index);
+        }
+
+        var foreignKey = new DatabaseForeignKey { Table = dependent, Name = "FK_Dependent", PrincipalTable = principal };
+        foreach (var column in columns)
+        {
+            foreignKey.Columns.Add(column);
+        }
+
+        foreach (var column in principalColumns)
+        {
+            foreignKey.PrincipalColumns.Add(column);
+        }
+
+        dependent.ForeignKeys.Add(foreignKey);
+
+        var model = new RelationalScaffoldingModelFactoryTest()._factory.Create(
+            new DatabaseModel { Tables = { principal, dependent } },
+            new ModelReverseEngineerOptions { NoPluralize = true });
+
+        return Assert.Single(model.FindEntityType("Dependent")!.GetForeignKeys()).IsUnique;
+    }
+
     [Fact]
     public void Unique_nullable_index_used_by_foreign_key()
     {
