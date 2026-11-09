@@ -1364,6 +1364,54 @@ CREATE UNIQUE INDEX IX_UNIQUE on UniqueIndex (Id2);",
             },
             "DROP TABLE UniqueIndex;");
 
+    [Fact]
+    public void Skip_index_on_expression_with_warning()
+        => Test(
+            @"
+CREATE TABLE ExpressionIndexTable (
+    Id integer PRIMARY KEY,
+    Name text
+);
+
+CREATE INDEX IX_LOWER_NAME on ExpressionIndexTable (lower(Name));
+CREATE INDEX IX_NAME on ExpressionIndexTable (Name);",
+            [],
+            [],
+            dbModel =>
+            {
+                var index = Assert.Single(dbModel.Tables.Single().Indexes);
+                Assert.Equal("IX_NAME", index.Name);
+                Assert.Equal(["Name"], index.Columns.Select(ic => ic.Name).ToList());
+
+                var (_, id, message, _, _) = Assert.Single(Fixture.ListLoggerFactory.Log, t => t.Level == LogLevel.Warning);
+
+                var definition = SqliteResources.LogExpressionIndexSkipped(new TestLogger<SqliteLoggingDefinitions>());
+                Assert.Equal(definition.EventId, id);
+                Assert.Equal(definition.GenerateMessage("IX_LOWER_NAME", "ExpressionIndexTable"), message);
+            },
+            "DROP TABLE ExpressionIndexTable;");
+
+    [Fact]
+    public void Skip_index_mixing_columns_and_expressions_with_warning()
+        => Test(
+            @"
+CREATE TABLE MixedIndexTable (
+    Id integer PRIMARY KEY,
+    Name text
+);
+
+CREATE UNIQUE INDEX IX_MIXED on MixedIndexTable (Name, (Name || 'x'));",
+            [],
+            [],
+            dbModel =>
+            {
+                Assert.Empty(dbModel.Tables.Single().Indexes);
+
+                var (_, id, _, _, _) = Assert.Single(Fixture.ListLoggerFactory.Log, t => t.Level == LogLevel.Warning);
+                Assert.Equal(SqliteEventId.ExpressionIndexSkippedWarning, id);
+            },
+            "DROP TABLE MixedIndexTable;");
+
     #endregion
 
     #region ForeignKeyFacets
