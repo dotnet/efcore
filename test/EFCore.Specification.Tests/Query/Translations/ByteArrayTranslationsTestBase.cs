@@ -55,4 +55,52 @@ public abstract class ByteArrayTranslationsTestBase<TFixture>(TFixture fixture) 
 
         return AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(s => s.ByteArray.SequenceEqual(byteArrayParam)));
     }
+
+    [Fact]
+    public virtual Task Concat_with_parameter()
+    {
+        var suffix = new byte[] { 1, 2 };
+
+        return AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(e => e.ByteArray.Concat(suffix).ToArray().Length == 6));
+    }
+
+    [Fact]
+    public virtual Task Concat_with_inline_array()
+        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(e => e.ByteArray.Concat(new byte[] { 1, 2 }).ToArray().Length == 6));
+
+    [Fact]
+    public virtual Task Concat_with_empty_array()
+        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(e => e.ByteArray.Concat(Array.Empty<byte>()).ToArray().Length == 4));
+
+    [Fact]
+    public virtual Task Concat_with_column()
+        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(e => e.ByteArray.Concat(e.ByteArray).ToArray().Length == 8));
+
+    [Fact]
+    public virtual Task Concat_chained()
+    {
+        var suffix = new byte[] { 1, 2 };
+
+        return AssertQuery(
+            ss => ss.Set<BasicTypesEntity>().Where(e => e.ByteArray.Concat(suffix).Concat(suffix).ToArray().Length == 8));
+    }
+
+    [Fact]
+    public virtual Task Concat_in_projection()
+    {
+        var suffix = new byte[] { 1, 2 };
+
+        return AssertQuery(
+            ss => ss.Set<BasicTypesEntity>().OrderBy(e => e.Id).Select(e => e.ByteArray.Concat(suffix).ToArray()),
+            assertOrder: true);
+    }
+
+    [Fact]
+    public virtual Task Concat_SequenceEqual()
+    {
+        var suffix = new byte[] { 1, 2 };
+        var expected = new byte[] { 0xDE, 0xAD, 0xBE, 0xEF, 1, 2 };
+
+        return AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(e => e.ByteArray.Concat(suffix).SequenceEqual(expected)));
+    }
 }

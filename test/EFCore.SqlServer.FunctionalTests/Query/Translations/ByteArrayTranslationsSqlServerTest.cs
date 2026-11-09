@@ -126,6 +126,99 @@ WHERE [b].[ByteArray] = @byteArrayParam
 """);
     }
 
+    public override async Task Concat_with_parameter()
+    {
+        await base.Concat_with_parameter();
+
+        AssertSql(
+            """
+@suffix='0x0102' (Size = 8000)
+
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE CAST(DATALENGTH([b].[ByteArray] + @suffix) AS int) = 6
+""");
+    }
+
+    public override async Task Concat_with_inline_array()
+    {
+        await base.Concat_with_inline_array();
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE CAST(DATALENGTH([b].[ByteArray] + 0x0102) AS int) = 6
+""");
+    }
+
+    public override async Task Concat_with_empty_array()
+    {
+        await base.Concat_with_empty_array();
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE CAST(DATALENGTH([b].[ByteArray] + 0x) AS int) = 4
+""");
+    }
+
+    public override async Task Concat_with_column()
+    {
+        await base.Concat_with_column();
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE CAST(DATALENGTH([b].[ByteArray] + [b].[ByteArray]) AS int) = 8
+""");
+    }
+
+    public override async Task Concat_chained()
+    {
+        await base.Concat_chained();
+
+        AssertSql(
+            """
+@suffix='0x0102' (Size = 8000)
+
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE CAST(DATALENGTH([b].[ByteArray] + @suffix + @suffix) AS int) = 8
+""");
+    }
+
+    public override async Task Concat_in_projection()
+    {
+        await base.Concat_in_projection();
+
+        AssertSql(
+            """
+@suffix='0x0102' (Size = 8000)
+
+SELECT [b].[ByteArray] + @suffix
+FROM [BasicTypesEntities] AS [b]
+ORDER BY [b].[Id]
+""");
+    }
+
+    public override async Task Concat_SequenceEqual()
+    {
+        await base.Concat_SequenceEqual();
+
+        AssertSql(
+            """
+@suffix='0x0102' (Size = 8000)
+@expected='0xDEADBEEF0102' (Size = 8000)
+
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE [b].[ByteArray] + @suffix = @expected
+""");
+    }
+
     [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
