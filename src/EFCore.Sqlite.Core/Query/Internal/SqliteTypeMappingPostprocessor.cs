@@ -97,6 +97,13 @@ public class SqliteTypeMappingPostprocessor : RelationalTypeMappingPostprocessor
                     inferredTypeMapping,
                     columnExpression.IsNullable);
 
+            case JsonScalarExpression { TypeMapping: ByteArrayTypeMapping typeMapping } jsonScalarExpression:
+                return SqliteQueryableMethodTranslatingExpressionVisitor.ApplyJsonSqlConversion(
+                    (SqlExpression)base.VisitExtension(jsonScalarExpression),
+                    _sqlExpressionFactory,
+                    typeMapping,
+                    jsonScalarExpression.IsNullable);
+
             default:
                 return base.VisitExtension(expression);
         }

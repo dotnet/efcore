@@ -705,20 +705,12 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                         innerJsonScalarExpression.Path.Append(new PathSegment(translatedIndex)).ToArray())
                     : (jsonArrayColumn, [new PathSegment(translatedIndex)]);
 
-                SqlExpression translation = new JsonScalarExpression(
+                var translation = new JsonScalarExpression(
                     json,
                     path,
                     projectionColumn.Type,
                     projectionColumn.TypeMapping,
                     projectionColumn.IsNullable);
-
-                // If we have a type mapping (i.e. translating over a column rather than a parameter), apply any necessary server-side
-                // conversions.
-                if (projectionColumn.TypeMapping is not null)
-                {
-                    translation = ApplyJsonSqlConversion(
-                        translation, _sqlExpressionFactory, projectionColumn.TypeMapping, projectionColumn.IsNullable);
-                }
 
 #pragma warning disable EF1001
                 result = source.UpdateQueryExpression(new SelectExpression(translation, _sqlAliasManager));
