@@ -214,6 +214,20 @@ namespace Microsoft.Data.Sqlite.Properties
             => GetString("SqlBlobRequiresOpenConnection");
 
         /// <summary>
+        ///     This happens when a connection with an open read transaction, such as one with an unfinished data reader or a deferred transaction, tries to write after another connection has committed changes, because what it read is now out of date. Waiting cannot help. Finish reading and dispose any open readers before writing, or start the transaction with BeginTransaction() (not deferred) before reading.
+        /// </summary>
+        public static string SqliteBusySnapshotGuidance
+            => GetString("SqliteBusySnapshotGuidance");
+
+        /// <summary>
+        ///     Extended error code: {extendedErrorCode}.
+        /// </summary>
+        public static string SqliteExtendedErrorCode(object? extendedErrorCode)
+            => string.Format(
+                GetString("SqliteExtendedErrorCode", nameof(extendedErrorCode)),
+                extendedErrorCode);
+
+        /// <summary>
         ///     SQLite Error {errorCode}: '{message}'.
         /// </summary>
         public static string SqliteNativeError(object? errorCode, object? message)
