@@ -76,6 +76,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 property, entityType);
 
         /// <summary>
+        ///     The setter of the mapped indexer property on entity type '{entityType}' cannot be overridden by a proxy because it is not visible to the proxy assembly. Make it public or protected, or add '[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]' to the assembly that declares the indexer (a strong-named assembly must specify the proxy assembly's public key).
+        /// </summary>
+        public static string NonVisibleIndexerProperty(object? entityType)
+            => string.Format(
+                GetString("NonVisibleIndexerProperty", nameof(entityType)),
+                entityType);
+
+        /// <summary>
         ///     Property '{1_entityType}.{0_property}' cannot be change-tracked because its setter cannot be overridden by a proxy: the setter is not visible to the proxy assembly. Make it public, protected or protected internal, or add '[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]' to the assembly that declares the property (a strong-named assembly must specify the proxy assembly's public key).
         /// </summary>
         public static string NonVisibleSetter(object? property, object? entityType)
