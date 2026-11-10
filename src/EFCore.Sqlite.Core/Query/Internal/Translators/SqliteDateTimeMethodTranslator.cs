@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 // ReSharper disable once CheckNamespace
@@ -14,6 +15,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 /// </summary>
 public class SqliteDateTimeMethodTranslator(SqliteSqlExpressionFactory sqlExpressionFactory) : IMethodCallTranslator
 {
+    // The 'floor' modifier is supported since SQLite 3.46.0; older versions return NULL for an unknown modifier.
+    private readonly bool _isFloorModifierSupported
+        = new Version(new SqliteConnection().ServerVersion) >= new Version(3, 46);
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -120,9 +125,12 @@ public class SqliteDateTimeMethodTranslator(SqliteSqlExpressionFactory sqlExpres
     }
 
     // By default SQLite overflows a day past the end of the resulting month into the next month (e.g. January 31 + 1 month gives
-    // March 3); 'floor' makes it the last day of the resulting month instead, which is what DateTime and DateOnly do.
+    // March 3); 'floor' makes it the last day of the resulting month instead, which is what DateTime and DateOnly do. On SQLite
+    // versions without 'floor', keep the overflow behavior rather than produce NULL for every date.
     private SqlExpression[] MakeClampedModifiers(SqlExpression argument, string unitSuffix)
-        => [MakeModifier(argument, unitSuffix), sqlExpressionFactory.Constant("floor")];
+        => _isFloorModifierSupported
+            ? [MakeModifier(argument, unitSuffix), sqlExpressionFactory.Constant("floor")]
+            : [MakeModifier(argument, unitSuffix)];
 
     private SqlExpression MakeModifier(SqlExpression argument, string unitSuffix)
         => sqlExpressionFactory.Add(
