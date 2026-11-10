@@ -1113,6 +1113,23 @@ SELECT * FROM [Customers2]
             elementSorter: e => e.CustomerID,
             elementAsserter: AssertUnmappedCustomers);
 
+    // See #32932.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Union_of_SqlQuery_with_same_named_db_parameters_hardcoded_in_sql_throws(bool async)
+    {
+        using var context = CreateContext();
+
+        var sql = NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = @city");
+        var query = context.Database.SqlQueryRaw<UnmappedCustomer>(sql, CreateDbParameter("city", "Seattle"))
+            .Union(context.Database.SqlQueryRaw<UnmappedCustomer>(sql, CreateDbParameter("city", "London")));
+
+        var exception = async
+            ? await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync())
+            : Assert.Throws<InvalidOperationException>(() => query.ToList());
+
+        Assert.Equal(RelationalStrings.FromSqlDuplicateParameterName("city"), exception.Message);
+    }
+
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Multiple_occurrences_of_SqlQuery_with_db_parameter_adds_two_parameters(bool async)
     {
