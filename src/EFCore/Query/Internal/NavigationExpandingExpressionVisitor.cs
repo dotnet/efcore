@@ -1585,25 +1585,21 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         innerSource = (NavigationExpansionExpression)_pendingSelectorExpandingExpressionVisitor.Visit(innerSource);
         var innerTreeStructure = SnapshotExpression(innerSource.PendingSelector);
 
-        ValidateExpressionCompatibility(outerTreeStructure, innerTreeStructure);
-
-        //if (!CompareIncludes(outerTreeStructure, innerTreeStructure))
-        //{
-        //    throw new InvalidOperationException(CoreStrings.SetOperationWithDifferentIncludesInOperands);
-        //}
-
         var outerQueryable = Reduce(outerSource);
         var innerQueryable = Reduce(innerSource);
 
         var outerType = outerQueryable.Type.GetSequenceType();
         var innerType = innerQueryable.Type.GetSequenceType();
+        var useOuter = outerType.IsAssignableFrom(innerType);
 
         var result = Expression.Call(
-            genericMethod.MakeGenericMethod(outerType.IsAssignableFrom(innerType) ? outerType : innerType),
+            genericMethod.MakeGenericMethod(useOuter ? outerType : innerType),
             outerQueryable,
             innerQueryable);
         var navigationTree = new NavigationTreeExpression(
-            outerType.IsAssignableFrom(innerType) ? outerTreeStructure : innerTreeStructure);
+            useOuter
+                ? MergeSetOperationTrees(outerTreeStructure, innerTreeStructure)
+                : MergeSetOperationTrees(innerTreeStructure, outerTreeStructure));
         var parameterName = GetParameterName("e");
 
         return new NavigationExpansionExpression(result, navigationTree, navigationTree, parameterName);
@@ -2443,42 +2439,79 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         return Visit(filteredResult);
     }
 
-    private void ValidateExpressionCompatibility(Expression outer, Expression inner)
+    // Checks that the snapshots of a set operation's operands are compatible, and returns the snapshot of the result based on `primary`,
+    // the operand whose element type the set operation takes. An entity in the result is null wherever it is null in either operand, so
+    // it's optional if either of them is, which makes its navigations expand as optional.
+    private Expression MergeSetOperationTrees(Expression primary, Expression other)
     {
-        if (outer is EntityReference outerEntityReference
-            && inner is EntityReference innerEntityReference)
+        switch (primary)
         {
-            if (!outerEntityReference.IncludePaths.Equals(innerEntityReference.IncludePaths))
-            {
+            case EntityReference primaryEntityReference when other is EntityReference otherEntityReference:
+                if (!primaryEntityReference.IncludePaths.Equals(otherEntityReference.IncludePaths))
+                {
+                    throw new InvalidOperationException(CoreStrings.SetOperationWithDifferentIncludesInOperands);
+                }
+
+                if (!_extensibilityHelper.AreQueryRootsCompatible(
+                        primaryEntityReference.EntityQueryRootExpression, otherEntityReference.EntityQueryRootExpression))
+                {
+                    throw new InvalidOperationException(CoreStrings.IncompatibleSourcesForSetOperation);
+                }
+
+                if (otherEntityReference.IsOptional)
+                {
+                    primaryEntityReference.MarkAsOptional();
+                }
+
+                return primaryEntityReference;
+
+            case NewExpression primaryNewExpression when other is NewExpression otherNewExpression:
+                if (primaryNewExpression.Arguments.Count != otherNewExpression.Arguments.Count)
+                {
+                    throw new InvalidOperationException(CoreStrings.SetOperationWithDifferentIncludesInOperands);
+                }
+
+                var arguments = new Expression[primaryNewExpression.Arguments.Count];
+                for (var i = 0; i < arguments.Length; i++)
+                {
+                    arguments[i] = MergeSetOperationTrees(primaryNewExpression.Arguments[i], otherNewExpression.Arguments[i]);
+                }
+
+                return primaryNewExpression.Update(arguments);
+
+            case MemberInitExpression primaryMemberInit:
+                // The operands may initialize different members, or in a different order. Members can then only be followed when they
+                // match; otherwise the projection is opaque, as it is for any other type.
+                if (other is not MemberInitExpression otherMemberInit
+                    || primaryMemberInit.NewExpression.Arguments.Count > 0
+                    || otherMemberInit.NewExpression.Arguments.Count > 0
+                    || primaryMemberInit.Bindings.Count != otherMemberInit.Bindings.Count)
+                {
+                    return Expression.Default(primaryMemberInit.Type);
+                }
+
+                var bindings = new MemberBinding[primaryMemberInit.Bindings.Count];
+                for (var i = 0; i < bindings.Length; i++)
+                {
+                    var primaryBinding = (MemberAssignment)primaryMemberInit.Bindings[i];
+                    if (otherMemberInit.Bindings[i] is not MemberAssignment otherBinding
+                        || otherBinding.Member != primaryBinding.Member)
+                    {
+                        return Expression.Default(primaryMemberInit.Type);
+                    }
+
+                    bindings[i] = primaryBinding.Update(MergeSetOperationTrees(primaryBinding.Expression, otherBinding.Expression));
+                }
+
+                return primaryMemberInit.Update(primaryMemberInit.NewExpression, bindings);
+
+            case DefaultExpression primaryDefaultExpression
+                when other is DefaultExpression otherDefaultExpression
+                && primaryDefaultExpression.Type != otherDefaultExpression.Type:
                 throw new InvalidOperationException(CoreStrings.SetOperationWithDifferentIncludesInOperands);
-            }
 
-            if (!_extensibilityHelper.AreQueryRootsCompatible(
-                    outerEntityReference.EntityQueryRootExpression, innerEntityReference.EntityQueryRootExpression))
-            {
-                throw new InvalidOperationException(CoreStrings.IncompatibleSourcesForSetOperation);
-            }
-        }
-
-        if (outer is NewExpression outerNewExpression
-            && inner is NewExpression innerNewExpression)
-        {
-            if (outerNewExpression.Arguments.Count != innerNewExpression.Arguments.Count)
-            {
-                throw new InvalidOperationException(CoreStrings.SetOperationWithDifferentIncludesInOperands);
-            }
-
-            for (var i = 0; i < outerNewExpression.Arguments.Count; i++)
-            {
-                ValidateExpressionCompatibility(outerNewExpression.Arguments[i], innerNewExpression.Arguments[i]);
-            }
-        }
-
-        if (outer is DefaultExpression outerDefaultExpression
-            && inner is DefaultExpression innerDefaultExpression
-            && outerDefaultExpression.Type != innerDefaultExpression.Type)
-        {
-            throw new InvalidOperationException(CoreStrings.SetOperationWithDifferentIncludesInOperands);
+            default:
+                return primary;
         }
     }
 

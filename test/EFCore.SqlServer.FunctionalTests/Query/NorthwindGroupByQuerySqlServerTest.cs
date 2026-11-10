@@ -5676,6 +5676,108 @@ WHERE [c].[CustomerID] LIKE N'A%'
 """);
     }
 
+    public override async Task GroupBy_SelectMany_result_selector_dto_navigation(bool async)
+    {
+        await base.GroupBy_SelectMany_result_selector_dto_navigation(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID] AS [Key], [o].[OrderID], [c].[City]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+""");
+    }
+
+    public override async Task GroupBy_SelectMany_nested_anonymous_navigation(bool async)
+    {
+        await base.GroupBy_SelectMany_nested_anonymous_navigation(async);
+
+        AssertSql(
+            """
+SELECT [o0].[OrderID], [c].[City]
+FROM (
+    SELECT [o].[OrderID], [o].[CustomerID], ROW_NUMBER() OVER(PARTITION BY [o].[CustomerID] ORDER BY [o].[OrderID]) AS [row]
+    FROM [Orders] AS [o]
+) AS [o0]
+LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
+WHERE [o0].[row] <= 2
+""");
+    }
+
+    public override async Task Include_GroupBy_SelectMany_result_selector_dto(bool async)
+    {
+        await base.Include_GroupBy_SelectMany_result_selector_dto(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID], [o].[OrderID], [o].[EmployeeID], [o].[OrderDate], [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
+FROM [Orders] AS [o]
+LEFT JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
+WHERE [o].[OrderID] < 10300
+ORDER BY [o].[OrderID], [o0].[OrderID], [o0].[ProductID]
+""");
+    }
+
+    public override async Task Include_GroupBy_dto_element_selector_SelectMany_OrderBy_Take(bool async)
+    {
+        await base.Include_GroupBy_dto_element_selector_SelectMany_OrderBy_Take(async);
+
+        AssertSql(
+            """
+SELECT [o0].[CustomerID], [o0].[OrderID], [o0].[EmployeeID], [o0].[OrderDate], [o1].[OrderID], [o1].[ProductID], [o1].[Discount], [o1].[Quantity], [o1].[UnitPrice]
+FROM (
+    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], ROW_NUMBER() OVER(PARTITION BY [o].[CustomerID] ORDER BY [o].[OrderID]) AS [row]
+    FROM [Orders] AS [o]
+    WHERE [o].[OrderID] < 10300
+) AS [o0]
+LEFT JOIN [Order Details] AS [o1] ON [o0].[OrderID] = [o1].[OrderID]
+WHERE [o0].[row] <= 1
+ORDER BY [o0].[OrderID], [o1].[OrderID], [o1].[ProductID]
+""");
+    }
+
+    public override async Task GroupBy_SelectMany_OrderBy_Skip_constant_Take_int_MaxValue_parameter(bool async)
+    {
+        await base.GroupBy_SelectMany_OrderBy_Skip_constant_Take_int_MaxValue_parameter(async);
+
+        AssertSql(
+            """
+@take='2147483647'
+
+SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+FROM (
+    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], ROW_NUMBER() OVER(PARTITION BY [o].[CustomerID] ORDER BY [o].[OrderID]) AS [row]
+    FROM [Orders] AS [o]
+) AS [o0]
+WHERE [o0].[row] > 1 AND [o0].[row] - 1 <= @take
+""");
+    }
+
+    public override async Task GroupBy_OrderBy_key_SelectMany_OrderByDescending_Skip_Take_Take(bool async)
+    {
+        await base.GroupBy_OrderBy_key_SelectMany_OrderByDescending_Skip_Take_Take(async);
+
+        AssertSql(
+            """
+@p='15'
+
+SELECT TOP(@p) [o0].[OrderID]
+FROM (
+    SELECT [o].[OrderID], [o].[CustomerID], [o].[OrderDate], ROW_NUMBER() OVER(PARTITION BY [o].[CustomerID] ORDER BY [o].[OrderDate], [o].[OrderID] DESC) AS [row]
+    FROM [Orders] AS [o]
+) AS [o0]
+WHERE [o0].[row] > 1 AND [o0].[row] <= 3
+ORDER BY [o0].[CustomerID] DESC, [o0].[OrderDate], [o0].[OrderID] DESC
+""");
+    }
+
+    public override async Task GroupBy_SelectMany_in_predicate_subquery_fails(bool async)
+    {
+        await base.GroupBy_SelectMany_in_predicate_subquery_fails(async);
+
+        AssertSql();
+    }
+
     public override async Task GroupBy_SelectMany_Where_over_grouping_fails(bool async)
     {
         await base.GroupBy_SelectMany_Where_over_grouping_fails(async);

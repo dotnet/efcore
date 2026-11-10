@@ -1669,6 +1669,136 @@ FROM [Customers] AS [c0]
 """);
     }
 
+    public override async Task Distinct_anonymous_member_navigation(bool async)
+    {
+        await base.Distinct_anonymous_member_navigation(async);
+
+        AssertSql(
+            """
+SELECT [o0].[OrderID], [c].[City]
+FROM (
+    SELECT DISTINCT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+) AS [o0]
+LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
+""");
+    }
+
+    public override async Task Union_anonymous_member_navigation(bool async)
+    {
+        await base.Union_anonymous_member_navigation(async);
+
+        AssertSql(
+            """
+SELECT [u].[OrderID], [c].[City]
+FROM (
+    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+    WHERE [o].[OrderID] < 10260
+    UNION
+    SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+    FROM [Orders] AS [o0]
+    WHERE [o0].[OrderID] > 11070
+) AS [u]
+LEFT JOIN [Customers] AS [c] ON [u].[CustomerID] = [c].[CustomerID]
+""");
+    }
+
+    public override async Task Union_dto_member_navigation(bool async)
+    {
+        await base.Union_dto_member_navigation(async);
+
+        AssertSql(
+            """
+SELECT [u].[OrderID], [c].[City]
+FROM (
+    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+    WHERE [o].[OrderID] < 10260
+    UNION
+    SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+    FROM [Orders] AS [o0]
+    WHERE [o0].[OrderID] > 11070
+) AS [u]
+LEFT JOIN [Customers] AS [c] ON [u].[CustomerID] = [c].[CustomerID]
+""");
+    }
+
+    public override async Task Concat_optional_entity_in_second_operand_required_navigation(bool async)
+    {
+        await base.Concat_optional_entity_in_second_operand_required_navigation(async);
+
+        AssertSql(
+            """
+SELECT CASE
+    WHEN [u].[OrderID] IS NULL OR [u].[ProductID] IS NULL THEN -1
+    ELSE [o3].[OrderID]
+END
+FROM (
+    SELECT [o].[OrderID], [o].[ProductID]
+    FROM [Order Details] AS [o]
+    WHERE [o].[OrderID] < 10250
+    UNION ALL
+    SELECT [o2].[OrderID], [o2].[ProductID]
+    FROM [Orders] AS [o0]
+    LEFT JOIN (
+        SELECT [o1].[OrderID], [o1].[ProductID]
+        FROM [Order Details] AS [o1]
+        WHERE [o1].[Quantity] > CAST(1000 AS smallint)
+    ) AS [o2] ON [o0].[OrderID] = [o2].[OrderID]
+    WHERE [o0].[OrderID] < 10252
+) AS [u]
+LEFT JOIN [Orders] AS [o3] ON [u].[OrderID] = [o3].[OrderID]
+""");
+    }
+
+    public override async Task Concat_optional_entity_in_second_operand_required_navigation_entity(bool async)
+    {
+        await base.Concat_optional_entity_in_second_operand_required_navigation_entity(async);
+
+        AssertSql(
+            """
+SELECT CASE
+    WHEN [u].[OrderID] IS NULL OR [u].[ProductID] IS NULL THEN -1
+    ELSE [o3].[OrderID]
+END
+FROM (
+    SELECT [o].[OrderID], [o].[ProductID]
+    FROM [Order Details] AS [o]
+    WHERE [o].[OrderID] < 10250
+    UNION ALL
+    SELECT [o2].[OrderID], [o2].[ProductID]
+    FROM [Orders] AS [o0]
+    LEFT JOIN (
+        SELECT [o1].[OrderID], [o1].[ProductID]
+        FROM [Order Details] AS [o1]
+        WHERE [o1].[Quantity] > CAST(1000 AS smallint)
+    ) AS [o2] ON [o0].[OrderID] = [o2].[OrderID]
+    WHERE [o0].[OrderID] < 10252
+) AS [u]
+LEFT JOIN [Orders] AS [o3] ON [u].[OrderID] = [o3].[OrderID]
+""");
+    }
+
+    public override async Task Union_dto_with_members_in_different_order(bool async)
+    {
+        await base.Union_dto_with_members_in_different_order(async);
+
+        AssertSql(
+            """
+SELECT [u].[Key]
+FROM (
+    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o].[CustomerID] AS [Key]
+    FROM [Orders] AS [o]
+    WHERE [o].[OrderID] < 10250
+    UNION
+    SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [o0].[CustomerID] AS [Key]
+    FROM [Orders] AS [o0]
+    WHERE [o0].[OrderID] > 11075
+) AS [u]
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
