@@ -27,6 +27,38 @@ public class ChangeDetectionProxyTests
     }
 
     [Fact]
+    public void Throws_if_property_setter_is_not_visible_to_proxies()
+    {
+        using var context = new ChangeContext<ChangeInternalSetPropEntity>(
+            entityBuilderAction: b => b.Property(e => e.Name));
+        Assert.Equal(
+            ProxiesStrings.NonVisibleProperty(
+                nameof(ChangeInternalSetPropEntity.Name), nameof(ChangeInternalSetPropEntity), "setter"),
+            Assert.Throws<InvalidOperationException>(() => context.Model).Message);
+    }
+
+    [Fact]
+    public void Throws_if_key_property_setter_is_not_visible_to_proxies()
+    {
+        using var context = new ChangeContext<ChangeInternalSetKeyEntity>(
+            entityBuilderAction: b => b.HasKey(e => e.Id));
+        Assert.Equal(
+            ProxiesStrings.NonVisibleProperty(
+                nameof(ChangeInternalSetKeyEntity.Id), nameof(ChangeInternalSetKeyEntity), "setter"),
+            Assert.Throws<InvalidOperationException>(() => context.Model).Message);
+    }
+
+    [Fact]
+    public void Does_not_throw_if_property_setter_is_protected()
+    {
+        using var context = new ChangeContext<ChangeProtectedSetPropEntity>(
+            entityBuilderAction: b => b.Property(e => e.Name));
+        Assert.NotNull(
+            context.Model.FindEntityType(typeof(ChangeProtectedSetPropEntity))!.FindProperty(
+                nameof(ChangeProtectedSetPropEntity.Name)));
+    }
+
+    [Fact]
     public void Throws_if_non_virtual_indexer_property()
     {
         using var context = new ChangeContext<ChangeNonVirtualIndexer>(entityBuilderAction: b => b.IndexerProperty<int>("Snoopy"));
@@ -323,6 +355,25 @@ public class ChangeDetectionProxyTests
     public sealed class ChangeSealedEntity
     {
         public int Id { get; set; }
+    }
+
+    public class ChangeInternalSetPropEntity
+    {
+        public virtual int Id { get; set; }
+
+        public virtual string? Name { get; internal set; }
+    }
+
+    public class ChangeInternalSetKeyEntity
+    {
+        public virtual int Id { get; internal set; }
+    }
+
+    public class ChangeProtectedSetPropEntity
+    {
+        public virtual int Id { get; set; }
+
+        public virtual string? Name { get; protected set; }
     }
 
     public class ChangeNonVirtualPropEntity

@@ -326,6 +326,177 @@ public class ProxyAccessibilityTests
         }
     }
 
+    // Scalar properties: change-tracking proxies must override the setter of every mapped property.
+    [Theory]
+    [MemberData(nameof(AlwaysVisible))]
+    public void Change_tracking_accepts_property_whose_setter_is_always_visible(MethodAttributes setter, bool grant)
+    {
+        var types = EntityFactory.Create(MethodAttributes.Public, MethodAttributes.Public, grant, scalarSetter: setter);
+
+        using var context = new AccessibilityContext(types, useChangeDetection: true);
+
+        AssertPropertyMapped(context, types);
+    }
+
+    [Theory]
+    [MemberData(nameof(OnlyVisibleWithGrant))]
+    public void Change_tracking_accepts_property_whose_setter_is_visible_through_InternalsVisibleTo(MethodAttributes setter)
+    {
+        var types = EntityFactory.Create(
+            MethodAttributes.Public, MethodAttributes.Public, grantInternalsToProxies: true, scalarSetter: setter);
+
+        using var context = new AccessibilityContext(types, useChangeDetection: true);
+
+        AssertPropertyMapped(context, types);
+    }
+
+    [Theory]
+    [MemberData(nameof(OnlyVisibleWithGrant))]
+    public void Change_tracking_throws_if_property_setter_is_not_visible_to_proxies(MethodAttributes setter)
+    {
+        var types = EntityFactory.Create(
+            MethodAttributes.Public, MethodAttributes.Public, grantInternalsToProxies: false, scalarSetter: setter);
+
+        using var context = new AccessibilityContext(types, useChangeDetection: true);
+
+        Assert.Equal(
+            ProxiesStrings.NonVisibleProperty(EntityFactory.PropertyName, types.Principal.Name, "setter"),
+            Assert.Throws<InvalidOperationException>(() => context.Model).Message);
+    }
+
+    [Theory]
+    [MemberData(nameof(NeverVisible))]
+    public void Change_tracking_throws_if_property_setter_can_never_be_visible_to_proxies(MethodAttributes setter, bool grant)
+    {
+        var types = EntityFactory.Create(MethodAttributes.Public, MethodAttributes.Public, grant, scalarSetter: setter);
+
+        using var context = new AccessibilityContext(types, useChangeDetection: true);
+
+        Assert.Equal(
+            ProxiesStrings.NonVisibleProperty(EntityFactory.PropertyName, types.Principal.Name, "setter"),
+            Assert.Throws<InvalidOperationException>(() => context.Model).Message);
+    }
+
+    // Lazy-loading proxies do not intercept scalar properties, so their visibility is irrelevant.
+    [Theory]
+    [InlineData(MethodAttributes.Assembly)]
+    [InlineData(MethodAttributes.Private)]
+    [InlineData(MethodAttributes.FamANDAssem)]
+    public void Lazy_loading_does_not_validate_property_setter_visibility(MethodAttributes setter)
+    {
+        var types = EntityFactory.Create(
+            MethodAttributes.Public, MethodAttributes.Public, grantInternalsToProxies: false, scalarSetter: setter);
+
+        using var context = new AccessibilityContext(types, useLazyLoading: true);
+
+        AssertPropertyMapped(context, types);
+    }
+
+    // Proves that the setter really is intercepted, and not only that the model builds. This is the silent data loss from
+    // https://github.com/dotnet/efcore/issues/39589 when the setter is not visible.
+    [Theory]
+    [InlineData(MethodAttributes.Assembly)]
+    [InlineData(MethodAttributes.FamORAssem)]
+    [InlineData(MethodAttributes.Public)]
+    public void Change_tracking_detects_property_change_when_setter_is_visible_to_proxies(MethodAttributes setter)
+    {
+        var types = EntityFactory.Create(
+            MethodAttributes.Public, MethodAttributes.Public, grantInternalsToProxies: true, scalarSetter: setter);
+        var databaseName = Guid.NewGuid().ToString();
+
+        using (var context = new AccessibilityContext(types, useChangeDetection: true, databaseName: databaseName))
+        {
+            var principal = context.CreateProxy(types.Principal);
+            EntityFactory.SetProperty(principal, EntityFactory.PropertyName, "a");
+
+            context.Add(principal);
+            context.SaveChanges();
+        }
+
+        using (var context = new AccessibilityContext(types, useChangeDetection: true, databaseName: databaseName))
+        {
+            var principal = context.Query(types.Principal).Single();
+
+            Assert.Equal(EntityState.Unchanged, context.Entry(principal).State);
+
+            EntityFactory.SetProperty(principal, EntityFactory.PropertyName, "b");
+
+            // Entry(...).State does not compare snapshots for change-tracking proxies: they use notifications only, so the
+            // entity can only be Modified here if the proxy intercepted the setter and raised the notification.
+            Assert.Equal(EntityState.Modified, context.Entry(principal).State);
+        }
+    }
+
+    // Indexer properties: the indexer setter must be overridable too.
+    [Theory]
+    [MemberData(nameof(AlwaysVisible))]
+    public void Change_tracking_accepts_indexer_whose_setter_is_always_visible(MethodAttributes setter, bool grant)
+    {
+        var types = EntityFactory.Create(MethodAttributes.Public, MethodAttributes.Public, grant, indexerSetter: setter);
+
+        using var context = new AccessibilityContext(types, useChangeDetection: true);
+
+        AssertIndexerMapped(context, types);
+    }
+
+    [Theory]
+    [MemberData(nameof(OnlyVisibleWithGrant))]
+    public void Change_tracking_accepts_indexer_whose_setter_is_visible_through_InternalsVisibleTo(MethodAttributes setter)
+    {
+        var types = EntityFactory.Create(
+            MethodAttributes.Public, MethodAttributes.Public, grantInternalsToProxies: true, indexerSetter: setter);
+
+        using var context = new AccessibilityContext(types, useChangeDetection: true);
+
+        AssertIndexerMapped(context, types);
+    }
+
+    [Theory]
+    [MemberData(nameof(OnlyVisibleWithGrant))]
+    public void Change_tracking_throws_if_indexer_setter_is_not_visible_to_proxies(MethodAttributes setter)
+    {
+        var types = EntityFactory.Create(
+            MethodAttributes.Public, MethodAttributes.Public, grantInternalsToProxies: false, indexerSetter: setter);
+
+        using var context = new AccessibilityContext(types, useChangeDetection: true);
+
+        Assert.Equal(
+            ProxiesStrings.NonVisibleIndexerProperty(types.Principal.Name),
+            Assert.Throws<InvalidOperationException>(() => context.Model).Message);
+    }
+
+    [Theory]
+    [MemberData(nameof(NeverVisible))]
+    public void Change_tracking_throws_if_indexer_setter_can_never_be_visible_to_proxies(MethodAttributes setter, bool grant)
+    {
+        var types = EntityFactory.Create(MethodAttributes.Public, MethodAttributes.Public, grant, indexerSetter: setter);
+
+        using var context = new AccessibilityContext(types, useChangeDetection: true);
+
+        Assert.Equal(
+            ProxiesStrings.NonVisibleIndexerProperty(types.Principal.Name),
+            Assert.Throws<InvalidOperationException>(() => context.Model).Message);
+    }
+
+    [Theory]
+    [InlineData(MethodAttributes.Assembly)]
+    [InlineData(MethodAttributes.Public)]
+    public void Lazy_loading_does_not_validate_indexer_setter_visibility(MethodAttributes setter)
+    {
+        var types = EntityFactory.Create(
+            MethodAttributes.Public, MethodAttributes.Public, grantInternalsToProxies: false, indexerSetter: setter);
+
+        using var context = new AccessibilityContext(types, useLazyLoading: true);
+
+        AssertIndexerMapped(context, types);
+    }
+
+    private static void AssertPropertyMapped(DbContext context, EntityFactory.Types types)
+        => Assert.NotNull(context.Model.FindEntityType(types.Principal)!.FindProperty(EntityFactory.PropertyName));
+
+    private static void AssertIndexerMapped(DbContext context, EntityFactory.Types types)
+        => Assert.NotNull(context.Model.FindEntityType(types.Principal)!.FindProperty(EntityFactory.IndexerPropertyName));
+
     private static void AssertNavigationMapped(DbContext context, EntityFactory.Types types)
         => Assert.NotNull(context.Model.FindEntityType(types.Principal)!.FindNavigation(EntityFactory.NavigationName));
 
@@ -386,6 +557,14 @@ public class ProxyAccessibilityTests
             // Non-public navigations are not found by convention, so they are always configured explicitly.
             var entityTypeBuilder = modelBuilder.Entity(types.Principal);
 
+            // Properties whose setters are not public are not found by convention either.
+            entityTypeBuilder.Property(EntityFactory.PropertyName);
+
+            if (types.HasIndexer)
+            {
+                entityTypeBuilder.IndexerProperty(typeof(int), EntityFactory.IndexerPropertyName);
+            }
+
             if (types.IsCollection)
             {
                 entityTypeBuilder.HasMany(types.Dependent, EntityFactory.NavigationName).WithOne();
@@ -402,15 +581,19 @@ public class ProxyAccessibilityTests
     private static class EntityFactory
     {
         public const string NavigationName = "Nav";
+        public const string PropertyName = "Name";
+        public const string IndexerPropertyName = "Snoopy";
 
-        public sealed record Types(Type Principal, Type Dependent, bool IsCollection);
+        public sealed record Types(Type Principal, Type Dependent, bool IsCollection, bool HasIndexer);
 
         public static Types Create(
             MethodAttributes getter,
             MethodAttributes setter,
             bool grantInternalsToProxies,
             bool collection = false,
-            bool publicTypes = true)
+            bool publicTypes = true,
+            MethodAttributes scalarSetter = MethodAttributes.Public,
+            MethodAttributes? indexerSetter = null)
         {
             var assemblyName = "ProxyAccessibility_" + Guid.NewGuid().ToString("N");
             var assembly = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(assemblyName), AssemblyBuilderAccess.Run);
@@ -434,6 +617,13 @@ public class ProxyAccessibilityTests
             var principal = module.DefineType("Principal", typeVisibility);
             principal.DefineDefaultConstructor(MethodAttributes.Public);
             DefineProperty(principal, "Id", typeof(int), MethodAttributes.Public, MethodAttributes.Public);
+            DefineProperty(principal, PropertyName, typeof(string), MethodAttributes.Public, scalarSetter);
+
+            if (indexerSetter.HasValue)
+            {
+                DefineIndexer(principal, MethodAttributes.Public, indexerSetter.Value);
+            }
+
             DefineProperty(
                 principal,
                 NavigationName,
@@ -442,23 +632,26 @@ public class ProxyAccessibilityTests
                 setter);
             var principalType = principal.CreateType();
 
-            return new Types(principalType, dependentType, collection);
+            return new Types(principalType, dependentType, collection, indexerSetter.HasValue);
         }
 
         public static object? GetNavigation(object principal)
-            => FindNavigation(principal).GetValue(principal);
+            => FindProperty(principal, NavigationName).GetValue(principal);
 
         public static void SetNavigation(object principal, object dependent)
-            => FindNavigation(principal).SetValue(principal, dependent);
+            => FindProperty(principal, NavigationName).SetValue(principal, dependent);
+
+        public static void SetProperty(object principal, string name, object? value)
+            => FindProperty(principal, name).SetValue(principal, value);
 
         private const BindingFlags AnyInstance = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 
         // The instance may be a proxy subclass, which cannot see the non-public accessors declared on its base type.
-        private static PropertyInfo FindNavigation(object principal)
+        private static PropertyInfo FindProperty(object principal, string name)
         {
             for (var type = principal.GetType(); type != null; type = type.BaseType)
             {
-                var property = type.GetProperty(NavigationName, AnyInstance | BindingFlags.DeclaredOnly);
+                var property = type.GetProperty(name, AnyInstance | BindingFlags.DeclaredOnly);
 
                 // A proxy redeclares the property with only the accessors it could override, so skip incomplete declarations.
                 if (property?.GetGetMethod(nonPublic: true) != null
@@ -468,7 +661,30 @@ public class ProxyAccessibilityTests
                 }
             }
 
-            throw new InvalidOperationException($"Navigation '{NavigationName}' not found.");
+            throw new InvalidOperationException($"Property '{name}' not found.");
+        }
+
+        // An indexer of type "object this[string key]" with trivial accessors: it is only used to build models.
+        private static void DefineIndexer(TypeBuilder type, MethodAttributes getterVisibility, MethodAttributes setterVisibility)
+        {
+            type.SetCustomAttribute(
+                new CustomAttributeBuilder(typeof(DefaultMemberAttribute).GetConstructor([typeof(string)])!, ["Item"]));
+
+            var property = type.DefineProperty("Item", PropertyAttributes.None, typeof(object), [typeof(string)]);
+
+            const MethodAttributes common = MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.HideBySig
+                | MethodAttributes.SpecialName;
+
+            var get = type.DefineMethod("get_Item", getterVisibility | common, typeof(object), [typeof(string)]);
+            var getIl = get.GetILGenerator();
+            getIl.Emit(OpCodes.Ldnull);
+            getIl.Emit(OpCodes.Ret);
+
+            var set = type.DefineMethod("set_Item", setterVisibility | common, typeof(void), [typeof(string), typeof(object)]);
+            set.GetILGenerator().Emit(OpCodes.Ret);
+
+            property.SetGetMethod(get);
+            property.SetSetMethod(set);
         }
 
         private static void DefineProperty(

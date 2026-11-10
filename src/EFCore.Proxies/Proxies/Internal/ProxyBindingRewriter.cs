@@ -202,6 +202,11 @@ public class ProxyBindingRewriter : IModelFinalizingConvention
                                             ProxiesStrings.NonVirtualIndexerProperty(entityType.DisplayName()));
                                     }
                                 }
+                                else if (!IsVisibleToProxies(property.PropertyInfo.SetMethod!))
+                                {
+                                    throw new InvalidOperationException(
+                                        ProxiesStrings.NonVisibleIndexerProperty(entityType.DisplayName()));
+                                }
                             }
                         }
                         else
@@ -216,6 +221,13 @@ public class ProxyBindingRewriter : IModelFinalizingConvention
                             {
                                 throw new InvalidOperationException(
                                     ProxiesStrings.NonVirtualProperty(property.Name, entityType.DisplayName()));
+                            }
+
+                            if (property.PropertyInfo.SetMethod is { } propertySetMethod
+                                && !IsVisibleToProxies(propertySetMethod))
+                            {
+                                throw new InvalidOperationException(
+                                    ProxiesStrings.NonVisibleProperty(property.Name, entityType.DisplayName(), "setter"));
                             }
                         }
                     }
