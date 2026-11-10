@@ -3,7 +3,9 @@
 
 using System;
 using System.Data;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite.Properties;
 using Xunit;
@@ -463,5 +465,189 @@ public class SqliteTransactionTest
         Assert.False(transaction.ExternalRollback);
 
         transaction.Rollback();
+    }
+
+    [Fact]
+    public Task BeginTransaction_fails_immediately_when_read_snapshot_is_stale()
+        => WithStaleReadSnapshot(
+            connection =>
+            {
+                var ex = Assert.Throws<SqliteException>(() => connection.BeginTransaction());
+
+                Assert.Equal(SQLITE_BUSY, ex.SqliteErrorCode);
+                Assert.Equal(SQLITE_BUSY_SNAPSHOT, ex.SqliteExtendedErrorCode);
+                return Task.CompletedTask;
+            });
+
+    [Fact]
+    public Task Write_fails_immediately_when_read_snapshot_is_stale()
+        => WithStaleReadSnapshot(
+            connection =>
+            {
+                var ex = Assert.Throws<SqliteException>(() => connection.ExecuteNonQuery("INSERT INTO Data VALUES (4)"));
+
+                Assert.Equal(SQLITE_BUSY_SNAPSHOT, ex.SqliteExtendedErrorCode);
+                return Task.CompletedTask;
+            });
+
+    [Fact]
+    public Task Async_write_fails_immediately_when_read_snapshot_is_stale()
+        => WithStaleReadSnapshot(
+            async connection =>
+            {
+                var command = connection.CreateCommand();
+                command.CommandText = "INSERT INTO Data VALUES (4)";
+
+                var ex = await Assert.ThrowsAsync<SqliteException>(() => command.ExecuteNonQueryAsync());
+
+                Assert.Equal(SQLITE_BUSY_SNAPSHOT, ex.SqliteExtendedErrorCode);
+            });
+
+    // A command timeout of zero means to retry forever, which previously never returned for a stale snapshot.
+    [Fact]
+    public Task Write_fails_immediately_when_read_snapshot_is_stale_and_timeout_is_zero()
+        => WithStaleReadSnapshot(
+            connection =>
+            {
+                var command = connection.CreateCommand();
+                command.CommandText = "INSERT INTO Data VALUES (4)";
+                command.CommandTimeout = 0;
+
+                var ex = Assert.Throws<SqliteException>(() => command.ExecuteNonQuery());
+
+                Assert.Equal(SQLITE_BUSY_SNAPSHOT, ex.SqliteExtendedErrorCode);
+                return Task.CompletedTask;
+            });
+
+    // The snapshot is held by the transaction, so disposing the reader doesn't help.
+    [Fact]
+    public Task Write_in_deferred_transaction_fails_immediately_when_read_snapshot_is_stale()
+        => WithStaleReadSnapshot(
+            connection =>
+            {
+                var ex = Assert.Throws<SqliteException>(() => connection.ExecuteNonQuery("INSERT INTO Data VALUES (4)"));
+
+                Assert.Equal(SQLITE_BUSY_SNAPSHOT, ex.SqliteExtendedErrorCode);
+                return Task.CompletedTask;
+            },
+            deferred: true,
+            disposeReaderFirst: true);
+
+    // Contrast with a stale snapshot: waiting for another writer can succeed, so this must still be retried.
+    [Fact]
+    public async Task Write_is_retried_when_another_connection_holds_write_lock_in_wal_mode()
+    {
+        using var database = new TempDatabase();
+        using var connection = database.Open();
+        connection.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES (1);");
+
+        using var command = connection.CreateCommand();
+        command.CommandText = "SELECT Value FROM Data";
+        using var reader = command.ExecuteReader();
+        Assert.True(reader.Read());
+
+        using var other = database.Open();
+        var transaction = other.BeginTransaction();
+        other.ExecuteNonQuery("INSERT INTO Data VALUES (2)");
+        var release = Task.Run(
+            async () =>
+            {
+                await Task.Delay(1000);
+                transaction.Rollback();
+            });
+
+        var stopwatch = Stopwatch.StartNew();
+        connection.ExecuteNonQuery("INSERT INTO Data VALUES (3)");
+
+        Assert.True(stopwatch.Elapsed >= TimeSpan.FromMilliseconds(500), $"Took {stopwatch.Elapsed}");
+        await release;
+    }
+
+    [Fact]
+    public void Write_is_retried_until_timeout_when_another_connection_holds_write_lock_in_wal_mode()
+    {
+        using var database = new TempDatabase("Default Timeout=1");
+        using var connection = database.Open();
+        connection.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES (1);");
+
+        using var other = database.Open();
+        using var transaction = other.BeginTransaction();
+        other.ExecuteNonQuery("INSERT INTO Data VALUES (2)");
+
+        var stopwatch = Stopwatch.StartNew();
+        var ex = Assert.Throws<SqliteException>(() => connection.ExecuteNonQuery("INSERT INTO Data VALUES (3)"));
+
+        Assert.Equal(SQLITE_BUSY, ex.SqliteErrorCode);
+        Assert.Equal(SQLITE_BUSY, ex.SqliteExtendedErrorCode);
+        Assert.True(stopwatch.Elapsed >= TimeSpan.FromMilliseconds(900), $"Took {stopwatch.Elapsed}");
+    }
+
+    // Waiting for the default 30 second timeout can't help here, since the snapshot stays stale while it is held.
+    private static async Task WithStaleReadSnapshot(
+        Func<SqliteConnection, Task> act,
+        bool deferred = false,
+        bool disposeReaderFirst = false)
+    {
+        using var database = new TempDatabase();
+        using var connection = database.Open();
+        connection.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES (1), (2);");
+
+        using var transaction = deferred ? connection.BeginTransaction(deferred: true) : null;
+        using var command = connection.CreateCommand();
+        command.CommandText = "SELECT Value FROM Data";
+        var reader = command.ExecuteReader();
+        try
+        {
+            Assert.True(reader.Read());
+            if (disposeReaderFirst)
+            {
+                reader.Dispose();
+            }
+
+            using (var other = database.Open())
+            {
+                other.ExecuteNonQuery("INSERT INTO Data VALUES (3)");
+            }
+
+            var stopwatch = Stopwatch.StartNew();
+            await act(connection);
+            Assert.True(stopwatch.Elapsed < TimeSpan.FromSeconds(10), $"Took {stopwatch.Elapsed}");
+        }
+        finally
+        {
+            reader.Dispose();
+        }
+    }
+
+    private sealed class TempDatabase : IDisposable
+    {
+        private readonly string _path = Path.Combine(Path.GetTempPath(), $"{nameof(SqliteTransactionTest)}-{Guid.NewGuid():N}.db");
+        private readonly string _connectionString;
+        private bool _walEnabled;
+
+        public TempDatabase(string options = "")
+            => _connectionString = $"Data Source={_path};Pooling=False;{options}";
+
+        public SqliteConnection Open()
+        {
+            var connection = new SqliteConnection(_connectionString);
+            connection.Open();
+
+            if (!_walEnabled)
+            {
+                Assert.Equal("wal", connection.ExecuteScalar<string>("PRAGMA journal_mode = 'wal';"));
+                _walEnabled = true;
+            }
+
+            return connection;
+        }
+
+        public void Dispose()
+        {
+            foreach (var file in Directory.GetFiles(Path.GetTempPath(), Path.GetFileName(_path) + "*"))
+            {
+                File.Delete(file);
+            }
+        }
     }
 }
