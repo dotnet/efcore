@@ -2925,6 +2925,26 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                     : newExpression.Update(arguments);
             }
 
+            case MemberInitExpression memberInitExpression
+                when memberInitExpression.Bindings.All(b => b is MemberAssignment):
+            {
+                var newExpression = SnapshotExpression(memberInitExpression.NewExpression);
+                var allDefault = newExpression.NodeType == ExpressionType.Default;
+                var bindings = new MemberBinding[memberInitExpression.Bindings.Count];
+                for (var i = 0; i < bindings.Length; i++)
+                {
+                    var binding = (MemberAssignment)memberInitExpression.Bindings[i];
+                    var expression = SnapshotExpression(binding.Expression);
+                    bindings[i] = binding.Update(expression);
+                    allDefault &= expression.NodeType == ExpressionType.Default;
+                }
+
+                return allDefault
+                    ? Expression.Default(memberInitExpression.Type)
+                    : memberInitExpression.Update(
+                        newExpression as NewExpression ?? memberInitExpression.NewExpression, bindings);
+            }
+
             case OwnedNavigationReference ownedNavigationReference:
                 return ownedNavigationReference.EntityReference.Snapshot();
 
@@ -2947,7 +2967,35 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                 when navigationExpansionExpression.CardinalityReducingGenericMethodInfo is not null
                 => UnwrapStructuralTypeReference(navigationExpansionExpression.PendingSelector),
             OwnedNavigationReference ownedNavigationReference => ownedNavigationReference.EntityReference,
+            MemberExpression memberExpression when TryGetSnapshottedMember(memberExpression) is { } snapshottedMember
+                => UnwrapStructuralTypeReference(snapshottedMember),
 
             _ => null,
         };
+
+    // A member of a projection which has been applied to the source, such as e.o where e came out of Select(o => new { o }).Distinct().
+    // The snapshot of the projection knows what the member refers to, even though it's now read off the element.
+    private static Expression? TryGetSnapshottedMember(MemberExpression memberExpression)
+    {
+        var projection = memberExpression.Expression switch
+        {
+            NavigationTreeExpression navigationTreeExpression => navigationTreeExpression.Value,
+            MemberExpression innerMemberExpression => TryGetSnapshottedMember(innerMemberExpression),
+            _ => null
+        };
+
+        switch (projection)
+        {
+            case NewExpression { Members: { } members } newExpression:
+                var index = members.IndexOf(memberExpression.Member);
+                return index >= 0 ? newExpression.Arguments[index] : null;
+
+            case MemberInitExpression memberInitExpression:
+                return memberInitExpression.Bindings.OfType<MemberAssignment>()
+                    .FirstOrDefault(b => b.Member == memberExpression.Member)?.Expression;
+
+            default:
+                return null;
+        }
+    }
 }

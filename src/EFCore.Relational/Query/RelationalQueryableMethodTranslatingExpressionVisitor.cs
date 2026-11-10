@@ -1142,33 +1142,27 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             return null;
         }
 
-        SqlExpression? lowerBound = null;
-        SqlExpression? upperBound = null;
-        if (analyzer.Skip is { } skip
-            && (lowerBound = TranslateExpression(skip)) == null)
+        SqlExpression? skip = null;
+        SqlExpression? take = null;
+        if (analyzer.Skip is { } skipExpression
+            && (skip = TranslateRowLimit(skipExpression)) == null)
         {
             return null;
         }
 
-        if (analyzer.Take is { } take
-            && (upperBound = TranslateExpression(take)) == null)
+        if (analyzer.Take is { } takeExpression
+            && (take = TranslateRowLimit(takeExpression)) == null)
         {
             return null;
         }
 
-        // Take(5).Skip(2) ends at the 5th row of the group; Skip(2).Take(5) at the 7th.
-        if (lowerBound != null && upperBound != null && !analyzer.SkipAfterTake)
-        {
-            upperBound = lowerBound is SqlConstantExpression { Value: int lowerBoundValue }
-                && upperBound is SqlConstantExpression { Value: int upperBoundValue }
-                    ? new SqlConstantExpression(lowerBoundValue + upperBoundValue, upperBound.TypeMapping)
-                    : _sqlExpressionFactory.Add(lowerBound, upperBound);
-        }
+        var rowPredicate = CreateRowsPerGroupPredicate(skip, take, analyzer.SkipAfterTake);
 
-        // Without a limit, the order of the rows within each group would only be observable through a final ordering, which SelectMany
-        // doesn't provide; as for a SelectMany over any other subquery, it's dropped.
+        // With a limit, the orderings decide which rows of each group are kept. Without one, the order of the rows within each group is
+        // only observable when the groups are ordered too, in which case it orders the rows of each group after the grouping terms;
+        // otherwise, as for a SelectMany over any other subquery, it's dropped.
         var orderings = new List<OrderingExpression>();
-        if (lowerBound != null || upperBound != null)
+        if (rowPredicate != null || selectExpression.Orderings.Count > 0)
         {
             foreach (var (orderingKeySelector, ascending) in analyzer.Orderings)
             {
@@ -1189,14 +1183,14 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                 }
             }
 
-            if (orderings.Count == 0)
+            if (rowPredicate != null && orderings.Count == 0)
             {
                 _queryCompilationContext.Logger.RowLimitingOperationWithoutOrderByWarning();
             }
         }
 
         var remappedElementSelectorBody = selectExpression.ApplyRowsPerGroup(
-            analyzer.ElementSelector?.Body, orderings, lowerBound, upperBound, _sqlExpressionFactory);
+            analyzer.ElementSelector?.Body, orderings, rowPredicate, _sqlExpressionFactory);
 
         var shaper = analyzer.ElementSelector is { } elementSelector
             ? _projectionBindingExpressionVisitor.Translate(
@@ -1206,6 +1200,68 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             : groupByShaper.ElementSelector;
 
         return source.UpdateShaperExpression(shaper);
+    }
+
+    // The count of a Skip or a Take over a grouping is the same for every group, so it can't depend on the group, e.g. g.Take(g.Count()).
+    private SqlExpression? TranslateRowLimit(Expression expression)
+        => TranslateExpression(expression) is { } translation and (SqlConstantExpression or SqlParameterExpression)
+            ? translation
+            : null;
+
+    // Builds the filter on a row's ROW_NUMBER() within its group which applies a Skip and/or a Take to each group, or returns null when
+    // every row is kept. Skip(2).Take(5) keeps rows 3 to 7 of each group, Take(5).Skip(2) rows 3 to 5.
+    private Func<SqlExpression, SqlExpression>? CreateRowsPerGroupPredicate(
+        SqlExpression? skip,
+        SqlExpression? take,
+        bool skipAfterTake)
+    {
+        // As in LINQ, a negative Skip skips nothing.
+        if (skip is SqlConstantExpression { Value: int skipValue and <= 0 })
+        {
+            skip = null;
+        }
+
+        if (skip is null)
+        {
+            return take is null ? null : row => _sqlExpressionFactory.LessThanOrEqual(row, take);
+        }
+
+        if (take is null || skipAfterTake)
+        {
+            return take is null
+                ? row => _sqlExpressionFactory.GreaterThan(row, skip)
+                : row => _sqlExpressionFactory.AndAlso(
+                    _sqlExpressionFactory.GreaterThan(row, skip),
+                    _sqlExpressionFactory.LessThanOrEqual(row, take));
+        }
+
+        if (skip is SqlConstantExpression { Value: int constantSkip })
+        {
+            if (take is SqlConstantExpression { Value: int constantTake })
+            {
+                // Adding the counts can overflow, e.g. Skip(1).Take(int.MaxValue); no row is numbered beyond int.MaxValue anyway.
+                var end = (long)constantSkip + constantTake;
+                return end >= int.MaxValue
+                    ? row => _sqlExpressionFactory.GreaterThan(row, skip)
+                    : row => _sqlExpressionFactory.AndAlso(
+                        _sqlExpressionFactory.GreaterThan(row, skip),
+                        _sqlExpressionFactory.LessThanOrEqual(
+                            row, _sqlExpressionFactory.Constant((int)end, take.TypeMapping)));
+            }
+
+            // Subtract from the row number rather than adding the counts, which could overflow: ROW_NUMBER() is a bigint.
+            return row => _sqlExpressionFactory.AndAlso(
+                _sqlExpressionFactory.GreaterThan(row, skip),
+                _sqlExpressionFactory.LessThanOrEqual(_sqlExpressionFactory.Subtract(row, skip), take));
+        }
+
+        // A parameter's value isn't known, so the row number is compared to the Take on its own as well, which ends the rows at the
+        // Take for a negative Skip and changes nothing otherwise.
+        return row => _sqlExpressionFactory.AndAlso(
+            _sqlExpressionFactory.GreaterThan(row, skip),
+            _sqlExpressionFactory.OrElse(
+                _sqlExpressionFactory.LessThanOrEqual(_sqlExpressionFactory.Subtract(row, skip), take),
+                _sqlExpressionFactory.LessThanOrEqual(row, take)));
     }
 
     /// <summary>

@@ -1966,16 +1966,16 @@ public sealed partial class SelectExpression : TableExpressionBase
         return sqlRemappingVisitor.Visit(projection);
     }
 
-    // Keeps the rows of each group in place of the grouping, optionally only those numbered after `lowerBound` and up to `upperBound` by
-    // ROW_NUMBER() OVER(PARTITION BY <grouping terms> ORDER BY <orderings>), which is how a Skip or a Take applies to each group.
+    // Keeps the rows of each group in place of the grouping, optionally only those whose ROW_NUMBER() OVER(PARTITION BY <grouping terms>
+    // ORDER BY <orderings>) satisfies `rowPredicate`, which is how a Skip or a Take applies to each group. When the groups are ordered,
+    // `orderings` also order the rows of each group after the grouping terms.
     // `projection` is an expression over the grouping terms (e.g. the key selector), returned remapped to the new columns.
     // Internal infrastructure: only called from RelationalQueryableMethodTranslatingExpressionVisitor.
     [return: NotNullIfNotNull(nameof(projection))]
     internal Expression? ApplyRowsPerGroup(
         Expression? projection,
         IReadOnlyList<OrderingExpression> orderings,
-        SqlExpression? lowerBound,
-        SqlExpression? upperBound,
+        Func<SqlExpression, SqlExpression>? rowPredicate,
         ISqlExpressionFactory sqlExpressionFactory)
     {
         Check.DebugAssert(_groupBy.Count > 0, "The selectExpression doesn't have grouping terms.");
@@ -1984,8 +1984,17 @@ public sealed partial class SelectExpression : TableExpressionBase
             "Grouped SelectExpression has state over the groups.");
 
         var partitions = RemoveGrouping();
-        if (lowerBound is null && upperBound is null)
+        var ordered = _orderings.Count > 0;
+        if (rowPredicate is null)
         {
+            if (ordered)
+            {
+                foreach (var ordering in orderings)
+                {
+                    AppendOrdering(ordering);
+                }
+            }
+
             return projection;
         }
 
@@ -1994,14 +2003,14 @@ public sealed partial class SelectExpression : TableExpressionBase
         var sqlRemappingVisitor = PushdownIntoSubqueryInternal();
         var subquery = (SelectExpression)_tables[0];
         var rowNumberColumn = subquery.GenerateOuterColumn(subquery.Alias!, rowNumberExpression, "row");
-        if (lowerBound is not null)
-        {
-            ApplyPredicate(sqlExpressionFactory.GreaterThan(rowNumberColumn, lowerBound));
-        }
+        ApplyPredicate(rowPredicate(rowNumberColumn));
 
-        if (upperBound is not null)
+        if (ordered)
         {
-            ApplyPredicate(sqlExpressionFactory.LessThanOrEqual(rowNumberColumn, upperBound));
+            foreach (var ordering in orderings)
+            {
+                AppendOrdering((OrderingExpression)sqlRemappingVisitor.Visit(ordering));
+            }
         }
 
         return sqlRemappingVisitor.Visit(projection);
