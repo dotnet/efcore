@@ -54,18 +54,8 @@ public class ByteArrayTranslationsCosmosTest : ByteArrayTranslationsTestBase<Bas
     public override Task Concat_chained()
         => AssertTranslationFailed(base.Concat_chained);
 
-    public override async Task Concat_in_projection()
-    {
-        // Concat isn't translated, but it's evaluated on the client in the top-level projection
-        await base.Concat_in_projection();
-
-        AssertSql(
-            """
-SELECT VALUE c["ByteArray"]
-FROM root c
-ORDER BY c["Id"]
-""");
-    }
+    public override Task Concat_in_projection()
+        => AssertTranslationFailed(base.Concat_in_projection);
 
     public override Task Concat_SequenceEqual()
         => AssertTranslationFailed(base.Concat_SequenceEqual);
