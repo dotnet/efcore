@@ -994,6 +994,84 @@ FROM (
 """);
     }
 
+    public override async Task Union_of_FromSql_with_differently_named_db_parameters_hardcoded_in_sql(bool async)
+    {
+        await base.Union_of_FromSql_with_differently_named_db_parameters_hardcoded_in_sql(async);
+
+        AssertSql(
+            """
+city1='Seattle' (Nullable = false) (Size = 7)
+city2='London' (Nullable = false) (Size = 6)
+
+SELECT [m].[CustomerID], [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[Fax], [m].[Phone], [m].[PostalCode], [m].[Region]
+FROM (
+    SELECT * FROM "Customers" WHERE "City" = @city1
+) AS [m]
+UNION
+SELECT [m0].[CustomerID], [m0].[Address], [m0].[City], [m0].[CompanyName], [m0].[ContactName], [m0].[ContactTitle], [m0].[Country], [m0].[Fax], [m0].[Phone], [m0].[PostalCode], [m0].[Region]
+FROM (
+    SELECT * FROM "Customers" WHERE "City" = @city2
+) AS [m0]
+""");
+    }
+
+    public override async Task Union_of_FromSql_with_same_named_db_parameters_hardcoded_then_positional(bool async)
+    {
+        await base.Union_of_FromSql_with_same_named_db_parameters_hardcoded_then_positional(async);
+
+        AssertSql(
+            """
+city='Seattle' (Nullable = false) (Size = 7)
+city0='London' (Nullable = false) (Size = 6)
+
+SELECT [m].[CustomerID], [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[Fax], [m].[Phone], [m].[PostalCode], [m].[Region]
+FROM (
+    SELECT * FROM "Customers" WHERE "City" = @city
+) AS [m]
+UNION
+SELECT [m0].[CustomerID], [m0].[Address], [m0].[City], [m0].[CompanyName], [m0].[ContactName], [m0].[ContactTitle], [m0].[Country], [m0].[Fax], [m0].[Phone], [m0].[PostalCode], [m0].[Region]
+FROM (
+    SELECT * FROM "Customers" WHERE "City" = @city0
+) AS [m0]
+""");
+    }
+
+    public override async Task FromSqlRaw_compiled_with_same_named_db_parameters_positional_in_sql(bool async)
+    {
+        await base.FromSqlRaw_compiled_with_same_named_db_parameters_positional_in_sql(async);
+
+        AssertSql(
+            """
+city='Seattle' (Nullable = false) (Size = 7)
+city0='London' (Nullable = false) (Size = 6)
+
+SELECT [m].[CustomerID], [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[Fax], [m].[Phone], [m].[PostalCode], [m].[Region]
+FROM (
+    SELECT * FROM "Customers" WHERE "City" = @city
+) AS [m]
+UNION
+SELECT [m0].[CustomerID], [m0].[Address], [m0].[City], [m0].[CompanyName], [m0].[ContactName], [m0].[ContactTitle], [m0].[Country], [m0].[Fax], [m0].[Phone], [m0].[PostalCode], [m0].[Region]
+FROM (
+    SELECT * FROM "Customers" WHERE "City" = @city0
+) AS [m0]
+""",
+            //
+            """
+city='Seattle' (Nullable = false) (Size = 7)
+city0='London' (Nullable = false) (Size = 6)
+
+SELECT [m].[CustomerID], [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[Fax], [m].[Phone], [m].[PostalCode], [m].[Region]
+FROM (
+    SELECT * FROM "Customers" WHERE "City" = @city
+) AS [m]
+UNION
+SELECT [m0].[CustomerID], [m0].[Address], [m0].[City], [m0].[CompanyName], [m0].[ContactName], [m0].[ContactTitle], [m0].[Country], [m0].[Fax], [m0].[Phone], [m0].[PostalCode], [m0].[Region]
+FROM (
+    SELECT * FROM "Customers" WHERE "City" = @city0
+) AS [m0]
+""");
+    }
+
     public override async Task FromSql_GroupBy_non_reducing_Select(bool async)
     {
         await base.FromSql_GroupBy_non_reducing_Select(async);
