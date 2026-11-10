@@ -51,7 +51,8 @@ public static class SqliteEventId
         UniqueConstraintFound = CoreEventId.ProviderDesignBaseId + 9,
         InferringTypes = CoreEventId.ProviderDesignBaseId + 10,
         OutOfRangeWarning = CoreEventId.ProviderDesignBaseId + 11,
-        FormatWarning = CoreEventId.ProviderDesignBaseId + 12
+        FormatWarning = CoreEventId.ProviderDesignBaseId + 12,
+        ExpressionIndexSkippedWarning = CoreEventId.ProviderDesignBaseId + 13
     }
 
     private static readonly string ValidationPrefix = DbLoggerCategory.Model.Validation.Name + ".";
@@ -257,4 +258,12 @@ public static class SqliteEventId
     ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
     /// </remarks>
     public static readonly EventId FormatWarning = MakeScaffoldingId(Id.FormatWarning);
+
+    /// <summary>
+    ///     An index defined on an expression was skipped because indexes on expressions are not supported.
+    /// </summary>
+    /// <remarks>
+    ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
+    /// </remarks>
+    public static readonly EventId ExpressionIndexSkippedWarning = MakeScaffoldingId(Id.ExpressionIndexSkippedWarning);
 }
