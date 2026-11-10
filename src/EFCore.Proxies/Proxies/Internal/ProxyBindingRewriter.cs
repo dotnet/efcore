@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Castle.DynamicProxy;
 using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Proxies.Internal;
@@ -92,6 +93,13 @@ public class ProxyBindingRewriter : IModelFinalizingConvention
                                 throw new InvalidOperationException(
                                     ProxiesStrings.NonVirtualProperty(navigationBase.Name, entityType.DisplayName()));
                             }
+
+                            if (navigationBase.PropertyInfo.SetMethod is { } setMethod
+                                && !IsVisibleToProxies(setMethod))
+                            {
+                                throw new InvalidOperationException(
+                                    ProxiesStrings.NonVisibleProperty(navigationBase.Name, entityType.DisplayName(), "setter"));
+                            }
                         }
 
                         if (_options.UseLazyLoadingProxies
@@ -111,6 +119,16 @@ public class ProxyBindingRewriter : IModelFinalizingConvention
 
                                     throw new InvalidOperationException(
                                         ProxiesStrings.NonVirtualProperty(navigationBase.Name, entityType.DisplayName()));
+                                }
+                            }
+                            else if (!IsVisibleToProxies(navigationBase.PropertyInfo.GetMethod!))
+                            {
+                                // The proxy cannot override the getter, so the navigation would silently never be loaded.
+                                if (!_options.IgnoreNonVirtualNavigations
+                                    && navigationBase is not INavigation { ForeignKey.IsOwnership: true })
+                                {
+                                    throw new InvalidOperationException(
+                                        ProxiesStrings.NonVisibleProperty(navigationBase.Name, entityType.DisplayName(), "getter"));
                                 }
                             }
                             else
@@ -205,4 +223,12 @@ public class ProxyBindingRewriter : IModelFinalizingConvention
             }
         }
     }
+
+    // Defer to Castle so that the rules match exactly what the proxy generator can override, including
+    // [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]. Castle also requires the declaring type itself to be accessible,
+    // but an inaccessible entity type already fails with Castle's own error when a proxy is created, so only the visibility of
+    // the accessor is validated here.
+    private static bool IsVisibleToProxies(MethodInfo method)
+        => !ProxyUtil.IsAccessible(method.DeclaringType!)
+            || ProxyUtil.IsAccessible(method, out _);
 }
