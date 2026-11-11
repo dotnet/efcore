@@ -154,18 +154,18 @@ public abstract class ModelCodeGeneratorTestBase(ModelCodeGeneratorTestFixture f
     protected static void AssertFileContents(
         string expectedCode,
         ScaffoldedFile file)
-        => Assert.Equal(expectedCode, file.Code.TrimEnd(), ignoreLineEndingDifferences: true);
+        // Scaffolded code always uses LF; the expected code in the tests may have been checked out with CRLF.
+        => Assert.Equal(expectedCode.Replace("\r\n", "\n"), file.Code.TrimEnd());
 
     protected static void AssertContains(
         string expected,
         string actual)
     {
-        // Normalize line endings to Environment.Newline
+        // Scaffolded code always uses LF
         expected = expected
             .Replace("\r\n", "\n")
             .Replace("\n\r", "\n")
-            .Replace("\r", "\n")
-            .Replace("\n", Environment.NewLine);
+            .Replace("\r", "\n");
 
         Assert.Contains(expected, actual);
     }

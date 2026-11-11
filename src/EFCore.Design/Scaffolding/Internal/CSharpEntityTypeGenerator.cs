@@ -58,16 +58,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             this.Write("namespace ");
             this.Write(this.ToStringHelper.ToStringWithCulture(NamespaceHint));
-            this.Write(";\r\n\r\n");
+            this.Write(";\n\n");
 
     }
 
     if (!string.IsNullOrEmpty(EntityType.GetComment()))
     {
 
-            this.Write("/// <summary>\r\n/// ");
+            this.Write("/// <summary>\n/// ");
             this.Write(this.ToStringHelper.ToStringWithCulture(code.XmlComment(EntityType.GetComment())));
-            this.Write("\r\n/// </summary>\r\n");
+            this.Write("\n/// </summary>\n");
 
     }
 
@@ -77,29 +77,29 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
 
             this.Write(this.ToStringHelper.ToStringWithCulture(code.Fragment(dataAnnotation)));
-            this.Write("\r\n");
+            this.Write("\n");
 
         }
     }
 
             this.Write("public partial class ");
             this.Write(this.ToStringHelper.ToStringWithCulture(EntityType.Name));
-            this.Write("\r\n{\r\n");
+            this.Write("\n{\n");
 
     var firstProperty = true;
     foreach (var property in EntityType.GetProperties().OrderBy(p => p.GetColumnOrder() ?? -1))
     {
         if (!firstProperty)
         {
-            WriteLine("");
+            Write("\n");
         }
 
         if (!string.IsNullOrEmpty(property.GetComment()))
         {
 
-            this.Write("    /// <summary>\r\n    /// ");
+            this.Write("    /// <summary>\n    /// ");
             this.Write(this.ToStringHelper.ToStringWithCulture(code.XmlComment(property.GetComment(), indent: 1)));
-            this.Write("\r\n    /// </summary>\r\n");
+            this.Write("\n    /// </summary>\n");
 
         }
 
@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             this.Write("    ");
             this.Write(this.ToStringHelper.ToStringWithCulture(code.Fragment(dataAnnotation)));
-            this.Write("\r\n");
+            this.Write("\n");
 
             }
         }
@@ -129,14 +129,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             this.Write(this.ToStringHelper.ToStringWithCulture(property.Name));
             this.Write(" { get; set; }");
             this.Write(this.ToStringHelper.ToStringWithCulture(needsInitializer ? " = null!;" : ""));
-            this.Write("\r\n");
+            this.Write("\n");
 
         firstProperty = false;
     }
 
     foreach (var navigation in EntityType.GetNavigations())
     {
-        WriteLine("");
+        Write("\n");
 
         if (Options.UseDataAnnotations)
         {
@@ -145,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             this.Write("    ");
             this.Write(this.ToStringHelper.ToStringWithCulture(code.Fragment(dataAnnotation)));
-            this.Write("\r\n");
+            this.Write("\n");
 
             }
         }
@@ -160,7 +160,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             this.Write(this.ToStringHelper.ToStringWithCulture(navigation.Name));
             this.Write(" { get; set; } = new List<");
             this.Write(this.ToStringHelper.ToStringWithCulture(targetType));
-            this.Write(">();\r\n");
+            this.Write(">();\n");
 
         }
         else
@@ -175,14 +175,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             this.Write(this.ToStringHelper.ToStringWithCulture(navigation.Name));
             this.Write(" { get; set; }");
             this.Write(this.ToStringHelper.ToStringWithCulture(needsInitializer ? " = null!;" : ""));
-            this.Write("\r\n");
+            this.Write("\n");
 
         }
     }
 
     foreach (var skipNavigation in EntityType.GetSkipNavigations())
     {
-        WriteLine("");
+        Write("\n");
 
         if (Options.UseDataAnnotations)
         {
@@ -191,7 +191,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             this.Write("    ");
             this.Write(this.ToStringHelper.ToStringWithCulture(code.Fragment(dataAnnotation)));
-            this.Write("\r\n");
+            this.Write("\n");
 
             }
         }
@@ -202,11 +202,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             this.Write(this.ToStringHelper.ToStringWithCulture(skipNavigation.Name));
             this.Write(" { get; set; } = new List<");
             this.Write(this.ToStringHelper.ToStringWithCulture(skipNavigation.TargetEntityType.Name));
-            this.Write(">();\r\n");
+            this.Write(">();\n");
 
     }
 
-            this.Write("}\r\n");
+            this.Write("}\n");
 
     var previousOutput = GenerationEnvironment;
     GenerationEnvironment = new StringBuilder();
@@ -216,11 +216,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             this.Write("using ");
             this.Write(this.ToStringHelper.ToStringWithCulture(ns));
-            this.Write(";\r\n");
+            this.Write(";\n");
 
     }
 
-    WriteLine("");
+    Write("\n");
 
     GenerationEnvironment.Append(previousOutput);
 
@@ -502,7 +502,7 @@ if ((NamespaceHintValueAcquired == false))
                 this.endsWithNewline = false;
             }
             // Check if the current text ends with a newline
-            if (textToAppend.EndsWith(global::System.Environment.NewLine, global::System.StringComparison.CurrentCulture))
+            if (textToAppend.EndsWith("\n", global::System.StringComparison.Ordinal))
             {
                 this.endsWithNewline = true;
             }
@@ -514,7 +514,7 @@ if ((NamespaceHintValueAcquired == false))
                 return;
             }
             // Everywhere there is a newline in the text, add an indent after it
-            textToAppend = textToAppend.Replace(global::System.Environment.NewLine, (global::System.Environment.NewLine + this.currentIndentField));
+            textToAppend = textToAppend.Replace("\n", ("\n" + this.currentIndentField));
             // If the text ends with a newline, then we should strip off the indent added at the very end
             // because the appropriate indent will be added when the next time Write() is called
             if (this.endsWithNewline)
@@ -532,7 +532,7 @@ if ((NamespaceHintValueAcquired == false))
         public void WriteLine(string textToAppend)
         {
             this.Write(textToAppend);
-            this.GenerationEnvironment.AppendLine();
+            this.GenerationEnvironment.Append('\n');
             this.endsWithNewline = true;
         }
         /// <summary>

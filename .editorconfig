@@ -44,6 +44,10 @@ indent_size = 2
 end_of_line = crlf
 indent_size = 2
 
+# Scaffolding templates and their pre-processed output: line breaks here end up in scaffolded code, which is always LF
+[src/EFCore.Design/Scaffolding/Internal/CSharp{DbContext,EntityType}Generator.{tt,cs}]
+end_of_line = lf
+
 ## Language conventions
 # Dotnet code style settings:
 [*.{cs,vb}]
