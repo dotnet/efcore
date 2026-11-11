@@ -672,6 +672,30 @@ public abstract class StringTranslationsTestBase<TFixture>(TFixture fixture) : Q
     public virtual Task Trim_with_char_array_argument_in_predicate()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.String.Trim(new[] { 'S', 'e' }) == "attl"));
 
+    [Fact]
+    public virtual Task Trim_with_char_parameter_in_predicate()
+    {
+        var trimChar = 'S';
+
+        return AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.String.Trim(trimChar) == "eattle"));
+    }
+
+    [Fact]
+    public virtual Task Trim_with_non_ASCII_char_parameter_in_predicate()
+    {
+        var trimChar = 'ş';
+
+        return AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.String.Trim(trimChar) == c.String));
+    }
+
+    [Fact]
+    public virtual Task Trim_with_char_array_parameter_in_predicate()
+    {
+        var trimChars = new[] { 'S', 'e' };
+
+        return AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.String.Trim(trimChars) == "attl"));
+    }
+
     #endregion Trim
 
     #region Compare

@@ -62,19 +62,7 @@ public class SqlServerStringMethodTranslator(
                     // also an overload that accepts the characters to trim.
                     nameof(string.TrimStart) => TranslateTrimStartEnd(instance, arguments, "LTRIM"),
                     nameof(string.TrimEnd) => TranslateTrimStartEnd(instance, arguments, "RTRIM"),
-                    nameof(string.Trim) when arguments is [] or [SqlConstantExpression { Value: char[] { Length: 0 } }]
-                        => sqlExpressionFactory.Function(
-                            "LTRIM",
-                            [
-                                sqlExpressionFactory.Function(
-                                    "RTRIM", [instance], nullable: true,
-                                    argumentsPropagateNullability: Statics.TrueArrays[1],
-                                    instance.Type, instance.TypeMapping)
-                            ],
-                            nullable: true,
-                            argumentsPropagateNullability: Statics.TrueArrays[1],
-                            instance.Type,
-                            instance.TypeMapping),
+                    nameof(string.Trim) => TranslateTrim(instance, arguments),
 
                     _ => null
                 }
@@ -185,7 +173,7 @@ public class SqlServerStringMethodTranslator(
         {
             // No args or empty char[] constant - whitespace trim, always supported
             [] or [SqlConstantExpression { Value: char[] { Length: 0 } }]
-                => ProcessTrimStartEnd(instance, arguments, functionName),
+                => ProcessTrim(instance, arguments, functionName),
 
             // Char or char[] argument - requires SQL Server 2022+ (compatibility level 160)
             [_] when (sqlServerSingletonOptions.EngineType == SqlServerEngineType.SqlServer
@@ -193,7 +181,37 @@ public class SqlServerStringMethodTranslator(
                 || (sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSql
                     && sqlServerSingletonOptions.AzureSqlCompatibilityLevel >= 160)
                 || sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSynapse
-                => ProcessTrimStartEnd(instance, arguments, functionName),
+                => ProcessTrim(instance, arguments, functionName),
+
+            _ => null
+        };
+
+    private SqlExpression? TranslateTrim(SqlExpression instance, IReadOnlyList<SqlExpression> arguments)
+        => arguments switch
+        {
+            // No args or empty char[] constant - whitespace trim, always supported
+            [] or [SqlConstantExpression { Value: char[] { Length: 0 } }]
+                => sqlExpressionFactory.Function(
+                    "LTRIM",
+                    [
+                        sqlExpressionFactory.Function(
+                            "RTRIM", [instance], nullable: true,
+                            argumentsPropagateNullability: Statics.TrueArrays[1],
+                            instance.Type, instance.TypeMapping)
+                    ],
+                    nullable: true,
+                    argumentsPropagateNullability: Statics.TrueArrays[1],
+                    instance.Type,
+                    instance.TypeMapping),
+
+            // Char or char[] argument - TRIM(characters FROM string) requires SQL Server 2017+ (compatibility level 140).
+            // SqlServerQuerySqlGenerator generates this syntax for a TRIM function with two arguments.
+            [_] when (sqlServerSingletonOptions.EngineType == SqlServerEngineType.SqlServer
+                    && sqlServerSingletonOptions.SqlServerCompatibilityLevel >= 140)
+                || (sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSql
+                    && sqlServerSingletonOptions.AzureSqlCompatibilityLevel >= 140)
+                || sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSynapse
+                => ProcessTrim(instance, arguments, "TRIM"),
 
             _ => null
         };
@@ -290,7 +308,7 @@ public class SqlServerStringMethodTranslator(
             _ => sqlExpressionFactory.ApplyTypeMapping(expression, stringTypeMapping)
         };
 
-    private SqlExpression? ProcessTrimStartEnd(SqlExpression instance, IReadOnlyList<SqlExpression> arguments, string functionName)
+    private SqlExpression? ProcessTrim(SqlExpression instance, IReadOnlyList<SqlExpression> arguments, string functionName)
     {
         SqlExpression? charactersToTrim = null;
         if (arguments.Count > 0)
@@ -308,7 +326,7 @@ public class SqlServerStringMethodTranslator(
                 case { Type: var argumentType } when argumentType == typeof(char):
                     // SQL Server has no char type, so a non-constant char (e.g. a parameter) is sent as a one-character string by
                     // composing a converter on the instance's string type mapping. Applying the string type mapping directly would
-                    // send the value as nvarchar(max), which LTRIM/RTRIM don't accept for the characters argument.
+                    // send the value as nvarchar(max), which LTRIM/RTRIM/TRIM don't accept for the characters argument.
                     var stringTypeMapping = instance.TypeMapping ?? sqlExpressionFactory.ApplyDefaultTypeMapping(instance)!.TypeMapping!;
                     charactersToTrim = sqlExpressionFactory.ApplyTypeMapping(
                         arguments[0], (RelationalTypeMapping)stringTypeMapping.WithComposedConverter(new CharToStringConverter()));
