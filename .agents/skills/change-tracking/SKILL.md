@@ -36,6 +36,7 @@ Unit tests: `test/EFCore.Tests/ChangeTracking/`. Functional tests: `test/EFCore.
 | Pitfall | Solution |
 |---------|----------|
 | State-based checks treat every Added/Deleted entry as a replacement | Scope replacement behavior through `SharedIdentityEntry` and the graph source |
+| Tracking fails part-way (e.g. a key conflict in an identity map) and leaves the entry half-registered | `StartTracking` and `UpdateIdentityMap` must undo their own registrations before rethrowing; keys are processed sorted by property count then name, so the primary key is not always first |
 
 ## Validation
 

@@ -495,6 +495,439 @@ public class StateManagerTest
                 })).Message);
     }
 
+    [Theory, InlineData(EntityState.Added), InlineData(EntityState.Unchanged), InlineData(EntityState.Modified),
+     InlineData(EntityState.Deleted)]
+    public void Failed_tracking_due_to_alternate_key_conflict_leaves_nothing_registered(EntityState state)
+    {
+        using var context = new FailedTrackingContext();
+        var stateManager = GetStateManager(context);
+        var primaryKey = context.Model.FindEntityType(typeof(FailedTrackingMultiKey))!.FindPrimaryKey()!;
+        var existing = context.Attach(new FailedTrackingMultiKey { Id = 77, Code = 66, Zip = 55 }).Entity;
+
+        // Keys are registered in the order Code, Id, Zip, so the primary key is registered before the conflict is found.
+        var conflicting = new FailedTrackingMultiKey { Id = 78, Code = 67, Zip = 55 };
+        Assert.Throws<InvalidOperationException>(() => context.Entry(conflicting).State = state);
+
+        Assert.Same(existing, Assert.Single(context.ChangeTracker.Entries()).Entity);
+        Assert.Null(stateManager.TryGetEntry(primaryKey, new object[] { 78 }));
+        Assert.Equal(EntityState.Detached, context.Entry(conflicting).State);
+        Assert.False(context.ChangeTracker.HasChanges());
+
+        // None of the keys of the conflicting entity is reserved.
+        context.Attach(new FailedTrackingMultiKey { Id = 78, Code = 67, Zip = 56 });
+        Assert.Equal(2, context.ChangeTracker.Entries().Count());
+
+        // And the context can still be used to save changes.
+        Assert.Equal(0, context.SaveChanges());
+    }
+
+    [Fact]
+    public void Failed_tracking_due_to_primary_key_conflict_leaves_nothing_registered()
+    {
+        using var context = new FailedTrackingContext();
+        var existing = context.Attach(new FailedTrackingSingle { Id = 77, AlternateId = 66 }).Entity;
+
+        var conflicting = new FailedTrackingSingle { Id = 77, AlternateId = 67 };
+        Assert.Throws<InvalidOperationException>(() => context.Attach(conflicting));
+
+        Assert.Same(existing, Assert.Single(context.ChangeTracker.Entries()).Entity);
+        Assert.Equal(EntityState.Detached, context.Entry(conflicting).State);
+
+        // The alternate key of the conflicting entity is not reserved.
+        context.Attach(new FailedTrackingSingle { Id = 78, AlternateId = 67 });
+        Assert.Equal(2, context.ChangeTracker.Entries().Count());
+    }
+
+    [Fact]
+    public void Failed_tracking_due_to_composite_alternate_key_conflict_leaves_nothing_registered()
+    {
+        using var context = new FailedTrackingContext();
+        var existing = context.Attach(new FailedTrackingComposite { Id1 = 1, Id2 = 1, Zip1 = 5, Zip2 = 6 }).Entity;
+
+        var conflicting = new FailedTrackingComposite { Id1 = 1, Id2 = 2, Zip1 = 5, Zip2 = 6 };
+        Assert.Throws<InvalidOperationException>(() => context.Add(conflicting));
+
+        Assert.Same(existing, Assert.Single(context.ChangeTracker.Entries()).Entity);
+
+        // Neither key of the conflicting entity is reserved.
+        context.Attach(new FailedTrackingComposite { Id1 = 1, Id2 = 2, Zip1 = 5, Zip2 = 7 });
+        Assert.Equal(2, context.ChangeTracker.Entries().Count());
+    }
+
+    [Fact]
+    public void Entity_can_be_tracked_after_failed_tracking_once_the_conflict_is_resolved()
+    {
+        using var context = new FailedTrackingContext();
+        var existing = context.Attach(new FailedTrackingSingle { Id = 77, AlternateId = 66 }).Entity;
+
+        var conflicting = new FailedTrackingSingle { Id = 78, AlternateId = 66 };
+        var entry = context.Entry(conflicting);
+        Assert.Throws<InvalidOperationException>(() => context.Add(conflicting));
+
+        context.Entry(existing).State = EntityState.Detached;
+        context.Add(conflicting);
+
+        // The same entry is used before and after the failure.
+        Assert.Same(entry.GetInfrastructure(), context.Entry(conflicting).GetInfrastructure());
+        Assert.Equal(EntityState.Added, entry.State);
+        Assert.Same(conflicting, Assert.Single(context.ChangeTracker.Entries()).Entity);
+    }
+
+    [Fact]
+    public void Failed_tracking_does_not_unregister_deleted_entry_sharing_the_primary_key()
+    {
+        using var context = new FailedTrackingContext();
+        var stateManager = GetStateManager(context);
+        var primaryKey = context.Model.FindEntityType(typeof(FailedTrackingMultiKey))!.FindPrimaryKey()!;
+
+        var first = context.Attach(new FailedTrackingMultiKey { Id = 1, Code = 1, Zip = 1 }).Entity;
+        context.Attach(new FailedTrackingMultiKey { Id = 3, Code = 3, Zip = 3 });
+        context.Remove(first);
+        var firstEntry = context.Entry(first).GetInfrastructure();
+
+        // Keys are ordered Code, Id, Zip, so the primary key shares its identity with the deleted entry
+        // before the Zip key conflict is found.
+        Assert.Throws<InvalidOperationException>(
+            () => context.Add(new FailedTrackingMultiKey { Id = 1, Code = 2, Zip = 3 }));
+
+        Assert.Same(firstEntry, stateManager.TryGetEntry(primaryKey, new object[] { 1 }));
+        Assert.Null(firstEntry.SharedIdentityEntry);
+        Assert.Equal(EntityState.Deleted, firstEntry.EntityState);
+
+        // The deleted entry can still be replaced by a new entry with the same primary key.
+        var replacementEntry = context.Entry(
+            context.Add(new FailedTrackingMultiKey { Id = 1, Code = 4, Zip = 4 }).Entity).GetInfrastructure();
+
+        Assert.Same(firstEntry, replacementEntry.SharedIdentityEntry);
+        Assert.Same(replacementEntry, firstEntry.SharedIdentityEntry);
+        Assert.Same(replacementEntry, stateManager.TryGetEntry(primaryKey, new object[] { 1 }));
+    }
+
+    [Fact]
+    public void Failed_tracking_raises_Tracking_but_not_Tracked_or_StateChanged()
+    {
+        using var context = new FailedTrackingContext();
+        context.Attach(new FailedTrackingSingle { Id = 77, AlternateId = 66 });
+
+        var tracking = 0;
+        var tracked = 0;
+        var stateChanged = 0;
+        context.ChangeTracker.Tracking += (_, _) => tracking++;
+        context.ChangeTracker.Tracked += (_, _) => tracked++;
+        context.ChangeTracker.StateChanged += (_, _) => stateChanged++;
+
+        Assert.Throws<InvalidOperationException>(
+            () => context.Attach(new FailedTrackingSingle { Id = 78, AlternateId = 66 }));
+
+        // Tracking is raised before the entity is registered, so it can't know that registration will fail.
+        Assert.Equal(1, tracking);
+        Assert.Equal(0, tracked);
+        Assert.Equal(0, stateChanged);
+    }
+
+    [Fact]
+    public void Failed_alternate_key_change_leaves_entry_registered_under_its_old_key()
+    {
+        using var context = new FailedTrackingContext();
+        context.ChangeTracker.AutoDetectChangesEnabled = false;
+        var stateManager = GetStateManager(context);
+        var alternateKey = context.Model.FindEntityType(typeof(FailedTrackingSingle))!.GetKeys().Single(k => !k.IsPrimaryKey());
+
+        var first = context.Add(new FailedTrackingSingle { Id = 1, AlternateId = 10 }).Entity;
+        var second = context.Add(new FailedTrackingSingle { Id = 2, AlternateId = 20 }).Entity;
+        var firstEntry = context.Entry(first).GetInfrastructure();
+        var secondEntry = context.Entry(second).GetInfrastructure();
+
+        second.AlternateId = 10;
+        Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges());
+
+        Assert.Same(firstEntry, stateManager.TryGetEntry(alternateKey, new object[] { 10 }));
+        Assert.Same(secondEntry, stateManager.TryGetEntry(alternateKey, new object[] { 20 }));
+
+        // The change is still pending, so it is still reported until the conflict is resolved.
+        Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges());
+        Assert.Same(secondEntry, stateManager.TryGetEntry(alternateKey, new object[] { 20 }));
+
+        // Reverting the change leaves the entry registered.
+        second.AlternateId = 20;
+        context.ChangeTracker.DetectChanges();
+        Assert.Same(firstEntry, stateManager.TryGetEntry(alternateKey, new object[] { 10 }));
+        Assert.Same(secondEntry, stateManager.TryGetEntry(alternateKey, new object[] { 20 }));
+
+        // Changing to a value that is not in use re-registers the entry.
+        second.AlternateId = 30;
+        context.ChangeTracker.DetectChanges();
+        Assert.Null(stateManager.TryGetEntry(alternateKey, new object[] { 20 }));
+        Assert.Same(secondEntry, stateManager.TryGetEntry(alternateKey, new object[] { 30 }));
+    }
+
+    [Fact]
+    public void Failed_primary_key_change_leaves_entry_registered_under_its_old_key()
+    {
+        using var context = new FailedTrackingContext();
+        context.ChangeTracker.AutoDetectChangesEnabled = false;
+        var stateManager = GetStateManager(context);
+        var primaryKey = context.Model.FindEntityType(typeof(FailedTrackingSingle))!.FindPrimaryKey()!;
+
+        var first = context.Add(new FailedTrackingSingle { Id = 1, AlternateId = 10 }).Entity;
+        var second = context.Add(new FailedTrackingSingle { Id = 2, AlternateId = 20 }).Entity;
+        var firstEntry = context.Entry(first).GetInfrastructure();
+        var secondEntry = context.Entry(second).GetInfrastructure();
+
+        second.Id = 1;
+        Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges());
+
+        Assert.Same(firstEntry, stateManager.TryGetEntry(primaryKey, new object[] { 1 }));
+        Assert.Same(secondEntry, stateManager.TryGetEntry(primaryKey, new object[] { 2 }));
+
+        // Reverting the change leaves the entry registered.
+        second.Id = 2;
+        context.ChangeTracker.DetectChanges();
+        Assert.Same(firstEntry, stateManager.TryGetEntry(primaryKey, new object[] { 1 }));
+        Assert.Same(secondEntry, stateManager.TryGetEntry(primaryKey, new object[] { 2 }));
+
+        // Changing to a value that is not in use re-registers the entry.
+        second.Id = 3;
+        context.ChangeTracker.DetectChanges();
+        Assert.Null(stateManager.TryGetEntry(primaryKey, new object[] { 2 }));
+        Assert.Same(secondEntry, stateManager.TryGetEntry(primaryKey, new object[] { 3 }));
+    }
+
+    [Fact]
+    public void Failed_alternate_key_change_to_null_leaves_entry_registered_under_its_old_key()
+    {
+        using var context = new IdentityConflictContext();
+        context.ChangeTracker.AutoDetectChangesEnabled = false;
+        var stateManager = GetStateManager(context);
+        var alternateKey = context.Model.FindEntityType(typeof(SingleKey))!.GetKeys().Single(k => !k.IsPrimaryKey());
+
+        var entity = context.Add(new SingleKey { Id = 1, AlternateId = 10 }).Entity;
+        var entry = context.Entry(entity).GetInfrastructure();
+
+        entity.AlternateId = null;
+        Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges());
+
+        Assert.Same(entry, stateManager.TryGetEntry(alternateKey, new object[] { 10 }));
+
+        entity.AlternateId = 10;
+        context.ChangeTracker.DetectChanges();
+        Assert.Same(entry, stateManager.TryGetEntry(alternateKey, new object[] { 10 }));
+    }
+
+    [Fact]
+    public void Failed_primary_key_change_keeps_shared_identity_with_deleted_entry()
+    {
+        using var context = new FailedTrackingContext();
+        context.ChangeTracker.AutoDetectChangesEnabled = false;
+        var stateManager = GetStateManager(context);
+        var primaryKey = context.Model.FindEntityType(typeof(FailedTrackingSingle))!.FindPrimaryKey()!;
+
+        var deleted = context.Attach(new FailedTrackingSingle { Id = 1, AlternateId = 10 }).Entity;
+        context.Attach(new FailedTrackingSingle { Id = 3, AlternateId = 30 });
+        context.Remove(deleted);
+        var deletedEntry = context.Entry(deleted).GetInfrastructure();
+
+        var replacement = context.Add(new FailedTrackingSingle { Id = 1, AlternateId = 20 }).Entity;
+        var replacementEntry = context.Entry(replacement).GetInfrastructure();
+        Assert.Same(deletedEntry, replacementEntry.SharedIdentityEntry);
+
+        replacement.Id = 3;
+        Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges());
+
+        Assert.Same(deletedEntry, replacementEntry.SharedIdentityEntry);
+        Assert.Same(replacementEntry, deletedEntry.SharedIdentityEntry);
+        Assert.Same(replacementEntry, stateManager.TryGetEntry(primaryKey, new object[] { 1 }));
+    }
+
+    [Fact]
+    public void Entity_can_be_tracked_after_failed_tracking_once_its_key_is_changed()
+    {
+        using var context = new FailedTrackingContext();
+        context.Attach(new FailedTrackingSingle { Id = 77, AlternateId = 66 });
+
+        var conflicting = new FailedTrackingSingle { Id = 78, AlternateId = 66 };
+        Assert.Throws<InvalidOperationException>(() => context.Add(conflicting));
+
+        conflicting.AlternateId = 67;
+        context.Add(conflicting);
+
+        Assert.Equal(EntityState.Added, context.Entry(conflicting).State);
+        Assert.Equal(2, context.ChangeTracker.Entries().Count());
+    }
+
+    [Fact]
+    public void Failed_tracking_with_generated_key_and_alternate_key_conflict_can_be_retried()
+    {
+        using var context = new FailedTrackingContext();
+        var existing = context.Add(new FailedTrackingGenerated { Code = 1 }).Entity;
+
+        var conflicting = new FailedTrackingGenerated { Code = 1 };
+        Assert.Throws<InvalidOperationException>(() => context.Add(conflicting));
+        Assert.Same(existing, Assert.Single(context.ChangeTracker.Entries()).Entity);
+
+        conflicting.Code = 2;
+        context.Add(conflicting);
+
+        Assert.Equal(EntityState.Added, context.Entry(conflicting).State);
+        Assert.NotEqual(existing.Id, conflicting.Id);
+        Assert.Equal(2, context.ChangeTracker.Entries().Count());
+    }
+
+    [Fact]
+    public void Failed_graph_tracking_leaves_the_tracked_part_of_the_graph_consistent()
+    {
+        using var context = new FailedTrackingContext();
+        var stateManager = GetStateManager(context);
+        var childKey = context.Model.FindEntityType(typeof(FailedTrackingChild))!.FindPrimaryKey()!;
+
+        var first = new FailedTrackingChild { Id = 1, Tag = 7 };
+        var second = new FailedTrackingChild { Id = 2, Tag = 7 };
+        var parent = new FailedTrackingParent { Id = 1, Children = { first, second } };
+
+        Assert.Throws<InvalidOperationException>(() => context.Add(parent));
+
+        // Entities attached before the failure stay tracked, the failing entity is not tracked.
+        Assert.Equal(EntityState.Added, context.Entry(parent).State);
+        Assert.Equal(EntityState.Added, context.Entry(first).State);
+        Assert.Equal(EntityState.Detached, context.Entry(second).State);
+        Assert.Equal(2, context.ChangeTracker.Entries().Count());
+        Assert.Same(context.Entry(first).GetInfrastructure(), stateManager.TryGetEntry(childKey, new object[] { 1 }));
+        Assert.Null(stateManager.TryGetEntry(childKey, new object[] { 2 }));
+    }
+
+    [Fact]
+    public void Failed_key_change_of_property_in_two_keys_leaves_entry_registered_under_its_old_keys()
+    {
+        using var context = new FailedTrackingContext();
+        context.ChangeTracker.AutoDetectChangesEnabled = false;
+        var stateManager = GetStateManager(context);
+        var entityType = context.Model.FindEntityType(typeof(FailedTrackingOverlappingKeys))!;
+        var primaryKey = entityType.FindPrimaryKey()!;
+        var alternateKey = entityType.GetKeys().Single(k => !k.IsPrimaryKey());
+
+        var first = context.Add(new FailedTrackingOverlappingKeys { A = 1, B = 1, C = 1 }).Entity;
+        var second = context.Add(new FailedTrackingOverlappingKeys { A = 2, B = 2, C = 1 }).Entity;
+        var firstEntry = context.Entry(first).GetInfrastructure();
+        var secondEntry = context.Entry(second).GetInfrastructure();
+
+        // The primary key {A, B} can take the new value {1, 2}, but the alternate key {A, C} then conflicts.
+        second.A = 1;
+        Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges());
+
+        Assert.Same(firstEntry, stateManager.TryGetEntry(primaryKey, new object[] { 1, 1 }));
+        Assert.Same(secondEntry, stateManager.TryGetEntry(primaryKey, new object[] { 2, 2 }));
+        Assert.Null(stateManager.TryGetEntry(primaryKey, new object[] { 1, 2 }));
+        Assert.Same(firstEntry, stateManager.TryGetEntry(alternateKey, new object[] { 1, 1 }));
+        Assert.Same(secondEntry, stateManager.TryGetEntry(alternateKey, new object[] { 2, 1 }));
+
+        // Reverting the change leaves the entry registered, and the value {1, 2} is not reserved.
+        second.A = 2;
+        context.ChangeTracker.DetectChanges();
+        Assert.Same(secondEntry, stateManager.TryGetEntry(primaryKey, new object[] { 2, 2 }));
+        Assert.Same(secondEntry, stateManager.TryGetEntry(alternateKey, new object[] { 2, 1 }));
+
+        context.Add(new FailedTrackingOverlappingKeys { A = 1, B = 2, C = 3 });
+    }
+
+    private static IStateManager GetStateManager(DbContext context)
+        => ((IInfrastructure<IServiceProvider>)context).Instance.GetRequiredService<IStateManager>();
+
+    private class FailedTrackingContext : DbContext
+    {
+        protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder
+                .UseInMemoryDatabase(nameof(FailedTrackingContext) + Guid.NewGuid())
+                .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider);
+
+        protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<FailedTrackingSingle>(b =>
+            {
+                b.HasKey(e => e.Id);
+                b.HasAlternateKey(e => e.AlternateId);
+                b.Property(e => e.Id).ValueGeneratedNever();
+            });
+
+            modelBuilder.Entity<FailedTrackingComposite>(b =>
+            {
+                b.HasKey(e => new { e.Id1, e.Id2 });
+                b.HasAlternateKey(e => new { e.Zip1, e.Zip2 });
+            });
+
+            modelBuilder.Entity<FailedTrackingMultiKey>(b =>
+            {
+                b.HasKey(e => e.Id);
+                b.HasAlternateKey(e => e.Code);
+                b.HasAlternateKey(e => e.Zip);
+                b.Property(e => e.Id).ValueGeneratedNever();
+            });
+
+            modelBuilder.Entity<FailedTrackingGenerated>(b => b.HasAlternateKey(e => e.Code));
+
+            modelBuilder.Entity<FailedTrackingParent>(b => b.Property(e => e.Id).ValueGeneratedNever());
+            modelBuilder.Entity<FailedTrackingChild>(
+                b =>
+                {
+                    b.Property(e => e.Id).ValueGeneratedNever();
+                    b.HasAlternateKey(e => e.Tag);
+                });
+
+            modelBuilder.Entity<FailedTrackingOverlappingKeys>(b =>
+            {
+                b.HasKey(e => new { e.A, e.B });
+                b.HasAlternateKey(e => new { e.A, e.C });
+            });
+        }
+    }
+
+    private class FailedTrackingSingle
+    {
+        public int Id { get; set; }
+        public int AlternateId { get; set; }
+    }
+
+    private class FailedTrackingComposite
+    {
+        public int Id1 { get; set; }
+        public int Id2 { get; set; }
+        public int Zip1 { get; set; }
+        public int Zip2 { get; set; }
+    }
+
+    private class FailedTrackingMultiKey
+    {
+        public int Id { get; set; }
+        public int Code { get; set; }
+        public int Zip { get; set; }
+    }
+
+    private class FailedTrackingGenerated
+    {
+        public int Id { get; set; }
+        public int Code { get; set; }
+    }
+
+    private class FailedTrackingParent
+    {
+        public int Id { get; set; }
+        public List<FailedTrackingChild> Children { get; } = [];
+    }
+
+    private class FailedTrackingChild
+    {
+        public int Id { get; set; }
+        public int Tag { get; set; }
+        public int? ParentId { get; set; }
+        public FailedTrackingParent? Parent { get; set; }
+    }
+
+    private class FailedTrackingOverlappingKeys
+    {
+        public int A { get; set; }
+        public int B { get; set; }
+        public int C { get; set; }
+    }
+
     private class SensitiveIdentityConflictContext : IdentityConflictContext
     {
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
