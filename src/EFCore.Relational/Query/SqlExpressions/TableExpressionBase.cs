@@ -121,7 +121,9 @@ public abstract class TableExpressionBase : Expression, IRelationalQuotableExpre
                     && Equals(tableExpressionBase)));
 
     private bool Equals(TableExpressionBase tableExpressionBase)
-        => Alias == tableExpressionBase.Alias;
+        => Alias == tableExpressionBase.Alias
+            && GetAnnotations().Count() == tableExpressionBase.GetAnnotations().Count()
+            && GetAnnotations().All(a => tableExpressionBase.FindAnnotation(a.Name) is { } other && Equals(a.Value, other.Value));
 
     /// <inheritdoc />
     public override int GetHashCode()

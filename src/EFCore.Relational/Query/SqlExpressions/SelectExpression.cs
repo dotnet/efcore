@@ -5319,6 +5319,7 @@ public sealed partial class SelectExpression : TableExpressionBase
         => IsMutable
             ? ReferenceEquals(this, selectExpression)
             : base.Equals(selectExpression)
+            && IsDistinct == selectExpression.IsDistinct
             && Tables.SequenceEqual(selectExpression.Tables)
             && ((Predicate is null && selectExpression.Predicate is null)
                 || (Predicate is not null && Predicate.Equals(selectExpression.Predicate)))

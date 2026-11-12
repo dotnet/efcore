@@ -210,18 +210,16 @@ ORDER BY (
             """
 SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [c0].[CustomerID]
 FROM (
-    SELECT TOP(1) [c].[CustomerID], (
-        SELECT TOP(1) [o].[OrderDate]
-        FROM [Orders] AS [o]
-        WHERE [c].[CustomerID] = [o].[CustomerID]
-        ORDER BY [o].[OrderDate] DESC) AS [c]
+    SELECT TOP(1) [c].[CustomerID], [o1].[OrderDate] AS [c]
     FROM [Customers] AS [c]
-    WHERE [c].[CustomerID] LIKE N'W%'
-    ORDER BY (
+    OUTER APPLY (
         SELECT TOP(1) [o].[OrderDate]
         FROM [Orders] AS [o]
         WHERE [c].[CustomerID] = [o].[CustomerID]
-        ORDER BY [o].[OrderDate] DESC) DESC, [c].[CustomerID]
+        ORDER BY [o].[OrderDate] DESC
+    ) AS [o1]
+    WHERE [c].[CustomerID] LIKE N'W%'
+    ORDER BY [o1].[OrderDate] DESC, [c].[CustomerID]
 ) AS [c0]
 INNER JOIN [Orders] AS [o0] ON [c0].[CustomerID] = [o0].[CustomerID]
 ORDER BY [c0].[c] DESC, [c0].[CustomerID]
@@ -951,18 +949,16 @@ ORDER BY (
             """
 SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [c0].[CustomerID]
 FROM (
-    SELECT TOP(1) [c].[CustomerID], (
-        SELECT TOP(1) [o].[OrderDate]
-        FROM [Orders] AS [o]
-        WHERE [c].[CustomerID] = [o].[CustomerID]
-        ORDER BY [o].[EmployeeID]) AS [c]
+    SELECT TOP(1) [c].[CustomerID], [o1].[OrderDate] AS [c]
     FROM [Customers] AS [c]
-    WHERE [c].[CustomerID] = N'ALFKI'
-    ORDER BY (
+    OUTER APPLY (
         SELECT TOP(1) [o].[OrderDate]
         FROM [Orders] AS [o]
         WHERE [c].[CustomerID] = [o].[CustomerID]
-        ORDER BY [o].[EmployeeID]), [c].[CustomerID]
+        ORDER BY [o].[EmployeeID]
+    ) AS [o1]
+    WHERE [c].[CustomerID] = N'ALFKI'
+    ORDER BY [o1].[OrderDate], [c].[CustomerID]
 ) AS [c0]
 INNER JOIN [Orders] AS [o0] ON [c0].[CustomerID] = [o0].[CustomerID]
 ORDER BY [c0].[c], [c0].[CustomerID]
@@ -1448,18 +1444,16 @@ ORDER BY (
             """
 SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [c0].[CustomerID]
 FROM (
-    SELECT TOP(1) [c].[CustomerID], (
-        SELECT TOP(1) [o].[OrderDate]
-        FROM [Orders] AS [o]
-        WHERE [c].[CustomerID] = [o].[CustomerID]
-        ORDER BY [o].[OrderDate] DESC) AS [c]
+    SELECT TOP(1) [c].[CustomerID], [o2].[OrderDate] AS [c]
     FROM [Customers] AS [c]
-    WHERE [c].[CustomerID] LIKE N'W%'
-    ORDER BY (
+    OUTER APPLY (
         SELECT TOP(1) [o].[OrderDate]
         FROM [Orders] AS [o]
         WHERE [c].[CustomerID] = [o].[CustomerID]
-        ORDER BY [o].[OrderDate] DESC) DESC, [c].[CustomerID]
+        ORDER BY [o].[OrderDate] DESC
+    ) AS [o2]
+    WHERE [c].[CustomerID] LIKE N'W%'
+    ORDER BY [o2].[OrderDate] DESC, [c].[CustomerID]
 ) AS [c0]
 INNER JOIN [Orders] AS [o0] ON [c0].[CustomerID] = [o0].[CustomerID]
 ORDER BY [c0].[c] DESC, [c0].[CustomerID], [o0].[OrderID]
@@ -1468,18 +1462,16 @@ ORDER BY [c0].[c] DESC, [c0].[CustomerID], [o0].[OrderID]
             """
 SELECT [o1].[OrderID], [o1].[ProductID], [o1].[Discount], [o1].[Quantity], [o1].[UnitPrice], [c0].[CustomerID], [o0].[OrderID]
 FROM (
-    SELECT TOP(1) [c].[CustomerID], (
-        SELECT TOP(1) [o].[OrderDate]
-        FROM [Orders] AS [o]
-        WHERE [c].[CustomerID] = [o].[CustomerID]
-        ORDER BY [o].[OrderDate] DESC) AS [c]
+    SELECT TOP(1) [c].[CustomerID], [o3].[OrderDate] AS [c]
     FROM [Customers] AS [c]
-    WHERE [c].[CustomerID] LIKE N'W%'
-    ORDER BY (
+    OUTER APPLY (
         SELECT TOP(1) [o].[OrderDate]
         FROM [Orders] AS [o]
         WHERE [c].[CustomerID] = [o].[CustomerID]
-        ORDER BY [o].[OrderDate] DESC) DESC, [c].[CustomerID]
+        ORDER BY [o].[OrderDate] DESC
+    ) AS [o3]
+    WHERE [c].[CustomerID] LIKE N'W%'
+    ORDER BY [o3].[OrderDate] DESC, [c].[CustomerID]
 ) AS [c0]
 INNER JOIN [Orders] AS [o0] ON [c0].[CustomerID] = [o0].[CustomerID]
 INNER JOIN [Order Details] AS [o1] ON [o0].[OrderID] = [o1].[OrderID]

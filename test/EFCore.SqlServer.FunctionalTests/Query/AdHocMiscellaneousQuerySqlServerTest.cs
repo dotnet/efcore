@@ -4724,6 +4724,71 @@ WHERE CAST(DATEDIFF(day, '0001-01-01T00:00:00.0000000', [d].[Nullable]) AS bigin
 
     #endregion
 
+    #region 39605
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Repeated_single_result_subquery_ordered_by_volatile_computed_column_is_not_lifted(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context39605_VolatileComputedColumn>(
+            seed: async context =>
+            {
+                context.Parents.Add(
+                    new Context39605_VolatileComputedColumn.Parent
+                    {
+                        Children = [new Context39605_VolatileComputedColumn.Child { Value = 10 }]
+                    });
+                await context.SaveChangesAsync();
+            });
+        using var context = contextFactory.CreateDbContext();
+        ClearLog();
+
+        var query = context.Parents.Select(p => new
+        {
+            Value = p.Children.OrderBy(c => c.Random).Select(c => (int?)c.Value).FirstOrDefault(),
+            Id = p.Children.OrderBy(c => c.Random).Select(c => (int?)c.Id).FirstOrDefault()
+        });
+
+        var result = Assert.Single(async ? await query.ToListAsync() : query.ToList());
+
+        Assert.Equal(10, result.Value);
+        AssertSql(
+            """
+SELECT (
+    SELECT TOP(1) [c].[Value]
+    FROM [Child] AS [c]
+    WHERE [p].[Id] = [c].[ParentId]
+    ORDER BY [c].[Random]) AS [Value], (
+    SELECT TOP(1) [c0].[Id]
+    FROM [Child] AS [c0]
+    WHERE [p].[Id] = [c0].[ParentId]
+    ORDER BY [c0].[Random]) AS [Id]
+FROM [Parents] AS [p]
+""");
+    }
+
+    protected class Context39605_VolatileComputedColumn(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Parent> Parents { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Child>().Property(c => c.Random).HasComputedColumnSql("NEWID()");
+
+        public class Parent
+        {
+            public int Id { get; set; }
+            public List<Child> Children { get; set; } = [];
+        }
+
+        public class Child
+        {
+            public int Id { get; set; }
+            public int Value { get; set; }
+            public Guid Random { get; set; }
+        }
+    }
+
+    #endregion
+
     [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

@@ -178,7 +178,7 @@ public class SqlAliasManager
         }
     }
 
-    private sealed class TableAliasRewriter(IReadOnlyDictionary<string, string> aliasRewritingMap) : ExpressionVisitor
+    internal sealed class TableAliasRewriter(IReadOnlyDictionary<string, string> aliasRewritingMap) : ExpressionVisitor
     {
         internal static Expression Rewrite(Expression expression, IReadOnlyDictionary<string, string> aliasRewritingMap)
             => new TableAliasRewriter(aliasRewritingMap).Visit(expression);

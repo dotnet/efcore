@@ -1,8 +1,11 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
+
+#pragma warning disable EF1001 // Internal EF Core API usage.
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 
@@ -18,6 +21,11 @@ public class SqlServerQueryTranslationPostprocessor(
     SqlServerQueryCompilationContext queryCompilationContext)
     : RelationalQueryTranslationPostprocessor(dependencies, relationalDependencies, queryCompilationContext)
 {
+    private static readonly HashSet<string> VolatileFunctions = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "NEWID", "RAND", "CRYPT_GEN_RANDOM"
+    };
+
     private readonly SqlServerJsonPostprocessor _jsonPostprocessor = new(
         relationalDependencies.TypeMappingSource,
         relationalDependencies.SqlExpressionFactory,
@@ -64,5 +72,6 @@ public class SqlServerQueryTranslationPostprocessor(
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override Expression Prune(Expression query)
-        => _pruner.Prune(query);
+        => new SingleRowSubqueryMergingExpressionVisitor(queryCompilationContext.SqlAliasManager, VolatileFunctions)
+            .Visit(_pruner.Prune(query));
 }

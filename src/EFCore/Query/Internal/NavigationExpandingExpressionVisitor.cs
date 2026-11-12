@@ -58,6 +58,8 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
 
     private readonly Dictionary<string, object?> _parameters = [];
 
+    private readonly Dictionary<Expression, Expression> _unprocessedCollectionSources = new(ReferenceEqualityComparer.Instance);
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -247,6 +249,24 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                 var parameterName = GetParameterName("e");
 
                 return new NavigationExpansionExpression(queryRootExpression, currentTree, currentTree, parameterName);
+            }
+
+            // The same expanded collection navigation can be reached from several places of a composed lambda, and processing it
+            // mutates it, so the places after the first start from a copy taken beforehand. A copy loses the joins its navigations
+            // already made, so the first place uses the original.
+            case MaterializeCollectionNavigationExpression { Subquery: not NavigationExpansionExpression } collectionNavigation:
+            {
+                var subquery = collectionNavigation.Subquery;
+                if (_unprocessedCollectionSources.TryGetValue(subquery, out var unprocessed))
+                {
+                    subquery = new CollectionSourceCloningExpressionVisitor().Visit(unprocessed);
+                }
+                else
+                {
+                    _unprocessedCollectionSources[subquery] = new CollectionSourceCloningExpressionVisitor().Visit(subquery);
+                }
+
+                return collectionNavigation.Update(Visit(subquery));
             }
 
             case NavigationExpansionExpression:

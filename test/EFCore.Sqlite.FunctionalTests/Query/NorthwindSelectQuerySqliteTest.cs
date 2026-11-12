@@ -337,6 +337,12 @@ LIMIT min(@p, @p1)
             SqliteStrings.ApplyNotSupported,
             (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Set_operation_in_pending_collection(async))).Message);
 
+    public override async Task Repeated_single_result_subquery_over_outer_collection_in_nested_select(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.Repeated_single_result_subquery_over_outer_collection_in_nested_select(async))).Message);
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 }
