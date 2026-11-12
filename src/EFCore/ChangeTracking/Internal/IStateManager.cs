@@ -223,6 +223,18 @@ public interface IStateManager : IResettableService
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///
+    ///     Reverses the reference map changes made by <see cref="ChangingState" /> when starting to track a detached
+    ///     entry fails, for example because of a key conflict. It must only be called for an entry that is still
+    ///     <see cref="EntityState.Detached" />.
+    /// </summary>
+    void CancelChangingState(InternalEntityEntry entry, EntityState newState);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     IValueGenerationManager ValueGenerationManager { get; }
 
@@ -383,6 +395,17 @@ public interface IStateManager : IResettableService
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     void UpdateIdentityMap(InternalEntityEntry entry, IKey principalKey);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///
+    ///     Registers the entry in the identity map for the key using the relationship snapshot values again,
+    ///     reversing a successful <see cref="UpdateIdentityMap" /> when the key change as a whole failed.
+    /// </summary>
+    void CancelIdentityMapUpdate(InternalEntityEntry entry, IKey principalKey);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
