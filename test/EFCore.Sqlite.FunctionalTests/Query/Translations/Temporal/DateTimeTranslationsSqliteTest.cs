@@ -78,6 +78,9 @@ WHERE CAST(strftime('%Y', "b"."DateTime", CAST(1 AS TEXT) || ' years') AS INTEGE
 """);
     }
 
+    public override Task AddMicroseconds()
+        => AssertTranslationFailed(base.AddMicroseconds);
+
     public override async Task Year()
     {
         await base.Year();

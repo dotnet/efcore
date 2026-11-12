@@ -107,6 +107,10 @@ public abstract class DateTimeOffsetTranslationsTestBase<TFixture>(TFixture fixt
         => AssertQueryScalar(ss => ss.Set<BasicTypesEntity>().Select(b => b.DateTimeOffset.AddMilliseconds(300)));
 
     [Fact]
+    public virtual Task AddMicroseconds()
+        => AssertQueryScalar(ss => ss.Set<BasicTypesEntity>().Select(b => b.DateTimeOffset.AddMicroseconds(300)));
+
+    [Fact]
     public virtual Task ToUnixTimeMilliseconds()
     {
         var unixEpochMilliseconds = new DateTimeOffset(1998, 5, 4, 15, 30, 10, TimeSpan.Zero).ToUnixTimeMilliseconds();
