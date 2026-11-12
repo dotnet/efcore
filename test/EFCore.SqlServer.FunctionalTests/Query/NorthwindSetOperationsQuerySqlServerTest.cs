@@ -60,18 +60,21 @@ WHERE [c0].[City] = N'London'
         AssertSql(
             """
 SELECT [c].[CustomerID], [c].[City], CASE
-    WHEN [o1].[OrderID] IS NOT NULL THEN [o1].[OrderID]
-    ELSE 0
-END AS [LatestOrderID], [o1].[OrderDate] AS [LatestOrderDate]
-FROM [Customers] AS [c]
-LEFT JOIN (
-    SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[OrderDate]
-    FROM (
-        SELECT [o].[OrderID], [o].[CustomerID], [o].[OrderDate], ROW_NUMBER() OVER(PARTITION BY [o].[CustomerID] ORDER BY [o].[OrderDate] DESC, [o].[OrderID] DESC) AS [row]
+    WHEN EXISTS (
+        SELECT 1
         FROM [Orders] AS [o]
-    ) AS [o0]
-    WHERE [o0].[row] <= 1
-) AS [o1] ON [c].[CustomerID] = [o1].[CustomerID]
+        WHERE [c].[CustomerID] = [o].[CustomerID]) THEN (
+        SELECT TOP(1) [o0].[OrderID]
+        FROM [Orders] AS [o0]
+        WHERE [c].[CustomerID] = [o0].[CustomerID]
+        ORDER BY [o0].[OrderDate] DESC, [o0].[OrderID] DESC)
+    ELSE 0
+END AS [LatestOrderID], (
+    SELECT TOP(1) [o1].[OrderDate]
+    FROM [Orders] AS [o1]
+    WHERE [c].[CustomerID] = [o1].[CustomerID]
+    ORDER BY [o1].[OrderDate] DESC, [o1].[OrderID] DESC) AS [LatestOrderDate]
+FROM [Customers] AS [c]
 UNION ALL
 SELECT [c0].[CustomerID], [c0].[City], 0 AS [LatestOrderID], NULL AS [LatestOrderDate]
 FROM [Customers] AS [c0]
@@ -90,18 +93,21 @@ WHERE NOT EXISTS (
     WHERE [c].[CustomerID] = [o].[CustomerID])
 UNION
 SELECT [c0].[CustomerID], [c0].[City], CASE
-    WHEN [o2].[OrderID] IS NULL THEN 0
-    ELSE [o2].[OrderID]
-END AS [LatestOrderID], [o2].[OrderDate] AS [LatestOrderDate]
-FROM [Customers] AS [c0]
-LEFT JOIN (
-    SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[OrderDate]
-    FROM (
-        SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[OrderDate], ROW_NUMBER() OVER(PARTITION BY [o0].[CustomerID] ORDER BY [o0].[OrderDate] DESC, [o0].[OrderID] DESC) AS [row]
+    WHEN NOT EXISTS (
+        SELECT 1
         FROM [Orders] AS [o0]
-    ) AS [o1]
-    WHERE [o1].[row] <= 1
-) AS [o2] ON [c0].[CustomerID] = [o2].[CustomerID]
+        WHERE [c0].[CustomerID] = [o0].[CustomerID]) THEN 0
+    ELSE (
+        SELECT TOP(1) [o1].[OrderID]
+        FROM [Orders] AS [o1]
+        WHERE [c0].[CustomerID] = [o1].[CustomerID]
+        ORDER BY [o1].[OrderDate] DESC, [o1].[OrderID] DESC)
+END AS [LatestOrderID], (
+    SELECT TOP(1) [o2].[OrderDate]
+    FROM [Orders] AS [o2]
+    WHERE [c0].[CustomerID] = [o2].[CustomerID]
+    ORDER BY [o2].[OrderDate] DESC, [o2].[OrderID] DESC) AS [LatestOrderDate]
+FROM [Customers] AS [c0]
 """);
     }
 

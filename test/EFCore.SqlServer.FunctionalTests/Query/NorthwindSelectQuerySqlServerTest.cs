@@ -2954,44 +2954,56 @@ ORDER BY [c0].[CustomerID]
                     nameof(Queryable.FirstOrDefault) or
                     nameof(Queryable.Single) or
                     nameof(Queryable.SingleOrDefault) => """
-SELECT [o].[OrderID], [c1].[City], [c1].[Country], [c1].[ContactName]
+SELECT [o].[OrderID], (
+    SELECT TOP(1) [c].[City]
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] = [o].[CustomerID]) AS [City], (
+    SELECT TOP(1) [c0].[Country]
+    FROM [Customers] AS [c0]
+    WHERE [c0].[CustomerID] = [o].[CustomerID]) AS [Country], (
+    SELECT TOP(1) [c1].[ContactName]
+    FROM [Customers] AS [c1]
+    WHERE [c1].[CustomerID] = [o].[CustomerID]) AS [ContactName]
 FROM [Orders] AS [o]
-LEFT JOIN (
-    SELECT [c0].[City], [c0].[ContactName], [c0].[Country], [c0].[CustomerID0]
-    FROM (
-        SELECT [c].[City], [c].[ContactName], [c].[Country], [c].[CustomerID] AS [CustomerID0], ROW_NUMBER() OVER(PARTITION BY [c].[CustomerID] ORDER BY [c].[CustomerID]) AS [row]
-        FROM [Customers] AS [c]
-    ) AS [c0]
-    WHERE [c0].[row] <= 1
-) AS [c1] ON [o].[CustomerID] = [c1].[CustomerID0]
 WHERE [o].[CustomerID] IS NOT NULL
 """,
                 nameof(Queryable.Last) or
                     nameof(Queryable.LastOrDefault) => """
-SELECT [o].[OrderID], [c1].[City], [c1].[Country], [c1].[ContactName]
+SELECT [o].[OrderID], (
+    SELECT TOP(1) [c].[City]
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [c].[CustomerID] DESC) AS [City], (
+    SELECT TOP(1) [c0].[Country]
+    FROM [Customers] AS [c0]
+    WHERE [c0].[CustomerID] = [o].[CustomerID]
+    ORDER BY [c0].[CustomerID] DESC) AS [Country], (
+    SELECT TOP(1) [c1].[ContactName]
+    FROM [Customers] AS [c1]
+    WHERE [c1].[CustomerID] = [o].[CustomerID]
+    ORDER BY [c1].[CustomerID] DESC) AS [ContactName]
 FROM [Orders] AS [o]
-LEFT JOIN (
-    SELECT [c0].[City], [c0].[ContactName], [c0].[Country], [c0].[CustomerID0]
-    FROM (
-        SELECT [c].[City], [c].[ContactName], [c].[Country], [c].[CustomerID] AS [CustomerID0], ROW_NUMBER() OVER(PARTITION BY [c].[CustomerID] ORDER BY [c].[CustomerID] DESC) AS [row]
-        FROM [Customers] AS [c]
-    ) AS [c0]
-    WHERE [c0].[row] <= 1
-) AS [c1] ON [o].[CustomerID] = [c1].[CustomerID0]
 WHERE [o].[CustomerID] IS NOT NULL
 """,
                 nameof(Queryable.ElementAt) or
                     nameof(Queryable.ElementAtOrDefault) => """
-SELECT [o].[OrderID], [c1].[City], [c1].[Country], [c1].[ContactName]
+SELECT [o].[OrderID], (
+    SELECT [c].[City]
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [c].[CustomerID]
+    OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY) AS [City], (
+    SELECT [c0].[Country]
+    FROM [Customers] AS [c0]
+    WHERE [c0].[CustomerID] = [o].[CustomerID]
+    ORDER BY [c0].[CustomerID]
+    OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY) AS [Country], (
+    SELECT [c1].[ContactName]
+    FROM [Customers] AS [c1]
+    WHERE [c1].[CustomerID] = [o].[CustomerID]
+    ORDER BY [c1].[CustomerID]
+    OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY) AS [ContactName]
 FROM [Orders] AS [o]
-LEFT JOIN (
-    SELECT [c0].[City], [c0].[ContactName], [c0].[Country], [c0].[CustomerID0]
-    FROM (
-        SELECT [c].[City], [c].[ContactName], [c].[Country], [c].[CustomerID] AS [CustomerID0], ROW_NUMBER() OVER(PARTITION BY [c].[CustomerID] ORDER BY [c].[CustomerID]) AS [row]
-        FROM [Customers] AS [c]
-    ) AS [c0]
-    WHERE 0 < [c0].[row] AND [c0].[row] <= 1
-) AS [c1] ON [o].[CustomerID] = [c1].[CustomerID0]
 WHERE [o].[CustomerID] IS NOT NULL
 """,
                 _ => throw new InvalidOperationException(method)
@@ -3004,14 +3016,16 @@ WHERE [o].[CustomerID] IS NOT NULL
 
         AssertSql(
             """
-SELECT [o].[OrderID], [o1].[OrderID] AS [PreviousOrderID], [o1].[OrderDate] AS [PreviousOrderDate]
-FROM [Orders] AS [o]
-OUTER APPLY (
-    SELECT TOP(1) [o0].[OrderID], [o0].[OrderDate]
+SELECT [o].[OrderID], (
+    SELECT TOP(1) [o0].[OrderID]
     FROM [Orders] AS [o0]
     WHERE ([o0].[CustomerID] = [o].[CustomerID] OR ([o0].[CustomerID] IS NULL AND [o].[CustomerID] IS NULL)) AND [o0].[OrderDate] < [o].[OrderDate]
-    ORDER BY [o0].[OrderDate] DESC, [o0].[OrderID]
-) AS [o1]
+    ORDER BY [o0].[OrderDate] DESC, [o0].[OrderID]) AS [PreviousOrderID], (
+    SELECT TOP(1) [o1].[OrderDate]
+    FROM [Orders] AS [o1]
+    WHERE ([o1].[CustomerID] = [o].[CustomerID] OR ([o1].[CustomerID] IS NULL AND [o].[CustomerID] IS NULL)) AND [o1].[OrderDate] < [o].[OrderDate]
+    ORDER BY [o1].[OrderDate] DESC, [o1].[OrderID]) AS [PreviousOrderDate]
+FROM [Orders] AS [o]
 """);
     }
 
@@ -3021,17 +3035,18 @@ OUTER APPLY (
 
         AssertSql(
             """
-SELECT [o].[OrderID], [p].[ProductName], [p].[SupplierID]
+SELECT [o].[OrderID], (
+    SELECT TOP(1) [p].[ProductName]
+    FROM [Order Details] AS [o0]
+    INNER JOIN [Products] AS [p] ON [o0].[ProductID] = [p].[ProductID]
+    WHERE [o].[OrderID] = [o0].[OrderID]
+    ORDER BY [o0].[ProductID]) AS [ProductName], (
+    SELECT TOP(1) [p0].[SupplierID]
+    FROM [Order Details] AS [o1]
+    INNER JOIN [Products] AS [p0] ON [o1].[ProductID] = [p0].[ProductID]
+    WHERE [o].[OrderID] = [o1].[OrderID]
+    ORDER BY [o1].[ProductID]) AS [SupplierID]
 FROM [Orders] AS [o]
-LEFT JOIN (
-    SELECT [o1].[ProductID], [o1].[OrderID0]
-    FROM (
-        SELECT [o0].[ProductID], [o0].[OrderID] AS [OrderID0], ROW_NUMBER() OVER(PARTITION BY [o0].[OrderID] ORDER BY [o0].[ProductID]) AS [row]
-        FROM [Order Details] AS [o0]
-    ) AS [o1]
-    WHERE [o1].[row] <= 1
-) AS [o2] ON [o].[OrderID] = [o2].[OrderID0]
-LEFT JOIN [Products] AS [p] ON [o2].[ProductID] = [p].[ProductID]
 """);
     }
 
@@ -3041,19 +3056,30 @@ LEFT JOIN [Products] AS [p] ON [o2].[ProductID] = [p].[ProductID]
 
         AssertSql(
             """
-SELECT [c].[CustomerID], [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate], CASE
-    WHEN [o1].[OrderID] IS NULL THEN CAST(1 AS bit)
+SELECT [c].[CustomerID], CASE
+    WHEN NOT EXISTS (
+        SELECT 1
+        FROM [Orders] AS [o0]
+        WHERE [c].[CustomerID] = [o0].[CustomerID]) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
-END
+END, (
+    SELECT TOP(1) [o1].[OrderID]
+    FROM [Orders] AS [o1]
+    WHERE [c].[CustomerID] = [o1].[CustomerID]
+    ORDER BY [o1].[OrderID] DESC), (
+    SELECT TOP(1) [o2].[OrderDate]
+    FROM [Orders] AS [o2]
+    WHERE [c].[CustomerID] = [o2].[CustomerID]
+    ORDER BY [o2].[OrderID] DESC), [o4].[OrderID], [o4].[CustomerID], [o4].[EmployeeID], [o4].[OrderDate]
 FROM [Customers] AS [c]
 LEFT JOIN (
-    SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+    SELECT [o3].[OrderID], [o3].[CustomerID], [o3].[EmployeeID], [o3].[OrderDate]
     FROM (
         SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], ROW_NUMBER() OVER(PARTITION BY [o].[CustomerID] ORDER BY [o].[OrderID] DESC) AS [row]
         FROM [Orders] AS [o]
-    ) AS [o0]
-    WHERE [o0].[row] <= 1
-) AS [o1] ON [c].[CustomerID] = [o1].[CustomerID]
+    ) AS [o3]
+    WHERE [o3].[row] <= 1
+) AS [o4] ON [c].[CustomerID] = [o4].[CustomerID]
 """);
     }
 
@@ -3132,27 +3158,28 @@ FROM [Customers] AS [c]
 
         AssertSql(
             """
-SELECT [c].[CustomerID], [m1].[City], CASE
+SELECT [c].[CustomerID], (
+    SELECT TOP(1) [m].[City]
+    FROM (
+        SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]
+    ) AS [m]
+    WHERE [m].[CompanyName] = [c].[CompanyName] AND [m].[City] = N'London'
+    ORDER BY [m].[CompanyName]) AS [City], (
+    SELECT TOP(1) [m0].[City]
+    FROM (
+        SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]
+    ) AS [m0]
+    WHERE [m0].[CompanyName] = [c].[CompanyName] AND [m0].[City] = N'London'
+    ORDER BY [m0].[CompanyName]) AS [CityAgain], CASE
     WHEN EXISTS (
         SELECT 1
         FROM (
             SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]
-        ) AS [m2]
-        WHERE [m2].[CompanyName] = [c].[CompanyName] AND [m2].[City] = N'London') THEN CAST(1 AS bit)
+        ) AS [m1]
+        WHERE [m1].[CompanyName] = [c].[CompanyName] AND [m1].[City] = N'London') THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [Exists]
 FROM [Customers] AS [c]
-LEFT JOIN (
-    SELECT [m0].[City], [m0].[CompanyName0]
-    FROM (
-        SELECT [m].[City], [m].[CompanyName] AS [CompanyName0], ROW_NUMBER() OVER(PARTITION BY [m].[CompanyName] ORDER BY [m].[CompanyName]) AS [row]
-        FROM (
-            SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]
-        ) AS [m]
-        WHERE [m].[City] = N'London'
-    ) AS [m0]
-    WHERE [m0].[row] <= 1
-) AS [m1] ON [c].[CompanyName] = [m1].[CompanyName0]
 """);
     }
 
@@ -3162,16 +3189,28 @@ LEFT JOIN (
 
         AssertSql(
             """
-SELECT [c].[CustomerID], [o1].[OrderDate], [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID]
+SELECT [c].[CustomerID], (
+    SELECT TOP(1) [o].[OrderDate]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [o].[OrderID]), [o3].[OrderID], [o3].[CustomerID], [o3].[EmployeeID], [o3].[OrderDate], [o5].[OrderID], [o5].[CustomerID], [o5].[EmployeeID], [o5].[OrderDate]
 FROM [Customers] AS [c]
 LEFT JOIN (
-    SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+    SELECT [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
     FROM (
-        SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], ROW_NUMBER() OVER(PARTITION BY [o].[CustomerID] ORDER BY [o].[OrderID]) AS [row]
-        FROM [Orders] AS [o]
-    ) AS [o0]
-    WHERE [o0].[row] <= 1
-) AS [o1] ON [c].[CustomerID] = [o1].[CustomerID]
+        SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], ROW_NUMBER() OVER(PARTITION BY [o0].[CustomerID] ORDER BY [o0].[OrderID]) AS [row]
+        FROM [Orders] AS [o0]
+    ) AS [o2]
+    WHERE [o2].[row] <= 1
+) AS [o3] ON [c].[CustomerID] = [o3].[CustomerID]
+LEFT JOIN (
+    SELECT [o4].[OrderID], [o4].[CustomerID], [o4].[EmployeeID], [o4].[OrderDate]
+    FROM (
+        SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate], ROW_NUMBER() OVER(PARTITION BY [o1].[CustomerID] ORDER BY [o1].[OrderID]) AS [row]
+        FROM [Orders] AS [o1]
+    ) AS [o4]
+    WHERE [o4].[row] <= 1
+) AS [o5] ON [c].[CustomerID] = [o5].[CustomerID]
 """);
     }
 
