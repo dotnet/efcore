@@ -23,7 +23,7 @@
     <MicrosoftBuildTasksCoreVersion>18.0.2</MicrosoftBuildTasksCoreVersion>
     <MicrosoftCodeAnalysisCSharpVersion>5.9.0</MicrosoftCodeAnalysisCSharpVersion>
     <MicrosoftCodeAnalysisCSharpWorkspacesVersion>5.9.0</MicrosoftCodeAnalysisCSharpWorkspacesVersion>
-    <MicrosoftCodeAnalysisWorkspacesMSBuildVersion>5.0.0</MicrosoftCodeAnalysisWorkspacesMSBuildVersion>
+    <MicrosoftCodeAnalysisWorkspacesMSBuildVersion>5.9.0</MicrosoftCodeAnalysisWorkspacesMSBuildVersion>
   </PropertyGroup>
   <PropertyGroup Label="Test dependencies">
     <MicrosoftCodeAnalysisAnalyzerTestingVersion>1.1.4</MicrosoftCodeAnalysisAnalyzerTestingVersion>
