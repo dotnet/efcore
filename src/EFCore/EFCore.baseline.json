@@ -20527,7 +20527,13 @@
           "Member": "QueryContext(Microsoft.EntityFrameworkCore.Query.QueryContextDependencies dependencies);"
         },
         {
+          "Member": "virtual bool CanLoadCollectionNullness(Microsoft.EntityFrameworkCore.Metadata.INavigation navigation, object entity);"
+        },
+        {
           "Member": "virtual void InitializeStateManager(bool standAlone = false);"
+        },
+        {
+          "Member": "virtual void SetCollectionNullnessLoaded(Microsoft.EntityFrameworkCore.Metadata.INavigation navigation, object entity, bool isNull);"
         },
         {
           "Member": "virtual void SetNavigationIsLoaded(object entity, Microsoft.EntityFrameworkCore.Metadata.INavigationBase navigation);"

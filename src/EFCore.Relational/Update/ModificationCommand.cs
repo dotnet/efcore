@@ -684,20 +684,16 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
 
             // A change between null and a non-null collection can't be expressed as an update of a single property
             var hasModifiedNullableCollection = false;
-#pragma warning disable EF1001 // Internal EF Core API usage.
-            if (((IRuntimeEntityType)entry.EntityType).NullableCollectionCount > 0)
-#pragma warning restore EF1001 // Internal EF Core API usage.
+            foreach (var navigation in entry.EntityType.GetNavigations())
             {
-                foreach (var navigation in entry.EntityType.GetNavigations())
+                if (navigation.IsNullable
+                    && entry.IsModified(navigation))
                 {
-                    if (navigation.IsNullable
-                        && entry.IsModified(navigation))
-                    {
-                        hasModifiedNullableCollection = true;
-                        break;
-                    }
+                    hasModifiedNullableCollection = true;
+                    break;
                 }
             }
+
             if (modifiedMembers.Count == 1
                 && !hasModifiedNullableCollection)
             {

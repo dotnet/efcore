@@ -160,14 +160,84 @@ public abstract class QueryContext
     }
 
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     Gets a value indicating whether the stored null-ness of a collection navigation that has
+    ///     <see cref="IReadOnlyNavigation.IsNullable" /> equal to <see langword="true" /> should be applied to the given entity instance.
     /// </summary>
-    [EntityFrameworkInternal]
-    public virtual bool StartedTracking(InternalEntityEntry entry)
-        => _entriesStartedTracking?.Contains(entry) == true;
+    /// <remarks>
+    ///     <para>
+    ///         This is <see langword="true" /> for an entity that is not tracked, for example in a no-tracking query, and for an entity
+    ///         that was started being tracked by this query. It is <see langword="false" /> for an entity that was already tracked
+    ///         before this query, in which case the current values of the entity are kept, including an unsaved change between a null
+    ///         and a non-null collection.
+    ///     </para>
+    ///     <para>
+    ///         A database provider should call this before materializing the collection and, if it returns
+    ///         <see langword="false" />, not modify the collection or call <see cref="SetCollectionNullnessLoaded" />.
+    ///     </para>
+    /// </remarks>
+    /// <param name="navigation">The collection navigation.</param>
+    /// <param name="entity">The entity instance that declares the navigation.</param>
+    /// <returns><see langword="true" /> if the stored null-ness should be applied, otherwise <see langword="false" />.</returns>
+    public virtual bool CanLoadCollectionNullness(INavigation navigation, object entity)
+    {
+        var entry = TryGetEntry(entity);
+        return entry == null
+            || _entriesStartedTracking?.Contains(entry) == true;
+    }
+
+    /// <summary>
+    ///     Sets the loaded null-ness of a collection navigation that has <see cref="IReadOnlyNavigation.IsNullable" /> equal to
+    ///     <see langword="true" /> on the given entity instance, and records it as the value that was read from the database so that a
+    ///     later change between a null and a non-null collection is detected.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         If <paramref name="isNull" /> is <see langword="true" />, the navigation is set to <see langword="null" />, without
+    ///         using collection initializers or raising change notifications. Otherwise, the collection must already have been created
+    ///         and populated by the caller.
+    ///     </para>
+    ///     <para>
+    ///         This does nothing if <see cref="CanLoadCollectionNullness" /> returns <see langword="false" />.
+    ///     </para>
+    /// </remarks>
+    /// <param name="navigation">The collection navigation.</param>
+    /// <param name="entity">The entity instance that declares the navigation.</param>
+    /// <param name="isNull">Whether the collection was stored as <see langword="null" />.</param>
+    public virtual void SetCollectionNullnessLoaded(INavigation navigation, object entity, bool isNull)
+    {
+        if (!CanLoadCollectionNullness(navigation, entity))
+        {
+            return;
+        }
+
+        var entry = TryGetEntry(entity);
+        var recordOriginal = entry != null && navigation.GetOriginalValueIndex() >= 0;
+        if (isNull)
+        {
+            // The original value is recorded first so that a setter raising notifications isn't seen as a change.
+            if (recordOriginal)
+            {
+                entry!.SetOriginalValue(navigation, null);
+            }
+
+            ((IRuntimePropertyBase)navigation).MaterializationSetter.SetClrValue(entity, null);
+        }
+
+        // A setter can have replaced null, in which case that is the value that has been loaded.
+        if ((!isNull || navigation.GetGetter().GetClrValue(entity) != null)
+            && recordOriginal)
+        {
+            entry!.SetOriginalValue(navigation, navigation.GetGetter().GetClrValue(entity));
+        }
+
+        // Loading the collection must not leave the navigation looking modified because of a change notification that was
+        // raised by the entity while the collection was set. The navigation was known not to be modified before it was loaded.
+        if (entry != null
+            && entry.IsModified(navigation))
+        {
+            entry.SetPropertyModified(navigation, false);
+        }
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
