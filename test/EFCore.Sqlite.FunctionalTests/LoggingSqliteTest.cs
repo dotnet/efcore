@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Transactions;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal;
@@ -26,6 +27,34 @@ public class LoggingSqliteTest : LoggingRelationalTestBase<SqliteDbContextOption
                 RelationalResources.LogAmbientTransaction(CreateTestLogger()).GenerateMessage(),
                 "RelationalEventId.AmbientTransactionWarning"),
             Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Commands_are_logged_after_a_command_fails(bool async)
+    {
+        var log = new List<string>();
+
+        using var context = new DbContext(
+            new DbContextOptionsBuilder()
+                .UseSqlite("Data Source=:memory:")
+                .LogTo(log.Add, LogLevel.Information)
+                .ConfigureLoggingCacheTime(TimeSpan.FromHours(1))
+                .Options);
+
+        if (async)
+        {
+            await Assert.ThrowsAsync<SqliteException>(() => context.Database.ExecuteSqlRawAsync("SELECT * FROM Missing"));
+            await context.Database.ExecuteSqlRawAsync("SELECT 2");
+        }
+        else
+        {
+            Assert.Throws<SqliteException>(() => context.Database.ExecuteSqlRaw("SELECT * FROM Missing"));
+            context.Database.ExecuteSqlRaw("SELECT 2");
+        }
+
+        Assert.Contains(log, m => m.Contains("SELECT 2"));
     }
 
     protected class AmbientTransactionWarningContext(DbContextOptionsBuilder optionsBuilder) : DbContext(optionsBuilder.Options)

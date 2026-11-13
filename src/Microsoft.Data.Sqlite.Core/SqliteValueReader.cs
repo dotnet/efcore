@@ -407,13 +407,15 @@ internal abstract class SqliteValueReader
 
     public virtual int GetValues(object?[] values)
     {
-        int i;
-        for (i = 0; i < FieldCount; i++)
+        // IDataRecord.GetValues: "You can pass an Object array that contains fewer than the number of columns that are
+        // contained in the resulting row. Only the amount of data the Object array holds is copied to the array."
+        var count = Math.Min(values.Length, FieldCount);
+        for (var i = 0; i < count; i++)
         {
             values[i] = GetValue(i);
         }
 
-        return i;
+        return count;
     }
 
     protected virtual byte[]? GetBlob(int ordinal)

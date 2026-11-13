@@ -85,10 +85,11 @@ public class DatabaseOperations
         EnsureServices(scope.ServiceProvider, provider);
 
         var scaffolder = scope.ServiceProvider.GetRequiredService<IReverseEngineerScaffolder>();
+        var code = scope.ServiceProvider.GetRequiredService<ICSharpHelper>();
 
-        var finalModelNamespace = modelNamespace ?? GetNamespaceFromOutputPath(outputDir);
+        var finalModelNamespace = modelNamespace ?? GetNamespaceFromOutputPath(outputDir, code);
         var finalContextNamespace =
-            contextNamespace ?? modelNamespace ?? GetNamespaceFromOutputPath(outputContextDir);
+            contextNamespace ?? modelNamespace ?? GetNamespaceFromOutputPath(outputContextDir, code);
 
         var scaffoldedModel = scaffolder.ScaffoldModel(
             connectionString,
@@ -114,9 +115,9 @@ public class DatabaseOperations
             overwriteFiles);
     }
 
-    private string? GetNamespaceFromOutputPath(string directoryPath)
+    private string? GetNamespaceFromOutputPath(string directoryPath, ICSharpHelper code)
     {
-        var subNamespace = SubnamespaceFromOutputPath(_projectDir, directoryPath);
+        var subNamespace = SubnamespaceFromOutputPath(_projectDir, directoryPath, code);
         return string.IsNullOrEmpty(subNamespace)
             ? _rootNamespace
             : string.IsNullOrEmpty(_rootNamespace)
@@ -127,7 +128,7 @@ public class DatabaseOperations
     // if outputDir is a subfolder of projectDir, then use each subfolder as a sub-namespace
     // --output-dir $(projectFolder)/A/B/C
     // => "namespace $(rootnamespace).A.B.C"
-    private static string? SubnamespaceFromOutputPath(string projectDir, string outputDir)
+    private static string? SubnamespaceFromOutputPath(string projectDir, string outputDir, ICSharpHelper code)
     {
         if (!outputDir.StartsWith(projectDir, StringComparison.Ordinal))
         {
@@ -137,8 +138,7 @@ public class DatabaseOperations
         var subPath = outputDir[projectDir.Length..];
 
         return !string.IsNullOrWhiteSpace(subPath)
-            ? string.Join(
-                ".",
+            ? code.Namespace(
                 subPath.Split(
                     [Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar], StringSplitOptions.RemoveEmptyEntries))
             : null;

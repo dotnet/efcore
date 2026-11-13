@@ -342,11 +342,10 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
             }
         }
 
+        // A replaced dependent's JSON has to be cleared even if no current entry has JSON
         if (!deleting
-            && _entries.Any(e => e.EntityType is { } entityType
-                && (entityType.IsMappedToJson()
-                    || entityType.GetFlattenedComplexProperties().Any(cp => cp.ComplexType.IsMappedToJson())
-                    || entityType.GetNavigations().Any(e => e.IsCollection && e.TargetEntityType.IsMappedToJson()))))
+            && _entries.Any(e => HasJson(e.EntityType)
+                || e.SharedIdentityEntry is { EntityState: EntityState.Deleted } replacedEntry && HasJson(replacedEntry.EntityType)))
         {
             HandleJson(columnModifications);
         }
@@ -372,7 +371,9 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                 optionalDependentWithAllNull =
                     entry.EntityState is EntityState.Modified or EntityState.Added
                     && tableMapping.Table.IsOptional(entry.EntityType)
-                    && tableMapping.Table.GetRowInternalForeignKeys(entry.EntityType).Any();
+                    && tableMapping.Table.GetRowInternalForeignKeys(entry.EntityType).Any()
+                    && entry.EntityType.GetComplexProperties()
+                        .All(p => !p.ComplexType.IsMappedToJson() || entry.GetCurrentValue(p) == null);
 
                 HandleNonJson(entry, entry.EntityType, tableMapping, nonMainEntry, ref optionalDependentWithAllNull);
             }
@@ -395,6 +396,11 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
         }
 
         return columnModifications;
+
+        static bool HasJson(IEntityType entityType)
+            => entityType.IsMappedToJson()
+                || entityType.GetFlattenedComplexProperties().Any(cp => cp.ComplexType.IsMappedToJson())
+                || entityType.GetNavigations().Any(e => e.IsCollection && e.TargetEntityType.IsMappedToJson());
 
         void HandleNonJson(
             IUpdateEntry entry,
@@ -757,6 +763,8 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                 jsonColumnsUpdateMap[jsonColumn] = jsonPartialUpdateInfo;
             }
 
+            // The JSON columns of removed dependents, cleared unless another entry in the row writes them
+            HashSet<IColumn>? jsonColumnsToClear = null;
             foreach (var entry in _entries)
             {
                 if (entry.EntityType.IsMappedToJson())
@@ -784,23 +792,67 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                     }
                 }
 
-                foreach (var complexProperty in entry.EntityType.GetFlattenedComplexProperties())
+                // A dependent replaced by one of another type in the same row is only reachable through the replacement
+                if (entry.SharedIdentityEntry is { EntityState: EntityState.Deleted } replacedEntry
+                    && replacedEntry.EntityType != entry.EntityType)
                 {
-                    var complexType = complexProperty.ComplexType;
-                    if (!complexType.IsMappedToJson()
-                        || complexProperty.DeclaringType.IsMappedToJson()
-                        || (entry.EntityState != EntityState.Added
-                            && !entry.IsModified(complexProperty)))
+                    foreach (var complexProperty in GetJsonComplexProperties(replacedEntry.EntityType))
+                    {
+                        if (FindJsonColumn(replacedEntry, complexProperty.ComplexType) is { } jsonColumn)
+                        {
+                            (jsonColumnsToClear ??= []).Add(jsonColumn);
+                        }
+                    }
+                }
+
+                foreach (var complexProperty in GetJsonComplexProperties(entry.EntityType))
+                {
+                    var jsonColumn = FindJsonColumn(entry, complexProperty.ComplexType);
+                    if (jsonColumn is null
+                        || jsonColumnsUpdateMap.ContainsKey(jsonColumn))
                     {
                         continue;
                     }
 
-                    var jsonColumn = GetTableMapping(entry.EntityType)!.Table.FindColumn(complexType.GetContainerColumnName()!);
-                    if (jsonColumn is not null && !jsonColumnsUpdateMap.ContainsKey(jsonColumn))
+                    if (entry.EntityState == EntityState.Deleted)
+                    {
+                        (jsonColumnsToClear ??= []).Add(jsonColumn);
+                        continue;
+                    }
+
+                    if (entry.EntityState == EntityState.Added
+                        || entry.IsModified(complexProperty))
                     {
                         var jsonPartialUpdateInfo = new List<JsonPartialUpdatePathEntry> { new("$", null, entry, complexProperty) };
                         jsonColumnsUpdateMap[jsonColumn] = jsonPartialUpdateInfo;
                     }
+                }
+            }
+
+            if (jsonColumnsToClear != null)
+            {
+                foreach (var jsonColumn in jsonColumnsToClear)
+                {
+                    if (jsonColumnsUpdateMap.ContainsKey(jsonColumn))
+                    {
+                        continue;
+                    }
+
+                    columnModifications.Add(
+                        CreateColumnModification(
+                            new ColumnModificationParameters(
+                                jsonColumn.Name,
+                                originalValue: null,
+                                value: null,
+                                property: null,
+                                jsonColumn.StoreTypeMapping.StoreType,
+                                jsonColumn.StoreTypeMapping,
+                                read: false,
+                                write: true,
+                                key: false,
+                                condition: false,
+                                _sensitiveLoggingEnabled,
+                                isNullable: true) { GenerateParameterName = _generateParameterName }));
                 }
             }
 
@@ -918,6 +970,21 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                                 _sensitiveLoggingEnabled)
                             { GenerateParameterName = _generateParameterName }));
                 }
+            }
+
+            static IEnumerable<IComplexProperty> GetJsonComplexProperties(IEntityType entityType)
+                => entityType.GetFlattenedComplexProperties()
+                    .Where(p => p.ComplexType.IsMappedToJson() && !p.DeclaringType.IsMappedToJson());
+
+            IColumn? FindJsonColumn(IUpdateEntry entry, IComplexType complexType)
+            {
+                // With TPT, the JSON columns of base and derived types in different tables can have the same name,
+                // and a replaced dependent isn't necessarily mapped to this table
+                var table = GetTableMapping(entry.EntityType)?.Table;
+                return table != null
+                    && complexType.GetContainerColumnName(StoreObjectIdentifier.Table(table.Name, table.Schema)) is { } columnName
+                        ? table.FindColumn(columnName)
+                        : null;
             }
         }
     }

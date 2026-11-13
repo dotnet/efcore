@@ -73,7 +73,10 @@ public class JsonCollectionOfNullableStructsReaderWriter<TConcreteCollection, TE
                 case JsonTokenType.Number:
                 case JsonTokenType.True:
                 case JsonTokenType.False:
-                    collection.Add(_elementReaderWriter.FromJsonTyped(ref manager));
+                    collection.Add(
+                        _elementReaderWriter.GetType() == typeof(JsonCastValueReaderWriter<TElement>)
+                            ? (TElement?)((ICompositeJsonValueReaderWriter)_elementReaderWriter).InnerReaderWriter.FromJson(ref manager)
+                            : _elementReaderWriter.FromJsonTyped(ref manager));
                     break;
                 case JsonTokenType.Null:
                     collection.Add(null);

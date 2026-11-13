@@ -1,7 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Data.Common;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal;
 
@@ -147,6 +149,62 @@ public class DatabaseOperationsTest
         Assert.Equal("Development", Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT"));
     }
 
+    [Theory]
+    [InlineData("Models", "RootNamespace.Models")]
+    [InlineData("Data.Models", "RootNamespace.Data.Models")]
+    [InlineData("Data/My Models", "RootNamespace.Data.MyModels")]
+    [InlineData("My Models", "RootNamespace.MyModels")]
+    [InlineData("My-Models", "RootNamespace.MyModels")]
+    [InlineData("2024", "RootNamespace._2024")]
+    public void ScaffoldContext_generates_valid_namespace_from_output_dir(string outputDir, string expectedNamespace)
+    {
+        var code = ScaffoldContextCode(outputDir, outputContextDir: null);
+
+        Assert.Contains($"namespace {expectedNamespace};", code);
+    }
+
+    [Fact]
+    public void ScaffoldContext_generates_valid_namespaces_from_output_dir_and_context_dir()
+    {
+        var code = ScaffoldContextCode("My Models", "My Context");
+
+        Assert.Contains("namespace RootNamespace.MyContext;", code);
+        Assert.Contains("using RootNamespace.MyModels;", code);
+    }
+
+    private static string ScaffoldContextCode(string outputDir, string? outputContextDir)
+    {
+        using var directory = new TempDirectory();
+        var assembly = MockAssembly.Create(typeof(TestContext), typeof(FakeDatabaseModelFactoryDesignTimeServices));
+        var operations = new DatabaseOperations(
+            new TestOperationReporter(),
+            assembly,
+            assembly,
+            directory.Path,
+            "RootNamespace",
+            "C#",
+            nullable: false,
+            args: []);
+
+        var files = operations.ScaffoldContext(
+            "Microsoft.EntityFrameworkCore.Sqlite",
+            "Data Source=Test.db",
+            outputDir,
+            outputContextDir,
+            dbContextClassName: nameof(TestContext),
+            schemas: [],
+            tables: [],
+            modelNamespace: null,
+            contextNamespace: null,
+            useDataAnnotations: false,
+            overwriteFiles: true,
+            useDatabaseNames: false,
+            suppressOnConfiguring: true,
+            noPluralize: false);
+
+        return File.ReadAllText(files.ContextFile);
+    }
+
     private static DatabaseOperations CreateOperations(string[]? args)
     {
         var assembly = MockAssembly.Create(typeof(TestContext));
@@ -163,4 +221,19 @@ public class DatabaseOperationsTest
     }
 
     public class TestContext : DbContext;
+
+    private class FakeDatabaseModelFactoryDesignTimeServices : IDesignTimeServices
+    {
+        public void ConfigureDesignTimeServices(IServiceCollection serviceCollection)
+            => serviceCollection.AddSingleton<IDatabaseModelFactory, FakeDatabaseModelFactory>();
+    }
+
+    private class FakeDatabaseModelFactory : IDatabaseModelFactory
+    {
+        public DatabaseModel Create(string connectionString, DatabaseModelFactoryOptions options)
+            => new();
+
+        public DatabaseModel Create(DbConnection connection, DatabaseModelFactoryOptions options)
+            => new();
+    }
 }

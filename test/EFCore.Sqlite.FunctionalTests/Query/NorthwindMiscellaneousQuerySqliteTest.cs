@@ -60,8 +60,25 @@ LIMIT -1 OFFSET @p1
 
         AssertSql(
             """
-SELECT (CAST(strftime('%f', "o"."OrderDate", CAST(1 AS TEXT) || ' years') AS REAL) * 1000.0) % 1000.0
+SELECT CAST(substr(strftime('%f', "o"."OrderDate", CAST(1 AS TEXT) || ' years'), 4) AS INTEGER)
 FROM "Orders" AS "o"
+""");
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Select_datetime_millisecond_component_not_representable_as_double(bool async)
+    {
+        // 1.005 seconds can't be represented exactly as a double, and 1.005 * 1000 truncates to 1004
+        await AssertQueryScalar(
+            async,
+            ss => ss.Set<Order>().Where(o => o.OrderDate != null)
+                .Select(o => o.OrderDate!.Value.AddSeconds(1).AddMilliseconds(5).Millisecond));
+
+        AssertSql(
+            """
+SELECT CAST(substr(strftime('%f', "o"."OrderDate", CAST(1.0 AS TEXT) || ' seconds', CAST(5.0 / 1000.0 AS TEXT) || ' seconds'), 4) AS INTEGER)
+FROM "Orders" AS "o"
+WHERE "o"."OrderDate" IS NOT NULL
 """);
     }
 
@@ -210,7 +227,7 @@ WHERE "o"."OrderDate" IS NOT NULL
             """
 @millisecondsPerDay='86400000'
 
-SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', "o"."OrderDate", COALESCE(CAST(CAST(CAST((CAST(strftime('%f', "o"."OrderDate") AS REAL) * 1000.0) % 1000.0 AS INTEGER) / @millisecondsPerDay AS REAL) AS TEXT), '') || ' days', COALESCE(CAST(CAST(CAST((CAST(strftime('%f', "o"."OrderDate") AS REAL) * 1000.0) % 1000.0 AS INTEGER) % @millisecondsPerDay AS REAL) / 1000.0 AS TEXT), '') || ' seconds'), '0'), '.') AS "OrderDate"
+SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', "o"."OrderDate", COALESCE(CAST(CAST(CAST(substr(strftime('%f', "o"."OrderDate"), 4) AS INTEGER) / @millisecondsPerDay AS REAL) AS TEXT), '') || ' days', COALESCE(CAST(CAST(CAST(substr(strftime('%f', "o"."OrderDate"), 4) AS INTEGER) % @millisecondsPerDay AS REAL) / 1000.0 AS TEXT), '') || ' seconds'), '0'), '.') AS "OrderDate"
 FROM "Orders" AS "o"
 WHERE "o"."OrderDate" IS NOT NULL
 """);

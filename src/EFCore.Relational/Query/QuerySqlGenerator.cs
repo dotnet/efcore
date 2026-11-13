@@ -77,11 +77,25 @@ public class QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : Exp
                 VisitDelete(deleteExpression);
                 break;
 
+            case MergeExpression mergeExpression:
+                GenerateTagsHeaderComment(mergeExpression.Tags);
+                VisitMerge(mergeExpression);
+                break;
+
             default:
                 base.Visit(queryExpression);
                 break;
         }
     }
+
+    /// <summary>
+    ///     Generates SQL for a <see cref="MergeExpression" /> (an upsert). The base implementation throws; providers that support merge
+    ///     override this to emit provider-specific SQL.
+    /// </summary>
+    /// <param name="mergeExpression">The merge expression to generate SQL for.</param>
+    [Experimental(EFDiagnostics.ExecuteMergeExperimental)]
+    protected virtual void VisitMerge(MergeExpression mergeExpression)
+        => throw new InvalidOperationException(RelationalStrings.ExecuteMergeNotSupportedByProvider);
 
     /// <summary>
     ///     The default alias separator.
@@ -156,6 +170,9 @@ public class QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : Exp
             UpdateExpression e => VisitUpdate(e),
             JsonScalarExpression e => VisitJsonScalar(e),
             ValuesExpression e => VisitValues(e),
+#pragma warning disable EF9001 // Window function support is experimental
+            WindowFunctionExpression e => VisitWindowFunction(e),
+#pragma warning restore EF9001
 
             _ => throw new InvalidOperationException(
                 RelationalStrings.UnhandledExpressionInVisitor(expression, expression.GetType(), nameof(QuerySqlGenerator))),
@@ -1384,17 +1401,8 @@ public class QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : Exp
     /// <param name="rowNumberExpression">The <see cref="RowNumberExpression" /> for which to generate SQL.</param>
     protected virtual Expression VisitRowNumber(RowNumberExpression rowNumberExpression)
     {
-        _relationalCommandBuilder.Append("ROW_NUMBER() OVER(");
-        if (rowNumberExpression.Partitions.Any())
-        {
-            _relationalCommandBuilder.Append("PARTITION BY ");
-            GenerateList(rowNumberExpression.Partitions, e => Visit(e));
-            _relationalCommandBuilder.Append(" ");
-        }
-
-        _relationalCommandBuilder.Append("ORDER BY ");
-        GenerateList(rowNumberExpression.Orderings, e => Visit(e));
-        _relationalCommandBuilder.Append(")");
+        _relationalCommandBuilder.Append("ROW_NUMBER()");
+        GenerateOver(rowNumberExpression.Partitions, rowNumberExpression.Orderings);
 
         return rowNumberExpression;
     }
@@ -1406,6 +1414,42 @@ public class QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : Exp
         _relationalCommandBuilder.Append(")");
 
         return denseRankExpression;
+    }
+
+    /// <summary>
+    ///     Generates SQL for a window function expression.
+    /// </summary>
+    /// <param name="windowFunctionExpression">The <see cref="WindowFunctionExpression" /> for which to generate SQL.</param>
+    [Experimental(EFDiagnostics.ExperimentalApi)]
+    protected virtual Expression VisitWindowFunction(WindowFunctionExpression windowFunctionExpression)
+    {
+        Visit(windowFunctionExpression.Function);
+        GenerateOver(windowFunctionExpression.Partitions, windowFunctionExpression.Orderings);
+
+        return windowFunctionExpression;
+    }
+
+    private void GenerateOver(IReadOnlyList<SqlExpression> partitions, IReadOnlyList<OrderingExpression> orderings)
+    {
+        _relationalCommandBuilder.Append(" OVER(");
+        if (partitions.Count > 0)
+        {
+            _relationalCommandBuilder.Append("PARTITION BY ");
+            GenerateList(partitions, e => Visit(e));
+
+            if (orderings.Count > 0)
+            {
+                _relationalCommandBuilder.Append(" ");
+            }
+        }
+
+        if (orderings.Count > 0)
+        {
+            _relationalCommandBuilder.Append("ORDER BY ");
+            GenerateList(orderings, e => Visit(e));
+        }
+
+        _relationalCommandBuilder.Append(")");
     }
 
     /// <summary>

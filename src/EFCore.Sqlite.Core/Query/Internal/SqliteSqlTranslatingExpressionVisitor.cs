@@ -438,7 +438,7 @@ public class SqliteSqlTranslatingExpressionVisitor(
 
             string s => startsWith ? $"{EscapeLikePattern(s)}%" : $"%{EscapeLikePattern(s)}",
 
-            char s when IsLikeWildChar(s) => startsWith ? $"{LikeEscapeChar}{s}%" : $"%{LikeEscapeChar}{s}",
+            char s when IsLikeWildChar(s) || s == LikeEscapeChar => startsWith ? $"{LikeEscapeChar}{s}%" : $"%{LikeEscapeChar}{s}",
 
             char s => startsWith ? $"{s}%" : $"%{s}",
 

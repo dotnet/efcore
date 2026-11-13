@@ -104,7 +104,7 @@ WHERE CAST(JSON_VALUE([j].[JsonContainer], '$.Value') AS datetime2) = @Fixture_V
 
         AssertSql(
             """
-@p0='{"OtherValue":"2022-05-03T00:00:00","Value":"2022-05-03T00:00:00"}' (Nullable = false) (Size = 66)
+@p0='{"OtherValue":"2022-05-03T00:00:00.0000000","Value":"2022-05-03T00:00:00.0000000"}' (Nullable = false) (Size = 82)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -123,7 +123,7 @@ WHERE [Id] = @p1;
         {
             AssertSql(
                 """
-@complex_type_Fixture_OtherValue='2022-05-03T00:00:00' (Size = 4000)
+@complex_type_Fixture_OtherValue='2022-05-03T00:00:00.0000000' (Size = 4000)
 
 SET NOCOUNT OFF;
 UPDATE [j]
@@ -135,7 +135,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
-@complex_type_Fixture_OtherValue='2022-05-03T00:00:00' (Size = 4000)
+@complex_type_Fixture_OtherValue='2022-05-03T00:00:00.0000000' (Size = 4000)
 
 SET NOCOUNT OFF;
 UPDATE [j]
@@ -155,7 +155,7 @@ FROM [JsonTypeEntity] AS [j]
                 """
 SET NOCOUNT OFF;
 UPDATE [j]
-SET [JsonContainer].modify('$.Value', N'2022-05-03T00:00:00')
+SET [JsonContainer].modify('$.Value', N'2022-05-03T00:00:00.0000000')
 FROM [JsonTypeEntity] AS [j]
 """);
         }
@@ -165,7 +165,7 @@ FROM [JsonTypeEntity] AS [j]
                 """
 SET NOCOUNT OFF;
 UPDATE [j]
-SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', N'2022-05-03T00:00:00')
+SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', N'2022-05-03T00:00:00.0000000')
 FROM [JsonTypeEntity] AS [j]
 """);
         }

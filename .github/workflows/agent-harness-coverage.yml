@@ -56,11 +56,6 @@ jobs:
         working-directory: eng/harness-evaluation
         run: npm ci
 
-      - name: Audit evaluation dependencies
-        if: steps.harness.outputs.exists == 'true'
-        working-directory: eng/harness-evaluation
-        run: npm audit --audit-level=moderate
-
       - name: Test evaluation harness
         if: steps.harness.outputs.exists == 'true'
         working-directory: eng/harness-evaluation

@@ -19,6 +19,15 @@ public abstract class ComplexJsonMiscellaneousRelationalTestBase<TFixture> : Com
     public virtual Task FromSql_on_root()
         => RelationalAssociationsTests.FromSql_on_root(this, Fixture);
 
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task FromSql_on_root_composed(bool async)
+        => AssertQuery(
+            async,
+            ss => ((DbSet<RootEntity>)ss.Set<RootEntity>())
+                .FromSqlRaw(((RelationalTestStore)Fixture.TestStore).NormalizeDelimitersInRawString("SELECT * FROM [RootEntity]"))
+                .Where(e => e.RequiredAssociate.Int == 8),
+            ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.Int == 8));
+
     protected void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 }

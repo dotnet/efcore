@@ -170,6 +170,7 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
         _code
             .AppendLine()
             .AppendLine("#pragma warning disable EF9100 // Precompiled query is experimental")
+            .AppendLine("#pragma warning disable EF9001 // The query may use experimental APIs, e.g. window functions")
             // Auto-generated code has the nullable context disabled, but the interceptor signatures contain nullable annotations
             .AppendLine("#nullable enable annotations")
             .AppendLine()
@@ -548,7 +549,7 @@ namespace System.Runtime.CompilerServices
             ? (reducedOperatorSymbol.Parameters[0].Name, reducedOperatorSymbol.Parameters[0].Type)
             : ("source", reducedOperatorSymbol.ReceiverType!);
 
-        if (sourceTypeSymbol is not INamedTypeSymbol { TypeArguments: [var sourceElementTypeSymbol] })
+        if (sourceTypeSymbol is not INamedTypeSymbol { TypeArguments: [var sourceElementTypeSymbol, ..] })
         {
             throw new UnreachableException($"Non-IQueryable first parameter in LINQ operator '{operatorSymbol.Name}'");
         }

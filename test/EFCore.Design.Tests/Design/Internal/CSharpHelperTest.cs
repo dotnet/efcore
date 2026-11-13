@@ -212,6 +212,18 @@ public class CSharpHelperTest
     public void Literal_works_when_value_tuple_of_length_9()
         => Literal_works((1, 2, 3, 4, 5, 6, 7, 8, 9), "(1, 2, 3, 4, 5, 6, 7, 8, 9)");
 
+    [Fact, UseCulture("sv-SE")]
+    public void Literal_works_when_negative_integers_with_non_ASCII_negative_sign()
+    {
+        Assert.Equal("(sbyte)-1", new CSharpHelper(TypeMappingSource).UnknownLiteral((sbyte)-1));
+        Assert.Equal("(short)-1", new CSharpHelper(TypeMappingSource).UnknownLiteral((short)-1));
+        Assert.Equal("-1", new CSharpHelper(TypeMappingSource).UnknownLiteral(-1));
+        Assert.Equal("-1L", new CSharpHelper(TypeMappingSource).UnknownLiteral(-1L));
+        Assert.Equal(
+            "(CSharpHelperTest.SomeSByteEnum)(sbyte)-1",
+            new CSharpHelper(TypeMappingSource).UnknownLiteral((SomeSByteEnum)(-1)));
+    }
+
     [Fact, UseCulture("de-DE")]
     public void Literal_works_when_DateTime()
         => Literal_works(
@@ -311,6 +323,13 @@ public class CSharpHelperTest
     public void Literal_works_when_enum_value_is_unnamed(object value, string expected)
         => Assert.Equal(expected, new CSharpHelper(TypeMappingSource).UnknownLiteral(value));
 
+    [Theory, InlineData(SomeFlagsEnum.One | SomeFlagsEnum.Two, "CSharpHelperTest.SomeFlagsEnum.One | CSharpHelperTest.SomeFlagsEnum.Two"),
+     InlineData((SomeFlagsEnum)4, "(CSharpHelperTest.SomeFlagsEnum)4"),
+     InlineData((SomeFlagsEnum)5, "CSharpHelperTest.SomeFlagsEnum.One | (CSharpHelperTest.SomeFlagsEnum)4"),
+     InlineData((SomeFlagsEnum)7, "CSharpHelperTest.SomeFlagsEnum.One | CSharpHelperTest.SomeFlagsEnum.Two | (CSharpHelperTest.SomeFlagsEnum)4")]
+    public void Literal_works_when_flags_enum_value_has_unnamed_bits(object value, string expected)
+        => Assert.Equal(expected, new CSharpHelper(TypeMappingSource).UnknownLiteral(value));
+
     [Theory, InlineData(typeof(int), "int"), InlineData(typeof(int?), "int?"), InlineData(typeof(int[]), "int[]"),
      InlineData(typeof(int[,]), "int[,]"), InlineData(typeof(int[][]), "int[][]"), InlineData(typeof(Generic<int>), "Generic<int>"),
      InlineData(typeof(Nested), "CSharpHelperTest.Nested"), InlineData(typeof(Generic<Generic<int>>), "Generic<Generic<int>>"),
@@ -336,6 +355,14 @@ public class CSharpHelperTest
     private enum SomeSByteEnum : sbyte
     {
         Default
+    }
+
+    [Flags]
+    private enum SomeFlagsEnum
+    {
+        Default = 0,
+        One = 1,
+        Two = 2
     }
 
     [Theory, InlineData("dash-er", "dasher"), InlineData("params", "@params"), InlineData("true", "@true"),

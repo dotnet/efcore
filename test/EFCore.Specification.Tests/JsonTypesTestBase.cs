@@ -156,7 +156,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public TimeOnly TimeOnly { get; set; }
     }
 
-    [Theory, InlineData("0001-01-01T00:00:00.0000000", """{"Prop":"0001-01-01T00:00:00"}"""),
+    [Theory, InlineData("0001-01-01T00:00:00.0000000", """{"Prop":"0001-01-01T00:00:00.0000000"}"""),
      InlineData("9999-12-31T23:59:59.9999999", """{"Prop":"9999-12-31T23:59:59.9999999"}"""),
      InlineData("2023-05-29T10:52:47.2064353", """{"Prop":"2023-05-29T10:52:47.2064353"}""")]
     public virtual Task Can_read_write_DateTime_JSON_values(string value, string json)
@@ -507,7 +507,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public TimeOnly? TimeOnly { get; set; }
     }
 
-    [Theory, InlineData("0001-01-01T00:00:00.0000000", """{"Prop":"0001-01-01T00:00:00"}"""),
+    [Theory, InlineData("0001-01-01T00:00:00.0000000", """{"Prop":"0001-01-01T00:00:00.0000000"}"""),
      InlineData("9999-12-31T23:59:59.9999999", """{"Prop":"9999-12-31T23:59:59.9999999"}"""),
      InlineData("2023-05-29T10:52:47.2064353", """{"Prop":"2023-05-29T10:52:47.2064353"}"""), InlineData(null, """{"Prop":null}""")]
     public virtual Task Can_read_write_nullable_DateTime_JSON_values(string? value, string json)
@@ -1675,7 +1675,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public IReadOnlyCollection<TimeOnly> TimeOnly { get; set; } = null!;
     }
 
-    [Theory, InlineData("""{"Prop":["0001-01-01T00:00:00","2023-05-29T10:52:47","9999-12-31T23:59:59.9999999"]}""")]
+    [Theory, InlineData("""{"Prop":["0001-01-01T00:00:00.0000000","2023-05-29T10:52:47.0000000","9999-12-31T23:59:59.9999999"]}""")]
     public virtual Task Can_read_write_collection_of_DateTime_JSON_values(string expected)
         => Can_read_and_write_JSON_value<DateTimeCollectionType, List<DateTime>>(
             nameof(DateTimeCollectionType.DateTime),
@@ -2256,7 +2256,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         public IReadOnlyList<TimeOnly?> TimeOnly { get; set; } = null!;
     }
 
-    [Theory, InlineData("""{"Prop":["0001-01-01T00:00:00",null,"2023-05-29T10:52:47","9999-12-31T23:59:59.9999999"]}""")]
+    [Theory, InlineData("""{"Prop":["0001-01-01T00:00:00.0000000",null,"2023-05-29T10:52:47.0000000","9999-12-31T23:59:59.9999999"]}""")]
     public virtual Task Can_read_write_collection_of_nullable_DateTime_JSON_values(string expected)
         => Can_read_and_write_JSON_value<NullableDateTimeCollectionType, List<DateTime?>>(
             nameof(NullableDateTimeCollectionType.DateTime),
@@ -3078,6 +3078,68 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
     protected class NullableDddIdCollectionType
     {
         public IList<DddId?> DddId { get; set; } = null!;
+    }
+
+    [Theory, InlineData(false), InlineData(true)]
+    public virtual void Can_read_write_collection_of_nullable_int_with_null_returning_converter(bool existingCollection)
+    {
+        var contextFactory = CreateContextFactory<DbContext>(
+            b => b.Entity<NullableInt32CollectionType>().HasNoKey().PrimitiveCollection(e => e.Int32).ElementType()
+                .HasConversion(new ValueConverter<int?, int?>(
+                    v => v == 0 ? null : v,
+                    v => v == 0 ? null : v)));
+        using var context = contextFactory.CreateDbContext();
+        var readerWriter = context.Model.FindEntityType(typeof(NullableInt32CollectionType))!
+            .GetProperty(nameof(NullableInt32CollectionType.Int32)).GetTypeMapping().JsonValueReaderWriter!;
+
+        Assert.Equal("[5,null,null,7]", readerWriter.ToJsonString(new List<int?> { 5, 0, null, 7 }));
+
+        var existing = existingCollection ? new List<int?> { 99 } : null;
+        var result = readerWriter.FromJsonString("[5,0,null,7]", existing);
+        Assert.Equal(new int?[] { 5, null, null, 7 }, Assert.IsAssignableFrom<IEnumerable<int?>>(result));
+        if (existingCollection)
+        {
+            Assert.Same(existing, result);
+        }
+
+#pragma warning disable EF9100 // Experimental API.
+        var compiledReaderWriter = Expression.Lambda<Func<JsonValueReaderWriter>>(readerWriter.ConstructorExpression).Compile()();
+#pragma warning restore EF9100
+        Assert.Equal(
+            new int?[] { 5, null, null, 7 },
+            Assert.IsAssignableFrom<IEnumerable<int?>>(compiledReaderWriter.FromJsonString("[5,0,null,7]")));
+    }
+
+    [Theory, InlineData(false), InlineData(true)]
+    public virtual void Can_read_write_collection_of_nullable_struct_with_null_returning_converter(bool existingCollection)
+    {
+        var contextFactory = CreateContextFactory<DbContext>(
+            b => b.Entity<NullableDddIdCollectionType>().HasNoKey().PrimitiveCollection(e => e.DddId).ElementType()
+                .HasConversion(new ValueConverter<DddId?, int?>(
+                    v => v!.Value.Id == 0 ? null : v.Value.Id,
+                    v => v == 0 ? null : new DddId { Id = v!.Value })));
+        using var context = contextFactory.CreateDbContext();
+        var readerWriter = context.Model.FindEntityType(typeof(NullableDddIdCollectionType))!
+            .GetProperty(nameof(NullableDddIdCollectionType.DddId)).GetTypeMapping().JsonValueReaderWriter!;
+        var five = new DddId { Id = 5 };
+        var seven = new DddId { Id = 7 };
+
+        Assert.Equal("[5,null,null,7]", readerWriter.ToJsonString(new List<DddId?> { five, new DddId { Id = 0 }, null, seven }));
+
+        var existing = existingCollection ? new List<DddId?> { new DddId { Id = 99 } } : null;
+        var result = readerWriter.FromJsonString("[5,0,null,7]", existing);
+        Assert.Equal(new DddId?[] { five, null, null, seven }, Assert.IsAssignableFrom<IEnumerable<DddId?>>(result));
+        if (existingCollection)
+        {
+            Assert.Same(existing, result);
+        }
+
+#pragma warning disable EF9100 // Experimental API.
+        var compiledReaderWriter = Expression.Lambda<Func<JsonValueReaderWriter>>(readerWriter.ConstructorExpression).Compile()();
+#pragma warning restore EF9100
+        Assert.Equal(
+            new DddId?[] { five, null, null, seven },
+            Assert.IsAssignableFrom<IEnumerable<DddId?>>(compiledReaderWriter.FromJsonString("[5,0,null,7]")));
     }
 
     [Fact]

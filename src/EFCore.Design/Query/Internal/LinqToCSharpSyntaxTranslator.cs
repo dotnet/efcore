@@ -1198,24 +1198,26 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
             var enumType = e.GetType();
 
             var formatted = Enum.Format(enumType, e, "G");
-            if (char.IsDigit(formatted[0]))
-            {
-                // Unknown value, render as a cast of the underlying integral value
-                if (!Enum.IsDefined(e.GetType(), e))
-                {
-                    var underlyingType = enumType.GetEnumUnderlyingType();
 
-                    return CastExpression(
-                        Generate(enumType),
-                        LiteralExpression(
-                            SyntaxKind.NumericLiteralExpression,
-                            underlyingType == typeof(sbyte)
-                            || underlyingType == typeof(short)
-                            || underlyingType == typeof(int)
-                            || underlyingType == typeof(long)
-                                ? Literal(long.Parse(formatted))
-                                : Literal(ulong.Parse(formatted))));
-                }
+            // Unknown values are formatted as a (possibly negative) number rather than as member names
+            if (!char.IsLetter(formatted[0]) && formatted[0] != '_')
+            {
+                // Render as a cast of the underlying integral value
+                var underlyingType = enumType.GetEnumUnderlyingType();
+                var isSigned = underlyingType == typeof(sbyte)
+                    || underlyingType == typeof(short)
+                    || underlyingType == typeof(int)
+                    || underlyingType == typeof(long);
+                var signedValue = isSigned ? Convert.ToInt64(e, CultureInfo.InvariantCulture) : 0;
+
+                ExpressionSyntax literal = LiteralExpression(
+                    SyntaxKind.NumericLiteralExpression,
+                    isSigned
+                        ? Literal(signedValue)
+                        : Literal(Convert.ToUInt64(e, CultureInfo.InvariantCulture)));
+
+                // A negative value must be enclosed in parentheses, otherwise e.g. (MyEnum)-1 doesn't compile
+                return CastExpression(Generate(enumType), signedValue < 0 ? ParenthesizedExpression(literal) : literal);
             }
 
             var components = formatted.Split(", ");

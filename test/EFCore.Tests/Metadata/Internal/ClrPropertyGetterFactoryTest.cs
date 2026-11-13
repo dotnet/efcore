@@ -227,6 +227,74 @@ public class ClrPropertyGetterFactoryTest
             10.0, ClrPropertyGetterFactory.Instance.Create(volumeProperty).GetClrValue(new Fuel(10.0)));
     }
 
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public void Delegate_getter_is_returned_for_nullable_property_in_nested_complex_collection(bool detailedErrors, bool customSentinel)
+    {
+        var modelBuilder = CreateModelBuilder();
+        modelBuilder.Entity<Blog>().ComplexCollection(
+            e => e.Posts, b => b.ComplexCollection(
+                e => e.Revisions, b => b.Property(e => e.PublishedOn)
+                    .HasSentinel(customSentinel ? new DateOnly(2000, 1, 1) : null)));
+
+        var model = modelBuilder.FinalizeModel();
+        model.SetRuntimeAnnotation(CoreAnnotationNames.DetailedErrorsEnabled, detailedErrors);
+        var property = model.FindEntityType(typeof(Blog))!
+            .FindComplexProperty(nameof(Blog.Posts))!.ComplexType
+            .FindComplexProperty(nameof(Post.Revisions))!.ComplexType
+            .FindProperty(nameof(Revision.PublishedOn))!;
+
+        var getter = ClrPropertyGetterFactory.Instance.Create(property);
+        var revision = new Revision();
+        var blog = new Blog { Posts = [new Post { Revisions = [revision] }] };
+
+        Assert.Null(getter.GetClrValueUsingContainingEntity(blog, [0, 0]));
+        Assert.Null(getter.GetClrValue(revision));
+        Assert.Equal(!customSentinel, getter.HasSentinelValueUsingContainingEntity(blog, [0, 0]));
+        Assert.Equal(!customSentinel, getter.HasSentinelValue(revision));
+
+        revision.PublishedOn = new DateOnly(2000, 1, 1);
+
+        Assert.Equal(revision.PublishedOn, getter.GetClrValueUsingContainingEntity(blog, [0, 0]));
+        Assert.Equal(revision.PublishedOn, getter.GetClrValue(revision));
+        Assert.Equal(customSentinel, getter.HasSentinelValueUsingContainingEntity(blog, [0, 0]));
+        Assert.Equal(customSentinel, getter.HasSentinelValue(revision));
+
+        if (detailedErrors)
+        {
+            var complexProperty = ((IComplexType)property.DeclaringType).ComplexProperty;
+            Assert.Equal(
+                CoreStrings.ComplexCollectionOrdinalOutOfRange(
+                    1, complexProperty.DeclaringType.ShortNameChain(), complexProperty.Name, 1),
+                Assert.Throws<InvalidOperationException>(() => getter.GetClrValueUsingContainingEntity(blog, [0, 1])).Message);
+
+            blog.Posts[0].Revisions = null!;
+
+            Assert.Equal(
+                CoreStrings.ComplexCollectionNotInitialized(complexProperty.DeclaringType.ShortNameChain(), complexProperty.Name),
+                Assert.Throws<InvalidOperationException>(() => getter.GetClrValueUsingContainingEntity(blog, [0, 0])).Message);
+        }
+    }
+
+    private class Blog
+    {
+        public int Id { get; set; }
+        public List<Post> Posts { get; set; } = [];
+    }
+
+    private class Post
+    {
+        public List<Revision> Revisions { get; set; } = [];
+    }
+
+    private class Revision
+    {
+        public DateOnly? PublishedOn { get; set; }
+    }
+
     private static TestHelpers.TestModelBuilder CreateModelBuilder()
         => InMemoryTestHelpers.Instance.CreateConventionBuilder();
 

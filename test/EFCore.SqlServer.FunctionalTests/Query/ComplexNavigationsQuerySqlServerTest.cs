@@ -2952,7 +2952,7 @@ LEFT JOIN (
         LEFT JOIN [LevelTwo] AS [l1] ON [l0].[Id] = [l1].[Level1_Optional_Id]
     ) AS [s]
     WHERE [s].[row] <= 1
-) AS [s0] ON [l2].[Name] = [s0].[Name]
+) AS [s0] ON [l2].[Name] = [s0].[Name] OR ([l2].[Name] IS NULL AND [s0].[Name] IS NULL)
 """);
     }
 
@@ -2976,7 +2976,7 @@ LEFT JOIN (
         LEFT JOIN [LevelTwo] AS [l1] ON [l0].[Id] = [l1].[Level1_Optional_Id]
     ) AS [s]
     WHERE [s].[row] <= 1
-) AS [s0] ON [l3].[Name] = [s0].[Name]
+) AS [s0] ON [l3].[Name] = [s0].[Name] OR ([l3].[Name] IS NULL AND [s0].[Name] IS NULL)
 LEFT JOIN [LevelThree] AS [l2] ON [s0].[Id0] = [l2].[OneToMany_Optional_Inverse3Id]
 ORDER BY [l3].[Name]
 """);

@@ -299,19 +299,7 @@ public class RelationalModel : Annotatable, IRelationalModel
                     ? !isTpc && mappedType == entityType
                     : null);
 
-            var containerColumnName = mappedType.GetContainerColumnName();
-            var containerColumnType = mappedType.GetContainerColumnType();
-            if (!string.IsNullOrEmpty(containerColumnName))
-            {
-                CreateContainerColumn(
-                    defaultTable, containerColumnName, containerColumnType, mappedType, relationalTypeMappingSource,
-                    static (colName, colType, table, mapping) => new JsonColumnBase(
-                        colName, colType ?? mapping.StoreType, table, mapping), tableMapping);
-            }
-            else
-            {
-                CreateDefaultColumnMapping(entityType, mappedType, defaultTable, tableMapping, isTph, isTpc, relationalTypeMappingSource);
-            }
+            CreateDefaultColumnMapping(entityType, mappedType, defaultTable, tableMapping, isTph, isTpc, relationalTypeMappingSource);
 
             if (((ITableMappingBase)tableMapping).ColumnMappings.Any()
                 || tableMappings.Count == 0)
@@ -340,32 +328,44 @@ public class RelationalModel : Annotatable, IRelationalModel
         bool isTpc,
         IRelationalTypeMappingSource relationalTypeMappingSource)
     {
-        foreach (var property in typeBase.GetProperties())
+        var containerColumnName = mappedType.GetContainerColumnName();
+        var containerColumnType = mappedType.GetContainerColumnType();
+        if (!string.IsNullOrEmpty(containerColumnName))
         {
-            var columnName = property.IsPrimaryKey() || isTpc || isTph || property.DeclaringType == mappedType
-                ? GetColumnName(property)
-                : null;
-
-            if (columnName == null)
+            CreateContainerColumn(
+                defaultTable, containerColumnName, containerColumnType, mappedType, relationalTypeMappingSource,
+                static (colName, colType, table, mapping) => new JsonColumnBase(
+                    colName, colType ?? mapping.StoreType, table, mapping), tableMapping);
+        }
+        else
+        {
+            foreach (var property in typeBase.GetProperties())
             {
-                continue;
-            }
+                var columnName = property.IsPrimaryKey() || isTpc || isTph || property.DeclaringType == mappedType
+                    ? GetColumnName(property)
+                    : null;
 
-            var column = (ColumnBase<ColumnMappingBase>?)defaultTable.FindColumn(columnName);
-            if (column == null)
-            {
-                column = new ColumnBase<ColumnMappingBase>(columnName, property.GetColumnType(), defaultTable)
+                if (columnName == null)
                 {
-                    IsNullable = property.IsColumnNullable()
-                };
-                defaultTable.Columns.Add(columnName, column);
-            }
-            else if (!property.IsColumnNullable())
-            {
-                column.IsNullable = false;
-            }
+                    continue;
+                }
 
-            CreateColumnMapping(column, property, tableMapping);
+                var column = (ColumnBase<ColumnMappingBase>?)defaultTable.FindColumn(columnName);
+                if (column == null)
+                {
+                    column = new ColumnBase<ColumnMappingBase>(columnName, property.GetColumnType(), defaultTable)
+                    {
+                        IsNullable = property.IsColumnNullable()
+                    };
+                    defaultTable.Columns.Add(columnName, column);
+                }
+                else if (!property.IsColumnNullable())
+                {
+                    column.IsNullable = false;
+                }
+
+                CreateColumnMapping(column, property, tableMapping);
+            }
         }
 
         foreach (var complexProperty in typeBase.GetDeclaredComplexProperties())
@@ -600,7 +600,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         IRelationalTypeMappingSource relationalTypeMappingSource,
         Func<string, string?, TableBase, RelationalTypeMapping, ColumnBase<TColumnMappingBase>> createColumn,
         ITableMappingBase tableMapping)
-        where TColumnMappingBase : class, IColumnMappingBase
+        where TColumnMappingBase : class, IColumnMappingBase, IComparable<TColumnMappingBase>
     {
         IForeignKey? ownership = null;
         if (mappedType is IEntityType entityType)
@@ -650,11 +650,19 @@ public class RelationalModel : Annotatable, IRelationalModel
             complexType = (IComplexType)mappedType;
 #pragma warning disable EF1001 // Internal EF Core API usage.
             var chain = complexType.ComplexProperty.GetChainToComplexProperty(fromEntity: true);
+            StoreObjectIdentifier? storeObject = tableBase switch
+            {
+                Table table => StoreObjectIdentifier.Table(table.Name, table.Schema),
+                View view => StoreObjectIdentifier.View(view.Name, view.Schema),
+                _ => null
+            };
             var isNullable = complexType.ComplexProperty.IsNullable
                 || (chain[0].DeclaringType is IEntityType declaringEntityType
-                    && declaringEntityType.BaseType != null
-                    && (declaringEntityType.GetMappingStrategy() ?? RelationalAnnotationNames.TphMappingStrategy)
-                    == RelationalAnnotationNames.TphMappingStrategy)
+                    && ((declaringEntityType.BaseType != null
+                            && (declaringEntityType.GetMappingStrategy() ?? RelationalAnnotationNames.TphMappingStrategy)
+                            == RelationalAnnotationNames.TphMappingStrategy)
+                        || (storeObject != null
+                            && declaringEntityType.IsOptionalSharingDependent(storeObject.Value))))
                 || chain.Any(p => p.IsNullable);
 #pragma warning restore EF1001 // Internal EF Core API usage.
 
@@ -698,7 +706,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         ColumnBase<TColumnMappingBase> jsonColumn,
         IForeignKey ownership,
         ITableMappingBase tableMapping)
-        where TColumnMappingBase : class, IColumnMappingBase
+        where TColumnMappingBase : class, IColumnMappingBase, IComparable<TColumnMappingBase>
         => BuildJsonElementTree(
             jsonColumn,
             ownership.DeclaringEntityType,
@@ -711,7 +719,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         ColumnBase<TColumnMappingBase> jsonColumn,
         IComplexType complexType,
         ITableMappingBase tableMapping)
-        where TColumnMappingBase : class, IColumnMappingBase
+        where TColumnMappingBase : class, IColumnMappingBase, IComparable<TColumnMappingBase>
         => BuildJsonElementTree(
             jsonColumn,
             complexType,
@@ -727,7 +735,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         bool isNullable,
         IPropertyBase propertyBase,
         ITableMappingBase tableMapping)
-        where TColumnMappingBase : class, IColumnMappingBase
+        where TColumnMappingBase : class, IColumnMappingBase, IComparable<TColumnMappingBase>
     {
         IRelationalJsonElement rootElement;
         if (jsonColumn.JsonElement == null)
@@ -906,7 +914,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         ColumnBase<TColumnMappingBase> column,
         IProperty property,
         ITableMappingBase tableMapping)
-        where TColumnMappingBase : class, IColumnMappingBase
+        where TColumnMappingBase : class, IColumnMappingBase, IComparable<TColumnMappingBase>
     {
         if (!property.IsPrimitiveCollection)
         {
@@ -1948,7 +1956,7 @@ public class RelationalModel : Annotatable, IRelationalModel
     }
 
     private static void PopulateRowInternalForeignKeys<TColumnMapping>(TableBase table)
-        where TColumnMapping : class, IColumnMappingBase
+        where TColumnMapping : class, IColumnMappingBase, IComparable<TColumnMapping>
     {
         TableMappingBase<TColumnMapping>? mainMapping = null;
         var mappedEntityTypes = new HashSet<IEntityType>();
@@ -2206,7 +2214,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         if (property.FindRuntimeAnnotationValue(RelationalAnnotationNames.DefaultColumnMappings)
             is not SortedSet<ColumnMappingBase> columnMappings)
         {
-            columnMappings = [with(ColumnMappingBaseComparer.Instance)];
+            columnMappings = new();
             property.AddRuntimeAnnotation(RelationalAnnotationNames.DefaultColumnMappings, columnMappings);
         }
 
@@ -2229,7 +2237,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         if (property.FindRuntimeAnnotationValue(RelationalAnnotationNames.TableColumnMappings)
             is not SortedSet<ColumnMapping> columnMappings)
         {
-            columnMappings = [with(ColumnMappingBaseComparer.Instance)];
+            columnMappings = new();
             property.AddRuntimeAnnotation(RelationalAnnotationNames.TableColumnMappings, columnMappings);
         }
 
@@ -2252,7 +2260,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         if (property.FindRuntimeAnnotationValue(RelationalAnnotationNames.ViewColumnMappings)
             is not SortedSet<ViewColumnMapping> columnMappings)
         {
-            columnMappings = [with(ColumnMappingBaseComparer.Instance)];
+            columnMappings = new();
             property.AddRuntimeAnnotation(RelationalAnnotationNames.ViewColumnMappings, columnMappings);
         }
 
@@ -2275,7 +2283,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         if (property.FindRuntimeAnnotationValue(RelationalAnnotationNames.SqlQueryColumnMappings)
             is not SortedSet<SqlQueryColumnMapping> columnMappings)
         {
-            columnMappings = [with(ColumnMappingBaseComparer.Instance)];
+            columnMappings = new();
             property.AddRuntimeAnnotation(RelationalAnnotationNames.SqlQueryColumnMappings, columnMappings);
         }
 
@@ -2298,7 +2306,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         if (property.FindRuntimeAnnotationValue(RelationalAnnotationNames.FunctionColumnMappings)
             is not SortedSet<FunctionColumnMapping> columnMappings)
         {
-            columnMappings = [with(ColumnMappingBaseComparer.Instance)];
+            columnMappings = new();
             property.AddRuntimeAnnotation(RelationalAnnotationNames.FunctionColumnMappings, columnMappings);
         }
 
@@ -2338,7 +2346,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         if (property.FindRuntimeAnnotationValue(parameterMappingAnnotationName)
             is not SortedSet<StoredProcedureParameterMapping> columnMappings)
         {
-            columnMappings = [with(ColumnMappingBaseComparer.Instance)];
+            columnMappings = new();
             property.AddRuntimeAnnotation(parameterMappingAnnotationName, columnMappings);
         }
 
@@ -2375,7 +2383,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         if (property.FindRuntimeAnnotationValue(columnMappingAnnotationName)
             is not SortedSet<StoredProcedureResultColumnMapping> columnMappings)
         {
-            columnMappings = [with(ColumnMappingBaseComparer.Instance)];
+            columnMappings = new();
             property.AddRuntimeAnnotation(columnMappingAnnotationName, columnMappings);
         }
 

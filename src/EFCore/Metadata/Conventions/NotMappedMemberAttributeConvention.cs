@@ -38,7 +38,8 @@ public class NotMappedMemberAttributeConvention : IEntityTypeAddedConvention, IC
         foreach (var member in members)
         {
             if (Attribute.IsDefined(member, typeof(NotMappedAttribute), inherit: true)
-                && ShouldIgnore(member))
+                && ShouldIgnore(member)
+                && !SharesSimpleNameWithAnotherMember(entityType, member))
             {
                 entityTypeBuilder.Ignore(member.GetSimpleMemberName(), fromDataAnnotation: true);
             }
@@ -57,7 +58,8 @@ public class NotMappedMemberAttributeConvention : IEntityTypeAddedConvention, IC
         foreach (var member in members)
         {
             if (Attribute.IsDefined(member, typeof(NotMappedAttribute), inherit: true)
-                && ShouldIgnore(member))
+                && ShouldIgnore(member)
+                && !SharesSimpleNameWithAnotherMember(complexType, member))
             {
                 complexType.Builder.Ignore(member.GetSimpleMemberName(), fromDataAnnotation: true);
             }
@@ -71,4 +73,14 @@ public class NotMappedMemberAttributeConvention : IEntityTypeAddedConvention, IC
     /// <returns><see langword="true" /> if the member should be ignored.</returns>
     protected virtual bool ShouldIgnore(MemberInfo memberInfo)
         => true;
+
+    // Members are ignored by simple name, so ignoring an explicit interface implementation
+    // would also ignore a member of the type that has the same name as the interface member.
+    private static bool SharesSimpleNameWithAnotherMember(IReadOnlyTypeBase type, MemberInfo member)
+    {
+        var simpleName = member.GetSimpleMemberName();
+
+        return simpleName != member.Name
+            && (type.GetRuntimeProperties().ContainsKey(simpleName) || type.GetRuntimeFields().ContainsKey(simpleName));
+    }
 }

@@ -10,11 +10,15 @@ public class TPHInheritanceJsonQuerySqlServerTest(TPHInheritanceJsonQuerySqlServ
     {
         await base.Filter_on_complex_type_property_on_derived_type(async);
 
+        var jsonValue = SqlServerTestEnvironment.IsAzureSql
+            ? "JSON_VALUE([d].[ChildComplexType], '$.Int' RETURNING int)"
+            : "CAST(JSON_VALUE([d].[ChildComplexType], '$.Int') AS int)";
+
         AssertSql(
-            """
+            $$"""
 SELECT [d].[Id], [d].[Discriminator], [d].[SortIndex], [d].[CaffeineGrams], [d].[CokeCO2], [d].[Ints], [d].[SugarGrams], [d].[ComplexTypeCollection], [d].[ParentComplexType], [d].[ChildComplexType]
 FROM [Drinks] AS [d]
-WHERE [d].[Discriminator] = 1 AND CAST(JSON_VALUE([d].[ChildComplexType], '$.Int') AS int) = 10
+WHERE [d].[Discriminator] = 1 AND {{jsonValue}} = 10
 """);
     }
 
@@ -22,11 +26,15 @@ WHERE [d].[Discriminator] = 1 AND CAST(JSON_VALUE([d].[ChildComplexType], '$.Int
     {
         await base.Filter_on_complex_type_property_on_base_type(async);
 
+        var jsonValue = SqlServerTestEnvironment.IsAzureSql
+            ? "JSON_VALUE([d].[ParentComplexType], '$.Int' RETURNING int)"
+            : "CAST(JSON_VALUE([d].[ParentComplexType], '$.Int') AS int)";
+
         AssertSql(
-            """
+            $$"""
 SELECT [d].[Id], [d].[Discriminator], [d].[SortIndex], [d].[CaffeineGrams], [d].[CokeCO2], [d].[Ints], [d].[SugarGrams], [d].[LiltCO2], [d].[HasMilk], [d].[ComplexTypeCollection], [d].[ParentComplexType], [d].[ChildComplexType], [d].[ChildComplexType]
 FROM [Drinks] AS [d]
-WHERE CAST(JSON_VALUE([d].[ParentComplexType], '$.Int') AS int) = 8
+WHERE {{jsonValue}} = 8
 """);
     }
 
@@ -34,11 +42,15 @@ WHERE CAST(JSON_VALUE([d].[ParentComplexType], '$.Int') AS int) = 8
     {
         await base.Filter_on_nested_complex_type_property_on_derived_type(async);
 
+        var jsonValue = SqlServerTestEnvironment.IsAzureSql
+            ? "JSON_VALUE([d].[ChildComplexType], '$.Nested.NestedInt' RETURNING int)"
+            : "CAST(JSON_VALUE([d].[ChildComplexType], '$.Nested.NestedInt') AS int)";
+
         AssertSql(
-            """
+            $$"""
 SELECT [d].[Id], [d].[Discriminator], [d].[SortIndex], [d].[CaffeineGrams], [d].[CokeCO2], [d].[Ints], [d].[SugarGrams], [d].[ComplexTypeCollection], [d].[ParentComplexType], [d].[ChildComplexType]
 FROM [Drinks] AS [d]
-WHERE [d].[Discriminator] = 1 AND CAST(JSON_VALUE([d].[ChildComplexType], '$.Nested.NestedInt') AS int) = 58
+WHERE [d].[Discriminator] = 1 AND {{jsonValue}} = 58
 """);
     }
 
@@ -46,11 +58,15 @@ WHERE [d].[Discriminator] = 1 AND CAST(JSON_VALUE([d].[ChildComplexType], '$.Nes
     {
         await base.Filter_on_nested_complex_type_property_on_base_type(async);
 
+        var jsonValue = SqlServerTestEnvironment.IsAzureSql
+            ? "JSON_VALUE([d].[ParentComplexType], '$.Nested.NestedInt' RETURNING int)"
+            : "CAST(JSON_VALUE([d].[ParentComplexType], '$.Nested.NestedInt') AS int)";
+
         AssertSql(
-            """
+            $$"""
 SELECT [d].[Id], [d].[Discriminator], [d].[SortIndex], [d].[CaffeineGrams], [d].[CokeCO2], [d].[Ints], [d].[SugarGrams], [d].[LiltCO2], [d].[HasMilk], [d].[ComplexTypeCollection], [d].[ParentComplexType], [d].[ChildComplexType], [d].[ChildComplexType]
 FROM [Drinks] AS [d]
-WHERE CAST(JSON_VALUE([d].[ParentComplexType], '$.Nested.NestedInt') AS int) = 50
+WHERE {{jsonValue}} = 50
 """);
     }
 

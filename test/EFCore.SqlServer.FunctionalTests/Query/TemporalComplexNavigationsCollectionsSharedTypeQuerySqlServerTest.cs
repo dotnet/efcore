@@ -1478,7 +1478,7 @@ LEFT JOIN (
         FROM [Level1] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l0]
     ) AS [l3]
     WHERE [l3].[row] <= 1
-) AS [l4] ON [l2].[Name] = [l4].[Name]
+) AS [l4] ON [l2].[Name] = [l4].[Name] OR ([l2].[Name] IS NULL AND [l4].[Name] IS NULL)
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id], [l1].[PeriodEnd], [l1].[PeriodStart]
     FROM [Level1] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l1]
@@ -1508,7 +1508,7 @@ LEFT JOIN (
         FROM [Level1] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l0]
     ) AS [l3]
     WHERE [l3].[row] <= 1
-) AS [l4] ON [l2].[Name] = [l4].[Name]
+) AS [l4] ON [l2].[Name] = [l4].[Name] OR ([l2].[Name] IS NULL AND [l4].[Name] IS NULL)
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id], [l1].[PeriodEnd], [l1].[PeriodStart]
     FROM [Level1] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l1]
@@ -1539,7 +1539,7 @@ LEFT JOIN (
         WHERE [l0].[Id] > 3
     ) AS [l3]
     WHERE [l3].[row] <= 1
-) AS [l4] ON [l2].[Name] = [l4].[Name]
+) AS [l4] ON [l2].[Name] = [l4].[Name] OR ([l2].[Name] IS NULL AND [l4].[Name] IS NULL)
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id], [l1].[PeriodEnd], [l1].[PeriodStart]
     FROM [Level1] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l1]

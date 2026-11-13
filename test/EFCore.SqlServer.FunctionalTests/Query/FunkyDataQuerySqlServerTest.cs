@@ -354,6 +354,36 @@ WHERE [f].[FirstName] NOT LIKE @prm5_startswith ESCAPE N'\' OR [f].[FirstName] I
 """);
     }
 
+    public override async Task String_starts_with_ends_with_contains_on_argument_with_escape_char_parameter(bool async)
+    {
+        await base.String_starts_with_ends_with_contains_on_argument_with_escape_char_parameter(async);
+
+        AssertSql(
+            """
+@prm_startswith='\\%' (Size = 4000)
+
+SELECT [f].[FirstName]
+FROM [FunkyCustomers] AS [f]
+WHERE N'\' + ISNULL([f].[FirstName], N'') LIKE @prm_startswith ESCAPE N'\'
+""",
+            //
+            """
+@prm_endswith='%\\' (Size = 4000)
+
+SELECT [f].[FirstName]
+FROM [FunkyCustomers] AS [f]
+WHERE ISNULL([f].[FirstName], N'') + N'\' LIKE @prm_endswith ESCAPE N'\'
+""",
+            //
+            """
+@prm_contains='%\\%' (Size = 4000)
+
+SELECT [f].[FirstName]
+FROM [FunkyCustomers] AS [f]
+WHERE ISNULL([f].[FirstName], N'') + N'\' LIKE @prm_contains ESCAPE N'\'
+""");
+    }
+
     public override async Task String_starts_with_on_argument_with_bracket(bool async)
     {
         await base.String_starts_with_on_argument_with_bracket(async);

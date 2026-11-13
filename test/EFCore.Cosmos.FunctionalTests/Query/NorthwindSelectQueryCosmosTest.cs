@@ -300,7 +300,7 @@ SELECT VALUE
 {
     "CustomerID" : c["id"],
     "ConstantGuid" : "00000000-0000-0000-0000-000000000000",
-    "ConstantDateTime" : "0001-01-01T00:00:00",
+    "ConstantDateTime" : "0001-01-01T00:00:00.0000000",
     "ConstantDateOnly" : @MinValue,
     "ConstantTimeSpan" : "00:00:00",
     "ConstantTimeOnly" : @MinValue1,

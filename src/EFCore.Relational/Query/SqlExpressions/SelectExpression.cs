@@ -806,6 +806,9 @@ public sealed partial class SelectExpression : TableExpressionBase
                             mappedExpression = new ProjectionBindingExpression(selectExpression, existingIndex, column.Type.MakeNullable());
                         }
 
+                        // Unlike a collection's identifiers, these are the grouping's key, which LINQ compares as the model values
+                        // it materializes to: a converter reading different database values as the same one puts their rows in
+                        // one grouping. So they're read through the converter, rather than as provider values.
                         updatedExpressions.Add(
                             mappedExpression.Type.IsValueType
                                 ? Convert(mappedExpression, typeof(object))
@@ -1208,11 +1211,13 @@ public sealed partial class SelectExpression : TableExpressionBase
                                 var projectionBindingExpression = new ProjectionBindingExpression(
                                     selectExpression, existingIndex, column.Type.MakeNullable());
 
+                                var (accessor, accessorComparer) = CreateIdentifierAccessor(
+                                    projectionBindingExpression, column, comparer);
                                 updatedExpressions.Add(
-                                    projectionBindingExpression.Type.IsValueType
-                                        ? Convert(projectionBindingExpression, typeof(object))
-                                        : projectionBindingExpression);
-                                comparers.Add(comparer);
+                                    accessor.Type.IsValueType
+                                        ? Convert(accessor, typeof(object))
+                                        : accessor);
+                                comparers.Add(accessorComparer);
                             }
 
                             return (NewArrayInit(typeof(object), updatedExpressions), comparers);
@@ -1921,6 +1926,19 @@ public sealed partial class SelectExpression : TableExpressionBase
             shaperExpression,
             new ShapedQueryExpression(clonedSelectExpression, rebuiltShaperExpression));
     }
+
+    // A collection's rows are told apart on the client by their identifier values. The database told them apart by their provider
+    // values, so a converted identifier is read and compared as one, rather than through its converter, which can turn the same
+    // database value into instances the model type's comparer doesn't consider equal - every row would then look like the start of a
+    // new collection, and the shaper would never move past it - or into different values altogether, as a write converter that isn't
+    // deterministic does. A final GroupBy's key isn't one of these: see its GetIdentifierAccessor.
+    private static (Expression Accessor, ValueComparer Comparer) CreateIdentifierAccessor(
+        ProjectionBindingExpression projectionBinding,
+        SqlExpression column,
+        ValueComparer comparer)
+        => column.TypeMapping is { Converter: not null } typeMapping
+            ? (new ProviderValueProjectionBindingExpression(projectionBinding, typeMapping), typeMapping.ProviderValueComparer)
+            : (projectionBinding, comparer);
 
     // Keeps the first row of each group in place of the grouping. Rows are numbered with
     // ROW_NUMBER() OVER(PARTITION BY <grouping terms> ORDER BY <orderings>) and filtered to 1, as AddJoin does for a group's element.
@@ -2751,12 +2769,23 @@ public sealed partial class SelectExpression : TableExpressionBase
                 var subqueryIdentifyingColumn = (ColumnExpression)subquery.Projection
                     .Single(e => string.Equals(e.Alias, identifyingColumn.Name, StringComparison.OrdinalIgnoreCase))
                     .Expression;
-
+                // when an owned entity projected with a CROSS APPLY, identifying column comes from
+                // the owner table selectExpression instead of the subquery
+                var ownerInSubquery = subquery.ContainsReferencedTable(subqueryIdentifyingColumn);
+                var subquerySelectExpression = ownerInSubquery ? subquery : selectExpression;
+                var prevTableCount = selectExpression._tables.Count;
                 var subqueryPropertyExpressions = GetPropertyExpressions(
-                    sqlExpressionFactory, sqlAliasManager, navigation, subquery, subqueryIdentifyingColumn, allowOwnerJoin);
+                    sqlExpressionFactory, sqlAliasManager, navigation, subquerySelectExpression, subqueryIdentifyingColumn, allowOwnerJoin);
                 if (subqueryPropertyExpressions is null)
                 {
                     return null;
+                }
+
+                if (!ownerInSubquery && selectExpression._tables.Count > prevTableCount)
+                {
+                    // The owned table is appended to this select, after the CROSS APPLY. The subquery can't get
+                    // reference to the separate owned table, so don't add the columns to the subquery projection
+                    return subqueryPropertyExpressions;
                 }
 
                 var changeNullability = identifyingColumn.IsNullable && !subqueryIdentifyingColumn.IsNullable;
@@ -3280,7 +3309,8 @@ public sealed partial class SelectExpression : TableExpressionBase
                     ? innerSelect.Having
                     : innerSelect.Predicate;
 
-                joinPredicate = TryExtractJoinKey(this, innerSelect, allowNonEquality: limit == null && offset == null);
+                joinPredicate = TryExtractJoinKey(
+                    this, innerSelect, allowNonEquality: limit == null && offset == null, out var nullKeysMatch);
                 if (joinPredicate != null)
                 {
                     var containsOuterReference = new SelectExpressionCorrelationFindingExpressionVisitor(this)
@@ -3332,6 +3362,20 @@ public sealed partial class SelectExpression : TableExpressionBase
                                     : offsetPredicate
                                 : limitPredicate;
                             innerSelect.ApplyPredicate(predicate!);
+                        }
+
+                        // SqlNullabilityProcessor.ProcessJoinPredicate gives a lone equality in a join predicate LINQ equijoin
+                        // semantics, where null equals nothing. When null keys should match, as they did in the subquery's WHERE,
+                        // the equality is given an always-true partner, as CreateJoinPredicate does for an anonymous type with a
+                        // single property, so that it's processed with C# null semantics instead.
+                        if (nullKeysMatch)
+                        {
+                            joinPredicate = new SqlBinaryExpression(
+                                ExpressionType.AndAlso,
+                                joinPredicate,
+                                new SqlConstantExpression(true, joinPredicate.TypeMapping),
+                                typeof(bool),
+                                joinPredicate.TypeMapping);
                         }
 
                         AddJoin(
@@ -3486,8 +3530,14 @@ public sealed partial class SelectExpression : TableExpressionBase
             }
         }
 
-        static SqlExpression? TryExtractJoinKey(SelectExpression outer, SelectExpression inner, bool allowNonEquality)
+        static SqlExpression? TryExtractJoinKey(
+            SelectExpression outer,
+            SelectExpression inner,
+            bool allowNonEquality,
+            out bool nullKeysMatch)
         {
+            nullKeysMatch = false;
+
             if (inner.Limit != null
                 || inner.Offset != null)
             {
@@ -3511,7 +3561,15 @@ public sealed partial class SelectExpression : TableExpressionBase
 
             if (joinPredicate != null)
             {
+                var keyComparison = joinPredicate;
                 joinPredicate = RemoveRedundantNullChecks(joinPredicate, outerColumnExpressions);
+
+                // The predicate was the subquery's WHERE, where an equality has C# null semantics: null equals null. A correlation
+                // which wants null keys to match nothing says so with a null check on the outer key - navigations and GroupJoin
+                // generate "outer != null && outer == inner" - and removing that check above relies on the join predicate's
+                // equijoin semantics instead. A lone equality without one has to keep matching null keys.
+                nullKeysMatch = ReferenceEquals(joinPredicate, keyComparison)
+                    && joinPredicate is SqlBinaryExpression { OperatorType: ExpressionType.Equal };
             }
 
             // we can't convert apply to join in case of distinct and group by, if the projection doesn't already contain the join keys

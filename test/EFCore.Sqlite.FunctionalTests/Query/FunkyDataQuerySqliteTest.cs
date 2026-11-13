@@ -27,6 +27,36 @@ WHERE instr("f"."FirstName", @s) > 0 OR "f"."LastName" LIKE @s_startswith ESCAPE
 """);
     }
 
+    public override async Task String_starts_with_ends_with_contains_on_argument_with_escape_char_parameter(bool async)
+    {
+        await base.String_starts_with_ends_with_contains_on_argument_with_escape_char_parameter(async);
+
+        AssertSql(
+            """
+@prm_startswith='\\%' (Size = 3)
+
+SELECT "f"."FirstName"
+FROM "FunkyCustomers" AS "f"
+WHERE '\' || COALESCE("f"."FirstName", '') LIKE @prm_startswith ESCAPE '\'
+""",
+            //
+            """
+@prm_endswith='%\\' (Size = 3)
+
+SELECT "f"."FirstName"
+FROM "FunkyCustomers" AS "f"
+WHERE COALESCE("f"."FirstName", '') || '\' LIKE @prm_endswith ESCAPE '\'
+""",
+            //
+            """
+@prm='\' (DbType = String)
+
+SELECT "f"."FirstName"
+FROM "FunkyCustomers" AS "f"
+WHERE instr(COALESCE("f"."FirstName", '') || '\', @prm) > 0
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

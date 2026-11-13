@@ -308,9 +308,12 @@ public class SqliteDataReader : DbDataReader
 
         _closed = true;
 
+        var connection = _command.Connection;
+        _command.OnReaderClosed();
+
         if (_closeConnection)
         {
-            _command.Connection!.Close();
+            connection!.Close();
         }
     }
 
@@ -768,7 +771,12 @@ public class SqliteDataReader : DbDataReader
                             : SqliteDataRecord.GetFieldTypeFromSqliteType(
                                 SqliteDataRecord.Sqlite3AffinityType(dataTypeName));
 
-                    command.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE name = $name AND type IN ('table', 'view')";
+                    // The table may be in a TEMP or attached database, which have their own schema tables
+                    var schemaTableName = databaseName == null
+                        ? "sqlite_master"
+                        : "\"" + databaseName.Replace("\"", "\"\"") + "\".sqlite_master";
+                    command.CommandText =
+                        $"SELECT COUNT(*) FROM {schemaTableName} WHERE name = $name AND type IN ('table', 'view')";
                     command.Parameters.AddWithValue("$name", tableName);
 
                     eponymousVirtualTable = (long)command.ExecuteScalar()! == 0L;

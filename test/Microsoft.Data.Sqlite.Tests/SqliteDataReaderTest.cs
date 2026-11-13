@@ -279,6 +279,32 @@ public class SqliteDataReaderTest
         }
     }
 
+    [Theory,
+     InlineData("UTF-16le", "SELECT rowid, Value FROM Data;"),
+     InlineData("UTF-16be", "SELECT rowid, Value FROM Data;"),
+     InlineData("UTF-16le", "SELECT 0, Value FROM Data;"),
+     InlineData("UTF-16be", "SELECT 0, Value FROM Data;"),
+     InlineData("UTF-16le", "SELECT 0, Value || '' FROM Data;"),
+     InlineData("UTF-8", "SELECT rowid, Value FROM Data;")]
+    public void GetChars_works_for_database_encoding(string encoding, string query)
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+
+        connection.ExecuteNonQuery(
+            $"PRAGMA encoding = '{encoding}'; CREATE TABLE Data (Value TEXT); INSERT INTO Data VALUES ('têst');");
+
+        using var reader = connection.ExecuteReader(query);
+        var hasData = reader.Read();
+        Assert.True(hasData);
+
+        var buffer = new char[2];
+        var charsRead = reader.GetChars(1, 1, buffer, 0, buffer.Length);
+        Assert.Equal(2, charsRead);
+        Assert.Equal(new[] { 'ê', 's' }, buffer);
+        Assert.Equal(4, reader.GetChars(1, 0, null, 0, 0));
+    }
+
     [Fact]
     public void GetChars_throws_when_dataOffset_out_of_range()
     {
@@ -614,6 +640,83 @@ public class SqliteDataReaderTest
         using var textReader = reader.GetTextReader(0);
         Assert.IsType<MemoryStream>(Assert.IsType<StreamReader>(textReader).BaseStream);
         Assert.Equal("test", textReader.ReadToEnd());
+    }
+
+    [Theory,
+     InlineData("UTF-16le", "SELECT rowid, Value FROM Data;"),
+     InlineData("UTF-16be", "SELECT rowid, Value FROM Data;"),
+     InlineData("UTF-16le", "SELECT 0, Value FROM Data;"),
+     InlineData("UTF-16be", "SELECT 0, Value FROM Data;"),
+     InlineData("UTF-16le", "SELECT 0, Value || '' FROM Data;"),
+     InlineData("UTF-8", "SELECT rowid, Value FROM Data;")]
+    public void GetTextReader_works_for_database_encoding(string encoding, string query)
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+
+        connection.ExecuteNonQuery(
+            $"PRAGMA encoding = '{encoding}'; CREATE TABLE Data (Value TEXT); INSERT INTO Data VALUES ('têst');");
+
+        using var reader = connection.ExecuteReader(query);
+        var hasData = reader.Read();
+        Assert.True(hasData);
+
+        using var textReader = reader.GetTextReader(1);
+        Assert.Equal("têst", textReader.ReadToEnd());
+    }
+
+    [Fact]
+    public void GetTextReader_works_for_parameter_when_UTF16_database()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+
+        connection.ExecuteNonQuery("PRAGMA encoding = 'UTF-16le'; CREATE TABLE Data (Value TEXT);");
+
+        using var command = connection.CreateCommand();
+        command.CommandText = "SELECT $value;";
+        command.Parameters.AddWithValue("$value", "têst");
+
+        using var reader = command.ExecuteReader();
+        var hasData = reader.Read();
+        Assert.True(hasData);
+
+        using var textReader = reader.GetTextReader(0);
+        Assert.Equal("têst", textReader.ReadToEnd());
+    }
+
+    [Fact]
+    public void GetTextReader_reads_blob_as_UTF8_when_UTF16_database()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+
+        connection.ExecuteNonQuery("PRAGMA encoding = 'UTF-16le'; CREATE TABLE Data (Value BLOB);");
+        connection.ExecuteNonQuery("INSERT INTO Data VALUES (X'74C3AA7374');");
+
+        using var reader = connection.ExecuteReader("SELECT rowid, Value FROM Data;");
+        var hasData = reader.Read();
+        Assert.True(hasData);
+
+        using var textReader = reader.GetTextReader(1);
+        Assert.Equal("têst", textReader.ReadToEnd());
+    }
+
+    [Fact]
+    public void GetFieldValue_of_TextReader_works_when_UTF16_database()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+
+        connection.ExecuteNonQuery(
+            "PRAGMA encoding = 'UTF-16le'; CREATE TABLE Data (Value TEXT); INSERT INTO Data VALUES ('têst');");
+
+        using var reader = connection.ExecuteReader("SELECT rowid, Value FROM Data;");
+        var hasData = reader.Read();
+        Assert.True(hasData);
+
+        using var textReader = reader.GetFieldValue<TextReader>(1);
+        Assert.Equal("têst", textReader.ReadToEnd());
     }
 
     [Fact]
@@ -1358,10 +1461,10 @@ public class SqliteDataReaderTest
         connection.Open();
 
         using var reader = connection.ExecuteReader("SELECT 1;");
-        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => reader.GetOrdinal("Name"));
-        Assert.NotNull(ex.Message);
-        Assert.Equal("name", ex.ParamName);
-        Assert.Equal("Name", ex.ActualValue);
+
+        // IDataRecord.GetOrdinal: "If the index of the named field is not found, an IndexOutOfRangeException is thrown."
+        var ex = Assert.Throws<IndexOutOfRangeException>(() => reader.GetOrdinal("Name"));
+        Assert.Contains("Name", ex.Message);
     }
 
     [Fact]
@@ -1374,6 +1477,34 @@ public class SqliteDataReaderTest
         var ex = Assert.Throws<InvalidOperationException>(() => reader.GetOrdinal("id"));
 
         Assert.Contains(Resources.AmbiguousColumnName("id", "Id", "ID"), ex.Message);
+    }
+
+    [Fact]
+    public void GetOrdinal_works_with_repeated_case_insensitive_lookups()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+
+        using var reader = connection.ExecuteReader("SELECT 1 AS Id");
+
+        Assert.Equal(0, reader.GetOrdinal("ID"));
+        Assert.Equal(0, reader.GetOrdinal("id"));
+        Assert.Equal(0, reader.GetOrdinal("iD"));
+        Assert.Equal(0, reader.GetOrdinal("ID"));
+    }
+
+    [Fact]
+    public void GetOrdinal_returns_first_ordinal_when_names_are_duplicated()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+
+        using var reader = connection.ExecuteReader("SELECT 1 AS Id, 2 AS Id");
+        Assert.True(reader.Read());
+
+        Assert.Equal(0, reader.GetOrdinal("Id"));
+        Assert.Equal(0, reader.GetOrdinal("ID"));
+        Assert.Equal(1L, reader["Id"]);
     }
 
     [Fact]
@@ -1487,17 +1618,48 @@ public class SqliteDataReaderTest
     }
 
     [Fact]
-    public void GetValues_throws_when_too_narrow()
+    public void GetValues_copies_only_what_fits_when_too_narrow()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+
+        using var reader = connection.ExecuteReader("SELECT 1, 2, 3;");
+        var hasData = reader.Read();
+        Assert.True(hasData);
+
+        // IDataRecord.GetValues: "You can pass an Object array that contains fewer than the number of columns that are
+        // contained in the resulting row. Only the amount of data the Object array holds is copied to the array."
+        var values = new object[2];
+        Assert.Equal(2, reader.GetValues(values));
+        Assert.Equal(new object[] { 1L, 2L }, values);
+
+        Assert.Equal(0, reader.GetValues(Array.Empty<object>()));
+    }
+
+    [Fact]
+    public void GetValues_throws_before_read_when_empty()
     {
         using var connection = new SqliteConnection("Data Source=:memory:");
         connection.Open();
 
         using var reader = connection.ExecuteReader("SELECT 1;");
-        var hasData = reader.Read();
-        Assert.True(hasData);
 
-        var values = Array.Empty<object>();
-        Assert.Throws<IndexOutOfRangeException>(() => reader.GetValues(values));
+        var ex = Assert.Throws<InvalidOperationException>(() => reader.GetValues(Array.Empty<object>()));
+        Assert.Equal(Resources.NoData, ex.Message);
+    }
+
+    [Fact]
+    public void GetValues_throws_after_last_row_when_empty()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+
+        using var reader = connection.ExecuteReader("SELECT 1;");
+        Assert.True(reader.Read());
+        Assert.False(reader.Read());
+
+        var ex = Assert.Throws<InvalidOperationException>(() => reader.GetValues(Array.Empty<object>()));
+        Assert.Equal(Resources.NoData, ex.Message);
     }
 
     [Fact]
@@ -2089,6 +2251,24 @@ public class SqliteDataReaderTest
         Assert.Equal("notnull", schemaTable.Rows[3][SchemaTableColumn.ColumnName]);
         Assert.Equal("dflt_value", schemaTable.Rows[4][SchemaTableColumn.ColumnName]);
         Assert.Equal("pk", schemaTable.Rows[5][SchemaTableColumn.ColumnName]);
+    }
+
+    [Theory, InlineData("CREATE TEMP TABLE Person"), InlineData("CREATE TABLE other.Person")]
+    public void GetSchemaTable_works_when_table_not_in_main_database(string createTable)
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        connection.ExecuteNonQuery("ATTACH DATABASE ':memory:' AS other;");
+        connection.ExecuteNonQuery(createTable + " (ID INTEGER PRIMARY KEY AUTOINCREMENT, FirstName TEXT NOT NULL, LastName TEXT);");
+
+        using var reader = connection.ExecuteReader("SELECT ID, FirstName, LastName FROM Person;");
+        var schemaTable = reader.GetSchemaTable();
+
+        Assert.True((bool)schemaTable.Rows[0][SchemaTableColumn.IsKey]);
+        Assert.True((bool)schemaTable.Rows[0][SchemaTableOptionalColumn.IsAutoIncrement]);
+        Assert.False((bool)schemaTable.Rows[1][SchemaTableColumn.IsKey]);
+        Assert.False((bool)schemaTable.Rows[1][SchemaTableColumn.AllowDBNull]);
+        Assert.True((bool)schemaTable.Rows[2][SchemaTableColumn.AllowDBNull]);
     }
 
     [Theory,

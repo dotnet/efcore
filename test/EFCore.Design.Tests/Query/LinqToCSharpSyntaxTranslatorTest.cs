@@ -53,6 +53,14 @@ public class LinqToCSharpSyntaxTranslatorTest(ITestOutputHelper testOutputHelper
     public void Enum_with_unknown_value()
         => AssertExpression(Constant((SomeEnum)1000), "(LinqToCSharpSyntaxTranslatorTest.SomeEnum)1000L");
 
+    [Fact]
+    public void Enum_with_unknown_negative_value()
+        => AssertExpression(Constant((SomeEnum)(-1000)), "(LinqToCSharpSyntaxTranslatorTest.SomeEnum)(-1000L)");
+
+    [Fact]
+    public void Enum_with_unknown_value_of_unsigned_underlying_type()
+        => AssertExpression(Constant((UnsignedEnum)ulong.MaxValue), "(LinqToCSharpSyntaxTranslatorTest.UnsignedEnum)18446744073709551615UL");
+
     [Theory, InlineData(ExpressionType.Add, "+"), InlineData(ExpressionType.Subtract, "-"), InlineData(ExpressionType.Assign, "="),
      InlineData(ExpressionType.AddAssign, "+="), InlineData(ExpressionType.AddAssignChecked, "+="),
      InlineData(ExpressionType.MultiplyAssign, "*="), InlineData(ExpressionType.MultiplyAssignChecked, "*="),
@@ -2725,6 +2733,11 @@ catch
     {
         One = 1,
         Two = 2
+    }
+
+    public enum UnsignedEnum : ulong
+    {
+        One = 1
     }
 
     // ReSharper restore UnusedMember.Local

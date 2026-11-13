@@ -2608,7 +2608,7 @@ LEFT JOIN (
         FROM [LevelOne] AS [l0]
     ) AS [l2]
     WHERE [l2].[row] <= 1
-) AS [l3] ON [l1].[Name] = [l3].[Name]
+) AS [l3] ON [l1].[Name] = [l3].[Name] OR ([l1].[Name] IS NULL AND [l3].[Name] IS NULL)
 ORDER BY [l1].[Name]
 """,
             //
@@ -2626,7 +2626,7 @@ LEFT JOIN (
         FROM [LevelOne] AS [l5]
     ) AS [l8]
     WHERE [l8].[row] <= 1
-) AS [l9] ON [l7].[Name] = [l9].[Name]
+) AS [l9] ON [l7].[Name] = [l9].[Name] OR ([l7].[Name] IS NULL AND [l9].[Name] IS NULL)
 INNER JOIN [LevelTwo] AS [l6] ON [l9].[Id] = [l6].[OneToMany_Optional_Inverse2Id]
 ORDER BY [l7].[Name]
 """);
@@ -2653,7 +2653,7 @@ LEFT JOIN (
         WHERE [l0].[Id] > 3
     ) AS [l2]
     WHERE [l2].[row] <= 1
-) AS [l3] ON [l1].[Name] = [l3].[Name]
+) AS [l3] ON [l1].[Name] = [l3].[Name] OR ([l1].[Name] IS NULL AND [l3].[Name] IS NULL)
 ORDER BY [l1].[Name]
 """,
             //
@@ -2673,7 +2673,7 @@ LEFT JOIN (
         WHERE [l5].[Id] > 3
     ) AS [l8]
     WHERE [l8].[row] <= 1
-) AS [l9] ON [l7].[Name] = [l9].[Name]
+) AS [l9] ON [l7].[Name] = [l9].[Name] OR ([l7].[Name] IS NULL AND [l9].[Name] IS NULL)
 INNER JOIN [LevelTwo] AS [l6] ON [l9].[Id] = [l6].[OneToMany_Optional_Inverse2Id]
 ORDER BY [l7].[Name]
 """);
@@ -2699,7 +2699,7 @@ LEFT JOIN (
         FROM [LevelOne] AS [l0]
     ) AS [l2]
     WHERE [l2].[row] <= 1
-) AS [l3] ON [l1].[Name] = [l3].[Name]
+) AS [l3] ON [l1].[Name] = [l3].[Name] OR ([l1].[Name] IS NULL AND [l3].[Name] IS NULL)
 ORDER BY [l1].[Name]
 """,
             //
@@ -2718,7 +2718,7 @@ LEFT JOIN (
         FROM [LevelOne] AS [l5]
     ) AS [l8]
     WHERE [l8].[row] <= 1
-) AS [l9] ON [l7].[Name] = [l9].[Name]
+) AS [l9] ON [l7].[Name] = [l9].[Name] OR ([l7].[Name] IS NULL AND [l9].[Name] IS NULL)
 INNER JOIN [LevelTwo] AS [l6] ON [l9].[Id] = [l6].[OneToMany_Optional_Inverse2Id]
 ORDER BY [l7].[Name]
 """);

@@ -138,6 +138,16 @@ public class JsonTypesCosmosTest(NonSharedFixture fixture) : JsonTypesTestBase(f
         // Cosmos provider cannot map collections of elements with converters. See Issue #34026.
         => Assert.ThrowsAsync<InvalidOperationException>(base.Can_read_write_collection_of_nullable_int_with_converter_JSON_values);
 
+    public override void Can_read_write_collection_of_nullable_int_with_null_returning_converter(bool existingCollection)
+        // Cosmos provider cannot map collections of elements with converters. See Issue #34026.
+        => Assert.Throws<InvalidOperationException>(
+            () => base.Can_read_write_collection_of_nullable_int_with_null_returning_converter(existingCollection));
+
+    public override void Can_read_write_collection_of_nullable_struct_with_null_returning_converter(bool existingCollection)
+        // Cosmos provider cannot map collections of elements with converters. See Issue #34026.
+        => Assert.Throws<InvalidOperationException>(
+            () => base.Can_read_write_collection_of_nullable_struct_with_null_returning_converter(existingCollection));
+
     public override Task Can_read_write_collection_of_nullable_IP_address_JSON_values()
         // Cosmos provider cannot map collections of elements with converters. See Issue #34026.
         => Assert.ThrowsAsync<InvalidOperationException>(base.Can_read_write_collection_of_nullable_IP_address_JSON_values);

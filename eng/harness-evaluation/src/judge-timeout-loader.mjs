@@ -32,13 +32,7 @@ export async function resolve(specifier, context, nextResolve) {
 
 export async function load(url, context, nextLoad) {
   const result = await nextLoad(url, context);
-  const originalUrl = new URL(clientUrl);
-  originalUrl.searchParams.set('efcore-original', 'true');
   const replacements = {
-    [originalUrl.href]: [
-      'const timeoutMs = Math.min(options.timeoutMs ?? 120_000, 120_000);',
-      'const timeoutMs = options.timeoutMs ?? 120_000;',
-    ],
     [promptGraderUrl]: [
       'const COMPARISON_DEADLINE_MS = 400_000;',
       `const COMPARISON_DEADLINE_MS = ${limits.comparisonDeadlineMs};`,
@@ -52,8 +46,8 @@ export async function load(url, context, nextLoad) {
   if (!replacement) {
     return result;
   }
-  const [before, after] = replacement;
   const source = typeof result.source === 'string' ? result.source : Buffer.from(result.source).toString('utf8');
+  const [before, after] = replacement;
   if (source.split(before).length !== 2) {
     throw new Error(`Unsupported Vally timeout implementation in ${url}; review judge-timeout-loader.mjs before upgrading Vally.`);
   }

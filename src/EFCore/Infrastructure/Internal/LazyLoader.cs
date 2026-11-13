@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -18,7 +19,7 @@ public class LazyLoader : ILazyLoader, IInjectableService
     private QueryTrackingBehavior? _queryTrackingBehavior;
     private bool _disposed;
     private bool _detached;
-    private IDictionary<string, bool>? _loadedStates;
+    private readonly ConcurrentDictionary<string, bool> _loadedStates = new();
     private readonly Lock _isLoadingLock = new();
 
     private readonly Dictionary<(object Entity, string NavigationName), TaskCompletionSource> _isLoading =
@@ -68,11 +69,7 @@ public class LazyLoader : ILazyLoader, IInjectableService
         object entity,
         [CallerMemberName] string navigationName = "",
         bool loaded = true)
-    {
-        _loadedStates ??= new Dictionary<string, bool>();
-
-        _loadedStates[navigationName] = loaded;
-    }
+        => _loadedStates[navigationName] = loaded;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -81,9 +78,7 @@ public class LazyLoader : ILazyLoader, IInjectableService
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual bool IsLoaded(object entity, string navigationName = "")
-        => _loadedStates != null
-            && _loadedStates.TryGetValue(navigationName, out var loaded)
-            && loaded;
+        => _loadedStates.TryGetValue(navigationName, out var loaded) && loaded;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -126,9 +121,10 @@ public class LazyLoader : ILazyLoader, IInjectableService
                 refIsLoadingValue = new TaskCompletionSource();
             }
 
-            _isLoadingCallDepth.Value++;
             isLoadingValue = refIsLoadingValue!;
         }
+
+        _isLoadingCallDepth.Value++;
 
         if (exists)
         {
@@ -157,7 +153,7 @@ public class LazyLoader : ILazyLoader, IInjectableService
                 }
                 catch
                 {
-                    entry.IsLoaded = false;
+                    ResetIsLoaded(entry);
                     throw;
                 }
             }
@@ -200,9 +196,10 @@ public class LazyLoader : ILazyLoader, IInjectableService
                 refIsLoadingValue = new TaskCompletionSource();
             }
 
-            _isLoadingCallDepth.Value++;
             isLoadingValue = refIsLoadingValue!;
         }
+
+        _isLoadingCallDepth.Value++;
 
         if (exists)
         {
@@ -232,7 +229,7 @@ public class LazyLoader : ILazyLoader, IInjectableService
                 }
                 catch
                 {
-                    entry.IsLoaded = false;
+                    ResetIsLoaded(entry);
                     throw;
                 }
             }
@@ -262,6 +259,17 @@ public class LazyLoader : ILazyLoader, IInjectableService
 
         public int GetHashCode((object Entity, string NavigationName) obj)
             => HashCode.Combine(RuntimeHelpers.GetHashCode(obj.Entity), obj.NavigationName.GetHashCode());
+    }
+
+    // A reference that fix-up already set to an entity can't be marked as not loaded, and trying to would throw
+    // and hide the exception that made the load fail. See #34167.
+    private static void ResetIsLoaded(NavigationEntry entry)
+    {
+        if (entry.Metadata.IsCollection
+            || entry.CurrentValue == null)
+        {
+            entry.IsLoaded = false;
+        }
     }
 
     private bool ShouldLoad(object entity, string navigationName, [NotNullWhen(true)] out NavigationEntry? navigationEntry)

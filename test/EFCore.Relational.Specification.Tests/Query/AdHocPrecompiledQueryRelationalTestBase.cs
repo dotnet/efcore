@@ -3,6 +3,7 @@
 
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using static Microsoft.EntityFrameworkCore.TestUtilities.PrecompiledQueryTestHelpers;
 
@@ -14,6 +15,152 @@ public abstract class AdHocPrecompiledQueryRelationalTestBase : NonSharedModelTe
     public AdHocPrecompiledQueryRelationalTestBase(NonSharedFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
         => TestOutputHelper = testOutputHelper;
+
+    [Theory]
+    [InlineData(false, false, false)]
+    [InlineData(false, false, true)]
+    [InlineData(false, true, false)]
+    [InlineData(false, true, true)]
+    [InlineData(true, false, false)]
+    [InlineData(true, false, true)]
+    [InlineData(true, true, false)]
+    [InlineData(true, true, true)]
+    public virtual async Task ThenInclude(bool collection, bool multiple, bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<IncludeContext>();
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            context.Nodes.Add(
+                new IncludeNode
+                {
+                    Name = "Root",
+                    Reference = new IncludeNode
+                    {
+                        Name = "Reference",
+                        Reference = new IncludeNode { Name = "Leaf", Reference = new IncludeNode { Name = "End" } }
+                    },
+                    Children =
+                    [
+                        new IncludeNode
+                        {
+                            Name = "Collection",
+                            Reference = new IncludeNode { Name = "Leaf", Reference = new IncludeNode { Name = "End" } }
+                        }
+                    ]
+                });
+            await context.SaveChangesAsync();
+        }
+
+        ClearLog();
+
+        await Test(
+            $$"""
+await using var context = new AdHocPrecompiledQueryRelationalTestBase.IncludeContext(dbContextOptions);
+var root = {{(async ? "await " : "")}}context.Nodes
+    .Include(e => e.{{(collection ? "Children" : "Reference")}})
+    .ThenInclude(e => e.Reference)
+    {{(multiple ? ".ThenInclude(e => e.Reference)" : "")}}
+    .AsNoTracking()
+    .{{(async ? "FirstOrDefaultAsync" : "FirstOrDefault")}}(e => e.Name == "Root");
+
+Assert.NotNull(root);
+var included = {{(collection ? "Assert.Single(root.Children)" : "root.Reference")}};
+Assert.NotNull(included);
+Assert.Equal("{{(collection ? "Collection" : "Reference")}}", included.Name);
+Assert.NotNull(included.Reference);
+Assert.Equal("Leaf", included.Reference.Name);
+{{(multiple ? """Assert.Equal("End", included.Reference.Reference!.Name);""" : "")}}
+Assert.Empty(context.ChangeTracker.Entries());
+""",
+            typeof(IncludeContext),
+            contextFactory.GetOptions());
+    }
+
+    public class IncludeContext(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<IncludeNode> Nodes { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<IncludeNode>().HasOne(e => e.Reference).WithMany().HasForeignKey("ReferenceId");
+            modelBuilder.Entity<IncludeNode>().HasMany(e => e.Children).WithOne().HasForeignKey("ParentId");
+        }
+    }
+
+    public class IncludeNode
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = null!;
+        public IncludeNode? Reference { get; set; }
+        public List<IncludeNode> Children { get; set; } = [];
+    }
+
+    [Fact]
+    public virtual async Task Coalesce_nullable_long_in_anonymous_projection()
+    {
+        var contextFactory = await InitializeNonSharedTest<NullableLongContext>(seed: async context =>
+        {
+            context.Records.AddRange(
+                new NullableLongRecord { SizeBytes = null },
+                new NullableLongRecord { SizeBytes = 8L });
+            await context.SaveChangesAsync();
+        });
+
+        await Test(
+            """
+await using var context = new AdHocPrecompiledQueryRelationalTestBase.NullableLongContext(dbContextOptions);
+
+var rows = await context.Records.OrderBy(r => r.Id).Select(r => new { SizeBytes = r.SizeBytes ?? 0L }).ToListAsync();
+Assert.Equal(new long[] { 0L, 8L }, rows.Select(r => r.SizeBytes));
+""",
+            typeof(NullableLongContext),
+            contextFactory.GetOptions());
+    }
+
+    public class NullableLongContext(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<NullableLongRecord> Records { get; set; } = null!;
+    }
+
+    public class NullableLongRecord
+    {
+        public int Id { get; set; }
+        public long? SizeBytes { get; set; }
+    }
+
+    [Fact]
+    public virtual async Task Decimal_projection_with_implicitly_converted_zero()
+    {
+        var contextFactory = await InitializeNonSharedTest<DecimalContext>();
+
+        await Test(
+            """
+await using var context = new AdHocPrecompiledQueryRelationalTestBase.DecimalContext(dbContextOptions);
+var id = 1;
+var amount = 2m;
+
+// Generate and compile the query without executing it.
+Func<Task<decimal>> query = () => context.Groups.Where(group => group.Id == id)
+    .Select(group => group.Balance + (amount > 0 ? amount : 0))
+    .SingleAsync();
+""",
+            typeof(DecimalContext),
+            contextFactory.GetOptions(),
+            interceptorCodeAsserter: code => Assert.Contains("InterceptsLocation", code));
+    }
+
+    public class DecimalContext(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<DecimalGroup> Groups { get; set; } = null!;
+    }
+
+    public class DecimalGroup
+    {
+        public int Id { get; set; }
+
+        [Precision(18, 2)]
+        public decimal Balance { get; set; }
+    }
 
     [Fact]
     public virtual async Task Index_no_evaluatability()
@@ -85,6 +232,89 @@ _ = context.JsonEntities.Where(b => b.JsonThing.StringProperty == "foo").ToList(
     public class JsonThing
     {
         public string StringProperty { get; set; } = null!;
+    }
+
+    [Fact]
+    public virtual async Task Materialize_sealed_entity()
+    {
+        var contextFactory = await InitializeNonSharedTest<SealedContext>(
+            seed: async context =>
+            {
+                context.Entities.Add(new SealedEntity { Id = 1, Name = "Sealed" });
+                await context.SaveChangesAsync();
+            });
+
+        await Test(
+            """
+await using var context = new AdHocPrecompiledQueryRelationalTestBase.SealedContext(dbContextOptions);
+var entity = await context.Entities.SingleAsync();
+Assert.Equal(1, entity.Id);
+Assert.Equal("Sealed", entity.Name);
+""",
+            typeof(SealedContext),
+            contextFactory.GetOptions());
+    }
+
+    [Fact]
+    public virtual async Task Materialize_sealed_entity_implementing_injectable_service()
+    {
+        var contextFactory = await InitializeNonSharedTest<SealedContext>(
+            seed: async context =>
+            {
+                context.InjectableEntities.Add(new SealedInjectableEntity { Id = 1, Name = "Injectable" });
+                await context.SaveChangesAsync();
+            });
+
+        await Test(
+            """
+await using var context = new AdHocPrecompiledQueryRelationalTestBase.SealedContext(dbContextOptions);
+var entity = await context.InjectableEntities.SingleAsync();
+Assert.Equal(1, entity.Id);
+Assert.Equal("Injectable", entity.Name);
+Assert.Equal(1, entity.InjectionCount);
+""",
+            typeof(SealedContext),
+            contextFactory.GetOptions());
+    }
+
+    public class SealedContext(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<SealedEntity> Entities { get; set; } = null!;
+        public DbSet<SealedInjectableEntity> InjectableEntities { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<SealedEntity>().Property(e => e.Id).ValueGeneratedNever();
+            modelBuilder.Entity<SealedInjectableEntity>().Property(e => e.Id).ValueGeneratedNever();
+            modelBuilder.Entity<SealedInjectableEntity>().Ignore(e => e.InjectionCount);
+        }
+    }
+
+    public sealed class SealedEntity
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = null!;
+    }
+
+    public sealed class SealedInjectableEntity : IInjectableService
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = null!;
+        public int InjectionCount { get; private set; }
+
+        void IInjectableService.Injected(
+            DbContext context,
+            object entity,
+            QueryTrackingBehavior? queryTrackingBehavior,
+            ITypeBase structuralType)
+            => InjectionCount++;
+
+        bool IInjectableService.Detaching(DbContext context, object entity)
+            => false;
+
+        void IInjectableService.Attaching(DbContext context, IEntityType entityType, object entity)
+        {
+        }
     }
 
     [Fact]
@@ -394,6 +624,71 @@ var posts = await context.Posts.ToListAsync();
             r => r.Value,
             v => new Rating(v));
     }
+
+    #region Window functions
+
+    [Fact]
+    public virtual async Task GroupBy_elements_and_aggregates_as_window_functions()
+    {
+        var contextFactory = await InitializeNonSharedTest<WindowFunctionContext>(
+            onConfiguring: o => UseWindowFunctionAggregates(o));
+        var options = contextFactory.GetOptions();
+
+        await Test(
+            """
+await using var context = new AdHocPrecompiledQueryRelationalTestBase.WindowFunctionContext(dbContextOptions);
+context.Employees.AddRange(
+    new AdHocPrecompiledQueryRelationalTestBase.WindowFunctionEmployee { DepartmentName = "Engineering", Salary = 100 },
+    new AdHocPrecompiledQueryRelationalTestBase.WindowFunctionEmployee { DepartmentName = "Engineering", Salary = 200 },
+    new AdHocPrecompiledQueryRelationalTestBase.WindowFunctionEmployee { DepartmentName = "Sales", Salary = 50 });
+await context.SaveChangesAsync();
+
+// With more nullable parameters than SQL is pregenerated for, the SQL tree itself is quoted into the generated code.
+string? excluded1 = "Finance", excluded2 = "Legal", excluded3 = "Marketing", excluded4 = "Support";
+var departments = await context.Employees
+    .Where(e => e.DepartmentName != excluded1 && e.DepartmentName != excluded2 && e.DepartmentName != excluded3 && e.DepartmentName != excluded4)
+    .GroupBy(e => e.DepartmentName)
+    .Select(g => new { Employees = g.ToList(), Total = g.Sum(e => e.Salary), Count = g.LongCount() })
+    .ToListAsync();
+
+Assert.Collection(
+    departments.OrderBy(d => d.Total),
+    sales =>
+    {
+        Assert.Single(sales.Employees);
+        Assert.Equal(50, sales.Total);
+        Assert.Equal(1L, sales.Count);
+    },
+    engineering =>
+    {
+        Assert.Equal(2, engineering.Employees.Count);
+        Assert.Equal(300, engineering.Total);
+        Assert.Equal(2L, engineering.Count);
+    });
+""",
+            typeof(WindowFunctionContext),
+            options,
+            interceptorCodeAsserter: code => Assert.Contains("new WindowFunctionExpression(", code));
+    }
+
+    /// <summary>
+    ///     Enables the window function translation on the given options, using the provider's own options builder.
+    /// </summary>
+    protected abstract DbContextOptionsBuilder UseWindowFunctionAggregates(DbContextOptionsBuilder optionsBuilder);
+
+    public class WindowFunctionContext(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<WindowFunctionEmployee> Employees { get; set; } = null!;
+    }
+
+    public class WindowFunctionEmployee
+    {
+        public int Id { get; set; }
+        public string DepartmentName { get; set; } = "";
+        public int Salary { get; set; }
+    }
+
+    #endregion
 
     #region Invalid runtime constant name
 

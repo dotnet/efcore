@@ -289,7 +289,7 @@ public class GroupBySplitQueryingEnumerable<TKey, TElement>
 
                         group.Add(element);
 
-                        if (_resultCoordinator!.HasNext ?? _dbDataReader!.Read())
+                        if (_resultCoordinator!.HasNext ?? _dataReader!.Read())
                         {
                             // Check if grouping key changed
                             if (!CompareIdentifiers(

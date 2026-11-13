@@ -112,7 +112,7 @@ FROM "Orders" AS "o"
 
         AssertSql(
             """
-SELECT (CAST(strftime('%f', "o"."OrderDate") AS REAL) * 1000.0) % 1000.0
+SELECT CAST(substr(strftime('%f', "o"."OrderDate"), 4) AS INTEGER)
 FROM "Orders" AS "o"
 """);
     }

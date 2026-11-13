@@ -751,7 +751,7 @@ LEFT JOIN (
         FROM [LevelOne] AS [l0]
     ) AS [l3]
     WHERE [l3].[row] <= 1
-) AS [l4] ON [l2].[Name] = [l4].[Name]
+) AS [l4] ON [l2].[Name] = [l4].[Name] OR ([l2].[Name] IS NULL AND [l4].[Name] IS NULL)
 LEFT JOIN [LevelTwo] AS [l1] ON [l4].[Id] = [l1].[OneToMany_Optional_Inverse2Id]
 ORDER BY [l2].[Name]
 """);
@@ -778,7 +778,7 @@ LEFT JOIN (
         WHERE [l0].[Id] > 3
     ) AS [l3]
     WHERE [l3].[row] <= 1
-) AS [l4] ON [l2].[Name] = [l4].[Name]
+) AS [l4] ON [l2].[Name] = [l4].[Name] OR ([l2].[Name] IS NULL AND [l4].[Name] IS NULL)
 LEFT JOIN [LevelTwo] AS [l1] ON [l4].[Id] = [l1].[OneToMany_Optional_Inverse2Id]
 ORDER BY [l2].[Name]
 """);
@@ -804,7 +804,7 @@ LEFT JOIN (
         FROM [LevelOne] AS [l0]
     ) AS [l3]
     WHERE [l3].[row] <= 1
-) AS [l4] ON [l2].[Name] = [l4].[Name]
+) AS [l4] ON [l2].[Name] = [l4].[Name] OR ([l2].[Name] IS NULL AND [l4].[Name] IS NULL)
 LEFT JOIN [LevelTwo] AS [l1] ON [l4].[Id] = [l1].[OneToMany_Optional_Inverse2Id]
 ORDER BY [l2].[Name]
 """);

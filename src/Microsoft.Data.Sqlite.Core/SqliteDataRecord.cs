@@ -35,6 +35,7 @@ internal class SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnectio
 
     private bool _alreadyThrown;
     private bool _alreadyAddedChanges;
+    private bool? _databaseEncodingIsUtf8;
 
     public virtual object this[string name]
         => GetValue(GetOrdinal(name));
@@ -58,6 +59,11 @@ internal class SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnectio
         => !_stepped || sqlite3_data_count(Handle) == 0
             ? throw new InvalidOperationException(Resources.NoData)
             : base.GetValue(ordinal)!;
+
+    public override int GetValues(object?[] values)
+        => !_stepped || sqlite3_data_count(Handle) == 0
+            ? throw new InvalidOperationException(Resources.NoData)
+            : base.GetValues(values);
 
     protected override double GetDoubleCore(int ordinal)
         => sqlite3_column_double(Handle, ordinal);
@@ -122,7 +128,7 @@ internal class SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnectio
             _columnNameOrdinalCache = [];
             for (var i = 0; i < FieldCount; i++)
             {
-                _columnNameOrdinalCache[GetName(i)] = i;
+                _columnNameOrdinalCache.TryAdd(GetName(i), i);
             }
         }
 
@@ -136,7 +142,8 @@ internal class SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnectio
         {
             if (string.Equals(name, item.Key, StringComparison.OrdinalIgnoreCase))
             {
-                if (match != null)
+                if (match != null
+                    && match.Value.Value != item.Value)
                 {
                     throw new InvalidOperationException(
                         Resources.AmbiguousColumnName(name, match.Value.Key, item.Key));
@@ -153,8 +160,8 @@ internal class SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnectio
             return match.Value.Value;
         }
 
-        // NB: Message is provided by framework
-        throw new ArgumentOutOfRangeException(nameof(name), name, message: null);
+        // IDataRecord.GetOrdinal: "If the index of the named field is not found, an IndexOutOfRangeException is thrown."
+        throw new IndexOutOfRangeException(name);
     }
 
     public virtual string GetDataTypeName(int ordinal)
@@ -260,7 +267,7 @@ internal class SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnectio
 
     public virtual long GetChars(int ordinal, long dataOffset, char[]? buffer, int bufferOffset, int length)
     {
-        using var reader = new StreamReader(GetStream(ordinal), Encoding.UTF8);
+        using var reader = CreateTextReader(ordinal);
 
         if (buffer == null)
         {
@@ -394,7 +401,16 @@ internal class SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnectio
     public virtual TextReader GetTextReader(int ordinal)
         => IsDBNull(ordinal)
             ? new StringReader(string.Empty)
+            : CreateTextReader(ordinal);
+
+    private TextReader CreateTextReader(int ordinal)
+        // A stream exposes text in the database encoding. SQLite only converts it when it's read as a string.
+        => GetSqliteType(ordinal) == SQLITE_TEXT && !DatabaseEncodingIsUtf8()
+            ? new StringReader(GetString(ordinal))
             : new StreamReader(GetStream(ordinal), Encoding.UTF8);
+
+    private bool DatabaseEncodingIsUtf8()
+        => _databaseEncodingIsUtf8 ??= connection.ExecuteScalar<string>("PRAGMA encoding;") == "UTF-8";
 
     public bool Read()
     {

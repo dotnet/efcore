@@ -29,6 +29,19 @@ LIMIT 1
 """);
     }
 
+    public override async Task Class_constant_in_predicate()
+    {
+        await base.Class_constant_in_predicate();
+
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Name", "b"."Json"
+FROM "Blogs" AS "b"
+WHERE "b"."Id" = 8
+LIMIT 2
+""");
+    }
+
     [Fact]
     public virtual Task Glob()
         => Test("""_ = context.Blogs.Where(b => EF.Functions.Glob(b.Name, "*foo*")).ToList();""");

@@ -97,6 +97,45 @@ ALTER TABLE [People] ADD [Id] int NOT NULL DEFAULT N'';
     }
 
     [Fact]
+    public virtual void AddColumnOperation_default_constraint_name_with_closing_bracket()
+    {
+        Generate(
+            new AddColumnOperation
+            {
+                Table = "People",
+                Name = "Age",
+                ClrType = typeof(int),
+                ColumnType = "int",
+                DefaultValue = 0,
+                IsNullable = false,
+                [RelationalAnnotationNames.DefaultConstraintName] = "DF_People]Age"
+            });
+
+        AssertSql(
+            """
+ALTER TABLE [People] ADD [Age] int NOT NULL CONSTRAINT [DF_People]]Age] DEFAULT 0;
+""");
+    }
+
+    [Fact]
+    public virtual void DropColumnOperation_default_constraint_name_with_closing_bracket()
+    {
+        Generate(
+            new DropColumnOperation
+            {
+                Table = "People",
+                Name = "Age",
+                [RelationalAnnotationNames.DefaultConstraintName] = "DF_People]Age"
+            });
+
+        AssertSql(
+            """
+ALTER TABLE [People] DROP CONSTRAINT [DF_People]]Age];
+ALTER TABLE [People] DROP COLUMN [Age];
+""");
+    }
+
+    [Fact]
     public virtual void AddColumnOperation_identity_legacy()
     {
         Generate(

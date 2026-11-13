@@ -313,6 +313,38 @@ END = 2
 """);
     }
 
+    public override async Task IndexOf_with_whitespace_parameter()
+    {
+        await base.IndexOf_with_whitespace_parameter();
+
+        AssertSql(
+            """
+@pattern=' ' (Size = 1)
+
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE instr("b"."String", @pattern) - 1 = -1
+""");
+    }
+
+    public override async Task IndexOf_with_whitespace_parameter_and_parameter_starting_position()
+    {
+        await base.IndexOf_with_whitespace_parameter_and_parameter_starting_position();
+
+        AssertSql(
+            """
+@start='2'
+@pattern=' ' (Size = 1)
+
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE length("b"."String") > 2 AND CASE
+    WHEN instr(substr("b"."String", @start + 1), @pattern) = 0 THEN -1
+    ELSE (instr(substr("b"."String", @start + 1), @pattern) - 1) + @start
+END = -1
+""");
+    }
+
     public override async Task IndexOf_after_ToString()
     {
         await base.IndexOf_after_ToString();

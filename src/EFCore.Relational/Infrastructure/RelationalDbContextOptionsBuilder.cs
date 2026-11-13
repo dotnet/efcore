@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
@@ -162,6 +163,28 @@ public abstract class RelationalDbContextOptionsBuilder<TBuilder, TExtension> : 
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public virtual TBuilder UseParameterizedCollectionMode(ParameterTranslationMode parameterizedCollectionMode)
         => WithOption(e => (TExtension)e.WithUseParameterizedCollectionMode(parameterizedCollectionMode));
+
+    /// <summary>
+    ///     Configures the context to translate aggregates which are projected alongside the elements of a grouping as SQL window
+    ///     functions, e.g. <c>GroupBy(e =&gt; e.Key).Select(g =&gt; new { Elements = g.ToList(), Sum = g.Sum(e =&gt; e.Value) })</c>
+    ///     becomes <c>SUM(Value) OVER (PARTITION BY Key)</c> over the ungrouped rows.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         Without this option such a projection groups on the server and then joins the source back to itself to get the elements
+    ///         back, reading everything twice. Projections which this option cannot translate keep that existing translation.
+    ///     </para>
+    ///     <para>
+    ///         This is an experimental API used to gather feedback on
+    ///         <see href="https://github.com/dotnet/efcore/issues/12747">window function support</see>; it may change or be removed in
+    ///         a future release.
+    ///     </para>
+    /// </remarks>
+    /// <param name="useWindowFunctionAggregates"><see langword="true" /> to enable the translation; <see langword="false" /> to disable it.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    [Experimental(EFDiagnostics.ExperimentalApi)]
+    public virtual TBuilder UseWindowFunctionAggregates(bool useWindowFunctionAggregates = true)
+        => WithOption(e => (TExtension)e.WithUseWindowFunctionAggregates(useWindowFunctionAggregates));
 
     /// <summary>
     ///     Sets an option by cloning the extension used to store the settings. This ensures the builder

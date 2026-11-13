@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : ExpressionVisitor
+public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource, IModel model) : ExpressionVisitor
 {
     private readonly IndentedStringBuilder _sqlBuilder = new();
     private IReadOnlyDictionary<string, object?> _parameterValues = null!;
@@ -469,7 +469,13 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Exp
                     // Note that we don't go through _sqlParametersByOriginalName, since the FromSql parameters we're adding here cannot
                     // be referenced multiple times.
                     var parameterName = PrefixAndUniquifyParameterName("p");
-                    _sqlParameters.Add(new SqlValueParameter(parameterName, parameterValues[i]));
+
+                    // Go through the type mapping so that values (e.g. DateTime) are serialized the same way as stored values.
+                    var value = parameterValues[i];
+                    _sqlParameters.Add(
+                        value is not null && typeMappingSource.FindMapping(value.GetType(), model) is CosmosTypeMapping typeMapping
+                            ? typeMapping.CreateParameter(parameterName, value)
+                            : new SqlValueParameter(parameterName, value));
                     substitutions[i] = parameterName;
                 }
 
@@ -482,7 +488,7 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Exp
                 for (var i = 0; i < constantValues.Length; i++)
                 {
                     var value = constantValues[i];
-                    var typeMapping = typeMappingSource.FindMapping(value.GetType());
+                    var typeMapping = typeMappingSource.FindMapping(value.GetType(), model);
                     Check.DebugAssert(typeMapping is not null, "Could not find type mapping for FromSql parameter");
                     substitutions[i] = ((CosmosTypeMapping)typeMapping).GenerateSqlLiteral(value);
                 }

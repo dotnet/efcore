@@ -1352,7 +1352,7 @@ FROM root c
 WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (DateTimePart("yyyy", (ARRAY(
     SELECT VALUE o["OrderDate"]
     FROM o IN c["Orders"]
-    WHERE (o["Id"] > -20))[0] ?? "0001-01-01T00:00:00")) = 2018))
+    WHERE (o["Id"] > -20))[0] ?? "0001-01-01T00:00:00.0000000")) = 2018))
 """);
             });
 
