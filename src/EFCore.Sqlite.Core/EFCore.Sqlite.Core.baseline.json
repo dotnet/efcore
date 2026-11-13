@@ -206,6 +206,9 @@
           "Member": "static readonly Microsoft.Extensions.Logging.EventId ConflictingValueGenerationStrategiesWarning"
         },
         {
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId ExpressionIndexSkippedWarning"
+        },
+        {
           "Member": "static readonly Microsoft.Extensions.Logging.EventId ForeignKeyFound"
         },
         {

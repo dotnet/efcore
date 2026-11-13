@@ -12,8 +12,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 ///     See <see href="https://aka.ms/efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
 ///     for more information and examples.
 /// </remarks>
-public interface ISqlQueryColumnMapping : IColumnMappingBase
+public interface ISqlQueryColumnMapping : IColumnMappingBase, IComparable<ISqlQueryColumnMapping>
 {
+    /// <inheritdoc />
+    int IComparable<ISqlQueryColumnMapping>.CompareTo(ISqlQueryColumnMapping? other)
+        => ((IColumnMappingBase)this).CompareTo(other);
+
     /// <summary>
     ///     Gets the target column.
     /// </summary>

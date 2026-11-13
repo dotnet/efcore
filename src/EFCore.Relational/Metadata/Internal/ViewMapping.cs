@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class ViewMapping : TableMappingBase<ViewColumnMapping>, IViewMapping
+public class ViewMapping : TableMappingBase<ViewColumnMapping>, IViewMapping, IComparable<ViewMapping>
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -28,6 +28,10 @@ public class ViewMapping : TableMappingBase<ViewColumnMapping>, IViewMapping
     /// <inheritdoc />
     public virtual IView View
         => (IView)base.Table;
+
+    /// <inheritdoc />
+    public int CompareTo(ViewMapping? other)
+        => CompareTo((ITableMappingBase?)other);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

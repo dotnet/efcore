@@ -6790,6 +6790,32 @@ partial class Snapshot : ModelSnapshot
             });
 
     [Fact]
+    public virtual void Complex_collection_global_collation_is_ignored_in_snapshot()
+    {
+        var builder = TestHelpers.CreateConventionBuilder(
+            configureConventions: c => c.Properties<string>().UseCollation("case_insensitive"));
+        builder.Entity<SnapshotBlog>(b =>
+        {
+            b.Ignore(e => e.Owner);
+            b.ComplexCollection(e => e.Posts, c => c.ToJson());
+        });
+
+        var model = builder.FinalizeModel(designTime: true);
+        var code = CreateMigrationsGenerator().GenerateSnapshot("RootNamespace", typeof(DbContext), "Snapshot", model);
+        var snapshotModel = BuildModelFromSnapshotSource(code);
+
+        var entityType = snapshotModel.FindEntityType(typeof(SnapshotBlog))!;
+        Assert.Equal("case_insensitive", entityType.FindProperty(nameof(SnapshotBlog.Title))!.GetCollation());
+        var complexType = entityType.FindComplexProperty(nameof(SnapshotBlog.Posts))!.ComplexType;
+        Assert.Null(complexType.FindProperty(nameof(SnapshotPost.Title))!.GetCollation());
+        Assert.Equal(
+            "case_insensitive",
+            model.FindEntityType(typeof(SnapshotBlog))!
+                .FindComplexProperty(nameof(SnapshotBlog.Posts))!.ComplexType
+                .FindProperty(nameof(SnapshotPost.Title))!.GetCollation());
+    }
+
+    [Fact]
     public virtual void Complex_collection_property_annotations_not_supported_by_builder_are_ignored_in_snapshot()
         => Test(
             builder => builder.Entity<EntityWithOneProperty>(b =>
@@ -6813,6 +6839,7 @@ partial class Snapshot : ModelSnapshot
                                     nameProperty.SetMaxLength(100);
                                     nameProperty.SetPrecision(10);
                                     nameProperty.SetScale(2);
+                                    nameProperty.SetCollation("case_insensitive");
                                     nameProperty.IsConcurrencyToken = true;
                                     nameProperty.ValueGenerated = ValueGenerated.OnAdd;
                                 }));
@@ -6877,6 +6904,7 @@ partial class Snapshot : ModelSnapshot
                 // This verifies that the snapshot doesn't contain HasMaxLength which would cause a compile error
                 var nameProperty = propertiesComplexCollection.ComplexType.FindProperty("Name")!;
                 Assert.Null(nameProperty.GetMaxLength());
+                Assert.Null(nameProperty.GetCollation());
             });
 
     #endregion
