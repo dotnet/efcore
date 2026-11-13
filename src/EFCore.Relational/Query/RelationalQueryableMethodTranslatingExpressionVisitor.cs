@@ -2909,7 +2909,6 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         protected override Expression VisitExtension(Expression node)
             => node switch
             {
-                IncludeExpression { Navigation: ISkipNavigation or not INavigation } i => i,
                 IncludeExpression i => Visit(i.EntityExpression),
                 _ => base.VisitExtension(node)
             };
