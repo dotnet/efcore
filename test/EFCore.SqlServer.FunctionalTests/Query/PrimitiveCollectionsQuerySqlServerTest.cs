@@ -1233,14 +1233,17 @@ WHERE (
     {
         await base.Parameter_collection_Count_with_huge_number_of_values_over_5_operations_same_parameter();
 
-        Assert.Contains("OPENJSON(@ids) WITH ([Value] int '$')", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
+        // The 1000 values are used five times, but all occurrences share one set of parameters, so no fallback is needed.
+        AssertExpandedParameters(0, "ids", 2);
+        AssertExpandedParameters(0, "extra", 1000);
     }
 
     public override async Task Parameter_collection_Count_with_huge_number_of_values_over_2_operations_same_parameter_different_property()
     {
         await base.Parameter_collection_Count_with_huge_number_of_values_over_2_operations_same_parameter_different_property();
 
-        Assert.Contains("OPENJSON(@ids) WITH ([Value] int '$')", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
+        AssertExpandedParameters(0, "ids", 2);
+        AssertExpandedParameters(0, "extra", 1666);
     }
 
     public override async Task Parameter_collection_Count_with_huge_number_of_values_over_5_operations_forced_constants()
@@ -1278,8 +1281,12 @@ WHERE (
     {
         await base.Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_same_parameter();
 
-        Assert.Contains("OPENJSON(@ints) WITH ([Value] int '$')", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
-        Assert.Contains("OPENJSON(@ints) WITH ([Value] int '$')", Fixture.TestSqlLoggerFactory.SqlStatements[1], StringComparison.Ordinal);
+        // The 1000 values are used five times, but all occurrences share one set of parameters, so no fallback is needed.
+        for (var i = 0; i < 2; i++)
+        {
+            AssertExpandedParameters(i, "ints", 2);
+            AssertExpandedParameters(i, "extra", 1000);
+        }
     }
 
     public override async Task
@@ -1288,8 +1295,12 @@ WHERE (
         await base
             .Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_2_operations_same_parameter_different_property();
 
-        Assert.Contains("OPENJSON(@ints) WITH ([Value] int '$')", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
-        Assert.Contains("OPENJSON(@ints) WITH ([Value] int '$')", Fixture.TestSqlLoggerFactory.SqlStatements[1], StringComparison.Ordinal);
+        // 1667 values, padded to 1700.
+        for (var i = 0; i < 2; i++)
+        {
+            AssertExpandedParameters(i, "ints", 2);
+            AssertExpandedParameters(i, "extra", 1700);
+        }
     }
 
     public override async Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_forced_constants()
@@ -4116,6 +4127,30 @@ WHERE [t].[DateTime] IN (@dateTimes1, @dateTimes2) AND [t].[DateTime2] IN (@date
     }
 
     [Fact]
+    public virtual async Task Same_parameter_with_different_type_mappings_over_parameter_limit()
+    {
+        var contextFactory = await InitializeNonSharedTest<TestContext>(
+            onModelCreating: mb => mb.Entity<TestEntity>(b =>
+            {
+                b.Property(typeof(DateTime), "DateTime").HasColumnType("datetime");
+                b.Property(typeof(DateTime), "DateTime2").HasColumnType("datetime2");
+            }));
+
+        await using var context = contextFactory.CreateDbContext();
+
+        // Each type mapping gets its own 1100 parameters, which together exceed the limit.
+        var dateTimes = Enumerable.Range(0, 1100).Select(i => new DateTime(2020, 1, 1).AddMinutes(i)).ToArray();
+
+        _ = await context.Set<TestEntity>()
+            .Where(m =>
+                dateTimes.Contains(EF.Property<DateTime>(m, "DateTime"))
+                && dateTimes.Contains(EF.Property<DateTime>(m, "DateTime2")))
+            .ToArrayAsync();
+
+        Assert.Contains("OPENJSON(@dateTimes)", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
+    }
+
+    [Fact]
     public virtual async Task Same_collection_with_default_type_mapping_and_uninferrable_context()
     {
         var contextFactory = await InitializeNonSharedTest<TestContext>(
@@ -4269,6 +4304,23 @@ WHERE (
         return AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ids.Count(i => i > c.Id) > 0));
     }
 
+    [Fact]
+    public virtual async Task Parameter_collection_reused_with_and_without_padding_over_parameter_limit()
+    {
+        // extra is sent as 2000 parameters: Count uses 1901 of them, Contains pads them to 2000. With small's 100, that's over the limit.
+        var extra = Enumerable.Range(1000, 1901);
+        var small = Enumerable.Range(1, 91);
+
+        await AssertQuery(
+            ss => ss.Set<PrimitiveCollectionsEntity>()
+                .Where(c => extra.Count(i => i > c.Id) > 0)
+                .Where(c => extra.Contains(c.Int))
+                .Where(c => small.Contains(c.Int)),
+            assertEmpty: true);
+
+        Assert.Contains("OPENJSON(@extra)", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
+    }
+
     protected override DbContextOptionsBuilder SetParameterizedCollectionMode(
         DbContextOptionsBuilder optionsBuilder,
         ParameterTranslationMode parameterizedCollectionMode)
@@ -4281,6 +4333,15 @@ WHERE (
     [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
+
+    private void AssertExpandedParameters(int statement, string name, int count)
+    {
+        var sql = Fixture.TestSqlLoggerFactory.SqlStatements[statement];
+
+        Assert.DoesNotContain("OPENJSON(@", sql, StringComparison.Ordinal);
+        Assert.Contains($"@{name}{count}=", sql, StringComparison.Ordinal);
+        Assert.DoesNotContain($"@{name}{count + 1}=", sql, StringComparison.Ordinal);
+    }
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

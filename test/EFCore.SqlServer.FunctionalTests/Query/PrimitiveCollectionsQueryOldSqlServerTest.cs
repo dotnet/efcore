@@ -964,14 +964,19 @@ WHERE (
     {
         await base.Parameter_collection_Count_with_huge_number_of_values_over_5_operations_same_parameter();
 
-        Assert.Contains("VALUES (2)", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
+        // The 1000 values are used five times, but all occurrences share one set of parameters, so no fallback is needed.
+        Assert.Contains("VALUES (@ids1)", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
+        Assert.Contains("@extra1000=", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
+        Assert.DoesNotContain("@extra1001=", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
     }
 
     public override async Task Parameter_collection_Count_with_huge_number_of_values_over_2_operations_same_parameter_different_property()
     {
         await base.Parameter_collection_Count_with_huge_number_of_values_over_2_operations_same_parameter_different_property();
 
-        Assert.Contains("VALUES (2)", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
+        Assert.Contains("VALUES (@ids1)", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
+        Assert.Contains("@extra1666=", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
+        Assert.DoesNotContain("@extra1667=", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
     }
 
     public override async Task Parameter_collection_Count_with_huge_number_of_values_over_5_operations_forced_constants()

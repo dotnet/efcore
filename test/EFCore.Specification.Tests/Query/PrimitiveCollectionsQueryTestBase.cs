@@ -830,7 +830,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         var extra = Enumerable.Range(10, (int)NumberOfValuesForHugeParameterCollectionTests / 3).Append(1);
         var ints = new[] { 10, 999 };
 
-        // Reusing the same large collection across predicates summed over occurrences triggers fallback; see #37185.
+        // The same collection compared to two properties shares one set of parameters; see #39631.
         await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>()
             .Where(c => ints.Contains(c.Int))
             .Where(c => extra.Contains(c.Int))
