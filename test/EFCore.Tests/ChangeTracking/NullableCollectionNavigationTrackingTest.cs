@@ -103,7 +103,8 @@ public class NullableCollectionNavigationTrackingTest
     public void Explicitly_unmodifying_a_nullable_collection_navigation_returns_the_entry_to_Unchanged()
     {
         using var context = new NullableContext();
-        var parent = new Parent { Id = 1, Children = [] };
+        var children = new List<Child>();
+        var parent = new Parent { Id = 1, Children = children };
         context.Attach(parent);
         parent.Children = null;
         context.ChangeTracker.DetectChanges();
@@ -112,6 +113,44 @@ public class NullableCollectionNavigationTrackingTest
         var entry = context.Entry(parent);
         entry.GetInfrastructure().SetPropertyModified((INavigation)entry.Metadata.FindNavigation(nameof(Parent.Children))!, false);
 
+        Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
+        Assert.False(IsChildrenModified(context, parent));
+        Assert.Same(children, parent.Children);
+    }
+
+    [Fact]
+    public void Unmodifying_a_nullable_collection_navigation_reverts_a_change_from_null_to_non_null()
+    {
+        using var context = new NullableContext();
+        var parent = new Parent { Id = 1, Children = null };
+        context.Attach(parent);
+        parent.Children = [];
+        context.ChangeTracker.DetectChanges();
+        Assert.True(IsChildrenModified(context, parent));
+
+        context.Entry(parent).Collection(p => p.Children!).IsModified = false;
+        context.ChangeTracker.DetectChanges();
+
+        Assert.Null(parent.Children);
+        Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
+        Assert.False(IsChildrenModified(context, parent));
+    }
+
+    [Fact]
+    public void Unmodifying_a_nullable_collection_navigation_can_accept_the_current_value_instead_of_reverting()
+    {
+        using var context = new NullableContext();
+        var parent = new Parent { Id = 1, Children = [] };
+        context.Attach(parent);
+        parent.Children = null;
+        context.ChangeTracker.DetectChanges();
+
+        var entry = context.Entry(parent);
+        entry.GetInfrastructure().SetPropertyModified(
+            (INavigation)entry.Metadata.FindNavigation(nameof(Parent.Children))!, false, acceptChanges: true);
+        context.ChangeTracker.DetectChanges();
+
+        Assert.Null(parent.Children);
         Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
         Assert.False(IsChildrenModified(context, parent));
     }
@@ -324,10 +363,11 @@ public class NullableCollectionNavigationTrackingTest
     }
 
     [Fact]
-    public void Unmodifying_a_nullable_collection_navigation_through_CollectionEntry_is_not_detected_again()
+    public void Unmodifying_a_nullable_collection_navigation_through_CollectionEntry_reverts_and_is_not_detected_again()
     {
         using var context = new NullableContext();
-        var parent = new Parent { Id = 1, Children = [] };
+        var children = new List<Child>();
+        var parent = new Parent { Id = 1, Children = children };
         context.Attach(parent);
         parent.Children = null;
         context.ChangeTracker.DetectChanges();
@@ -336,15 +376,17 @@ public class NullableCollectionNavigationTrackingTest
         context.Entry(parent).Collection(p => p.Children!).IsModified = false;
         context.ChangeTracker.DetectChanges();
 
+        Assert.Same(children, parent.Children);
         Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
         Assert.False(IsChildrenModified(context, parent));
     }
 
     [Fact]
-    public void Unmodifying_a_nullable_collection_navigation_through_the_internal_entry_is_not_detected_again()
+    public void Unmodifying_a_nullable_collection_navigation_through_the_internal_entry_reverts_and_is_not_detected_again()
     {
         using var context = new NullableContext();
-        var parent = new Parent { Id = 1, Children = [] };
+        var children = new List<Child>();
+        var parent = new Parent { Id = 1, Children = children };
         context.Attach(parent);
         parent.Children = null;
         context.ChangeTracker.DetectChanges();
@@ -353,6 +395,7 @@ public class NullableCollectionNavigationTrackingTest
         entry.GetInfrastructure().SetPropertyModified((INavigation)entry.Metadata.FindNavigation(nameof(Parent.Children))!, false);
         context.ChangeTracker.DetectChanges();
 
+        Assert.Same(children, parent.Children);
         Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
         Assert.False(IsChildrenModified(context, parent));
     }
@@ -649,7 +692,10 @@ public class NullableCollectionNavigationTrackingTest
         protected abstract ChangeTrackingStrategy Strategy { get; }
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder.UseInMemoryDatabase(Guid.NewGuid().ToString());
+            => optionsBuilder
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                // The in-memory provider rejects nullable collection navigations, but change tracking is what is tested here.
+                .ReplaceService<IModelValidator, ModelValidator>();
 
         protected internal override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -753,7 +799,10 @@ public class NullableCollectionNavigationTrackingTest
         protected abstract bool Nullable { get; }
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder.UseInMemoryDatabase(Guid.NewGuid().ToString());
+            => optionsBuilder
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                // The in-memory provider rejects nullable collection navigations, but change tracking is what is tested here.
+                .ReplaceService<IModelValidator, ModelValidator>();
 
         protected internal override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -34,7 +34,8 @@ public class NullableCollectionNavigationTest
 
         modelBuilder.Model.FindEntityType(typeof(Parent))!.FindNavigation(nameof(Parent.Children))!.SetIsNullable(nullable);
 
-        var model = modelBuilder.FinalizeModel();
+        // The in-memory provider rejects nullable collection navigations, but the model metadata is what is tested here.
+        var model = modelBuilder.FinalizeModel(designTime: false, skipValidation: true);
         var runtimeModel = InMemoryTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IModel>();
 
         Assert.Equal(expectedCount, ((IRuntimeEntityType)runtimeModel.FindEntityType(typeof(Parent))!).NullableCollectionCount);
@@ -53,7 +54,8 @@ public class NullableCollectionNavigationTest
             navigation.SetIsNullable(nullable);
         }
 
-        var model = modelBuilder.FinalizeModel();
+        // The in-memory provider rejects nullable collection navigations, but the model metadata is what is tested here.
+        var model = modelBuilder.FinalizeModel(designTime: false, skipValidation: true);
         var runtimeModel = InMemoryTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IModel>();
 
         return runtimeModel.FindEntityType(typeof(Parent))!.FindNavigation(nameof(Parent.Children))!;

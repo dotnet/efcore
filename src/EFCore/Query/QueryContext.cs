@@ -198,7 +198,7 @@ public abstract class QueryContext
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         If <paramref name="isNull" /> is <see langword="true" />, the navigation is set to <see langword="null" />, without
+    ///         If <paramref name="storedAsNull" /> is <see langword="true" />, the navigation is set to <see langword="null" />, without
     ///         using collection initializers or raising change notifications. Otherwise, the collection must already have been created
     ///         and populated by the caller.
     ///     </para>
@@ -208,8 +208,8 @@ public abstract class QueryContext
     /// </remarks>
     /// <param name="navigation">The collection navigation.</param>
     /// <param name="entity">The entity instance that declares the navigation.</param>
-    /// <param name="isNull">Whether the collection was stored as <see langword="null" />.</param>
-    public virtual void SetCollectionNullnessLoaded(INavigation navigation, object entity, bool isNull)
+    /// <param name="storedAsNull">Whether the collection was stored as <see langword="null" />.</param>
+    public virtual void SetCollectionNullnessLoaded(INavigation navigation, object entity, bool storedAsNull)
     {
         var entry = TryGetEntry(entity);
         if (!IsNullnessLoadable(entry))
@@ -218,7 +218,7 @@ public abstract class QueryContext
         }
 
         var recordOriginal = entry != null && navigation.GetOriginalValueIndex() >= 0;
-        if (isNull)
+        if (storedAsNull)
         {
             // The original value is recorded first so that a setter raising notifications isn't seen as a change.
             if (recordOriginal)
@@ -233,7 +233,7 @@ public abstract class QueryContext
         if (recordOriginal)
         {
             var currentValue = navigation.GetGetter().GetClrValue(entity);
-            if (!isNull
+            if (!storedAsNull
                 || currentValue != null)
             {
                 entry!.SetOriginalValue(navigation, currentValue, skipChangeDetection: true);
@@ -245,7 +245,7 @@ public abstract class QueryContext
         if (entry != null
             && entry.IsModified(navigation))
         {
-            entry.SetPropertyModified(navigation, false);
+            entry.SetPropertyModified(navigation, false, acceptChanges: true);
         }
     }
 

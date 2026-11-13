@@ -1140,22 +1140,33 @@ public sealed partial class InternalEntityEntry : InternalEntryBase, IUpdateEntr
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public void SetPropertyModified(INavigation navigation, bool isModified = true)
+    public void SetPropertyModified(INavigation navigation, bool isModified = true, bool acceptChanges = false)
     {
         EntityType.CheckContains(navigation);
 
         var index = navigation.GetIndex();
-        if (PropertyStateData.IsPropertyFlagged(index, PropertyFlag.NavigationModified) == isModified)
-        {
-            return;
-        }
 
         if (!isModified
             && navigation.GetOriginalValueIndex() >= 0
             && EntityState != EntityState.Detached)
         {
-            // The current null-ness is taken as the one that is already saved. Otherwise, it would be detected as a change again.
-            SetOriginalValue(navigation, this[navigation], skipChangeDetection: true);
+            if (acceptChanges
+                || EntityState is not (EntityState.Unchanged or EntityState.Modified))
+            {
+                // The current null-ness is taken as the one that is already saved. Otherwise, it would be detected as a change again.
+                SetOriginalValue(navigation, this[navigation], skipChangeDetection: true);
+            }
+            else
+            {
+                // Like for properties, the change is reverted by restoring the original value. Any change to the elements of the
+                // collection is found by change detection as usual.
+                SetProperty(navigation, GetOriginalValue(navigation), isMaterialization: false, setModified: false);
+            }
+        }
+
+        if (PropertyStateData.IsPropertyFlagged(index, PropertyFlag.NavigationModified) == isModified)
+        {
+            return;
         }
 
         PropertyStateData.FlagProperty(index, PropertyFlag.NavigationModified, isModified);

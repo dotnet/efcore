@@ -83,8 +83,7 @@ public interface IUpdateEntry
     /// </summary>
     /// <param name="navigation">The navigation to be checked.</param>
     /// <returns><see langword="true" /> if the null-ness of the navigation is modified, otherwise <see langword="false" />.</returns>
-    bool IsModified(INavigation navigation)
-        => false;
+    bool IsModified(INavigation navigation);
 
     /// <summary>
     ///     Gets a value indicating if the specified property has a temporary value.
