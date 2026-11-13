@@ -27,15 +27,13 @@ variables:
     value: 'en_US.UTF-8'
   - name: LANGUAGE
     value: 'en_US.UTF-8'
+# Public release branch automation is disabled; only internal servicing builds trigger.
 trigger:
   batch: true
   branches:
     include:
-      - main
-      - release/*
-      - feature/*
       - internal/release/*
-pr: ['*']
+pr: none
 resources:
   repositories:
   - repository: 1ESPipelineTemplates

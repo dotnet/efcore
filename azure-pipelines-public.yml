@@ -58,16 +58,10 @@ variables:
     value: ${{ and(ne(variables['System.TeamProject'], 'public'), or(eq(variables['Build.Reason'], 'Schedule'), and(eq(variables['Build.Reason'], 'Manual'), eq(parameters.runCodeQL3000, 'true')))) }}
   - template: /eng/common/templates/variables/pool-providers.yml
 
-trigger:
-  batch: true
-  branches:
-    include:
-      - main
-      - release/*
-      - feature/*
-      - internal/release/*
+# Public release branch automation is disabled.
+trigger: none
 
-pr: ['*']
+pr: none
 
 stages:
 - stage: build
