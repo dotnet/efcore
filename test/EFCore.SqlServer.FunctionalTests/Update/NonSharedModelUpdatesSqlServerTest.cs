@@ -11,7 +11,7 @@ public class NonSharedModelUpdatesSqlServerTest(NonSharedFixture fixture) : NonS
 
         AssertSql(
             """
-@p0='43' (Nullable = false) (Size = 2)
+@p0='43' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -22,7 +22,7 @@ WHERE [Id] = @p1;
 """,
             //
             """
-@p0='yes' (Nullable = false) (Size = 3)
+@p0='yes' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -45,7 +45,7 @@ WHERE [Id] = @p1;
             //
             """
 @p0='a"b\c
-' (Nullable = false) (Size = 6)
+' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;

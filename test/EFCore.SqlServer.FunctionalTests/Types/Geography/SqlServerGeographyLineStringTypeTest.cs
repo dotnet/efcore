@@ -81,7 +81,7 @@ WHERE CAST(JSON_VALUE([j].[JsonContainer], '$.Value') AS geography).STEquals(@Fi
 
         AssertSql(
             """
-@p0='{"OtherValue":"LINESTRING (-121.5 46.9, -121.2 46.65, -121 46.4)","Value":"LINESTRING (-121.5 46.9, -121.2 46.65, -121 46.4)"}' (Nullable = false) (Size = 126)
+@p0='{"OtherValue":"LINESTRING (-121.5 46.9, -121.2 46.65, -121 46.4)","Value":"LINESTRING (-121.5 46.9, -121.2 46.65, -121 46.4)"}' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -100,7 +100,7 @@ WHERE [Id] = @p1;
         {
             AssertSql(
                 """
-@Fixture_OtherValue='LINESTRING (-121.5 46.9, -121.2 46.65, -121 46.4)' (Size = 49)
+@Fixture_OtherValue='LINESTRING (-121.5 46.9, -121.2 46.65, -121 46.4)' (Size = 4000)
 
 SET NOCOUNT OFF;
 UPDATE [j]
@@ -112,7 +112,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
-@Fixture_OtherValue='LINESTRING (-121.5 46.9, -121.2 46.65, -121 46.4)' (Size = 49)
+@Fixture_OtherValue='LINESTRING (-121.5 46.9, -121.2 46.65, -121 46.4)' (Size = 4000)
 
 SET NOCOUNT OFF;
 UPDATE [j]

@@ -85,7 +85,7 @@ WHERE CAST(JSON_VALUE([j].[JsonContainer], '$.Value') AS geometry).STEquals(@Fix
 (20 20)
 (25 25))","Value":"MULTIPOINT ((15 15)
 (20 20)
-(25 25))"}' (Nullable = false) (Size = 104)
+(25 25))"}' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -106,7 +106,7 @@ WHERE [Id] = @p1;
                 """
 @Fixture_OtherValue='MULTIPOINT ((15 15)
 (20 20)
-(25 25))' (Size = 38)
+(25 25))' (Size = 4000)
 
 SET NOCOUNT OFF;
 UPDATE [j]
@@ -120,7 +120,7 @@ FROM [JsonTypeEntity] AS [j]
                 """
 @Fixture_OtherValue='MULTIPOINT ((15 15)
 (20 20)
-(25 25))' (Size = 38)
+(25 25))' (Size = 4000)
 
 SET NOCOUNT OFF;
 UPDATE [j]

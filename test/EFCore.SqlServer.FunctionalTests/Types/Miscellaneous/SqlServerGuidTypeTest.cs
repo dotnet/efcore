@@ -92,7 +92,7 @@ WHERE CAST(JSON_VALUE([j].[JsonContainer], '$.Value') AS uniqueidentifier) = @Fi
 
         AssertSql(
             """
-@p0='{"OtherValue":"ae192c36-9004-49b2-b785-8be10d169627","Value":"ae192c36-9004-49b2-b785-8be10d169627"}' (Nullable = false) (Size = 100)
+@p0='{"OtherValue":"ae192c36-9004-49b2-b785-8be10d169627","Value":"ae192c36-9004-49b2-b785-8be10d169627"}' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -111,7 +111,7 @@ WHERE [Id] = @p1;
         {
             AssertSql(
                 """
-@Fixture_OtherValue='ae192c36-9004-49b2-b785-8be10d169627' (Size = 36)
+@Fixture_OtherValue='ae192c36-9004-49b2-b785-8be10d169627' (Size = 4000)
 
 SET NOCOUNT OFF;
 UPDATE [j]
@@ -123,7 +123,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
-@Fixture_OtherValue='ae192c36-9004-49b2-b785-8be10d169627' (Size = 36)
+@Fixture_OtherValue='ae192c36-9004-49b2-b785-8be10d169627' (Size = 4000)
 
 SET NOCOUNT OFF;
 UPDATE [j]

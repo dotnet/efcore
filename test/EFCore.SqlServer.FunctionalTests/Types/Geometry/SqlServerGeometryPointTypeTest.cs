@@ -79,7 +79,7 @@ WHERE CAST(JSON_VALUE([j].[JsonContainer], '$.Value') AS geometry).STEquals(@Fix
 
         AssertSql(
             """
-@p0='{"OtherValue":"POINT (30 40)","Value":"POINT (30 40)"}' (Nullable = false) (Size = 54)
+@p0='{"OtherValue":"POINT (30 40)","Value":"POINT (30 40)"}' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -98,7 +98,7 @@ WHERE [Id] = @p1;
         {
             AssertSql(
                 """
-@Fixture_OtherValue='POINT (30 40)' (Size = 13)
+@Fixture_OtherValue='POINT (30 40)' (Size = 4000)
 
 SET NOCOUNT OFF;
 UPDATE [j]
@@ -110,7 +110,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
-@Fixture_OtherValue='POINT (30 40)' (Size = 13)
+@Fixture_OtherValue='POINT (30 40)' (Size = 4000)
 
 SET NOCOUNT OFF;
 UPDATE [j]

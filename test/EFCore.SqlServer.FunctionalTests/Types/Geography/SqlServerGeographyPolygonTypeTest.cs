@@ -81,7 +81,7 @@ WHERE CAST(JSON_VALUE([j].[JsonContainer], '$.Value') AS geography).STEquals(@Fi
 
         AssertSql(
             """
-@p0='{"OtherValue":"POLYGON ((-121.3 46.6, -121.3 46.59, -121.28 46.59, -121.28 46.6, -121.3 46.6))","Value":"POLYGON ((-121.3 46.6, -121.3 46.59, -121.28 46.59, -121.28 46.6, -121.3 46.6))"}' (Nullable = false) (Size = 186)
+@p0='{"OtherValue":"POLYGON ((-121.3 46.6, -121.3 46.59, -121.28 46.59, -121.28 46.6, -121.3 46.6))","Value":"POLYGON ((-121.3 46.6, -121.3 46.59, -121.28 46.59, -121.28 46.6, -121.3 46.6))"}' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -100,7 +100,7 @@ WHERE [Id] = @p1;
         {
             AssertSql(
                 """
-@Fixture_OtherValue='POLYGON ((-121.3 46.6, -121.3 46.59, -121.28 46.59, -121.28 46.6, -121.3 46.6))' (Size = 79)
+@Fixture_OtherValue='POLYGON ((-121.3 46.6, -121.3 46.59, -121.28 46.59, -121.28 46.6, -121.3 46.6))' (Size = 4000)
 
 SET NOCOUNT OFF;
 UPDATE [j]
@@ -112,7 +112,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
-@Fixture_OtherValue='POLYGON ((-121.3 46.6, -121.3 46.59, -121.28 46.59, -121.28 46.6, -121.3 46.6))' (Size = 79)
+@Fixture_OtherValue='POLYGON ((-121.3 46.6, -121.3 46.59, -121.28 46.59, -121.28 46.6, -121.3 46.6))' (Size = 4000)
 
 SET NOCOUNT OFF;
 UPDATE [j]

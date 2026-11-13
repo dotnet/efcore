@@ -16,7 +16,7 @@ public class ComplexCollectionJsonUpdateSqlServerTest : ComplexCollectionJsonUpd
 
         AssertSql(
             """
-@p0='[{"Revisions":[{"PublishedOn":"2001-02-03"}]},{"Revisions":[{"PublishedOn":null}]}]' (Nullable = false) (Size = 83)
+@p0='[{"Revisions":[{"PublishedOn":"2001-02-03"}]},{"Revisions":[{"PublishedOn":null}]}]' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -33,7 +33,7 @@ WHERE [Id] = @p1;
 
         AssertSql(
             """
-@p0='[{"Name":"First Contact","PhoneNumbers":["555-1234","555-5678"]},{"Name":"Second Contact","PhoneNumbers":["555-9876","555-5432"]},{"Name":"New Contact","PhoneNumbers":["555-0000"]}]' (Nullable = false) (Size = 181)
+@p0='[{"Name":"First Contact","PhoneNumbers":["555-1234","555-5678"]},{"Name":"Second Contact","PhoneNumbers":["555-9876","555-5432"]},{"Name":"New Contact","PhoneNumbers":["555-0000"]}]' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -50,7 +50,7 @@ WHERE [Id] = @p1;
 
         AssertSql(
             """
-@p0='[{"Name":"Second Contact","PhoneNumbers":["555-9876","555-5432"]}]' (Nullable = false) (Size = 66)
+@p0='[{"Name":"Second Contact","PhoneNumbers":["555-9876","555-5432"]}]' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -83,7 +83,7 @@ WHERE [Id] = @p0;
 
         AssertSql(
             """
-@p0='[{"Name":"First Contact - Modified","PhoneNumbers":["555-1234","555-5678"]},{"Name":"Second Contact","PhoneNumbers":["555-9876","555-5432"]}]' (Nullable = false) (Size = 141)
+@p0='[{"Name":"First Contact - Modified","PhoneNumbers":["555-1234","555-5678"]},{"Name":"Second Contact","PhoneNumbers":["555-9876","555-5432"]}]' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -100,7 +100,7 @@ WHERE [Id] = @p1;
 
         AssertSql(
             """
-@p0='[{"Name":"Second Contact","PhoneNumbers":["555-9876","555-5432"]},{"Name":"First Contact","PhoneNumbers":["555-1234","555-5678"]}]' (Nullable = false) (Size = 130)
+@p0='[{"Name":"Second Contact","PhoneNumbers":["555-9876","555-5432"]},{"Name":"First Contact","PhoneNumbers":["555-1234","555-5678"]}]' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -117,7 +117,7 @@ WHERE [Id] = @p1;
 
         AssertSql(
             """
-@p0='[]' (Nullable = false) (Size = 2)
+@p0='[]' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -128,7 +128,7 @@ WHERE [Id] = @p1;
 """,
             //
             """
-@p0=NULL (Nullable = false)
+@p0=NULL (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -145,7 +145,7 @@ WHERE [Id] = @p1;
 
         AssertSql(
             """
-@p0='[{"Name":"John Doe","PhoneNumbers":["555-1234","555-5678"],"Address":{"City":"Seattle","Country":"USA","PostalCode":"98101","Street":"123 Main St"}},{"Name":"Jane Smith","PhoneNumbers":["555-9876"],"Address":{"City":"Portland","Country":"USA","PostalCode":"97201","Street":"456 Oak Ave"}}]' (Nullable = false) (Size = 289)
+@p0='[{"Name":"John Doe","PhoneNumbers":["555-1234","555-5678"],"Address":{"City":"Seattle","Country":"USA","PostalCode":"98101","Street":"123 Main St"}},{"Name":"Jane Smith","PhoneNumbers":["555-9876"],"Address":{"City":"Portland","Country":"USA","PostalCode":"97201","Street":"456 Oak Ave"}}]' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -162,8 +162,8 @@ WHERE [Id] = @p1;
 
         AssertSql(
             """
-@p0='[{"Name":"Contact 1","PhoneNumbers":["555-1111"]}]' (Nullable = false) (Size = 50)
-@p1='{"Budget":50000.00,"Name":"Department A"}' (Nullable = false) (Size = 41)
+@p0='[{"Name":"Contact 1","PhoneNumbers":["555-1111"]}]' (Nullable = false) (Size = 4000)
+@p1='{"Budget":50000.00,"Name":"Department A"}' (Nullable = false) (Size = 4000)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -180,7 +180,7 @@ WHERE [Id] = @p2;
 
         AssertSql(
             """
-@p0='[]' (Nullable = false) (Size = 2)
+@p0='[]' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -197,7 +197,7 @@ WHERE [Id] = @p1;
 
         AssertSql(
             """
-@p0='[{"Name":"Replacement Contact 1","PhoneNumbers":["999-1111"]},{"Name":"Replacement Contact 2","PhoneNumbers":["999-2222","999-3333"]}]' (Nullable = false) (Size = 134)
+@p0='[{"Name":"Replacement Contact 1","PhoneNumbers":["999-1111"]},{"Name":"Replacement Contact 2","PhoneNumbers":["999-2222","999-3333"]}]' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -214,7 +214,7 @@ WHERE [Id] = @p1;
 
         AssertSql(
             """
-@p0='[{"Name":"Initial Employee","PhoneNumbers":["555-0001","555-9999"],"Address":{"City":"Initial City","Country":"USA","PostalCode":"00001","Street":"100 First St"}}]' (Nullable = false) (Size = 163)
+@p0='[{"Name":"Initial Employee","PhoneNumbers":["555-0001","555-9999"],"Address":{"City":"Initial City","Country":"USA","PostalCode":"00001","Street":"100 First St"}}]' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -231,7 +231,7 @@ WHERE [Id] = @p1;
 
         AssertSql(
             """
-@p0='[{"Name":"Initial Employee","PhoneNumbers":["555-0001"],"Address":{"City":"Modified City","Country":"USA","PostalCode":"99999","Street":"100 First St"}}]' (Nullable = false) (Size = 153)
+@p0='[{"Name":"Initial Employee","PhoneNumbers":["555-0001"],"Address":{"City":"Modified City","Country":"USA","PostalCode":"99999","Street":"100 First St"}}]' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -248,7 +248,7 @@ WHERE [Id] = @p1;
 
         AssertSql(
             """
-@p0=NULL (Nullable = false)
+@p0=NULL (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -265,7 +265,7 @@ WHERE [Id] = @p1;
 
         AssertSql(
             """
-@p0='[{"Name":"New Employee","PhoneNumbers":["555-1111"],"Address":{"City":"New City","Country":"USA","PostalCode":"12345","Street":"123 New St"}}]' (Nullable = false) (Size = 142)
+@p0='[{"Name":"New Employee","PhoneNumbers":["555-1111"],"Address":{"City":"New City","Country":"USA","PostalCode":"12345","Street":"123 New St"}}]' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -282,7 +282,7 @@ WHERE [Id] = @p1;
 
         AssertSql(
             """
-@p0='[{"Name":"Replacement Employee","PhoneNumbers":["555-7777","555-8888"],"Address":{"City":"Replace City","Country":"Canada","PostalCode":"54321","Street":"789 Replace St"}}]' (Nullable = false) (Size = 172)
+@p0='[{"Name":"Replacement Employee","PhoneNumbers":["555-7777","555-8888"],"Address":{"City":"Replace City","Country":"Canada","PostalCode":"54321","Street":"789 Replace St"}}]' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -299,7 +299,7 @@ WHERE [Id] = @p1;
 
         AssertSql(
             """
-@p0='[{"Name":"Initial Employee","PhoneNumbers":["555-0001"],"Address":{"City":"Initial City","Country":"USA","PostalCode":"00001","Street":"100 First St"}},{"Name":"Employee No Phone","PhoneNumbers":[],"Address":{"City":"Quiet City","Country":"USA","PostalCode":"00000","Street":"456 No Phone St"}}]' (Nullable = false) (Size = 295)
+@p0='[{"Name":"Initial Employee","PhoneNumbers":["555-0001"],"Address":{"City":"Initial City","Country":"USA","PostalCode":"00001","Street":"100 First St"}},{"Name":"Employee No Phone","PhoneNumbers":[],"Address":{"City":"Quiet City","Country":"USA","PostalCode":"00000","Street":"456 No Phone St"}}]' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -316,7 +316,7 @@ WHERE [Id] = @p1;
 
         AssertSql(
             """
-@p0=NULL (Nullable = false)
+@p0=NULL (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -333,7 +333,7 @@ WHERE [Id] = @p1;
 
         AssertSql(
             """
-@p0='{"Budget":25000.00,"Name":"New Department"}' (Nullable = false) (Size = 43)
+@p0='{"Budget":25000.00,"Name":"New Department"}' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -350,7 +350,7 @@ WHERE [Id] = @p1;
 
         AssertSql(
             """
-@p0='{"Budget":99999.99,"Name":"Replacement Department"}' (Nullable = false) (Size = 51)
+@p0='{"Budget":99999.99,"Name":"Replacement Department"}' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -367,7 +367,7 @@ WHERE [Id] = @p1;
 
         AssertSql(
             """
-@p0='[{"Name":"Item1","Meta":null}]' (Nullable = false) (Size = 30)
+@p0='[{"Name":"Item1","Meta":null}]' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -384,7 +384,7 @@ WHERE [Id] = @p1;
 
         AssertSql(
             """
-@p0='[{"Title":"Item1","Inner":[{"Value":"inner-new"},{"Value":"inner-0"},{"Value":"inner-1-modified"}],"Others":[]},{"Title":"Item2","Inner":[],"Others":[]},{"Title":"Item3","Inner":[{"Value":"inner-3"}],"Others":[]}]' (Nullable = false) (Size = 213)
+@p0='[{"Title":"Item1","Inner":[{"Value":"inner-new"},{"Value":"inner-0"},{"Value":"inner-1-modified"}],"Others":[]},{"Title":"Item2","Inner":[],"Others":[]},{"Title":"Item3","Inner":[{"Value":"inner-3"}],"Others":[]}]' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -401,7 +401,7 @@ WHERE [Id] = @p1;
 
         AssertSql(
             """
-@p0='[{"Title":"Item2","Inner":[{"Value":"inner-2"},{"Value":"inner-3"}],"Others":[]}]' (Nullable = false) (Size = 81)
+@p0='[{"Title":"Item2","Inner":[{"Value":"inner-2"},{"Value":"inner-3"}],"Others":[]}]' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -418,7 +418,7 @@ WHERE [Id] = @p1;
 
         AssertSql(
             """
-@p0='{"Mid":{"Items":[{"Title":"Item1-updated","Inner":[{"Value":"inner-0"}],"Others":[]}]}}' (Nullable = false) (Size = 87)
+@p0='{"Mid":{"Items":[{"Title":"Item1-updated","Inner":[{"Value":"inner-0"}],"Others":[]}]}}' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -435,7 +435,7 @@ WHERE [Id] = @p1;
 
         AssertSql(
             """
-@p0='{"Items":[{"ArrayCodes":[],"Codes":[],"CustomCodes":[],"InterfaceCodes":[],"Label":"C1-updated","OptionalCodes":null,"ReadOnlyCodes":[],"TextCodes":[]}]}' (Nullable = false) (Size = 153)
+@p0='{"Items":[{"ArrayCodes":[],"Codes":[],"CustomCodes":[],"InterfaceCodes":[],"Label":"C1-updated","OptionalCodes":null,"ReadOnlyCodes":[],"TextCodes":[]}]}' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;

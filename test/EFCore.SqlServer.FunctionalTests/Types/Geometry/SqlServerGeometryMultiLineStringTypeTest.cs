@@ -84,7 +84,7 @@ WHERE CAST(JSON_VALUE([j].[JsonContainer], '$.Value') AS geometry).STEquals(@Fix
             """
 @p0='{"OtherValue":"MULTILINESTRING ((10 10, 11 11)
 (12 12, 13 13))","Value":"MULTILINESTRING ((10 10, 11 11)
-(12 12, 13 13))"}' (Nullable = false) (Size = 124)
+(12 12, 13 13))"}' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -104,7 +104,7 @@ WHERE [Id] = @p1;
             AssertSql(
                 """
 @Fixture_OtherValue='MULTILINESTRING ((10 10, 11 11)
-(12 12, 13 13))' (Size = 48)
+(12 12, 13 13))' (Size = 4000)
 
 SET NOCOUNT OFF;
 UPDATE [j]
@@ -117,7 +117,7 @@ FROM [JsonTypeEntity] AS [j]
             AssertSql(
                 """
 @Fixture_OtherValue='MULTILINESTRING ((10 10, 11 11)
-(12 12, 13 13))' (Size = 48)
+(12 12, 13 13))' (Size = 4000)
 
 SET NOCOUNT OFF;
 UPDATE [j]

@@ -4,7 +4,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using static System.Linq.Expressions.Expression;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -66,9 +65,6 @@ public static class RelationalExpressionQuotingUtilities
         => typeMapping switch
         {
             null => Constant(null, typeof(RelationalTypeMapping)),
-            JsonScalarTypeMapping => New(
-                typeof(JsonScalarTypeMapping).GetConstructor([typeof(IRelationalTypeMappingSource)])!,
-                RelationalTypeMappingSourceParameter),
             _ => Call(
                 RelationalTypeMappingSourceParameter,
                 RelationalTypeMappingSourceFindMappingMethod,
