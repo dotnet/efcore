@@ -8,6 +8,39 @@ public class AdHocNavigationsQuerySqlServerTest(NonSharedFixture fixture) : AdHo
     protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
+    public override async Task Where_over_projection_with_conjunctive_null_checks(bool async)
+    {
+        await base.Where_over_projection_with_conjunctive_null_checks(async);
+
+        AssertSql(
+            """
+SELECT [p].[Id], CASE
+    WHEN [c].[Id] IS NOT NULL AND [g].[Id] IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, [c].[GrandChildId]
+FROM [Parents] AS [p]
+LEFT JOIN [Children] AS [c] ON [p].[ChildId] = [c].[Id]
+LEFT JOIN [GrandChildren] AS [g] ON [c].[GrandChildId] = [g].[Id]
+WHERE CASE
+    WHEN [c].[Id] IS NOT NULL AND [g].[Id] IS NOT NULL THEN [c].[GrandChildId]
+END IS NOT NULL
+""",
+            //
+            """
+SELECT [p].[Id], CASE
+    WHEN [c].[Id] IS NULL OR [g].[Id] IS NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, [c].[GrandChildId]
+FROM [Parents] AS [p]
+LEFT JOIN [Children] AS [c] ON [p].[ChildId] = [c].[Id]
+LEFT JOIN [GrandChildren] AS [g] ON [c].[GrandChildId] = [g].[Id]
+WHERE CASE
+    WHEN [c].[Id] IS NULL OR [g].[Id] IS NULL THEN NULL
+    ELSE [c].[GrandChildId]
+END IS NOT NULL
+""");
+    }
+
     #region 10447
 
     [Fact]

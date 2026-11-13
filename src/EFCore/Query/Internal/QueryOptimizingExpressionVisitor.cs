@@ -350,8 +350,8 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
 
     private static Expression? TryOptimizeMemberAccessOverConditional(Expression expression)
     {
-        // Simplify (a != null ? new { Member = b, ... } : null).Member
-        // to a != null ? b : null
+        // Simplify (test ? new { Member = b, ... } : null).Member
+        // to test ? b : null (and likewise when the null branch is first).
         // Later null check removal will simplify it further
         if (expression is MemberExpression { Expression: { } inner } visitedMemberExpression)
         {
@@ -365,23 +365,16 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
                 _ => (null, null)
             };
 
-            if (conditional is
-                {
-                    Test: BinaryExpression { NodeType: ExpressionType.Equal or ExpressionType.NotEqual } binaryTest
-                } conditionalExpression
+            if (conditional is { } conditionalExpression
                 && !(conditionalExpression.Type.IsNullableValueType()
                     && visitedMemberExpression.Member.Name is nameof(Nullable<>.HasValue) or nameof(Nullable<>.Value)))
             {
-                var isLeftNullConstant = binaryTest.Left is ConstantExpression { Value: null };
-                var isRightNullConstant = binaryTest.Right is ConstantExpression { Value: null };
+                var isTrueNullConstant = conditionalExpression.IfTrue is ConstantExpression { Value: null };
+                var isFalseNullConstant = conditionalExpression.IfFalse is ConstantExpression { Value: null };
 
-                if (isLeftNullConstant != isRightNullConstant
-                    && ((binaryTest.NodeType == ExpressionType.Equal
-                            && conditionalExpression.IfTrue is ConstantExpression { Value: null })
-                        || (binaryTest.NodeType == ExpressionType.NotEqual
-                            && conditionalExpression.IfFalse is ConstantExpression { Value: null })))
+                if (isTrueNullConstant != isFalseNullConstant)
                 {
-                    var nonNullExpression = binaryTest.NodeType == ExpressionType.Equal
+                    var nonNullExpression = isTrueNullConstant
                         ? conditionalExpression.IfFalse
                         : conditionalExpression.IfTrue;
 
@@ -407,8 +400,8 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
 
                     return Expression.Condition(
                         conditionalExpression.Test,
-                        binaryTest.NodeType == ExpressionType.Equal ? nullExpression : nonNullExpression,
-                        binaryTest.NodeType == ExpressionType.Equal ? nonNullExpression : nullExpression);
+                        isTrueNullConstant ? nullExpression : nonNullExpression,
+                        isTrueNullConstant ? nonNullExpression : nullExpression);
                 }
             }
         }
