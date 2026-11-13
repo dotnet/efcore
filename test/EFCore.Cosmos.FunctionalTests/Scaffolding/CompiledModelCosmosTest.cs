@@ -183,6 +183,56 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
                 Assert.Equal([id, partitionId, blob, bytes, list, map, storeId, eTag], dataEntity.GetProperties());
             });
 
+    [Theory, InlineData(false), InlineData(true)]
+    public virtual Task Cosmos_model_with_converted_keys(bool forNativeAot)
+        => Test(
+            modelBuilder =>
+            {
+                modelBuilder.Entity<ConvertedKeyData>(b =>
+                {
+                    b.HasNoDiscriminator();
+                    b.HasKey(e => new { e.Id, e.PartitionId });
+                    b.HasPartitionKey(e => e.PartitionId);
+                    b.Property(e => e.Id).ToJsonProperty("id").ValueGeneratedNever().HasConversion(
+                        new ValueConverter<Guid, string>(
+                            v => v.ToString("D"), v => Guid.Parse(v), new ConverterMappingHints(size: 36)));
+                    b.Property(e => e.PartitionId).HasConversion(
+                        new ValueConverter<Guid, string>(
+                            v => v.ToString("D"), v => Guid.Parse(v), new ConverterMappingHints(size: 36)));
+                });
+            },
+            useContext: async context =>
+            {
+                var id = new Guid("a198c9a1-2cd0-46a8-88b6-9ff89b9c9b9d");
+                var partitionId = new Guid("5a7a5a18-0a6e-4e16-bc46-d272d11f95a1");
+                context.Add(new ConvertedKeyData { Id = id, PartitionId = partitionId, Name = "before" });
+                await context.SaveChangesAsync();
+                context.ChangeTracker.Clear();
+
+                var entity = await context.Set<ConvertedKeyData>().FindAsync(id, partitionId);
+                Assert.NotNull(entity);
+                Assert.Equal("before", entity.Name);
+                entity.Name = "after";
+                await context.SaveChangesAsync();
+                context.ChangeTracker.Clear();
+
+                entity = await context.Set<ConvertedKeyData>()
+                    .WithPartitionKey(partitionId)
+                    .SingleAsync(e => e.Id == id);
+                Assert.Equal(id, entity.Id);
+                Assert.Equal(partitionId, entity.PartitionId);
+                Assert.Equal("after", entity.Name);
+            },
+            options: new CompiledModelCodeGenerationOptions { ForNativeAot = forNativeAot },
+            testName: forNativeAot ? "Cosmos_model_with_converted_keys" : "Cosmos_model_with_converted_keys_No_NativeAOT");
+
+    public class ConvertedKeyData
+    {
+        public Guid Id { get; set; }
+        public Guid PartitionId { get; set; }
+        public string Name { get; set; } = null!;
+    }
+
     [Fact]
     public virtual Task Cosmos_model_with_index_types()
         => Test(

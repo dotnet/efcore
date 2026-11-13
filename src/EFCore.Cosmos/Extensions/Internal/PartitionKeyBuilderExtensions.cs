@@ -67,8 +67,8 @@ public static class PartitionKeyBuilderExtensions
 
         var readerWriter = mapping?.JsonValueReaderWriter;
 #pragma warning disable EF1001 // Internal EF Core API usage.
-        if (readerWriter is IJsonConvertedValueReaderWriter converted
-            && ReferenceEquals(converted.Converter, converter))
+        if (converter is not null
+            && readerWriter is IJsonConvertedValueReaderWriter converted)
         {
             readerWriter = converted.InnerReaderWriter;
         }

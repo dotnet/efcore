@@ -48,6 +48,37 @@ LIMIT 2
 """);
     }
 
+    public override async Task Update_JSON_with_parameter_name_collision(bool async, bool wholeDocument)
+    {
+        await base.Update_JSON_with_parameter_name_collision(async, wholeDocument);
+        AssertSql(
+            wholeDocument
+                ? """
+@p='{"Number":42}' (Size = 13)
+@json_number='1'
+@json_p='1'
+
+UPDATE "JsonPairItem" AS "j"
+SET "First" = @p
+WHERE "j"."Id" = @json_number AND "j"."Id" = @json_p
+"""
+                : """
+@number='42' (Size = 2)
+@json_number='1'
+@json_p='1'
+
+UPDATE "JsonPairItem" AS "j"
+SET "First" = json_set("j"."First", '$.Number', json(@number))
+WHERE "j"."Id" = @json_number AND "j"."Id" = @json_p
+""",
+            //
+            """
+SELECT "j"."Id", "j"."First", "j"."Second"
+FROM "JsonPairItem" AS "j"
+ORDER BY "j"."Id"
+""");
+    }
+
     [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
