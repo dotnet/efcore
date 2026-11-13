@@ -44,7 +44,7 @@ Brief risk assessment ranked from "extremely low" to "high". Note amount of code
 
 ## Quirk (AppContext Switch)
 
-A quirk lets users opt out of the fix at runtime, reducing patch risk. Add for all cases where it makes sense. Skip when the fix is 100% obvious/risk-free, or when the quirk couldn't be used, like in tools or analyzers.
+A quirk lets users opt out of the fix at runtime, reducing patch risk. Skip when the fix is 100% obvious/risk-free, or when the quirk couldn't be used, like in tools or analyzers.
 
 ### Adding a Quirk
 
@@ -58,6 +58,7 @@ private static readonly bool UseOldBehavior37585 =
 - Change `37585` to the relevant issue number
 - Wrap changes with a condition on `!UseOldBehavior37585` so activating the switch bypasses the fix, prefer to minimize the number of times the switch is checked
 - If the PR closes multiple issues, pick the most appropriate one for the switch name
+- Distinguish a recommendation from the staged implementation. Do not say "Quirk added" unless the source change actually includes the switch.
 
 ## Validation
 

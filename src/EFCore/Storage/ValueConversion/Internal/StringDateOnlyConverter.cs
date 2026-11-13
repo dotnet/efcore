@@ -43,7 +43,7 @@ public class StringDateOnlyConverter<TModel, TProvider> : ValueConverter<TModel,
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected static new Expression<Func<DateOnly, string>> ToString()
-        => v => v.ToString(@"yyyy\-MM\-dd");
+        => v => v.ToString(@"yyyy\-MM\-dd", CultureInfo.InvariantCulture);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

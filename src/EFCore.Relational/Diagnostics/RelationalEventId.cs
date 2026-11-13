@@ -84,6 +84,7 @@ public static class RelationalEventId
         MigrationsUserTransactionWarning = CoreEventId.RelationalBaseId + 412,
         ModelSnapshotNotFound = CoreEventId.RelationalBaseId + 413,
         OldMigrationVersionWarning = CoreEventId.RelationalBaseId + 414,
+        EntitySplittingFragmentOptionalityChangedWarning = CoreEventId.RelationalBaseId + 415,
 
         // Query events
         QueryClientEvaluationWarning = CoreEventId.RelationalBaseId + 500,
@@ -820,6 +821,21 @@ public static class RelationalEventId
     ///     </para>
     /// </remarks>
     public static readonly EventId OldMigrationVersionWarning = MakeMigrationsId(Id.OldMigrationVersionWarning);
+
+    /// <summary>
+    ///     The optionality of an entity-splitting fragment changed since the last migration.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="EntityTypeMappingFragmentEventData" /> payload when used with a
+    ///         <see cref="DiagnosticSource" />.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId EntitySplittingFragmentOptionalityChangedWarning =
+        MakeMigrationsId(Id.EntitySplittingFragmentOptionalityChangedWarning);
 
     private static readonly string _queryPrefix = DbLoggerCategory.Query.Name + ".";
 

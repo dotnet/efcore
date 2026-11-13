@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
 /// </remarks>
-public interface ITableMappingBase : IAnnotatable
+public interface ITableMappingBase : IAnnotatable, IComparable<ITableMappingBase>
 {
     /// <summary>
     ///     Gets the mapped type base.
@@ -39,6 +39,13 @@ public interface ITableMappingBase : IAnnotatable
     ///     if the entity type is split. <see langword="null" /> if the entity type is not split.
     /// </summary>
     bool? IsSplitEntityTypePrincipal { get; }
+
+    /// <summary>
+    ///     Gets the value indicating whether a row for this mapping might not exist even when a row exists in the
+    ///     principal table-like object for the entity type. Always <see langword="false" /> for the principal mapping.
+    /// </summary>
+    bool IsSplitFragmentOptional
+        => false;
 
     /// <summary>
     ///     Gets the value indicating whether the mapped table-like object includes rows for the derived entity types.
@@ -111,6 +118,11 @@ public interface ITableMappingBase : IAnnotatable
                 builder.Append("IsSplitEntityTypePrincipal");
             }
 
+            if (IsSplitFragmentOptional)
+            {
+                builder.Append(" IsSplitFragmentOptional");
+            }
+
             if (!singleLine && (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
             {
                 builder.Append(AnnotationsToDebugString(indent + 2));
@@ -123,4 +135,10 @@ public interface ITableMappingBase : IAnnotatable
 
         return builder.ToString();
     }
+
+    /// <summary>
+    ///     Compares the current instance with another object of the same type.
+    /// </summary>
+    int IComparable<ITableMappingBase>.CompareTo(ITableMappingBase? other)
+        => other is null ? 1 : 0;
 }

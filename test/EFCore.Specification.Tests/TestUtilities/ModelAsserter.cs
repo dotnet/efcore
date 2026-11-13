@@ -400,7 +400,7 @@ public class ModelAsserter
                 expected.GetElementType(),
                 actual.GetElementType(),
                 compareMemberAnnotations ? expected.GetElementType()?.GetAnnotations() : null,
-                compareMemberAnnotations ? expected.GetElementType()?.GetAnnotations() : null,
+                compareMemberAnnotations ? actual.GetElementType()?.GetAnnotations() : null,
                 compareBackreferences,
                 compareMemberAnnotations),
             () => Assert.Equal(expected.FindTypeMapping()?.GetType(), actual.FindTypeMapping()?.GetType()),

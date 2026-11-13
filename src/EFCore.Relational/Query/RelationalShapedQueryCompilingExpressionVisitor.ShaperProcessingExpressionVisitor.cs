@@ -1,6 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.Encodings.Web;
@@ -57,6 +58,12 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
         private static readonly MethodInfo CollectionAccessorAddMethodInfo
             = typeof(IClrCollectionAccessor).GetTypeInfo().GetDeclaredMethod(nameof(IClrCollectionAccessor.Add))!;
+
+        private static readonly MethodInfo CollectionAccessorCreateMethodInfo
+            = typeof(IClrCollectionAccessor).GetTypeInfo().GetDeclaredMethod(nameof(IClrCollectionAccessor.Create))!;
+
+        private static readonly MethodInfo ArrayEmptyMethodInfo
+            = typeof(Array).GetTypeInfo().GetDeclaredMethod(nameof(Array.Empty))!;
 
         private static readonly PropertyInfo ObjectArrayIndexerPropertyInfo
             = typeof(object[]).GetProperty("Item")!;
@@ -810,6 +817,21 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         collectionResult.Type);
                 }
 
+                // An identifier read as the database returned it, to compare as such; read where it's used, as it's only ever used once.
+                case ProviderValueProjectionBindingExpression providerValueProjectionBindingExpression:
+                {
+                    var projectionIndex = (int)GetProjectionIndex(providerValueProjectionBindingExpression.ProjectionBinding);
+                    var projection = _selectExpression.Projection[projectionIndex];
+
+                    return CreateGetValueExpression(
+                        _dataReaderParameter,
+                        projectionIndex,
+                        IsNullableProjection(projection),
+                        providerValueProjectionBindingExpression.TypeMapping,
+                        providerValueProjectionBindingExpression.Type,
+                        applyConverter: false);
+                }
+
                 case ProjectionBindingExpression projectionBindingExpression
                     when _inline:
                 {
@@ -1511,8 +1533,26 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 == Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod)
             {
                 var index = methodCallExpression.Arguments[1].GetConstantValue<int>();
-                var property = methodCallExpression.Arguments[2].GetConstantValue<IProperty?>();
+                var propertyBase = methodCallExpression.Arguments[2].GetConstantValue<IPropertyBase?>();
                 var mappingParameter = (ParameterExpression)((MethodCallExpression)methodCallExpression.Arguments[0]).Object!;
+
+                if (propertyBase is IComplexProperty complexProperty)
+                {
+                    // The JSON column of a complex property is only checked for null to find out whether an optional dependent
+                    // exists, so the document isn't read. Its JSON reader registers the column with a buffered reader.
+                    Expression jsonIndexExpression = Constant(_materializationContextBindings[mappingParameter][complexProperty]);
+                    if (_indexMapParameter != null)
+                    {
+                        jsonIndexExpression = ArrayIndex(_indexMapParameter, jsonIndexExpression);
+                    }
+
+                    return Condition(
+                        Call(_dataReaderParameter, IsDbNullMethod, jsonIndexExpression),
+                        Default(methodCallExpression.Type),
+                        Convert(Constant(true), methodCallExpression.Type));
+                }
+
+                var property = (IProperty?)propertyBase;
 
                 if (_jsonMaterializationContextToJsonReaderDataAndKeyValuesParameterMapping
                     .TryGetValue(mappingParameter, out var mappedParameter))
@@ -1609,6 +1649,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             var innerShapersMap = new Dictionary<string, Expression>();
             var innerFixupMap = new Dictionary<string, LambdaExpression>();
             var trackingInnerFixupMap = new Dictionary<string, LambdaExpression>();
+            var innerAbsentPropertyFixupMap = new Dictionary<string, LambdaExpression>();
 
             // Go over all structural properties (complex properties and navigations - if we're an (owned) entity), which represent JSON
             // nested types; generate shapers and fixup to wire the materialized related instance into the parent's property.
@@ -1716,6 +1757,15 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                     innerFixupMap[navigationJsonPropertyName] = fixup;
 
+                    // A required complex collection absent from the document (e.g. added to the type after the row was persisted) must
+                    // materialize as empty rather than null; an explicit JSON null is still materialized as null. See #38625.
+                    if (nestedStructuralProperty is IComplexProperty { IsNullable: false }
+                        && !nestedStructuralProperty.IsShadowProperty())
+                    {
+                        innerAbsentPropertyFixupMap[navigationJsonPropertyName] =
+                            GenerateAbsentCollectionFixupForJson(structuralType.ClrType, nestedStructuralProperty);
+                    }
+
                     var trackedFixup = Lambda(
                         Block(typeof(void), expressionsForTracking),
                         shaperEntityParameter,
@@ -1750,7 +1800,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 jsonReaderDataShaperLambdaParameter,
                 innerShapersMap,
                 innerFixupMap,
-                trackingInnerFixupMap).Rewrite(structuralTypeShaperMaterializer);
+                trackingInnerFixupMap,
+                innerAbsentPropertyFixupMap).Rewrite(structuralTypeShaperMaterializer);
 
             var entityShaperMaterializerVariable = Variable(
                 structuralTypeShaperMaterializer.Type,
@@ -1805,6 +1856,11 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             keyValuesParameter,
                             jsonReaderDataParameter,
                             includingEntityExpression,
+                            _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
+                                structuralProperty,
+                                LiftableConstantExpressionHelpers.BuildStructuralPropertyAccessLambda(structuralProperty),
+                                structuralProperty.Name + "StructuralProperty",
+                                typeof(IPropertyBase)),
                             shaperLambda,
                             GetOrCreateCollectionObjectLambda(declaringClrType, structuralProperty),
                             fixup,
@@ -1899,7 +1955,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             ParameterExpression jsonReaderDataParameter,
             IDictionary<string, Expression> innerShapersMap,
             IDictionary<string, LambdaExpression> innerFixupMap,
-            IDictionary<string, LambdaExpression> trackingInnerFixupMap)
+            IDictionary<string, LambdaExpression> trackingInnerFixupMap,
+            IDictionary<string, LambdaExpression> innerAbsentPropertyFixupMap)
             : ExpressionVisitor
         {
             private static readonly PropertyInfo JsonEncodedTextEncodedUtf8BytesProperty
@@ -1912,6 +1969,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             // which happens at the end (after we read everything to guarantee that we can instantiate the entity
             private readonly Dictionary<string, ParameterExpression> _navigationVariableMap = [];
 
+
             public BlockExpression Rewrite(BlockExpression jsonEntityShaperMaterializer)
                 => (BlockExpression)VisitBlock(jsonEntityShaperMaterializer);
 
@@ -1922,10 +1980,10 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     {
                         Cases:
                         [
-                        {
-                            Body: BlockExpression { Expressions.Count: > 0 } body,
-                            TestValues: [{ } onlyValueExpression]
-                        }
+                            {
+                                Body: BlockExpression { Expressions.Count: > 0 } body,
+                                TestValues: [{ } onlyValueExpression]
+                            }
                         ]
                     }
                     && onlyValueExpression.GetConstantValue<object>() == structuralType)
@@ -2032,13 +2090,20 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                 Utf8JsonReaderTokenTypeProperty)),
                     };
 
+                    var absentPrimitiveCollectionInitializations = new List<Expression>();
+
                     var (loop, propertyAssignmentMap) = GenerateJsonPropertyReadLoop(
                         managerVariable,
                         tokenTypeVariable,
                         finalBlockVariables,
-                        valueBufferTryReadValueMethodsToProcess);
+                        valueBufferTryReadValueMethodsToProcess,
+                        absentPrimitiveCollectionInitializations);
 
                     finalBlockExpressions.Add(loop);
+
+                    // A required primitive collection absent from the document materializes as empty, like a complex one; this runs
+                    // after the loop, since only then is it known that the document had no value for it. See #38625.
+                    finalBlockExpressions.AddRange(absentPrimitiveCollectionInitializations);
 
                     var finalCaptureState = Call(managerVariable, Utf8JsonReaderManagerCaptureStateMethod);
                     finalBlockExpressions.Add(finalCaptureState);
@@ -2090,7 +2155,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     {
                         foreach (var fixup in fixupMap)
                         {
-                            var navigationEntityParameter = _navigationVariableMap[fixup.Key];
+                            var navigationVariable = _navigationVariableMap[fixup.Key];
 
                             // Inject the fixup code for each property; we have this as a set of lambdas in the fixup map.
                             // In the normal case, simply Invoke the lambda, passing it the structural type to be fixed up as a parameter.
@@ -2098,30 +2163,48 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             // we unwrap the lambda and integrate its body directly.
                             // We should ideally do this for all cases (no need for the extra lambda Invoke), but there are some issues around us writing
                             // to readonly fields.
-                            if (jsonStructuralTypeVariable.Type
-                                .IsValueType /*&& Nullable.GetUnderlyingType(jsonStructuralTypeVariable.Type) is null*/)
-                            {
-                                var fixupBody = ReplacingExpressionVisitor.Replace(
-                                    originals: [fixup.Value.Parameters[0], fixup.Value.Parameters[1]],
-                                    replacements: [jsonStructuralTypeVariable, _navigationVariableMap[fixup.Key]],
-                                    fixup.Value.Body);
+                            var isValueType = jsonStructuralTypeVariable.Type
+                                .IsValueType /*&& Nullable.GetUnderlyingType(jsonStructuralTypeVariable.Type) is null*/;
 
-                                finalBlockExpressions.Add(fixupBody);
+                            var fixupExpression = isValueType
+                                ? ReplacingExpressionVisitor.Replace(
+                                    originals: [fixup.Value.Parameters[0], fixup.Value.Parameters[1]],
+                                    replacements: [jsonStructuralTypeVariable, navigationVariable],
+                                    fixup.Value.Body)
+                                : Invoke(fixup.Value, jsonStructuralTypeVariable, navigationVariable);
+
+                            if (innerAbsentPropertyFixupMap.TryGetValue(fixup.Key, out var absentPropertyFixup))
+                            {
+                                Check.DebugAssert(
+                                    absentPropertyFixup.Parameters is [{ } absentFixupParameter]
+                                    && absentFixupParameter.Type == jsonStructuralTypeVariable.Type,
+                                    "The absent-property fixup must take only the instance being materialized");
+
+                                // An explicit null in the document already materializes as the empty collection, so a variable that is
+                                // still null after the read loop means the key was absent
+                                var absentPropertyFixupExpression = isValueType
+                                    ? ReplacingExpressionVisitor.Replace(
+                                        absentPropertyFixup.Parameters[0], jsonStructuralTypeVariable, absentPropertyFixup.Body)
+                                    : Invoke(absentPropertyFixup, jsonStructuralTypeVariable);
+
+                                fixupExpression = IfThenElse(
+                                    NotEqual(navigationVariable, Constant(null, navigationVariable.Type)),
+                                    fixupExpression,
+                                    absentPropertyFixupExpression);
                             }
-                            else
+
+                            if (!isValueType)
                             {
                                 // If the structural type being fixed up is nullable, then we need to add null checks before we run fixup logic.
                                 // For regular entities, whose fixup is done as part of the "Materialize*" method, the checks are done there
                                 // (the same will be done for the "optimized" scenario, where we populate properties directly rather than store in variables).
                                 // But in this case fixups are standalone, so the null safety must be added here.
-                                finalBlockExpressions.Add(
-                                    IfThen(
-                                        NotEqual(jsonStructuralTypeVariable, Constant(null, jsonStructuralTypeVariable.Type)),
-                                        Invoke(
-                                            fixup.Value,
-                                            jsonStructuralTypeVariable,
-                                            _navigationVariableMap[fixup.Key])));
+                                fixupExpression = IfThen(
+                                    NotEqual(jsonStructuralTypeVariable, Constant(null, jsonStructuralTypeVariable.Type)),
+                                    fixupExpression);
                             }
+
+                            finalBlockExpressions.Add(fixupExpression);
                         }
                     }
                 }
@@ -2135,7 +2218,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     ParameterExpression managerVariable,
                     ParameterExpression tokenTypeVariable,
                     List<ParameterExpression> finalBlockVariables,
-                    List<MethodCallExpression> valueBufferTryReadValueMethodsToProcess)
+                    List<MethodCallExpression> valueBufferTryReadValueMethodsToProcess,
+                    List<Expression> absentPrimitiveCollectionInitializations)
                 {
                     var breakLabel = Label("done");
                     var testExpressions = new List<Expression>();
@@ -2176,11 +2260,18 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             propertyVariable,
                             valueBufferTryReadValueMethodToProcess);
 
-                        readExpressions.Add(
-                            Block(
-                                moveNext,
-                                assignment,
-                                Empty()));
+                        // A required primitive collection absent from the document materializes as empty, like a complex one. An explicit
+                        // null already does, so a variable that is still null after the read loop means the key was absent. See #38625.
+                        if (!propertyVariable.Type.IsValueType
+                            && GenerateEmptyPrimitiveCollectionForJson(property, propertyVariable.Type) is { } emptyCollection)
+                        {
+                            absentPrimitiveCollectionInitializations.Add(
+                                IfThen(
+                                    Equal(propertyVariable, Constant(null, propertyVariable.Type)),
+                                    Assign(propertyVariable, emptyCollection)));
+                        }
+
+                        readExpressions.Add(Block(moveNext, assignment, Empty()));
 
                         propertyAssignmentMap[property] = propertyVariable;
                     }
@@ -2221,13 +2312,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                 jsonReaderDataParameter,
                                 MakeMemberAccess(QueryCompilationContext.QueryContextParameter, QueryContextQueryLoggerProperty)));
 
-                        readExpressions.Add(
-                            Block(
-                                moveNext,
-                                captureState,
-                                assignment,
-                                managerRecreation,
-                                Empty()));
+                        readExpressions.Add(Block(moveNext, captureState, assignment, managerRecreation, Empty()));
                     }
 
                     var switchCases = new List<SwitchCase>();
@@ -2907,6 +2992,75 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 prm);
         }
 
+        /// <summary>
+        ///     An expression creating an empty collection for a required primitive collection property, or <see langword="null" /> when
+        ///     the property is not one, or when its declared type cannot be instantiated; an absent value then keeps materializing as
+        ///     null, as before.
+        /// </summary>
+        private static Expression? GenerateEmptyPrimitiveCollectionForJson(IProperty property, Type propertyVariableType)
+        {
+            if (property.IsNullable
+                || property.GetElementType() is null
+                // A property-level reader/writer decides how the collection is created when the key is present, so it has to
+                // decide the absent case too; nothing is synthesized for it here
+                || property.GetJsonValueReaderWriter() is not null
+                || property.ClrType.TryGetElementType(typeof(IEnumerable<>)) is not { } elementType)
+            {
+                return null;
+            }
+
+            // The collection type the JSON reader/writer would have created had the document contained the property
+            var typeToInstantiate = property.ClrType.FindJsonCollectionTypeToInstantiate(elementType);
+            var listOfElementType = typeof(List<>).MakeGenericType(elementType);
+
+            Expression? emptyCollection = typeToInstantiate switch
+            {
+                { IsArray: true } when typeToInstantiate.GetElementType() is { } arrayElementType
+                    => Call(ArrayEmptyMethodInfo.MakeGenericMethod(arrayElementType)),
+                { IsAbstract: false } when typeToInstantiate.GetDeclaredConstructor(null) is { IsPublic: true }
+                    => New(typeToInstantiate),
+                // The reader/writer builds a list and hands it to the constructor for the one read-only shape it supports;
+                // everything else it creates with a parameterless constructor (JsonCollectionOf*ReaderWriter.IsReadOnly)
+                { IsGenericType: true } when typeToInstantiate.GetGenericTypeDefinition() == typeof(ReadOnlyCollection<>)
+                    && typeToInstantiate.GetConstructor([typeof(IList<>).MakeGenericType(elementType)]) is { } listConstructor
+                    => New(listConstructor, New(listOfElementType)),
+                _ => null
+            };
+
+            return emptyCollection switch
+            {
+                null => null,
+                _ when emptyCollection.Type == propertyVariableType => emptyCollection,
+                // The variable holds the property's model type; anything else is not ours to convert into, so leave it be
+                _ when propertyVariableType.IsAssignableFrom(emptyCollection.Type) => Convert(emptyCollection, propertyVariableType),
+                _ => null
+            };
+        }
+
+        // Deliberately not GetOrCreateCollectionObjectLambda: GetOrCreate reads the property from a boxed copy of a value-type
+        // instance, so the collection it creates would be assigned to the box and lost. This creates and assigns explicitly.
+        private LambdaExpression GenerateAbsentCollectionFixupForJson(Type clrType, IPropertyBase structuralProperty)
+        {
+            var entityParameter = Parameter(clrType);
+            var setter = structuralProperty.GetMemberInfo(forMaterialization: true, forSet: true);
+
+            return Lambda(
+                Block(
+                    typeof(void),
+                    entityParameter.MakeMemberAccess(setter)
+                        .Assign(
+                            Convert(
+                                Call(
+                                    _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
+                                        structuralProperty.GetCollectionAccessor(),
+                                        LiftableConstantExpressionHelpers.BuildClrCollectionAccessorLambda(structuralProperty),
+                                        structuralProperty.Name + "StructuralPropertyCollectionAccessor",
+                                        typeof(IClrCollectionAccessor)),
+                                    CollectionAccessorCreateMethodInfo),
+                                setter.GetMemberType()))),
+                entityParameter);
+        }
+
         private Expression AddToCollectionStructuralProperty(
             ParameterExpression entity,
             ParameterExpression relatedEntity,
@@ -2934,7 +3088,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             bool nullable,
             RelationalTypeMapping typeMapping,
             Type type,
-            IPropertyBase? property = null)
+            IPropertyBase? property = null,
+            bool applyConverter = true)
         {
             var getMethod = typeMapping.GetDataReaderMethod();
 
@@ -2994,7 +3149,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
             valueExpression = typeMapping.CustomizeDataReaderExpression(valueExpression);
 
-            var converter = typeMapping.Converter;
+            var converter = applyConverter ? typeMapping.Converter : null;
 
             var converterExpression = default(Expression);
             var primitiveCollectionJsonHandled = false;
@@ -3115,9 +3270,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     // TODO: do we even need to do this check? can we ever have a custom ValueConverter that is not generic?
                     if (typedConverterType != null)
                     {
-                        if (converterExpression.Type != converter.GetType())
+                        if (converterExpression.Type != typedConverterType)
                         {
-                            converterExpression = Convert(converterExpression, converter.GetType());
+                            converterExpression = Convert(converterExpression, typedConverterType);
                         }
 
                         if (valueExpression.Type != converter.ProviderClrType)
@@ -3178,9 +3333,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         Expression invocationExpression;
                         if (typedConverterType != null)
                         {
-                            if (converterExpression.Type != converter.GetType())
+                            if (converterExpression.Type != typedConverterType)
                             {
-                                converterExpression = Convert(converterExpression, converter.GetType());
+                                converterExpression = Convert(converterExpression, typedConverterType);
                             }
 
                             invocationExpression = Invoke(
@@ -3314,9 +3469,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     var typedConverterType = converterType.GetGenericTypeImplementations(typeof(ValueConverter<,>)).FirstOrDefault();
                     if (typedConverterType != null)
                     {
-                        if (converterExpression.Type != converter.GetType())
+                        if (converterExpression.Type != typedConverterType)
                         {
-                            converterExpression = Convert(converterExpression, converter.GetType());
+                            converterExpression = Convert(converterExpression, typedConverterType);
                         }
 
                         nullExpression = Invoke(
@@ -3357,8 +3512,10 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             }
             else if (property.GetElementType() is not null)
             {
-                // A required primitive collection nested in a JSON document can't be materialized from a JSON 'null'
-                // token. Throw a clear, property-named error instead of the cryptic reader/writer "Invalid token type".
+                // A required primitive collection nested in a JSON document has no null to hand back: a JSON 'null' token materializes
+                // as empty, the same as an absent key and as the Cosmos provider does, when the collection type is one the reader/writer
+                // itself would create. A property-level reader/writer decides how its collection is created, so for one of those the
+                // clear, property-named error stays instead of the cryptic reader/writer "Invalid token type". See #38625 and #34881.
                 if (resultExpression.Type != property.ClrType)
                 {
                     resultExpression = Convert(resultExpression, property.ClrType);
@@ -3372,7 +3529,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                 Utf8JsonReaderManagerCurrentReaderField),
                             Utf8JsonReaderTokenTypeProperty),
                         Constant(JsonTokenType.Null)),
-                    Throw(
+                    GenerateEmptyPrimitiveCollectionForJson(property, property.ClrType)
+                    ?? Throw(
                         New(
                             typeof(InvalidOperationException).GetConstructor([typeof(string)])!,
                             Constant(RelationalStrings.NullValueInRequiredJsonProperty(property.Name))),
@@ -3626,9 +3784,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                 RelationalStrings.JsonProjectingQueryableOperationNoTrackingWithIdentityResolution(
                                     nameof(QueryTrackingBehavior.NoTrackingWithIdentityResolution)));
 
-                        case JsonProjectionInfo jsonEntityProjectionInfo:
+                        case JsonProjectionInfo jsonEntityProjectionInfo
+                            when entityShaperExpression.StructuralType is IEntityType jsonEntityType:
                         {
-                            var jsonEntityType = (IEntityType)entityShaperExpression.StructuralType;
                             if (_insideInclude)
                             {
                                 if (!_includedJsonEntityTypes.Contains(jsonEntityType))

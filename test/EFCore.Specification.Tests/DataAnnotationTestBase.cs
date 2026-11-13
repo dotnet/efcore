@@ -1810,6 +1810,61 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
     }
 
     [Fact]
+    public virtual void NotMappedAttribute_on_explicit_interface_implementation_does_not_ignore_public_member()
+    {
+        var modelBuilder = CreateModelBuilder();
+        modelBuilder.Entity<ExplicitNotMappedEntity>().ComplexProperty(e => e.Complex);
+
+        var entityType = modelBuilder.Model.FindEntityType(typeof(ExplicitNotMappedEntity))!;
+
+        Assert.NotNull(entityType.FindProperty(nameof(ExplicitNotMappedEntity.Name)));
+        Assert.NotNull(entityType.FindNavigation(nameof(ExplicitNotMappedEntity.Related)));
+        Assert.NotNull(
+            entityType.FindComplexProperty(nameof(ExplicitNotMappedEntity.Complex))!.ComplexType
+                .FindProperty(nameof(ExplicitNotMappedComplex.Name)));
+    }
+
+    protected interface IHasName
+    {
+        public string Name { get; }
+    }
+
+    protected interface IHasRelated
+    {
+        public IEnumerable<object> Related { get; }
+    }
+
+    protected class ExplicitNotMappedEntity : IHasName, IHasRelated
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = null!;
+        public List<ExplicitNotMappedRelated> Related { get; set; } = [];
+        public ExplicitNotMappedComplex Complex { get; set; } = null!;
+
+        [NotMapped]
+        string IHasName.Name
+            => Name;
+
+        [NotMapped]
+        IEnumerable<object> IHasRelated.Related
+            => Related;
+    }
+
+    protected class ExplicitNotMappedRelated
+    {
+        public int Id { get; set; }
+    }
+
+    protected class ExplicitNotMappedComplex : IHasName
+    {
+        public string Name { get; set; } = null!;
+
+        [NotMapped]
+        string IHasName.Name
+            => Name;
+    }
+
+    [Fact]
     public virtual void NotMappedAttribute_removes_ambiguity_in_relationship_building()
     {
         var modelBuilder = CreateModelBuilder();

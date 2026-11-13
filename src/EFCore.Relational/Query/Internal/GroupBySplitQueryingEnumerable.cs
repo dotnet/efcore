@@ -119,7 +119,10 @@ public class GroupBySplitQueryingEnumerable<TKey, TElement>
     /// </summary>
     public virtual IAsyncEnumerator<IGrouping<TKey, TElement>> GetAsyncEnumerator(CancellationToken cancellationToken = default)
     {
-        _relationalQueryContext.CancellationToken = cancellationToken;
+        if (cancellationToken != default)
+        {
+            _relationalQueryContext.CancellationToken = cancellationToken;
+        }
 
         return new AsyncEnumerator(this);
     }
@@ -286,7 +289,7 @@ public class GroupBySplitQueryingEnumerable<TKey, TElement>
 
                         group.Add(element);
 
-                        if (_resultCoordinator!.HasNext ?? _dbDataReader!.Read())
+                        if (_resultCoordinator!.HasNext ?? _dataReader!.Read())
                         {
                             // Check if grouping key changed
                             if (!CompareIdentifiers(

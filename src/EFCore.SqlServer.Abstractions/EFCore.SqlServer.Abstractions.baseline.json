@@ -17,9 +17,6 @@
           "Member": "virtual int CompareTo(Microsoft.EntityFrameworkCore.HierarchyId? other);"
         },
         {
-          "Member": "override bool Equals(object? other);"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.HierarchyId? GetAncestor(int n);"
         },
         {
@@ -27,9 +24,6 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.HierarchyId GetDescendant(Microsoft.EntityFrameworkCore.HierarchyId? child1, Microsoft.EntityFrameworkCore.HierarchyId? child2);"
-        },
-        {
-          "Member": "override int GetHashCode();"
         },
         {
           "Member": "virtual short GetLevel();"
@@ -72,9 +66,6 @@
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.HierarchyId Parse(Microsoft.EntityFrameworkCore.HierarchyId parentHierarchyId, params int[] parentId);"
-        },
-        {
-          "Member": "override string ToString();"
         }
       ]
     }

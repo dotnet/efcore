@@ -106,7 +106,7 @@ internal class ReflectionOperationExecutor : OperationExecutorBase
 
             AssemblyLoadContext.Default.Resolving += (context, name) =>
             {
-                var assemblyPath = Path.Combine(AppBasePath, name.Name + ".dll");
+                var assemblyPath = Path.Join(AppBasePath, name.Name + ".dll");
                 return File.Exists(assemblyPath) ? context.LoadFromAssemblyPath(assemblyPath) : null;
             };
             _assemblyLoadContext = AssemblyLoadContext.Default;

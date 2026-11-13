@@ -735,6 +735,7 @@ public class StateManager : IStateManager
         Clear(resetting: true);
         Dependencies.NavigationFixer.AbortDelayedFixup();
         _changeDetector?.ResetState();
+        (_concurrencyDetector as IResettableService)?.ResetState();
 
         Tracking = null;
         Tracked = null;
@@ -764,9 +765,14 @@ public class StateManager : IStateManager
 
         SavingChanges = false;
 
-        foreach (IResettableService set in ((IDbSetCache)Context).GetSets())
+        // Local views are only reset with the context. ChangeTracker.Clear() notifies them itself, and the temporary
+        // state managers used for identity resolution share the context but must not touch its views.
+        if (resetting)
         {
-            set.ResetState();
+            foreach (IResettableService set in ((IDbSetCache)Context).GetSets())
+            {
+                set.ResetState();
+            }
         }
     }
 

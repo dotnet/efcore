@@ -57,7 +57,7 @@ However, if the supplied connection string is of the format `name=MyConnection` 
 
 EF doesn't load, construct or execute code dynamically based on the data received from the database. All types are specified in the model in advance. The model is considered trusted.
 
-For JSON EF expects the property names to be the exactly the same as configured in the model, similarly for column names in `DbDataReader`. Extra data will be either ignored or result in an exception. For duplicated JSON properties the last value will take precedence.
+For JSON EF expects the property names to be exactly the same as configured in the model, similarly for column names in `DbDataReader`. Extra data will be either ignored or result in an exception. For duplicated JSON properties the last value will take precedence.
 
 EF doesn't assume any particular order for properties when deserializing. During serialization discriminator (`$type`) comes first, then keys, then the rest in a deterministic order.
 
@@ -65,7 +65,7 @@ Only configuration in the EF model will be used to determine the expected data s
 
 There is no API that can be used by the developer to provide a JSON string or a `DbDataReader` to be deserialized, this is handled internally by the provider for a specific database.
 
-EF providers and plugins can extend or replace some of the (de)serialization logic and could introduce vulnurabilities.
+EF providers and plugins can extend or replace some of the (de)serialization logic and could introduce vulnerabilities.
 
 ### Exceptions
 
@@ -91,7 +91,7 @@ For particularly large data sets streaming or paging can be used to limit the pe
 
 #### SQL Injection
 
-Most EF queries are specified using LINQ where user input is sent as parameters which are not vulnarable to SQL injection. Methods like `ExecuteSql` and `FromSql` accept a `FormattableString` which can be parameterized as well. However, the methods `FromSqlRaw` and `ExecuteSqlRaw` accept a `string` and if the developer directly concatenates user input to the supplied SQL command an attacker can provide data containing commands that can be used for Spoofing, Tampering, Repudiation, Information disclosure, Denial of service or Elevation of privilege.
+Most EF queries are specified using LINQ where user input is sent as parameters which are not vulnerable to SQL injection. Methods like `ExecuteSql` and `FromSql` accept a `FormattableString` which can be parameterized as well. However, the methods `FromSqlRaw` and `ExecuteSqlRaw` accept a `string` and if the developer directly concatenates user input to the supplied SQL command an attacker can provide data containing commands that can be used for Spoofing, Tampering, Repudiation, Information disclosure, Denial of service or Elevation of privilege.
 
 **Mitigation:** These methods are documented as potentially dangerous and the user is responsible for input sanitization.
 
@@ -121,7 +121,7 @@ If the mechanism used for logging, interceptors or diagnostics crosses a trust b
 
 ### Model building
 
-Model building is based on static code in the loaded assembly and is consider to be trusted.
+Model building is based on static code in the loaded assembly and is considered to be trusted.
 
 ### Type Mapping
 
@@ -143,7 +143,7 @@ Migration application can happen at runtime and take a database-wide lock that c
 
 **Mitigation:** [The guidance](https://learn.microsoft.com/ef/core/managing-schemas/migrations/applying#apply-migrations-at-runtime) is to only perform migration application once per deployment.
 
-#### Migrations elevation of privilige
+#### Migrations elevation of privilege
 
 Migration application requires more permission than required for normal app operation. If an attacker is able gain control of the app or the credentials they would be able to inflict more damage than otherwise.
 

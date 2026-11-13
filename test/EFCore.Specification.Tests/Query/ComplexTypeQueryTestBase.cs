@@ -111,6 +111,14 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
             ss => ss.Set<Customer>().Select(c => c.ShippingAddress).Distinct());
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Include_complex_property(bool async)
+        => Assert.Equal(
+            CoreStrings.InvalidIncludeExpression("c.ShippingAddress"),
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Include(c => c.ShippingAddress)))).Message);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Complex_type_equals_complex_type(bool async)
         => AssertQuery(
             async,

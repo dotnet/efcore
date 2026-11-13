@@ -940,6 +940,34 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (o["Cl
     public override Task GroupBy_aggregate_on_owned_navigation_in_aggregate_selector(bool async)
         => AssertTranslationFailed(() => base.GroupBy_aggregate_on_owned_navigation_in_aggregate_selector(async));
 
+    // TODO: GroupBy, #17313
+    public override Task GroupBy_multiple_aggregates_on_owned_navigation(bool async)
+        => AssertTranslationFailed(() => base.GroupBy_multiple_aggregates_on_owned_navigation(async));
+
+    // TODO: GroupBy, #17313
+    public override Task GroupBy_count_with_predicate_on_owned_navigation(bool async)
+        => AssertTranslationFailed(() => base.GroupBy_count_with_predicate_on_owned_navigation(async));
+
+    // TODO: GroupBy, #17313
+    public override Task GroupBy_aggregate_on_owned_navigation_over_filtered_grouping(bool async)
+        => AssertTranslationFailed(() => base.GroupBy_aggregate_on_owned_navigation_over_filtered_grouping(async));
+
+    // TODO: GroupBy, #17313
+    public override Task GroupBy_ordered_aggregate_on_owned_navigation(bool async)
+        => AssertTranslationFailed(() => base.GroupBy_ordered_aggregate_on_owned_navigation(async));
+
+    // TODO: GroupBy, #17313
+    public override Task GroupBy_first_entity_ordered_by_owned_navigation(bool async)
+        => AssertTranslationFailed(() => base.GroupBy_first_entity_ordered_by_owned_navigation(async));
+
+    // TODO: GroupBy, #17313
+    public override Task GroupBy_aggregate_on_owned_navigation_in_having(bool async)
+        => AssertTranslationFailed(() => base.GroupBy_aggregate_on_owned_navigation_in_having(async));
+
+    // TODO: GroupBy, #17313
+    public override Task GroupBy_aggregate_on_owned_collection_navigation(bool async)
+        => AssertTranslationFailed(() => base.GroupBy_aggregate_on_owned_collection_navigation(async));
+
     public override Task Filter_on_indexer_using_closure(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
@@ -1324,7 +1352,7 @@ FROM root c
 WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (DateTimePart("yyyy", (ARRAY(
     SELECT VALUE o["OrderDate"]
     FROM o IN c["Orders"]
-    WHERE (o["Id"] > -20))[0] ?? "0001-01-01T00:00:00")) = 2018))
+    WHERE (o["Id"] > -20))[0] ?? "0001-01-01T00:00:00.0000000")) = 2018))
 """);
             });
 

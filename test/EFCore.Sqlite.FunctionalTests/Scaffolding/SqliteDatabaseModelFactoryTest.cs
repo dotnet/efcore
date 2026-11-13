@@ -991,6 +991,52 @@ INSERT INTO MyTable VALUES (1, '1973-09-03 12:00:01.0000000+10:00');",
             "DROP TABLE MyTable;");
 
     [Fact]
+    public void Simple_date_and_time_literals_are_parsed_for_HasDefaultValue_with_Persian_locale()
+    {
+        var culture = CultureInfo.CurrentCulture;
+
+        try
+        {
+            CultureInfo.CurrentCulture = new CultureInfo("fa-IR");
+
+            Test(
+                @"
+CREATE TABLE MyTable (
+    Id int,
+    A datetime DEFAULT ('1968-10-23 12:00:01'),
+    B date DEFAULT ('1968-10-23'),
+    C datetimeoffset DEFAULT ('1973-09-03 12:00:01+10:00'));
+
+INSERT INTO MyTable VALUES (1, '2023-01-20 13:37:00', '2023-01-20', '1973-09-03 12:00:01+10:00');",
+                [],
+                [],
+                dbModel =>
+                {
+                    var columns = dbModel.Tables.Single().Columns;
+
+                    var column = columns.Single(c => c.Name == "A");
+                    Assert.Equal("'1968-10-23 12:00:01'", column.DefaultValueSql);
+                    Assert.Equal(new DateTime(1968, 10, 23, 12, 0, 1, 0, DateTimeKind.Unspecified), column.DefaultValue);
+
+                    column = columns.Single(c => c.Name == "B");
+                    Assert.Equal("'1968-10-23'", column.DefaultValueSql);
+                    Assert.Equal(new DateOnly(1968, 10, 23), column.DefaultValue);
+
+                    column = columns.Single(c => c.Name == "C");
+                    Assert.Equal("'1973-09-03 12:00:01+10:00'", column.DefaultValueSql);
+                    Assert.Equal(
+                        new DateTimeOffset(new DateTime(1973, 9, 3, 12, 0, 1, 0, DateTimeKind.Unspecified), new TimeSpan(0, 10, 0, 0, 0)),
+                        column.DefaultValue);
+                },
+                "DROP TABLE MyTable;");
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = culture;
+        }
+    }
+
+    [Fact]
     public void Simple_Guid_literals_are_parsed_for_HasDefaultValue()
         => Test(
             @"
@@ -1049,6 +1095,61 @@ INSERT INTO MyTable VALUES (1, 'A', 'Tale', 'Of', 'Two', 'Cities');",
                 column = columns.Single(c => c.Name == "E");
                 Assert.Equal("' Toast! '", column.DefaultValueSql);
                 Assert.Equal(" Toast! ", column.DefaultValue);
+            },
+            "DROP TABLE MyTable;");
+
+    [Fact]
+    public void String_literals_with_escaped_quotes_are_unescaped_for_HasDefaultValue()
+        => Test(
+            @"
+CREATE TABLE MyTable (
+    Id int,
+    A nvarchar DEFAULT 'It''s',
+    B varchar DEFAULT ('O''Brien''s'),
+    C text DEFAULT (''''));
+
+INSERT INTO MyTable VALUES (1, 'A', 'Tale', 'Of');",
+            [],
+            [],
+            dbModel =>
+            {
+                var columns = dbModel.Tables.Single().Columns;
+
+                var column = columns.Single(c => c.Name == "A");
+                Assert.Equal("'It''s'", column.DefaultValueSql);
+                Assert.Equal("It's", column.DefaultValue);
+
+                column = columns.Single(c => c.Name == "B");
+                Assert.Equal("'O''Brien''s'", column.DefaultValueSql);
+                Assert.Equal("O'Brien's", column.DefaultValue);
+
+                column = columns.Single(c => c.Name == "C");
+                Assert.Equal("''''", column.DefaultValueSql);
+                Assert.Equal("'", column.DefaultValue);
+            },
+            "DROP TABLE MyTable;");
+
+    [Fact]
+    public void String_concatenation_default_values_are_passed_through()
+        => Test(
+            @"
+CREATE TABLE MyTable (
+    Id int,
+    A text DEFAULT ('a' || 'b'),
+    B text DEFAULT ('It''s' || '!'));",
+            [],
+            [],
+            dbModel =>
+            {
+                var columns = dbModel.Tables.Single().Columns;
+
+                var column = columns.Single(c => c.Name == "A");
+                Assert.Equal("'a' || 'b'", column.DefaultValueSql);
+                Assert.Null(column.DefaultValue);
+
+                column = columns.Single(c => c.Name == "B");
+                Assert.Equal("'It''s' || '!'", column.DefaultValueSql);
+                Assert.Null(column.DefaultValue);
             },
             "DROP TABLE MyTable;");
 
@@ -1262,6 +1363,138 @@ CREATE UNIQUE INDEX IX_UNIQUE on UniqueIndex (Id2);",
                     ["Id2"], index.Columns.Select(ic => ic.Name).ToList());
             },
             "DROP TABLE UniqueIndex;");
+
+    [Fact]
+    public void Skip_index_on_expression_with_warning()
+        => Test(
+            @"
+CREATE TABLE ExpressionIndexTable (
+    Id integer PRIMARY KEY,
+    Name text
+);
+
+CREATE INDEX IX_LOWER_NAME on ExpressionIndexTable (lower(Name));
+CREATE INDEX IX_NAME on ExpressionIndexTable (Name);",
+            [],
+            [],
+            dbModel =>
+            {
+                var index = Assert.Single(dbModel.Tables.Single().Indexes);
+                Assert.Equal("IX_NAME", index.Name);
+                Assert.Equal(["Name"], index.Columns.Select(ic => ic.Name).ToList());
+
+                var (_, id, message, _, _) = Assert.Single(Fixture.ListLoggerFactory.Log, t => t.Level == LogLevel.Warning);
+
+                var definition = SqliteResources.LogExpressionIndexSkipped(new TestLogger<SqliteLoggingDefinitions>());
+                Assert.Equal(definition.EventId, id);
+                Assert.Equal(definition.GenerateMessage("IX_LOWER_NAME", "ExpressionIndexTable"), message);
+            },
+            "DROP TABLE ExpressionIndexTable;");
+
+    [Fact]
+    public void Skip_index_mixing_columns_and_expressions_with_warning()
+        => Test(
+            @"
+CREATE TABLE MixedIndexTable (
+    Id integer PRIMARY KEY,
+    Name text
+);
+
+CREATE UNIQUE INDEX IX_MIXED on MixedIndexTable (Name, (Name || 'x'));",
+            [],
+            [],
+            dbModel =>
+            {
+                Assert.Empty(dbModel.Tables.Single().Indexes);
+
+                var (level, id, _, _, _) = Assert.Single(Fixture.ListLoggerFactory.Log, t => t.Level == LogLevel.Warning);
+                Assert.Equal(LogLevel.Warning, level);
+                Assert.Equal(SqliteEventId.ExpressionIndexSkippedWarning, id);
+            },
+            "DROP TABLE MixedIndexTable;");
+
+    [Fact]
+    public void Skip_only_the_index_on_expression_and_keep_the_other_indexes()
+        => Test(
+            @"
+CREATE TABLE SeveralIndexesTable (
+    Id integer PRIMARY KEY,
+    Name text
+);
+
+CREATE INDEX IX_NAME on SeveralIndexesTable (Name);
+CREATE INDEX IX_EXPR on SeveralIndexesTable (lower(Name));
+CREATE INDEX IX_OTHER on SeveralIndexesTable (Id, Name);",
+            [],
+            [],
+            dbModel =>
+            {
+                Assert.Equal(["IX_NAME", "IX_OTHER"], dbModel.Tables.Single().Indexes.Select(i => i.Name).Order().ToList());
+
+                var (_, id, message, _, _) = Assert.Single(Fixture.ListLoggerFactory.Log, t => t.Level == LogLevel.Warning);
+                var definition = SqliteResources.LogExpressionIndexSkipped(new TestLogger<SqliteLoggingDefinitions>());
+                Assert.Equal(definition.EventId, id);
+                Assert.Equal(definition.GenerateMessage("IX_EXPR", "SeveralIndexesTable"), message);
+            },
+            "DROP TABLE SeveralIndexesTable;");
+
+    [Fact]
+    public void Skip_all_indexes_on_expressions_with_a_warning_for_each()
+        => Test(
+            @"
+CREATE TABLE OnlyExpressionIndexesTable (
+    Id integer PRIMARY KEY,
+    Name text,
+    Amount int
+);
+
+CREATE INDEX ""IX_i'q"" on OnlyExpressionIndexesTable (lower(Name));
+CREATE UNIQUE INDEX IX_ABS on OnlyExpressionIndexesTable (abs(Amount));",
+            [],
+            [],
+            dbModel =>
+            {
+                var table = Assert.Single(dbModel.Tables);
+                Assert.Empty(table.Indexes);
+
+                var definition = SqliteResources.LogExpressionIndexSkipped(new TestLogger<SqliteLoggingDefinitions>());
+                var messages = Fixture.ListLoggerFactory.Log
+                    .Where(t => t.Level == LogLevel.Warning)
+                    .Select(t => t.Message!)
+                    .Order()
+                    .ToList();
+
+                Assert.Equal(
+                    new[]
+                    {
+                        definition.GenerateMessage("IX_ABS", "OnlyExpressionIndexesTable"),
+                        definition.GenerateMessage("IX_i'q", "OnlyExpressionIndexesTable")
+                    }.Order().ToList(),
+                    messages);
+            },
+            "DROP TABLE OnlyExpressionIndexesTable;");
+
+    [Fact]
+    public void Skip_index_on_expression_but_keep_unique_constraint()
+        => Test(
+            @"
+CREATE TABLE ConstraintAndExpressionTable (
+    Id integer PRIMARY KEY,
+    Code text,
+    UNIQUE (Code)
+);
+
+CREATE INDEX IX_EXPR on ConstraintAndExpressionTable (lower(Code));",
+            [],
+            [],
+            dbModel =>
+            {
+                var table = Assert.Single(dbModel.Tables);
+                Assert.Empty(table.Indexes);
+                Assert.Equal(["Code"], Assert.Single(table.UniqueConstraints).Columns.Select(c => c.Name).ToList());
+                Assert.Single(Fixture.ListLoggerFactory.Log, t => t.Level == LogLevel.Warning);
+            },
+            "DROP TABLE ConstraintAndExpressionTable;");
 
     #endregion
 

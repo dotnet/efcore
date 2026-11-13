@@ -276,6 +276,34 @@ public class DbContextOperationsTest
     }
 
     [Fact]
+    public void Optimize_generates_valid_namespace_from_output_dir()
+    {
+        using var directory = new TempDirectory();
+        var assembly = MockAssembly.Create(typeof(BlogContext));
+        var reporter = new TestOperationReporter();
+        var operations = new TestDbContextOperations(
+            reporter,
+            assembly,
+            assembly,
+            project: "",
+            projectDir: directory.Path,
+            rootNamespace: "RootNamespace",
+            language: "C#",
+            nullable: false,
+            args: [],
+            new TestAppServiceProviderFactory(assembly, reporter, throwOnCreate: true));
+
+        var files = operations.Optimize(
+            "Compiled Models", null, contextTypeName: typeof(BlogContext).FullName, null,
+            scaffoldModel: true, precompileQueries: false, nativeAot: false);
+
+        var code = string.Concat(files.Select(File.ReadAllText));
+        Assert.Contains("namespace RootNamespace.CompiledModels", code);
+        Assert.Contains("using RootNamespace.CompiledModels;", code);
+        Assert.DoesNotContain("Compiled Models", code);
+    }
+
+    [Fact]
     public void GetContextInfo_returns_correct_info()
     {
         var info = CreateOperations(typeof(TestProgramRelational)).GetContextInfo(nameof(TestContext));
@@ -463,5 +491,22 @@ public class DbContextOperationsTest
 
         DerivedContext IDesignTimeDbContextFactory<DerivedContext>.CreateDbContext(string[] args)
             => new(nameof(DerivedContext));
+    }
+
+    private class BlogContext(DbContextOptions<BlogContext> options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Blog>();
+    }
+
+    private class BlogContextFactory : IDesignTimeDbContextFactory<BlogContext>
+    {
+        public BlogContext CreateDbContext(string[] args)
+            => new(new DbContextOptionsBuilder<BlogContext>().UseSqlite("Data Source=:memory:").Options);
+    }
+
+    private class Blog
+    {
+        public int Id { get; set; }
     }
 }

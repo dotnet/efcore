@@ -108,6 +108,13 @@ FROM root c
 """);
             });
 
+    public override async Task Include_complex_property(bool async)
+    {
+        await base.Include_complex_property(async);
+
+        AssertSql();
+    }
+
     public override Task Complex_type_equals_complex_type(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async async =>

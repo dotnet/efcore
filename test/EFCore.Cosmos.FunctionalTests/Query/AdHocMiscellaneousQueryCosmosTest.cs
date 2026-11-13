@@ -190,6 +190,233 @@ public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSh
 
     #endregion 34911
 
+    #region 39113
+
+    [Fact]
+    public virtual async Task DateTime_with_and_without_fractional_seconds_orders_and_filters_correctly()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context39113>(
+            seed: async context =>
+            {
+                context.Items.AddRange(
+                    new Context39113.Item
+                    {
+                        Id = 1, Name = "exact-second", Timestamp = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+                    },
+                    new Context39113.Item
+                    {
+                        Id = 2, Name = "fractional-second", Timestamp = new DateTime(2026, 1, 1, 0, 0, 0, 123, DateTimeKind.Utc)
+                    });
+                await context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var ordered = await context.Items.OrderBy(x => x.Timestamp).ToListAsync();
+        Assert.Equal(new[] { "exact-second", "fractional-second" }, ordered.Select(x => x.Name).ToArray());
+
+        var boundary = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        var filtered = await context.Items.Where(x => x.Timestamp > boundary).ToListAsync();
+        Assert.Equal(new[] { "fractional-second" }, filtered.Select(x => x.Name).ToArray());
+    }
+
+    [Fact]
+    public virtual async Task DateTime_in_legacy_short_format_is_read_correctly()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context39113>(
+            seed: async context =>
+            {
+                var client = context.Database.GetCosmosClient();
+                var container = client.GetContainer(
+                    context.Database.GetCosmosDatabaseId(),
+                    context.Model.FindEntityType(typeof(Context39113.Item))!.GetContainer()!);
+
+                // Documents written before #39113 omit trailing zero fractional seconds.
+                await AdHocCosmosTestHelpers.CreateCustomEntityHelperAsync(
+                    container,
+                    """{ "id": "1", "$type": "Item", "Id": 1, "Name": "legacy", "Timestamp": "2026-01-01T00:00:00Z" }""",
+                    CancellationToken.None);
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var expected = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        var item = await context.Items.SingleAsync();
+        Assert.Equal(expected, item.Timestamp);
+        Assert.Equal(DateTimeKind.Utc, item.Timestamp.Kind);
+
+        var scalar = await context.Items.Select(x => x.Timestamp).SingleAsync();
+        Assert.Equal(expected, scalar);
+        Assert.Equal(DateTimeKind.Utc, scalar.Kind);
+
+        var anonymous = await context.Items.Select(x => new { x.Name, x.Timestamp }).SingleAsync();
+        Assert.Equal("legacy", anonymous.Name);
+        Assert.Equal(expected, anonymous.Timestamp);
+        Assert.Equal(DateTimeKind.Utc, anonymous.Timestamp.Kind);
+    }
+
+    [Fact]
+    public virtual async Task DateTime_in_List_of_object_Contains_matches_exact_second_value()
+    {
+        var contextFactory = await Initialize39113ItemsAsync();
+        await using var context = contextFactory.CreateDbContext();
+
+        var dates = new List<object> { new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc) };
+        var result = await context.Items.Where(x => dates.Contains(x.Timestamp)).ToListAsync();
+
+        Assert.Equal(new[] { "exact-second" }, result.Select(x => x.Name).ToArray());
+    }
+
+    [Fact]
+    public virtual async Task DateTime_in_object_array_Contains_matches_exact_second_value()
+    {
+        var contextFactory = await Initialize39113ItemsAsync();
+        await using var context = contextFactory.CreateDbContext();
+
+        var dates = new object[] { new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc) };
+        var result = await context.Items.Where(x => dates.Contains(x.Timestamp)).ToListAsync();
+
+        Assert.Equal(new[] { "exact-second" }, result.Select(x => x.Name).ToArray());
+    }
+
+    [Fact]
+    public virtual async Task DateTime_parameter_in_FromSql_matches_exact_second_value()
+    {
+        var contextFactory = await Initialize39113ItemsAsync();
+        await using var context = contextFactory.CreateDbContext();
+
+        var timestamp = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        var result = await context.Items
+            .FromSqlRaw("""SELECT * FROM root c WHERE c["Timestamp"] = {0}""", timestamp)
+            .ToListAsync();
+
+        Assert.Equal(new[] { "exact-second" }, result.Select(x => x.Name).ToArray());
+    }
+
+    [Fact]
+    public virtual async Task DateTime_interpolated_parameter_in_FromSql_matches_exact_second_value()
+    {
+        var contextFactory = await Initialize39113ItemsAsync();
+        await using var context = contextFactory.CreateDbContext();
+
+        var timestamp = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        var result = await context.Items
+            .FromSql($"""SELECT * FROM root c WHERE c["Timestamp"] = {timestamp}""")
+            .ToListAsync();
+
+        Assert.Equal(new[] { "exact-second" }, result.Select(x => x.Name).ToArray());
+    }
+
+    [Fact]
+    public virtual async Task DateTime_in_List_of_nullable_object_Contains_matches_exact_second_value()
+    {
+        var contextFactory = await Initialize39113ItemsAsync();
+        await using var context = contextFactory.CreateDbContext();
+
+        var dates = new List<object?> { new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc), null };
+        var result = await context.Items.Where(x => dates.Contains(x.Timestamp)).ToListAsync();
+
+        Assert.Equal(new[] { "exact-second" }, result.Select(x => x.Name).ToArray());
+    }
+
+    [Fact]
+    public virtual async Task DateTime_in_heterogeneous_object_array_Contains_matches_exact_second_value()
+    {
+        var contextFactory = await Initialize39113ItemsAsync();
+        await using var context = contextFactory.CreateDbContext();
+
+        var dates = new object?[] { "not a date", null, 42, new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc) };
+        var result = await context.Items.Where(x => dates.Contains(x.Timestamp)).ToListAsync();
+
+        Assert.Equal(new[] { "exact-second" }, result.Select(x => x.Name).ToArray());
+    }
+
+    [Fact]
+    public virtual async Task Mixed_object_collection_of_references_Contains_does_not_throw()
+    {
+        var contextFactory = await Initialize39113ItemsAsync();
+        await using var context = contextFactory.CreateDbContext();
+
+        var names = new List<object> { "exact-second", 1 };
+        var result = await context.Items.Where(x => names.Contains(x.Name)).ToListAsync();
+
+        Assert.Equal(new[] { "exact-second" }, result.Select(x => x.Name).ToArray());
+    }
+
+    [Fact]
+    public virtual async Task FromSql_parameter_uses_model_level_default_type_mapping_conversion()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context39113Converted>(
+            seed: async context =>
+            {
+                context.Items.Add(new Context39113Converted.Item { Id = 1, Name = "converted", Value = new Context39113Converted.Wrapped(42) });
+                context.Items.Add(new Context39113Converted.Item { Id = 2, Name = "other", Value = new Context39113Converted.Wrapped(43) });
+                await context.SaveChangesAsync();
+            });
+        await using var context = contextFactory.CreateDbContext();
+
+        var result = await context.Items
+            .FromSqlRaw("""SELECT * FROM root c WHERE c["Value"] = {0}""", new Context39113Converted.Wrapped(42))
+            .ToListAsync();
+
+        Assert.Equal(new[] { "converted" }, result.Select(x => x.Name).ToArray());
+    }
+
+    protected class Context39113Converted(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Item> Items
+            => Set<Item>();
+
+        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+        {
+            configurationBuilder.DefaultTypeMapping<Wrapped>().HasConversion<WrappedConverter>();
+            configurationBuilder.Properties<Wrapped>().HaveConversion<WrappedConverter>();
+        }
+
+        public readonly record struct Wrapped(int Number);
+
+        public class WrappedConverter() : ValueConverter<Wrapped, int>(v => v.Number, v => new Wrapped(v));
+
+        public class Item
+        {
+            public int Id { get; set; }
+            public string Name { get; set; } = null!;
+            public Wrapped Value { get; set; }
+        }
+    }
+
+    private Task<ContextFactory<Context39113>> Initialize39113ItemsAsync()
+        => InitializeNonSharedTest<Context39113>(
+            seed: async context =>
+            {
+                context.Items.AddRange(
+                    new Context39113.Item
+                    {
+                        Id = 1, Name = "exact-second", Timestamp = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+                    },
+                    new Context39113.Item
+                    {
+                        Id = 2, Name = "fractional-second", Timestamp = new DateTime(2026, 1, 1, 0, 0, 0, 123, DateTimeKind.Utc)
+                    });
+                await context.SaveChangesAsync();
+            });
+
+    protected class Context39113(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Item> Items
+            => Set<Item>();
+
+        public class Item
+        {
+            public int Id { get; set; }
+            public string Name { get; set; } = null!;
+            public DateTime Timestamp { get; set; }
+        }
+    }
+
+    #endregion 39113
+
     #region 35094
 
     // TODO: Move these tests to a better location. They require nullable properties with nulls in the database.

@@ -455,9 +455,11 @@ ORDER BY "cid"
                 column.DefaultValue = (Half)halfValue;
             }
             else if (defaultValueSql.StartsWith('\'')
-                     && defaultValueSql.EndsWith('\''))
+                     && defaultValueSql.EndsWith('\'')
+                     // Not a single string literal, e.g. 'a' || 'b'
+                     && !defaultValueSql[1..^1].Replace("''", "").Contains('\''))
             {
-                defaultValueSql = defaultValueSql[1..^1];
+                defaultValueSql = defaultValueSql[1..^1].Replace("''", "'");
 
                 if (type == typeof(string))
                 {
@@ -469,22 +471,22 @@ ORDER BY "cid"
                     column.DefaultValue = guid;
                 }
                 else if (type == typeof(DateTime)
-                         && DateTime.TryParse(defaultValueSql, out var dateTime))
+                         && DateTime.TryParse(defaultValueSql, CultureInfo.InvariantCulture, out var dateTime))
                 {
                     column.DefaultValue = dateTime;
                 }
                 else if (type == typeof(DateOnly)
-                         && DateOnly.TryParse(defaultValueSql, out var dateOnly))
+                         && DateOnly.TryParse(defaultValueSql, CultureInfo.InvariantCulture, out var dateOnly))
                 {
                     column.DefaultValue = dateOnly;
                 }
                 else if (type == typeof(TimeOnly)
-                         && TimeOnly.TryParse(defaultValueSql, out var timeOnly))
+                         && TimeOnly.TryParse(defaultValueSql, CultureInfo.InvariantCulture, out var timeOnly))
                 {
                     column.DefaultValue = timeOnly;
                 }
                 else if (type == typeof(DateTimeOffset)
-                         && DateTimeOffset.TryParse(defaultValueSql, out var dateTimeOffset))
+                         && DateTimeOffset.TryParse(defaultValueSql, CultureInfo.InvariantCulture, out var dateTimeOffset))
                 {
                     column.DefaultValue = dateTimeOffset;
                 }
@@ -1060,6 +1062,7 @@ ORDER BY "seq"
 
             _logger.IndexFound(index.Name, table.Name, index.IsUnique);
 
+            var isExpressionIndex = false;
             using (var command2 = connection.CreateCommand())
             {
                 command2.CommandText =
@@ -1078,6 +1081,13 @@ ORDER BY "seqno"
                 using var reader2 = command2.ExecuteReader();
                 while (reader2.Read())
                 {
+                    if (reader2.IsDBNull(0))
+                    {
+                        // The key is an expression rather than a column, which can't be represented in the model
+                        isExpressionIndex = true;
+                        break;
+                    }
+
                     var name = reader2.GetString(0);
                     var column = table.Columns.FirstOrDefault(c => c.Name == name)
                         ?? table.Columns.FirstOrDefault(c => c.Name.Equals(name, StringComparison.Ordinal));
@@ -1086,6 +1096,12 @@ ORDER BY "seqno"
                     index.Columns.Add(column);
                     index.IsDescending.Add(reader2.GetBoolean(1));
                 }
+            }
+
+            if (isExpressionIndex)
+            {
+                _logger.ExpressionIndexSkippedWarning(index.Name, table.Name);
+                continue;
             }
 
             table.Indexes.Add(index);

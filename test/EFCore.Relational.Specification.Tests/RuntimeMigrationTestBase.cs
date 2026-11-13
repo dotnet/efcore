@@ -287,11 +287,9 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
     [Fact]
     public void Can_scaffold_and_save_migration_to_disk()
     {
-        var tempDirectory = Path.Combine(Path.GetTempPath(), "EFCoreMigrationTest_" + Guid.NewGuid().ToString("N"));
+        var tempDirectory = Directory.CreateTempSubdirectory("EFCoreMigrationTest_").FullName;
         try
         {
-            Directory.CreateDirectory(tempDirectory);
-
             using var context = CreateContext();
             var (scope, migration) = CreateScaffoldedMigration(
                 context,
@@ -830,11 +828,9 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
     [Fact]
     public void RemoveMigration_removes_dynamically_created_migration()
     {
-        var tempDirectory = Path.Combine(Path.GetTempPath(), "EFCoreRemoveMigrationTest_" + Guid.NewGuid().ToString("N"));
+        var tempDirectory = Directory.CreateTempSubdirectory("EFCoreRemoveMigrationTest_").FullName;
         try
         {
-            Directory.CreateDirectory(tempDirectory);
-
             using var context = CreateContext();
             using var services = CreateDesignTimeServices(context);
 

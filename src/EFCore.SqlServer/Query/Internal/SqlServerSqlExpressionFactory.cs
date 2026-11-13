@@ -40,7 +40,6 @@ public class SqlServerSqlExpressionFactory : SqlExpressionFactory
             null or { TypeMapping: not null } => sqlExpression,
 
             AtTimeZoneExpression e => ApplyTypeMappingOnAtTimeZone(e, typeMapping),
-            SqlServerAggregateFunctionExpression e => e.ApplyTypeMapping(typeMapping),
 
             _ => base.ApplyTypeMapping(sqlExpression, typeMapping)
         };

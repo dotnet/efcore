@@ -8,14 +8,27 @@ namespace Microsoft.EntityFrameworkCore.Query.Associations.ComplexJson;
 public class ComplexJsonProjectionSqliteTest(ComplexJsonSqliteFixture fixture, ITestOutputHelper testOutputHelper)
     : ComplexJsonProjectionRelationalTestBase<ComplexJsonSqliteFixture>(fixture, testOutputHelper)
 {
-    public override Task SelectMany_associate_collection(QueryTrackingBehavior queryTrackingBehavior)
-        => AssertApplyNotSupported(() => base.SelectMany_associate_collection(queryTrackingBehavior));
+    public override async Task Select_complex_properties_with_identity_resolution(bool async)
+    {
+        await base.Select_complex_properties_with_identity_resolution(async);
 
-    public override Task SelectMany_nested_collection_on_required_associate(QueryTrackingBehavior queryTrackingBehavior)
-        => AssertApplyNotSupported(() => base.SelectMany_nested_collection_on_required_associate(queryTrackingBehavior));
+        AssertSql(
+            """
+SELECT "r"."Id", "r"."RequiredAssociate", "r"."OptionalAssociate"
+FROM "RootEntity" AS "r"
+""");
+    }
 
-    public override Task SelectMany_nested_collection_on_optional_associate(QueryTrackingBehavior queryTrackingBehavior)
-        => AssertApplyNotSupported(() => base.SelectMany_nested_collection_on_optional_associate(queryTrackingBehavior));
+    public override async Task Select_complex_properties_with_identity_resolution_member_init(bool async)
+    {
+        await base.Select_complex_properties_with_identity_resolution_member_init(async);
+
+        AssertSql(
+            """
+SELECT "r"."Id", "r"."Name", "r"."RequiredAssociate", "r"."OptionalAssociate"
+FROM "RootEntity" AS "r"
+""");
+    }
 
     public override Task Select_subquery_FirstOrDefault_complex_collection(QueryTrackingBehavior queryTrackingBehavior)
         => AssertApplyNotSupported(() => base.Select_subquery_FirstOrDefault_complex_collection(queryTrackingBehavior));

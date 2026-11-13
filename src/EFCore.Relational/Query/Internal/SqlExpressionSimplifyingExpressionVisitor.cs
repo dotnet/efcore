@@ -34,33 +34,28 @@ public class SqlExpressionSimplifyingExpressionVisitor(
                 return shapedQueryExpression.Update(newQueryExpression, newShaperExpression);
             }
 
-            case ProjectionExpression projectionExpression:
-            {
-                var expression = (SqlExpression)Visit(projectionExpression.Expression);
-
-                // Preserve the projection's converter semantics when simplification strips a no-op CAST.
-                if (expression.TypeMapping?.Converter != projectionExpression.Expression.TypeMapping?.Converter)
-                {
-                    expression = _sqlExpressionFactory.Convert(
-                        expression, projectionExpression.Expression.Type, projectionExpression.Expression.TypeMapping);
-                }
-
-                return projectionExpression.Update(expression);
-            }
-
             // Strip no-op SQL CASTs: when the Convert's store type matches the operand's store type,
             // the CAST would be a no-op in SQL (e.g. CAST(column AS nvarchar(max)) when column is already nvarchar(max)).
             // This can occur in various situations, e.g. when a C# implicit conversion exists for a value-converted type
             // (see #36247 for more context on why we don't refrain from creating the CAST node during translation).
             // However, CASTs around constants are preserved: they serve to explicitly type the constant in SQL
             // (e.g. CAST(100 AS int)), which is important for some queries.
+            // If the CLR type or type mapping changes though (e.g. an enum column with a string converter becoming a string),
+            // retain them on a wrapper that doesn't affect the generated SQL.
             case SqlUnaryExpression
             {
                 OperatorType: ExpressionType.Convert,
                 Operand: not SqlConstantExpression and { TypeMapping.StoreType: var operandStoreType } operand,
                 TypeMapping.StoreType: var convertStoreType
-            } when convertStoreType == operandStoreType:
-                return Visit(operand);
+            } convertExpression when convertStoreType == operandStoreType:
+            {
+                var visitedOperand = (SqlExpression)Visit(operand);
+
+                return visitedOperand.Type == convertExpression.Type
+                    && Equals(visitedOperand.TypeMapping, convertExpression.TypeMapping)
+                        ? visitedOperand
+                        : new ClrTypeChangeExpression(visitedOperand, convertExpression.Type, convertExpression.TypeMapping);
+            }
 
             case SqlBinaryExpression sqlBinaryExpression:
                 return SimplifySqlBinary(sqlBinaryExpression);

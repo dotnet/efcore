@@ -129,6 +129,7 @@ internal class ApiProcessor
         static bool FilterProperties(IProperty property, ITypeDefinition type)
             => (property.EffectiveAccessibility() == Accessibility.Public || property.EffectiveAccessibility() == Accessibility.Protected)
                 && property.DeclaringType.Equals(type)
+                && !property.IsOverride
                 && !IsInternalApi(property);
     }
 
@@ -157,6 +158,7 @@ internal class ApiProcessor
         static bool FilterMethods(IMethod method, ITypeDefinition type)
             => (method.EffectiveAccessibility() == Accessibility.Public || method.EffectiveAccessibility() == Accessibility.Protected)
                 && method.DeclaringType.Equals(type)
+                && !method.IsOverride
                 && !IsInternalApi(method);
     }
 

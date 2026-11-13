@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class ConcurrencyDetector : IConcurrencyDetector
+public class ConcurrencyDetector : IConcurrencyDetector, IResettableService
 {
     private int _inCriticalSection;
     private static readonly AsyncLocal<int> ThreadAcquiredLocksCount = new();
@@ -23,15 +23,27 @@ public class ConcurrencyDetector : IConcurrencyDetector
     /// </summary>
     public virtual ConcurrencyDetectorCriticalSectionDisposer EnterCriticalSection()
     {
-        if (Interlocked.CompareExchange(ref _inCriticalSection, 1, 0) == 1)
+        var acquired = Interlocked.CompareExchange(ref _inCriticalSection, 1, 0) == 0;
+        if (!acquired && ThreadAcquiredLocksCount.Value == 0)
         {
-            if (ThreadAcquiredLocksCount.Value == 0)
-            {
-                throw new InvalidOperationException(CoreStrings.ConcurrentMethodInvocation);
-            }
+            throw new InvalidOperationException(CoreStrings.ConcurrentMethodInvocation);
         }
 
-        ThreadAcquiredLocksCount.Value++;
+        try
+        {
+            ThreadAcquiredLocksCount.Value++;
+        }
+        catch
+        {
+            // The AsyncLocal write allocates and can throw; no disposer is returned, so release the flag this call took.
+            if (acquired)
+            {
+                _inCriticalSection = 0;
+            }
+
+            throw;
+        }
+
         _currentContextRefCount++;
         return new ConcurrencyDetectorCriticalSectionDisposer(this);
     }
@@ -46,10 +58,36 @@ public class ConcurrencyDetector : IConcurrencyDetector
     {
         Check.DebugAssert(_inCriticalSection == 1, "Expected to be in a critical section");
 
-        ThreadAcquiredLocksCount.Value--;
         if (--_currentContextRefCount == 0)
         {
             _inCriticalSection = 0;
         }
+
+        ThreadAcquiredLocksCount.Value--;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void ResetState()
+    {
+        _currentContextRefCount = 0;
+        _inCriticalSection = 0;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual Task ResetStateAsync(CancellationToken cancellationToken = default)
+    {
+        ResetState();
+
+        return Task.CompletedTask;
     }
 }

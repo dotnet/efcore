@@ -104,6 +104,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("CannotGenerateTypeQualifiedMethodCall");
 
         /// <summary>
+        ///     The provider '{provider}' does not support reverse engineering.
+        /// </summary>
+        public static string CannotScaffoldProvider(object? provider)
+            => string.Format(
+                GetString("CannotScaffoldProvider", nameof(provider)),
+                provider);
+
+        /// <summary>
+        ///     The C# language version '{languageVersion}' is not supported. Specify a valid C# language version, such as 'latest' or '15.0'.
+        /// </summary>
+        public static string InvalidCSharpLanguageVersion(object? languageVersion)
+            => string.Format(
+                GetString("InvalidCSharpLanguageVersion", nameof(languageVersion)),
+                languageVersion);
+
+        /// <summary>
         ///     You cannot add a migration with the name 'Migration'.
         /// </summary>
         public static string CircularBaseClassDependency

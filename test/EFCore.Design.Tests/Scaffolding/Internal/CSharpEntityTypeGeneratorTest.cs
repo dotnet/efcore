@@ -1198,6 +1198,51 @@ public partial class Entity
             });
 
     [Fact]
+    public Task TimestampAttribute_is_generated_for_row_version_property()
+        => TestAsync(
+            modelBuilder => modelBuilder
+                .Entity(
+                    "Entity",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<byte[]>("Version").IsRowVersion();
+                    }),
+            new ModelCodeGenerationOptions { UseDataAnnotations = true },
+            code =>
+            {
+                AssertFileContents(
+                    """
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+
+namespace TestNamespace;
+
+public partial class Entity
+{
+    [Key]
+    public int Id { get; set; }
+
+    [Timestamp]
+    public byte[] Version { get; set; }
+}
+""",
+                    code.AdditionalFiles.Single(f => f.Path == "Entity.cs"));
+
+                Assert.DoesNotContain("IsRowVersion", code.ContextFile.Code);
+                Assert.DoesNotContain("IsConcurrencyToken", code.ContextFile.Code);
+            },
+            model =>
+            {
+                var property = model.FindEntityType("TestNamespace.Entity")!.GetProperty("Version");
+                Assert.True(property.IsConcurrencyToken);
+                Assert.Equal(ValueGenerated.OnAddOrUpdate, property.ValueGenerated);
+            });
+
+    [Fact]
     public Task Comments_are_generated()
         => TestAsync(
             modelBuilder => modelBuilder
@@ -1279,6 +1324,44 @@ public partial class Entity
     /// Property Comment
     /// On multiple lines
     /// With XML content &lt;br/&gt;
+    /// </summary>
+    [Key]
+    public int Id { get; set; }
+}
+""",
+                code.AdditionalFiles.Single(f => f.Path == "Entity.cs")),
+            model => { });
+
+    [Fact]
+    public Task Comments_with_quotes_and_ampersands_are_generated()
+        => TestAsync(
+            modelBuilder => modelBuilder
+                .Entity(
+                    "Entity",
+                    x =>
+                    {
+                        x.ToTable(tb => tb.HasComment("The user's \"saved\" maps & routes"));
+                        x.Property<int>("Id").HasComment("Filename under which map data are saved when cached on user's machine.");
+                    })
+            ,
+            new ModelCodeGenerationOptions { UseDataAnnotations = true },
+            code => AssertFileContents(
+                """
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+
+namespace TestNamespace;
+
+/// <summary>
+/// The user's "saved" maps &amp; routes
+/// </summary>
+public partial class Entity
+{
+    /// <summary>
+    /// Filename under which map data are saved when cached on user's machine.
     /// </summary>
     [Key]
     public int Id { get; set; }

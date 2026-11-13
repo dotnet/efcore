@@ -7,16 +7,30 @@ public partial class NavigationExpandingExpressionVisitor
 {
     private NavigationExpansionExpression LiftSingleResultSubqueries(NavigationExpansionExpression source)
     {
-        var selectorBody = source.PendingSelector;
+        if (!_extensibilityHelper.SupportsSingleResultLifting)
+        {
+            return source;
+        }
 
-        var collector = new SingleResultMemberAccessCollector();
+        // Turns member reads off a subquery (e.g. through a let) into the Select(...).First() form written copies already have.
+        var selectorBody = _subqueryMemberPushdownExpressionVisitor.Visit(source.PendingSelector);
+
+        var collector = new SingleResultSubqueryReadCollector(this);
         collector.Visit(selectorBody);
 
-        foreach (var subquery in collector.Liftable)
+        // Existence checks alone don't justify a join: EF already translates those to EXISTS.
+        // Non-deterministic functions (e.g. Guid.NewGuid()) are never client-evaluatable; copies calling one may pick different rows.
+        var nonEvaluatableVisitor = new NonEvaluatableExpressionVisitor(this);
+
+        foreach (var (collection, reads) in collector.Reads.Where(e => e.Value.Count > 1
+                     && e.Value.Exists(r => !r.IsExistenceCheck)
+                     && !nonEvaluatableVisitor.Contains(e.Key)))
         {
-            var collection = BuildSingleResultCollection(subquery);
             var innerParameter = Expression.Parameter(collection.Type.GetSequenceType(), "e");
-            var rewrittenBody = new ReplacingExpressionVisitor([subquery], [innerParameter]).Visit(selectorBody);
+            var rewrittenBody = ReplacingExpressionVisitor.Replace(
+                reads.Select(r => r.Node).ToList(),
+                reads.Select(r => r.CreateReplacement(innerParameter)).ToList(),
+                selectorBody);
 
             // The collection already references the outer element via source.PendingSelector; this parameter is unused.
             source = ProcessSelectMany(
@@ -29,34 +43,23 @@ public partial class NavigationExpandingExpressionVisitor
         return source;
     }
 
-    private static Expression BuildSingleResultCollection(MethodCallExpression subqueryMethod)
+    private static Expression BuildSingleResultCollection(MethodCallExpression subqueryMethod, Expression source)
     {
         var method = subqueryMethod.Method.GetGenericMethodDefinition();
-        var source = subqueryMethod.Arguments[0];
         var elementType = source.Type.GetSequenceType();
 
-        Expression Where(Expression c)
-            => Expression.Call(QueryableMethods.Where.MakeGenericMethod(elementType), c, subqueryMethod.Arguments[1]);
-
-        Expression Skip(Expression c)
-            => Expression.Call(QueryableMethods.Skip.MakeGenericMethod(elementType), c, subqueryMethod.Arguments[1]);
-
-        Expression Reverse(Expression c)
-            => Expression.Call(QueryableMethods.Reverse.MakeGenericMethod(elementType), c);
+        if (PredicateLessMethodInfo.TryGetValue(method, out var predicateLessMethod))
+        {
+            source = Expression.Call(QueryableMethods.Where.MakeGenericMethod(elementType), source, subqueryMethod.Arguments[1]);
+            method = predicateLessMethod;
+        }
 
         var oneRow = method switch
         {
-            _ when method == QueryableMethods.FirstWithPredicate
-                || method == QueryableMethods.FirstOrDefaultWithPredicate
-                || method == QueryableMethods.SingleWithPredicate
-                || method == QueryableMethods.SingleOrDefaultWithPredicate
-                => Where(source),
-            _ when method == QueryableMethods.LastWithPredicate || method == QueryableMethods.LastOrDefaultWithPredicate
-                => Reverse(Where(source)),
             _ when method == QueryableMethods.LastWithoutPredicate || method == QueryableMethods.LastOrDefaultWithoutPredicate
-                => Reverse(source),
+                => Expression.Call(QueryableMethods.Reverse.MakeGenericMethod(elementType), source),
             _ when method == QueryableMethods.ElementAt || method == QueryableMethods.ElementAtOrDefault
-                => Skip(source),
+                => Expression.Call(QueryableMethods.Skip.MakeGenericMethod(elementType), source, subqueryMethod.Arguments[1]),
             _ => source
         };
 
@@ -65,48 +68,159 @@ public partial class NavigationExpandingExpressionVisitor
         return Expression.Call(QueryableMethods.DefaultIfEmptyWithoutArgument.MakeGenericMethod(elementType), firstRow);
     }
 
-    private sealed class SingleResultMemberAccessCollector : ExpressionVisitor
+    private sealed record SingleResultSubqueryRead(Expression Node, LambdaExpression? Projector, bool IsExistenceCheck)
     {
-        private static readonly HashSet<MethodInfo> SingleResultMethods =
-        [
-            QueryableMethods.FirstWithPredicate, QueryableMethods.FirstWithoutPredicate,
-            QueryableMethods.FirstOrDefaultWithPredicate, QueryableMethods.FirstOrDefaultWithoutPredicate,
-            QueryableMethods.SingleWithPredicate, QueryableMethods.SingleWithoutPredicate,
-            QueryableMethods.SingleOrDefaultWithPredicate, QueryableMethods.SingleOrDefaultWithoutPredicate,
-            QueryableMethods.LastWithPredicate, QueryableMethods.LastWithoutPredicate,
-            QueryableMethods.LastOrDefaultWithPredicate, QueryableMethods.LastOrDefaultWithoutPredicate,
-            QueryableMethods.ElementAt, QueryableMethods.ElementAtOrDefault
-        ];
+        public Expression CreateReplacement(Expression element)
+            => IsExistenceCheck
+                ? Expression.MakeBinary(Node.NodeType, element, Expression.Constant(null, element.Type))
+                : Projector == null
+                    ? element
+                    : ReplacingExpressionVisitor.Replace(Projector.Parameters[0], element, Projector.Body);
+    }
 
-        private readonly Dictionary<MethodCallExpression, int> _memberAccessCount = [with(ReferenceEqualityComparer.Instance)];
+    private sealed class SingleResultSubqueryReadCollector(NavigationExpandingExpressionVisitor visitor) : ExpressionVisitor
+    {
+        public Dictionary<Expression, List<SingleResultSubqueryRead>> Reads { get; } = [with(ExpressionEqualityComparer.Instance)];
 
-        public IEnumerable<MethodCallExpression> Liftable
-            => _memberAccessCount.Where(e => e.Value > 1).Select(e => e.Key);
+        // A subquery inside a nested lambda is correlated to that lambda's parameter, not to the element being processed.
+        protected override Expression VisitLambda<T>(Expression<T> lambdaExpression)
+            => lambdaExpression;
 
-        protected override Expression VisitMember(MemberExpression memberExpression)
+        protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
-            if (memberExpression.Expression is MethodCallExpression { Method.IsGenericMethod: true } subquery
-                && SingleResultMethods.Contains(subquery.Method.GetGenericMethodDefinition()))
+            if (binaryExpression.NodeType is ExpressionType.Equal or ExpressionType.NotEqual
+                && (binaryExpression.Left.IsNullConstantExpression() ? binaryExpression.Right
+                        : binaryExpression.Right.IsNullConstantExpression() ? binaryExpression.Left
+                        : null).UnwrapTypeConversion(out var convertedType) is MethodCallExpression subquery
+                && convertedType == null
+                && Decompose(subquery) is (var collection, var projector)
+                && visitor._queryCompilationContext.Model.FindEntityType(collection.Type.GetSequenceType())!.FindPrimaryKey() != null
+                && (projector == null
+                    || (projector.Body is NewExpression or MemberInitExpression
+                        && IsRowPreservingProjection(projector.Body, projector.Parameters[0]))))
             {
-                if (_memberAccessCount.TryGetValue(subquery, out var count))
-                {
-                    _memberAccessCount[subquery] = count + 1;
-                }
-                else
-                {
-                    // First encounter: count it and visit its arguments once (a later access duplicates the count)
-                    _memberAccessCount[subquery] = 1;
+                // An entity, or an object created by the projection, is null exactly when the row is missing.
+                Reads.GetOrAddNew(collection).Add(new SingleResultSubqueryRead(binaryExpression, null, IsExistenceCheck: true));
 
-                    foreach (var argument in subquery.Arguments)
-                    {
-                        Visit(argument);
-                    }
-                }
-
-                return memberExpression;
+                return binaryExpression;
             }
 
-            return base.VisitMember(memberExpression);
+            return base.VisitBinary(binaryExpression);
+        }
+
+        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        {
+            if (Decompose(methodCallExpression) is not (var collection, var projector))
+            {
+                return base.VisitMethodCall(methodCallExpression);
+            }
+
+            if (projector == null || IsPropertyChain(projector.Body, projector.Parameters[0]))
+            {
+                Reads.GetOrAddNew(collection).Add(new SingleResultSubqueryRead(methodCallExpression, projector, IsExistenceCheck: false));
+            }
+
+            return methodCallExpression;
+        }
+
+        private (Expression Collection, LambdaExpression? Projector)? Decompose(MethodCallExpression subquery)
+        {
+            // A missing row would read as null rather than as the default value that EF otherwise coalesces to.
+            if (!subquery.Method.IsGenericMethod
+                || !SubqueryMemberPushdownExpressionVisitor.SupportedMethods.Contains(subquery.Method.GetGenericMethodDefinition())
+                || !subquery.Type.IsNullableType())
+            {
+                return null;
+            }
+
+            var rows = subquery.Arguments[0];
+            LambdaExpression? projector = null;
+            if (rows is MethodCallExpression { Method.IsGenericMethod: true } selectMethodCall
+                && selectMethodCall.Method.GetGenericMethodDefinition() == QueryableMethods.Select
+                && !PredicateLessMethodInfo.ContainsKey(subquery.Method.GetGenericMethodDefinition()))
+            {
+                // Fold member reads off constructed projections left by member pushdown.
+                projector = (LambdaExpression)new ReplacingExpressionVisitor([], [])
+                    .Visit(selectMethodCall.Arguments[1].UnwrapLambdaFromQuote());
+                rows = selectMethodCall.Arguments[0];
+            }
+
+            return visitor._queryCompilationContext.Model.FindEntityType(rows.Type.GetSequenceType()) == null
+                ? null
+                : (BuildSingleResultCollection(subquery, rows), projector);
+        }
+
+        // A constructed projection can still remove rows if one of its members joins to a filtered required navigation.
+        private bool IsRowPreservingProjection(Expression expression, ParameterExpression parameter)
+            => expression switch
+            {
+                NewExpression newExpression => newExpression.Arguments.All(a => IsRowPreservingProjection(a, parameter)),
+                MemberInitExpression memberInitExpression => IsRowPreservingProjection(memberInitExpression.NewExpression, parameter)
+                    && memberInitExpression.Bindings.All(b => b is MemberAssignment assignment
+                        && IsRowPreservingProjection(assignment.Expression, parameter)),
+                ConstantExpression => true,
+                _ => IsPropertyChain(expression, parameter)
+            };
+
+        // Properties and navigations read off a missing row are null, as the subquery was, unlike e.g. x.Name ?? "" or x.Id.HasValue.
+        private bool IsPropertyChain(Expression expression, ParameterExpression parameter)
+            => FindChainType(expression, parameter) != null
+                || (expression.UnwrapTypeConversion(out _) is MemberExpression { Expression: { } target } member
+                    && FindChainType(target, parameter)?.FindMember(member.Member.Name) is IProperty);
+
+        // A navigation to a filtered entity is excluded: inside the subquery its filter could skip to the next row instead.
+        private ITypeBase? FindChainType(Expression expression, ParameterExpression parameter)
+            => expression.UnwrapTypeConversion(out _) switch
+            {
+                var root when root == parameter => visitor._queryCompilationContext.Model.FindEntityType(root.Type),
+                MemberExpression { Expression: { } target } member
+                    => FindChainType(target, parameter)?.FindMember(member.Member.Name) switch
+                    {
+                        IComplexProperty { IsCollection: false } complexProperty => complexProperty.ComplexType,
+                        INavigation { IsCollection: false } navigation
+                            when !visitor.HasApplicableQueryFilters(navigation.TargetEntityType) => navigation.TargetEntityType,
+                        _ => null
+                    },
+                _ => null
+            };
+    }
+
+    private sealed class NonEvaluatableExpressionVisitor(NavigationExpandingExpressionVisitor visitor) : ExpressionVisitor
+    {
+        private readonly HashSet<IEntityType> _visitedEntityTypes = [];
+        private bool _found;
+
+        public bool Contains(Expression expression)
+        {
+            _found = false;
+            _visitedEntityTypes.Clear();
+            Visit(expression);
+
+            return _found;
+        }
+
+        public override Expression? Visit(Expression? node)
+        {
+            if (node == null || _found)
+            {
+                return node;
+            }
+
+            var model = visitor._queryCompilationContext.Model;
+            _found = !visitor._evaluatableExpressionFilter.IsEvaluatableExpression(node, model);
+
+            // Navigation expansion adds query filters after lifting, so inspect them before merging subqueries.
+            if (!_found
+                && model.FindEntityType(node.Type.TryGetSequenceType() ?? node.Type)?.GetRootType() is { } entityType
+                && _visitedEntityTypes.Add(entityType))
+            {
+                foreach (var queryFilter in visitor.GetApplicableQueryFilters(entityType))
+                {
+                    Visit(queryFilter.Expression);
+                }
+            }
+
+            return _found ? node : base.Visit(node);
         }
     }
 }

@@ -1364,7 +1364,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 22841
 
-    [Fact(Skip = "Issue #34727 - flaky test")]
+    [Fact]
     public virtual async Task SaveChangesAsync_accepts_changes_with_ConfigureAwait_true()
     {
         var contextFactory = await InitializeNonSharedTest<Context22841>();
@@ -1376,9 +1376,12 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         var origSynchronizationContext = SynchronizationContext.Current;
         SynchronizationContext.SetSynchronizationContext(trackingSynchronizationContext);
 
-        // Do a dispatch once to make sure we're in the new synchronization context. This is necessary in case the below happens
-        // to complete synchronously, which shouldn't happen in principle - but just to be safe.
-        await Task.Delay(1).ConfigureAwait(true);
+        // Hop onto the synchronization context's thread, so that the rest of the test (including any parts of AddAsync/SaveChangesAsync
+        // that complete synchronously) runs there. Task.Yield() always posts to the current synchronization context, whereas
+        // Task.Delay(1) may already have completed by the time it's awaited (e.g. on a loaded machine), in which case the
+        // continuation runs inline on the original thread (#34727).
+        await Task.Yield();
+        Assert.Same(trackingSynchronizationContext.Thread, Thread.CurrentThread);
 
         bool? isMySyncContext = null;
         Action callback = () => isMySyncContext =
@@ -2301,6 +2304,235 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
                     convertsNulls: true)
             {
             }
+        }
+    }
+
+    #endregion
+
+    #region 33061
+
+    [Fact]
+    public virtual async Task Select_concat_on_string()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context33061>();
+        using var context = contextFactory.CreateDbContext();
+
+        var resultWithConstant = context.Cities
+            .OrderBy(itm => itm.CityId)
+            .Select(itm => itm.CityName.Concat("- A string"))
+            .ToList();
+
+        Assert.Equal([.. "- A string"], resultWithConstant[0]);
+        Assert.Equal([.. "City1- A string"], resultWithConstant[1]);
+        Assert.Equal([.. "City2- A string"], resultWithConstant[2]);
+
+        var suffix = "- A string";
+        var resultWithParameter = context.Cities
+            .OrderBy(itm => itm.CityId)
+            .Select(itm => itm.CityName.Concat(suffix))
+            .ToList();
+
+        Assert.Equal([.. "- A string"], resultWithParameter[0]);
+        Assert.Equal([.. "City1- A string"], resultWithParameter[1]);
+        Assert.Equal([.. "City2- A string"], resultWithParameter[2]);
+    }
+
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context33061(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<City> Cities { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<City>()
+                .HasData(
+                    new City { CityId = 1, CityName = string.Empty },
+                    new City { CityId = 2, CityName = "City1" },
+                    new City { CityId = 3, CityName = "City2" });
+
+        public class City
+        {
+            public int CityId { get; set; }
+            public string CityName { get; set; } = null!;
+        }
+    }
+
+    #endregion
+
+    #region 35568
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Primitive_collection_hashset_parameter_is_client_eval(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context35568>();
+        using var context = contextFactory.CreateDbContext();
+
+        var setOfDouble = new HashSet<double> { 1d };
+        IReadOnlySet<double> readOnlySetOfDouble = new HashSet<double> { 2d };
+
+        var hashSetQuery = context.Entities
+            .Select(e => new
+            {
+                e.Id,
+                setOfDouble
+            });
+
+        var hashSetResult = async
+            ? await hashSetQuery.ToListAsync()
+            : hashSetQuery.ToList();
+
+        Assert.Equal(3, hashSetResult.Count);
+
+        var readOnlySetQuery = context.Entities
+            .Select(e => new
+            {
+                e.Id,
+                readOnlySetOfDouble
+            });
+
+        var readOnlySetResult = async
+            ? await readOnlySetQuery.ToListAsync()
+            : readOnlySetQuery.ToList();
+
+        Assert.Equal(3, readOnlySetResult.Count);
+    }
+
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context35568(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Entity> Entities { get; set; } = null!;
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder
+                .Entity<Entity>()
+                .HasData(
+                    new Entity { Id = 1 },
+                    new Entity { Id = 2 },
+                    new Entity { Id = 3 });
+
+        public class Entity
+        {
+            public int Id { get; set; }
+        }
+    }
+
+    #endregion
+
+    #region 34411
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Count_over_collection_of_nested_projection_with_conditional_null(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context34411>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Entities
+            .Select(
+                f => new Context34411.DtoEntity
+                {
+                    ID = f.ID,
+                    Type = f.Type == null
+                        ? null
+                        : new Context34411.DtoEntityType
+                        {
+                            ID = f.Type.ID,
+                            Tags = f.Type.Tags.Select(t => new Context34411.DtoTag { ID = t.ID })
+                        }
+                })
+            .OrderBy(f => f.ID)
+            .Select(f => new Context34411.FinalResult { Value = f.Type!.Tags.Count() });
+
+        var result = async
+            ? await query.ToListAsync()
+            : query.ToList();
+
+        Assert.Equal([3, 0, 1, 3], result.Select(r => r.Value));
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Count_over_collection_of_nested_projection_with_conditional_null_on_false_side(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context34411>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Entities
+            .Select(
+                f => new Context34411.DtoEntity
+                {
+                    ID = f.ID,
+                    Type = f.Type != null
+                        ? new Context34411.DtoEntityType
+                        {
+                            ID = f.Type.ID,
+                            Tags = f.Type.Tags.Select(t => new Context34411.DtoTag { ID = t.ID })
+                        }
+                        : null
+                })
+            .OrderBy(f => f.ID)
+            .Select(f => new Context34411.FinalResult { Value = f.Type!.Tags.Count() });
+
+        var result = async
+            ? await query.ToListAsync()
+            : query.ToList();
+
+        Assert.Equal([3, 0, 1, 3], result.Select(r => r.Value));
+    }
+
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context34411(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Entity> Entities { get; set; } = null!;
+
+        public Task SeedAsync()
+        {
+            var manyTags = new EntityType { Tags = new List<Tag> { new(), new(), new() } };
+            var noTags = new EntityType { Tags = new List<Tag>() };
+            var oneTag = new EntityType { Tags = new List<Tag> { new() } };
+
+            Entities.AddRange(
+                new Entity { Type = manyTags },
+                new Entity { Type = noTags },
+                new Entity { Type = oneTag },
+                new Entity { Type = manyTags });
+
+            return SaveChangesAsync();
+        }
+
+        public class Entity
+        {
+            public int ID { get; set; }
+            public EntityType? Type { get; set; }
+        }
+
+        public class EntityType
+        {
+            public int ID { get; set; }
+            public IEnumerable<Tag> Tags { get; set; } = null!;
+        }
+
+        public class Tag
+        {
+            public int ID { get; set; }
+        }
+
+        public class DtoEntity
+        {
+            public int ID { get; set; }
+            public DtoEntityType? Type { get; set; }
+        }
+
+        public class DtoEntityType
+        {
+            public int ID { get; set; }
+            public IEnumerable<DtoTag> Tags { get; set; } = null!;
+        }
+
+        public class DtoTag
+        {
+            public int ID { get; set; }
+        }
+
+        public class FinalResult
+        {
+            public decimal Value { get; set; }
         }
     }
 

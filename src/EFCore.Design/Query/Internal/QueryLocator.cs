@@ -286,6 +286,7 @@ public class QueryLocator : CSharpSyntaxWalker
                 IPropertySymbol propertySymbol => IsDbContextType(propertySymbol.Type),
                 IFieldSymbol fieldSymbol => IsDbContextType(fieldSymbol.Type),
                 IMethodSymbol methodSymbol => IsDbContextType(methodSymbol.ReturnType),
+                IParameterSymbol parameterSymbol => IsDbContextType(parameterSymbol.Type),
                 _ => false
             };
 

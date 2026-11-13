@@ -335,6 +335,66 @@ RETURNING 1;
 """);
     }
 
+    public override async Task Modify_elements_in_nested_complex_collection_mapped_to_json()
+    {
+        await base.Modify_elements_in_nested_complex_collection_mapped_to_json();
+
+        AssertSql(
+            """
+@p0='[{"Title":"Item1","Inner":[{"Value":"inner-new"},{"Value":"inner-0"},{"Value":"inner-1-modified"}],"Others":[]},{"Title":"Item2","Inner":[],"Others":[]},{"Title":"Item3","Inner":[{"Value":"inner-3"}],"Others":[]}]' (Nullable = false) (Size = 213)
+@p1='1'
+
+UPDATE "EntitiesWithNestedCollections" SET "Items" = @p0
+WHERE "Id" = @p1
+RETURNING 1;
+""");
+    }
+
+    public override async Task Remove_element_with_nested_complex_collection_mapped_to_json()
+    {
+        await base.Remove_element_with_nested_complex_collection_mapped_to_json();
+
+        AssertSql(
+            """
+@p0='[{"Title":"Item2","Inner":[{"Value":"inner-2"},{"Value":"inner-3"}],"Others":[]}]' (Nullable = false) (Size = 81)
+@p1='1'
+
+UPDATE "EntitiesWithNestedCollections" SET "Items" = @p0
+WHERE "Id" = @p1
+RETURNING 1;
+""");
+    }
+
+    public override async Task Save_changes_after_loading_row_with_complex_collection_absent_from_json()
+    {
+        await base.Save_changes_after_loading_row_with_complex_collection_absent_from_json();
+
+        AssertSql(
+            """
+@p0='{"Mid":{"Items":[{"Title":"Item1-updated","Inner":[{"Value":"inner-0"}],"Others":[]}]}}' (Nullable = false) (Size = 87)
+@p1='1'
+
+UPDATE "Widgets" SET "Deep" = @p0
+WHERE "Id" = @p1
+RETURNING 1;
+""");
+    }
+
+    public override async Task Save_changes_after_loading_row_with_primitive_collection_absent_from_json()
+    {
+        await base.Save_changes_after_loading_row_with_primitive_collection_absent_from_json();
+
+        AssertSql(
+            """
+@p0='{"Items":[{"ArrayCodes":[],"Codes":[],"CustomCodes":[9],"InterfaceCodes":[],"Label":"C1-updated","OptionalCodes":null,"ReadOnlyCodes":[],"TextCodes":[]}]}' (Nullable = false) (Size = 154)
+@p1='1'
+
+UPDATE "CodeWidgets" SET "Data" = @p0
+WHERE "Id" = @p1
+RETURNING 1;
+""");
+    }
+
     public class ComplexCollectionJsonUpdateSqliteFixture : ComplexCollectionJsonUpdateFixtureBase
     {
         protected override ITestStoreFactory TestStoreFactory

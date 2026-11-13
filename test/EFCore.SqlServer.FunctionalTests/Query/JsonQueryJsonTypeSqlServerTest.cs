@@ -1143,7 +1143,7 @@ FROM [JsonEntitiesBasic] AS [j]
 WHERE EXISTS (
     SELECT 1
     FROM OPENJSON([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch') WITH ([OwnedReferenceLeaf] nvarchar(max) '$.OwnedReferenceLeaf' AS JSON) AS [o]
-    WHERE JSON_VALUE([o].[OwnedReferenceLeaf], '$.SomethingSomething' RETURNING nvarchar(max)) = N'e1_r_c1_r')
+    WHERE JSON_VALUE([o].[OwnedReferenceLeaf], '$.SomethingSomething') = N'e1_r_c1_r')
 """);
         }
         else
@@ -1212,7 +1212,7 @@ FROM [JsonEntitiesBasic] AS [j]
 WHERE (
     SELECT [o0].[c]
     FROM (
-        SELECT JSON_VALUE([o].[OwnedReferenceLeaf], '$.SomethingSomething' RETURNING nvarchar(max)) AS [c], [o].[Date]
+        SELECT JSON_VALUE([o].[OwnedReferenceLeaf], '$.SomethingSomething') AS [c], [o].[Date]
         FROM OPENJSON([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch') WITH (
             [Date] datetime2 '$.Date',
             [OwnedReferenceLeaf] nvarchar(max) '$.OwnedReferenceLeaf' AS JSON
@@ -1274,7 +1274,7 @@ WHERE (
             [OwnedCollectionLeaf] nvarchar(max) '$.OwnedCollectionLeaf' AS JSON,
             [OwnedReferenceLeaf] nvarchar(max) '$.OwnedReferenceLeaf' AS JSON
         ) AS [o]
-        WHERE JSON_VALUE([o].[OwnedReferenceLeaf], '$.SomethingSomething' RETURNING nvarchar(max)) = N'e1_r_c2_r'
+        WHERE JSON_VALUE([o].[OwnedReferenceLeaf], '$.SomethingSomething') = N'e1_r_c2_r'
     ) AS [o0]) = 1
 """);
         }
@@ -2254,6 +2254,23 @@ GROUP BY [j0].[Key]
 """);
     }
 
+    public override async Task Group_by_on_json_scalar_with_multiple_aggregates(bool async)
+    {
+        await base.Group_by_on_json_scalar_with_multiple_aggregates(async);
+
+        AssertSql(
+            """
+SELECT [j0].[Key], ISNULL(SUM(JSON_VALUE([j0].[c0], '$.Number' RETURNING int)), 0) AS [Sum], MAX(JSON_VALUE([j0].[c0], '$.OwnedReferenceBranch.Fraction' RETURNING decimal(18,2))) AS [Max], COUNT(CASE
+    WHEN JSON_VALUE([j0].[c0], '$.Number' RETURNING int) > 5 THEN 1
+END) AS [Above]
+FROM (
+    SELECT [j].[OwnedReferenceRoot] AS [c0], JSON_VALUE([j].[OwnedReferenceRoot], '$.Name' RETURNING nvarchar(max)) AS [Key]
+    FROM [JsonEntitiesBasic] AS [j]
+) AS [j0]
+GROUP BY [j0].[Key]
+""");
+    }
+
     public override async Task Group_by_on_json_scalar_using_collection_indexer(bool async)
     {
         await base.Group_by_on_json_scalar_using_collection_indexer(async);
@@ -2275,26 +2292,15 @@ GROUP BY [j0].[Key]
 
         AssertSql(
             """
-SELECT [j5].[Id], [j5].[EntityBasicId], [j5].[Name], [j5].[c], [j5].[c0]
+SELECT [j1].[Id], [j1].[EntityBasicId], [j1].[Name], [j1].[c], [j1].[c0]
 FROM (
-    SELECT [j0].[Key]
+    SELECT [j0].[Id], [j0].[EntityBasicId], [j0].[Name], [j0].[c] AS [c], [j0].[c0] AS [c0], ROW_NUMBER() OVER(PARTITION BY [j0].[Key] ORDER BY [j0].[Id]) AS [row]
     FROM (
-        SELECT JSON_VALUE([j].[OwnedReferenceRoot], '$.Name' RETURNING nvarchar(max)) AS [Key]
+        SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot] AS [c], [j].[OwnedReferenceRoot] AS [c0], JSON_VALUE([j].[OwnedReferenceRoot], '$.Name' RETURNING nvarchar(max)) AS [Key]
         FROM [JsonEntitiesBasic] AS [j]
     ) AS [j0]
-    GROUP BY [j0].[Key]
-) AS [j3]
-LEFT JOIN (
-    SELECT [j4].[Id], [j4].[EntityBasicId], [j4].[Name], [j4].[c] AS [c], [j4].[c0] AS [c0], [j4].[Key]
-    FROM (
-        SELECT [j1].[Id], [j1].[EntityBasicId], [j1].[Name], [j1].[c] AS [c], [j1].[c0] AS [c0], [j1].[Key], ROW_NUMBER() OVER(PARTITION BY [j1].[Key] ORDER BY [j1].[Id]) AS [row]
-        FROM (
-            SELECT [j2].[Id], [j2].[EntityBasicId], [j2].[Name], [j2].[OwnedCollectionRoot] AS [c], [j2].[OwnedReferenceRoot] AS [c0], JSON_VALUE([j2].[OwnedReferenceRoot], '$.Name' RETURNING nvarchar(max)) AS [Key]
-            FROM [JsonEntitiesBasic] AS [j2]
-        ) AS [j1]
-    ) AS [j4]
-    WHERE [j4].[row] <= 1
-) AS [j5] ON [j3].[Key] = [j5].[Key]
+) AS [j1]
+WHERE [j1].[row] <= 1
 """);
     }
 
@@ -2304,26 +2310,15 @@ LEFT JOIN (
 
         AssertSql(
             """
-SELECT [j5].[Id], [j5].[EntityBasicId], [j5].[Name], [j5].[c], [j5].[c0]
+SELECT [j1].[Id], [j1].[EntityBasicId], [j1].[Name], [j1].[c], [j1].[c0]
 FROM (
-    SELECT [j0].[Key]
+    SELECT [j0].[Id], [j0].[EntityBasicId], [j0].[Name], [j0].[c] AS [c], [j0].[c0] AS [c0], ROW_NUMBER() OVER(PARTITION BY [j0].[Key] ORDER BY [j0].[Id]) AS [row]
     FROM (
-        SELECT JSON_VALUE([j].[OwnedReferenceRoot], '$.Name' RETURNING nvarchar(max)) AS [Key]
+        SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot] AS [c], [j].[OwnedReferenceRoot] AS [c0], JSON_VALUE([j].[OwnedReferenceRoot], '$.Name' RETURNING nvarchar(max)) AS [Key]
         FROM [JsonEntitiesBasic] AS [j]
     ) AS [j0]
-    GROUP BY [j0].[Key]
-) AS [j3]
-LEFT JOIN (
-    SELECT [j4].[Id], [j4].[EntityBasicId], [j4].[Name], [j4].[c] AS [c], [j4].[c0] AS [c0], [j4].[Key]
-    FROM (
-        SELECT [j1].[Id], [j1].[EntityBasicId], [j1].[Name], [j1].[c] AS [c], [j1].[c0] AS [c0], [j1].[Key], ROW_NUMBER() OVER(PARTITION BY [j1].[Key] ORDER BY [j1].[Id]) AS [row]
-        FROM (
-            SELECT [j2].[Id], [j2].[EntityBasicId], [j2].[Name], [j2].[OwnedCollectionRoot] AS [c], [j2].[OwnedReferenceRoot] AS [c0], JSON_VALUE([j2].[OwnedReferenceRoot], '$.Name' RETURNING nvarchar(max)) AS [Key]
-            FROM [JsonEntitiesBasic] AS [j2]
-        ) AS [j1]
-    ) AS [j4]
-    WHERE [j4].[row] <= 1
-) AS [j5] ON [j3].[Key] = [j5].[Key]
+) AS [j1]
+WHERE [j1].[row] <= 1
 """);
     }
 
@@ -2352,7 +2347,7 @@ LEFT JOIN (
         ) AS [j1]
     ) AS [j4]
     WHERE 1 < [j4].[row] AND [j4].[row] <= 6
-) AS [j5] ON [j3].[Key] = [j5].[Key]
+) AS [j5] ON [j3].[Key] = [j5].[Key] OR ([j3].[Key] IS NULL AND [j5].[Key] IS NULL)
 ORDER BY [j3].[Key], [j5].[Key], [j5].[Id]
 """);
     }
@@ -2362,7 +2357,17 @@ ORDER BY [j3].[Key], [j5].[Key], [j5].[Id]
         await base.Group_by_json_scalar_Orderby_json_scalar_FirstOrDefault(async);
 
         AssertSql(
-            @"");
+            """
+SELECT [j1].[Id], [j1].[EntityBasicId], [j1].[Name], [j1].[c], [j1].[c0]
+FROM (
+    SELECT [j0].[Id], [j0].[EntityBasicId], [j0].[Name], [j0].[c] AS [c], [j0].[c0] AS [c0], ROW_NUMBER() OVER(PARTITION BY [j0].[Key] ORDER BY JSON_VALUE([j0].[c0], '$.Number' RETURNING int)) AS [row]
+    FROM (
+        SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot] AS [c], [j].[OwnedReferenceRoot] AS [c0], JSON_VALUE([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.Enum' RETURNING int) AS [Key]
+        FROM [JsonEntitiesBasic] AS [j]
+    ) AS [j0]
+) AS [j1]
+WHERE [j1].[row] <= 1
+""");
     }
 
     public override async Task Group_by_json_scalar_Skip_First_project_json_scalar(bool async)
@@ -4203,7 +4208,7 @@ VALUES(1, '{"Name":"e1","ConvertedHandlingNulls":null,"ConvertedNotHandlingNulls
     }
 
     [Fact]
-    public virtual async Task Materialize_json_null_required_primitive_collection_in_json_throws()
+    public virtual async Task Materialize_json_null_required_primitive_collection_in_json_is_empty()
     {
         var contextFactory = await InitializeNonSharedTest<ContextPrimitiveCollectionInJson>(
             onModelCreating: OnModelCreatingPrimitiveCollectionInJson,
@@ -4212,12 +4217,13 @@ VALUES(1, '{"Name":"e1","ConvertedHandlingNulls":null,"ConvertedNotHandlingNulls
 
         using var context = contextFactory.CreateDbContext();
 
-        // A required primitive collection nested in a JSON document whose value is a 'null' token yields a clear,
-        // property-named error rather than the cryptic reader/writer "Invalid token type: 'Null'".
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(()
-            => context.Set<ContextPrimitiveCollectionInJson.MyEntity>().Where(x => x.Id == 3).ToListAsync());
+        // A required primitive collection nested in a JSON document whose value is a 'null' token materializes as empty, the
+        // same as an absent key and as the Cosmos provider does; the optional one next to it keeps its value.
+        var entity = Assert.Single(
+            await context.Set<ContextPrimitiveCollectionInJson.MyEntity>().Where(x => x.Id == 3).ToListAsync());
 
-        Assert.Equal(RelationalStrings.NullValueInRequiredJsonProperty("RequiredStrings"), exception.Message);
+        Assert.Empty(entity.Reference!.RequiredStrings);
+        Assert.Equal(["x", "y"], entity.Reference.NullableStrings);
     }
 
     protected virtual async Task SeedPrimitiveCollectionInJson(DbContext ctx)
@@ -4236,7 +4242,7 @@ INSERT INTO [Entities] ([Id], [Reference])
 VALUES(2, '{"NullableStrings":["x","y"],"RequiredStrings":["c","d"]}')
 """);
 
-        // required collection is JSON null (materialization throws)
+        // required collection is JSON null (materializes as empty)
         await ctx.Database.ExecuteSqlAsync(
             $$"""
 INSERT INTO [Entities] ([Id], [Reference])
@@ -4481,13 +4487,144 @@ INNER JOIN [OtherTable] AS [o] ON [m].[Id] = [o].[Id]
 """);
     }
 
+    public override async Task Project_complex_collection_with_property_named_key()
+    {
+        await base.Project_complex_collection_with_property_named_key();
+
+        AssertSql(
+            """
+SELECT [e0].[Id], JSON_VALUE([i].[value], '$.key') AS [key0], JSON_VALUE([i].[value], '$.Value') AS [Value], [i].[key]
+FROM (
+    SELECT TOP(2) [e].[Id], [e].[Items]
+    FROM [Entity] AS [e]
+) AS [e0]
+OUTER APPLY OPENJSON([e0].[Items], '$') AS [i]
+ORDER BY [e0].[Id], CAST([i].[key] AS int)
+""");
+    }
+
+    public override async Task Project_complex_collection_with_property_named_key_with_Take()
+    {
+        await base.Project_complex_collection_with_property_named_key_with_Take();
+
+        AssertSql(
+            """
+SELECT [e0].[Id], [i0].[key0], [i0].[key]
+FROM (
+    SELECT TOP(2) [e].[Id], [e].[Items]
+    FROM [Entity] AS [e]
+) AS [e0]
+OUTER APPLY (
+    SELECT TOP(1) JSON_VALUE([i].[value], '$.key') AS [key0], [i].[key], CAST([i].[key] AS int) AS [c]
+    FROM OPENJSON([e0].[Items], '$') AS [i]
+    ORDER BY CAST([i].[key] AS int)
+) AS [i0]
+ORDER BY [e0].[Id], [i0].[c]
+""");
+    }
+
+    public override async Task Filter_complex_collection_with_property_named_key()
+    {
+        await base.Filter_complex_collection_with_property_named_key();
+
+        AssertSql(
+            """
+SELECT COUNT(*)
+FROM [Entity] AS [e]
+WHERE EXISTS (
+    SELECT 1
+    FROM OPENJSON([e].[Items], '$') WITH ([key0] nvarchar(max) '$.key') AS [i]
+    WHERE [i].[key0] = N'k1')
+""");
+    }
+
+    public override async Task Project_complex_collection_with_property_named_Key()
+    {
+        await base.Project_complex_collection_with_property_named_Key();
+
+        AssertSql(
+            """
+SELECT [e0].[Id], JSON_VALUE([i].[value], '$.Key') AS [Key], JSON_VALUE([i].[value], '$.Value') AS [Value], [i].[key]
+FROM (
+    SELECT TOP(2) [e].[Id], [e].[Items]
+    FROM [Entity] AS [e]
+) AS [e0]
+OUTER APPLY OPENJSON([e0].[Items], '$') AS [i]
+ORDER BY [e0].[Id], CAST([i].[key] AS int)
+""");
+    }
+
+    public override async Task Project_complex_collection_with_properties_named_key_and_key0()
+    {
+        await base.Project_complex_collection_with_properties_named_key_and_key0();
+
+        AssertSql(
+            """
+SELECT [e0].[Id], JSON_VALUE([i].[value], '$.key') AS [key1], JSON_VALUE([i].[value], '$.key0') AS [key0], [i].[key]
+FROM (
+    SELECT TOP(2) [e].[Id], [e].[Items]
+    FROM [Entity] AS [e]
+) AS [e0]
+OUTER APPLY OPENJSON([e0].[Items], '$') AS [i]
+ORDER BY [e0].[Id], CAST([i].[key] AS int)
+""");
+    }
+
+    public override async Task Project_complex_collection_with_property_named_key0()
+    {
+        await base.Project_complex_collection_with_property_named_key0();
+
+        AssertSql(
+            """
+SELECT [e0].[Id], JSON_VALUE([i].[value], '$.code') AS [code], JSON_VALUE([i].[value], '$.key0') AS [key0], [i].[key]
+FROM (
+    SELECT TOP(2) [e].[Id], [e].[Items]
+    FROM [Entity] AS [e]
+) AS [e0]
+OUTER APPLY OPENJSON([e0].[Items], '$') AS [i]
+ORDER BY [e0].[Id], CAST([i].[key] AS int)
+""");
+    }
+
+    public override async Task Project_complex_collection_with_nested_complex_property_named_key()
+    {
+        await base.Project_complex_collection_with_nested_complex_property_named_key();
+
+        AssertSql(
+            """
+SELECT [e0].[Id], JSON_VALUE([i].[value], '$.Name') AS [Name], JSON_VALUE([i].[value], '$.key.Code'), [i].[key]
+FROM (
+    SELECT TOP(2) [e].[Id], [e].[Items]
+    FROM [Entity] AS [e]
+) AS [e0]
+OUTER APPLY OPENJSON([e0].[Items], '$') AS [i]
+ORDER BY [e0].[Id], CAST([i].[key] AS int)
+""");
+    }
+
+    public override async Task Project_owned_collection_with_property_named_key()
+    {
+        await base.Project_owned_collection_with_property_named_key();
+
+        AssertSql(
+            """
+SELECT [e0].[Id], JSON_VALUE([i].[value], '$.key') AS [key0], JSON_VALUE([i].[value], '$.Value') AS [Value], [i].[key]
+FROM (
+    SELECT TOP(2) [e].[Id], [e].[Items]
+    FROM [Entity] AS [e]
+) AS [e0]
+OUTER APPLY OPENJSON([e0].[Items], '$') AS [i]
+ORDER BY [e0].[Id], CAST([i].[key] AS int)
+""");
+    }
+
     public override async Task SelectMany_over_primitive_collection_nested_in_complex_collection_inside_json_column()
     {
         await base.SelectMany_over_primitive_collection_nested_in_complex_collection_inside_json_column();
 
         switch (JsonColumnType)
         {
-            case "json":
+            case "json" when !SqlServerTestEnvironment.IsAzureSql:
                 AssertSql(
                     """
 SELECT [p].[value]
@@ -4500,6 +4637,7 @@ CROSS APPLY OPENJSON([o].[partNumbers]) WITH ([value] varchar(32) '$') AS [p]
 WHERE [c].[Vin] = '1FA6P8TH8J5123456' AND [c].[DealerId] = 'DEALER-001' AND [o].[packageId] = N'PKG-SPORT'
 """);
                 break;
+            case "json":
             case "nvarchar(max)":
                 AssertSql(
                     """

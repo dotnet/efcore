@@ -81,6 +81,29 @@ public class SplitTableBuilder : IInfrastructure<EntityTypeBuilder>
     }
 
     /// <summary>
+    ///     Configures whether a row for this table might not exist even when the principal row exists in the main table
+    ///     for the entity type.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         When a fragment is optional, a row is only created for it when at least one non-key property mapped to the
+    ///         fragment has a non-<see langword="null" /> value. All non-key properties mapped to an optional fragment
+    ///         must be configured as nullable for that table.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-table-splitting">Table splitting</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <param name="optional">A value indicating whether a row for this table is optional.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public virtual SplitTableBuilder IsOptional(bool optional = true)
+    {
+        MappingFragment.IsOptional = optional;
+
+        return this;
+    }
+
+    /// <summary>
     ///     Configures a database trigger on the table.
     /// </summary>
     /// <param name="modelName">The name of the trigger.</param>

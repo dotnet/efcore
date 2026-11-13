@@ -523,6 +523,9 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
             eb.HasIndex(e => e.Dependent, "IX_PrincipalDerived_Dependent");
             eb.HasIndex(["ManyOwned[0].Details"], "IX_PrincipalDerived_ManyOwned_Indexer");
         });
+
+        modelBuilder.Entity<EntityWithNestedComplexCollection>(
+            eb => eb.ComplexCollection(e => e.Groups, gb => gb.ToJson()));
     }
 
     [Fact]
@@ -530,7 +533,8 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
         => Test(
             BuildComplexTypesModel,
             AssertComplexTypes,
-            c =>
+            async c =>
+            {
                 // Sprocs not supported with complex types, see #31235
                 //c.Set<PrincipalDerived<DependentBase<byte?>>>().Add(
                 //    new PrincipalDerived<DependentBase<byte?>>
@@ -542,7 +546,43 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
                 //    });
 
                 //c.SaveChanges();
-                Task.CompletedTask,
+
+                c.Add(
+                    new EntityWithNestedComplexCollection
+                    {
+                        Groups = [new TagGroupComplex { Name = "g", Tags = [new TagComplex { Text = "a" }, new TagComplex { Text = "b" }] }]
+                    });
+                await c.SaveChangesAsync();
+                c.ChangeTracker.Clear();
+
+                var entity = await c.Set<EntityWithNestedComplexCollection>().SingleAsync();
+                Assert.Equal(["a", "b"], entity.Groups.Single().Tags.Select(t => t.Text));
+
+                // Changing the loaded elements uses their generated snapshots, including the nested ones
+                var group = entity.Groups.Single();
+                group.Tags[1].Text = "b2";
+                group.Tags.Insert(0, new TagComplex { Text = "z" });
+                entity.Groups.Add(new TagGroupComplex { Name = "h", Tags = [new TagComplex { Text = "x" }] });
+                c.ChangeTracker.DetectChanges();
+                Assert.Equal(EntityState.Modified, c.Entry(entity).State);
+
+                await c.SaveChangesAsync();
+                c.ChangeTracker.Clear();
+
+                entity = await c.Set<EntityWithNestedComplexCollection>().SingleAsync();
+                Assert.Equal(["g", "h"], entity.Groups.Select(g => g.Name));
+                Assert.Equal(["z", "a", "b2"], entity.Groups[0].Tags.Select(t => t.Text));
+                Assert.Equal(["x"], entity.Groups[1].Tags.Select(t => t.Text));
+
+                entity.Groups.RemoveAt(0);
+                entity.Groups[0].Tags.Clear();
+                await c.SaveChangesAsync();
+                c.ChangeTracker.Clear();
+
+                entity = await c.Set<EntityWithNestedComplexCollection>().SingleAsync();
+                Assert.Equal("h", entity.Groups.Single().Name);
+                Assert.Empty(entity.Groups.Single().Tags);
+            },
             options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true, ForNativeAot = true });
 
     protected override void AssertComplexTypes(IModel model)
@@ -685,6 +725,25 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
         Assert.NotNull(dependentJsonColumn);
         var dependentTableIndex = principalBaseTable2.Indexes.Single(i => i.Name == "IX_PrincipalDerived_Dependent");
         Assert.Same(dependentJsonColumn, dependentTableIndex.Columns.Single());
+
+        var groups = model.FindEntityType(typeof(EntityWithNestedComplexCollection))!
+            .FindComplexProperty(nameof(EntityWithNestedComplexCollection.Groups))!;
+        var tags = groups.ComplexType.FindComplexProperty(nameof(TagGroupComplex.Tags))!;
+        Assert.True(tags.IsCollection);
+        AssertSnapshotFactoriesGenerated(groups.ComplexType);
+        AssertSnapshotFactoriesGenerated(tags.ComplexType);
+    }
+
+    // Factories missing from the compiled model are compiled at runtime, which isn't supported without dynamic code
+    private static void AssertSnapshotFactoriesGenerated(IComplexType complexType)
+    {
+        var runtimeType = (RuntimeTypeBase)complexType;
+        var assembly = complexType.Model.GetType().Assembly;
+        Assert.Same(assembly, runtimeType.OriginalValuesFactory.Method.DeclaringType?.Assembly);
+        Assert.Same(assembly, runtimeType.StoreGeneratedValuesFactory.Method.DeclaringType?.Assembly);
+        Assert.Same(assembly, runtimeType.TemporaryValuesFactory.Method.DeclaringType?.Assembly);
+        Assert.Same(assembly, runtimeType.ShadowValuesFactory.Method.DeclaringType?.Assembly);
+        Assert.Same(assembly, runtimeType.EmptyShadowValuesFactory.Method.DeclaringType?.Assembly);
     }
 
     [Fact]
@@ -1559,6 +1618,23 @@ public partial class DbContextModel
     public class Author
     {
         public string Name { get; set; } = "";
+    }
+
+    public class EntityWithNestedComplexCollection
+    {
+        public int Id { get; set; }
+        public List<TagGroupComplex> Groups { get; set; } = [];
+    }
+
+    public class TagGroupComplex
+    {
+        public string Name { get; set; } = null!;
+        public List<TagComplex> Tags { get; set; } = [];
+    }
+
+    public class TagComplex
+    {
+        public string Text { get; set; } = null!;
     }
 
     protected override BuildSource AddReferences(BuildSource build, [CallerFilePath] string filePath = "")
