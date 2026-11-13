@@ -3087,9 +3087,6 @@ FROM root c
 
     public override Task Return_type_of_singular_operator_is_preserved(bool async)
     {
-        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
-        CosmosTestEnvironment.SkipOnLinuxEmulator();
-
         return Fixture.NoSyncTest(
             async, async a =>
             {

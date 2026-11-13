@@ -43,9 +43,6 @@ FROM root c
     [Fact]
     public async Task Owned_collection_with_owner_key_after_owned_collection_projects_owner_key_first()
     {
-        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
-        CosmosTestEnvironment.SkipOnLinuxEmulator();
-
         await AssertQuery(
             ss => ss.Set<Owner>()
                 .Select(owner => new { owner.OwnedCollection, owner.Id })
@@ -195,9 +192,6 @@ FROM root c
         [Fact]
         public async Task Owned_collection_with_duplicate_returns_same()
         {
-            // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
-            CosmosTestEnvironment.SkipOnLinuxEmulator();
-
             var contextFactory = await InitializeNonSharedTest<ValidationContext>();
 
             await using (var context = contextFactory.CreateDbContext())
@@ -246,9 +240,6 @@ FROM root c
         [Fact]
         public async Task Owned_collection_concat_returns_same()
         {
-            // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
-            CosmosTestEnvironment.SkipOnLinuxEmulator();
-
             var contextFactory = await InitializeNonSharedTest<ValidationContext>();
 
             await using (var context = contextFactory.CreateDbContext())
@@ -299,9 +290,6 @@ FROM root c
         [Fact]
         public async Task Duplicate_owned_collection_returns_same()
         {
-            // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
-            CosmosTestEnvironment.SkipOnLinuxEmulator();
-
             var contextFactory = await InitializeNonSharedTest<ValidationContext>();
 
             await using (var context = contextFactory.CreateDbContext())
@@ -413,9 +401,6 @@ FROM root c
         [Fact]
         public async Task Duplicate_ordinal_owned_collection_returns_same()
         {
-            // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
-            CosmosTestEnvironment.SkipOnLinuxEmulator();
-
             var contextFactory = await InitializeNonSharedTest<ValidationContext>();
 
             await using (var context = contextFactory.CreateDbContext())
