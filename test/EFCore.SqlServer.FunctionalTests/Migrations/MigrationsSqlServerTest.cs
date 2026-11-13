@@ -4271,6 +4271,15 @@ CREATE INDEX [IX_Orders_CustomerId] ON [Orders] ([CustomerId]);
 """);
     }
 
+    public override async Task Add_deferrable_foreign_key()
+    {
+        var exception = await Assert.ThrowsAsync<NotSupportedException>(base.Add_deferrable_foreign_key);
+
+        Assert.Equal(
+            SqlServerStrings.DeferrableConstraintsNotSupported("FK_Orders_Customers_CustomerId", "Orders"),
+            exception.Message);
+    }
+
     public override async Task Add_unique_constraint()
     {
         await base.Add_unique_constraint();

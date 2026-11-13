@@ -1564,6 +1564,36 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
             builder.Append(" ON DELETE ");
             ForeignKeyAction(operation.OnDelete, builder);
         }
+
+        if (operation.Deferrability != ConstraintDeferrability.NotDeferrable)
+        {
+            builder.Append(" ");
+            Deferrability(operation.Deferrability, builder);
+        }
+    }
+
+    /// <summary>
+    ///     Generates a SQL fragment for the deferrability of a constraint, using the SQL standard
+    ///     <c>DEFERRABLE INITIALLY IMMEDIATE</c> and <c>DEFERRABLE INITIALLY DEFERRED</c> syntax.
+    /// </summary>
+    /// <param name="deferrability">The deferrability.</param>
+    /// <param name="builder">The command builder to use to add the SQL fragment.</param>
+    protected virtual void Deferrability(ConstraintDeferrability deferrability, MigrationCommandListBuilder builder)
+    {
+        switch (deferrability)
+        {
+            case ConstraintDeferrability.NotDeferrable:
+                builder.Append("NOT DEFERRABLE");
+                break;
+            case ConstraintDeferrability.DeferrableInitiallyImmediate:
+                builder.Append("DEFERRABLE INITIALLY IMMEDIATE");
+                break;
+            case ConstraintDeferrability.DeferrableInitiallyDeferred:
+                builder.Append("DEFERRABLE INITIALLY DEFERRED");
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(deferrability), deferrability, null);
+        }
     }
 
     /// <summary>

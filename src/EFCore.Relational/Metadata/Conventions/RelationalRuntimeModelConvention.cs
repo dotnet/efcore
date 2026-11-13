@@ -551,6 +551,7 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
         else
         {
             annotations.Remove(RelationalAnnotationNames.IsForeignKeyExcludedFromMigrations);
+            annotations.Remove(RelationalAnnotationNames.Deferrability);
         }
     }
 

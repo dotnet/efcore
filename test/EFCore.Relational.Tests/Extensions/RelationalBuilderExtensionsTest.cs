@@ -1480,6 +1480,42 @@ public class RelationalBuilderExtensionsTest
         Assert.True(relationshipBuilder.Metadata.IsExcludedFromMigrations());
     }
 
+    [Fact]
+    public void Can_access_relationship_Deferrability()
+    {
+        var modelBuilder = CreateBuilder();
+        var entityTypeBuilder = modelBuilder.Entity(typeof(Splot), ConfigurationSource.Convention)!;
+        entityTypeBuilder.Property(typeof(int), "Id", ConfigurationSource.Convention);
+        var relationshipBuilder = entityTypeBuilder.HasRelationship("Splot", ["Id"], ConfigurationSource.Convention)!;
+        var foreignKey = relationshipBuilder.Metadata;
+
+        Assert.NotNull(relationshipBuilder.HasDeferrability(ConstraintDeferrability.DeferrableInitiallyImmediate));
+        Assert.Equal(ConstraintDeferrability.DeferrableInitiallyImmediate, foreignKey.GetDeferrability());
+        Assert.Equal(ConfigurationSource.Convention, foreignKey.GetDeferrabilityConfigurationSource());
+
+        Assert.NotNull(
+            relationshipBuilder.HasDeferrability(ConstraintDeferrability.DeferrableInitiallyDeferred, fromDataAnnotation: true));
+        Assert.Equal(ConstraintDeferrability.DeferrableInitiallyDeferred, foreignKey.GetDeferrability());
+        Assert.Equal(ConfigurationSource.DataAnnotation, foreignKey.GetDeferrabilityConfigurationSource());
+
+        Assert.False(relationshipBuilder.CanSetDeferrability(ConstraintDeferrability.NotDeferrable));
+        Assert.Null(relationshipBuilder.HasDeferrability(ConstraintDeferrability.NotDeferrable));
+        Assert.Equal(ConstraintDeferrability.DeferrableInitiallyDeferred, foreignKey.GetDeferrability());
+        Assert.Equal(ConfigurationSource.DataAnnotation, foreignKey.GetDeferrabilityConfigurationSource());
+
+        Assert.NotNull(relationshipBuilder.HasDeferrability(null, fromDataAnnotation: true));
+        Assert.Equal(ConstraintDeferrability.NotDeferrable, foreignKey.GetDeferrability());
+        Assert.Null(foreignKey.GetDeferrabilityConfigurationSource());
+
+        ((IMutableForeignKey)foreignKey).SetDeferrability(ConstraintDeferrability.DeferrableInitiallyImmediate);
+        Assert.Equal(ConfigurationSource.Explicit, foreignKey.GetDeferrabilityConfigurationSource());
+
+        Assert.Null(
+            relationshipBuilder.HasDeferrability(ConstraintDeferrability.DeferrableInitiallyDeferred, fromDataAnnotation: true));
+        Assert.Equal(ConstraintDeferrability.DeferrableInitiallyImmediate, foreignKey.GetDeferrability());
+        Assert.Equal(ConfigurationSource.Explicit, foreignKey.GetDeferrabilityConfigurationSource());
+    }
+
     private void AssertIsGeneric(EntityTypeBuilder<Customer> _)
     {
     }

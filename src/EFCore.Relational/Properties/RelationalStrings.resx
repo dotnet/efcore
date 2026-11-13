@@ -337,6 +337,9 @@
   <data name="DuplicateForeignKeyDeleteBehaviorMismatch" xml:space="preserve">
     <value>The foreign keys {foreignKeyProperties1} on '{entityType1}' and {foreignKeyProperties2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}', but configured with different delete behavior ('{deleteBehavior1}' and '{deleteBehavior2}').</value>
   </data>
+  <data name="DuplicateForeignKeyDeferrabilityMismatch" xml:space="preserve">
+    <value>The foreign keys {foreignKeyProperties1} on '{entityType1}' and {foreignKeyProperties2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}', but with different deferrability ('{deferrability1}' and '{deferrability2}').</value>
+  </data>
   <data name="DuplicateForeignKeyExcludedFromMigrationsMismatch" xml:space="preserve">
     <value>The foreign keys {foreignKeyProperties1} on '{entityType1}' and {foreignKeyProperties2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}', but with different migration exclusion configurations.</value>
   </data>
