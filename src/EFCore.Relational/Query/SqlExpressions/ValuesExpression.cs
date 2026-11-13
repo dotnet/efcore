@@ -167,7 +167,7 @@ public class ValuesExpression : TableExpressionBase
             Constant(Alias, typeof(string)),
             RowValues is not null
                 ? NewArrayInit(typeof(RowValueExpression), RowValues.Select(rv => rv.Quote()))
-                : Constant(null, typeof(RowValueExpression)),
+                : Constant(null, typeof(IReadOnlyList<RowValueExpression>)),
             RelationalExpressionQuotingUtilities.QuoteOrNull(ValuesParameter),
             NewArrayInit(typeof(string), ColumnNames.Select(Constant)),
             RelationalExpressionQuotingUtilities.QuoteAnnotations(Annotations));

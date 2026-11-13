@@ -21,7 +21,12 @@ public abstract class BulkUpdatesTestBase<TFixture> : IClassFixture<TFixture>
     protected virtual Expression RewriteServerQueryExpression(Expression serverQueryExpression)
         => serverQueryExpression;
 
-    public static IEnumerable<object[]> IsAsyncData = new object[][] { [false], [true] };
+    public static readonly IEnumerable<object[]> IsAsyncData = [[false], [true]];
+
+    public Task AssertDelete<TResult>(
+        Func<ISetSource, IQueryable<TResult>> query,
+        int rowsAffectedCount)
+        => AssertDelete(async: true, query, rowsAffectedCount);
 
     public Task AssertDelete<TResult>(
         bool async,
@@ -30,10 +35,19 @@ public abstract class BulkUpdatesTestBase<TFixture> : IClassFixture<TFixture>
         => BulkUpdatesAsserter.AssertDelete(async, query, rowsAffectedCount);
 
     public Task AssertUpdate<TResult, TEntity>(
+        Func<ISetSource, IQueryable<TResult>> query,
+        Expression<Func<TResult, TEntity>> entitySelector,
+        Action<UpdateSettersBuilder<TResult>> setPropertyCalls,
+        int rowsAffectedCount,
+        Action<IReadOnlyList<TEntity>, IReadOnlyList<TEntity>> asserter = null)
+        where TResult : class
+        => AssertUpdate(async: true, query, entitySelector, setPropertyCalls, rowsAffectedCount, asserter);
+
+    public Task AssertUpdate<TResult, TEntity>(
         bool async,
         Func<ISetSource, IQueryable<TResult>> query,
         Expression<Func<TResult, TEntity>> entitySelector,
-        Expression<Func<SetPropertyCalls<TResult>, SetPropertyCalls<TResult>>> setPropertyCalls,
+        Action<UpdateSettersBuilder<TResult>> setPropertyCalls,
         int rowsAffectedCount,
         Action<IReadOnlyList<TEntity>, IReadOnlyList<TEntity>> asserter = null)
         where TResult : class

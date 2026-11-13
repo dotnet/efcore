@@ -9,9 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks;
 public class ProductCategory
 {
     public ProductCategory()
-    {
-        ProductSubcategory = new HashSet<ProductSubcategory>();
-    }
+        => ProductSubcategory = new HashSet<ProductSubcategory>();
 
     public int ProductCategoryID { get; set; }
     public DateTime ModifiedDate { get; set; }

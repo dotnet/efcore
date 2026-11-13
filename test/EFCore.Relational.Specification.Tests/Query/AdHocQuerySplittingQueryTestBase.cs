@@ -8,7 +8,8 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class AdHocQuerySplittingQueryTestBase : NonSharedModelTestBase
+public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
+    : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
     protected override string StoreName
         => "AdHocQuerySplittingQueryTests";
@@ -93,8 +94,8 @@ public abstract class AdHocQuerySplittingQueryTestBase : NonSharedModelTestBase
             Assert.Contains(
                 RelationalResources.LogMultipleCollectionIncludeWarning(new TestLogger<TestRelationalLoggingDefinitions>())
                     .GenerateMessage(),
-                Assert.Throws<InvalidOperationException>(
-                    () => context.Parents.Include(p => p.Children1).Include(p => p.Children2).ToList()).Message);
+                Assert.Throws<InvalidOperationException>(() => context.Parents.Include(p => p.Children1).Include(p => p.Children2).ToList())
+                    .Message);
         }
     }
 
@@ -218,8 +219,9 @@ public abstract class AdHocQuerySplittingQueryTestBase : NonSharedModelTestBase
 
     private async Task<(Context25225, Context25225)> CreateTwoContext25225()
     {
-        var context1 = (await CreateContext25225Async()).CreateContext();
-        var context2 = (await CreateContext25225Async()).CreateContext();
+        var factory = await CreateContext25225Async();
+        var context1 = factory.CreateContext();
+        var context2 = factory.CreateContext();
 
         // Can't run in parallel with the same connection instance. Issue #22921
         Assert.NotSame(context1.Database.GetDbConnection(), context2.Database.GetDbConnection());
@@ -231,28 +233,30 @@ public abstract class AdHocQuerySplittingQueryTestBase : NonSharedModelTestBase
         => await InitializeAsync<Context25225>(
             seed: c => c.SeedAsync(),
             onConfiguring: o => SetQuerySplittingBehavior(o, QuerySplittingBehavior.SplitQuery),
-            createTestStore: () => CreateTestStore25225());
+            createTestStore: CreateTestStore25225);
 
-    protected virtual Task<TestStore> CreateTestStore25225()
-        => Task.FromResult(base.CreateTestStore());
+    protected virtual TestStore CreateTestStore25225()
+    {
+        var testStore = (RelationalTestStore)base.CreateTestStore();
+        testStore.UseConnectionString = true;
+        return testStore;
+    }
 
     private static IQueryable<Context25225.ParentViewModel> SelectParent25225(Context25225 context, Guid parentId)
         => context
             .Parents
             .Where(x => x.Id == parentId)
-            .Select(
-                p => new Context25225.ParentViewModel
-                {
-                    Id = p.Id,
-                    Collection = p
-                        .Collection
-                        .Select(
-                            c => new Context25225.CollectionViewModel
-                            {
-                                Id = c.Id, ParentId = c.ParentId,
-                            })
-                        .ToArray()
-                });
+            .Select(p => new Context25225.ParentViewModel
+            {
+                Id = p.Id,
+                Collection = p
+                    .Collection
+                    .Select(c => new Context25225.CollectionViewModel
+                    {
+                        Id = c.Id, ParentId = c.ParentId,
+                    })
+                    .ToArray()
+            });
 
     private static void AssertParent25225(Guid expectedParentId, Guid expectedCollectionId, Context25225.ParentViewModel actualParent)
     {
@@ -309,9 +313,7 @@ public abstract class AdHocQuerySplittingQueryTestBase : NonSharedModelTestBase
 
     #region 25400
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public virtual async Task NoTracking_split_query_creates_only_required_instances(bool async)
     {
         var contextFactory = await InitializeAsync<Context25400>(
@@ -363,9 +365,7 @@ public abstract class AdHocQuerySplittingQueryTestBase : NonSharedModelTestBase
 
     #region 34728
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public virtual async Task NoTrackingWithIdentityResolution_split_query_basic(bool async)
     {
         var contextFactory = await InitializeAsync<Context34728>(
@@ -374,26 +374,14 @@ public abstract class AdHocQuerySplittingQueryTestBase : NonSharedModelTestBase
         using var context = contextFactory.CreateContext();
         var query = context.Set<Context34728.Blog>()
             .AsNoTrackingWithIdentityResolution()
-            .Select(
-                blog => new
-                {
-                    blog.Id,
-                    Posts = blog.Posts.Select(
-                        blogPost => new 
-                        {
-                            blogPost.Id,
-                            blogPost.Author
-                        }).ToList()
-                });
+            .Select(blog => new { blog.Id, Posts = blog.Posts.Select(blogPost => new { blogPost.Id, blogPost.Author }).ToList() });
 
         var test = async
             ? await query.ToListAsync()
             : query.ToList();
     }
 
-    [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [ConditionalTheory, InlineData(true), InlineData(false)]
     public virtual async Task NoTrackingWithIdentityResolution_split_query_complex(bool async)
     {
         var contextFactory = await InitializeAsync<Context34728>(
@@ -402,27 +390,21 @@ public abstract class AdHocQuerySplittingQueryTestBase : NonSharedModelTestBase
         using var context = contextFactory.CreateContext();
         var query = context.Set<Context34728.Blog>()
             .AsNoTrackingWithIdentityResolution()
-            .Select(
-                blog => new
+            .Select(blog => new
+            {
+                blog.Id,
+                Posts = blog.Posts.Select(blogPost => new { blogPost.Id, blogPost.Author }).ToList(),
+                Posts2 = blog.Posts.Select(x => new
                 {
-                    blog.Id,
-                    Posts = blog.Posts.Select(
-                        blogPost => new
-                        {
-                            blogPost.Id,
-                            blogPost.Author
-                        }).ToList(),
-                    Posts2 = blog.Posts.Select(x => new
+                    x.Id,
+                    Tags = x.Tags.Select(xx => new
                     {
-                        x.Id,
-                        Tags = x.Tags.Select(xx => new
-                        {
-                            xx.Id,
-                            xx.Name,
-                            xx.Name.Length
-                        }).ToList()
+                        xx.Id,
+                        xx.Name,
+                        xx.Name.Length
                     }).ToList()
-                });
+                }).ToList()
+            });
 
         var test = async
             ? await query.ToListAsync()

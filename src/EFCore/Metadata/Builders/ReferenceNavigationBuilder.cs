@@ -130,7 +130,7 @@ public class ReferenceNavigationBuilder : IInfrastructure<IConventionForeignKeyB
         => new(
             RelatedEntityType,
             DeclaringEntityType,
-            WithManyBuilder(Check.NullButNotEmpty(collection, nameof(collection))).Metadata);
+            WithManyBuilder(Check.NullButNotEmpty(collection)).Metadata);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -197,7 +197,7 @@ public class ReferenceNavigationBuilder : IInfrastructure<IConventionForeignKeyB
     /// </param>
     /// <returns>An object that can be used to configure the relationship.</returns>
     public virtual ReferenceReferenceBuilder WithOne(string? reference = null)
-        => new(DeclaringEntityType, RelatedEntityType, WithOneBuilder(Check.NullButNotEmpty(reference, nameof(reference))).Metadata);
+        => new(DeclaringEntityType, RelatedEntityType, WithOneBuilder(Check.NullButNotEmpty(reference)).Metadata);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

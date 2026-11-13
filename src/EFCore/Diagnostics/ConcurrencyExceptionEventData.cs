@@ -14,7 +14,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics;
 public class ConcurrencyExceptionEventData : DbContextErrorEventData
 {
     private readonly IReadOnlyList<IUpdateEntry> _internalEntries;
-    private IReadOnlyList<EntityEntry>? _entries;
 
     /// <summary>
     ///     Constructs the event payload.
@@ -42,6 +41,7 @@ public class ConcurrencyExceptionEventData : DbContextErrorEventData
     /// <summary>
     ///     The entries that were involved in the concurrency violation.
     /// </summary>
+    [field: AllowNull, MaybeNull]
     public virtual IReadOnlyList<EntityEntry> Entries
-        => _entries ??= _internalEntries.Select(e => new EntityEntry((InternalEntityEntry)e)).ToList();
+        => field ??= _internalEntries.Select(e => new EntityEntry((InternalEntityEntry)e)).ToList();
 }

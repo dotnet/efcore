@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
             = new ResourceManager("Microsoft.EntityFrameworkCore.Sqlite.Properties.SqliteNTSStrings", typeof(SqliteNTSStrings).Assembly);
 
         /// <summary>
-        ///     Invalid geometry type: {storeType}.
+        ///     Invalid geometry type: '{storeType}'.
         /// </summary>
         public static string InvalidGeometryType(object? storeType)
             => string.Format(
@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
                 storeType);
 
         /// <summary>
-        ///     UseNetTopologySuite requires AddEntityFrameworkSqliteNetTopologySuite to be called on the internal service provider used.
+        ///     'UseNetTopologySuite' requires 'AddEntityFrameworkSqliteNetTopologySuite' to be called on the internal service provider used.
         /// </summary>
         public static string NTSServicesMissing
             => GetString("NTSServicesMissing");

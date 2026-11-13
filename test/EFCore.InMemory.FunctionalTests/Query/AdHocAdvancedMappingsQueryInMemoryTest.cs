@@ -3,7 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class AdHocAdvancedMappingsQueryInMemoryTest : AdHocAdvancedMappingsQueryTestBase
+public class AdHocAdvancedMappingsQueryInMemoryTest(NonSharedFixture fixture) : AdHocAdvancedMappingsQueryTestBase(fixture)
 {
     protected override ITestStoreFactory TestStoreFactory
         => InMemoryTestStoreFactory.Instance;

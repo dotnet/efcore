@@ -107,221 +107,215 @@ public class GraphUpdatesSqlServerOwnedTest(GraphUpdatesSqlServerOwnedTest.SqlSe
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
-            modelBuilder.Entity<OwnerRoot>(
-                b =>
+            modelBuilder.Entity<OwnerRoot>(b =>
+            {
+                b.OwnsOne(e => e.OptionalSingle).OwnsOne(e => e.Single);
+                b.OwnsOne(e => e.RequiredSingle).OwnsOne(e => e.Single);
+                b.OwnsMany(e => e.OptionalChildren).OwnsMany(e => e.Children);
+                b.OwnsMany(e => e.RequiredChildren).OwnsMany(e => e.Children);
+            });
+
+            modelBuilder.Entity<Root>(b =>
+            {
+                b.Property(e => e.AlternateId).ValueGeneratedOnAdd();
+
+                // TODO: Owned inheritance support #9630
+                b.HasMany(e => e.RequiredChildren)
+                    .WithOne(e => e.Parent)
+                    .HasForeignKey(e => e.ParentId);
+
+                modelBuilder.Entity<Required1>()
+                    .HasMany(e => e.Children)
+                    .WithOne(e => e.Parent)
+                    .HasForeignKey(e => e.ParentId);
+
+                modelBuilder.Entity<Required1Derived>();
+                modelBuilder.Entity<Required1MoreDerived>();
+                modelBuilder.Entity<Required2Derived>();
+                modelBuilder.Entity<Required2MoreDerived>();
+
+                b.HasMany(e => e.OptionalChildren)
+                    .WithOne(e => e.Parent)
+                    .HasForeignKey(e => e.ParentId)
+                    .OnDelete(DeleteBehavior.SetNull);
+
+                b.OwnsOne(
+                    e => e.RequiredSingle, r =>
+                    {
+                        r.WithOwner(e => e.Root)
+                            .HasForeignKey(e => e.Id);
+
+                        r.OwnsOne(e => e.Single)
+                            .WithOwner(e => e.Back)
+                            .HasForeignKey(e => e.Id);
+                    });
+
+                b.HasOne(e => e.OptionalSingle)
+                    .WithOne(e => e.Root)
+                    .HasForeignKey<OptionalSingle1>(e => e.RootId)
+                    .OnDelete(DeleteBehavior.SetNull);
+
+                b.HasOne(e => e.OptionalSingleDerived)
+                    .WithOne(e => e.DerivedRoot)
+                    .HasForeignKey<OptionalSingle1Derived>(e => e.DerivedRootId)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                b.HasOne(e => e.OptionalSingleMoreDerived)
+                    .WithOne(e => e.MoreDerivedRoot)
+                    .HasForeignKey<OptionalSingle1MoreDerived>(e => e.MoreDerivedRootId)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                // TODO: Owned inheritance support #9630
+                b.HasOne(e => e.RequiredNonPkSingle)
+                    .WithOne(e => e.Root)
+                    .HasForeignKey<RequiredNonPkSingle1>(e => e.RootId);
+
+                b.HasOne(e => e.RequiredNonPkSingleDerived)
+                    .WithOne(e => e.DerivedRoot)
+                    .HasForeignKey<RequiredNonPkSingle1Derived>(e => e.DerivedRootId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                b.HasOne(e => e.RequiredNonPkSingleMoreDerived)
+                    .WithOne(e => e.MoreDerivedRoot)
+                    .HasForeignKey<RequiredNonPkSingle1MoreDerived>(e => e.MoreDerivedRootId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                // TODO: Owned inheritance support #9630
+                b.HasMany(e => e.RequiredChildrenAk)
+                    .WithOne(e => e.Parent)
+                    .HasPrincipalKey(e => e.AlternateId)
+                    .HasForeignKey(e => e.ParentId);
+
+                modelBuilder.Entity<RequiredAk1>(b =>
                 {
-                    b.OwnsOne(e => e.OptionalSingle).OwnsOne(e => e.Single);
-                    b.OwnsOne(e => e.RequiredSingle).OwnsOne(e => e.Single);
-                    b.OwnsMany(e => e.OptionalChildren).OwnsMany(e => e.Children);
-                    b.OwnsMany(e => e.RequiredChildren).OwnsMany(e => e.Children);
-                });
-
-            modelBuilder.Entity<Root>(
-                b =>
-                {
-                    b.Property(e => e.AlternateId).ValueGeneratedOnAdd();
-
-                    // TODO: Owned inheritance support #9630
-                    b.HasMany(e => e.RequiredChildren)
-                        .WithOne(e => e.Parent)
-                        .HasForeignKey(e => e.ParentId);
-
-                    modelBuilder.Entity<Required1>()
-                        .HasMany(e => e.Children)
-                        .WithOne(e => e.Parent)
-                        .HasForeignKey(e => e.ParentId);
-
-                    modelBuilder.Entity<Required1Derived>();
-                    modelBuilder.Entity<Required1MoreDerived>();
-                    modelBuilder.Entity<Required2Derived>();
-                    modelBuilder.Entity<Required2MoreDerived>();
-
-                    b.HasMany(e => e.OptionalChildren)
-                        .WithOne(e => e.Parent)
-                        .HasForeignKey(e => e.ParentId)
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.OwnsOne(
-                        e => e.RequiredSingle, r =>
-                        {
-                            r.WithOwner(e => e.Root)
-                                .HasForeignKey(e => e.Id);
-
-                            r.OwnsOne(e => e.Single)
-                                .WithOwner(e => e.Back)
-                                .HasForeignKey(e => e.Id);
-                        });
-
-                    b.HasOne(e => e.OptionalSingle)
-                        .WithOne(e => e.Root)
-                        .HasForeignKey<OptionalSingle1>(e => e.RootId)
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.HasOne(e => e.OptionalSingleDerived)
-                        .WithOne(e => e.DerivedRoot)
-                        .HasForeignKey<OptionalSingle1Derived>(e => e.DerivedRootId)
-                        .OnDelete(DeleteBehavior.ClientSetNull);
-
-                    b.HasOne(e => e.OptionalSingleMoreDerived)
-                        .WithOne(e => e.MoreDerivedRoot)
-                        .HasForeignKey<OptionalSingle1MoreDerived>(e => e.MoreDerivedRootId)
-                        .OnDelete(DeleteBehavior.ClientSetNull);
-
-                    // TODO: Owned inheritance support #9630
-                    b.HasOne(e => e.RequiredNonPkSingle)
-                        .WithOne(e => e.Root)
-                        .HasForeignKey<RequiredNonPkSingle1>(e => e.RootId);
-
-                    b.HasOne(e => e.RequiredNonPkSingleDerived)
-                        .WithOne(e => e.DerivedRoot)
-                        .HasForeignKey<RequiredNonPkSingle1Derived>(e => e.DerivedRootId)
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne(e => e.RequiredNonPkSingleMoreDerived)
-                        .WithOne(e => e.MoreDerivedRoot)
-                        .HasForeignKey<RequiredNonPkSingle1MoreDerived>(e => e.MoreDerivedRootId)
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    // TODO: Owned inheritance support #9630
-                    b.HasMany(e => e.RequiredChildrenAk)
-                        .WithOne(e => e.Parent)
-                        .HasPrincipalKey(e => e.AlternateId)
-                        .HasForeignKey(e => e.ParentId);
-
-                    modelBuilder.Entity<RequiredAk1>(
-                        b =>
-                        {
-                            b.Property(e => e.AlternateId)
-                                .ValueGeneratedOnAdd();
-
-                            b.HasMany(e => e.Children)
-                                .WithOne(e => e.Parent)
-                                .HasPrincipalKey(e => e.AlternateId)
-                                .HasForeignKey(e => e.ParentId);
-
-                            b.HasMany(e => e.CompositeChildren)
-                                .WithOne(e => e.Parent)
-                                .HasPrincipalKey(
-                                    e => new { e.Id, e.AlternateId })
-                                .HasForeignKey(
-                                    e => new { e.ParentId, e.ParentAlternateId });
-                        });
-
-                    modelBuilder.Entity<RequiredAk2>()
-                        .Property(e => e.AlternateId)
+                    b.Property(e => e.AlternateId)
                         .ValueGeneratedOnAdd();
 
-                    modelBuilder.Entity<RequiredAk2Derived>();
-                    modelBuilder.Entity<RequiredAk2MoreDerived>();
-
-                    modelBuilder.Entity<RequiredAk1Derived>();
-                    modelBuilder.Entity<RequiredAk1MoreDerived>();
-
-                    b.HasMany(e => e.OptionalChildrenAk)
-                        .WithOne(e => e.Parent)
-                        .HasPrincipalKey(e => e.AlternateId)
-                        .HasForeignKey(e => e.ParentId)
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.OwnsOne(
-                        e => e.RequiredSingleAk, r =>
-                        {
-                            r.WithOwner(e => e.Root)
-                                .HasPrincipalKey(e => e.AlternateId)
-                                .HasForeignKey(e => e.RootId);
-
-                            r.HasKey(e => e.Id);
-
-                            r.Property(e => e.AlternateId)
-                                .ValueGeneratedOnAdd();
-
-                            r.OwnsOne(
-                                e => e.Single, r2 =>
-                                {
-                                    r2.WithOwner(e => e.Back)
-                                        .HasForeignKey(e => e.BackId)
-                                        .HasPrincipalKey(e => e.AlternateId);
-
-                                    r2.HasKey(e => e.Id);
-
-                                    r2.Property(e => e.Id)
-                                        .ValueGeneratedOnAdd();
-
-                                    r2.Property(e => e.AlternateId)
-                                        .ValueGeneratedOnAdd();
-
-                                    r2.ToTable("RequiredSingleAk2");
-                                });
-
-                            r.OwnsOne(
-                                e => e.SingleComposite, r2 =>
-                                {
-                                    r2.WithOwner(e => e.Back)
-                                        .HasForeignKey(e => new { e.BackId, e.BackAlternateId })
-                                        .HasPrincipalKey(e => new { e.Id, e.AlternateId });
-
-                                    r2.HasKey(e => e.Id);
-
-                                    r2.ToTable("RequiredSingleComposite2");
-                                });
-
-                            // Table splitting using AK is not supported #23208
-                            r.ToTable("RequiredSingleAk1");
-                        });
-
-                    b.HasOne(e => e.OptionalSingleAk)
-                        .WithOne(e => e.Root)
-                        .HasPrincipalKey<Root>(e => e.AlternateId)
-                        .HasForeignKey<OptionalSingleAk1>(e => e.RootId)
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.HasOne(e => e.OptionalSingleAkDerived)
-                        .WithOne(e => e.DerivedRoot)
-                        .HasPrincipalKey<Root>(e => e.AlternateId)
-                        .HasForeignKey<OptionalSingleAk1Derived>(e => e.DerivedRootId)
-                        .OnDelete(DeleteBehavior.ClientSetNull);
-
-                    b.HasOne(e => e.OptionalSingleAkMoreDerived)
-                        .WithOne(e => e.MoreDerivedRoot)
-                        .HasPrincipalKey<Root>(e => e.AlternateId)
-                        .HasForeignKey<OptionalSingleAk1MoreDerived>(e => e.MoreDerivedRootId)
-                        .OnDelete(DeleteBehavior.ClientSetNull);
-
-                    b.HasOne(e => e.RequiredNonPkSingleAk)
-                        .WithOne(e => e.Root)
-                        .HasPrincipalKey<Root>(e => e.AlternateId)
-                        .HasForeignKey<RequiredNonPkSingleAk1>(e => e.RootId);
-
-                    b.HasOne(e => e.RequiredNonPkSingleAkDerived)
-                        .WithOne(e => e.DerivedRoot)
-                        .HasPrincipalKey<Root>(e => e.AlternateId)
-                        .HasForeignKey<RequiredNonPkSingleAk1Derived>(e => e.DerivedRootId)
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne(e => e.RequiredNonPkSingleAkMoreDerived)
-                        .WithOne(e => e.MoreDerivedRoot)
-                        .HasPrincipalKey<Root>(e => e.AlternateId)
-                        .HasForeignKey<RequiredNonPkSingleAk1MoreDerived>(e => e.MoreDerivedRootId)
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasMany(e => e.RequiredCompositeChildren)
-                        .WithOne(e => e.Parent)
-                        .HasPrincipalKey(e => e.AlternateId)
-                        .HasForeignKey(e => e.ParentAlternateId);
-                });
-
-            modelBuilder.Entity<Optional1>(
-                b =>
-                {
                     b.HasMany(e => e.Children)
                         .WithOne(e => e.Parent)
-                        .HasForeignKey(e => e.ParentId)
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasPrincipalKey(e => e.AlternateId)
+                        .HasForeignKey(e => e.ParentId);
 
                     b.HasMany(e => e.CompositeChildren)
-                        .WithOne(e => e.Parent2)
-                        .HasForeignKey(e => new { e.Parent2Id });
+                        .WithOne(e => e.Parent)
+                        .HasPrincipalKey(e => new { e.Id, e.AlternateId })
+                        .HasForeignKey(e => new { e.ParentId, e.ParentAlternateId });
                 });
+
+                modelBuilder.Entity<RequiredAk2>()
+                    .Property(e => e.AlternateId)
+                    .ValueGeneratedOnAdd();
+
+                modelBuilder.Entity<RequiredAk2Derived>();
+                modelBuilder.Entity<RequiredAk2MoreDerived>();
+
+                modelBuilder.Entity<RequiredAk1Derived>();
+                modelBuilder.Entity<RequiredAk1MoreDerived>();
+
+                b.HasMany(e => e.OptionalChildrenAk)
+                    .WithOne(e => e.Parent)
+                    .HasPrincipalKey(e => e.AlternateId)
+                    .HasForeignKey(e => e.ParentId)
+                    .OnDelete(DeleteBehavior.SetNull);
+
+                b.OwnsOne(
+                    e => e.RequiredSingleAk, r =>
+                    {
+                        r.WithOwner(e => e.Root)
+                            .HasPrincipalKey(e => e.AlternateId)
+                            .HasForeignKey(e => e.RootId);
+
+                        r.HasKey(e => e.Id);
+
+                        r.Property(e => e.AlternateId)
+                            .ValueGeneratedOnAdd();
+
+                        r.OwnsOne(
+                            e => e.Single, r2 =>
+                            {
+                                r2.WithOwner(e => e.Back)
+                                    .HasForeignKey(e => e.BackId)
+                                    .HasPrincipalKey(e => e.AlternateId);
+
+                                r2.HasKey(e => e.Id);
+
+                                r2.Property(e => e.Id)
+                                    .ValueGeneratedOnAdd();
+
+                                r2.Property(e => e.AlternateId)
+                                    .ValueGeneratedOnAdd();
+
+                                r2.ToTable("RequiredSingleAk2");
+                            });
+
+                        r.OwnsOne(
+                            e => e.SingleComposite, r2 =>
+                            {
+                                r2.WithOwner(e => e.Back)
+                                    .HasForeignKey(e => new { e.BackId, e.BackAlternateId })
+                                    .HasPrincipalKey(e => new { e.Id, e.AlternateId });
+
+                                r2.HasKey(e => e.Id);
+
+                                r2.ToTable("RequiredSingleComposite2");
+                            });
+
+                        // Table splitting using AK is not supported #23208
+                        r.ToTable("RequiredSingleAk1");
+                    });
+
+                b.HasOne(e => e.OptionalSingleAk)
+                    .WithOne(e => e.Root)
+                    .HasPrincipalKey<Root>(e => e.AlternateId)
+                    .HasForeignKey<OptionalSingleAk1>(e => e.RootId)
+                    .OnDelete(DeleteBehavior.SetNull);
+
+                b.HasOne(e => e.OptionalSingleAkDerived)
+                    .WithOne(e => e.DerivedRoot)
+                    .HasPrincipalKey<Root>(e => e.AlternateId)
+                    .HasForeignKey<OptionalSingleAk1Derived>(e => e.DerivedRootId)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                b.HasOne(e => e.OptionalSingleAkMoreDerived)
+                    .WithOne(e => e.MoreDerivedRoot)
+                    .HasPrincipalKey<Root>(e => e.AlternateId)
+                    .HasForeignKey<OptionalSingleAk1MoreDerived>(e => e.MoreDerivedRootId)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+
+                b.HasOne(e => e.RequiredNonPkSingleAk)
+                    .WithOne(e => e.Root)
+                    .HasPrincipalKey<Root>(e => e.AlternateId)
+                    .HasForeignKey<RequiredNonPkSingleAk1>(e => e.RootId);
+
+                b.HasOne(e => e.RequiredNonPkSingleAkDerived)
+                    .WithOne(e => e.DerivedRoot)
+                    .HasPrincipalKey<Root>(e => e.AlternateId)
+                    .HasForeignKey<RequiredNonPkSingleAk1Derived>(e => e.DerivedRootId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                b.HasOne(e => e.RequiredNonPkSingleAkMoreDerived)
+                    .WithOne(e => e.MoreDerivedRoot)
+                    .HasPrincipalKey<Root>(e => e.AlternateId)
+                    .HasForeignKey<RequiredNonPkSingleAk1MoreDerived>(e => e.MoreDerivedRootId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                b.HasMany(e => e.RequiredCompositeChildren)
+                    .WithOne(e => e.Parent)
+                    .HasPrincipalKey(e => e.AlternateId)
+                    .HasForeignKey(e => e.ParentAlternateId);
+            });
+
+            modelBuilder.Entity<Optional1>(b =>
+            {
+                b.HasMany(e => e.Children)
+                    .WithOne(e => e.Parent)
+                    .HasForeignKey(e => e.ParentId)
+                    .OnDelete(DeleteBehavior.SetNull);
+
+                b.HasMany(e => e.CompositeChildren)
+                    .WithOne(e => e.Parent2)
+                    .HasForeignKey(e => new { e.Parent2Id });
+            });
 
             modelBuilder.Entity<Optional1Derived>();
             modelBuilder.Entity<Optional1MoreDerived>();
@@ -334,25 +328,24 @@ public class GraphUpdatesSqlServerOwnedTest(GraphUpdatesSqlServerOwnedTest.SqlSe
                 .HasForeignKey<OptionalSingle2>(e => e.BackId)
                 .OnDelete(DeleteBehavior.SetNull);
 
-            modelBuilder.Entity<OptionalSingle2>(
-                b =>
-                {
-                    b.HasDiscriminator(e => e.Disc)
-                        .HasValue<OptionalSingle2>(new MyDiscriminator(1))
-                        .HasValue<OptionalSingle2Derived>(new MyDiscriminator(2))
-                        .HasValue<OptionalSingle2MoreDerived>(new MyDiscriminator(3));
+            modelBuilder.Entity<OptionalSingle2>(b =>
+            {
+                b.HasDiscriminator(e => e.Disc)
+                    .HasValue<OptionalSingle2>(new MyDiscriminator(1))
+                    .HasValue<OptionalSingle2Derived>(new MyDiscriminator(2))
+                    .HasValue<OptionalSingle2MoreDerived>(new MyDiscriminator(3));
 
-                    b.Property(e => e.Disc)
-                        .HasConversion(
-                            v => v.Value,
-                            v => new MyDiscriminator(v),
-                            new ValueComparer<MyDiscriminator>(
-                                (l, r) => l.Value == r.Value,
-                                v => v.Value.GetHashCode(),
-                                v => new MyDiscriminator(v.Value)))
-                        .Metadata
-                        .SetAfterSaveBehavior(PropertySaveBehavior.Save);
-                });
+                b.Property(e => e.Disc)
+                    .HasConversion(
+                        v => v.Value,
+                        v => new MyDiscriminator(v),
+                        new ValueComparer<MyDiscriminator>(
+                            (l, r) => l.Value == r.Value,
+                            v => v.Value.GetHashCode(),
+                            v => new MyDiscriminator(v.Value)))
+                    .Metadata
+                    .SetAfterSaveBehavior(PropertySaveBehavior.Save);
+            });
 
             modelBuilder.Entity<RequiredNonPkSingle1>()
                 .HasOne(e => e.Single)
@@ -362,37 +355,33 @@ public class GraphUpdatesSqlServerOwnedTest(GraphUpdatesSqlServerOwnedTest.SqlSe
             modelBuilder.Entity<RequiredNonPkSingle2Derived>();
             modelBuilder.Entity<RequiredNonPkSingle2MoreDerived>();
 
-            modelBuilder.Entity<RequiredNonPkSingleAk1>(
-                b =>
-                {
-                    b.Property(e => e.AlternateId)
-                        .ValueGeneratedOnAdd();
+            modelBuilder.Entity<RequiredNonPkSingleAk1>(b =>
+            {
+                b.Property(e => e.AlternateId)
+                    .ValueGeneratedOnAdd();
 
-                    b.HasOne(e => e.Single)
-                        .WithOne(e => e.Back)
-                        .HasForeignKey<RequiredNonPkSingleAk2>(e => e.BackId)
-                        .HasPrincipalKey<RequiredNonPkSingleAk1>(e => e.AlternateId);
-                });
+                b.HasOne(e => e.Single)
+                    .WithOne(e => e.Back)
+                    .HasForeignKey<RequiredNonPkSingleAk2>(e => e.BackId)
+                    .HasPrincipalKey<RequiredNonPkSingleAk1>(e => e.AlternateId);
+            });
 
-            modelBuilder.Entity<OptionalAk1>(
-                b =>
-                {
-                    b.Property(e => e.AlternateId)
-                        .ValueGeneratedOnAdd();
+            modelBuilder.Entity<OptionalAk1>(b =>
+            {
+                b.Property(e => e.AlternateId)
+                    .ValueGeneratedOnAdd();
 
-                    b.HasMany(e => e.Children)
-                        .WithOne(e => e.Parent)
-                        .HasPrincipalKey(e => e.AlternateId)
-                        .HasForeignKey(e => e.ParentId)
-                        .OnDelete(DeleteBehavior.SetNull);
+                b.HasMany(e => e.Children)
+                    .WithOne(e => e.Parent)
+                    .HasPrincipalKey(e => e.AlternateId)
+                    .HasForeignKey(e => e.ParentId)
+                    .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasMany(e => e.CompositeChildren)
-                        .WithOne(e => e.Parent)
-                        .HasPrincipalKey(
-                            e => new { e.Id, e.AlternateId })
-                        .HasForeignKey(
-                            e => new { e.ParentId, e.ParentAlternateId });
-                });
+                b.HasMany(e => e.CompositeChildren)
+                    .WithOne(e => e.Parent)
+                    .HasPrincipalKey(e => new { e.Id, e.AlternateId })
+                    .HasForeignKey(e => new { e.ParentId, e.ParentAlternateId });
+            });
 
             modelBuilder.Entity<OptionalAk1Derived>();
             modelBuilder.Entity<OptionalAk1MoreDerived>();
@@ -411,25 +400,22 @@ public class GraphUpdatesSqlServerOwnedTest(GraphUpdatesSqlServerOwnedTest.SqlSe
             modelBuilder.Entity<RequiredNonPkSingleAk2Derived>();
             modelBuilder.Entity<RequiredNonPkSingleAk2MoreDerived>();
 
-            modelBuilder.Entity<OptionalSingleAk1>(
-                b =>
-                {
-                    b.Property(e => e.AlternateId)
-                        .ValueGeneratedOnAdd();
+            modelBuilder.Entity<OptionalSingleAk1>(b =>
+            {
+                b.Property(e => e.AlternateId)
+                    .ValueGeneratedOnAdd();
 
-                    b.HasOne(e => e.Single)
-                        .WithOne(e => e.Back)
-                        .HasForeignKey<OptionalSingleAk2>(e => e.BackId)
-                        .HasPrincipalKey<OptionalSingleAk1>(e => e.AlternateId)
-                        .OnDelete(DeleteBehavior.SetNull);
+                b.HasOne(e => e.Single)
+                    .WithOne(e => e.Back)
+                    .HasForeignKey<OptionalSingleAk2>(e => e.BackId)
+                    .HasPrincipalKey<OptionalSingleAk1>(e => e.AlternateId)
+                    .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne(e => e.SingleComposite)
-                        .WithOne(e => e.Back)
-                        .HasForeignKey<OptionalSingleComposite2>(
-                            e => new { e.BackId, e.ParentAlternateId })
-                        .HasPrincipalKey<OptionalSingleAk1>(
-                            e => new { e.Id, e.AlternateId });
-                });
+                b.HasOne(e => e.SingleComposite)
+                    .WithOne(e => e.Back)
+                    .HasForeignKey<OptionalSingleComposite2>(e => new { e.BackId, e.ParentAlternateId })
+                    .HasPrincipalKey<OptionalSingleAk1>(e => new { e.Id, e.AlternateId });
+            });
 
             modelBuilder.Entity<OptionalSingleAk2>()
                 .Property(e => e.AlternateId)
@@ -438,35 +424,29 @@ public class GraphUpdatesSqlServerOwnedTest(GraphUpdatesSqlServerOwnedTest.SqlSe
             modelBuilder.Entity<OptionalSingleAk2Derived>();
             modelBuilder.Entity<OptionalSingleAk2MoreDerived>();
 
-            modelBuilder.Entity<RequiredComposite1>(
-                eb =>
-                {
-                    eb.Property(e => e.Id).ValueGeneratedNever();
+            modelBuilder.Entity<RequiredComposite1>(eb =>
+            {
+                eb.Property(e => e.Id).ValueGeneratedNever();
 
-                    eb.HasKey(
-                        e => new { e.Id, e.ParentAlternateId });
+                eb.HasKey(e => new { e.Id, e.ParentAlternateId });
 
-                    eb.HasMany(e => e.CompositeChildren)
-                        .WithOne(e => e.Parent)
-                        .HasPrincipalKey(
-                            e => new { e.Id, e.ParentAlternateId })
-                        .HasForeignKey(
-                            e => new { e.ParentId, e.ParentAlternateId });
-                });
+                eb.HasMany(e => e.CompositeChildren)
+                    .WithOne(e => e.Parent)
+                    .HasPrincipalKey(e => new { e.Id, e.ParentAlternateId })
+                    .HasForeignKey(e => new { e.ParentId, e.ParentAlternateId });
+            });
 
-            modelBuilder.Entity<OptionalOverlapping2>(
-                eb =>
-                {
-                    eb.Property(e => e.Id).ValueGeneratedNever();
+            modelBuilder.Entity<OptionalOverlapping2>(eb =>
+            {
+                eb.Property(e => e.Id).ValueGeneratedNever();
 
-                    eb.HasKey(
-                        e => new { e.Id, e.ParentAlternateId });
+                eb.HasKey(e => new { e.Id, e.ParentAlternateId });
 
-                    eb.HasOne(e => e.Root)
-                        .WithMany()
-                        .HasPrincipalKey(e => e.AlternateId)
-                        .HasForeignKey(e => e.ParentAlternateId);
-                });
+                eb.HasOne(e => e.Root)
+                    .WithMany()
+                    .HasPrincipalKey(e => e.AlternateId)
+                    .HasForeignKey(e => e.ParentAlternateId);
+            });
 
             modelBuilder.Entity<BadCustomer>();
             modelBuilder.Entity<BadOrder>();
@@ -494,64 +474,60 @@ public class GraphUpdatesSqlServerOwnedTest(GraphUpdatesSqlServerOwnedTest.SqlSe
                 .HasIndex(e => e.BarCode)
                 .IsUnique();
 
-            modelBuilder.Entity<SharedFkRoot>(
-                builder =>
-                {
-                    builder.HasMany(x => x.Dependants).WithOne(x => x.Root)
-                        .HasForeignKey(x => new { x.RootId })
-                        .HasPrincipalKey(x => x.Id)
-                        .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<SharedFkRoot>(builder =>
+            {
+                builder.HasMany(x => x.Dependants).WithOne(x => x.Root)
+                    .HasForeignKey(x => new { x.RootId })
+                    .HasPrincipalKey(x => x.Id)
+                    .OnDelete(DeleteBehavior.Cascade);
 
-                    builder.HasMany(x => x.Parents).WithOne(x => x.Root)
-                        .HasForeignKey(x => new { x.RootId })
-                        .HasPrincipalKey(x => x.Id)
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
+                builder.HasMany(x => x.Parents).WithOne(x => x.Root)
+                    .HasForeignKey(x => new { x.RootId })
+                    .HasPrincipalKey(x => x.Id)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
 
-            modelBuilder.Entity<SharedFkParent>(
-                builder =>
-                {
-                    builder.HasOne(x => x.Dependant).WithOne(x => x!.Parent).IsRequired(false)
-                        .HasForeignKey<SharedFkParent>(x => new { x.RootId, x.DependantId })
-                        .HasPrincipalKey<SharedFkDependant>(x => new { x.RootId, x.Id })
-                        .OnDelete(DeleteBehavior.ClientSetNull);
-                });
+            modelBuilder.Entity<SharedFkParent>(builder =>
+            {
+                builder.HasOne(x => x.Dependant).WithOne(x => x!.Parent).IsRequired(false)
+                    .HasForeignKey<SharedFkParent>(x => new { x.RootId, x.DependantId })
+                    .HasPrincipalKey<SharedFkDependant>(x => new { x.RootId, x.Id })
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+            });
 
             modelBuilder.Entity<SharedFkDependant>();
 
             modelBuilder.Entity<Owner>();
 
-            modelBuilder.Entity<OwnerWithKeyedCollection>(
-                b =>
-                {
-                    b.Navigation(e => e.Owned).IsRequired();
-                    b.Navigation(e => e.OwnedWithKey).IsRequired();
+            modelBuilder.Entity<OwnerWithKeyedCollection>(b =>
+            {
+                b.Navigation(e => e.Owned).IsRequired();
+                b.Navigation(e => e.OwnedWithKey).IsRequired();
 
-                    b.OwnsMany(
-                        e => e.OwnedCollectionPrivateKey,
-                        b => b.HasKey("OwnerWithKeyedCollectionId", "PrivateKey"));
-                });
+                b.OwnsMany(
+                    e => e.OwnedCollectionPrivateKey,
+                    b => b.HasKey("OwnerWithKeyedCollectionId", "PrivateKey"));
+            });
 
             modelBuilder
                 .Entity<OwnerWithNonCompositeOwnedCollection>()
                 .OwnsMany(e => e.Owned, owned => owned.HasKey("Id"));
 
-            modelBuilder.Entity<OwnerNoKeyGeneration>(
-                b =>
-                {
-                    b.Property(e => e.Id).ValueGeneratedNever();
+            modelBuilder.Entity<OwnerNoKeyGeneration>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
 
-                    b.OwnsOne(
-                        e => e.Owned,
-                        b => b.Property("OwnerNoKeyGenerationId").ValueGeneratedNever());
-                    b.OwnsMany(
-                        e => e.OwnedCollection,
-                        b =>
-                        {
-                            b.Property<int>("OwnedNoKeyGenerationId").ValueGeneratedNever();
-                            b.Property("OwnerNoKeyGenerationId").ValueGeneratedNever();
-                        });
-                });
+                b.OwnsOne(
+                    e => e.Owned,
+                    b => b.Property("OwnerNoKeyGenerationId").ValueGeneratedNever());
+                b.OwnsMany(
+                    e => e.OwnedCollection,
+                    b =>
+                    {
+                        b.Property<int>("OwnedNoKeyGenerationId").ValueGeneratedNever();
+                        b.Property("OwnerNoKeyGenerationId").ValueGeneratedNever();
+                    });
+            });
 
             modelBuilder.Entity<Provider>().HasData(
                 new Provider { Id = "prov1" },
@@ -560,64 +536,57 @@ public class GraphUpdatesSqlServerOwnedTest(GraphUpdatesSqlServerOwnedTest.SqlSe
             modelBuilder.Entity<Partner>().HasData(
                 new Partner { Id = "partner1" });
 
-            modelBuilder.Entity<ProviderContract>(
-                b =>
-                {
-                    b.HasOne(p => p.Partner).WithMany().IsRequired().HasForeignKey("PartnerId");
-                    b.HasOne<Provider>().WithMany().IsRequired().HasForeignKey("ProviderId");
+            modelBuilder.Entity<ProviderContract>(b =>
+            {
+                b.HasOne(p => p.Partner).WithMany().IsRequired().HasForeignKey("PartnerId");
+                b.HasOne<Provider>().WithMany().IsRequired().HasForeignKey("ProviderId");
 
-                    b.HasDiscriminator<string>("ProviderId")
-                        .HasValue<ProviderContract1>("prov1")
-                        .HasValue<ProviderContract2>("prov2");
-                });
+                b.HasDiscriminator<string>("ProviderId")
+                    .HasValue<ProviderContract1>("prov1")
+                    .HasValue<ProviderContract2>("prov2");
+            });
 
-            modelBuilder.Entity<EventDescriptorZ>(
-                b =>
-                {
-                    b.Property<long>("EntityZId");
-                    b.HasOne(e => e.EntityZ).WithMany().HasForeignKey("EntityZId").IsRequired();
-                });
+            modelBuilder.Entity<EventDescriptorZ>(b =>
+            {
+                b.Property<long>("EntityZId");
+                b.HasOne(e => e.EntityZ).WithMany().HasForeignKey("EntityZId").IsRequired();
+            });
 
             modelBuilder.Entity<City>();
 
-            modelBuilder.Entity<AccessState>(
-                b =>
-                {
-                    b.Property(e => e.AccessStateId).ValueGeneratedNever();
-                    b.HasData(new AccessState { AccessStateId = 1 });
-                });
+            modelBuilder.Entity<AccessState>(b =>
+            {
+                b.Property(e => e.AccessStateId).ValueGeneratedNever();
+                b.HasData(new AccessState { AccessStateId = 1 });
+            });
 
-            modelBuilder.Entity<Cruiser>(
-                b =>
-                {
-                    b.Property(e => e.IdUserState).HasDefaultValue(1);
-                    b.HasOne(e => e.UserState).WithMany(e => e.Users).HasForeignKey(e => e.IdUserState);
-                });
+            modelBuilder.Entity<Cruiser>(b =>
+            {
+                b.Property(e => e.IdUserState).HasDefaultValue(1);
+                b.HasOne(e => e.UserState).WithMany(e => e.Users).HasForeignKey(e => e.IdUserState);
+            });
 
-            modelBuilder.Entity<AccessStateWithSentinel>(
-                b =>
-                {
-                    b.Property(e => e.AccessStateWithSentinelId).ValueGeneratedNever();
-                    b.HasData(new AccessStateWithSentinel { AccessStateWithSentinelId = 1 });
-                });
+            modelBuilder.Entity<AccessStateWithSentinel>(b =>
+            {
+                b.Property(e => e.AccessStateWithSentinelId).ValueGeneratedNever();
+                b.HasData(new AccessStateWithSentinel { AccessStateWithSentinelId = 1 });
+            });
 
-            modelBuilder.Entity<CruiserWithSentinel>(
-                b =>
-                {
-                    b.Property(e => e.IdUserState).HasDefaultValue(1).HasSentinel(667);
-                    b.HasOne(e => e.UserState).WithMany(e => e.Users).HasForeignKey(e => e.IdUserState);
-                });
+            modelBuilder.Entity<CruiserWithSentinel>(b =>
+            {
+                b.Property(e => e.IdUserState).HasDefaultValue(1).HasSentinel(667);
+                b.HasOne(e => e.UserState).WithMany(e => e.Users).HasForeignKey(e => e.IdUserState);
+            });
 
-            modelBuilder.Entity<StringKeyAndIndexParent>(
-                b =>
-                {
-                    b.HasAlternateKey(e => e.AlternateId);
-                    b.OwnsOne(
-                        x => x.Child, b =>
-                        {
-                            b.WithOwner(e => e.Parent).HasForeignKey(e => e.ParentId);
-                        });
-                });
+            modelBuilder.Entity<StringKeyAndIndexParent>(b =>
+            {
+                b.HasAlternateKey(e => e.AlternateId);
+                b.OwnsOne(
+                    x => x.Child, b =>
+                    {
+                        b.WithOwner(e => e.Parent).HasForeignKey(e => e.ParentId);
+                    });
+            });
         }
     }
 }

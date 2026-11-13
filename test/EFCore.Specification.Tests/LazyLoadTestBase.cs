@@ -9,37 +9,36 @@ namespace Microsoft.EntityFrameworkCore;
 
 public abstract partial class LoadTestBase<TFixture>
 {
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
     public virtual async Task Lazy_load_collection(EntityState state, QueryTrackingBehavior queryTrackingBehavior, bool async)
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -81,37 +80,36 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
     public virtual async Task Lazy_load_many_to_one_reference_to_principal(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior,
@@ -188,37 +186,36 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
     public virtual async Task Lazy_load_one_to_one_reference_to_principal(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior,
@@ -295,37 +292,36 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
     public virtual async Task Lazy_load_one_to_one_reference_to_dependent(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior,
@@ -387,22 +383,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_one_to_one_PK_to_PK_reference_to_principal(EntityState state, QueryTrackingBehavior queryTrackingBehavior)
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -476,22 +467,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_one_to_one_PK_to_PK_reference_to_dependent(EntityState state, QueryTrackingBehavior queryTrackingBehavior)
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -547,37 +533,36 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
     public virtual async Task Lazy_load_many_to_one_reference_to_principal_null_FK(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior,
@@ -620,37 +605,36 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
     public virtual async Task Lazy_load_one_to_one_reference_to_principal_null_FK(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior,
@@ -694,37 +678,36 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
     public virtual async Task Lazy_load_collection_not_found(EntityState state, QueryTrackingBehavior queryTrackingBehavior, bool async)
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -768,37 +751,36 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
     public virtual async Task Lazy_load_many_to_one_reference_to_principal_not_found(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior,
@@ -841,37 +823,36 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
     public virtual async Task Lazy_load_one_to_one_reference_to_principal_not_found(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior,
@@ -915,37 +896,36 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
     public virtual async Task Lazy_load_one_to_one_reference_to_dependent_not_found(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior,
@@ -989,67 +969,66 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
     public virtual async Task Lazy_load_collection_already_loaded(
         EntityState state,
         CascadeTiming deleteOrphansTiming,
@@ -1097,31 +1076,30 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
     public virtual async Task Lazy_load_collection_already_partially_loaded(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior,
@@ -1184,37 +1162,36 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
     public virtual async Task Lazy_load_many_to_one_reference_to_principal_already_loaded(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior,
@@ -1267,37 +1244,36 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
     public virtual async Task Lazy_load_one_to_one_reference_to_principal_already_loaded(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior,
@@ -1350,67 +1326,66 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
     public virtual async Task Lazy_load_one_to_one_reference_to_dependent_already_loaded(
         EntityState state,
         CascadeTiming deleteOrphansTiming,
@@ -1462,22 +1437,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_one_to_one_PK_to_PK_reference_to_principal_already_loaded(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -1521,22 +1491,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_one_to_one_PK_to_PK_reference_to_dependent_already_loaded(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -1580,22 +1545,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_alternate_key(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -1665,22 +1625,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_one_to_one_reference_to_principal_alternate_key(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -1750,22 +1705,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_one_to_one_reference_to_dependent_alternate_key(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -1817,22 +1767,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_null_FK_alternate_key(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -1868,22 +1813,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_one_to_one_reference_to_principal_null_FK_alternate_key(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -1920,22 +1860,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_collection_shadow_fk(EntityState state, QueryTrackingBehavior queryTrackingBehavior)
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -1978,22 +1913,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_shadow_fk(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -2067,22 +1997,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_one_to_one_reference_to_principal_shadow_fk(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -2156,22 +2081,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_one_to_one_reference_to_dependent_shadow_fk(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -2223,22 +2143,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_null_FK_shadow_fk(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -2293,22 +2208,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_one_to_one_reference_to_principal_null_FK_shadow_fk(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -2364,22 +2274,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_collection_composite_key(EntityState state, QueryTrackingBehavior queryTrackingBehavior)
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -2422,22 +2327,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_composite_key(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -2507,22 +2407,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_one_to_one_reference_to_principal_composite_key(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -2592,22 +2487,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_one_to_one_reference_to_dependent_composite_key(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -2659,22 +2549,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_null_FK_composite_key(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -2710,22 +2595,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_one_to_one_reference_to_principal_null_FK_composite_key(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -2762,37 +2642,36 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
     public virtual async Task Lazy_load_collection_full_loader_constructor_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior,
@@ -2845,37 +2724,36 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
     public virtual async Task Lazy_load_many_to_one_reference_to_principal_full_loader_constructor_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior,
@@ -2952,37 +2830,36 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
     public virtual async Task Lazy_load_one_to_one_reference_to_principal_full_loader_constructor_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior,
@@ -3059,37 +2936,36 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
     public virtual async Task Lazy_load_one_to_one_reference_to_dependent_full_loader_constructor_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior,
@@ -3151,37 +3027,36 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
     public virtual async Task Lazy_load_many_to_one_reference_to_principal_null_FK_full_loader_constructor_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior,
@@ -3224,37 +3099,36 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
     public virtual async Task Lazy_load_one_to_one_reference_to_principal_null_FK_full_loader_constructor_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior,
@@ -3298,37 +3172,36 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
     public virtual async Task Lazy_load_collection_not_found_full_loader_constructor_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior,
@@ -3375,37 +3248,36 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
     public virtual async Task Lazy_load_many_to_one_reference_to_principal_not_found_full_loader_constructor_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior,
@@ -3448,37 +3320,36 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
     public virtual async Task Lazy_load_one_to_one_reference_to_principal_not_found_full_loader_constructor_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior,
@@ -3522,37 +3393,36 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
     public virtual async Task Lazy_load_one_to_one_reference_to_dependent_not_found_full_loader_constructor_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior,
@@ -3596,67 +3466,66 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
     public virtual async Task Lazy_load_collection_already_loaded_full_loader_constructor_injection(
         EntityState state,
         CascadeTiming deleteOrphansTiming,
@@ -3704,37 +3573,36 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
     public virtual async Task Lazy_load_many_to_one_reference_to_principal_already_loaded_full_loader_constructor_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior,
@@ -3787,37 +3655,36 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
     public virtual async Task Lazy_load_one_to_one_reference_to_principal_already_loaded_full_loader_constructor_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior,
@@ -3870,67 +3737,66 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, true)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, true)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, false)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, false)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
-    [InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, true),
+     InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, true),
+     InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, true),
+     InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll, false),
+     InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking, false),
+     InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false),
+     InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution, false)]
     public virtual async Task Lazy_load_one_to_one_reference_to_dependent_already_loaded_full_loader_constructor_injection(
         EntityState state,
         CascadeTiming deleteOrphansTiming,
@@ -3982,19 +3848,15 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_collection_already_partially_loaded_full_loader_constructor_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -4064,22 +3926,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_collection_delegate_loader_constructor_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -4124,22 +3981,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_delegate_loader_constructor_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -4208,22 +4060,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_one_to_one_reference_to_principal_delegate_loader_constructor_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -4292,22 +4139,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_one_to_one_reference_to_dependent_delegate_loader_constructor_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -4361,22 +4203,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_null_FK_delegate_loader_constructor_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -4410,22 +4247,17 @@ public abstract partial class LoadTestBase<TFixture>
         Assert.Null(child.Parent);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_one_to_one_reference_to_principal_null_FK_delegate_loader_constructor_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -4460,22 +4292,17 @@ public abstract partial class LoadTestBase<TFixture>
         Assert.Null(single.Parent);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_collection_not_found_delegate_loader_constructor_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -4507,22 +4334,17 @@ public abstract partial class LoadTestBase<TFixture>
         Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_not_found_delegate_loader_constructor_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -4556,22 +4378,17 @@ public abstract partial class LoadTestBase<TFixture>
         Assert.Null(child.Parent);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_one_to_one_reference_to_principal_not_found_delegate_loader_constructor_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -4606,22 +4423,17 @@ public abstract partial class LoadTestBase<TFixture>
         Assert.Null(single.Parent);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_one_to_one_reference_to_dependent_not_found_delegate_loader_constructor_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -4656,37 +4468,36 @@ public abstract partial class LoadTestBase<TFixture>
         Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_collection_already_loaded_delegate_loader_constructor_injection(
         EntityState state,
         CascadeTiming deleteOrphansTiming,
@@ -4746,22 +4557,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_already_loaded_delegate_loader_constructor_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -4815,22 +4621,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_one_to_one_reference_to_principal_already_loaded_delegate_loader_constructor_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -4882,37 +4683,36 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_one_to_one_reference_to_dependent_already_loaded_delegate_loader_constructor_injection(
         EntityState state,
         CascadeTiming deleteOrphansTiming,
@@ -4963,19 +4763,15 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_collection_already_partially_loaded_delegate_loader_constructor_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -5035,22 +4831,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_collection_delegate_loader_property_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -5102,22 +4893,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_delegate_loader_property_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -5193,22 +4979,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_one_to_one_reference_to_principal_delegate_loader_property_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -5284,22 +5065,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_one_to_one_reference_to_dependent_delegate_loader_property_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -5360,22 +5136,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_null_FK_delegate_loader_property_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -5417,22 +5188,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_one_to_one_reference_to_principal_null_FK_delegate_loader_property_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -5475,22 +5241,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_collection_not_found_delegate_loader_property_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -5536,22 +5297,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_not_found_delegate_loader_property_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -5593,22 +5349,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_one_to_one_reference_to_principal_not_found_delegate_loader_property_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -5651,22 +5402,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_one_to_one_reference_to_dependent_not_found_delegate_loader_property_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -5709,37 +5455,36 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_collection_already_loaded_delegate_loader_property_injection(
         EntityState state,
         CascadeTiming deleteOrphansTiming,
@@ -5808,22 +5553,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_already_loaded_delegate_loader_property_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -5875,22 +5615,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_one_to_one_reference_to_principal_already_loaded_delegate_loader_property_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -5942,37 +5677,36 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_one_to_one_reference_to_dependent_already_loaded_delegate_loader_property_injection(
         EntityState state,
         CascadeTiming deleteOrphansTiming,
@@ -6023,19 +5757,15 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_collection_already_partially_loaded_delegate_loader_property_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -6097,22 +5827,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_collection_delegate_loader_with_state_property_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -6164,22 +5889,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_delegate_loader_with_state_property_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -6255,22 +5975,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_one_to_one_reference_to_principal_delegate_loader_with_state_property_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -6346,22 +6061,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_one_to_one_reference_to_dependent_delegate_loader_with_state_property_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -6422,22 +6132,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_null_FK_delegate_loader_with_state_property_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -6479,22 +6184,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_one_to_one_reference_to_principal_null_FK_delegate_loader_with_state_property_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -6537,22 +6237,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_collection_not_found_delegate_loader_with_state_property_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -6598,22 +6293,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_not_found_delegate_loader_with_state_property_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -6655,22 +6345,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_one_to_one_reference_to_principal_not_found_delegate_loader_with_state_property_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -6713,22 +6398,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_one_to_one_reference_to_dependent_not_found_delegate_loader_with_state_property_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -6771,37 +6451,36 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_collection_already_loaded_delegate_loader_with_state_property_injection(
         EntityState state,
         CascadeTiming deleteOrphansTiming,
@@ -6848,22 +6527,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_already_loaded_delegate_loader_with_state_property_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -6915,22 +6589,17 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_one_to_one_reference_to_principal_already_loaded_delegate_loader_with_state_property_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)
@@ -6982,37 +6651,36 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, CascadeTiming.Immediate, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_one_to_one_reference_to_dependent_already_loaded_delegate_loader_with_state_property_injection(
         EntityState state,
         CascadeTiming deleteOrphansTiming,
@@ -7063,19 +6731,15 @@ public abstract partial class LoadTestBase<TFixture>
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
-    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
-    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll), InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking), InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking),
+     InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+     InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
     public virtual void Lazy_load_collection_already_partially_loaded_delegate_loader_with_state_property_injection(
         EntityState state,
         QueryTrackingBehavior queryTrackingBehavior)

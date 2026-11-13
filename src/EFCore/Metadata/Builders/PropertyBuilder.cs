@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -31,7 +30,7 @@ public class PropertyBuilder : IInfrastructure<IConventionPropertyBuilder>
     [EntityFrameworkInternal]
     public PropertyBuilder(IMutableProperty property)
     {
-        Check.NotNull(property, nameof(property));
+        Check.NotNull(property);
 
         Builder = ((Property)property).Builder;
     }
@@ -59,7 +58,7 @@ public class PropertyBuilder : IInfrastructure<IConventionPropertyBuilder>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual PropertyBuilder HasAnnotation(string annotation, object? value)
     {
-        Check.NotEmpty(annotation, nameof(annotation));
+        Check.NotEmpty(annotation);
 
         Builder.HasAnnotation(annotation, value, ConfigurationSource.Explicit);
 
@@ -253,7 +252,7 @@ public class PropertyBuilder : IInfrastructure<IConventionPropertyBuilder>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual PropertyBuilder HasValueGenerator(Func<IProperty, ITypeBase, ValueGenerator> factory)
     {
-        Check.NotNull(factory, nameof(factory));
+        Check.NotNull(factory);
 
         Builder.HasValueGenerator(factory, ConfigurationSource.Explicit);
 
@@ -427,7 +426,7 @@ public class PropertyBuilder : IInfrastructure<IConventionPropertyBuilder>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual PropertyBuilder HasField(string fieldName)
     {
-        Check.NotEmpty(fieldName, nameof(fieldName));
+        Check.NotEmpty(fieldName);
 
         Builder.HasField(fieldName, ConfigurationSource.Explicit);
 
@@ -555,7 +554,7 @@ public class PropertyBuilder : IInfrastructure<IConventionPropertyBuilder>
         ValueComparer? valueComparer,
         ValueComparer? providerComparer)
     {
-        Check.NotNull(conversionType, nameof(conversionType));
+        Check.NotNull(conversionType);
 
         if (typeof(ValueConverter).IsAssignableFrom(conversionType))
         {
@@ -663,7 +662,7 @@ public class PropertyBuilder : IInfrastructure<IConventionPropertyBuilder>
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
         Type? providerComparerType)
     {
-        Check.NotNull(conversionType, nameof(conversionType));
+        Check.NotNull(conversionType);
 
         if (typeof(ValueConverter).IsAssignableFrom(conversionType))
         {

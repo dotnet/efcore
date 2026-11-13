@@ -53,7 +53,6 @@ public class RelationalQueryCompilationContextFactory : IQueryCompilationContext
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
-    public virtual QueryCompilationContext CreatePrecompiled(bool async, IReadOnlySet<string> nonNullableReferenceTypeParameters)
-        => new RelationalQueryCompilationContext(
-            Dependencies, RelationalDependencies, async, precompiling: true, nonNullableReferenceTypeParameters);
+    public virtual QueryCompilationContext CreatePrecompiled(bool async)
+        => new RelationalQueryCompilationContext(Dependencies, RelationalDependencies, async, precompiling: true);
 }

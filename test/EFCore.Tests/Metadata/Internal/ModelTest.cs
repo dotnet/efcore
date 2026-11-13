@@ -149,9 +149,8 @@ public class ModelTest
 
         Assert.Equal(
             CoreStrings.AmbiguousSharedTypeEntityTypeName(typeof(Customer).DisplayName()),
-            Assert.Throws<InvalidOperationException>(
-                ()
-                    => model.AddEntityType(typeof(Customer).DisplayName(), typeof(Customer))).Message);
+            Assert.Throws<InvalidOperationException>(()
+                => model.AddEntityType(typeof(Customer).DisplayName(), typeof(Customer))).Message);
     }
 
     [ConditionalFact]

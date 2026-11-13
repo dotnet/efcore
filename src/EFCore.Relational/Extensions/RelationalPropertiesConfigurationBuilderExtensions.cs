@@ -24,7 +24,7 @@ public static class RelationalPropertiesConfigurationBuilderExtensions
         this PropertiesConfigurationBuilder propertyBuilder,
         string typeName)
     {
-        Check.NotEmpty(typeName, nameof(typeName));
+        Check.NotEmpty(typeName);
 
         propertyBuilder.HaveAnnotation(RelationalAnnotationNames.ColumnType, typeName);
 
@@ -92,7 +92,7 @@ public static class RelationalPropertiesConfigurationBuilderExtensions
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public static PropertiesConfigurationBuilder UseCollation(this PropertiesConfigurationBuilder propertyBuilder, string collation)
     {
-        Check.NotEmpty(collation, nameof(collation));
+        Check.NotEmpty(collation);
 
         propertyBuilder.HaveAnnotation(RelationalAnnotationNames.Collation, collation);
 

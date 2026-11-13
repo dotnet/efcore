@@ -9,7 +9,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 public class PropertyAccessorsFactoryTest
 {
     [ConditionalFact]
-    [Obsolete]
     public void Can_use_PropertyAccessorsFactory_on_indexed_property()
     {
         var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
@@ -26,17 +25,13 @@ public class PropertyAccessorsFactoryTest
         var entry = new InternalEntityEntry(stateManager, (IEntityType)entityTypeBuilder.Metadata, entity);
 
         var propertyAccessors = PropertyAccessorsFactory.Instance.Create((IProperty)propertyA);
-        Assert.Equal("ValueA", ((Func<InternalEntityEntry, string>)propertyAccessors.CurrentValueGetter)(entry));
-        Assert.Equal("ValueA", ((Func<InternalEntityEntry, string>)propertyAccessors.OriginalValueGetter)(entry));
-        Assert.Equal("ValueA", ((Func<InternalEntityEntry, string>)propertyAccessors.PreStoreGeneratedCurrentValueGetter)(entry));
-        Assert.Equal("ValueA", ((Func<InternalEntityEntry, string>)propertyAccessors.RelationshipSnapshotGetter)(entry));
-
-        var valueBuffer = new ValueBuffer([1, "ValueA"]);
-        Assert.Equal("ValueA", propertyAccessors.ValueBufferGetter(valueBuffer));
+        Assert.Equal("ValueA", ((Func<IInternalEntry, string>)propertyAccessors.CurrentValueGetter)(entry));
+        Assert.Equal("ValueA", ((Func<IInternalEntry, string>)propertyAccessors.OriginalValueGetter)(entry));
+        Assert.Equal("ValueA", ((Func<IInternalEntry, string>)propertyAccessors.PreStoreGeneratedCurrentValueGetter)(entry));
+        Assert.Equal("ValueA", ((Func<IInternalEntry, string>)propertyAccessors.RelationshipSnapshotGetter)(entry));
     }
 
     [ConditionalFact]
-    [Obsolete]
     public void Can_use_PropertyAccessorsFactory_on_non_indexed_property()
     {
         var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
@@ -53,13 +48,10 @@ public class PropertyAccessorsFactoryTest
         var entry = new InternalEntityEntry(stateManager, (IEntityType)entityTypeBuilder.Metadata, entity);
 
         var propertyAccessors = PropertyAccessorsFactory.Instance.Create((IProperty)propA);
-        Assert.Equal("ValueA", ((Func<InternalEntityEntry, string>)propertyAccessors.CurrentValueGetter)(entry));
-        Assert.Equal("ValueA", ((Func<InternalEntityEntry, string>)propertyAccessors.OriginalValueGetter)(entry));
-        Assert.Equal("ValueA", ((Func<InternalEntityEntry, string>)propertyAccessors.PreStoreGeneratedCurrentValueGetter)(entry));
-        Assert.Equal("ValueA", ((Func<InternalEntityEntry, string>)propertyAccessors.RelationshipSnapshotGetter)(entry));
-
-        var valueBuffer = new ValueBuffer([1, "ValueA"]);
-        Assert.Equal("ValueA", propertyAccessors.ValueBufferGetter(valueBuffer));
+        Assert.Equal("ValueA", ((Func<IInternalEntry, string>)propertyAccessors.CurrentValueGetter)(entry));
+        Assert.Equal("ValueA", ((Func<IInternalEntry, string>)propertyAccessors.OriginalValueGetter)(entry));
+        Assert.Equal("ValueA", ((Func<IInternalEntry, string>)propertyAccessors.PreStoreGeneratedCurrentValueGetter)(entry));
+        Assert.Equal("ValueA", ((Func<IInternalEntry, string>)propertyAccessors.RelationshipSnapshotGetter)(entry));
     }
 
     private class IndexedClass

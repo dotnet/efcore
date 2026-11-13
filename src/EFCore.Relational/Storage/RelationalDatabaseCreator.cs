@@ -116,7 +116,8 @@ public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator
     ///     to incrementally update the schema. It is assumed that none of the tables exist in the database.
     /// </summary>
     public virtual void CreateTables()
-        => Dependencies.MigrationCommandExecutor.ExecuteNonQuery(GetCreateTablesCommands(), Dependencies.Connection, new MigrationExecutionState(), commitTransaction: true);
+        => Dependencies.MigrationCommandExecutor.ExecuteNonQuery(
+            GetCreateTablesCommands(), Dependencies.Connection, new MigrationExecutionState(), commitTransaction: true);
 
     /// <summary>
     ///     Asynchronously creates all tables for the current model in the database. No attempt is made
@@ -129,7 +130,8 @@ public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
     public virtual Task CreateTablesAsync(CancellationToken cancellationToken = default)
         => Dependencies.MigrationCommandExecutor.ExecuteNonQueryAsync(
-            GetCreateTablesCommands(), Dependencies.Connection, new MigrationExecutionState(), commitTransaction: true, cancellationToken: cancellationToken);
+            GetCreateTablesCommands(), Dependencies.Connection, new MigrationExecutionState(), commitTransaction: true,
+            cancellationToken: cancellationToken);
 
     /// <summary>
     ///     Gets the commands that will create all tables from the model.
@@ -373,7 +375,8 @@ public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         Any exceptions thrown when attempting to connect are caught and not propagated to the application.
+    ///         Any exceptions thrown when attempting to connect are caught and not propagated to the application,
+    ///         except for the ones indicating cancellation.
     ///     </para>
     ///     <para>
     ///         The configured connection string is used to create the connection in the normal way, so all
@@ -386,12 +389,15 @@ public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator
     /// </remarks>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns><see langword="true" /> if the database is available; <see langword="false" /> otherwise.</returns>
-    /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
     public virtual async Task<bool> CanConnectAsync(CancellationToken cancellationToken = default)
     {
         try
         {
             return await ExistsAsync(cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception exception) when (Dependencies.ExceptionDetector.IsCancellation(exception, cancellationToken))
+        {
+            throw;
         }
         catch
         {

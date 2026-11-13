@@ -40,8 +40,8 @@ public class ShadowValuesFactoryFactory : SnapshotFactoryFactory<IDictionary<str
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override int GetPropertyCount(IRuntimeEntityType entityType)
-        => entityType.ShadowPropertyCount;
+    protected override int GetPropertyCount(IRuntimeTypeBase structuralType)
+        => structuralType.ShadowPropertyCount;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -105,7 +105,7 @@ public class ShadowValuesFactoryFactory : SnapshotFactoryFactory<IDictionary<str
                 Expression.MakeIndex(
                     parameter,
                     DictionaryIndexer,
-                    new[] { Expression.Constant(property.Name) }),
+                    [Expression.Constant(property.Name)]),
                 property.ClrType),
             Expression.Constant(property.Sentinel, property.ClrType));
     }

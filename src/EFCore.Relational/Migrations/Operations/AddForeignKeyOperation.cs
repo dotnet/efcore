@@ -66,7 +66,7 @@ public class AddForeignKeyOperation : MigrationOperation, ITableMigrationOperati
     /// <returns>The operation.</returns>
     public static AddForeignKeyOperation CreateFrom(IForeignKeyConstraint foreignKey)
     {
-        Check.NotNull(foreignKey, nameof(foreignKey));
+        Check.NotNull(foreignKey);
 
         var operation = new AddForeignKeyOperation
         {

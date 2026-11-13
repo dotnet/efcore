@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -389,7 +388,7 @@ public class InternalModelBuilder : AnnotatableBuilder<Model, InternalModelBuild
     public virtual InternalModelBuilder? RemoveImplicitJoinEntity(
         EntityType joinEntityType,
         ConfigurationSource configurationSource = ConfigurationSource.Convention)
-        => !Check.NotNull(joinEntityType, nameof(joinEntityType)).IsInModel
+        => !Check.NotNull(joinEntityType).IsInModel
             ? this
             : !joinEntityType.IsImplicitlyCreatedJoinEntityType
                 ? null
@@ -429,9 +428,8 @@ public class InternalModelBuilder : AnnotatableBuilder<Model, InternalModelBuild
                 continue;
             }
 
-            var ownershipCandidates = entityType.GetForeignKeys().Where(
-                fk => fk.PrincipalToDependent != null
-                    && !fk.PrincipalEntityType.IsInOwnershipPath(type)).ToList();
+            var ownershipCandidates = entityType.GetForeignKeys().Where(fk => fk.PrincipalToDependent != null
+                && !fk.PrincipalEntityType.IsInOwnershipPath(type)).ToList();
             if (ownershipCandidates.Count >= 1)
             {
                 if (ownershipCandidates[0].Builder.IsOwnership(true, configurationSource) == null)
@@ -470,7 +468,7 @@ public class InternalModelBuilder : AnnotatableBuilder<Model, InternalModelBuild
                 Metadata.Builder.HasNoEntityType(existingEntityType, ConfigurationSource.Convention);
             }
 
-            var properties = Metadata.FindProperties(type);
+            var properties = Metadata.FindProperties(type.UnwrapNullableType());
             if (properties != null)
             {
                 foreach (var property in properties)

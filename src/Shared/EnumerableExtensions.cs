@@ -104,9 +104,8 @@ internal static class EnumerableExtensions
         this IEnumerable<T> source,
         T item,
         IEqualityComparer<T> comparer)
-        => source.Select(
-                (x, index) =>
-                    comparer.Equals(item, x) ? index : -1)
+        => source.Select((x, index) =>
+                comparer.Equals(item, x) ? index : -1)
             .FirstOr(x => x != -1, -1);
 
     public static T FirstOr<T>(this IEnumerable<T> source, T alternate)
@@ -125,21 +124,15 @@ internal static class EnumerableExtensions
         return false;
     }
 
-    public static async Task<List<TSource>> ToListAsync<TSource>(
-        this IAsyncEnumerable<TSource> source,
-        CancellationToken cancellationToken = default)
-    {
-        var list = new List<TSource>();
-        await foreach (var element in source.WithCancellation(cancellationToken).ConfigureAwait(false))
-        {
-            list.Add(element);
-        }
-
-        return list;
-    }
-
     public static List<TSource> ToList<TSource>(this IEnumerable source)
-        => source.OfType<TSource>().ToList();
+        => [.. source.OfType<TSource>()];
+
+    public static IList<TSource> AsList<TSource>(this IEnumerable<TSource> source)
+        => source switch
+        {
+            IList<TSource> list => list,
+            _ => [.. source]
+        };
 
     public static string Format(this IEnumerable<string> strings)
         => "{"

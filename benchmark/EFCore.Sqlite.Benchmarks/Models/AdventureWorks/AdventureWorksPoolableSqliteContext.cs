@@ -3,7 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks;
 
-public class AdventureWorksPoolableSqliteContext(DbContextOptions<AdventureWorksPoolableSqliteContext> options) : AdventureWorksContextBase(options)
+public class AdventureWorksPoolableSqliteContext(DbContextOptions<AdventureWorksPoolableSqliteContext> options)
+    : AdventureWorksContextBase(options)
 {
     protected override void ConfigureProvider(DbContextOptionsBuilder optionsBuilder)
     {

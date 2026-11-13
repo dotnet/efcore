@@ -38,7 +38,8 @@ public class SelectExpressionProjectionApplyingExpressionVisitor : ExpressionVis
                     selectExpression.ApplyProjection(
                         shapedQueryExpression.ShaperExpression, shapedQueryExpression.ResultCardinality, _querySplittingBehavior)),
 
-            NonQueryExpression nonQueryExpression => nonQueryExpression,
+            UpdateExpression update => update,
+            DeleteExpression delete => delete,
 
             _ => base.VisitExtension(extensionExpression),
         };

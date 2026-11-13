@@ -24,7 +24,7 @@ public interface IClrCollectionAccessor
     /// </summary>
     /// <param name="entity">The entity instance.</param>
     /// <param name="value">The value to add.</param>
-    /// <param name="forMaterialization">If true, then the value is being added as part of query materialization.</param>
+    /// <param name="forMaterialization">If <see langword="true" />, then the value is being added as part of query materialization.</param>
     /// <returns><see langword="true" /> if a value was added; <see langword="false" /> if it was already in the collection.</returns>
     bool Add(object entity, object value, bool forMaterialization);
 

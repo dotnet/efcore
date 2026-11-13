@@ -21,20 +21,19 @@ public class NonLoadingNavigationsInMemoryTest(NonLoadingNavigationsInMemoryTest
         {
             base.OnModelCreating(modelBuilder, context);
 
-            modelBuilder.Entity<Parent>(
-                b =>
-                {
-                    b.Navigation(e => e.Children).EnableLazyLoading(false);
-                    b.Navigation(e => e.ChildrenAk).EnableLazyLoading(false);
-                    b.Navigation(e => e.ChildrenCompositeKey).EnableLazyLoading(false);
-                    b.Navigation(e => e.ChildrenShadowFk).EnableLazyLoading(false);
-                    b.Navigation(e => e.Single).EnableLazyLoading(false);
-                    b.Navigation(e => e.SingleAk).EnableLazyLoading(false);
-                    b.Navigation(e => e.SingleCompositeKey).EnableLazyLoading(false);
-                    b.Navigation(e => e.SingleShadowFk).EnableLazyLoading(false);
-                    b.Navigation(e => e.SinglePkToPk).EnableLazyLoading(false);
-                    b.Navigation(e => e.RequiredSingle).EnableLazyLoading(false);
-                });
+            modelBuilder.Entity<Parent>(b =>
+            {
+                b.Navigation(e => e.Children).EnableLazyLoading(false);
+                b.Navigation(e => e.ChildrenAk).EnableLazyLoading(false);
+                b.Navigation(e => e.ChildrenCompositeKey).EnableLazyLoading(false);
+                b.Navigation(e => e.ChildrenShadowFk).EnableLazyLoading(false);
+                b.Navigation(e => e.Single).EnableLazyLoading(false);
+                b.Navigation(e => e.SingleAk).EnableLazyLoading(false);
+                b.Navigation(e => e.SingleCompositeKey).EnableLazyLoading(false);
+                b.Navigation(e => e.SingleShadowFk).EnableLazyLoading(false);
+                b.Navigation(e => e.SinglePkToPk).EnableLazyLoading(false);
+                b.Navigation(e => e.RequiredSingle).EnableLazyLoading(false);
+            });
 
             modelBuilder.Entity<Child>().Navigation(e => e.Parent).EnableLazyLoading(false);
             modelBuilder.Entity<ChildAk>().Navigation(e => e.Parent).EnableLazyLoading(false);
@@ -47,42 +46,38 @@ public class NonLoadingNavigationsInMemoryTest(NonLoadingNavigationsInMemoryTest
             modelBuilder.Entity<SinglePkToPk>().Navigation(e => e.Parent).EnableLazyLoading(false);
             modelBuilder.Entity<RequiredSingle>().Navigation(e => e.Parent).EnableLazyLoading(false);
 
-            modelBuilder.Entity<ParentFullLoaderByConstructor>(
-                b =>
-                {
-                    b.Navigation(e => e.Children).EnableLazyLoading(false);
-                    b.Navigation(e => e.Single).EnableLazyLoading(false);
-                });
+            modelBuilder.Entity<ParentFullLoaderByConstructor>(b =>
+            {
+                b.Navigation(e => e.Children).EnableLazyLoading(false);
+                b.Navigation(e => e.Single).EnableLazyLoading(false);
+            });
 
             modelBuilder.Entity<ChildFullLoaderByConstructor>().Navigation(e => e.Parent).EnableLazyLoading(false);
             modelBuilder.Entity<SingleFullLoaderByConstructor>().Navigation(e => e.Parent).EnableLazyLoading(false);
 
-            modelBuilder.Entity<ParentDelegateLoaderByConstructor>(
-                b =>
-                {
-                    b.Navigation(e => e.Children).EnableLazyLoading(false);
-                    b.Navigation(e => e.Single).EnableLazyLoading(false);
-                });
+            modelBuilder.Entity<ParentDelegateLoaderByConstructor>(b =>
+            {
+                b.Navigation(e => e.Children).EnableLazyLoading(false);
+                b.Navigation(e => e.Single).EnableLazyLoading(false);
+            });
 
             modelBuilder.Entity<ChildDelegateLoaderByConstructor>().Navigation(e => e.Parent).EnableLazyLoading(false);
             modelBuilder.Entity<SingleDelegateLoaderByConstructor>().Navigation(e => e.Parent).EnableLazyLoading(false);
 
-            modelBuilder.Entity<ParentDelegateLoaderByProperty>(
-                b =>
-                {
-                    b.Navigation(e => e.Children).EnableLazyLoading(false);
-                    b.Navigation(e => e.Single).EnableLazyLoading(false);
-                });
+            modelBuilder.Entity<ParentDelegateLoaderByProperty>(b =>
+            {
+                b.Navigation(e => e.Children).EnableLazyLoading(false);
+                b.Navigation(e => e.Single).EnableLazyLoading(false);
+            });
 
             modelBuilder.Entity<ChildDelegateLoaderByProperty>().Navigation(e => e.Parent).EnableLazyLoading(false);
             modelBuilder.Entity<SingleDelegateLoaderByProperty>().Navigation(e => e.Parent).EnableLazyLoading(false);
 
-            modelBuilder.Entity<ParentDelegateLoaderWithStateByProperty>(
-                b =>
-                {
-                    b.Navigation(e => e.Children).EnableLazyLoading(false);
-                    b.Navigation(e => e.Single).EnableLazyLoading(false);
-                });
+            modelBuilder.Entity<ParentDelegateLoaderWithStateByProperty>(b =>
+            {
+                b.Navigation(e => e.Children).EnableLazyLoading(false);
+                b.Navigation(e => e.Single).EnableLazyLoading(false);
+            });
 
             modelBuilder.Entity<ChildDelegateLoaderWithStateByProperty>().Navigation(e => e.Parent).EnableLazyLoading(false);
             modelBuilder.Entity<SingleDelegateLoaderWithStateByProperty>().Navigation(e => e.Parent).EnableLazyLoading(false);

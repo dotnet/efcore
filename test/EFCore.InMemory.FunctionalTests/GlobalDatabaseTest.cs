@@ -45,8 +45,7 @@ public class GlobalDatabaseTest
         }
 
         var serviceProvider = new ServiceCollection()
-            .AddDbContext<BooFooContext>(
-                b => b.UseInMemoryDatabase(nameof(BooFooContext)))
+            .AddDbContext<BooFooContext>(b => b.UseInMemoryDatabase(nameof(BooFooContext)))
             .BuildServiceProvider(validateScopes: true);
 
         using var scope = serviceProvider.CreateScope();
@@ -130,10 +129,9 @@ public class GlobalDatabaseTest
         }
 
         var serviceProvider = new ServiceCollection()
-            .AddDbContext<BooFooContext>(
-                b =>
-                    b.UseInMemoryDatabase(nameof(BooFooContext), _databaseRoot)
-                        .EnableServiceProviderCaching(false))
+            .AddDbContext<BooFooContext>(b =>
+                b.UseInMemoryDatabase(nameof(BooFooContext), _databaseRoot)
+                    .EnableServiceProviderCaching(false))
             .BuildServiceProvider(validateScopes: true);
 
         using var scope = serviceProvider.CreateScope();
@@ -160,39 +158,6 @@ public class GlobalDatabaseTest
                 .UseInMemoryDatabase(
                     nameof(ChangeNullabilityChecksCacheContext),
                     b => b.EnableNullChecks(_enableNullChecks));
-    }
-
-    [ConditionalFact]
-    public void Throws_changing_global_store_in_OnConfiguring_when_UseInternalServiceProvider()
-    {
-        using (var context = new ChangeSdlCacheContext(false))
-        {
-            Assert.NotNull(context.Model);
-        }
-
-        using (var context = new ChangeSdlCacheContext(true))
-        {
-            Assert.Equal(
-                CoreStrings.SingletonOptionChanged(
-                    nameof(InMemoryDbContextOptionsExtensions.UseInMemoryDatabase),
-                    nameof(DbContextOptionsBuilder.UseInternalServiceProvider)),
-                Assert.Throws<InvalidOperationException>(() => context.Model).Message);
-        }
-    }
-
-    private class ChangeSdlCacheContext(bool on) : DbContext
-    {
-        private static readonly IServiceProvider _serviceProvider
-            = new ServiceCollection()
-                .AddEntityFrameworkInMemoryDatabase()
-                .BuildServiceProvider(validateScopes: true);
-
-        private readonly bool _on = on;
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder
-                .UseInternalServiceProvider(_serviceProvider)
-                .UseInMemoryDatabase(nameof(ChangeSdlCacheContext), _on ? _databaseRoot : null);
     }
 
     [ConditionalFact]
@@ -225,26 +190,24 @@ public class GlobalDatabaseTest
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
                 .UseInternalServiceProvider(_serviceProvider)
-                .UseInMemoryDatabase(nameof(ChangeSdlCacheContext), b => b.EnableNullChecks(_on));
+                .UseInMemoryDatabase(nameof(ChangeNullabilityChecksCacheContext), b => b.EnableNullChecks(_on));
     }
 
     private class BooFooContext(DbContextOptions options) : DbContext(options)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Foo>(
-                b =>
-                {
-                    b.OwnsOne(e => e.Goo1);
-                    b.OwnsOne(e => e.Goo2);
-                });
+            modelBuilder.Entity<Foo>(b =>
+            {
+                b.OwnsOne(e => e.Goo1);
+                b.OwnsOne(e => e.Goo2);
+            });
 
-            modelBuilder.Entity<Boo>(
-                b =>
-                {
-                    b.OwnsOne(e => e.Goo1);
-                    b.OwnsOne(e => e.Goo2);
-                });
+            modelBuilder.Entity<Boo>(b =>
+            {
+                b.OwnsOne(e => e.Goo1);
+                b.OwnsOne(e => e.Goo2);
+            });
         }
 
         public DbSet<Foo> Foos { get; set; }

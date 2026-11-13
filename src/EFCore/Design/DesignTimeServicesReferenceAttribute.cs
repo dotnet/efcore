@@ -43,7 +43,7 @@ public sealed class DesignTimeServicesReferenceAttribute : Attribute
     /// </param>
     public DesignTimeServicesReferenceAttribute(string typeName, string? forProvider)
     {
-        Check.NotEmpty(typeName, nameof(typeName));
+        Check.NotEmpty(typeName);
 
         TypeName = typeName;
         ForProvider = forProvider;

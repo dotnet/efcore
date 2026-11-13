@@ -16,17 +16,16 @@ internal abstract class CommandBase
 
         command.HandleResponseFiles = true;
 
-        command.OnExecute(
-            args =>
-            {
-                Reporter.IsVerbose = verbose.HasValue();
-                Reporter.NoColor = noColor.HasValue();
-                Reporter.PrefixOutput = prefixOutput.HasValue();
+        command.OnExecute(args =>
+        {
+            Reporter.IsVerbose = verbose.HasValue();
+            Reporter.NoColor = noColor.HasValue();
+            Reporter.PrefixOutput = prefixOutput.HasValue();
 
-                Validate();
+            Validate();
 
-                return Execute(args);
-            });
+            return Execute(args);
+        });
     }
 
     protected virtual void Validate()

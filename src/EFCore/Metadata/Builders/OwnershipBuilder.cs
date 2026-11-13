@@ -54,7 +54,7 @@ public class OwnershipBuilder : RelationshipBuilderBase
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual OwnershipBuilder HasAnnotation(string annotation, object? value)
     {
-        Check.NotEmpty(annotation, nameof(annotation));
+        Check.NotEmpty(annotation);
 
         Builder.HasAnnotation(annotation, value, ConfigurationSource.Explicit);
 
@@ -87,7 +87,7 @@ public class OwnershipBuilder : RelationshipBuilderBase
         params string[] foreignKeyPropertyNames)
     {
         Builder = Builder.HasForeignKey(
-            Check.NotNull(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames)),
+            Check.NotNull(foreignKeyPropertyNames),
             (EntityType)DependentEntityType,
             ConfigurationSource.Explicit)!;
         return new OwnershipBuilder(
@@ -108,7 +108,7 @@ public class OwnershipBuilder : RelationshipBuilderBase
         params string[] keyPropertyNames)
     {
         Builder = Builder.HasPrincipalKey(
-            Check.NotNull(keyPropertyNames, nameof(keyPropertyNames)),
+            Check.NotNull(keyPropertyNames),
             ConfigurationSource.Explicit)!;
         return new OwnershipBuilder(
             Builder,

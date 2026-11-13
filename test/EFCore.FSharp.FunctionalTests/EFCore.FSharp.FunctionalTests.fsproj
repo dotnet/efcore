@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
+    <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
+    <AssemblyName>Microsoft.EntityFrameworkCore.FSharp.FunctionalTests</AssemblyName>
+    <SkipTests>True</SkipTests>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EFCore.SqlServer.FunctionalTests\EFCore.SqlServer.FunctionalTests.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Disabled, see https://github.com/dotnet/efcore/issues/34675 -->
+    <None Include="NorthwindFSharpQuerySqlServerFixture.fs" />
+    <None Include="NorthwindQueryFSharpTest.fs" />
+  </ItemGroup>
+
+</Project>

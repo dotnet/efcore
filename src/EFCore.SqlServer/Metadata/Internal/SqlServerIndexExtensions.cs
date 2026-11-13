@@ -137,11 +137,10 @@ public static class SqlServerIndexExtensions
         return true;
 
         static bool SameColumnNames(IReadOnlyIndex index, IReadOnlyIndex duplicateIndex, StoreObjectIdentifier storeObject)
-            => index.GetIncludeProperties()!.Select(
-                    p => index.DeclaringEntityType.FindProperty(p)!.GetColumnName(storeObject))
+            => index.GetIncludeProperties()!.Select(p => index.DeclaringEntityType.FindProperty(p)!.GetColumnName(storeObject))
                 .SequenceEqual(
-                    duplicateIndex.GetIncludeProperties()!.Select(
-                        p => duplicateIndex.DeclaringEntityType.FindProperty(p)!.GetColumnName(storeObject)));
+                    duplicateIndex.GetIncludeProperties()!.Select(p
+                        => duplicateIndex.DeclaringEntityType.FindProperty(p)!.GetColumnName(storeObject)));
     }
 
     private static string FormatInclude(IReadOnlyIndex index, StoreObjectIdentifier storeObject)
@@ -150,8 +149,7 @@ public static class SqlServerIndexExtensions
             : "{'"
             + string.Join(
                 "', '",
-                index.GetIncludeProperties()!.Select(
-                    p => index.DeclaringEntityType.FindProperty(p)
-                        ?.GetColumnName(storeObject)))
+                index.GetIncludeProperties()!.Select(p => index.DeclaringEntityType.FindProperty(p)
+                    ?.GetColumnName(storeObject)))
             + "'}";
 }

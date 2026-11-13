@@ -9,9 +9,8 @@ public class ExeTest
     public void ToArguments_works()
     {
         var result = ToArguments(
-            new[]
-            {
-                "",
+        [
+            "",
                 "Good",
                 "Good\\",
                 "Needs quotes",
@@ -20,7 +19,7 @@ public class ExeTest
                 "Needs \"escaping\"",
                 "Needs \\\"escaping\"",
                 "Needs escaping\\\\too"
-            });
+        ]);
 
         Assert.Equal(
             "\"\" "

@@ -128,10 +128,9 @@ public static class RelationalExpressionQuotingUtilities
     public static Expression QuoteTags(ISet<string> tags)
         => ListInit(
             New(typeof(HashSet<string>)),
-            tags.Select(
-                t => ElementInit(
-                    _hashSetAddMethod ??= typeof(HashSet<string>).GetMethod(nameof(HashSet<string>.Add))!,
-                    Constant(t))));
+            tags.Select(t => ElementInit(
+                _hashSetAddMethod ??= typeof(HashSet<string>).GetMethod(nameof(HashSet<string>.Add))!,
+                Constant(t))));
 
     /// <summary>
     ///     Quotes the annotations on a <see cref="TableExpressionBase" />.
@@ -141,12 +140,11 @@ public static class RelationalExpressionQuotingUtilities
             ? Constant(null, typeof(IReadOnlyDictionary<string, IAnnotation>))
             : ListInit(
                 New(_dictionaryConstructor ??= typeof(IDictionary<string, IAnnotation>).GetConstructor([])!),
-                annotations.Select(
-                    a => ElementInit(
-                        _dictionaryAddMethod ??= typeof(Dictionary<string, IAnnotation>).GetMethod("Add")!,
+                annotations.Select(a => ElementInit(
+                    _dictionaryAddMethod ??= typeof(Dictionary<string, IAnnotation>).GetMethod("Add")!,
+                    Constant(a.Key),
+                    New(
+                        _annotationConstructor ??= typeof(Annotation).GetConstructor([typeof(string), typeof(object)])!,
                         Constant(a.Key),
-                        New(
-                            _annotationConstructor ??= typeof(Annotation).GetConstructor([typeof(string), typeof(object)])!,
-                            Constant(a.Key),
-                            Constant(a.Value)))));
+                        Constant(a.Value)))));
 }

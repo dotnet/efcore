@@ -30,7 +30,7 @@ public class PropertyEntry<TEntity, TProperty> : PropertyEntry
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public PropertyEntry(InternalEntityEntry internalEntry, IProperty property)
+    public PropertyEntry(IInternalEntry internalEntry, IProperty property)
         : base(internalEntry, property)
     {
     }
@@ -44,7 +44,7 @@ public class PropertyEntry<TEntity, TProperty> : PropertyEntry
     ///     examples.
     /// </remarks>
     public new virtual EntityEntry<TEntity> EntityEntry
-        => new(InternalEntry);
+        => new(InternalEntry.EntityEntry);
 
     /// <summary>
     ///     Gets or sets the value currently assigned to this property. If the current value is set using this property,

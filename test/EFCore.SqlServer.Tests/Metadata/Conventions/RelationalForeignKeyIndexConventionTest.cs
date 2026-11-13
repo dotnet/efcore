@@ -19,13 +19,13 @@ public class RelationalForeignKeyIndexConventionTest
 
         var relationshipBuilder = dependentEntityBuilder.HasRelationship(
             principalEntityBuilder.Metadata,
-            new[] { dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata },
+            [dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata],
             ConfigurationSource.DataAnnotation);
         Assert.NotNull(relationshipBuilder);
 
         var relationshipBuilder2 = dependentEntityBuilder.HasRelationship(
             derivedPrincipalEntityBuilder.Metadata,
-            new[] { dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata },
+            [dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata],
             ConfigurationSource.DataAnnotation);
         Assert.NotNull(relationshipBuilder2);
         Assert.NotSame(relationshipBuilder, relationshipBuilder2);
@@ -53,10 +53,10 @@ public class RelationalForeignKeyIndexConventionTest
 
         var relationshipBuilder = dependentEntityBuilder.HasRelationship(
             principalEntityBuilder.Metadata,
-            new[] { dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata },
+            [dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata],
             ConfigurationSource.Convention);
         Assert.NotNull(relationshipBuilder);
-        dependentEntityBuilder.HasIndex(new[] { Order.CustomerIdProperty }, ConfigurationSource.Explicit);
+        dependentEntityBuilder.HasIndex([Order.CustomerIdProperty], ConfigurationSource.Explicit);
 
         Assert.NotNull(dependentEntityBuilder.HasNoRelationship(relationshipBuilder.Metadata, ConfigurationSource.DataAnnotation));
 

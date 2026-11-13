@@ -158,14 +158,13 @@ public class TableSharingConcurrencyTokenConventionTest
         var modelBuilder = GetModelBuilder();
         modelBuilder.Entity<Person>().HasKey(a => a.Id);
         modelBuilder.Entity<Person>().ToTable(nameof(Animal));
-        modelBuilder.Entity<Animal>(
-            ab =>
-            {
-                ab.HasKey(a => a.Id);
-                ab.HasOne(a => a.FavoritePerson).WithOne().HasForeignKey<Person>(p => p.Id);
-                ab.ComplexProperty(a => a.Dwelling)
-                    .Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
-            });
+        modelBuilder.Entity<Animal>(ab =>
+        {
+            ab.HasKey(a => a.Id);
+            ab.HasOne(a => a.FavoritePerson).WithOne().HasForeignKey<Person>(p => p.Id);
+            ab.ComplexProperty(a => a.Dwelling)
+                .Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
+        });
 
         var model = modelBuilder.Model;
         model.FinalizeModel();
@@ -188,20 +187,68 @@ public class TableSharingConcurrencyTokenConventionTest
         modelBuilder.Entity<Person>().HasKey(a => a.Id);
         modelBuilder.Entity<Person>().ToTable(nameof(Animal));
         modelBuilder.Entity<Person>().Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
-        modelBuilder.Entity<Animal>(
-            ab =>
-            {
-                ab.HasKey(a => a.Id);
-                ab.HasOne(a => a.FavoritePerson).WithOne().HasForeignKey<Person>(p => p.Id);
-                ab.ComplexProperty(a => a.Dwelling)
-                    .Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
-            });
+        modelBuilder.Entity<Animal>(ab =>
+        {
+            ab.HasKey(a => a.Id);
+            ab.HasOne(a => a.FavoritePerson).WithOne().HasForeignKey<Person>(p => p.Id);
+            ab.ComplexProperty(a => a.Dwelling)
+                .Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
+        });
 
         var model = modelBuilder.Model;
         model.FinalizeModel();
 
         var animalEntityType = model.FindEntityType(typeof(Animal));
         Assert.All(animalEntityType.GetProperties(), p => Assert.NotEqual(typeof(byte[]), p.ClrType));
+    }
+
+    [ConditionalFact]
+    public virtual void Missing_concurrency_token_property_is_not_created_for_json_mapped_entity()
+    {
+        var modelBuilder = GetModelBuilder();
+        modelBuilder.Entity<BaseEntity>(b =>
+        {
+            b.HasKey(e => e.Id);
+            b.Property(e => e.RowVersion).IsRowVersion().IsConcurrencyToken();
+            b.Property(e => e.Name).HasMaxLength(100).IsRequired();
+            b.HasDiscriminator<string>("Type")
+                .HasValue<DerivedEntity>(nameof(DerivedEntity));
+        });
+        modelBuilder.Entity<DerivedEntity>(b =>
+        {
+            b.OwnsOne(x => x.Owned, ob =>
+            {
+                ob.ToJson();
+                ob.Property(o => o.Description).HasMaxLength(200).IsRequired();
+            });
+        });
+
+        var model = modelBuilder.Model;
+        model.FinalizeModel();
+
+        var ownedEntity = model.FindEntityType(typeof(OwnedEntity));
+        Assert.NotNull(ownedEntity);
+        Assert.True(ownedEntity.IsMappedToJson());
+        Assert.DoesNotContain(
+            ownedEntity.GetProperties(),
+            p => p.Name.StartsWith("_TableSharingConcurrencyTokenConvention"));
+    }
+
+    protected abstract class BaseEntity
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public long RowVersion { get; set; }
+    }
+
+    protected class DerivedEntity : BaseEntity
+    {
+        public OwnedEntity Owned { get; set; } = new();
+    }
+
+    protected class OwnedEntity
+    {
+        public string Description { get; set; } = "Any";
     }
 
     protected class Animal
