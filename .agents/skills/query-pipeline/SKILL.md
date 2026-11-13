@@ -17,7 +17,6 @@ user-invocable: false
 
 - Translation fallback must distinguish established unsupported shapes from unexpected defects. Do not turn arbitrary exceptions into a successful fallback.
 - Check whether a failed rewrite mutated state that fallback will reuse. For test coordination, establish the actual collection, assembly, and async-flow boundaries before claiming shared static state can race; theory rows are not inherently parallel, and reset in `finally` is not mutual exclusion.
-- Runtime parameters share `QueryContext.Parameters` with captured query parameters. Reserve names from the full query, including all setters, before generating independent runtime keys; SQL placeholder uniquification is separate.
 
 ## Optimizations
 

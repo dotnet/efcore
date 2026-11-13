@@ -16,10 +16,6 @@ Non-relational provider with its own parallel query pipeline. Uses JSON for docu
 - `ETag` for optimistic concurrency
 - No cross-container joins
 
-## Converted Keys
-
-- Compiled models can instantiate equivalent mapping and JSON reader/writer converters separately. When serializing an already converted key, use the mapping's converter composition rather than converter reference identity to select the provider reader/writer.
-
 ## Azure Cosmos DB Emulator for Tests
 
 - `TestEnvironment.InitializeAsync()` auto-starts a `Testcontainers.CosmosDb` container when `Test__Cosmos__DefaultConnection` is not set. Set the env var to use an existing emulator instead.

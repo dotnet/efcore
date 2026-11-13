@@ -3,6 +3,7 @@
 
 // ReSharper disable InconsistentNaming
 
+using System.Globalization;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Runtime.CompilerServices;
@@ -183,56 +184,6 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
                 Assert.Equal([id, partitionId, blob, bytes, list, map, storeId, eTag], dataEntity.GetProperties());
             });
 
-    [Theory, InlineData(false), InlineData(true)]
-    public virtual Task Cosmos_model_with_converted_keys(bool forNativeAot)
-        => Test(
-            modelBuilder =>
-            {
-                modelBuilder.Entity<ConvertedKeyData>(b =>
-                {
-                    b.HasNoDiscriminator();
-                    b.HasKey(e => new { e.Id, e.PartitionId });
-                    b.HasPartitionKey(e => e.PartitionId);
-                    b.Property(e => e.Id).ToJsonProperty("id").ValueGeneratedNever().HasConversion(
-                        new ValueConverter<Guid, string>(
-                            v => v.ToString("D"), v => Guid.Parse(v), new ConverterMappingHints(size: 36)));
-                    b.Property(e => e.PartitionId).HasConversion(
-                        new ValueConverter<Guid, string>(
-                            v => v.ToString("D"), v => Guid.Parse(v), new ConverterMappingHints(size: 36)));
-                });
-            },
-            useContext: async context =>
-            {
-                var id = new Guid("a198c9a1-2cd0-46a8-88b6-9ff89b9c9b9d");
-                var partitionId = new Guid("5a7a5a18-0a6e-4e16-bc46-d272d11f95a1");
-                context.Add(new ConvertedKeyData { Id = id, PartitionId = partitionId, Name = "before" });
-                await context.SaveChangesAsync();
-                context.ChangeTracker.Clear();
-
-                var entity = await context.Set<ConvertedKeyData>().FindAsync(id, partitionId);
-                Assert.NotNull(entity);
-                Assert.Equal("before", entity.Name);
-                entity.Name = "after";
-                await context.SaveChangesAsync();
-                context.ChangeTracker.Clear();
-
-                entity = await context.Set<ConvertedKeyData>()
-                    .WithPartitionKey(partitionId)
-                    .SingleAsync(e => e.Id == id);
-                Assert.Equal(id, entity.Id);
-                Assert.Equal(partitionId, entity.PartitionId);
-                Assert.Equal("after", entity.Name);
-            },
-            options: new CompiledModelCodeGenerationOptions { ForNativeAot = forNativeAot },
-            testName: forNativeAot ? "Cosmos_model_with_converted_keys" : "Cosmos_model_with_converted_keys_No_NativeAOT");
-
-    public class ConvertedKeyData
-    {
-        public Guid Id { get; set; }
-        public Guid PartitionId { get; set; }
-        public string Name { get; set; } = null!;
-    }
-
     [Fact]
     public virtual Task Cosmos_model_with_index_types()
         => Test(
@@ -303,7 +254,13 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
 
         modelBuilder.Entity<ManyTypes>(b =>
         {
-            b.Property(e => e.Id).HasConversion<ManyTypesIdConverter>().ValueGeneratedNever();
+            b.ToContainer("ManyTypes");
+            b.Property(e => e.Id).ToJsonProperty("id").ValueGeneratedNever().HasConversion(
+                new ValueConverter<ManyTypesId, string>(
+                    v => v.Id.ToString(CultureInfo.InvariantCulture),
+                    v => new ManyTypesId(int.Parse(v, CultureInfo.InvariantCulture)),
+                    new ConverterMappingHints(size: 11)));
+            b.HasPartitionKey(e => e.Id);
             // Cosmos provider cannot map collections of elements with converters. See Issue #34026.
             b.Ignore(e => e.GuidArray);
             b.Ignore(e => e.DateTimeArray);
@@ -682,6 +639,20 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
 
         var typesFromStore = await context.Set<ManyTypes>().OrderBy(m => m.Id).FirstAsync();
         AssertEqual(types, typesFromStore, jsonColumns);
+
+        context.ChangeTracker.Clear();
+        typesFromStore = await context.Set<ManyTypes>().FindAsync(types.Id);
+        Assert.NotNull(typesFromStore);
+        Assert.Equal(types.String, typesFromStore.String);
+        typesFromStore.String = "updated";
+        await context.SaveChangesAsync();
+        context.ChangeTracker.Clear();
+
+        typesFromStore = await context.Set<ManyTypes>()
+            .WithPartitionKey(types.Id)
+            .SingleAsync(e => e.Id == types.Id);
+        Assert.Equal(types.Id, typesFromStore.Id);
+        Assert.Equal("updated", typesFromStore.String);
     }
 
     protected override void BuildComplexTypesModel(ModelBuilder modelBuilder)
