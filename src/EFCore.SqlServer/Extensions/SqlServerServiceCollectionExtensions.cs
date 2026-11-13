@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Update.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal;
+using Microsoft.EntityFrameworkCore.Update;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection;
@@ -255,6 +256,7 @@ public static class SqlServerServiceCollectionExtensions
             .TryAdd<IRelationalTransactionFactory, SqlServerTransactionFactory>()
             .TryAdd<IModificationCommandBatchFactory, SqlServerModificationCommandBatchFactory>()
             .TryAdd<IModificationCommandFactory, SqlServerModificationCommandFactory>()
+            .TryAdd<IBulkImporter, SqlServerBulkImporter>()
             .TryAdd<IValueGeneratorSelector, SqlServerValueGeneratorSelector>()
             .TryAdd<IRelationalConnection>(p => p.GetRequiredService<ISqlServerConnection>())
             .TryAdd<IMigrationsSqlGenerator, SqlServerMigrationsSqlGenerator>()
