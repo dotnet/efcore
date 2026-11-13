@@ -155,6 +155,57 @@ public class InternalNavigationBuilderTest
     }
 
     [Fact]
+    public void Can_only_override_lower_or_equal_source_IsNullable()
+    {
+        var builder = CreateInternalNavigationBuilder();
+        IConventionNavigation metadata = builder.Metadata;
+
+        Assert.False(metadata.IsNullable);
+        Assert.Null(metadata.GetIsNullableConfigurationSource());
+
+        Assert.True(builder.CanSetIsNullable(true, ConfigurationSource.DataAnnotation));
+        Assert.NotNull(builder.IsNullable(true, ConfigurationSource.DataAnnotation));
+
+        Assert.True(metadata.IsNullable);
+        Assert.Equal(ConfigurationSource.DataAnnotation, metadata.GetIsNullableConfigurationSource());
+
+        Assert.True(builder.CanSetIsNullable(true, ConfigurationSource.Convention));
+        Assert.False(builder.CanSetIsNullable(false, ConfigurationSource.Convention));
+        Assert.NotNull(builder.IsNullable(true, ConfigurationSource.Convention));
+        Assert.Null(builder.IsNullable(false, ConfigurationSource.Convention));
+
+        Assert.True(metadata.IsNullable);
+        Assert.Equal(ConfigurationSource.DataAnnotation, metadata.GetIsNullableConfigurationSource());
+
+        Assert.True(builder.CanSetIsNullable(false, ConfigurationSource.DataAnnotation));
+        Assert.NotNull(builder.IsNullable(false, ConfigurationSource.DataAnnotation));
+
+        Assert.False(metadata.IsNullable);
+        Assert.Equal(ConfigurationSource.DataAnnotation, metadata.GetIsNullableConfigurationSource());
+
+        Assert.True(builder.CanSetIsNullable(null, ConfigurationSource.DataAnnotation));
+        Assert.NotNull(builder.IsNullable(null, ConfigurationSource.DataAnnotation));
+
+        Assert.False(metadata.IsNullable);
+        Assert.Null(metadata.GetIsNullableConfigurationSource());
+    }
+
+    [Fact]
+    public void Can_set_IsNullable_explicitly_on_mutable_navigation()
+    {
+        var builder = CreateInternalNavigationBuilder();
+        IMutableNavigation metadata = builder.Metadata;
+
+        Assert.False(metadata.IsNullable);
+
+        metadata.SetIsNullable(true);
+        Assert.True(metadata.IsNullable);
+
+        metadata.SetIsNullable(null);
+        Assert.False(metadata.IsNullable);
+    }
+
+    [Fact]
     public void Can_only_override_lower_or_equal_source_LazyLoadingEnabled()
     {
         var builder = CreateInternalNavigationBuilder();

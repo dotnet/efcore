@@ -109,6 +109,14 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
             ValidateProperty(property, entityType, logger);
         }
 
+        foreach (var navigation in entityType.GetDeclaredNavigations())
+        {
+            if (navigation.IsNullable)
+            {
+                ValidateNullableCollectionNavigation(navigation, logger);
+            }
+        }
+
         foreach (var skipNavigation in entityType.GetDeclaredSkipNavigations())
         {
             ValidateSkipNavigation(skipNavigation, logger);
@@ -447,6 +455,22 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
         ValidateSkipNavigationIsCollection(skipNavigation, logger);
         ValidateSkipNavigationForeignKey(skipNavigation, logger);
         ValidateSkipNavigationInverse(skipNavigation, logger);
+    }
+
+    /// <summary>
+    ///     Validates a navigation that is configured to distinguish a null collection from an empty one.
+    /// </summary>
+    /// <param name="navigation">The navigation to validate.</param>
+    /// <param name="logger">The logger to use.</param>
+    protected virtual void ValidateNullableCollectionNavigation(
+        INavigation navigation,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        if (!navigation.IsCollection)
+        {
+            throw new InvalidOperationException(
+                CoreStrings.NullableNavigationNotCollection(navigation.Name, navigation.DeclaringEntityType.DisplayName()));
+        }
     }
 
     /// <summary>

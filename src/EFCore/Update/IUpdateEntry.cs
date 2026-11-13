@@ -76,6 +76,16 @@ public interface IUpdateEntry
     bool IsModified(IComplexProperty property);
 
     /// <summary>
+    ///     Gets a value indicating if the null-ness of the specified collection navigation is modified. If <see langword="true" />,
+    ///     the navigation changed from <see langword="null" /> to a non-null collection, or the other way around, and the current
+    ///     state of the collection should be saved to the database. This can only be <see langword="true" /> for navigations with
+    ///     <see cref="IReadOnlyNavigation.IsNullable" /> equal to <see langword="true" />.
+    /// </summary>
+    /// <param name="navigation">The navigation to be checked.</param>
+    /// <returns><see langword="true" /> if the null-ness of the navigation is modified, otherwise <see langword="false" />.</returns>
+    bool IsModified(INavigation navigation);
+
+    /// <summary>
     ///     Gets a value indicating if the specified property has a temporary value.
     /// </summary>
     /// <param name="property">The property to be checked.</param>

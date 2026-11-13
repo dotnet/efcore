@@ -79,6 +79,29 @@ public class ChangeDetector : IChangeDetector
                 DetectNavigationChange(
                     entry as InternalEntityEntry ?? throw new UnreachableException("Complex type entry with a navigation"), navigation);
                 break;
+
+            case INavigation { IsCollection: true, IsNullable: true } nullableCollection:
+                // Collection navigations of notifying entities have no relationship snapshot, so the null-ness
+                // of nullable collections is tracked directly from the notification.
+                if (setModified
+                    && entry.EntityState is EntityState.Unchanged or EntityState.Modified
+                    && entry is InternalEntityEntry nullableCollectionEntry)
+                {
+                    if (nullableCollection.GetOriginalValueIndex() >= 0)
+                    {
+                        // ChangedNotifications: compare with the original value.
+                        DetectCollectionNullnessChange(
+                            nullableCollectionEntry, nullableCollection, (IEnumerable?)nullableCollectionEntry[nullableCollection]);
+                    }
+                    else
+                    {
+                        // ChangingAndChangedNotifications: no original value is kept, so, like for properties, any change
+                        // notification marks the navigation as modified.
+                        nullableCollectionEntry.SetPropertyModified(nullableCollection);
+                    }
+                }
+
+                break;
         }
     }
 
@@ -976,10 +999,12 @@ public class ChangeDetector : IChangeDetector
 
                 stateManager.InternalEntityEntryNotifier.NavigationCollectionChanged(entry, navigationBase, added, removed);
 
+                DetectCollectionNullnessChange(entry, navigationBase, currentCollection);
+
                 return true;
             }
 
-            return false;
+            return DetectCollectionNullnessChange(entry, navigationBase, currentCollection);
         }
 
         if (!ReferenceEquals(currentValue, snapshotValue))
@@ -1002,6 +1027,43 @@ public class ChangeDetector : IChangeDetector
         }
 
         return false;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool DetectCollectionNullnessChange(InternalEntityEntry entry, INavigation navigation)
+        => DetectCollectionNullnessChange(entry, navigation, (IEnumerable?)entry[navigation]);
+
+    private static bool DetectCollectionNullnessChange(
+        InternalEntityEntry entry,
+        INavigationBase navigationBase,
+        IEnumerable? currentCollection)
+    {
+        // For navigations with IsNullable, a change between null and a non-null collection is tracked against the
+        // original value, like other properties. Added entries write the whole collection anyway.
+        if (navigationBase is not INavigation { IsNullable: true } navigation
+            || navigation.GetOriginalValueIndex() < 0
+            || entry.EntityState is not (EntityState.Unchanged or EntityState.Modified)
+            || !entry.HasOriginalValuesSnapshot)
+        {
+            return false;
+        }
+
+        // Like for properties, once the navigation is modified, whether by detecting a change or because the state was
+        // explicitly set to Modified, it stays modified until the changes are saved or the state is reset.
+        if (entry.IsModified(navigation)
+            || (currentCollection is null) == (entry.GetOriginalValue(navigation) is null))
+        {
+            return false;
+        }
+
+        entry.SetPropertyModified(navigation, true);
+
+        return true;
     }
 
     /// <summary>

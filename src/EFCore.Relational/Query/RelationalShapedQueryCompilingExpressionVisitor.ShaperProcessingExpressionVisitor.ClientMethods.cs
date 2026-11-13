@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 
@@ -1267,8 +1268,20 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             where TIncludingEntity : class
             where TIncludedCollectionElement : class
         {
+            // For a nullable collection navigation the stored null or non-null value is applied to the entity, overriding any initial
+            // value, and recorded as the original null-ness so that a later change between the two is detected.
+            var nullableNavigation = structuralProperty is INavigation { IsNullable: true } navigation && !navigation.IsShadowProperty()
+                ? navigation
+                : null;
+            var applyNullness = nullableNavigation != null && CanApplyCollectionNullness(queryContext, nullableNavigation, entity);
+
             if (jsonReaderData == null)
             {
+                if (applyNullness)
+                {
+                    LoadCollectionAsNull(queryContext, nullableNavigation!, entity);
+                }
+
                 return;
             }
 
@@ -1278,6 +1291,11 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             switch (tokenType)
             {
                 case JsonTokenType.Null:
+                    if (applyNullness)
+                    {
+                        LoadCollectionAsNull(queryContext, nullableNavigation!, entity);
+                    }
+
                     return;
 
                 case not JsonTokenType.StartArray:
@@ -1288,7 +1306,16 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             tokenType));
             }
 
-            getOrCreateCollectionObject(entity);
+            if (nullableNavigation == null)
+            {
+                getOrCreateCollectionObject(entity);
+            }
+            else if (applyNullness)
+            {
+                getOrCreateCollectionObject(entity);
+                RecordOriginalCollection(queryContext, nullableNavigation, entity, nullableNavigation.GetGetter().GetClrValue(entity));
+                ResetLoadedCollectionModified(queryContext, nullableNavigation, entity);
+            }
 
             object[]? newKeyPropertyValues = null;
 
@@ -1341,6 +1368,58 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             }
 
             manager.CaptureState();
+        }
+
+        // The null-ness of the collection of an entity that was already tracked is kept, like the values of its properties. This
+        // includes an unsaved change between a null and a non-null collection, which must not be overwritten by the stored value.
+        private static bool CanApplyCollectionNullness(QueryContext queryContext, INavigation navigation, object entity)
+        {
+#pragma warning disable EF1001 // Internal EF Core API usage.
+            var entry = queryContext.TryGetEntry(entity);
+            return entry == null
+                || queryContext.StartedTracking(entry);
+#pragma warning restore EF1001 // Internal EF Core API usage.
+        }
+
+        private static void LoadCollectionAsNull(QueryContext queryContext, INavigation navigation, object entity)
+        {
+            // The original value is recorded first so that a setter raising notifications isn't seen as a change.
+            RecordOriginalCollection(queryContext, navigation, entity, null);
+
+#pragma warning disable EF1001 // Internal EF Core API usage.
+            ((IRuntimePropertyBase)navigation).MaterializationSetter.SetClrValue(entity, null);
+#pragma warning restore EF1001 // Internal EF Core API usage.
+
+            // A setter can have replaced null, in which case that is the value that has been loaded.
+            if (navigation.GetGetter().GetClrValue(entity) is { } actualValue)
+            {
+                RecordOriginalCollection(queryContext, navigation, entity, actualValue);
+            }
+
+            ResetLoadedCollectionModified(queryContext, navigation, entity);
+        }
+
+        // Loading the collection must not leave the navigation looking modified because of a change notification that was
+        // raised by the entity while the collection was set. The navigation was known not to be modified before it was loaded.
+        private static void ResetLoadedCollectionModified(QueryContext queryContext, INavigation navigation, object entity)
+        {
+#pragma warning disable EF1001 // Internal EF Core API usage.
+            if (queryContext.TryGetEntry(entity) is { } entry
+                && entry.IsModified(navigation))
+            {
+                entry.SetPropertyModified(navigation, false);
+            }
+#pragma warning restore EF1001 // Internal EF Core API usage.
+        }
+
+        private static void RecordOriginalCollection(QueryContext queryContext, INavigation navigation, object entity, object? collection)
+        {
+#pragma warning disable EF1001 // Internal EF Core API usage.
+            if (navigation.GetOriginalValueIndex() >= 0)
+            {
+                queryContext.TryGetEntry(entity)?.SetOriginalValue(navigation, collection);
+            }
+#pragma warning restore EF1001 // Internal EF Core API usage.
         }
 
         /// <summary>

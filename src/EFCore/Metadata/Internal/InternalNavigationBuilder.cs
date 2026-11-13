@@ -110,6 +110,46 @@ public class InternalNavigationBuilder :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public virtual bool CanSetIsNullable(bool? nullable, ConfigurationSource configurationSource)
+    {
+        IConventionNavigation conventionNavigation = Metadata;
+
+        return configurationSource.Overrides(conventionNavigation.GetIsNullableConfigurationSource())
+            || conventionNavigation.IsNullable == nullable;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InternalNavigationBuilder? IsNullable(bool? nullable, ConfigurationSource configurationSource)
+    {
+        if (CanSetIsNullable(nullable, configurationSource))
+        {
+            if (configurationSource == ConfigurationSource.Explicit)
+            {
+                ((IMutableNavigation)Metadata).SetIsNullable(nullable);
+            }
+            else
+            {
+                ((IConventionNavigation)Metadata).SetIsNullable(
+                    nullable, configurationSource == ConfigurationSource.DataAnnotation);
+            }
+
+            return this;
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual bool CanSetLazyLoadingEnabled(bool? lazyLoadingEnabled, ConfigurationSource configurationSource)
     {
         IConventionNavigation conventionNavigation = Metadata;
