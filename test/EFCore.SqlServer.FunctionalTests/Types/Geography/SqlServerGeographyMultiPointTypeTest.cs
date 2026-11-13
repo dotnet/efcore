@@ -85,7 +85,7 @@ WHERE CAST(JSON_VALUE([j].[JsonContainer], '$.Value') AS geography).STEquals(@Fi
 (-121.5 46.6)
 (-121.2 46.3))","Value":"MULTIPOINT ((-121.9 46.95)
 (-121.5 46.6)
-(-121.2 46.3))"}' (Nullable = false) (Size = 142)
+(-121.2 46.3))"}' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -106,7 +106,7 @@ WHERE [Id] = @p1;
                 """
 @Fixture_OtherValue='MULTIPOINT ((-121.9 46.95)
 (-121.5 46.6)
-(-121.2 46.3))' (Size = 57)
+(-121.2 46.3))' (Size = 4000)
 
 SET NOCOUNT OFF;
 UPDATE [j]
@@ -120,7 +120,7 @@ FROM [JsonTypeEntity] AS [j]
                 """
 @Fixture_OtherValue='MULTIPOINT ((-121.9 46.95)
 (-121.5 46.6)
-(-121.2 46.3))' (Size = 57)
+(-121.2 46.3))' (Size = 4000)
 
 SET NOCOUNT OFF;
 UPDATE [j]

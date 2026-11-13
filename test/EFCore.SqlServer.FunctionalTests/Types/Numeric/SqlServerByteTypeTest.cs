@@ -104,7 +104,7 @@ WHERE CAST(JSON_VALUE([j].[JsonContainer], '$.Value') AS tinyint) = @Fixture_Val
 
         AssertSql(
             """
-@p0='{"OtherValue":255,"Value":255}' (Nullable = false) (Size = 30)
+@p0='{"OtherValue":255,"Value":255}' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;

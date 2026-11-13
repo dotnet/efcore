@@ -1012,8 +1012,9 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
             Value = value,
             TypeMapping = element.ValueKind is JsonValueKind.Object or JsonValueKind.Array
                 ? parameters.TypeMapping
-                : JsonScalarTypeMapping.GetMapping(
-                    (IRelationalTypeMappingSource)property.DeclaringType.Model.GetModelDependencies().TypeMappingSource, value)
+                // JSON numbers are not limited to a relational column's default precision and scale.
+                : ((IRelationalTypeMappingSource)property.DeclaringType.Model.GetModelDependencies().TypeMappingSource)
+                    .GetMapping(value?.GetType() ?? typeof(string)).WithPrecisionAndScale(null, null)
         };
     }
 

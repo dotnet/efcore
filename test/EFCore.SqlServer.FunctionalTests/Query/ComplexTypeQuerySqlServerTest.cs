@@ -1662,7 +1662,7 @@ WHERE [a].[Discriminator] = N'Cat'
 """,
             //
             """
-@p0='{"Lives":8}' (Nullable = false) (Size = 11)
+@p0='{"Lives":8}' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1697,9 +1697,9 @@ INNER JOIN [Dog] AS [d] ON [a].[Id] = [d].[Id]
 """,
             //
             """
-@p0='{"Weight":31}' (Nullable = false) (Size = 13)
+@p0='{"Weight":31}' (Nullable = false) (Size = 4000)
 @p1='1'
-@p2='{"Breed":"Border Collie"}' (Nullable = false) (Size = 25)
+@p2='{"Breed":"Border Collie"}' (Nullable = false) (Size = 4000)
 @p3='1'
 
 SET NOCOUNT ON;

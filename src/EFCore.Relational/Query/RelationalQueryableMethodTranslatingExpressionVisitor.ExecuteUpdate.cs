@@ -1008,7 +1008,11 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                     queryParameter.Type,
                     queryParameter.Type.IsNullableType(),
                     queryParameter.TranslationMode,
-                    raw ? jsonTypeMapping : new JsonScalarTypeMapping(_typeMappingSource));
+                    raw
+                        ? jsonTypeMapping
+                        // The text-backed JSON mapping also supports scalars; native JSON parameters require documents.
+                        : _typeMappingSource.FindMapping(
+                            typeof(JsonTypePlaceholder), storeTypeName: _typeMappingSource.GetMapping(typeof(string)).StoreType));
 
             default:
                 return null;

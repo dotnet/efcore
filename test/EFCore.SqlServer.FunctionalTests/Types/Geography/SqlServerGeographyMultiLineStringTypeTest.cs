@@ -84,7 +84,7 @@ WHERE CAST(JSON_VALUE([j].[JsonContainer], '$.Value') AS geography).STEquals(@Fi
             """
 @p0='{"OtherValue":"MULTILINESTRING ((-121.9 46.95, -121.6 46.82)
 (-121.7 46.78, -121.4 46.55))","Value":"MULTILINESTRING ((-121.9 46.95, -121.6 46.82)
-(-121.7 46.78, -121.4 46.55))"}' (Nullable = false) (Size = 180)
+(-121.7 46.78, -121.4 46.55))"}' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -104,7 +104,7 @@ WHERE [Id] = @p1;
             AssertSql(
                 """
 @Fixture_OtherValue='MULTILINESTRING ((-121.9 46.95, -121.6 46.82)
-(-121.7 46.78, -121.4 46.55))' (Size = 76)
+(-121.7 46.78, -121.4 46.55))' (Size = 4000)
 
 SET NOCOUNT OFF;
 UPDATE [j]
@@ -117,7 +117,7 @@ FROM [JsonTypeEntity] AS [j]
             AssertSql(
                 """
 @Fixture_OtherValue='MULTILINESTRING ((-121.9 46.95, -121.6 46.82)
-(-121.7 46.78, -121.4 46.55))' (Size = 76)
+(-121.7 46.78, -121.4 46.55))' (Size = 4000)
 
 SET NOCOUNT OFF;
 UPDATE [j]

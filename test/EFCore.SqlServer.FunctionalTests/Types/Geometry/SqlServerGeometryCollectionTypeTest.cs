@@ -86,7 +86,7 @@ WHERE CAST(JSON_VALUE([j].[JsonContainer], '$.Value') AS geometry).STEquals(@Fix
 LINESTRING (11 11, 12 12)
 POLYGON ((13 13, 13 15, 15 15, 15 13, 13 13)))","Value":"GEOMETRYCOLLECTION (POINT (10 10)
 LINESTRING (11 11, 12 12)
-POLYGON ((13 13, 13 15, 15 15, 15 13, 13 13)))"}' (Nullable = false) (Size = 244)
+POLYGON ((13 13, 13 15, 15 15, 15 13, 13 13)))"}' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -107,7 +107,7 @@ WHERE [Id] = @p1;
                 """
 @Fixture_OtherValue='GEOMETRYCOLLECTION (POINT (10 10)
 LINESTRING (11 11, 12 12)
-POLYGON ((13 13, 13 15, 15 15, 15 13, 13 13)))' (Size = 108)
+POLYGON ((13 13, 13 15, 15 15, 15 13, 13 13)))' (Size = 4000)
 
 SET NOCOUNT OFF;
 UPDATE [j]
@@ -121,7 +121,7 @@ FROM [JsonTypeEntity] AS [j]
                 """
 @Fixture_OtherValue='GEOMETRYCOLLECTION (POINT (10 10)
 LINESTRING (11 11, 12 12)
-POLYGON ((13 13, 13 15, 15 15, 15 13, 13 13)))' (Size = 108)
+POLYGON ((13 13, 13 15, 15 15, 15 13, 13 13)))' (Size = 4000)
 
 SET NOCOUNT OFF;
 UPDATE [j]

@@ -104,7 +104,7 @@ WHERE CAST(JSON_VALUE([j].[JsonContainer], '$.Value') AS date) = @Fixture_Value
 
         AssertSql(
             """
-@p0='{"OtherValue":"2022-05-03","Value":"2022-05-03"}' (Nullable = false) (Size = 48)
+@p0='{"OtherValue":"2022-05-03","Value":"2022-05-03"}' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -123,7 +123,7 @@ WHERE [Id] = @p1;
         {
             AssertSql(
                 """
-@Fixture_OtherValue='2022-05-03' (Size = 10)
+@Fixture_OtherValue='2022-05-03' (Size = 4000)
 
 SET NOCOUNT OFF;
 UPDATE [j]
@@ -135,7 +135,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
-@Fixture_OtherValue='2022-05-03' (Size = 10)
+@Fixture_OtherValue='2022-05-03' (Size = 4000)
 
 SET NOCOUNT OFF;
 UPDATE [j]

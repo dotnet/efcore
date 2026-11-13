@@ -45,8 +45,8 @@ FROM [JsonWriterItems] AS [j]
         await base.Update_JSON_columns_with_same_parameter_and_different_conversions(async);
         AssertSql(
             """
-@p='{"Number":42}' (Size = 13)
-@p0='{"Number":"42"}' (Size = 15)
+@p='{"Number":42}' (Size = 4000)
+@p0='{"Number":"42"}' (Size = 4000)
 
 SET NOCOUNT OFF;
 UPDATE [j]
@@ -67,7 +67,7 @@ FROM [JsonPairItem] AS [j]
         AssertSql(
             wholeDocument
                 ? """
-@p='{"Number":42}' (Size = 13)
+@p='{"Number":42}' (Size = 4000)
 @json_number='1'
 @json_p='1'
 

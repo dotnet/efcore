@@ -82,7 +82,7 @@ WHERE [v].[Value] = @Fixture_Value
 
         AssertSql(
             """
-@p0='{"OtherValue":"BAUGBw==","Value":"BAUGBw=="}' (Nullable = false) (Size = 44)
+@p0='{"OtherValue":"BAUGBw==","Value":"BAUGBw=="}' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -101,7 +101,7 @@ WHERE [Id] = @p1;
         {
             AssertSql(
                 """
-@Fixture_OtherValue='BAUGBw==' (Size = 8)
+@Fixture_OtherValue='BAUGBw==' (Size = 4000)
 
 SET NOCOUNT OFF;
 UPDATE [j]
@@ -113,7 +113,7 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
-@Fixture_OtherValue='BAUGBw==' (Size = 8)
+@Fixture_OtherValue='BAUGBw==' (Size = 4000)
 
 SET NOCOUNT OFF;
 UPDATE [j]
