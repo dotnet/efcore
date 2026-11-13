@@ -760,7 +760,8 @@ public class RuntimeModelConvention : IModelFinalizedConvention
                 navigation.FieldInfo,
                 navigation.GetPropertyAccessMode(),
                 navigation.IsEagerLoaded,
-                navigation.LazyLoadingEnabled);
+                navigation.LazyLoadingEnabled,
+                navigation.IsNullable);
 
     /// <summary>
     ///     Updates the navigation annotations that will be set on the read-only object.

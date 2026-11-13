@@ -47,6 +47,18 @@ public interface IReadOnlyNavigation : IReadOnlyNavigationBase
     IReadOnlyForeignKey ForeignKey { get; }
 
     /// <summary>
+    ///     Gets a value indicating whether this collection navigation can be <see langword="null" /> as distinct from empty.
+    ///     When <see langword="true" />, <see langword="null" /> and an empty collection are tracked, saved and
+    ///     materialized as different values, and changing from one to the other is a change that is saved to the database.
+    /// </summary>
+    /// <remarks>
+    ///     This can only be set for collection navigations that are stored inline with their owner, for example as a JSON array,
+    ///     and only if the database provider supports it. Model validation fails otherwise.
+    /// </remarks>
+    bool IsNullable
+        => (bool?)this[CoreAnnotationNames.NullableCollection] ?? false;
+
+    /// <summary>
     ///     Gets a value indicating whether the navigation property is defined on the dependent side of the underlying foreign key.
     /// </summary>
     bool IsOnDependent

@@ -2740,6 +2740,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, property);
 
         /// <summary>
+        ///     The navigation '{entityType}.{navigation}' is configured to distinguish a null collection from an empty one, but it is not a collection navigation.
+        /// </summary>
+        public static string NullableNavigationNotCollection(object? navigation, object? entityType)
+            => string.Format(
+                GetString("NullableNavigationNotCollection", nameof(navigation), nameof(entityType)),
+                navigation, entityType);
+
+        /// <summary>
         ///     The complex type property '{type}.{property}' is configured as required (non-nullable) but has a null value when saving changes. See https://aka.ms/efcore-docs-complex-types for more information.
         /// </summary>
         public static string NullRequiredComplexProperty(object? type, object? property)

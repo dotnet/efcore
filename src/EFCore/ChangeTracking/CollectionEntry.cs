@@ -92,7 +92,8 @@ public class CollectionEntry : NavigationEntry
     /// <summary>
     ///     Gets or sets a value indicating whether any of foreign key property values associated
     ///     with this navigation property have been modified and should be updated in the database
-    ///     when <see cref="DbContext.SaveChanges()" /> is called.
+    ///     when <see cref="DbContext.SaveChanges()" /> is called. For a navigation that distinguishes a null collection
+    ///     from an empty one, this is also <see langword="true" /> when the collection has changed between null and non-null.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
@@ -104,6 +105,12 @@ public class CollectionEntry : NavigationEntry
         get
         {
             var stateManager = InternalEntry.StateManager;
+
+            if (Metadata is INavigation { IsNullable: true } nullableNavigation
+                && InternalEntityEntry.IsModified(nullableNavigation))
+            {
+                return true;
+            }
 
             if (Metadata is ISkipNavigation skipNavigation)
             {
@@ -157,6 +164,11 @@ public class CollectionEntry : NavigationEntry
         set
         {
             var stateManager = InternalEntry.StateManager;
+
+            if (Metadata is INavigation { IsNullable: true } nullableNavigation)
+            {
+                InternalEntityEntry.SetPropertyModified(nullableNavigation, value);
+            }
 
             if (Metadata is ISkipNavigation skipNavigation)
             {

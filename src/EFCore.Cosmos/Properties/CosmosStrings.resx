@@ -319,6 +319,9 @@
   <data name="NoTrackingIdentityResolutionOwnedEntityProjectionMissingOwnerKey" xml:space="preserve">
     <value>The query uses 'NoTrackingWithIdentityResolution' and projects owned entities, but the projection does not include the primary key properties '{properties}' of the root document entity type '{entityType}'. Include all primary key properties of the root document entity in the projection.</value>
   </data>
+  <data name="NullableCollectionNavigationNotSupported" xml:space="preserve">
+    <value>The collection navigation '{entityType}.{navigation}' is configured to distinguish a null collection from an empty one, but this is not currently supported by the Azure Cosmos DB provider. See https://github.com/dotnet/efcore/issues/35916 for more information.</value>
+  </data>
   <data name="NullTypeMappingInSqlTree" xml:space="preserve">
     <value>The expression '{sqlExpression}' in the SQL tree does not have a type mapping assigned.</value>
   </data>

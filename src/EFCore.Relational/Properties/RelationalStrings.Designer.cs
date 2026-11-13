@@ -2044,6 +2044,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("NoSetPropertyInvocation");
 
         /// <summary>
+        ///     The collection navigation '{entityType}.{navigation}' is configured to distinguish a null collection from an empty one, but this is only supported for collections that are mapped to JSON.
+        /// </summary>
+        public static string NullableCollectionNavigationNotMappedToJson(object? navigation, object? entityType)
+            => string.Format(
+                GetString("NullableCollectionNavigationNotMappedToJson", nameof(navigation), nameof(entityType)),
+                navigation, entityType);
+
+        /// <summary>
         ///     Unable to modify a row in table '{table}' because its key column '{keyColumn}' is 'null'.
         /// </summary>
         public static string NullKeyValue(object? table, object? keyColumn)

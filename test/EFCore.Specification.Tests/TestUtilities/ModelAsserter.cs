@@ -560,6 +560,7 @@ public class ModelAsserter
             () => Assert.Equal(expected.IsShadowProperty(), actual.IsShadowProperty()),
             () => Assert.Equal(expected.IsCollection, actual.IsCollection),
             () => Assert.Equal(expected.IsEagerLoaded, actual.IsEagerLoaded),
+            () => Assert.Equal(expected.IsNullable, actual.IsNullable),
             () => Assert.Equal(expected.LazyLoadingEnabled, actual.LazyLoadingEnabled),
             () => Assert.Equal(expected.Sentinel, actual.Sentinel),
             () => Assert.Equal(expected.GetPropertyAccessMode(), actual.GetPropertyAccessMode()),
@@ -1258,6 +1259,7 @@ public class ModelAsserter
 
         targetNavigation.SetPropertyAccessMode(sourceNavigation.GetPropertyAccessMode());
         targetNavigation.SetIsEagerLoaded(sourceNavigation.IsEagerLoaded);
+        targetNavigation.SetIsNullable(sourceNavigation.IsNullable);
         targetNavigation.SetLazyLoadingEnabled(sourceNavigation.LazyLoadingEnabled);
         targetNavigation.AddAnnotations(
             sourceNavigation.GetAnnotations()

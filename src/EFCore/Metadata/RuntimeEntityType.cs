@@ -367,6 +367,9 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     /// <param name="propertyAccessMode">The <see cref="PropertyAccessMode" /> used for this navigation.</param>
     /// <param name="eagerLoaded">A value indicating whether this navigation should be eager loaded by default.</param>
     /// <param name="lazyLoadingEnabled">A value indicating whether this navigation should be enabled for lazy-loading.</param>
+    /// <param name="nullable">
+    ///     A value indicating whether this collection navigation can be <see langword="null" /> as distinct from empty.
+    /// </param>
     /// <returns>The newly created navigation property.</returns>
     public virtual RuntimeNavigation AddNavigation(
         string name,
@@ -377,10 +380,11 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
         FieldInfo? fieldInfo = null,
         PropertyAccessMode propertyAccessMode = Internal.Model.DefaultPropertyAccessMode,
         bool eagerLoaded = false,
-        bool lazyLoadingEnabled = true)
+        bool lazyLoadingEnabled = true,
+        bool nullable = false)
     {
         var navigation = new RuntimeNavigation(
-            name, clrType, propertyInfo, fieldInfo, foreignKey, propertyAccessMode, eagerLoaded, lazyLoadingEnabled);
+            name, clrType, propertyInfo, fieldInfo, foreignKey, propertyAccessMode, eagerLoaded, lazyLoadingEnabled, nullable);
 
         _navigations.Insert(name, navigation);
 

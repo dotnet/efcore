@@ -162,6 +162,9 @@ public class ExceptionTest
 
         public bool IsModified(IComplexProperty property)
             => throw new NotImplementedException();
+
+        public bool IsModified(INavigation navigation)
+            => throw new NotImplementedException();
     }
 
     private static IEntityType CreateEntityType()

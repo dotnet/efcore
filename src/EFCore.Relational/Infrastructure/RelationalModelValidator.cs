@@ -162,6 +162,25 @@ public class RelationalModelValidator(
     }
 
     /// <summary>
+    ///     Validates a navigation that is configured to distinguish a null collection from an empty one.
+    /// </summary>
+    /// <param name="navigation">The navigation to validate.</param>
+    /// <param name="logger">The logger to use.</param>
+    protected override void ValidateNullableCollectionNavigation(
+        INavigation navigation,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        base.ValidateNullableCollectionNavigation(navigation, logger);
+
+        if (!navigation.TargetEntityType.IsMappedToJson())
+        {
+            throw new InvalidOperationException(
+                RelationalStrings.NullableCollectionNavigationNotMappedToJson(
+                    navigation.Name, navigation.DeclaringEntityType.DisplayName()));
+        }
+    }
+
+    /// <summary>
     ///     Logs a warning if triggers are defined on a non-root entity type using TPH mapping strategy.
     /// </summary>
     /// <param name="entityType">The entity type to validate.</param>

@@ -191,6 +191,339 @@ OUTPUT INSERTED.[Id], i._Position;
 """);
     }
 
+    public override async Task Nullable_json_collection_changed_from_empty_to_null_is_saved(bool alsoModifyName)
+    {
+        await base.Nullable_json_collection_changed_from_empty_to_null_is_saved(alsoModifyName);
+
+        if (alsoModifyName)
+        {
+            AssertSql(
+                """
+@p0='[]' (Nullable = false) (Size = 2)
+@p1='A' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [NullableJsonParent] ([Children], [Name])
+OUTPUT INSERTED.[Id]
+VALUES (@p0, @p1);
+""",
+                //
+                """
+SELECT TOP(2) [n].[Id], [n].[Name], [n].[Children]
+FROM [NullableJsonParent] AS [n]
+""",
+                //
+                """
+@p0=NULL (Nullable = false)
+@p2='1'
+@p1='B' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [NullableJsonParent] SET [Children] = @p0, [Name] = @p1
+OUTPUT 1
+WHERE [Id] = @p2;
+""",
+                //
+                """
+SELECT TOP(2) [n].[Id], [n].[Name], [n].[Children]
+FROM [NullableJsonParent] AS [n]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+@p0='[]' (Nullable = false) (Size = 2)
+@p1='A' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [NullableJsonParent] ([Children], [Name])
+OUTPUT INSERTED.[Id]
+VALUES (@p0, @p1);
+""",
+                //
+                """
+SELECT TOP(2) [n].[Id], [n].[Name], [n].[Children]
+FROM [NullableJsonParent] AS [n]
+""",
+                //
+                """
+@p0=NULL (Nullable = false)
+@p1='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [NullableJsonParent] SET [Children] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+""",
+                //
+                """
+SELECT TOP(2) [n].[Id], [n].[Name], [n].[Children]
+FROM [NullableJsonParent] AS [n]
+""");
+        }
+    }
+
+    public override async Task Nullable_json_collection_changed_from_null_to_empty_is_saved(bool alsoModifyName)
+    {
+        await base.Nullable_json_collection_changed_from_null_to_empty_is_saved(alsoModifyName);
+
+        if (alsoModifyName)
+        {
+            AssertSql(
+                """
+@p0='A' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [NullableJsonParent] ([Name])
+OUTPUT INSERTED.[Id]
+VALUES (@p0);
+""",
+                //
+                """
+SELECT TOP(2) [n].[Id], [n].[Name], [n].[Children]
+FROM [NullableJsonParent] AS [n]
+""",
+                //
+                """
+@p0='[]' (Nullable = false) (Size = 2)
+@p2='1'
+@p1='B' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [NullableJsonParent] SET [Children] = @p0, [Name] = @p1
+OUTPUT 1
+WHERE [Id] = @p2;
+""",
+                //
+                """
+SELECT TOP(2) [n].[Id], [n].[Name], [n].[Children]
+FROM [NullableJsonParent] AS [n]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+@p0='A' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [NullableJsonParent] ([Name])
+OUTPUT INSERTED.[Id]
+VALUES (@p0);
+""",
+                //
+                """
+SELECT TOP(2) [n].[Id], [n].[Name], [n].[Children]
+FROM [NullableJsonParent] AS [n]
+""",
+                //
+                """
+@p0='[]' (Nullable = false) (Size = 2)
+@p1='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [NullableJsonParent] SET [Children] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+""",
+                //
+                """
+SELECT TOP(2) [n].[Id], [n].[Name], [n].[Children]
+FROM [NullableJsonParent] AS [n]
+""");
+        }
+    }
+
+    public override async Task Nullable_json_collection_with_elements_changed_to_null_is_saved()
+    {
+        await base.Nullable_json_collection_with_elements_changed_to_null_is_saved();
+
+        AssertSql(
+            """
+@p0='[{"Name":"C1"}]' (Nullable = false) (Size = 15)
+@p1='A' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [NullableJsonParent] ([Children], [Name])
+OUTPUT INSERTED.[Id]
+VALUES (@p0, @p1);
+""",
+            //
+            """
+SELECT TOP(2) [n].[Id], [n].[Name], [n].[Children]
+FROM [NullableJsonParent] AS [n]
+""",
+            //
+            """
+@p0=NULL (Nullable = false)
+@p1='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [NullableJsonParent] SET [Children] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+""",
+            //
+            """
+SELECT TOP(2) [n].[Id], [n].[Name], [n].[Children]
+FROM [NullableJsonParent] AS [n]
+""");
+    }
+
+    public override async Task Nullable_json_collection_nested_in_json_changed_from_empty_to_null_is_saved(bool alsoModifyReference)
+    {
+        await base.Nullable_json_collection_nested_in_json_changed_from_empty_to_null_is_saved(alsoModifyReference);
+
+        if (alsoModifyReference)
+        {
+            AssertSql(
+                """
+@p0='{"Name":"R","Items":[]}' (Nullable = false) (Size = 23)
+@p1='A' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [NullableJsonReferenceParent] ([Reference], [Name])
+OUTPUT INSERTED.[Id]
+VALUES (@p0, @p1);
+""",
+                //
+                """
+SELECT TOP(2) [n].[Id], [n].[Name], [n].[Reference]
+FROM [NullableJsonReferenceParent] AS [n]
+""",
+                //
+                """
+@p0='{"Name":"R2","Items":null}' (Nullable = false) (Size = 26)
+@p1='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [NullableJsonReferenceParent] SET [Reference] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+""",
+                //
+                """
+SELECT TOP(2) [n].[Id], [n].[Name], [n].[Reference]
+FROM [NullableJsonReferenceParent] AS [n]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+@p0='{"Name":"R","Items":[]}' (Nullable = false) (Size = 23)
+@p1='A' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [NullableJsonReferenceParent] ([Reference], [Name])
+OUTPUT INSERTED.[Id]
+VALUES (@p0, @p1);
+""",
+                //
+                """
+SELECT TOP(2) [n].[Id], [n].[Name], [n].[Reference]
+FROM [NullableJsonReferenceParent] AS [n]
+""",
+                //
+                """
+@p0='{"Name":"R","Items":null}' (Nullable = false) (Size = 25)
+@p1='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [NullableJsonReferenceParent] SET [Reference] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+""",
+                //
+                """
+SELECT TOP(2) [n].[Id], [n].[Name], [n].[Reference]
+FROM [NullableJsonReferenceParent] AS [n]
+""");
+        }
+    }
+
+    public override async Task Update_of_a_disconnected_entity_saves_the_null_ness_of_a_nullable_json_collection(bool toNull)
+    {
+        await base.Update_of_a_disconnected_entity_saves_the_null_ness_of_a_nullable_json_collection(toNull);
+
+        if (toNull)
+        {
+            AssertSql(
+                """
+@p0='[]' (Nullable = false) (Size = 2)
+@p1='A' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [NullableJsonParent] ([Children], [Name])
+OUTPUT INSERTED.[Id]
+VALUES (@p0, @p1);
+""",
+                //
+                """
+@p0=NULL (Nullable = false)
+@p2='1'
+@p1='A' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [NullableJsonParent] SET [Children] = @p0, [Name] = @p1
+OUTPUT 1
+WHERE [Id] = @p2;
+""",
+                //
+                """
+SELECT TOP(2) [n].[Id], [n].[Name], [n].[Children]
+FROM [NullableJsonParent] AS [n]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+@p0='A' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [NullableJsonParent] ([Name])
+OUTPUT INSERTED.[Id]
+VALUES (@p0);
+""",
+                //
+                """
+@p0='[]' (Nullable = false) (Size = 2)
+@p2='1'
+@p1='A' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [NullableJsonParent] SET [Children] = @p0, [Name] = @p1
+OUTPUT 1
+WHERE [Id] = @p2;
+""",
+                //
+                """
+SELECT TOP(2) [n].[Id], [n].[Name], [n].[Children]
+FROM [NullableJsonParent] AS [n]
+""");
+        }
+    }
+
     private void AssertSql(params string[] expected)
         => TestSqlLoggerFactory.AssertBaseline(expected);
 
@@ -297,6 +630,545 @@ WHERE [b].[Description] = N'Some description'
             """
 SELECT TOP(2) [b].[Id], [b].[Name]
 FROM [BlogWithTags] AS [b]
+""");
+    }
+
+    public override async Task Nullable_json_collection_of_a_notifying_entity_changed_from_empty_to_null_is_saved(
+        ChangeTrackingStrategy strategy)
+    {
+        await base.Nullable_json_collection_of_a_notifying_entity_changed_from_empty_to_null_is_saved(strategy);
+
+        AssertSql(
+            """
+@p0='[]' (Nullable = false) (Size = 2)
+@p1='A' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [NotifyingNullableJsonParent] ([Children], [Name])
+OUTPUT INSERTED.[Id]
+VALUES (@p0, @p1);
+""",
+            //
+            """
+SELECT TOP(2) [n].[Id], [n].[Name], [n].[Children]
+FROM [NotifyingNullableJsonParent] AS [n]
+""",
+            //
+            """
+@p0=NULL (Nullable = false)
+@p1='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [NotifyingNullableJsonParent] SET [Children] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+""",
+            //
+            """
+SELECT TOP(2) [n].[Id], [n].[Name], [n].[Children]
+FROM [NotifyingNullableJsonParent] AS [n]
+""");
+    }
+
+    public override async Task Replacing_an_owner_with_the_same_key_saves_the_null_ness_of_a_nullable_json_collection(bool toNull)
+    {
+        await base.Replacing_an_owner_with_the_same_key_saves_the_null_ness_of_a_nullable_json_collection(toNull);
+
+        if (toNull)
+        {
+            AssertSql(
+                """
+@p0='[]' (Nullable = false) (Size = 2)
+@p1='A' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [NullableJsonParent] ([Children], [Name])
+OUTPUT INSERTED.[Id]
+VALUES (@p0, @p1);
+""",
+                //
+                """
+SELECT TOP(2) [n].[Id], [n].[Name], [n].[Children]
+FROM [NullableJsonParent] AS [n]
+""",
+                //
+                """
+@p0=NULL (Nullable = false)
+@p2='1'
+@p1='B' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [NullableJsonParent] SET [Children] = @p0, [Name] = @p1
+OUTPUT 1
+WHERE [Id] = @p2;
+""",
+                //
+                """
+SELECT TOP(2) [n].[Id], [n].[Name], [n].[Children]
+FROM [NullableJsonParent] AS [n]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+@p0='A' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [NullableJsonParent] ([Name])
+OUTPUT INSERTED.[Id]
+VALUES (@p0);
+""",
+                //
+                """
+SELECT TOP(2) [n].[Id], [n].[Name], [n].[Children]
+FROM [NullableJsonParent] AS [n]
+""",
+                //
+                """
+@p0='[]' (Nullable = false) (Size = 2)
+@p2='1'
+@p1='B' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [NullableJsonParent] SET [Children] = @p0, [Name] = @p1
+OUTPUT 1
+WHERE [Id] = @p2;
+""",
+                //
+                """
+SELECT TOP(2) [n].[Id], [n].[Name], [n].[Children]
+FROM [NullableJsonParent] AS [n]
+""");
+        }
+    }
+
+    public override async Task Nullable_json_collection_with_a_coercing_setter_loaded_as_null_has_no_changes()
+    {
+        await base.Nullable_json_collection_with_a_coercing_setter_loaded_as_null_has_no_changes();
+
+        AssertSql(
+            """
+@p0='[]' (Nullable = false) (Size = 2)
+@p1='A' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [CoercingNullableJsonParent] ([Children], [Name])
+OUTPUT INSERTED.[Id]
+VALUES (@p0, @p1);
+""",
+            //
+            """
+UPDATE [CoercingNullableJsonParent] SET [Children] = NULL
+""",
+            //
+            """
+SELECT TOP(2) [c].[Id], [c].[Name], [c].[Children]
+FROM [CoercingNullableJsonParent] AS [c]
+""");
+    }
+
+    public override async Task Nullable_json_collection_of_a_notifying_entity_with_an_initializer_loaded_as_null_has_no_changes(
+        ChangeTrackingStrategy strategy)
+    {
+        await base.Nullable_json_collection_of_a_notifying_entity_with_an_initializer_loaded_as_null_has_no_changes(strategy);
+
+        AssertSql(
+            """
+@p0='[]' (Nullable = false) (Size = 2)
+@p1='A' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [InitializedNotifyingNullableJsonParent] ([Children], [Name])
+OUTPUT INSERTED.[Id]
+VALUES (@p0, @p1);
+""",
+            //
+            """
+UPDATE [InitializedNotifyingNullableJsonParent] SET [Children] = NULL
+""",
+            //
+            """
+SELECT TOP(2) [i].[Id], [i].[Name], [i].[Children]
+FROM [InitializedNotifyingNullableJsonParent] AS [i]
+""");
+    }
+
+    public override async Task Querying_a_tracked_entity_keeps_the_in_memory_null_ness_of_a_nullable_json_collection(bool inMemoryNull)
+    {
+        await base.Querying_a_tracked_entity_keeps_the_in_memory_null_ness_of_a_nullable_json_collection(inMemoryNull);
+
+        if (inMemoryNull)
+        {
+            AssertSql(
+                """
+@p0='A' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [NullableJsonParent] ([Name])
+OUTPUT INSERTED.[Id]
+VALUES (@p0);
+""",
+                //
+                """
+SELECT TOP(2) [n].[Id], [n].[Name], [n].[Children]
+FROM [NullableJsonParent] AS [n]
+""",
+                //
+                """
+UPDATE [NullableJsonParent] SET [Children] = '[]'
+""",
+                //
+                """
+SELECT TOP(2) [n].[Id], [n].[Name], [n].[Children]
+FROM [NullableJsonParent] AS [n]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+@p0='[{"Name":"C1"}]' (Nullable = false) (Size = 15)
+@p1='A' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [NullableJsonParent] ([Children], [Name])
+OUTPUT INSERTED.[Id]
+VALUES (@p0, @p1);
+""",
+                //
+                """
+SELECT TOP(2) [n].[Id], [n].[Name], [n].[Children]
+FROM [NullableJsonParent] AS [n]
+""",
+                //
+                """
+UPDATE [NullableJsonParent] SET [Children] = NULL
+""",
+                //
+                """
+SELECT TOP(2) [n].[Id], [n].[Name], [n].[Children]
+FROM [NullableJsonParent] AS [n]
+""");
+        }
+    }
+
+    public override async Task Nullable_json_collection_declared_on_a_derived_type_changed_to_null_is_saved()
+    {
+        await base.Nullable_json_collection_declared_on_a_derived_type_changed_to_null_is_saved();
+
+        AssertSql(
+            """
+@p0='NullableJsonBase' (Nullable = false) (Size = 21)
+@p1='Base' (Size = 4000)
+@p2='[]' (Nullable = false) (Size = 2)
+@p3='NullableJsonDerived' (Nullable = false) (Size = 21)
+@p4='Derived' (Size = 4000)
+
+SET NOCOUNT ON;
+INSERT INTO [NullableJsonBase] ([Discriminator], [Name])
+OUTPUT INSERTED.[Id]
+VALUES (@p0, @p1);
+INSERT INTO [NullableJsonBase] ([Children], [Discriminator], [Name])
+OUTPUT INSERTED.[Id]
+VALUES (@p2, @p3, @p4);
+""",
+            //
+            """
+SELECT TOP(2) [n].[Id], [n].[Discriminator], [n].[Name], [n].[Children]
+FROM [NullableJsonBase] AS [n]
+WHERE [n].[Discriminator] = N'NullableJsonDerived'
+""",
+            //
+            """
+@p0=NULL (Nullable = false)
+@p1='2'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [NullableJsonBase] SET [Children] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+""",
+            //
+            """
+SELECT [n].[Id], [n].[Discriminator], [n].[Name], [n].[Children]
+FROM [NullableJsonBase] AS [n]
+ORDER BY [n].[Name]
+""");
+    }
+
+    public override async Task Nested_nullable_json_collection_changed_to_null_is_saved()
+    {
+        await base.Nested_nullable_json_collection_changed_to_null_is_saved();
+
+        AssertSql(
+            """
+@p0='[{"Name":"O1","Inner":[]},{"Name":"O2","Inner":[]}]' (Nullable = false) (Size = 51)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [NestedNullableJsonOwner] ([Items])
+OUTPUT INSERTED.[Id]
+VALUES (@p0);
+""",
+            //
+            """
+SELECT TOP(2) [n].[Id], [n].[Items]
+FROM [NestedNullableJsonOwner] AS [n]
+""",
+            //
+            """
+@p0='{"Name":"O1","Inner":null}' (Nullable = false) (Size = 26)
+@p1='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [NestedNullableJsonOwner] SET [Items] = JSON_MODIFY([Items], 'strict $[0]', JSON_QUERY(@p0))
+OUTPUT 1
+WHERE [Id] = @p1;
+""",
+            //
+            """
+SELECT TOP(2) [n].[Id], [n].[Items]
+FROM [NestedNullableJsonOwner] AS [n]
+""");
+    }
+
+    public override async Task Nullable_json_collection_changed_to_null_is_saved_for_an_entity_with_a_concurrency_token()
+    {
+        await base.Nullable_json_collection_changed_to_null_is_saved_for_an_entity_with_a_concurrency_token();
+
+        AssertSql(
+            """
+@p0='[]' (Nullable = false) (Size = 2)
+@p1='T1' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [NullableJsonParentWithToken] ([Children], [Token])
+OUTPUT INSERTED.[Id]
+VALUES (@p0, @p1);
+""",
+            //
+            """
+SELECT TOP(2) [n].[Id], [n].[Token], [n].[Children]
+FROM [NullableJsonParentWithToken] AS [n]
+""",
+            //
+            """
+@p0=NULL (Nullable = false)
+@p1='1'
+@p2='T1' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [NullableJsonParentWithToken] SET [Children] = @p0
+OUTPUT 1
+WHERE [Id] = @p1 AND [Token] = @p2;
+""",
+            //
+            """
+SELECT TOP(2) [n].[Id], [n].[Token], [n].[Children]
+FROM [NullableJsonParentWithToken] AS [n]
+""");
+    }
+
+    public override async Task Mixed_changes_of_nullable_json_collections_are_saved_in_one_batch()
+    {
+        await base.Mixed_changes_of_nullable_json_collections_are_saved_in_one_batch();
+
+        AssertSql(
+            """
+@p0='[]' (Nullable = false) (Size = 2)
+@p1='ToNull' (Size = 4000)
+@p2='ToEmpty' (Size = 4000)
+@p3='[]' (Nullable = false) (Size = 2)
+@p4='OnlyName' (Size = 4000)
+@p5='[{"Name":"C1"}]' (Nullable = false) (Size = 15)
+@p6='Elements' (Size = 4000)
+
+SET NOCOUNT ON;
+INSERT INTO [NullableJsonParent] ([Children], [Name])
+OUTPUT INSERTED.[Id]
+VALUES (@p0, @p1);
+INSERT INTO [NullableJsonParent] ([Name])
+OUTPUT INSERTED.[Id]
+VALUES (@p2);
+MERGE [NullableJsonParent] USING (
+VALUES (@p3, @p4, 0),
+(@p5, @p6, 1)) AS i ([Children], [Name], _Position) ON 1=0
+WHEN NOT MATCHED THEN
+INSERT ([Children], [Name])
+VALUES (i.[Children], i.[Name])
+OUTPUT INSERTED.[Id], i._Position;
+""",
+            //
+            """
+SELECT [n].[Id], [n].[Name], [n].[Children]
+FROM [NullableJsonParent] AS [n]
+""",
+            //
+            """
+@p0=NULL (Nullable = false)
+@p1='1'
+@p2='[]' (Nullable = false) (Size = 2)
+@p3='2'
+@p4='[]' (Nullable = false) (Size = 2)
+@p6='3'
+@p5='OnlyNameChanged' (Size = 4000)
+@p7='[{"Name":"C1"},{"Name":"C2"}]' (Nullable = false) (Size = 29)
+@p8='4'
+
+SET NOCOUNT ON;
+UPDATE [NullableJsonParent] SET [Children] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+UPDATE [NullableJsonParent] SET [Children] = @p2
+OUTPUT 1
+WHERE [Id] = @p3;
+UPDATE [NullableJsonParent] SET [Children] = @p4, [Name] = @p5
+OUTPUT 1
+WHERE [Id] = @p6;
+UPDATE [NullableJsonParent] SET [Children] = @p7
+OUTPUT 1
+WHERE [Id] = @p8;
+""",
+            //
+            """
+SELECT [n].[Id], [n].[Name], [n].[Children]
+FROM [NullableJsonParent] AS [n]
+""");
+    }
+
+    public override async Task Nullable_json_collection_loaded_without_tracking_keeps_null_and_empty()
+    {
+        await base.Nullable_json_collection_loaded_without_tracking_keeps_null_and_empty();
+
+        AssertSql(
+            """
+@p0='Null' (Size = 4000)
+@p1='[]' (Nullable = false) (Size = 2)
+@p2='Empty' (Size = 4000)
+
+SET NOCOUNT ON;
+INSERT INTO [NullableJsonParentWithInitializer] ([Name])
+OUTPUT INSERTED.[Id]
+VALUES (@p0);
+INSERT INTO [NullableJsonParentWithInitializer] ([Children], [Name])
+OUTPUT INSERTED.[Id]
+VALUES (@p1, @p2);
+""",
+            //
+            """
+SELECT [n].[Id], [n].[Name], [n].[Children]
+FROM [NullableJsonParentWithInitializer] AS [n]
+ORDER BY [n].[Name]
+""",
+            //
+            """
+SELECT [n].[Id], [n].[Name], [n].[Children]
+FROM [NullableJsonParentWithInitializer] AS [n]
+ORDER BY [n].[Name]
+""");
+    }
+
+    public override async Task Nullable_json_collection_projected_with_its_entity_keeps_null_and_empty()
+    {
+        await base.Nullable_json_collection_projected_with_its_entity_keeps_null_and_empty();
+
+        AssertSql(
+            """
+@p0='Null' (Size = 4000)
+@p1='[]' (Nullable = false) (Size = 2)
+@p2='Empty' (Size = 4000)
+
+SET NOCOUNT ON;
+INSERT INTO [NullableJsonParentWithInitializer] ([Name])
+OUTPUT INSERTED.[Id]
+VALUES (@p0);
+INSERT INTO [NullableJsonParentWithInitializer] ([Children], [Name])
+OUTPUT INSERTED.[Id]
+VALUES (@p1, @p2);
+""",
+            //
+            """
+SELECT [n].[Id], [n].[Name], [n].[Children]
+FROM [NullableJsonParentWithInitializer] AS [n]
+ORDER BY [n].[Name]
+""");
+    }
+
+    public override async Task Opting_out_of_a_nullable_json_collection_keeps_the_initializer_on_load()
+    {
+        await base.Opting_out_of_a_nullable_json_collection_keeps_the_initializer_on_load();
+
+        AssertSql(
+            """
+@p0='Null' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [NullableJsonParentWithInitializer] ([Name])
+OUTPUT INSERTED.[Id]
+VALUES (@p0);
+""",
+            //
+            """
+SELECT TOP(2) [n].[Id], [n].[Name], [n].[Children]
+FROM [NullableJsonParentWithInitializer] AS [n]
+""");
+    }
+
+    public override async Task Querying_a_tracked_entity_does_not_overwrite_a_pending_change_of_a_nullable_json_collection_to_empty()
+    {
+        await base.Querying_a_tracked_entity_does_not_overwrite_a_pending_change_of_a_nullable_json_collection_to_empty();
+
+        AssertSql(
+            """
+@p0='A' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [NullableJsonParent] ([Name])
+OUTPUT INSERTED.[Id]
+VALUES (@p0);
+""",
+            //
+            """
+SELECT TOP(2) [n].[Id], [n].[Name], [n].[Children]
+FROM [NullableJsonParent] AS [n]
+""",
+            //
+            """
+SELECT TOP(2) [n].[Id], [n].[Name], [n].[Children]
+FROM [NullableJsonParent] AS [n]
+""",
+            //
+            """
+@p0='[]' (Nullable = false) (Size = 2)
+@p1='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [NullableJsonParent] SET [Children] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+""",
+            //
+            """
+SELECT TOP(2) [n].[Id], [n].[Name], [n].[Children]
+FROM [NullableJsonParent] AS [n]
 """);
     }
 
