@@ -525,6 +525,12 @@ Register-TabExpansion Optimize-DbContext @{
 .PARAMETER Context
     The DbContext to use.
 
+.PARAMETER PrecompileQueries
+    Generate precompiled queries.
+
+.PARAMETER NativeAot
+    Generate additional code in the compiled model required for NativeAOT compilation and precompiled queries (experimental).
+
 .PARAMETER Project
     The project to use.
 
@@ -544,6 +550,8 @@ function Optimize-DbContext
         [string] $OutputDir,
         [string] $Namespace,
         [string] $Context,
+        [switch] $PrecompileQueries,
+        [switch] $NativeAot,
         [string] $Project,
         [string] $StartupProject,
         [string] $Args)
@@ -566,6 +574,16 @@ function Optimize-DbContext
     if ($Context)
     {
         $params += '--context', $Context
+    }
+
+    if ($PrecompileQueries)
+    {
+        $params += '--precompile-queries'
+    }
+
+    if ($NativeAot)
+    {
+        $params += '--nativeaot'
     }
 
     EF $dteProject $dteStartupProject $params $Args

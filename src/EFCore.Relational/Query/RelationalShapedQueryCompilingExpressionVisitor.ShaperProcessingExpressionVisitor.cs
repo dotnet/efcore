@@ -817,6 +817,21 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         collectionResult.Type);
                 }
 
+                // An identifier read as the database returned it, to compare as such; read where it's used, as it's only ever used once.
+                case ProviderValueProjectionBindingExpression providerValueProjectionBindingExpression:
+                {
+                    var projectionIndex = (int)GetProjectionIndex(providerValueProjectionBindingExpression.ProjectionBinding);
+                    var projection = _selectExpression.Projection[projectionIndex];
+
+                    return CreateGetValueExpression(
+                        _dataReaderParameter,
+                        projectionIndex,
+                        IsNullableProjection(projection),
+                        providerValueProjectionBindingExpression.TypeMapping,
+                        providerValueProjectionBindingExpression.Type,
+                        applyConverter: false);
+                }
+
                 case ProjectionBindingExpression projectionBindingExpression
                     when _inline:
                 {
@@ -3068,7 +3083,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             bool nullable,
             RelationalTypeMapping typeMapping,
             Type type,
-            IPropertyBase? property = null)
+            IPropertyBase? property = null,
+            bool applyConverter = true)
         {
             var getMethod = typeMapping.GetDataReaderMethod();
 
@@ -3128,7 +3144,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
             valueExpression = typeMapping.CustomizeDataReaderExpression(valueExpression);
 
-            var converter = typeMapping.Converter;
+            var converter = applyConverter ? typeMapping.Converter : null;
 
             var converterExpression = default(Expression);
             var primitiveCollectionJsonHandled = false;

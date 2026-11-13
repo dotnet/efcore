@@ -400,6 +400,18 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
         ifTrue = MatchTypes(ifTrue, conditionalExpression.IfTrue.Type);
         ifFalse = MatchTypes(ifFalse, conditionalExpression.IfFalse.Type);
 
+        // Edge case when one branch of a conditional is null, the other is a queryable
+        // that gets translated into a client-side collection Type,
+        // conditionalExpression.Update throws Error in this case
+        if (!conditionalExpression.IfTrue.Type.IsAssignableFrom(ifTrue.Type) && ifFalse is ConstantExpression { Value: null })
+        {
+            return Expression.Condition(test, ifTrue, Expression.Constant(null, ifTrue.Type));
+        }
+        if (!conditionalExpression.IfFalse.Type.IsAssignableFrom(ifFalse.Type) && ifTrue is ConstantExpression { Value: null })
+        {
+            return Expression.Condition(test, Expression.Constant(null, ifFalse.Type), ifFalse);
+        }
+
         return conditionalExpression.Update(test, ifTrue, ifFalse);
     }
 

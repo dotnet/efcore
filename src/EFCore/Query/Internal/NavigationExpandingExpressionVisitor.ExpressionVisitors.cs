@@ -158,6 +158,10 @@ public partial class NavigationExpandingExpressionVisitor
                 if (entityReference.ForeignKeyExpansionMap.TryGetValue(
                         (navigation.ForeignKey, navigation.IsOnDependent), out var ownedExpansion))
                 {
+                    if (ownedExpansion is OwnedNavigationReference navigationReference && entityReference.IncludePaths.TryGetValue(navigation, out var entityReferenceIncludePath))
+                    {
+                        navigationReference.EntityReference.IncludePaths.Merge(entityReferenceIncludePath);
+                    }
                     return ownedExpansion;
                 }
 

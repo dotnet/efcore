@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace Microsoft.EntityFrameworkCore.Diagnostics;
 
 /// <summary>
@@ -71,4 +73,10 @@ public enum CommandSource
     ///     The command was generated as part of an 'ExecuteDelete' operation.
     /// </summary>
     ExecuteDelete,
+
+    /// <summary>
+    ///     The command was generated as part of an 'ExecuteMerge' or 'ExecuteMergeReturning' operation.
+    /// </summary>
+    [Experimental(EFDiagnostics.ExecuteMergeExperimental)]
+    ExecuteMerge,
 }

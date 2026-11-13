@@ -39,6 +39,8 @@ public static class SqlServerTestEnvironment
 
     private static bool? _IsMemoryOptimizedTablesSupportedTables;
 
+    private static readonly Lock _memoryOptimizedTablesLock = new();
+
     private static bool? _IsTemporalTablesCascadeDeleteSupported;
 
     private static bool? _IsUtf8Supported;
@@ -230,20 +232,51 @@ public static class SqlServerTestEnvironment
 
             try
             {
-                using var sqlConnection = new SqlConnection(SqlServerTestStore.CreateConnectionString("master"));
-                sqlConnection.Open();
+                if (IsAzureSql)
+                {
+                    lock (_memoryOptimizedTablesLock)
+                    {
+                        if (!_IsMemoryOptimizedTablesSupportedTables.HasValue)
+                        {
+                            Task.Run(async () =>
+                            {
+                                await using var testStore = SqlServerTestStore.Create(
+                                    $"MemoryOptimizedTablesProbe_{Guid.NewGuid():N}");
+                                try
+                                {
+                                    await testStore.InitializeAsync(null, (Func<DbContext>?)null).ConfigureAwait(false);
+                                    await testStore.ExecuteNonQueryAsync(
+                                        """
+CREATE TABLE [MemoryOptimizedTablesProbe] ([Id] int NOT NULL PRIMARY KEY NONCLUSTERED)
+WITH (MEMORY_OPTIMIZED = ON, DURABILITY = SCHEMA_ONLY);
+DROP TABLE [MemoryOptimizedTablesProbe];
+""").ConfigureAwait(false);
+                                    _IsMemoryOptimizedTablesSupportedTables = true;
+                                }
+                                catch (SqlException)
+                                {
+                                    _IsMemoryOptimizedTablesSupportedTables = false;
+                                }
+                            }).GetAwaiter().GetResult();
+                        }
+                    }
+                }
+                else
+                {
+                    using var sqlConnection = new SqlConnection(SqlServerTestStore.CreateConnectionString("master"));
+                    sqlConnection.Open();
 
-                using var command = new SqlCommand(
-                    "SELECT SERVERPROPERTY('IsXTPSupported');", sqlConnection);
-                var result = command.ExecuteScalar();
-                _IsMemoryOptimizedTablesSupportedTables = (result != null ? Convert.ToInt32(result) : 0) == 1 && !IsLocalDb;
+                    using var command = new SqlCommand("SELECT SERVERPROPERTY('IsXTPSupported');", sqlConnection);
+                    var result = command.ExecuteScalar();
+                    _IsMemoryOptimizedTablesSupportedTables = (result != null ? Convert.ToInt32(result) : 0) == 1 && !IsLocalDb;
+                }
             }
             catch (PlatformNotSupportedException)
             {
                 _IsMemoryOptimizedTablesSupportedTables = false;
             }
 
-            return _IsMemoryOptimizedTablesSupportedTables.Value;
+            return _IsMemoryOptimizedTablesSupportedTables!.Value;
         }
     }
 
@@ -488,6 +521,9 @@ public static class SqlServerTestEnvironment
 
     public static string? ElasticPoolName { get; } = Config["ElasticPoolName"];
 
+    public static bool IsElasticPoolConfigured
+        => !string.IsNullOrEmpty(ElasticPoolName);
+
     public static bool? GetFlag(string key)
         => bool.TryParse(Config[key], out var flag) ? flag : null;
 
@@ -539,7 +575,10 @@ public static class SqlServerTestEnvironment
         sqlConnection.Open();
 
         using var command = new SqlCommand(
-            "SELECT compatibility_level FROM sys.databases WHERE [name] = 'model';", sqlConnection);
+            GetEngineEdition() == 5
+                ? "SELECT compatibility_level FROM sys.databases WHERE [name] = 'master';"
+                : "SELECT compatibility_level FROM sys.databases WHERE [name] = 'model';",
+            sqlConnection);
         _compatibilityLevel = (byte)command.ExecuteScalar();
 
         return _compatibilityLevel.Value;

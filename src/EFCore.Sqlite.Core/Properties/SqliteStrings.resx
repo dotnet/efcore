@@ -129,6 +129,12 @@
   <data name="DuplicateColumnNameSridMismatch" xml:space="preserve">
     <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different SRIDs.</value>
   </data>
+  <data name="ExecuteMergeReturningNotSupported" xml:space="preserve">
+    <value>SQLite version {sqliteVersion} is being used, but version 3.35.0 or higher is required for 'ExecuteMergeReturning'.</value>
+  </data>
+  <data name="ExecuteMergeReturningWithoutReturningClause" xml:space="preserve">
+    <value>'ExecuteMergeReturning' cannot be used with the table '{table}', since it is configured to not use the SQL RETURNING clause.</value>
+  </data>
   <data name="ExecuteUpdateJsonPartialUpdateDoesNotSupportUlong" xml:space="preserve">
     <value>ExecuteUpdate partial updates of ulong properties within JSON columns is not supported.</value>
   </data>
@@ -148,6 +154,10 @@
   <data name="LogConflictingValueGenerationStrategies" xml:space="preserve">
     <value>Both the SqliteValueGenerationStrategy '{generationStrategy}' and '{otherGenerationStrategy}' have been set on property '{propertyName}' on entity type '{entityName}'. Configuring two strategies is usually unintentional and will likely result in a database error.</value>
     <comment>Warning SqliteEventId.ConflictingValueGenerationStrategiesWarning string string string string</comment>
+  </data>
+  <data name="LogExpressionIndexSkipped" xml:space="preserve">
+    <value>Skipping index '{indexName}' on table '{tableName}', since it is defined on an expression and indexes on expressions are not supported.</value>
+    <comment>Warning SqliteEventId.ExpressionIndexSkippedWarning string? string?</comment>
   </data>
   <data name="LogForeignKeyScaffoldErrorPrincipalTableNotFound" xml:space="preserve">
     <value>Skipping foreign key with identity '{id}' on table '{tableName}' since principal table '{principalTableName}' was not found in the model. This usually happens when the principal table was not included in the selection set.</value>

@@ -2548,6 +2548,13 @@ WHERE (c["id"] = @entity_equality_customer_CustomerID)
         Assert.Equal(CoreStrings.EFConstantNotSupported, exception.Message);
     }
 
+    public override async Task EF_Constant_with_enum_cast(bool async)
+    {
+        // #34327
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.EF_Constant_with_enum_cast(async));
+        Assert.Equal(CoreStrings.EFConstantNotSupported, exception.Message);
+    }
+
     public override async Task EF_Constant_does_not_parameterized_as_part_of_bigger_subtree(bool async)
     {
         // #34327

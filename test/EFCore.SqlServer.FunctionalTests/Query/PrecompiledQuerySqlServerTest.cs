@@ -16,6 +16,18 @@ public class PrecompiledQuerySqlServerTest(
 
     #region Expression types
 
+    public override async Task Class_constant_in_predicate()
+    {
+        await base.Class_constant_in_predicate();
+
+        AssertSql(
+            """
+SELECT TOP(2) [b].[Id], [b].[Name], [b].[Json]
+FROM [Blogs] AS [b]
+WHERE [b].[Id] = 8
+""");
+    }
+
     public override async Task BinaryExpression()
     {
         await base.BinaryExpression();
@@ -57,6 +69,180 @@ SELECT CASE
     ELSE N'no'
 END
 FROM [Blogs] AS [b]
+""");
+    }
+
+    public override async Task Conditional_test_contains_captured_variable(bool async, bool fullyEvaluatable)
+    {
+        await base.Conditional_test_contains_captured_variable(async, fullyEvaluatable);
+
+        if (fullyEvaluatable)
+        {
+            AssertSql(
+                """
+@p='9'
+
+SELECT [b].[Id]
+FROM [Blogs] AS [b]
+WHERE [b].[Id] = @p
+""",
+                //
+                """
+@p='8'
+
+SELECT [b].[Id]
+FROM [Blogs] AS [b]
+WHERE [b].[Id] = @p
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+@flag='False'
+
+SELECT [b].[Id]
+FROM [Blogs] AS [b]
+WHERE CASE
+    WHEN @flag = CAST(1 AS bit) THEN CASE
+        WHEN [b].[Id] = 8 THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END
+    WHEN [b].[Id] = 9 THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END = CAST(1 AS bit)
+""",
+                //
+                """
+@flag='True'
+
+SELECT [b].[Id]
+FROM [Blogs] AS [b]
+WHERE CASE
+    WHEN @flag = CAST(1 AS bit) THEN CASE
+        WHEN [b].[Id] = 8 THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END
+    WHEN [b].[Id] = 9 THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END = CAST(1 AS bit)
+""");
+        }
+    }
+
+    public override async Task Logical_binary_contains_captured_variable(bool async, bool andAlso, bool capturedOnLeft)
+    {
+        await base.Logical_binary_contains_captured_variable(async, andAlso, capturedOnLeft);
+
+        if (andAlso)
+        {
+            if (capturedOnLeft)
+            {
+                AssertSql(
+                    """
+@flag='False'
+
+SELECT [b].[Id]
+FROM [Blogs] AS [b]
+WHERE @flag = CAST(1 AS bit) AND [b].[Id] = 8
+ORDER BY [b].[Id]
+""",
+                    //
+                    """
+@flag='True'
+
+SELECT [b].[Id]
+FROM [Blogs] AS [b]
+WHERE @flag = CAST(1 AS bit) AND [b].[Id] = 8
+ORDER BY [b].[Id]
+""");
+            }
+            else
+            {
+                AssertSql(
+                    """
+@flag='False'
+
+SELECT [b].[Id]
+FROM [Blogs] AS [b]
+WHERE [b].[Id] = 8 AND @flag = CAST(1 AS bit)
+ORDER BY [b].[Id]
+""",
+                    //
+                    """
+@flag='True'
+
+SELECT [b].[Id]
+FROM [Blogs] AS [b]
+WHERE [b].[Id] = 8 AND @flag = CAST(1 AS bit)
+ORDER BY [b].[Id]
+""");
+            }
+        }
+        else
+        {
+            if (capturedOnLeft)
+            {
+                AssertSql(
+                    """
+@flag='False'
+
+SELECT [b].[Id]
+FROM [Blogs] AS [b]
+WHERE @flag = CAST(1 AS bit) OR [b].[Id] = 8
+ORDER BY [b].[Id]
+""",
+                    //
+                    """
+@flag='True'
+
+SELECT [b].[Id]
+FROM [Blogs] AS [b]
+WHERE @flag = CAST(1 AS bit) OR [b].[Id] = 8
+ORDER BY [b].[Id]
+""");
+            }
+            else
+            {
+                AssertSql(
+                    """
+@flag='False'
+
+SELECT [b].[Id]
+FROM [Blogs] AS [b]
+WHERE [b].[Id] = 8 OR @flag = CAST(1 AS bit)
+ORDER BY [b].[Id]
+""",
+                    //
+                    """
+@flag='True'
+
+SELECT [b].[Id]
+FROM [Blogs] AS [b]
+WHERE [b].[Id] = 8 OR @flag = CAST(1 AS bit)
+ORDER BY [b].[Id]
+""");
+            }
+        }
+    }
+
+    public override async Task Coalesce_left_contains_captured_variable(bool async)
+    {
+        await base.Coalesce_left_contains_captured_variable(async);
+
+        AssertSql(
+            """
+SELECT COALESCE(NULL, [b].[Name])
+FROM [Blogs] AS [b]
+ORDER BY [b].[Id]
+""",
+            //
+            """
+@name='captured' (Size = 4000)
+
+SELECT @name
+FROM [Blogs] AS [b]
+ORDER BY [b].[Id]
 """);
     }
 
@@ -2148,6 +2334,99 @@ FROM [Blogs] AS [b]
     #endregion Different query roots
 
     #region Captured variable handling
+
+    public override async Task Captured_nullable_value_in_guarded_query(bool async)
+    {
+        await base.Captured_nullable_value_in_guarded_query(async);
+
+        AssertSql(
+            """
+@queryId_Value='8'
+
+SELECT [b].[Id], [b].[Name]
+FROM [Blogs] AS [b]
+WHERE [b].[Id] = @queryId_Value
+""",
+            //
+            """
+@queryId_Value='9'
+
+SELECT [b].[Id], [b].[Name]
+FROM [Blogs] AS [b]
+WHERE [b].[Id] = @queryId_Value
+""",
+            //
+            """
+SELECT [b].[Id], [b].[Name]
+FROM [Blogs] AS [b]
+""");
+    }
+
+    public override async Task Captured_object_properties(bool async)
+    {
+        await base.Captured_object_properties(async);
+
+        AssertSql(
+            """
+@item_Id='8'
+@item_Name='Blog1' (Size = 4000)
+
+SELECT TOP(1) [b].[Id], [b].[Name], [b].[Json]
+FROM [Blogs] AS [b]
+WHERE [b].[Id] = @item_Id AND [b].[Name] = @item_Name
+""");
+    }
+
+    public override async Task Captured_entity_property()
+    {
+        await base.Captured_entity_property();
+
+        AssertSql(
+            """
+SELECT TOP(2) [b].[Id], [b].[Name], [b].[Json]
+FROM [Blogs] AS [b]
+WHERE [b].[Id] = 8
+""",
+            //
+            """
+@item_Id='8'
+
+SELECT TOP(1) [b].[Id], [b].[Name], [b].[Json]
+FROM [Blogs] AS [b]
+WHERE [b].[Id] = @item_Id
+""");
+    }
+
+    public override async Task Captured_null_object_property_throws_at_runtime()
+    {
+        await base.Captured_null_object_property_throws_at_runtime();
+
+        AssertSql();
+    }
+
+    public override async Task Captured_foreach_object_properties(bool async)
+    {
+        await base.Captured_foreach_object_properties(async);
+
+        AssertSql(
+            """
+@item_Id='8'
+@item_Name='Blog1' (Size = 4000)
+
+SELECT TOP(2) [b].[Id], [b].[Name], [b].[Json]
+FROM [Blogs] AS [b]
+WHERE [b].[Id] = @item_Id AND [b].[Name] = @item_Name
+""",
+            //
+            """
+@item_Id='9'
+@item_Name='Blog2' (Size = 4000)
+
+SELECT TOP(2) [b].[Id], [b].[Name], [b].[Json]
+FROM [Blogs] AS [b]
+WHERE [b].[Id] = @item_Id AND [b].[Name] = @item_Name
+""");
+    }
 
     public override async Task Captured_method_parameter_in_lambda()
     {

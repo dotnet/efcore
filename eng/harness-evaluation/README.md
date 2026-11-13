@@ -101,6 +101,8 @@ The evals need no running emulator or database. Do not launch infrastructure or 
 
 Behavioral runs use the Copilot SDK and require a valid local Copilot login or `COPILOT_GITHUB_TOKEN`. Results are written below `artifacts/TestResults/harness-evaluation/<component-id>/` as one timestamped experiment containing separate `control` and `treatment` variants, plus `comparison.jsonl`. They may contain prompts, model output, and tool payloads; do not commit them.
 
+All evals default to `gpt-6.1-terra` for agent execution and `gpt-6.1-sol` with `low` reasoning effort for grading and paired comparison. Use `--model`, `--judge-model`, and `--judge-reasoning-effort` to override these defaults locally.
+
 ### Agent execution
 
 `cli.mjs eval` produces large progress and grading reports. Agents must use their execution environment's background mode and redirect stdout and stderr to files; do not stream command output into the conversation context. A PowerShell fallback from `eng/harness-evaluation` is:

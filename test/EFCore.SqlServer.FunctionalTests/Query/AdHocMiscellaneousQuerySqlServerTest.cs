@@ -3597,6 +3597,221 @@ ORDER BY [e].[DepartmentName]
 
     #endregion
 
+    #region 39366
+
+    public override async Task GroupBy_value_converted_reference_type_key_with_elements_and_aggregate(bool async)
+    {
+        await base.GroupBy_value_converted_reference_type_key_with_elements_and_aggregate(async);
+
+        AssertSql(
+            """
+SELECT [p1].[Tag], [p0].[Id], [p1].[c]
+FROM (
+    SELECT [p].[Tag], COUNT(*) AS [c]
+    FROM [Posts] AS [p]
+    GROUP BY [p].[Tag]
+) AS [p1]
+LEFT JOIN [Posts] AS [p0] ON [p1].[Tag] = [p0].[Tag]
+ORDER BY [p1].[Tag]
+""");
+    }
+
+    public override async Task Union_value_converted_reference_type_with_collection(bool async)
+    {
+        await base.Union_value_converted_reference_type_with_collection(async);
+
+        AssertSql(
+            """
+SELECT [u].[Tag], [p1].[Id]
+FROM (
+    SELECT [p].[Tag]
+    FROM [Posts] AS [p]
+    WHERE [p].[Id] < 3
+    UNION
+    SELECT [p0].[Tag]
+    FROM [Posts] AS [p0]
+    WHERE [p0].[Id] > 1
+) AS [u]
+LEFT JOIN [Posts] AS [p1] ON [u].[Tag] = [p1].[Tag]
+ORDER BY [u].[Tag]
+""");
+    }
+
+    public override async Task Union_entity_with_value_converted_key_with_collection(bool async)
+    {
+        await base.Union_entity_with_value_converted_key_with_collection(async);
+
+        AssertSql(
+            """
+SELECT [u].[Name], [u].[Id], [p].[Id]
+FROM (
+    SELECT [b].[Id], [b].[Name]
+    FROM [Blogs] AS [b]
+    WHERE [b].[Name] = N'efcore'
+    UNION
+    SELECT [b0].[Id], [b0].[Name]
+    FROM [Blogs] AS [b0]
+    WHERE [b0].[Name] = N'linq'
+) AS [u]
+LEFT JOIN [Post] AS [p] ON [u].[Id] = [p].[BlogId]
+ORDER BY [u].[Id]
+""");
+    }
+
+    public override async Task Union_entity_with_value_converted_key_with_split_collection(bool async)
+    {
+        await base.Union_entity_with_value_converted_key_with_split_collection(async);
+
+        AssertSql(
+            """
+SELECT [u].[Name], [u].[Id]
+FROM (
+    SELECT [b].[Id], [b].[Name]
+    FROM [Blogs] AS [b]
+    WHERE [b].[Name] = N'efcore'
+    UNION
+    SELECT [b0].[Id], [b0].[Name]
+    FROM [Blogs] AS [b0]
+    WHERE [b0].[Name] = N'linq'
+) AS [u]
+ORDER BY [u].[Id]
+""",
+            //
+            """
+SELECT [p1].[Id], [u].[Id]
+FROM (
+    SELECT [b].[Id], [b].[Name]
+    FROM [Blogs] AS [b]
+    WHERE [b].[Name] = N'efcore'
+    UNION
+    SELECT [b0].[Id], [b0].[Name]
+    FROM [Blogs] AS [b0]
+    WHERE [b0].[Name] = N'linq'
+) AS [u]
+INNER JOIN [Post] AS [p1] ON [u].[Id] = [p1].[BlogId]
+ORDER BY [u].[Id]
+""");
+    }
+
+    public override async Task Distinct_value_converted_reference_type_with_collection(bool async)
+    {
+        await base.Distinct_value_converted_reference_type_with_collection(async);
+
+        AssertSql(
+            """
+SELECT [p0].[Tag], [p1].[Id]
+FROM (
+    SELECT DISTINCT [p].[Tag]
+    FROM [Posts] AS [p]
+) AS [p0]
+LEFT JOIN [Posts] AS [p1] ON [p0].[Tag] = [p1].[Tag]
+ORDER BY [p0].[Tag]
+""");
+    }
+
+    public override async Task Distinct_value_converted_string_with_nondeterministic_write_with_collection(bool async)
+    {
+        await base.Distinct_value_converted_string_with_nondeterministic_write_with_collection(async);
+
+        AssertSql(
+            """
+SELECT [p0].[Tag], [p1].[Id]
+FROM (
+    SELECT DISTINCT [p].[Tag]
+    FROM [Posts] AS [p]
+) AS [p0]
+LEFT JOIN [Posts] AS [p1] ON [p0].[Tag] = [p1].[Tag]
+ORDER BY [p0].[Tag]
+""");
+    }
+
+    public override async Task Final_GroupBy_value_converted_key_read_as_same_value_from_different_database_values(bool async)
+    {
+        await base.Final_GroupBy_value_converted_key_read_as_same_value_from_different_database_values(async);
+
+        AssertSql(
+            """
+SELECT [i].[Number], [i].[Id]
+FROM [Items] AS [i]
+ORDER BY [i].[Number]
+""");
+    }
+
+    public override async Task Distinct_complex_type_with_value_converted_reference_type_with_collection(bool async)
+    {
+        await base.Distinct_complex_type_with_value_converted_reference_type_with_collection(async);
+
+        AssertSql(
+            """
+SELECT [p0].[Details_Rating], [p0].[Details_Tag], [p1].[Id]
+FROM (
+    SELECT DISTINCT [p].[Details_Rating], [p].[Details_Tag]
+    FROM [Posts] AS [p]
+) AS [p0]
+LEFT JOIN [Posts] AS [p1] ON [p0].[Details_Tag] = [p1].[Details_Tag]
+ORDER BY [p0].[Details_Rating], [p0].[Details_Tag]
+""");
+    }
+
+    public override async Task Distinct_complex_type_with_value_converted_reference_type_with_split_collection(bool async)
+    {
+        await base.Distinct_complex_type_with_value_converted_reference_type_with_split_collection(async);
+
+        AssertSql(
+            """
+SELECT [p0].[Details_Rating], [p0].[Details_Tag]
+FROM (
+    SELECT DISTINCT [p].[Details_Rating], [p].[Details_Tag]
+    FROM [Posts] AS [p]
+) AS [p0]
+ORDER BY [p0].[Details_Rating], [p0].[Details_Tag]
+""",
+            //
+            """
+SELECT [p3].[Id], [p0].[Details_Rating], [p0].[Details_Tag]
+FROM (
+    SELECT DISTINCT [p].[Details_Rating], [p].[Details_Tag]
+    FROM [Posts] AS [p]
+) AS [p0]
+INNER JOIN [Posts] AS [p3] ON [p0].[Details_Tag] = [p3].[Details_Tag]
+ORDER BY [p0].[Details_Rating], [p0].[Details_Tag]
+""");
+    }
+
+    public override async Task Distinct_value_converted_object_with_collection(bool async)
+    {
+        await base.Distinct_value_converted_object_with_collection(async);
+
+        AssertSql(
+            """
+SELECT [p0].[Tag], [p1].[Id]
+FROM (
+    SELECT DISTINCT [p].[Tag]
+    FROM [Posts] AS [p]
+) AS [p0]
+LEFT JOIN [Posts] AS [p1] ON [p0].[Tag] = [p1].[Tag]
+ORDER BY [p0].[Tag]
+""");
+    }
+
+    public override async Task Distinct_primitive_collection_with_collection(bool async)
+    {
+        await base.Distinct_primitive_collection_with_collection(async);
+
+        AssertSql(
+            """
+SELECT [p0].[Tags], [p1].[Id]
+FROM (
+    SELECT DISTINCT [p].[Tags]
+    FROM [Posts] AS [p]
+) AS [p0]
+LEFT JOIN [Posts] AS [p1] ON [p0].[Tags] = [p1].[Tags]
+ORDER BY [p0].[Tags]
+""");
+    }
+
+    #endregion
+
     #region 30233
 
     public override async Task Sum_over_property_with_value_converter_that_converts_nulls(bool async)
@@ -3713,6 +3928,40 @@ FROM [Entities] AS [e]
             """
 SELECT [e].[Id]
 FROM [Entities] AS [e]
+""");
+    }
+
+    public override async Task Count_over_collection_of_nested_projection_with_conditional_null(bool async)
+    {
+        await base.Count_over_collection_of_nested_projection_with_conditional_null(async);
+
+        AssertSql(
+            """
+SELECT CASE
+    WHEN [e0].[ID] IS NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, [e].[ID], [t].[ID]
+FROM [Entities] AS [e]
+LEFT JOIN [EntityType] AS [e0] ON [e].[TypeID] = [e0].[ID]
+LEFT JOIN [Tag] AS [t] ON [e0].[ID] = [t].[EntityTypeID]
+ORDER BY [e].[ID]
+""");
+    }
+
+    public override async Task Count_over_collection_of_nested_projection_with_conditional_null_on_false_side(bool async)
+    {
+        await base.Count_over_collection_of_nested_projection_with_conditional_null_on_false_side(async);
+
+        AssertSql(
+            """
+SELECT CASE
+    WHEN [e0].[ID] IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, [e].[ID], [t].[ID]
+FROM [Entities] AS [e]
+LEFT JOIN [EntityType] AS [e0] ON [e].[TypeID] = [e0].[ID]
+LEFT JOIN [Tag] AS [t] ON [e0].[ID] = [t].[EntityTypeID]
+ORDER BY [e].[ID]
 """);
     }
 

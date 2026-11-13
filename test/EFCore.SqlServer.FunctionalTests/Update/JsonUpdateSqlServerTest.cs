@@ -2541,9 +2541,8 @@ WHERE [j].[Id] = 2
 
         var updatedP0 = "@p0="
             + updateParameter
-            + @" (Nullable = false) (Size = "
-            + updateParameterSize
-            + @")";
+            + " (Nullable = false)"
+            + (SqlServerTestEnvironment.IsAzureSql && value == true ? "" : $" (Size = {updateParameterSize})");
 
         var updatedP0Reference = value switch
         {
@@ -2552,7 +2551,42 @@ WHERE [j].[Id] = 2
         };
 
         AssertSql(
-            $"""
+            SqlServerTestEnvironment.IsAzureSql
+                ? $"""
+{p0}
+@p1='7624'
+@p2='[]' (Size = 2)
+@p3=NULL (Size = 8000) (DbType = Binary)
+@p4='[]' (Size = 2)
+@p5='[]' (Size = 2)
+@p6='[]' (Size = 2)
+@p7='[]' (Size = 2)
+@p8='[]' (Size = 2)
+@p9='[]' (Size = 2)
+@p10='[]' (Size = 2)
+@p11='[]' (Size = 2)
+@p12='[]' (Nullable = false) (Size = 2)
+@p13='[]' (Size = 2)
+@p14='[]' (Size = 2)
+@p15='[]' (Size = 2)
+@p16='[]' (Size = 2)
+@p17='[]' (Size = 2)
+@p18=NULL
+@p19='[]' (Size = 2)
+@p20='[]' (Size = 2)
+@p21='[]' (Size = 2)
+@p22='[]' (Size = 2)
+@p23='[]' (Size = 2)
+@p24='[]' (Size = 2)
+@p25='[]' (Size = 2)
+@p26='[]' (Size = 2)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [JsonEntitiesAllTypes] ([Collection], [Id], [TestBooleanCollection], [TestByteCollection], [TestCharacterCollection], [TestDateTimeCollection], [TestDateTimeOffsetCollection], [TestDecimalCollection], [TestDefaultStringCollection], [TestDoubleCollection], [TestEnumCollection], [TestEnumWithIntConverterCollection], [TestGuidCollection], [TestInt16Collection], [TestInt32Collection], [TestInt64Collection], [TestMaxLengthStringCollection], [TestNullableEnumCollection], [TestNullableEnumWithConverterThatHandlesNullsCollection], [TestNullableEnumWithIntConverterCollection], [TestNullableInt32Collection], [TestSignedByteCollection], [TestSingleCollection], [TestTimeSpanCollection], [TestUnsignedInt16Collection], [TestUnsignedInt32Collection], [TestUnsignedInt64Collection])
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19, @p20, @p21, @p22, @p23, @p24, @p25, @p26);
+"""
+                : $"""
 {p0}
 @p1='7624'
 @p2='[]' (Size = 4000)
