@@ -25,7 +25,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
     private static readonly MethodInfo RawParameterJsonSerializerMethod =
         typeof(RelationalQueryableMethodTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(RawParameterJsonSerializer))!;
 
-    private int _jsonParameterIndex;
+    private HashSet<string>? _jsonParameterNames;
 
     /// <inheritdoc />
     protected override UpdateExpression TranslateExecuteUpdate(ShapedQueryExpression source, IReadOnlyList<ExecuteUpdateSetter> setters)
@@ -713,7 +713,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                     case SqlParameterExpression parameter:
                     {
                         var queryParameter = _queryCompilationContext.RegisterRuntimeParameter(
-                            $"json_{parameter.InvariantName}_{_jsonParameterIndex++}",
+                            GenerateJsonParameterName(parameter.InvariantName),
                             Expression.Lambda(
                                 Expression.Call(
                                     RelationalJsonUtilities.SerializeComplexTypeToJsonMethod,
@@ -994,7 +994,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 
             case SqlParameterExpression parameter:
                 var queryParameter = _queryCompilationContext.RegisterRuntimeParameter(
-                    $"json_{parameter.InvariantName}_{_jsonParameterIndex++}",
+                    GenerateJsonParameterName(parameter.InvariantName),
                     Expression.Lambda(
                         Expression.Call(
                             raw ? RawParameterJsonSerializerMethod : ParameterJsonSerializerMethod,
@@ -1012,6 +1012,34 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 
             default:
                 return null;
+        }
+    }
+
+    private string GenerateJsonParameterName(string baseName)
+    {
+        if (_jsonParameterNames is null)
+        {
+            _jsonParameterNames = [];
+            // Reserve parameters from the entire query, including setters which haven't been translated yet.
+            new JsonParameterNameCollectingExpressionVisitor(_jsonParameterNames).Visit(_rootExpression);
+        }
+
+        var name = Uniquifier.Uniquify($"json_{baseName}", _jsonParameterNames, maxLength: int.MaxValue);
+        _jsonParameterNames.Add(name);
+        return name;
+    }
+
+    private sealed class JsonParameterNameCollectingExpressionVisitor(HashSet<string> parameterNames) : ExpressionVisitor
+    {
+        protected override Expression VisitExtension(Expression extensionExpression)
+        {
+            if (extensionExpression is QueryParameterExpression parameter)
+            {
+                parameterNames.Add(parameter.Name);
+                return parameter;
+            }
+
+            return base.VisitExtension(extensionExpression);
         }
     }
 

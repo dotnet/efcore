@@ -243,6 +243,59 @@ public abstract class NonSharedModelBulkUpdatesRelationalTestBase(NonSharedFixtu
         Assert.Equal(42, item.Second.Number);
     }
 
+    [Theory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
+    public virtual async Task Update_JSON_with_parameter_name_collision(bool async, bool wholeDocument)
+    {
+        var factory = await InitializeNonSharedTest<PoolableDbContext>(
+            onModelCreating: b =>
+            {
+                var entity = b.Entity<JsonPairItem>();
+                entity.Property(e => e.Id).ValueGeneratedNever();
+                entity.ComplexProperty(e => e.First).ToJson();
+                entity.ComplexProperty(e => e.Second).ToJson();
+            },
+            seed: context =>
+            {
+                context.AddRange(
+                    new JsonPairItem { Id = 1, First = new JsonPairData { Number = 1 }, Second = new JsonPairData { Number = 2 } },
+                    new JsonPairItem { Id = 2, First = new JsonPairData { Number = 3 }, Second = new JsonPairData { Number = 4 } });
+                return context.SaveChangesAsync();
+            });
+        await using var context = factory.CreateDbContext();
+        var json_number = 1;
+        var json_p = 1;
+        var query = context.Set<JsonPairItem>().Where(e => e.Id == json_number && e.Id == json_p);
+        var number = 42;
+        var p = new JsonPairData { Number = number };
+        ClearLog();
+
+        var affected = wholeDocument
+            ? async
+                ? await query.ExecuteUpdateAsync(s => s.SetProperty(e => e.First, p))
+                : query.ExecuteUpdate(s => s.SetProperty(e => e.First, p))
+            : async
+                ? await query.ExecuteUpdateAsync(s => s.SetProperty(e => e.First.Number, e => number))
+                : query.ExecuteUpdate(s => s.SetProperty(e => e.First.Number, e => number));
+        Assert.Equal(1, affected);
+
+        var results = context.Set<JsonPairItem>().AsNoTracking().OrderBy(e => e.Id);
+        var items = async ? await results.ToListAsync() : results.ToList();
+        Assert.Collection(
+            items,
+            item =>
+            {
+                Assert.Equal(1, item.Id);
+                Assert.Equal(42, item.First.Number);
+                Assert.Equal(2, item.Second.Number);
+            },
+            item =>
+            {
+                Assert.Equal(2, item.Id);
+                Assert.Equal(3, item.First.Number);
+                Assert.Equal(4, item.Second.Number);
+            });
+    }
+
     protected class JsonPairItem
     {
         public int Id { get; set; }
