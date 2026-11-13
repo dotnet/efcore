@@ -812,6 +812,1262 @@ public class RelationalScaffoldingModelFactoryTest
     }
 
     [Fact]
+    public void Foreign_key_with_wider_dependent_type_uses_principal_clr_type()
+    {
+        var parentTable = new DatabaseTable
+        {
+            Database = Database,
+            Name = "Parent",
+            Columns = { IdColumn },
+            PrimaryKey = IdPrimaryKey
+        };
+        var parentIdColumn = new DatabaseColumn
+        {
+            Table = Table,
+            Name = "ParentId",
+            StoreType = "bigint",
+            IsNullable = true
+        };
+        var childrenTable = new DatabaseTable
+        {
+            Database = Database,
+            Name = "Children",
+            Columns = { IdColumn, parentIdColumn },
+            PrimaryKey = IdPrimaryKey
+        };
+        childrenTable.ForeignKeys.Add(
+            new DatabaseForeignKey
+            {
+                Table = childrenTable,
+                Name = "FK_Foo",
+                Columns = { parentIdColumn },
+                PrincipalTable = parentTable,
+                PrincipalColumns = { IdColumn }
+            });
+
+        var model = _factory.Create(
+            new DatabaseModel { Tables = { parentTable, childrenTable } },
+            new ModelReverseEngineerOptions { NoPluralize = true });
+
+        Assert.Empty(_reporter.Messages);
+
+        var children = model.FindEntityType("Children")!;
+        var fk = Assert.Single(children.GetForeignKeys());
+        Assert.Equal("Parent", fk.PrincipalEntityType.Name);
+
+        var property = Assert.Single(fk.Properties);
+        Assert.Equal(typeof(int?), property.ClrType);
+        Assert.Equal("bigint", property.GetColumnType());
+        Assert.Equal("bigint", property.FindAnnotation(RelationalAnnotationNames.ColumnType)?.Value);
+    }
+
+    [Fact]
+    public void Foreign_key_with_narrower_dependent_type_is_skipped()
+    {
+        // The principal values might not fit in the foreign key column, so the column type is not changed.
+        var principalIdColumn = new DatabaseColumn
+        {
+            Table = Table,
+            Name = "Id",
+            StoreType = "bigint"
+        };
+        var parentTable = new DatabaseTable
+        {
+            Database = Database,
+            Name = "Parent",
+            Columns = { principalIdColumn },
+            PrimaryKey = new DatabasePrimaryKey
+            {
+                Table = Table,
+                Name = "PK_Parent",
+                Columns = { principalIdColumn }
+            }
+        };
+        var parentIdColumn = new DatabaseColumn
+        {
+            Table = Table,
+            Name = "ParentId",
+            StoreType = "smallint"
+        };
+        var childrenTable = new DatabaseTable
+        {
+            Database = Database,
+            Name = "Children",
+            Columns = { IdColumn, parentIdColumn },
+            PrimaryKey = IdPrimaryKey
+        };
+        var foreignKey = new DatabaseForeignKey
+        {
+            Table = childrenTable,
+            Name = "FK_Foo",
+            Columns = { parentIdColumn },
+            PrincipalTable = parentTable,
+            PrincipalColumns = { principalIdColumn }
+        };
+        childrenTable.ForeignKeys.Add(foreignKey);
+
+        var model = _factory.Create(
+            new DatabaseModel { Tables = { parentTable, childrenTable } },
+            new ModelReverseEngineerOptions { NoPluralize = true });
+
+        var (level, message) = Assert.Single(_reporter.Messages);
+        Assert.Equal(LogLevel.Warning, level);
+        Assert.Equal(
+            DesignStrings.ForeignKeyScaffoldErrorTypeMismatch(foreignKey.DisplayName(), "{'ParentId' : short}", "{'Id' : long}"),
+            message);
+
+        var children = model.FindEntityType("Children")!;
+        Assert.Empty(children.GetForeignKeys());
+        Assert.Equal(typeof(short), children.FindProperty("ParentId")!.ClrType);
+    }
+
+    [Fact]
+    public void Foreign_key_with_decimal_principal_type_uses_principal_clr_type()
+    {
+        var principalIdColumn = new DatabaseColumn
+        {
+            Table = Table,
+            Name = "Id",
+            StoreType = "decimal(18, 0)"
+        };
+        var parentTable = new DatabaseTable
+        {
+            Database = Database,
+            Name = "Parent",
+            Columns = { principalIdColumn },
+            PrimaryKey = new DatabasePrimaryKey
+            {
+                Table = Table,
+                Name = "PK_Parent",
+                Columns = { principalIdColumn }
+            }
+        };
+        var parentIdColumn = new DatabaseColumn
+        {
+            Table = Table,
+            Name = "ParentId",
+            StoreType = "bigint"
+        };
+        var childrenTable = new DatabaseTable
+        {
+            Database = Database,
+            Name = "Children",
+            Columns = { IdColumn, parentIdColumn },
+            PrimaryKey = IdPrimaryKey
+        };
+        childrenTable.ForeignKeys.Add(
+            new DatabaseForeignKey
+            {
+                Table = childrenTable,
+                Name = "FK_Foo",
+                Columns = { parentIdColumn },
+                PrincipalTable = parentTable,
+                PrincipalColumns = { principalIdColumn }
+            });
+
+        var model = _factory.Create(
+            new DatabaseModel { Tables = { parentTable, childrenTable } },
+            new ModelReverseEngineerOptions { NoPluralize = true });
+
+        Assert.Empty(_reporter.Messages);
+
+        var fk = Assert.Single(model.FindEntityType("Children")!.GetForeignKeys());
+        var property = Assert.Single(fk.Properties);
+        Assert.Equal(typeof(decimal), property.ClrType);
+        Assert.Equal("bigint", property.GetColumnType());
+    }
+
+    [Fact]
+    public void Foreign_key_with_mismatched_non_numeric_types_is_skipped()
+    {
+        var principalIdColumn = new DatabaseColumn
+        {
+            Table = Table,
+            Name = "Id",
+            StoreType = "uniqueidentifier"
+        };
+        var parentTable = new DatabaseTable
+        {
+            Database = Database,
+            Name = "Parent",
+            Columns = { principalIdColumn },
+            PrimaryKey = new DatabasePrimaryKey
+            {
+                Table = Table,
+                Name = "PK_Parent",
+                Columns = { principalIdColumn }
+            }
+        };
+        var parentIdColumn = new DatabaseColumn
+        {
+            Table = Table,
+            Name = "ParentId",
+            StoreType = "varchar(36)"
+        };
+        var childrenTable = new DatabaseTable
+        {
+            Database = Database,
+            Name = "Children",
+            Columns = { IdColumn, parentIdColumn },
+            PrimaryKey = IdPrimaryKey
+        };
+        childrenTable.ForeignKeys.Add(
+            new DatabaseForeignKey
+            {
+                Table = childrenTable,
+                Name = "FK_Foo",
+                Columns = { parentIdColumn },
+                PrincipalTable = parentTable,
+                PrincipalColumns = { principalIdColumn }
+            });
+
+        var model = _factory.Create(
+            new DatabaseModel { Tables = { parentTable, childrenTable } },
+            new ModelReverseEngineerOptions { NoPluralize = true });
+
+        Assert.Single(_reporter.Messages);
+
+        var children = model.FindEntityType("Children")!;
+        Assert.Empty(children.GetForeignKeys());
+        Assert.Equal(typeof(string), children.FindProperty("ParentId")!.ClrType);
+    }
+
+    [Fact]
+    public void Foreign_key_with_mismatched_types_and_default_value_is_skipped()
+    {
+        var parentTable = new DatabaseTable
+        {
+            Database = Database,
+            Name = "Parent",
+            Columns = { IdColumn },
+            PrimaryKey = IdPrimaryKey
+        };
+        var parentIdColumn = new DatabaseColumn
+        {
+            Table = Table,
+            Name = "ParentId",
+            StoreType = "bigint",
+            DefaultValue = 0L
+        };
+        var childrenTable = new DatabaseTable
+        {
+            Database = Database,
+            Name = "Children",
+            Columns = { IdColumn, parentIdColumn },
+            PrimaryKey = IdPrimaryKey
+        };
+        childrenTable.ForeignKeys.Add(
+            new DatabaseForeignKey
+            {
+                Table = childrenTable,
+                Name = "FK_Foo",
+                Columns = { parentIdColumn },
+                PrincipalTable = parentTable,
+                PrincipalColumns = { IdColumn }
+            });
+
+        var model = _factory.Create(
+            new DatabaseModel { Tables = { parentTable, childrenTable } },
+            new ModelReverseEngineerOptions { NoPluralize = true });
+
+        Assert.Single(_reporter.Messages);
+
+        var children = model.FindEntityType("Children")!;
+        Assert.Empty(children.GetForeignKeys());
+        Assert.Equal(typeof(long), children.FindProperty("ParentId")!.ClrType);
+    }
+
+    [Fact]
+    public void Self_referencing_foreign_key_with_mismatched_types_uses_principal_clr_type()
+    {
+        var parentIdColumn = new DatabaseColumn
+        {
+            Table = Table,
+            Name = "ParentId",
+            StoreType = "bigint",
+            IsNullable = true
+        };
+        var nodesTable = new DatabaseTable
+        {
+            Database = Database,
+            Name = "Nodes",
+            Columns = { IdColumn, parentIdColumn },
+            PrimaryKey = IdPrimaryKey
+        };
+        nodesTable.ForeignKeys.Add(
+            new DatabaseForeignKey
+            {
+                Table = nodesTable,
+                Name = "FK_Parent",
+                Columns = { parentIdColumn },
+                PrincipalTable = nodesTable,
+                PrincipalColumns = { IdColumn }
+            });
+
+        var model = _factory.Create(
+            new DatabaseModel { Tables = { nodesTable } },
+            new ModelReverseEngineerOptions { NoPluralize = true });
+
+        Assert.Empty(_reporter.Messages);
+
+        var fk = Assert.Single(model.FindEntityType("Nodes")!.GetForeignKeys());
+        var property = Assert.Single(fk.Properties);
+        Assert.Equal(typeof(int?), property.ClrType);
+        Assert.Equal("bigint", property.GetColumnType());
+    }
+
+    [Fact]
+    public void Composite_foreign_key_with_some_mismatched_types_uses_principal_clr_types()
+    {
+        var (parentTable, principalColumn1, principalColumn2) = CreateCompositeParent();
+        var dependentColumn1 = new DatabaseColumn
+        {
+            Table = Table,
+            Name = "ParentId1",
+            StoreType = "bigint"
+        };
+        var dependentColumn2 = new DatabaseColumn
+        {
+            Table = Table,
+            Name = "ParentId2",
+            StoreType = "int"
+        };
+        var childrenTable = new DatabaseTable
+        {
+            Database = Database,
+            Name = "Children",
+            Columns = { IdColumn, dependentColumn1, dependentColumn2 },
+            PrimaryKey = IdPrimaryKey
+        };
+        childrenTable.ForeignKeys.Add(
+            new DatabaseForeignKey
+            {
+                Table = childrenTable,
+                Name = "FK_Foo",
+                Columns = { dependentColumn1, dependentColumn2 },
+                PrincipalTable = parentTable,
+                PrincipalColumns = { principalColumn1, principalColumn2 }
+            });
+
+        var model = _factory.Create(
+            new DatabaseModel { Tables = { parentTable, childrenTable } },
+            new ModelReverseEngineerOptions { NoPluralize = true });
+
+        Assert.Empty(_reporter.Messages);
+
+        var fk = Assert.Single(model.FindEntityType("Children")!.GetForeignKeys());
+        Assert.Equal([typeof(int), typeof(int)], fk.Properties.Select(p => p.ClrType));
+        Assert.Equal("bigint", fk.Properties[0].GetColumnType());
+        Assert.Equal("int", fk.Properties[1].GetColumnType());
+    }
+
+    [Fact]
+    public void Composite_foreign_key_with_unsafe_mismatched_column_is_skipped_without_changing_other_columns()
+    {
+        var (parentTable, principalColumn1, principalColumn2) = CreateCompositeParent();
+        var dependentColumn1 = new DatabaseColumn
+        {
+            Table = Table,
+            Name = "ParentId1",
+            StoreType = "bigint"
+        };
+        var dependentColumn2 = new DatabaseColumn
+        {
+            Table = Table,
+            Name = "ParentId2",
+            StoreType = "uniqueidentifier"
+        };
+        var childrenTable = new DatabaseTable
+        {
+            Database = Database,
+            Name = "Children",
+            Columns = { IdColumn, dependentColumn1, dependentColumn2 },
+            PrimaryKey = IdPrimaryKey
+        };
+        childrenTable.ForeignKeys.Add(
+            new DatabaseForeignKey
+            {
+                Table = childrenTable,
+                Name = "FK_Foo",
+                Columns = { dependentColumn1, dependentColumn2 },
+                PrincipalTable = parentTable,
+                PrincipalColumns = { principalColumn1, principalColumn2 }
+            });
+
+        var model = _factory.Create(
+            new DatabaseModel { Tables = { parentTable, childrenTable } },
+            new ModelReverseEngineerOptions { NoPluralize = true });
+
+        Assert.Single(_reporter.Messages);
+
+        var children = model.FindEntityType("Children")!;
+        Assert.Empty(children.GetForeignKeys());
+        Assert.Equal(typeof(long), children.FindProperty("ParentId1")!.ClrType);
+        Assert.Equal(typeof(Guid), children.FindProperty("ParentId2")!.ClrType);
+    }
+
+    [Fact]
+    public void Foreign_key_to_non_key_principal_columns_does_not_change_dependent_type()
+    {
+        var notKeyColumn = new DatabaseColumn
+        {
+            Table = Table,
+            Name = "NotPkId",
+            StoreType = "int"
+        };
+        var parentTable = new DatabaseTable
+        {
+            Database = Database,
+            Name = "Parent",
+            Columns = { IdColumn, notKeyColumn },
+            PrimaryKey = IdPrimaryKey
+        };
+        var parentIdColumn = new DatabaseColumn
+        {
+            Table = Table,
+            Name = "ParentId",
+            StoreType = "bigint"
+        };
+        var childrenTable = new DatabaseTable
+        {
+            Database = Database,
+            Name = "Children",
+            Columns = { IdColumn, parentIdColumn },
+            PrimaryKey = IdPrimaryKey
+        };
+        var foreignKey = new DatabaseForeignKey
+        {
+            Table = childrenTable,
+            Name = "FK_Foo",
+            Columns = { parentIdColumn },
+            PrincipalTable = parentTable,
+            PrincipalColumns = { notKeyColumn }
+        };
+        childrenTable.ForeignKeys.Add(foreignKey);
+
+        var model = _factory.Create(
+            new DatabaseModel { Tables = { parentTable, childrenTable } },
+            new ModelReverseEngineerOptions { NoPluralize = true });
+
+        // Only the principal key warning, because the foreign key is not scaffolded and so the column is not changed.
+        var (level, message) = Assert.Single(_reporter.Messages);
+        Assert.Equal(LogLevel.Warning, level);
+        Assert.Equal(
+            DesignStrings.ForeignKeyScaffoldErrorPrincipalKeyNotFound(foreignKey.DisplayName(), "NotPkId", "Parent"),
+            message);
+
+        var children = model.FindEntityType("Children")!;
+        Assert.Empty(children.GetForeignKeys());
+        Assert.Equal(typeof(long), children.FindProperty("ParentId")!.ClrType);
+    }
+
+    [Theory, InlineData(false), InlineData(true)]
+    public void Foreign_key_to_unique_principal_columns_with_mismatched_types_uses_principal_clr_type(bool uniqueConstraint)
+    {
+        var codeColumn = new DatabaseColumn
+        {
+            Table = Table,
+            Name = "Code",
+            StoreType = "int"
+        };
+        var parentTable = new DatabaseTable
+        {
+            Database = Database,
+            Name = "Parent",
+            Columns = { IdColumn, codeColumn },
+            PrimaryKey = IdPrimaryKey
+        };
+        if (uniqueConstraint)
+        {
+            parentTable.UniqueConstraints.Add(
+                new DatabaseUniqueConstraint
+                {
+                    Table = parentTable,
+                    Name = "UQ_Code",
+                    Columns = { codeColumn }
+                });
+        }
+        else
+        {
+            parentTable.Indexes.Add(
+                new DatabaseIndex
+                {
+                    Table = parentTable,
+                    Name = "IX_Code",
+                    Columns = { codeColumn },
+                    IsUnique = true
+                });
+        }
+
+        var parentCodeColumn = new DatabaseColumn
+        {
+            Table = Table,
+            Name = "ParentCode",
+            StoreType = "bigint"
+        };
+        var childrenTable = new DatabaseTable
+        {
+            Database = Database,
+            Name = "Children",
+            Columns = { IdColumn, parentCodeColumn },
+            PrimaryKey = IdPrimaryKey
+        };
+        childrenTable.ForeignKeys.Add(
+            new DatabaseForeignKey
+            {
+                Table = childrenTable,
+                Name = "FK_Foo",
+                Columns = { parentCodeColumn },
+                PrincipalTable = parentTable,
+                PrincipalColumns = { codeColumn }
+            });
+
+        var model = _factory.Create(
+            new DatabaseModel { Tables = { parentTable, childrenTable } },
+            new ModelReverseEngineerOptions { NoPluralize = true });
+
+        Assert.Empty(_reporter.Messages);
+
+        var fk = Assert.Single(model.FindEntityType("Children")!.GetForeignKeys());
+        var property = Assert.Single(fk.Properties);
+        Assert.Equal(typeof(int), property.ClrType);
+        Assert.Equal("bigint", property.GetColumnType());
+    }
+
+    [Fact]
+    public void Foreign_key_from_primary_key_column_with_mismatched_types_uses_principal_clr_type()
+    {
+        var parentTable = new DatabaseTable
+        {
+            Database = Database,
+            Name = "Parent",
+            Columns = { IdColumn },
+            PrimaryKey = IdPrimaryKey
+        };
+        var parentIdColumn = new DatabaseColumn
+        {
+            Table = Table,
+            Name = "ParentId",
+            StoreType = "bigint"
+        };
+        var childrenTable = new DatabaseTable
+        {
+            Database = Database,
+            Name = "Children",
+            Columns = { parentIdColumn },
+            PrimaryKey = new DatabasePrimaryKey
+            {
+                Table = Table,
+                Name = "PK_Children",
+                Columns = { parentIdColumn }
+            }
+        };
+        childrenTable.ForeignKeys.Add(
+            new DatabaseForeignKey
+            {
+                Table = childrenTable,
+                Name = "FK_Foo",
+                Columns = { parentIdColumn },
+                PrincipalTable = parentTable,
+                PrincipalColumns = { IdColumn }
+            });
+
+        var model = _factory.Create(
+            new DatabaseModel { Tables = { parentTable, childrenTable } },
+            new ModelReverseEngineerOptions { NoPluralize = true });
+
+        Assert.Empty(_reporter.Messages);
+
+        var children = model.FindEntityType("Children")!;
+        var fk = Assert.Single(children.GetForeignKeys());
+        Assert.True(fk.IsUnique);
+
+        var key = children.FindPrimaryKey()!;
+        Assert.Same(Assert.Single(key.Properties), Assert.Single(fk.Properties));
+        Assert.Equal(typeof(int), key.Properties[0].ClrType);
+        Assert.Equal("bigint", key.Properties[0].GetColumnType());
+    }
+
+    [Fact]
+    public void Foreign_key_from_unique_index_column_with_mismatched_types_uses_principal_clr_type()
+    {
+        var parentTable = new DatabaseTable
+        {
+            Database = Database,
+            Name = "Parent",
+            Columns = { IdColumn },
+            PrimaryKey = IdPrimaryKey
+        };
+        var parentIdColumn = new DatabaseColumn
+        {
+            Table = Table,
+            Name = "ParentId",
+            StoreType = "bigint"
+        };
+        var childrenTable = new DatabaseTable
+        {
+            Database = Database,
+            Name = "Children",
+            Columns = { IdColumn, parentIdColumn },
+            PrimaryKey = IdPrimaryKey
+        };
+        childrenTable.Indexes.Add(
+            new DatabaseIndex
+            {
+                Table = childrenTable,
+                Name = "IX_ParentId",
+                Columns = { parentIdColumn },
+                IsUnique = true
+            });
+        childrenTable.ForeignKeys.Add(
+            new DatabaseForeignKey
+            {
+                Table = childrenTable,
+                Name = "FK_Foo",
+                Columns = { parentIdColumn },
+                PrincipalTable = parentTable,
+                PrincipalColumns = { IdColumn }
+            });
+
+        var model = _factory.Create(
+            new DatabaseModel { Tables = { parentTable, childrenTable } },
+            new ModelReverseEngineerOptions { NoPluralize = true });
+
+        Assert.Empty(_reporter.Messages);
+
+        var children = model.FindEntityType("Children")!;
+        var fk = Assert.Single(children.GetForeignKeys());
+        Assert.True(fk.IsUnique);
+        Assert.Equal(typeof(int), Assert.Single(fk.Properties).ClrType);
+        Assert.Equal(typeof(int), Assert.Single(Assert.Single(children.GetIndexes()).Properties).ClrType);
+    }
+
+    [Fact]
+    public void Foreign_keys_from_same_column_to_principals_with_same_clr_type_use_principal_clr_type()
+    {
+        var (parentTable, parentIdColumn) = CreateIntParent("Parent");
+        var (otherParentTable, otherParentIdColumn) = CreateIntParent("OtherParent");
+        var childColumn = new DatabaseColumn
+        {
+            Table = Table,
+            Name = "ParentId",
+            StoreType = "bigint"
+        };
+        var childrenTable = new DatabaseTable
+        {
+            Database = Database,
+            Name = "Children",
+            Columns = { IdColumn, childColumn },
+            PrimaryKey = IdPrimaryKey
+        };
+        childrenTable.ForeignKeys.Add(
+            new DatabaseForeignKey
+            {
+                Table = childrenTable,
+                Name = "FK_Parent",
+                Columns = { childColumn },
+                PrincipalTable = parentTable,
+                PrincipalColumns = { parentIdColumn }
+            });
+        childrenTable.ForeignKeys.Add(
+            new DatabaseForeignKey
+            {
+                Table = childrenTable,
+                Name = "FK_OtherParent",
+                Columns = { childColumn },
+                PrincipalTable = otherParentTable,
+                PrincipalColumns = { otherParentIdColumn }
+            });
+
+        var model = _factory.Create(
+            new DatabaseModel { Tables = { parentTable, otherParentTable, childrenTable } },
+            new ModelReverseEngineerOptions { NoPluralize = true });
+
+        Assert.Empty(_reporter.Messages);
+
+        var children = model.FindEntityType("Children")!;
+        Assert.Equal(2, children.GetForeignKeys().Count());
+        Assert.Equal(typeof(int), children.FindProperty("ParentId")!.ClrType);
+        Assert.Equal("bigint", children.FindProperty("ParentId")!.GetColumnType());
+    }
+
+    [Fact]
+    public void Foreign_keys_sharing_columns_are_all_skipped_when_one_cannot_change_the_shared_column()
+    {
+        var (parentTable, principalColumn1, principalColumn2) = CreateCompositeParent();
+
+        var otherIdColumn = new DatabaseColumn
+        {
+            Table = Table,
+            Name = "Id",
+            StoreType = "decimal(18, 0)"
+        };
+        var otherParentTable = new DatabaseTable
+        {
+            Database = Database,
+            Name = "OtherParent",
+            Columns = { otherIdColumn },
+            PrimaryKey = new DatabasePrimaryKey
+            {
+                Table = Table,
+                Name = "PK_OtherParent",
+                Columns = { otherIdColumn }
+            }
+        };
+        var (thirdParentTable, thirdPrincipalColumn1, thirdPrincipalColumn2) = CreateCompositeParent("ThirdParent");
+
+        var columnA = new DatabaseColumn
+        {
+            Table = Table,
+            Name = "A",
+            StoreType = "bigint"
+        };
+        var columnB = new DatabaseColumn
+        {
+            Table = Table,
+            Name = "B",
+            StoreType = "bigint"
+        };
+        var columnC = new DatabaseColumn
+        {
+            Table = Table,
+            Name = "C",
+            StoreType = "bigint"
+        };
+        var childrenTable = new DatabaseTable
+        {
+            Database = Database,
+            Name = "Children",
+            Columns = { IdColumn, columnA, columnB, columnC },
+            PrimaryKey = IdPrimaryKey
+        };
+
+        // A references principals with different CLR types, so it can't be changed. That makes the foreign key on (A, B)
+        // unresolvable, so B can't be changed either, and then neither can C because the foreign key on (B, C) is
+        // unresolvable. The foreign key on (B, C) comes first, so it is only found to be unresolvable on a later pass.
+        childrenTable.ForeignKeys.Add(
+            new DatabaseForeignKey
+            {
+                Table = childrenTable,
+                Name = "FK_Third",
+                Columns = { columnB, columnC },
+                PrincipalTable = thirdParentTable,
+                PrincipalColumns = { thirdPrincipalColumn1, thirdPrincipalColumn2 }
+            });
+        childrenTable.ForeignKeys.Add(
+            new DatabaseForeignKey
+            {
+                Table = childrenTable,
+                Name = "FK_Composite",
+                Columns = { columnA, columnB },
+                PrincipalTable = parentTable,
+                PrincipalColumns = { principalColumn1, principalColumn2 }
+            });
+        childrenTable.ForeignKeys.Add(
+            new DatabaseForeignKey
+            {
+                Table = childrenTable,
+                Name = "FK_Other",
+                Columns = { columnA },
+                PrincipalTable = otherParentTable,
+                PrincipalColumns = { otherIdColumn }
+            });
+
+        var model = _factory.Create(
+            new DatabaseModel { Tables = { parentTable, otherParentTable, thirdParentTable, childrenTable } },
+            new ModelReverseEngineerOptions { NoPluralize = true });
+
+        Assert.Equal(3, _reporter.Messages.Count);
+        Assert.All(_reporter.Messages, m => Assert.Equal(LogLevel.Warning, m.Level));
+
+        var children = model.FindEntityType("Children")!;
+        Assert.Empty(children.GetForeignKeys());
+        Assert.Equal(typeof(long), children.FindProperty("A")!.ClrType);
+        Assert.Equal(typeof(long), children.FindProperty("B")!.ClrType);
+        Assert.Equal(typeof(long), children.FindProperty("C")!.ClrType);
+    }
+
+    [Fact]
+    public void Foreign_key_with_mismatched_types_from_row_version_column_is_skipped()
+    {
+        var parentTable = new DatabaseTable
+        {
+            Database = Database,
+            Name = "Parent",
+            Columns = { IdColumn },
+            PrimaryKey = IdPrimaryKey
+        };
+        var parentIdColumn = new DatabaseColumn
+        {
+            Table = Table,
+            Name = "ParentId",
+            StoreType = "bigint",
+            ValueGenerated = ValueGenerated.OnAddOrUpdate,
+            [ScaffoldingAnnotationNames.ConcurrencyToken] = true
+        };
+        var childrenTable = new DatabaseTable
+        {
+            Database = Database,
+            Name = "Children",
+            Columns = { IdColumn, parentIdColumn },
+            PrimaryKey = IdPrimaryKey
+        };
+        childrenTable.ForeignKeys.Add(
+            new DatabaseForeignKey
+            {
+                Table = childrenTable,
+                Name = "FK_Foo",
+                Columns = { parentIdColumn },
+                PrincipalTable = parentTable,
+                PrincipalColumns = { IdColumn }
+            });
+
+        var model = _factory.Create(
+            new DatabaseModel { Tables = { parentTable, childrenTable } },
+            new ModelReverseEngineerOptions { NoPluralize = true });
+
+        Assert.Single(_reporter.Messages);
+
+        var children = model.FindEntityType("Children")!;
+        Assert.Empty(children.GetForeignKeys());
+        Assert.Equal(typeof(long), children.FindProperty("ParentId")!.ClrType);
+    }
+
+    [Fact]
+    public void Foreign_key_from_column_without_store_type_is_skipped()
+    {
+        var parentTable = new DatabaseTable
+        {
+            Database = Database,
+            Name = "Parent",
+            Columns = { IdColumn },
+            PrimaryKey = IdPrimaryKey
+        };
+        var parentIdColumn = new DatabaseColumn
+        {
+            Table = Table,
+            Name = "ParentId",
+            StoreType = null
+        };
+        var childrenTable = new DatabaseTable
+        {
+            Database = Database,
+            Name = "Children",
+            Columns = { IdColumn, parentIdColumn },
+            PrimaryKey = IdPrimaryKey
+        };
+        childrenTable.ForeignKeys.Add(
+            new DatabaseForeignKey
+            {
+                Table = childrenTable,
+                Name = "FK_Foo",
+                Columns = { parentIdColumn },
+                PrincipalTable = parentTable,
+                PrincipalColumns = { IdColumn }
+            });
+
+        var model = _factory.Create(
+            new DatabaseModel { Tables = { parentTable, childrenTable } },
+            new ModelReverseEngineerOptions { NoPluralize = true });
+
+        // One warning for the column that can't be mapped, and one for the foreign key that can't be scaffolded.
+        Assert.Equal(2, _reporter.Messages.Count);
+
+        var children = model.FindEntityType("Children")!;
+        Assert.Empty(children.GetForeignKeys());
+        Assert.Null(children.FindProperty("ParentId"));
+    }
+
+    [Fact]
+    public void Foreign_key_types_are_resolved_each_time_the_model_is_created()
+    {
+        var parentTable = new DatabaseTable
+        {
+            Database = Database,
+            Name = "Parent",
+            Columns = { IdColumn },
+            PrimaryKey = IdPrimaryKey
+        };
+        var parentIdColumn = new DatabaseColumn
+        {
+            Table = Table,
+            Name = "ParentId",
+            StoreType = "bigint"
+        };
+        var childrenTable = new DatabaseTable
+        {
+            Database = Database,
+            Name = "Children",
+            Columns = { IdColumn, parentIdColumn },
+            PrimaryKey = IdPrimaryKey
+        };
+        childrenTable.ForeignKeys.Add(
+            new DatabaseForeignKey
+            {
+                Table = childrenTable,
+                Name = "FK_Foo",
+                Columns = { parentIdColumn },
+                PrincipalTable = parentTable,
+                PrincipalColumns = { IdColumn }
+            });
+        var databaseModel = new DatabaseModel { Tables = { parentTable, childrenTable } };
+
+        for (var i = 0; i < 2; i++)
+        {
+            var model = _factory.Create(databaseModel, new ModelReverseEngineerOptions { NoPluralize = true });
+
+            Assert.Empty(_reporter.Messages);
+
+            var fk = Assert.Single(model.FindEntityType("Children")!.GetForeignKeys());
+            Assert.Equal(typeof(int), Assert.Single(fk.Properties).ClrType);
+        }
+
+        // A model without the foreign key must not inherit the changed type from the earlier calls.
+        childrenTable.ForeignKeys.Clear();
+        var modelWithoutForeignKey = _factory.Create(databaseModel, new ModelReverseEngineerOptions { NoPluralize = true });
+        Assert.Equal(typeof(long), modelWithoutForeignKey.FindEntityType("Children")!.FindProperty("ParentId")!.ClrType);
+    }
+
+    [Fact]
+    public void Sqlite_foreign_key_to_principal_with_clr_type_hint_uses_principal_clr_type()
+    {
+        var principalIdColumn = new DatabaseColumn
+        {
+            Table = Table,
+            Name = "Id",
+            StoreType = "INTEGER",
+            [ScaffoldingAnnotationNames.ClrType] = typeof(int)
+        };
+        var parentTable = new DatabaseTable
+        {
+            Database = Database,
+            Name = "Parent",
+            Columns = { principalIdColumn },
+            PrimaryKey = new DatabasePrimaryKey
+            {
+                Table = Table,
+                Name = "PK_Parent",
+                Columns = { principalIdColumn }
+            }
+        };
+        var parentIdColumn = new DatabaseColumn
+        {
+            Table = Table,
+            Name = "ParentId",
+            StoreType = "INTEGER"
+        };
+        var childrenTable = new DatabaseTable
+        {
+            Database = Database,
+            Name = "Children",
+            Columns = { IdColumn, parentIdColumn },
+            PrimaryKey = IdPrimaryKey
+        };
+        childrenTable.ForeignKeys.Add(
+            new DatabaseForeignKey
+            {
+                Table = childrenTable,
+                Name = "FK_Foo",
+                Columns = { parentIdColumn },
+                PrincipalTable = parentTable,
+                PrincipalColumns = { principalIdColumn }
+            });
+
+        var (factory, reporter) = CreateFactory("Microsoft.EntityFrameworkCore.Sqlite");
+        var model = factory.Create(
+            new DatabaseModel { Tables = { parentTable, childrenTable } },
+            new ModelReverseEngineerOptions { NoPluralize = true });
+
+        Assert.Empty(reporter.Messages);
+
+        var fk = Assert.Single(model.FindEntityType("Children")!.GetForeignKeys());
+        Assert.Equal(typeof(int), Assert.Single(fk.Properties).ClrType);
+    }
+
+    [Fact]
+    public void Sqlite_foreign_key_from_column_with_clr_type_hint_uses_principal_clr_type()
+    {
+        // The hint is derived from the data in the column, and the store types are the same, so any value
+        // in the principal column can be held by the foreign key column.
+        var principalIdColumn = new DatabaseColumn
+        {
+            Table = Table,
+            Name = "Id",
+            StoreType = "INTEGER"
+        };
+        var parentTable = new DatabaseTable
+        {
+            Database = Database,
+            Name = "Parent",
+            Columns = { principalIdColumn },
+            PrimaryKey = new DatabasePrimaryKey
+            {
+                Table = Table,
+                Name = "PK_Parent",
+                Columns = { principalIdColumn }
+            }
+        };
+        var parentIdColumn = new DatabaseColumn
+        {
+            Table = Table,
+            Name = "ParentId",
+            StoreType = "INTEGER",
+            [ScaffoldingAnnotationNames.ClrType] = typeof(int)
+        };
+        var childrenTable = new DatabaseTable
+        {
+            Database = Database,
+            Name = "Children",
+            Columns = { IdColumn, parentIdColumn },
+            PrimaryKey = IdPrimaryKey
+        };
+        childrenTable.ForeignKeys.Add(
+            new DatabaseForeignKey
+            {
+                Table = childrenTable,
+                Name = "FK_Foo",
+                Columns = { parentIdColumn },
+                PrincipalTable = parentTable,
+                PrincipalColumns = { principalIdColumn }
+            });
+
+        var (factory, reporter) = CreateFactory("Microsoft.EntityFrameworkCore.Sqlite");
+        var model = factory.Create(
+            new DatabaseModel { Tables = { parentTable, childrenTable } },
+            new ModelReverseEngineerOptions { NoPluralize = true });
+
+        Assert.Empty(reporter.Messages);
+
+        var fk = Assert.Single(model.FindEntityType("Children")!.GetForeignKeys());
+        Assert.Equal(typeof(long), Assert.Single(fk.Properties).ClrType);
+    }
+
+    private static (IScaffoldingModelFactory Factory, TestOperationReporter Reporter) CreateFactory(string provider)
+    {
+        var reporter = new TestOperationReporter();
+
+        var assembly = typeof(RelationalScaffoldingModelFactoryTest).Assembly;
+        var factory = new DesignTimeServicesBuilder(assembly, assembly, reporter, [])
+            .CreateServiceCollection(provider)
+            .AddSingleton<IScaffoldingModelFactory, FakeScaffoldingModelFactory>()
+            .BuildServiceProvider(validateScopes: true)
+            .GetRequiredService<IScaffoldingModelFactory>();
+
+        reporter.Clear();
+
+        return (factory, reporter);
+    }
+
+    private static (DatabaseTable Table, DatabaseColumn IdColumn) CreateIntParent(string name)
+    {
+        var idColumn = new DatabaseColumn
+        {
+            Table = Table,
+            Name = "Id",
+            StoreType = "int"
+        };
+        var table = new DatabaseTable
+        {
+            Database = Database,
+            Name = name,
+            Columns = { idColumn },
+            PrimaryKey = new DatabasePrimaryKey
+            {
+                Table = Table,
+                Name = "PK_" + name,
+                Columns = { idColumn }
+            }
+        };
+
+        return (table, idColumn);
+    }
+
+    private static (DatabaseTable Table, DatabaseColumn Column1, DatabaseColumn Column2) CreateCompositeParent(string name = "Parent")
+    {
+        var column1 = new DatabaseColumn
+        {
+            Table = Table,
+            Name = "Id1",
+            StoreType = "int"
+        };
+        var column2 = new DatabaseColumn
+        {
+            Table = Table,
+            Name = "Id2",
+            StoreType = "int"
+        };
+        var table = new DatabaseTable
+        {
+            Database = Database,
+            Name = name,
+            Columns = { column1, column2 },
+            PrimaryKey = new DatabasePrimaryKey
+            {
+                Table = Table,
+                Name = "PK_" + name,
+                Columns = { column1, column2 }
+            }
+        };
+
+        return (table, column1, column2);
+    }
+
+    [Fact]
+    public void Foreign_key_with_mismatched_types_to_principals_with_different_types_is_skipped()
+    {
+        var parentTable = new DatabaseTable
+        {
+            Database = Database,
+            Name = "Parent",
+            Columns = { IdColumn },
+            PrimaryKey = IdPrimaryKey
+        };
+        var otherParentIdColumn = new DatabaseColumn
+        {
+            Table = Table,
+            Name = "Id",
+            StoreType = "bigint"
+        };
+        var otherParentTable = new DatabaseTable
+        {
+            Database = Database,
+            Name = "OtherParent",
+            Columns = { otherParentIdColumn },
+            PrimaryKey = new DatabasePrimaryKey
+            {
+                Table = Table,
+                Name = "PK_OtherParent",
+                Columns = { otherParentIdColumn }
+            }
+        };
+        var parentIdColumn = new DatabaseColumn
+        {
+            Table = Table,
+            Name = "ParentId",
+            StoreType = "bigint"
+        };
+        var childrenTable = new DatabaseTable
+        {
+            Database = Database,
+            Name = "Children",
+            Columns = { IdColumn, parentIdColumn },
+            PrimaryKey = IdPrimaryKey
+        };
+        var mismatchedForeignKey = new DatabaseForeignKey
+        {
+            Table = childrenTable,
+            Name = "FK_Parent",
+            Columns = { parentIdColumn },
+            PrincipalTable = parentTable,
+            PrincipalColumns = { IdColumn }
+        };
+        childrenTable.ForeignKeys.Add(mismatchedForeignKey);
+        childrenTable.ForeignKeys.Add(
+            new DatabaseForeignKey
+            {
+                Table = childrenTable,
+                Name = "FK_OtherParent",
+                Columns = { parentIdColumn },
+                PrincipalTable = otherParentTable,
+                PrincipalColumns = { otherParentIdColumn }
+            });
+
+        var model = _factory.Create(
+            new DatabaseModel { Tables = { parentTable, otherParentTable, childrenTable } },
+            new ModelReverseEngineerOptions { NoPluralize = true });
+
+        var (level, message) = Assert.Single(_reporter.Messages);
+        Assert.Equal(LogLevel.Warning, level);
+        Assert.Equal(
+            DesignStrings.ForeignKeyScaffoldErrorTypeMismatch(
+                mismatchedForeignKey.DisplayName(), "{'ParentId' : long}", "{'Id' : int}"),
+            message);
+
+        var fk = Assert.Single(model.FindEntityType("Children")!.GetForeignKeys());
+        Assert.Equal("OtherParent", fk.PrincipalEntityType.Name);
+        Assert.Equal(typeof(long), Assert.Single(fk.Properties).ClrType);
+    }
+
+    [Fact]
+    public void Foreign_key_with_mismatched_types_from_column_referenced_by_another_foreign_key_is_skipped()
+    {
+        var parentTable = new DatabaseTable
+        {
+            Database = Database,
+            Name = "Parent",
+            Columns = { IdColumn },
+            PrimaryKey = IdPrimaryKey
+        };
+        var childIdColumn = new DatabaseColumn
+        {
+            Table = Table,
+            Name = "ParentId",
+            StoreType = "bigint"
+        };
+        var childrenTable = new DatabaseTable
+        {
+            Database = Database,
+            Name = "Children",
+            Columns = { childIdColumn },
+            PrimaryKey = new DatabasePrimaryKey
+            {
+                Table = Table,
+                Name = "PK_Children",
+                Columns = { childIdColumn }
+            }
+        };
+        var mismatchedForeignKey = new DatabaseForeignKey
+        {
+            Table = childrenTable,
+            Name = "FK_Parent",
+            Columns = { childIdColumn },
+            PrincipalTable = parentTable,
+            PrincipalColumns = { IdColumn }
+        };
+        childrenTable.ForeignKeys.Add(mismatchedForeignKey);
+
+        var grandchildIdColumn = new DatabaseColumn
+        {
+            Table = Table,
+            Name = "ChildId",
+            StoreType = "bigint"
+        };
+        var grandchildrenTable = new DatabaseTable
+        {
+            Database = Database,
+            Name = "Grandchildren",
+            Columns = { IdColumn, grandchildIdColumn },
+            PrimaryKey = IdPrimaryKey
+        };
+        grandchildrenTable.ForeignKeys.Add(
+            new DatabaseForeignKey
+            {
+                Table = grandchildrenTable,
+                Name = "FK_Child",
+                Columns = { grandchildIdColumn },
+                PrincipalTable = childrenTable,
+                PrincipalColumns = { childIdColumn }
+            });
+
+        var model = _factory.Create(
+            new DatabaseModel { Tables = { parentTable, childrenTable, grandchildrenTable } },
+            new ModelReverseEngineerOptions { NoPluralize = true });
+
+        // The Children key column is referenced by Grandchildren, so it keeps its own type and the Parent foreign key is skipped.
+        var (level, message) = Assert.Single(_reporter.Messages);
+        Assert.Equal(LogLevel.Warning, level);
+        Assert.Equal(
+            DesignStrings.ForeignKeyScaffoldErrorTypeMismatch(
+                mismatchedForeignKey.DisplayName(), "{'ParentId' : long}", "{'Id' : int}"),
+            message);
+
+        Assert.Empty(model.FindEntityType("Children")!.GetForeignKeys());
+
+        var fk = Assert.Single(model.FindEntityType("Grandchildren")!.GetForeignKeys());
+        Assert.Equal(typeof(long), Assert.Single(fk.Properties).ClrType);
+    }
+
+    [Fact]
     public void Foreign_key_from_keyless_table()
     {
         var databaseModel = new DatabaseModel();

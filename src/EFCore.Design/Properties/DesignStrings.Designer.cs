@@ -411,6 +411,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 foreignKeyName, columnNames);
 
         /// <summary>
+        ///     Could not scaffold the foreign key '{foreignKeyName}'. The types of the foreign key properties {dependentProperties} do not match the types of the principal key properties {principalProperties}, and the foreign key columns could not be safely changed to use the principal key types.
+        /// </summary>
+        public static string ForeignKeyScaffoldErrorTypeMismatch(object? foreignKeyName, object? dependentProperties, object? principalProperties)
+            => string.Format(
+                GetString("ForeignKeyScaffoldErrorTypeMismatch", nameof(foreignKeyName), nameof(dependentProperties), nameof(principalProperties)),
+                foreignKeyName, dependentProperties, principalProperties);
+
+        /// <summary>
         ///     Could not scaffold the foreign key '{foreignKeyName}'. Foreign key '{existingForeignKey}' is defined on same columns targeting same key on principal table.
         /// </summary>
         public static string ForeignKeyWithSameFacetsExists(object? foreignKeyName, object? existingForeignKey)
