@@ -1013,6 +1013,14 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
     public virtual Task Column_collection_of_bools_Contains()
         => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Bools.Contains(true)));
 
+    [Fact] // #39351
+    public virtual Task Column_collection_Any_with_predicate_referencing_parameter_on_both_sides()
+        => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints.Any(i => i == c.Int - i)));
+
+    [Fact] // #39351
+    public virtual Task Column_collection_All_with_predicate_referencing_parameter_on_both_sides()
+        => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints.All(i => i != c.Int - i)));
+
     [Fact]
     public virtual async Task Column_with_custom_converter()
     {

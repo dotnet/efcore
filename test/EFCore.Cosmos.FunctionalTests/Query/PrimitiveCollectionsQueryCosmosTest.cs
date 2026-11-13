@@ -1238,6 +1238,29 @@ WHERE ARRAY_CONTAINS(c["Bools"], true)
 """);
     }
 
+    public override async Task Column_collection_Any_with_predicate_referencing_parameter_on_both_sides()
+    {
+        await base.Column_collection_Any_with_predicate_referencing_parameter_on_both_sides();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE EXISTS (
+    SELECT 1
+    FROM i IN c["Ints"]
+    WHERE (i = (c["Int"] - i)))
+""");
+    }
+
+    public override async Task Column_collection_All_with_predicate_referencing_parameter_on_both_sides()
+    {
+        // Cosmos doesn't translate All
+        await AssertTranslationFailed(base.Column_collection_All_with_predicate_referencing_parameter_on_both_sides);
+
+        AssertSql();
+    }
+
     public override async Task Column_with_custom_converter()
     {
         await base.Column_with_custom_converter();
