@@ -53,6 +53,10 @@ public class RelationalSqlGenerationHelper : ISqlGenerationHelper
         => Environment.NewLine;
 
     /// <inheritdoc />
+    public virtual string? AffectedRowsCountStatement
+        => null;
+
+    /// <inheritdoc />
     public virtual string StartTransactionStatement
         => "START TRANSACTION" + StatementTerminator;
 
