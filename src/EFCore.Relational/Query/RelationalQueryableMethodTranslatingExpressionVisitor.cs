@@ -1105,6 +1105,166 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     }
 
     /// <summary>
+    ///     Translates a <c>SelectMany</c> which flattens a grouping's elements back out, e.g. <c>GroupBy(e => e.Key).SelectMany(g => g)</c>
+    ///     or, for the top rows of each group, <c>GroupBy(e => e.Key).SelectMany(g => g.OrderBy(e => e.Date).Take(5))</c>.
+    /// </summary>
+    /// <remarks>
+    ///     The elements of all groups are the source rows, so the query needs no GROUP BY. A <c>Skip</c> or a <c>Take</c> applies to each
+    ///     group, so it filters the rows numbered by ROW_NUMBER() within their group (see issue #28002). Since the result is rows rather
+    ///     than groups, whatever composes over it needs no special care, unlike the translations which leave a grouping behind.
+    /// </remarks>
+    private ShapedQueryExpression? TranslateSelectManyOverGrouping(
+        ShapedQueryExpression source,
+        RelationalGroupByShaperExpression groupByShaper,
+        LambdaExpression collectionSelector)
+    {
+        if (groupByShaper.ResultSelector != null || _subquery)
+        {
+            return null;
+        }
+
+        var selectExpression = (SelectExpression)source.QueryExpression;
+        if (selectExpression.GroupBy.Count == 0
+            || selectExpression.Limit != null
+            || selectExpression.Offset != null
+            || selectExpression.IsDistinct
+            || selectExpression.Having != null
+            || selectExpression.HasClientProjections
+            || selectExpression.Orderings.Any(o => !selectExpression.GroupBy.Contains(o.Expression)))
+        {
+            // These apply to groups, not rows, so they can't be kept once the GROUP BY is dropped.
+            return null;
+        }
+
+        var analyzer = new GroupingElementsAnalyzer(groupByShaper);
+        if (!analyzer.Analyze(RemapLambdaBody(source, collectionSelector)))
+        {
+            return null;
+        }
+
+        SqlExpression? skip = null;
+        SqlExpression? take = null;
+        if (analyzer.Skip is { } skipExpression
+            && (skip = TranslateRowLimit(skipExpression)) == null)
+        {
+            return null;
+        }
+
+        if (analyzer.Take is { } takeExpression
+            && (take = TranslateRowLimit(takeExpression)) == null)
+        {
+            return null;
+        }
+
+        var rowPredicate = CreateRowsPerGroupPredicate(skip, take, analyzer.SkipAfterTake);
+
+        // With a limit, the orderings decide which rows of each group are kept. Without one, the order of the rows within each group is
+        // only observable when the groups are ordered too, in which case it orders the rows of each group after the grouping terms;
+        // otherwise, as for a SelectMany over any other subquery, it's dropped.
+        var orderings = new List<OrderingExpression>();
+        if (rowPredicate != null || selectExpression.Orderings.Count > 0)
+        {
+            foreach (var (orderingKeySelector, ascending) in analyzer.Orderings)
+            {
+                var translation = _sqlTranslator.Translate(
+                    ExpandSharedTypeEntities(
+                        selectExpression,
+                        ReplacingExpressionVisitor.Replace(
+                            orderingKeySelector.Parameters[0], groupByShaper.ElementSelector, orderingKeySelector.Body),
+                        allowOwnerJoin: false));
+                if (translation == null)
+                {
+                    return null;
+                }
+
+                if (!orderings.Any(o => o.Expression.Equals(translation)))
+                {
+                    orderings.Add(new OrderingExpression(translation, ascending));
+                }
+            }
+
+            if (rowPredicate != null && orderings.Count == 0)
+            {
+                _queryCompilationContext.Logger.RowLimitingOperationWithoutOrderByWarning();
+            }
+        }
+
+        var remappedElementSelectorBody = selectExpression.ApplyRowsPerGroup(
+            analyzer.ElementSelector?.Body, orderings, rowPredicate, _sqlExpressionFactory);
+
+        var shaper = analyzer.ElementSelector is { } elementSelector
+            ? _projectionBindingExpressionVisitor.Translate(
+                selectExpression,
+                ReplacingExpressionVisitor.Replace(
+                    elementSelector.Parameters[0], groupByShaper.ElementSelector, remappedElementSelectorBody!))
+            : groupByShaper.ElementSelector;
+
+        return source.UpdateShaperExpression(shaper);
+    }
+
+    // The count of a Skip or a Take over a grouping is the same for every group, so it can't depend on the group, e.g. g.Take(g.Count()).
+    private SqlExpression? TranslateRowLimit(Expression expression)
+        => TranslateExpression(expression) is { } translation and (SqlConstantExpression or SqlParameterExpression)
+            ? translation
+            : null;
+
+    // Builds the filter on a row's ROW_NUMBER() within its group which applies a Skip and/or a Take to each group, or returns null when
+    // every row is kept. Skip(2).Take(5) keeps rows 3 to 7 of each group, Take(5).Skip(2) rows 3 to 5.
+    private Func<SqlExpression, SqlExpression>? CreateRowsPerGroupPredicate(
+        SqlExpression? skip,
+        SqlExpression? take,
+        bool skipAfterTake)
+    {
+        // As in LINQ, a negative Skip skips nothing.
+        if (skip is SqlConstantExpression { Value: int skipValue and <= 0 })
+        {
+            skip = null;
+        }
+
+        if (skip is null)
+        {
+            return take is null ? null : row => _sqlExpressionFactory.LessThanOrEqual(row, take);
+        }
+
+        if (take is null || skipAfterTake)
+        {
+            return take is null
+                ? row => _sqlExpressionFactory.GreaterThan(row, skip)
+                : row => _sqlExpressionFactory.AndAlso(
+                    _sqlExpressionFactory.GreaterThan(row, skip),
+                    _sqlExpressionFactory.LessThanOrEqual(row, take));
+        }
+
+        if (skip is SqlConstantExpression { Value: int constantSkip })
+        {
+            if (take is SqlConstantExpression { Value: int constantTake })
+            {
+                // Adding the counts can overflow, e.g. Skip(1).Take(int.MaxValue); no row is numbered beyond int.MaxValue anyway.
+                var end = (long)constantSkip + constantTake;
+                return end >= int.MaxValue
+                    ? row => _sqlExpressionFactory.GreaterThan(row, skip)
+                    : row => _sqlExpressionFactory.AndAlso(
+                        _sqlExpressionFactory.GreaterThan(row, skip),
+                        _sqlExpressionFactory.LessThanOrEqual(
+                            row, _sqlExpressionFactory.Constant((int)end, take.TypeMapping)));
+            }
+
+            // Subtract from the row number rather than adding the counts, which could overflow: ROW_NUMBER() is a bigint.
+            return row => _sqlExpressionFactory.AndAlso(
+                _sqlExpressionFactory.GreaterThan(row, skip),
+                _sqlExpressionFactory.LessThanOrEqual(_sqlExpressionFactory.Subtract(row, skip), take));
+        }
+
+        // A parameter's value isn't known, so the row number is compared to the Take on its own as well, which ends the rows at the
+        // Take for a negative Skip and changes nothing otherwise.
+        return row => _sqlExpressionFactory.AndAlso(
+            _sqlExpressionFactory.GreaterThan(row, skip),
+            _sqlExpressionFactory.OrElse(
+                _sqlExpressionFactory.LessThanOrEqual(_sqlExpressionFactory.Subtract(row, skip), take),
+                _sqlExpressionFactory.LessThanOrEqual(row, take)));
+    }
+
+    /// <summary>
     ///     Checks whether the given aggregate function can be evaluated over a window, i.e. whether the database accepts an <c>OVER</c>
     ///     clause applied to it.
     /// </summary>
@@ -2029,7 +2189,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             return !validator.Unsupported;
         }
 
-        internal sealed class ElementSelectorValidator(RelationalGroupByShaperExpression groupByShaper) : ExpressionVisitor
+        internal sealed class ElementSelectorValidator(RelationalGroupByShaperExpression groupByShaper, bool allowKey = false)
+            : ExpressionVisitor
         {
             public bool Unsupported { get; private set; }
 
@@ -2042,7 +2203,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                 }
 
                 if (expression is GroupByShaperExpression
-                    || ReferenceEquals(expression, groupByShaper.KeySelector)
+                    || (!allowKey && ReferenceEquals(expression, groupByShaper.KeySelector))
                     // A collection (navigation, subquery, ...) would be translated as a correlated collection over the element; once the
                     // GROUP BY is dropped, that correlation would be to the grouping rather than to the element.
                     || (expression.Type != typeof(string)
@@ -2238,7 +2399,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             return true;
         }
 
-        private static bool TryMatchOrdering(
+        internal static bool TryMatchOrdering(
             Expression expression,
             bool thenBy,
             [NotNullWhen(true)] out Expression? source,
@@ -2264,7 +2425,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             return false;
         }
 
-        private static bool TryMatchLambdaOperator(
+        internal static bool TryMatchLambdaOperator(
             Expression expression,
             MethodInfo method,
             [NotNullWhen(true)] out Expression? source,
@@ -2296,7 +2457,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             return !validator.Unsupported;
         }
 
-        private static bool Contains(Expression expression, Func<Expression, bool> predicate)
+        internal static bool Contains(Expression expression, Func<Expression, bool> predicate)
         {
             var finder = new ExpressionFindingExpressionVisitor(predicate);
             finder.Visit(expression);
@@ -2358,7 +2519,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         }
 
         // Keys made of SQL expressions, which remap directly to the new columns.
-        private static bool IsSupportedKey(Expression keySelector)
+        internal static bool IsSupportedKey(Expression keySelector)
             => keySelector switch
             {
                 SqlExpression => true,
@@ -2371,6 +2532,126 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                     => IsSupportedKey(unaryExpression.Operand),
                 _ => false
             };
+    }
+
+    /// <summary>
+    ///     Matches the collection selector of a <c>SelectMany</c> over a grouping: the grouping's elements, optionally ordered, then limited
+    ///     by a Skip and/or a Take, then projected.
+    /// </summary>
+    private sealed class GroupingElementsAnalyzer(RelationalGroupByShaperExpression groupByShaper)
+    {
+        /// <summary>
+        ///     The orderings of the elements, outermost first.
+        /// </summary>
+        public List<(LambdaExpression KeySelector, bool Ascending)> Orderings { get; } = [];
+
+        /// <summary>
+        ///     The projection of each element, or <see langword="null" /> if the elements are returned as-is.
+        /// </summary>
+        public LambdaExpression? ElementSelector { get; private set; }
+
+        public Expression? Skip { get; private set; }
+
+        public Expression? Take { get; private set; }
+
+        /// <summary>
+        ///     Whether the Skip applies over the Take, rather than the other way around.
+        /// </summary>
+        public bool SkipAfterTake { get; private set; }
+
+        public bool Analyze(Expression collection)
+        {
+            var current = collection;
+
+            if (GroupingElementReadAnalyzer.TryMatchLambdaOperator(current, QueryableMethods.Select, out var selectSource, out var selector))
+            {
+                ElementSelector = selector;
+                current = selectSource;
+            }
+
+            if (TryMatchLimit(current, QueryableMethods.Skip, out var source, out var count))
+            {
+                Skip = count;
+                current = source;
+                SkipAfterTake = TryMatchLimit(current, QueryableMethods.Take, out source, out count);
+                if (SkipAfterTake)
+                {
+                    Take = count;
+                    current = source!;
+                }
+            }
+            else if (TryMatchLimit(current, QueryableMethods.Take, out source, out count))
+            {
+                Take = count;
+                current = source;
+                if (TryMatchLimit(current, QueryableMethods.Skip, out source, out count))
+                {
+                    Skip = count;
+                    current = source;
+                }
+            }
+
+            while (GroupingElementReadAnalyzer.TryMatchOrdering(current, thenBy: true, out var thenBySource, out var thenBy))
+            {
+                Orderings.Insert(0, thenBy);
+                current = thenBySource;
+            }
+
+            if (GroupingElementReadAnalyzer.TryMatchOrdering(current, thenBy: false, out var orderBySource, out var orderBy))
+            {
+                Orderings.Insert(0, orderBy);
+                current = orderBySource;
+            }
+
+            // The query has been preprocessed, so the elements are read through g.AsQueryable().
+            if (current is MethodCallExpression { Object: null, Method.IsGenericMethod: true, Arguments: [var queryableSource] } asQueryable
+                && asQueryable.Method.GetGenericMethodDefinition() == QueryableMethods.AsQueryable)
+            {
+                current = queryableSource;
+            }
+
+            return ReferenceEquals(current, groupByShaper)
+                && Orderings.All(o => IsSupportedLambda(o.KeySelector, allowKey: false))
+                && (ElementSelector is null || IsSupportedElementSelector(ElementSelector));
+        }
+
+        private bool IsSupportedElementSelector(LambdaExpression elementSelector)
+            // The key is read off the same row as the element, as long as it's made of SQL expressions, which can be remapped when the
+            // rows move into a subquery.
+            => IsSupportedLambda(elementSelector, allowKey: true)
+                && (GroupingElementReadAnalyzer.IsSupportedKey(groupByShaper.KeySelector)
+                    || !GroupingElementReadAnalyzer.Contains(
+                        elementSelector.Body, e => e is SqlExpression || ReferenceEquals(e, groupByShaper.KeySelector)));
+
+        private bool IsSupportedLambda(LambdaExpression lambda, bool allowKey)
+        {
+            var validator = new GroupingElementProjectionAnalyzer.ElementSelectorValidator(groupByShaper, allowKey);
+            validator.Visit(lambda.Body);
+
+            return !validator.Unsupported;
+        }
+
+        private static bool TryMatchLimit(
+            Expression expression,
+            MethodInfo method,
+            [NotNullWhen(true)] out Expression? source,
+            [NotNullWhen(true)] out Expression? count)
+        {
+            if (expression is MethodCallExpression
+                {
+                    Object: null, Method.IsGenericMethod: true, Arguments: [var limitSource, var limitCount]
+                } methodCallExpression
+                && methodCallExpression.Method.GetGenericMethodDefinition() == method)
+            {
+                source = limitSource;
+                count = limitCount;
+                return true;
+            }
+
+            source = null;
+            count = null;
+            return false;
+        }
     }
 
     private sealed class ExpressionFindingExpressionVisitor(Func<Expression, bool> predicate) : ExpressionVisitor
@@ -2552,6 +2833,11 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateSelectMany(ShapedQueryExpression source, LambdaExpression selector)
     {
+        if (source.ShaperExpression is RelationalGroupByShaperExpression groupByShaper)
+        {
+            return TranslateSelectManyOverGrouping(source, groupByShaper, selector);
+        }
+
         var innerParameter = Expression.Parameter(selector.ReturnType.GetSequenceType(), "i");
         var resultSelector = Expression.Lambda(
             innerParameter, Expression.Parameter(source.Type.GetSequenceType()), innerParameter);

@@ -1881,6 +1881,30 @@ ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId],
 """);
     }
 
+    public override async Task GroupBy_SelectMany_OrderBy_Take_with_owned_navigations(bool async)
+    {
+        await base.GroupBy_SelectMany_OrderBy_Take_with_owned_navigations(async);
+
+        AssertSql(
+            """
+SELECT [o1].[Id], [o1].[Discriminator], [o1].[Name], [s].[ClientId], [s].[Id], [s].[OrderDate], [s].[OrderClientId], [s].[OrderId], [s].[Id0], [s].[Detail], [o1].[PersonAddress_AddressLine], [o1].[PersonAddress_PlaceType], [o1].[PersonAddress_ZipCode], [o1].[PersonAddress_Country_Name], [o1].[PersonAddress_Country_PlanetId], [o1].[BranchAddress_BranchName], [o1].[BranchAddress_PlaceType], [o1].[BranchAddress_Country_Name], [o1].[BranchAddress_Country_PlanetId], [o1].[LeafBAddress_LeafBType], [o1].[LeafBAddress_PlaceType], [o1].[LeafBAddress_Country_Name], [o1].[LeafBAddress_Country_PlanetId], [o1].[LeafAAddress_LeafType], [o1].[LeafAAddress_PlaceType], [o1].[LeafAAddress_Country_Name], [o1].[LeafAAddress_Country_PlanetId]
+FROM (
+    SELECT [o0].[Id], [o0].[Discriminator], [o0].[Name], ROW_NUMBER() OVER(PARTITION BY [o0].[Key] ORDER BY [o0].[Id]) AS [row], [o0].[PersonAddress_AddressLine], [o0].[PersonAddress_PlaceType], [o0].[PersonAddress_ZipCode], [o0].[PersonAddress_Country_Name], [o0].[PersonAddress_Country_PlanetId], [o0].[BranchAddress_BranchName], [o0].[BranchAddress_PlaceType], [o0].[BranchAddress_Country_Name], [o0].[BranchAddress_Country_PlanetId], [o0].[LeafBAddress_LeafBType], [o0].[LeafBAddress_PlaceType], [o0].[LeafBAddress_Country_Name], [o0].[LeafBAddress_Country_PlanetId], [o0].[LeafAAddress_LeafType], [o0].[LeafAAddress_PlaceType], [o0].[LeafAAddress_Country_Name], [o0].[LeafAAddress_Country_PlanetId]
+    FROM (
+        SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[Id] % 2 AS [Key], [o].[PersonAddress_AddressLine], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
+        FROM [OwnedPerson] AS [o]
+    ) AS [o0]
+) AS [o1]
+LEFT JOIN (
+    SELECT [o2].[ClientId], [o2].[Id], [o2].[OrderDate], [o3].[OrderClientId], [o3].[OrderId], [o3].[Id] AS [Id0], [o3].[Detail]
+    FROM [Order] AS [o2]
+    LEFT JOIN [OrderDetail] AS [o3] ON [o2].[ClientId] = [o3].[OrderClientId] AND [o2].[Id] = [o3].[OrderId]
+) AS [s] ON [o1].[Id] = [s].[ClientId]
+WHERE [o1].[row] <= 1
+ORDER BY [o1].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId], [s].[Id0]
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

@@ -1954,6 +1954,70 @@ public sealed partial class SelectExpression : TableExpressionBase
             Limit == null && Offset == null && !IsDistinct && Having == null,
             "Grouped SelectExpression has state over the groups.");
 
+        var partitions = RemoveGrouping();
+
+        var one = sqlExpressionFactory.ApplyDefaultTypeMapping(sqlExpressionFactory.Constant(1));
+        var rowNumberExpression = new RowNumberExpression(partitions, GetRowNumberOrderings(orderings, _identifier), one.TypeMapping);
+        var sqlRemappingVisitor = PushdownIntoSubqueryInternal();
+        var subquery = (SelectExpression)_tables[0];
+        var rowNumberColumn = subquery.GenerateOuterColumn(subquery.Alias!, rowNumberExpression, "row");
+        ApplyPredicate(sqlExpressionFactory.LessThanOrEqual(rowNumberColumn, one));
+
+        return sqlRemappingVisitor.Visit(projection);
+    }
+
+    // Keeps the rows of each group in place of the grouping, optionally only those whose ROW_NUMBER() OVER(PARTITION BY <grouping terms>
+    // ORDER BY <orderings>) satisfies `rowPredicate`, which is how a Skip or a Take applies to each group. When the groups are ordered,
+    // `orderings` also order the rows of each group after the grouping terms.
+    // `projection` is an expression over the grouping terms (e.g. the key selector), returned remapped to the new columns.
+    // Internal infrastructure: only called from RelationalQueryableMethodTranslatingExpressionVisitor.
+    [return: NotNullIfNotNull(nameof(projection))]
+    internal Expression? ApplyRowsPerGroup(
+        Expression? projection,
+        IReadOnlyList<OrderingExpression> orderings,
+        Func<SqlExpression, SqlExpression>? rowPredicate,
+        ISqlExpressionFactory sqlExpressionFactory)
+    {
+        Check.DebugAssert(_groupBy.Count > 0, "The selectExpression doesn't have grouping terms.");
+        Check.DebugAssert(
+            Limit == null && Offset == null && !IsDistinct && Having == null,
+            "Grouped SelectExpression has state over the groups.");
+
+        var partitions = RemoveGrouping();
+        var ordered = _orderings.Count > 0;
+        if (rowPredicate is null)
+        {
+            if (ordered)
+            {
+                foreach (var ordering in orderings)
+                {
+                    AppendOrdering(ordering);
+                }
+            }
+
+            return projection;
+        }
+
+        var typeMapping = sqlExpressionFactory.ApplyDefaultTypeMapping(sqlExpressionFactory.Constant(1)).TypeMapping;
+        var rowNumberExpression = new RowNumberExpression(partitions, GetRowNumberOrderings(orderings, _identifier), typeMapping);
+        var sqlRemappingVisitor = PushdownIntoSubqueryInternal();
+        var subquery = (SelectExpression)_tables[0];
+        var rowNumberColumn = subquery.GenerateOuterColumn(subquery.Alias!, rowNumberExpression, "row");
+        ApplyPredicate(rowPredicate(rowNumberColumn));
+
+        if (ordered)
+        {
+            foreach (var ordering in orderings)
+            {
+                AppendOrdering((OrderingExpression)sqlRemappingVisitor.Visit(ordering));
+            }
+        }
+
+        return sqlRemappingVisitor.Visit(projection);
+    }
+
+    private List<SqlExpression> RemoveGrouping()
+    {
         var partitions = _groupBy.ToList();
         _groupBy.Clear();
 
@@ -1965,14 +2029,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             _preGroupByIdentifier = null;
         }
 
-        var one = sqlExpressionFactory.ApplyDefaultTypeMapping(sqlExpressionFactory.Constant(1));
-        var rowNumberExpression = new RowNumberExpression(partitions, GetRowNumberOrderings(orderings, _identifier), one.TypeMapping);
-        var sqlRemappingVisitor = PushdownIntoSubqueryInternal();
-        var subquery = (SelectExpression)_tables[0];
-        var rowNumberColumn = subquery.GenerateOuterColumn(subquery.Alias!, rowNumberExpression, "row");
-        ApplyPredicate(sqlExpressionFactory.LessThanOrEqual(rowNumberColumn, one));
-
-        return sqlRemappingVisitor.Visit(projection);
+        return partitions;
     }
 
     // ROW_NUMBER() needs an ordering. Without one, number by the identifier, or in no particular order.

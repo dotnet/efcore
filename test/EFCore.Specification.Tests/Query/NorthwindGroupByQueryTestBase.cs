@@ -2073,7 +2073,7 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
                 .GroupBy(a => a.Customer),
             a => a.Key == "ALFKI");
 
-    private class ProjectedType
+    protected class ProjectedType
     {
         public int Order { get; set; }
         public string? Customer { get; set; }
@@ -2962,29 +2962,6 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
             assertOrder: true));
 
     [Theory, MemberData(nameof(IsAsyncData))]
-    public virtual Task GroupBy_SelectMany(bool async)
-        => AssertTranslationFailed(() => AssertQuery(
-            async,
-            ss => ss.Set<Customer>().GroupBy(c => c.City).SelectMany(g => g)));
-
-    [Theory, MemberData(nameof(IsAsyncData))]
-    public virtual Task OrderBy_GroupBy_SelectMany(bool async)
-        => AssertTranslationFailed(() => AssertQuery(
-            async,
-            ss => ss.Set<Order>().OrderBy(o => o.OrderID)
-                .GroupBy(o => o.CustomerID)
-                .SelectMany(g => g)));
-
-    [Theory, MemberData(nameof(IsAsyncData))]
-    public virtual Task OrderBy_GroupBy_SelectMany_shadow(bool async)
-        => AssertTranslationFailed(() => AssertQuery(
-            async,
-            ss => ss.Set<Employee>().OrderBy(e => e.EmployeeID)
-                .GroupBy(e => e.EmployeeID)
-                .SelectMany(g => g)
-                .Select(g => EF.Property<string>(g, "Title"))));
-
-    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_with_orderby_take_skip_distinct_followed_by_group_key_projection(bool async)
         => AssertTranslationFailed(() => AssertQuery(
             async,
@@ -3197,16 +3174,6 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
                 Assert.Equal(e.Key, a.Key);
                 AssertCollection(e.Employees, a.Employees);
             });
-
-    [Theory, MemberData(nameof(IsAsyncData))]
-    public virtual Task Select_GroupBy_SelectMany(bool async)
-        // Entity equality. Issue #15938.
-        => AssertTranslationFailed(() => AssertQuery(
-            async,
-            ss => ss.Set<Order>().Select(o => new ProjectedType { Order = o.OrderID, Customer = o.CustomerID })
-                .GroupBy(p => p.Customer)
-                .SelectMany(g => g),
-            elementSorter: g => g.Order));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_nullable_value_type_key_Select_ToList(bool async)

@@ -26,6 +26,14 @@ public abstract class OwnedQueryRelationalTestBase<TFixture>(TFixture fixture) :
     public override Task FirstOrDefault_over_owned_collection(bool async)
         => Task.CompletedTask;
 
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_SelectMany_OrderBy_Take_with_owned_navigations(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OwnedPerson>()
+                .GroupBy(p => p.Id % 2)
+                .SelectMany(g => g.OrderBy(p => p.Id).Take(1)));
+
     // Relational only: the in-memory provider throws reading the missing dependent's value instead of treating it as absent.
     // Both Bartons land in one group, so the aggregates run over a present and an absent dependent together.
     [Theory, MemberData(nameof(IsAsyncData))]

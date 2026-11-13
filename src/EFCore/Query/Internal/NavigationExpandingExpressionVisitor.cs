@@ -819,13 +819,26 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                             groupBySource,
                             methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
 
+                    case nameof(Queryable.SelectMany)
+                        when genericMethod == QueryableMethods.SelectManyWithoutCollectionSelector:
+                        return ProcessSelectMany(
+                            groupBySource,
+                            methodCallExpression.Arguments[1].UnwrapLambdaFromQuote(),
+                            null);
+
+                    case nameof(Queryable.SelectMany)
+                        when genericMethod == QueryableMethods.SelectManyWithCollectionSelector:
+                        return ProcessSelectMany(
+                            groupBySource,
+                            methodCallExpression.Arguments[1].UnwrapLambdaFromQuote(),
+                            methodCallExpression.Arguments[2].UnwrapLambdaFromQuote());
+
                     default:
                         // Average/Max/Min/Sum
                         // Distinct
                         // Contains
                         // First/Single/Last(OrDefault)
                         // Join, LeftJoin, GroupJoin
-                        // SelectMany
                         // Concat/Except/Intersect/Union
                         // Cast/OfType
                         // Include/ThenInclude/NotQuiteInclude
@@ -1572,25 +1585,21 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         innerSource = (NavigationExpansionExpression)_pendingSelectorExpandingExpressionVisitor.Visit(innerSource);
         var innerTreeStructure = SnapshotExpression(innerSource.PendingSelector);
 
-        ValidateExpressionCompatibility(outerTreeStructure, innerTreeStructure);
-
-        //if (!CompareIncludes(outerTreeStructure, innerTreeStructure))
-        //{
-        //    throw new InvalidOperationException(CoreStrings.SetOperationWithDifferentIncludesInOperands);
-        //}
-
         var outerQueryable = Reduce(outerSource);
         var innerQueryable = Reduce(innerSource);
 
         var outerType = outerQueryable.Type.GetSequenceType();
         var innerType = innerQueryable.Type.GetSequenceType();
+        var useOuter = outerType.IsAssignableFrom(innerType);
 
         var result = Expression.Call(
-            genericMethod.MakeGenericMethod(outerType.IsAssignableFrom(innerType) ? outerType : innerType),
+            genericMethod.MakeGenericMethod(useOuter ? outerType : innerType),
             outerQueryable,
             innerQueryable);
         var navigationTree = new NavigationTreeExpression(
-            outerType.IsAssignableFrom(innerType) ? outerTreeStructure : innerTreeStructure);
+            useOuter
+                ? MergeSetOperationTrees(outerTreeStructure, innerTreeStructure)
+                : MergeSetOperationTrees(innerTreeStructure, outerTreeStructure));
         var parameterName = GetParameterName("e");
 
         return new NavigationExpansionExpression(result, navigationTree, navigationTree, parameterName);
@@ -2126,6 +2135,63 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                     : base.VisitMember(memberExpression);
     }
 
+    private NavigationExpansionExpression ProcessSelectMany(
+        GroupByNavigationExpansionExpression groupBySource,
+        LambdaExpression collectionSelector,
+        LambdaExpression? resultSelector)
+    {
+        var groupingParameter = collectionSelector.Parameters[0];
+        var elementType = collectionSelector.ReturnType.GetSequenceType();
+
+        var collection = collectionSelector.Body.UnwrapTypeConversion(out _) == groupingParameter
+            ? Expression.Call(QueryableMethods.AsQueryable.MakeGenericMethod(elementType), groupingParameter)
+            : collectionSelector.Body;
+
+        // A result selector is a projection of each element which can also see its grouping, so it's composed over the collection as one.
+        // The elements are then all that flows out of the SelectMany, which has no grouping left to reference afterwards.
+        if (resultSelector != null)
+        {
+            var resultSelectorBody = ReplacingExpressionVisitor.Replace(
+                resultSelector.Parameters[0], groupingParameter, resultSelector.Body);
+
+            collection = Expression.Call(
+                QueryableMethods.Select.MakeGenericMethod(elementType, resultSelector.ReturnType),
+                collection.Type.TryGetElementType(typeof(IQueryable<>)) == null
+                    ? Expression.Call(QueryableMethods.AsQueryable.MakeGenericMethod(elementType), collection)
+                    : collection,
+                Expression.Quote(Expression.Lambda(resultSelectorBody, resultSelector.Parameters[1])));
+        }
+
+        var groupingElementReplacingExpressionVisitor =
+            new GroupingElementReplacingExpressionVisitor(groupingParameter, groupBySource);
+        var collectionBody = groupingElementReplacingExpressionVisitor.Visit(collection);
+        if (groupingElementReplacingExpressionVisitor.ContainsGrouping
+            || UnwrapCollectionMaterialization(Visit(collectionBody)) is not NavigationExpansionExpression collectionSource)
+        {
+            throw new InvalidOperationException(CoreStrings.TranslationFailed(collectionSelector.Print()));
+        }
+
+        collectionSource = (NavigationExpansionExpression)_pendingSelectorExpandingExpressionVisitor.Visit(collectionSource);
+        var navigationTree = new NavigationTreeExpression(SnapshotExpression(collectionSource.PendingSelector));
+        var resultElementType = collectionSource.PendingSelector.Type;
+
+        // The collection selector body is IQueryable, we need to adjust the type to IEnumerable, to match the SelectMany signature
+        // therefore the delegate type is specified explicitly
+        var newCollectionSelector = Expression.Lambda(
+            typeof(Func<,>).MakeGenericType(
+                groupBySource.SourceElementType,
+                typeof(IEnumerable<>).MakeGenericType(resultElementType)),
+            Reduce(collectionSource),
+            groupBySource.CurrentParameter);
+
+        var newSource = Expression.Call(
+            QueryableMethods.SelectManyWithoutCollectionSelector.MakeGenericMethod(groupBySource.SourceElementType, resultElementType),
+            groupBySource.Source,
+            Expression.Quote(newCollectionSelector));
+
+        return new NavigationExpansionExpression(newSource, navigationTree, navigationTree, GetParameterName("e"));
+    }
+
     private GroupByNavigationExpansionExpression ProcessSkipTake(
         GroupByNavigationExpansionExpression groupBySource,
         MethodInfo genericMethod,
@@ -2373,42 +2439,79 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         return Visit(filteredResult);
     }
 
-    private void ValidateExpressionCompatibility(Expression outer, Expression inner)
+    // Checks that the snapshots of a set operation's operands are compatible, and returns the snapshot of the result based on `primary`,
+    // the operand whose element type the set operation takes. An entity in the result is null wherever it is null in either operand, so
+    // it's optional if either of them is, which makes its navigations expand as optional.
+    private Expression MergeSetOperationTrees(Expression primary, Expression other)
     {
-        if (outer is EntityReference outerEntityReference
-            && inner is EntityReference innerEntityReference)
+        switch (primary)
         {
-            if (!outerEntityReference.IncludePaths.Equals(innerEntityReference.IncludePaths))
-            {
+            case EntityReference primaryEntityReference when other is EntityReference otherEntityReference:
+                if (!primaryEntityReference.IncludePaths.Equals(otherEntityReference.IncludePaths))
+                {
+                    throw new InvalidOperationException(CoreStrings.SetOperationWithDifferentIncludesInOperands);
+                }
+
+                if (!_extensibilityHelper.AreQueryRootsCompatible(
+                        primaryEntityReference.EntityQueryRootExpression, otherEntityReference.EntityQueryRootExpression))
+                {
+                    throw new InvalidOperationException(CoreStrings.IncompatibleSourcesForSetOperation);
+                }
+
+                if (otherEntityReference.IsOptional)
+                {
+                    primaryEntityReference.MarkAsOptional();
+                }
+
+                return primaryEntityReference;
+
+            case NewExpression primaryNewExpression when other is NewExpression otherNewExpression:
+                if (primaryNewExpression.Arguments.Count != otherNewExpression.Arguments.Count)
+                {
+                    throw new InvalidOperationException(CoreStrings.SetOperationWithDifferentIncludesInOperands);
+                }
+
+                var arguments = new Expression[primaryNewExpression.Arguments.Count];
+                for (var i = 0; i < arguments.Length; i++)
+                {
+                    arguments[i] = MergeSetOperationTrees(primaryNewExpression.Arguments[i], otherNewExpression.Arguments[i]);
+                }
+
+                return primaryNewExpression.Update(arguments);
+
+            case MemberInitExpression primaryMemberInit:
+                // The operands may initialize different members, or in a different order. Members can then only be followed when they
+                // match; otherwise the projection is opaque, as it is for any other type.
+                if (other is not MemberInitExpression otherMemberInit
+                    || primaryMemberInit.NewExpression.Arguments.Count > 0
+                    || otherMemberInit.NewExpression.Arguments.Count > 0
+                    || primaryMemberInit.Bindings.Count != otherMemberInit.Bindings.Count)
+                {
+                    return Expression.Default(primaryMemberInit.Type);
+                }
+
+                var bindings = new MemberBinding[primaryMemberInit.Bindings.Count];
+                for (var i = 0; i < bindings.Length; i++)
+                {
+                    var primaryBinding = (MemberAssignment)primaryMemberInit.Bindings[i];
+                    if (otherMemberInit.Bindings[i] is not MemberAssignment otherBinding
+                        || otherBinding.Member != primaryBinding.Member)
+                    {
+                        return Expression.Default(primaryMemberInit.Type);
+                    }
+
+                    bindings[i] = primaryBinding.Update(MergeSetOperationTrees(primaryBinding.Expression, otherBinding.Expression));
+                }
+
+                return primaryMemberInit.Update(primaryMemberInit.NewExpression, bindings);
+
+            case DefaultExpression primaryDefaultExpression
+                when other is DefaultExpression otherDefaultExpression
+                && primaryDefaultExpression.Type != otherDefaultExpression.Type:
                 throw new InvalidOperationException(CoreStrings.SetOperationWithDifferentIncludesInOperands);
-            }
 
-            if (!_extensibilityHelper.AreQueryRootsCompatible(
-                    outerEntityReference.EntityQueryRootExpression, innerEntityReference.EntityQueryRootExpression))
-            {
-                throw new InvalidOperationException(CoreStrings.IncompatibleSourcesForSetOperation);
-            }
-        }
-
-        if (outer is NewExpression outerNewExpression
-            && inner is NewExpression innerNewExpression)
-        {
-            if (outerNewExpression.Arguments.Count != innerNewExpression.Arguments.Count)
-            {
-                throw new InvalidOperationException(CoreStrings.SetOperationWithDifferentIncludesInOperands);
-            }
-
-            for (var i = 0; i < outerNewExpression.Arguments.Count; i++)
-            {
-                ValidateExpressionCompatibility(outerNewExpression.Arguments[i], innerNewExpression.Arguments[i]);
-            }
-        }
-
-        if (outer is DefaultExpression outerDefaultExpression
-            && inner is DefaultExpression innerDefaultExpression
-            && outerDefaultExpression.Type != innerDefaultExpression.Type)
-        {
-            throw new InvalidOperationException(CoreStrings.SetOperationWithDifferentIncludesInOperands);
+            default:
+                return primary;
         }
     }
 
@@ -2855,6 +2958,26 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                     : newExpression.Update(arguments);
             }
 
+            case MemberInitExpression memberInitExpression
+                when memberInitExpression.Bindings.All(b => b is MemberAssignment):
+            {
+                var newExpression = SnapshotExpression(memberInitExpression.NewExpression);
+                var allDefault = newExpression.NodeType == ExpressionType.Default;
+                var bindings = new MemberBinding[memberInitExpression.Bindings.Count];
+                for (var i = 0; i < bindings.Length; i++)
+                {
+                    var binding = (MemberAssignment)memberInitExpression.Bindings[i];
+                    var expression = SnapshotExpression(binding.Expression);
+                    bindings[i] = binding.Update(expression);
+                    allDefault &= expression.NodeType == ExpressionType.Default;
+                }
+
+                return allDefault
+                    ? Expression.Default(memberInitExpression.Type)
+                    : memberInitExpression.Update(
+                        newExpression as NewExpression ?? memberInitExpression.NewExpression, bindings);
+            }
+
             case OwnedNavigationReference ownedNavigationReference:
                 return ownedNavigationReference.EntityReference.Snapshot();
 
@@ -2877,7 +3000,35 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                 when navigationExpansionExpression.CardinalityReducingGenericMethodInfo is not null
                 => UnwrapStructuralTypeReference(navigationExpansionExpression.PendingSelector),
             OwnedNavigationReference ownedNavigationReference => ownedNavigationReference.EntityReference,
+            MemberExpression memberExpression when TryGetSnapshottedMember(memberExpression) is { } snapshottedMember
+                => UnwrapStructuralTypeReference(snapshottedMember),
 
             _ => null,
         };
+
+    // A member of a projection which has been applied to the source, such as e.o where e came out of Select(o => new { o }).Distinct().
+    // The snapshot of the projection knows what the member refers to, even though it's now read off the element.
+    private static Expression? TryGetSnapshottedMember(MemberExpression memberExpression)
+    {
+        var projection = memberExpression.Expression switch
+        {
+            NavigationTreeExpression navigationTreeExpression => navigationTreeExpression.Value,
+            MemberExpression innerMemberExpression => TryGetSnapshottedMember(innerMemberExpression),
+            _ => null
+        };
+
+        switch (projection)
+        {
+            case NewExpression { Members: { } members } newExpression:
+                var index = members.IndexOf(memberExpression.Member);
+                return index >= 0 ? newExpression.Arguments[index] : null;
+
+            case MemberInitExpression memberInitExpression:
+                return memberInitExpression.Bindings.OfType<MemberAssignment>()
+                    .FirstOrDefault(b => b.Member == memberExpression.Member)?.Expression;
+
+            default:
+                return null;
+        }
+    }
 }

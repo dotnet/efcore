@@ -88,6 +88,9 @@ GROUP BY "o"."CustomerID"
     public override Task Select_uncorrelated_collection_with_groupby_when_outer_is_distinct(bool async)
         => AssertApplyNotSupported(() => base.Select_uncorrelated_collection_with_groupby_works(async));
 
+    public override Task Correlated_GroupBy_SelectMany_OrderBy_Take(bool async)
+        => AssertApplyNotSupported(() => base.Correlated_GroupBy_SelectMany_OrderBy_Take(async));
+
     public override Task SelectMany_correlated_GroupBy_Select_First_ordered(bool async)
         => AssertApplyNotSupported(() => base.SelectMany_correlated_GroupBy_Select_First_ordered(async));
 
