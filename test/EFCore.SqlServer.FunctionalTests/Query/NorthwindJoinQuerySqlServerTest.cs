@@ -314,6 +314,103 @@ FULL JOIN (
         AssertSql();
     }
 
+    public override async Task Join_without_result_selector(bool async)
+    {
+        await base.Join_without_result_selector(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Customers] AS [c]
+INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+WHERE [c].[CustomerID] LIKE N'F%'
+""");
+    }
+
+    public override async Task Join_without_result_selector_composed(bool async)
+    {
+        await base.Join_without_result_selector_composed(async);
+
+        AssertSql(
+            """
+SELECT [c].[ContactName], [o].[OrderID]
+FROM [Customers] AS [c]
+INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+WHERE [c].[City] = N'London' AND [o].[OrderID] < 10500
+""");
+    }
+
+    public override async Task Join_without_result_selector_on_collection_navigation(bool async)
+    {
+        await base.Join_without_result_selector_on_collection_navigation(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], (
+    SELECT COUNT(*)
+    FROM [Orders] AS [o]
+    INNER JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
+    WHERE [c].[CustomerID] = [o].[CustomerID] AND [o0].[Quantity] > CAST(10 AS smallint)) AS [Count]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'F%'
+""");
+    }
+
+    public override async Task Join_without_result_selector_with_custom_comparer_does_not_translate(bool async)
+    {
+        await base.Join_without_result_selector_with_custom_comparer_does_not_translate(async);
+
+        AssertSql();
+    }
+
+    public override async Task LeftJoin_without_result_selector(bool async)
+    {
+        await base.LeftJoin_without_result_selector(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Customers] AS [c]
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+""");
+    }
+
+    public override async Task RightJoin_without_result_selector(bool async)
+    {
+        await base.RightJoin_without_result_selector(async);
+
+        AssertSql(
+            """
+SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM (
+    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] LIKE N'A%'
+) AS [c0]
+RIGHT JOIN [Orders] AS [o] ON [c0].[CustomerID] = [o].[CustomerID]
+""");
+    }
+
+    public override async Task FullJoin_without_result_selector(bool async)
+    {
+        await base.FullJoin_without_result_selector(async);
+
+        AssertSql(
+            """
+SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+FROM (
+    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] LIKE N'A%'
+) AS [c0]
+FULL JOIN (
+    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+    WHERE [o].[CustomerID] LIKE N'B%'
+) AS [o0] ON [c0].[CustomerID] = [o0].[CustomerID]
+""");
+    }
+
     public override async Task GroupJoin_simple(bool async)
     {
         await base.GroupJoin_simple(async);

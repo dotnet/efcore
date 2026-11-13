@@ -40,6 +40,14 @@ public class NorthwindJoinQueryInMemoryTest(NorthwindQueryInMemoryFixture<NoopMo
     public override Task FullJoin_with_unmatched_rows_on_both_sides(bool async)
         => AssertTranslationFailed(() => base.FullJoin_with_unmatched_rows_on_both_sides(async));
 
+    // Right join not supported in InMemory
+    public override Task RightJoin_without_result_selector(bool async)
+        => AssertTranslationFailed(() => base.RightJoin_without_result_selector(async));
+
+    // Full join not supported in InMemory
+    public override Task FullJoin_without_result_selector(bool async)
+        => AssertTranslationFailed(() => base.FullJoin_without_result_selector(async));
+
     public override async Task Join_local_collection_int_closure_is_cached_correctly(bool async)
     {
         var ids = new uint[] { 1, 2 };

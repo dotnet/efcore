@@ -181,6 +181,13 @@ public static class QueryableMethods
     /// </summary>
     public static MethodInfo Join { get; }
 
+    /// <summary>
+    ///     The <see cref="MethodInfo" /> for
+    ///     <see
+    ///         cref="Queryable.Join{TOuter,TInner,TKey}(IQueryable{TOuter},IEnumerable{TInner},Expression{Func{TOuter,TKey}},Expression{Func{TInner,TKey}},IEqualityComparer{TKey})" />
+    /// </summary>
+    public static MethodInfo JoinWithoutResultSelector { get; }
+
     //public static MethodInfo JoinWithComparer { get; }
 
     /// <summary>
@@ -213,9 +220,23 @@ public static class QueryableMethods
     /// <summary>
     ///     The <see cref="MethodInfo" /> for
     ///     <see
+    ///         cref="Queryable.LeftJoin{TOuter,TInner,TKey}(IQueryable{TOuter},IEnumerable{TInner},Expression{Func{TOuter,TKey}},Expression{Func{TInner,TKey}},IEqualityComparer{TKey})" />
+    /// </summary>
+    public static MethodInfo LeftJoinWithoutResultSelector { get; }
+
+    /// <summary>
+    ///     The <see cref="MethodInfo" /> for
+    ///     <see
     ///         cref="Queryable.FullJoin{TOuter,TInner,TKey,TResult}(IQueryable{TOuter},IEnumerable{TInner},Expression{Func{TOuter,TKey}},Expression{Func{TInner,TKey}},Expression{Func{TOuter,TInner,TResult}},IEqualityComparer{TKey})" />
     /// </summary>
     public static MethodInfo FullJoin { get; }
+
+    /// <summary>
+    ///     The <see cref="MethodInfo" /> for
+    ///     <see
+    ///         cref="Queryable.FullJoin{TOuter,TInner,TKey}(IQueryable{TOuter},IEnumerable{TInner},Expression{Func{TOuter,TKey}},Expression{Func{TInner,TKey}},IEqualityComparer{TKey})" />
+    /// </summary>
+    public static MethodInfo FullJoinWithoutResultSelector { get; }
 
     /// <summary>
     ///     The <see cref="MethodInfo" /> for <see cref="Queryable.LongCount{TSource}(IQueryable{TSource})" />
@@ -302,6 +323,13 @@ public static class QueryableMethods
     ///         cref="Queryable.RightJoin{TOuter,TInner,TKey,TResult}(IQueryable{TOuter},IEnumerable{TInner},Expression{Func{TOuter,TKey}},Expression{Func{TInner,TKey}},Expression{Func{TOuter,TInner,TResult}})" />
     /// </summary>
     public static MethodInfo RightJoin { get; }
+
+    /// <summary>
+    ///     The <see cref="MethodInfo" /> for
+    ///     <see
+    ///         cref="Queryable.RightJoin{TOuter,TInner,TKey}(IQueryable{TOuter},IEnumerable{TInner},Expression{Func{TOuter,TKey}},Expression{Func{TInner,TKey}},IEqualityComparer{TKey})" />
+    /// </summary>
+    public static MethodInfo RightJoinWithoutResultSelector { get; }
 
     /// <summary>
     ///     The <see cref="MethodInfo" /> for
@@ -648,6 +676,17 @@ public static class QueryableMethods
                 typeof(Expression<>).MakeGenericType(typeof(Func<,,>).MakeGenericType(types[0], types[1], types[3]))
             ]);
 
+        JoinWithoutResultSelector = GetMethod(
+            nameof(Queryable.Join), 3,
+            types =>
+            [
+                typeof(IQueryable<>).MakeGenericType(types[0]),
+                typeof(IEnumerable<>).MakeGenericType(types[1]),
+                typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(types[0], types[2])),
+                typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(types[1], types[2])),
+                typeof(IEqualityComparer<>).MakeGenericType(types[2])
+            ]);
+
         LastWithoutPredicate = GetMethod(nameof(Queryable.Last), 1, types => [typeof(IQueryable<>).MakeGenericType(types[0])]);
 
         LastWithPredicate = GetMethod(
@@ -679,6 +718,17 @@ public static class QueryableMethods
                 typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(types[0], types[2])),
                 typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(types[1], types[2])),
                 typeof(Expression<>).MakeGenericType(typeof(Func<,,>).MakeGenericType(types[0], types[1], types[3]))
+            ]);
+
+        LeftJoinWithoutResultSelector = GetMethod(
+            nameof(Queryable.LeftJoin), 3,
+            types =>
+            [
+                typeof(IQueryable<>).MakeGenericType(types[0]),
+                typeof(IEnumerable<>).MakeGenericType(types[1]),
+                typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(types[0], types[2])),
+                typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(types[1], types[2])),
+                typeof(IEqualityComparer<>).MakeGenericType(types[2])
             ]);
 
         LongCountWithoutPredicate = GetMethod(
@@ -774,6 +824,17 @@ public static class QueryableMethods
                 typeof(Expression<>).MakeGenericType(typeof(Func<,,>).MakeGenericType(types[0], types[1], types[3]))
             ]);
 
+        RightJoinWithoutResultSelector = GetMethod(
+            nameof(Queryable.RightJoin), 3,
+            types =>
+            [
+                typeof(IQueryable<>).MakeGenericType(types[0]),
+                typeof(IEnumerable<>).MakeGenericType(types[1]),
+                typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(types[0], types[2])),
+                typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(types[1], types[2])),
+                typeof(IEqualityComparer<>).MakeGenericType(types[2])
+            ]);
+
         FullJoin = GetMethod(
             nameof(Queryable.FullJoin), 4,
             types =>
@@ -783,6 +844,17 @@ public static class QueryableMethods
                 typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(types[0], types[2])),
                 typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(types[1], types[2])),
                 typeof(Expression<>).MakeGenericType(typeof(Func<,,>).MakeGenericType(types[0], types[1], types[3])),
+                typeof(IEqualityComparer<>).MakeGenericType(types[2])
+            ]);
+
+        FullJoinWithoutResultSelector = GetMethod(
+            nameof(Queryable.FullJoin), 3,
+            types =>
+            [
+                typeof(IQueryable<>).MakeGenericType(types[0]),
+                typeof(IEnumerable<>).MakeGenericType(types[1]),
+                typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(types[0], types[2])),
+                typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(types[1], types[2])),
                 typeof(IEqualityComparer<>).MakeGenericType(types[2])
             ]);
 
