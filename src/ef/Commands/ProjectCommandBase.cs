@@ -25,6 +25,11 @@ internal abstract class ProjectCommandBase : EFCommandBase
     protected CommandOption? StartupAssembly { get; private set; }
     protected CommandOption? StartupProject { get; private set; }
     protected CommandOption? WorkingDir { get; private set; }
+
+    // Relative --output paths are resolved against the working directory (the directory the tool was invoked from),
+    // unlike --output-dir, which is resolved against the project directory.
+    internal static string ResolveOutputPath(string output, string? workingDir)
+        => Path.GetFullPath(string.IsNullOrEmpty(workingDir) ? output : Path.Combine(workingDir, output));
     protected CommandOption? Framework { get; private set; }
     protected CommandOption? Configuration { get; private set; }
 

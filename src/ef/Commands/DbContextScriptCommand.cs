@@ -20,11 +20,7 @@ internal partial class DbContextScriptCommand
         }
         else
         {
-            var output = _output.Value()!;
-            if (WorkingDir!.HasValue())
-            {
-                output = Path.Combine(WorkingDir.Value()!, output);
-            }
+            var output = ResolveOutputPath(_output.Value()!, WorkingDir!.Value());
 
             var directory = Path.GetDirectoryName(output);
             if (!string.IsNullOrEmpty(directory))
@@ -32,7 +28,7 @@ internal partial class DbContextScriptCommand
                 Directory.CreateDirectory(directory);
             }
 
-            Reporter.WriteVerbose(Resources.WritingFile(_output.Value()));
+            Reporter.WriteInformation(Resources.WritingFile(output));
             File.WriteAllText(output, sql, Encoding.UTF8);
         }
 
