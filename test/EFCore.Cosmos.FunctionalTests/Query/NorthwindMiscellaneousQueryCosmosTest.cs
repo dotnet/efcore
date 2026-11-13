@@ -2180,6 +2180,20 @@ WHERE ((c["$type"] = "Order") AND (c["OrderDate"] != null))
 """);
             });
 
+    public override Task Select_expression_datetime_add_microsecond(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Select_expression_datetime_add_microsecond(a);
+
+                AssertSql(
+                    """
+SELECT VALUE DateTimeAdd("mcs", 300, c["OrderDate"])
+FROM root c
+WHERE ((c["$type"] = "Order") AND (c["OrderDate"] != null))
+""");
+            });
+
     public override Task Select_expression_date_add_milliseconds_above_the_range(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -2237,6 +2251,21 @@ WHERE ((c["$type"] = "Order") AND (c["OrderDate"] != null))
                 AssertSql(
                     """
 SELECT VALUE DateTimeAdd("mi", (c["OrderID"] % 25), "1900-01-01T00:00:00.0000000")
+FROM root c
+WHERE ((c["$type"] = "Order") AND (c["OrderID"] < 10500))
+ORDER BY c["OrderID"]
+""");
+            });
+
+    public override Task Add_microseconds_on_constant_value(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Add_microseconds_on_constant_value(a);
+
+                AssertSql(
+                    """
+SELECT VALUE DateTimeAdd("mcs", (c["OrderID"] % 25), "1900-01-01T00:00:00.0000000")
 FROM root c
 WHERE ((c["$type"] = "Order") AND (c["OrderID"] < 10500))
 ORDER BY c["OrderID"]

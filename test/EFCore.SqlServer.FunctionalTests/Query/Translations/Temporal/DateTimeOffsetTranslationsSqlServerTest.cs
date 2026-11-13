@@ -303,6 +303,17 @@ FROM [BasicTypesEntities] AS [b]
 """);
     }
 
+    public override async Task AddMicroseconds()
+    {
+        await base.AddMicroseconds();
+
+        AssertSql(
+            """
+SELECT DATEADD(microsecond, CAST(300.0E0 AS int), [b].[DateTimeOffset])
+FROM [BasicTypesEntities] AS [b]
+""");
+    }
+
     public override async Task ToUnixTimeMilliseconds()
     {
         await base.ToUnixTimeMilliseconds();

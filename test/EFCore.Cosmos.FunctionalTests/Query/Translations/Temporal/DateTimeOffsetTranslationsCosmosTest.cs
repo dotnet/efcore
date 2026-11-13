@@ -297,6 +297,18 @@ FROM root c
 """);
     }
 
+    public override async Task AddMicroseconds()
+    {
+        // Our persisted representation of DateTimeOffset (xxx+00:00) isn't supported by Cosmos (should be xxxZ). #35310
+        await Assert.ThrowsAsync<EqualException>(base.AddMicroseconds);
+
+        AssertSql(
+            """
+SELECT VALUE DateTimeAdd("mcs", 300, c["DateTimeOffset"])
+FROM root c
+""");
+    }
+
     public override Task ToUnixTimeMilliseconds()
         => AssertTranslationFailed(base.ToUnixTimeMilliseconds);
 

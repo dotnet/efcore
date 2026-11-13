@@ -212,6 +212,17 @@ FROM "BasicTypesEntities" AS "b"
 """);
     }
 
+    public override async Task AddMicroseconds()
+    {
+        await base.AddMicroseconds();
+
+        AssertSql(
+            """
+SELECT "b"."DateTimeOffset"
+FROM "BasicTypesEntities" AS "b"
+""");
+    }
+
     public override Task ToUnixTimeMilliseconds()
         => AssertTranslationFailed(base.ToUnixTimeMilliseconds);
 
