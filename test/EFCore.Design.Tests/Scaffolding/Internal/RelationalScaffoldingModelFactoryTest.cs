@@ -811,6 +811,883 @@ public class RelationalScaffoldingModelFactoryTest
         Assert.Same(parent.GetProperties().First(), principalKey.Properties[0]);
     }
 
+    [Theory]
+    [InlineData("tinyint", "smallint", typeof(byte))]
+    [InlineData("tinyint", "int", typeof(byte))]
+    [InlineData("tinyint", "bigint", typeof(byte))]
+    [InlineData("smallint", "int", typeof(short))]
+    [InlineData("smallint", "bigint", typeof(short))]
+    [InlineData("int", "bigint", typeof(int))]
+    [InlineData("int", "decimal(10,0)", typeof(int))]
+    [InlineData("bigint", "decimal(18,0)", typeof(long))]
+    [InlineData("tinyint", "decimal(3,0)", typeof(byte))]
+    [InlineData("int", "bigint", typeof(int?), true)]
+    public void Foreign_key_with_wider_dependent_type_uses_principal_clr_type(
+        string principalStoreType,
+        string dependentStoreType,
+        Type expectedClrType,
+        bool dependentNullable = false)
+    {
+        var (parent, children, _) = CreateForeignKey(principalStoreType, dependentStoreType, dependentNullable);
+
+        var model = Scaffold(parent, children);
+
+        Assert.Empty(_reporter.Messages);
+
+        var fk = Assert.Single(model.FindEntityType("Children")!.GetForeignKeys());
+        Assert.Equal("Parent", fk.PrincipalEntityType.Name);
+        AssertProperty(Assert.Single(fk.Properties), expectedClrType, dependentStoreType);
+        AssertProperty(Assert.Single(fk.PrincipalKey.Properties), expectedClrType.UnwrapNullableType(), principalStoreType);
+    }
+
+    [Theory]
+    [InlineData("bigint", "smallint", "short", "long")]
+    [InlineData("bigint", "tinyint", "byte", "long")]
+    [InlineData("int", "smallint", "short", "int")]
+    [InlineData("uniqueidentifier", "varchar(36)", "string", "Guid")]
+    [InlineData("bit", "int", "int", "bool")]
+    [InlineData("float", "bigint", "long", "double")]
+    [InlineData("decimal(18, 2)", "bigint", "long", "decimal")]
+    [InlineData("decimal(19, 0)", "bigint", "long", "decimal")]
+    [InlineData("float", "decimal(18,2)", "decimal", "double")]
+    [InlineData("nvarchar(10)", "decimal(10,0)", "decimal", "string")]
+    [InlineData("int", "float", "double", "int")]
+    [InlineData("decimal(10, 0)", "int", "int", "decimal")]
+    [InlineData("decimal(2, 0)", "tinyint", "byte", "decimal")]
+    [InlineData("decimal(5, 0)", "smallint", "short", "decimal")]
+    public void Foreign_key_with_unsafe_mismatched_types_is_skipped(
+        string principalStoreType,
+        string dependentStoreType,
+        string dependentClrType,
+        string principalClrType)
+    {
+        var (parent, children, foreignKey) = CreateForeignKey(principalStoreType, dependentStoreType);
+
+        var model = Scaffold(parent, children);
+
+        AssertTypeMismatchWarning(foreignKey, $"{{'ParentId' : {dependentClrType}}}", $"{{'Id' : {principalClrType}}}");
+
+        var property = model.FindEntityType("Children")!.FindProperty("ParentId")!;
+        Assert.Empty(property.GetContainingForeignKeys());
+        Assert.Equal(dependentClrType, property.ClrType.ShortDisplayName());
+        Assert.Equal(dependentStoreType, property.GetColumnType());
+    }
+
+    [Theory]
+    [InlineData("decimal(18, 0)", "bigint")]
+    [InlineData("decimal(18)", "bigint")]
+    [InlineData("numeric(18,0)", "bigint")]
+    [InlineData("decimal", "bigint")] // The default is decimal(18, 0) on SQL Server
+    [InlineData("decimal(9, 0)", "int")]
+    [InlineData("decimal(4, 0)", "smallint")]
+    [InlineData("decimal(2, 0)", "int")]
+    public void Foreign_key_to_decimal_principal_with_integer_values_that_fit_uses_principal_clr_type(
+        string principalStoreType,
+        string dependentStoreType)
+    {
+        var (parent, children, _) = CreateForeignKey(principalStoreType, dependentStoreType);
+
+        var model = Scaffold(parent, children);
+
+        Assert.Empty(_reporter.Messages);
+
+        var fk = Assert.Single(model.FindEntityType("Children")!.GetForeignKeys());
+        AssertProperty(Assert.Single(fk.Properties), typeof(decimal), dependentStoreType);
+    }
+
+    [Fact]
+    public void Foreign_key_with_mismatched_types_and_default_value_is_skipped()
+    {
+        var (parent, children, foreignKey) = CreateForeignKey("int", "bigint");
+        children.Columns[1].DefaultValue = 0L;
+
+        Scaffold(parent, children);
+
+        AssertTypeMismatchWarning(foreignKey, "{'ParentId' : long}", "{'Id' : int}");
+    }
+
+    [Fact]
+    public void Foreign_key_with_mismatched_types_from_row_version_column_is_skipped()
+    {
+        var (parent, children, foreignKey) = CreateForeignKey("int", "bigint");
+        children.Columns[1].ValueGenerated = ValueGenerated.OnAddOrUpdate;
+        children.Columns[1][ScaffoldingAnnotationNames.ConcurrencyToken] = true;
+
+        Scaffold(parent, children);
+
+        AssertTypeMismatchWarning(foreignKey, "{'ParentId' : long}", "{'Id' : int}");
+    }
+
+    [Fact]
+    public void Foreign_key_from_column_without_store_type_is_skipped()
+    {
+        var (parent, children, foreignKey) = CreateForeignKey("int", null);
+
+        var model = Scaffold(parent, children);
+
+        AssertForeignKeyWarning(DesignStrings.ForeignKeyScaffoldErrorPropertyNotFound(foreignKey.DisplayName(), "ParentId"));
+
+        var entityType = model.FindEntityType("Children")!;
+        Assert.Empty(entityType.GetForeignKeys());
+        Assert.Null(entityType.FindProperty("ParentId"));
+    }
+
+    [Fact]
+    public void Foreign_key_to_column_without_store_type_is_skipped()
+    {
+        var (parent, children, foreignKey) = CreateForeignKey(null, "bigint");
+
+        var model = Scaffold(parent, children);
+
+        AssertForeignKeyWarning(DesignStrings.ForeignKeyScaffoldErrorPrincipalTableScaffoldingError(foreignKey.DisplayName(), parent.DisplayName()));
+
+        var entityType = model.FindEntityType("Children")!;
+        Assert.Empty(entityType.GetForeignKeys());
+        AssertProperty(entityType.FindProperty("ParentId")!, typeof(long), "bigint");
+    }
+
+    [Fact]
+    public void Self_referencing_foreign_key_with_mismatched_types_uses_principal_clr_type()
+    {
+        var table = CreateTable("Nodes", [Column("Id", "int"), Column("ParentId", "bigint", nullable: true)]);
+        AddForeignKey(table, table, [table.Columns[1]], [table.Columns[0]]);
+
+        var model = Scaffold(table);
+
+        Assert.Empty(_reporter.Messages);
+
+        var fk = Assert.Single(model.FindEntityType("Nodes")!.GetForeignKeys());
+        AssertProperty(Assert.Single(fk.Properties), typeof(int?), "bigint");
+    }
+
+    [Fact]
+    public void Foreign_key_from_primary_key_column_with_mismatched_types_uses_principal_clr_type()
+    {
+        var parent = CreateTable("Parent", [Column("Id", "int")]);
+        var children = CreateTable("Children", [Column("ParentId", "bigint")]);
+        AddForeignKey(children, parent, [children.Columns[0]], [parent.Columns[0]]);
+
+        var model = Scaffold(parent, children);
+
+        Assert.Empty(_reporter.Messages);
+
+        var entityType = model.FindEntityType("Children")!;
+        var fk = Assert.Single(entityType.GetForeignKeys());
+        AssertProperty(Assert.Single(fk.Properties), typeof(int), "bigint");
+        Assert.Equal(typeof(int), Assert.Single(entityType.FindPrimaryKey()!.Properties).ClrType);
+        Assert.True(fk.IsUnique);
+    }
+
+    [Fact]
+    public void Foreign_key_from_unique_index_column_with_mismatched_types_uses_principal_clr_type()
+    {
+        var (parent, children, _) = CreateForeignKey("int", "bigint");
+        children.Indexes.Add(
+            new DatabaseIndex
+            {
+                Table = children,
+                Name = "IX_ParentId",
+                Columns = { children.Columns[1] },
+                IsUnique = true
+            });
+
+        var model = Scaffold(parent, children);
+
+        Assert.Empty(_reporter.Messages);
+
+        var entityType = model.FindEntityType("Children")!;
+        var fk = Assert.Single(entityType.GetForeignKeys());
+        AssertProperty(Assert.Single(fk.Properties), typeof(int), "bigint");
+        Assert.Equal(typeof(int), Assert.Single(Assert.Single(entityType.GetIndexes()).Properties).ClrType);
+        Assert.True(fk.IsUnique);
+    }
+
+    [Theory, InlineData(false), InlineData(true)]
+    public void Foreign_key_to_unique_principal_columns_with_mismatched_types_uses_principal_clr_type(bool uniqueConstraint)
+    {
+        var parent = CreateTable("Parent", [Column("Id", "int"), Column("Code", "int")]);
+        if (uniqueConstraint)
+        {
+            parent.UniqueConstraints.Add(
+                new DatabaseUniqueConstraint
+                {
+                    Table = parent,
+                    Name = "UQ_Code",
+                    Columns = { parent.Columns[1] }
+                });
+        }
+        else
+        {
+            parent.Indexes.Add(
+                new DatabaseIndex
+                {
+                    Table = parent,
+                    Name = "IX_Code",
+                    Columns = { parent.Columns[1] },
+                    IsUnique = true
+                });
+        }
+
+        var children = CreateTable("Children", [Column("Id", "int"), Column("ParentCode", "bigint")]);
+        AddForeignKey(children, parent, [children.Columns[1]], [parent.Columns[1]]);
+
+        var model = Scaffold(parent, children);
+
+        Assert.Empty(_reporter.Messages);
+
+        var fk = Assert.Single(model.FindEntityType("Children")!.GetForeignKeys());
+        AssertProperty(Assert.Single(fk.Properties), typeof(int), "bigint");
+    }
+
+    [Theory, InlineData(false), InlineData(true)]
+    public void Foreign_key_to_non_key_principal_columns_does_not_change_dependent_type(bool nonUniqueIndex)
+    {
+        var parent = CreateTable("Parent", [Column("Id", "int"), Column("NotPkId", "int")]);
+        if (nonUniqueIndex)
+        {
+            parent.Indexes.Add(
+                new DatabaseIndex
+                {
+                    Table = parent,
+                    Name = "IX_NotPkId",
+                    Columns = { parent.Columns[1] }
+                });
+        }
+
+        var children = CreateTable("Children", [Column("Id", "int"), Column("ParentId", "bigint")]);
+        var foreignKey = AddForeignKey(children, parent, [children.Columns[1]], [parent.Columns[1]]);
+
+        var model = Scaffold(parent, children);
+
+        var (level, message) = Assert.Single(_reporter.Messages);
+        Assert.Equal(LogLevel.Warning, level);
+        Assert.Equal(
+            DesignStrings.ForeignKeyScaffoldErrorPrincipalKeyNotFound(foreignKey.DisplayName(), "NotPkId", "Parent"),
+            message);
+
+        var entityType = model.FindEntityType("Children")!;
+        Assert.Empty(entityType.GetForeignKeys());
+        AssertProperty(entityType.FindProperty("ParentId")!, typeof(long), "bigint");
+    }
+
+    [Fact]
+    public void Foreign_key_to_nullable_unique_index_with_mismatched_types_uses_principal_clr_type()
+    {
+        var parent = CreateTable("Parent", [Column("Id", "int"), Column("Code", "int", nullable: true)]);
+        parent.Indexes.Add(
+            new DatabaseIndex
+            {
+                Table = parent,
+                Name = "IX_Code",
+                Columns = { parent.Columns[1] },
+                IsUnique = true
+            });
+        var children = CreateTable("Children", [Column("Id", "int"), Column("ParentCode", "bigint")]);
+        var foreignKey = AddForeignKey(children, parent, [children.Columns[1]], [parent.Columns[1]]);
+
+        var model = Scaffold(parent, children);
+
+        var (level, message) = Assert.Single(_reporter.Messages);
+        Assert.Equal(LogLevel.Warning, level);
+        Assert.Equal(
+            DesignStrings.ForeignKeyPrincipalEndContainsNullableColumns(foreignKey.DisplayName(), "IX_Code", "Parent.Code"),
+            message);
+
+        var fk = Assert.Single(model.FindEntityType("Children")!.GetForeignKeys());
+        AssertProperty(Assert.Single(fk.Properties), typeof(int), "bigint");
+        Assert.False(fk.PrincipalKey.Properties[0].IsNullable);
+        Assert.Equal(2, model.FindEntityType("Parent")!.GetKeys().Count());
+    }
+
+    [Fact]
+    public void Foreign_key_with_incompatible_types_to_nullable_unique_index_leaves_principal_unchanged()
+    {
+        var parent = CreateTable("Parent", [Column("Id", "int"), Column("Code", "nvarchar(10)", nullable: true)]);
+        parent.Indexes.Add(
+            new DatabaseIndex
+            {
+                Table = parent,
+                Name = "IX_Code",
+                Columns = { parent.Columns[1] },
+                IsUnique = true
+            });
+        var children = CreateTable("Children", [Column("Id", "int"), Column("ParentCode", "int")]);
+        var foreignKey = AddForeignKey(children, parent, [children.Columns[1]], [parent.Columns[1]]);
+
+        var model = Scaffold(parent, children);
+
+        // Only the type mismatch is reported, since the principal is not changed for a foreign key that is skipped.
+        AssertTypeMismatchWarning(foreignKey, "{'ParentCode' : int}", "{'Code' : string}");
+
+        Assert.Empty(model.FindEntityType("Children")!.GetForeignKeys());
+
+        var parentType = model.FindEntityType("Parent")!;
+        Assert.True(parentType.FindProperty("Code")!.IsNullable);
+        Assert.Single(parentType.GetKeys());
+    }
+
+    [Fact]
+    public void Foreign_keys_from_same_column_to_principals_with_same_clr_type_use_principal_clr_type()
+    {
+        var parent = CreateTable("Parent", [Column("Id", "int")]);
+        var otherParent = CreateTable("OtherParent", [Column("Id", "int")]);
+        var children = CreateTable("Children", [Column("Id", "int"), Column("ParentId", "bigint")]);
+        AddForeignKey(children, parent, [children.Columns[1]], [parent.Columns[0]], "FK_Parent");
+        AddForeignKey(children, otherParent, [children.Columns[1]], [otherParent.Columns[0]], "FK_OtherParent");
+
+        var model = Scaffold(parent, otherParent, children);
+
+        Assert.Empty(_reporter.Messages);
+
+        var entityType = model.FindEntityType("Children")!;
+        Assert.Equal(2, entityType.GetForeignKeys().Count());
+        AssertProperty(entityType.FindProperty("ParentId")!, typeof(int), "bigint");
+    }
+
+    [Fact]
+    public void Duplicate_foreign_keys_with_mismatched_types_use_principal_clr_type_and_report_the_duplicate()
+    {
+        var (parent, children, _) = CreateForeignKey("int", "bigint");
+        var duplicate = AddForeignKey(children, parent, [children.Columns[1]], [parent.Columns[0]], "FK_Duplicate");
+
+        var model = Scaffold(parent, children);
+
+        var (level, message) = Assert.Single(_reporter.Messages);
+        Assert.Equal(LogLevel.Warning, level);
+        Assert.Equal(DesignStrings.ForeignKeyWithSameFacetsExists(duplicate.DisplayName(), "FK_Foo"), message);
+
+        var fk = Assert.Single(model.FindEntityType("Children")!.GetForeignKeys());
+        AssertProperty(Assert.Single(fk.Properties), typeof(int), "bigint");
+    }
+
+    [Fact]
+    public void Duplicate_foreign_keys_with_unsafe_mismatched_types_are_both_skipped()
+    {
+        var (parent, children, foreignKey) = CreateForeignKey("bigint", "smallint");
+        var duplicate = AddForeignKey(children, parent, [children.Columns[1]], [parent.Columns[0]], "FK_Duplicate");
+
+        Scaffold(parent, children);
+
+        Assert.Equal(2, _reporter.Messages.Count);
+        Assert.Equal(
+            [
+                DesignStrings.ForeignKeyScaffoldErrorTypeMismatch(foreignKey.DisplayName(), "{'ParentId' : short}", "{'Id' : long}"),
+                DesignStrings.ForeignKeyScaffoldErrorTypeMismatch(duplicate.DisplayName(), "{'ParentId' : short}", "{'Id' : long}")
+            ],
+            _reporter.Messages.Select(m => m.Message));
+    }
+
+    [Fact]
+    public void Foreign_key_with_mismatched_types_to_principals_with_different_types_is_skipped()
+    {
+        var parent = CreateTable("Parent", [Column("Id", "int")]);
+        var otherParent = CreateTable("OtherParent", [Column("Id", "bigint")]);
+        var children = CreateTable("Children", [Column("Id", "int"), Column("ParentId", "bigint")]);
+        var mismatchedForeignKey = AddForeignKey(children, parent, [children.Columns[1]], [parent.Columns[0]], "FK_Parent");
+        AddForeignKey(children, otherParent, [children.Columns[1]], [otherParent.Columns[0]], "FK_OtherParent");
+
+        var model = Scaffold(parent, otherParent, children);
+
+        AssertTypeMismatchWarning(mismatchedForeignKey, "{'ParentId' : long}", "{'Id' : int}");
+
+        var fk = Assert.Single(model.FindEntityType("Children")!.GetForeignKeys());
+        Assert.Equal("OtherParent", fk.PrincipalEntityType.Name);
+        AssertProperty(Assert.Single(fk.Properties), typeof(long), "bigint");
+    }
+
+    [Fact]
+    public void Foreign_key_with_mismatched_types_from_column_referenced_by_another_foreign_key_is_skipped()
+    {
+        var parent = CreateTable("Parent", [Column("Id", "int")]);
+        var children = CreateTable("Children", [Column("ParentId", "bigint")]);
+        var mismatchedForeignKey = AddForeignKey(children, parent, [children.Columns[0]], [parent.Columns[0]]);
+        var grandchildren = CreateTable("Grandchildren", [Column("Id", "int"), Column("ChildId", "bigint")]);
+        AddForeignKey(grandchildren, children, [grandchildren.Columns[1]], [children.Columns[0]], "FK_Child");
+
+        var model = Scaffold(parent, children, grandchildren);
+
+        // The Children key column is referenced by Grandchildren, so it keeps its own type and the Parent foreign key is skipped.
+        AssertTypeMismatchWarning(mismatchedForeignKey, "{'ParentId' : long}", "{'Id' : int}");
+
+        Assert.Empty(model.FindEntityType("Children")!.GetForeignKeys());
+
+        var fk = Assert.Single(model.FindEntityType("Grandchildren")!.GetForeignKeys());
+        AssertProperty(Assert.Single(fk.Properties), typeof(long), "bigint");
+    }
+
+    [Fact]
+    public void Foreign_keys_sharing_columns_are_all_skipped_when_one_cannot_change_the_shared_column()
+    {
+        var parent = CreateCompositeParent("Parent");
+        var thirdParent = CreateCompositeParent("ThirdParent");
+        var otherParent = CreateTable("OtherParent", [Column("Id", "bigint")]);
+        var children = CreateTable(
+            "Children", [Column("Id", "int"), Column("A", "bigint"), Column("B", "bigint"), Column("C", "bigint")]);
+
+        // A references principals with different CLR types, so it can't be changed. That makes the foreign key on (A, B)
+        // unresolvable, so B can't be changed either, and then neither can C because the foreign key on (B, C) is
+        // unresolvable. The foreign key on (B, C) comes first, so it is only found to be unresolvable on a later pass.
+        var thirdForeignKey = AddForeignKey(
+            children, thirdParent, [children.Columns[2], children.Columns[3]], [.. thirdParent.Columns], "FK_Third");
+        var compositeForeignKey = AddForeignKey(
+            children, parent, [children.Columns[1], children.Columns[2]], [.. parent.Columns], "FK_Composite");
+        var otherForeignKey = AddForeignKey(children, otherParent, [children.Columns[1]], [otherParent.Columns[0]], "FK_Other");
+        otherParent.Columns[0].StoreType = "decimal(18, 2)";
+
+        var model = Scaffold(parent, otherParent, thirdParent, children);
+
+        Assert.All(_reporter.Messages, m => Assert.Equal(LogLevel.Warning, m.Level));
+        Assert.Equal(
+            [
+                DesignStrings.ForeignKeyScaffoldErrorTypeMismatch(
+                    thirdForeignKey.DisplayName(), "{'B' : long, 'C' : long}", "{'Id1' : int, 'Id2' : int}"),
+                DesignStrings.ForeignKeyScaffoldErrorTypeMismatch(
+                    compositeForeignKey.DisplayName(), "{'A' : long, 'B' : long}", "{'Id1' : int, 'Id2' : int}"),
+                DesignStrings.ForeignKeyScaffoldErrorTypeMismatch(otherForeignKey.DisplayName(), "{'A' : long}", "{'Id' : decimal}")
+            ],
+            _reporter.Messages.Select(m => m.Message));
+
+        var entityType = model.FindEntityType("Children")!;
+        Assert.Empty(entityType.GetForeignKeys());
+        AssertProperty(entityType.FindProperty("A")!, typeof(long), "bigint");
+        AssertProperty(entityType.FindProperty("B")!, typeof(long), "bigint");
+        AssertProperty(entityType.FindProperty("C")!, typeof(long), "bigint");
+    }
+
+    [Fact]
+    public void Composite_foreign_key_with_some_mismatched_types_uses_principal_clr_types()
+    {
+        var parent = CreateCompositeParent("Parent");
+        var children = CreateTable("Children", [Column("Id", "int"), Column("ParentId1", "bigint"), Column("ParentId2", "int")]);
+        AddForeignKey(children, parent, [children.Columns[1], children.Columns[2]], [.. parent.Columns]);
+
+        var model = Scaffold(parent, children);
+
+        Assert.Empty(_reporter.Messages);
+
+        var fk = Assert.Single(model.FindEntityType("Children")!.GetForeignKeys());
+        AssertProperty(fk.Properties[0], typeof(int), "bigint");
+        AssertProperty(fk.Properties[1], typeof(int), "int");
+    }
+
+    [Fact]
+    public void Composite_foreign_key_with_unsafe_mismatched_column_is_skipped_without_changing_other_columns()
+    {
+        var parent = CreateCompositeParent("Parent");
+        var children = CreateTable(
+            "Children", [Column("Id", "int"), Column("ParentId1", "bigint"), Column("ParentId2", "uniqueidentifier")]);
+        var foreignKey = AddForeignKey(children, parent, [children.Columns[1], children.Columns[2]], [.. parent.Columns]);
+
+        var model = Scaffold(parent, children);
+
+        AssertTypeMismatchWarning(foreignKey, "{'ParentId1' : long, 'ParentId2' : Guid}", "{'Id1' : int, 'Id2' : int}");
+
+        var entityType = model.FindEntityType("Children")!;
+        Assert.Empty(entityType.GetForeignKeys());
+        AssertProperty(entityType.FindProperty("ParentId1")!, typeof(long), "bigint");
+    }
+
+    [Theory, InlineData(true, true), InlineData(true, false), InlineData(false, true)]
+    public void Composite_foreign_key_with_nullable_columns_is_not_narrowed(bool firstNullable, bool secondNullable)
+    {
+        // A composite foreign key with a null component doesn't constrain its other components, so they can hold
+        // values that don't exist in the principal column and the type can't be narrowed to the principal type.
+        var parent = CreateCompositeParent("Parent");
+        var children = CreateTable(
+            "Children",
+            [Column("Id", "int"), Column("ParentId1", "bigint", firstNullable), Column("ParentId2", "bigint", secondNullable)]);
+        var foreignKey = AddForeignKey(children, parent, [children.Columns[1], children.Columns[2]], [.. parent.Columns]);
+
+        var model = Scaffold(parent, children);
+
+        AssertTypeMismatchWarning(
+            foreignKey,
+            $"{{'ParentId1' : long{(firstNullable ? "?" : "")}, 'ParentId2' : long{(secondNullable ? "?" : "")}}}",
+            "{'Id1' : int, 'Id2' : int}");
+
+        Assert.Empty(model.FindEntityType("Children")!.GetForeignKeys());
+    }
+
+    [Fact]
+    public void Composite_foreign_key_with_unmappable_dependent_column_is_skipped_without_changing_other_columns()
+    {
+        var parent = CreateCompositeParent("Parent");
+        var children = CreateTable("Children", [Column("Id", "int"), Column("ParentId1", "bigint"), Column("ParentId2", null)]);
+        var foreignKey = AddForeignKey(children, parent, [children.Columns[1], children.Columns[2]], [.. parent.Columns]);
+
+        var model = Scaffold(parent, children);
+
+        AssertForeignKeyWarning(DesignStrings.ForeignKeyScaffoldErrorPropertyNotFound(foreignKey.DisplayName(), "ParentId2"));
+
+        var entityType = model.FindEntityType("Children")!;
+        Assert.Empty(entityType.GetForeignKeys());
+        AssertProperty(entityType.FindProperty("ParentId1")!, typeof(long), "bigint");
+        Assert.Null(entityType.FindProperty("ParentId2"));
+    }
+
+    [Fact]
+    public void Composite_foreign_key_with_unmappable_principal_column_is_skipped_without_changing_other_columns()
+    {
+        var parent = CreateCompositeParent("Parent");
+        parent.Columns[1].StoreType = null;
+        var children = CreateTable("Children", [Column("Id", "int"), Column("ParentId1", "bigint"), Column("ParentId2", "int")]);
+        var foreignKey = AddForeignKey(children, parent, [children.Columns[1], children.Columns[2]], [.. parent.Columns]);
+
+        var model = Scaffold(parent, children);
+
+        AssertForeignKeyWarning(DesignStrings.ForeignKeyScaffoldErrorPrincipalTableScaffoldingError(foreignKey.DisplayName(), parent.DisplayName()));
+
+        var entityType = model.FindEntityType("Children")!;
+        Assert.Empty(entityType.GetForeignKeys());
+        AssertProperty(entityType.FindProperty("ParentId1")!, typeof(long), "bigint");
+    }
+
+    [Fact]
+    public void Composite_foreign_key_with_unmappable_columns_at_the_same_position_is_skipped_without_changing_other_columns()
+    {
+        var parent = CreateCompositeParent("Parent");
+        parent.Columns[1].StoreType = null;
+        var children = CreateTable("Children", [Column("Id", "int"), Column("ParentId1", "bigint"), Column("ParentId2", null)]);
+        var foreignKey = AddForeignKey(children, parent, [children.Columns[1], children.Columns[2]], [.. parent.Columns]);
+
+        var model = Scaffold(parent, children);
+
+        AssertForeignKeyWarning(DesignStrings.ForeignKeyScaffoldErrorPropertyNotFound(foreignKey.DisplayName(), "ParentId2"));
+
+        var entityType = model.FindEntityType("Children")!;
+        Assert.Empty(entityType.GetForeignKeys());
+        AssertProperty(entityType.FindProperty("ParentId1")!, typeof(long), "bigint");
+    }
+
+    [Fact]
+    public void Composite_foreign_key_with_principal_columns_in_a_different_order_does_not_change_dependent_types()
+    {
+        var parent = CreateCompositeParent("Parent");
+        var children = CreateTable("Children", [Column("Id", "int"), Column("ParentId1", "bigint"), Column("ParentId2", "bigint")]);
+        var foreignKey = AddForeignKey(
+            children, parent, [children.Columns[1], children.Columns[2]], [parent.Columns[1], parent.Columns[0]]);
+
+        var model = Scaffold(parent, children);
+
+        AssertForeignKeyWarning(
+            DesignStrings.ForeignKeyScaffoldErrorPrincipalKeyNotFound(
+                foreignKey.DisplayName(), string.Join(System.Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator, "Id2", "Id1"), "Parent"));
+
+        var entityType = model.FindEntityType("Children")!;
+        Assert.Empty(entityType.GetForeignKeys());
+        AssertProperty(entityType.FindProperty("ParentId1")!, typeof(long), "bigint");
+        AssertProperty(entityType.FindProperty("ParentId2")!, typeof(long), "bigint");
+    }
+
+    [Fact]
+    public void Foreign_keys_from_same_column_to_decimal_principals_are_skipped_unless_all_principals_are_integers()
+    {
+        var parent = CreateTable("Parent", [Column("Id", "decimal(18, 0)")]);
+        var otherParent = CreateTable("OtherParent", [Column("Id", "decimal(18, 2)")]);
+        var children = CreateTable("Children", [Column("Id", "int"), Column("ParentId", "bigint")]);
+        var foreignKey = AddForeignKey(children, parent, [children.Columns[1]], [parent.Columns[0]], "FK_Parent");
+        var otherForeignKey = AddForeignKey(children, otherParent, [children.Columns[1]], [otherParent.Columns[0]], "FK_OtherParent");
+
+        var model = Scaffold(parent, otherParent, children);
+
+        Assert.Equal(
+            [
+                DesignStrings.ForeignKeyScaffoldErrorTypeMismatch(foreignKey.DisplayName(), "{'ParentId' : long}", "{'Id' : decimal}"),
+                DesignStrings.ForeignKeyScaffoldErrorTypeMismatch(
+                    otherForeignKey.DisplayName(), "{'ParentId' : long}", "{'Id' : decimal}")
+            ],
+            _reporter.Messages.Select(m => m.Message));
+
+        var entityType = model.FindEntityType("Children")!;
+        Assert.Empty(entityType.GetForeignKeys());
+        AssertProperty(entityType.FindProperty("ParentId")!, typeof(long), "bigint");
+    }
+
+    [Fact]
+    public void Foreign_key_with_missing_principal_table_does_not_change_dependent_type()
+    {
+        var (parent, children, foreignKey) = CreateForeignKey("int", "bigint");
+        foreignKey.PrincipalTable = null!;
+        foreignKey.PrincipalColumns.Clear();
+
+        var model = Scaffold(parent, children);
+
+        var (level, message) = Assert.Single(_reporter.Messages);
+        Assert.Equal(LogLevel.Warning, level);
+        Assert.Equal(DesignStrings.ForeignKeyScaffoldErrorPrincipalTableNotFound(foreignKey.DisplayName()), message);
+        AssertProperty(model.FindEntityType("Children")!.FindProperty("ParentId")!, typeof(long), "bigint");
+    }
+
+    [Fact]
+    public void Foreign_key_with_different_numbers_of_dependent_and_principal_columns_does_not_change_dependent_types()
+    {
+        var parent = CreateTable("Parent", [Column("Id", "int")]);
+        var children = CreateTable("Children", [Column("Id", "int"), Column("ParentId1", "bigint"), Column("ParentId2", "bigint")]);
+        var foreignKey = AddForeignKey(children, parent, [children.Columns[1], children.Columns[2]], [parent.Columns[0]]);
+
+        var model = Scaffold(parent, children);
+
+        AssertTypeMismatchWarning(foreignKey, "{'ParentId1' : long, 'ParentId2' : long}", "{'Id' : int}");
+
+        var entityType = model.FindEntityType("Children")!;
+        Assert.Empty(entityType.GetForeignKeys());
+        AssertProperty(entityType.FindProperty("ParentId1")!, typeof(long), "bigint");
+        AssertProperty(entityType.FindProperty("ParentId2")!, typeof(long), "bigint");
+    }
+
+    [Fact]
+    public void Foreign_key_types_are_resolved_each_time_the_model_is_created()
+    {
+        var (parent, children, _) = CreateForeignKey("int", "bigint");
+        var database = new DatabaseModel { Tables = { parent, children } };
+
+        for (var i = 0; i < 2; i++)
+        {
+            var model = _factory.Create(database, new ModelReverseEngineerOptions { NoPluralize = true });
+
+            Assert.Empty(_reporter.Messages);
+
+            var fk = Assert.Single(model.FindEntityType("Children")!.GetForeignKeys());
+            Assert.Equal(typeof(int), Assert.Single(fk.Properties).ClrType);
+        }
+
+        // A model without the foreign key must not inherit the changed type from the earlier calls.
+        children.ForeignKeys.Clear();
+        var modelWithoutForeignKey = _factory.Create(database, new ModelReverseEngineerOptions { NoPluralize = true });
+        Assert.Equal(typeof(long), modelWithoutForeignKey.FindEntityType("Children")!.FindProperty("ParentId")!.ClrType);
+    }
+
+    [Theory]
+    [InlineData(typeof(sbyte), true)]
+    [InlineData(typeof(byte), true)]
+    [InlineData(typeof(short), true)]
+    [InlineData(typeof(ushort), true)]
+    [InlineData(typeof(int), true)]
+    [InlineData(typeof(uint), true)]
+    [InlineData(typeof(ulong), false)]
+    public void Sqlite_foreign_key_to_principal_with_clr_type_hint_uses_principal_clr_type(Type hint, bool scaffolded)
+    {
+        // The dependent column is INTEGER, which is long unless the data indicates a smaller type, so it can hold any
+        // value of the principal column unless the principal is ulong.
+        var parent = CreateTable("Parent", [Column("Id", "INTEGER")]);
+        parent.Columns[0][ScaffoldingAnnotationNames.ClrType] = hint;
+        var children = CreateTable("Children", [Column("Id", "INTEGER"), Column("ParentId", "INTEGER")]);
+        var foreignKey = AddForeignKey(children, parent, [children.Columns[1]], [parent.Columns[0]]);
+
+        var (factory, reporter) = CreateFactory("Microsoft.EntityFrameworkCore.Sqlite");
+        var model = ScaffoldUsing(factory, parent, children);
+
+        var entityType = model.FindEntityType("Children")!;
+        if (scaffolded)
+        {
+            Assert.Empty(reporter.Messages);
+            AssertProperty(Assert.Single(Assert.Single(entityType.GetForeignKeys()).Properties), hint, "INTEGER");
+        }
+        else
+        {
+            var (level, message) = Assert.Single(reporter.Messages);
+            Assert.Equal(LogLevel.Warning, level);
+            Assert.Equal(
+                DesignStrings.ForeignKeyScaffoldErrorTypeMismatch(foreignKey.DisplayName(), "{'ParentId' : long}", "{'Id' : ulong}"),
+                message);
+            Assert.Empty(entityType.GetForeignKeys());
+        }
+    }
+
+    [Fact]
+    public void Sqlite_foreign_key_from_column_with_clr_type_hint_uses_principal_clr_type()
+    {
+        // The hint is derived from the data in the column, and the store types are the same, so any value
+        // in the principal column can be held by the foreign key column.
+        var parent = CreateTable("Parent", [Column("Id", "INTEGER")]);
+        var children = CreateTable("Children", [Column("Id", "INTEGER"), Column("ParentId", "INTEGER")]);
+        children.Columns[1][ScaffoldingAnnotationNames.ClrType] = typeof(int);
+        AddForeignKey(children, parent, [children.Columns[1]], [parent.Columns[0]]);
+
+        var (factory, reporter) = CreateFactory("Microsoft.EntityFrameworkCore.Sqlite");
+        var model = ScaffoldUsing(factory, parent, children);
+
+        Assert.Empty(reporter.Messages);
+
+        var fk = Assert.Single(model.FindEntityType("Children")!.GetForeignKeys());
+        AssertProperty(Assert.Single(fk.Properties), typeof(long), "INTEGER");
+    }
+
+    [Theory, InlineData(false), InlineData(true)]
+    public void Sqlite_composite_foreign_key_with_nullable_columns_is_not_narrowed(bool dependentHint)
+    {
+        // The principal columns are int because of the data in them, but a nullable composite foreign key
+        // doesn't constrain the other columns, so they can hold any INTEGER value.
+        var parent = CreateCompositeParent("Parent", "INTEGER");
+        parent.Columns[0][ScaffoldingAnnotationNames.ClrType] = typeof(int);
+        parent.Columns[1][ScaffoldingAnnotationNames.ClrType] = typeof(int);
+        var children = CreateTable(
+            "Children", [Column("Id", "INTEGER"), Column("ParentId1", "INTEGER", true), Column("ParentId2", "INTEGER", true)]);
+        if (dependentHint)
+        {
+            children.Columns[1][ScaffoldingAnnotationNames.ClrType] = typeof(long);
+            children.Columns[2][ScaffoldingAnnotationNames.ClrType] = typeof(long);
+        }
+
+        var foreignKey = AddForeignKey(children, parent, [children.Columns[1], children.Columns[2]], [.. parent.Columns]);
+
+        var (factory, reporter) = CreateFactory("Microsoft.EntityFrameworkCore.Sqlite");
+        var model = ScaffoldUsing(factory, parent, children);
+
+        var (level, message) = Assert.Single(reporter.Messages);
+        Assert.Equal(LogLevel.Warning, level);
+        Assert.Equal(
+            DesignStrings.ForeignKeyScaffoldErrorTypeMismatch(
+                foreignKey.DisplayName(), "{'ParentId1' : long?, 'ParentId2' : long?}", "{'Id1' : int, 'Id2' : int}"),
+            message);
+        Assert.Empty(model.FindEntityType("Children")!.GetForeignKeys());
+    }
+
+    [Fact]
+    public void Sqlite_composite_foreign_key_with_nullable_columns_is_widened_when_the_store_type_matches_the_principal()
+    {
+        // The dependent columns have an int hint, but the principal columns are INTEGER (long). The store types are
+        // the same, so widening the dependent columns to long is safe even though the foreign key is nullable.
+        var parent = CreateCompositeParent("Parent", "INTEGER");
+        var children = CreateTable(
+            "Children", [Column("Id", "INTEGER"), Column("ParentId1", "INTEGER", true), Column("ParentId2", "INTEGER", true)]);
+        children.Columns[1][ScaffoldingAnnotationNames.ClrType] = typeof(int);
+        children.Columns[2][ScaffoldingAnnotationNames.ClrType] = typeof(int);
+        AddForeignKey(children, parent, [children.Columns[1], children.Columns[2]], [.. parent.Columns]);
+
+        var (factory, reporter) = CreateFactory("Microsoft.EntityFrameworkCore.Sqlite");
+        var model = ScaffoldUsing(factory, parent, children);
+
+        Assert.Empty(reporter.Messages);
+
+        var fk = Assert.Single(model.FindEntityType("Children")!.GetForeignKeys());
+        Assert.Equal([typeof(long?), typeof(long?)], fk.Properties.Select(p => p.ClrType));
+    }
+
+    private IModel Scaffold(params DatabaseTable[] tables)
+        => ScaffoldUsing(_factory, tables);
+
+    private static IModel ScaffoldUsing(IScaffoldingModelFactory factory, params DatabaseTable[] tables)
+    {
+        var database = new DatabaseModel();
+        foreach (var table in tables)
+        {
+            database.Tables.Add(table);
+        }
+
+        return factory.Create(database, new ModelReverseEngineerOptions { NoPluralize = true });
+    }
+
+    private static (IScaffoldingModelFactory Factory, TestOperationReporter Reporter) CreateFactory(string provider)
+    {
+        var reporter = new TestOperationReporter();
+
+        var assembly = typeof(RelationalScaffoldingModelFactoryTest).Assembly;
+        var factory = new DesignTimeServicesBuilder(assembly, assembly, reporter, [])
+            .CreateServiceCollection(provider)
+            .AddSingleton<IScaffoldingModelFactory, FakeScaffoldingModelFactory>()
+            .BuildServiceProvider(validateScopes: true)
+            .GetRequiredService<IScaffoldingModelFactory>();
+
+        reporter.Clear();
+
+        return (factory, reporter);
+    }
+
+    private static DatabaseColumn Column(string name, string? storeType, bool nullable = false)
+        => new()
+        {
+            Name = name,
+            StoreType = storeType,
+            IsNullable = nullable
+        };
+
+    private static DatabaseTable CreateTable(string name, DatabaseColumn[] columns, DatabaseColumn[]? primaryKeyColumns = null)
+    {
+        var table = new DatabaseTable { Database = Database, Name = name };
+        foreach (var column in columns)
+        {
+            column.Table = table;
+            table.Columns.Add(column);
+        }
+
+        table.PrimaryKey = new DatabasePrimaryKey { Table = table, Name = "PK_" + name };
+        foreach (var column in primaryKeyColumns ?? [columns[0]])
+        {
+            table.PrimaryKey.Columns.Add(column);
+        }
+
+        return table;
+    }
+
+    private static DatabaseTable CreateCompositeParent(string name, string storeType = "int")
+    {
+        DatabaseColumn[] columns = [Column("Id1", storeType), Column("Id2", storeType)];
+        return CreateTable(name, columns, columns);
+    }
+
+    private static DatabaseForeignKey AddForeignKey(
+        DatabaseTable dependent,
+        DatabaseTable principal,
+        DatabaseColumn[] dependentColumns,
+        DatabaseColumn[] principalColumns,
+        string name = "FK_Foo")
+    {
+        var foreignKey = new DatabaseForeignKey
+        {
+            Table = dependent,
+            Name = name,
+            PrincipalTable = principal
+        };
+        foreach (var column in dependentColumns)
+        {
+            foreignKey.Columns.Add(column);
+        }
+
+        foreach (var column in principalColumns)
+        {
+            foreignKey.PrincipalColumns.Add(column);
+        }
+
+        dependent.ForeignKeys.Add(foreignKey);
+        return foreignKey;
+    }
+
+    // Parent(Id <principalStoreType>) and Children(Id int, ParentId <dependentStoreType>) with a foreign key between them.
+    private static (DatabaseTable Parent, DatabaseTable Children, DatabaseForeignKey ForeignKey) CreateForeignKey(
+        string? principalStoreType,
+        string? dependentStoreType,
+        bool dependentNullable = false)
+    {
+        var parent = CreateTable("Parent", [Column("Id", principalStoreType)]);
+        var children = CreateTable("Children", [Column("Id", "int"), Column("ParentId", dependentStoreType, dependentNullable)]);
+        var foreignKey = AddForeignKey(children, parent, [children.Columns[1]], [parent.Columns[0]]);
+
+        return (parent, children, foreignKey);
+    }
+
+    private static void AssertProperty(IReadOnlyProperty property, Type expectedClrType, string expectedColumnType)
+    {
+        Assert.Equal(expectedClrType, property.ClrType);
+        Assert.Equal(expectedColumnType, property.GetColumnType());
+    }
+
+    // The warnings for the columns that can't be mapped are reported by other code, so only check for the foreign key warning.
+    private void AssertForeignKeyWarning(string expectedMessage)
+    {
+        Assert.All(_reporter.Messages, m => Assert.Equal(LogLevel.Warning, m.Level));
+        Assert.Contains(expectedMessage, _reporter.Messages.Select(m => m.Message));
+    }
+
+    private void AssertTypeMismatchWarning(DatabaseForeignKey foreignKey, string dependentProperties, string principalProperties)
+    {
+        var (level, message) = Assert.Single(_reporter.Messages);
+        Assert.Equal(LogLevel.Warning, level);
+        Assert.Equal(
+            DesignStrings.ForeignKeyScaffoldErrorTypeMismatch(foreignKey.DisplayName(), dependentProperties, principalProperties),
+            message);
+    }
+
     [Fact]
     public void Foreign_key_from_keyless_table()
     {

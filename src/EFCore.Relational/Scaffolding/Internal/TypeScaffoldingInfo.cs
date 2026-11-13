@@ -24,7 +24,9 @@ public class TypeScaffoldingInfo
         int? scaffoldMaxLength,
         bool? scaffoldFixedLength,
         int? scaffoldPrecision,
-        int? scaffoldScale)
+        int? scaffoldScale,
+        int? precision = null,
+        int? scale = null)
     {
         IsInferred = inferred;
         ScaffoldUnicode = scaffoldUnicode;
@@ -33,6 +35,8 @@ public class TypeScaffoldingInfo
         ScaffoldScale = scaffoldScale;
         ScaffoldFixedLength = scaffoldFixedLength;
         ClrType = clrType;
+        Precision = precision;
+        Scale = scale;
     }
 
     /// <summary>
@@ -90,4 +94,20 @@ public class TypeScaffoldingInfo
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual int? ScaffoldScale { get; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual int? Precision { get; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual int? Scale { get; }
 }
