@@ -1248,6 +1248,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                     break;
                 case EntityState.Added:
                     var currentProviderValue = Update.ColumnModification.GetCurrentProviderValue(entry, property);
+                    // A deleted entry's null is not a value from a current writer.
                     if (_originalValueInitialized
                         && (UseOldBehavior39617 || !_currentValueFromDeleted)
                         && mapping.Column.ProviderValueComparer.Equals(_originalValue, currentProviderValue))
