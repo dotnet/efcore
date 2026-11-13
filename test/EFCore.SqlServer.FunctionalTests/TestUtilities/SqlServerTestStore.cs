@@ -243,15 +243,34 @@ public class SqlServerTestStore : RelationalTestStore
     {
         await using var master = new SqlConnection(CreateConnectionString("master"));
 
-        await ExecuteNonQueryAsync(
-            master, string.Format(
-                """
+        if (SqlServerTestEnvironment.IsAzureSql)
+        {
+            if (await ExecuteScalarAsync<int>(master, $"SELECT COUNT(*) FROM sys.databases WHERE name = N'{Name}'")
+                    .ConfigureAwait(false) > 0)
+            {
+                await ExecuteNonQueryAsync(
+                    master,
+                    $"""
+IF SERVERPROPERTY('EngineEdition') <> 5
+BEGIN
+    ALTER DATABASE [{Name}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+END
+""").ConfigureAwait(false);
+                await ExecuteNonQueryAsync(master, $"DROP DATABASE [{Name}];").ConfigureAwait(false);
+            }
+        }
+        else
+        {
+            await ExecuteNonQueryAsync(
+                master, string.Format(
+                    """
 IF EXISTS (SELECT * FROM sys.databases WHERE name = N'{0}')
 BEGIN
     ALTER DATABASE [{0}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
     DROP DATABASE [{0}];
 END
 """, Name));
+        }
 
         SqlConnection.ClearAllPools();
     }

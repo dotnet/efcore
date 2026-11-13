@@ -257,12 +257,14 @@ public class SqlServerStringMethodTranslator(
             );
         }
 
+        // Use LIKE rather than equality to detect the empty pattern: SQL Server ignores trailing spaces in equality comparisons, so a
+        // whitespace-only pattern would be treated as empty (as in the Contains translation, see #19402).
         var offsetExpression = searchExpression is SqlConstantExpression
             ? sqlExpressionFactory.Constant(1)
             : sqlExpressionFactory.Case(
                 [
                     new CaseWhenClause(
-                        sqlExpressionFactory.Equal(
+                        sqlExpressionFactory.Like(
                             searchExpression,
                             sqlExpressionFactory.Constant(string.Empty, stringTypeMapping)),
                         startIndex is null ? sqlExpressionFactory.Constant(0) : sqlExpressionFactory.Negate(startIndex))

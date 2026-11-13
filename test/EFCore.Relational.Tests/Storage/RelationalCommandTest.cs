@@ -1261,6 +1261,59 @@ public class RelationalCommandTest
         Assert.Equal(async, afterData.IsAsync);
     }
 
+    [Theory, MemberData(nameof(CommandActions))]
+    public Task Logging_is_not_suppressed_after_exception(
+        Delegate commandDelegate,
+        DbCommandMethod diagnosticName,
+        bool async)
+        => Logging_is_not_suppressed_after_failure(commandDelegate, async, new InvalidOperationException());
+
+    [Theory, MemberData(nameof(CommandActions))]
+    public Task Logging_is_not_suppressed_after_cancellation(
+        Delegate commandDelegate,
+        DbCommandMethod diagnosticName,
+        bool async)
+        => Logging_is_not_suppressed_after_failure(commandDelegate, async, new OperationCanceledException());
+
+    private async Task Logging_is_not_suppressed_after_failure(Delegate commandDelegate, bool async, Exception exception)
+    {
+        var fakeDbConnection = new FakeDbConnection(
+            ConnectionString,
+            new FakeCommandExecutor(
+                c => throw exception,
+                c => throw exception,
+                (c, cb) => throw exception,
+                (c, ct) => throw exception,
+                (c, ct) => throw exception,
+                (c, cb, ct) => throw exception));
+
+        var fakeConnection = new FakeRelationalConnection(
+            CreateOptions(new FakeRelationalOptionsExtension().WithConnection(fakeDbConnection)));
+
+        var logger = new RelationalCommandDiagnosticsLogger(
+            new ListLoggerFactory(_ => false),
+            new FakeLoggingOptions(false),
+            new DiagnosticListener("Fake"),
+            new TestRelationalLoggingDefinitions(),
+            new NullDbContextLogger(),
+            new DbContextOptionsBuilder().ConfigureLoggingCacheTime(TimeSpan.FromHours(1)).Options);
+
+        var relationalCommand = CreateRelationalCommand();
+
+        if (async)
+        {
+            await Assert.ThrowsAnyAsync<Exception>(async ()
+                => await ((CommandFunc)commandDelegate)(fakeConnection, relationalCommand, null, logger));
+        }
+        else
+        {
+            Assert.ThrowsAny<Exception>(()
+                => ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, null, logger));
+        }
+
+        Assert.True(logger.ShouldLogCommandExecute(DateTimeOffset.UtcNow));
+    }
+
     [Theory, MemberData(nameof(ReaderFailureData))]
     public async Task Reports_reader_failure(
         bool async, bool buffered, bool nextResult, bool canceled, string consumer)

@@ -90,6 +90,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
         {
             UpdateExpression updateExpression => GenerateNonQueryShaper(updateExpression.ApplyTags(_tags), CommandSource.ExecuteUpdate),
             DeleteExpression deleteExpression => GenerateNonQueryShaper(deleteExpression.ApplyTags(_tags), CommandSource.ExecuteDelete),
+            MergeExpression { Returning: null } mergeExpression => GenerateNonQueryShaper(mergeExpression.ApplyTags(_tags), CommandSource.ExecuteMerge),
+            MergeExpression { Returning: not null } mergeExpression => GenerateMergeReturningShaper(mergeExpression.ApplyTags(_tags)),
             _ => base.VisitExtension(extensionExpression)
         };
 
@@ -105,6 +107,54 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
                 Constant(commandSource),
                 Constant(_threadSafetyChecksEnabled));
         }
+
+        Expression GenerateMergeReturningShaper(MergeExpression mergeExpression)
+        {
+            var relationalCommandResolver = CreateRelationalCommandResolverExpression(mergeExpression);
+            var resultType = mergeExpression.ReturningShaper!.ReturnType;
+
+            return Call(
+                CreateSingleQueryingEnumerableMethodInfo.MakeGenericMethod(resultType),
+                Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
+                relationalCommandResolver,
+                CreateReaderColumnsExpression(
+                    QueryCompilationContext.IsBuffering ? CreateMergeReturningReaderColumns(mergeExpression.Returning!) : null,
+                    Dependencies.LiftableConstantFactory),
+                mergeExpression.ReturningShaper,
+                Constant(_contextType),
+                Constant(false),
+                Constant(_detailedErrorsEnabled),
+                Constant(_threadSafetyChecksEnabled),
+                Constant(CommandSource.ExecuteMerge));
+        }
+    }
+
+    // Buffers each RETURNING column the way the shaper reads it unbuffered. When buffering, the shaper reads the buffered values back
+    // with GetFieldValue, which works whichever type a column was buffered as.
+    private static ReaderColumn[] CreateMergeReturningReaderColumns(IReadOnlyList<ProjectionExpression> returning)
+    {
+        var readerColumns = new ReaderColumn[returning.Count];
+        for (var i = 0; i < returning.Count; i++)
+        {
+            var dataReader = Parameter(typeof(DbDataReader), "dataReader");
+            var getMethod = returning[i].Expression.TypeMapping!.GetDataReaderMethod();
+            Expression value = Call(
+                getMethod.DeclaringType != typeof(DbDataReader) ? Convert(dataReader, getMethod.DeclaringType!) : dataReader,
+                getMethod,
+                Constant(i));
+
+            var bufferedType = value.Type.IsValueType && BufferedDataReader.IsSupportedValueType(value.Type) ? value.Type : typeof(object);
+            if (value.Type != bufferedType)
+            {
+                value = Convert(value, bufferedType);
+            }
+
+            readerColumns[i] = ReaderColumn.Create(
+                bufferedType, nullable: true, columnName: null, property: null,
+                Lambda(value, dataReader, Parameter(typeof(int[]), "indexMap")));
+        }
+
+        return readerColumns;
     }
 
     private static readonly MethodInfo NonQueryMethodInfo
@@ -414,7 +464,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
                 Constant(_contextType),
                 Constant(QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution),
                 Constant(_detailedErrorsEnabled),
-                Constant(_threadSafetyChecksEnabled));
+                Constant(_threadSafetyChecksEnabled),
+                Constant(CommandSource.LinqQuery));
         }
     }
 

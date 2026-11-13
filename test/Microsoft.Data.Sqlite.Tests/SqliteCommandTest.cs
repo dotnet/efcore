@@ -1198,10 +1198,10 @@ CREATE TABLE "Products" (
         }
     }
 
-    [Theory(Skip = "#35585"), InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public Task ExecuteReader_retries_when_locked(bool extendedErrorCode)
     {
-        const string connectionString = "Data Source=locked;Mode=Memory;Cache=Shared";
+        var connectionString = $"Data Source=locked_{Guid.NewGuid():N};Mode=Memory;Cache=Shared";
 
         var selectedSignal = new AutoResetEvent(initialState: false);
 
@@ -1244,10 +1244,11 @@ CREATE TABLE "Products" (
             }));
     }
 
-    [Fact(Skip = "#35585")]
+    [Fact]
     public async Task ExecuteReader_retries_when_busy()
     {
-        const string connectionString = "Data Source=busy.db";
+        var dbName = $"busy_{Guid.NewGuid():N}.db";
+        var connectionString = $"Data Source={dbName}";
 
         var selectedSignal = new AutoResetEvent(initialState: false);
 
@@ -1286,11 +1287,11 @@ CREATE TABLE "Products" (
         finally
         {
             SqliteConnection.ClearPool(new SqliteConnection(connectionString));
-            File.Delete("busy.db");
+            File.Delete(dbName);
         }
     }
 
-    [Fact(Skip = "#35585")]
+    [Fact]
     public Task ExecuteScalar_throws_when_busy_with_returning()
         => Execute_throws_when_busy_with_returning(command =>
         {
@@ -1302,7 +1303,7 @@ CREATE TABLE "Products" (
             AssertBusy(ex.SqliteErrorCode);
         });
 
-    [Fact(Skip = "#35585")]
+    [Fact]
     public Task ExecuteNonQuery_throws_when_busy_with_returning()
         => Execute_throws_when_busy_with_returning(command =>
         {
@@ -1314,7 +1315,7 @@ CREATE TABLE "Products" (
             AssertBusy(ex.SqliteErrorCode);
         });
 
-    [Fact(Skip = "#35585")]
+    [Fact]
     public Task ExecuteReader_throws_when_busy_with_returning()
         => Execute_throws_when_busy_with_returning(command =>
         {
@@ -1332,7 +1333,7 @@ CREATE TABLE "Products" (
             }
         });
 
-    [Fact(Skip = "#35585")]
+    [Fact]
     public Task ExecuteReader_throws_when_busy_with_returning_while_draining()
         => Execute_throws_when_busy_with_returning(command =>
         {
@@ -1471,7 +1472,8 @@ CREATE TABLE "Products" (
 
     private static async Task Execute_throws_when_busy_with_returning(Action<SqliteCommand> action)
     {
-        const string connectionString = "Data Source=returning.db";
+        var dbName = $"returning_{Guid.NewGuid():N}.db";
+        var connectionString = $"Data Source={dbName}";
 
         var selectedSignal = new AutoResetEvent(initialState: false);
 
@@ -1523,7 +1525,7 @@ CREATE TABLE "Products" (
         finally
         {
             SqliteConnection.ClearPool(new SqliteConnection(connectionString));
-            File.Delete("returning.db");
+            File.Delete(dbName);
         }
     }
 

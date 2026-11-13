@@ -3,9 +3,9 @@ description: Evaluates evidence-backed EF Core triage, untrusted-report safety, 
 type: capability
 defaults:
   runs: ${RUNS=5}
-  model: ${MODEL=gpt-6.1-sol}
-  judge_model: ${JUDGE_MODEL=gpt-5.6-terra}
-  judge_reasoning_effort: ${JUDGE_REASONING_EFFORT=medium}
+  model: ${MODEL=gpt-6.1-terra}
+  judge_model: ${JUDGE_MODEL=gpt-6.1-sol}
+  judge_reasoning_effort: ${JUDGE_REASONING_EFFORT=low}
   judge_timeout: ${JUDGE_TIMEOUT=10m}
   executor: copilot-sdk
 agent_environment:

@@ -174,6 +174,43 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    [Experimental(EFDiagnostics.ExecuteMergeExperimental)]
+    protected override Expression TranslateExecuteMerge(
+        ShapedQueryExpression source,
+        QueryParameterExpression sourceRows,
+        IReadOnlyList<ExecuteMergeMatch> matches,
+        IReadOnlyList<ExecuteUpdateSetter>? whenMatchedSetters,
+        IReadOnlyList<ExecuteUpdateSetter>? whenNotMatchedSetters,
+        LambdaExpression? returningSelector)
+    {
+        var translation = base.TranslateExecuteMerge(
+            source, sourceRows, matches, whenMatchedSetters, whenNotMatchedSetters, returningSelector);
+
+        // As in SaveChanges, RETURNING can only be used when SQLite supports it and the table hasn't opted out of it (e.g. because of
+        // triggers).
+        if (translation is MergeExpression { Returning: not null, Table.Table: ITable table })
+        {
+            var sqliteVersion = new SqliteConnection().ServerVersion;
+            if (new Version(sqliteVersion) < new Version(3, 35))
+            {
+                throw new InvalidOperationException(SqliteStrings.ExecuteMergeReturningNotSupported(sqliteVersion));
+            }
+
+            if (!table.IsSqlReturningClauseUsed())
+            {
+                throw new InvalidOperationException(SqliteStrings.ExecuteMergeReturningWithoutReturningClause(table.SchemaQualifiedName));
+            }
+        }
+
+        return translation;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     protected override ShapedQueryExpression? TranslateAny(ShapedQueryExpression source, LambdaExpression? predicate)
     {
         // Simplify x.Array.Any() => json_array_length(x.Array) > 0 instead of WHERE EXISTS (SELECT 1 FROM json_each(x.Array))

@@ -301,7 +301,7 @@ ORDER BY [r].[Id]
 
         if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
         {
-            if (Fixture.UsingJsonType)
+            if (Fixture.UsingJsonType && !SqlServerTestEnvironment.IsAzureSql)
             {
                 AssertSql(
                     """
@@ -346,7 +346,7 @@ CROSS APPLY OPENJSON([r].[AssociateCollection], '$') WITH (
 
         if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
         {
-            if (Fixture.UsingJsonType)
+            if (Fixture.UsingJsonType && !SqlServerTestEnvironment.IsAzureSql)
             {
                 AssertSql(
                     """
@@ -385,7 +385,7 @@ CROSS APPLY OPENJSON([r].[RequiredAssociate], '$.NestedCollection') WITH (
 
         if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
         {
-            if (Fixture.UsingJsonType)
+            if (Fixture.UsingJsonType && !SqlServerTestEnvironment.IsAzureSql)
             {
                 AssertSql(
                     """
