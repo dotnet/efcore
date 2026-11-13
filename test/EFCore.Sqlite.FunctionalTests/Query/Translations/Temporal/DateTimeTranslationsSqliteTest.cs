@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.TestModels.BasicTypesModel;
+
 namespace Microsoft.EntityFrameworkCore.Query.Translations.Temporal;
 
 public class DateTimeTranslationsSqliteTest : DateTimeTranslationsTestBase<BasicTypesQuerySqliteFixture>
@@ -74,7 +76,7 @@ WHERE rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', "b"."DateTime", 'start of day'),
             """
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
-WHERE CAST(strftime('%Y', "b"."DateTime", CAST(1 AS TEXT) || ' years') AS INTEGER) = 1999
+WHERE CAST(strftime('%Y', "b"."DateTime", CAST(1 AS TEXT) || ' years', 'floor') AS INTEGER) = 1999
 """);
     }
 
@@ -238,6 +240,36 @@ WHERE "b"."DateTime" = '1998-05-04 15:30:10'
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
 WHERE "b"."DateTime" = @p
+""");
+    }
+
+    [Fact]
+    public virtual async Task AddMonths_past_end_of_month_gives_last_day_of_month()
+    {
+        // 1998-05-31 + 1 month
+        await AssertQuery(
+            ss => ss.Set<BasicTypesEntity>().Where(o => o.DateTime.AddDays(27).AddMonths(1) == new DateTime(1998, 6, 30, 15, 30, 10)));
+
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', "b"."DateTime", CAST(27.0 AS TEXT) || ' days', CAST(1 AS TEXT) || ' months', 'floor'), '0'), '.') = '1998-06-30 15:30:10'
+""");
+    }
+
+    [Fact]
+    public virtual async Task AddYears_from_leap_day_gives_last_day_of_February()
+    {
+        // 2000-02-29 + 1 year
+        await AssertQuery(
+            ss => ss.Set<BasicTypesEntity>().Where(o => o.DateTime.AddDays(666).AddYears(1) == new DateTime(2001, 2, 28, 15, 30, 10)));
+
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', "b"."DateTime", CAST(666.0 AS TEXT) || ' days', CAST(1 AS TEXT) || ' years', 'floor'), '0'), '.') = '2001-02-28 15:30:10'
 """);
     }
 
