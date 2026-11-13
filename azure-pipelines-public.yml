@@ -23,16 +23,10 @@ variables:
     value: 'en_US.UTF-8'
   - template: /eng/common/templates/variables/pool-providers.yml
 
-trigger:
-  batch: true
-  branches:
-    include:
-      - main
-      - release/*
-      - feature/*
-      - internal/release/*
+# Public release branch automation is disabled.
+trigger: none
 
-pr: ['*']
+pr: none
 
 stages:
 - stage: build
