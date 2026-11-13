@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
@@ -53,18 +54,7 @@ public class SqliteDateTimeMemberTranslator(SqliteSqlExpressionFactory sqlExpres
                 return DatePart("%w");
 
             case nameof(DateTime.Ticks):
-                return sqlExpressionFactory.Convert(
-                    sqlExpressionFactory.Multiply(
-                        sqlExpressionFactory.Subtract(
-                            sqlExpressionFactory.Function(
-                                "julianday",
-                                [instance!],
-                                nullable: true,
-                                argumentsPropagateNullability: Statics.TrueArrays[1],
-                                typeof(double)),
-                            sqlExpressionFactory.Constant(1721425.5)), // NB: Result of julianday('0001-01-01 00:00:00')
-                        sqlExpressionFactory.Constant(TimeSpan.TicksPerDay)),
-                    typeof(long));
+                return TranslateTicks(instance!);
 
             case nameof(DateTime.Millisecond):
                 // strftime('%f') returns SS.SSS; take the milliseconds digits directly, since multiplying the REAL value by 1000
@@ -153,4 +143,78 @@ public class SqliteDateTimeMemberTranslator(SqliteSqlExpressionFactory sqlExpres
                 sqlExpressionFactory.Strftime(typeof(string), part, instance!),
                 returnType);
     }
+
+    private SqlExpression TranslateTicks(SqlExpression instance)
+    {
+        if (instance is ColumnExpression { TypeMapping: SqliteDateTimeTypeMapping { Converter: null } })
+        {
+            var seconds = sqlExpressionFactory.Add(
+                sqlExpressionFactory.Convert(
+                    sqlExpressionFactory.Strftime(
+                        typeof(string),
+                        "%s",
+                        sqlExpressionFactory.Function(
+                            "substr",
+                            [instance, sqlExpressionFactory.Constant(1), sqlExpressionFactory.Constant(DateTimeSecondsLength)],
+                            nullable: true,
+                            argumentsPropagateNullability: [true, false, false],
+                            typeof(string))),
+                    typeof(long)),
+                sqlExpressionFactory.Constant(UnixEpochSeconds));
+
+            var fraction = sqlExpressionFactory.Convert(
+                sqlExpressionFactory.Function(
+                    "substr",
+                    [
+                        sqlExpressionFactory.Add(
+                            sqlExpressionFactory.Function(
+                                "substr",
+                                [instance, sqlExpressionFactory.Constant(DateTimeSecondsLength + 2)],
+                                nullable: true,
+                                argumentsPropagateNullability: Statics.TrueFalse,
+                                typeof(string)),
+                            sqlExpressionFactory.Constant("0000000")),
+                        sqlExpressionFactory.Constant(1),
+                        sqlExpressionFactory.Constant(7)
+                    ],
+                    nullable: true,
+                    argumentsPropagateNullability: [true, false, false],
+                    typeof(string)),
+                typeof(long));
+
+            return sqlExpressionFactory.Add(
+                sqlExpressionFactory.Multiply(seconds, sqlExpressionFactory.Constant(TimeSpan.TicksPerSecond)),
+                fraction);
+        }
+
+        return sqlExpressionFactory.Multiply(
+            sqlExpressionFactory.Subtract(
+                sqlExpressionFactory.Convert(
+                    sqlExpressionFactory.Function(
+                        "round",
+                        [
+                            sqlExpressionFactory.Multiply(
+                                sqlExpressionFactory.Function(
+                                    "julianday",
+                                    [instance],
+                                    nullable: true,
+                                    argumentsPropagateNullability: Statics.TrueArrays[1],
+                                    typeof(double)),
+                                sqlExpressionFactory.Constant((double)MillisecondsPerDay))
+                        ],
+                        nullable: true,
+                        argumentsPropagateNullability: Statics.TrueArrays[1],
+                        typeof(double)),
+                    typeof(long)),
+                sqlExpressionFactory.Constant(JulianDayEpochMilliseconds)),
+            sqlExpressionFactory.Constant(TimeSpan.TicksPerMillisecond));
+    }
+
+    private const int DateTimeSecondsLength = 19;
+
+    private const long UnixEpochSeconds = 62135596800L;
+
+    private const long MillisecondsPerDay = 86400000L;
+
+    private const long JulianDayEpochMilliseconds = 148731163200000L;
 }
