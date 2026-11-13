@@ -236,13 +236,18 @@ public class SqliteConnectionStringBuilderTest
         Assert.Equal(SqliteCacheMode.Shared, builder["Cache"]);
     }
 
-    [Theory, InlineData(42), InlineData("Unknown"), InlineData((SqliteCacheMode)42), InlineData(SqliteOpenMode.ReadOnly)]
+    [Theory, InlineData(42), InlineData("Unknown"), InlineData((SqliteCacheMode)42), InlineData(SqliteOpenMode.ReadOnly),
+     InlineData("42"), InlineData("Private, Shared")]
     public void Item_throws_when_cannot_convert_to_enum_on_set(object value)
     {
         var builder = new SqliteConnectionStringBuilder();
 
         Assert.ThrowsAny<ArgumentException>(() => builder["Cache"] = value);
     }
+
+    [Theory, InlineData("Mode=42"), InlineData("Cache=42"), InlineData("Synchronous=7")]
+    public void Ctor_throws_when_connection_string_has_undefined_enum_value(string connectionString)
+        => Assert.Throws<ArgumentOutOfRangeException>(() => new SqliteConnectionStringBuilder(connectionString));
 
     [Theory, InlineData(1, true), InlineData("True", true), InlineData(0, false), InlineData("False", false), InlineData(null, null),
      InlineData("", null)]

@@ -328,16 +328,14 @@ public class SqliteConnectionStringBuilder : DbConnectionStringBuilder
     private static TEnum ConvertToEnum<TEnum>(object value)
         where TEnum : struct
     {
-        if (value is string stringValue)
-        {
-            return (TEnum)Enum.Parse(typeof(TEnum), stringValue, ignoreCase: true);
-        }
-
-        var enumValue = value is TEnum
-            ? (TEnum)value
-            : value.GetType().IsEnum
-                ? throw new ArgumentException(Resources.ConvertFailed(value.GetType(), typeof(TEnum)))
-                : (TEnum)Enum.ToObject(typeof(TEnum), value);
+        // Enum.Parse also accepts numeric strings and comma-separated names, so validate its result too
+        var enumValue = value is string stringValue
+            ? (TEnum)Enum.Parse(typeof(TEnum), stringValue, ignoreCase: true)
+            : value is TEnum
+                ? (TEnum)value
+                : value.GetType().IsEnum
+                    ? throw new ArgumentException(Resources.ConvertFailed(value.GetType(), typeof(TEnum)))
+                    : (TEnum)Enum.ToObject(typeof(TEnum), value);
         return !Enum.IsDefined(typeof(TEnum), enumValue)
             ? throw new ArgumentOutOfRangeException(
                 nameof(value),
