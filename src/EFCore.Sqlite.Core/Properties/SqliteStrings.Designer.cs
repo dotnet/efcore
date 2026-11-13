@@ -208,6 +208,31 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         }
 
         /// <summary>
+        ///     Skipping index '{indexName}' on table '{tableName}', since it is defined on an expression and indexes on expressions are not supported.
+        /// </summary>
+        public static EventDefinition<string?, string?> LogExpressionIndexSkipped(IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogExpressionIndexSkipped;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogExpressionIndexSkipped,
+                    logger,
+                    static logger => new EventDefinition<string?, string?>(
+                        logger.Options,
+                        SqliteEventId.ExpressionIndexSkippedWarning,
+                        LogLevel.Warning,
+                        "SqliteEventId.ExpressionIndexSkippedWarning",
+                        level => LoggerMessage.Define<string?, string?>(
+                            level,
+                            SqliteEventId.ExpressionIndexSkippedWarning,
+                            _resourceManager.GetString("LogExpressionIndexSkipped")!)));
+            }
+
+            return (EventDefinition<string?, string?>)definition;
+        }
+
+        /// <summary>
         ///     Skipping foreign key with identity '{id}' on table '{tableName}' since principal table '{principalTableName}' was not found in the model. This usually happens when the principal table was not included in the selection set.
         /// </summary>
         public static EventDefinition<string?, string?, string?> LogForeignKeyScaffoldErrorPrincipalTableNotFound(IDiagnosticsLogger logger)

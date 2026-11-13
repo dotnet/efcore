@@ -479,6 +479,11 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         // SqlServerPropertyBuilderExtensions.UseIdentityColumn).
         var annotations = GetAnnotations(property);
 
+        if (isInComplexCollection)
+        {
+            annotations.Remove(RelationalAnnotationNames.Collation);
+        }
+
         GetAnnotationCalls(property, annotations, out var chainedCall, out var typeQualifiedCalls);
 
         var receiverName = AppendChainedBuilderHeader(

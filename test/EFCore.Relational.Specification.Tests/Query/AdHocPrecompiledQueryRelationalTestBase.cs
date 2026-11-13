@@ -16,6 +16,152 @@ public abstract class AdHocPrecompiledQueryRelationalTestBase : NonSharedModelTe
         : base(fixture)
         => TestOutputHelper = testOutputHelper;
 
+    [Theory]
+    [InlineData(false, false, false)]
+    [InlineData(false, false, true)]
+    [InlineData(false, true, false)]
+    [InlineData(false, true, true)]
+    [InlineData(true, false, false)]
+    [InlineData(true, false, true)]
+    [InlineData(true, true, false)]
+    [InlineData(true, true, true)]
+    public virtual async Task ThenInclude(bool collection, bool multiple, bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<IncludeContext>();
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            context.Nodes.Add(
+                new IncludeNode
+                {
+                    Name = "Root",
+                    Reference = new IncludeNode
+                    {
+                        Name = "Reference",
+                        Reference = new IncludeNode { Name = "Leaf", Reference = new IncludeNode { Name = "End" } }
+                    },
+                    Children =
+                    [
+                        new IncludeNode
+                        {
+                            Name = "Collection",
+                            Reference = new IncludeNode { Name = "Leaf", Reference = new IncludeNode { Name = "End" } }
+                        }
+                    ]
+                });
+            await context.SaveChangesAsync();
+        }
+
+        ClearLog();
+
+        await Test(
+            $$"""
+await using var context = new AdHocPrecompiledQueryRelationalTestBase.IncludeContext(dbContextOptions);
+var root = {{(async ? "await " : "")}}context.Nodes
+    .Include(e => e.{{(collection ? "Children" : "Reference")}})
+    .ThenInclude(e => e.Reference)
+    {{(multiple ? ".ThenInclude(e => e.Reference)" : "")}}
+    .AsNoTracking()
+    .{{(async ? "FirstOrDefaultAsync" : "FirstOrDefault")}}(e => e.Name == "Root");
+
+Assert.NotNull(root);
+var included = {{(collection ? "Assert.Single(root.Children)" : "root.Reference")}};
+Assert.NotNull(included);
+Assert.Equal("{{(collection ? "Collection" : "Reference")}}", included.Name);
+Assert.NotNull(included.Reference);
+Assert.Equal("Leaf", included.Reference.Name);
+{{(multiple ? """Assert.Equal("End", included.Reference.Reference!.Name);""" : "")}}
+Assert.Empty(context.ChangeTracker.Entries());
+""",
+            typeof(IncludeContext),
+            contextFactory.GetOptions());
+    }
+
+    public class IncludeContext(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<IncludeNode> Nodes { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<IncludeNode>().HasOne(e => e.Reference).WithMany().HasForeignKey("ReferenceId");
+            modelBuilder.Entity<IncludeNode>().HasMany(e => e.Children).WithOne().HasForeignKey("ParentId");
+        }
+    }
+
+    public class IncludeNode
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = null!;
+        public IncludeNode? Reference { get; set; }
+        public List<IncludeNode> Children { get; set; } = [];
+    }
+
+    [Fact]
+    public virtual async Task Coalesce_nullable_long_in_anonymous_projection()
+    {
+        var contextFactory = await InitializeNonSharedTest<NullableLongContext>(seed: async context =>
+        {
+            context.Records.AddRange(
+                new NullableLongRecord { SizeBytes = null },
+                new NullableLongRecord { SizeBytes = 8L });
+            await context.SaveChangesAsync();
+        });
+
+        await Test(
+            """
+await using var context = new AdHocPrecompiledQueryRelationalTestBase.NullableLongContext(dbContextOptions);
+
+var rows = await context.Records.OrderBy(r => r.Id).Select(r => new { SizeBytes = r.SizeBytes ?? 0L }).ToListAsync();
+Assert.Equal(new long[] { 0L, 8L }, rows.Select(r => r.SizeBytes));
+""",
+            typeof(NullableLongContext),
+            contextFactory.GetOptions());
+    }
+
+    public class NullableLongContext(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<NullableLongRecord> Records { get; set; } = null!;
+    }
+
+    public class NullableLongRecord
+    {
+        public int Id { get; set; }
+        public long? SizeBytes { get; set; }
+    }
+
+    [Fact]
+    public virtual async Task Decimal_projection_with_implicitly_converted_zero()
+    {
+        var contextFactory = await InitializeNonSharedTest<DecimalContext>();
+
+        await Test(
+            """
+await using var context = new AdHocPrecompiledQueryRelationalTestBase.DecimalContext(dbContextOptions);
+var id = 1;
+var amount = 2m;
+
+// Generate and compile the query without executing it.
+Func<Task<decimal>> query = () => context.Groups.Where(group => group.Id == id)
+    .Select(group => group.Balance + (amount > 0 ? amount : 0))
+    .SingleAsync();
+""",
+            typeof(DecimalContext),
+            contextFactory.GetOptions(),
+            interceptorCodeAsserter: code => Assert.Contains("InterceptsLocation", code));
+    }
+
+    public class DecimalContext(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<DecimalGroup> Groups { get; set; } = null!;
+    }
+
+    public class DecimalGroup
+    {
+        public int Id { get; set; }
+
+        [Precision(18, 2)]
+        public decimal Balance { get; set; }
+    }
+
     [Fact]
     public virtual async Task Index_no_evaluatability()
     {

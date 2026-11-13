@@ -6,23 +6,23 @@ This file should be imported by eng/Versions.props
 <Project>
   <PropertyGroup>
     <!-- dotnet-dotnet dependencies -->
-    <MicrosoftDotNetArcadeSdkPackageVersion>12.0.0-beta.26551.101</MicrosoftDotNetArcadeSdkPackageVersion>
-    <MicrosoftDotNetBuildTasksTemplatingPackageVersion>12.0.0-beta.26551.101</MicrosoftDotNetBuildTasksTemplatingPackageVersion>
-    <MicrosoftDotNetHelixSdkPackageVersion>12.0.0-beta.26551.101</MicrosoftDotNetHelixSdkPackageVersion>
-    <MicrosoftExtensionsCachingMemoryPackageVersion>12.0.0-alpha.1.26551.101</MicrosoftExtensionsCachingMemoryPackageVersion>
-    <MicrosoftExtensionsConfigurationPackageVersion>12.0.0-alpha.1.26551.101</MicrosoftExtensionsConfigurationPackageVersion>
-    <MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>12.0.0-alpha.1.26551.101</MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>
-    <MicrosoftExtensionsConfigurationJsonPackageVersion>12.0.0-alpha.1.26551.101</MicrosoftExtensionsConfigurationJsonPackageVersion>
-    <MicrosoftExtensionsDependencyInjectionPackageVersion>12.0.0-alpha.1.26551.101</MicrosoftExtensionsDependencyInjectionPackageVersion>
-    <MicrosoftExtensionsDependencyModelPackageVersion>12.0.0-alpha.1.26551.101</MicrosoftExtensionsDependencyModelPackageVersion>
-    <MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>12.0.0-alpha.1.26551.101</MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>
-    <MicrosoftExtensionsLoggingPackageVersion>12.0.0-alpha.1.26551.101</MicrosoftExtensionsLoggingPackageVersion>
-    <MicrosoftNETCoreAppRefPackageVersion>12.0.0-alpha.1.26551.101</MicrosoftNETCoreAppRefPackageVersion>
-    <MicrosoftNETCorePlatformsPackageVersion>12.0.0-alpha.1.26551.101</MicrosoftNETCorePlatformsPackageVersion>
-    <SystemFormatsAsn1PackageVersion>12.0.0-alpha.1.26551.101</SystemFormatsAsn1PackageVersion>
-    <SystemRuntimeCachingPackageVersion>12.0.0-alpha.1.26551.101</SystemRuntimeCachingPackageVersion>
-    <SystemTextEncodingsWebPackageVersion>12.0.0-alpha.1.26551.101</SystemTextEncodingsWebPackageVersion>
-    <SystemTextJsonPackageVersion>12.0.0-alpha.1.26551.101</SystemTextJsonPackageVersion>
+    <MicrosoftDotNetArcadeSdkPackageVersion>12.0.0-beta.26556.115</MicrosoftDotNetArcadeSdkPackageVersion>
+    <MicrosoftDotNetBuildTasksTemplatingPackageVersion>12.0.0-beta.26556.115</MicrosoftDotNetBuildTasksTemplatingPackageVersion>
+    <MicrosoftDotNetHelixSdkPackageVersion>12.0.0-beta.26556.115</MicrosoftDotNetHelixSdkPackageVersion>
+    <MicrosoftExtensionsCachingMemoryPackageVersion>12.0.0-alpha.1.26556.115</MicrosoftExtensionsCachingMemoryPackageVersion>
+    <MicrosoftExtensionsConfigurationPackageVersion>12.0.0-alpha.1.26556.115</MicrosoftExtensionsConfigurationPackageVersion>
+    <MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>12.0.0-alpha.1.26556.115</MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>
+    <MicrosoftExtensionsConfigurationJsonPackageVersion>12.0.0-alpha.1.26556.115</MicrosoftExtensionsConfigurationJsonPackageVersion>
+    <MicrosoftExtensionsDependencyInjectionPackageVersion>12.0.0-alpha.1.26556.115</MicrosoftExtensionsDependencyInjectionPackageVersion>
+    <MicrosoftExtensionsDependencyModelPackageVersion>12.0.0-alpha.1.26556.115</MicrosoftExtensionsDependencyModelPackageVersion>
+    <MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>12.0.0-alpha.1.26556.115</MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>
+    <MicrosoftExtensionsLoggingPackageVersion>12.0.0-alpha.1.26556.115</MicrosoftExtensionsLoggingPackageVersion>
+    <MicrosoftNETCoreAppRefPackageVersion>12.0.0-alpha.1.26556.115</MicrosoftNETCoreAppRefPackageVersion>
+    <MicrosoftNETCorePlatformsPackageVersion>12.0.0-alpha.1.26556.115</MicrosoftNETCorePlatformsPackageVersion>
+    <SystemFormatsAsn1PackageVersion>12.0.0-alpha.1.26556.115</SystemFormatsAsn1PackageVersion>
+    <SystemRuntimeCachingPackageVersion>12.0.0-alpha.1.26556.115</SystemRuntimeCachingPackageVersion>
+    <SystemTextEncodingsWebPackageVersion>12.0.0-alpha.1.26556.115</SystemTextEncodingsWebPackageVersion>
+    <SystemTextJsonPackageVersion>12.0.0-alpha.1.26556.115</SystemTextJsonPackageVersion>
   </PropertyGroup>
   <!--Property group for alternate package version names-->
   <PropertyGroup>

@@ -11,8 +11,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
 /// </remarks>
-public interface ITableMapping : ITableMappingBase
+public interface ITableMapping : ITableMappingBase, IComparable<ITableMapping>
 {
+    /// <inheritdoc />
+    int IComparable<ITableMapping>.CompareTo(ITableMapping? other)
+        => ((ITableMappingBase)this).CompareTo(other);
+
     /// <summary>
     ///     Gets the target table.
     /// </summary>

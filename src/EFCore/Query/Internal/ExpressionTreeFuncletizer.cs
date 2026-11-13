@@ -363,7 +363,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
 
         // Perform short-circuiting checks to avoid evaluating the right side if not necessary
         object? leftValue = null;
-        if (leftState.IsEvaluatable)
+        if (IsEvaluatableForShortCircuiting(leftState))
         {
             switch (binary.NodeType)
             {
@@ -421,7 +421,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 }
             }
 
-            if (rightState.IsEvaluatable && Evaluate(right) is bool rightBoolValue)
+            if (IsEvaluatableForShortCircuiting(rightState) && Evaluate(right) is bool rightBoolValue)
             {
                 switch ((binary.NodeType, rightConstant: rightBoolValue))
                 {
@@ -506,7 +506,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         var test = Visit(conditional.Test, out var testState);
 
         // If the test evaluates, simplify the conditional away by bubbling up the leg that remains
-        if (testState.IsEvaluatable && Evaluate(test) is bool testBoolValue)
+        if (IsEvaluatableForShortCircuiting(testState) && Evaluate(test) is bool testBoolValue)
         {
             return ConvertIfNeeded(
                 testBoolValue
@@ -2288,18 +2288,27 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 case MemberExpression memberExpression:
                     var instanceValue = EvaluateCore(
                         memberExpression.Expression, ref evaluateAsParameter, out parameterName, out isContextAccessor);
+                    var name = SanitizeCompilerGeneratedName(memberExpression.Member.Name);
+                    parameterName = parameterName is null ? name : $"{parameterName}_{name}";
+
+                    // Captured reference types may have null placeholder values during precompilation.
+                    // Only the parameter name is needed; the member is evaluated at runtime.
+                    if (evaluateAsParameter
+                        && (_precompiledQuery || _calculatingPath)
+                        && instanceValue is null
+                        && memberExpression.Expression is not null)
+                    {
+                        return null;
+                    }
+
                     try
                     {
                         switch (memberExpression.Member)
                         {
                             case FieldInfo fieldInfo:
-                                var name = SanitizeCompilerGeneratedName(fieldInfo.Name);
-                                parameterName = parameterName is null ? name : $"{parameterName}_{name}";
                                 return fieldInfo.GetValue(instanceValue);
 
                             case PropertyInfo propertyInfo:
-                                name = SanitizeCompilerGeneratedName(propertyInfo.Name);
-                                parameterName = parameterName is null ? name : $"{parameterName}_{name}";
                                 return propertyInfo.GetValue(instanceValue);
                         }
                     }
@@ -2361,6 +2370,11 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
 
     private Expression ConvertIfNeeded(Expression expression, Type type)
         => expression.Type == type ? expression : Visit(Convert(expression, type));
+
+    // Captured values are placeholders during precompilation and cannot determine which branches to keep.
+    private bool IsEvaluatableForShortCircuiting(State state)
+        => state.IsEvaluatable
+            && (!state.ContainsCapturedVariable || (!_calculatingPath && !_precompiledQuery));
 
     private bool IsGenerallyEvaluatable(Expression expression)
         => _evaluatableExpressionFilter.IsEvaluatableExpression(expression, _model)

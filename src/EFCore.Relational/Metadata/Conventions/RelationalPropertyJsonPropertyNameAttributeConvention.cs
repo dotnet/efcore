@@ -54,8 +54,7 @@ public class RelationalPropertyJsonPropertyNameAttributeConvention : PropertyAtt
     {
         if (!string.IsNullOrWhiteSpace(attribute.Name))
         {
-            propertyBuilder.Metadata.ComplexType.Builder.HasAnnotation(
-                RelationalAnnotationNames.JsonPropertyName, attribute.Name, fromDataAnnotation: true);
+            propertyBuilder.Metadata.ComplexType.Builder.HasJsonPropertyName(attribute.Name, fromDataAnnotation: true);
         }
     }
 
@@ -64,35 +63,5 @@ public class RelationalPropertyJsonPropertyNameAttributeConvention : PropertyAtt
         IConventionModelBuilder modelBuilder,
         IConventionContext<IConventionModelBuilder> context)
     {
-        foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
-        {
-            if (!entityType.IsMappedToJson())
-            {
-                ProcessComplexProperties(entityType);
-            }
-        }
-    }
-
-    private static void ProcessComplexProperties(IConventionTypeBase structuralType)
-    {
-        foreach (var complexProperty in structuralType.GetDeclaredComplexProperties())
-        {
-            // The JSON property name is only used for complex properties declared on a type mapped to JSON
-            if (complexProperty.GetJsonPropertyNameConfigurationSource() == ConfigurationSource.DataAnnotation)
-            {
-                complexProperty.ComplexType.Builder.HasNoAnnotation(
-                    RelationalAnnotationNames.JsonPropertyName, fromDataAnnotation: true);
-            }
-
-            if (complexProperty.ComplexType.IsMappedToJson())
-            {
-                continue;
-            }
-
-            foreach (var complexType in complexProperty.ComplexType.GetDerivedTypesInclusive())
-            {
-                ProcessComplexProperties(complexType);
-            }
-        }
     }
 }
