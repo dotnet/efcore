@@ -15698,6 +15698,9 @@
           "Member": "static string JsonElementMappingNotFound(object? structuralType, object? name, object? columnName);"
         },
         {
+          "Member": "static string JsonEntityCollectionExpectedArray(object? entityType, object? navigation, object? tokenType);"
+        },
+        {
           "Member": "static string JsonEntityCollectionExpectedObject(object? entityType, object? navigation);"
         },
         {
@@ -15771,6 +15774,9 @@
         },
         {
           "Member": "static string JsonRequiredEntityWithNullJson(object? entity);"
+        },
+        {
+          "Member": "static string JsonStructuralTypeExpectedObject(object? structuralType, object? tokenType);"
         },
         {
           "Member": "static string JsonValueReadWriterMissingOnTypeMapping(object? typeMapping, object? property, object? entityType);"

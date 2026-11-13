@@ -1856,6 +1856,11 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             keyValuesParameter,
                             jsonReaderDataParameter,
                             includingEntityExpression,
+                            _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
+                                structuralProperty,
+                                LiftableConstantExpressionHelpers.BuildStructuralPropertyAccessLambda(structuralProperty),
+                                structuralProperty.Name + "StructuralProperty",
+                                typeof(IPropertyBase)),
                             shaperLambda,
                             GetOrCreateCollectionObjectLambda(declaringClrType, structuralProperty),
                             fixup,
