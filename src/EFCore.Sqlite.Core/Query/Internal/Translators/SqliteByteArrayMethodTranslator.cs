@@ -61,6 +61,39 @@ public class SqliteByteArrayMethodTranslator(ISqlExpressionFactory sqlExpression
                 sqlExpressionFactory.Constant(0));
         }
 
+        if (method.IsGenericMethod
+            && method.DeclaringType == typeof(Enumerable)
+            && method.Name == nameof(Enumerable.Concat)
+            && arguments is [var first, var second]
+            && IsBinary(first)
+            && IsBinary(second)
+            && (first.TypeMapping ?? second.TypeMapping) is { } typeMapping)
+        {
+            // || produces TEXT even over BLOBs, so the result is cast back to BLOB; otherwise e.g. length() would count characters
+            // and comparisons with BLOBs would fail. The concatenation is typed as string (TEXT) to reflect that, which also
+            // prevents the CAST from being removed as a no-op. The translation is typed as byte[] rather than as the method's
+            // IEnumerable<byte>, so that byte array operations (ToArray, Length, SequenceEqual...) can be composed over it.
+            return sqlExpressionFactory.Convert(
+                new SqlBinaryExpression(
+                    ExpressionType.Add,
+                    sqlExpressionFactory.ApplyTypeMapping(first, typeMapping),
+                    sqlExpressionFactory.ApplyTypeMapping(second, typeMapping),
+                    typeof(string),
+                    typeMapping: null),
+                typeof(byte[]),
+                typeMapping);
+        }
+
+        // ToArray over a byte array (e.g. over Concat above) doesn't change the value
+        if (method.IsGenericMethod
+            && method.DeclaringType == typeof(Enumerable)
+            && method.Name == nameof(Enumerable.ToArray)
+            && arguments is [var toArraySource]
+            && toArraySource.Type == typeof(byte[]))
+        {
+            return toArraySource;
+        }
+
         return method.IsGenericMethod
             && method.DeclaringType == typeof(Enumerable)
             && method.Name == nameof(Enumerable.Any)
@@ -75,6 +108,10 @@ public class SqliteByteArrayMethodTranslator(ISqlExpressionFactory sqlExpression
                         typeof(int)),
                     sqlExpressionFactory.Constant(0))
                 : null;
+
+        // A byte[] value converter could store something other than the bytes themselves, which can't be concatenated in SQL
+        static bool IsBinary(SqlExpression expression)
+            => expression is { Type: var type, TypeMapping: null or { Converter: null } } && type == typeof(byte[]);
     }
 
     // See issue#16428

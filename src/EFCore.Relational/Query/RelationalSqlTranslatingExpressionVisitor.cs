@@ -621,6 +621,13 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
             case ParameterQueryRootExpression queryableParameterQueryRootExpression:
                 return Visit(queryableParameterQueryRootExpression.QueryParameterExpression);
 
+            // Similarly, an inline byte array (e.g. new byte[] { 1, 2 }) passed to an Enumerable method is represented as an
+            // InlineQueryRootExpression; in normal SQL translation context we translate it back to a binary constant, so that
+            // methods over binary values (e.g. Concat) can be translated.
+            case InlineQueryRootExpression { ElementType: var elementType } inlineQueryRootExpression
+                when elementType == typeof(byte) && inlineQueryRootExpression.Values.All(v => v is ConstantExpression):
+                return Visit(Expression.NewArrayInit(elementType, inlineQueryRootExpression.Values));
+
             default:
                 return QueryCompilationContext.NotTranslatedExpression;
         }
