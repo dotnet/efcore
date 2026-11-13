@@ -10,6 +10,8 @@ on:
     branches:
       - main
       - release/**
+      - '!release/8.0'
+      - '!release/9.0'
 
 permissions:
   issues: write
