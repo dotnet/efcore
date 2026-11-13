@@ -21367,6 +21367,9 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeKey AddKey(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.RuntimeProperty> properties);"
         },
         {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeNavigation AddNavigation(string name, Microsoft.EntityFrameworkCore.Metadata.RuntimeForeignKey foreignKey, bool onDependent, System.Type clrType, System.Reflection.PropertyInfo? propertyInfo = null, System.Reflection.FieldInfo? fieldInfo = null, Microsoft.EntityFrameworkCore.PropertyAccessMode propertyAccessMode = Microsoft.EntityFrameworkCore.PropertyAccessMode.PreferField, bool eagerLoaded = false, bool lazyLoadingEnabled = true);"
+        },
+        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeNavigation AddNavigation(string name, Microsoft.EntityFrameworkCore.Metadata.RuntimeForeignKey foreignKey, bool onDependent, System.Type clrType, System.Reflection.PropertyInfo? propertyInfo = null, System.Reflection.FieldInfo? fieldInfo = null, Microsoft.EntityFrameworkCore.PropertyAccessMode propertyAccessMode = Microsoft.EntityFrameworkCore.PropertyAccessMode.PreferField, bool eagerLoaded = false, bool lazyLoadingEnabled = true, bool nullable = false);"
         },
         {

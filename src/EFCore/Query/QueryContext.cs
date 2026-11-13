@@ -104,9 +104,15 @@ public abstract class QueryContext
     /// </summary>
     /// <param name="standAlone">Whether a stand-alone <see cref="IStateManager" /> should be created to perform identity resolution.</param>
     public virtual void InitializeStateManager(bool standAlone = false)
-        => _stateManager ??= standAlone
+    {
+        _stateManager ??= standAlone
             ? new StateManager(Dependencies.StateManager.Dependencies)
             : Dependencies.StateManager;
+
+        // This is called each time the query is executed. Entities that were started being tracked by an earlier execution
+        // are tracked by then, and can have unsaved changes.
+        _entriesStartedTracking?.Clear();
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -179,11 +185,11 @@ public abstract class QueryContext
     /// <param name="entity">The entity instance that declares the navigation.</param>
     /// <returns><see langword="true" /> if the stored null-ness should be applied, otherwise <see langword="false" />.</returns>
     public virtual bool CanLoadCollectionNullness(INavigation navigation, object entity)
-    {
-        var entry = TryGetEntry(entity);
-        return entry == null
+        => IsNullnessLoadable(TryGetEntry(entity));
+
+    private bool IsNullnessLoadable(InternalEntityEntry? entry)
+        => entry == null
             || _entriesStartedTracking?.Contains(entry) == true;
-    }
 
     /// <summary>
     ///     Sets the loaded null-ness of a collection navigation that has <see cref="IReadOnlyNavigation.IsNullable" /> equal to
@@ -205,29 +211,33 @@ public abstract class QueryContext
     /// <param name="isNull">Whether the collection was stored as <see langword="null" />.</param>
     public virtual void SetCollectionNullnessLoaded(INavigation navigation, object entity, bool isNull)
     {
-        if (!CanLoadCollectionNullness(navigation, entity))
+        var entry = TryGetEntry(entity);
+        if (!IsNullnessLoadable(entry))
         {
             return;
         }
 
-        var entry = TryGetEntry(entity);
         var recordOriginal = entry != null && navigation.GetOriginalValueIndex() >= 0;
         if (isNull)
         {
             // The original value is recorded first so that a setter raising notifications isn't seen as a change.
             if (recordOriginal)
             {
-                entry!.SetOriginalValue(navigation, null);
+                entry!.SetOriginalValue(navigation, null, skipChangeDetection: true);
             }
 
             ((IRuntimePropertyBase)navigation).MaterializationSetter.SetClrValue(entity, null);
         }
 
         // A setter can have replaced null, in which case that is the value that has been loaded.
-        if ((!isNull || navigation.GetGetter().GetClrValue(entity) != null)
-            && recordOriginal)
+        if (recordOriginal)
         {
-            entry!.SetOriginalValue(navigation, navigation.GetGetter().GetClrValue(entity));
+            var currentValue = navigation.GetGetter().GetClrValue(entity);
+            if (!isNull
+                || currentValue != null)
+            {
+                entry!.SetOriginalValue(navigation, currentValue, skipChangeDetection: true);
+            }
         }
 
         // Loading the collection must not leave the navigation looking modified because of a change notification that was

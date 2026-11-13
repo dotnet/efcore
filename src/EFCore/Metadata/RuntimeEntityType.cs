@@ -367,10 +367,40 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     /// <param name="propertyAccessMode">The <see cref="PropertyAccessMode" /> used for this navigation.</param>
     /// <param name="eagerLoaded">A value indicating whether this navigation should be eager loaded by default.</param>
     /// <param name="lazyLoadingEnabled">A value indicating whether this navigation should be enabled for lazy-loading.</param>
+    /// <returns>The newly created navigation property.</returns>
+    public virtual RuntimeNavigation AddNavigation(
+        string name,
+        RuntimeForeignKey foreignKey,
+        bool onDependent,
+        Type clrType,
+        PropertyInfo? propertyInfo = null,
+        FieldInfo? fieldInfo = null,
+        PropertyAccessMode propertyAccessMode = Internal.Model.DefaultPropertyAccessMode,
+        bool eagerLoaded = false,
+        bool lazyLoadingEnabled = true)
+        => AddNavigation(
+            name, foreignKey, onDependent, clrType, propertyInfo, fieldInfo, propertyAccessMode, eagerLoaded, lazyLoadingEnabled,
+            nullable: false);
+
+    /// <summary>
+    ///     Adds a new navigation property to this entity type.
+    /// </summary>
+    /// <param name="name">The name of the navigation property to add.</param>
+    /// <param name="foreignKey">The foreign key that defines the relationship this navigation property will navigate.</param>
+    /// <param name="onDependent">
+    ///     A value indicating whether the navigation property is defined on the dependent side of the underlying foreign key.
+    /// </param>
+    /// <param name="clrType">The type of value that this navigation holds.</param>
+    /// <param name="propertyInfo">The corresponding CLR property or <see langword="null" /> for a shadow navigation.</param>
+    /// <param name="fieldInfo">The corresponding CLR field or <see langword="null" /> for a shadow navigation.</param>
+    /// <param name="propertyAccessMode">The <see cref="PropertyAccessMode" /> used for this navigation.</param>
+    /// <param name="eagerLoaded">A value indicating whether this navigation should be eager loaded by default.</param>
+    /// <param name="lazyLoadingEnabled">A value indicating whether this navigation should be enabled for lazy-loading.</param>
     /// <param name="nullable">
     ///     A value indicating whether this collection navigation can be <see langword="null" /> as distinct from empty.
     /// </param>
     /// <returns>The newly created navigation property.</returns>
+    [OverloadResolutionPriority(1)]
     public virtual RuntimeNavigation AddNavigation(
         string name,
         RuntimeForeignKey foreignKey,
