@@ -39,6 +39,16 @@ public partial class DbContextTest
     }
 
     [Fact]
+    public void Set_throws_for_entity_type_name_not_in_model()
+    {
+        using var context = new EarlyLearningCenter();
+        var ex = Assert.Throws<InvalidOperationException>(() => context.Set<Category>("Foo").Local);
+
+        Assert.Equal(
+            CoreStrings.InvalidSetTypeWithName(nameof(Category), "Foo"), ex.Message);
+    }
+
+    [Fact]
     public void Local_calls_DetectChanges()
     {
         var provider =

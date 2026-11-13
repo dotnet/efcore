@@ -65,7 +65,7 @@ public static class ModelExtensions
     /// </summary>
     public static string? FindSameTypeNameWithDifferentNamespace(this IModel model, Type type)
         => model.GetEntityTypes()
-            .Where(x => x.ClrType.DisplayName(false) == type.DisplayName(false))
+            .Where(x => x.ClrType != type && x.ClrType.DisplayName(false) == type.DisplayName(false))
             .Select(x => x.ClrType.DisplayName())
             .FirstOrDefault();
 }
