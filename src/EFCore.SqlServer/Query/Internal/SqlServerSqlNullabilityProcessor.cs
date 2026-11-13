@@ -406,6 +406,9 @@ public class ParametersCounter(
                 x => HashCode.Combine(x.InvariantName, x.Type, x.TypeMapping, x.TranslationMode)))
     ];
 
+    // Keyed like SqlNullabilityProcessor._collectionParameterExpansionMap.
+    private readonly Dictionary<SqlParameterExpression, int> _expandedParameterCounts = [];
+
     private readonly HashSet<QueryParameterExpression> _visitedQueryParameters =
     [
         with(
@@ -457,31 +460,37 @@ public class ParametersCounter(
     {
         // Mark the parameter as visited so the subsequent child visit on this SqlParameterExpression (which would
         // hit the generic SqlParameterExpression branch and add 1 to Count) is suppressed.
+        var isFirstOccurrence = _visitedSqlParameters.Add(sqlParameterExpression);
         var translationMode = sqlParameterExpression.TranslationMode ?? collectionParameterTranslationMode;
-        if (!_visitedSqlParameters.Add(sqlParameterExpression)
-            && translationMode != ParameterTranslationMode.MultipleParameters)
-        {
-            return;
-        }
 
         switch (translationMode)
         {
             case ParameterTranslationMode.MultipleParameters:
-                // Count expansion size per occurrence.
+                // Occurrences share one expansion, padded to the largest bucket any of them needs.
                 var parameters = parametersDecorator.GetAndDisableCaching();
                 var count = ((IEnumerable?)parameters[sqlParameterExpression.Name])?.Cast<object?>().Count() ?? 0;
-                Count += count;
 
                 if (bucketization)
                 {
                     var elementTypeMapping = (RelationalTypeMapping)sqlParameterExpression.TypeMapping!.ElementTypeMapping!;
-                    Count += bucketizationPadding(count, elementTypeMapping);
+                    count += bucketizationPadding(count, elementTypeMapping);
+                }
+
+                var counted = _expandedParameterCounts.GetValueOrDefault(sqlParameterExpression);
+                if (count > counted)
+                {
+                    Count += count - counted;
+                    _expandedParameterCounts[sqlParameterExpression] = count;
                 }
 
                 break;
 
             case ParameterTranslationMode.Parameter:
-                Count++;
+                if (isFirstOccurrence)
+                {
+                    Count++;
+                }
+
                 break;
 
             case ParameterTranslationMode.Constant:
