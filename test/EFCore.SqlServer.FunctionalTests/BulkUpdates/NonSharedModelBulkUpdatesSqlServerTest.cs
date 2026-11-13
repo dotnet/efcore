@@ -8,13 +8,24 @@ public class NonSharedModelBulkUpdatesSqlServerTest(NonSharedFixture fixture) : 
     protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
+    public override async Task Update_JSON_strings_of_different_lengths(bool async, bool executeUpdate, bool converted)
+    {
+        await base.Update_JSON_strings_of_different_lengths(async, executeUpdate, converted);
+
+        Assert.Collection(
+            TestSqlLoggerFactory.Parameters,
+            p => Assert.Contains("(Size = 4000)", p),
+            p => Assert.Contains("(Size = 4000)", p),
+            p => Assert.Contains("(Size = -1)", p));
+    }
+
     public override async Task Update_JSON_scalar_with_custom_reader_writer(bool async, bool typeMappingDefault)
     {
         await base.Update_JSON_scalar_with_custom_reader_writer(async, typeMappingDefault);
         AssertSql(
             """
 @p='44'
-@p0='44' (Size = 2)
+@p0='44' (Size = 4000)
 
 SET NOCOUNT OFF;
 UPDATE [j]

@@ -659,8 +659,8 @@ LIMIT 2
 
         AssertSql(
             """
-@p0='"-13579.01"' (Nullable = false) (Size = 11)
-@p1='"-13579.01"' (Nullable = false) (Size = 11)
+@p0='"-12345678901234567890.12345678"' (Nullable = false) (Size = 32)
+@p1='"-12345678901234567890.12345678"' (Nullable = false) (Size = 32)
 @p2='1'
 
 UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestDecimal', json(@p0)), "Reference" = json_set("Reference", '$.TestDecimal', json(@p1))

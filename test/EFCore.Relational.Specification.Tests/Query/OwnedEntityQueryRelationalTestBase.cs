@@ -294,8 +294,12 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
             => Set<Item>();
 
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
-            => configurationBuilder.DefaultTypeMapping<DateTime>()
+        {
+            configurationBuilder.DefaultTypeMapping<DateTime>()
                 .HasJsonValueReaderWriter<LegacyDateTimeJsonReaderWriter>();
+            configurationBuilder.DefaultTypeMapping<DateTime[]>()
+                .HasJsonValueReaderWriter<LegacyDateTimeArrayJsonReaderWriter>();
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -323,6 +327,21 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
             public DateTime DefaultTimestamp { get; set; }
             public List<DateTime> Timestamps { get; set; } = [];
         }
+    }
+
+    public sealed class LegacyDateTimeArrayJsonReaderWriter : JsonValueReaderWriter<DateTime[]>
+    {
+        private static readonly JsonCollectionOfStructsReaderWriter<DateTime[], DateTime> ReaderWriter
+            = new(new LegacyDateTimeJsonReaderWriter());
+
+        public override DateTime[] FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
+            => (DateTime[])ReaderWriter.FromJsonTyped(ref manager, existingObject);
+
+        public override void ToJsonTyped(Utf8JsonWriter writer, DateTime[] value)
+            => ReaderWriter.ToJsonTyped(writer, value);
+
+        public override Expression ConstructorExpression
+            => Expression.New(typeof(LegacyDateTimeArrayJsonReaderWriter));
     }
 
     public sealed class LegacyDateTimeJsonReaderWriter : JsonValueReaderWriter<DateTime>

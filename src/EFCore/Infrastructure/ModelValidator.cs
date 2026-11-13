@@ -1440,6 +1440,14 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
         }
 
         var memberName = elementType == null ? property.Name : property.Name + "[]";
+        if (elementType == null
+                ? property.IsPrimitiveCollection
+                : elementType.GetTypeMapping().ElementTypeMapping != null)
+        {
+            throw new InvalidOperationException(
+                CoreStrings.JsonValueReaderWriterOnPrimitiveCollection(property.DeclaringType.DisplayName(), memberName));
+        }
+
         if (!jsonProperty)
         {
             throw new InvalidOperationException(

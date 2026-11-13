@@ -1964,12 +1964,6 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePrimitiveCollectionBuilder HasField(string fieldName);"
         },
         {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePrimitiveCollectionBuilder HasJsonValueReaderWriter<TReaderWriter>() where TReaderWriter : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter;"
-        },
-        {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePrimitiveCollectionBuilder HasJsonValueReaderWriter(System.Type? readerWriterType);"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePrimitiveCollectionBuilder HasMaxLength(int maxLength);"
         },
         {
@@ -2032,12 +2026,6 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePrimitiveCollectionBuilder<TProperty> HasField(string fieldName);"
-        },
-        {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePrimitiveCollectionBuilder<TProperty> HasJsonValueReaderWriter<TReaderWriter>() where TReaderWriter : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter;"
-        },
-        {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePrimitiveCollectionBuilder<TProperty> HasJsonValueReaderWriter(System.Type? readerWriterType);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePrimitiveCollectionBuilder<TProperty> HasMaxLength(int maxLength);"
@@ -4182,6 +4170,9 @@
         },
         {
           "Member": "static string JsonValueReaderWriterOnNonJsonProperty(object? structuralType, object? property, object? readerWriter);"
+        },
+        {
+          "Member": "static string JsonValueReaderWriterOnPrimitiveCollection(object? structuralType, object? property);"
         },
         {
           "Member": "static string JsonValueReaderWriterPropertyMismatch(object? structuralType, object? property, object? readerWriter, object? valueType, object? storeType);"
@@ -19024,12 +19015,6 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.PrimitiveCollectionBuilder HasField(string fieldName);"
         },
         {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.PrimitiveCollectionBuilder HasJsonValueReaderWriter<TReaderWriter>() where TReaderWriter : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter;"
-        },
-        {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.PrimitiveCollectionBuilder HasJsonValueReaderWriter(System.Type? readerWriterType);"
-        },
-        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.PrimitiveCollectionBuilder HasMaxLength(int maxLength);"
         },
         {
@@ -19092,12 +19077,6 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.PrimitiveCollectionBuilder<TProperty> HasField(string fieldName);"
-        },
-        {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.PrimitiveCollectionBuilder<TProperty> HasJsonValueReaderWriter<TReaderWriter>() where TReaderWriter : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter;"
-        },
-        {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.PrimitiveCollectionBuilder<TProperty> HasJsonValueReaderWriter(System.Type? readerWriterType);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.PrimitiveCollectionBuilder<TProperty> HasMaxLength(int maxLength);"

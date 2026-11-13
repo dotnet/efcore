@@ -376,6 +376,8 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
                 storeTypeName, storeTypeNameBase, unicode, size, precision, scale);
             mappingInfo = mappingInfo with
             {
+                // An inferred element mapping defines collection parameter transport, not document formatting.
+                JsonValueReaderWriter = elementMapping == null ? mappingInfo.JsonValueReaderWriter : null,
                 ElementTypeMapping = (RelationalTypeMapping?)elementMapping
                     ?? (RelationalTypeMapping?)FindElementMapping(mappingInfo.CoreTypeMappingInfo, model)
             };

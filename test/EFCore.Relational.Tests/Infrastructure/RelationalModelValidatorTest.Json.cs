@@ -65,52 +65,49 @@ public partial class RelationalModelValidatorTest
     }
 
     [Theory, InlineData(false), InlineData(true)]
-    public void Accepts_reader_writer_for_concrete_JSON_collection_type(bool genericBuilder)
+    public void Rejects_reader_writer_for_concrete_JSON_collection_type(bool typeMappingDefault)
     {
-        var builder = CreateConventionModelBuilder();
+        var builder = CreateConventionModelBuilder(c =>
+        {
+            if (typeMappingDefault)
+            {
+                c.DefaultTypeMapping<List<int>>().HasJsonValueReaderWriter<IntListReaderWriter>();
+            }
+        });
         var owned = builder.Entity<JsonReaderWriterOwner>().OwnsOne(e => e.Value);
         owned.ToJson();
         var collection = owned.PrimitiveCollection<List<int>>("Numbers");
-        if (genericBuilder)
+        if (!typeMappingDefault)
         {
-            collection.HasJsonValueReaderWriter<IntListReaderWriter>();
-        }
-        else
-        {
-            ((PrimitiveCollectionBuilder)collection).HasJsonValueReaderWriter(typeof(IntListReaderWriter));
+            collection.Metadata.SetJsonValueReaderWriterType(typeof(IntListReaderWriter));
         }
 
-        var model = Validate(builder);
-        var property = model.FindEntityType(typeof(JsonReaderWriterOwner))!.FindNavigation(nameof(JsonReaderWriterOwner.Value))!
-            .TargetEntityType.FindProperty("Numbers")!;
-        var readerWriter = property.GetTypeMapping().JsonValueReaderWriter!;
-        Assert.Equal("[1,2]", readerWriter.ToJsonString(new List<int> { 1, 2 }));
-        Assert.Equal(new List<int> { 1, 2 }, Assert.IsType<List<int>>(readerWriter.FromJsonString("[1,2]")));
+        VerifyError(
+            CoreStrings.JsonValueReaderWriterOnPrimitiveCollection(collection.Metadata.DeclaringType.DisplayName(), "Numbers"),
+            builder);
     }
 
     [Theory, InlineData(false), InlineData(true)]
-    public void Accepts_reader_writer_for_primitive_collection_on_complex_type(bool genericBuilder)
+    public void Rejects_reader_writer_for_primitive_collection_on_complex_type(bool typeMappingDefault)
     {
-        var builder = CreateConventionModelBuilder();
+        var builder = CreateConventionModelBuilder(c =>
+        {
+            if (typeMappingDefault)
+            {
+                c.DefaultTypeMapping<List<int>>().HasJsonValueReaderWriter<IntListReaderWriter>();
+            }
+        });
         var collection = builder.Entity<JsonComplexCollectionReaderWriterOwner>().ComplexProperty(e => e.Value)
             .PrimitiveCollection(e => e.Numbers);
-        if (genericBuilder)
+        if (!typeMappingDefault)
         {
-            collection.HasJsonValueReaderWriter<IntListReaderWriter>();
-        }
-        else
-        {
-            ((ComplexTypePrimitiveCollectionBuilder)collection).HasJsonValueReaderWriter(typeof(IntListReaderWriter));
+            collection.Metadata.SetJsonValueReaderWriterType(typeof(IntListReaderWriter));
         }
 
-        var model = Validate(builder);
-        var property = model.FindEntityType(typeof(JsonComplexCollectionReaderWriterOwner))!
-            .FindComplexProperty(nameof(JsonComplexCollectionReaderWriterOwner.Value))!
-            .ComplexType.FindProperty(nameof(JsonIntListValue.Numbers))!;
-        var readerWriter = property.GetTypeMapping().JsonValueReaderWriter!;
-        Assert.Same(IntListReaderWriter.Instance, readerWriter);
-        Assert.Equal("[1,2]", readerWriter.ToJsonString(new List<int> { 1, 2 }));
-        Assert.Equal(new List<int> { 1, 2 }, Assert.IsType<List<int>>(readerWriter.FromJsonString("[1,2]")));
+        VerifyError(
+            CoreStrings.JsonValueReaderWriterOnPrimitiveCollection(
+                collection.Metadata.DeclaringType.DisplayName(), nameof(JsonIntListValue.Numbers)),
+            builder);
     }
 
     public sealed class IntListReaderWriter : JsonValueReaderWriter<List<int>>

@@ -711,11 +711,6 @@ public abstract partial class ModelBuilderTest
     public abstract class TestPrimitiveCollectionBuilder<TProperty>
     {
         public abstract IMutableProperty Metadata { get; }
-        public abstract TestPrimitiveCollectionBuilder<TProperty> HasJsonValueReaderWriter<TReaderWriter>()
-            where TReaderWriter : JsonValueReaderWriter;
-
-        public abstract TestPrimitiveCollectionBuilder<TProperty> HasJsonValueReaderWriter(Type? readerWriterType);
-
         public abstract TestElementTypeBuilder ElementType();
         public abstract TestPrimitiveCollectionBuilder<TProperty> ElementType(Action<TestElementTypeBuilder> builderAction);
         public abstract TestPrimitiveCollectionBuilder<TProperty> HasAnnotation(string annotation, object? value);
@@ -972,11 +967,6 @@ public abstract partial class ModelBuilderTest
     public abstract class TestComplexTypePrimitiveCollectionBuilder<TProperty>
     {
         public abstract IMutableProperty Metadata { get; }
-        public abstract TestComplexTypePrimitiveCollectionBuilder<TProperty> HasJsonValueReaderWriter<TReaderWriter>()
-            where TReaderWriter : JsonValueReaderWriter;
-
-        public abstract TestComplexTypePrimitiveCollectionBuilder<TProperty> HasJsonValueReaderWriter(Type? readerWriterType);
-
         public abstract TestElementTypeBuilder ElementType();
         public abstract TestComplexTypePrimitiveCollectionBuilder<TProperty> ElementType(Action<TestElementTypeBuilder> builderAction);
         public abstract TestComplexTypePrimitiveCollectionBuilder<TProperty> HasAnnotation(string annotation, object? value);

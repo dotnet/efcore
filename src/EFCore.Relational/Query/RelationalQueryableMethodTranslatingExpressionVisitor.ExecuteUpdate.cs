@@ -1008,7 +1008,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                     queryParameter.Type,
                     queryParameter.Type.IsNullableType(),
                     queryParameter.TranslationMode,
-                    raw ? jsonTypeMapping : RelationalTypeMapping.NullMapping);
+                    raw ? jsonTypeMapping : new JsonScalarTypeMapping(_typeMappingSource));
 
             default:
                 return null;
