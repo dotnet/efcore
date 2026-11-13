@@ -201,7 +201,7 @@ jobs:
           scriptPath: $(System.DefaultWorkingDirectory)/eng/common/post-build/publish-using-darc.ps1
           arguments: >
             -BuildId $(BARBuildId)
-            -PublishingInfraVersion ${{ parameters.publishingVersion }}
+            -PublishingInfraVersion 3
             -AzdoToken '$(System.AccessToken)'
             -WaitPublishingFinish true
             -ArtifactsPublishingAdditionalParameters '${{ parameters.artifactsPublishingAdditionalParameters }}'

@@ -312,7 +312,7 @@ stages:
           scriptPath: $(System.DefaultWorkingDirectory)/eng/common/post-build/publish-using-darc.ps1
           arguments: >
               -BuildId $(BARBuildId)
-              -PublishingInfraVersion ${{ parameters.publishingInfraVersion }}
+              -PublishingInfraVersion 3
               -AzdoToken '$(System.AccessToken)'
               -WaitPublishingFinish true
               -RequireDefaultChannels ${{ parameters.requireDefaultChannels }}
