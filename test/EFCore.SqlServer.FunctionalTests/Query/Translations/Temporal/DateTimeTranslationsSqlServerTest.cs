@@ -176,6 +176,20 @@ WHERE DATEPART(millisecond, [b].[DateTime]) = 123
 """);
     }
 
+    public override async Task Ticks()
+    {
+        await base.Ticks();
+
+        AssertSql(
+            """
+@ticks='630298926101234960'
+
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE CAST(DATEDIFF(day, '0001-01-01T00:00:00.0000000', [b].[DateTime]) AS bigint) * CAST(864000000000 AS bigint) + CAST(DATEDIFF(second, CONVERT(date, [b].[DateTime]), [b].[DateTime]) AS bigint) * CAST(10000000 AS bigint) + CAST(DATEPART(nanosecond, [b].[DateTime]) / 100 AS bigint) = @ticks
+""");
+    }
+
     public override async Task TimeOfDay()
     {
         await base.TimeOfDay();
