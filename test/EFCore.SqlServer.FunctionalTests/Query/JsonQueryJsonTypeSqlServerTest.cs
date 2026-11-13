@@ -4,6 +4,8 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 using Xunit.Sdk;
 
@@ -1133,32 +1135,40 @@ FROM [JsonEntitiesBasic] AS [j]
     {
         await base.Json_collection_Any_with_predicate(async);
 
-        // On Azure SQL, the json data type is not supported in the OPENJSON WITH clause, so nvarchar(max) is used instead.
-        if (SqlServerTestEnvironment.IsAzureSql)
-        {
-            AssertSql(
-                """
-SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
-FROM [JsonEntitiesBasic] AS [j]
-WHERE EXISTS (
-    SELECT 1
-    FROM OPENJSON([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch') WITH ([OwnedReferenceLeaf] nvarchar(max) '$.OwnedReferenceLeaf' AS JSON) AS [o]
-    WHERE JSON_VALUE([o].[OwnedReferenceLeaf], '$.SomethingSomething' RETURNING nvarchar(max)) = N'e1_r_c1_r')
-""");
-        }
-        else
-        {
-            AssertSql(
-                """
+        using var context = Fixture.CreateContext();
+
+        AssertSql(
+            context.GetService<ISqlServerSingletonOptions>() is
+                { EngineType: SqlServerEngineType.SqlServer, SqlServerCompatibilityLevel: >= 170 }
+                ? """
 SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
 FROM [JsonEntitiesBasic] AS [j]
 WHERE EXISTS (
     SELECT 1
     FROM OPENJSON([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch') WITH ([OwnedReferenceLeaf] json '$.OwnedReferenceLeaf' AS JSON) AS [o]
     WHERE JSON_VALUE([o].[OwnedReferenceLeaf], '$.SomethingSomething' RETURNING nvarchar(max)) = N'e1_r_c1_r')
+"""
+                : """
+SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
+WHERE EXISTS (
+    SELECT 1
+    FROM OPENJSON([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch') WITH ([OwnedReferenceLeaf] nvarchar(max) '$.OwnedReferenceLeaf' AS JSON) AS [o]
+    WHERE JSON_VALUE(CAST([o].[OwnedReferenceLeaf] AS json), '$.SomethingSomething' RETURNING nvarchar(max)) = N'e1_r_c1_r')
 """);
-        }
     }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public Task Json_collection_Any_with_nested_scalar_predicate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>().Where(e =>
+                e.OwnedReferenceRoot.OwnedCollectionBranch
+                    .OrderBy(b => b.Date)
+                    .Take(1)
+                    .Any(b => b.OwnedReferenceLeaf.SomethingSomething!.ToLower().Contains("e1_r_c1")
+                        && b.Enum == JsonEnum.Two))
+                .Select(e => e.Id));
 
     public override async Task Json_collection_Where_ElementAt(bool async)
     {
