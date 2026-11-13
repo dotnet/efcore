@@ -1776,6 +1776,38 @@ WHERE EXISTS (
 """);
     }
 
+    public override async Task Column_collection_Array_Exists_covariant()
+    {
+        await base.Column_collection_Array_Exists_covariant();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE EXISTS (
+    SELECT 1
+    FROM s IN c["Strings"]
+    WHERE (s = "10"))
+""");
+    }
+
+    public override async Task Parameter_collection_Array_Exists_covariant()
+    {
+        await base.Parameter_collection_Array_Exists_covariant();
+
+        AssertSql(
+            """
+@strings='["10","999"]'
+
+SELECT VALUE c
+FROM root c
+WHERE EXISTS (
+    SELECT 1
+    FROM s IN (SELECT VALUE @strings)
+    WHERE (s = c["String"]))
+""");
+    }
+
     public override async Task Parameter_collection_Array_Exists()
     {
         await base.Parameter_collection_Array_Exists();

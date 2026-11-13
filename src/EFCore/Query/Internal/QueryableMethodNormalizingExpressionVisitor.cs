@@ -187,7 +187,10 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
             && existsDeclaringType.GetGenericTypeDefinition() == typeof(List<>))
         {
             visitedExpression = TryConvertExistsToQueryableAny(
-                methodCallExpression, methodCallExpression.Object!, methodCallExpression.Arguments[0]);
+                methodCallExpression,
+                methodCallExpression.Object!,
+                methodCallExpression.Arguments[0],
+                existsDeclaringType.GetGenericArguments()[0]);
         }
 
         if (method.Name == nameof(Array.Exists)
@@ -195,7 +198,10 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
             && method.IsGenericMethod)
         {
             visitedExpression = TryConvertExistsToQueryableAny(
-                methodCallExpression, methodCallExpression.Arguments[0], methodCallExpression.Arguments[1]);
+                methodCallExpression,
+                methodCallExpression.Arguments[0],
+                methodCallExpression.Arguments[1],
+                method.GetGenericArguments()[0]);
         }
 
         if (method.DeclaringType == typeof(EntityFrameworkQueryableExtensions)
@@ -528,7 +534,8 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
     private Expression TryConvertExistsToQueryableAny(
         MethodCallExpression methodCallExpression,
         Expression source,
-        Expression predicate)
+        Expression predicate,
+        Type sourceType)
     {
         if (source is MemberInitExpression or NewExpression)
         {
@@ -542,7 +549,6 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
             return base.VisitMethodCall(methodCallExpression);
         }
 
-        var sourceType = source.Type.GetSequenceType();
         var rewrittenPredicate = Expression.Lambda(
             typeof(Func<,>).MakeGenericType(sourceType, typeof(bool)),
             predicateLambda.Body,

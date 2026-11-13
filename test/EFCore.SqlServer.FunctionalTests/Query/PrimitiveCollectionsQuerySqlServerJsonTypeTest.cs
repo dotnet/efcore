@@ -2299,6 +2299,39 @@ WHERE EXISTS (
 """);
     }
 
+    public override async Task Column_collection_Array_Exists_covariant()
+    {
+        await base.Column_collection_Array_Exists_covariant();
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE EXISTS (
+    SELECT 1
+    FROM OPENJSON([p].[Strings]) WITH ([value] nvarchar(max) '$') AS [s]
+    WHERE [s].[value] = N'10')
+""");
+    }
+
+    public override async Task Parameter_collection_Array_Exists_covariant()
+    {
+        await base.Parameter_collection_Array_Exists_covariant();
+
+        AssertSql(
+            """
+@strings1='10' (Size = 4000)
+@strings2='999' (Size = 4000)
+
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE EXISTS (
+    SELECT 1
+    FROM (VALUES (@strings1), (@strings2)) AS [s]([Value])
+    WHERE [s].[Value] = [p].[String])
+""");
+    }
+
     public override async Task Parameter_collection_Array_Exists()
     {
         await base.Parameter_collection_Array_Exists();
