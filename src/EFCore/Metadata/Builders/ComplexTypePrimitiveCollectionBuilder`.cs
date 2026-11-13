@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Storage.Json;
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 /// <summary>
@@ -31,15 +29,6 @@ public class ComplexTypePrimitiveCollectionBuilder<TProperty> : ComplexTypePrimi
         : base(property)
     {
     }
-
-    /// <inheritdoc cref="ComplexTypePrimitiveCollectionBuilder.HasJsonValueReaderWriter{TReaderWriter}()" />
-    public new virtual ComplexTypePrimitiveCollectionBuilder<TProperty> HasJsonValueReaderWriter<TReaderWriter>()
-        where TReaderWriter : JsonValueReaderWriter
-        => (ComplexTypePrimitiveCollectionBuilder<TProperty>)base.HasJsonValueReaderWriter<TReaderWriter>();
-
-    /// <inheritdoc cref="ComplexTypePrimitiveCollectionBuilder.HasJsonValueReaderWriter(Type)" />
-    public new virtual ComplexTypePrimitiveCollectionBuilder<TProperty> HasJsonValueReaderWriter(Type? readerWriterType)
-        => (ComplexTypePrimitiveCollectionBuilder<TProperty>)base.HasJsonValueReaderWriter(readerWriterType);
 
     /// <summary>
     ///     Adds or updates an annotation on the property. If an annotation with the key specified in

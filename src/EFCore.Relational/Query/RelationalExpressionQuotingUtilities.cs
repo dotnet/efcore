@@ -4,6 +4,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using static System.Linq.Expressions.Expression;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -62,9 +63,13 @@ public static class RelationalExpressionQuotingUtilities
     ///     Quotes a relational type mapping.
     /// </summary>
     public static Expression QuoteTypeMapping(RelationalTypeMapping? typeMapping)
-        => typeMapping is null
-            ? Constant(null, typeof(RelationalTypeMapping))
-            : Call(
+        => typeMapping switch
+        {
+            null => Constant(null, typeof(RelationalTypeMapping)),
+            JsonScalarTypeMapping => New(
+                typeof(JsonScalarTypeMapping).GetConstructor([typeof(IRelationalTypeMappingSource)])!,
+                RelationalTypeMappingSourceParameter),
+            _ => Call(
                 RelationalTypeMappingSourceParameter,
                 RelationalTypeMappingSourceFindMappingMethod,
                 Constant(typeMapping.ClrType, typeof(Type)),
@@ -75,7 +80,8 @@ public static class RelationalExpressionQuotingUtilities
                 Constant(false, typeof(bool?)), // TODO: rowversion not accessible
                 Constant(typeMapping.IsFixedLength, typeof(bool?)),
                 Constant(typeMapping.Precision, typeof(int?)),
-                Constant(typeMapping.Scale, typeof(int?)));
+                Constant(typeMapping.Scale, typeof(int?)))
+        };
 
     /// <summary>
     ///     Quotes an <see cref="ITableBase" />.

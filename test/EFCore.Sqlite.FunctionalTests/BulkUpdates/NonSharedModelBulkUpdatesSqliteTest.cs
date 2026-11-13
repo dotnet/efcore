@@ -8,6 +8,27 @@ public class NonSharedModelBulkUpdatesSqliteTest(NonSharedFixture fixture) : Non
     protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqliteTestStoreFactory.Instance;
 
+    public override async Task Update_JSON_strings_of_different_lengths(bool async, bool executeUpdate, bool converted)
+    {
+        await base.Update_JSON_strings_of_different_lengths(async, executeUpdate, converted);
+
+        var updateSql = executeUpdate
+            ? """
+UPDATE "JsonTextItem" AS "j"
+SET "Data" = json_set("j"."Data", '$.Text', json(@p))
+"""
+            : """
+UPDATE "JsonTextItem" SET "Data" = json_set("Data", '$.Text', json(@p0))
+WHERE "Id" = @p1
+RETURNING 1;
+""";
+        Assert.Equal(
+            Enumerable.Repeat(updateSql, 3),
+            TestSqlLoggerFactory.SqlStatements
+                .Where(s => s.Contains("UPDATE ", StringComparison.Ordinal))
+                .Select(s => s[s.IndexOf("UPDATE ", StringComparison.Ordinal)..]));
+    }
+
     public override async Task Update_JSON_scalar_with_custom_reader_writer(bool async, bool typeMappingDefault)
     {
         await base.Update_JSON_scalar_with_custom_reader_writer(async, typeMappingDefault);

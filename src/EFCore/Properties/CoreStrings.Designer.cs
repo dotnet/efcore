@@ -27,6 +27,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.CoreStrings", typeof(CoreStrings).Assembly);
 
         /// <summary>
+        ///     A JSON reader/writer cannot be configured for the primitive collection '{structuralType}.{property}'. Configure a JSON reader/writer for its elements instead.
+        /// </summary>
+        public static string JsonValueReaderWriterOnPrimitiveCollection(object? structuralType, object? property)
+            => string.Format(
+                GetString("JsonValueReaderWriterOnPrimitiveCollection", nameof(structuralType), nameof(property)),
+                structuralType, property);
+
+        /// <summary>
         ///     The JSON reader/writer '{readerWriter}' is configured on '{structuralType}.{property}', but this member is not mapped to JSON. Map the member to JSON or remove its JSON reader/writer configuration.
         /// </summary>
         public static string JsonValueReaderWriterOnNonJsonProperty(object? structuralType, object? property, object? readerWriter)

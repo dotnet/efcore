@@ -2,9 +2,11 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
+using System.Linq.Expressions;
 using Microsoft.Data.SqlClient;
 using Microsoft.Data.SqlTypes;
 using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
@@ -16,6 +18,27 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 
 public class SqlServerTypeMappingTest : RelationalTypeMappingTest
 {
+    [Fact]
+    public void Quoted_JSON_scalar_mapping_uses_native_runtime_parameter_types()
+    {
+        var source = GetTypeMappingSource();
+#pragma warning disable EF9100 // Precompiled query is experimental.
+        var quote = (NewExpression)RelationalExpressionQuotingUtilities.QuoteTypeMapping(new JsonScalarTypeMapping(source));
+#pragma warning restore EF9100
+        var mapping = Expression.Lambda<Func<RelationalTypeMappingSource, RelationalTypeMapping>>(
+            quote, (ParameterExpression)quote.Arguments[0]).Compile(preferInterpretation: true)(source);
+
+        using var command = CreateTestCommand();
+        var textParameter = mapping.CreateParameter(command, "p", "a");
+        Assert.Equal("a", textParameter.Value);
+        Assert.Equal(DbType.String, textParameter.DbType);
+        Assert.Equal(4000, textParameter.Size);
+
+        var numberParameter = mapping.CreateParameter(command, "p", 42);
+        Assert.Equal(42, numberParameter.Value);
+        Assert.Equal(DbType.Int32, numberParameter.DbType);
+    }
+
     [Theory, InlineData(nameof(ChangeTracker.DetectChanges), false), InlineData(nameof(PropertyEntry.CurrentValue), false),
      InlineData(nameof(PropertyEntry.OriginalValue), false), InlineData(nameof(ChangeTracker.DetectChanges), true),
      InlineData(nameof(PropertyEntry.CurrentValue), true), InlineData(nameof(PropertyEntry.OriginalValue), true)]

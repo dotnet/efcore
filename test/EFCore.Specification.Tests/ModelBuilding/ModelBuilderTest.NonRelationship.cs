@@ -86,35 +86,6 @@ public abstract partial class ModelBuilderTest
         }
 
         [Fact]
-        public virtual void Can_configure_primitive_collection_json_reader_writer()
-        {
-            var modelBuilder = CreateModelBuilder();
-            var collection = modelBuilder.Entity<CollectionQuarks>().PrimitiveCollection(e => e.Up);
-            var element = collection.ElementType().HasJsonValueReaderWriter<JsonInt32ReaderWriter>();
-
-            Assert.Same(collection.Metadata, collection.HasJsonValueReaderWriter<JsonStringReaderWriter>().Metadata);
-            Assert.Same(JsonStringReaderWriter.Instance, collection.Metadata.GetJsonValueReaderWriter());
-            Assert.Equal(
-                ConfigurationSource.Explicit,
-                ((IConventionProperty)collection.Metadata).GetJsonValueReaderWriterTypeConfigurationSource());
-            Assert.Same(collection.Metadata, collection.HasJsonValueReaderWriter(typeof(JsonInt32ReaderWriter)).Metadata);
-            Assert.Same(JsonInt32ReaderWriter.Instance, collection.Metadata.GetJsonValueReaderWriter());
-            Assert.Equal(
-                CoreStrings.BadJsonValueReaderWriterType("object"),
-                Assert.Throws<InvalidOperationException>(() => collection.HasJsonValueReaderWriter(typeof(object))).Message);
-            Assert.Same(JsonInt32ReaderWriter.Instance, collection.Metadata.GetJsonValueReaderWriter());
-            Assert.Same(collection.Metadata, collection.HasJsonValueReaderWriter(null).Metadata);
-            Assert.Null(collection.Metadata.GetJsonValueReaderWriter());
-            Assert.Same(JsonInt32ReaderWriter.Instance, element.Metadata.GetJsonValueReaderWriter());
-            element.HasJsonValueReaderWriter(null);
-
-            var model = modelBuilder.FinalizeModel();
-            Assert.Null(
-                model.FindEntityType(typeof(CollectionQuarks))!.FindProperty(nameof(CollectionQuarks.Up))![
-                    CoreAnnotationNames.JsonValueReaderWriterType]);
-        }
-
-        [Fact]
         public virtual void Can_configure_element_json_reader_writer()
         {
             var modelBuilder = CreateModelBuilder();

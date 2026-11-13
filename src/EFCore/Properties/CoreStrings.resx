@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="JsonValueReaderWriterOnPrimitiveCollection" xml:space="preserve">
+    <value>A JSON reader/writer cannot be configured for the primitive collection '{structuralType}.{property}'. Configure a JSON reader/writer for its elements instead.</value>
+  </data>
   <data name="JsonValueReaderWriterOnNonJsonProperty" xml:space="preserve">
     <value>The JSON reader/writer '{readerWriter}' is configured on '{structuralType}.{property}', but this member is not mapped to JSON. Map the member to JSON or remove its JSON reader/writer configuration.</value>
   </data>

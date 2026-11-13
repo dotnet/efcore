@@ -5,11 +5,53 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Scripts;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
+using JsonFloatArrayReaderWriter = Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal.CosmosTypeMappingSourceTest.JsonFloatArrayReaderWriter;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 public class CosmosModelValidatorTest : ModelValidatorTestBase
 {
+    [Theory, InlineData(false), InlineData(true)]
+    public void Rejects_reader_writer_on_primitive_collection(bool typeMappingDefault)
+    {
+        var builder = CosmosTestHelpers.Instance.CreateConventionBuilder(configureConventions: c =>
+        {
+            if (typeMappingDefault)
+            {
+                c.DefaultTypeMapping<float[]>().HasJsonValueReaderWriter<JsonFloatArrayReaderWriter>();
+            }
+        });
+        var collection = builder.Entity<A>().PrimitiveCollection<float[]>("Numbers");
+        if (!typeMappingDefault)
+        {
+            collection.Metadata.SetJsonValueReaderWriterType(typeof(JsonFloatArrayReaderWriter));
+        }
+
+        VerifyError(CoreStrings.JsonValueReaderWriterOnPrimitiveCollection(nameof(A), "Numbers"), builder);
+    }
+
+    [Theory, InlineData(false), InlineData(true)]
+    public void Does_not_validate_default_reader_writer_on_non_persisted_property(bool persisted)
+    {
+        var builder = CosmosTestHelpers.Instance.CreateConventionBuilder(configureConventions: c =>
+            c.DefaultTypeMapping<int>().HasJsonValueReaderWriter<JsonStringReaderWriter>());
+        builder.Entity<A>().Property(e => e.Id).HasConversion<string>();
+        builder.Entity<A>().Ignore(e => e.P1).Ignore(e => e.P2).Ignore(e => e.P3);
+        builder.Entity<A>().Property(e => e.P0).ToJsonProperty(persisted ? "P0" : "");
+
+        if (persisted)
+        {
+            VerifyError(
+                CoreStrings.JsonValueReaderWriterPropertyMismatch(nameof(A), nameof(A.P0), nameof(JsonStringReaderWriter), "string", "int"),
+                builder);
+        }
+        else
+        {
+            var model = Validate(builder);
+            Assert.Equal("", model.FindEntityType(typeof(A))!.FindProperty(nameof(A.P0))!.GetJsonPropertyName());
+        }
+    }
+
     [Fact]
     public void Accepts_member_reader_writer_without_relational_JSON_mapping()
     {

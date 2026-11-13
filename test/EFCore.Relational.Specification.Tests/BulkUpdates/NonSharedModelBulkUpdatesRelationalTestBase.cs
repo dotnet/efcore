@@ -15,6 +15,68 @@ public abstract class NonSharedModelBulkUpdatesRelationalTestBase(NonSharedFixtu
     protected override string NonSharedStoreName
         => "NonSharedModelBulkUpdatesTests";
 
+    [Theory]
+    [InlineData(false, false, false), InlineData(true, false, false)]
+    [InlineData(false, true, false), InlineData(true, true, false)]
+    [InlineData(false, false, true), InlineData(true, false, true)]
+    [InlineData(false, true, true), InlineData(true, true, true)]
+    public virtual async Task Update_JSON_strings_of_different_lengths(bool async, bool executeUpdate, bool converted)
+    {
+        var factory = await InitializeNonSharedTest<PoolableDbContext>(
+            onModelCreating: b =>
+            {
+                var entity = b.Entity<JsonTextItem>();
+                entity.Property(e => e.Id).ValueGeneratedNever();
+                var property = executeUpdate
+                    ? entity.ComplexProperty(e => e.Data).ToJson().Property(e => e.Text).Metadata
+                    : entity.OwnsOne(e => e.Data).ToJson().Property(e => e.Text).Metadata;
+                if (converted)
+                {
+                    property.SetValueConverter(new ValueConverter<string, string>(v => v + "!", v => v.Substring(0, v.Length - 1)));
+                }
+            },
+            seed: async context =>
+            {
+                context.Add(new JsonTextItem { Id = 1, Data = new JsonTextData { Text = "before" } });
+                await context.SaveChangesAsync();
+            });
+        await using var context = factory.CreateDbContext();
+        var query = context.Set<JsonTextItem>();
+        var item = async ? await query.SingleAsync() : query.Single();
+        ClearLog();
+
+        foreach (var text in new[] { "a", new string('b', 3999), new string('c', 4001) })
+        {
+            if (executeUpdate)
+            {
+                Assert.Equal(
+                    1, async
+                        ? await query.ExecuteUpdateAsync(s => s.SetProperty(e => e.Data.Text, text))
+                        : query.ExecuteUpdate(s => s.SetProperty(e => e.Data.Text, text)));
+            }
+            else
+            {
+                item.Data.Text = text;
+                Assert.Equal(1, async ? await context.SaveChangesAsync() : context.SaveChanges());
+            }
+
+            var reloaded = async ? await query.AsNoTracking().SingleAsync() : query.AsNoTracking().Single();
+            Assert.Equal(text, reloaded.Data.Text);
+        }
+    }
+
+    protected class JsonTextItem
+    {
+        public int Id { get; set; }
+        public JsonTextData Data { get; set; } = null!;
+    }
+
+    protected class JsonTextData
+    {
+        public string Text { get; set; } = null!;
+        public int Number { get; set; }
+    }
+
     [Theory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public virtual async Task Update_JSON_scalar_with_custom_reader_writer(bool async, bool typeMappingDefault)
     {
@@ -70,6 +132,7 @@ public abstract class NonSharedModelBulkUpdatesRelationalTestBase(NonSharedFixtu
         var query = context.Set<JsonWriterItem>();
         var expectedEnabled = false;
         var expectedNativeNumber = 7;
+        var expectedPreciseNumber = 0m;
         List<int> encodedNumbers = [2, 3];
         Assert.Equal(
             1, async
@@ -131,6 +194,13 @@ public abstract class NonSharedModelBulkUpdatesRelationalTestBase(NonSharedFixtu
             1, async
                 ? await query.ExecuteUpdateAsync(s => s.SetProperty(e => e.Data.Timestamp, timestamp))
                 : query.ExecuteUpdate(s => s.SetProperty(e => e.Data.Timestamp, timestamp)));
+        await AssertData(42, timestamp);
+
+        expectedPreciseNumber = 12345678901234567890.12345678m;
+        Assert.Equal(
+            1, async
+                ? await query.ExecuteUpdateAsync(s => s.SetProperty(e => e.Data.PreciseNumber, expectedPreciseNumber))
+                : query.ExecuteUpdate(s => s.SetProperty(e => e.Data.PreciseNumber, expectedPreciseNumber)));
         await AssertData(42, timestamp);
 
         Assert.Equal(
@@ -196,6 +266,7 @@ public abstract class NonSharedModelBulkUpdatesRelationalTestBase(NonSharedFixtu
             Assert.Equal(expectedEnabled, item.Data.Enabled);
             Assert.Equal(expectedNativeNumber, item.NativeNumber);
             Assert.Equal(1.5E-28, item.Data.SmallNumber);
+            Assert.Equal(expectedPreciseNumber, item.Data.PreciseNumber);
             Assert.Equal(new[] { 42 }, item.Data.Numbers);
             Assert.Equal(new[] { 7 }, item.Data.EncodedNumbers);
             await using var command = context.Database.GetDbConnection().CreateCommand();
@@ -321,6 +392,7 @@ public abstract class NonSharedModelBulkUpdatesRelationalTestBase(NonSharedFixtu
         public DateTime Timestamp { get; set; }
         public bool Enabled { get; set; }
         public double SmallNumber { get; set; }
+        public decimal PreciseNumber { get; set; }
         public List<int> Numbers { get; set; } = [];
         public List<int> EncodedNumbers { get; set; } = [];
         public List<int> OtherEncodedNumbers { get; set; } = [];

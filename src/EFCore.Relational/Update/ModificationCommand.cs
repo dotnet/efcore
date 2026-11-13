@@ -8,6 +8,7 @@ using System.Text.Json;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 using IColumnMapping = Microsoft.EntityFrameworkCore.Metadata.IColumnMapping;
 using ITableMapping = Microsoft.EntityFrameworkCore.Metadata.ITableMapping;
@@ -1036,7 +1037,8 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
     /// </remarks>
     protected virtual void ProcessSinglePropertyJsonUpdate(ref ColumnModificationParameters parameters)
     {
-        var readerWriter = parameters.Property!.GetRelationalTypeMapping().JsonValueReaderWriter!;
+        var property = parameters.Property!;
+        var readerWriter = property.GetRelationalTypeMapping().JsonValueReaderWriter!;
         var value = parameters.Value;
         using var document = JsonDocument.Parse(
             value is null && !readerWriter.HandlesNullWrites ? "null" : readerWriter.ToJsonString(value));
@@ -1047,7 +1049,8 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
             Value = value,
             TypeMapping = element.ValueKind is JsonValueKind.Object or JsonValueKind.Array
                 ? parameters.TypeMapping
-                : RelationalTypeMapping.NullMapping
+                : JsonScalarTypeMapping.GetMapping(
+                    (IRelationalTypeMappingSource)property.DeclaringType.Model.GetModelDependencies().TypeMappingSource, value)
         };
     }
 
