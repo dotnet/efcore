@@ -1386,7 +1386,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         return null;
     }
 
-    private SqlExpression CreateJoinPredicate(
+    private SqlExpression? CreateJoinPredicate(
         ShapedQueryExpression outer,
         LambdaExpression outerKeySelector,
         ShapedQueryExpression inner,
@@ -1403,12 +1403,10 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         var innerNew = (NewExpression)innerKey;
 
         SqlExpression? result = null;
-        for (var i = 0; i < outerNew.Arguments.Count; i++)
+        var comparisonCount = 0;
+        if (!TryAddComparisons(outerNew, innerNew))
         {
-            var joinPredicate = CreateJoinPredicate(outerNew.Arguments[i], innerNew.Arguments[i]);
-            result = result == null
-                ? joinPredicate
-                : _sqlExpressionFactory.AndAlso(result, joinPredicate);
+            return null;
         }
 
         // In LINQ equijoins, null is not equal null, just like in SQL
@@ -1425,17 +1423,50 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         // To work around this, we add an always-true predicate here, and the AND will cause
         // SqlNullabilityProcessor.ProcessJoinPredicate() to go into the multiple-property anonymous type logic,
         // and not bypass null compensation.
-        if (outerNew.Arguments.Count == 1)
+        if (comparisonCount == 1)
         {
             result = _sqlExpressionFactory.AndAlso(
                 result!,
-                CreateJoinPredicate(Expression.Constant(true), Expression.Constant(true)));
+                CreateJoinPredicate(Expression.Constant(true), Expression.Constant(true))!);
         }
 
         return result ?? _sqlExpressionFactory.Constant(true);
 
-        SqlExpression CreateJoinPredicate(Expression outerKey, Expression innerKey)
-            => TranslateExpression(Infrastructure.ExpressionExtensions.CreateEqualsExpression(outerKey, innerKey))!;
+        // Anonymous types can be nested in the key selectors; flatten them, since a nested anonymous type can't be translated as a
+        // single comparison. Other constructed types (e.g. DateTimeOffset) are compared as a whole, as their equality isn't
+        // necessarily member-wise.
+        bool TryAddComparisons(NewExpression outer, NewExpression inner)
+        {
+            for (var i = 0; i < outer.Arguments.Count; i++)
+            {
+                if (outer.Arguments[i] is NewExpression nestedOuter
+                    && nestedOuter.Type.IsAnonymousType()
+                    && inner.Arguments[i] is NewExpression nestedInner)
+                {
+                    if (!TryAddComparisons(nestedOuter, nestedInner))
+                    {
+                        return false;
+                    }
+
+                    continue;
+                }
+
+                if (CreateJoinPredicate(outer.Arguments[i], inner.Arguments[i]) is not { } joinPredicate)
+                {
+                    return false;
+                }
+
+                result = result == null
+                    ? joinPredicate
+                    : _sqlExpressionFactory.AndAlso(result, joinPredicate);
+                comparisonCount++;
+            }
+
+            return true;
+        }
+
+        SqlExpression? CreateJoinPredicate(Expression outerKey, Expression innerKey)
+            => TranslateExpression(Infrastructure.ExpressionExtensions.CreateEqualsExpression(outerKey, innerKey));
     }
 
     /// <inheritdoc />

@@ -690,7 +690,8 @@ FROM [Customers] AS [c]
 
     public override async Task GroupJoin_aggregate_nested_anonymous_key_selectors(bool async)
     {
-        await base.GroupJoin_aggregate_nested_anonymous_key_selectors(async);
+        // The GroupJoin is translated to a correlated predicate, where nested anonymous type equality isn't supported
+        await AssertTranslationFailed(() => base.GroupJoin_aggregate_nested_anonymous_key_selectors(async));
 
         AssertSql();
     }
@@ -1183,11 +1184,57 @@ INNER JOIN [Orders] AS [o1] ON [c].[CustomerID] = [o1].[CustomerID]
 """);
     }
 
+    public override async Task Join_with_key_selectors_being_nested_anonymous_objects_single_nullable_member(bool async)
+    {
+        await base.Join_with_key_selectors_being_nested_anonymous_objects_single_nullable_member(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
+FROM [Customers] AS [c]
+INNER JOIN (
+    SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+    FROM [Customers] AS [c0]
+    WHERE [c0].[CustomerID] LIKE N'B%'
+) AS [c1] ON [c].[Region] = [c1].[Region] OR ([c].[Region] IS NULL AND [c1].[Region] IS NULL)
+WHERE [c].[CustomerID] LIKE N'A%'
+""");
+    }
+
+    public override async Task Join_with_key_selectors_being_nested_anonymous_objects_with_constructed_member(bool async)
+    {
+        await base.Join_with_key_selectors_being_nested_anonymous_objects_with_constructed_member(async);
+
+        AssertSql(
+            """
+SELECT [o].[OrderID] AS [Id1], [o1].[OrderID] AS [Id2]
+FROM [Orders] AS [o]
+INNER JOIN (
+    SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[OrderDate]
+    FROM [Orders] AS [o0]
+    WHERE [o0].[OrderID] < 10260
+) AS [o1] ON ([o].[CustomerID] = [o1].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o1].[CustomerID] IS NULL)) AND (TODATETIMEOFFSET([o].[OrderDate], '+00:00') = TODATETIMEOFFSET(DATEADD(hour, CAST(2.0E0 AS int), [o1].[OrderDate]), '+02:00') OR ([o].[OrderDate] IS NULL AND [o1].[OrderDate] IS NULL))
+WHERE [o].[OrderID] < 10260
+""");
+    }
+
     public override async Task Join_with_key_selectors_being_nested_anonymous_objects(bool async)
     {
         await base.Join_with_key_selectors_being_nested_anonymous_objects(async);
 
-        AssertSql();
+        AssertSql(
+            """
+@p='10'
+
+SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM (
+    SELECT TOP(@p) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+    ORDER BY [c].[CustomerID]
+) AS [c0]
+INNER JOIN [Orders] AS [o] ON [c0].[CustomerID] = [o].[CustomerID] AND [c0].[City] = N'London' AND 1996 = DATEPART(year, [o].[OrderDate])
+ORDER BY [c0].[CustomerID]
+""");
     }
 
     private void AssertSql(params string[] expected)
