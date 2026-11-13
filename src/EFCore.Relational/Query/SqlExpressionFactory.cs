@@ -49,6 +49,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             AggregateFunctionExpression e => e.ApplyTypeMapping(typeMapping),
             AtTimeZoneExpression e => ApplyTypeMappingOnAtTimeZone(e, typeMapping),
             CaseExpression e => ApplyTypeMappingOnCase(e, typeMapping),
+            ClrTypeChangeExpression e => e.ApplyTypeMapping(typeMapping),
             CollateExpression e => ApplyTypeMappingOnCollate(e, typeMapping),
             ColumnExpression e => e.ApplyTypeMapping(typeMapping),
             DistinctExpression e => ApplyTypeMappingOnDistinct(e, typeMapping),
