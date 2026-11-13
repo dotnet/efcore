@@ -1467,7 +1467,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             if (!valueComparerElementType.IsNullableValueType())
             {
                 AddNamespace(typeof(NullableValueComparer<>), parameters.Namespaces);
-                valueComparerString = $"new NullableValueComparer<{_code.Reference(valueComparerType)}>({valueComparerString})";
+                valueComparerString = $"new NullableValueComparer<{_code.Reference(valueComparerElementType)}>({valueComparerString})";
             }
         }
 

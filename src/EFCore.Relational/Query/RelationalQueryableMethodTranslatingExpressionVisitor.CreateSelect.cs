@@ -887,7 +887,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             if (element.PropertyName is { } jsonPropertyName)
             {
                 propertyExpressions[property] = CreateColumnExpression(
-                    tableExpressionBase, jsonPropertyName, property.ClrType,
+                    tableExpressionBase, GetJsonElementColumnName(tableExpressionBase, jsonPropertyName), property.ClrType,
                     element.StoreTypeMapping!,
                     /* jsonQueryExpression.IsNullable || */ property.IsNullable); // TODO: Issue #28887
             }
@@ -903,8 +903,10 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             var isNullable = jsonQueryExpression.IsNullable || complexProperty.IsNullable;
 
             var containerColumnExpression = new ColumnExpression(
-                jsonQueryExpression.GetJsonElement(complexProperty).PropertyName
-                ?? throw new UnreachableException($"No JSON property name for complex property {complexProperty.Name}"),
+                GetJsonElementColumnName(
+                    tableExpressionBase,
+                    jsonQueryExpression.GetJsonElement(complexProperty).PropertyName
+                    ?? throw new UnreachableException($"No JSON property name for complex property {complexProperty.Name}")),
                 tableAlias,
                 // Nested container projects a sub-document of the same underlying JSON column, so preserve the model column
                 // for downstream FindJsonElement matching.
@@ -946,7 +948,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                 // the specific JSON property (projected as a relational column) which holds the JSON subtree for the target entity.
                 // Pass the underlying model column through so FindJsonElement matches for properties of the nested entity.
                 var column = new ColumnExpression(
-                    jsonNavigationName, tableAlias, jsonColumn.Column, jsonColumn.Type, jsonColumn.TypeMapping, isNullable);
+                    GetJsonElementColumnName(tableExpressionBase, jsonNavigationName!), tableAlias, jsonColumn.Column, jsonColumn.Type,
+                    jsonColumn.TypeMapping, isNullable);
 
                 // need to remap key property map to use target entity key properties
                 var newKeyPropertyMap = new Dictionary<IProperty, ColumnExpression>();
@@ -986,6 +989,16 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             [(identifierColumn, identifierColumnTypeMapping.Comparer)],
             _sqlAliasManager);
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    protected virtual string GetJsonElementColumnName(TableExpressionBase tableExpressionBase, string jsonPropertyName)
+        => jsonPropertyName;
 
     private static ColumnExpression CreateColumnExpression(
         IProperty property,

@@ -16,6 +16,7 @@ Microsoft.EntityFrameworkCore.DbSet
     <NoWarn>$(NoWarn);EF9002</NoWarn> <!-- Provider experimental API -->
     <NoWarn>$(NoWarn);EF9100</NoWarn> <!-- Precompiled query is experimental -->
     <NoWarn>$(NoWarn);EF9101</NoWarn> <!-- Metrics is experimental -->
+    <NoWarn>$(NoWarn);EF9107</NoWarn> <!-- ExecuteMerge is experimental -->
   </PropertyGroup>
 
   <ItemGroup>

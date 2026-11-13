@@ -785,4 +785,28 @@ CROSS APPLY (
 LEFT JOIN [PrintMargins] AS [p] ON [d].[Id] = [p].[DocumentTestId]
 """);
     }
+
+    public override async Task Owned_entity_where_after_include(bool async)
+    {
+        await base.Owned_entity_where_after_include(async);
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[BaseEntityProperty], [b].[Information_Boolean], [b].[Information_NavId], [n].[Id]
+FROM [BaseMyClass] AS [b]
+LEFT JOIN [Nav] AS [n] ON [b].[Information_NavId] = [n].[Id]
+WHERE [b].[Id] = 1 AND [b].[Information_Boolean] = CAST(1 AS bit)
+""");
+    }
+
+    public override async Task Owned_entity_where_before_include(bool async)
+    {
+        await base.Owned_entity_where_before_include(async);
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[BaseEntityProperty], [b].[Information_Boolean], [b].[Information_NavId], [n].[Id]
+FROM [BaseMyClass] AS [b]
+LEFT JOIN [Nav] AS [n] ON [b].[Information_NavId] = [n].[Id]
+WHERE [b].[Id] = 1 AND [b].[Information_Boolean] = CAST(1 AS bit)
+""");
+    }
 }

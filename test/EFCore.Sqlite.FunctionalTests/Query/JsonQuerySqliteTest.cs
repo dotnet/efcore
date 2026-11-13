@@ -804,6 +804,136 @@ VALUES(
 """);
     }
 
+    public override async Task Project_complex_collection_with_property_named_key()
+    {
+        await base.Project_complex_collection_with_property_named_key();
+
+        AssertSql(
+            """
+SELECT "e0"."Id", "i"."value" ->> 'key' AS "key0", "i"."value" ->> 'Value' AS "Value", "i"."key"
+FROM (
+    SELECT "e"."Id", "e"."Items"
+    FROM "Entity" AS "e"
+    LIMIT 2
+) AS "e0"
+LEFT JOIN json_each("e0"."Items", '$') AS "i" ON 1
+ORDER BY "e0"."Id", "i"."key"
+""");
+    }
+
+    public override async Task Project_complex_collection_with_property_named_key_with_Take()
+    {
+        Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Project_complex_collection_with_property_named_key_with_Take()))
+            .Message);
+
+        AssertSql();
+    }
+
+    public override async Task Filter_complex_collection_with_property_named_key()
+    {
+        await base.Filter_complex_collection_with_property_named_key();
+
+        AssertSql(
+            """
+SELECT COUNT(*)
+FROM "Entity" AS "e"
+WHERE EXISTS (
+    SELECT 1
+    FROM (
+        SELECT "i"."value" ->> 'key' AS "key0"
+        FROM json_each("e"."Items", '$') AS "i"
+    ) AS "i0"
+    WHERE "i0"."key0" = 'k1')
+""");
+    }
+
+    public override async Task Project_complex_collection_with_property_named_Key()
+    {
+        await base.Project_complex_collection_with_property_named_Key();
+
+        AssertSql(
+            """
+SELECT "e0"."Id", "i"."value" ->> 'Key' AS "key0", "i"."value" ->> 'Value' AS "Value", "i"."key"
+FROM (
+    SELECT "e"."Id", "e"."Items"
+    FROM "Entity" AS "e"
+    LIMIT 2
+) AS "e0"
+LEFT JOIN json_each("e0"."Items", '$') AS "i" ON 1
+ORDER BY "e0"."Id", "i"."key"
+""");
+    }
+
+    public override async Task Project_complex_collection_with_properties_named_key_and_key0()
+    {
+        await base.Project_complex_collection_with_properties_named_key_and_key0();
+
+        AssertSql(
+            """
+SELECT "e0"."Id", "i"."value" ->> 'key' AS "key1", "i"."value" ->> 'key0' AS "key0", "i"."key"
+FROM (
+    SELECT "e"."Id", "e"."Items"
+    FROM "Entity" AS "e"
+    LIMIT 2
+) AS "e0"
+LEFT JOIN json_each("e0"."Items", '$') AS "i" ON 1
+ORDER BY "e0"."Id", "i"."key"
+""");
+    }
+
+    public override async Task Project_complex_collection_with_property_named_key0()
+    {
+        await base.Project_complex_collection_with_property_named_key0();
+
+        AssertSql(
+            """
+SELECT "e0"."Id", "i"."value" ->> 'code' AS "code", "i"."value" ->> 'key0' AS "key0", "i"."key"
+FROM (
+    SELECT "e"."Id", "e"."Items"
+    FROM "Entity" AS "e"
+    LIMIT 2
+) AS "e0"
+LEFT JOIN json_each("e0"."Items", '$') AS "i" ON 1
+ORDER BY "e0"."Id", "i"."key"
+""");
+    }
+
+    public override async Task Project_complex_collection_with_nested_complex_property_named_key()
+    {
+        await base.Project_complex_collection_with_nested_complex_property_named_key();
+
+        AssertSql(
+            """
+SELECT "e0"."Id", "i"."value" ->> 'Name' AS "Name", "i"."value" ->> 'key' ->> 'Code', "i"."key"
+FROM (
+    SELECT "e"."Id", "e"."Items"
+    FROM "Entity" AS "e"
+    LIMIT 2
+) AS "e0"
+LEFT JOIN json_each("e0"."Items", '$') AS "i" ON 1
+ORDER BY "e0"."Id", "i"."key"
+""");
+    }
+
+    public override async Task Project_owned_collection_with_property_named_key()
+    {
+        await base.Project_owned_collection_with_property_named_key();
+
+        AssertSql(
+            """
+SELECT "e0"."Id", "i"."value" ->> 'key' AS "key0", "i"."value" ->> 'Value' AS "Value", "i"."key"
+FROM (
+    SELECT "e"."Id", "e"."Items"
+    FROM "Entity" AS "e"
+    LIMIT 2
+) AS "e0"
+LEFT JOIN json_each("e0"."Items", '$') AS "i" ON 1
+ORDER BY "e0"."Id", "i"."key"
+""");
+    }
+
     public override Task SelectMany_over_primitive_collection_nested_in_complex_collection_inside_json_column()
         => Assert.ThrowsAsync<InvalidOperationException>(
             base.SelectMany_over_primitive_collection_nested_in_complex_collection_inside_json_column);

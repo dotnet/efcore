@@ -2196,6 +2196,543 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #endregion
 
+        #region 39366
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task GroupBy_value_converted_reference_type_key_with_elements_and_aggregate(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<ContextConvertedReferenceKey>(seed: c => c.SeedAsync());
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Posts
+                .GroupBy(p => p.Tag)
+                .Select(g => new { g.Key, Ids = g.Select(p => p.Id).ToList(), Count = g.Count() });
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            Assert.Collection(
+                result.OrderBy(g => g.Key.Name),
+                efcore =>
+                {
+                    Assert.Equal("efcore", efcore.Key.Name);
+                    Assert.Equal([1, 2], efcore.Ids.Order());
+                    Assert.Equal(2, efcore.Count);
+                },
+                linq =>
+                {
+                    Assert.Equal("linq", linq.Key.Name);
+                    Assert.Equal([3], linq.Ids);
+                    Assert.Equal(1, linq.Count);
+                });
+        }
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Distinct_value_converted_reference_type_with_collection(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<ContextConvertedReferenceKey>(seed: c => c.SeedAsync());
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Posts
+                .Select(p => p.Tag)
+                .Distinct()
+                .Select(t => new { Tag = t, Ids = context.Posts.Where(p => p.Tag == t).Select(p => p.Id).ToList() });
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            Assert.Collection(
+                result.OrderBy(t => t.Tag.Name),
+                efcore =>
+                {
+                    Assert.Equal("efcore", efcore.Tag.Name);
+                    Assert.Equal([1, 2], efcore.Ids.Order());
+                },
+                linq =>
+                {
+                    Assert.Equal("linq", linq.Tag.Name);
+                    Assert.Equal([3], linq.Ids);
+                });
+        }
+
+        // A set operation's projected columns become its identifiers.
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Union_value_converted_reference_type_with_collection(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<ContextConvertedReferenceKey>(seed: c => c.SeedAsync());
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Posts.Where(p => p.Id < 3).Select(p => p.Tag)
+                .Union(context.Posts.Where(p => p.Id > 1).Select(p => p.Tag))
+                .Select(t => new { Tag = t, Ids = context.Posts.Where(p => p.Tag == t).Select(p => p.Id).ToList() });
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            Assert.Collection(
+                result.OrderBy(t => t.Tag.Name),
+                efcore =>
+                {
+                    Assert.Equal("efcore", efcore.Tag.Name);
+                    Assert.Equal([1, 2], efcore.Ids.Order());
+                },
+                linq =>
+                {
+                    Assert.Equal("linq", linq.Tag.Name);
+                    Assert.Equal([3], linq.Ids);
+                });
+        }
+
+        // An entity's key becomes the identifier of a set operation over it.
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_entity_with_value_converted_key_with_collection(bool async)
+            => AssertUnionEntityWithConvertedKey(async, splitQuery: false);
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_entity_with_value_converted_key_with_split_collection(bool async)
+            => AssertUnionEntityWithConvertedKey(async, splitQuery: true);
+
+        private async Task AssertUnionEntityWithConvertedKey(bool async, bool splitQuery)
+        {
+            var contextFactory = await InitializeNonSharedTest<ContextConvertedEntityKey>(seed: c => c.SeedAsync());
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Blogs.Where(b => b.Name == "efcore")
+                .Union(context.Blogs.Where(b => b.Name == "linq"))
+                .Select(b => new { b.Name, PostIds = b.Posts.Select(p => p.Id).ToList() });
+            if (splitQuery)
+            {
+                query = query.AsSplitQuery();
+            }
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            Assert.Collection(
+                result.OrderBy(b => b.Name),
+                efcore =>
+                {
+                    Assert.Equal("efcore", efcore.Name);
+                    Assert.Equal([1, 2], efcore.PostIds.Order());
+                },
+                linq =>
+                {
+                    Assert.Equal("linq", linq.Name);
+                    Assert.Equal([3], linq.PostIds);
+                });
+        }
+
+        // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+        protected class ContextConvertedEntityKey(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<Blog> Blogs
+                => Set<Blog>();
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Blog>().Property(b => b.Id).HasConversion(k => k.Value, v => new BlogKey(v)).ValueGeneratedNever();
+                modelBuilder.Entity<Post>().Property(p => p.Id).ValueGeneratedNever();
+                modelBuilder.Entity<Post>().Property(p => p.BlogId).HasConversion(k => k.Value, v => new BlogKey(v));
+            }
+
+            public Task SeedAsync()
+            {
+                AddRange(
+                    new Blog
+                    {
+                        Id = new BlogKey(10),
+                        Name = "efcore",
+                        Posts = [new Post { Id = 1 }, new Post { Id = 2 }]
+                    },
+                    new Blog
+                    {
+                        Id = new BlogKey(20),
+                        Name = "linq",
+                        Posts = [new Post { Id = 3 }]
+                    });
+
+                return SaveChangesAsync();
+            }
+
+            public class Blog
+            {
+                public BlogKey Id { get; set; } = null!;
+                public string Name { get; set; } = null!;
+                public List<Post> Posts { get; set; } = [];
+            }
+
+            public class Post
+            {
+                public int Id { get; set; }
+                public BlogKey BlogId { get; set; } = null!;
+            }
+
+            // A strongly typed key, as commonly converted.
+            public record BlogKey(int Value);
+        }
+
+        // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+        protected class ContextConvertedReferenceKey(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<Post> Posts
+                => Set<Post>();
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Post>().Property(p => p.Id).ValueGeneratedNever();
+                modelBuilder.Entity<Post>().Property(p => p.Tag).HasConversion(t => t.Name, n => new Tag { Name = n });
+            }
+
+            public Task SeedAsync()
+            {
+                AddRange(
+                    new Post { Id = 1, Tag = new Tag { Name = "efcore" } },
+                    new Post { Id = 2, Tag = new Tag { Name = "efcore" } },
+                    new Post { Id = 3, Tag = new Tag { Name = "linq" } });
+
+                return SaveChangesAsync();
+            }
+
+            public class Post
+            {
+                public int Id { get; set; }
+                public Tag Tag { get; set; } = null!;
+            }
+
+            // Deliberately without Equals/GetHashCode overrides: two instances read from the same database value are distinct.
+            public class Tag
+            {
+                public string Name { get; set; } = null!;
+            }
+        }
+
+        // A final GroupBy's key is compared as LINQ would compare it, as the model value: database values that the converter reads as
+        // the same one belong to the same grouping, unlike a collection's identifiers, which are compared as provider values.
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Final_GroupBy_value_converted_key_read_as_same_value_from_different_database_values(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<ContextLossyConvertedKey>(seed: c => c.SeedAsync());
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Items.GroupBy(i => i.Number);
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            Assert.Collection(
+                result.OrderBy(g => g.Key),
+                one =>
+                {
+                    Assert.Equal(1, one.Key);
+                    Assert.Equal([1, 2, 4], one.Select(i => i.Id).Order());
+                },
+                two =>
+                {
+                    Assert.Equal(2, two.Key);
+                    Assert.Equal([3], two.Select(i => i.Id));
+                });
+        }
+
+        // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+        protected class ContextLossyConvertedKey(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<Item> Items
+                => Set<Item>();
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Item>().Property(i => i.Id).ValueGeneratedNever();
+                modelBuilder.Entity<Item>().Property(i => i.Number).HasConversion(n => n.ToString(), s => int.Parse(s));
+            }
+
+            // "1" and "01" are both read as 1; EF only writes the former, so the rows are inserted directly.
+            public Task SeedAsync()
+            {
+                var sqlGenerationHelper = this.GetService<ISqlGenerationHelper>();
+                var entityType = Model.FindEntityType(typeof(Item))!;
+                var table = StoreObjectIdentifier.Table(entityType.GetTableName()!, entityType.GetSchema());
+                var tableName = sqlGenerationHelper.DelimitIdentifier(table.Name, table.Schema);
+                var idColumn = sqlGenerationHelper.DelimitIdentifier(entityType.FindProperty(nameof(Item.Id))!.GetColumnName(table)!);
+                var numberColumn = sqlGenerationHelper.DelimitIdentifier(
+                    entityType.FindProperty(nameof(Item.Number))!.GetColumnName(table)!);
+
+                return Database.ExecuteSqlRawAsync(
+                    $"INSERT INTO {tableName} ({idColumn}, {numberColumn}) VALUES (1, '1'), (2, '01'), (3, '2'), (4, '1')");
+            }
+
+            public class Item
+            {
+                public int Id { get; set; }
+                public int Number { get; set; }
+            }
+        }
+
+        // A distinct complex type is identified by all its columns, which include a converted property's.
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Distinct_complex_type_with_value_converted_reference_type_with_collection(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<ContextConvertedReferenceInComplexType>(seed: c => c.SeedAsync());
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Posts
+                .Select(p => p.Details)
+                .Distinct()
+                .Select(d => new { Details = d, Ids = context.Posts.Where(p => p.Details.Tag == d.Tag).Select(p => p.Id).ToList() });
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            AssertDetails(result.Select(r => (r.Details, r.Ids)));
+        }
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Distinct_complex_type_with_value_converted_reference_type_with_split_collection(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<ContextConvertedReferenceInComplexType>(seed: c => c.SeedAsync());
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Posts
+                .Select(p => p.Details)
+                .Distinct()
+                .Select(d => new { Details = d, Ids = context.Posts.Where(p => p.Details.Tag == d.Tag).Select(p => p.Id).ToList() })
+                .AsSplitQuery();
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            AssertDetails(result.Select(r => (r.Details, r.Ids)));
+        }
+
+        private static void AssertDetails(IEnumerable<(ContextConvertedReferenceInComplexType.Details Details, List<int> Ids)> result)
+            => Assert.Collection(
+                result.OrderBy(r => r.Details.Tag.Name).ThenBy(r => r.Details.Rating),
+                efcore1 =>
+                {
+                    Assert.Equal(("efcore", 1), (efcore1.Details.Tag.Name, efcore1.Details.Rating));
+                    Assert.Equal([1, 2, 3], efcore1.Ids.Order());
+                },
+                efcore2 =>
+                {
+                    Assert.Equal(("efcore", 2), (efcore2.Details.Tag.Name, efcore2.Details.Rating));
+                    Assert.Equal([1, 2, 3], efcore2.Ids.Order());
+                },
+                linq =>
+                {
+                    Assert.Equal(("linq", 1), (linq.Details.Tag.Name, linq.Details.Rating));
+                    Assert.Equal([4], linq.Ids);
+                });
+
+        // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+        protected class ContextConvertedReferenceInComplexType(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<Post> Posts
+                => Set<Post>();
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Post>().Property(p => p.Id).ValueGeneratedNever();
+                modelBuilder.Entity<Post>().ComplexProperty(
+                    p => p.Details, d => d.Property(d => d.Tag).HasConversion(t => t.Name, n => new Tag { Name = n }));
+            }
+
+            public Task SeedAsync()
+            {
+                AddRange(
+                    new Post { Id = 1, Details = new Details { Tag = new Tag { Name = "efcore" }, Rating = 1 } },
+                    new Post { Id = 2, Details = new Details { Tag = new Tag { Name = "efcore" }, Rating = 1 } },
+                    new Post { Id = 3, Details = new Details { Tag = new Tag { Name = "efcore" }, Rating = 2 } },
+                    new Post { Id = 4, Details = new Details { Tag = new Tag { Name = "linq" }, Rating = 1 } });
+
+                return SaveChangesAsync();
+            }
+
+            public class Post
+            {
+                public int Id { get; set; }
+                public Details Details { get; set; } = null!;
+            }
+
+            public class Details
+            {
+                public Tag Tag { get; set; } = null!;
+                public int Rating { get; set; }
+            }
+
+            // Deliberately without Equals/GetHashCode overrides: two instances read from the same database value are distinct.
+            public class Tag
+            {
+                public string Name { get; set; } = null!;
+            }
+        }
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Distinct_value_converted_string_with_nondeterministic_write_with_collection(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<ContextNondeterministicConvertedKey>(seed: c => c.SeedAsync());
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Posts
+                .Select(p => p.Tag)
+                .Distinct()
+                .Select(t => new { Tag = t, Ids = context.Posts.Where(p => p.Tag == t).Select(p => p.Id).ToList() });
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            // Every stored value is distinct, but the strings read back are compared as strings, as they always were: comparing them
+            // by converting them back to provider values would never match even the row just read, and never finish.
+            Assert.Equal([1, 2, 3], result.SelectMany(t => t.Ids).Order());
+        }
+
+        // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+        protected class ContextNondeterministicConvertedKey(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<Post> Posts
+                => Set<Post>();
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Post>().Property(p => p.Id).ValueGeneratedNever();
+
+                // Like randomized encryption, writing the same value twice stores two different values.
+                modelBuilder.Entity<Post>().Property(p => p.Tag).HasConversion(
+                    t => t + "#" + Guid.NewGuid(),
+                    s => s.Substring(0, s.IndexOf('#')));
+            }
+
+            public Task SeedAsync()
+            {
+                AddRange(
+                    new Post { Id = 1, Tag = "efcore" },
+                    new Post { Id = 2, Tag = "efcore" },
+                    new Post { Id = 3, Tag = "linq" });
+
+                return SaveChangesAsync();
+            }
+
+            public class Post
+            {
+                public int Id { get; set; }
+                public string Tag { get; set; } = null!;
+            }
+        }
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Distinct_value_converted_object_with_collection(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<ContextConvertedObjectKey>(seed: c => c.SeedAsync());
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Posts
+                .Select(p => p.Tag)
+                .Distinct()
+                .Select(t => new { Tag = t, Ids = context.Posts.Where(p => p.Tag == t).Select(p => p.Id).ToList() });
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            Assert.Collection(
+                result.OrderBy(t => ((ContextConvertedObjectKey.Tag)t.Tag).Name),
+                efcore =>
+                {
+                    Assert.Equal("efcore", ((ContextConvertedObjectKey.Tag)efcore.Tag).Name);
+                    Assert.Equal([1, 2], efcore.Ids.Order());
+                },
+                linq =>
+                {
+                    Assert.Equal("linq", ((ContextConvertedObjectKey.Tag)linq.Tag).Name);
+                    Assert.Equal([3], linq.Ids);
+                });
+        }
+
+        // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+        protected class ContextConvertedObjectKey(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<Post> Posts
+                => Set<Post>();
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Post>().Property(p => p.Id).ValueGeneratedNever();
+                modelBuilder.Entity<Post>().Property(p => p.Tag).HasConversion<string>(t => ((Tag)t).Name, n => new Tag { Name = n });
+            }
+
+            public Task SeedAsync()
+            {
+                AddRange(
+                    new Post { Id = 1, Tag = new Tag { Name = "efcore" } },
+                    new Post { Id = 2, Tag = new Tag { Name = "efcore" } },
+                    new Post { Id = 3, Tag = new Tag { Name = "linq" } });
+
+                return SaveChangesAsync();
+            }
+
+            public class Post
+            {
+                public int Id { get; set; }
+                public object Tag { get; set; } = null!;
+            }
+
+            // The default comparer for object compares with ==, so even an Equals override doesn't make two reads equal.
+            public class Tag
+            {
+                public string Name { get; set; } = null!;
+
+                public override bool Equals(object? obj)
+                    => obj is Tag other && other.Name == Name;
+
+                public override int GetHashCode()
+                    => Name.GetHashCode();
+            }
+        }
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Distinct_primitive_collection_with_collection(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<ContextPrimitiveCollectionKey>(seed: c => c.SeedAsync());
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Posts
+                .Select(p => p.Tags)
+                .Distinct()
+                .Select(t => new { Tags = t, Ids = context.Posts.Where(p => p.Tags == t).Select(p => p.Id).ToList() });
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            // The mapping's own structural comparer is kept, rather than serializing both lists again to compare them.
+            Assert.Collection(
+                result.OrderBy(t => t.Tags[0]),
+                efcore =>
+                {
+                    Assert.Equal(["efcore", "query"], efcore.Tags);
+                    Assert.Equal([1, 2], efcore.Ids.Order());
+                },
+                linq =>
+                {
+                    Assert.Equal(["linq"], linq.Tags);
+                    Assert.Equal([3], linq.Ids);
+                });
+        }
+
+        // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+        protected class ContextPrimitiveCollectionKey(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<Post> Posts
+                => Set<Post>();
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+                => modelBuilder.Entity<Post>().Property(p => p.Id).ValueGeneratedNever();
+
+            public Task SeedAsync()
+            {
+                AddRange(
+                    new Post { Id = 1, Tags = ["efcore", "query"] },
+                    new Post { Id = 2, Tags = ["efcore", "query"] },
+                    new Post { Id = 3, Tags = ["linq"] });
+
+                return SaveChangesAsync();
+            }
+
+            public class Post
+            {
+                public int Id { get; set; }
+                public List<string> Tags { get; set; } = null!;
+            }
+        }
+
+        #endregion
+
         #region 30233
 
         [Theory, MemberData(nameof(IsAsyncData))]

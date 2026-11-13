@@ -39,7 +39,7 @@ WHERE (
     {
         await base.Over_assocate_collection_Select_nested_with_aggregates_projected(queryTrackingBehavior);
 
-        if (Fixture.UsingJsonType)
+        if (Fixture.UsingJsonType && !SqlServerTestEnvironment.IsAzureSql)
         {
             AssertSql(
                 """
