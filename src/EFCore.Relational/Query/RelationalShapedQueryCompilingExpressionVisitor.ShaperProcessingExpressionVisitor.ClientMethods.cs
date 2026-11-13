@@ -1305,11 +1305,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             tokenType));
             }
 
-            if (nullableNavigation == null)
-            {
-                getOrCreateCollectionObject(entity);
-            }
-            else if (applyNullness)
+            // A nullable collection of an entity that was already tracked is left as it is
+            if (nullableNavigation == null
+                || applyNullness)
             {
                 getOrCreateCollectionObject(entity);
             }
