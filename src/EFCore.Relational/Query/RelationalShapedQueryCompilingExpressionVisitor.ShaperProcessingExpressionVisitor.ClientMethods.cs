@@ -1278,7 +1278,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             {
                 if (applyNullness)
                 {
-                    queryContext.SetCollectionNullnessLoaded(nullableNavigation!, entity, isNull: true);
+                    queryContext.SetCollectionNullnessLoaded(nullableNavigation!, entity, storedAsNull: true);
                 }
 
                 return;
@@ -1292,7 +1292,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 case JsonTokenType.Null:
                     if (applyNullness)
                     {
-                        queryContext.SetCollectionNullnessLoaded(nullableNavigation!, entity, isNull: true);
+                        queryContext.SetCollectionNullnessLoaded(nullableNavigation!, entity, storedAsNull: true);
                     }
 
                     return;
@@ -1364,7 +1364,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
             if (applyNullness)
             {
-                queryContext.SetCollectionNullnessLoaded(nullableNavigation!, entity, isNull: false);
+                queryContext.SetCollectionNullnessLoaded(nullableNavigation!, entity, storedAsNull: false);
             }
 
             manager.CaptureState();
