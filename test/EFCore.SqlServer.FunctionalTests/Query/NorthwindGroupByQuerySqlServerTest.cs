@@ -2812,6 +2812,69 @@ GROUP BY [o].[EmployeeID]
 """);
     }
 
+    public override async Task GroupBy_aggregate_through_navigation_with_distinct_count(bool async)
+    {
+        await base.GroupBy_aggregate_through_navigation_with_distinct_count(async);
+
+        AssertSql(
+            """
+SELECT [o].[EmployeeID] AS [Key], MAX([c].[Region]) AS [Region], COUNT(CASE
+    WHEN [c].[City] = N'London' THEN 1
+END) AS [Londons], COUNT(DISTINCT ([o].[CustomerID])) AS [Customers]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+GROUP BY [o].[EmployeeID]
+""");
+    }
+
+    public override async Task GroupBy_aggregate_through_navigation_with_select_then_aggregate(bool async)
+    {
+        await base.GroupBy_aggregate_through_navigation_with_select_then_aggregate(async);
+
+        AssertSql(
+            """
+SELECT [o].[OrderID] AS [Key], MAX([p].[UnitsInStock]) AS [MaxStock], ISNULL(SUM(CAST([p].[UnitsInStock] AS int)), 0) AS [Stock]
+FROM [Order Details] AS [o]
+INNER JOIN [Products] AS [p] ON [o].[ProductID] = [p].[ProductID]
+GROUP BY [o].[OrderID]
+""");
+    }
+
+    public override async Task GroupBy_aggregate_through_navigation_with_where_then_count(bool async)
+    {
+        await base.GroupBy_aggregate_through_navigation_with_where_then_count(async);
+
+        AssertSql(
+            """
+SELECT [o].[EmployeeID] AS [Key], MAX([c].[Region]) AS [Region], COUNT(CASE
+    WHEN [c].[City] = N'London' THEN 1
+END) AS [Londons]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+GROUP BY [o].[EmployeeID]
+""");
+    }
+
+    public override async Task GroupBy_aggregate_through_navigation_with_predicate_after_select(bool async)
+    {
+        await base.GroupBy_aggregate_through_navigation_with_predicate_after_select(async);
+
+        AssertSql(
+            """
+SELECT [o].[EmployeeID] AS [Key], (
+    SELECT MAX([c].[Region])
+    FROM [Orders] AS [o0]
+    LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
+    WHERE [o].[EmployeeID] = [o0].[EmployeeID] OR ([o].[EmployeeID] IS NULL AND [o0].[EmployeeID] IS NULL)) AS [Region], (
+    SELECT COUNT(*)
+    FROM [Orders] AS [o1]
+    LEFT JOIN [Customers] AS [c0] ON [o1].[CustomerID] = [c0].[CustomerID]
+    WHERE ([o].[EmployeeID] = [o1].[EmployeeID] OR ([o].[EmployeeID] IS NULL AND [o1].[EmployeeID] IS NULL)) AND [c0].[City] = N'London') AS [Londons]
+FROM [Orders] AS [o]
+GROUP BY [o].[EmployeeID]
+""");
+    }
+
     public override async Task GroupBy_with_aggregate_containing_complex_where(bool async)
     {
         await base.GroupBy_with_aggregate_containing_complex_where(async);

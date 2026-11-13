@@ -7170,19 +7170,12 @@ WHERE (
 @ids1='10248'
 @ids2='10249'
 
-SELECT [o].[Quantity] AS [Key], (
-    SELECT MAX([o1].[OrderDate])
-    FROM [Order Details] AS [o0]
-    INNER JOIN [Orders] AS [o1] ON [o0].[OrderID] = [o1].[OrderID]
-    WHERE [o0].[OrderID] IN (@ids1, @ids2) AND [o].[Quantity] = [o0].[Quantity]) AS [MaxTimestamp]
+SELECT [o].[Quantity] AS [Key], MAX([o0].[OrderDate]) AS [MaxTimestamp]
 FROM [Order Details] AS [o]
+INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 WHERE [o].[OrderID] IN (@ids1, @ids2)
 GROUP BY [o].[Quantity]
-ORDER BY (
-    SELECT MAX([o1].[OrderDate])
-    FROM [Order Details] AS [o0]
-    INNER JOIN [Orders] AS [o1] ON [o0].[OrderID] = [o1].[OrderID]
-    WHERE [o0].[OrderID] IN (@ids1, @ids2) AND [o].[Quantity] = [o0].[Quantity])
+ORDER BY MAX([o0].[OrderDate])
 """);
     }
 
