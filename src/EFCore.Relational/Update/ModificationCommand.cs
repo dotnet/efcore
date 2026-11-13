@@ -1217,10 +1217,14 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
 
     private sealed class ColumnValuePropagator
     {
+        private static readonly bool UseOldBehavior39617 =
+            AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue39617", out var enabled) && enabled;
+
         private bool _write;
         private object? _originalValue;
         private object? _currentValue;
         private bool _originalValueInitialized;
+        private bool _currentValueFromDeleted;
 
         public IColumnModification? ColumnModification { get; set; }
 
@@ -1236,6 +1240,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                     {
                         _write = true;
                         _currentValue = Update.ColumnModification.GetCurrentProviderValue(entry, property);
+                        _currentValueFromDeleted = false;
                         _originalValue = Update.ColumnModification.GetOriginalProviderValue(entry, property);
                         _originalValueInitialized = true;
                     }
@@ -1244,6 +1249,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                 case EntityState.Added:
                     var currentProviderValue = Update.ColumnModification.GetCurrentProviderValue(entry, property);
                     if (_originalValueInitialized
+                        && (UseOldBehavior39617 || !_currentValueFromDeleted)
                         && mapping.Column.ProviderValueComparer.Equals(_originalValue, currentProviderValue))
                     {
                         // This Added entry has the same value as the original (pre-modification) value.
@@ -1257,6 +1263,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                             property.Sentinel))
                     {
                         _currentValue = currentProviderValue;
+                        _currentValueFromDeleted = false;
                     }
 
                     _write = true;
@@ -1270,6 +1277,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                     {
                         _write = true;
                         _currentValue = null;
+                        _currentValueFromDeleted = true;
                     }
 
                     break;

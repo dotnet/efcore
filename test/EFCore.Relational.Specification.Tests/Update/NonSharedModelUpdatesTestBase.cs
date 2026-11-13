@@ -190,6 +190,194 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
         public WorkItemGroup38917? Group { get; set; }
     }
 
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)] // Issue #39617
+    public virtual async Task Replacing_owned_entity_preserves_on_add_values(bool async, bool changeFloor)
+    {
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
+            onModelCreating: mb => mb.Entity<Customer39617>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+                b.OwnsOne(e => e.Address, a =>
+                {
+                    a.Property(e => e.Floor).HasDefaultValue(1);
+                    a.Property(e => e.NullableFloor).HasDefaultValue(1);
+                    a.Property(e => e.Note).ValueGeneratedOnAdd();
+                });
+            }));
+
+        var floor = changeFloor ? 4 : 3;
+        await ExecuteWithStrategyInTransactionAsync(
+            contextFactory,
+            async context =>
+            {
+                context.Add(
+                    new Customer39617
+                    {
+                        Id = 1,
+                        Address = new Address39617 { City = "Paris", Floor = 3, NullableFloor = 7, Note = "back door" }
+                    });
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var customer = await context.Set<Customer39617>().SingleAsync();
+                customer.Address = new Address39617 { City = "Lyon", Floor = floor, NullableFloor = 7, Note = "back door" };
+
+                if (async)
+                {
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.SaveChanges();
+                }
+
+                Assert.Equal(floor, customer.Address.Floor);
+                Assert.Equal(7, customer.Address.NullableFloor);
+                Assert.Equal("back door", customer.Address.Note);
+            },
+            async context =>
+            {
+                var customer = await context.Set<Customer39617>().SingleAsync();
+                Assert.Equal("Lyon", customer.Address.City);
+                Assert.Equal(floor, customer.Address.Floor);
+                Assert.Equal(7, customer.Address.NullableFloor);
+                Assert.Equal("back door", customer.Address.Note);
+            });
+    }
+
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)] // Issue #39617
+    public virtual async Task Readding_entity_with_same_key_preserves_on_add_values(bool async, bool changeQuantity)
+    {
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
+            onModelCreating: mb => mb.Entity<OrderLine39617>(b =>
+            {
+                b.HasKey(e => new { e.OrderId, e.ProductId });
+                b.Property(e => e.Quantity).HasDefaultValue(1);
+                b.Property(e => e.Note).HasDefaultValue("none");
+            }));
+
+        var quantity = changeQuantity ? 6 : 5;
+        await ExecuteWithStrategyInTransactionAsync(
+            contextFactory,
+            async context =>
+            {
+                context.Add(new OrderLine39617 { OrderId = 1, ProductId = 10, Quantity = 5, Note = "original" });
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                context.Remove(await context.Set<OrderLine39617>().SingleAsync());
+                var line = new OrderLine39617 { OrderId = 1, ProductId = 10, Quantity = quantity, Note = "original" };
+                context.Add(line);
+
+                if (async)
+                {
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.SaveChanges();
+                }
+
+                Assert.Equal(quantity, line.Quantity);
+                Assert.Equal("original", line.Note);
+            },
+            async context =>
+            {
+                var line = await context.Set<OrderLine39617>().SingleAsync();
+                Assert.Equal(quantity, line.Quantity);
+                Assert.Equal("original", line.Note);
+            });
+    }
+
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)] // Issue #39617
+    public virtual async Task Replacing_owned_entity_preserves_modified_shared_column_value(bool async, bool setNull)
+    {
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
+            onModelCreating: mb => mb.Entity<SharedCustomer39617>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+                b.Property(e => e.Note).HasColumnName("Note").HasDefaultValue("none");
+                b.OwnsOne(e => e.Address, a => a.Property(e => e.Note).HasColumnName("Note").HasDefaultValue("none"));
+            }));
+
+        var note = setNull ? null : "updated";
+        await ExecuteWithStrategyInTransactionAsync(
+            contextFactory,
+            async context =>
+            {
+                context.Add(
+                    new SharedCustomer39617
+                    {
+                        Id = 1,
+                        Note = "original",
+                        Address = new SharedAddress39617 { City = "Paris", Note = "original" }
+                    });
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var customer = await context.Set<SharedCustomer39617>().SingleAsync();
+                customer.Note = note;
+                customer.Address = new SharedAddress39617 { City = "Lyon", Note = "original" };
+
+                if (async)
+                {
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.SaveChanges();
+                }
+
+                Assert.Equal(note, customer.Note);
+                Assert.Equal(note, customer.Address.Note);
+            },
+            async context =>
+            {
+                var customer = await context.Set<SharedCustomer39617>().SingleAsync();
+                Assert.Equal("Lyon", customer.Address.City);
+                Assert.Equal(note, customer.Note);
+                Assert.Equal(note, customer.Address.Note);
+            });
+    }
+
+    private class Customer39617
+    {
+        public int Id { get; set; }
+        public Address39617 Address { get; set; } = null!;
+    }
+
+    private class Address39617
+    {
+        public string City { get; set; } = "";
+        public int Floor { get; set; }
+        public int? NullableFloor { get; set; }
+        public string? Note { get; set; }
+    }
+
+    private class OrderLine39617
+    {
+        public int OrderId { get; set; }
+        public int ProductId { get; set; }
+        public int Quantity { get; set; }
+        public string? Note { get; set; }
+    }
+
+    private class SharedCustomer39617
+    {
+        public int Id { get; set; }
+        public string? Note { get; set; }
+        public SharedAddress39617 Address { get; set; } = null!;
+    }
+
+    private class SharedAddress39617
+    {
+        public string City { get; set; } = "";
+        public string? Note { get; set; }
+    }
+
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Update_entity_with_not_loaded_property_excludes_column_from_SQL(bool async)
     {

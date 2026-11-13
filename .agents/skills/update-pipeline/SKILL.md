@@ -25,6 +25,10 @@ Converts tracked entity changes into database INSERT/UPDATE/DELETE commands duri
 
 Concurrency tokens → WHERE conditions on UPDATE/DELETE. `AffectedCountModificationCommandBatch` checks affected rows. Throws `DbUpdateConcurrencyException` on mismatch.
 
+## Shared Columns
+
+`ColumnValuePropagator` can record a deleted entry's original value after a modified entry's current value; preserve the current writer's precedence when propagating to added entries.
+
 ## Validation
 
 - `SaveChanges()` returns expected affected row count
