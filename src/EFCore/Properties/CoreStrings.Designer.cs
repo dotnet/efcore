@@ -2094,6 +2094,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("IQueryableProviderNotAsync");
 
         /// <summary>
+        ///     The JSON for a collection of '{elementType}' contains a '{tokenType}' token when a JSON array was expected.
+        /// </summary>
+        public static string JsonCollectionExpectedArray(object? elementType, object? tokenType)
+            => string.Format(
+                GetString("JsonCollectionExpectedArray", nameof(elementType), nameof(tokenType)),
+                elementType, tokenType);
+
+        /// <summary>
+        ///     The JSON array for a collection of '{elementType}' contains a '{tokenType}' token, which is not a valid element.
+        /// </summary>
+        public static string JsonCollectionInvalidElement(object? elementType, object? tokenType)
+            => string.Format(
+                GetString("JsonCollectionInvalidElement", nameof(elementType), nameof(tokenType)),
+                elementType, tokenType);
+
+        /// <summary>
         ///     Invalid token type: '{tokenType}'.
         /// </summary>
         public static string JsonReaderInvalidTokenType(object? tokenType)

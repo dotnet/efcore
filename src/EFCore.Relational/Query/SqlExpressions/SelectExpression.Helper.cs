@@ -258,15 +258,15 @@ public sealed partial class SelectExpression
         }
     }
 
-    private void TryRecordNonEntityNullabilityMarker(Expression innerShaper, Expression? markerBinding)
+    private void TryRecordNonEntityNullabilityMarker(Expression nullableSideShaper, Expression? markerBinding)
     {
-        // #30915: record the finalized inner-shaper node (post remap and post entity-nullable marking) against its remapped
-        // marker binding, so the projection binder can later gate the whole inner object to null on no-match rows. Keyed on the
+        // #30915: record the finalized nullable-side shaper node (post remap and post entity-nullable marking) against its remapped
+        // marker binding, so the projection binder can later gate the whole nullable-side object to null on no-match rows. Keyed on the
         // node instance because the binder receives this exact New/MemberInit node (member-folds return arguments by reference;
-        // see ReplacingExpressionVisitor.VisitMember), and the inner shaper is left unwrapped so those folds keep working.
-        if (markerBinding is not null && innerShaper is NewExpression or MemberInitExpression)
+        // see ReplacingExpressionVisitor.VisitMember), and the shaper is left unwrapped so those folds keep working.
+        if (markerBinding is not null && nullableSideShaper is NewExpression or MemberInitExpression)
         {
-            (_nonEntityNullabilityMarkers ??= [with(ReferenceEqualityComparer.Instance)])[innerShaper] =
+            (_nonEntityNullabilityMarkers ??= [with(ReferenceEqualityComparer.Instance)])[nullableSideShaper] =
                 markerBinding;
         }
     }
@@ -280,8 +280,8 @@ public sealed partial class SelectExpression
     [EntityFrameworkInternal]
     public bool TryGetNonEntityNullabilityMarker(Expression shaper, [NotNullWhen(true)] out Expression? markerBinding)
     {
-        // #30915: looks up the nullability marker recorded for a non-entity inner shaper of an outer join (see
-        // _nonEntityNullabilityMarkers). The projection binder consults this when projecting the whole inner object, to gate it to
+        // #30915: looks up the nullability marker recorded for a non-entity nullable-side shaper of an outer join (see
+        // _nonEntityNullabilityMarkers). The projection binder consults this when projecting the whole nullable-side object, to gate it to
         // null on no-match rows.
         if (_nonEntityNullabilityMarkers is not null
             && _nonEntityNullabilityMarkers.TryGetValue(shaper, out markerBinding))
@@ -302,9 +302,9 @@ public sealed partial class SelectExpression
     [EntityFrameworkInternal]
     public void RemapNonEntityNullabilityMarker(Expression oldShaper, Expression newShaper, Expression newMarkerBinding)
     {
-        // #30915: the recorded non-entity inner-shaper node is keyed by reference, and its marker binding is a projection binding
-        // valid only against the projection representation that existed when it was recorded. The TransparentIdentifier-rooted
-        // projection-binding pass (RelationalProjectionBindingExpressionVisitor) rebuilds the inner node into the final projection
+        // #30915: the recorded non-entity nullable-side shaper node is keyed by reference, and its marker binding is a projection
+        // binding valid only against the projection representation that existed when it was recorded. The TransparentIdentifier-rooted
+        // projection-binding pass (RelationalProjectionBindingExpressionVisitor) rebuilds the node into the final projection
         // representation and rebinds its columns, leaving both the old node reference and the old marker binding stale. That pass
         // calls this to re-key the recorded entry onto the rebuilt node with a freshly-rebound marker, so the *final* whole-object
         // projection (a later pass over the same SelectExpression) still finds a valid node and marker binding to gate on.

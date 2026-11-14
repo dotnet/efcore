@@ -2220,7 +2220,7 @@ WHERE [f].[Taste] = CAST(1 AS tinyint)
 
         AssertSql(
             """
-SELECT CAST([f].[Taste] AS tinyint) AS [Bar]
+SELECT [f].[Taste] AS [Bar]
 FROM [Foods] AS [f]
 """);
     }
@@ -2675,13 +2675,13 @@ ORDER BY [d].[Id]
 
         AssertSql(
             """
-SELECT CAST([u].[Role] AS nvarchar(max))
+SELECT [u].[Role]
 FROM [Users] AS [u]
 ORDER BY [u].[Id]
 """,
             //
             """
-SELECT CAST([u].[NullableRole] AS nvarchar(max))
+SELECT [u].[NullableRole]
 FROM [Users] AS [u]
 WHERE [u].[NullableRole] IS NOT NULL
 ORDER BY [u].[Id]
@@ -2694,18 +2694,137 @@ ORDER BY [u].[Id]
 """,
             //
             """
-SELECT CAST([u].[Role] AS nvarchar(max))
+SELECT [u].[Role]
 FROM [Users] AS [u]
 ORDER BY [u].[Id]
 """,
             //
             """
-SELECT CAST([u].[Role] AS nvarchar(max))
+SELECT [u].[Role]
 FROM [Users] AS [u]
 WHERE [u].[Role] = N'Admin'
 ORDER BY [u].[Id]
+""",
+            //
+            """
+SELECT [u].[Role]
+FROM [Users] AS [u]
+WHERE [u].[Role] LIKE N'%Adm%'
+ORDER BY [u].[Id]
 """);
     }
+
+    #region 33733
+
+    [Fact]
+    public virtual async Task Concat_on_bounded_string_converted_enum_does_not_truncate()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context33733>(
+            seed: async context =>
+            {
+                context.Users.Add(new Context33733.User { Role = Context33733.Role.Admin });
+                await context.SaveChangesAsync();
+            });
+        using var context = contextFactory.CreateDbContext();
+        ClearLog();
+
+        // The bounded nvarchar(20) input must be widened to nvarchar(max), otherwise the concatenation is truncated to 4,000 characters.
+        var suffix = new string('x', 3998);
+        var result = await context.Users.Select(u => u.Role.ToString() + suffix).SingleAsync();
+
+        Assert.Equal(4003, result.Length);
+        Assert.Contains("CAST([u].[Role] AS nvarchar(max))", TestSqlLoggerFactory.SqlStatements.Single());
+    }
+
+    [Fact]
+    public virtual async Task String_join_on_bounded_string_converted_enum()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context33733>(
+            seed: async context =>
+            {
+                context.Users.AddRange(Enumerable.Range(0, 1000).Select(_ => new Context33733.User { Role = Context33733.Role.Admin }));
+                await context.SaveChangesAsync();
+            });
+        using var context = contextFactory.CreateDbContext();
+        ClearLog();
+
+        // STRING_AGG over a bounded nvarchar(20) input fails with error 9829 once the result exceeds 8,000 bytes.
+        var result = await context.Users
+            .GroupBy(u => u.Group)
+            .Select(g => string.Join("|", g.Select(u => u.Role.ToString())))
+            .SingleAsync();
+
+        Assert.Equal(1000 * 5 + 999, result.Length);
+        Assert.Contains("STRING_AGG(CAST([u].[Role] AS nvarchar(max)), N'|')", TestSqlLoggerFactory.SqlStatements.Single());
+    }
+
+    [Theory]
+    [InlineData(nameof(Context33733.User.Role), 5000)]
+    [InlineData(nameof(Context33733.User.NCharRole), 5015)] // nchar(20) is padded with spaces, which survives the widening CAST
+    [InlineData(nameof(Context33733.User.UppercaseRole), 5000)]
+    public virtual async Task Replace_on_bounded_string_converted_enum_with_long_replacement(string propertyName, int expectedLength)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context33733>(
+            seed: async context =>
+            {
+                context.Users.Add(
+                    new Context33733.User
+                    {
+                        Role = Context33733.Role.Admin,
+                        NCharRole = Context33733.Role.Admin,
+                        UppercaseRole = Context33733.Role.Admin
+                    });
+                await context.SaveChangesAsync();
+            });
+        using var context = contextFactory.CreateDbContext();
+        ClearLog();
+
+        // The result exceeds 4,000 characters, which a bounded nvarchar/nchar REPLACE would silently truncate.
+        var replacement = new string('x', 5000);
+        var result = propertyName switch
+        {
+            nameof(Context33733.User.Role)
+                => await context.Users.Select(u => u.Role.ToString().Replace("Admin", replacement)).SingleAsync(),
+            nameof(Context33733.User.NCharRole)
+                => await context.Users.Select(u => u.NCharRole.ToString().Replace("Admin", replacement)).SingleAsync(),
+            _ => await context.Users.Select(u => u.UppercaseRole.ToString().Replace("Admin", replacement)).SingleAsync()
+        };
+
+        Assert.Equal(expectedLength, result.Length);
+        Assert.Contains($"REPLACE(CAST([u].[{propertyName}] AS nvarchar(max))", TestSqlLoggerFactory.SqlStatements.Single());
+    }
+
+    protected class Context33733(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<User> Users { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<User>(b =>
+            {
+                b.Property(u => u.Role).HasConversion<string>().HasColumnType("nvarchar(20)");
+                b.Property(u => u.NCharRole).HasConversion<string>().HasColumnType("nchar(20)");
+                b.Property(u => u.UppercaseRole).HasConversion<string>().HasColumnType("NVARCHAR(20)");
+            });
+        }
+
+        public class User
+        {
+            public int Id { get; set; }
+            public int Group { get; set; }
+            public Role Role { get; set; }
+            public Role NCharRole { get; set; }
+            public Role UppercaseRole { get; set; }
+        }
+
+        public enum Role
+        {
+            User,
+            Admin
+        }
+    }
+
+    #endregion
 
     public override async Task Like_on_value_converted_string_column_does_not_produce_cast(bool async)
     {
@@ -3351,14 +3470,221 @@ ORDER BY [s].[PickupStatusId]
 
         AssertSql(
             """
-SELECT [s].[PickupStatusId], [r0].[pickupStatusId], [r0].[Count]
+SELECT [s].[PickupStatusId], [r0].[pickupStatusId], [r0].[Count], [r0].[marker]
 FROM (
-    SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count]
+    SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
     FROM [Requests] AS [r]
     GROUP BY [r].[PickupStatusId]
 ) AS [r0]
 RIGHT JOIN [Statuses] AS [s] ON [r0].[pickupStatusId] = [s].[PickupStatusId]
 ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task RightJoin_whole_object_outer_nullable_MemberInit_dto()
+    {
+        await base.RightJoin_whole_object_outer_nullable_MemberInit_dto();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[PickupStatusId], [r0].[Count], [r0].[marker]
+FROM (
+    SELECT [r].[PickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0]
+RIGHT JOIN [Statuses] AS [s] ON [r0].[PickupStatusId] = [s].[PickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task RightJoin_whole_object_outer_nullable_Distinct_outer()
+    {
+        await base.RightJoin_whole_object_outer_nullable_Distinct_outer();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[PickupStatusId], [r0].[Count], [r0].[marker]
+FROM (
+    SELECT DISTINCT [r].[PickupStatusId], 1 AS [Count], 1 AS [marker]
+    FROM [Requests] AS [r]
+) AS [r0]
+RIGHT JOIN [Statuses] AS [s] ON [r0].[PickupStatusId] = [s].[PickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task RightJoin_whole_object_outer_nullable_Take_outer()
+    {
+        await base.RightJoin_whole_object_outer_nullable_Take_outer();
+
+        AssertSql(
+            """
+@p='10'
+
+SELECT [s].[PickupStatusId], [r0].[pickupStatusId], [r0].[Count], [r0].[marker]
+FROM (
+    SELECT TOP(@p) [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+    ORDER BY [r].[PickupStatusId]
+) AS [r0]
+RIGHT JOIN [Statuses] AS [s] ON [r0].[pickupStatusId] = [s].[PickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task RightJoin_whole_object_outer_nullable_then_LeftJoin()
+    {
+        await base.RightJoin_whole_object_outer_nullable_then_LeftJoin();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[pickupStatusId], [r0].[Count], [r0].[marker], [s0].[Name]
+FROM (
+    SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0]
+RIGHT JOIN [Statuses] AS [s] ON [r0].[pickupStatusId] = [s].[PickupStatusId]
+LEFT JOIN [Statuses] AS [s0] ON [s].[PickupStatusId] = [s0].[PickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task RightJoin_whole_object_outer_nullable_client_projection_outer()
+    {
+        await base.RightJoin_whole_object_outer_nullable_client_projection_outer();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[PickupStatusId], [r0].[marker]
+FROM (
+    SELECT DISTINCT [r].[PickupStatusId], 1 AS [marker]
+    FROM [Requests] AS [r]
+) AS [r0]
+RIGHT JOIN [Statuses] AS [s] ON [r0].[PickupStatusId] = [s].[PickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task RightJoin_whole_object_outer_nullable_client_projection_both_sides()
+    {
+        await base.RightJoin_whole_object_outer_nullable_client_projection_both_sides();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[PickupStatusId], [r0].[marker]
+FROM (
+    SELECT DISTINCT [r].[PickupStatusId], 1 AS [marker]
+    FROM [Requests] AS [r]
+) AS [r0]
+RIGHT JOIN [Statuses] AS [s] ON [r0].[PickupStatusId] = [s].[PickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task RightJoin_whole_object_outer_nullable_mapping_outer_client_projection_inner()
+    {
+        await base.RightJoin_whole_object_outer_nullable_mapping_outer_client_projection_inner();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[pickupStatusId], [r0].[Count], [r0].[marker]
+FROM (
+    SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0]
+RIGHT JOIN [Statuses] AS [s] ON [r0].[pickupStatusId] = [s].[PickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task FullJoin_whole_object_both_sides_nullable()
+    {
+        await base.FullJoin_whole_object_both_sides_nullable();
+
+        AssertSql(
+            """
+SELECT [r0].[pickupStatusId], [r0].[Count], [r0].[marker], [s0].[PickupStatusId], [s0].[Name], [s0].[marker]
+FROM (
+    SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0]
+FULL JOIN (
+    SELECT DISTINCT [s].[PickupStatusId], [s].[Name], 1 AS [marker]
+    FROM [Statuses] AS [s]
+    WHERE [s].[PickupStatusId] <> 1
+) AS [s0] ON [r0].[pickupStatusId] = [s0].[PickupStatusId]
+""");
+    }
+
+    public override async Task RightJoin_whole_object_outer_nullable_Where_over_plain_Select_outer()
+    {
+        await base.RightJoin_whole_object_outer_nullable_Where_over_plain_Select_outer();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[PickupStatusId], 1 AS [Count]
+FROM (
+    SELECT [r].[PickupStatusId]
+    FROM [Requests] AS [r]
+    WHERE [r].[PickupStatusId] > 0
+) AS [r0]
+RIGHT JOIN [Statuses] AS [s] ON [r0].[PickupStatusId] = [s].[PickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task RightJoin_whole_object_outer_nullable_Take_over_plain_Select_outer()
+    {
+        await base.RightJoin_whole_object_outer_nullable_Take_over_plain_Select_outer();
+
+        AssertSql(
+            """
+@p='10'
+
+SELECT [s].[PickupStatusId], [r0].[PickupStatusId], 1 AS [Count]
+FROM (
+    SELECT TOP(@p) [r].[PickupStatusId]
+    FROM [Requests] AS [r]
+    ORDER BY [r].[PickupStatusId]
+) AS [r0]
+RIGHT JOIN [Statuses] AS [s] ON [r0].[PickupStatusId] = [s].[PickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task RightJoin_whole_object_outer_nullable_plain_outer_no_pushdown()
+    {
+        await base.RightJoin_whole_object_outer_nullable_plain_outer_no_pushdown();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r].[PickupStatusId], 1 AS [Count]
+FROM [Requests] AS [r]
+RIGHT JOIN [Statuses] AS [s] ON [r].[PickupStatusId] = [s].[PickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task RightJoin_whole_object_outer_nullable_outer_is_join_result()
+    {
+        await base.RightJoin_whole_object_outer_nullable_outer_is_join_result();
+
+        AssertSql(
+            """
+SELECT [r1].[Id], [s].[PickupStatusId], [r0].[pickupStatusId], [r0].[Count], [r0].[marker]
+FROM (
+    SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0]
+RIGHT JOIN [Statuses] AS [s] ON [r0].[pickupStatusId] = [s].[PickupStatusId]
+RIGHT JOIN [Requests] AS [r1] ON [s].[PickupStatusId] = [r1].[Id] + 10
+ORDER BY [r1].[Id]
 """);
     }
 

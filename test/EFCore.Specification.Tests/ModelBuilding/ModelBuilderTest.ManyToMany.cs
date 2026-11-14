@@ -479,6 +479,48 @@ public abstract partial class ModelBuilderTest
         }
 
         [Fact]
+        public virtual void Navigation_configuration_is_kept_when_navigation_becomes_skip_navigation()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<UniProduct>();
+            modelBuilder.Entity<UniCategory>().Navigation(e => e.Products)
+                .AutoInclude()
+                .EnableLazyLoading(false)
+                .UsePropertyAccessMode(PropertyAccessMode.Field)
+                .HasAnnotation("Custom", "Value");
+
+            modelBuilder.Entity<UniCategory>().HasMany(e => e.Products).WithMany();
+
+            var model = modelBuilder.FinalizeModel();
+
+            var navigation = model.FindEntityType(typeof(UniCategory))!.GetSkipNavigations().Single();
+            Assert.Equal(nameof(UniCategory.Products), navigation.Name);
+            Assert.True(navigation.IsEagerLoaded);
+            Assert.False(navigation.LazyLoadingEnabled);
+            Assert.Equal(PropertyAccessMode.Field, navigation.GetPropertyAccessMode());
+            Assert.Equal("Value", navigation["Custom"]);
+        }
+
+        [Fact]
+        public virtual void Navigation_configuration_is_kept_when_inverse_navigation_becomes_skip_navigation()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Ignore<ProductCategory>();
+            modelBuilder.Entity<Category>().Ignore(e => e.Products);
+            modelBuilder.Entity<Product>().Navigation(e => e.Categories).AutoInclude();
+
+            modelBuilder.Entity<Category>().HasMany(e => e.Products).WithMany(e => e.Categories);
+
+            var model = modelBuilder.FinalizeModel();
+
+            var navigation = model.FindEntityType(typeof(Product))!.FindSkipNavigation(nameof(Product.Categories))!;
+            Assert.True(navigation.IsEagerLoaded);
+            Assert.False(navigation.Inverse.IsEagerLoaded);
+        }
+
+        [Fact]
         public virtual void Many_to_many_with_no_navigations_configured()
         {
             var modelBuilder = CreateModelBuilder();
