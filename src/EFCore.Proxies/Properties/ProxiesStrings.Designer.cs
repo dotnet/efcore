@@ -68,6 +68,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 property, entityType);
 
         /// <summary>
+        ///     The setter of the mapped indexer property on entity type '{entityType}' cannot be overridden by a proxy because it is not visible to the proxy assembly. Make it public or protected, or add '[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]' to the assembly that declares the entity type (a strong-named assembly must specify the proxy assembly's public key).
+        /// </summary>
+        public static string NonVisibleIndexerProperty(object? entityType)
+            => string.Format(
+                GetString("NonVisibleIndexerProperty", nameof(entityType)),
+                entityType);
+
+        /// <summary>
+        ///     Property '{entityType}.{property}' cannot be overridden by a proxy because its {accessor} is not visible to the proxy assembly. Make it public or protected, or add '[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]' to the assembly that declares the entity type (a strong-named assembly must specify the proxy assembly's public key).
+        /// </summary>
+        public static string NonVisibleProperty(object? property, object? entityType, object? accessor)
+            => string.Format(
+                GetString("NonVisibleProperty", nameof(property), nameof(entityType), nameof(accessor)),
+                property, entityType, accessor);
+
+        /// <summary>
         ///     Unable to create proxy for '{entityType}' because proxies are not enabled. Call 'DbContextOptionsBuilder.UseChangeTrackingProxies' or 'DbContextOptionsBuilder.UseLazyLoadingProxies' to enable proxies.
         /// </summary>
         public static string ProxiesNotEnabled(object? entityType)
