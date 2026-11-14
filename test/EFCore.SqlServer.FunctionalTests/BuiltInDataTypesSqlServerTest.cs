@@ -718,6 +718,127 @@ WHERE [m].[Int] = 81
     }
 
     [Fact]
+    public void Count_with_not_null_predicate_over_text_ntext_and_image()
+    {
+        using (var context = CreateContext())
+        {
+            context.Set<MappedNullableDataTypes>().AddRange(
+                new MappedNullableDataTypes
+                {
+                    Int = 82,
+                    LongAsBigint = 82,
+                    StringAsText = "A",
+                    StringAsNtext = "B",
+                    BytesAsImage = [1]
+                },
+                new MappedNullableDataTypes { Int = 83, LongAsBigint = 82 });
+
+            Assert.Equal(2, context.SaveChanges());
+        }
+
+        Fixture.TestSqlLoggerFactory.Clear();
+
+        using (var context = CreateContext())
+        {
+            var result = context.Set<MappedNullableDataTypes>()
+                .Where(e => e.Int == 82 || e.Int == 83)
+                .GroupBy(e => e.LongAsBigint)
+                .Select(g => new
+                {
+                    Text = g.Count(e => e.StringAsText != null),
+                    Ntext = g.LongCount(e => e.StringAsNtext != null),
+                    Image = g.Count(e => e.BytesAsImage != null),
+                    Selected = g.Select(e => e.StringAsNtext).Count(n => n != null)
+                })
+                .Single();
+
+            Assert.Equal(1, result.Text);
+            Assert.Equal(1, result.Ntext);
+            Assert.Equal(1, result.Image);
+            Assert.Equal(1, result.Selected);
+
+            AssertSql(
+                """
+SELECT TOP(2) COUNT(CASE
+    WHEN [m].[StringAsText] IS NOT NULL THEN 1
+END) AS [Text], COUNT_BIG(CASE
+    WHEN [m].[StringAsNtext] IS NOT NULL THEN 1
+END) AS [Ntext], COUNT(CASE
+    WHEN [m].[BytesAsImage] IS NOT NULL THEN 1
+END) AS [Image], COUNT(CASE
+    WHEN [m].[StringAsNtext] IS NOT NULL THEN 1
+END) AS [Selected]
+FROM [MappedNullableDataTypes] AS [m]
+WHERE [m].[Int] IN (82, 83)
+GROUP BY [m].[LongAsBigint]
+""");
+        }
+    }
+
+    [Fact]
+    public void Any_with_not_null_predicate_over_text_ntext_and_image()
+    {
+        using (var context = CreateContext())
+        {
+            context.Set<MappedNullableDataTypes>().AddRange(
+                new MappedNullableDataTypes
+                {
+                    Int = 84,
+                    LongAsBigint = 84,
+                    StringAsText = "A",
+                    StringAsNtext = "B",
+                    BytesAsImage = [1]
+                },
+                new MappedNullableDataTypes { Int = 85, LongAsBigint = 84 });
+
+            Assert.Equal(2, context.SaveChanges());
+        }
+
+        Fixture.TestSqlLoggerFactory.Clear();
+
+        using (var context = CreateContext())
+        {
+            var result = context.Set<MappedNullableDataTypes>()
+                .Where(e => e.Int == 84 || e.Int == 85)
+                .GroupBy(e => e.LongAsBigint)
+                .Select(g => new
+                {
+                    Text = g.Any(e => e.StringAsText != null),
+                    Ntext = g.Any(e => e.StringAsNtext != null),
+                    Image = g.Any(e => e.BytesAsImage != null)
+                })
+                .Single();
+
+            Assert.True(result.Text);
+            Assert.True(result.Ntext);
+            Assert.True(result.Image);
+
+            AssertSql(
+                """
+SELECT TOP(2) CASE
+    WHEN COUNT_BIG(CASE
+        WHEN [m].[StringAsText] IS NOT NULL THEN 1
+    END) > CAST(0 AS bigint) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [Text], CASE
+    WHEN COUNT_BIG(CASE
+        WHEN [m].[StringAsNtext] IS NOT NULL THEN 1
+    END) > CAST(0 AS bigint) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [Ntext], CASE
+    WHEN COUNT_BIG(CASE
+        WHEN [m].[BytesAsImage] IS NOT NULL THEN 1
+    END) > CAST(0 AS bigint) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [Image]
+FROM [MappedNullableDataTypes] AS [m]
+WHERE [m].[Int] IN (84, 85)
+GROUP BY [m].[LongAsBigint]
+""");
+        }
+    }
+
+    [Fact]
     public virtual void Can_query_using_DateDiffHour_using_TimeSpan()
     {
         using var context = CreateContext();

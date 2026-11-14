@@ -1741,9 +1741,55 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
             enumerableExpression = enumerableExpression.ApplySelector(selector);
         }
 
+        if (method.DeclaringType == typeof(Queryable)
+            && method.Name is nameof(Queryable.Count) or nameof(Queryable.LongCount)
+            && !enumerableExpression.IsDistinct
+            && TryGetNullCheckedColumn(enumerableExpression.Predicate) is ColumnExpression nullCheckedColumn
+            && IsCountOverNullableColumnSupported(nullCheckedColumn, selector))
+        {
+            // Counting rows where x isn't null is just COUNT(x), which unlike COUNT(CASE WHEN x IS NOT NULL THEN 1 END) can use
+            // an index on x. With DISTINCT applied this would instead count the distinct values of x.
+            enumerableExpression = new EnumerableExpression(nullCheckedColumn);
+        }
+
         return Dependencies.AggregateMethodCallTranslatorProvider.Translate(
             _model, method, enumerableExpression, scalarArguments, _queryCompilationContext.Logger);
+
+        // Only a column: null semantics later reduce a null check over a function or an operator to null checks over its
+        // operands, so f(x) IS NOT NULL never evaluates f, while COUNT(f(x)) would evaluate it for every row.
+        static ColumnExpression? TryGetNullCheckedColumn(SqlExpression? predicate)
+            => predicate switch
+            {
+                SqlUnaryExpression { OperatorType: ExpressionType.NotEqual, Operand: ColumnExpression column } => column,
+                SqlBinaryExpression
+                    {
+                        OperatorType: ExpressionType.NotEqual,
+                        Left: ColumnExpression column,
+                        Right: SqlConstantExpression { Value: null }
+                    } => column,
+                SqlBinaryExpression
+                    {
+                        OperatorType: ExpressionType.NotEqual,
+                        Left: SqlConstantExpression { Value: null },
+                        Right: ColumnExpression column
+                    } => column,
+                _ => null
+            };
     }
+
+    /// <summary>
+    ///     Determines whether a count of the rows where <paramref name="column" /> is not null can be translated as a count over
+    ///     the column itself.
+    /// </summary>
+    /// <remarks>
+    ///     Only a <paramref name="selector" /> that counts rows can be replaced. A translated selector decides what is counted: for
+    ///     example, the count that <c>All</c> over a grouping translates to carries the quantifier's own predicate in its selector.
+    /// </remarks>
+    /// <param name="column">The column being checked for null.</param>
+    /// <param name="selector">The translation of the selector being counted.</param>
+    /// <returns><see langword="true" /> if the count can be translated over the column; <see langword="false" /> otherwise.</returns>
+    protected virtual bool IsCountOverNullableColumnSupported(ColumnExpression column, Expression? selector)
+        => selector is not SqlExpression;
 
     private Expression RemapLambda(EnumerableExpression enumerableExpression, LambdaExpression lambdaExpression)
     {
