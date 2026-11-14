@@ -14,8 +14,8 @@ public abstract class MinMaxByQueryTestBase : NonSharedModelTestBase, IClassFixt
 
     public static IEnumerable<object[]> NullableKeyData()
     {
-        // Mixed keys, all-null keys, an empty table, non-null keys, and a paginated all-null source.
-        foreach (var scenario in new[] { 0, 1, 2, 3, 4 })
+        // Mixed keys, all-null keys, an empty table, non-null keys, pagination, ties, and a zero-valued identity.
+        foreach (var scenario in new[] { 0, 1, 2, 3, 4, 5, 6 })
         {
             foreach (var maximum in new[] { false, true })
             {
@@ -48,11 +48,11 @@ public abstract class MinMaxByQueryTestBase : NonSharedModelTestBase, IClassFixt
         var query = scenario == 4
             ? context.Set<Item>().OrderBy(i => i.Scenario).ThenByDescending(i => i.Id)
                 .Where(i => i.Scenario == scenario).Skip(1).Take(2)
-            : source.OrderBy(i => i.Id);
+            : scenario == 5 ? source.OrderByDescending(i => i.Id) : source.OrderBy(i => i.Id);
         var expectedSource = CreateItems().Where(i => i.Scenario == scenario);
         var data = scenario == 4
             ? expectedSource.OrderByDescending(i => i.Id).Skip(1).Take(2)
-            : expectedSource.OrderBy(i => i.Id);
+            : scenario == 5 ? expectedSource.OrderByDescending(i => i.Id) : expectedSource.OrderBy(i => i.Id);
         Item? expected;
         Item? actual;
         if (stringKey)
@@ -87,7 +87,11 @@ public abstract class MinMaxByQueryTestBase : NonSharedModelTestBase, IClassFixt
             new() { Id = 7, Scenario = 3, Key = 2, StringKey = "b" },
             new() { Id = 8, Scenario = 4 },
             new() { Id = 9, Scenario = 4 },
-            new() { Id = 10, Scenario = 4 }
+            new() { Id = 10, Scenario = 4 },
+            new() { Id = 11, Scenario = 5, Key = 1, StringKey = "a" },
+            new() { Id = 12, Scenario = 5, Key = 1, StringKey = "a" },
+            new() { Id = 0, Scenario = 6, Key = 1, StringKey = "a" },
+            new() { Id = 13, Scenario = 6, Key = 2, StringKey = "b" }
         ];
 
     protected class MinMaxByContext(DbContextOptions options) : DbContext(options);

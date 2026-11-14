@@ -24,6 +24,14 @@ public class SqliteQuerySqlGenerator(QuerySqlGeneratorDependencies dependencies)
     {
         switch (extensionExpression)
         {
+            case SqliteIsExpression isExpression:
+                Sql.Append("(");
+                Visit(isExpression.Left);
+                Sql.Append(" IS ");
+                Visit(isExpression.Right);
+                Sql.Append(")");
+                return extensionExpression;
+
             case GlobExpression globExpression:
                 GenerateGlob(globExpression);
                 return extensionExpression;
