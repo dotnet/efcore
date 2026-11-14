@@ -277,7 +277,7 @@
     <value>The namespace to use. Matches the directory by default.</value>
   </data>
   <data name="MigrationsOutputDirDescription" xml:space="preserve">
-    <value>The directory to put files in. Paths are relative to the project or file-based app directory. Defaults to "Migrations".</value>
+    <value>The directory to put files in, including the model snapshot. Paths are relative to the project or file-based app directory. Defaults to "Migrations".</value>
   </data>
   <data name="MigrationsRemoveDescription" xml:space="preserve">
     <value>Removes the last migration.</value>

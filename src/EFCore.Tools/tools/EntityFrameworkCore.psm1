@@ -22,7 +22,7 @@ Register-TabExpansion Add-Migration @{
     The name of the migration.
 
 .PARAMETER OutputDir
-    The directory to put files in. Paths are relative to the project directory. Defaults to "Migrations".
+    The directory to put files in, including the model snapshot. Paths are relative to the project directory. Defaults to "Migrations".
 
 .PARAMETER Context
     The DbContext to use.
@@ -91,6 +91,16 @@ function Add-Migration
        $dteProject.ProjectItems.AddFromFile($result.metadataFile) | Out-Null
 
        $dteProject.ProjectItems.AddFromFile($result.snapshotFile) | Out-Null
+
+       # The snapshot moves with the migration when an output directory is specified
+       if ($result.previousSnapshotFile)
+       {
+           $projectItem = GetProjectItem $dteProject $result.previousSnapshotFile
+           if ($projectItem)
+           {
+               $projectItem.Remove()
+           }
+       }
     }
 
     $DTE.ItemOperations.OpenFile($result.migrationFile) | Out-Null
@@ -977,7 +987,7 @@ Register-TabExpansion Update-Database @{
     Create a new migration with the given name and apply it immediately.
 
 .PARAMETER OutputDir
-    The directory to put files in. Paths are relative to the project directory. Requires -Add.
+    The directory to put files in, including the model snapshot. Paths are relative to the project directory. Requires -Add.
 
 .PARAMETER Namespace
     The namespace to use for the migration. Matches the directory by default. Requires -Add.
