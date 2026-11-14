@@ -1330,6 +1330,191 @@ SELECT * FROM [Customers2]"))
         Assert.Empty(actual);
     }
 
+    // DbParameters with the same name in the same query need to be renamed to be unique. That's only possible when the SQL references
+    // the parameters positionally ({0}), since EF can't rewrite a name which is hard-coded in the SQL. Previously the second parameter
+    // was renamed, but the SQL kept referencing the first one, silently using the wrong value. See #32932.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Union_of_FromSql_with_same_named_db_parameters_hardcoded_in_sql_throws(bool async)
+    {
+        using var context = CreateContext();
+
+        var query = FromSqlCity(context, "@city", CreateDbParameter("city", "Seattle"))
+            .Union(FromSqlCity(context, "@city", CreateDbParameter("city", "London")));
+
+        await AssertDuplicateParameterNameThrows(query, "city", async);
+    }
+
+    // Even if the values are the same, we don't try to detect that the parameters are equivalent and silently share them.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Union_of_FromSql_with_same_named_same_valued_db_parameters_hardcoded_in_sql_throws(bool async)
+    {
+        using var context = CreateContext();
+
+        var query = FromSqlCity(context, "@city", CreateDbParameter("city", "Seattle"))
+            .Union(FromSqlCity(context, "@city", CreateDbParameter("city", "Seattle")));
+
+        await AssertDuplicateParameterNameThrows(query, "city", async);
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Union_of_FromSql_with_differently_named_db_parameters_hardcoded_in_sql(bool async)
+    {
+        using var context = CreateContext();
+
+        var query = FromSqlCity(context, "@city1", CreateDbParameter("city1", "Seattle"))
+            .Union(FromSqlCity(context, "@city2", CreateDbParameter("city2", "London")));
+
+        await AssertSeattleAndLondon(query, async);
+    }
+
+    // The first parameter keeps its name, which is hard-coded in the SQL. The second is renamed, which is fine since it's referenced
+    // positionally.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Union_of_FromSql_with_same_named_db_parameters_hardcoded_then_positional(bool async)
+    {
+        using var context = CreateContext();
+
+        var query = FromSqlCity(context, "@city", CreateDbParameter("city", "Seattle"))
+            .Union(FromSqlCity(context, "{0}", CreateDbParameter("city", "London")));
+
+        await AssertSeattleAndLondon(query, async);
+    }
+
+    // The second parameter needs to be renamed, but it's hard-coded in the SQL.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Union_of_FromSql_with_same_named_db_parameters_positional_then_hardcoded_throws(bool async)
+    {
+        using var context = CreateContext();
+
+        var query = FromSqlCity(context, "{0}", CreateDbParameter("city", "Seattle"))
+            .Union(FromSqlCity(context, "@city", CreateDbParameter("city", "London")));
+
+        await AssertDuplicateParameterNameThrows(query, "city", async);
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Union_of_FromSql_with_same_named_db_parameters_one_prefixed_hardcoded_in_sql_throws(bool async)
+    {
+        using var context = CreateContext();
+
+        var query = FromSqlCity(context, "@city", CreateDbParameter("@city", "Seattle"))
+            .Union(FromSqlCity(context, "@city", CreateDbParameter("city", "London")));
+
+        await AssertDuplicateParameterNameThrows(query, "city", async);
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Union_of_FromSql_with_db_parameters_differing_by_case_hardcoded_in_sql_throws(bool async)
+    {
+        using var context = CreateContext();
+
+        var query = FromSqlCity(context, "@city", CreateDbParameter("city", "Seattle"))
+            .Union(FromSqlCity(context, "@City", CreateDbParameter("City", "London")));
+
+        await AssertDuplicateParameterNameThrows(query, "City", async);
+    }
+
+    // A parameter which isn't a DbParameter gets a generated name (p0), which then conflicts with the hard-coded DbParameter name.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Union_of_FromSql_with_db_parameter_name_conflicting_with_generated_name_hardcoded_in_sql_throws(bool async)
+    {
+        using var context = CreateContext();
+
+        var seattle = "Seattle";
+        var query = context.Set<Customer>()
+            .FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"), seattle)
+            .Union(FromSqlCity(context, "@p0", CreateDbParameter("p0", "London")));
+
+        await AssertDuplicateParameterNameThrows(query, "p0", async);
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task FromSqlRaw_compiled_with_same_named_db_parameters_hardcoded_in_sql_throws(bool async)
+    {
+        var sql = NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = @city");
+        var expectedMessage = RelationalStrings.FromSqlDuplicateParameterName("city");
+
+        // Throws on every execution, not just the first
+        for (var i = 0; i < 2; i++)
+        {
+            if (async)
+            {
+                var query = EF.CompileAsyncQuery((NorthwindContext context) => context.Set<Customer>()
+                    .FromSqlRaw(sql, CreateDbParameter("city", "Seattle"))
+                    .Union(context.Set<Customer>().FromSqlRaw(sql, CreateDbParameter("city", "London"))));
+
+                using var context = CreateContext();
+                var exception = await Assert.ThrowsAsync<InvalidOperationException>(async () => await query(context).ToListAsync());
+                Assert.Equal(expectedMessage, exception.Message);
+            }
+            else
+            {
+                var query = EF.CompileQuery((NorthwindContext context) => context.Set<Customer>()
+                    .FromSqlRaw(sql, CreateDbParameter("city", "Seattle"))
+                    .Union(context.Set<Customer>().FromSqlRaw(sql, CreateDbParameter("city", "London"))));
+
+                using var context = CreateContext();
+                var exception = Assert.Throws<InvalidOperationException>(() => query(context).ToList());
+                Assert.Equal(expectedMessage, exception.Message);
+            }
+        }
+    }
+
+    // Executing the same compiled query repeatedly, where the DbParameter names have to be uniquified, works every time.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task FromSqlRaw_compiled_with_same_named_db_parameters_positional_in_sql(bool async)
+    {
+        var sql = NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}");
+
+        for (var i = 0; i < 2; i++)
+        {
+            using var context = CreateContext();
+
+            if (async)
+            {
+                var query = EF.CompileAsyncQuery((NorthwindContext context) => context.Set<Customer>()
+                    .FromSqlRaw(sql, CreateDbParameter("city", "Seattle"))
+                    .Union(context.Set<Customer>().FromSqlRaw(sql, CreateDbParameter("city", "London"))));
+
+                Assert.Equal(SeattleAndLondonCustomerCount, (await query(context).ToListAsync()).Count);
+            }
+            else
+            {
+                var query = EF.CompileQuery((NorthwindContext context) => context.Set<Customer>()
+                    .FromSqlRaw(sql, CreateDbParameter("city", "Seattle"))
+                    .Union(context.Set<Customer>().FromSqlRaw(sql, CreateDbParameter("city", "London"))));
+
+                Assert.Equal(SeattleAndLondonCustomerCount, query(context).ToList().Count);
+            }
+        }
+    }
+
+    private IQueryable<Customer> FromSqlCity(NorthwindContext context, string cityReference, DbParameter parameter)
+        => context.Set<Customer>().FromSqlRaw(
+            NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = " + cityReference),
+            parameter);
+
+    private static async Task AssertDuplicateParameterNameThrows(IQueryable<Customer> query, string parameterName, bool async)
+    {
+        var exception = async
+            ? await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync())
+            : Assert.Throws<InvalidOperationException>(() => query.ToList());
+
+        Assert.Equal(RelationalStrings.FromSqlDuplicateParameterName(parameterName), exception.Message);
+    }
+
+    // Northwind has 1 customer in Seattle and 6 in London. A constant is used rather than a query to keep the logged SQL minimal.
+    private const int SeattleAndLondonCustomerCount = 7;
+
+    private static async Task AssertSeattleAndLondon(IQueryable<Customer> query, bool async)
+    {
+        var actual = async
+            ? await query.ToListAsync()
+            : query.ToList();
+
+        Assert.Equal(SeattleAndLondonCustomerCount, actual.Count);
+    }
+
     // The GroupBy followed by a non-reducing Select causes the base FromSql to get duplicated in the SQL, and so the same DbParameter
     // to get referenced from multiple FromSqlExpressions. Ensure we only process the DbParameter once. See #37409.
     [Theory, MemberData(nameof(IsAsyncData))]
