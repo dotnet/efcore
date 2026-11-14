@@ -671,6 +671,91 @@ public class NullableCollectionNavigationTrackingTest
         Assert.True(IsChildrenModified(context, parent));
     }
 
+    [Theory]
+    [InlineData(ChangeTrackingStrategy.ChangedNotifications)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications)]
+    public void Attaching_a_notifying_entity_does_not_replace_a_null_nullable_collection_navigation(ChangeTrackingStrategy strategy)
+    {
+        using var context = NotifyingContext.Create(strategy);
+        var parent = new NotifyingParent { Id = 1, Children = null };
+
+        context.Attach(parent);
+
+        Assert.Null(parent.Children);
+        context.ChangeTracker.DetectChanges();
+        Assert.Null(parent.Children);
+        Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
+        Assert.False(IsChildrenModified(context, parent));
+    }
+
+    [Theory]
+    [InlineData(ChangeTrackingStrategy.ChangedNotifications)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications)]
+    public void Adding_a_notifying_entity_does_not_replace_a_null_nullable_collection_navigation(ChangeTrackingStrategy strategy)
+    {
+        using var context = NotifyingContext.Create(strategy);
+        var parent = new NotifyingParent { Id = 1, Children = null };
+
+        context.Add(parent);
+
+        Assert.Null(parent.Children);
+
+        context.SaveChanges();
+
+        Assert.Null(parent.Children);
+    }
+
+    [Theory]
+    [InlineData(ChangeTrackingStrategy.ChangedNotifications)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications)]
+    public void Detaching_a_notifying_entity_does_not_replace_a_null_nullable_collection_navigation(ChangeTrackingStrategy strategy)
+    {
+        using var context = NotifyingContext.Create(strategy);
+        var parent = new NotifyingParent { Id = 1, Children = null };
+        context.Attach(parent);
+
+        context.Entry(parent).State = EntityState.Detached;
+
+        Assert.Null(parent.Children);
+    }
+
+    [Theory]
+    [InlineData(ChangeTrackingStrategy.ChangedNotifications)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications)]
+    public void Collection_assigned_to_a_null_notifying_nullable_collection_navigation_is_subscribed_to(ChangeTrackingStrategy strategy)
+    {
+        using var context = NotifyingContext.Create(strategy);
+        var parent = new NotifyingParent { Id = 1, Children = null };
+        context.Attach(parent);
+
+        var children = new ObservableHashSet<NotifyingChild>();
+        parent.Children = children;
+        var child = new NotifyingChild();
+        children.Add(child);
+
+        Assert.Same(children, parent.Children);
+        Assert.Equal(EntityState.Added, context.Entry(child).State);
+    }
+
+    [Theory]
+    [InlineData(ChangeTrackingStrategy.ChangedNotifications)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications)]
+    public void Collection_replaced_by_null_in_a_notifying_nullable_collection_navigation_is_unsubscribed_from(
+        ChangeTrackingStrategy strategy)
+    {
+        using var context = NotifyingContext.Create(strategy);
+        var children = new ObservableHashSet<NotifyingChild>();
+        var parent = new NotifyingParent { Id = 1, Children = children };
+        context.Attach(parent);
+
+        parent.Children = null;
+        var child = new NotifyingChild { Id = 2 };
+        children.Add(child);
+
+        Assert.Null(parent.Children);
+        Assert.Equal(EntityState.Detached, context.Entry(child).State);
+    }
+
     private static bool IsChildrenModified(DbContext context, object parent)
     {
         var entry = context.Entry(parent);
