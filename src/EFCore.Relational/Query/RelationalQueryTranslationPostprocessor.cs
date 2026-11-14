@@ -66,8 +66,10 @@ public class RelationalQueryTranslationPostprocessor : QueryTranslationPostproce
         var afterValueConverterCompensation =
             new RelationalValueConverterCompensatingExpressionVisitor(RelationalDependencies.SqlExpressionFactory)
                 .Visit(afterSimplification);
+        var afterProjectedConstantConversion =
+            new ProjectedConstantConvertingExpressionVisitor().Visit(afterValueConverterCompensation);
 
-        return afterValueConverterCompensation;
+        return afterProjectedConstantConversion;
     }
 
     /// <summary>

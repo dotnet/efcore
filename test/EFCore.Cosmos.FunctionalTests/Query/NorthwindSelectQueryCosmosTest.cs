@@ -310,6 +310,24 @@ FROM root c
 """);
             });
 
+    public override Task Select_anonymous_conditional_non_numeric_constants(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Select_anonymous_conditional_non_numeric_constants(a);
+                AssertSql(
+                    """
+SELECT VALUE
+{
+    "CustomerID" : c["id"],
+    "ConditionalGuid" : ((c["id"] = "ALFKI") ? "00000000-0000-0000-0000-000000000000" : "8a4d1d6c-5ad8-4b1e-9b0e-2f1c2d3e4f50"),
+    "ConditionalDateTime" : ((c["id"] = "ALFKI") ? "0001-01-01T00:00:00.0000000" : "9999-12-31T23:59:59.9999999"),
+    "ConditionalTimeSpan" : ((c["id"] = "ALFKI") ? "00:00:00" : "01:00:00")
+}
+FROM root c
+""");
+            });
+
     public override Task Select_anonymous_constant_in_expression(bool async)
         => Fixture.NoSyncTest(
             async, async a =>

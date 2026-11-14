@@ -279,7 +279,6 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                 switch (_sqlTranslator.TranslateProjection(expression))
                 {
                     case SqlExpression sqlExpression:
-                        sqlExpression = AddExplicitConvertIfNeeded(sqlExpression);
                         return AddClientProjection(sqlExpression, expression.Type.MakeNullable());
 
                     // This handles the case of a complex type being projected out of a Select.
@@ -343,7 +342,6 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                 switch (_sqlTranslator.TranslateProjection(expression))
                 {
                     case SqlExpression sqlExpression:
-                        sqlExpression = AddExplicitConvertIfNeeded(sqlExpression);
                         _projectionMapping[_projectionMembers.Peek()] = sqlExpression;
                         return new ProjectionBindingExpression(
                             _selectExpression, _projectionMembers.Peek(), expression.Type.MakeNullable());
@@ -938,18 +936,6 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
 
         return new ProjectionBindingExpression(_selectExpression, existingIndex, type);
     }
-
-    // if the SQL constant literal type is different from the CLR type
-    private static SqlExpression AddExplicitConvertIfNeeded(SqlExpression sqlExpression)
-        => sqlExpression is SqlConstantExpression { Value: not null }
-            && (sqlExpression.Type == typeof(Guid)
-                || sqlExpression.Type == typeof(DateTime)
-                || sqlExpression.Type == typeof(DateOnly)
-                || sqlExpression.Type == typeof(TimeOnly)
-                || sqlExpression.Type == typeof(TimeSpan)
-                || sqlExpression.Type == typeof(DateTimeOffset))
-                    ? new SqlUnaryExpression(ExpressionType.Convert, sqlExpression, sqlExpression.Type, sqlExpression.TypeMapping)
-                    : sqlExpression;
 
     private Expression LowerSingleResultSubquery(
         ProjectionBindingExpression projectionBindingExpression,

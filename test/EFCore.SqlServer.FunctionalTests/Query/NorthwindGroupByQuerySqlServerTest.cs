@@ -755,6 +755,21 @@ GROUP BY [o0].[Key]
 """);
     }
 
+    public override async Task GroupBy_non_numeric_Constant_Select_Key_Count(bool async)
+    {
+        await base.GroupBy_non_numeric_Constant_Select_Key_Count(async);
+
+        AssertSql(
+            """
+SELECT [o0].[Key], COUNT(*) AS [Count]
+FROM (
+    SELECT CAST('0001-01-01T00:00:00.0000000' AS datetime2) AS [Key]
+    FROM [Orders] AS [o]
+) AS [o0]
+GROUP BY [o0].[Key]
+""");
+    }
+
     public override async Task GroupBy_Constant_with_element_selector_Select_Sum2(bool async)
     {
         await base.GroupBy_Constant_with_element_selector_Select_Sum2(async);

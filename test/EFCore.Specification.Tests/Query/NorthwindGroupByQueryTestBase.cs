@@ -976,6 +976,13 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
             e => e.Sum);
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_non_numeric_Constant_Select_Key_Count(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(o => DateTime.MinValue).Select(g => new { g.Key, Count = g.Count() }),
+            e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_Constant_with_element_selector_Select_Sum2(bool async)
         => AssertQuery(
             async,
