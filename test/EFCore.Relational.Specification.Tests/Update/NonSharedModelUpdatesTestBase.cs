@@ -1275,6 +1275,84 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
             });
     }
 
+    [Theory, InlineData(ChangeTrackingStrategy.ChangedNotifications), InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications)]
+    public virtual async Task Nullable_json_collection_of_a_notifying_entity_stored_as_null_stays_null_when_tracked(
+        ChangeTrackingStrategy strategy) // Issue #33452
+    {
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
+            onModelCreating: mb =>
+            {
+                mb.HasChangeTrackingStrategy(strategy);
+                mb.Entity<NotifyingNullableJsonParent>().OwnsMany(p => p.Children, b => b.ToJson());
+            });
+
+        await ExecuteWithStrategyInTransactionAsync(
+            contextFactory,
+            async context =>
+            {
+                context.Add(new NotifyingNullableJsonParent { Name = "A", Children = null });
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var parent = await context.Set<NotifyingNullableJsonParent>().SingleAsync();
+
+                Assert.Null(parent.Children);
+                Assert.False(context.ChangeTracker.HasChanges());
+
+                parent.Name = "B";
+                await context.SaveChangesAsync();
+
+                Assert.Null(parent.Children);
+            },
+            async context =>
+            {
+                var parent = await context.Set<NotifyingNullableJsonParent>().SingleAsync();
+
+                Assert.Equal("B", parent.Name);
+                Assert.Null(parent.Children);
+            });
+    }
+
+    [Theory, InlineData(ChangeTrackingStrategy.ChangedNotifications), InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications)]
+    public virtual async Task Nullable_nested_json_collection_of_a_notifying_entity_stored_as_null_stays_null_when_tracked(
+        ChangeTrackingStrategy strategy) // Issue #33452
+    {
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
+            onModelCreating: mb =>
+            {
+                mb.HasChangeTrackingStrategy(strategy);
+                mb.Entity<NotifyingNestedJsonOwner>().OwnsMany(
+                    p => p.Items, b =>
+                    {
+                        b.ToJson();
+                        b.OwnsMany(i => i.Inner);
+                    });
+            });
+
+        await ExecuteWithStrategyInTransactionAsync(
+            contextFactory,
+            async context =>
+            {
+                context.Add(
+                    new NotifyingNestedJsonOwner
+                    {
+                        Items = [new NotifyingNestedJsonItem { Name = "I1", Inner = null }, new NotifyingNestedJsonItem { Name = "I2", Inner = [] }]
+                    });
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var owner = await context.Set<NotifyingNestedJsonOwner>().SingleAsync();
+
+                var items = owner.Items!.OrderBy(i => i.Name).ToList();
+                Assert.Null(items[0].Inner);
+                Assert.NotNull(items[1].Inner);
+                Assert.Empty(items[1].Inner!);
+                Assert.False(context.ChangeTracker.HasChanges());
+            });
+    }
+
     private class CoercingNullableJsonParent
     {
         private List<JsonChild> _children = [];
@@ -1375,6 +1453,62 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
                 _name = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Name)));
             }
+        }
+    }
+
+    private class NotifyingNestedJsonOwner : INotifyPropertyChanged, INotifyPropertyChanging
+    {
+        private int _id;
+        private ObservableHashSet<NotifyingNestedJsonItem>? _items;
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+        public event PropertyChangingEventHandler? PropertyChanging;
+
+        public int Id
+        {
+            get => _id;
+            set => SetValue(ref _id, value);
+        }
+
+        public ObservableHashSet<NotifyingNestedJsonItem>? Items
+        {
+            get => _items;
+            set => SetValue(ref _items, value);
+        }
+
+        private void SetValue<T>(ref T field, T value, [CallerMemberName] string propertyName = "")
+        {
+            PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(propertyName));
+            field = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+    }
+
+    private class NotifyingNestedJsonItem : INotifyPropertyChanged, INotifyPropertyChanging
+    {
+        private string? _name;
+        private ObservableHashSet<NotifyingJsonChild>? _inner;
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+        public event PropertyChangingEventHandler? PropertyChanging;
+
+        public string? Name
+        {
+            get => _name;
+            set => SetValue(ref _name, value);
+        }
+
+        public ObservableHashSet<NotifyingJsonChild>? Inner
+        {
+            get => _inner;
+            set => SetValue(ref _inner, value);
+        }
+
+        private void SetValue<T>(ref T field, T value, [CallerMemberName] string propertyName = "")
+        {
+            PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(propertyName));
+            field = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 
