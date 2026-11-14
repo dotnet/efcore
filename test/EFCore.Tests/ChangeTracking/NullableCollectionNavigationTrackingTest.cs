@@ -765,6 +765,63 @@ public class NullableCollectionNavigationTrackingTest
         Assert.Equal(EntityState.Detached, context.Entry(child).State);
     }
 
+    [Fact]
+    public void Loading_a_null_nullable_collection_navigation_does_not_replace_it_with_an_empty_collection()
+    {
+        using var context = new NullableContext();
+        var parent = new Parent { Id = 1, Children = null };
+        context.Attach(parent);
+
+        context.Entry(parent).Collection(p => p.Children!).Load();
+
+        AssertStillNull(context, parent);
+    }
+
+    [Fact]
+    public async Task Loading_asynchronously_a_null_nullable_collection_navigation_does_not_replace_it_with_an_empty_collection()
+    {
+        using var context = new NullableContext();
+        var parent = new Parent { Id = 1, Children = null };
+        context.Attach(parent);
+
+        await context.Entry(parent).Collection(p => p.Children!).LoadAsync();
+
+        AssertStillNull(context, parent);
+    }
+
+    [Fact]
+    public void Querying_a_null_nullable_collection_navigation_does_not_replace_it_with_an_empty_collection()
+    {
+        using var context = new NullableContext();
+        var parent = new Parent { Id = 1, Children = null };
+        context.Attach(parent);
+
+        _ = context.Entry(parent).Collection(p => p.Children!).Query();
+
+        AssertStillNull(context, parent);
+    }
+
+    [Fact]
+    public void Loading_a_collection_navigation_that_is_not_nullable_still_creates_the_collection()
+    {
+        using var context = new NonNullableContext();
+        var parent = new Parent { Id = 1, Children = null };
+        context.Attach(parent);
+
+        context.Entry(parent).Collection(p => p.Children!).Load();
+
+        Assert.NotNull(parent.Children);
+    }
+
+    private static void AssertStillNull(DbContext context, Parent parent)
+    {
+        Assert.Null(parent.Children);
+        context.ChangeTracker.DetectChanges();
+        Assert.Null(parent.Children);
+        Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
+        Assert.False(IsChildrenModified(context, parent));
+    }
+
     private static bool IsChildrenModified(DbContext context, object parent)
     {
         var entry = context.Entry(parent);

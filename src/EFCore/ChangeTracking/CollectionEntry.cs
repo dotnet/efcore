@@ -314,7 +314,16 @@ public class CollectionEntry : NavigationEntry
     }
 
     private void EnsureInitialized()
-        => InternalEntityEntry.GetOrCreateCollection(Metadata, forMaterialization: true);
+    {
+        // A null value of a nullable collection navigation is meaningful, so it must not be replaced with an empty collection.
+        if (Metadata is INavigation { IsNullable: true }
+            && CurrentValue == null)
+        {
+            return;
+        }
+
+        InternalEntityEntry.GetOrCreateCollection(Metadata, forMaterialization: true);
+    }
 
     /// <summary>
     ///     The <see cref="EntityEntry" /> of an entity this navigation targets.
