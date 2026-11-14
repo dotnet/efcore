@@ -29,6 +29,71 @@ public class ForeignKeyIndexConventionTest
         Assert.False(index.IsUnique);
     }
 
+    [Fact]
+    public void Partial_index_does_not_cover_foreign_key_index()
+    {
+        var modelBuilder = CreateModelBuilderWithPartialAwareConvention();
+        modelBuilder.Entity<DependentEntity>().HasOne(t => t.Principal).WithMany().HasForeignKey(t => t.PrincipalId);
+        var index = modelBuilder.Entity<DependentEntity>().HasIndex(t => new { t.PrincipalId, t.DependentId }).Metadata;
+
+        var entityType = modelBuilder.Model.FindEntityType(typeof(DependentEntity))!;
+        Assert.Equal([index], entityType.GetIndexes());
+
+        ((IMutableIndex)index).SetAnnotation(PartialAnnotation, true);
+
+        Assert.Equal(2, entityType.GetIndexes().Count());
+        Assert.NotNull(entityType.FindIndex(entityType.FindProperty(nameof(DependentEntity.PrincipalId))!));
+
+        ((IMutableIndex)index).RemoveAnnotation(PartialAnnotation);
+
+        Assert.Equal([index], entityType.GetIndexes());
+    }
+
+    [Fact]
+    public void Partial_index_declared_before_foreign_key_does_not_prevent_foreign_key_index()
+    {
+        var modelBuilder = CreateModelBuilderWithPartialAwareConvention();
+        var index = modelBuilder.Entity<DependentEntity>().HasIndex(t => new { t.PrincipalId, t.DependentId }).Metadata;
+        ((IMutableIndex)index).SetAnnotation(PartialAnnotation, true);
+
+        modelBuilder.Entity<DependentEntity>().HasOne(t => t.Principal).WithMany().HasForeignKey(t => t.PrincipalId);
+
+        var entityType = modelBuilder.Model.FindEntityType(typeof(DependentEntity))!;
+        Assert.Equal(2, entityType.GetIndexes().Count());
+    }
+
+    private const string PartialAnnotation = "Test:Partial";
+
+    private static ModelBuilder CreateModelBuilderWithPartialAwareConvention()
+    {
+        var services = InMemoryTestHelpers.Instance.CreateContextServices();
+        var dependencies = services.GetRequiredService<ProviderConventionSetBuilderDependencies>();
+
+        // The in-memory provider doesn't use this convention, so it is added here.
+        return InMemoryTestHelpers.Instance.CreateConventionBuilder(
+            services, c => c.ConventionSet.Add(new PartialAwareConvention(dependencies)));
+    }
+
+    private class PartialAwareConvention(ProviderConventionSetBuilderDependencies dependencies)
+        : ForeignKeyIndexConvention(dependencies), IIndexAnnotationChangedConvention
+    {
+        protected override bool IsPartial(IConventionIndex index)
+            => index.FindAnnotation(PartialAnnotation) != null;
+
+        public void ProcessIndexAnnotationChanged(
+            IConventionIndexBuilder indexBuilder,
+            string name,
+            IConventionAnnotation? annotation,
+            IConventionAnnotation? oldAnnotation,
+            IConventionContext<IConventionAnnotation> context)
+        {
+            if (name == PartialAnnotation)
+            {
+                ProcessIndexCoverageChanged(indexBuilder.Metadata);
+            }
+        }
+    }
+
     private class PrincipalEntity
     {
         public int InitialPrincipalId { get; set; }

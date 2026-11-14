@@ -195,8 +195,7 @@ public class ForeignKeyIndexConvention :
                 }
                 else
                 {
-                    var coveringIndex = baseIndexes!.FirstOrDefault(i => AreIndexedBy(
-                        foreignKey.Properties, foreignKey.IsUnique, i.Properties, i.IsUnique));
+                    var coveringIndex = baseIndexes!.FirstOrDefault(i => AreIndexedBy(foreignKey.Properties, foreignKey.IsUnique, i));
                     if (coveringIndex != null)
                     {
                         RemoveIndex(index);
@@ -221,6 +220,55 @@ public class ForeignKeyIndexConvention :
             return;
         }
 
+        RemoveCoveredIndexes(index);
+    }
+
+    /// <summary>
+    ///     Called when something other than the properties or uniqueness of an index changes which may affect whether
+    ///     the index covers the rows of the table. For example, a filter being added to or removed from the index.
+    /// </summary>
+    /// <remarks>
+    ///     When the index no longer covers all rows, any foreign key indexes that were removed because they were covered by it
+    ///     are re-created. When the index starts covering all rows, any indexes that it now covers are removed.
+    /// </remarks>
+    /// <param name="index">The index.</param>
+    protected virtual void ProcessIndexCoverageChanged(IConventionIndex index)
+    {
+        if (!index.IsInModel
+            || index.CollectionIndices is not null)
+        {
+            return;
+        }
+
+        if (IsPartial(index))
+        {
+            CreateCoveredForeignKeyIndexes(index);
+        }
+        else
+        {
+            RemoveCoveredIndexes(index);
+        }
+    }
+
+    /// <summary>
+    ///     Returns a value indicating whether the given index only includes a subset of the rows in the table, and so
+    ///     cannot be used in place of an index that includes all rows.
+    /// </summary>
+    /// <remarks>
+    ///     This is always <see langword="false" /> by default. Relational providers override this to account for index filters.
+    /// </remarks>
+    /// <param name="index">The index.</param>
+    /// <returns><see langword="true" /> if the index only includes a subset of the rows.</returns>
+    protected virtual bool IsPartial(IConventionIndex index)
+        => false;
+
+    private void RemoveCoveredIndexes(IConventionIndex index)
+    {
+        if (IsPartial(index))
+        {
+            return;
+        }
+
         foreach (var otherIndex in index.DeclaringEntityType.GetDerivedTypesInclusive()
                      .SelectMany(t => t.GetDeclaredIndexes())
                      .Where(i => i != index
@@ -230,6 +278,24 @@ public class ForeignKeyIndexConvention :
             RemoveIndex(otherIndex);
         }
     }
+
+    private void CreateCoveredForeignKeyIndexes(IConventionIndex index)
+    {
+        foreach (var foreignKey in index.DeclaringEntityType.GetDerivedTypesInclusive()
+                     .SelectMany(t => t.GetDeclaredForeignKeys())
+                     .Where(fk => AreIndexedBy(fk.Properties, fk.IsUnique, index.Properties, index.IsUnique)).ToList())
+        {
+            CreateIndex(foreignKey.Properties, foreignKey.IsUnique, foreignKey.DeclaringEntityType.Builder);
+        }
+    }
+
+    private bool AreIndexedBy(
+        IReadOnlyList<IConventionPropertyBase> properties,
+        bool unique,
+        IConventionIndex coveringIndex)
+        => coveringIndex.CollectionIndices is null
+            && !IsPartial(coveringIndex)
+            && AreIndexedBy(properties, unique, coveringIndex.Properties, coveringIndex.IsUnique);
 
     /// <summary>
     ///     Called after an index is removed.
@@ -248,17 +314,14 @@ public class ForeignKeyIndexConvention :
         }
 
         // A removed complex index never covered any FK index, so nothing to re-create.
-        if (index.CollectionIndices is not null)
+        // Likewise, a partial index never caused a FK index to be removed.
+        if (index.CollectionIndices is not null
+            || IsPartial(index))
         {
             return;
         }
 
-        foreach (var foreignKey in index.DeclaringEntityType.GetDerivedTypesInclusive()
-                     .SelectMany(t => t.GetDeclaredForeignKeys())
-                     .Where(fk => AreIndexedBy(fk.Properties, fk.IsUnique, index.Properties, index.IsUnique)))
-        {
-            CreateIndex(foreignKey.Properties, foreignKey.IsUnique, foreignKey.DeclaringEntityType.Builder);
-        }
+        CreateCoveredForeignKeyIndexes(index);
     }
 
     /// <summary>
@@ -292,8 +355,7 @@ public class ForeignKeyIndexConvention :
                 }
 
                 var coveringIndex = foreignKey.DeclaringEntityType.GetIndexes()
-                    .FirstOrDefault(i => i.CollectionIndices is null
-                        && AreIndexedBy(foreignKey.Properties, false, i.Properties, i.IsUnique));
+                    .FirstOrDefault(i => AreIndexedBy(foreignKey.Properties, false, i));
                 if (coveringIndex != null)
                 {
                     RemoveIndex(index);
@@ -315,7 +377,8 @@ public class ForeignKeyIndexConvention :
         IConventionContext<bool?> context)
     {
         var index = indexBuilder.Metadata;
-        if (index.CollectionIndices is not null)
+        if (index.CollectionIndices is not null
+            || IsPartial(index))
         {
             return;
         }
@@ -366,8 +429,7 @@ public class ForeignKeyIndexConvention :
 
         foreach (var existingIndex in entityTypeBuilder.Metadata.GetIndexes())
         {
-            if (existingIndex.CollectionIndices is null
-                && AreIndexedBy(properties, unique, existingIndex.Properties, existingIndex.IsUnique))
+            if (AreIndexedBy(properties, unique, existingIndex))
             {
                 return null;
             }
@@ -431,10 +493,7 @@ public class ForeignKeyIndexConvention :
 
                 foreach (var existingIndex in entityType.GetIndexes())
                 {
-                    if (existingIndex.CollectionIndices is null
-                        && AreIndexedBy(
-                            declaredForeignKey.Properties, declaredForeignKey.IsUnique, existingIndex.Properties,
-                            existingIndex.IsUnique))
+                    if (AreIndexedBy(declaredForeignKey.Properties, declaredForeignKey.IsUnique, existingIndex))
                     {
                         if (declaredForeignKey.Properties.Count != existingIndex.Properties.Count)
                         {

@@ -80,6 +80,9 @@ public abstract class RelationalConventionSetBuilder : ProviderConventionSetBuil
         conventionSet.Replace<ValueGenerationConvention>(
             new RelationalValueGenerationConvention(Dependencies, RelationalDependencies));
 
+        conventionSet.Replace<ForeignKeyIndexConvention>(
+            new RelationalForeignKeyIndexConvention(Dependencies, RelationalDependencies));
+
         conventionSet.Replace<KeyDiscoveryConvention>(
             new RelationalKeyDiscoveryConvention(Dependencies, RelationalDependencies));
 

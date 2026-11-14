@@ -65,6 +65,43 @@ public class RelationalForeignKeyIndexConventionTest
         Assert.Empty(dependentEntityBuilder.Metadata.GetForeignKeys());
     }
 
+    [Fact]
+    public void Filter_added_by_SQL_Server_convention_to_unique_index_still_covers_foreign_key_index()
+    {
+        var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder();
+        modelBuilder.Entity<FilteredIndexInvoice>().HasOne(i => i.Period).WithMany().HasForeignKey(i => i.PeriodId);
+        modelBuilder.Entity<FilteredIndexInvoice>().HasIndex(i => new { i.PeriodId, i.CompanyId }).IsUnique();
+
+        var index = Assert.Single(modelBuilder.Model.FindEntityType(typeof(FilteredIndexInvoice))!.GetIndexes());
+        Assert.Equal("[PeriodId] IS NOT NULL AND [CompanyId] IS NOT NULL", index.GetFilter());
+        Assert.Equal(["PeriodId", "CompanyId"], index.Properties.Select(p => p.Name));
+    }
+
+    [Fact]
+    public void Filter_explicitly_set_on_unique_index_does_not_cover_foreign_key_index()
+    {
+        var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder();
+        modelBuilder.Entity<FilteredIndexInvoice>().HasOne(i => i.Period).WithMany().HasForeignKey(i => i.PeriodId);
+        modelBuilder.Entity<FilteredIndexInvoice>().HasIndex(i => new { i.PeriodId, i.CompanyId }).IsUnique().HasFilter("[CompanyId] > 0");
+
+        Assert.Equal(
+            [["PeriodId"], ["PeriodId", "CompanyId"]],
+            modelBuilder.Model.FindEntityType(typeof(FilteredIndexInvoice))!.GetIndexes().Select(i => i.Properties.Select(p => p.Name).ToArray()));
+    }
+
+    private class FilteredIndexPeriod
+    {
+        public int Id { get; set; }
+    }
+
+    private class FilteredIndexInvoice
+    {
+        public int Id { get; set; }
+        public int? PeriodId { get; set; }
+        public int? CompanyId { get; set; }
+        public FilteredIndexPeriod? Period { get; set; }
+    }
+
     private static TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions> CreateTestLogger()
         => new() { EnabledFor = LogLevel.Warning };
 
