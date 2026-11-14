@@ -59,6 +59,13 @@ public static class QueryableMethods
     //public static MethodInfo ContainsWithComparer { get; }
 
     /// <summary>
+    ///     The <see cref="MethodInfo" /> for
+    ///     <see
+    ///         cref="Queryable.CountBy{TSource, TKey}(IQueryable{TSource}, Expression{Func{TSource, TKey}}, IEqualityComparer{TKey})" />
+    /// </summary>
+    public static MethodInfo CountBy { get; }
+
+    /// <summary>
     ///     The <see cref="MethodInfo" /> for <see cref="Queryable.Count{TSource}(IQueryable{TSource})" />
     /// </summary>
     public static MethodInfo CountWithoutPredicate { get; }
@@ -522,6 +529,15 @@ public static class QueryableMethods
         Contains = GetMethod(
             nameof(Queryable.Contains), 1,
             types => [typeof(IQueryable<>).MakeGenericType(types[0]), types[0]]);
+
+        CountBy = GetMethod(
+            nameof(Queryable.CountBy), 2,
+            types =>
+            [
+                typeof(IQueryable<>).MakeGenericType(types[0]),
+                typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(types[0], types[1])),
+                typeof(IEqualityComparer<>).MakeGenericType(types[1])
+            ]);
 
         CountWithoutPredicate = GetMethod(
             nameof(Queryable.Count), 1,

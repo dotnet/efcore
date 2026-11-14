@@ -3967,4 +3967,80 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
             });
 
     #endregion
+
+    #region CountBy
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task CountBy_property(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OrderDetail>().CountBy(od => od.ProductID),
+            elementSorter: e => e.Key,
+            elementAsserter: AssertCountBy);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task CountBy_after_Where(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().Where(o => o.CustomerID!.StartsWith("A")).CountBy(o => o.CustomerID!),
+            elementSorter: e => e.Key,
+            elementAsserter: AssertCountBy);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task CountBy_anonymous_type_key(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Product>().CountBy(p => new { p.SupplierID, p.Discontinued }),
+            elementSorter: e => (e.Key.SupplierID, e.Key.Discontinued),
+            elementAsserter: AssertCountBy);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task CountBy_Where_on_count(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OrderDetail>().CountBy(od => od.ProductID).Where(e => e.Value > 40),
+            elementSorter: e => e.Key,
+            elementAsserter: AssertCountBy);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task CountBy_OrderByDescending_count_Take(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OrderDetail>().CountBy(od => od.ProductID).OrderByDescending(e => e.Value).ThenBy(e => e.Key).Take(5),
+            assertOrder: true,
+            elementAsserter: AssertCountBy);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task CountBy_Select_key(bool async)
+        => AssertQueryScalar(
+            async,
+            ss => ss.Set<OrderDetail>().CountBy(od => od.ProductID).Select(e => e.Key));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task CountBy_over_navigation_in_projection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .Where(c => c.CustomerID.StartsWith("A"))
+                .Select(c => new { c.CustomerID, Counts = c.Orders.CountBy(o => o.EmployeeID!.Value).ToList() }),
+            elementSorter: e => e.CustomerID,
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.CustomerID, a.CustomerID);
+                AssertCollection(e.Counts, a.Counts, elementSorter: i => i.Key, elementAsserter: AssertCountBy);
+            });
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task CountBy_with_comparer(bool async)
+        => AssertTranslationFailed(() => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().CountBy(c => c.CustomerID, StringComparer.OrdinalIgnoreCase)));
+
+    private static void AssertCountBy<TKey>(KeyValuePair<TKey, int> expected, KeyValuePair<TKey, int> actual)
+    {
+        Assert.Equal(expected.Key, actual.Key);
+        Assert.Equal(expected.Value, actual.Value);
+    }
+
+    #endregion
 }

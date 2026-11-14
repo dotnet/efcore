@@ -241,6 +241,7 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
             visitedMethodCall = TryNormalizeOrderAndOrderDescending(visitedMethodCall);
             visitedMethodCall = TryFlattenGroupJoinSelectMany(visitedMethodCall);
             visitedMethodCall = TryNormalizeMaxByMinBy(visitedMethodCall);
+            visitedMethodCall = TryNormalizeCountBy(visitedMethodCall);
 
             return visitedMethodCall;
         }
@@ -833,6 +834,53 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                     orderingMethod.MakeGenericMethod(sourceType, keySelector.ReturnType),
                     methodCallExpression.Arguments[0],
                     Expression.Quote(keySelector)));
+        }
+
+        return methodCallExpression;
+    }
+
+    private MethodCallExpression TryNormalizeCountBy(MethodCallExpression methodCallExpression)
+    {
+        /*
+            CountBy(x => x.Prop) --> GroupBy(x => x.Prop).Select(g => new KeyValuePair<TKey, int>(g.Key, g.Count()))
+        */
+
+        // A custom key comparer can't be translated, so CountBy is left as is and fails translation (as GroupBy with a comparer does).
+        if (methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.CountBy
+            && methodCallExpression.Arguments[2] is ConstantExpression { Value: null })
+        {
+            var genericArguments = methodCallExpression.Method.GetGenericArguments();
+            var sourceType = genericArguments[0];
+            var keyType = genericArguments[1];
+
+            var groupingType = typeof(IGrouping<,>).MakeGenericType(keyType, sourceType);
+            var resultType = typeof(KeyValuePair<,>).MakeGenericType(keyType, typeof(int));
+
+            var groupingParameter = Expression.Parameter(groupingType, "g");
+
+            // Specify the Key and Value members, so that operators composed over the result (e.g. OrderBy(kv => kv.Value)) can be
+            // bound to the grouping key and the count. The count is created in its normalized form (g.AsQueryable().Count()), since
+            // this visitor doesn't visit the expressions it creates.
+            var resultSelector = Expression.Lambda(
+                Expression.New(
+                    resultType.GetConstructor([keyType, typeof(int)])!,
+                    [
+                        Expression.Property(groupingParameter, nameof(IGrouping<,>.Key)),
+                        Expression.Call(
+                            QueryableMethods.CountWithoutPredicate.MakeGenericMethod(sourceType),
+                            Expression.Call(QueryableMethods.AsQueryable.MakeGenericMethod(sourceType), groupingParameter))
+                    ],
+                    resultType.GetProperty(nameof(KeyValuePair<,>.Key))!,
+                    resultType.GetProperty(nameof(KeyValuePair<,>.Value))!),
+                groupingParameter);
+
+            return Expression.Call(
+                QueryableMethods.Select.MakeGenericMethod(groupingType, resultType),
+                Expression.Call(
+                    QueryableMethods.GroupByWithKeySelector.MakeGenericMethod(sourceType, keyType),
+                    methodCallExpression.Arguments[0],
+                    methodCallExpression.Arguments[1]),
+                Expression.Quote(resultSelector));
         }
 
         return methodCallExpression;

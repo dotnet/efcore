@@ -19936,6 +19936,9 @@
           "Member": "static System.Reflection.MethodInfo Contains { get; }"
         },
         {
+          "Member": "static System.Reflection.MethodInfo CountBy { get; }"
+        },
+        {
           "Member": "static System.Reflection.MethodInfo CountWithoutPredicate { get; }"
         },
         {
