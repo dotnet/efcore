@@ -53,6 +53,8 @@ public class EntityGraphAttacher : IEntityGraphAttacher
         }
         catch
         {
+            // Not rolled back: entities attached before the failure stay tracked, the failing entity
+            // and the rest of the graph are left untracked.
             _visited = null;
             rootEntry.StateManager.AbortAttachGraph();
             throw;
@@ -90,6 +92,8 @@ public class EntityGraphAttacher : IEntityGraphAttacher
         }
         catch
         {
+            // Not rolled back: entities attached before the failure stay tracked, the failing entity
+            // and the rest of the graph are left untracked.
             _visited = null;
             rootEntry.StateManager.AbortAttachGraph();
             throw;
