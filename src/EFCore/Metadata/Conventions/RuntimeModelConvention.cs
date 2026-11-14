@@ -756,12 +756,12 @@ public class RuntimeModelConvention : IModelFinalizedConvention
                 runtimeForeignKey,
                 navigation.IsOnDependent,
                 navigation.ClrType,
+                navigation.IsNullable,
                 navigation.PropertyInfo,
                 navigation.FieldInfo,
                 navigation.GetPropertyAccessMode(),
                 navigation.IsEagerLoaded,
-                navigation.LazyLoadingEnabled,
-                navigation.IsNullable);
+                navigation.LazyLoadingEnabled);
 
     /// <summary>
     ///     Updates the navigation annotations that will be set on the read-only object.
