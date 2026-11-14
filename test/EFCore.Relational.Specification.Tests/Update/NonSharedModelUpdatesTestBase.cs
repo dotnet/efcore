@@ -1192,6 +1192,47 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
     }
 
     [Fact] // Issue #33452
+    public virtual async Task Querying_a_tracked_entity_keeps_a_pending_null_of_a_nullable_json_collection_that_is_stored_with_elements()
+    {
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
+            onModelCreating: mb => mb.Entity<NullableJsonParent>().OwnsMany(p => p.Children, b => b.ToJson()));
+
+        var id = 0;
+        await ExecuteWithStrategyInTransactionAsync(
+            contextFactory,
+            async context =>
+            {
+                var parent = new NullableJsonParent { Name = "A", Children = [new JsonChild { Name = "C1" }, new JsonChild { Name = "C2" }] };
+                context.Add(parent);
+                await context.SaveChangesAsync();
+                id = parent.Id;
+            },
+            async context =>
+            {
+                // The entity is tracked before the query with a null collection that is going to be saved, and none of the elements of
+                // the stored collection are tracked.
+                var tracked = new NullableJsonParent { Id = id, Name = "A", Children = null };
+                context.Update(tracked);
+
+                var queried = await context.Set<NullableJsonParent>().SingleAsync();
+
+                Assert.Same(tracked, queried);
+                Assert.Null(queried.Children);
+                Assert.Equal(EntityState.Modified, context.Entry(queried).State);
+                Assert.Empty(context.ChangeTracker.Entries<JsonChild>());
+
+                await context.SaveChangesAsync();
+
+                Assert.Null(queried.Children);
+            },
+            async context =>
+            {
+                var parent = await context.Set<NullableJsonParent>().SingleAsync();
+                Assert.Null(parent.Children);
+            });
+    }
+
+    [Fact] // Issue #33452
     public virtual async Task Json_collection_that_is_not_nullable_stored_as_null_is_still_loaded_as_empty_with_initializer()
     {
         var contextFactory = await InitializeNonSharedTest<DbContext>(

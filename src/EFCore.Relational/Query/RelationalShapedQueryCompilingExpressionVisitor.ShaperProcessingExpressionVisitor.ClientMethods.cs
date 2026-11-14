@@ -1305,6 +1305,19 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             tokenType));
             }
 
+            if (nullableNavigation != null
+                && !applyNullness
+                && nullableNavigation.GetGetter().GetClrValue(entity) == null)
+            {
+                // The entity was already tracked and its collection is null, which is a value that is kept. The elements of the stored
+                // collection must not be materialized, since tracking them would add them back to the collection through fixup. The
+                // reader still has to be moved past the collection.
+                manager.Skip();
+                manager.CaptureState();
+
+                return;
+            }
+
             // A nullable collection of an entity that was already tracked is left as it is
             if (nullableNavigation == null
                 || applyNullness)
