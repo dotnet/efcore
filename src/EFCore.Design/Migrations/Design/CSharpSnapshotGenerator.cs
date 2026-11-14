@@ -846,7 +846,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         stringBuilder
             .Append(entityTypeBuilderName)
             .Append(primary ? ".HasKey(" : ".HasAlternateKey(")
-            .Append(string.Join(", ", key.Properties.Select(p => Code.Literal(p.Name))))
+            .Append(string.Join(", ", key.Properties.Select(p => Code.Literal(BuildIndexPropertyPath(p, collectionIndices: null)))))
             .Append(')');
 
         // Note that GenerateAnnotations below does the corresponding decrement
