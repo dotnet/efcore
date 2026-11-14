@@ -1368,6 +1368,18 @@ public class RelationalScaffoldingModelFactoryTest
             expectedUnique,
             ScaffoldedForeignKeyIsUnique([foreignKeyColumn], [otherColumn], ([foreignKeyColumn], true, filter)));
 
+    [Theory]
+    [InlineData("NULL", "NULL IS NOT NULL", false)]
+    [InlineData("NULL", "null IS NOT NULL", false)]
+    [InlineData("NULL", "(NULL IS NOT NULL)", false)]
+    [InlineData("NULL", "NULL IS NOT NULL AND NULL IS NOT NULL", false)]
+    [InlineData("NULL", "\"NULL\" IS NOT NULL", true)]
+    [InlineData("NULL", "[NULL] IS NOT NULL", true)]
+    [InlineData("NULL", "`NULL` IS NOT NULL", true)]
+    [InlineData("Nullable", "Nullable IS NOT NULL", true)]
+    public void Bare_NULL_in_filter_is_not_a_column_name(string columnName, string filter, bool expectedUnique)
+        => Assert.Equal(expectedUnique, ScaffoldedForeignKeyIsUnique([columnName], ([columnName], true, filter)));
+
     [Fact]
     public void Foreign_key_is_unique_if_any_matching_unique_index_is_not_restricted()
     {

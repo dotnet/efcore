@@ -946,6 +946,13 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
                             ? match.Groups["backtick"].Value.Replace("``", "`")
                             : match.Groups["bare"].Value;
 
+                // A bare NULL is the keyword, which makes the predicate always false, not a column.
+                if (match.Groups["bare"].Success
+                    && name.Equals("NULL", StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+
                 // Prefer the exact name. Only fall back to ignoring case if that identifies a single column, since databases
                 // that are not case-sensitive resolve names this way and an ambiguous name can't be attributed to a column.
                 var column = tableColumnList.Contains(name, StringComparer.Ordinal)
