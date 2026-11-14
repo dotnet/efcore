@@ -1206,8 +1206,9 @@ ORDER BY "seqno"
 
         return filter?.ToString().Trim() is { Length: > 0 } result ? result : null;
 
+        // SQLite allows every non-ASCII character in an unquoted identifier, not just letters and digits.
         static bool IsIdentifierChar(char c)
-            => char.IsLetterOrDigit(c) || c is '_' or '$';
+            => c >= '\u0080' || char.IsLetterOrDigit(c) || c is '_' or '$';
 
         // Returns the index of the closing quote, or -1 if there isn't one. A doubled quote is an escaped quote.
         static int SkipQuoted(string sql, int start)

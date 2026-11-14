@@ -1465,6 +1465,30 @@ CREATE TABLE T (
             "DROP TABLE T;");
 
     [Theory]
+    [InlineData("where\u2603")]
+    [InlineData("\u2603where")]
+    [InlineData("where\u00e9")]
+    [InlineData("where\U0001F600")]
+    public void Set_filter_for_partial_index_with_unquoted_identifier_containing_where(string indexName)
+        => Test(
+            $@"
+CREATE TABLE T (
+    A int
+);
+
+CREATE UNIQUE INDEX {indexName} ON T (A) WHERE A IS NOT NULL;",
+            [],
+            [],
+            dbModel =>
+            {
+                var index = Assert.Single(dbModel.Tables.Single().Indexes);
+
+                Assert.Equal(indexName, index.Name);
+                Assert.Equal("A IS NOT NULL", index.Filter);
+            },
+            "DROP TABLE T;");
+
+    [Theory]
     [InlineData("WHERE IsActive = 1", false)]
     [InlineData("WHERE IsActive = 1 AND PersonId IS NOT NULL", false)]
     [InlineData("WHERE PersonId IS NOT NULL", true)]
