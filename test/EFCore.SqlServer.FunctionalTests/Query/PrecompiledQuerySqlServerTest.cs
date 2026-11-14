@@ -1935,6 +1935,97 @@ ORDER BY [u].[Id]
 """);
     }
 
+    public override async Task MinMaxBy_nullable_keys()
+    {
+        await base.MinMaxBy_nullable_keys();
+
+        AssertSql(
+            """
+SELECT TOP(1) [b].[Id], [b].[Name], [b].[Json]
+FROM [Blogs] AS [b]
+ORDER BY CASE
+    WHEN [b].[Name] IS NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, [b].[Name], [b].[Id]
+""",
+            //
+            """
+SELECT TOP(1) [b].[Id], [b].[Name], [b].[Json]
+FROM [Blogs] AS [b]
+ORDER BY CASE
+    WHEN [b].[Name] IS NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, [b].[Name] DESC, [b].[Id]
+""",
+            //
+            """
+SELECT TOP(1) [u].[Id], [u].[BlogId], [u].[Title]
+FROM (
+    SELECT [p2].[Id], [p2].[BlogId], [p2].[Title]
+    FROM (
+        SELECT TOP(1) [p].[Id], [p].[BlogId], [p].[Title]
+        FROM [Posts] AS [p]
+        WHERE [p].[Title] IS NOT NULL AND [p].[Title] = (
+            SELECT TOP(1) [p0].[Title]
+            FROM [Posts] AS [p0]
+            WHERE [p0].[Title] IS NOT NULL
+            ORDER BY [p0].[Title])
+        ORDER BY [p].[Id]
+    ) AS [p2]
+    UNION ALL
+    SELECT [p3].[Id], [p3].[BlogId], [p3].[Title]
+    FROM (
+        SELECT TOP(1) [p1].[Id], [p1].[BlogId], [p1].[Title]
+        FROM [Posts] AS [p1]
+        WHERE [p1].[Title] IS NULL
+        ORDER BY [p1].[Id]
+    ) AS [p3]
+) AS [u]
+ORDER BY CASE
+    WHEN [u].[Title] IS NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+""",
+            //
+            """
+SELECT TOP(1) [u].[Id], [u].[BlogId], [u].[Title]
+FROM (
+    SELECT [p2].[Id], [p2].[BlogId], [p2].[Title]
+    FROM (
+        SELECT TOP(1) [p].[Id], [p].[BlogId], [p].[Title]
+        FROM [Posts] AS [p]
+        WHERE [p].[Title] IS NOT NULL AND [p].[Title] = (
+            SELECT TOP(1) [p0].[Title]
+            FROM [Posts] AS [p0]
+            WHERE [p0].[Title] IS NOT NULL
+            ORDER BY [p0].[Title] DESC)
+        ORDER BY [p].[Id]
+    ) AS [p2]
+    UNION ALL
+    SELECT [p3].[Id], [p3].[BlogId], [p3].[Title]
+    FROM (
+        SELECT TOP(1) [p1].[Id], [p1].[BlogId], [p1].[Title]
+        FROM [Posts] AS [p1]
+        WHERE [p1].[Title] IS NULL
+        ORDER BY [p1].[Id]
+    ) AS [p3]
+) AS [u]
+ORDER BY CASE
+    WHEN [u].[Title] IS NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+""",
+            //
+            """
+SELECT TOP(1) [p].[Title]
+FROM [Posts] AS [p]
+ORDER BY CASE
+    WHEN [p].[Title] IS NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, [p].[Title]
+""");
+    }
+
     public override async Task ConcatOnEntitiesWithJson()
     {
         await base.ConcatOnEntitiesWithJson();
