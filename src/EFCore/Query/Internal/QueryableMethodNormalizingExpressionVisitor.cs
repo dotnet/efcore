@@ -186,7 +186,22 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
             && method.DeclaringType is { IsGenericType: true } existsDeclaringType
             && existsDeclaringType.GetGenericTypeDefinition() == typeof(List<>))
         {
-            visitedExpression = TryConvertListExistsToQueryableAny(methodCallExpression);
+            visitedExpression = TryConvertExistsToQueryableAny(
+                methodCallExpression,
+                methodCallExpression.Object!,
+                methodCallExpression.Arguments[0],
+                existsDeclaringType.GetGenericArguments()[0]);
+        }
+
+        if (method.Name == nameof(Array.Exists)
+            && method.DeclaringType == typeof(Array)
+            && method.IsGenericMethod)
+        {
+            visitedExpression = TryConvertExistsToQueryableAny(
+                methodCallExpression,
+                methodCallExpression.Arguments[0],
+                methodCallExpression.Arguments[1],
+                method.GetGenericArguments()[0]);
         }
 
         if (method.DeclaringType == typeof(EntityFrameworkQueryableExtensions)
@@ -516,21 +531,24 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
         return methodCallExpression.Update(Visit(methodCallExpression.Object), arguments);
     }
 
-    private Expression TryConvertListExistsToQueryableAny(MethodCallExpression methodCallExpression)
+    private Expression TryConvertExistsToQueryableAny(
+        MethodCallExpression methodCallExpression,
+        Expression source,
+        Expression predicate,
+        Type sourceType)
     {
-        if (methodCallExpression.Object is MemberInitExpression or NewExpression)
+        if (source is MemberInitExpression or NewExpression)
         {
             return base.VisitMethodCall(methodCallExpression);
         }
 
-        // List<T>.Exists takes a Predicate<T>; rewrite the lambda to Func<T, bool> so it matches
+        // List<T>.Exists and Array.Exists take a Predicate<T>; rewrite the lambda to Func<T, bool> so it matches
         // Queryable.Any's Expression<Func<T, bool>> parameter.
-        if (methodCallExpression.Arguments[0] is not LambdaExpression predicateLambda)
+        if (predicate is not LambdaExpression predicateLambda)
         {
             return base.VisitMethodCall(methodCallExpression);
         }
 
-        var sourceType = methodCallExpression.Method.DeclaringType!.GetGenericArguments()[0];
         var rewrittenPredicate = Expression.Lambda(
             typeof(Func<,>).MakeGenericType(sourceType, typeof(bool)),
             predicateLambda.Body,
@@ -541,7 +559,7 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                 QueryableMethods.AnyWithPredicate.MakeGenericMethod(sourceType),
                 Expression.Call(
                     QueryableMethods.AsQueryable.MakeGenericMethod(sourceType),
-                    methodCallExpression.Object!),
+                    source),
                 Expression.Quote(rewrittenPredicate)));
     }
 
