@@ -2493,6 +2493,110 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #endregion
 
+        #region 31388
+
+        // A keyless entity has no identifier, so the grouping terms have to stand in for it when a final GroupBy is shaped on the client.
+        // Without one, the rows of every group looked like part of the first group (or, before that was guarded, the query threw).
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Keyless_entity_final_GroupBy_with_ToDictionary(bool async)
+        {
+            var contextFactory = await SeedKeyless31388();
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Sales
+                .Where(s => s.Amount > 0)
+                .GroupBy(s => new { s.Region, s.Product });
+
+            var result = async
+                ? await query.ToDictionaryAsync(g => g.Key.Region, g => g.Key.Product)
+                : query.ToDictionary(g => g.Key.Region, g => g.Key.Product);
+
+            Assert.Equal(
+                new Dictionary<string, string> { ["North"] = "Chair", ["South"] = "Desk" },
+                result);
+        }
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Keyless_entity_final_GroupBy_with_elements(bool async)
+        {
+            var contextFactory = await SeedKeyless31388();
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Sales.GroupBy(s => s.Region);
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            Assert.Equal(["North", "South"], result.Select(g => g.Key).Order());
+            Assert.Equal([1, 2, 3], result.Single(g => g.Key == "North").Select(s => s.Amount).Order());
+            Assert.Equal([4], result.Single(g => g.Key == "South").Select(s => s.Amount));
+        }
+
+        private async Task<ContextFactory<Context31388>> SeedKeyless31388()
+            => await InitializeNonSharedTest<Context31388>(
+                seed: c => c.Database.ExecuteSqlRawAsync(
+                    """
+INSERT INTO Sales (Region, Product, Amount) VALUES ('North', 'Chair', 1), ('North', 'Chair', 2), ('North', 'Chair', 3), ('South', 'Desk', 4)
+"""));
+
+        protected class Context31388(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<Sale> Sales
+                => Set<Sale>();
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+                => modelBuilder.Entity<Sale>().HasNoKey().ToTable("Sales");
+
+            public class Sale
+            {
+                public string Region { get; set; } = null!;
+                public string Product { get; set; } = null!;
+                public int Amount { get; set; }
+            }
+        }
+
+        #endregion
+
+        #region 33494
+
+        // The result of a set operation has no identifier either, so a final GroupBy over it had the same problem as a keyless entity.
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Final_GroupBy_over_set_operation(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<Context33494>(seed: async c =>
+            {
+                c.AddRange(
+                    new Context33494.Manager { Name = "Alice" },
+                    new Context33494.Manager { Name = "Alice" },
+                    new Context33494.Manager { Name = "Bob" },
+                    new Context33494.Manager { Name = "Cheng" });
+                await c.SaveChangesAsync();
+            });
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Managers.Where(m => m.Name != "Cheng")
+                .Concat(context.Managers.Where(m => m.Name == "Cheng"))
+                .GroupBy(m => m.Name);
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            Assert.Equal(["Alice", "Bob", "Cheng"], result.Select(g => g.Key).Order());
+            Assert.Equal([2, 1, 1], result.OrderBy(g => g.Key).Select(g => g.Count()));
+        }
+
+        protected class Context33494(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<Manager> Managers
+                => Set<Manager>();
+
+            public class Manager
+            {
+                public int Id { get; set; }
+                public string Name { get; set; } = null!;
+            }
+        }
+
+        #endregion
+
         #region 39366
 
         [Theory, MemberData(nameof(IsAsyncData))]
