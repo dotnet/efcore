@@ -57,7 +57,7 @@ var versionCheckAdded = !IsDbContext;
 Directory.CreateDirectory(Path.GetDirectoryName(OutputPath));
 
 using (var reader = new StreamReader(TemplateFile))
-using (var writer = new StreamWriter(OutputPath))
+using (var writer = new StreamWriter(OutputPath) { NewLine = "\n" }) // scaffolded code always uses LF, so the templates do too
 {
     string line;
     while ((line = reader.ReadLine()) != null)

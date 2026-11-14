@@ -65,7 +65,8 @@ public class CSharpModelGenerator : ModelCodeGenerator
                 CoreStrings.ArgumentPropertyNull(nameof(options.ConnectionString), nameof(options)), nameof(options));
         }
 
-        var host = new TextTemplatingEngineHost(_serviceProvider);
+        // Scaffolded code always uses LF line endings, regardless of platform.
+        var host = new TextTemplatingEngineHost(new LfCSharpHelperServiceProvider(_serviceProvider));
         var contextTemplate = new CSharpDbContextGenerator { Host = host, Session = host.CreateSession() };
         contextTemplate.Session.Add("Model", model);
         contextTemplate.Session.Add("Options", options);
