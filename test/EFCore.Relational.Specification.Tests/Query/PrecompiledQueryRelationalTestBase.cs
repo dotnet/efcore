@@ -1009,6 +1009,23 @@ Assert.Collection(posts,
     b => Assert.Equal(23, b.Id));
 """);
 
+    [Fact]
+    public virtual Task MinMaxBy_nullable_keys()
+        => Test(
+            """
+var minimumBlog = context.Blogs.OrderBy(b => b.Id).MinBy(b => b.Name);
+Assert.Equal(8, minimumBlog!.Id);
+var maximumBlog = context.Blogs.OrderBy(b => b.Id).MaxBy(b => b.Name);
+Assert.Equal(9, maximumBlog!.Id);
+Assert.Equal(2, maximumBlog.Json.Count);
+var minimumPost = context.Posts.OrderBy(p => p.Id).MinBy(p => p.Title);
+Assert.Equal(11, minimumPost!.Id);
+var maximumPost = context.Posts.OrderBy(p => p.Id).MaxBy(p => p.Title);
+Assert.Equal(23, maximumPost!.Id);
+var title = context.Posts.Select(p => p.Title).MinBy(t => t);
+Assert.Equal("Post11", title);
+""");
+
     [Fact(Skip = "issue 33378")]
     public virtual Task ConcatOnEntitiesWithJson()
         => Test(

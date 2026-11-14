@@ -84,6 +84,198 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
     protected override QueryableMethodTranslatingExpressionVisitor CreateSubqueryVisitor()
         => new SqliteQueryableMethodTranslatingExpressionVisitor(this);
 
+    /// <inheritdoc />
+    protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        => TryTranslateMinMaxBy(methodCallExpression) ?? base.VisitMethodCall(methodCallExpression);
+
+    private ShapedQueryExpression? TryTranslateMinMaxBy(MethodCallExpression methodCallExpression)
+    {
+        if (!IsMethod(methodCallExpression, QueryableMethods.FirstOrDefaultWithoutPredicate)
+            || methodCallExpression.Arguments[0] is not MethodCallExpression orderBy
+            || !IsMethod(orderBy, QueryableMethods.OrderBy)
+            || orderBy.Arguments[1].UnwrapLambdaFromQuote() is not
+            {
+                Body: BinaryExpression { NodeType: ExpressionType.Equal, Right: ConstantExpression { Value: null } } nullTest
+            } ordering
+            || orderBy.Arguments[0] is not MethodCallExpression concat
+            || !IsMethod(concat, QueryableMethods.Concat)
+            || concat.Arguments[0] is not MethodCallExpression preferred
+            || !IsMethod(preferred, QueryableMethods.Take)
+            || preferred.Arguments[1] is not ConstantExpression { Value: 1 }
+            || concat.Arguments[1] is not MethodCallExpression fallback
+            || !IsMethod(fallback, QueryableMethods.Take)
+            || fallback.Arguments[1] is not ConstantExpression { Value: 1 }
+            || fallback.Arguments[0] is not MethodCallExpression nullRows
+            || !IsMethod(nullRows, QueryableMethods.Where)
+            || preferred.Arguments[0] is not MethodCallExpression preferredRows
+            || !IsMethod(preferredRows, QueryableMethods.Where)
+            || preferredRows.Arguments[1].UnwrapLambdaFromQuote() is not
+            { Body: BinaryExpression { NodeType: ExpressionType.Equal, Right: MethodCallExpression extremalKey } equality } predicate
+            || preferredRows.Arguments[0] is not MethodCallExpression nonNullRows
+            || !IsMethod(nonNullRows, QueryableMethods.Where)
+            || !IsMethod(extremalKey, QueryableMethods.FirstOrDefaultWithoutPredicate)
+            || extremalKey.Arguments[0] is not MethodCallExpression selectKey
+            || !IsMethod(selectKey, QueryableMethods.Select)
+            || selectKey.Arguments[0] is not MethodCallExpression keyOrdering
+            || (!IsMethod(keyOrdering, QueryableMethods.OrderBy) && !IsMethod(keyOrdering, QueryableMethods.OrderByDescending)))
+        {
+            return null;
+        }
+
+        var source = nullRows.Arguments[0];
+        var selector = Expression.Lambda(nullTest.Left, ordering.Parameters);
+        if (!selector.ReturnType.IsNullableType()
+            || selector.Body is not MemberExpression { Expression: ParameterExpression parameter }
+            || parameter != selector.Parameters[0])
+        {
+            return null;
+        }
+
+        var nonNullTest = Expression.Lambda(
+            Expression.NotEqual(selector.Body, Expression.Constant(null, selector.ReturnType)), selector.Parameters);
+        // Require both partitions and the extremal key to refer to exactly the same ordered source and key.
+        if (!MatchesSource(source, nonNullRows.Arguments[0])
+            || !MatchesSource(nonNullRows, keyOrdering.Arguments[0])
+            || !MatchesSource(
+                equality.Left, ReplacingExpressionVisitor.Replace(selector.Parameters[0], predicate.Parameters[0], selector.Body))
+            || !MatchesLambda(nullRows.Arguments[1].UnwrapLambdaFromQuote(), ordering)
+            || !MatchesLambda(nonNullRows.Arguments[1].UnwrapLambdaFromQuote(), nonNullTest)
+            || !MatchesLambda(selectKey.Arguments[1].UnwrapLambdaFromQuote(), selector)
+            || !MatchesLambda(keyOrdering.Arguments[1].UnwrapLambdaFromQuote(), selector)
+            || Visit(source) is not ShapedQueryExpression translatedSource
+            || TranslateLambdaExpression(translatedSource, selector) is not ColumnExpression key
+            || TranslateExpression(extremalKey) is not ScalarSubqueryExpression extremum)
+        {
+            return null;
+        }
+
+        ((SelectExpression)translatedSource.QueryExpression).ApplyPredicate(
+            new SqliteIsExpression(key, extremum, _typeMappingSource.FindMapping(typeof(bool))!));
+        return TranslateFirstOrDefault(
+            translatedSource.UpdateResultCardinality(ResultCardinality.SingleOrDefault), null, methodCallExpression.Type, returnDefault: true);
+    }
+
+    private static bool IsMethod(MethodCallExpression expression, MethodInfo method)
+        => expression.Method.IsGenericMethod && expression.Method.GetGenericMethodDefinition() == method;
+
+    private static bool MatchesLambda(LambdaExpression expression, LambdaExpression expected)
+        => expression.Parameters.Count == 1
+            && expression.Parameters[0].Type == expected.Parameters[0].Type
+            && MatchesSource(
+                expression.Body, ReplacingExpressionVisitor.Replace(expected.Parameters[0], expression.Parameters[0], expected.Body));
+
+    private static bool MatchesSource(Expression left, Expression right)
+    {
+        var freeParameters = new Dictionary<ParameterExpression, ParameterExpression>();
+        var leftVisitor = new ScopedParameterNormalizingVisitor(freeParameters);
+        var rightVisitor = new ScopedParameterNormalizingVisitor(freeParameters);
+        var normalizedLeft = leftVisitor.Visit(left);
+        var normalizedRight = rightVisitor.Visit(right);
+        if (!leftVisitor.SupportsOptimization || !rightVisitor.SupportsOptimization)
+        {
+            return false;
+        }
+
+        return ExpressionEqualityComparer.Instance.Equals(
+            normalizedLeft, normalizedRight);
+    }
+
+    private sealed class ScopedParameterNormalizingVisitor(Dictionary<ParameterExpression, ParameterExpression> freeParameters)
+        : ExpressionVisitor
+    {
+        private readonly Dictionary<ParameterExpression, ParameterExpression> _scope = [];
+        private int _nextParameter;
+
+        public bool SupportsOptimization { get; private set; } = true;
+
+        protected override Expression VisitMethodCall(MethodCallExpression node)
+        {
+            if (!IsMethod(node, QueryableMethods.Where)
+                && !IsMethod(node, QueryableMethods.OrderBy)
+                && !IsMethod(node, QueryableMethods.OrderByDescending)
+                && !IsMethod(node, QueryableMethods.ThenBy)
+                && !IsMethod(node, QueryableMethods.ThenByDescending)
+                && !IsMethod(node, QueryableMethods.Skip)
+                && !IsMethod(node, QueryableMethods.Take)
+                && !(node.Method.DeclaringType == typeof(EF) && node.Method.Name == nameof(EF.Property)))
+            {
+                SupportsOptimization = false;
+            }
+
+            return base.VisitMethodCall(node);
+        }
+
+        protected override Expression VisitMember(MemberExpression node)
+        {
+            if (node.Expression is null)
+            {
+                SupportsOptimization = false;
+            }
+
+            return base.VisitMember(node);
+        }
+
+        protected override Expression VisitInvocation(InvocationExpression node)
+        {
+            SupportsOptimization = false;
+            return base.VisitInvocation(node);
+        }
+
+        protected override Expression VisitExtension(Expression node)
+        {
+            if (node is EntityQueryRootExpression root
+                && (node.GetType() != typeof(EntityQueryRootExpression)
+                    || root.EntityType.GetViewName() != null
+                    || root.EntityType.GetSqlQuery() != null
+                    || root.EntityType.GetFunctionName() != null))
+            {
+                SupportsOptimization = false;
+            }
+
+            return base.VisitExtension(node);
+        }
+
+        protected override Expression VisitLambda<T>(Expression<T> node)
+        {
+            var previous = node.Parameters.Select(p => _scope.GetValueOrDefault(p)).ToArray();
+            var parameters = node.Parameters.Select(p => Expression.Parameter(p.Type, "bound" + _nextParameter++)).ToArray();
+            for (var i = 0; i < parameters.Length; i++)
+            {
+                _scope[node.Parameters[i]] = parameters[i];
+            }
+
+            var body = Visit(node.Body);
+            for (var i = 0; i < parameters.Length; i++)
+            {
+                if (previous[i] is { } parameter)
+                {
+                    _scope[node.Parameters[i]] = parameter;
+                }
+                else
+                {
+                    _scope.Remove(node.Parameters[i]);
+                }
+            }
+
+            return node.Update(body, parameters);
+        }
+
+        protected override Expression VisitParameter(ParameterExpression node)
+        {
+            if (_scope.TryGetValue(node, out var parameter))
+            {
+                return parameter;
+            }
+
+            if (!freeParameters.TryGetValue(node, out parameter))
+            {
+                freeParameters[node] = parameter = Expression.Parameter(node.Type, "free" + freeParameters.Count);
+            }
+
+            return parameter;
+        }
+    }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in

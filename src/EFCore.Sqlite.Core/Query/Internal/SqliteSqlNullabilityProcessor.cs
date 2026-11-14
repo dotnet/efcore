@@ -39,12 +39,21 @@ public class SqliteSqlNullabilityProcessor : SqlNullabilityProcessor
         out bool nullable)
         => sqlExpression switch
         {
+            SqliteIsExpression isExpression => VisitIs(isExpression, out nullable),
             GlobExpression globExpression => VisitGlob(globExpression, allowOptimizedExpansion, out nullable),
             RegexpExpression regexpExpression => VisitRegexp(regexpExpression, allowOptimizedExpansion, out nullable),
             SqliteAggregateFunctionExpression aggregateFunctionExpression
                 => VisitAggregateFunction(aggregateFunctionExpression, allowOptimizedExpansion, out nullable),
             _ => base.VisitCustomSqlExpression(sqlExpression, allowOptimizedExpansion, out nullable)
         };
+
+    private SqlExpression VisitIs(SqliteIsExpression isExpression, out bool nullable)
+    {
+        var left = Visit(isExpression.Left, out _);
+        var right = Visit(isExpression.Right, out _);
+        nullable = false;
+        return isExpression.Update(left, right);
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
