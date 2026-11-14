@@ -198,8 +198,7 @@ public class OperationExecutor : MarshalByRefObject
         {
             ["MigrationFile"] = files.MigrationFile,
             ["MetadataFile"] = files.MetadataFile,
-            ["SnapshotFile"] = files.SnapshotFile,
-            ["PreviousSnapshotFile"] = files.PreviousSnapshotFile
+            ["SnapshotFile"] = files.SnapshotFile
         };
     }
 

@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text;
-using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 
@@ -424,52 +423,15 @@ public class MigrationsScaffolder : IMigrationsScaffolder
         var modelSnapshotDirectory = outputDir ?? GetDirectory(projectDir, modelSnapshotFileName, migration.SnapshotSubnamespace);
         var modelSnapshotFile = Path.Combine(modelSnapshotDirectory, modelSnapshotFileName);
 
-        var snapshotClassName = migration.SnapshotName;
-        var currentSnapshotNamespace = Dependencies.MigrationsAssembly.ModelSnapshot?.GetType().Namespace;
-
-        // Snapshot file names are not unique across contexts or namespaces, so never overwrite a file that does not declare
-        // this context's snapshot.
+        // Snapshot file names are not unique across contexts, so don't overwrite a file that can't be this context's snapshot.
         if (File.Exists(modelSnapshotFile)
-            && !DeclaresSnapshot(modelSnapshotFile, currentSnapshotNamespace, DeclaredNamespace(migration.SnapshotCode), snapshotClassName))
+            && Dependencies.MigrationsAssembly.ModelSnapshot == null)
         {
-            throw new OperationException(DesignStrings.SnapshotFileBelongsToAnotherType(modelSnapshotFile, snapshotClassName));
-        }
-
-        // An explicit output directory moves the snapshot with the migration; the old file must go or there would be two snapshots.
-        string? staleSnapshotFile = null;
-        if (currentSnapshotNamespace != null)
-        {
-            var existingSnapshotFiles = FindSnapshotFiles(projectDir, outputDir, modelSnapshotFileName, currentSnapshotNamespace, snapshotClassName);
-            if (existingSnapshotFiles.Count == 0)
-            {
-                // Typically the snapshot is in a directory outside of the project, which must be given as the output directory.
-                Dependencies.OperationReporter.WriteWarning(
-                    DesignStrings.ExistingSnapshotFileNotFound(snapshotClassName, modelSnapshotFile));
-            }
-            else if (outputDir != null && !existingSnapshotFiles.Any(f => IsSameFile(f, modelSnapshotFile)))
-            {
-                if (existingSnapshotFiles.Count == 1)
-                {
-                    staleSnapshotFile = existingSnapshotFiles[0];
-                }
-                else
-                {
-                    Dependencies.OperationReporter.WriteWarning(
-                        DesignStrings.MultipleExistingSnapshotFiles(
-                            snapshotClassName, string.Join(", ", existingSnapshotFiles.Select(f => $"'{f}'"))));
-                }
-            }
-        }
-
-        if (staleSnapshotFile != null && dryRun)
-        {
-            Dependencies.OperationReporter.WriteInformation(DesignStrings.WouldMoveSnapshot(staleSnapshotFile, modelSnapshotFile));
-            staleSnapshotFile = null;
+            throw new OperationException(DesignStrings.SnapshotFileBelongsToAnotherType(modelSnapshotFile, migration.SnapshotName));
         }
 
         Dependencies.OperationReporter.WriteVerbose(DesignStrings.WritingMigration(migrationFile));
 
-        string? previousSnapshotFile = null;
         if (!dryRun)
         {
             Directory.CreateDirectory(migrationDirectory);
@@ -480,20 +442,6 @@ public class MigrationsScaffolder : IMigrationsScaffolder
 
             Dependencies.OperationReporter.WriteVerbose(DesignStrings.WritingSnapshot(modelSnapshotFile));
             File.WriteAllText(modelSnapshotFile, migration.SnapshotCode, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
-
-            if (staleSnapshotFile != null)
-            {
-                Dependencies.OperationReporter.WriteInformation(DesignStrings.MovingSnapshot(staleSnapshotFile, modelSnapshotFile));
-                try
-                {
-                    File.Delete(staleSnapshotFile);
-                    previousSnapshotFile = staleSnapshotFile;
-                }
-                catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-                {
-                    Dependencies.OperationReporter.WriteWarning(DesignStrings.CannotDeleteOldSnapshot(staleSnapshotFile, ex.Message));
-                }
-            }
         }
 
         return new MigrationFiles
@@ -501,7 +449,6 @@ public class MigrationsScaffolder : IMigrationsScaffolder
             MigrationFile = migrationFile,
             MetadataFile = migrationMetadataFile,
             SnapshotFile = modelSnapshotFile,
-            PreviousSnapshotFile = previousSnapshotFile,
             Migration = migration
         };
     }
@@ -558,69 +505,6 @@ public class MigrationsScaffolder : IMigrationsScaffolder
         }
 
         return defaultDirectory;
-    }
-
-    private static bool IsSameFile(string file1, string file2)
-        => Path.GetFullPath(file1).Equals(
-            Path.GetFullPath(file2),
-            OperatingSystem.IsWindows() || OperatingSystem.IsMacOS() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
-
-    private static string? DeclaredNamespace(string code)
-    {
-        var match = Regex.Match(code, @"^\s*namespace\s+([\w.@]+)\s*(;|\{|$)", RegexOptions.Multiline);
-
-        return match.Success ? match.Groups[1].Value : null;
-    }
-
-    // Namespaces and class names are matched textually; scaffolded snapshots always declare one flat namespace.
-    private static bool DeclaresSnapshot(string file, string? namespace1, string? namespace2, string className)
-    {
-        var classDeclaration = new Regex(@"\bclass\s+@?" + Regex.Escape(className) + @"\b");
-        var namespaces = new[] { namespace1, namespace2 }.Where(n => n != null).Distinct().ToList();
-        var lines = File.ReadLines(file).ToList();
-
-        return lines.Any(l => classDeclaration.IsMatch(l))
-            && (namespaces.Count == 0
-                || namespaces.Any(
-                    n => lines.Any(l => Regex.IsMatch(l, @"^\s*namespace\s+" + Regex.Escape(n!) + @"\s*(;|\{|$)"))));
-    }
-
-    /// <summary>
-    ///     Finds the files declaring the current model snapshot: directly in the output directory, and anywhere under the project directory.
-    /// </summary>
-    private static List<string> FindSnapshotFiles(
-        string projectDir,
-        string? outputDir,
-        string snapshotFileName,
-        string snapshotNamespace,
-        string snapshotClassName)
-    {
-        var candidates = new List<string>();
-        if (outputDir != null)
-        {
-            var inOutputDir = Path.Combine(outputDir, snapshotFileName);
-            if (File.Exists(inOutputDir))
-            {
-                candidates.Add(inOutputDir);
-            }
-        }
-
-        if (Directory.Exists(projectDir))
-        {
-            candidates.AddRange(Directory.EnumerateFiles(projectDir, snapshotFileName, SearchOption.AllDirectories));
-        }
-
-        var found = new List<string>();
-        foreach (var candidate in candidates)
-        {
-            if (!found.Any(f => IsSameFile(f, candidate))
-                && DeclaresSnapshot(candidate, snapshotNamespace, null, snapshotClassName))
-            {
-                found.Add(candidate);
-            }
-        }
-
-        return found;
     }
 
     /// <summary>
