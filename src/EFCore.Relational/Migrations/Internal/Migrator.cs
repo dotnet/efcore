@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Runtime.CompilerServices;
 using System.Transactions;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using IsolationLevel = System.Data.IsolationLevel;
@@ -174,14 +173,15 @@ public class Migrator : IMigrator
                     : state.DatabaseLock.ReacquireIfNeeded(connectionOpened, useTransaction);
             }
 
-            var (migrationsToApply, migrationsToRevert, actualTargetMigration) = PopulateReleasableMigrations(
+            PopulateMigrations(
                 _historyRepository.GetAppliedMigrations().Select(t => t.MigrationId),
-                targetMigration);
+                targetMigration,
+                out var migratorData);
 
-            var commandLists = GetMigrationCommandLists(migrationsToApply, migrationsToRevert, actualTargetMigration);
+            var commandLists = GetMigrationCommandLists(migratorData);
             foreach (var commandList in commandLists)
             {
-                var (id, getCommands, releaseMigration) = commandList;
+                var (id, getCommands) = commandList;
                 if (id != state.CurrentMigrationId)
                 {
                     state.CurrentMigrationId = id;
@@ -190,7 +190,6 @@ public class Migrator : IMigrator
 
                 _migrationCommandExecutor.ExecuteNonQuery(
                     getCommands(), _connection, state, commitTransaction: useTransaction, MigrationTransactionIsolationLevel);
-                releaseMigration();
             }
 
             var coreOptionsExtension =
@@ -324,14 +323,15 @@ public class Migrator : IMigrator
                         .ConfigureAwait(false);
             }
 
-            var (migrationsToApply, migrationsToRevert, actualTargetMigration) = PopulateReleasableMigrations(
+            PopulateMigrations(
                 (await _historyRepository.GetAppliedMigrationsAsync(cancellationToken).ConfigureAwait(false)).Select(t => t.MigrationId),
-                targetMigration);
+                targetMigration,
+                out var migratorData);
 
-            var commandLists = GetMigrationCommandLists(migrationsToApply, migrationsToRevert, actualTargetMigration);
+            var commandLists = GetMigrationCommandLists(migratorData);
             foreach (var commandList in commandLists)
             {
-                var (id, getCommands, releaseMigration) = commandList;
+                var (id, getCommands) = commandList;
                 if (id != state.CurrentMigrationId)
                 {
                     state.CurrentMigrationId = id;
@@ -342,7 +342,6 @@ public class Migrator : IMigrator
                         getCommands(), _connection, state, commitTransaction: useTransaction, MigrationTransactionIsolationLevel,
                         cancellationToken)
                     .ConfigureAwait(false);
-                releaseMigration();
             }
 
             var coreOptionsExtension =
@@ -458,25 +457,27 @@ public class Migrator : IMigrator
         }
     }
 
-    private IEnumerable<(string, Func<IReadOnlyList<MigrationCommand>>, Action)> GetMigrationCommandLists(
-        IReadOnlyList<Migration> migrationsToApply,
-        IReadOnlyList<Migration> migrationsToRevert,
-        Migration? actualTargetMigration)
+    private IEnumerable<(string, Func<IReadOnlyList<MigrationCommand>>)> GetMigrationCommandLists(MigratorData migratorData)
     {
+        var migrationsToApply = migratorData.AppliedMigrations;
+        var migrationsToRevert = migratorData.RevertedMigrations;
+        Migration? previousMigration = null;
         for (var i = 0; i < migrationsToRevert.Count; i++)
         {
-            var migration = migrationsToRevert[i];
+            var (id, migrationType) = migrationsToRevert[i];
+            var migration = previousMigration ?? _migrationsAssembly.CreateMigration(migrationType, _activeProvider);
+            previousMigration = i != migrationsToRevert.Count - 1
+                ? _migrationsAssembly.CreateMigration(migrationsToRevert[i + 1].Value, _activeProvider)
+                : migratorData.TargetMigration == null
+                    ? null
+                    : _migrationsAssembly.CreateMigration(migratorData.TargetMigration, _activeProvider);
 
-            var index = i;
-            yield return (migration.GetId(), () =>
+            var targetMigration = previousMigration;
+            yield return (id, () =>
                     {
                         _logger.MigrationReverting(this, migration);
 
-                        var commands = GenerateDownSql(
-                            migration,
-                            index != migrationsToRevert.Count - 1
-                                ? migrationsToRevert[index + 1]
-                                : actualTargetMigration);
+                        var commands = GenerateDownSql(migration, targetMigration);
                         if (migration.DownOperations.Count > 1
                             && commands.FirstOrDefault(c => c.TransactionSuppressed) is { } nonTransactionalCommand)
                         {
@@ -484,15 +485,14 @@ public class Migrator : IMigrator
                         }
 
                         return commands;
-                    }, () => ReleaseMigrationReference(migrationsToRevert, index)
+                    }
             );
         }
 
-        for (var i = 0; i < migrationsToApply.Count; i++)
+        foreach (var (id, migrationType) in migrationsToApply)
         {
-            var migration = migrationsToApply[i];
-            var index = i;
-            yield return (migration.GetId(), () =>
+            var migration = _migrationsAssembly.CreateMigration(migrationType, _activeProvider);
+            yield return (id, () =>
                     {
                         _logger.MigrationApplying(this, migration);
 
@@ -504,7 +504,7 @@ public class Migrator : IMigrator
                         }
 
                         return commands;
-                    }, () => ReleaseMigrationReference(migrationsToApply, index)
+                    }
             );
         }
 
@@ -512,32 +512,6 @@ public class Migrator : IMigrator
         {
             _logger.MigrationsNotApplied(this);
         }
-    }
-
-    private static void ReleaseMigrationReference(IReadOnlyList<Migration> migrations, int index)
-    {
-        if (migrations is ReleasableMigrationList list)
-        {
-            list[index] = null!;
-        }
-    }
-
-    private sealed class ReleasableMigrationList(IEnumerable<Migration> migrations)
-        : List<Migration>(migrations);
-
-    private static IReadOnlyList<Migration> MakeReleasable(IReadOnlyList<Migration> migrations)
-        => migrations is List<Migration> ? new ReleasableMigrationList(migrations) : migrations;
-
-    [MethodImpl(MethodImplOptions.NoInlining)]
-    private (IReadOnlyList<Migration>, IReadOnlyList<Migration>, Migration?) PopulateReleasableMigrations(
-        IEnumerable<string> appliedMigrationEntries,
-        string? targetMigration)
-    {
-        PopulateMigrations(appliedMigrationEntries, targetMigration, out var parameters);
-        return (
-            MakeReleasable(parameters.AppliedMigrations),
-            MakeReleasable(parameters.RevertedMigrations),
-            parameters.TargetMigration);
     }
 
     /// <summary>
@@ -567,14 +541,13 @@ public class Migrator : IMigrator
             }
         }
 
-        IReadOnlyList<Migration> migrationsToApply;
-        IReadOnlyList<Migration> migrationsToRevert;
-        Migration? actualTargetMigration = null;
+        IReadOnlyList<KeyValuePair<string, TypeInfo>> migrationsToApply;
+        IReadOnlyList<KeyValuePair<string, TypeInfo>> migrationsToRevert;
+        TypeInfo? actualTargetMigration = null;
         if (string.IsNullOrEmpty(targetMigration))
         {
             migrationsToApply = unappliedMigrations
                 .OrderBy(m => m.Key)
-                .Select(p => _migrationsAssembly.CreateMigration(p.Value, _activeProvider))
                 .ToList();
             migrationsToRevert = [];
         }
@@ -583,7 +556,6 @@ public class Migrator : IMigrator
             migrationsToApply = [];
             migrationsToRevert = appliedMigrations
                 .OrderByDescending(m => m.Key)
-                .Select(p => _migrationsAssembly.CreateMigration(p.Value, _activeProvider))
                 .ToList();
         }
         else
@@ -592,16 +564,14 @@ public class Migrator : IMigrator
             migrationsToApply = unappliedMigrations
                 .Where(m => string.Compare(m.Key, targetMigration, StringComparison.OrdinalIgnoreCase) <= 0)
                 .OrderBy(m => m.Key)
-                .Select(p => _migrationsAssembly.CreateMigration(p.Value, _activeProvider))
                 .ToList();
             migrationsToRevert = appliedMigrations
                 .Where(m => string.Compare(m.Key, targetMigration, StringComparison.OrdinalIgnoreCase) > 0)
                 .OrderByDescending(m => m.Key)
-                .Select(p => _migrationsAssembly.CreateMigration(p.Value, _activeProvider))
                 .ToList();
             actualTargetMigration = appliedMigrations
                 .Where(m => string.Compare(m.Key, targetMigration, StringComparison.OrdinalIgnoreCase) == 0)
-                .Select(p => _migrationsAssembly.CreateMigration(p.Value, _activeProvider))
+                .Select(p => p.Value)
                 .SingleOrDefault();
         }
 
@@ -661,8 +631,9 @@ public class Migrator : IMigrator
                 .Select(t => t.Key);
         }
 
-        var (migrationsToApply, migrationsToRevert, actualTargetMigration) = PopulateReleasableMigrations(
-            appliedMigrations, toMigration);
+        PopulateMigrations(appliedMigrations, toMigration, out var migratorData);
+        var migrationsToApply = migratorData.AppliedMigrations;
+        var migrationsToRevert = migratorData.RevertedMigrations;
 
         var builder = new IndentedStringBuilder();
 
@@ -677,38 +648,40 @@ public class Migrator : IMigrator
         var idempotencyEnd = idempotent
             ? _historyRepository.GetEndIfScript()
             : null;
+        Migration? previousMigration = null;
         for (var i = 0; i < migrationsToRevert.Count; i++)
         {
-            var migration = migrationsToRevert[i];
-            var previousMigration = i != migrationsToRevert.Count - 1
-                ? migrationsToRevert[i + 1]
-                : actualTargetMigration;
+            var (id, migrationType) = migrationsToRevert[i];
+            var migration = previousMigration ?? _migrationsAssembly.CreateMigration(migrationType, _activeProvider);
+            previousMigration = i != migrationsToRevert.Count - 1
+                ? _migrationsAssembly.CreateMigration(migrationsToRevert[i + 1].Value, _activeProvider)
+                : migratorData.TargetMigration == null
+                    ? null
+                    : _migrationsAssembly.CreateMigration(migratorData.TargetMigration, _activeProvider);
 
             _logger.MigrationGeneratingDownScript(this, migration, fromMigration, toMigration, idempotent);
 
             var idempotencyCondition = idempotent
-                ? _historyRepository.GetBeginIfExistsScript(migration.GetId())
+                ? _historyRepository.GetBeginIfExistsScript(id)
                 : null;
 
             GenerateSqlScript(
                 GenerateDownSql(migration, previousMigration, options),
                 builder, _sqlGenerationHelper, noTransactions, idempotencyCondition, idempotencyEnd);
-            ReleaseMigrationReference(migrationsToRevert, i);
         }
 
-        for (var i = 0; i < migrationsToApply.Count; i++)
+        foreach (var (id, migrationType) in migrationsToApply)
         {
-            var migration = migrationsToApply[i];
+            var migration = _migrationsAssembly.CreateMigration(migrationType, _activeProvider);
             _logger.MigrationGeneratingUpScript(this, migration, fromMigration, toMigration, idempotent);
 
             var idempotencyCondition = idempotent
-                ? _historyRepository.GetBeginIfNotExistsScript(migration.GetId())
+                ? _historyRepository.GetBeginIfNotExistsScript(id)
                 : null;
 
             GenerateSqlScript(
                 GenerateUpSql(migration, options),
                 builder, _sqlGenerationHelper, noTransactions, idempotencyCondition, idempotencyEnd);
-            ReleaseMigrationReference(migrationsToApply, i);
         }
 
         return builder.ToString();

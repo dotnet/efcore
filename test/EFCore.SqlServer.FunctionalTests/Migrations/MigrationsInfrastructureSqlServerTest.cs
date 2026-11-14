@@ -15,15 +15,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         MigrationsInfrastructureSqlServerTest.MigrationsInfrastructureSqlServerFixture fixture)
         : MigrationsInfrastructureTestBase<MigrationsInfrastructureSqlServerTest.MigrationsInfrastructureSqlServerFixture>(fixture)
     {
-        public override Task Completed_migration_models_can_be_collected(bool async, bool down)
-            => base.Completed_migration_models_can_be_collected(async, down);
-
-        public override void Completed_migration_models_can_be_collected_while_generating_script(bool down)
-            => base.Completed_migration_models_can_be_collected_while_generating_script(down);
-
-        public override Task Target_model_cache_survives_migration_execution(bool async)
-            => base.Target_model_cache_survives_migration_execution(async);
-
         public override void Can_apply_range_of_migrations()
         {
             base.Can_apply_range_of_migrations();

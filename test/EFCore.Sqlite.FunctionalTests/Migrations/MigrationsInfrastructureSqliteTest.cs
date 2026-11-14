@@ -12,15 +12,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     public class MigrationsInfrastructureSqliteTest(MigrationsInfrastructureSqliteTest.MigrationsInfrastructureSqliteFixture fixture)
         : MigrationsInfrastructureTestBase<MigrationsInfrastructureSqliteTest.MigrationsInfrastructureSqliteFixture>(fixture)
     {
-        public override Task Completed_migration_models_can_be_collected(bool async, bool down)
-            => base.Completed_migration_models_can_be_collected(async, down);
-
-        public override void Completed_migration_models_can_be_collected_while_generating_script(bool down)
-            => base.Completed_migration_models_can_be_collected_while_generating_script(down);
-
-        public override Task Target_model_cache_survives_migration_execution(bool async)
-            => base.Target_model_cache_survives_migration_execution(async);
-
         public override async Task Can_generate_migration_from_initial_database_to_initial()
         {
             await base.Can_generate_migration_from_initial_database_to_initial();
