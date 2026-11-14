@@ -23,6 +23,7 @@ public abstract class QueryContext
 {
     private IStateManager? _stateManager;
     private HashSet<InternalEntityEntry>? _entriesStartedTracking;
+    private HashSet<(InternalEntityEntry, INavigation)>? _collectionNullnessLoaded;
 
     /// <summary>
     ///     <para>
@@ -112,6 +113,7 @@ public abstract class QueryContext
         // This is called each time the query is executed. Entities that were started being tracked by an earlier execution
         // are tracked by then, and can have unsaved changes.
         _entriesStartedTracking?.Clear();
+        _collectionNullnessLoaded?.Clear();
     }
 
     /// <summary>
@@ -172,9 +174,10 @@ public abstract class QueryContext
     /// <remarks>
     ///     <para>
     ///         This is <see langword="true" /> for an entity that is not tracked, for example in a no-tracking query, and for an entity
-    ///         that was started being tracked by this query. It is <see langword="false" /> for an entity that was already tracked
-    ///         before this query, in which case the current values of the entity are kept, including an unsaved change between a null
-    ///         and a non-null collection.
+    ///         that was started being tracked by this query, until the null-ness of the navigation has been loaded. It is
+    ///         <see langword="false" /> for an entity that was already tracked before this query, and for an entity that is returned
+    ///         again by this query after the null-ness of the navigation was loaded. In those cases the current values of the entity
+    ///         are kept, including an unsaved change between a null and a non-null collection.
     ///     </para>
     ///     <para>
     ///         A database provider should call this before materializing the collection and, if it returns
@@ -185,11 +188,12 @@ public abstract class QueryContext
     /// <param name="entity">The entity instance that declares the navigation.</param>
     /// <returns><see langword="true" /> if the stored null-ness should be applied, otherwise <see langword="false" />.</returns>
     public virtual bool CanLoadCollectionNullness(INavigation navigation, object entity)
-        => IsNullnessLoadable(TryGetEntry(entity));
+        => IsNullnessLoadable(TryGetEntry(entity), navigation);
 
-    private bool IsNullnessLoadable(InternalEntityEntry? entry)
+    private bool IsNullnessLoadable(InternalEntityEntry? entry, INavigation navigation)
         => entry == null
-            || _entriesStartedTracking?.Contains(entry) == true;
+            || (_entriesStartedTracking?.Contains(entry) == true
+                && _collectionNullnessLoaded?.Contains((entry, navigation)) != true);
 
     /// <summary>
     ///     Sets the loaded null-ness of a collection navigation that has <see cref="IReadOnlyNavigation.IsNullable" /> equal to
@@ -212,9 +216,16 @@ public abstract class QueryContext
     public virtual void SetCollectionNullnessLoaded(INavigation navigation, object entity, bool storedAsNull)
     {
         var entry = TryGetEntry(entity);
-        if (!IsNullnessLoadable(entry))
+        if (!IsNullnessLoadable(entry, navigation))
         {
             return;
+        }
+
+        if (entry != null)
+        {
+            // The null-ness is only loaded once for each entity and navigation, so that, if the query returns the same
+            // entity again, changes made to the navigation in the meantime aren't overwritten.
+            (_collectionNullnessLoaded ??= []).Add((entry, navigation));
         }
 
         var recordOriginal = entry != null && navigation.GetOriginalValueIndex() >= 0;

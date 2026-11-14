@@ -844,6 +844,56 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
     }
 
     [Fact] // Issue #33452
+    public virtual async Task Streamed_duplicate_of_a_tracked_entity_does_not_overwrite_a_change_to_a_nullable_json_collection()
+    {
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
+            onModelCreating: mb => mb.Entity<NullableJsonParent>().OwnsMany(p => p.Children, b => b.ToJson()));
+
+        await ExecuteWithStrategyInTransactionAsync(
+            contextFactory,
+            async context =>
+            {
+                context.AddRange(new NullableJsonParent { Name = "A", Children = null }, new NullableJsonParent { Name = "B", Children = [] });
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                // The same entity instance is returned twice by the query, with the stored null-ness being read both times.
+                var query = from p in context.Set<NullableJsonParent>().Where(p => p.Name == "A")
+                            from q in context.Set<NullableJsonParent>()
+                            select p;
+
+                var results = 0;
+                foreach (var parent in query.AsEnumerable())
+                {
+                    if (results++ == 0)
+                    {
+                        Assert.Null(parent.Children);
+                        parent.Children = [];
+                    }
+                    else
+                    {
+                        Assert.NotNull(parent.Children);
+                        Assert.Empty(parent.Children);
+                    }
+                }
+
+                Assert.Equal(2, results);
+
+                var tracked = context.ChangeTracker.Entries<NullableJsonParent>().Single(e => e.Entity.Name == "A");
+                Assert.Equal(EntityState.Modified, tracked.State);
+
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var parent = await context.Set<NullableJsonParent>().SingleAsync(p => p.Name == "A");
+                Assert.NotNull(parent.Children);
+                Assert.Empty(parent.Children);
+            });
+    }
+
+    [Fact] // Issue #33452
     public virtual async Task Json_collection_that_is_not_nullable_stored_as_null_is_still_loaded_as_empty_with_initializer()
     {
         var contextFactory = await InitializeNonSharedTest<DbContext>(
