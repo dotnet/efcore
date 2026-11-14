@@ -1382,4 +1382,73 @@ public abstract partial class ModelBuilderTest
 
         public int[,,]? Three { get; set; }
     }
+
+    protected class OwnerOfOwnedWithComplex
+    {
+        public int Id { get; set; }
+        public OwnedWithComplex? Owned { get; set; }
+        public List<OwnedWithComplex> OwnedCollection { get; set; } = [];
+    }
+
+    protected class DerivedOwnerOfOwnedWithComplex : OwnerOfOwnedWithComplex
+    {
+        public OwnedWithComplex? DerivedOwned { get; set; }
+    }
+
+    protected class OwnedWithComplex
+    {
+        public string? Name { get; set; }
+        public ComplexInOwned Complex { get; set; } = null!;
+        public List<ComplexInOwned> ComplexCollection { get; set; } = [];
+    }
+
+    protected class ComplexInOwned
+    {
+        public string? Value { get; set; }
+        public int Number { get; set; }
+    }
+
+    protected class OwnerOfOwnedAndComplex
+    {
+        public int Id { get; set; }
+        public ComplexInOwned Complex { get; set; } = null!;
+        public OwnedWithComplex? Owned { get; set; }
+    }
+
+    protected class OwnerOfNestedOwned
+    {
+        public int Id { get; set; }
+        public OwnedWithComplexAndNested? First { get; set; }
+        public OwnedWithComplexAndNested? Second { get; set; }
+    }
+
+    protected class OwnedWithComplexAndNested
+    {
+        public ComplexInOwned Complex { get; set; } = null!;
+        public NestedOwnedLeaf? Leaf { get; set; }
+    }
+
+    protected class NestedOwnedLeaf
+    {
+        public string? Value { get; set; }
+    }
+
+    protected class OwnerOfAttributeOwned
+    {
+        public int Id { get; set; }
+        public List<AttributeOwnedWithComplex> Owneds { get; set; } = [];
+    }
+
+    [Owned]
+    protected class AttributeOwnedWithComplex
+    {
+        public string? Name { get; set; }
+        public AttributeComplexInOwned Complex { get; set; } = null!;
+    }
+
+    [ComplexType]
+    protected class AttributeComplexInOwned
+    {
+        public string? Value { get; set; }
+    }
 }

@@ -1953,6 +1953,12 @@ public abstract partial class ModelBuilderTest
             where TNewDependentEntity : class
             => new(ownedNavigationBuilder);
 
+        protected virtual NonGenericTestComplexPropertyBuilder<T> Wrap<T>(ComplexPropertyBuilder complexPropertyBuilder)
+            => new(complexPropertyBuilder);
+
+        protected virtual NonGenericTestComplexCollectionBuilder<T> Wrap<T>(ComplexCollectionBuilder complexPropertyBuilder)
+            => new(complexPropertyBuilder);
+
         public override TestOwnedNavigationBuilder<TEntity, TDependentEntity> HasAnnotation(
             string annotation,
             object? value)
@@ -1989,6 +1995,131 @@ public abstract partial class ModelBuilderTest
             var memberInfo = propertyExpression.GetMemberAccess();
             return new NonGenericTestPrimitiveCollectionBuilder<TProperty>(
                 OwnedNavigationBuilder.PrimitiveCollection(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName()));
+        }
+
+        public override TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(string propertyName)
+            => Wrap<TProperty>(OwnedNavigationBuilder.ComplexProperty<TProperty>(propertyName));
+
+        public override TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
+            Expression<Func<TDependentEntity, TProperty?>> propertyExpression)
+            where TProperty : default
+        {
+            var memberChain = propertyExpression.MatchMemberAccessChain()!;
+            return Wrap<TProperty>(OwnedNavigationBuilder.ComplexProperty(memberChain[^1].GetMemberType(), ToDottedName(memberChain)));
+        }
+
+        public override TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
+            Expression<Func<TDependentEntity, TProperty?>> propertyExpression,
+            string complexTypeName)
+            where TProperty : default
+        {
+            var memberChain = propertyExpression.MatchMemberAccessChain()!;
+            return Wrap<TProperty>(
+                OwnedNavigationBuilder.ComplexProperty(memberChain[^1].GetMemberType(), ToDottedName(memberChain), complexTypeName));
+        }
+
+        public override TestOwnedNavigationBuilder<TEntity, TDependentEntity> ComplexProperty<TProperty>(
+            Expression<Func<TDependentEntity, TProperty?>> propertyExpression,
+            Action<TestComplexPropertyBuilder<TProperty>> buildAction)
+            where TProperty : default
+        {
+            var memberChain = propertyExpression.MatchMemberAccessChain()!;
+            buildAction(
+                Wrap<TProperty>(OwnedNavigationBuilder.ComplexProperty(memberChain[^1].GetMemberType(), ToDottedName(memberChain))));
+
+            return this;
+        }
+
+        public override TestOwnedNavigationBuilder<TEntity, TDependentEntity> ComplexProperty<TProperty>(
+            Expression<Func<TDependentEntity, TProperty?>> propertyExpression,
+            string complexTypeName,
+            Action<TestComplexPropertyBuilder<TProperty>> buildAction)
+            where TProperty : default
+        {
+            var memberChain = propertyExpression.MatchMemberAccessChain()!;
+            buildAction(
+                Wrap<TProperty>(
+                    OwnedNavigationBuilder.ComplexProperty(memberChain[^1].GetMemberType(), ToDottedName(memberChain), complexTypeName)));
+
+            return this;
+        }
+
+        public override TestOwnedNavigationBuilder<TEntity, TDependentEntity> ComplexProperty<TProperty>(
+            string propertyName,
+            Action<TestComplexPropertyBuilder<TProperty>> buildAction)
+        {
+            buildAction(Wrap<TProperty>(OwnedNavigationBuilder.ComplexProperty<TProperty>(propertyName)));
+
+            return this;
+        }
+
+        public override TestComplexCollectionBuilder<TElement> ComplexCollection<TProperty, TElement>(string propertyName)
+            => Wrap<TElement>(OwnedNavigationBuilder.ComplexCollection<TProperty, TElement>(propertyName));
+
+        public override TestComplexCollectionBuilder<TElement> ComplexCollection<TProperty, TElement>(
+            string propertyName,
+            string complexTypeName)
+            => Wrap<TElement>(OwnedNavigationBuilder.ComplexCollection<TProperty, TElement>(propertyName, complexTypeName));
+
+        public override TestComplexCollectionBuilder<TElement> ComplexCollection<TElement>(
+            Expression<Func<TDependentEntity, IEnumerable<TElement?>?>> propertyExpression)
+            where TElement : default
+        {
+            var memberChain = propertyExpression.MatchMemberAccessChain()!;
+            return Wrap<TElement>(OwnedNavigationBuilder.ComplexCollection(memberChain[^1].GetMemberType(), ToDottedName(memberChain)));
+        }
+
+        public override TestComplexCollectionBuilder<TElement> ComplexCollection<TElement>(
+            Expression<Func<TDependentEntity, IEnumerable<TElement?>?>> propertyExpression,
+            string complexTypeName)
+            where TElement : default
+        {
+            var memberChain = propertyExpression.MatchMemberAccessChain()!;
+            return Wrap<TElement>(
+                OwnedNavigationBuilder.ComplexCollection(memberChain[^1].GetMemberType(), ToDottedName(memberChain), complexTypeName));
+        }
+
+        public override TestOwnedNavigationBuilder<TEntity, TDependentEntity> ComplexCollection<TProperty, TElement>(
+            string propertyName,
+            Action<TestComplexCollectionBuilder<TElement>> buildAction)
+        {
+            buildAction(Wrap<TElement>(OwnedNavigationBuilder.ComplexCollection<TProperty, TElement>(propertyName)));
+            return this;
+        }
+
+        public override TestOwnedNavigationBuilder<TEntity, TDependentEntity> ComplexCollection<TProperty, TElement>(
+            string propertyName,
+            string complexTypeName,
+            Action<TestComplexCollectionBuilder<TElement>> buildAction)
+        {
+            buildAction(Wrap<TElement>(OwnedNavigationBuilder.ComplexCollection<TProperty, TElement>(propertyName, complexTypeName)));
+            return this;
+        }
+
+        public override TestOwnedNavigationBuilder<TEntity, TDependentEntity> ComplexCollection<TElement>(
+            Expression<Func<TDependentEntity, IEnumerable<TElement?>?>> propertyExpression,
+            Action<TestComplexCollectionBuilder<TElement>> buildAction)
+            where TElement : default
+        {
+            var memberChain = propertyExpression.MatchMemberAccessChain()!;
+            buildAction(
+                Wrap<TElement>(OwnedNavigationBuilder.ComplexCollection(memberChain[^1].GetMemberType(), ToDottedName(memberChain))));
+
+            return this;
+        }
+
+        public override TestOwnedNavigationBuilder<TEntity, TDependentEntity> ComplexCollection<TElement>(
+            Expression<Func<TDependentEntity, IEnumerable<TElement?>?>> propertyExpression,
+            string complexTypeName,
+            Action<TestComplexCollectionBuilder<TElement>> buildAction)
+            where TElement : default
+        {
+            var memberChain = propertyExpression.MatchMemberAccessChain()!;
+            buildAction(
+                Wrap<TElement>(
+                    OwnedNavigationBuilder.ComplexCollection(memberChain[^1].GetMemberType(), ToDottedName(memberChain), complexTypeName)));
+
+            return this;
         }
 
         public override TestNavigationBuilder Navigation<TNavigation>(

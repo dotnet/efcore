@@ -1824,6 +1824,14 @@ public abstract partial class ModelBuilderTest
         protected virtual TestPropertyBuilder<TProperty> Wrap<TProperty>(PropertyBuilder<TProperty> propertyBuilder)
             => new GenericTestPropertyBuilder<TProperty>(propertyBuilder);
 
+        protected virtual TestComplexPropertyBuilder<T> Wrap<T>(ComplexPropertyBuilder<T> complexPropertyBuilder)
+            where T : notnull
+            => new GenericTestComplexPropertyBuilder<T>(complexPropertyBuilder);
+
+        protected virtual TestComplexCollectionBuilder<T> Wrap<T>(ComplexCollectionBuilder<T> complexPropertyBuilder)
+            where T : notnull
+            => new GenericTestComplexCollectionBuilder<T>(complexPropertyBuilder);
+
         public override TestOwnedNavigationBuilder<TEntity, TDependentEntity> HasAnnotation(
             string annotation,
             object? value)
@@ -1851,6 +1859,105 @@ public abstract partial class ModelBuilderTest
         public override TestPrimitiveCollectionBuilder<TProperty> PrimitiveCollection<TProperty>(
             Expression<Func<TDependentEntity, TProperty>> propertyExpression)
             => new GenericTestPrimitiveCollectionBuilder<TProperty>(OwnedNavigationBuilder.PrimitiveCollection(propertyExpression));
+
+        public override TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(string propertyName)
+            => Wrap(OwnedNavigationBuilder.ComplexProperty<TProperty>(propertyName));
+
+        public override TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
+            Expression<Func<TDependentEntity, TProperty?>> propertyExpression)
+            where TProperty : default
+            => Wrap(OwnedNavigationBuilder.ComplexProperty(propertyExpression));
+
+        public override TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
+            Expression<Func<TDependentEntity, TProperty?>> propertyExpression,
+            string complexTypeName)
+            where TProperty : default
+            => Wrap(OwnedNavigationBuilder.ComplexProperty(propertyExpression, complexTypeName));
+
+        public override TestOwnedNavigationBuilder<TEntity, TDependentEntity> ComplexProperty<TProperty>(
+            string propertyName,
+            Action<TestComplexPropertyBuilder<TProperty>> buildAction)
+        {
+            buildAction(Wrap(OwnedNavigationBuilder.ComplexProperty<TProperty>(propertyName)));
+
+            return this;
+        }
+
+        public override TestOwnedNavigationBuilder<TEntity, TDependentEntity> ComplexProperty<TProperty>(
+            Expression<Func<TDependentEntity, TProperty?>> propertyExpression,
+            Action<TestComplexPropertyBuilder<TProperty>> buildAction)
+            where TProperty : default
+        {
+            buildAction(Wrap(OwnedNavigationBuilder.ComplexProperty(propertyExpression)));
+
+            return this;
+        }
+
+        public override TestOwnedNavigationBuilder<TEntity, TDependentEntity> ComplexProperty<TProperty>(
+            Expression<Func<TDependentEntity, TProperty?>> propertyExpression,
+            string complexTypeName,
+            Action<TestComplexPropertyBuilder<TProperty>> buildAction)
+            where TProperty : default
+        {
+            buildAction(Wrap(OwnedNavigationBuilder.ComplexProperty(propertyExpression, complexTypeName)));
+
+            return this;
+        }
+
+        public override TestComplexCollectionBuilder<TElement> ComplexCollection<TProperty, TElement>(string propertyName)
+            => Wrap(OwnedNavigationBuilder.ComplexCollection<TProperty, TElement>(propertyName));
+
+        public override TestComplexCollectionBuilder<TElement> ComplexCollection<TProperty, TElement>(
+            string propertyName,
+            string complexTypeName)
+            => Wrap(OwnedNavigationBuilder.ComplexCollection<TProperty, TElement>(propertyName, complexTypeName));
+
+        public override TestComplexCollectionBuilder<TElement> ComplexCollection<TElement>(
+            Expression<Func<TDependentEntity, IEnumerable<TElement?>?>> propertyExpression)
+            where TElement : default
+            => Wrap(OwnedNavigationBuilder.ComplexCollection(propertyExpression));
+
+        public override TestComplexCollectionBuilder<TElement> ComplexCollection<TElement>(
+            Expression<Func<TDependentEntity, IEnumerable<TElement?>?>> propertyExpression,
+            string complexTypeName)
+            where TElement : default
+            => Wrap(OwnedNavigationBuilder.ComplexCollection(propertyExpression, complexTypeName));
+
+        public override TestOwnedNavigationBuilder<TEntity, TDependentEntity> ComplexCollection<TProperty, TElement>(
+            string propertyName,
+            Action<TestComplexCollectionBuilder<TElement>> buildAction)
+        {
+            buildAction(Wrap(OwnedNavigationBuilder.ComplexCollection<TProperty, TElement>(propertyName)));
+            return this;
+        }
+
+        public override TestOwnedNavigationBuilder<TEntity, TDependentEntity> ComplexCollection<TProperty, TElement>(
+            string propertyName,
+            string complexTypeName,
+            Action<TestComplexCollectionBuilder<TElement>> buildAction)
+        {
+            buildAction(Wrap(OwnedNavigationBuilder.ComplexCollection<TProperty, TElement>(propertyName, complexTypeName)));
+            return this;
+        }
+
+        public override TestOwnedNavigationBuilder<TEntity, TDependentEntity> ComplexCollection<TElement>(
+            Expression<Func<TDependentEntity, IEnumerable<TElement?>?>> propertyExpression,
+            Action<TestComplexCollectionBuilder<TElement>> buildAction)
+            where TElement : default
+        {
+            buildAction(Wrap(OwnedNavigationBuilder.ComplexCollection(propertyExpression)));
+            return this;
+        }
+
+        public override TestOwnedNavigationBuilder<TEntity, TDependentEntity> ComplexCollection<TElement>(
+            Expression<Func<TDependentEntity, IEnumerable<TElement?>?>> propertyExpression,
+            string complexTypeName,
+            Action<TestComplexCollectionBuilder<TElement>> buildAction)
+            where TElement : default
+        {
+            buildAction(Wrap(OwnedNavigationBuilder.ComplexCollection(propertyExpression, complexTypeName)));
+            return this;
+        }
 
         public override TestNavigationBuilder Navigation<TNavigation>(
             Expression<Func<TDependentEntity, TNavigation?>> navigationExpression)

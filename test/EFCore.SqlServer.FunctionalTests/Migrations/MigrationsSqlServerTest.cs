@@ -4986,6 +4986,36 @@ CREATE TABLE [Contacts] (
 """);
     }
 
+    public override async Task Create_tables_with_complex_properties_on_owned_types()
+    {
+        await base.Create_tables_with_complex_properties_on_owned_types();
+
+        AssertSql(
+            """
+CREATE TABLE [Owner] (
+    [Id] int NOT NULL IDENTITY,
+    [Owned_Name] nvarchar(max) NULL,
+    [Owned_Complex_Value] nvarchar(max) NULL,
+    [Owned_Complex_Date] datetime2 NULL,
+    [Owned_Complex_Nested_Foo] int NULL,
+    [Owned_Complex_Nested_Bar] datetime2 NULL,
+    [NestedCollection] nvarchar(max) NULL,
+    CONSTRAINT [PK_Owner] PRIMARY KEY ([Id])
+);
+""",
+            //
+            """
+CREATE TABLE [OwnedItems] (
+    [OwnerId] int NOT NULL,
+    [Id] int NOT NULL,
+    [Complex_Foo] int NULL,
+    [Complex_Bar] datetime2 NULL,
+    CONSTRAINT [PK_OwnedItems] PRIMARY KEY ([OwnerId], [Id]),
+    CONSTRAINT [FK_OwnedItems_Owner_OwnerId] FOREIGN KEY ([OwnerId]) REFERENCES [Owner] ([Id]) ON DELETE CASCADE
+);
+""");
+    }
+
     public override async Task Create_table_with_optional_complex_type_with_required_properties()
     {
         await base.Create_table_with_optional_complex_type_with_required_properties();

@@ -1212,6 +1212,74 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
             });
 
     [Fact]
+    public virtual Task Complex_properties_on_owned_types()
+        => Test(
+            modelBuilder => modelBuilder.Entity<OwnerWithComplex>(eb =>
+            {
+                eb.OwnsOne(
+                    e => e.Owned, ob =>
+                    {
+                        ob.ComplexProperty(o => o.Location, lb => lb.ComplexProperty(l => l.Coordinates));
+                        ob.ComplexCollection(o => o.Tags, tb => tb.ToJson());
+                    });
+                eb.OwnsOne(
+                    e => e.JsonOwned, ob =>
+                    {
+                        ob.ToJson();
+                        ob.ComplexProperty(o => o.Location, lb => lb.ComplexProperty(l => l.Coordinates));
+                        ob.ComplexCollection(o => o.Tags);
+                    });
+            }),
+            model =>
+            {
+                var owner = model.FindEntityType(typeof(OwnerWithComplex))!;
+                var owned = owner.FindNavigation(nameof(OwnerWithComplex.Owned))!.TargetEntityType;
+                var location = owned.FindComplexProperty(nameof(OwnedWithComplex.Location))!;
+                Assert.Equal(
+                    "Owned_Location_Coordinates_Latitude",
+                    location.ComplexType.FindComplexProperty(nameof(LocationComplex.Coordinates))!.ComplexType
+                        .FindProperty(nameof(CoordinatesComplex.Latitude))!.GetTableColumnMappings().Single().Column.Name);
+                Assert.Equal("Owned_Tags", owned.FindComplexProperty(nameof(OwnedWithComplex.Tags))!.ComplexType.GetContainerColumnName());
+
+                var jsonOwned = owner.FindNavigation(nameof(OwnerWithComplex.JsonOwned))!.TargetEntityType;
+                Assert.Equal("JsonOwned", jsonOwned.GetContainerColumnName());
+                Assert.Equal(
+                    "JsonOwned",
+                    jsonOwned.FindComplexProperty(nameof(OwnedWithComplex.Location))!.ComplexType.GetContainerColumnName());
+            },
+            async c =>
+            {
+                c.Add(
+                    new OwnerWithComplex
+                    {
+                        Owned = CreateOwned("Sydney"),
+                        JsonOwned = CreateOwned("Berlin")
+                    });
+                await c.SaveChangesAsync();
+                c.ChangeTracker.Clear();
+
+                var owner = await c.Set<OwnerWithComplex>().SingleAsync();
+                Assert.Equal("Sydney", owner.Owned.Location.City);
+                Assert.Equal(1.5m, owner.Owned.Location.Coordinates.Latitude);
+                Assert.Equal(["a", "b"], owner.Owned.Tags.Select(t => t.Text));
+                Assert.Equal("Berlin", owner.JsonOwned.Location.City);
+                Assert.Equal(["a", "b"], owner.JsonOwned.Tags.Select(t => t.Text));
+
+                return;
+
+                static OwnedWithComplex CreateOwned(string city)
+                    => new()
+                    {
+                        Location = new LocationComplex
+                        {
+                            City = city,
+                            Coordinates = new CoordinatesComplex { Latitude = 1.5m, Longitude = 2.5m }
+                        },
+                        Tags = [new TagComplex { Text = "a" }, new TagComplex { Text = "b" }]
+                    };
+            });
+
+    [Fact]
     public virtual Task DbFunctions()
         => Test<DbFunctionContext>(
             assertModel: model =>
@@ -1630,6 +1698,31 @@ public partial class DbContextModel
     {
         public string Name { get; set; } = null!;
         public List<TagComplex> Tags { get; set; } = [];
+    }
+
+    public class OwnerWithComplex
+    {
+        public int Id { get; set; }
+        public OwnedWithComplex Owned { get; set; } = null!;
+        public OwnedWithComplex JsonOwned { get; set; } = null!;
+    }
+
+    public class OwnedWithComplex
+    {
+        public LocationComplex Location { get; set; } = null!;
+        public List<TagComplex> Tags { get; set; } = [];
+    }
+
+    public class LocationComplex
+    {
+        public string City { get; set; } = null!;
+        public CoordinatesComplex Coordinates { get; set; } = null!;
+    }
+
+    public class CoordinatesComplex
+    {
+        public decimal Latitude { get; set; }
+        public decimal Longitude { get; set; }
     }
 
     public class TagComplex

@@ -32,16 +32,21 @@ public class InternalKeyBuilder : AnnotatableBuilder<Key, InternalModelBuilder>,
         InternalEntityTypeBuilder entityTypeBuilder,
         ConfigurationSource? primaryKeyConfigurationSource)
     {
-        var propertyNames = Metadata.Properties.Select(p => p.Name).ToList();
-        foreach (var propertyName in propertyNames)
+        var properties = new List<Property>();
+        foreach (var property in Metadata.Properties)
         {
-            if (entityTypeBuilder.Metadata.FindProperty(propertyName) == null)
+            var declaringType = property.DeclaringType is ComplexType complexType
+                ? InternalTypeBaseBuilder.FindComplexType(entityTypeBuilder.Metadata, complexType)
+                : entityTypeBuilder.Metadata;
+            if (declaringType?.FindProperty(property.Name) is not { } newProperty)
             {
                 return null;
             }
+
+            properties.Add(newProperty);
         }
 
-        var newKeyBuilder = entityTypeBuilder.HasKey(propertyNames, Metadata.GetConfigurationSource());
+        var newKeyBuilder = entityTypeBuilder.HasKey(properties, Metadata.GetConfigurationSource());
 
         newKeyBuilder?.MergeAnnotationsFrom(Metadata);
 
