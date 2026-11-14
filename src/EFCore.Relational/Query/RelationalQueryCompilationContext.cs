@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -80,4 +81,9 @@ public class RelationalQueryCompilationContext : QueryCompilationContext
     ///     A manager for SQL aliases, capable of generate uniquified table aliases.
     /// </summary>
     public virtual SqlAliasManager SqlAliasManager { get; }
+
+    // The SelectExpressions that SQL currently being translated may be placed into, outermost first, or null where the caller
+    // translating didn't say which query its result goes into. Shared by the SQL translators of the query and all its subqueries,
+    // so that an aggregate over a grouping can tell which query SQL will evaluate it in (#27130).
+    internal List<SelectExpression?> TranslationScopes { get; } = [];
 }

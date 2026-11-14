@@ -80,4 +80,109 @@ public abstract class NorthwindGroupByQueryRelationalTestBase<TFixture>(TFixture
                 e, a,
                 elementSorter: c => c.CustomerID,
                 elementAsserter: (ee, aa) => AssertInclude(ee, aa, new ExpectedInclude<Customer>(c => c.Orders))));
+
+    // A provider aggregate such as string.Join has no subquery fallback, so as an element of an inline collection - whose scope isn't
+    // known until Contains lifts it into an IN - it can only be folded in once the final SQL tree shows that's safe.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_string_aggregate_as_element_of_inline_collection_Contains(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().GroupBy(c => c.City)
+                .Select(g => new { g.Key, IsAlfki = new[] { string.Join("|", g.Select(c => c.CustomerID)), "" }.Contains("ALFKI") }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_string_aggregate_as_element_of_inline_collection_Contains_in_predicate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().GroupBy(c => c.City)
+                .Where(g => new[] { string.Join("|", g.Select(c => c.CustomerID)), "" }.Contains("ALFKI"))
+                .Select(g => g.Key));
+
+    // The expected query lowercases invariantly: under a culture such as tr-TR, ToLower would turn the I of ALFKI into a dotless ı,
+    // which the database's LOWER doesn't.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_wrapped_string_aggregate_as_element_of_inline_collection_Contains(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().GroupBy(c => c.City)
+                .Select(g => new
+                {
+                    g.Key, IsAlfki = new[] { string.Join("|", g.Select(c => c.CustomerID)).ToLower(), "" }.Contains("alfki")
+                }),
+            ss => ss.Set<Customer>().GroupBy(c => c.City)
+                .Select(g => new
+                {
+                    g.Key,
+                    IsAlfki = new[] { string.Join("|", g.Select(c => c.CustomerID)).ToLowerInvariant(), "" }.Contains("alfki")
+                }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_trimmed_string_aggregate_as_element_of_inline_collection_Contains(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().GroupBy(c => c.City)
+                .Select(g => new
+                {
+                    g.Key, IsAlfki = new[] { string.Join("|", g.Select(c => c.CustomerID)).Trim(), "" }.Contains("ALFKI")
+                }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_string_aggregate_StartsWith_constant_as_element_of_inline_collection_Contains(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().GroupBy(c => c.City)
+                .Select(g => new
+                {
+                    g.Key, A = new[] { string.Join("|", g.Select(c => c.CustomerID)).StartsWith("ALF") ? "y" : "n", "" }.Contains("y")
+                }),
+            elementSorter: e => e.Key);
+
+    // A pattern which isn't a constant or parameter can't be escaped for LIKE, so it is compared against a prefix of the aggregate.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_string_aggregate_StartsWith_column_as_element_of_inline_collection_Contains(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().GroupBy(c => c.CustomerID.Substring(0, 1))
+                .Select(g => new
+                {
+                    g.Key,
+                    A = new[] { string.Join("|", g.Select(c => c.CustomerID)).StartsWith(g.Key) ? "y" : "n", "" }.Contains("y")
+                }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_under_date_part_as_element_of_inline_collection_Contains(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(o => o.CustomerID)
+                .Select(g => new { g.Key, A = new[] { g.Max(o => o.OrderDate)!.Value.Year, 0 }.Contains(1998) }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_under_date_add_as_element_of_inline_collection_Contains(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(o => o.CustomerID)
+                .Select(g => new
+                {
+                    g.Key, A = new[] { g.Max(o => o.OrderDate)!.Value.AddDays(1), DateTime.MinValue }.Contains(new DateTime(1998, 5, 7))
+                }),
+            elementSorter: e => e.Key);
+
+    // Folded into the inner query, an aggregate over the outer grouping that also names the inner query's columns would be evaluated
+    // over the inner query's rows; with no subquery to fall back to, it can't be translated.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_string_aggregate_as_element_of_inline_collection_Contains_from_inner_query(bool async)
+        => AssertTranslationFailed(() => AssertQuery(
+            async,
+            StringAggregateInInlineCollectionFromInnerQuery));
+
+    private static IQueryable<bool> StringAggregateInInlineCollectionFromInnerQuery(ISetSource ss)
+        => ss.Set<Order>().GroupBy(o => o.CustomerID)
+            .Select(g => ss.Set<Employee>().Where(e => e.City == "Seattle").GroupBy(e => e.City)
+                .Select(g2 => new[] { string.Join("|", g.Select(o => o.CustomerID + g2.Key)), "" }.Contains("ALFKISeattle"))
+                .FirstOrDefault());
 }
