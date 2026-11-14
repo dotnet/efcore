@@ -1688,6 +1688,30 @@ ORDER BY [p].[Id]
     public override Task Inline_collection_Join_ordered_column_collection()
         => AssertCompatibilityLevelTooLow(() => base.Inline_collection_Join_ordered_column_collection());
 
+    public override Task Concat_of_column_collections_then_Contains()
+        => AssertCompatibilityLevelTooLow(() => base.Concat_of_column_collections_then_Contains());
+
+    public override Task Union_of_column_collections_then_Contains()
+        => AssertCompatibilityLevelTooLow(() => base.Union_of_column_collections_then_Contains());
+
+    public override Task Concat_of_anonymous_types_with_column_collection_then_Contains()
+        => AssertCompatibilityLevelTooLow(() => base.Concat_of_anonymous_types_with_column_collection_then_Contains());
+
+    public override Task Concat_of_column_collections_then_Where_Count()
+        => AssertCompatibilityLevelTooLow(() => base.Concat_of_column_collections_then_Where_Count());
+
+    public override Task Concat_of_string_column_collections_then_Contains()
+        => AssertCompatibilityLevelTooLow(() => base.Concat_of_string_column_collections_then_Contains());
+
+    public override Task Concat_of_column_collections_then_Contains_parameter()
+        => AssertCompatibilityLevelTooLow(() => base.Concat_of_column_collections_then_Contains_parameter());
+
+    public override Task Concat_of_column_collections_then_Contains_then_Select_Count()
+        => AssertCompatibilityLevelTooLow(() => base.Concat_of_column_collections_then_Contains_then_Select_Count());
+
+    public override Task Distinct_of_column_collection_then_Contains()
+        => AssertCompatibilityLevelTooLow(() => base.Distinct_of_column_collection_then_Contains());
+
     public override Task Parameter_collection_Concat_column_collection()
         => AssertCompatibilityLevelTooLow(() => base.Parameter_collection_Concat_column_collection());
 
