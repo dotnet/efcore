@@ -135,6 +135,13 @@ public class ChangeDetector : IChangeDetector
             {
                 entry.EnsureOriginalValues();
             }
+            else if (propertyBase is INavigation { IsCollection: true, IsNullable: true } nullableCollection
+                     && nullableCollection.GetOriginalValueIndex() != -1)
+            {
+                // The null-ness of a nullable collection is compared with its original value, so, like for properties, the
+                // original values must be captured before the first change, even when that change is not to a property.
+                entry.EnsureOriginalValues();
+            }
 
             if (propertyBase.GetRelationshipIndex() != -1)
             {
