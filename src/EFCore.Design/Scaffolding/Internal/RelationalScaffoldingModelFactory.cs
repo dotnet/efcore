@@ -28,6 +28,7 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
     private CSharpUniqueNamer<DatabaseTable> _tableNamer = null!;
     private CSharpUniqueNamer<DatabaseTable> _dbSetNamer = null!;
     private readonly HashSet<DatabaseColumn> _unmappedColumns = [];
+    private readonly Dictionary<DatabaseColumn, Type> _foreignKeyClrTypes = [];
     private readonly IPluralizer _pluralizer;
     private readonly ICSharpUtilities _cSharpUtilities;
     private readonly IScaffoldingTypeMapper _scaffoldingTypeMapper;
@@ -178,6 +179,8 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
         {
             modelBuilder.UseCollation(databaseModel.Collation);
         }
+
+        ResolveForeignKeyColumnTypes(databaseModel);
 
         VisitSequences(modelBuilder, databaseModel.Sequences);
         VisitTables(modelBuilder, databaseModel.Tables);
@@ -867,6 +870,18 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
             return null;
         }
 
+        if (!ForeignKey.AreCompatible(
+                principalProperties, dependentProperties, principalEntityType, dependentEntityType, shouldThrow: false))
+        {
+            _reporter.WriteWarning(
+                DesignStrings.ForeignKeyScaffoldErrorTypeMismatch(
+                    foreignKey.DisplayName(),
+                    dependentProperties.Format(includeTypes: true),
+                    principalProperties.Format(includeTypes: true)));
+
+            return null;
+        }
+
         var newForeignKey = dependentEntityType.AddForeignKey(
             dependentProperties, principalKey, principalEntityType);
 
@@ -978,7 +993,183 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
                 column.StoreType,
                 column.IsKeyOrIndex(),
                 column.IsRowVersion(),
-                (Type?)column[ScaffoldingAnnotationNames.ClrType]);
+                _foreignKeyClrTypes.TryGetValue(column, out var foreignKeyClrType)
+                    ? foreignKeyClrType
+                    : (Type?)column[ScaffoldingAnnotationNames.ClrType]);
+
+    // A foreign key column can have a different store type than the principal key column it references, for example
+    // a bigint column referencing an int key. This scaffolds to different CLR types, which EF can't map, so where it
+    // is safe to do so, the dependent column is scaffolded with the CLR type of the principal column, keeping its own
+    // store type. Any value in the foreign key column must also exist in the principal column, so the principal CLR
+    // type can represent it. The reverse is not true: the converter that EF uses to write the principal CLR type to
+    // the column does not check for overflow, so a column that can't hold every value of the principal type is not
+    // changed. The foreign key is skipped with a warning (see VisitForeignKey) for any case that is not safe, for
+    // example when the column references principals with different CLR types, or is itself referenced by another
+    // foreign key. The columns of a foreign key are changed together or not at all.
+    private void ResolveForeignKeyColumnTypes(DatabaseModel databaseModel)
+    {
+        _foreignKeyClrTypes.Clear();
+
+        var clrTypes = new Dictionary<DatabaseColumn, Type?>();
+        Type? GetClrType(DatabaseColumn column)
+        {
+            if (!clrTypes.TryGetValue(column, out var clrType))
+            {
+                clrType = GetTypeScaffoldingInfo(column)?.ClrType.UnwrapNullableType();
+                clrTypes[column] = clrType;
+            }
+
+            return clrType;
+        }
+
+        var foreignKeys = new List<DatabaseForeignKey>();
+        var principalColumns = new HashSet<DatabaseColumn>();
+        var principalClrTypes = new Dictionary<DatabaseColumn, HashSet<Type>>();
+        var mismatchedColumns = new HashSet<DatabaseColumn>();
+
+        foreach (var foreignKey in databaseModel.Tables.SelectMany(table => table.ForeignKeys))
+        {
+            if (foreignKey.PrincipalTable == null
+                || foreignKey.Columns.Count != foreignKey.PrincipalColumns.Count
+                || !HasPrincipalKey(foreignKey))
+            {
+                continue;
+            }
+
+            foreignKeys.Add(foreignKey);
+
+            for (var i = 0; i < foreignKey.Columns.Count; i++)
+            {
+                var dependentColumn = foreignKey.Columns[i];
+                var principalColumn = foreignKey.PrincipalColumns[i];
+                principalColumns.Add(principalColumn);
+
+                var dependentClrType = GetClrType(dependentColumn);
+                var principalClrType = GetClrType(principalColumn);
+                if (dependentClrType == null
+                    || principalClrType == null)
+                {
+                    continue;
+                }
+
+                if (!principalClrTypes.TryGetValue(dependentColumn, out var types))
+                {
+                    principalClrTypes[dependentColumn] = types = [];
+                }
+
+                types.Add(principalClrType);
+
+                if (dependentClrType != principalClrType)
+                {
+                    mismatchedColumns.Add(dependentColumn);
+                }
+            }
+        }
+
+        var candidates = new Dictionary<DatabaseColumn, Type>();
+        foreach (var column in mismatchedColumns)
+        {
+            if (principalColumns.Contains(column)
+                || principalClrTypes[column].Count != 1
+                || column.StoreType == null
+                || column.IsRowVersion()
+                || column.DefaultValue != null)
+            {
+                continue;
+            }
+
+            // Use the type that the store type maps to on its own, not any CLR type hint from the provider,
+            // since the store type determines which values the column can hold.
+            var storeClrType = _scaffoldingTypeMapper.FindMapping(column.StoreType, column.IsKeyOrIndex(), rowVersion: false)
+                ?.ClrType.UnwrapNullableType();
+            var principalClrType = principalClrTypes[column].Single();
+            if (storeClrType == null
+                || !CanUseForeignKeyClrType(storeClrType, principalClrType))
+            {
+                continue;
+            }
+
+            var mapping = _scaffoldingTypeMapper.FindMapping(
+                column.StoreType, column.IsKeyOrIndex(), rowVersion: false, principalClrType);
+
+            if (mapping?.ClrType.UnwrapNullableType() == principalClrType)
+            {
+                candidates[column] = principalClrType;
+            }
+        }
+
+        // The columns of a foreign key must all be changed or none, otherwise the foreign key is skipped anyway.
+        // Removing the columns of one such foreign key can make another foreign key that shares a column unresolvable.
+        bool changed;
+        do
+        {
+            changed = false;
+
+            foreach (var foreignKey in foreignKeys)
+            {
+                var resolvable = true;
+                for (var i = 0; i < foreignKey.Columns.Count; i++)
+                {
+                    var dependentClrType = GetClrType(foreignKey.Columns[i]);
+                    var principalClrType = GetClrType(foreignKey.PrincipalColumns[i]);
+                    if (dependentClrType != null
+                        && principalClrType != null
+                        && dependentClrType != principalClrType
+                        && !candidates.ContainsKey(foreignKey.Columns[i]))
+                    {
+                        resolvable = false;
+                        break;
+                    }
+                }
+
+                if (!resolvable)
+                {
+                    foreach (var column in foreignKey.Columns)
+                    {
+                        changed |= candidates.Remove(column);
+                    }
+                }
+            }
+        }
+        while (changed);
+
+        foreach (var (column, clrType) in candidates)
+        {
+            _foreignKeyClrTypes[column] = clrType;
+        }
+    }
+
+    // Only numeric types are changed, and an integral column is only changed to a type that has a smaller or equal range,
+    // so that the principal type can never overflow the column.
+    private static readonly Dictionary<Type, Type[]> SafeIntegralForeignKeyClrTypes = new()
+    {
+        [typeof(sbyte)] = [typeof(short), typeof(int), typeof(long)],
+        [typeof(byte)] = [typeof(short), typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong)],
+        [typeof(short)] = [typeof(int), typeof(long)],
+        [typeof(ushort)] = [typeof(int), typeof(uint), typeof(long), typeof(ulong)],
+        [typeof(int)] = [typeof(long)],
+        [typeof(uint)] = [typeof(long), typeof(ulong)],
+        [typeof(long)] = [],
+        [typeof(ulong)] = []
+    };
+
+    private static bool CanUseForeignKeyClrType(Type dependentClrType, Type principalClrType)
+        => dependentClrType == principalClrType
+            || (dependentClrType == typeof(decimal) && (principalClrType == typeof(decimal) || SafeIntegralForeignKeyClrTypes.ContainsKey(principalClrType)))
+            || (principalClrType == typeof(decimal) && SafeIntegralForeignKeyClrTypes.ContainsKey(dependentClrType))
+            || (SafeIntegralForeignKeyClrTypes.TryGetValue(principalClrType, out var wider)
+                && wider.Contains(dependentClrType));
+
+    // Whether the principal columns of the foreign key are a key or unique index of the principal table. If they are not,
+    // the foreign key is not scaffolded, so the dependent columns don't need to match the principal columns.
+    private static bool HasPrincipalKey(DatabaseForeignKey foreignKey)
+    {
+        var principalTable = foreignKey.PrincipalTable!;
+
+        return principalTable.PrimaryKey?.Columns.SequenceEqual(foreignKey.PrincipalColumns) == true
+            || principalTable.UniqueConstraints.Any(constraint => constraint.Columns.SequenceEqual(foreignKey.PrincipalColumns))
+            || principalTable.Indexes.Any(index => index.IsUnique && index.Columns.SequenceEqual(foreignKey.PrincipalColumns));
+    }
 
     private static void AssignOnDeleteAction(
         DatabaseForeignKey databaseForeignKey,
