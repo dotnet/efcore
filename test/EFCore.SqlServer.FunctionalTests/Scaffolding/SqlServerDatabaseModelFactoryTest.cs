@@ -5550,6 +5550,106 @@ CREATE UNIQUE INDEX IX_UNIQUE ON FilteredIndexTable ( Id2 ) WHERE Id2 > 10;",
             "DROP TABLE FilteredIndexTable;");
 
     [Fact]
+    public void Foreign_key_with_filtered_unique_index_is_not_one_to_one()
+        => Test(
+            @"
+CREATE TABLE FilteredPerson (
+    PersonId varchar(10) NOT NULL PRIMARY KEY
+);
+
+CREATE TABLE FilteredPersonRole (
+    PersonRoleId int IDENTITY(1,1) NOT NULL PRIMARY KEY,
+    PersonId varchar(10) NOT NULL REFERENCES FilteredPerson (PersonId),
+    IsActive bit NOT NULL
+);
+
+CREATE UNIQUE INDEX IX_FilteredPersonRole_PersonId ON FilteredPersonRole ( PersonId ) WHERE IsActive = 1;",
+            [],
+            [],
+            (dbModel, scaffoldingFactory) =>
+            {
+                var model = scaffoldingFactory.Create(dbModel, new ModelReverseEngineerOptions());
+
+                var role = model.GetEntityTypes().Single(e => e.Name == "FilteredPersonRole");
+                var index = Assert.Single(role.GetIndexes());
+                Assert.True(index.IsUnique);
+                Assert.Equal("([IsActive]=(1))", index.GetFilter());
+
+                var fk = Assert.Single(role.GetForeignKeys());
+                Assert.False(fk.IsUnique);
+                Assert.True(fk.PrincipalToDependent!.IsCollection);
+            },
+            "DROP TABLE FilteredPersonRole; DROP TABLE FilteredPerson;");
+
+    [Fact]
+    public void Foreign_key_with_unique_index_filtering_only_nulls_is_one_to_one()
+        => Test(
+            @"
+CREATE TABLE NullableFilteredPerson (
+    PersonId varchar(10) NOT NULL PRIMARY KEY
+);
+
+CREATE TABLE NullableFilteredPersonRole (
+    PersonRoleId int IDENTITY(1,1) NOT NULL PRIMARY KEY,
+    PersonId varchar(10) NULL REFERENCES NullableFilteredPerson (PersonId)
+);
+
+CREATE UNIQUE INDEX IX_NullableFilteredPersonRole_PersonId ON NullableFilteredPersonRole ( PersonId ) WHERE PersonId IS NOT NULL;",
+            [],
+            [],
+            (dbModel, scaffoldingFactory) =>
+            {
+                var model = scaffoldingFactory.Create(dbModel, new ModelReverseEngineerOptions());
+
+                var role = model.GetEntityTypes().Single(e => e.Name == "NullableFilteredPersonRole");
+                var index = Assert.Single(role.GetIndexes());
+                Assert.Equal("([PersonId] IS NOT NULL)", index.GetFilter());
+
+                var fk = Assert.Single(role.GetForeignKeys());
+                Assert.True(fk.IsUnique);
+                Assert.False(fk.PrincipalToDependent!.IsCollection);
+            },
+            "DROP TABLE NullableFilteredPersonRole; DROP TABLE NullableFilteredPerson;");
+
+    [Theory]
+    [InlineData("A IS NOT NULL AND B IS NOT NULL", true)]
+    [InlineData("A IS NOT NULL", true)]
+    [InlineData("A IS NOT NULL AND B > 0", false)]
+    [InlineData("A > 0", false)]
+    public void Composite_foreign_key_on_filtered_unique_index_is_one_to_one_only_if_filter_just_excludes_nulls(
+        string filter,
+        bool expectedUnique)
+        => Test(
+            $@"
+CREATE TABLE CompositePrincipal (
+    A int NOT NULL,
+    B int NOT NULL,
+    PRIMARY KEY (A, B)
+);
+
+CREATE TABLE CompositeDependent (
+    Id int NOT NULL PRIMARY KEY,
+    A int NULL,
+    B int NULL,
+    FOREIGN KEY (A, B) REFERENCES CompositePrincipal (A, B)
+);
+
+CREATE UNIQUE INDEX IX_CompositeDependent ON CompositeDependent (A, B) WHERE {filter};",
+            [],
+            [],
+            (dbModel, scaffoldingFactory) =>
+            {
+                var model = scaffoldingFactory.Create(dbModel, new ModelReverseEngineerOptions());
+
+                var dependent = model.GetEntityTypes().Single(e => e.Name == "CompositeDependent");
+                var fk = Assert.Single(dependent.GetForeignKeys());
+
+                Assert.Equal(expectedUnique, fk.IsUnique);
+                Assert.Equal(!expectedUnique, fk.PrincipalToDependent!.IsCollection);
+            },
+            "DROP TABLE CompositeDependent; DROP TABLE CompositePrincipal;");
+
+    [Fact]
     public void Ignore_hypothetical_index()
         => Test(
             @"

@@ -738,6 +738,68 @@ public partial class TestDbContext : DbContext
                     Assert.Equal(2, model.FindEntityType("TestNamespace.EntityWithIndexes")!.GetIndexes().Count()));
 
         [Fact]
+        public Task Index_filter_with_quotes_line_breaks_and_braces_is_escaped()
+            => TestAsync(
+                modelBuilder => modelBuilder
+                    .Entity(
+                        "EntityWithFilteredIndex",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Property<string>("A");
+                            x.HasKey("Id");
+                            x.HasIndex(["A"], "IndexOnA")
+                                .IsUnique()
+                                .HasFilter("\"A\" = 'a\"b' -- {c}\r\n AND A <> '{'");
+                        }),
+                new ModelCodeGenerationOptions { UseDataAnnotations = false },
+                code => AssertFileContents(
+                    $$"""
+using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+
+namespace TestNamespace;
+
+public partial class TestDbContext : DbContext
+{
+    public TestDbContext()
+    {
+    }
+
+    public TestDbContext(DbContextOptions<TestDbContext> options)
+        : base(options)
+    {
+    }
+
+    public virtual DbSet<EntityWithFilteredIndex> EntityWithFilteredIndex { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning {{DesignStrings.SensitiveInformationWarning}}
+        => optionsBuilder.UseSqlServer("Initial Catalog=TestDatabase");
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<EntityWithFilteredIndex>(entity =>
+        {
+            entity.HasIndex(e => e.A, "IndexOnA")
+                .IsUnique()
+                .HasFilter("\"A\" = 'a\"b' -- {c}\r\n AND A <> '{'");
+        });
+
+        OnModelCreatingPartial(modelBuilder);
+    }
+
+    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+}
+""",
+                    code.ContextFile),
+                model =>
+                    Assert.Equal(
+                        "\"A\" = 'a\"b' -- {c}\r\n AND A <> '{'",
+                        model.FindEntityType("TestNamespace.EntityWithFilteredIndex")!.GetIndexes().Single().GetFilter()));
+
+        [Fact]
         public Task Entity_with_indexes_and_use_data_annotations_true_generates_fluent_API_only_for_indexes_with_annotations()
             => TestAsync(
                 modelBuilder => modelBuilder

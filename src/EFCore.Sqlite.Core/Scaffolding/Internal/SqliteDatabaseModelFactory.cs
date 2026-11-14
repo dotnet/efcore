@@ -1039,7 +1039,7 @@ ORDER BY "seqno"
         using var command1 = connection.CreateCommand();
         command1.CommandText =
             """
-SELECT "name", "unique"
+SELECT "name", "unique", "partial"
 FROM pragma_index_list(@table)
 WHERE "origin" = 'c' AND instr("name", 'sqlite_') <> 1
 ORDER BY "seq"
@@ -1059,6 +1059,29 @@ ORDER BY "seq"
                 Name = reader1.GetString(0),
                 IsUnique = reader1.GetBoolean(1)
             };
+
+            if (reader1.GetBoolean(2))
+            {
+                using var command3 = connection.CreateCommand();
+                command3.CommandText =
+                    """
+SELECT "sql"
+FROM "sqlite_master"
+WHERE "type" = 'index' AND "name" = @index AND "tbl_name" = @table
+""";
+
+                var parameter3 = command3.CreateParameter();
+                parameter3.ParameterName = "@index";
+                parameter3.Value = index.Name;
+                command3.Parameters.Add(parameter3);
+
+                var parameter4 = command3.CreateParameter();
+                parameter4.ParameterName = "@table";
+                parameter4.Value = table.Name;
+                command3.Parameters.Add(parameter4);
+
+                index.Filter = GetIndexFilter(command3.ExecuteScalar() as string);
+            }
 
             _logger.IndexFound(index.Name, table.Name, index.IsUnique);
 
@@ -1105,6 +1128,108 @@ ORDER BY "seqno"
             }
 
             table.Indexes.Add(index);
+        }
+    }
+
+    // SQLite stores the CREATE INDEX statement as written, so the filter is the text following the first WHERE keyword that is
+    // outside of quotes, comments and parentheses. Nothing before the filter can be an unquoted WHERE (it is a reserved word),
+    // and parentheses only occur in the column list, so this doesn't need to understand the rest of the statement.
+    // Comments are dropped from the filter, since they are not part of the expression and a line comment could otherwise
+    // swallow whatever is appended to the filter later. Callers should only call this for indexes that SQLite reports as partial.
+    private static string? GetIndexFilter(string? sql)
+    {
+        if (sql == null)
+        {
+            return null;
+        }
+
+        StringBuilder? filter = null;
+        var depth = 0;
+        for (var i = 0; i < sql.Length; i++)
+        {
+            var c = sql[i];
+            switch (c)
+            {
+                case '\'' or '"' or '`' or '[':
+                {
+                    var end = c == '[' ? sql.IndexOf(']', i + 1) : SkipQuoted(sql, i);
+                    if (end < 0)
+                    {
+                        return null;
+                    }
+
+                    filter?.Append(sql, i, end - i + 1);
+                    i = end;
+                    break;
+                }
+                case '-' when i + 1 < sql.Length && sql[i + 1] == '-':
+                {
+                    // The line break (if any) is left for the next iteration
+                    var end = sql.IndexOf('\n', i + 2);
+                    filter?.Append(' ');
+                    i = end < 0 ? sql.Length : end - 1;
+                    break;
+                }
+                case '/' when i + 1 < sql.Length && sql[i + 1] == '*':
+                {
+                    // An unterminated block comment runs to the end of the statement
+                    var end = sql.IndexOf("*/", i + 2, StringComparison.Ordinal);
+                    filter?.Append(' ');
+                    i = end < 0 ? sql.Length : end + 1;
+                    break;
+                }
+                case 'W' or 'w' when filter == null
+                    && depth == 0
+                    && (i == 0 || !IsIdentifierChar(sql[i - 1]))
+                    && string.Compare(sql, i, "WHERE", 0, 5, StringComparison.OrdinalIgnoreCase) == 0
+                    && (i + 5 == sql.Length || !IsIdentifierChar(sql[i + 5])):
+                    filter = new StringBuilder();
+                    i += 4;
+                    break;
+                default:
+                    if (filter != null)
+                    {
+                        filter.Append(c);
+                    }
+                    else if (c == '(')
+                    {
+                        depth++;
+                    }
+                    else if (c == ')')
+                    {
+                        depth--;
+                    }
+
+                    break;
+            }
+        }
+
+        return filter?.ToString().Trim() is { Length: > 0 } result ? result : null;
+
+        static bool IsIdentifierChar(char c)
+            => char.IsLetterOrDigit(c) || c is '_' or '$';
+
+        // Returns the index of the closing quote, or -1 if there isn't one. A doubled quote is an escaped quote.
+        static int SkipQuoted(string sql, int start)
+        {
+            var quote = sql[start];
+            for (var i = start + 1; i < sql.Length; i++)
+            {
+                if (sql[i] != quote)
+                {
+                    continue;
+                }
+
+                if (i + 1 < sql.Length && sql[i + 1] == quote)
+                {
+                    i++;
+                    continue;
+                }
+
+                return i;
+            }
+
+            return -1;
         }
     }
 
