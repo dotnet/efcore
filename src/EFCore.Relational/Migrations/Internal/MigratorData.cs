@@ -10,9 +10,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal;
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
 public class MigratorData(
-    IReadOnlyList<Migration> appliedMigrations,
-    IReadOnlyList<Migration> revertedMigrations,
-    Migration? targetMigration)
+    IReadOnlyList<KeyValuePair<string, TypeInfo>> appliedMigrations,
+    IReadOnlyList<KeyValuePair<string, TypeInfo>> revertedMigrations,
+    TypeInfo? targetMigration)
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -20,7 +20,7 @@ public class MigratorData(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IReadOnlyList<Migration> AppliedMigrations { get; } = appliedMigrations;
+    public virtual IReadOnlyList<KeyValuePair<string, TypeInfo>> AppliedMigrations { get; } = appliedMigrations;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -28,7 +28,7 @@ public class MigratorData(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IReadOnlyList<Migration> RevertedMigrations { get; } = revertedMigrations;
+    public virtual IReadOnlyList<KeyValuePair<string, TypeInfo>> RevertedMigrations { get; } = revertedMigrations;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -36,5 +36,5 @@ public class MigratorData(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Migration? TargetMigration { get; } = targetMigration;
+    public virtual TypeInfo? TargetMigration { get; } = targetMigration;
 }
