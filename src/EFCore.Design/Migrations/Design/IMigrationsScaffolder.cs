@@ -47,6 +47,30 @@ public interface IMigrationsScaffolder
         bool offline = false);
 
     /// <summary>
+    ///     Removes the previous migration.
+    /// </summary>
+    /// <param name="projectDir">The project's root directory.</param>
+    /// <param name="rootNamespace">The project's root namespace.</param>
+    /// <param name="force">Revert the migration if it has been applied to the database.</param>
+    /// <param name="language">The project's language.</param>
+    /// <param name="dryRun">If <see langword="true" />, then nothing is actually written to disk.</param>
+    /// <param name="offline">Remove the migration without connecting to the database.</param>
+    /// <param name="outputDir">
+    ///     An additional directory to look for the migration files in, for when they are not under the project directory.
+    ///     Paths are relative to the project directory. Implementations that do not override this method ignore it.
+    /// </param>
+    /// <returns>The removed migration files.</returns>
+    MigrationFiles RemoveMigration(
+        string projectDir,
+        string? rootNamespace,
+        bool force,
+        string? language,
+        bool dryRun,
+        bool offline,
+        string? outputDir)
+        => RemoveMigration(projectDir, rootNamespace, force, language, dryRun, offline);
+
+    /// <summary>
     ///     Saves a scaffolded migration to files.
     /// </summary>
     /// <param name="projectDir">The project's root directory.</param>

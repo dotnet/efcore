@@ -268,13 +268,16 @@
     <value>The namespace to use. Matches the directory by default.</value>
   </data>
   <data name="MigrationsOutputDirDescription" xml:space="preserve">
-    <value>The directory to put files in. Paths are relative to the project or file-based app directory. Defaults to "Migrations".</value>
+    <value>The directory to put files in, including the model snapshot. Paths are relative to the project or file-based app directory. Defaults to "Migrations".</value>
   </data>
   <data name="MigrationsRemoveDescription" xml:space="preserve">
     <value>Removes the last migration.</value>
   </data>
   <data name="MigrationsRemoveForceDescription" xml:space="preserve">
     <value>Revert the migration if it has been applied to the database.</value>
+  </data>
+  <data name="MigrationsRemoveOutputDirDescription" xml:space="preserve">
+    <value>An additional directory to look for the migration files in, if they are not under the project directory. Paths are relative to the project or file-based app directory.</value>
   </data>
   <data name="MigrationsRemoveOfflineDescription" xml:space="preserve">
     <value>Remove the migration without connecting to the database.</value>

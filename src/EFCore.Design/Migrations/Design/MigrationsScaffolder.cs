@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 
@@ -247,8 +248,37 @@ public class MigrationsScaffolder : IMigrationsScaffolder
         string? language,
         bool dryRun = false,
         bool offline = false)
+        => RemoveMigration(projectDir, rootNamespace, force, language, dryRun, offline, outputDir: null);
+
+    /// <summary>
+    ///     Removes the previous migration.
+    /// </summary>
+    /// <param name="projectDir">The project's root directory.</param>
+    /// <param name="rootNamespace">The project's root namespace.</param>
+    /// <param name="force">Revert the migration if it has been applied to the database.</param>
+    /// <param name="language">The project's language.</param>
+    /// <param name="dryRun">If <see langword="true" />, then nothing is actually written to disk.</param>
+    /// <param name="offline">Remove the migration without connecting to the database.</param>
+    /// <param name="outputDir">
+    ///     An additional directory to look for the migration files in, for when they are not under the project directory.
+    ///     Paths are relative to the project directory.
+    /// </param>
+    /// <returns>The removed migration files.</returns>
+    public virtual MigrationFiles RemoveMigration(
+        string projectDir,
+        string? rootNamespace,
+        bool force,
+        string? language,
+        bool dryRun,
+        bool offline,
+        string? outputDir)
     {
         var files = new MigrationFiles();
+
+        if (outputDir != null)
+        {
+            outputDir = Path.GetFullPath(Path.Combine(projectDir, outputDir));
+        }
 
         var modelSnapshot = Dependencies.MigrationsAssembly.ModelSnapshot;
         if (modelSnapshot == null)
@@ -257,6 +287,19 @@ public class MigrationsScaffolder : IMigrationsScaffolder
         }
 
         var codeGenerator = Dependencies.MigrationsCodeGeneratorSelector.Select(language);
+
+        var modelSnapshotName = modelSnapshot.GetType().Name;
+        var modelSnapshotFileName = modelSnapshotName + codeGenerator.FileExtension;
+        var modelSnapshotFiles = FindSnapshotFiles(
+            projectDir, outputDir, modelSnapshotFileName, modelSnapshot.GetType().Namespace, modelSnapshotName);
+        if (modelSnapshotFiles.Count > 1)
+        {
+            throw new OperationException(
+                DesignStrings.MultipleExistingSnapshotFiles(
+                    modelSnapshotName, string.Join(", ", modelSnapshotFiles.Select(f => $"'{f}'"))));
+        }
+
+        var modelSnapshotFile = modelSnapshotFiles.FirstOrDefault();
 
         IModel? model = null;
         var migrations = Dependencies.MigrationsAssembly.Migrations
@@ -304,7 +347,13 @@ public class MigrationsScaffolder : IMigrationsScaffolder
                 }
 
                 var migrationFileName = migration.GetId() + codeGenerator.FileExtension;
-                var migrationFile = TryGetProjectFile(projectDir, migrationFileName);
+                var migrationFile = TryFindFile(projectDir, outputDir, migrationFileName);
+                if (migrationFile == null && modelSnapshotFile == null)
+                {
+                    // Nothing can be removed or restored safely; most likely the files are outside the project directory.
+                    throw new OperationException(DesignStrings.RemoveMigrationFilesNotFound(migrationFileName, modelSnapshotFileName));
+                }
+
                 if (migrationFile != null)
                 {
                     Dependencies.OperationReporter.WriteInformation(DesignStrings.RemovingMigration(migration.GetId()));
@@ -322,7 +371,7 @@ public class MigrationsScaffolder : IMigrationsScaffolder
                 }
 
                 var migrationMetadataFileName = migration.GetId() + ".Designer" + codeGenerator.FileExtension;
-                var migrationMetadataFile = TryGetProjectFile(projectDir, migrationMetadataFileName);
+                var migrationMetadataFile = TryFindFile(projectDir, outputDir, migrationMetadataFileName);
                 if (migrationMetadataFile != null)
                 {
                     if (!dryRun)
@@ -350,9 +399,6 @@ public class MigrationsScaffolder : IMigrationsScaffolder
 
         var latestMigrationId = migrations.Count > 1 ? migrations[^2].GetId() : null;
 
-        var modelSnapshotName = modelSnapshot.GetType().Name;
-        var modelSnapshotFileName = modelSnapshotName + codeGenerator.FileExtension;
-        var modelSnapshotFile = TryGetProjectFile(projectDir, modelSnapshotFileName);
         if (model == null)
         {
             if (modelSnapshotFile != null)
@@ -385,14 +431,21 @@ public class MigrationsScaffolder : IMigrationsScaffolder
                 model,
                 latestMigrationId);
 
-            modelSnapshotFile ??= Path.Combine(
-                GetDirectory(projectDir, null, GetSubNamespace(rootNamespace, modelSnapshotNamespace)),
-                modelSnapshotFileName);
+            if (modelSnapshotFile == null)
+            {
+                modelSnapshotFile = Path.Combine(
+                    GetDirectory(projectDir, null, GetSubNamespace(rootNamespace, modelSnapshotNamespace)),
+                    modelSnapshotFileName);
+
+                Dependencies.OperationReporter.WriteWarning(
+                    DesignStrings.SnapshotFileNotFoundCreatingNew(modelSnapshotFileName, modelSnapshotFile));
+            }
 
             Dependencies.OperationReporter.WriteInformation(DesignStrings.RevertingSnapshot);
 
             if (!dryRun)
             {
+                Directory.CreateDirectory(Path.GetDirectoryName(modelSnapshotFile)!);
                 File.WriteAllText(modelSnapshotFile, modelSnapshotCode, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
             }
         }
@@ -410,16 +463,65 @@ public class MigrationsScaffolder : IMigrationsScaffolder
     /// <returns>The saved migrations files.</returns>
     public virtual MigrationFiles Save(string projectDir, ScaffoldedMigration migration, string? outputDir, bool dryRun)
     {
+        if (outputDir != null)
+        {
+            outputDir = Path.GetFullPath(Path.Combine(projectDir, outputDir));
+        }
+
         var lastMigrationFileName = migration.PreviousMigrationId + migration.FileExtension;
         var migrationDirectory = outputDir ?? GetDirectory(projectDir, lastMigrationFileName, migration.MigrationSubNamespace);
         var migrationFile = Path.Combine(migrationDirectory, migration.MigrationId + migration.FileExtension);
         var migrationMetadataFile = Path.Combine(migrationDirectory, migration.MigrationId + ".Designer" + migration.FileExtension);
         var modelSnapshotFileName = migration.SnapshotName + migration.FileExtension;
-        var modelSnapshotDirectory = GetDirectory(projectDir, modelSnapshotFileName, migration.SnapshotSubnamespace);
+        var modelSnapshotDirectory = outputDir ?? GetDirectory(projectDir, modelSnapshotFileName, migration.SnapshotSubnamespace);
         var modelSnapshotFile = Path.Combine(modelSnapshotDirectory, modelSnapshotFileName);
+
+        var snapshotClassName = migration.SnapshotName;
+        var currentSnapshotNamespace = Dependencies.MigrationsAssembly.ModelSnapshot?.GetType().Namespace;
+
+        // Snapshot file names are not unique across contexts or namespaces, so never overwrite a file that does not declare
+        // this context's snapshot.
+        if (File.Exists(modelSnapshotFile)
+            && !DeclaresSnapshot(modelSnapshotFile, currentSnapshotNamespace, DeclaredNamespace(migration.SnapshotCode), snapshotClassName))
+        {
+            throw new OperationException(DesignStrings.SnapshotFileBelongsToAnotherType(modelSnapshotFile, snapshotClassName));
+        }
+
+        // An explicit output directory moves the snapshot with the migration; the old file must go or there would be two snapshots.
+        string? staleSnapshotFile = null;
+        if (currentSnapshotNamespace != null)
+        {
+            var existingSnapshotFiles = FindSnapshotFiles(projectDir, outputDir, modelSnapshotFileName, currentSnapshotNamespace, snapshotClassName);
+            if (existingSnapshotFiles.Count == 0)
+            {
+                // Typically the snapshot is in a directory outside of the project, which must be given as the output directory.
+                Dependencies.OperationReporter.WriteWarning(
+                    DesignStrings.ExistingSnapshotFileNotFound(snapshotClassName, modelSnapshotFile));
+            }
+            else if (outputDir != null && !existingSnapshotFiles.Any(f => IsSameFile(f, modelSnapshotFile)))
+            {
+                if (existingSnapshotFiles.Count == 1)
+                {
+                    staleSnapshotFile = existingSnapshotFiles[0];
+                }
+                else
+                {
+                    Dependencies.OperationReporter.WriteWarning(
+                        DesignStrings.MultipleExistingSnapshotFiles(
+                            snapshotClassName, string.Join(", ", existingSnapshotFiles.Select(f => $"'{f}'"))));
+                }
+            }
+        }
+
+        if (staleSnapshotFile != null && dryRun)
+        {
+            Dependencies.OperationReporter.WriteInformation(DesignStrings.WouldMoveSnapshot(staleSnapshotFile, modelSnapshotFile));
+            staleSnapshotFile = null;
+        }
 
         Dependencies.OperationReporter.WriteVerbose(DesignStrings.WritingMigration(migrationFile));
 
+        string? previousSnapshotFile = null;
         if (!dryRun)
         {
             Directory.CreateDirectory(migrationDirectory);
@@ -430,6 +532,20 @@ public class MigrationsScaffolder : IMigrationsScaffolder
 
             Dependencies.OperationReporter.WriteVerbose(DesignStrings.WritingSnapshot(modelSnapshotFile));
             File.WriteAllText(modelSnapshotFile, migration.SnapshotCode, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+
+            if (staleSnapshotFile != null)
+            {
+                Dependencies.OperationReporter.WriteInformation(DesignStrings.MovingSnapshot(staleSnapshotFile, modelSnapshotFile));
+                try
+                {
+                    File.Delete(staleSnapshotFile);
+                    previousSnapshotFile = staleSnapshotFile;
+                }
+                catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+                {
+                    Dependencies.OperationReporter.WriteWarning(DesignStrings.CannotDeleteOldSnapshot(staleSnapshotFile, ex.Message));
+                }
+            }
         }
 
         return new MigrationFiles
@@ -437,6 +553,7 @@ public class MigrationsScaffolder : IMigrationsScaffolder
             MigrationFile = migrationFile,
             MetadataFile = migrationMetadataFile,
             SnapshotFile = modelSnapshotFile,
+            PreviousSnapshotFile = previousSnapshotFile,
             Migration = migration
         };
     }
@@ -493,6 +610,86 @@ public class MigrationsScaffolder : IMigrationsScaffolder
         }
 
         return defaultDirectory;
+    }
+
+    private static bool IsSameFile(string file1, string file2)
+        => Path.GetFullPath(file1).Equals(
+            Path.GetFullPath(file2),
+            OperatingSystem.IsWindows() || OperatingSystem.IsMacOS() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
+
+    private static string? DeclaredNamespace(string code)
+    {
+        var match = Regex.Match(code, @"^\s*namespace\s+([\w.@]+)\s*(;|\{|$)", RegexOptions.Multiline);
+
+        return match.Success ? match.Groups[1].Value : null;
+    }
+
+    // Namespaces and class names are matched textually; scaffolded snapshots always declare one flat namespace.
+    private static bool DeclaresSnapshot(string file, string? namespace1, string? namespace2, string className)
+    {
+        var classDeclaration = new Regex(@"\bclass\s+@?" + Regex.Escape(className) + @"\b");
+        var namespaces = new[] { namespace1, namespace2 }.Where(n => n != null).Distinct().ToList();
+        var lines = File.ReadLines(file).ToList();
+
+        return lines.Any(l => classDeclaration.IsMatch(l))
+            && (namespaces.Count == 0
+                || namespaces.Any(
+                    n => lines.Any(l => Regex.IsMatch(l, @"^\s*namespace\s+" + Regex.Escape(n!) + @"\s*(;|\{|$)"))));
+    }
+
+    /// <summary>
+    ///     Finds the files declaring the current model snapshot: directly in the output directory, and anywhere under the project directory.
+    /// </summary>
+    private static List<string> FindSnapshotFiles(
+        string projectDir,
+        string? outputDir,
+        string snapshotFileName,
+        string? snapshotNamespace,
+        string snapshotClassName)
+    {
+        var candidates = new List<string>();
+        if (outputDir != null)
+        {
+            var inOutputDir = Path.Combine(outputDir, snapshotFileName);
+            if (File.Exists(inOutputDir))
+            {
+                candidates.Add(inOutputDir);
+            }
+        }
+
+        if (Directory.Exists(projectDir))
+        {
+            candidates.AddRange(Directory.EnumerateFiles(projectDir, snapshotFileName, SearchOption.AllDirectories));
+        }
+
+        var found = new List<string>();
+        foreach (var candidate in candidates)
+        {
+            if (!found.Any(f => IsSameFile(f, candidate))
+                && DeclaresSnapshot(candidate, snapshotNamespace, null, snapshotClassName))
+            {
+                found.Add(candidate);
+            }
+        }
+
+        return found;
+    }
+
+    /// <summary>
+    ///     Tries to find a file in the output directory, then anywhere under the project directory.
+    /// </summary>
+    private string? TryFindFile(string projectDir, string? outputDir, string fileName)
+    {
+        if (outputDir != null)
+        {
+            var inOutputDir = Path.Combine(outputDir, fileName);
+            if (File.Exists(inOutputDir))
+            {
+                return inOutputDir;
+            }
+        }
+
+        return TryGetProjectFile(projectDir, fileName);
     }
 
     /// <summary>

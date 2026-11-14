@@ -3,6 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
@@ -63,7 +64,312 @@ public class MigrationsScaffolderTest
         Assert.Contains($"[Migration(\"{migration.MigrationId}\")]", migration.MetadataCode);
     }
 
-    private IMigrationsScaffolder CreateMigrationScaffolder<TContext>()
+    [Fact]
+    public void Save_moves_existing_snapshot_to_output_dir()
+    {
+        using var project = new TempDirectory();
+        var oldFile = CreateSnapshotFile(project, "Migrations/Old");
+        var reporter = new TestOperationReporter();
+        var scaffolder = CreateMigrationScaffolder<ContextWithSnapshot>(reporter);
+        var migration = scaffolder.ScaffoldMigration("M", "WebApplication1");
+
+        var files = scaffolder.Save(project, migration, "Migrations/New", dryRun: false);
+
+        var newFile = Path.Combine(project, "Migrations", "New", SnapshotFileName);
+        Assert.Equal(newFile, files.SnapshotFile);
+        Assert.True(File.Exists(newFile));
+        Assert.False(File.Exists(oldFile));
+        Assert.Equal(oldFile, files.PreviousSnapshotFile);
+        Assert.Contains(
+            reporter.Messages,
+            m => m.Level == LogLevel.Information && m.Message == DesignStrings.MovingSnapshot(oldFile, newFile));
+    }
+
+    [Fact]
+    public void Save_dry_run_does_not_move_snapshot()
+    {
+        using var project = new TempDirectory();
+        var oldFile = CreateSnapshotFile(project, "Migrations/Old");
+        var reporter = new TestOperationReporter();
+        var scaffolder = CreateMigrationScaffolder<ContextWithSnapshot>(reporter);
+        var migration = scaffolder.ScaffoldMigration("M", "WebApplication1");
+
+        var files = scaffolder.Save(project, migration, "Migrations/New", dryRun: true);
+
+        var newFile = Path.Combine(project, "Migrations", "New", SnapshotFileName);
+        Assert.Equal(newFile, files.SnapshotFile);
+        Assert.Null(files.PreviousSnapshotFile);
+        Assert.Contains(
+            reporter.Messages,
+            m => m.Level == LogLevel.Information && m.Message == DesignStrings.WouldMoveSnapshot(oldFile, newFile));
+        Assert.True(File.Exists(oldFile));
+        Assert.False(Directory.Exists(Path.Combine(project, "Migrations", "New")));
+    }
+
+    [Fact]
+    public void Save_does_not_delete_snapshot_already_in_output_dir()
+    {
+        using var project = new TempDirectory();
+        var existing = CreateSnapshotFile(project, "Migrations/New");
+        var reporter = new TestOperationReporter();
+        var scaffolder = CreateMigrationScaffolder<ContextWithSnapshot>(reporter);
+        var migration = scaffolder.ScaffoldMigration("M", "WebApplication1");
+
+        scaffolder.Save(project, migration, "Migrations/New", dryRun: false);
+
+        Assert.Equal(migration.SnapshotCode, File.ReadAllText(existing));
+        Assert.DoesNotContain(reporter.Messages, m => m.Message.StartsWith("Moving model snapshot", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Save_only_moves_snapshot_of_the_scaffolded_context()
+    {
+        using var project = new TempDirectory();
+        var oldFile = CreateSnapshotFile(project, "Migrations/Old");
+        var otherFile = CreateSnapshotFile(project, "Migrations/Old", "OtherContextModelSnapshot.cs");
+        var scaffolder = CreateMigrationScaffolder<ContextWithSnapshot>();
+        var migration = scaffolder.ScaffoldMigration("M", "WebApplication1");
+
+        scaffolder.Save(project, migration, "Migrations/New", dryRun: false);
+
+        Assert.False(File.Exists(oldFile));
+        Assert.True(File.Exists(otherFile));
+    }
+
+    [Fact]
+    public void Save_does_not_delete_same_named_file_when_context_has_no_snapshot()
+    {
+        using var project = new TempDirectory();
+        var otherContextsFile = CreateSnapshotFile(project, "Migrations/Other", "GenericContextModelSnapshot.cs", "Other.Namespace");
+        var scaffolder = CreateMigrationScaffolder<GenericContext<int>>();
+        var migration = scaffolder.ScaffoldMigration("M", "WebApplication1");
+
+        scaffolder.Save(project, migration, "Migrations/New", dryRun: false);
+
+        Assert.True(File.Exists(otherContextsFile));
+        Assert.True(File.Exists(Path.Combine(project, "Migrations", "New", "GenericContextModelSnapshot.cs")));
+    }
+
+    [Fact]
+    public void Save_does_not_delete_same_named_snapshot_in_another_namespace()
+    {
+        using var project = new TempDirectory();
+        var otherContextsFile = CreateSnapshotFile(project, "Migrations/Other", snapshotNamespace: "Other.Namespace");
+        var scaffolder = CreateMigrationScaffolder<ContextWithSnapshot>();
+        var migration = scaffolder.ScaffoldMigration("M", "WebApplication1");
+
+        scaffolder.Save(project, migration, "Migrations/New", dryRun: false);
+
+        Assert.True(File.Exists(otherContextsFile));
+    }
+
+    [Fact]
+    public void RemoveMigration_finds_snapshot_in_output_dir_outside_project()
+    {
+        using var root = new TempDirectory();
+        var project = Path.Combine(root, "proj");
+        Directory.CreateDirectory(project);
+        var snapshotFile = CreateSnapshotFile(root, "other/Migrations");
+        var scaffolder = CreateMigrationScaffolder<ContextWithSnapshot>();
+
+        var files = scaffolder.RemoveMigration(project, "WebApplication1", force: false, language: null, dryRun: false, offline: false, outputDir: "../other/Migrations");
+
+        Assert.Equal(snapshotFile, files.SnapshotFile);
+        Assert.False(File.Exists(snapshotFile));
+    }
+
+    [Fact]
+    public void RemoveMigration_throws_and_removes_nothing_when_no_files_are_found()
+    {
+        using var root = new TempDirectory();
+        var project = Path.Combine(root, "proj");
+        Directory.CreateDirectory(project);
+        var migrationFile = CreateFile(root, "other/Migrations", SecondMigrationFileName);
+        var snapshotFile = CreateSnapshotFile(root, "other/Migrations", ContextWithMigrationsSnapshotFileName);
+        var scaffolder = CreateMigrationScaffolder<ContextWithMigrations>();
+
+        var ex = Assert.Throws<OperationException>(
+            () => scaffolder.RemoveMigration(project, "WebApplication1", force: false, language: null, offline: true));
+
+        Assert.Equal(
+            DesignStrings.RemoveMigrationFilesNotFound(SecondMigrationFileName, ContextWithMigrationsSnapshotFileName),
+            ex.Message);
+        Assert.True(File.Exists(migrationFile));
+        Assert.True(File.Exists(snapshotFile));
+        Assert.Empty(Directory.EnumerateFiles(project, "*", SearchOption.AllDirectories));
+    }
+
+    [Fact]
+    public void RemoveMigration_finds_migration_and_snapshot_through_output_dir_outside_project()
+    {
+        using var root = new TempDirectory();
+        var project = Path.Combine(root, "proj");
+        Directory.CreateDirectory(project);
+        var migrationFile = CreateFile(root, "other/Migrations", SecondMigrationFileName);
+        var designerFile = CreateFile(root, "other/Migrations", SecondMigrationFileName.Replace(".cs", ".Designer.cs"));
+        var snapshotFile = CreateSnapshotFile(root, "other/Migrations", ContextWithMigrationsSnapshotFileName);
+        var scaffolder = CreateMigrationScaffolder<ContextWithMigrations>();
+
+        var files = scaffolder.RemoveMigration(
+            project, "WebApplication1", force: false, language: null, dryRun: false, offline: true, outputDir: "../other/Migrations");
+
+        Assert.Equal(migrationFile, files.MigrationFile);
+        Assert.Equal(designerFile, files.MetadataFile);
+        Assert.False(File.Exists(migrationFile));
+        Assert.False(File.Exists(designerFile));
+
+        // The snapshot is reverted in place
+        Assert.DoesNotContain("// old snapshot", File.ReadAllText(snapshotFile));
+        Assert.Empty(Directory.EnumerateFiles(project, "*", SearchOption.AllDirectories));
+    }
+
+    [Fact]
+    public void RemoveMigration_throws_when_the_snapshot_is_declared_in_several_files()
+    {
+        using var project = new TempDirectory();
+        var migrationFile = CreateFile(project, "Migrations", SecondMigrationFileName);
+        var first = CreateSnapshotFile(project, "Archive", ContextWithMigrationsSnapshotFileName);
+        var second = CreateSnapshotFile(project, "Migrations", ContextWithMigrationsSnapshotFileName);
+        var scaffolder = CreateMigrationScaffolder<ContextWithMigrations>();
+
+        var ex = Assert.Throws<OperationException>(
+            () => scaffolder.RemoveMigration(project, "WebApplication1", force: false, language: null, offline: true));
+
+        Assert.Contains(first, ex.Message);
+        Assert.Contains(second, ex.Message);
+        Assert.True(File.Exists(migrationFile));
+    }
+
+    [Fact]
+    public void RemoveMigration_warns_when_the_snapshot_is_missing_and_a_new_one_is_written()
+    {
+        using var project = new TempDirectory();
+        var migrationFile = CreateFile(project, "Migrations", SecondMigrationFileName);
+        var reporter = new TestOperationReporter();
+        var scaffolder = CreateMigrationScaffolder<ContextWithMigrations>(reporter);
+
+        scaffolder.RemoveMigration(project, "WebApplication1", force: false, language: null, offline: true);
+
+        Assert.False(File.Exists(migrationFile));
+        var newSnapshotFile = Assert.Single(
+            Directory.EnumerateFiles(project, ContextWithMigrationsSnapshotFileName, SearchOption.AllDirectories));
+        Assert.Contains(
+            reporter.Messages,
+            m => m.Level == LogLevel.Warning
+                && m.Message == DesignStrings.SnapshotFileNotFoundCreatingNew(ContextWithMigrationsSnapshotFileName, newSnapshotFile));
+    }
+
+    [Fact]
+    public void Save_moves_the_snapshot_declaring_the_current_namespace_when_a_same_named_file_of_another_namespace_exists()
+    {
+        using var project = new TempDirectory();
+        var otherContextsFile = CreateSnapshotFile(project, "Migrations/A", snapshotNamespace: "Other.Namespace");
+        var oldFile = CreateSnapshotFile(project, "Migrations/B");
+        var scaffolder = CreateMigrationScaffolder<ContextWithSnapshot>();
+        var migration = scaffolder.ScaffoldMigration("M", "WebApplication1");
+
+        scaffolder.Save(project, migration, "Migrations/New", dryRun: false);
+
+        Assert.True(File.Exists(otherContextsFile));
+        Assert.False(File.Exists(oldFile));
+    }
+
+    [Fact]
+    public void Save_deletes_nothing_and_warns_when_the_snapshot_is_declared_in_several_files()
+    {
+        using var project = new TempDirectory();
+        var archivedFile = CreateSnapshotFile(project, "Archive");
+        var oldFile = CreateSnapshotFile(project, "Migrations/2025");
+        var reporter = new TestOperationReporter();
+        var scaffolder = CreateMigrationScaffolder<ContextWithSnapshot>(reporter);
+        var migration = scaffolder.ScaffoldMigration("M", "WebApplication1");
+
+        var files = scaffolder.Save(project, migration, "Migrations/2026", dryRun: false);
+
+        Assert.True(File.Exists(archivedFile));
+        Assert.True(File.Exists(oldFile));
+        Assert.Null(files.PreviousSnapshotFile);
+        Assert.Contains(
+            reporter.Messages,
+            m => m.Level == LogLevel.Warning && m.Message.Contains(archivedFile) && m.Message.Contains(oldFile));
+    }
+
+    [Fact]
+    public void Save_does_not_overwrite_snapshot_of_another_namespace_in_output_dir()
+    {
+        using var project = new TempDirectory();
+        var otherContextsFile = CreateSnapshotFile(project, "Migrations/Shared", snapshotNamespace: "Other.Namespace");
+        var originalContent = File.ReadAllText(otherContextsFile);
+        var oldFile = CreateSnapshotFile(project, "Migrations");
+        var scaffolder = CreateMigrationScaffolder<ContextWithSnapshot>();
+        var migration = scaffolder.ScaffoldMigration("M", "WebApplication1");
+
+        var ex = Assert.Throws<OperationException>(
+            () => scaffolder.Save(project, migration, "Migrations/Shared", dryRun: false));
+
+        Assert.Equal(DesignStrings.SnapshotFileBelongsToAnotherType(otherContextsFile, nameof(ContextWithSnapshotModelSnapshot)), ex.Message);
+        Assert.Equal(originalContent, File.ReadAllText(otherContextsFile));
+        Assert.True(File.Exists(oldFile));
+        Assert.Single(Directory.EnumerateFiles(Path.Combine(project, "Migrations", "Shared")));
+    }
+
+    [Fact]
+    public void Save_warns_when_the_existing_snapshot_cannot_be_found()
+    {
+        using var project = new TempDirectory();
+        var reporter = new TestOperationReporter();
+        var scaffolder = CreateMigrationScaffolder<ContextWithSnapshot>(reporter);
+        var migration = scaffolder.ScaffoldMigration("M", "WebApplication1");
+
+        var files = scaffolder.Save(project, migration, outputDir: null, dryRun: false);
+
+        Assert.Contains(
+            reporter.Messages,
+            m => m.Level == LogLevel.Warning
+                && m.Message == DesignStrings.ExistingSnapshotFileNotFound(nameof(ContextWithSnapshotModelSnapshot), files.SnapshotFile));
+    }
+
+    [Fact]
+    public void Save_does_not_warn_when_the_existing_snapshot_is_found()
+    {
+        using var project = new TempDirectory();
+        CreateSnapshotFile(project, "Migrations/Old");
+        var reporter = new TestOperationReporter();
+        var scaffolder = CreateMigrationScaffolder<ContextWithSnapshot>(reporter);
+        var migration = scaffolder.ScaffoldMigration("M", "WebApplication1");
+
+        scaffolder.Save(project, migration, outputDir: null, dryRun: false);
+
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Warning);
+    }
+
+    private const string SecondMigrationFileName = "20200102000000_Second.cs";
+    private static readonly string ContextWithMigrationsSnapshotFileName = nameof(ContextWithMigrationsModelSnapshot) + ".cs";
+
+    private static string CreateFile(string projectDir, string relativeDir, string fileName)
+    {
+        var directory = Path.Combine(projectDir, relativeDir.Replace('/', Path.DirectorySeparatorChar));
+        Directory.CreateDirectory(directory);
+        var file = Path.Combine(directory, fileName);
+        File.WriteAllText(file, "// migration");
+        return file;
+    }
+
+    private static readonly string SnapshotFileName = nameof(ContextWithSnapshotModelSnapshot) + ".cs";
+
+    private static string CreateSnapshotFile(string projectDir, string relativeDir, string? fileName = null, string? snapshotNamespace = null)
+    {
+        var directory = Path.Combine(projectDir, relativeDir.Replace('/', Path.DirectorySeparatorChar));
+        Directory.CreateDirectory(directory);
+        var file = Path.Combine(directory, fileName ?? SnapshotFileName);
+        File.WriteAllText(
+            file,
+            $"// old snapshot{Environment.NewLine}namespace {snapshotNamespace ?? typeof(ContextWithSnapshotModelSnapshot).Namespace};"
+            + $"{Environment.NewLine}class {Path.GetFileNameWithoutExtension(file)} {{ }}");
+        return file;
+    }
+
+    private IMigrationsScaffolder CreateMigrationScaffolder<TContext>(TestOperationReporter? reporter = null)
         where TContext : DbContext, new()
     {
         var currentContext = new CurrentDbContext(new TContext());
@@ -75,7 +381,7 @@ public class MigrationsScaffolderTest
         var sqlServerAnnotationCodeGenerator = new SqlServerAnnotationCodeGenerator(
             new AnnotationCodeGeneratorDependencies(sqlServerTypeMappingSource));
         var code = new CSharpHelper(sqlServerTypeMappingSource);
-        var reporter = new TestOperationReporter();
+        reporter ??= new TestOperationReporter();
         var migrationAssembly
             = new MigrationsAssembly(
                 currentContext,
@@ -145,6 +451,34 @@ public class MigrationsScaffolderTest
 
     // ReSharper disable once UnusedTypeParameter
     private class GenericContext<T> : DbContext;
+
+    private class ContextWithMigrations : DbContext;
+
+    [DbContext(typeof(ContextWithMigrations))]
+    private class ContextWithMigrationsModelSnapshot : ModelSnapshot
+    {
+        protected override void BuildModel(ModelBuilder modelBuilder)
+        {
+        }
+    }
+
+    [DbContext(typeof(ContextWithMigrations))]
+    [Migration("20200101000000_First")]
+    private class FirstMigration : Migration
+    {
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+        }
+    }
+
+    [DbContext(typeof(ContextWithMigrations))]
+    [Migration("20200102000000_Second")]
+    private class SecondMigration : Migration
+    {
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+        }
+    }
 
     private class ContextWithSnapshot : DbContext;
 
