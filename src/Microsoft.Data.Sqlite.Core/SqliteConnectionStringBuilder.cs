@@ -223,7 +223,16 @@ public class SqliteConnectionStringBuilder : DbConnectionStringBuilder
     public int DefaultTimeout
     {
         get => _defaultTimeout;
-        set => base[DefaultTimeoutKeyword] = _defaultTimeout = value;
+        set
+        {
+            if (value < 0)
+            {
+                // NB: Message is provided by the framework
+                throw new ArgumentOutOfRangeException(nameof(value), value, message: null);
+            }
+
+            base[DefaultTimeoutKeyword] = _defaultTimeout = value;
+        }
     }
 
     /// <summary>
