@@ -681,7 +681,21 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
             }
 
             var modifiedMembers = entry.EntityType.GetFlattenedProperties().Where(entry.IsModified).ToList();
-            if (modifiedMembers.Count == 1)
+
+            // A change between null and a non-null collection can't be expressed as an update of a single property
+            var hasModifiedNullableCollection = false;
+            foreach (var navigation in entry.EntityType.GetNavigations())
+            {
+                if (navigation.IsNullable
+                    && entry.IsModified(navigation))
+                {
+                    hasModifiedNullableCollection = true;
+                    break;
+                }
+            }
+
+            if (modifiedMembers.Count == 1
+                && !hasModifiedNullableCollection)
             {
                 result.Add(
                     new JsonPartialUpdatePathEntry(
@@ -775,7 +789,11 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                 foreach (var jsonCollectionNavigation in entry.EntityType.GetNavigations()
                              .Where(n => n.IsCollection
                                  && n.TargetEntityType.IsMappedToJson()
-                                 && (entry.GetCurrentValue(n) as IEnumerable)?.Any() == false))
+                                 && ((entry.GetCurrentValue(n) as IEnumerable)?.Any() == false
+                                     || (n.IsNullable
+                                         // A replacement of an entity with the same key doesn't have its own modified flag.
+                                         && (entry.IsModified(n)
+                                             || (entry.SharedIdentityEntry != null && entry.GetCurrentValue(n) is null))))))
                 {
                     var jsonCollectionEntityType = jsonCollectionNavigation.TargetEntityType;
                     var jsonCollectionColumn =

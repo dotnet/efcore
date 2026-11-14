@@ -240,7 +240,8 @@ public abstract class SnapshotFactoryFactory
     {
         if (propertyBase is not IProperty property)
         {
-            if (propertyBase.IsCollection)
+            if (propertyBase.IsCollection
+                && (propertyBase is IComplexProperty || CopyNavigationCollections))
             {
                 expression = propertyBase is IComplexProperty complexProperty
                     ? Expression.Call(
@@ -364,6 +365,15 @@ public abstract class SnapshotFactoryFactory
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected virtual bool UseEntityVariable
+        => true;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual bool CopyNavigationCollections
         => true;
 
     /// <summary>

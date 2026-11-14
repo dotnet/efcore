@@ -307,6 +307,45 @@ public partial class RelationalModelValidatorTest
     }
 
     [Fact]
+    public void Nullable_collection_navigation_that_is_not_mapped_to_json_is_not_supported()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Customer>().HasMany(c => c.Orders).WithOne(o => o.Customer);
+        modelBuilder.Model.FindEntityType(typeof(Customer))!.FindNavigation(nameof(Customer.Orders))!.SetIsNullable(true);
+
+        VerifyError(
+            RelationalStrings.NullableCollectionNavigationNotMappedToJson(nameof(Customer.Orders), nameof(Customer)),
+            modelBuilder);
+    }
+
+    [Fact]
+    public void Nullable_collection_navigation_that_is_mapped_to_json_is_supported()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorJsonEntityBasic>(b =>
+        {
+            b.OwnsOne(
+                x => x.OwnedReference, bb =>
+                {
+                    bb.ToJson("reference");
+                    bb.Ignore(x => x.NestedReference);
+                    bb.Ignore(x => x.NestedCollection);
+                });
+            b.OwnsMany(
+                x => x.OwnedCollection, bb =>
+                {
+                    bb.ToJson("collection");
+                    bb.Ignore(x => x.NestedReference);
+                    bb.Ignore(x => x.NestedCollection);
+                });
+        });
+        modelBuilder.Model.FindEntityType(typeof(ValidatorJsonEntityBasic))!
+            .FindNavigation(nameof(ValidatorJsonEntityBasic.OwnedCollection))!.SetIsNullable(true);
+
+        Validate(modelBuilder);
+    }
+
+    [Fact]
     public void Json_entity_not_mapped_to_table_or_a_view_is_not_supported()
     {
         var modelBuilder = CreateConventionModelBuilder();

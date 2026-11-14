@@ -19,6 +19,18 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     }
 
     [Fact]
+    public virtual void Detects_nullable_collection_navigation()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Customer>().HasMany(c => c.Orders).WithOne(o => o.Customer);
+        modelBuilder.Model.FindEntityType(typeof(Customer))!.FindNavigation(nameof(Customer.Orders))!.SetIsNullable(true);
+
+        VerifyError(
+            CosmosStrings.NullableCollectionNavigationNotSupported(nameof(Customer.Orders), nameof(Customer)),
+            modelBuilder);
+    }
+
+    [Fact]
     public virtual void Passes_on_valid_keyless_entity_type()
     {
         var modelBuilder = CreateConventionModelBuilder();

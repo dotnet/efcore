@@ -2050,6 +2050,7 @@ namespace TestNamespace
         build.References.Add(BuildReference.ByName("System.Linq"));
         build.References.Add(BuildReference.ByName("System.Net.Primitives"));
         build.References.Add(BuildReference.ByName("System.Net.NetworkInformation"));
+        build.References.Add(BuildReference.ByName("System.ObjectModel"));
         build.References.Add(BuildReference.ByName("System.Text.Json"));
         build.References.Add(BuildReference.ByName("System.Threading.Thread"));
         build.References.Add(BuildReference.ByName("Microsoft.EntityFrameworkCore"));

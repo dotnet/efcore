@@ -266,6 +266,67 @@ public sealed partial class InternalEntityEntry : InternalEntryBase, IUpdateEntr
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    protected override void SetEntityState(EntityState oldState, EntityState newState, bool acceptChanges, bool modifyProperties)
+    {
+        if (((IRuntimeEntityType)EntityType).NullableCollectionCount > 0)
+        {
+            if (newState == EntityState.Modified
+                && modifyProperties)
+            {
+                // Like all properties, the null-ness of nullable collection navigations is saved when the state is set to Modified.
+                foreach (var navigation in EntityType.GetNavigations())
+                {
+                    if (navigation is { IsCollection: true, IsNullable: true })
+                    {
+                        PropertyStateData.FlagProperty(navigation.GetIndex(), PropertyFlag.NavigationModified, isFlagged: true);
+                    }
+                }
+            }
+            else if (newState == EntityState.Unchanged
+                     && oldState != newState
+                     && !acceptChanges)
+            {
+                // Rejecting the changes of a collection navigation would mean restoring the old collection and the state of
+                // everything in it, so, instead, the current null-ness is taken as the one that is already saved. Otherwise, it
+                // would be detected as a change again.
+                ResetNullableCollectionBaselines();
+            }
+            else if (newState == EntityState.Added
+                     && oldState != newState)
+            {
+                // All values are written for an Added entity, so there is nothing to track.
+                foreach (var navigation in EntityType.GetNavigations())
+                {
+                    if (navigation is { IsCollection: true, IsNullable: true })
+                    {
+                        PropertyStateData.FlagProperty(navigation.GetIndex(), PropertyFlag.NavigationModified, isFlagged: false);
+                    }
+                }
+            }
+        }
+
+        base.SetEntityState(oldState, newState, acceptChanges, modifyProperties);
+    }
+
+    private void ResetNullableCollectionBaselines()
+    {
+        foreach (var navigation in EntityType.GetNavigations())
+        {
+            if (navigation is { IsCollection: true, IsNullable: true }
+                && navigation.GetOriginalValueIndex() >= 0
+                && PropertyStateData.IsPropertyFlagged(navigation.GetIndex(), PropertyFlag.NavigationModified))
+            {
+                SetOriginalValue(navigation, this[navigation], skipChangeDetection: true);
+            }
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     protected override void OnStateChanging(EntityState newState)
     {
         base.OnStateChanging(newState);
@@ -1058,6 +1119,59 @@ public sealed partial class InternalEntityEntry : InternalEntryBase, IUpdateEntr
                     // Note: ignoring Move since index not important
             }
         }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public bool IsModified(INavigation navigation)
+    {
+        EntityType.CheckContains(navigation);
+
+        return PropertyStateData.IsPropertyFlagged(navigation.GetIndex(), PropertyFlag.NavigationModified);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public void SetPropertyModified(INavigation navigation, bool isModified = true, bool acceptChanges = false)
+    {
+        EntityType.CheckContains(navigation);
+
+        var index = navigation.GetIndex();
+
+        if (!isModified
+            && navigation.GetOriginalValueIndex() >= 0
+            && EntityState != EntityState.Detached)
+        {
+            if (acceptChanges
+                || EntityState is not (EntityState.Unchanged or EntityState.Modified))
+            {
+                // The current null-ness is taken as the one that is already saved. Otherwise, it would be detected as a change again.
+                SetOriginalValue(navigation, this[navigation], skipChangeDetection: true);
+            }
+            else
+            {
+                // Like for properties, the change is reverted by restoring the original value. Any change to the elements of the
+                // collection is found by change detection as usual.
+                SetProperty(navigation, GetOriginalValue(navigation), isMaterialization: false, setModified: false);
+            }
+        }
+
+        if (PropertyStateData.IsPropertyFlagged(index, PropertyFlag.NavigationModified) == isModified)
+        {
+            return;
+        }
+
+        PropertyStateData.FlagProperty(index, PropertyFlag.NavigationModified, isModified);
+
+        OnModifiedFlagChanged(isModified);
     }
 
     /// <summary>

@@ -1267,8 +1267,20 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             where TIncludingEntity : class
             where TIncludedCollectionElement : class
         {
+            // For a nullable collection navigation the stored null or non-null value is applied to the entity, overriding any initial
+            // value, and recorded as the original null-ness so that a later change between the two is detected.
+            var nullableNavigation = structuralProperty is INavigation { IsNullable: true } navigation && !navigation.IsShadowProperty()
+                ? navigation
+                : null;
+            var applyNullness = nullableNavigation != null && queryContext.CanLoadCollectionNullness(nullableNavigation, entity);
+
             if (jsonReaderData == null)
             {
+                if (applyNullness)
+                {
+                    queryContext.SetCollectionNullnessLoaded(nullableNavigation!, entity, storedAsNull: true);
+                }
+
                 return;
             }
 
@@ -1278,6 +1290,11 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             switch (tokenType)
             {
                 case JsonTokenType.Null:
+                    if (applyNullness)
+                    {
+                        queryContext.SetCollectionNullnessLoaded(nullableNavigation!, entity, storedAsNull: true);
+                    }
+
                     return;
 
                 case not JsonTokenType.StartArray:
@@ -1288,7 +1305,12 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             tokenType));
             }
 
-            getOrCreateCollectionObject(entity);
+            // A nullable collection of an entity that was already tracked is left as it is
+            if (nullableNavigation == null
+                || applyNullness)
+            {
+                getOrCreateCollectionObject(entity);
+            }
 
             object[]? newKeyPropertyValues = null;
 
@@ -1338,6 +1360,11 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             structuralProperty.DeclaringType.DisplayName(),
                             structuralProperty.Name));
                 }
+            }
+
+            if (applyNullness)
+            {
+                queryContext.SetCollectionNullnessLoaded(nullableNavigation!, entity, storedAsNull: false);
             }
 
             manager.CaptureState();

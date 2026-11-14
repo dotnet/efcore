@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -21,6 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public abstract class QueryContext
 {
     private IStateManager? _stateManager;
+    private HashSet<InternalEntityEntry>? _entriesStartedTracking;
 
     /// <summary>
     ///     <para>
@@ -102,9 +104,15 @@ public abstract class QueryContext
     /// </summary>
     /// <param name="standAlone">Whether a stand-alone <see cref="IStateManager" /> should be created to perform identity resolution.</param>
     public virtual void InitializeStateManager(bool standAlone = false)
-        => _stateManager ??= standAlone
+    {
+        _stateManager ??= standAlone
             ? new StateManager(Dependencies.StateManager.Dependencies)
             : Dependencies.StateManager;
+
+        // This is called each time the query is executed. Entities that were started being tracked by an earlier execution
+        // are tracked by then, and can have unsaved changes.
+        _entriesStartedTracking?.Clear();
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -144,8 +152,102 @@ public abstract class QueryContext
             IEntityType entityType,
             object entity,
             in ISnapshot snapshot)
+    {
         // InitializeStateManager will populate the field before calling here
-        => _stateManager!.StartTrackingFromQuery(entityType, entity, snapshot);
+        var entry = _stateManager!.StartTrackingFromQuery(entityType, entity, snapshot);
+
+        // Only entities that distinguish between null and empty collections need to know later on if they were already tracked
+        if (entityType is IRuntimeEntityType { NullableCollectionCount: > 0 })
+        {
+            (_entriesStartedTracking ??= []).Add(entry);
+        }
+
+        return entry;
+    }
+
+    /// <summary>
+    ///     Gets a value indicating whether the stored null-ness of a collection navigation that has
+    ///     <see cref="IReadOnlyNavigation.IsNullable" /> equal to <see langword="true" /> should be applied to the given entity instance.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This is <see langword="true" /> for an entity that is not tracked, for example in a no-tracking query, and for an entity
+    ///         that was started being tracked by this query. It is <see langword="false" /> for an entity that was already tracked
+    ///         before this query, in which case the current values of the entity are kept, including an unsaved change between a null
+    ///         and a non-null collection.
+    ///     </para>
+    ///     <para>
+    ///         A database provider should call this before materializing the collection and, if it returns
+    ///         <see langword="false" />, not modify the collection or call <see cref="SetCollectionNullnessLoaded" />.
+    ///     </para>
+    /// </remarks>
+    /// <param name="navigation">The collection navigation.</param>
+    /// <param name="entity">The entity instance that declares the navigation.</param>
+    /// <returns><see langword="true" /> if the stored null-ness should be applied, otherwise <see langword="false" />.</returns>
+    public virtual bool CanLoadCollectionNullness(INavigation navigation, object entity)
+        => IsNullnessLoadable(TryGetEntry(entity));
+
+    private bool IsNullnessLoadable(InternalEntityEntry? entry)
+        => entry == null
+            || _entriesStartedTracking?.Contains(entry) == true;
+
+    /// <summary>
+    ///     Sets the loaded null-ness of a collection navigation that has <see cref="IReadOnlyNavigation.IsNullable" /> equal to
+    ///     <see langword="true" /> on the given entity instance, and records it as the value that was read from the database so that a
+    ///     later change between a null and a non-null collection is detected.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         If <paramref name="storedAsNull" /> is <see langword="true" />, the navigation is set to <see langword="null" />, without
+    ///         using collection initializers or raising change notifications. Otherwise, the collection must already have been created
+    ///         and populated by the caller.
+    ///     </para>
+    ///     <para>
+    ///         This does nothing if <see cref="CanLoadCollectionNullness" /> returns <see langword="false" />.
+    ///     </para>
+    /// </remarks>
+    /// <param name="navigation">The collection navigation.</param>
+    /// <param name="entity">The entity instance that declares the navigation.</param>
+    /// <param name="storedAsNull">Whether the collection was stored as <see langword="null" />.</param>
+    public virtual void SetCollectionNullnessLoaded(INavigation navigation, object entity, bool storedAsNull)
+    {
+        var entry = TryGetEntry(entity);
+        if (!IsNullnessLoadable(entry))
+        {
+            return;
+        }
+
+        var recordOriginal = entry != null && navigation.GetOriginalValueIndex() >= 0;
+        if (storedAsNull)
+        {
+            // The original value is recorded first so that a setter raising notifications isn't seen as a change.
+            if (recordOriginal)
+            {
+                entry!.SetOriginalValue(navigation, null, skipChangeDetection: true);
+            }
+
+            ((IRuntimePropertyBase)navigation).MaterializationSetter.SetClrValue(entity, null);
+        }
+
+        // A setter can have replaced null, in which case that is the value that has been loaded.
+        if (recordOriginal)
+        {
+            var currentValue = navigation.GetGetter().GetClrValue(entity);
+            if (!storedAsNull
+                || currentValue != null)
+            {
+                entry!.SetOriginalValue(navigation, currentValue, skipChangeDetection: true);
+            }
+        }
+
+        // Loading the collection must not leave the navigation looking modified because of a change notification that was
+        // raised by the entity while the collection was set. The navigation was known not to be modified before it was loaded.
+        if (entry != null
+            && entry.IsModified(navigation))
+        {
+            entry.SetPropertyModified(navigation, false, acceptChanges: true);
+        }
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

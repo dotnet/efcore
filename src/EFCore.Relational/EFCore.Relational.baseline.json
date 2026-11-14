@@ -8398,6 +8398,17 @@
       ]
     },
     {
+      "Type": "class Microsoft.EntityFrameworkCore.Metadata.Conventions.NullableJsonCollectionConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.NonNullableConventionBase, Microsoft.EntityFrameworkCore.Metadata.Conventions.IModelFinalizingConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConvention",
+      "Methods": [
+        {
+          "Member": "NullableJsonCollectionConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
+        },
+        {
+          "Member": "virtual void ProcessModelFinalizing(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder modelBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder> context);"
+        }
+      ]
+    },
+    {
       "Type": "class Microsoft.EntityFrameworkCore.Migrations.Operations.Builders.OperationBuilder<TOperation> : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<TOperation> where TOperation : Microsoft.EntityFrameworkCore.Migrations.Operations.MigrationOperation",
       "Methods": [
         {
@@ -15861,6 +15872,9 @@
         },
         {
           "Member": "static string NonTphViewClash(object? entityType, object? otherEntityType, object? view);"
+        },
+        {
+          "Member": "static string NullableCollectionNavigationNotMappedToJson(object? navigation, object? entityType);"
         },
         {
           "Member": "static string NullKeyValue(object? table, object? keyColumn);"

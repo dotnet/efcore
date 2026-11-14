@@ -149,6 +149,9 @@
   <data name="NullabilityErrorExceptionSensitive" xml:space="preserve">
     <value>Required properties '{requiredProperties}' are missing for the instance of entity type '{entityType}' with the key value '{keyValue}'.</value>
   </data>
+  <data name="NullableCollectionNavigationNotSupported" xml:space="preserve">
+    <value>The collection navigation '{entityType}.{navigation}' is configured to distinguish a null collection from an empty one, but this is not supported by the in-memory provider.</value>
+  </data>
   <data name="SetOperationsNotAllowedAfterClientEvaluation" xml:space="preserve">
     <value>Unable to translate set operation after client projection has been applied. Consider moving the set operation before the last 'Select' call.</value>
   </data>

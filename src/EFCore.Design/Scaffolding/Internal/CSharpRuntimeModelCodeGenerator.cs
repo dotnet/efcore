@@ -2692,6 +2692,12 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 .Append("lazyLoadingEnabled: ").Append(_code.Literal(false));
         }
 
+        if (navigation.IsNullable)
+        {
+            mainBuilder.AppendLine(",")
+                .Append("nullable: ").Append(_code.Literal(true));
+        }
+
         mainBuilder
             .AppendLine(");")
             .AppendLine()
@@ -3210,7 +3216,17 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             .Append("originalValueCount: ").Append(_code.Literal(counts.OriginalValueCount)).AppendLine(",")
             .Append("shadowCount: ").Append(_code.Literal(counts.ShadowCount)).AppendLine(",")
             .Append("relationshipCount: ").Append(_code.Literal(counts.RelationshipCount)).AppendLine(",")
-            .Append("storeGeneratedCount: ").Append(_code.Literal(counts.StoreGeneratedCount)).AppendLine("));")
+            .Append("storeGeneratedCount: ").Append(_code.Literal(counts.StoreGeneratedCount));
+
+        if (counts.NullableCollectionCount != 0)
+        {
+            mainBuilder
+                .AppendLine(",")
+                .Append("nullableCollectionCount: ").Append(_code.Literal(counts.NullableCollectionCount));
+        }
+
+        mainBuilder
+            .AppendLine("));")
             .DecrementIndent();
 
         Check.DebugAssert(

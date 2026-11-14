@@ -134,6 +134,7 @@ public static class EntityTypeExtensions
         var shadowIndex = 0;
         var relationshipIndex = 0;
         var storeGenerationIndex = 0;
+        var nullableCollectionCount = 0;
 
         var baseCounts = entityType.BaseType?.CalculateCounts();
         if (baseCounts != null)
@@ -146,6 +147,7 @@ public static class EntityTypeExtensions
             shadowIndex = baseCounts.ShadowCount;
             relationshipIndex = baseCounts.RelationshipCount;
             storeGenerationIndex = baseCounts.StoreGeneratedCount;
+            nullableCollectionCount = baseCounts.NullableCollectionCount;
         }
 
         foreach (IRuntimeProperty property in entityType.GetDeclaredProperties())
@@ -177,12 +179,17 @@ public static class EntityTypeExtensions
         {
             var indexes = new PropertyIndexes(
                 index: navigationIndex++,
-                originalValueIndex: -1,
+                originalValueIndex: navigation.RequiresOriginalValue() ? originalValueIndex++ : -1,
                 shadowIndex: navigation.IsShadowProperty() ? shadowIndex++ : -1,
                 relationshipIndex: navigation.IsCollection && isNotifying ? -1 : relationshipIndex++,
                 storeGenerationIndex: -1);
 
             navigation.PropertyIndexes = indexes;
+
+            if (navigation is INavigation { IsCollection: true, IsNullable: true })
+            {
+                nullableCollectionCount++;
+            }
         }
 
         foreach (IRuntimeServiceProperty serviceProperty in entityType.GetDeclaredServiceProperties())
@@ -205,7 +212,8 @@ public static class EntityTypeExtensions
             originalValueIndex,
             shadowIndex,
             relationshipIndex,
-            storeGenerationIndex);
+            storeGenerationIndex,
+            nullableCollectionCount);
     }
 
     private static void CountComplexProperties(
