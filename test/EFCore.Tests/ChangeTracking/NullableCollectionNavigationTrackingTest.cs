@@ -594,6 +594,7 @@ public class NullableCollectionNavigationTrackingTest
     [Theory]
     [InlineData(ChangeTrackingStrategy.ChangedNotifications)]
     [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
     public void Changing_notifying_nullable_collection_navigation_from_empty_to_null_is_detected(ChangeTrackingStrategy strategy)
     {
         using var context = NotifyingContext.Create(strategy);
@@ -610,6 +611,7 @@ public class NullableCollectionNavigationTrackingTest
     [Theory]
     [InlineData(ChangeTrackingStrategy.ChangedNotifications)]
     [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
     public void Changing_notifying_nullable_collection_navigation_from_null_to_empty_is_detected(ChangeTrackingStrategy strategy)
     {
         using var context = NotifyingContext.Create(strategy);
@@ -638,6 +640,7 @@ public class NullableCollectionNavigationTrackingTest
     [Theory]
     [InlineData(ChangeTrackingStrategy.ChangedNotifications)]
     [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
     public void Update_flags_a_notifying_nullable_collection_navigation_of_a_disconnected_entity(ChangeTrackingStrategy strategy)
     {
         using var context = NotifyingContext.Create(strategy);
@@ -652,6 +655,7 @@ public class NullableCollectionNavigationTrackingTest
     [Theory]
     [InlineData(ChangeTrackingStrategy.ChangedNotifications)]
     [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
     public void Saving_a_notifying_nullness_change_resets_the_baseline(ChangeTrackingStrategy strategy)
     {
         using var context = NotifyingContext.Create(strategy);
@@ -674,6 +678,7 @@ public class NullableCollectionNavigationTrackingTest
     [Theory]
     [InlineData(ChangeTrackingStrategy.ChangedNotifications)]
     [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
     public void Attaching_a_notifying_entity_does_not_replace_a_null_nullable_collection_navigation(ChangeTrackingStrategy strategy)
     {
         using var context = NotifyingContext.Create(strategy);
@@ -691,6 +696,7 @@ public class NullableCollectionNavigationTrackingTest
     [Theory]
     [InlineData(ChangeTrackingStrategy.ChangedNotifications)]
     [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
     public void Adding_a_notifying_entity_does_not_replace_a_null_nullable_collection_navigation(ChangeTrackingStrategy strategy)
     {
         using var context = NotifyingContext.Create(strategy);
@@ -708,6 +714,7 @@ public class NullableCollectionNavigationTrackingTest
     [Theory]
     [InlineData(ChangeTrackingStrategy.ChangedNotifications)]
     [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
     public void Detaching_a_notifying_entity_does_not_replace_a_null_nullable_collection_navigation(ChangeTrackingStrategy strategy)
     {
         using var context = NotifyingContext.Create(strategy);
@@ -722,6 +729,7 @@ public class NullableCollectionNavigationTrackingTest
     [Theory]
     [InlineData(ChangeTrackingStrategy.ChangedNotifications)]
     [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
     public void Collection_assigned_to_a_null_notifying_nullable_collection_navigation_is_subscribed_to(ChangeTrackingStrategy strategy)
     {
         using var context = NotifyingContext.Create(strategy);
@@ -740,6 +748,7 @@ public class NullableCollectionNavigationTrackingTest
     [Theory]
     [InlineData(ChangeTrackingStrategy.ChangedNotifications)]
     [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
     public void Collection_replaced_by_null_in_a_notifying_nullable_collection_navigation_is_unsubscribed_from(
         ChangeTrackingStrategy strategy)
     {
@@ -771,6 +780,8 @@ public class NullableCollectionNavigationTrackingTest
             {
                 ChangeTrackingStrategy.ChangedNotifications => new ChangedNotificationsContext(),
                 ChangeTrackingStrategy.ChangingAndChangedNotifications => new ChangingAndChangedNotificationsContext(),
+                ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues =>
+                    new ChangingAndChangedNotificationsWithOriginalValuesContext(),
                 _ => throw new ArgumentOutOfRangeException(nameof(strategy))
             };
 
@@ -802,6 +813,12 @@ public class NullableCollectionNavigationTrackingTest
     {
         protected override ChangeTrackingStrategy Strategy
             => ChangeTrackingStrategy.ChangingAndChangedNotifications;
+    }
+
+    private class ChangingAndChangedNotificationsWithOriginalValuesContext : NotifyingContext
+    {
+        protected override ChangeTrackingStrategy Strategy
+            => ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues;
     }
 
     private class NotifyingParent: INotifyPropertyChanged, INotifyPropertyChanging
