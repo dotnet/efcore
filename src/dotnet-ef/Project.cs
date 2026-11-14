@@ -44,6 +44,7 @@ internal class Project
     public string? TargetFileName { get; set; }
     public string? TargetFrameworkMoniker { get; set; }
     public string? Nullable { get; set; }
+    public string? EFMigrationsOutputDir { get; set; }
     public string? TargetFramework { get; set; }
     public string? TargetPlatformIdentifier { get; set; }
 
@@ -174,9 +175,21 @@ internal class Project
             TargetFileName = properties[nameof(TargetFileName)],
             TargetFrameworkMoniker = properties[nameof(TargetFrameworkMoniker)],
             Nullable = properties[nameof(Nullable)],
+            EFMigrationsOutputDir = NormalizeMigrationsOutputDir(properties[nameof(EFMigrationsOutputDir)]),
             TargetFramework = properties[nameof(TargetFramework)],
             TargetPlatformIdentifier = properties[nameof(TargetPlatformIdentifier)]
         };
+    }
+
+    // MSBuild returns the property value as written, including surrounding whitespace and new lines (for example when the XML
+    // is wrapped) and whatever directory separators the author used.
+    internal static string? NormalizeMigrationsOutputDir(string? value)
+    {
+        var trimmed = value?.Trim();
+
+        return string.IsNullOrEmpty(trimmed)
+            ? null
+            : trimmed.Replace('\\', Path.DirectorySeparatorChar);
     }
 
     private record class ProjectMetadata

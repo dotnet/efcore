@@ -27,6 +27,12 @@ public class MigrationFiles
     public virtual string? SnapshotFile { get; set; }
 
     /// <summary>
+    ///     Gets or sets the path to the previous model snapshot file, if it was deleted because the snapshot was written to a new location.
+    /// </summary>
+    /// <value>The path to the deleted model snapshot file, or <see langword="null" />.</value>
+    public virtual string? PreviousSnapshotFile { get; set; }
+
+    /// <summary>
     ///     Gets or sets the scaffolded migration.
     /// </summary>
     /// <value>The scaffolded migration.</value>

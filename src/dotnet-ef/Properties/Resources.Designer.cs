@@ -334,7 +334,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("MigrationsNamespaceDescription");
 
         /// <summary>
-        ///     The directory to put files in. Paths are relative to the project or file-based app directory. Defaults to "Migrations".
+        ///     The directory to put files in, including the model snapshot. Paths are relative to the project or file-based app directory. Defaults to "Migrations".
         /// </summary>
         public static string MigrationsOutputDirDescription
             => GetString("MigrationsOutputDirDescription");
@@ -350,6 +350,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// </summary>
         public static string MigrationsRemoveForceDescription
             => GetString("MigrationsRemoveForceDescription");
+
+        /// <summary>
+        ///     An additional directory to look for the migration files in, if they are not under the project directory. Paths are relative to the project or file-based app directory.
+        /// </summary>
+        public static string MigrationsRemoveOutputDirDescription
+            => GetString("MigrationsRemoveOutputDirDescription");
 
         /// <summary>
         ///     Remove the migration without connecting to the database.
@@ -658,6 +664,14 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => string.Format(
                 GetString("UsingFileBasedApp", nameof(file)),
                 file);
+
+        /// <summary>
+        ///     Using migrations output directory '{outputDir}' from the EFMigrationsOutputDir project property.
+        /// </summary>
+        public static string UsingMigrationsOutputDir(object? outputDir)
+            => string.Format(
+                GetString("UsingMigrationsOutputDir", nameof(outputDir)),
+                outputDir);
 
         /// <summary>
         ///     Using project '{project}'.

@@ -22,7 +22,7 @@ Register-TabExpansion Add-Migration @{
     The name of the migration.
 
 .PARAMETER OutputDir
-    The directory to put files in. Paths are relative to the project directory. Defaults to "Migrations".
+    The directory to put files in, including the model snapshot. Paths are relative to the project directory. Defaults to "Migrations".
 
 .PARAMETER Context
     The DbContext to use.
@@ -91,6 +91,16 @@ function Add-Migration
        $dteProject.ProjectItems.AddFromFile($result.metadataFile) | Out-Null
 
        $dteProject.ProjectItems.AddFromFile($result.snapshotFile) | Out-Null
+
+       # The snapshot moves with the migration when an output directory is specified
+       if ($result.previousSnapshotFile)
+       {
+           $projectItem = GetProjectItem $dteProject $result.previousSnapshotFile
+           if ($projectItem)
+           {
+               $projectItem.Remove()
+           }
+       }
     }
 
     $DTE.ItemOperations.OpenFile($result.migrationFile) | Out-Null
@@ -411,6 +421,7 @@ function Get-Migration
 #
 
 Register-TabExpansion Remove-Migration @{
+    OutputDir = { <# Disabled. Otherwise, paths would be relative to the solution directory. #> }
     Context = { param($x) GetContextTypes $x.Project $x.StartupProject }
     Project = { GetProjects }
     StartupProject = { GetProjects }
@@ -431,6 +442,9 @@ Register-TabExpansion Remove-Migration @{
 
 .PARAMETER Connection
     The connection string to the database. Defaults to the one specified in AddDbContext or OnConfiguring.
+
+.PARAMETER OutputDir
+    An additional directory to look for the migration files in, if they are not under the project directory. Paths are relative to the project directory.
 
 .PARAMETER Context
     The DbContext to use.
@@ -456,6 +470,7 @@ function Remove-Migration
         [switch] $Force,
         [switch] $Offline,
         [string] $Connection,
+        [string] $OutputDir,
         [string] $Context,
         [string] $Project,
         [string] $StartupProject,
@@ -479,6 +494,11 @@ function Remove-Migration
     if ($Connection)
     {
         $params += '--connection', $Connection
+    }
+
+    if ($OutputDir)
+    {
+        $params += '--output-dir', $OutputDir
     }
 
     $params += GetParams $Context
@@ -977,7 +997,7 @@ Register-TabExpansion Update-Database @{
     Create a new migration with the given name and apply it immediately.
 
 .PARAMETER OutputDir
-    The directory to put files in. Paths are relative to the project directory. Requires -Add.
+    The directory to put files in, including the model snapshot. Paths are relative to the project directory. Requires -Add.
 
 .PARAMETER Namespace
     The namespace to use for the migration. Matches the directory by default. Requires -Add.
