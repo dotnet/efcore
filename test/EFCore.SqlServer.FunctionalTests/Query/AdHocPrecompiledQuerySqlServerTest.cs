@@ -76,6 +76,23 @@ ORDER BY [r].[Id]
 """);
     }
 
+    public override async Task GroupBy_element_selector_with_aggregates_through_navigation()
+    {
+        await base.GroupBy_element_selector_with_aggregates_through_navigation();
+
+        AssertSql(
+            """
+SELECT [o].[EmployeeId] AS [Key], MAX([g].[Region]) AS [Region], ISNULL(SUM([o].[Amount]), 0) AS [Total], MAX(CASE
+    WHEN [g].[Region] IS NULL THEN 0
+    ELSE [o].[EmployeeId]
+END) AS [KeyWhereRegion]
+FROM [Orders] AS [o]
+INNER JOIN [GroupByNavigationCustomer] AS [g] ON [o].[CustomerId] = [g].[Id]
+GROUP BY [o].[EmployeeId]
+ORDER BY [o].[EmployeeId]
+""");
+    }
+
     public override async Task Index_no_evaluatability()
     {
         if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)

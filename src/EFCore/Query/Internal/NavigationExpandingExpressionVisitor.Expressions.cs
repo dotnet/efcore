@@ -304,13 +304,15 @@ public partial class NavigationExpandingExpressionVisitor
             Expression pendingSelector,
             string innerParameterName,
             NavigationExpansionExpression? parent = null,
-            LambdaExpression? originalKeySelector = null)
+            LambdaExpression? originalKeySelector = null,
+            Expression? parentShape = null)
         {
             Source = source;
             CurrentParameter = groupingParameter;
             Type = source.Type;
             Parent = parent;
             OriginalKeySelector = originalKeySelector;
+            ParentShape = parentShape;
             GroupingEnumerable = new NavigationExpansionExpression(
                 Call(QueryableMethods.AsQueryable.MakeGenericMethod(CurrentParameter.Type.GetGenericArguments()[1]), CurrentParameter),
                 currentTree,
@@ -335,6 +337,12 @@ public partial class NavigationExpandingExpressionVisitor
         ///     expansion is idempotent (re-expansion reuses existing joins).
         /// </summary>
         public LambdaExpression? OriginalKeySelector { get; }
+
+        /// <summary>
+        ///     The parent's pending selector as it was when the key and element selectors were written over it - i.e. before an
+        ///     element selector replaced it with the projected element shape.
+        /// </summary>
+        public Expression? ParentShape { get; }
 
         public Type SourceElementType
             => CurrentParameter.Type;

@@ -63,6 +63,53 @@ GROUP BY "d"."GroupId"
 """);
     }
 
+    public override async Task GroupBy_element_selector_projecting_required_navigation_with_query_filter(bool async)
+    {
+        await base.GroupBy_element_selector_projecting_required_navigation_with_query_filter(async);
+
+        AssertSql(
+            """
+SELECT "d"."GroupId" AS "Key", COUNT(*) AS "Count", MAX("p"."Value") AS "MaxValue", COALESCE(SUM("d"."GroupId"), 0) AS "SumGroupId"
+FROM "Dependents" AS "d"
+LEFT JOIN "Principals" AS "p" ON "d"."PrincipalId" = "p"."Id" AND NOT ("p"."Filtered")
+GROUP BY "d"."GroupId"
+""");
+    }
+
+    public override async Task GroupBy_All_over_element_selector_projecting_required_navigation_with_query_filter(bool async)
+    {
+        await base.GroupBy_All_over_element_selector_projecting_required_navigation_with_query_filter(async);
+
+        AssertSql(
+            """
+SELECT "d"."GroupId" AS "Key", COUNT(CASE
+    WHEN "p"."Id" IS NOT NULL THEN CASE
+        WHEN "p"."Value" > 15 THEN NULL
+        ELSE 1
+    END
+END) = 0 AS "AllLarge"
+FROM "Dependents" AS "d"
+LEFT JOIN "Principals" AS "p" ON "d"."PrincipalId" = "p"."Id" AND NOT ("p"."Filtered")
+GROUP BY "d"."GroupId"
+""");
+    }
+
+    public override async Task GroupBy_aggregate_capturing_key_over_filtered_required_navigation(bool async)
+    {
+        await base.GroupBy_aggregate_capturing_key_over_filtered_required_navigation(async);
+
+        AssertSql(
+            """
+SELECT "p"."Value" AS "Key", MAX(CASE
+    WHEN "p"."Value" > 0 THEN "p"."Value"
+    ELSE 0
+END) AS "Max"
+FROM "Dependents" AS "d"
+INNER JOIN "Principals" AS "p" ON "d"."PrincipalId" = "p"."Id" AND NOT ("p"."Filtered")
+GROUP BY "p"."Value"
+""");
+    }
+
     public override async Task GroupBy_aggregate_over_required_navigation_keeps_the_principals_own_filter_exact(bool async)
     {
         await base.GroupBy_aggregate_over_required_navigation_keeps_the_principals_own_filter_exact(async);
