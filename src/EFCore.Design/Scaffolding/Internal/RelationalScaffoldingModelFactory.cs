@@ -877,7 +877,10 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
         newForeignKey.IsUnique = dependentKey != null
             || dependentIndexes.Any(
                 i => i.IsUnique
-                    && !HasRowRestrictingFilter(i.GetFilter(), foreignKey.Columns.Select(c => c.Name)));
+                    && !HasRowRestrictingFilter(
+                        i.GetFilter(),
+                        foreignKey.Columns.Select(c => c.Name),
+                        foreignKey.Table.Columns.Select(c => c.Name)));
 
         if (!string.IsNullOrEmpty(foreignKey.Name)
             && foreignKey.Name != newForeignKey.GetDefaultName())
@@ -912,7 +915,12 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
     // recognized; anything else is assumed to restrict the rows. Wrongly assuming a restriction results in a collection
     // navigation, which works for any data, while wrongly assuming uniqueness results in a reference navigation that
     // throws when multiple dependents exist.
-    private static bool HasRowRestrictingFilter(string? filter, IEnumerable<string> foreignKeyColumns)
+    // The names in the filter are resolved against all the columns of the table, not just the foreign key columns, because
+    // case-sensitive databases can have columns that differ only by case, and the filter could refer to a different one.
+    private static bool HasRowRestrictingFilter(
+        string? filter,
+        IEnumerable<string> foreignKeyColumns,
+        IEnumerable<string> tableColumns)
     {
         if (string.IsNullOrWhiteSpace(filter))
         {
@@ -926,7 +934,8 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
                 return true;
             }
 
-            var columns = foreignKeyColumns.ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var foreignKeyColumnSet = foreignKeyColumns.ToHashSet(StringComparer.Ordinal);
+            var tableColumnList = tableColumns.ToList();
             foreach (Match match in NullGuardTermRegex.Matches(filter))
             {
                 var name = match.Groups["bracket"].Success
@@ -937,7 +946,17 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
                             ? match.Groups["backtick"].Value.Replace("``", "`")
                             : match.Groups["bare"].Value;
 
-                if (!columns.Contains(name))
+                // Prefer the exact name. Only fall back to ignoring case if that identifies a single column, since databases
+                // that are not case-sensitive resolve names this way and an ambiguous name can't be attributed to a column.
+                var column = tableColumnList.Contains(name, StringComparer.Ordinal)
+                    ? name
+                    : tableColumnList.Where(c => string.Equals(c, name, StringComparison.OrdinalIgnoreCase)).ToList()
+                        is [var single]
+                        ? single
+                        : null;
+
+                if (column == null
+                    || !foreignKeyColumnSet.Contains(column))
                 {
                     return true;
                 }

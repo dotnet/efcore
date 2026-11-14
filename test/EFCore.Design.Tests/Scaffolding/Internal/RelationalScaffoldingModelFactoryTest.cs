@@ -1350,6 +1350,24 @@ public class RelationalScaffoldingModelFactoryTest
     public void Filter_is_matched_against_database_column_names(string columnName, string filter, bool expectedUnique)
         => Assert.Equal(expectedUnique, ScaffoldedForeignKeyIsUnique([columnName], ([columnName], true, filter)));
 
+    [Theory]
+    [InlineData("PersonId", "personid", "[PersonId] IS NOT NULL", true)]
+    [InlineData("PersonId", "personid", "[personid] IS NOT NULL", false)]
+    [InlineData("PersonId", "personid", "[PERSONID] IS NOT NULL", false)]
+    [InlineData("PersonId", "personid", "[PersonId] IS NOT NULL AND [personid] IS NOT NULL", false)]
+    [InlineData("personid", "PersonId", "[personid] IS NOT NULL", true)]
+    [InlineData("personid", "PersonId", "[PersonId] IS NOT NULL", false)]
+    [InlineData("\u00e4", "\u00c4", "\"\u00e4\" IS NOT NULL", true)]
+    [InlineData("\u00e4", "\u00c4", "\"\u00c4\" IS NOT NULL", false)]
+    public void Filter_column_is_resolved_exactly_when_columns_differ_only_by_case(
+        string foreignKeyColumn,
+        string otherColumn,
+        string filter,
+        bool expectedUnique)
+        => Assert.Equal(
+            expectedUnique,
+            ScaffoldedForeignKeyIsUnique([foreignKeyColumn], [otherColumn], ([foreignKeyColumn], true, filter)));
+
     [Fact]
     public void Foreign_key_is_unique_if_any_matching_unique_index_is_not_restricted()
     {
@@ -1380,6 +1398,12 @@ public class RelationalScaffoldingModelFactoryTest
     private static bool ScaffoldedForeignKeyIsUnique(
         string[] foreignKeyColumns,
         params (string[] Columns, bool IsUnique, string? Filter)[] indexes)
+        => ScaffoldedForeignKeyIsUnique(foreignKeyColumns, [], indexes);
+
+    private static bool ScaffoldedForeignKeyIsUnique(
+        string[] foreignKeyColumns,
+        string[] otherColumns,
+        params (string[] Columns, bool IsUnique, string? Filter)[] indexes)
     {
         var principal = new DatabaseTable { Database = Database, Name = "Principal" };
         var principalColumns = foreignKeyColumns
@@ -1409,6 +1433,11 @@ public class RelationalScaffoldingModelFactoryTest
         foreach (var column in columns)
         {
             dependent.Columns.Add(column);
+        }
+
+        foreach (var name in otherColumns)
+        {
+            dependent.Columns.Add(new DatabaseColumn { Table = dependent, Name = name, StoreType = "int", IsNullable = true });
         }
 
         var i = 0;
