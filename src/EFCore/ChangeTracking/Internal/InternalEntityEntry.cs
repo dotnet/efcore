@@ -1159,8 +1159,13 @@ public sealed partial class InternalEntityEntry : InternalEntryBase, IUpdateEntr
             else
             {
                 // Like for properties, the change is reverted by restoring the original value. Any change to the elements of the
-                // collection is found by change detection as usual.
-                SetProperty(navigation, GetOriginalValue(navigation), isMaterialization: false, setModified: false);
+                // collection is found by change detection as usual. Replacing a collection with another one is not a change that is
+                // tracked, so it is not reverted.
+                var originalValue = GetOriginalValue(navigation);
+                if ((originalValue == null) != (this[navigation] == null))
+                {
+                    SetProperty(navigation, originalValue, isMaterialization: false, setModified: false);
+                }
             }
         }
 

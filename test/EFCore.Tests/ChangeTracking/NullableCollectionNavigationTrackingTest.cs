@@ -156,6 +156,38 @@ public class NullableCollectionNavigationTrackingTest
     }
 
     [Fact]
+    public void Unmodifying_a_nullable_collection_navigation_does_not_revert_a_replacement_that_is_not_a_nullness_change()
+    {
+        using var context = new NullableContext();
+        var original = new List<Child> { new() { Id = 2 } };
+        var parent = new Parent { Id = 1, Children = original };
+        context.Attach(parent);
+
+        var replacement = new List<Child>();
+        parent.Children = replacement;
+        context.ChangeTracker.DetectChanges();
+        Assert.False(IsChildrenModified(context, parent));
+
+        context.Entry(parent).Collection(p => p.Children!).IsModified = false;
+
+        Assert.Same(replacement, parent.Children);
+        Assert.False(IsChildrenModified(context, parent));
+    }
+
+    [Fact]
+    public void Unmodifying_a_nullable_collection_navigation_does_not_revert_a_replacement_of_null_by_null()
+    {
+        using var context = new NullableContext();
+        var parent = new Parent { Id = 1, Children = null };
+        context.Attach(parent);
+
+        context.Entry(parent).Collection(p => p.Children!).IsModified = false;
+
+        Assert.Null(parent.Children);
+        Assert.False(IsChildrenModified(context, parent));
+    }
+
+    [Fact]
     public void Unmodifying_an_unrelated_property_does_not_revert_a_nullness_change()
     {
         using var context = new NullableContext();
