@@ -2,8 +2,11 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
+using System.Globalization;
 using System.Text;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
 
@@ -15,6 +18,29 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 /// </summary>
 public static class RelationalJsonUtilities
 {
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+#pragma warning disable EF1001 // Internal EF Core API usage.
+    public static object? ReadJsonScalar(JsonElement element, object? value, JsonValueReaderWriter readerWriter)
+        => element.ValueKind switch
+        {
+            JsonValueKind.Null => null,
+            JsonValueKind.String => element.GetString(),
+            JsonValueKind.Number => readerWriter is IJsonConvertedValueReaderWriter converted
+                ? converted.Converter.ConvertToProvider(value)
+                : value is Enum
+                    ? Convert.ToDecimal(value, CultureInfo.InvariantCulture)
+                    : value,
+            JsonValueKind.True => true,
+            JsonValueKind.False => false,
+            _ => element.GetRawText()
+        };
+#pragma warning restore EF1001
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -89,7 +115,7 @@ public static class RelationalJsonUtilities
                 Check.DebugAssert(jsonPropertyName is not null);
                 writer.WritePropertyName(jsonPropertyName);
 
-                var jsonValueReaderWriter = property.GetJsonValueReaderWriter() ?? property.GetTypeMapping().JsonValueReaderWriter;
+                var jsonValueReaderWriter = property.GetTypeMapping().JsonValueReaderWriter;
 
                 var propertyValue = property.GetGetter().GetClrValue(objectValue);
                 if (propertyValue is null && jsonValueReaderWriter?.HandlesNullWrites != true)

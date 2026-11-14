@@ -1226,8 +1226,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
     {
         var factory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
 
-        await Can_read_and_write_JSON_property_value<PointType, Point>(
-            b => b.Metadata.SetJsonValueReaderWriterType(typeof(JsonGeoJsonReaderWriter)),
+        await Can_read_and_write_GeoJSON_value<PointType, Point>(
             nameof(PointType.Point),
             factory.CreatePoint(new Coordinate(2, 4)),
             """{"Prop":{"type":"Point","coordinates":[2.0,4.0]}}""");
@@ -1235,8 +1234,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
 
     [Fact]
     public virtual Task Can_read_write_nullable_point_as_GeoJson()
-        => Can_read_and_write_JSON_property_value<NullablePointType, Point?>(
-            b => b.Metadata.SetJsonValueReaderWriterType(typeof(JsonGeoJsonReaderWriter)),
+        => Can_read_and_write_GeoJSON_value<NullablePointType, Point?>(
             nameof(NullablePointType.Point),
             null,
             """{"Prop":null}""");
@@ -1246,8 +1244,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
     {
         var factory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
 
-        await Can_read_and_write_JSON_property_value<PointZType, Point>(
-            b => b.Metadata.SetJsonValueReaderWriterType(typeof(JsonGeoJsonReaderWriter)),
+        await Can_read_and_write_GeoJSON_value<PointZType, Point>(
             nameof(PointZType.PointZ),
             factory.CreatePoint(new CoordinateZ(2, 4, 6)),
             """{"Prop":{"type":"Point","coordinates":[2.0,4.0]}}""");
@@ -1258,8 +1255,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
     {
         var factory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
 
-        await Can_read_and_write_JSON_property_value<PointMType, Point>(
-            b => b.Metadata.SetJsonValueReaderWriterType(typeof(JsonGeoJsonReaderWriter)),
+        await Can_read_and_write_GeoJSON_value<PointMType, Point>(
             nameof(PointMType.PointM),
             factory.CreatePoint(new CoordinateM(2, 4, 6)),
             """{"Prop":{"type":"Point","coordinates":[2.0,4.0]}}""");
@@ -1270,8 +1266,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
     {
         var factory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
 
-        await Can_read_and_write_JSON_property_value<PointZMType, Point>(
-            b => b.Metadata.SetJsonValueReaderWriterType(typeof(JsonGeoJsonReaderWriter)),
+        await Can_read_and_write_GeoJSON_value<PointZMType, Point>(
             nameof(PointZMType.PointZM),
             factory.CreatePoint(new CoordinateZM(1, 2, 3, 4)),
             """{"Prop":{"type":"Point","coordinates":[1.0,2.0]}}""");
@@ -1282,8 +1277,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
     {
         var factory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
 
-        await Can_read_and_write_JSON_property_value<LineStringType, LineString>(
-            b => b.Metadata.SetJsonValueReaderWriterType(typeof(JsonGeoJsonReaderWriter)),
+        await Can_read_and_write_GeoJSON_value<LineStringType, LineString>(
             nameof(LineStringType.LineString),
             factory.CreateLineString([new Coordinate(0, 0), new Coordinate(1, 0)]),
             """{"Prop":{"type":"LineString","coordinates":[[0.0,0.0],[1.0,0.0]]}}""");
@@ -1291,8 +1285,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
 
     [Fact]
     public virtual Task Can_read_write_nullable_line_string_as_GeoJson()
-        => Can_read_and_write_JSON_property_value<NullableLineStringType, LineString?>(
-            b => b.Metadata.SetJsonValueReaderWriterType(typeof(JsonGeoJsonReaderWriter)),
+        => Can_read_and_write_GeoJSON_value<NullableLineStringType, LineString?>(
             nameof(NullableLineStringType.LineString),
             null,
             """{"Prop":null}""");
@@ -1302,8 +1295,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
     {
         var factory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
 
-        await Can_read_and_write_JSON_property_value<MultiLineStringType, MultiLineString>(
-            b => b.Metadata.SetJsonValueReaderWriterType(typeof(JsonGeoJsonReaderWriter)),
+        await Can_read_and_write_GeoJSON_value<MultiLineStringType, MultiLineString>(
             nameof(MultiLineStringType.MultiLineString),
             factory.CreateMultiLineString(
             [
@@ -1317,8 +1309,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
 
     [Fact]
     public virtual Task Can_read_write_nullable_multi_line_string_as_GeoJson()
-        => Can_read_and_write_JSON_property_value<NullableMultiLineStringType, MultiLineString?>(
-            b => b.Metadata.SetJsonValueReaderWriterType(typeof(JsonGeoJsonReaderWriter)),
+        => Can_read_and_write_GeoJSON_value<NullableMultiLineStringType, MultiLineString?>(
             nameof(NullableMultiLineStringType.MultiLineString),
             null,
             """{"Prop":null}""");
@@ -1328,8 +1319,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
     {
         var factory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
 
-        await Can_read_and_write_JSON_property_value<PolygonType, Polygon>(
-            b => b.Metadata.SetJsonValueReaderWriterType(typeof(JsonGeoJsonReaderWriter)),
+        await Can_read_and_write_GeoJSON_value<PolygonType, Polygon>(
             nameof(PolygonType.Polygon),
             factory.CreatePolygon([new Coordinate(0, 0), new Coordinate(1, 0), new Coordinate(0, 1), new Coordinate(0, 0)]),
             """{"Prop":{"type":"Polygon","coordinates":[[[0.0,0.0],[1.0,0.0],[0.0,1.0],[0.0,0.0]]]}}""");
@@ -1337,8 +1327,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
 
     [Fact]
     public virtual Task Can_read_write_nullable_polygon_as_GeoJson()
-        => Can_read_and_write_JSON_property_value<NullablePolygonType, Polygon?>(
-            b => b.Metadata.SetJsonValueReaderWriterType(typeof(JsonGeoJsonReaderWriter)),
+        => Can_read_and_write_GeoJSON_value<NullablePolygonType, Polygon?>(
             nameof(NullablePolygonType.Polygon),
             null,
             """{"Prop":null}""");
@@ -1348,8 +1337,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
     {
         var factory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
 
-        await Can_read_and_write_JSON_property_value<GeometryType, Geometry>(
-            b => b.Metadata.SetJsonValueReaderWriterType(typeof(JsonGeoJsonReaderWriter)),
+        await Can_read_and_write_GeoJSON_value<GeometryType, Geometry>(
             nameof(GeometryType.Geometry),
             factory.CreatePolygon([new Coordinate(0, 0), new Coordinate(1, 0), new Coordinate(0, 1), new Coordinate(0, 0)]),
             """{"Prop":{"type":"Polygon","coordinates":[[[0.0,0.0],[1.0,0.0],[0.0,1.0],[0.0,0.0]]]}}""");
@@ -1357,8 +1345,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
 
     [Fact]
     public virtual Task Can_read_write_polygon_typed_as_nullable_geometry_as_GeoJson()
-        => Can_read_and_write_JSON_property_value<NullableGeometryType, Geometry?>(
-            b => b.Metadata.SetJsonValueReaderWriterType(typeof(JsonGeoJsonReaderWriter)),
+        => Can_read_and_write_GeoJSON_value<NullableGeometryType, Geometry?>(
             nameof(NullableGeometryType.Geometry),
             null,
             """{"Prop":null}""");
@@ -3658,6 +3645,20 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         }
     }
 
+    protected virtual Task Can_read_and_write_GeoJSON_value<TEntity, TModel>(
+        string propertyName,
+        TModel value,
+        string json)
+        where TEntity : class
+        => Can_read_and_write_JSON_value<TEntity, TModel>(
+            b => b.Entity<TEntity>().HasNoKey().Property(propertyName).HasJsonValueReaderWriter<JsonGeoJsonReaderWriter>(),
+            null,
+            propertyName,
+            value,
+            json,
+            // These serialization-only test models do not map their scalar properties to JSON columns.
+            skipValidation: true);
+
     protected virtual Task Can_read_and_write_JSON_property_value<TEntity, TModel>(
         Action<PropertyBuilder> buildProperty,
         string propertyName,
@@ -3702,12 +3703,14 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         string json,
         bool mappedCollection = false,
         object? existingObject = null,
-        Dictionary<string, object?>? facets = null)
+        Dictionary<string, object?>? facets = null,
+        bool skipValidation = false)
         where TEntity : class
     {
         var contextFactory = CreateContextFactory<DbContext>(
             buildModel,
-            configureConventions: configureConventions);
+            configureConventions: configureConventions,
+            skipValidation: skipValidation);
         using var context = contextFactory.CreateDbContext();
 
         var property = context.Model.FindEntityType(typeof(TEntity))!.GetProperty(propertyName);
@@ -3715,8 +3718,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         using var stream = new MemoryStream();
         using var writer = new Utf8JsonWriter(stream);
 
-        var jsonReaderWriter = property.GetJsonValueReaderWriter()
-            ?? property.GetTypeMapping().JsonValueReaderWriter!;
+        var jsonReaderWriter = property.GetTypeMapping().JsonValueReaderWriter!;
 
         var toString = value == null ? null : jsonReaderWriter.ToJsonString(value);
         var fromString = toString == null ? null : jsonReaderWriter.FromJsonString(toString, existingObject);
@@ -3763,7 +3765,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
             Assert.Equal(elementNullable, element.IsNullable);
 
             var comparer = element.GetValueComparer()!;
-            var elementReaderWriter = element.GetJsonValueReaderWriter()!;
+            var elementReaderWriter = element.GetTypeMapping().JsonValueReaderWriter!;
             foreach (var item in (IEnumerable)value!)
             {
                 Assert.True(comparer.Equals(item, comparer.Snapshot(item)));

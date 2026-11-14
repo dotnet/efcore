@@ -197,6 +197,9 @@ public class RuntimeElementType : RuntimeAnnotatableBase, IElementType
 
     /// <inheritdoc />
     public virtual JsonValueReaderWriter? GetJsonValueReaderWriter()
+        => _jsonValueReaderWriter ?? _typeMapping?.JsonValueReaderWriter;
+
+    internal JsonValueReaderWriter? ConfiguredJsonValueReaderWriter
         => _jsonValueReaderWriter;
 
     /// <summary>

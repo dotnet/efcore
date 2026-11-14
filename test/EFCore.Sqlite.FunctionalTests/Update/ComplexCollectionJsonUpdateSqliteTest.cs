@@ -386,7 +386,7 @@ RETURNING 1;
 
         AssertSql(
             """
-@p0='{"Items":[{"ArrayCodes":[],"Codes":[],"CustomCodes":[9],"InterfaceCodes":[],"Label":"C1-updated","OptionalCodes":null,"ReadOnlyCodes":[],"TextCodes":[]}]}' (Nullable = false) (Size = 154)
+@p0='{"Items":[{"ArrayCodes":[],"Codes":[],"CustomCodes":[],"InterfaceCodes":[],"Label":"C1-updated","OptionalCodes":null,"ReadOnlyCodes":[],"TextCodes":[]}]}' (Nullable = false) (Size = 153)
 @p1='1'
 
 UPDATE "CodeWidgets" SET "Data" = @p0

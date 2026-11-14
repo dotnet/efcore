@@ -8,6 +8,98 @@ public class NonSharedModelBulkUpdatesSqliteTest(NonSharedFixture fixture) : Non
     protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqliteTestStoreFactory.Instance;
 
+    public override async Task Update_JSON_strings_of_different_lengths(bool async, bool executeUpdate, bool converted)
+    {
+        await base.Update_JSON_strings_of_different_lengths(async, executeUpdate, converted);
+
+        var updateSql = executeUpdate
+            ? """
+UPDATE "JsonTextItem" AS "j"
+SET "Data" = json_set("j"."Data", '$.Text', json(@p))
+"""
+            : """
+UPDATE "JsonTextItem" SET "Data" = json_set("Data", '$.Text', json(@p0))
+WHERE "Id" = @p1
+RETURNING 1;
+""";
+        Assert.Equal(
+            Enumerable.Repeat(updateSql, 3),
+            TestSqlLoggerFactory.SqlStatements
+                .Where(s => s.Contains("UPDATE ", StringComparison.Ordinal))
+                .Select(s => s[s.IndexOf("UPDATE ", StringComparison.Ordinal)..]));
+    }
+
+    public override async Task Update_JSON_scalar_with_custom_reader_writer(bool async, bool typeMappingDefault)
+    {
+        await base.Update_JSON_scalar_with_custom_reader_writer(async, typeMappingDefault);
+        AssertSql(
+            """
+@p='44'
+@p0='"44"' (Size = 4)
+
+UPDATE "JsonWriterItems" AS "j"
+SET "NativeNumber" = @p,
+    "Data" = json_set("j"."Data", '$.Number', json(@p0))
+""",
+            //
+            """
+SELECT "j"."Id", "j"."NativeNumber", "j"."Data"
+FROM "JsonWriterItems" AS "j"
+LIMIT 2
+""");
+    }
+
+    public override async Task Update_JSON_columns_with_same_parameter_and_different_conversions(bool async)
+    {
+        await base.Update_JSON_columns_with_same_parameter_and_different_conversions(async);
+        AssertSql(
+            """
+@p='{"Number":42}' (Size = 13)
+@p0='{"Number":"42"}' (Size = 15)
+
+UPDATE "JsonPairItem" AS "j"
+SET "First" = @p,
+    "Second" = @p0
+""",
+            //
+            """
+SELECT "j"."Id", "j"."First", "j"."Second"
+FROM "JsonPairItem" AS "j"
+LIMIT 2
+""");
+    }
+
+    public override async Task Update_JSON_with_parameter_name_collision(bool async, bool wholeDocument)
+    {
+        await base.Update_JSON_with_parameter_name_collision(async, wholeDocument);
+        AssertSql(
+            wholeDocument
+                ? """
+@p='{"Number":42}' (Size = 13)
+@json_number='1'
+@json_p='1'
+
+UPDATE "JsonPairItem" AS "j"
+SET "First" = @p
+WHERE "j"."Id" = @json_number AND "j"."Id" = @json_p
+"""
+                : """
+@number='42' (Size = 2)
+@json_number='1'
+@json_p='1'
+
+UPDATE "JsonPairItem" AS "j"
+SET "First" = json_set("j"."First", '$.Number', json(@number))
+WHERE "j"."Id" = @json_number AND "j"."Id" = @json_p
+""",
+            //
+            """
+SELECT "j"."Id", "j"."First", "j"."Second"
+FROM "JsonPairItem" AS "j"
+ORDER BY "j"."Id"
+""");
+    }
+
     [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

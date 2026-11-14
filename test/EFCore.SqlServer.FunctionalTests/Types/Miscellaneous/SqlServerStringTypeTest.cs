@@ -104,7 +104,7 @@ WHERE JSON_VALUE([j].[JsonContainer], '$.Value') = @Fixture_Value
 
         AssertSql(
             """
-@p0='{"OtherValue":"bar","Value":"bar"}' (Nullable = false) (Size = 34)
+@p0='{"OtherValue":"bar","Value":"bar"}' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;

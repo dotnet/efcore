@@ -9,6 +9,64 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class OwnedEntityQuerySqlServerTest(NonSharedFixture fixture) : OwnedEntityQueryRelationalTestBase(fixture)
 {
+    [Theory, InlineData(false), InlineData(true)]
+    public override async Task JSON_reader_writer_with_value_converter_server_comparisons_and_projections(bool async)
+    {
+        await base.JSON_reader_writer_with_value_converter_server_comparisons_and_projections(async);
+
+        AssertSql(
+            """
+@number='430'
+
+SELECT [i].[Id]
+FROM [Items] AS [i]
+WHERE CAST(JSON_VALUE([i].[Data], '$.Number') AS int) = @number
+ORDER BY [i].[Id]
+""",
+            //
+            """
+@date='1767225600000'
+
+SELECT [i].[Id]
+FROM [Items] AS [i]
+WHERE CAST(JSON_VALUE([i].[Data], '$.Timestamp') AS bigint) = @date
+ORDER BY [i].[Id]
+""",
+            //
+            """
+SELECT CAST(JSON_VALUE([i].[Data], '$.Number') AS int) AS [Number], CAST(JSON_VALUE([i].[Data], '$.UpperNumber') AS int) AS [UpperNumber], CAST(JSON_VALUE([i].[Data], '$.OptionalNumber') AS int) AS [OptionalNumber], CAST(JSON_VALUE([i].[Data], '$.Timestamp') AS bigint) AS [Timestamp], CAST(JSON_VALUE([i].[Data], '$.OptionalTimestamp') AS bigint) AS [OptionalTimestamp]
+FROM [Items] AS [i]
+ORDER BY [i].[Id]
+""");
+    }
+
+    [Theory, InlineData(false, DateTimeKind.Utc), InlineData(true, DateTimeKind.Utc),
+     InlineData(false, DateTimeKind.Unspecified), InlineData(true, DateTimeKind.Unspecified)]
+    public override async Task Legacy_DateTime_reader_writer_server_comparisons(bool async, DateTimeKind kind)
+    {
+        await base.Legacy_DateTime_reader_writer_server_comparisons(async, kind);
+
+        var suffix = kind == DateTimeKind.Utc ? "Z" : "";
+        AssertSql(
+            $"""
+@boundary='2026-01-01T00:00:00.1230000{suffix}'
+
+SELECT [i].[Id]
+FROM [Items] AS [i]
+WHERE [i].[NativeTimestamp] = @boundary
+ORDER BY [i].[Id]
+""",
+            //
+            $"""
+@boundary='2026-01-01T00:00:00.1230000{suffix}'
+
+SELECT [i].[Id]
+FROM [Items] AS [i]
+WHERE CAST(JSON_VALUE([i].[Data], '$.Timestamp') AS datetime2) = @boundary
+ORDER BY [i].[Id]
+""");
+    }
+
     protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 

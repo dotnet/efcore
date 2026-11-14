@@ -46,6 +46,13 @@ public class SqliteTypeMappingPostprocessor : RelationalTypeMappingPostprocessor
     {
         switch (expression)
         {
+            case JsonScalarExpression { TypeMapping: { } scalarMapping } jsonScalarExpression:
+                return SqliteQueryableMethodTranslatingExpressionVisitor.ApplyJsonSqlConversion(
+                    (SqlExpression)base.VisitExtension(jsonScalarExpression),
+                    _sqlExpressionFactory,
+                    scalarMapping,
+                    jsonScalarExpression.IsNullable);
+
             case JsonEachExpression jsonEachExpression
                 when TryGetInferredTypeMapping(
                     jsonEachExpression.Alias,
@@ -119,7 +126,18 @@ public class SqliteTypeMappingPostprocessor : RelationalTypeMappingPostprocessor
             return jsonEachExpression;
         }
 
-        if (_typeMappingSource.FindMapping(parameterExpression.Type, _model, inferredTypeMapping) is not SqliteStringTypeMapping
+        var elementTypeMapping = inferredTypeMapping;
+        if (elementTypeMapping is not SqliteJsonScalarTypeMapping
+            && _typeMappingSource.FindMapping(elementTypeMapping.Converter?.ProviderClrType ?? elementTypeMapping.ClrType)
+                ?.JsonValueReaderWriter is { } nativeReaderWriter)
+        {
+#pragma warning disable EF1001 // Internal EF Core API usage.
+            elementTypeMapping = (RelationalTypeMapping)elementTypeMapping.WithJsonValueReaderWriter(
+                nativeReaderWriter);
+#pragma warning restore EF1001
+        }
+
+        if (_typeMappingSource.FindMapping(parameterExpression.Type, _model, elementTypeMapping) is not SqliteStringTypeMapping
             parameterTypeMapping)
         {
             throw new InvalidOperationException("Type mapping for 'string' could not be found or was not a SqliteStringTypeMapping");

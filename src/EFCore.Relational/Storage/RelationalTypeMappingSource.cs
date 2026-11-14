@@ -182,9 +182,7 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
 
                                 if (mapping != null)
                                 {
-                                    mapping = (RelationalTypeMapping)mapping.WithComposedConverter(
-                                        secondConverterInfo.Create(),
-                                        jsonValueReaderWriter: mappingInfoUsed.JsonValueReaderWriter);
+                                    mapping = (RelationalTypeMapping)mapping.WithComposedConverter(secondConverterInfo.Create());
                                     break;
                                 }
                             }
@@ -192,9 +190,7 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
 
                         if (mapping != null)
                         {
-                            mapping = (RelationalTypeMapping)mapping.WithComposedConverter(
-                                converterInfo.Create(),
-                                jsonValueReaderWriter: mappingInfo.JsonValueReaderWriter);
+                            mapping = (RelationalTypeMapping)mapping.WithComposedConverter(converterInfo.Create());
                             break;
                         }
                     }
@@ -205,9 +201,19 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
                 if (mapping != null
                     && customConverter != null)
                 {
-                    mapping = (RelationalTypeMapping)mapping.WithComposedConverter(
-                        customConverter,
-                        jsonValueReaderWriter: mappingInfo.JsonValueReaderWriter);
+                    mapping = (RelationalTypeMapping)mapping.WithComposedConverter(customConverter);
+                }
+
+                if (mapping != null
+                    && mappingInfo.JsonValueReaderWriter != null)
+                {
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                    var readerWriter = mappingInfo.JsonValueReaderWriter;
+                    mapping = (RelationalTypeMapping)(mapping.Converter is { } converter
+                        && !readerWriter.ValueType.IsAssignableFrom(converter.ProviderClrType)
+                            ? mapping.Clone(jsonValueReaderWriter: readerWriter)
+                            : mapping.WithJsonValueReaderWriter(readerWriter));
+#pragma warning restore EF1001
                 }
 
                 return mapping;
@@ -368,12 +374,24 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
             var mappingInfo = new RelationalTypeMappingInfo(
                 type, typeConfiguration, (RelationalTypeMapping?)elementMapping,
                 storeTypeName, storeTypeNameBase, unicode, size, precision, scale);
+            mappingInfo = mappingInfo with
+            {
+                // An inferred element mapping defines collection parameter transport, not document formatting.
+                JsonValueReaderWriter = elementMapping == null ? mappingInfo.JsonValueReaderWriter : null,
+                ElementTypeMapping = (RelationalTypeMapping?)elementMapping
+                    ?? (RelationalTypeMapping?)FindElementMapping(mappingInfo.CoreTypeMappingInfo, model)
+            };
             var providerClrType = typeConfiguration.GetProviderClrType()?.UnwrapNullableType();
             return FindMappingWithConversion(mappingInfo, providerClrType, customConverter: typeConfiguration.GetValueConverter());
         }
 
+        var defaultMappingInfo = new RelationalTypeMappingInfo(type, (RelationalTypeMapping?)elementMapping);
         return FindMappingWithConversion(
-            new RelationalTypeMappingInfo(type, (RelationalTypeMapping?)elementMapping),
+            defaultMappingInfo with
+            {
+                ElementTypeMapping = (RelationalTypeMapping?)elementMapping
+                    ?? (RelationalTypeMapping?)FindElementMapping(defaultMappingInfo.CoreTypeMappingInfo, model)
+            },
             providerClrType: null,
             customConverter: null);
     }

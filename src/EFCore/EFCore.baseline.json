@@ -1286,6 +1286,12 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionTypePropertyBuilder HasField(string fieldName);"
         },
         {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionTypePropertyBuilder HasJsonValueReaderWriter<TReaderWriter>() where TReaderWriter : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter;"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionTypePropertyBuilder HasJsonValueReaderWriter(System.Type? readerWriterType);"
+        },
+        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionTypePropertyBuilder HasSentinel(object? sentinel);"
         },
         {
@@ -1381,6 +1387,12 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionTypePropertyBuilder<TProperty> HasField(string fieldName);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionTypePropertyBuilder<TProperty> HasJsonValueReaderWriter<TReaderWriter>() where TReaderWriter : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter;"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionTypePropertyBuilder<TProperty> HasJsonValueReaderWriter(System.Type? readerWriterType);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionTypePropertyBuilder<TProperty> HasSentinel(object? sentinel);"
@@ -2114,6 +2126,12 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePropertyBuilder HasField(string fieldName);"
         },
         {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePropertyBuilder HasJsonValueReaderWriter<TReaderWriter>() where TReaderWriter : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter;"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePropertyBuilder HasJsonValueReaderWriter(System.Type? readerWriterType);"
+        },
+        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePropertyBuilder HasMaxLength(int maxLength);"
         },
         {
@@ -2239,6 +2257,12 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePropertyBuilder<TProperty> HasField(string fieldName);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePropertyBuilder<TProperty> HasJsonValueReaderWriter<TReaderWriter>() where TReaderWriter : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter;"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePropertyBuilder<TProperty> HasJsonValueReaderWriter(System.Type? readerWriterType);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexTypePropertyBuilder<TProperty> HasMaxLength(int maxLength);"
@@ -4152,6 +4176,15 @@
         },
         {
           "Member": "static string JsonReaderInvalidTokenType(object? tokenType);"
+        },
+        {
+          "Member": "static string JsonValueReaderWriterOnNonJsonProperty(object? structuralType, object? property, object? readerWriter);"
+        },
+        {
+          "Member": "static string JsonValueReaderWriterOnPrimitiveCollection(object? structuralType, object? property);"
+        },
+        {
+          "Member": "static string JsonValueReaderWriterPropertyMismatch(object? structuralType, object? property, object? readerWriter, object? valueType, object? storeType);"
         },
         {
           "Member": "static string KeyAttributeOnDerivedEntity(object? derivedType, object? property, object? rootType);"
@@ -6715,6 +6748,12 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ElementTypeBuilder HasConversion(System.Type conversionType, System.Type? comparerType);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ElementTypeBuilder HasJsonValueReaderWriter<TReaderWriter>() where TReaderWriter : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter;"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ElementTypeBuilder HasJsonValueReaderWriter(System.Type? readerWriterType);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ElementTypeBuilder HasMaxLength(int maxLength);"
@@ -9685,6 +9724,9 @@
           "Member": "bool CanSetIsUnicode(bool? unicode, bool fromDataAnnotation = false);"
         },
         {
+          "Member": "bool CanSetJsonValueReaderWriter(System.Type? readerWriterType, bool fromDataAnnotation = false);"
+        },
+        {
           "Member": "bool CanSetMaxLength(int? maxLength, bool fromDataAnnotation = false);"
         },
         {
@@ -9713,6 +9755,9 @@
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionElementTypeBuilder? HasConverter(System.Type? converterType, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionElementTypeBuilder? HasJsonValueReaderWriter(System.Type? readerWriterType, bool fromDataAnnotation = false);"
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionElementTypeBuilder? HasMaxLength(int? maxLength, bool fromDataAnnotation = false);"
@@ -11165,6 +11210,9 @@
           "Member": "bool CanSetIsUnicode(bool? unicode, bool fromDataAnnotation = false);"
         },
         {
+          "Member": "bool CanSetJsonValueReaderWriter(System.Type? readerWriterType, bool fromDataAnnotation = false);"
+        },
+        {
           "Member": "bool CanSetMaxLength(int? maxLength, bool fromDataAnnotation = false);"
         },
         {
@@ -11208,6 +11256,9 @@
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder? HasConverter(System.Type? converterType, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder? HasJsonValueReaderWriter(System.Type? readerWriterType, bool fromDataAnnotation = false);"
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder? HasMaxLength(int? maxLength, bool fromDataAnnotation = false);"
@@ -16043,6 +16094,9 @@
       "Type": "interface Microsoft.EntityFrameworkCore.Metadata.ITypeMappingConfiguration : Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable",
       "Methods": [
         {
+          "Member": "System.Type? GetJsonValueReaderWriterType();"
+        },
+        {
           "Member": "int? GetMaxLength();"
         },
         {
@@ -17936,6 +17990,9 @@
           "Member": "ModelValidator(Microsoft.EntityFrameworkCore.Infrastructure.ModelValidatorDependencies dependencies);"
         },
         {
+          "Member": "virtual bool IsJsonProperty(Microsoft.EntityFrameworkCore.Metadata.IProperty property);"
+        },
+        {
           "Member": "virtual bool IsOwned(System.Type targetType, Microsoft.EntityFrameworkCore.Metadata.IModel model);"
         },
         {
@@ -19418,6 +19475,12 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder HasField(string fieldName);"
         },
         {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder HasJsonValueReaderWriter<TReaderWriter>() where TReaderWriter : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter;"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder HasJsonValueReaderWriter(System.Type? readerWriterType);"
+        },
+        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder HasMaxLength(int maxLength);"
         },
         {
@@ -19546,6 +19609,12 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder<TProperty> HasField(string fieldName);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder<TProperty> HasJsonValueReaderWriter<TReaderWriter>() where TReaderWriter : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter;"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder<TProperty> HasJsonValueReaderWriter(System.Type? readerWriterType);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder<TProperty> HasMaxLength(int maxLength);"
@@ -21465,7 +21534,7 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeEntityType AddEntityType(string name, System.Type type, Microsoft.EntityFrameworkCore.Metadata.RuntimeEntityType? baseType = null, bool sharedClrType = false, Microsoft.EntityFrameworkCore.ChangeTrackingStrategy changeTrackingStrategy = Microsoft.EntityFrameworkCore.ChangeTrackingStrategy.Snapshot, System.Reflection.PropertyInfo? indexerPropertyInfo = null, bool propertyBag = false, string? discriminatorProperty = null, object? discriminatorValue = null, int derivedTypesCount = 0, int propertyCount = 0, int complexPropertyCount = 0, int navigationCount = 0, int skipNavigationCount = 0, int servicePropertyCount = 0, int foreignKeyCount = 0, int unnamedIndexCount = 0, int namedIndexCount = 0, int keyCount = 0, int triggerCount = 0);"
         },
         {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeTypeMappingConfiguration AddTypeMappingConfiguration(System.Type clrType, int? maxLength = null, bool? unicode = null, int? precision = null, int? scale = null, System.Type? providerPropertyType = null, Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter? valueConverter = null);"
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeTypeMappingConfiguration AddTypeMappingConfiguration(System.Type clrType, int? maxLength = null, bool? unicode = null, int? precision = null, int? scale = null, System.Type? providerPropertyType = null, Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter? valueConverter = null, System.Type? jsonValueReaderWriterType = null);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeEntityType? FindAdHocEntityType(System.Type clrType);"
@@ -23010,6 +23079,12 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.TypeMappingConfigurationBuilder HasConversion(System.Type conversionType);"
         },
         {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.TypeMappingConfigurationBuilder HasJsonValueReaderWriter<TReaderWriter>() where TReaderWriter : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter;"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.TypeMappingConfigurationBuilder HasJsonValueReaderWriter(System.Type? readerWriterType);"
+        },
+        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.TypeMappingConfigurationBuilder HasMaxLength(int maxLength);"
         },
         {
@@ -23037,6 +23112,12 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.TypeMappingConfigurationBuilder<TProperty> HasConversion(System.Type conversionType);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.TypeMappingConfigurationBuilder<TProperty> HasJsonValueReaderWriter<TReaderWriter>() where TReaderWriter : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter;"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.TypeMappingConfigurationBuilder<TProperty> HasJsonValueReaderWriter(System.Type? readerWriterType);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.TypeMappingConfigurationBuilder<TProperty> HasMaxLength(int maxLength);"
@@ -23144,6 +23225,9 @@
       "Methods": [
         {
           "Member": "TypeMappingSourceBase(Microsoft.EntityFrameworkCore.Storage.TypeMappingSourceDependencies dependencies);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping? FindElementMapping(Microsoft.EntityFrameworkCore.Storage.TypeMappingInfo mappingInfo, Microsoft.EntityFrameworkCore.Metadata.IModel model);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping? FindMapping(in Microsoft.EntityFrameworkCore.Storage.TypeMappingInfo mappingInfo);"

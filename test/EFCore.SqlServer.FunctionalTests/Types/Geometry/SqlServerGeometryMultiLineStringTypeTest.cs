@@ -84,7 +84,7 @@ WHERE CAST(JSON_VALUE([j].[JsonContainer], '$.Value') AS geometry).STEquals(@Fix
             """
 @p0='{"OtherValue":"MULTILINESTRING ((10 10, 11 11)
 (12 12, 13 13))","Value":"MULTILINESTRING ((10 10, 11 11)
-(12 12, 13 13))"}' (Nullable = false) (Size = 124)
+(12 12, 13 13))"}' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -103,12 +103,12 @@ WHERE [Id] = @p1;
         {
             AssertSql(
                 """
-@complex_type_Fixture_OtherValue='MULTILINESTRING ((10 10, 11 11)
+@Fixture_OtherValue='MULTILINESTRING ((10 10, 11 11)
 (12 12, 13 13))' (Size = 4000)
 
 SET NOCOUNT OFF;
 UPDATE [j]
-SET [JsonContainer].modify('$.Value', @complex_type_Fixture_OtherValue)
+SET [JsonContainer].modify('$.Value', @Fixture_OtherValue)
 FROM [JsonTypeEntity] AS [j]
 """);
         }
@@ -116,12 +116,12 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
-@complex_type_Fixture_OtherValue='MULTILINESTRING ((10 10, 11 11)
+@Fixture_OtherValue='MULTILINESTRING ((10 10, 11 11)
 (12 12, 13 13))' (Size = 4000)
 
 SET NOCOUNT OFF;
 UPDATE [j]
-SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', @complex_type_Fixture_OtherValue)
+SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', @Fixture_OtherValue)
 FROM [JsonTypeEntity] AS [j]
 """);
         }

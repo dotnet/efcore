@@ -106,7 +106,7 @@ WHERE CAST(JSON_VALUE([j].[JsonContainer], '$.Value') AS datetimeoffset) = @Fixt
 
         AssertSql(
             """
-@p0='{"OtherValue":"2020-01-05T12:30:45+03:00","Value":"2020-01-05T12:30:45+03:00"}' (Nullable = false) (Size = 78)
+@p0='{"OtherValue":"2020-01-05T12:30:45+03:00","Value":"2020-01-05T12:30:45+03:00"}' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -125,11 +125,11 @@ WHERE [Id] = @p1;
         {
             AssertSql(
                 """
-@complex_type_Fixture_OtherValue='2020-01-05T12:30:45+03:00' (Size = 4000)
+@Fixture_OtherValue='2020-01-05T12:30:45+03:00' (Size = 4000)
 
 SET NOCOUNT OFF;
 UPDATE [j]
-SET [JsonContainer].modify('$.Value', @complex_type_Fixture_OtherValue)
+SET [JsonContainer].modify('$.Value', @Fixture_OtherValue)
 FROM [JsonTypeEntity] AS [j]
 """);
         }
@@ -137,11 +137,11 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
-@complex_type_Fixture_OtherValue='2020-01-05T12:30:45+03:00' (Size = 4000)
+@Fixture_OtherValue='2020-01-05T12:30:45+03:00' (Size = 4000)
 
 SET NOCOUNT OFF;
 UPDATE [j]
-SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', @complex_type_Fixture_OtherValue)
+SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', @Fixture_OtherValue)
 FROM [JsonTypeEntity] AS [j]
 """);
         }

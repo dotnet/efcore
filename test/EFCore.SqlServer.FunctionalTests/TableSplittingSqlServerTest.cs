@@ -235,7 +235,7 @@ ORDER BY [v].[Name]
 
         AssertSql(
             """
-@p0=NULL
+@p0=NULL (Size = 4000)
 @p2='1'
 @p1=NULL (Size = 4000)
 
@@ -266,8 +266,8 @@ ORDER BY [c].[Id]
 
         AssertSql(
             """
-@p0='{"Doors":5}' (Nullable = false) (Size = 11)
-@p1='{"Doors":7}' (Nullable = false) (Size = 11)
+@p0='{"Doors":5}' (Nullable = false) (Size = 4000)
+@p1='{"Doors":7}' (Nullable = false) (Size = 4000)
 @p4='1'
 @p2='Blue' (Size = 4000)
 @p3='FamilyCarDetails' (Size = 21)
@@ -296,7 +296,7 @@ LEFT JOIN (
 
         AssertSql(
             """
-@p0=NULL
+@p0=NULL (Size = 4000)
 @p3='1'
 @p1='Blue' (Size = 4000)
 @p2='CarDetails' (Size = 21)
@@ -332,10 +332,10 @@ LEFT JOIN (
 
         AssertSql(
             """
-@p0='{"Doors":3}' (Nullable = false) (Size = 11)
+@p0='{"Doors":3}' (Nullable = false) (Size = 4000)
 @p2='1'
 @p1='Blue' (Size = 4000)
-@p3='{"Doors":4}' (Nullable = false) (Size = 11)
+@p3='{"Doors":4}' (Nullable = false) (Size = 4000)
 @p4='1'
 
 SET NOCOUNT ON;
@@ -362,7 +362,7 @@ END
 """,
             //
             """
-@p0='{"Doors":5}' (Nullable = false) (Size = 11)
+@p0='{"Doors":5}' (Nullable = false) (Size = 4000)
 @p2='1'
 @p1='Green' (Size = 4000)
 @p3='1'
@@ -398,9 +398,9 @@ END
 
         AssertSql(
             """
-@p0=NULL
-@p1='{"Doors":5}' (Nullable = false) (Size = 11)
-@p2='{"Doors":60}' (Nullable = false) (Size = 12)
+@p0=NULL (Size = 4000)
+@p1='{"Doors":5}' (Nullable = false) (Size = 4000)
+@p2='{"Doors":60}' (Nullable = false) (Size = 4000)
 @p5='1'
 @p3='Blue' (Size = 4000)
 @p4='FamilyCarDetails' (Size = 21)
@@ -436,8 +436,8 @@ LEFT JOIN (
 
         AssertSql(
             """
-@p0=NULL
-@p1='{"Doors":5}' (Nullable = false) (Size = 11)
+@p0=NULL (Size = 4000)
+@p1='{"Doors":5}' (Nullable = false) (Size = 4000)
 @p4='1'
 @p2='Blue' (Size = 4000)
 @p3='CarDetails' (Size = 21)
@@ -597,7 +597,7 @@ ORDER BY [b].[Id]
 """,
             //
             """
-@p0=NULL
+@p0=NULL (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -672,7 +672,7 @@ WHERE [b1].[c] IS NOT NULL
 """,
             //
             """
-@p0=NULL
+@p0=NULL (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -701,7 +701,7 @@ END
 
         AssertSql(
             """
-@p0=NULL
+@p0=NULL (Size = 4000)
 @p2='1'
 @p1=NULL (Size = 4000)
 @p3='1'

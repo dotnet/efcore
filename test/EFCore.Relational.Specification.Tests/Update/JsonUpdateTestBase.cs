@@ -919,8 +919,8 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
             {
                 var query = await context.JsonEntitiesAllTypes.ToListAsync();
                 var entity = query.Single(x => x.Id == 1);
-                entity.Reference!.TestDecimal = -13579.01M;
-                entity.Collection[0].TestDecimal = -13579.01M;
+                entity.Reference!.TestDecimal = -12345678901234567890.12345678m;
+                entity.Collection[0].TestDecimal = -12345678901234567890.12345678m;
 
                 ClearLog();
                 await context.SaveChangesAsync();
@@ -928,8 +928,8 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
             async context =>
             {
                 var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
-                Assert.Equal(-13579.01M, result.Reference!.TestDecimal);
-                Assert.Equal(-13579.01M, result.Collection[0].TestDecimal);
+                Assert.Equal(-12345678901234567890.12345678m, result.Reference!.TestDecimal);
+                Assert.Equal(-12345678901234567890.12345678m, result.Collection[0].TestDecimal);
             });
 
     [Fact]

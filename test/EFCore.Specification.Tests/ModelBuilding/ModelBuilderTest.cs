@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
@@ -622,6 +623,11 @@ public abstract partial class ModelBuilderTest
     public abstract class TestPropertyBuilder<TProperty>
     {
         public abstract IMutableProperty Metadata { get; }
+        public abstract TestPropertyBuilder<TProperty> HasJsonValueReaderWriter<TReaderWriter>()
+            where TReaderWriter : JsonValueReaderWriter;
+
+        public abstract TestPropertyBuilder<TProperty> HasJsonValueReaderWriter(Type? readerWriterType);
+
         public abstract TestPropertyBuilder<TProperty> HasAnnotation(string annotation, object? value);
         public abstract TestPropertyBuilder<TProperty> IsRequired(bool isRequired = true);
         public abstract TestPropertyBuilder<TProperty> HasMaxLength(int maxLength);
@@ -735,6 +741,13 @@ public abstract partial class ModelBuilderTest
 
     public class TestElementTypeBuilder(ElementTypeBuilder elementTypeBuilder)
     {
+        public virtual TestElementTypeBuilder HasJsonValueReaderWriter<TReaderWriter>()
+            where TReaderWriter : JsonValueReaderWriter
+            => Wrap(ElementTypeBuilder.HasJsonValueReaderWriter<TReaderWriter>());
+
+        public virtual TestElementTypeBuilder HasJsonValueReaderWriter(Type? readerWriterType)
+            => Wrap(ElementTypeBuilder.HasJsonValueReaderWriter(readerWriterType));
+
         public virtual ElementTypeBuilder ElementTypeBuilder { get; } = elementTypeBuilder;
 
         public virtual IMutableElementType Metadata
@@ -790,6 +803,11 @@ public abstract partial class ModelBuilderTest
     public abstract class TestComplexTypePropertyBuilder<TProperty>
     {
         public abstract IMutableProperty Metadata { get; }
+        public abstract TestComplexTypePropertyBuilder<TProperty> HasJsonValueReaderWriter<TReaderWriter>()
+            where TReaderWriter : JsonValueReaderWriter;
+
+        public abstract TestComplexTypePropertyBuilder<TProperty> HasJsonValueReaderWriter(Type? readerWriterType);
+
         public abstract TestComplexTypePropertyBuilder<TProperty> HasAnnotation(string annotation, object? value);
         public abstract TestComplexTypePropertyBuilder<TProperty> IsRequired(bool isRequired = true);
         public abstract TestComplexTypePropertyBuilder<TProperty> HasMaxLength(int maxLength);
@@ -870,6 +888,11 @@ public abstract partial class ModelBuilderTest
     public abstract class TestComplexCollectionTypePropertyBuilder<TProperty>
     {
         public abstract IMutableProperty Metadata { get; }
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasJsonValueReaderWriter<TReaderWriter>()
+            where TReaderWriter : JsonValueReaderWriter;
+
+        public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasJsonValueReaderWriter(Type? readerWriterType);
+
         public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasAnnotation(string annotation, object? value);
         public abstract TestComplexCollectionTypePropertyBuilder<TProperty> IsRequired(bool isRequired = true);
         public abstract TestComplexCollectionTypePropertyBuilder<TProperty> HasSentinel(TProperty? sentinel);

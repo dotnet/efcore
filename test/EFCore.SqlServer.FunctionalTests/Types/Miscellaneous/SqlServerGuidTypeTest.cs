@@ -92,7 +92,7 @@ WHERE CAST(JSON_VALUE([j].[JsonContainer], '$.Value') AS uniqueidentifier) = @Fi
 
         AssertSql(
             """
-@p0='{"OtherValue":"ae192c36-9004-49b2-b785-8be10d169627","Value":"ae192c36-9004-49b2-b785-8be10d169627"}' (Nullable = false) (Size = 100)
+@p0='{"OtherValue":"ae192c36-9004-49b2-b785-8be10d169627","Value":"ae192c36-9004-49b2-b785-8be10d169627"}' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -111,11 +111,11 @@ WHERE [Id] = @p1;
         {
             AssertSql(
                 """
-@complex_type_Fixture_OtherValue='ae192c36-9004-49b2-b785-8be10d169627' (Size = 4000)
+@Fixture_OtherValue='ae192c36-9004-49b2-b785-8be10d169627' (Size = 4000)
 
 SET NOCOUNT OFF;
 UPDATE [j]
-SET [JsonContainer].modify('$.Value', @complex_type_Fixture_OtherValue)
+SET [JsonContainer].modify('$.Value', @Fixture_OtherValue)
 FROM [JsonTypeEntity] AS [j]
 """);
         }
@@ -123,11 +123,11 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
-@complex_type_Fixture_OtherValue='ae192c36-9004-49b2-b785-8be10d169627' (Size = 4000)
+@Fixture_OtherValue='ae192c36-9004-49b2-b785-8be10d169627' (Size = 4000)
 
 SET NOCOUNT OFF;
 UPDATE [j]
-SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', @complex_type_Fixture_OtherValue)
+SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', @Fixture_OtherValue)
 FROM [JsonTypeEntity] AS [j]
 """);
         }

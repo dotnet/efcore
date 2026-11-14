@@ -19,6 +19,7 @@ public class ElementType : ConventionAnnotatable, IMutableElementType, IConventi
 
     private bool? _isNullable;
     private CoreTypeMapping? _typeMapping;
+    private JsonValueReaderWriter? _jsonValueReaderWriter;
 
     private ConfigurationSource? _isNullableConfigurationSource;
     private ConfigurationSource? _typeMappingConfigurationSource;
@@ -549,8 +550,14 @@ public class ElementType : ConventionAnnotatable, IMutableElementType, IConventi
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual JsonValueReaderWriter? GetJsonValueReaderWriter()
-        => JsonValueReaderWriter.CreateFromType((Type?)this[CoreAnnotationNames.JsonValueReaderWriterType])
+    {
+        var readerWriter = _jsonValueReaderWriter
+            ?? JsonValueReaderWriter.CreateFromType((Type?)this[CoreAnnotationNames.JsonValueReaderWriterType]);
+        return (IsReadOnly && readerWriter != null
+                ? NonCapturingLazyInitializer.EnsureInitialized(ref _jsonValueReaderWriter, readerWriter)
+                : readerWriter)
             ?? TypeMapping?.JsonValueReaderWriter;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

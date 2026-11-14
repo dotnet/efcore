@@ -2,9 +2,11 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
+using System.Linq.Expressions;
 using Microsoft.Data.SqlClient;
 using Microsoft.Data.SqlTypes;
 using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
@@ -16,6 +18,58 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 
 public class SqlServerTypeMappingTest : RelationalTypeMappingTest
 {
+    [Theory]
+    [InlineData("nvarchar(max)", 0, 4000)]
+    [InlineData("nvarchar(max)", 2, 4000)]
+    [InlineData("nvarchar(max)", 4000, 4000)]
+    [InlineData("nvarchar(max)", 4001, -1)]
+    [InlineData("json", 0, 4000)]
+    [InlineData("json", 2, 4000)]
+    [InlineData("json", 4000, 4000)]
+    [InlineData("json", 4001, -1)]
+    public void JSON_document_parameter_sizes_are_bucketed(string storeType, int length, int expectedSize)
+    {
+        var mapping = GetTypeMappingSource().FindMapping(typeof(JsonTypePlaceholder), storeTypeName: storeType)!;
+        var json = length == 0 ? null : "[" + new string(' ', length - 2) + "]";
+
+        using var command = CreateTestCommand();
+        var parameter = mapping.CreateParameter(command, "p", json);
+
+        Assert.Equal((object?)json ?? DBNull.Value, parameter.Value);
+        Assert.Equal(expectedSize, parameter.Size);
+        Assert.Equal(
+            storeType == "json" ? SqlDbType.Json : SqlDbType.NVarChar,
+            Assert.IsType<SqlParameter>(parameter).SqlDbType);
+    }
+
+    [Fact]
+    public void Quoted_JSON_mapping_preserves_scalar_parameter_configuration()
+    {
+        var source = GetTypeMappingSource();
+#pragma warning disable EF9100 // Precompiled query is experimental.
+        var quote = (MethodCallExpression)RelationalExpressionQuotingUtilities.QuoteTypeMapping(
+            source.FindMapping(typeof(JsonTypePlaceholder), storeTypeName: source.GetMapping(typeof(string)).StoreType));
+#pragma warning restore EF9100
+        var mapping = Expression.Lambda<Func<RelationalTypeMappingSource, RelationalTypeMapping>>(
+            quote, (ParameterExpression)quote.Object!).Compile(preferInterpretation: true)(source);
+
+        using var command = CreateTestCommand();
+        var textParameter = mapping.CreateParameter(command, "p", "a");
+        Assert.Equal("a", textParameter.Value);
+        Assert.Equal(DbType.String, textParameter.DbType);
+        Assert.Equal(4000, textParameter.Size);
+
+        var numberParameter = mapping.CreateParameter(command, "p", 42);
+        Assert.Equal(42, numberParameter.Value);
+        Assert.Equal(DbType.Int32, numberParameter.DbType);
+
+        var decimalParameter = mapping.CreateParameter(command, "p", 12345678901234567890.12345678m);
+        Assert.Equal(12345678901234567890.12345678m, decimalParameter.Value);
+        Assert.Equal(DbType.Decimal, decimalParameter.DbType);
+        Assert.Equal(0, decimalParameter.Precision);
+        Assert.Equal(0, decimalParameter.Scale);
+    }
+
     [Theory, InlineData(nameof(ChangeTracker.DetectChanges), false), InlineData(nameof(PropertyEntry.CurrentValue), false),
      InlineData(nameof(PropertyEntry.OriginalValue), false), InlineData(nameof(ChangeTracker.DetectChanges), true),
      InlineData(nameof(PropertyEntry.CurrentValue), true), InlineData(nameof(PropertyEntry.OriginalValue), true)]

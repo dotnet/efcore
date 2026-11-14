@@ -162,7 +162,7 @@ WHERE JSON_QUERY([r].[RequiredAssociate], '$.RequiredNestedAssociate') = '{"Id":
         {
             AssertSql(
                 """
-@entity_equality_nested='{"Id":1000,"Int":8,"Ints":[1,2,3],"Name":"Root1_RequiredAssociate_RequiredNestedAssociate","String":"foo"}' (Size = 106)
+@entity_equality_nested='{"Id":1000,"Int":8,"Ints":[1,2,3],"Name":"Root1_RequiredAssociate_RequiredNestedAssociate","String":"foo"}' (Size = 4000)
 
 SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
@@ -173,7 +173,7 @@ WHERE CAST(JSON_QUERY([r].[RequiredAssociate], '$.RequiredNestedAssociate') AS n
         {
             AssertSql(
                 """
-@entity_equality_nested='{"Id":1000,"Int":8,"Ints":[1,2,3],"Name":"Root1_RequiredAssociate_RequiredNestedAssociate","String":"foo"}' (Size = 106)
+@entity_equality_nested='{"Id":1000,"Int":8,"Ints":[1,2,3],"Name":"Root1_RequiredAssociate_RequiredNestedAssociate","String":"foo"}' (Size = 4000)
 
 SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
@@ -238,7 +238,7 @@ WHERE JSON_QUERY([r].[RequiredAssociate], '$.NestedCollection') = '[{"Id":1002,"
         {
             AssertSql(
                 """
-@entity_equality_nestedCollection='[{"Id":1002,"Int":8,"Ints":[1,2,3],"Name":"Root1_RequiredAssociate_NestedCollection_1","String":"foo"},{"Id":1003,"Int":8,"Ints":[1,2,3],"Name":"Root1_RequiredAssociate_NestedCollection_2","String":"foo"}]' (Size = 205)
+@entity_equality_nestedCollection='[{"Id":1002,"Int":8,"Ints":[1,2,3],"Name":"Root1_RequiredAssociate_NestedCollection_1","String":"foo"},{"Id":1003,"Int":8,"Ints":[1,2,3],"Name":"Root1_RequiredAssociate_NestedCollection_2","String":"foo"}]' (Size = 4000)
 
 SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
@@ -249,7 +249,7 @@ WHERE CAST(JSON_QUERY([r].[RequiredAssociate], '$.NestedCollection') AS nvarchar
         {
             AssertSql(
                 """
-@entity_equality_nestedCollection='[{"Id":1002,"Int":8,"Ints":[1,2,3],"Name":"Root1_RequiredAssociate_NestedCollection_1","String":"foo"},{"Id":1003,"Int":8,"Ints":[1,2,3],"Name":"Root1_RequiredAssociate_NestedCollection_2","String":"foo"}]' (Size = 205)
+@entity_equality_nestedCollection='[{"Id":1002,"Int":8,"Ints":[1,2,3],"Name":"Root1_RequiredAssociate_NestedCollection_1","String":"foo"},{"Id":1003,"Int":8,"Ints":[1,2,3],"Name":"Root1_RequiredAssociate_NestedCollection_2","String":"foo"}]' (Size = 4000)
 
 SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
@@ -440,9 +440,9 @@ WHERE EXISTS (
 @entity_equality_get_Item_Ints='[8,9,131]' (Size = 9)
 @entity_equality_get_Item_Name='Root3_AssociateCollection_2' (Size = 4000)
 @entity_equality_get_Item_String='foo115' (Size = 4000)
-@entity_equality_get_Item_NestedCollection='[{"Id":3014,"Int":136,"Ints":[8,9,137],"Name":"Root3_AssociateCollection_2_NestedCollection_1","String":"foo118"},{"Id":3015,"Int":138,"Ints":[8,9,139],"Name":"Root3_Root1_AssociateCollection_2_NestedCollection_2","String":"foo119"}]' (Size = 233)
-@entity_equality_get_Item_OptionalNestedAssociate='{"Id":3013,"Int":134,"Ints":[8,9,135],"Name":"Root3_AssociateCollection_2_OptionalNestedAssociate","String":"foo117"}' (Size = 117)
-@entity_equality_get_Item_RequiredNestedAssociate='{"Id":3012,"Int":132,"Ints":[8,9,133],"Name":"Root3_AssociateCollection_2_RequiredNestedAssociate","String":"foo116"}' (Size = 117)
+@entity_equality_get_Item_NestedCollection='[{"Id":3014,"Int":136,"Ints":[8,9,137],"Name":"Root3_AssociateCollection_2_NestedCollection_1","String":"foo118"},{"Id":3015,"Int":138,"Ints":[8,9,139],"Name":"Root3_Root1_AssociateCollection_2_NestedCollection_2","String":"foo119"}]' (Size = 4000)
+@entity_equality_get_Item_OptionalNestedAssociate='{"Id":3013,"Int":134,"Ints":[8,9,135],"Name":"Root3_AssociateCollection_2_OptionalNestedAssociate","String":"foo117"}' (Size = 4000)
+@entity_equality_get_Item_RequiredNestedAssociate='{"Id":3012,"Int":132,"Ints":[8,9,133],"Name":"Root3_AssociateCollection_2_RequiredNestedAssociate","String":"foo116"}' (Size = 4000)
 
 SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
@@ -471,9 +471,9 @@ WHERE EXISTS (
 @entity_equality_get_Item_Ints='[8,9,131]' (Size = 4000)
 @entity_equality_get_Item_Name='Root3_AssociateCollection_2' (Size = 4000)
 @entity_equality_get_Item_String='foo115' (Size = 4000)
-@entity_equality_get_Item_NestedCollection='[{"Id":3014,"Int":136,"Ints":[8,9,137],"Name":"Root3_AssociateCollection_2_NestedCollection_1","String":"foo118"},{"Id":3015,"Int":138,"Ints":[8,9,139],"Name":"Root3_Root1_AssociateCollection_2_NestedCollection_2","String":"foo119"}]' (Size = 233)
-@entity_equality_get_Item_OptionalNestedAssociate='{"Id":3013,"Int":134,"Ints":[8,9,135],"Name":"Root3_AssociateCollection_2_OptionalNestedAssociate","String":"foo117"}' (Size = 117)
-@entity_equality_get_Item_RequiredNestedAssociate='{"Id":3012,"Int":132,"Ints":[8,9,133],"Name":"Root3_AssociateCollection_2_RequiredNestedAssociate","String":"foo116"}' (Size = 117)
+@entity_equality_get_Item_NestedCollection='[{"Id":3014,"Int":136,"Ints":[8,9,137],"Name":"Root3_AssociateCollection_2_NestedCollection_1","String":"foo118"},{"Id":3015,"Int":138,"Ints":[8,9,139],"Name":"Root3_Root1_AssociateCollection_2_NestedCollection_2","String":"foo119"}]' (Size = 4000)
+@entity_equality_get_Item_OptionalNestedAssociate='{"Id":3013,"Int":134,"Ints":[8,9,135],"Name":"Root3_AssociateCollection_2_OptionalNestedAssociate","String":"foo117"}' (Size = 4000)
+@entity_equality_get_Item_RequiredNestedAssociate='{"Id":3012,"Int":132,"Ints":[8,9,133],"Name":"Root3_AssociateCollection_2_RequiredNestedAssociate","String":"foo116"}' (Size = 4000)
 
 SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]

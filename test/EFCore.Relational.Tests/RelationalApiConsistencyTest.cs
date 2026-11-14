@@ -376,6 +376,11 @@ public class RelationalApiConsistencyTest(RelationalApiConsistencyTest.Relationa
         {
             {
                 typeof(PrimitiveCollectionBuilder), [
+                    // JSON reader/writers are configured on collection elements, not the collection container.
+                    GetMethod(
+                        typeof(PropertyBuilder), nameof(PropertyBuilder.HasJsonValueReaderWriter), genericParameterCount: 1,
+                        (_, _) => Type.EmptyTypes),
+                    typeof(PropertyBuilder).GetMethod(nameof(PropertyBuilder.HasJsonValueReaderWriter), [typeof(Type)])!,
                     typeof(PropertyBuilder).GetMethod(nameof(PropertyBuilder.HasPrecision), [typeof(int)])!,
                     typeof(PropertyBuilder).GetMethod(nameof(PropertyBuilder.HasPrecision), [typeof(int), typeof(int)])!,
                     typeof(PropertyBuilder).GetMethod(
@@ -416,6 +421,11 @@ public class RelationalApiConsistencyTest(RelationalApiConsistencyTest.Relationa
             },
             {
                 typeof(PrimitiveCollectionBuilder<>), [
+                    // The generic collection builder likewise exposes element-level JSON configuration only.
+                    GetMethod(
+                        typeof(PropertyBuilder<>), nameof(PropertyBuilder<object>.HasJsonValueReaderWriter), genericParameterCount: 1,
+                        (_, _) => Type.EmptyTypes),
+                    typeof(PropertyBuilder<>).GetMethod(nameof(PropertyBuilder<object>.HasJsonValueReaderWriter), [typeof(Type)])!,
                     typeof(PropertyBuilder<>).GetMethod(nameof(PropertyBuilder<object>.HasPrecision), [typeof(int)])!,
                     typeof(PropertyBuilder<>).GetMethod(nameof(PropertyBuilder<object>.HasPrecision), [typeof(int), typeof(int)])!,
                     typeof(PropertyBuilder<>).GetMethod(

@@ -144,10 +144,26 @@ public class SqlServerStructuralJsonTypeMapping : StructuralJsonTypeMapping
     /// </summary>
     protected override void ConfigureParameter(DbParameter parameter)
     {
-        if (StoreType == "json"
-            && parameter is SqlParameter sqlParameter) // To avoid crashing wrapping providers
+        if (StoreType == "json")
         {
-            sqlParameter.SqlDbType = SqlDbType.Json;
+            if (parameter is SqlParameter sqlParameter) // To avoid crashing wrapping providers
+            {
+                sqlParameter.SqlDbType = SqlDbType.Json;
+            }
+        }
+
+        if (parameter.Value is null or DBNull or string)
+        {
+            var length = (parameter.Value as string)?.Length ?? 0;
+            var maxSpecificSize = Size is > 0 and <= 4000 ? Size.Value : 4000;
+
+            // Bucket text parameters like regular Unicode strings to avoid query cache fragmentation.
+            parameter.Size = length <= maxSpecificSize ? maxSpecificSize : length <= 4000 ? 4000 : -1;
+        }
+        else
+        {
+            // A serialized scalar can be numeric or Boolean; let the driver infer its native type and precision.
+            parameter.ResetDbType();
         }
 
         base.ConfigureParameter(parameter);

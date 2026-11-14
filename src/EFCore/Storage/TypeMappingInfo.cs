@@ -102,7 +102,17 @@ public readonly record struct TypeMappingInfo
         ClrType = (customConverter?.ProviderClrType ?? elementType.ClrType).UnwrapNullableType();
         Scale = fallbackScale ?? mappingHints?.Scale;
         Precision = fallbackPrecision ?? mappingHints?.Precision;
-        JsonValueReaderWriter = JsonValueReaderWriter.CreateFromType((Type?)elementType[CoreAnnotationNames.JsonValueReaderWriterType]);
+
+        // The public getter can resolve or reuse a type mapping. Read only configured readers here
+        // to avoid recursive mapping resolution and stale defaults.
+        JsonValueReaderWriter = elementType switch
+        {
+            RuntimeElementType runtimeElementType => runtimeElementType.ConfiguredJsonValueReaderWriter,
+            _ when elementType[CoreAnnotationNames.JsonValueReaderWriterType] != null => elementType.GetJsonValueReaderWriter(),
+            _ => null
+        };
+        JsonValueReaderWriter ??= GetJsonValueReaderWriter(
+            elementType.CollectionProperty.DeclaringType.Model.FindTypeMappingConfiguration(elementType.ClrType.UnwrapNullableType()));
     }
 
     /// <summary>
@@ -200,7 +210,9 @@ public readonly record struct TypeMappingInfo
         ClrType = (customConverter?.ProviderClrType ?? property.ClrType).UnwrapNullableType();
         Scale = fallbackScale ?? mappingHints?.Scale;
         Precision = fallbackPrecision ?? mappingHints?.Precision;
-        JsonValueReaderWriter = property.GetJsonValueReaderWriter();
+        JsonValueReaderWriter = property.GetJsonValueReaderWriter()
+            ?? GetJsonValueReaderWriter(
+                property.DeclaringType.Model.FindTypeMappingConfiguration(property.ClrType.UnwrapNullableType()));
     }
 
     /// <summary>
@@ -245,6 +257,7 @@ public readonly record struct TypeMappingInfo
             precision: typeMappingConfiguration.GetPrecision(),
             scale: typeMappingConfiguration.GetScale())
     {
+        JsonValueReaderWriter = GetJsonValueReaderWriter(typeMappingConfiguration);
     }
 
     /// <summary>
@@ -374,4 +387,7 @@ public readonly record struct TypeMappingInfo
     ///     The JSON reader/writer, if one has been provided, or <see langword="null" /> otherwise.
     /// </summary>
     public JsonValueReaderWriter? JsonValueReaderWriter { get; init; }
+
+    private static JsonValueReaderWriter? GetJsonValueReaderWriter(ITypeMappingConfiguration? configuration)
+        => JsonValueReaderWriter.CreateFromType(configuration?.GetJsonValueReaderWriterType());
 }

@@ -48,6 +48,12 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
         ValueConverter? customConverter = null;
         if (principals != null)
         {
+            mappingInfo = mappingInfo with
+            {
+                ElementTypeMapping = mappingInfo.ElementTypeMapping
+                    ?? FindElementMapping(mappingInfo, principals[0].DeclaringType.Model)
+            };
+
             for (var i = 0; i < principals.Count; i++)
             {
                 var principal = principals[i];
@@ -129,9 +135,7 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
 
                                 if (mapping != null)
                                 {
-                                    mapping = mapping.WithComposedConverter(
-                                        secondConverterInfo.Create(),
-                                        jsonValueReaderWriter: mappingInfoUsed.JsonValueReaderWriter);
+                                    mapping = mapping.WithComposedConverter(secondConverterInfo.Create());
                                     break;
                                 }
                             }
@@ -139,9 +143,7 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
 
                         if (mapping != null)
                         {
-                            mapping = mapping.WithComposedConverter(
-                                converterInfo.Create(),
-                                jsonValueReaderWriter: mappingInfo.JsonValueReaderWriter);
+                            mapping = mapping.WithComposedConverter(converterInfo.Create());
                             break;
                         }
                     }
@@ -152,9 +154,17 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
                 if (mapping != null
                     && customConverter != null)
                 {
-                    mapping = mapping.WithComposedConverter(
-                        customConverter,
-                        jsonValueReaderWriter: mappingInfo.JsonValueReaderWriter);
+                    mapping = mapping.WithComposedConverter(customConverter);
+                }
+
+                if (mapping != null
+                    && mappingInfo.JsonValueReaderWriter != null)
+                {
+                    var readerWriter = mappingInfo.JsonValueReaderWriter;
+                    mapping = mapping.Converter is { } converter
+                        && !readerWriter.ValueType.IsAssignableFrom(converter.ProviderClrType)
+                            ? mapping.Clone(jsonValueReaderWriter: readerWriter)
+                            : mapping.WithJsonValueReaderWriter(readerWriter);
                 }
 
                 return mapping;
@@ -215,8 +225,13 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
     /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
     public override CoreTypeMapping? FindMapping(IElementType elementType)
     {
+        var mappingInfo = new TypeMappingInfo(elementType);
+        mappingInfo = mappingInfo with
+        {
+            ElementTypeMapping = FindElementMapping(mappingInfo, elementType.CollectionProperty.DeclaringType.Model)
+        };
         var resolvedMapping = FindMappingWithConversion(
-            new TypeMappingInfo(elementType),
+            mappingInfo,
             providerClrType: elementType.GetProviderClrType(),
             customConverter: elementType.GetValueConverter());
 
@@ -261,12 +276,20 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
         if (typeConfiguration != null)
         {
             var mappingInfo = new TypeMappingInfo(type, typeConfiguration, elementMapping);
+            mappingInfo = mappingInfo with
+            {
+                ElementTypeMapping = elementMapping ?? FindElementMapping(mappingInfo, model)
+            };
             var providerClrType = typeConfiguration.GetProviderClrType()?.UnwrapNullableType();
             return FindMappingWithConversion(mappingInfo, providerClrType, customConverter: typeConfiguration.GetValueConverter());
         }
 
+        var defaultMappingInfo = new TypeMappingInfo(type, elementMapping);
         return FindMappingWithConversion(
-            new TypeMappingInfo(type, elementMapping),
+            defaultMappingInfo with
+            {
+                ElementTypeMapping = elementMapping ?? FindElementMapping(defaultMappingInfo, model)
+            },
             providerClrType: null,
             customConverter: null);
     }

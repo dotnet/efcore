@@ -447,7 +447,7 @@ public class PropertyTest
 
     [Theory, InlineData(typeof(SimpleJasonValueReaderWriter)), InlineData(typeof(JasonValueReaderWriterWithPrivateInstance)),
      InlineData(typeof(JasonValueReaderWriterWithBadInstance))]
-    public void Creates_instance_of_JsonValueReaderWriter_using_constructor(Type type)
+    public void Caches_instance_of_JsonValueReaderWriter_using_constructor(Type type)
     {
         var model = CreateModel();
         var entityType = model.AddEntityType(typeof(object));
@@ -456,8 +456,9 @@ public class PropertyTest
 
         var instance1 = property.GetJsonValueReaderWriter();
         var instance2 = property.GetJsonValueReaderWriter();
-        Assert.NotNull(instance1);
-        Assert.NotEqual(instance1, instance2);
+        Assert.IsType(type, instance1);
+        Assert.Same(instance1, instance2);
+        Assert.Same(instance1, JsonValueReaderWriter.CreateFromType(type));
     }
 
     [Theory, InlineData(typeof(SimpleJasonValueReaderWriterWithInstance)),
@@ -473,6 +474,30 @@ public class PropertyTest
         var instance2 = property.GetJsonValueReaderWriter();
         Assert.NotNull(instance1);
         Assert.Same(instance1, instance2);
+    }
+
+    [Fact]
+    public void JsonValueReaderWriter_factory_returns_null_for_null_type()
+        => Assert.Null(JsonValueReaderWriter.CreateFromType(null));
+
+    [Fact]
+    public void JsonValueReaderWriter_factory_caches_null_instance()
+    {
+        Assert.Null(JsonValueReaderWriter.CreateFromType(typeof(JsonValueReaderWriterWithNullInstance)));
+        Assert.Null(JsonValueReaderWriter.CreateFromType(typeof(JsonValueReaderWriterWithNullInstance)));
+        Assert.Equal(1, JsonValueReaderWriterWithNullInstance.AccessCount);
+    }
+
+    [Fact]
+    public void JsonValueReaderWriter_factory_returns_same_instance_across_threads()
+    {
+        var instances = new JsonValueReaderWriter?[32];
+        Parallel.For(
+            0, instances.Length,
+            i => instances[i] = JsonValueReaderWriter.CreateFromType(typeof(SimpleJasonValueReaderWriter)));
+
+        var readerWriter = Assert.IsType<SimpleJasonValueReaderWriter>(instances[0]);
+        Assert.All(instances, instance => Assert.Same(readerWriter, instance));
     }
 
     [Theory, InlineData(typeof(NonDerivedJsonValueReaderWriter)), InlineData(typeof(NonGenericJsonValueReaderWriter))]
@@ -500,6 +525,91 @@ public class PropertyTest
         Assert.Equal(
             CoreStrings.CannotCreateJsonValueReaderWriter(type.ShortDisplayName()),
             Assert.Throws<InvalidOperationException>(() => property.GetJsonValueReaderWriter()).Message);
+    }
+
+    [Fact]
+    public void Property_reader_writer_cache_respects_configuration_changes()
+    {
+        var model = CreateModel();
+        var property = model.AddEntityType(typeof(object)).AddProperty("Value", typeof(string));
+        property.SetJsonValueReaderWriterType(typeof(SimpleJasonValueReaderWriter));
+        var readerWriter = Assert.IsType<SimpleJasonValueReaderWriter>(property.GetJsonValueReaderWriter());
+        property.SetJsonValueReaderWriterType(typeof(JsonStringReaderWriter));
+        Assert.Same(JsonStringReaderWriter.Instance, property.GetJsonValueReaderWriter());
+        property.SetJsonValueReaderWriterType(null);
+        Assert.Null(property.GetJsonValueReaderWriter());
+
+        property.SetJsonValueReaderWriterType(typeof(SimpleJasonValueReaderWriter));
+        model.FinalizeModel();
+
+        Assert.Same(readerWriter, property.GetJsonValueReaderWriter());
+    }
+
+    [Fact]
+    public void Element_reader_writer_cache_respects_configuration_changes()
+    {
+        var model = CreateModel();
+        var element = model.AddEntityType(typeof(object)).AddPrimitiveCollection("Values", typeof(List<string>), typeof(string))
+            .GetElementType()!;
+        element.SetJsonValueReaderWriterType(typeof(SimpleJasonValueReaderWriter));
+        var readerWriter = Assert.IsType<SimpleJasonValueReaderWriter>(element.GetJsonValueReaderWriter());
+        element.SetJsonValueReaderWriterType(typeof(JsonStringReaderWriter));
+        Assert.Same(JsonStringReaderWriter.Instance, element.GetJsonValueReaderWriter());
+        element.SetJsonValueReaderWriterType(null);
+        Assert.Null(element.GetJsonValueReaderWriter());
+
+        element.SetJsonValueReaderWriterType(typeof(SimpleJasonValueReaderWriter));
+        model.FinalizeModel();
+
+        Assert.Same(readerWriter, element.GetJsonValueReaderWriter());
+        Assert.Same(readerWriter, new TypeMappingInfo((IElementType)element).JsonValueReaderWriter);
+    }
+
+    [Fact]
+    public void Runtime_element_reader_writer_is_used_without_type_annotation()
+    {
+        var property = new RuntimeModel(skipDetectChanges: false, modelId: Guid.Empty, entityTypeCount: 1, typeConfigurationCount: 0)
+            .AddEntityType("Entity", typeof(object)).AddProperty("Values", typeof(List<string>));
+        var readerWriter = new SimpleJasonValueReaderWriter();
+        var mapping = new InMemory.Storage.Internal.InMemoryTypeMapping(typeof(string), jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        var element = property.SetElementType(typeof(string), jsonValueReaderWriter: readerWriter, typeMapping: mapping);
+
+        Assert.Null(element[CoreAnnotationNames.JsonValueReaderWriterType]);
+        Assert.Same(readerWriter, element.GetJsonValueReaderWriter());
+        Assert.Same(readerWriter, new TypeMappingInfo(element).JsonValueReaderWriter);
+    }
+
+    [Fact]
+    public void Runtime_element_mapping_reader_does_not_override_configured_model_default()
+    {
+        var model = new RuntimeModel(skipDetectChanges: false, modelId: Guid.Empty, entityTypeCount: 1, typeConfigurationCount: 1);
+        var configuration = model.AddTypeMappingConfiguration(typeof(string), jsonValueReaderWriterType: typeof(SimpleJasonValueReaderWriter));
+        var property = model.AddEntityType("Entity", typeof(object)).AddProperty("Values", typeof(List<string>));
+        var mapping = new InMemory.Storage.Internal.InMemoryTypeMapping(typeof(string), jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        var element = property.SetElementType(typeof(string), typeMapping: mapping);
+
+        Assert.Same(JsonStringReaderWriter.Instance, element.GetJsonValueReaderWriter());
+        Assert.Same(JsonStringReaderWriter.Instance, element.TypeMapping.JsonValueReaderWriter);
+        Assert.IsType<SimpleJasonValueReaderWriter>(new TypeMappingInfo(element).JsonValueReaderWriter);
+        Assert.IsType<SimpleJasonValueReaderWriter>(new TypeMappingInfo(typeof(string), configuration).JsonValueReaderWriter);
+    }
+
+    [Fact]
+    public void Clearing_element_reader_writer_restores_default_without_reusing_previous_mapping()
+    {
+        var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder(
+            configureConventions: c => c.DefaultTypeMapping<int>().HasJsonValueReaderWriter<JsonInt32ReaderWriter>());
+        var element = builder.Entity<Customer>().PrimitiveCollection(e => e.Numbers).ElementType();
+        element.HasJsonValueReaderWriter<JsonStringReaderWriter>();
+        var metadata = (ElementType)element.Metadata;
+        metadata.SetTypeMapping(
+            new InMemory.Storage.Internal.InMemoryTypeMapping(typeof(int), jsonValueReaderWriter: JsonStringReaderWriter.Instance),
+            ConfigurationSource.Explicit);
+
+        element.HasJsonValueReaderWriter(null);
+
+        Assert.Null(metadata[CoreAnnotationNames.JsonValueReaderWriterType]);
+        Assert.Same(JsonInt32ReaderWriter.Instance, new TypeMappingInfo(metadata).JsonValueReaderWriter);
     }
 
     [Fact]
@@ -565,6 +675,20 @@ public class PropertyTest
 
         public override Expression ConstructorExpression
             => _instanceLambda.Body;
+    }
+
+    private class JsonValueReaderWriterWithNullInstance : SimpleJasonValueReaderWriter
+    {
+        public static int AccessCount { get; private set; }
+
+        public static JsonValueReaderWriterWithNullInstance? Instance
+        {
+            get
+            {
+                AccessCount++;
+                return null;
+            }
+        }
     }
 
     private class JasonValueReaderWriterWithPrivateInstance : JsonValueReaderWriter<string>

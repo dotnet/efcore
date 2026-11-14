@@ -139,20 +139,12 @@ public abstract class CoreTypeMapping
                     return readerWriter;
                 }
 
-                if (!RuntimeFeature.IsDynamicCodeSupported)
-                {
-                    throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel);
-                }
-
                 if (readerWriter is IJsonConvertedValueReaderWriter convertedValueReaderWriter)
                 {
                     readerWriter = convertedValueReaderWriter.InnerReaderWriter;
                 }
 
-                return (JsonValueReaderWriter)Activator.CreateInstance(
-                    typeof(JsonConvertedValueReaderWriter<,>).MakeGenericType(
-                        converter.ModelClrType, readerWriter.ValueType),
-                    readerWriter, converter)!;
+                return CreateJsonValueReaderWriter(converter, readerWriter);
             }
         }
     }
@@ -326,6 +318,42 @@ public abstract class CoreTypeMapping
         ValueComparer? keyComparer = null,
         CoreTypeMapping? elementMapping = null,
         JsonValueReaderWriter? jsonValueReaderWriter = null);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual CoreTypeMapping WithJsonValueReaderWriter(JsonValueReaderWriter jsonValueReaderWriter)
+    {
+        if (ReferenceEquals(JsonValueReaderWriter, jsonValueReaderWriter)
+            && jsonValueReaderWriter.ValueType.IsAssignableFrom(ClrType))
+        {
+            return this;
+        }
+
+        return Clone(
+            Parameters with
+            {
+                JsonValueReaderWriter = Converter is { } converter
+                    ? CreateJsonValueReaderWriter(converter, jsonValueReaderWriter)
+                    : jsonValueReaderWriter
+            });
+    }
+
+    private static JsonValueReaderWriter CreateJsonValueReaderWriter(ValueConverter converter, JsonValueReaderWriter readerWriter)
+    {
+        if (!RuntimeFeature.IsDynamicCodeSupported)
+        {
+            throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel);
+        }
+
+        return (JsonValueReaderWriter)Activator.CreateInstance(
+            typeof(JsonConvertedValueReaderWriter<,>).MakeGenericType(converter.ModelClrType, readerWriter.ValueType),
+            readerWriter, converter)!;
+    }
 
     /// <summary>
     ///     Clones the type mapping to update any parameter if needed.

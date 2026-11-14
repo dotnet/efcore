@@ -8,6 +8,94 @@ public class NonSharedModelBulkUpdatesSqlServerTest(NonSharedFixture fixture) : 
     protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
+    public override async Task Update_JSON_strings_of_different_lengths(bool async, bool executeUpdate, bool converted)
+    {
+        await base.Update_JSON_strings_of_different_lengths(async, executeUpdate, converted);
+
+        Assert.Collection(
+            TestSqlLoggerFactory.Parameters,
+            p => Assert.Contains("(Size = 4000)", p),
+            p => Assert.Contains("(Size = 4000)", p),
+            p => Assert.Contains("(Size = -1)", p));
+    }
+
+    public override async Task Update_JSON_scalar_with_custom_reader_writer(bool async, bool typeMappingDefault)
+    {
+        await base.Update_JSON_scalar_with_custom_reader_writer(async, typeMappingDefault);
+        AssertSql(
+            """
+@p='44'
+@p0='44' (Size = 4000)
+
+SET NOCOUNT OFF;
+UPDATE [j]
+SET [j].[NativeNumber] = @p,
+    [j].[Data] = JSON_MODIFY([j].[Data], '$.Number', @p0)
+FROM [JsonWriterItems] AS [j]
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[NativeNumber], [j].[Data]
+FROM [JsonWriterItems] AS [j]
+""");
+    }
+
+    public override async Task Update_JSON_columns_with_same_parameter_and_different_conversions(bool async)
+    {
+        await base.Update_JSON_columns_with_same_parameter_and_different_conversions(async);
+        AssertSql(
+            """
+@p='{"Number":42}' (Size = 4000)
+@p0='{"Number":"42"}' (Size = 4000)
+
+SET NOCOUNT OFF;
+UPDATE [j]
+SET [j].[First] = @p,
+    [j].[Second] = @p0
+FROM [JsonPairItem] AS [j]
+""",
+            //
+            """
+SELECT TOP(2) [j].[Id], [j].[First], [j].[Second]
+FROM [JsonPairItem] AS [j]
+""");
+    }
+
+    public override async Task Update_JSON_with_parameter_name_collision(bool async, bool wholeDocument)
+    {
+        await base.Update_JSON_with_parameter_name_collision(async, wholeDocument);
+        AssertSql(
+            wholeDocument
+                ? """
+@p='{"Number":42}' (Size = 4000)
+@json_number='1'
+@json_p='1'
+
+SET NOCOUNT OFF;
+UPDATE [j]
+SET [j].[First] = @p
+FROM [JsonPairItem] AS [j]
+WHERE [j].[Id] = @json_number AND [j].[Id] = @json_p
+"""
+                : """
+@number='42' (Nullable = true)
+@json_number='1'
+@json_p='1'
+
+SET NOCOUNT OFF;
+UPDATE [j]
+SET [j].[First] = JSON_MODIFY([j].[First], '$.Number', @number)
+FROM [JsonPairItem] AS [j]
+WHERE [j].[Id] = @json_number AND [j].[Id] = @json_p
+""",
+            //
+            """
+SELECT [j].[Id], [j].[First], [j].[Second]
+FROM [JsonPairItem] AS [j]
+ORDER BY [j].[Id]
+""");
+    }
+
     [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

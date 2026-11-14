@@ -921,9 +921,9 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                     Assert.All(widget.Data.Items, i => Assert.Empty(i.TextCodes));
                     Assert.All(widget.Data.Items, i => Assert.Empty(Assert.IsType<ReadOnlyCollection<int>>(i.ReadOnlyCodes)));
 
-                    // An optional collection and one with its own reader/writer are left alone, so an absent key stays null
+                    // Custom element readers do not change collection initialization; optional collections are left null.
+                    Assert.All(widget.Data.Items, i => Assert.Empty(i.CustomCodes));
                     Assert.All(widget.Data.Items, i => Assert.Null(i.OptionalCodes));
-                    Assert.All(widget.Data.Items, i => Assert.Null(i.CustomCodes));
                 }
             });
 
@@ -956,24 +956,20 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
             });
 
     [Fact] // Issue #38625
-    public virtual Task Primitive_collection_with_custom_reader_writer_explicitly_null_in_json_throws()
+    public virtual Task Primitive_collection_with_custom_element_reader_writer_explicitly_null_in_json_is_materialized_as_empty()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
             UseTransaction,
             async context =>
             {
-                // A property-level reader/writer decides how the collection is created, so nothing is synthesized in its place: an
-                // explicit null for a required collection keeps the property-named error rather than a value the reader did not make
                 await SetStoredDocumentAsync(
                     context, "CodeWidgets", "Data", id: 1,
                     """{"Items":[{"Label":"C1","CustomCodes":null}]}""");
 
-                var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => context.Set<CodeWidget>().OrderBy(w => w.Id).FirstAsync());
-
-                Assert.Equal(
-                    RelationalStrings.NullValueInRequiredJsonProperty("CustomCodes"),
-                    Assert.IsType<InvalidOperationException>(exception.InnerException).Message);
+                var widget = await context.Set<CodeWidget>().OrderBy(w => w.Id).FirstAsync();
+                Assert.Empty(Assert.Single(widget.Data.Items).CustomCodes);
+                widget = await context.Set<CodeWidget>().AsNoTracking().OrderBy(w => w.Id).FirstAsync();
+                Assert.Empty(Assert.Single(widget.Data.Items).CustomCodes);
             });
 
     [Fact] // Issue #38625
@@ -1004,9 +1000,8 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
             UseTransaction,
             async context =>
             {
-                // CustomCodes has its own reader/writer, so it is not synthesized and has to be present for the row to be saveable
                 await SetStoredDocumentAsync(
-                    context, "CodeWidgets", "Data", id: 1, """{"Items":[{"Label":"C1","CustomCodes":[9]}]}""");
+                    context, "CodeWidgets", "Data", id: 1, """{"Items":[{"Label":"C1"}]}""");
 
                 var widget = await context.Set<CodeWidget>().OrderBy(w => w.Id).FirstAsync();
 
@@ -1208,43 +1203,22 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
         // Optional, so an absent key legitimately means null and nothing is synthesized
         public List<int>? OptionalCodes { get; set; }
 
-        // Configured with its own reader/writer below, so nothing is synthesized for it when the key is absent
         public List<int> CustomCodes { get; set; } = [];
     }
 
-    protected class CodeListReaderWriter : JsonValueReaderWriter<List<int>>
+    protected class CodeReaderWriter : JsonValueReaderWriter<int>
     {
-        private static readonly ConstructorInfo Constructor = typeof(CodeListReaderWriter).GetConstructor([])!;
+        private static readonly ConstructorInfo Constructor = typeof(CodeReaderWriter).GetConstructor([])!;
 
         [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
         public override Expression ConstructorExpression
             => Expression.New(Constructor);
 
-        public override List<int> FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
-        {
-            var values = new List<int>();
-            while (manager.CurrentReader.TokenType != JsonTokenType.EndArray)
-            {
-                manager.MoveNext();
-                if (manager.CurrentReader.TokenType == JsonTokenType.Number)
-                {
-                    values.Add(manager.CurrentReader.GetInt32());
-                }
-            }
+        public override int FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
+            => manager.CurrentReader.GetInt32();
 
-            return values;
-        }
-
-        public override void ToJsonTyped(Utf8JsonWriter writer, List<int> value)
-        {
-            writer.WriteStartArray();
-            foreach (var item in value)
-            {
-                writer.WriteNumberValue(item);
-            }
-
-            writer.WriteEndArray();
-        }
+        public override void ToJsonTyped(Utf8JsonWriter writer, int value)
+            => writer.WriteNumberValue(value);
     }
 
     protected class StructWidget
@@ -1396,8 +1370,8 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                         db.ToJson();
                         db.ComplexCollection(
                             d => d.Items,
-                            ib => ib.PrimitiveCollection(i => i.CustomCodes).Metadata
-                                .SetJsonValueReaderWriterType(typeof(CodeListReaderWriter)));
+                            ib => ib.PrimitiveCollection(i => i.CustomCodes).ElementType()
+                                .HasJsonValueReaderWriter<CodeReaderWriter>());
                     });
             });
 
