@@ -653,20 +653,37 @@ public class DbContextOperations
                 return contexts!;
             }
 
-            // Look for DbContext classes registered in the service provider
-            var appServices = _appServicesFactory.Create(_args);
-            foreach (var options in appServices.GetServices<DbContextOptions>())
+            // Look for DbContext classes registered in the service provider.
+            // If every context found so far can be created without the service provider, then the service provider
+            // is only used to look for additional contexts, so failures here must not prevent using the ones we have.
+            var serviceProviderIsOptional = contexts.Count > 0 && contexts.Values.All(f => f != null);
+            IServiceProvider? appServices = null;
+            try
             {
-                var context = options.ContextType;
-                if (contexts.ContainsKey(context))
+                appServices = _appServicesFactory.Create(_args);
+                foreach (var options in appServices.GetServices<DbContextOptions>())
                 {
-                    continue;
+                    var context = options.ContextType;
+                    if (contexts.ContainsKey(context))
+                    {
+                        continue;
+                    }
+
+                    _reporter.WriteVerbose(DesignStrings.FoundDbContext(context.ShortDisplayName()));
+                    contexts.Add(
+                        context,
+                        FindContextFactory(context));
+                }
+            }
+            catch (Exception ex) when (serviceProviderIsOptional)
+            {
+                if (ex is TargetInvocationException)
+                {
+                    ex = ex.InnerException!;
                 }
 
-                _reporter.WriteVerbose(DesignStrings.FoundDbContext(context.ShortDisplayName()));
-                contexts.Add(
-                    context,
-                    FindContextFactory(context));
+                _reporter.WriteVerbose(ex.ToString());
+                _reporter.WriteWarning(DesignStrings.ServiceProviderContextDiscoveryFailed(ex.Message));
             }
 
             if (!string.IsNullOrEmpty(name))
@@ -679,7 +696,7 @@ public class DbContextOperations
                 if (contextPair.Value == null)
                 {
                     var context = contextPair.Key;
-                    contexts[context] = CreateContextFromServiceProvider(appServices, context);
+                    contexts[context] = CreateContextFromServiceProvider(appServices!, context);
                 }
             }
         }

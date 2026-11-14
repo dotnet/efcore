@@ -832,6 +832,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("SequencesRequireName");
 
         /// <summary>
+        ///     The exception '{rootException}' was thrown while searching the application's service provider for additional 'DbContext' types. Only the types found by other means will be used.
+        /// </summary>
+        public static string ServiceProviderContextDiscoveryFailed(object? rootException)
+            => string.Format(
+                GetString("ServiceProviderContextDiscoveryFailed", nameof(rootException)),
+                rootException);
+
+        /// <summary>
         ///     Unable to generate entity type for table '{tableName}' since its primary key could not be scaffolded.
         /// </summary>
         public static string UnableToGenerateEntityType(object? tableName)
