@@ -149,8 +149,11 @@ public class StateManager : IStateManager
     {
         Check.DebugAssert(entry.EntityState == EntityState.Detached, "Entry must still be detached");
 
-        // Reverses the reference map update made by ChangingState when the entry could not be tracked,
-        // putting a detached entry back into the detached map where it was before the failed state change.
+        // ChangingState moved the entry from the detached map to the map for the new state. Moving it back takes two
+        // steps because Update only adds an entry to the map of the state it is given when that state is not Detached
+        // or when there is no old state: the first call removes it from the map for the new state, and the second
+        // adds it to the detached map again. Without that, the entry would not be in any map and the next lookup
+        // of the entity would create a new entry instead of finding this one.
         _entityReferenceMap.Update(entry, EntityState.Detached, newState);
         _entityReferenceMap.Update(entry, EntityState.Detached, null);
     }
