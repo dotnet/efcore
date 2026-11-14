@@ -1232,6 +1232,50 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
             });
     }
 
+    [Theory, InlineData(ChangeTrackingStrategy.ChangedNotifications), InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications),
+     InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
+    public virtual async Task Nullable_json_collection_of_a_notifying_entity_loaded_by_a_query_is_notified_of_added_and_removed_elements(
+        ChangeTrackingStrategy strategy) // Issue #33452
+    {
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
+            onModelCreating: mb =>
+            {
+                mb.HasChangeTrackingStrategy(strategy);
+                mb.Entity<NotifyingNullableJsonParent>().OwnsMany(p => p.Children, b => b.ToJson());
+            });
+
+        await ExecuteWithStrategyInTransactionAsync(
+            contextFactory,
+            async context =>
+            {
+                context.Add(
+                    new NotifyingNullableJsonParent
+                    {
+                        Name = "A", Children = [new NotifyingJsonChild { Name = "C1" }, new NotifyingJsonChild { Name = "C2" }]
+                    });
+                context.Add(new NotifyingNullableJsonParent { Name = "B", Children = [] });
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var parents = await context.Set<NotifyingNullableJsonParent>().OrderBy(p => p.Name).ToListAsync();
+
+                // The collections were created by the query, and no change notification was raised for them
+                parents[0].Children!.Add(new NotifyingJsonChild { Name = "C3" });
+                parents[0].Children!.Remove(parents[0].Children!.Single(c => c.Name == "C1"));
+                parents[1].Children!.Add(new NotifyingJsonChild { Name = "D1" });
+
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var parents = await context.Set<NotifyingNullableJsonParent>().OrderBy(p => p.Name).ToListAsync();
+
+                Assert.Equal(["C2", "C3"], parents[0].Children!.Select(c => c.Name).Order());
+                Assert.Equal(["D1"], parents[1].Children!.Select(c => c.Name));
+            });
+    }
+
     [Fact] // Issue #33452
     public virtual async Task Json_collection_that_is_not_nullable_stored_as_null_is_still_loaded_as_empty_with_initializer()
     {

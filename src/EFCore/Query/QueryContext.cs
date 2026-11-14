@@ -252,6 +252,19 @@ public abstract class QueryContext
             }
         }
 
+        // The collection of an entity that uses notifications can have been created by the query after the entity started being
+        // tracked, in which case nothing has subscribed to it. Unsubscribing first avoids subscribing twice to a collection that
+        // was already subscribed to.
+        if (!storedAsNull
+            && entry != null
+            && entry.EntityType.GetChangeTrackingStrategy() != ChangeTrackingStrategy.Snapshot
+            && navigation.GetGetter().GetClrValue(entity) != null)
+        {
+            var subscriber = entry.StateManager.Dependencies.InternalEntityEntrySubscriber;
+            subscriber.UnsubscribeCollectionChanged(entry, navigation);
+            subscriber.SubscribeCollectionChanged(entry, navigation);
+        }
+
         // Loading the collection must not leave the navigation looking modified because of a change notification that was
         // raised by the entity while the collection was set. The navigation was known not to be modified before it was loaded.
         if (entry != null
