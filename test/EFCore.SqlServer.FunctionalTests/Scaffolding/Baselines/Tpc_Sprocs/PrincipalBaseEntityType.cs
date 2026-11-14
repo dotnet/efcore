@@ -33,7 +33,7 @@ public partial class PrincipalBaseEntityType
             propertyCount: 15,
             navigationCount: 1,
             foreignKeyCount: 2,
-            unnamedIndexCount: 1,
+            unnamedIndexCount: 2,
             namedIndexCount: 1,
             keyCount: 1);
 
@@ -739,6 +739,9 @@ public partial class PrincipalBaseEntityType
         runtimeEntityType.SetPrimaryKey(key);
 
         var index = runtimeEntityType.AddIndex(
+            new[] { principalBaseId });
+
+        var index0 = runtimeEntityType.AddIndex(
             new[] { principalDerivedId });
 
         var principalIndex = runtimeEntityType.AddIndex(

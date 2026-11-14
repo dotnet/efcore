@@ -8828,6 +8828,9 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.IConventionIndex? CreateIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IConventionProperty> properties, bool unique, Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder);"
         },
         {
+          "Member": "virtual bool IsPartial(Microsoft.EntityFrameworkCore.Metadata.IConventionIndex index);"
+        },
+        {
           "Member": "virtual void ProcessEntityTypeBaseTypeChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType? newBaseType, Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType? oldBaseType, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType> context);"
         },
         {
@@ -8844,6 +8847,9 @@
         },
         {
           "Member": "virtual void ProcessIndexAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionIndexBuilder indexBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionIndexBuilder> context);"
+        },
+        {
+          "Member": "virtual void ProcessIndexCoverageChanged(Microsoft.EntityFrameworkCore.Metadata.IConventionIndex index);"
         },
         {
           "Member": "virtual void ProcessIndexRemoved(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, Microsoft.EntityFrameworkCore.Metadata.IConventionIndex index, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionIndex> context);"

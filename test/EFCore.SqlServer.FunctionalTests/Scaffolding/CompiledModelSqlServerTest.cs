@@ -325,7 +325,10 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
             CoreStrings.RuntimeModelMissingData,
             Assert.Throws<InvalidOperationException>(() => alternateIndex.GetDataCompression()).Message);
 
-        Assert.Equal([alternateIndex], principalBaseId.GetContainingIndexes());
+        // The filtered unique index doesn't cover all rows, so the foreign key also has an index of its own.
+        var foreignKeyIndex = principalBase.FindIndex(principalBaseId)!;
+        Assert.NotSame(alternateIndex, foreignKeyIndex);
+        Assert.Equal([foreignKeyIndex, alternateIndex], principalBaseId.GetContainingIndexes());
     }
 
     // ConditionalFact does not work on overridden test methods (xunit discovers the override via
