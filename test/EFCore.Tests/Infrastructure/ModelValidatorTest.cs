@@ -57,6 +57,118 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
+    [Theory] // Issue #39600
+    [InlineData(nameof(ScalarCollectionEntity.Array), "Guid[]")]
+    [InlineData(nameof(ScalarCollectionEntity.List), "List<int>")]
+    public void Logs_warning_when_collection_is_mapped_as_scalar(string propertyName, string typeName)
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        var entity = modelBuilder.Entity<ScalarCollectionEntity>();
+        entity.Ignore(e => e.Array);
+        entity.Ignore(e => e.List);
+        entity.Property(propertyName);
+
+        VerifyWarning(
+            CoreResources.LogAccidentalScalarCollection(new TestLogger<TestLoggingDefinitions>())
+                .GenerateMessage(nameof(ScalarCollectionEntity), propertyName, typeName),
+            modelBuilder);
+
+        Assert.Equal(CoreEventId.AccidentalScalarCollection, LoggerFactory.Log.Single(e => e.Level == LogLevel.Warning).Id);
+    }
+
+    [Fact]
+    public void Does_not_warn_for_primitive_collections_binary_strings_or_converted_collections()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        var entity = modelBuilder.Entity<ScalarCollectionEntity>();
+        entity.PrimitiveCollection(e => e.Array);
+        entity.Property(e => e.List).HasConversion(
+            v => string.Join(",", v),
+            v => v.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToList());
+        entity.Property(e => e.Bytes);
+        entity.Property(e => e.Text);
+
+        VerifyLogDoesNotContain("mapped as a scalar property", modelBuilder);
+    }
+
+    [Fact]
+    public void Logs_warning_when_complex_type_collection_is_mapped_as_scalar()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ScalarCollectionOwner>().ComplexProperty(e => e.Complex, complex => complex.Property(e => e.Array));
+
+        VerifyWarning(
+            CoreResources.LogAccidentalScalarCollection(new TestLogger<TestLoggingDefinitions>())
+                .GenerateMessage("ScalarCollectionOwner.Complex#ScalarCollectionComplex", nameof(ScalarCollectionComplex.Array), "Guid[]"),
+            modelBuilder);
+    }
+
+    [Fact]
+    public void Logs_warning_for_shadow_collection_mapped_as_scalar()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ScalarCollectionEntity>().Property<Guid[]>("Shadow");
+
+        VerifyWarning(
+            CoreResources.LogAccidentalScalarCollection(new TestLogger<TestLoggingDefinitions>())
+                .GenerateMessage(nameof(ScalarCollectionEntity), "Shadow", "Guid[]"),
+            modelBuilder);
+    }
+
+    [Fact]
+    public void Scalar_collection_warning_can_be_suppressed_or_configured_to_throw()
+    {
+        var options = new DbContextOptionsBuilder<ScalarCollectionContext>()
+            .UseInMemoryDatabase(nameof(ScalarCollectionContext))
+            .ConfigureWarnings(w => w.Throw(CoreEventId.AccidentalScalarCollection))
+            .Options;
+
+        using (var context = new ScalarCollectionContext(options))
+        {
+            var message = Assert.Throws<InvalidOperationException>(() => context.Model).Message;
+            Assert.Contains(nameof(CoreEventId.AccidentalScalarCollection), message);
+            Assert.Contains("PrimitiveCollection()", message);
+        }
+
+        options = new DbContextOptionsBuilder<ScalarCollectionContext>()
+            .UseInMemoryDatabase(nameof(ScalarCollectionContext))
+            .UseLoggerFactory(LoggerFactory)
+            .ConfigureWarnings(w => w.Ignore(CoreEventId.AccidentalScalarCollection))
+            .Options;
+
+        using var suppressedContext = new ScalarCollectionContext(options);
+        _ = suppressedContext.Model;
+        Assert.DoesNotContain(LoggerFactory.Log, e => e.Id == CoreEventId.AccidentalScalarCollection);
+    }
+
+    private class ScalarCollectionContext(DbContextOptions<ScalarCollectionContext> options) : DbContext(options)
+    {
+        protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<ScalarCollectionEntity>().Property(e => e.Array);
+        }
+    }
+
+    private class ScalarCollectionEntity
+    {
+        public int Id { get; set; }
+        public Guid[] Array { get; set; } = [];
+        public List<int> List { get; set; } = [];
+        public byte[] Bytes { get; set; } = [];
+        public string Text { get; set; } = "";
+    }
+
+    private class ScalarCollectionOwner
+    {
+        public int Id { get; set; }
+        public ScalarCollectionComplex Complex { get; set; } = new();
+    }
+
+    private class ScalarCollectionComplex
+    {
+        public Guid[] Array { get; set; } = [];
+    }
+
     [Fact] // Issue #33913
     public virtual void Detects_well_known_concrete_collections_mapped_as_owned_entity_type()
     {

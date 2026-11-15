@@ -1433,6 +1433,15 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
         var elementType = property.GetElementType();
         if (elementType == null)
         {
+            if (((IConventionProperty)property).GetConfigurationSource() == ConfigurationSource.Explicit
+                && property.ClrType != typeof(string)
+                && property.ClrType != typeof(byte[])
+                && property.ClrType.TryGetSequenceType() != null
+                && property.GetValueConverter() == null)
+            {
+                logger.AccidentalScalarCollection(property);
+            }
+
             return;
         }
 
