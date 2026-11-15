@@ -391,14 +391,34 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
             selectExpression = (SelectExpression)new TemporalAnnotationApplyingExpressionVisitor(annotationApplyingFunc)
                 .Visit(selectExpression);
 
+            var projectionBindingExpression = new ProjectionBindingExpression(
+                selectExpression,
+                new ProjectionMember(),
+                typeof(ValueBuffer));
+
+            // A range operation returns every version of a row, so the key alone no longer identifies a row; the period does.
+            if (queryRootExpression is not TemporalAsOfQueryRootExpression)
+            {
+                var temporalEntityType = queryRootExpression.EntityType.GetRootType();
+                var projection = (StructuralTypeProjectionExpression)selectExpression.GetProjection(projectionBindingExpression);
+                foreach (var periodPropertyName in new[]
+                         {
+                             temporalEntityType.GetPeriodStartPropertyName()!, temporalEntityType.GetPeriodEndPropertyName()!
+                         })
+                {
+                    var periodProperty = temporalEntityType.GetProperty(periodPropertyName);
+#pragma warning disable EF1001 // AddToIdentifier() is pubternal
+                    selectExpression.AddToIdentifier(
+                        (ColumnExpression)projection.BindProperty(periodProperty), periodProperty.GetKeyValueComparer());
+#pragma warning restore EF1001
+                }
+            }
+
             return new ShapedQueryExpression(
                 selectExpression,
                 new RelationalStructuralTypeShaperExpression(
                     queryRootExpression.EntityType,
-                    new ProjectionBindingExpression(
-                        selectExpression,
-                        new ProjectionMember(),
-                        typeof(ValueBuffer)),
+                    projectionBindingExpression,
                     false));
         }
 
