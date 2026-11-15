@@ -2832,7 +2832,18 @@ WHERE 10 IN (
             // The json data type isn't comparable, so it can't be used with UNION or DISTINCT (UNION ALL is fine)
             await Assert.ThrowsAsync<SqlException>(() => base.Union_of_column_collections_then_Contains());
 
-            AssertSql();
+            AssertSql(
+                """
+SELECT [u].[Ints]
+FROM (
+    SELECT [p].[Ints]
+    FROM [PrimitiveCollectionsEntity] AS [p]
+    UNION
+    SELECT [p0].[Ints]
+    FROM [PrimitiveCollectionsEntity] AS [p0]
+) AS [u]
+WHERE JSON_CONTAINS([u].[Ints], 10) = 1
+""");
         }
         else
         {
@@ -3050,7 +3061,12 @@ WHERE 10 IN (
             // The json data type isn't comparable, so it can't be used with UNION or DISTINCT (UNION ALL is fine)
             await Assert.ThrowsAsync<SqlException>(() => base.Distinct_of_column_collection_then_Contains());
 
-            AssertSql();
+            AssertSql(
+                """
+SELECT DISTINCT [p].[Ints]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE JSON_CONTAINS([p].[Ints], 10) = 1
+""");
         }
         else
         {
