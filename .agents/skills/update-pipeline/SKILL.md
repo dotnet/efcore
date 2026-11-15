@@ -21,6 +21,8 @@ Converts tracked entity changes into database INSERT/UPDATE/DELETE commands duri
   → `BatchExecutor` executes all batches in a transaction
   → `StateManager.AcceptAllChanges()`
 
+For shared columns, `ColumnValuePropagator.TryPropagate` returns `false` for the writing entry; a null complex property must not suppress that write. Only skip propagation into a null complex property after identifying the writer.
+
 ## Concurrency
 
 Concurrency tokens → WHERE conditions on UPDATE/DELETE. `AffectedCountModificationCommandBatch` checks affected rows. Throws `DbUpdateConcurrencyException` on mismatch.

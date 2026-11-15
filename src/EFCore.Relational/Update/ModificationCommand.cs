@@ -1290,9 +1290,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
         public bool TryPropagate(IColumnMappingBase mapping, IUpdateEntry entry)
         {
             var property = mapping.Property;
-            if (!_write
-                || (property.DeclaringType is IComplexType complexType
-                    && entry.GetCurrentValue(complexType.ComplexProperty) == null))
+            if (!_write)
             {
                 return true;
             }
@@ -1308,6 +1306,12 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
             if (!shouldPropagate)
             {
                 return false;
+            }
+
+            if (property.DeclaringType is IComplexType complexType
+                && entry.GetCurrentValue(complexType.ComplexProperty) == null)
+            {
+                return true;
             }
 
             if ((property.GetAfterSaveBehavior() == PropertySaveBehavior.Save
