@@ -61,10 +61,6 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
 
     private bool _throwForNotTranslatedEfProperty;
 
-    // The aggregate TranslateAggregateMethod last refused to fold, with the GROUP BY of the query owning its grouping, until the
-    // caller falling back to a subquery takes it to wrap the subquery in a GroupingAggregateFallbackExpression.
-    private (SqlExpression Aggregate, IReadOnlyList<SqlExpression> GroupingKeys)? _refusedGroupingAggregate;
-
     /// <summary>
     ///     Creates a new instance of the <see cref="RelationalSqlTranslatingExpressionVisitor" /> class.
     /// </summary>
@@ -1041,16 +1037,9 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                 when method.DeclaringType == typeof(Queryable)
                 || method.DeclaringType == typeof(EntityFrameworkQueryableExtensions)
                 || method.DeclaringType == typeof(RelationalQueryableExtensions):
-            {
-                _refusedGroupingAggregate = null;
-                if (TryTranslateAggregateMethodCall(methodCallExpression, out var translatedAggregate))
-                {
-                    return translatedAggregate;
-                }
-
-                var refusedAggregate = TakeRefusedGroupingAggregate();
-                return WithRefusedGroupingAggregate(TranslateAsSubquery(methodCallExpression), refusedAggregate, methodCallExpression);
-            }
+                return TryTranslateAggregateMethodCall(methodCallExpression, out var translatedAggregate)
+                    ? translatedAggregate
+                    : TranslateAsSubquery(methodCallExpression);
 
             default:
             {
@@ -1088,9 +1077,9 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
             }
         }
 
-        _refusedGroupingAggregate = null;
+        RefusedGroupingAggregate? refusedGroupingAggregate = null;
         Expression? translation = enumerableExpression != null
-            ? TranslateAggregateMethod(enumerableExpression, method, scalarArguments)
+            ? TranslateAggregateMethod(enumerableExpression, method, scalarArguments, out refusedGroupingAggregate)
             : Dependencies.MethodCallTranslatorProvider.Translate(
                 _model, sqlObject, method, scalarArguments, _queryCompilationContext.Logger);
 
@@ -1099,7 +1088,6 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
             return translation;
         }
 
-        var refusedGroupingAggregate = TakeRefusedGroupingAggregate();
         translation = WithRefusedGroupingAggregate(
             TranslateAsSubquery(methodCallExpression), refusedGroupingAggregate, methodCallExpression);
         if (translation != QueryCompilationContext.NotTranslatedExpression)
@@ -1121,15 +1109,15 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
         }
 
         return QueryCompilationContext.NotTranslatedExpression;
+    }
 
-        Expression TranslateAsSubquery(Expression expression)
-        {
-            var subqueryTranslation = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(expression);
+    private Expression TranslateAsSubquery(Expression expression)
+    {
+        var subqueryTranslation = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(expression);
 
-            return subqueryTranslation == null
-                ? QueryCompilationContext.NotTranslatedExpression
-                : Visit(subqueryTranslation);
-        }
+        return subqueryTranslation == null
+            ? QueryCompilationContext.NotTranslatedExpression
+            : Visit(subqueryTranslation);
     }
 
     /// <inheritdoc />
@@ -1538,6 +1526,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                 : methodCallExpression.Method;
             var arguments = methodCallExpression.Arguments;
             var abortTranslation = false;
+            RefusedGroupingAggregate? refusedGroupingAggregate = null;
             if (TryTranslateAsEnumerableExpression(arguments[0], out var enumerableExpression))
             {
                 switch (genericMethod.Name)
@@ -1601,7 +1590,8 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                                 genericMethod,
                                 enumerableExpression,
                                 arguments.Count > 1 ? arguments[1].UnwrapLambdaFromQuote() : null,
-                                out translation))
+                                out translation,
+                                out refusedGroupingAggregate))
                         {
                             return true;
                         }
@@ -1617,10 +1607,25 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                 if (!abortTranslation)
                 {
                     translation = TranslateAggregateMethod(
-                        enumerableExpression, methodCallExpression.Method, []);
+                        enumerableExpression, methodCallExpression.Method, [], out refusedGroupingAggregate);
 
-                    return translation != null;
+                    if (translation != null)
+                    {
+                        return true;
+                    }
                 }
+            }
+
+            // A refused aggregate is a scalar that did translate, so its fallback is a scalar subquery, or nothing when it can't
+            // be translated as one. Either way the complete translation is returned here, with the folded aggregate kept for
+            // GroupingAggregateFoldingExpressionVisitor.
+            if (refusedGroupingAggregate != null
+                && WithRefusedGroupingAggregate(
+                    TranslateAsSubquery(methodCallExpression), refusedGroupingAggregate, methodCallExpression) is SqlExpression
+                    complete)
+            {
+                translation = complete;
+                return true;
             }
         }
 
@@ -1640,9 +1645,11 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
         MethodInfo genericMethod,
         EnumerableExpression enumerableExpression,
         LambdaExpression? predicateLambda,
-        [NotNullWhen(true)] out SqlExpression? translation)
+        [NotNullWhen(true)] out SqlExpression? translation,
+        out RefusedGroupingAggregate? refusedGroupingAggregate)
     {
         translation = null;
+        refusedGroupingAggregate = null;
 
         // DISTINCT cannot change whether any/all rows satisfy a predicate.
         enumerableExpression = enumerableExpression.SetDistinct(false);
@@ -1687,13 +1694,12 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
             }
         }
 
-        _refusedGroupingAggregate = null;
-        if (!TryTranslateCount(enumerableExpression, marker, out var count))
+        if (!TryTranslateCount(enumerableExpression, marker, out var count, out var refusedCount))
         {
             // The caller's EXISTS fallback replaces the whole quantifier, so what can be folded in its place is the comparison.
-            if (_refusedGroupingAggregate is var (refusedCount, groupingKeys))
+            if (refusedCount is { } refused)
             {
-                _refusedGroupingAggregate = (CompareCount(refusedCount), groupingKeys);
+                refusedGroupingAggregate = refused with { Aggregate = CompareCount(refused.Aggregate) };
             }
 
             return false;
@@ -1711,7 +1717,11 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                 ? _sqlExpressionFactory.Equal(count, _sqlExpressionFactory.Constant(0))
                 : _sqlExpressionFactory.GreaterThan(count, _sqlExpressionFactory.Constant(0));
 
-        bool TryTranslateCount(EnumerableExpression source, SqlExpression selector, [NotNullWhen(true)] out SqlExpression? count)
+        bool TryTranslateCount(
+            EnumerableExpression source,
+            SqlExpression selector,
+            [NotNullWhen(true)] out SqlExpression? count,
+            out RefusedGroupingAggregate? refused)
         {
             // Count the caller's marker rather than the grouping element: a count ignores NULL values, so counting the
             // element would drop every row whose element is NULL - including, for Any, the very rows a predicate such as
@@ -1725,7 +1735,8 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
             count = TranslateAggregateMethod(
                 source,
                 QueryableMethods.LongCountWithoutPredicate.MakeGenericMethod(source.Selector.Type),
-                []) as SqlExpression;
+                [],
+                out refused);
 
             return count != null;
         }
@@ -1840,8 +1851,11 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
     private SqlExpression? TranslateAggregateMethod(
         EnumerableExpression enumerableExpression,
         MethodInfo method,
-        List<SqlExpression> scalarArguments)
+        List<SqlExpression> scalarArguments,
+        out RefusedGroupingAggregate? refusedGroupingAggregate)
     {
+        refusedGroupingAggregate = null;
+
         _throwForNotTranslatedEfProperty = false;
         var selector = TranslateInternal(enumerableExpression.Selector);
         _throwForNotTranslatedEfProperty = true;
@@ -1874,9 +1888,10 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
             && enumerableExpression.GroupingOwner is { } groupingOwner
             && !IsEvaluatedIn(translation, groupingOwner))
         {
-            // The query this was translated for may not be the one the SQL ends up in, so keep the folded aggregate for
-            // GroupingAggregateFoldingExpressionVisitor to use if the final SQL tree shows it would be evaluated over the grouping.
-            _refusedGroupingAggregate = (translation, [.. groupingOwner.GroupBy]);
+            // The query this was translated for may not be the one the SQL ends up in, so the folded aggregate goes back to the
+            // caller, to keep for GroupingAggregateFoldingExpressionVisitor to use if the final SQL tree shows it would be
+            // evaluated over the grouping.
+            refusedGroupingAggregate = new RefusedGroupingAggregate(translation, [.. groupingOwner.GroupBy]);
             return null;
         }
 
@@ -1904,20 +1919,16 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
             };
     }
 
-    private (SqlExpression Aggregate, IReadOnlyList<SqlExpression> GroupingKeys)? TakeRefusedGroupingAggregate()
-    {
-        var refusedGroupingAggregate = _refusedGroupingAggregate;
-        _refusedGroupingAggregate = null;
-
-        return refusedGroupingAggregate;
-    }
+    // An aggregate TranslateAggregateMethod refused to fold, with the GROUP BY of the query owning its grouping. The caller that owns
+    // the aggregate call wraps its subquery fallback in a GroupingAggregateFallbackExpression with it.
+    private readonly record struct RefusedGroupingAggregate(SqlExpression Aggregate, IReadOnlyList<SqlExpression> GroupingKeys);
 
     // The refused aggregate hasn't had a type mapping applied, and nothing will apply one through the marker, so it is given the
     // fallback's; a fallback without one is left on its own. When the aggregate can't be translated as a subquery at all - a provider
     // aggregate such as STDEVP or STRING_AGG - it is kept without a fallback, so that it can still be folded in where that's safe.
     private Expression WithRefusedGroupingAggregate(
         Expression fallback,
-        (SqlExpression Aggregate, IReadOnlyList<SqlExpression> GroupingKeys)? refusedGroupingAggregate,
+        RefusedGroupingAggregate? refusedGroupingAggregate,
         MethodCallExpression aggregateCall)
         => refusedGroupingAggregate is var (aggregate, groupingKeys)
             ? fallback switch
