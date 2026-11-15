@@ -252,6 +252,12 @@ class TestContainer
             """DateTime.Parse("2020-01-01")""");
 
     [Fact]
+    public void Invocation_contains_with_array_receiver()
+        => AssertExpression(
+            () => new[] { "101", "102" }.Contains("101"),
+            """new[] { "101", "102" }.Contains("101")""");
+
+    [Fact]
     public void Invocation_extension_method()
         => AssertExpression(
             () => typeof(string).GetTypeInfo(),
