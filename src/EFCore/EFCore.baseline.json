@@ -2894,6 +2894,9 @@
           "Member": "static readonly Microsoft.Extensions.Logging.EventId AccidentalEntityType"
         },
         {
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId AccidentalScalarCollection"
+        },
+        {
           "Member": "static readonly Microsoft.Extensions.Logging.EventId AmbiguousEndRequiredWarning"
         },
         {
@@ -3141,6 +3144,9 @@
         },
         {
           "Member": "static void AccidentalEntityType(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> diagnostics, Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType);"
+        },
+        {
+          "Member": "static void AccidentalScalarCollection(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> diagnostics, Microsoft.EntityFrameworkCore.Metadata.IProperty property);"
         },
         {
           "Member": "static void AmbiguousEndRequiredWarning(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model> diagnostics, Microsoft.EntityFrameworkCore.Metadata.IForeignKey foreignKey);"
