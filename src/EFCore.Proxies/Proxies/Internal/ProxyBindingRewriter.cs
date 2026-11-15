@@ -98,7 +98,7 @@ public class ProxyBindingRewriter : IModelFinalizingConvention
                                 && !IsVisibleToProxies(setMethod))
                             {
                                 throw new InvalidOperationException(
-                                    ProxiesStrings.NonVisibleProperty(navigationBase.Name, entityType.DisplayName(), "setter"));
+                                    ProxiesStrings.NonVisibleSetter(navigationBase.Name, entityType.DisplayName()));
                             }
                         }
 
@@ -128,7 +128,7 @@ public class ProxyBindingRewriter : IModelFinalizingConvention
                                     && navigationBase is not INavigation { ForeignKey.IsOwnership: true })
                                 {
                                     throw new InvalidOperationException(
-                                        ProxiesStrings.NonVisibleProperty(navigationBase.Name, entityType.DisplayName(), "getter"));
+                                        ProxiesStrings.NonVisibleGetter(navigationBase.Name, entityType.DisplayName()));
                                 }
                             }
                             else

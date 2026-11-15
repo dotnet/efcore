@@ -68,12 +68,20 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 property, entityType);
 
         /// <summary>
-        ///     Property '{1_entityType}.{0_property}' cannot be overridden by a proxy because its {2_accessor} is not visible to the proxy assembly. Make it public or protected, or add '[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]' to the assembly that declares the property (a strong-named assembly must specify the proxy assembly's public key).
+        ///     Property '{1_entityType}.{0_property}' cannot be lazy-loaded because its getter cannot be overridden by a proxy: the getter is not visible to the proxy assembly. Make it public, protected or protected internal, add '[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]' to the assembly that declares the property (a strong-named assembly must specify the proxy assembly's public key), or stop it being lazy-loaded by calling 'EnableLazyLoading(false)' on the navigation or 'IgnoreNonVirtualNavigations' on the lazy-loading proxy options.
         /// </summary>
-        public static string NonVisibleProperty(object? property, object? entityType, object? accessor)
+        public static string NonVisibleGetter(object? property, object? entityType)
             => string.Format(
-                GetString("NonVisibleProperty", "0_property", "1_entityType", "2_accessor"),
-                property, entityType, accessor);
+                GetString("NonVisibleGetter", "0_property", "1_entityType"),
+                property, entityType);
+
+        /// <summary>
+        ///     Property '{1_entityType}.{0_property}' cannot be change-tracked because its setter cannot be overridden by a proxy: the setter is not visible to the proxy assembly. Make it public, protected or protected internal, or add '[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]' to the assembly that declares the property (a strong-named assembly must specify the proxy assembly's public key).
+        /// </summary>
+        public static string NonVisibleSetter(object? property, object? entityType)
+            => string.Format(
+                GetString("NonVisibleSetter", "0_property", "1_entityType"),
+                property, entityType);
 
         /// <summary>
         ///     Unable to create proxy for '{entityType}' because proxies are not enabled. Call 'DbContextOptionsBuilder.UseChangeTrackingProxies' or 'DbContextOptionsBuilder.UseLazyLoadingProxies' to enable proxies.
