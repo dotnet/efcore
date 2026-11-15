@@ -5,6 +5,60 @@ namespace Microsoft.EntityFrameworkCore.Update;
 
 public class NonSharedModelUpdatesSqliteTest(NonSharedFixture fixture) : NonSharedModelUpdatesTestBase(fixture)
 {
+    [Theory, InlineData(false), InlineData(true)]
+    public async Task Tracking_query_preserves_replaced_owned_reference(bool json)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context39595>(
+            onModelCreating: b => b.Entity<Context39595.Owner>().OwnsOne(
+                o => o.Patch, p =>
+                {
+                    if (json)
+                    {
+                        p.ToJson();
+                    }
+                }));
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var owner = new Context39595.Owner { Patch = new Context39595.Patch { Start = 5 } };
+            context.Add(owner);
+            await context.SaveChangesAsync();
+
+            var original = owner.Patch;
+            owner.Patch = new Context39595.Patch { Title = "new title", Start = 5 };
+            Assert.Equal(EntityState.Added, context.Entry(owner).Reference(o => o.Patch).TargetEntry!.State);
+            Assert.Equal(EntityState.Deleted, context.Entry(original).State);
+
+            Assert.Same(owner, await context.Set<Context39595.Owner>().SingleAsync());
+
+            Assert.Equal(EntityState.Added, context.Entry(owner.Patch).State);
+            Assert.Equal(EntityState.Deleted, context.Entry(original).State);
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var owner = await context.Set<Context39595.Owner>().SingleAsync();
+            Assert.Equal("new title", owner.Patch.Title);
+            Assert.Equal(5, owner.Patch.Start);
+        }
+    }
+
+    protected class Context39595(DbContextOptions options) : DbContext(options)
+    {
+        public class Owner
+        {
+            public int Id { get; set; }
+            public Patch Patch { get; set; } = null!;
+        }
+
+        public class Patch
+        {
+            public string? Title { get; set; }
+            public int? Start { get; set; }
+        }
+    }
+
     public override async Task Principal_and_dependent_roundtrips_with_cycle_breaking(bool async)
     {
         await base.Principal_and_dependent_roundtrips_with_cycle_breaking(async);
