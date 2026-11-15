@@ -308,6 +308,19 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
         var translated = base.VisitMethodCall(methodCallExpression);
 
+        // AsQueryable over a primitive collection column that was projected out of a subquery, e.g. after a set operation (#33258).
+        // Unlike a property of an entity, it isn't bound by TranslateMemberAccess, so translate the column as a collection here.
+        if (translated == QueryCompilationContext.NotTranslatedExpression
+            && method.IsGenericMethod
+            && method.GetGenericMethodDefinition() == QueryableMethods.AsQueryable
+            && methodCallExpression.Arguments[0] is not MethodCallExpression // EF.Property etc. are handled by the base class
+            && _sqlTranslator.Visit(methodCallExpression.Arguments[0]) is ColumnExpression { TypeMapping.ElementTypeMapping: not null } column
+            && TranslatePrimitiveCollection(column, property: null, _sqlAliasManager.GenerateTableAlias(column.Name))
+            is { } columnCollection)
+        {
+            return columnCollection;
+        }
+
         // For Contains over a collection parameter, if the provider hasn't implemented TranslateCollection (e.g. OPENJSON on SQL
         // Server), we need to fall back to the previous IN translation.
         if (translated == QueryCompilationContext.NotTranslatedExpression

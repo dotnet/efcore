@@ -1379,6 +1379,84 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>()
             .Where(c => new[] { 11, 111 }.Join(c.Ints, i => i, j => j, (i, j) => new { I = i, J = j }).Count() == 2));
 
+    [Fact] // #33258
+    public virtual Task Concat_of_column_collections_then_Contains()
+        => AssertQuery(
+            ss => ss.Set<PrimitiveCollectionsEntity>().Select(c => c.Ints)
+                .Concat(ss.Set<PrimitiveCollectionsEntity>().Select(c => c.Ints))
+                .Where(x => x.Contains(10)),
+            elementSorter: e => string.Join(",", e),
+            elementAsserter: (e, a) => Assert.Equal(e, a));
+
+    [Fact] // #33258
+    public virtual Task Union_of_column_collections_then_Contains()
+        => AssertQuery(
+            ss => ss.Set<PrimitiveCollectionsEntity>().Select(c => c.Ints)
+                .Union(ss.Set<PrimitiveCollectionsEntity>().Select(c => c.Ints))
+                .Where(x => x.Contains(10)),
+            elementSorter: e => string.Join(",", e),
+            elementAsserter: (e, a) => Assert.Equal(e, a));
+
+    [Fact] // #33258
+    public virtual Task Concat_of_anonymous_types_with_column_collection_then_Contains()
+        => AssertQuery(
+            ss => ss.Set<PrimitiveCollectionsEntity>().Select(c => new { c.Id, c.Ints })
+                .Concat(ss.Set<PrimitiveCollectionsEntity>().Select(c => new { c.Id, c.Ints }))
+                .Where(x => x.Ints.Contains(10)),
+            elementSorter: e => e.Id,
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.Id, a.Id);
+                Assert.Equal(e.Ints, a.Ints);
+            });
+
+    [Fact] // #33258
+    public virtual Task Concat_of_column_collections_then_Where_Count()
+        => AssertQuery(
+            ss => ss.Set<PrimitiveCollectionsEntity>().Select(c => c.Ints)
+                .Concat(ss.Set<PrimitiveCollectionsEntity>().Select(c => c.Ints))
+                .Where(x => x.Count(i => i > 10) == 2),
+            elementSorter: e => string.Join(",", e),
+            elementAsserter: (e, a) => Assert.Equal(e, a));
+
+    [Fact] // #33258
+    public virtual Task Concat_of_string_column_collections_then_Contains()
+        => AssertQuery(
+            ss => ss.Set<PrimitiveCollectionsEntity>().Select(c => c.Strings)
+                .Concat(ss.Set<PrimitiveCollectionsEntity>().Select(c => c.Strings))
+                .Where(x => x.Contains("10")),
+            elementSorter: e => string.Join(",", e),
+            elementAsserter: (e, a) => Assert.Equal(e, a));
+
+    [Fact] // #33258
+    public virtual Task Concat_of_column_collections_then_Contains_parameter()
+    {
+        var value = 10;
+
+        return AssertQuery(
+            ss => ss.Set<PrimitiveCollectionsEntity>().Select(c => c.Ints)
+                .Concat(ss.Set<PrimitiveCollectionsEntity>().Select(c => c.Ints))
+                .Where(x => x.Contains(value)),
+            elementSorter: e => string.Join(",", e),
+            elementAsserter: (e, a) => Assert.Equal(e, a));
+    }
+
+    [Fact] // #33258
+    public virtual Task Concat_of_column_collections_then_Contains_then_Select_Count()
+        => AssertQuery(
+            ss => ss.Set<PrimitiveCollectionsEntity>().Select(c => c.Ints)
+                .Concat(ss.Set<PrimitiveCollectionsEntity>().Select(c => c.Ints))
+                .Where(x => x.Contains(10))
+                .Select(x => x.Count(i => i > 1)));
+
+    [Fact] // #33258
+    public virtual Task Distinct_of_column_collection_then_Contains()
+        => AssertQuery(
+            ss => ss.Set<PrimitiveCollectionsEntity>().Select(c => c.Ints).Distinct()
+                .Where(x => x.Contains(10)),
+            elementSorter: e => string.Join(",", e),
+            elementAsserter: (e, a) => Assert.Equal(e, a));
+
     [Fact]
     public virtual Task Parameter_collection_Concat_column_collection()
     {

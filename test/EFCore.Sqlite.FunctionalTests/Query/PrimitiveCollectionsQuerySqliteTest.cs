@@ -2137,6 +2137,173 @@ WHERE (
 """);
     }
 
+    public override async Task Concat_of_column_collections_then_Contains()
+    {
+        await base.Concat_of_column_collections_then_Contains();
+
+        AssertSql(
+            """
+SELECT "u"."Ints"
+FROM (
+    SELECT "p"."Ints"
+    FROM "PrimitiveCollectionsEntity" AS "p"
+    UNION ALL
+    SELECT "p0"."Ints"
+    FROM "PrimitiveCollectionsEntity" AS "p0"
+) AS "u"
+WHERE 10 IN (
+    SELECT "i"."value"
+    FROM json_each("u"."Ints") AS "i"
+)
+""");
+    }
+
+    public override async Task Union_of_column_collections_then_Contains()
+    {
+        await base.Union_of_column_collections_then_Contains();
+
+        AssertSql(
+            """
+SELECT "u"."Ints"
+FROM (
+    SELECT "p"."Ints"
+    FROM "PrimitiveCollectionsEntity" AS "p"
+    UNION
+    SELECT "p0"."Ints"
+    FROM "PrimitiveCollectionsEntity" AS "p0"
+) AS "u"
+WHERE 10 IN (
+    SELECT "i"."value"
+    FROM json_each("u"."Ints") AS "i"
+)
+""");
+    }
+
+    public override async Task Concat_of_anonymous_types_with_column_collection_then_Contains()
+    {
+        await base.Concat_of_anonymous_types_with_column_collection_then_Contains();
+
+        AssertSql(
+            """
+SELECT "u"."Id", "u"."Ints"
+FROM (
+    SELECT "p"."Id", "p"."Ints"
+    FROM "PrimitiveCollectionsEntity" AS "p"
+    UNION ALL
+    SELECT "p0"."Id", "p0"."Ints"
+    FROM "PrimitiveCollectionsEntity" AS "p0"
+) AS "u"
+WHERE 10 IN (
+    SELECT "i"."value"
+    FROM json_each("u"."Ints") AS "i"
+)
+""");
+    }
+
+    public override async Task Concat_of_column_collections_then_Where_Count()
+    {
+        await base.Concat_of_column_collections_then_Where_Count();
+
+        AssertSql(
+            """
+SELECT "u"."Ints"
+FROM (
+    SELECT "p"."Ints"
+    FROM "PrimitiveCollectionsEntity" AS "p"
+    UNION ALL
+    SELECT "p0"."Ints"
+    FROM "PrimitiveCollectionsEntity" AS "p0"
+) AS "u"
+WHERE (
+    SELECT COUNT(*)
+    FROM json_each("u"."Ints") AS "i"
+    WHERE "i"."value" > 10) = 2
+""");
+    }
+
+    public override async Task Concat_of_string_column_collections_then_Contains()
+    {
+        await base.Concat_of_string_column_collections_then_Contains();
+
+        AssertSql(
+            """
+SELECT "u"."Strings"
+FROM (
+    SELECT "p"."Strings"
+    FROM "PrimitiveCollectionsEntity" AS "p"
+    UNION ALL
+    SELECT "p0"."Strings"
+    FROM "PrimitiveCollectionsEntity" AS "p0"
+) AS "u"
+WHERE '10' IN (
+    SELECT "s"."value"
+    FROM json_each("u"."Strings") AS "s"
+)
+""");
+    }
+
+    public override async Task Concat_of_column_collections_then_Contains_parameter()
+    {
+        await base.Concat_of_column_collections_then_Contains_parameter();
+
+        AssertSql(
+            """
+@value='10'
+
+SELECT "u"."Ints"
+FROM (
+    SELECT "p"."Ints"
+    FROM "PrimitiveCollectionsEntity" AS "p"
+    UNION ALL
+    SELECT "p0"."Ints"
+    FROM "PrimitiveCollectionsEntity" AS "p0"
+) AS "u"
+WHERE @value IN (
+    SELECT "i"."value"
+    FROM json_each("u"."Ints") AS "i"
+)
+""");
+    }
+
+    public override async Task Concat_of_column_collections_then_Contains_then_Select_Count()
+    {
+        await base.Concat_of_column_collections_then_Contains_then_Select_Count();
+
+        AssertSql(
+            """
+SELECT (
+    SELECT COUNT(*)
+    FROM json_each("u"."Ints") AS "i0"
+    WHERE "i0"."value" > 1)
+FROM (
+    SELECT "p"."Ints"
+    FROM "PrimitiveCollectionsEntity" AS "p"
+    UNION ALL
+    SELECT "p0"."Ints"
+    FROM "PrimitiveCollectionsEntity" AS "p0"
+) AS "u"
+WHERE 10 IN (
+    SELECT "i"."value"
+    FROM json_each("u"."Ints") AS "i"
+)
+""");
+    }
+
+    public override async Task Distinct_of_column_collection_then_Contains()
+    {
+        await base.Distinct_of_column_collection_then_Contains();
+
+        AssertSql(
+            """
+SELECT DISTINCT "p"."Ints"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE 10 IN (
+    SELECT "i"."value"
+    FROM json_each("p"."Ints") AS "i"
+)
+""");
+    }
+
     [Fact]
     public override async Task Parameter_collection_Concat_column_collection()
     {
