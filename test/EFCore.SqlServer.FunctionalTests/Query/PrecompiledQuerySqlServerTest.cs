@@ -2747,6 +2747,34 @@ ORDER BY [e].[Id]
 """);
     }
 
+    public override async Task Set_operation_over_primitive_collection_column_then_Contains_and_Count()
+    {
+        await base.Set_operation_over_primitive_collection_column_then_Contains_and_Count();
+
+        AssertSql(
+            """
+@value='a' (Size = 4000)
+
+SELECT [u].[Tags]
+FROM (
+    SELECT [e].[Tags]
+    FROM [EntitiesWithPrimitiveCollection] AS [e]
+    WHERE [e].[Id] = 1
+    UNION ALL
+    SELECT [e0].[Tags]
+    FROM [EntitiesWithPrimitiveCollection] AS [e0]
+    WHERE [e0].[Id] = 1
+) AS [u]
+WHERE @value IN (
+    SELECT [t].[value]
+    FROM OPENJSON([u].[Tags]) WITH ([value] nvarchar(max) '$') AS [t]
+) AND (
+    SELECT COUNT(*)
+    FROM OPENJSON([u].[Tags]) WITH ([value] nvarchar(max) '$') AS [t0]
+    WHERE [t0].[value] <> N'b' OR [t0].[value] IS NULL) = 1
+""");
+    }
+
     [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

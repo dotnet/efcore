@@ -1546,6 +1546,22 @@ Assert.Equal(new[] { "a", "b" }, tags[0]);
 Assert.Null(tags[1]);
 """);
 
+    // #33258: Contains (with a captured value) and Count over a primitive collection column that was projected out of a set operation.
+    // This makes sure the AsQueryable fallback for such a collection is intercepted, compiled and executed under precompilation.
+    [Fact]
+    public virtual Task Set_operation_over_primitive_collection_column_then_Contains_and_Count()
+        => Test(
+            """
+var value = "a";
+var tags = await context.EntitiesWithPrimitiveCollection.Where(e => e.Id == 1).Select(e => e.Tags!)
+    .Concat(context.EntitiesWithPrimitiveCollection.Where(e => e.Id == 1).Select(e => e.Tags!))
+    .Where(t => ((IEnumerable<string>)t).Contains(value) && ((IEnumerable<string>)t).Count(x => x != "b") == 1)
+    .ToListAsync();
+
+Assert.Equal(2, tags.Count);
+Assert.All(tags, t => Assert.Equal(new[] { "a", "b" }, t));
+""");
+
     public class PrecompiledQueryContext(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Blog> Blogs { get; set; } = null!;
