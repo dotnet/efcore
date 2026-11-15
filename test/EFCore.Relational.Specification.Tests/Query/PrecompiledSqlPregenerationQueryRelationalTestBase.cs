@@ -219,6 +219,16 @@ string name4 = "baq";
 var blogs = await context.Blogs.Where(b => b.Name == name1 || b.Name == name2 || b.Name == name3 || b.Name == name4).ToListAsync();
 """);
 
+    [Fact]
+    public virtual Task Contains_with_parameterized_read_only_collection()
+        => Test(
+            """
+IReadOnlyCollection<string> operationIds = new List<string> { "Blog1", "Blog2" };
+var blogs = await context.Blogs.Where(b => operationIds.Contains(b.Name)).OrderBy(b => b.Id).ToListAsync();
+Assert.Collection(blogs, b => Assert.Equal(8, b.Id), b => Assert.Equal(9, b.Id));
+""",
+            interceptorCodeAsserter: code => Assert.Contains(nameof(RelationalCommandCache), code));
+
     #region Tests for the different querying enumerables
 
     [Fact]

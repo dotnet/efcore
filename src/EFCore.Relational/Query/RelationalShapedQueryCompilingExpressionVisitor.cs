@@ -758,6 +758,19 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
                     return Array.CreateInstance(type.GetElementType()!, new int[type.GetArrayRank()]);
                 }
 
+                var enumerableType = type.GetInterfaces()
+                    .Append(type)
+                    .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
+                if (enumerableType is not null)
+                {
+                    var elementType = enumerableType.GetGenericArguments()[0];
+                    var arrayType = elementType.MakeArrayType();
+                    if (type.IsAssignableFrom(arrayType))
+                    {
+                        return Array.CreateInstance(elementType, 0);
+                    }
+                }
+
                 try
                 {
                     return Activator.CreateInstance(type)!;
