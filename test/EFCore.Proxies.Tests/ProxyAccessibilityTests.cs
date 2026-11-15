@@ -330,9 +330,16 @@ public class ProxyAccessibilityTests
         => Assert.NotNull(context.Model.FindEntityType(types.Principal)!.FindNavigation(EntityFactory.NavigationName));
 
     private static void AssertThrowsNotVisible(DbContext context, EntityFactory.Types types, string accessor)
-        => Assert.Equal(
-            ProxiesStrings.NonVisibleProperty(EntityFactory.NavigationName, types.Principal.Name, accessor),
-            Assert.Throws<InvalidOperationException>(() => context.Model).Message);
+    {
+        var message = Assert.Throws<InvalidOperationException>(() => context.Model).Message;
+
+        Assert.Equal(ProxiesStrings.NonVisibleProperty(EntityFactory.NavigationName, types.Principal.Name, accessor), message);
+
+        // Guard the argument order against the generated resource: the expected text above is built by the same method.
+        Assert.StartsWith(
+            $"Property '{types.Principal.Name}.{EntityFactory.NavigationName}' cannot be overridden by a proxy because its {accessor} is not visible",
+            message);
+    }
 
     private sealed class AccessibilityContext(
         EntityFactory.Types types,
