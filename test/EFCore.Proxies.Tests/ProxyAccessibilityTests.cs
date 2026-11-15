@@ -8,8 +8,9 @@ using Microsoft.EntityFrameworkCore.Internal;
 namespace Microsoft.EntityFrameworkCore;
 
 /// <summary>
-///     Tests for https://github.com/dotnet/efcore/issues/32352. Proxies can only override members that are visible to the
-///     Castle proxy assembly (DynamicProxyGenAssembly2). A navigation whose accessor is not visible is silently never
+///     Tests for https://github.com/dotnet/efcore/issues/32352 (navigations) and https://github.com/dotnet/efcore/issues/39589
+///     (properties and indexers). Proxies can only override members that are visible to the Castle proxy assembly
+///     (DynamicProxyGenAssembly2). A navigation, property or indexer whose accessor is not visible is silently never
 ///     intercepted, so model validation should reject it instead.
 ///     The entity types are emitted at runtime so that each accessibility level can be tested with and without
 ///     <c>InternalsVisibleTo("DynamicProxyGenAssembly2")</c> on the declaring assembly.
@@ -640,7 +641,7 @@ public class ProxyAccessibilityTests
             // Non-public navigations are not found by convention, so they are always configured explicitly.
             var entityTypeBuilder = modelBuilder.Entity(types.Principal);
 
-            // Properties whose setters are not public are not found by convention either.
+            // Properties are mapped explicitly so that the tests do not depend on which setter visibilities convention discovers.
             entityTypeBuilder.Property(EntityFactory.PropertyName);
 
             if (types.HasIndexer)
@@ -728,6 +729,7 @@ public class ProxyAccessibilityTests
             var principalBase = baseModule.DefineType("PrincipalBase", TypeAttributes.Public | TypeAttributes.Class);
             principalBase.DefineDefaultConstructor(MethodAttributes.Public);
             DefineProperty(principalBase, "Id", typeof(int), MethodAttributes.Public, MethodAttributes.Public);
+            DefineProperty(principalBase, PropertyName, typeof(string), MethodAttributes.Public, MethodAttributes.Public);
             DefineProperty(principalBase, NavigationName, dependentType, getter, setter);
             var principalBaseType = principalBase.CreateType();
 
@@ -735,7 +737,7 @@ public class ProxyAccessibilityTests
             var principal = derivedModule.DefineType("Principal", TypeAttributes.Public | TypeAttributes.Class, principalBaseType);
             principal.DefineDefaultConstructor(MethodAttributes.Public);
 
-            return new Types(principal.CreateType(), dependentType, IsCollection: false);
+            return new Types(principal.CreateType(), dependentType, IsCollection: false, HasIndexer: false);
         }
 
         private static ModuleBuilder DefineModule(bool grantInternalsToProxies)
