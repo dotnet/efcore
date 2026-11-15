@@ -4,6 +4,7 @@
 using System.Text.Json;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 
@@ -11,6 +12,106 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
 public class CosmosTypeMappingSourceTest
 {
+    [Theory, InlineData(false), InlineData(true)]
+    public void Configured_reader_preserves_nullable_provider_conversion(bool typeMappingDefault)
+    {
+        var builder = CosmosTestHelpers.Instance.CreateConventionBuilder(
+            configureConventions: c =>
+            {
+                if (typeMappingDefault)
+                {
+                    c.DefaultTypeMapping<int>().HasJsonValueReaderWriter<JsonInt32ReaderWriter>();
+                }
+            });
+        var property = builder.Entity<MyType>().Property<int?>("Value")
+            .HasConversion(new ValueConverter<int?, int?>(v => v * 10, v => v / 10));
+        if (!typeMappingDefault)
+        {
+            property.HasJsonValueReaderWriter<JsonInt32ReaderWriter>();
+        }
+
+        var model = builder.FinalizeModel();
+        var mapping = CreateTypeMappingSource(model).FindMapping(
+            model.FindEntityType(typeof(MyType))!.FindProperty("Value")!)!;
+
+        Assert.Equal("430", mapping.JsonValueReaderWriter!.ToJsonString(43));
+        Assert.Equal(43, mapping.JsonValueReaderWriter.FromJsonString("430"));
+    }
+
+    [Theory]
+    [InlineData(typeof(Dictionary<string, decimal?>))]
+    [InlineData(typeof(IDictionary<string, decimal?>))]
+    [InlineData(typeof(IReadOnlyDictionary<string, decimal?>))]
+    public void Nullable_dictionary_values_use_nullable_reader_writer(Type dictionaryType)
+    {
+        var builder = CosmosTestHelpers.Instance.CreateConventionBuilder(
+            configureConventions: c => c.DefaultTypeMapping<decimal>().HasJsonValueReaderWriter<NullableDecimalReaderWriter>());
+        builder.Entity<MyType>().Property(dictionaryType, "Values");
+        var model = builder.FinalizeModel();
+        var source = CreateTypeMappingSource(model);
+        var property = model.FindEntityType(typeof(MyType))!.FindProperty("Values")!;
+        var value = new Dictionary<string, decimal?> { ["number"] = 1.25m, ["null"] = null };
+        const string json = "{\"number\":1.25,\"null\":null}";
+
+        foreach (var mapping in new[] { source.FindMapping(property)!, source.FindMapping(dictionaryType, model)! })
+        {
+            var reader = mapping.JsonValueReaderWriter!;
+            Assert.Equal(json, reader.ToJsonString(value));
+            Assert.Equal(value, Assert.IsType<Dictionary<string, decimal?>>(reader.FromJsonString(json)));
+        }
+    }
+
+    public sealed class NullableDecimalReaderWriter : JsonValueReaderWriter<decimal?>
+    {
+        public override decimal? FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
+            => manager.CurrentReader.TokenType == JsonTokenType.Null ? null : manager.CurrentReader.GetDecimal();
+
+        public override void ToJsonTyped(Utf8JsonWriter writer, decimal? value)
+        {
+            if (value is { } number)
+            {
+                writer.WriteNumberValue(number);
+            }
+            else
+            {
+                writer.WriteNullValue();
+            }
+        }
+
+        public override Expression ConstructorExpression
+            => Expression.New(typeof(NullableDecimalReaderWriter));
+    }
+
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
+    public void Parameter_collections_infer_compared_member_reader_writer(bool legacyDefault, bool memberOverride)
+    {
+        var legacyMember = memberOverride ? !legacyDefault : legacyDefault;
+        var builder = CosmosTestHelpers.Instance.CreateConventionBuilder(
+            configureConventions: c => c.DefaultTypeMapping<DateTime>().HasJsonValueReaderWriter(
+                legacyDefault ? typeof(LegacyDateTimeReaderWriter) : typeof(JsonDateTimeReaderWriter)));
+        var propertyBuilder = builder.Entity<MyType>().Property<DateTime>("Timestamp");
+        if (memberOverride)
+        {
+            propertyBuilder.HasJsonValueReaderWriter(
+                legacyMember ? typeof(LegacyDateTimeReaderWriter) : typeof(JsonDateTimeReaderWriter));
+        }
+
+        var model = builder.FinalizeModel();
+        var source = CreateTypeMappingSource(model);
+        var property = model.FindEntityType(typeof(MyType))!.FindProperty("Timestamp")!;
+        var memberMapping = source.FindMapping(property)!;
+        var factory = new SqlExpressionFactory(source, model);
+        var (item, array) = factory.ApplyTypeMappingsOnItemAndArray(
+            new ScalarReferenceExpression("Timestamp", typeof(DateTime), memberMapping),
+            new SqlParameterExpression("timestamps", typeof(DateTime[]), source.FindMapping(typeof(DateTime[]))));
+        var timestamp = new DateTime(2026, 1, 1, 0, 0, 0, 123, DateTimeKind.Utc);
+
+        Assert.Same(memberMapping, item.TypeMapping);
+        Assert.Equal(
+            legacyMember ? "[\"2026-01-01T00:00:00.123Z\"]" : "[\"2026-01-01T00:00:00.1230000Z\"]",
+            array.TypeMapping!.JsonValueReaderWriter!.ToJsonString(new[] { timestamp }));
+    }
+
     [Theory]
     [InlineData(typeof(Dictionary<string, DateTime>))]
     [InlineData(typeof(IDictionary<string, DateTime>))]

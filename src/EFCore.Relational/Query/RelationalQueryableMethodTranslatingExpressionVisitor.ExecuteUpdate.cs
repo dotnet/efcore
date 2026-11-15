@@ -921,11 +921,16 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         RelationalTypeMapping targetMapping, SqlExpression source)
     {
         var sourceMapping = source.TypeMapping!;
+        var providerType = (sourceMapping.Converter?.ProviderClrType ?? sourceMapping.ClrType).UnwrapNullableType();
+        // Native scalar extraction loses the original token kind; collections retain their serialized elements.
+        var jsonSource = sourceMapping.ElementTypeMapping is not null
+            || (source is JsonScalarExpression
+                && !providerType.IsNumeric() && providerType != typeof(string) && providerType != typeof(bool));
         return (source is JsonScalarExpression or ColumnExpression or SqlConstantExpression or SqlParameterExpression
                 || sourceMapping.Converter is null
                 || sourceMapping.Converter.ModelClrType == sourceMapping.Converter.ProviderClrType)
             && HaveCompatibleJsonMappings(
-                targetMapping, sourceMapping, source is JsonScalarExpression || sourceMapping.ElementTypeMapping is not null);
+                targetMapping, sourceMapping, jsonSource);
     }
 
     private bool HaveCompatibleJsonMappings(
@@ -937,19 +942,14 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             return HaveCompatibleJsonMappings(targetElementMapping, sourceElementMapping, jsonSource: true);
         }
 
-        var providerType = targetMapping.Converter?.ProviderClrType ?? targetMapping.ClrType;
-        if (providerType != (sourceMapping.Converter?.ProviderClrType ?? sourceMapping.ClrType)
+        var providerType = (targetMapping.Converter?.ProviderClrType ?? targetMapping.ClrType).UnwrapNullableType();
+        if (providerType != (sourceMapping.Converter?.ProviderClrType ?? sourceMapping.ClrType).UnwrapNullableType()
             || !ExpressionEqualityComparer.Instance.Equals(
                 targetMapping.Converter?.ConvertToProviderExpression, sourceMapping.Converter?.ConvertToProviderExpression)
             || !ExpressionEqualityComparer.Instance.Equals(
                 targetMapping.Converter?.ConvertFromProviderExpression, sourceMapping.Converter?.ConvertFromProviderExpression))
         {
             return false;
-        }
-
-        if (providerType.IsNumeric() || providerType == typeof(string) || providerType == typeof(bool))
-        {
-            return true;
         }
 
 #pragma warning disable EF1001 // Internal EF Core API usage.

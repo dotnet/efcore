@@ -7,6 +7,7 @@ using System.Data;
 using System.Linq.Expressions;
 using System.Text.Json;
 using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -15,6 +16,43 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 
 public class SqliteTypeMappingTest : RelationalTypeMappingTest
 {
+    [Theory, InlineData(false), InlineData(true)]
+    public void Configured_reader_preserves_nullable_provider_conversion(bool typeMappingDefault)
+    {
+        var builder = SqliteTestHelpers.Instance.CreateConventionBuilder(
+            configureConventions: c =>
+            {
+                if (typeMappingDefault)
+                {
+                    c.DefaultTypeMapping<int>().HasJsonValueReaderWriter<JsonInt32ReaderWriter>();
+                }
+            });
+        var property = builder.Entity<JsonConvertedNumberContainer>().OwnsOne(e => e.Data).ToJson().Property(e => e.Value)
+            .HasConversion(new ValueConverter<int?, int?>(v => v * 10, v => v / 10));
+        if (!typeMappingDefault)
+        {
+            property.HasJsonValueReaderWriter<JsonInt32ReaderWriter>();
+        }
+
+        var model = builder.FinalizeModel();
+        var mapping = model.FindEntityType(typeof(JsonConvertedNumberContainer))!.FindNavigation("Data")!.TargetEntityType.FindProperty("Value")!
+            .GetTypeMapping();
+
+        Assert.Equal("430", mapping.JsonValueReaderWriter!.ToJsonString(43));
+        Assert.Equal(43, mapping.JsonValueReaderWriter.FromJsonString("430"));
+    }
+
+    private class JsonConvertedNumber
+    {
+        public int? Value { get; set; }
+    }
+
+    private class JsonConvertedNumberContainer
+    {
+        public int Id { get; set; }
+        public JsonConvertedNumber Data { get; set; } = null!;
+    }
+
     private class YouNoTinyContext(SqliteConnection connection) : DbContext
     {
         private readonly SqliteConnection _connection = connection;
@@ -224,9 +262,16 @@ public class SqliteTypeMappingTest : RelationalTypeMappingTest
         Assert.Equal(expected, clone.CreateParameter(command, "p", value).Value);
         Assert.Equal("'" + expected + "'", clone.GenerateSqlLiteral(value));
 
-        var reconstructed = new SqliteJsonScalarTypeMapping(
-            SqliteDateTimeTypeMapping.Default.Clone(jsonValueReaderWriter: jsonMapping.JsonValueReaderWriter));
+        var source = Assert.IsAssignableFrom<RelationalTypeMappingSource>(CreateTypeMapper());
+#pragma warning disable EF9100 // Precompiled query is experimental.
+        var quote = (NewExpression)RelationalExpressionQuotingUtilities.QuoteTypeMapping(clone);
+#pragma warning restore EF9100
+        var composition = (MethodCallExpression)((UnaryExpression)quote.Arguments[0]).Operand;
+        var lookup = (MethodCallExpression)composition.Object!;
+        var reconstructed = Expression.Lambda<Func<RelationalTypeMappingSource, RelationalTypeMapping>>(
+            quote, (ParameterExpression)lookup.Object!).Compile(preferInterpretation: true)(source);
         Assert.IsType<SqliteJsonScalarTypeMapping>(reconstructed);
+        Assert.Equal("datetime", reconstructed.StoreType);
         Assert.Equal(expected, reconstructed.CreateParameter(command, "p", value).Value);
         Assert.Equal("'" + expected + "'", reconstructed.GenerateSqlLiteral(value));
     }

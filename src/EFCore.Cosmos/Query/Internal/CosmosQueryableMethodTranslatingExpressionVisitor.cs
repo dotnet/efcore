@@ -1508,11 +1508,10 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     {
         var queryParameter = parameterQueryRootExpression.QueryParameterExpression;
 
-        // TODO: Temporary hack - need to perform proper derivation of the array type mapping from the element (e.g. for
-        // value conversion). #34026.
         var elementClrType = parameterQueryRootExpression.ElementType;
-        var arrayTypeMapping = _typeMappingSource.FindMapping(typeof(IEnumerable<>).MakeGenericType(elementClrType));
-        var elementTypeMapping = _typeMappingSource.FindMapping(elementClrType)!;
+        var elementTypeMapping = _typeMappingSource.FindMapping(elementClrType, _queryCompilationContext.Model)!;
+        var arrayTypeMapping = _typeMappingSource.FindMapping(
+            typeof(IEnumerable<>).MakeGenericType(elementClrType), _queryCompilationContext.Model, elementTypeMapping);
         var sqlParameterExpression = new SqlParameterExpression(queryParameter.Name, queryParameter.Type, arrayTypeMapping);
 
         var sourceAlias = _aliasManager.GenerateSourceAlias(sqlParameterExpression.Name.TrimStart('_'));

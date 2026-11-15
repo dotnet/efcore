@@ -228,7 +228,7 @@ public class CosmosTypeMappingSource : TypeMappingSource
                         jsonValueReaderWriter = elementType.IsNullableValueType()
                             ? (JsonValueReaderWriter?)Activator.CreateInstance(
                                 typeof(CosmosJsonStringKeyedDictionaryNullableValueReaderWriter<>)
-                                    .MakeGenericType(elementMapping.JsonValueReaderWriter.ValueType),
+                                    .MakeGenericType(elementType.UnwrapNullableType()),
                                 elementMapping.JsonValueReaderWriter)
                             : elementType != typeof(string) && elementType.TryGetElementType(typeof(IEnumerable<>)) is { } nestedElementType
                                 ? nestedElementType.IsClass
@@ -427,7 +427,7 @@ public class CosmosTypeMappingSource : TypeMappingSource
         where TElement : struct
 #pragma warning restore EF1001
     {
-        private readonly JsonValueReaderWriter<TElement> _elementReaderWriter = (JsonValueReaderWriter<TElement>)elementReaderWriter;
+        private readonly JsonValueReaderWriter _elementReaderWriter = elementReaderWriter;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -459,7 +459,7 @@ public class CosmosTypeMappingSource : TypeMappingSource
                         }
                         else
                         {
-                            dictionary.Add(key, _elementReaderWriter.FromJsonTyped(ref manager));
+                            dictionary.Add(key, (TElement?)_elementReaderWriter.FromJson(ref manager));
                         }
 
                         break;
@@ -483,9 +483,9 @@ public class CosmosTypeMappingSource : TypeMappingSource
             foreach (var element in value)
             {
                 writer.WritePropertyName(element.Key);
-                if (element.Value.HasValue)
+                if (element.Value.HasValue || _elementReaderWriter.HandlesNullWrites)
                 {
-                    _elementReaderWriter.ToJsonTyped(writer, element.Value.Value);
+                    _elementReaderWriter.ToJson(writer, element.Value);
                 }
                 else
                 {

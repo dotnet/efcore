@@ -671,7 +671,7 @@ WHERE ARRAY_CONTAINS(c["Timestamps"], @timestamp)
     }
 
     [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
-    public async Task Inline_Contains_uses_property_reader_writer(bool legacyDefault, bool memberOverride)
+    public async Task Contains_uses_property_reader_writer(bool legacyDefault, bool memberOverride)
     {
         var timestamp = new DateTime(2026, 1, 1, 0, 0, 0, 123, DateTimeKind.Utc);
         var legacyMember = memberOverride ? !legacyDefault : legacyDefault;
@@ -700,6 +700,12 @@ WHERE ARRAY_CONTAINS(c["Timestamps"], @timestamp)
             await context.Set<LegacyDateTimeContext.Item>()
                 .Where(e => new[] { e.Timestamp }.AsQueryable().Contains(timestamp))
                 .Select(e => e.Id).ToArrayAsync());
+        var timestamps = new[] { timestamp };
+        Assert.Equal(
+            new[] { 1 },
+            await context.Set<LegacyDateTimeContext.Item>()
+                .Where(e => timestamps.AsQueryable().Contains(e.Timestamp))
+                .Select(e => e.Id).ToArrayAsync());
         var expectedTimestamp = legacyMember ? "2026-01-01T00:00:00.123Z" : "2026-01-01T00:00:00.1230000Z";
         AssertSql(
             $"""
@@ -708,6 +714,14 @@ WHERE ARRAY_CONTAINS(c["Timestamps"], @timestamp)
 SELECT VALUE c["Id"]
 FROM root c
 WHERE (@timestamp = c["Timestamp"])
+""",
+            //
+            $"""
+@timestamps='["{expectedTimestamp}"]'
+
+SELECT VALUE c["Id"]
+FROM root c
+WHERE ARRAY_CONTAINS(@timestamps, c["Timestamp"])
 """);
     }
 

@@ -210,7 +210,7 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
 #pragma warning disable EF1001 // Internal EF Core API usage.
                     var readerWriter = mappingInfo.JsonValueReaderWriter;
                     mapping = (RelationalTypeMapping)(mapping.Converter is { } converter
-                        && !readerWriter.ValueType.IsAssignableFrom(converter.ProviderClrType)
+                        && !readerWriter.ValueType.UnwrapNullableType().IsAssignableFrom(converter.ProviderClrType.UnwrapNullableType())
                             ? mapping.Clone(jsonValueReaderWriter: readerWriter)
                             : mapping.WithJsonValueReaderWriter(readerWriter));
 #pragma warning restore EF1001

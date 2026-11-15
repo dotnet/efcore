@@ -4,6 +4,8 @@
 using System.Data;
 using System.Globalization;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 
@@ -13,8 +15,18 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqliteJsonScalarTypeMapping : RelationalTypeMapping
+public class SqliteJsonScalarTypeMapping : RelationalTypeMapping, IRelationalQuotableExpression
 {
+    private static readonly ConstructorInfo _quotingConstructor
+        = typeof(SqliteJsonScalarTypeMapping).GetConstructor([typeof(RelationalTypeMapping)])!;
+
+    private static readonly MethodInfo _withComposedConverterMethod
+        = typeof(RelationalTypeMapping).GetMethod(
+            nameof(WithComposedConverter),
+            [
+                typeof(ValueConverter), typeof(ValueComparer), typeof(ValueComparer), typeof(CoreTypeMapping), typeof(JsonValueReaderWriter)
+            ])!;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -46,6 +58,22 @@ public class SqliteJsonScalarTypeMapping : RelationalTypeMapping
     /// <inheritdoc />
     protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
         => new SqliteJsonScalarTypeMapping(parameters, SourceMapping);
+
+    /// <inheritdoc />
+    public virtual Expression Quote()
+        => Expression.New(
+            _quotingConstructor,
+            Expression.Convert(
+                Expression.Call(
+                    RelationalExpressionQuotingUtilities.QuoteTypeMapping(
+                        SourceMapping.WithStoreTypeAndSize(StoreType, Size).WithPrecisionAndScale(Precision, Scale)),
+                    _withComposedConverterMethod,
+                    Expression.Constant(null, typeof(ValueConverter)),
+                    Expression.Constant(null, typeof(ValueComparer)),
+                    Expression.Constant(null, typeof(ValueComparer)),
+                    Expression.Constant(null, typeof(CoreTypeMapping)),
+                    JsonValueReaderWriter!.ConstructorExpression),
+                typeof(RelationalTypeMapping)));
 
     /// <inheritdoc />
     public override Expression GenerateCodeLiteral(object value)
