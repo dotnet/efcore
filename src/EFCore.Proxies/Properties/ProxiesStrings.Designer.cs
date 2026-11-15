@@ -68,11 +68,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 property, entityType);
 
         /// <summary>
-        ///     Property '{entityType}.{property}' cannot be overridden by a proxy because its {accessor} is not visible to the proxy assembly. Make it public or protected, or add '[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]' to the assembly that declares the entity type (a strong-named assembly must specify the proxy assembly's public key).
+        ///     Property '{1_entityType}.{0_property}' cannot be overridden by a proxy because its {2_accessor} is not visible to the proxy assembly. Make it public or protected, or add '[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]' to the assembly that declares the property (a strong-named assembly must specify the proxy assembly's public key).
         /// </summary>
         public static string NonVisibleProperty(object? property, object? entityType, object? accessor)
             => string.Format(
-                GetString("NonVisibleProperty", nameof(property), nameof(entityType), nameof(accessor)),
+                GetString("NonVisibleProperty", "0_property", "1_entityType", "2_accessor"),
                 property, entityType, accessor);
 
         /// <summary>
