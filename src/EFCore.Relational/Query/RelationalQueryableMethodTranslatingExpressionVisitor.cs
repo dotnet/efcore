@@ -1192,11 +1192,14 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         var remappedElementSelectorBody = selectExpression.ApplyRowsPerGroup(
             analyzer.ElementSelector?.Body, orderings, rowPredicate, _sqlExpressionFactory);
 
+        // The grouping is gone by now, so owned navigations in the element selector are expanded as in any other Select, joins included.
         var shaper = analyzer.ElementSelector is { } elementSelector
             ? _projectionBindingExpressionVisitor.Translate(
                 selectExpression,
-                ReplacingExpressionVisitor.Replace(
-                    elementSelector.Parameters[0], groupByShaper.ElementSelector, remappedElementSelectorBody!))
+                ExpandSharedTypeEntities(
+                    selectExpression,
+                    ReplacingExpressionVisitor.Replace(
+                        elementSelector.Parameters[0], groupByShaper.ElementSelector, remappedElementSelectorBody!)))
             : groupByShaper.ElementSelector;
 
         return source.UpdateShaperExpression(shaper);
@@ -1237,19 +1240,17 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
         if (skip is SqlConstantExpression { Value: int constantSkip })
         {
-            if (take is SqlConstantExpression { Value: int constantTake })
+            // Adding the counts gives the last row kept, unless that overflows, e.g. Skip(1).Take(int.MaxValue).
+            if (take is SqlConstantExpression { Value: int constantTake }
+                && (long)constantSkip + constantTake is var end and <= int.MaxValue)
             {
-                // Adding the counts can overflow, e.g. Skip(1).Take(int.MaxValue); no row is numbered beyond int.MaxValue anyway.
-                var end = (long)constantSkip + constantTake;
-                return end >= int.MaxValue
-                    ? row => _sqlExpressionFactory.GreaterThan(row, skip)
-                    : row => _sqlExpressionFactory.AndAlso(
-                        _sqlExpressionFactory.GreaterThan(row, skip),
-                        _sqlExpressionFactory.LessThanOrEqual(
-                            row, _sqlExpressionFactory.Constant((int)end, take.TypeMapping)));
+                return row => _sqlExpressionFactory.AndAlso(
+                    _sqlExpressionFactory.GreaterThan(row, skip),
+                    _sqlExpressionFactory.LessThanOrEqual(row, _sqlExpressionFactory.Constant((int)end, take.TypeMapping)));
             }
 
-            // Subtract from the row number rather than adding the counts, which could overflow: ROW_NUMBER() is a bigint.
+            // Subtract from the row number rather than adding the counts, which could overflow: ROW_NUMBER() is a bigint, so a group can
+            // have rows numbered beyond int.MaxValue.
             return row => _sqlExpressionFactory.AndAlso(
                 _sqlExpressionFactory.GreaterThan(row, skip),
                 _sqlExpressionFactory.LessThanOrEqual(_sqlExpressionFactory.Subtract(row, skip), take));

@@ -5519,7 +5519,7 @@ FROM (
     SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], ROW_NUMBER() OVER(PARTITION BY [o].[CustomerID] ORDER BY [o].[OrderID]) AS [row]
     FROM [Orders] AS [o]
 ) AS [o0]
-WHERE [o0].[row] > 1
+WHERE [o0].[row] > 1 AND [o0].[row] - 1 <= 2147483647
 """);
     }
 
@@ -5631,6 +5631,36 @@ FROM (
 ) AS [o0]
 WHERE [o0].[row] <= 2
 ORDER BY [o0].[CustomerID], [o0].[OrderID] DESC
+""");
+    }
+
+    public override async Task GroupBy_composite_key_OrderBy_key_member_SelectMany_OrderByDescending(bool async)
+    {
+        await base.GroupBy_composite_key_OrderBy_key_member_SelectMany_OrderByDescending(async);
+
+        AssertSql(
+            """
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+ORDER BY [o].[CustomerID], [o].[EmployeeID], [o].[OrderID] DESC
+""");
+    }
+
+    public override async Task GroupBy_composite_key_OrderBy_key_member_SelectMany_OrderByDescending_Take_Take(bool async)
+    {
+        await base.GroupBy_composite_key_OrderBy_key_member_SelectMany_OrderByDescending_Take_Take(async);
+
+        AssertSql(
+            """
+@p='20'
+
+SELECT TOP(@p) [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+FROM (
+    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], ROW_NUMBER() OVER(PARTITION BY [o].[CustomerID], [o].[EmployeeID] ORDER BY [o].[OrderID] DESC) AS [row]
+    FROM [Orders] AS [o]
+) AS [o0]
+WHERE [o0].[row] <= 2
+ORDER BY [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderID] DESC
 """);
     }
 

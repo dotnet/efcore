@@ -1968,7 +1968,8 @@ public sealed partial class SelectExpression : TableExpressionBase
 
     // Keeps the rows of each group in place of the grouping, optionally only those whose ROW_NUMBER() OVER(PARTITION BY <grouping terms>
     // ORDER BY <orderings>) satisfies `rowPredicate`, which is how a Skip or a Take applies to each group. When the groups are ordered,
-    // `orderings` also order the rows of each group after the grouping terms.
+    // the rows of each group are kept together: groups tied on the existing orderings, such as those of a composite key ordered by one
+    // of its members, are told apart by the remaining grouping terms, and `orderings` then order the rows within each group.
     // `projection` is an expression over the grouping terms (e.g. the key selector), returned remapped to the new columns.
     // Internal infrastructure: only called from RelationalQueryableMethodTranslatingExpressionVisitor.
     [return: NotNullIfNotNull(nameof(projection))]
@@ -1989,10 +1990,7 @@ public sealed partial class SelectExpression : TableExpressionBase
         {
             if (ordered)
             {
-                foreach (var ordering in orderings)
-                {
-                    AppendOrdering(ordering);
-                }
+                AppendRowOrderings(partitions, orderings, remap: null);
             }
 
             return projection;
@@ -2007,13 +2005,27 @@ public sealed partial class SelectExpression : TableExpressionBase
 
         if (ordered)
         {
-            foreach (var ordering in orderings)
-            {
-                AppendOrdering((OrderingExpression)sqlRemappingVisitor.Visit(ordering));
-            }
+            AppendRowOrderings(partitions, orderings, sqlRemappingVisitor);
         }
 
         return sqlRemappingVisitor.Visit(projection);
+    }
+
+    // The existing orderings are over grouping terms only. AppendOrdering skips a term already ordered by.
+    private void AppendRowOrderings(
+        IReadOnlyList<SqlExpression> partitions,
+        IReadOnlyList<OrderingExpression> orderings,
+        SqlRemappingVisitor? remap)
+    {
+        foreach (var partition in partitions)
+        {
+            AppendOrdering(new OrderingExpression(remap?.Remap(partition) ?? partition, ascending: true));
+        }
+
+        foreach (var ordering in orderings)
+        {
+            AppendOrdering(remap is null ? ordering : (OrderingExpression)remap.Visit(ordering));
+        }
     }
 
     private List<SqlExpression> RemoveGrouping()

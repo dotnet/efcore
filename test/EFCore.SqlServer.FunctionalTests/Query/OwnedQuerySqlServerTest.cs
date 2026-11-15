@@ -1905,6 +1905,24 @@ ORDER BY [o1].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
 """);
     }
 
+    public override async Task GroupBy_SelectMany_OrderBy_Take_Select_owned_navigation_member(bool async)
+    {
+        await base.GroupBy_SelectMany_OrderBy_Take_Select_owned_navigation_member(async);
+
+        AssertSql(
+            """
+SELECT [o1].[PersonAddress_Country_Name]
+FROM (
+    SELECT ROW_NUMBER() OVER(PARTITION BY [o0].[Key] ORDER BY [o0].[Id]) AS [row], [o0].[PersonAddress_Country_Name]
+    FROM (
+        SELECT [o].[Id], [o].[Id] % 2 AS [Key], [o].[PersonAddress_Country_Name]
+        FROM [OwnedPerson] AS [o]
+    ) AS [o0]
+) AS [o1]
+WHERE [o1].[row] <= 1
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

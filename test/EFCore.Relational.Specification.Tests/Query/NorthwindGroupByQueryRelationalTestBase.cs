@@ -603,6 +603,65 @@ public abstract class NorthwindGroupByQueryRelationalTestBase<TFixture>(TFixture
                 .Select(o => o.OrderID),
             assertOrder: true);
 
+    // Ordering the groups by part of a composite key leaves the groups that share it in no particular order among themselves, so the
+    // results are checked against what LINQ does guarantee: each group's rows come out together, in their own order.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task GroupBy_composite_key_OrderBy_key_member_SelectMany_OrderByDescending(bool async)
+    {
+        using var context = CreateContext();
+        var query = context.Set<Order>()
+            .GroupBy(o => new { o.CustomerID, o.EmployeeID })
+            .OrderBy(g => g.Key.CustomerID)
+            .SelectMany(g => g.OrderByDescending(o => o.OrderID));
+
+        AssertGroupsFlattenedInOrder(async ? await query.ToListAsync() : query.ToList(), rowsPerGroup: null, take: null);
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task GroupBy_composite_key_OrderBy_key_member_SelectMany_OrderByDescending_Take_Take(bool async)
+    {
+        using var context = CreateContext();
+        var query = context.Set<Order>()
+            .GroupBy(o => new { o.CustomerID, o.EmployeeID })
+            .OrderBy(g => g.Key.CustomerID)
+            .SelectMany(g => g.OrderByDescending(o => o.OrderID).Take(2))
+            .Take(20);
+
+        AssertGroupsFlattenedInOrder(async ? await query.ToListAsync() : query.ToList(), rowsPerGroup: 2, take: 20);
+    }
+
+    // Checks the rows of a SelectMany over the orders grouped by (CustomerID, EmployeeID) and ordered by CustomerID, each group's
+    // elements ordered by descending OrderID and limited to rowsPerGroup. The customers come out in order, and the rows of each group
+    // together and in order; with a final Take, all of them but the last group's.
+    private void AssertGroupsFlattenedInOrder(IReadOnlyList<Order> rows, int? rowsPerGroup, int? take)
+    {
+        var expectedGroups = Fixture.GetExpectedData().Set<Order>().AsEnumerable()
+            .GroupBy(o => (o.CustomerID, o.EmployeeID))
+            .ToDictionary(
+                g => g.Key,
+                g => g.OrderByDescending(o => o.OrderID).Take(rowsPerGroup ?? int.MaxValue).Select(o => o.OrderID).ToList());
+        var expectedCount = expectedGroups.Values.Sum(g => g.Count);
+        Assert.Equal(take is { } t ? Math.Min(t, expectedCount) : expectedCount, rows.Count);
+
+        var seenGroups = new HashSet<(string?, uint?)>();
+        string? previousCustomerId = null;
+        for (var i = 0; i < rows.Count;)
+        {
+            var key = (rows[i].CustomerID, rows[i].EmployeeID);
+            Assert.True(seenGroups.Add(key), $"The rows of the group {key} aren't together.");
+            Assert.True(string.CompareOrdinal(previousCustomerId, key.CustomerID) <= 0, $"The group {key} is out of order.");
+            previousCustomerId = key.CustomerID;
+
+            var groupRows = new List<int>();
+            for (; i < rows.Count && (rows[i].CustomerID, rows[i].EmployeeID) == key; i++)
+            {
+                groupRows.Add(rows[i].OrderID);
+            }
+
+            Assert.Equal(i == rows.Count ? expectedGroups[key].Take(groupRows.Count) : expectedGroups[key], groupRows);
+        }
+    }
+
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_SelectMany_Take_count_of_group_fails(bool async)
         => AssertTranslationFailed(() => AssertQuery(
