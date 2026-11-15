@@ -156,6 +156,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         var createSequenceOperations = new List<CreateSequenceOperation>();
         var createTableOperations = new List<CreateTableOperation>();
         var alterDatabaseOperations = new List<MigrationOperation>();
+        var removeDatabaseAnnotationsOperations = new List<MigrationOperation>();
         var alterTableOperations = new List<MigrationOperation>();
         var columnOperations = new List<MigrationOperation>();
         var computedColumnOperations = new List<MigrationOperation>();
@@ -212,7 +213,32 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             }
             else if (type == typeof(AlterDatabaseOperation))
             {
-                alterDatabaseOperations.Add(operation);
+                var alterDatabaseOperation = (AlterDatabaseOperation)operation;
+                var removedAnnotations = alterDatabaseOperation.OldDatabase.GetAnnotations()
+                    .Where(a => alterDatabaseOperation.FindAnnotation(a.Name) == null)
+                    .ToList();
+                if (removedAnnotations.Count == 0)
+                {
+                    alterDatabaseOperations.Add(alterDatabaseOperation);
+                    continue;
+                }
+
+                // Database objects that are removed might still be used by columns or tables that are altered later,
+                // so remove them after those operations
+                var removeAnnotationsOperation = new AlterDatabaseOperation();
+                foreach (var annotation in removedAnnotations)
+                {
+                    alterDatabaseOperation.OldDatabase.RemoveAnnotation(annotation.Name);
+                    removeAnnotationsOperation.OldDatabase.AddAnnotation(annotation.Name, annotation.Value);
+                }
+
+                removeDatabaseAnnotationsOperations.Add(removeAnnotationsOperation);
+
+                if (alterDatabaseOperation.Collation != alterDatabaseOperation.OldDatabase.Collation
+                    || HasDifferences(alterDatabaseOperation.OldDatabase.GetAnnotations(), alterDatabaseOperation.GetAnnotations()))
+                {
+                    alterDatabaseOperations.Add(alterDatabaseOperation);
+                }
             }
             else if (type == typeof(AlterTableOperation))
             {
@@ -366,6 +392,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             .Concat(alterOperations)
             .Concat(restartSequenceOperations)
             .Concat(dropObsoleteSequenceOperations)
+            .Concat(removeDatabaseAnnotationsOperations)
             .Concat(createTableOperations)
             .Concat(targetDataOperations)
             .Concat(constraintOperations)
