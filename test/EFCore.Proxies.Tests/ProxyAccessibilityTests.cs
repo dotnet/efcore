@@ -34,7 +34,9 @@ public class ProxyAccessibilityTests
         yield return [MethodAttributes.FamANDAssem];
     }
 
-    // Accessors that can never be overridden, with or without a grant.
+    // Accessors that can never be overridden, with or without a grant. C# cannot declare a private virtual accessor (a
+    // "private set" on a virtual property is non-virtual and fails the earlier non-virtual check instead), so the entity
+    // types are emitted as IL to exercise the visibility check itself.
     public static IEnumerable<object[]> NeverVisible()
     {
         foreach (var grant in new[] { false, true })
@@ -168,6 +170,7 @@ public class ProxyAccessibilityTests
     // Proves the navigation really is intercepted and lazily loaded, not just that the model builds.
     [Theory]
     [InlineData(MethodAttributes.Assembly)]
+    [InlineData(MethodAttributes.FamANDAssem)]
     [InlineData(MethodAttributes.FamORAssem)]
     [InlineData(MethodAttributes.Public)]
     public void Lazy_loading_actually_loads_navigation_when_accessor_is_visible_to_proxies(MethodAttributes getter)
@@ -295,6 +298,7 @@ public class ProxyAccessibilityTests
     // Proves that the setter really is intercepted, and not only that the model builds.
     [Theory]
     [InlineData(MethodAttributes.Assembly)]
+    [InlineData(MethodAttributes.FamANDAssem)]
     [InlineData(MethodAttributes.FamORAssem)]
     [InlineData(MethodAttributes.Public)]
     public void Change_tracking_detects_navigation_change_when_setter_is_visible_to_proxies(MethodAttributes setter)
@@ -326,6 +330,72 @@ public class ProxyAccessibilityTests
         }
     }
 
+    // The assembly that must grant access is the one that declares the accessor, not the one declaring the entity type.
+    [Theory]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    public void Visibility_is_decided_by_the_assembly_that_declares_the_accessor(bool lazyLoading, bool baseAssemblyGrants)
+    {
+        var types = EntityFactory.CreateWithBaseInOtherAssembly(
+            getter: lazyLoading ? MethodAttributes.Assembly : MethodAttributes.Public,
+            setter: lazyLoading ? MethodAttributes.Public : MethodAttributes.Assembly,
+            grantInternalsInBaseAssembly: baseAssemblyGrants,
+            grantInternalsInDerivedAssembly: !baseAssemblyGrants);
+
+        using var context = new AccessibilityContext(types, useLazyLoading: lazyLoading, useChangeDetection: !lazyLoading);
+
+        if (baseAssemblyGrants)
+        {
+            AssertNavigationMapped(context, types);
+        }
+        else
+        {
+            AssertThrowsNotVisible(context, types, lazyLoading ? "getter" : "setter");
+        }
+    }
+
+    // Skip navigations (many-to-many) are validated like regular navigations.
+    [Theory]
+    [MemberData(nameof(OnlyVisibleWithGrant))]
+    public void Lazy_loading_throws_if_skip_navigation_getter_is_not_visible_to_proxies(MethodAttributes getter)
+    {
+        var types = EntityFactory.Create(getter, MethodAttributes.Public, grantInternalsToProxies: false, collection: true);
+
+        using var context = new AccessibilityContext(types, useLazyLoading: true, skipNavigation: true);
+
+        AssertThrowsNotVisible(context, types, "getter");
+    }
+
+    [Theory]
+    [MemberData(nameof(OnlyVisibleWithGrant))]
+    public void Change_tracking_throws_if_skip_navigation_setter_is_not_visible_to_proxies(MethodAttributes setter)
+    {
+        var types = EntityFactory.Create(MethodAttributes.Public, setter, grantInternalsToProxies: false, collection: true);
+
+        using var context = new AccessibilityContext(types, useChangeDetection: true, skipNavigation: true);
+
+        AssertThrowsNotVisible(context, types, "setter");
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void Skip_navigation_is_accepted_when_accessor_is_visible_through_InternalsVisibleTo(bool lazyLoading)
+    {
+        var types = EntityFactory.Create(
+            lazyLoading ? MethodAttributes.Assembly : MethodAttributes.Public,
+            lazyLoading ? MethodAttributes.Public : MethodAttributes.Assembly,
+            grantInternalsToProxies: true,
+            collection: true);
+
+        using var context = new AccessibilityContext(
+            types, useLazyLoading: lazyLoading, useChangeDetection: !lazyLoading, skipNavigation: true);
+
+        Assert.NotNull(context.Model.FindEntityType(types.Principal)!.FindSkipNavigation(EntityFactory.NavigationName));
+    }
+
     private static void AssertNavigationMapped(DbContext context, EntityFactory.Types types)
         => Assert.NotNull(context.Model.FindEntityType(types.Principal)!.FindNavigation(EntityFactory.NavigationName));
 
@@ -333,11 +403,16 @@ public class ProxyAccessibilityTests
     {
         var message = Assert.Throws<InvalidOperationException>(() => context.Model).Message;
 
-        Assert.Equal(ProxiesStrings.NonVisibleProperty(EntityFactory.NavigationName, types.Principal.Name, accessor), message);
+        var expected = accessor == "getter"
+            ? ProxiesStrings.NonVisibleGetter(EntityFactory.NavigationName, types.Principal.Name)
+            : ProxiesStrings.NonVisibleSetter(EntityFactory.NavigationName, types.Principal.Name);
+
+        Assert.Equal(expected, message);
 
         // Guard the argument order against the generated resource: the expected text above is built by the same method.
+        var action = accessor == "getter" ? "lazy-loaded" : "change-tracked";
         Assert.StartsWith(
-            $"Property '{types.Principal.Name}.{EntityFactory.NavigationName}' cannot be overridden by a proxy because its {accessor} is not visible",
+            $"Property '{types.Principal.Name}.{EntityFactory.NavigationName}' cannot be {action} because its {accessor} cannot be overridden",
             message);
     }
 
@@ -347,7 +422,8 @@ public class ProxyAccessibilityTests
         bool useChangeDetection = false,
         bool ignoreNonVirtualNavigations = false,
         string? databaseName = null,
-        Action<ModelBuilder>? configure = null)
+        Action<ModelBuilder>? configure = null,
+        bool skipNavigation = false)
         : DbContext
     {
         private static readonly InMemoryDatabaseRoot _dbRoot = new();
@@ -393,7 +469,11 @@ public class ProxyAccessibilityTests
             // Non-public navigations are not found by convention, so they are always configured explicitly.
             var entityTypeBuilder = modelBuilder.Entity(types.Principal);
 
-            if (types.IsCollection)
+            if (skipNavigation)
+            {
+                entityTypeBuilder.HasMany(types.Dependent, EntityFactory.NavigationName).WithMany();
+            }
+            else if (types.IsCollection)
             {
                 entityTypeBuilder.HasMany(types.Dependent, EntityFactory.NavigationName).WithOne();
             }
@@ -419,18 +499,7 @@ public class ProxyAccessibilityTests
             bool collection = false,
             bool publicTypes = true)
         {
-            var assemblyName = "ProxyAccessibility_" + Guid.NewGuid().ToString("N");
-            var assembly = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(assemblyName), AssemblyBuilderAccess.Run);
-
-            if (grantInternalsToProxies)
-            {
-                assembly.SetCustomAttribute(
-                    new CustomAttributeBuilder(
-                        typeof(InternalsVisibleToAttribute).GetConstructor([typeof(string)])!,
-                        ["DynamicProxyGenAssembly2"]));
-            }
-
-            var module = assembly.DefineDynamicModule(assemblyName);
+            var module = DefineModule(grantInternalsToProxies);
             var typeVisibility = (publicTypes ? TypeAttributes.Public : TypeAttributes.NotPublic) | TypeAttributes.Class;
 
             var dependent = module.DefineType("Dependent", typeVisibility);
@@ -450,6 +519,49 @@ public class ProxyAccessibilityTests
             var principalType = principal.CreateType();
 
             return new Types(principalType, dependentType, collection);
+        }
+
+        // The navigation is declared on a public base class in one assembly, and the entity type derives from it in another.
+        public static Types CreateWithBaseInOtherAssembly(
+            MethodAttributes getter,
+            MethodAttributes setter,
+            bool grantInternalsInBaseAssembly,
+            bool grantInternalsInDerivedAssembly)
+        {
+            var baseModule = DefineModule(grantInternalsInBaseAssembly);
+
+            var dependent = baseModule.DefineType("Dependent", TypeAttributes.Public | TypeAttributes.Class);
+            dependent.DefineDefaultConstructor(MethodAttributes.Public);
+            DefineProperty(dependent, "Id", typeof(int), MethodAttributes.Public, MethodAttributes.Public);
+            var dependentType = dependent.CreateType();
+
+            var principalBase = baseModule.DefineType("PrincipalBase", TypeAttributes.Public | TypeAttributes.Class);
+            principalBase.DefineDefaultConstructor(MethodAttributes.Public);
+            DefineProperty(principalBase, "Id", typeof(int), MethodAttributes.Public, MethodAttributes.Public);
+            DefineProperty(principalBase, NavigationName, dependentType, getter, setter);
+            var principalBaseType = principalBase.CreateType();
+
+            var derivedModule = DefineModule(grantInternalsInDerivedAssembly);
+            var principal = derivedModule.DefineType("Principal", TypeAttributes.Public | TypeAttributes.Class, principalBaseType);
+            principal.DefineDefaultConstructor(MethodAttributes.Public);
+
+            return new Types(principal.CreateType(), dependentType, IsCollection: false);
+        }
+
+        private static ModuleBuilder DefineModule(bool grantInternalsToProxies)
+        {
+            var assemblyName = "ProxyAccessibility_" + Guid.NewGuid().ToString("N");
+            var assembly = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(assemblyName), AssemblyBuilderAccess.Run);
+
+            if (grantInternalsToProxies)
+            {
+                assembly.SetCustomAttribute(
+                    new CustomAttributeBuilder(
+                        typeof(InternalsVisibleToAttribute).GetConstructor([typeof(string)])!,
+                        ["DynamicProxyGenAssembly2"]));
+            }
+
+            return assembly.DefineDynamicModule(assemblyName);
         }
 
         public static object? GetNavigation(object principal)
