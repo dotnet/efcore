@@ -65,6 +65,7 @@ public static class RelationalExpressionQuotingUtilities
         => typeMapping switch
         {
             null => Constant(null, typeof(RelationalTypeMapping)),
+            IRelationalQuotableExpression quotable => quotable.Quote(),
             _ => Call(
                 RelationalTypeMappingSourceParameter,
                 RelationalTypeMappingSourceFindMappingMethod,

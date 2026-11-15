@@ -162,7 +162,7 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
                 {
                     var readerWriter = mappingInfo.JsonValueReaderWriter;
                     mapping = mapping.Converter is { } converter
-                        && !readerWriter.ValueType.IsAssignableFrom(converter.ProviderClrType)
+                        && !readerWriter.ValueType.UnwrapNullableType().IsAssignableFrom(converter.ProviderClrType.UnwrapNullableType())
                             ? mapping.Clone(jsonValueReaderWriter: readerWriter)
                             : mapping.WithJsonValueReaderWriter(readerWriter);
                 }

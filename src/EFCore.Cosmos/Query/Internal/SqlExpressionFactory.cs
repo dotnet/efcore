@@ -338,8 +338,8 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
             throw new InvalidOperationException("Couldn't find element type mapping when applying item/array mappings");
         }
 
-        // If the array's type mapping isn't provided (parameter/constant), attempt to infer it from the item.
-        if (arrayMapping is null)
+        // Parameters must use the compared member's element mapping, including its JSON formatter.
+        if (arrayMapping is null || arrayExpression is SqlParameterExpression)
         {
             // Get a type mapping for the array from the item.
             // If the array CLR type is anything but an object[], just use that CLR type.
@@ -355,7 +355,7 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
                     $"Can't construct generic primitive collection type for array type '{arrayExpression.Type}'")
             };
 
-            arrayMapping = typeMappingSource.FindMapping(arrayClrType, model, itemMapping.ElementTypeMapping);
+            arrayMapping = typeMappingSource.FindMapping(arrayClrType, model, itemMapping);
 
             if (arrayMapping is null)
             {
@@ -363,7 +363,7 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
             }
         }
 
-        return (ApplyTypeMapping(itemExpression, itemMapping), ApplyTypeMapping(arrayExpression, arrayMapping));
+        return (ApplyTypeMapping(itemExpression, itemMapping), SetTypeMapping(arrayExpression, arrayMapping));
     }
 
     /// <summary>

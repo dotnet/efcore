@@ -30,15 +30,27 @@ public static class RelationalJsonUtilities
         {
             JsonValueKind.Null => null,
             JsonValueKind.String => element.GetString(),
-            JsonValueKind.Number => readerWriter is IJsonConvertedValueReaderWriter converted
+            JsonValueKind.Number => (readerWriter is IJsonConvertedValueReaderWriter converted
                 ? converted.Converter.ConvertToProvider(value)
                 : value is Enum
                     ? Convert.ToDecimal(value, CultureInfo.InvariantCulture)
-                    : value,
+                    : value) ?? ReadNumber(element, readerWriter),
             JsonValueKind.True => true,
             JsonValueKind.False => false,
             _ => element.GetRawText()
         };
+
+    private static object ReadNumber(JsonElement element, JsonValueReaderWriter readerWriter)
+    {
+        var providerType = readerWriter is IJsonConvertedValueReaderWriter converted
+            ? converted.Converter.ProviderClrType
+            : readerWriter.ValueType;
+        return providerType.UnwrapNullableType() == typeof(decimal)
+            ? element.GetDecimal()
+            : element.TryGetInt64(out var number)
+                ? number
+                : (object)element.GetDouble();
+    }
 #pragma warning restore EF1001
 
     /// <summary>

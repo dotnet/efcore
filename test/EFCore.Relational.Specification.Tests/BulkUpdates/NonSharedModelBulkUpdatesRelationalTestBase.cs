@@ -20,6 +20,155 @@ public abstract class NonSharedModelBulkUpdatesRelationalTestBase(NonSharedFixtu
     [InlineData(false, true, false), InlineData(true, true, false)]
     [InlineData(false, false, true), InlineData(true, false, true)]
     [InlineData(false, true, true), InlineData(true, true, true)]
+    public virtual async Task Update_JSON_numeric_null_sentinel(bool async, bool executeUpdate, bool converted)
+    {
+        var factory = await InitializeNonSharedTest<PoolableDbContext>(
+            onModelCreating: b =>
+            {
+                var entity = b.Entity<JsonNullNumberItem>();
+                entity.Property(e => e.Id).ValueGeneratedNever();
+                var property = executeUpdate
+                    ? entity.ComplexProperty(e => e.Data).ToJson().Property(e => e.Number).Metadata
+                    : entity.OwnsOne(e => e.Data).ToJson().Property(e => e.Number).Metadata;
+                property.SetJsonValueReaderWriterType(typeof(NullNumberJsonReaderWriter));
+                if (converted)
+                {
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                    property.SetValueConverter(
+                        new ValueConverter<decimal?, decimal?>(
+                            v => v == -2m ? null : v,
+                            v => v ?? -2m,
+                            convertsNulls: true));
+#pragma warning restore EF1001
+                }
+            },
+            seed: context =>
+            {
+                context.Add(new JsonNullNumberItem { Id = 1, Data = new JsonNullNumberData { Number = 0m } });
+                return context.SaveChangesAsync();
+            });
+        await using var context = factory.CreateDbContext();
+        await context.Database.OpenConnectionAsync();
+        var query = context.Set<JsonNullNumberItem>();
+        var item = async ? await query.SingleAsync() : query.Single();
+        ClearLog();
+
+        foreach (var number in new decimal?[] { converted ? -2m : null, 12345678901234567890.12345678m })
+        {
+            if (executeUpdate)
+            {
+                Assert.Equal(
+                    1, async
+                        ? await query.ExecuteUpdateAsync(s => s.SetProperty(e => e.Data.Number, number))
+                        : query.ExecuteUpdate(s => s.SetProperty(e => e.Data.Number, number)));
+            }
+            else
+            {
+                item.Data.Number = number;
+                Assert.Equal(1, async ? await context.SaveChangesAsync() : context.SaveChanges());
+            }
+
+            await using var command = context.Database.GetDbConnection().CreateCommand();
+            command.CommandText = ((RelationalTestStore)NonSharedTestStore)
+                .NormalizeDelimitersInRawString("SELECT [Data] FROM [JsonNullNumberItem]");
+            using var document = JsonDocument.Parse(
+                Assert.IsType<string>(async ? await command.ExecuteScalarAsync() : command.ExecuteScalar()));
+            Assert.Equal(
+                number is null or -2m ? -1m : number,
+                document.RootElement.GetProperty(nameof(JsonNullNumberData.Number)).GetDecimal());
+            var reloaded = async ? await query.AsNoTracking().SingleAsync() : query.AsNoTracking().Single();
+            Assert.Equal(number, reloaded.Data.Number);
+        }
+    }
+
+    protected class JsonNullNumberItem
+    {
+        public int Id { get; set; }
+        public JsonNullNumberData Data { get; set; } = null!;
+    }
+
+    protected class JsonNullNumberData
+    {
+        public decimal? Number { get; set; }
+    }
+
+    public sealed class NullNumberJsonReaderWriter : JsonValueReaderWriter<decimal?>
+    {
+        public override bool HandlesNullWrites
+            => true;
+
+        public override decimal? FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
+        {
+            var number = manager.CurrentReader.GetDecimal();
+            return number == -1m ? null : number;
+        }
+
+        public override void ToJsonTyped(Utf8JsonWriter writer, decimal? value)
+            => writer.WriteNumberValue(value ?? -1m);
+
+        public override Expression ConstructorExpression
+            => Expression.New(typeof(NullNumberJsonReaderWriter));
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Update_JSON_quoted_number_rejects_row_dependent_assignments(bool async)
+    {
+        var factory = await InitializeNonSharedTest<PoolableDbContext>(
+            onModelCreating: b =>
+            {
+                var entity = b.Entity<JsonTextItem>();
+                entity.Property(e => e.Id).ValueGeneratedNever();
+                entity.ComplexProperty(e => e.Data).ToJson().Property(e => e.Number)
+                    .HasJsonValueReaderWriter<QuotedNumberJsonReaderWriter>();
+            },
+            seed: context =>
+            {
+                context.Add(new JsonTextItem { Id = 1, Data = new JsonTextData { Text = "text", Number = 42 } });
+                return context.SaveChangesAsync();
+            });
+        await using var context = factory.CreateDbContext();
+        var query = context.Set<JsonTextItem>();
+
+        foreach (var (source, error) in new (Expression<Func<JsonTextItem, int>>, string)[]
+                 {
+                     (e => e.Id, RelationalStrings.ExecuteUpdateCannotSetJsonPropertyToNonJsonColumn),
+                     (e => e.Data.Number, RelationalStrings.ExecuteUpdateCannotSetJsonPropertyToArbitraryExpression)
+                 })
+        {
+            await AssertTranslationFailedWithDetails(
+                error,
+                () => async
+                    ? query.ExecuteUpdateAsync(s => s.SetProperty(e => e.Data.Number, source))
+                    : Task.FromResult(query.ExecuteUpdate(s => s.SetProperty(e => e.Data.Number, source))));
+        }
+
+        var number = 43;
+        ClearLog();
+        Assert.Equal(
+            1, async
+                ? await query.ExecuteUpdateAsync(s => s.SetProperty(e => e.Data.Number, number))
+                : query.ExecuteUpdate(s => s.SetProperty(e => e.Data.Number, number)));
+        var result = query.AsNoTracking().Select(e => e.Data.Number);
+        Assert.Equal(number, async ? await result.SingleAsync() : result.Single());
+    }
+
+    public sealed class QuotedNumberJsonReaderWriter : JsonValueReaderWriter<int>
+    {
+        public override int FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
+            => int.Parse(manager.CurrentReader.GetString()!, CultureInfo.InvariantCulture);
+
+        public override void ToJsonTyped(Utf8JsonWriter writer, int value)
+            => writer.WriteStringValue(value.ToString(CultureInfo.InvariantCulture));
+
+        public override Expression ConstructorExpression
+            => Expression.New(typeof(QuotedNumberJsonReaderWriter));
+    }
+
+    [Theory]
+    [InlineData(false, false, false), InlineData(true, false, false)]
+    [InlineData(false, true, false), InlineData(true, true, false)]
+    [InlineData(false, false, true), InlineData(true, false, true)]
+    [InlineData(false, true, true), InlineData(true, true, true)]
     public virtual async Task Update_JSON_strings_of_different_lengths(bool async, bool executeUpdate, bool converted)
     {
         var factory = await InitializeNonSharedTest<PoolableDbContext>(

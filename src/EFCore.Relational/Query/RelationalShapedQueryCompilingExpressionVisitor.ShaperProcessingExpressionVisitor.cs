@@ -3420,17 +3420,12 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
             Expression resultExpression = Convert(
                 Call(jsonReaderWriterExpression, fromJsonMethod, jsonReaderManagerParameter, Default(typeof(object))),
-                property.GetTypeMapping().ClrType);
+                property.ClrType);
 
             if (property.IsNullable)
             {
                 // in case of null value we can't just use the JsonReader method, but rather check the current token type
                 // if it's JsonTokenType.Null means value is null, only if it's not we are safe to read the value
-                if (resultExpression.Type != property.ClrType)
-                {
-                    resultExpression = Convert(resultExpression, property.ClrType);
-                }
-
                 var converter = property.GetTypeMapping().Converter;
                 Expression nullExpression;
                 if (converter?.ConvertsNulls == true)
@@ -3498,11 +3493,6 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 // as empty, the same as an absent key and as the Cosmos provider does, when the collection type is one the reader/writer
                 // itself would create. A property-level reader/writer decides how its collection is created, so for one of those the
                 // clear, property-named error stays instead of the cryptic reader/writer "Invalid token type". See #38625 and #34881.
-                if (resultExpression.Type != property.ClrType)
-                {
-                    resultExpression = Convert(resultExpression, property.ClrType);
-                }
-
                 resultExpression = Condition(
                     Equal(
                         Property(

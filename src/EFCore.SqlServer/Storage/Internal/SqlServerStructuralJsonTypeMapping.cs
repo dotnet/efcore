@@ -144,12 +144,10 @@ public class SqlServerStructuralJsonTypeMapping : StructuralJsonTypeMapping
     /// </summary>
     protected override void ConfigureParameter(DbParameter parameter)
     {
-        if (StoreType == "json")
+        if (StoreType == "json"
+            && parameter is SqlParameter sqlParameter) // To avoid crashing wrapping providers
         {
-            if (parameter is SqlParameter sqlParameter) // To avoid crashing wrapping providers
-            {
-                sqlParameter.SqlDbType = SqlDbType.Json;
-            }
+            sqlParameter.SqlDbType = SqlDbType.Json;
         }
 
         if (parameter.Value is null or DBNull or string)

@@ -8,6 +8,16 @@ public class NonSharedModelBulkUpdatesSqliteTest(NonSharedFixture fixture) : Non
     protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqliteTestStoreFactory.Instance;
 
+    public override async Task Update_JSON_numeric_null_sentinel(bool async, bool executeUpdate, bool converted)
+    {
+        await base.Update_JSON_numeric_null_sentinel(async, executeUpdate, converted);
+
+        Assert.Collection(
+            TestSqlLoggerFactory.Parameters,
+            p => Assert.Contains("'-1'", p),
+            p => Assert.Contains("'12345678901234567890.12345678'", p));
+    }
+
     public override async Task Update_JSON_strings_of_different_lengths(bool async, bool executeUpdate, bool converted)
     {
         await base.Update_JSON_strings_of_different_lengths(async, executeUpdate, converted);
@@ -27,6 +37,25 @@ RETURNING 1;
             TestSqlLoggerFactory.SqlStatements
                 .Where(s => s.Contains("UPDATE ", StringComparison.Ordinal))
                 .Select(s => s[s.IndexOf("UPDATE ", StringComparison.Ordinal)..]));
+    }
+
+    public override async Task Update_JSON_quoted_number_rejects_row_dependent_assignments(bool async)
+    {
+        await base.Update_JSON_quoted_number_rejects_row_dependent_assignments(async);
+
+        AssertSql(
+            """
+@p='"43"' (Size = 4)
+
+UPDATE "JsonTextItem" AS "j"
+SET "Data" = json_set("j"."Data", '$.Number', json(@p))
+""",
+            //
+            """
+SELECT "j"."Data" ->> 'Number'
+FROM "JsonTextItem" AS "j"
+LIMIT 2
+""");
     }
 
     public override async Task Update_JSON_scalar_with_custom_reader_writer(bool async, bool typeMappingDefault)

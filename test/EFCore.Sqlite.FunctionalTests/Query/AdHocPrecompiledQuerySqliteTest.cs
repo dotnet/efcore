@@ -9,6 +9,36 @@ public class AdHocPrecompiledQuerySqliteTest(NonSharedFixture fixture, ITestOutp
     : AdHocPrecompiledQueryRelationalTestBase(fixture, testOutputHelper)
 {
     [Fact]
+    public async Task Legacy_JSON_DateTime_parameter_is_preserved_in_precompiled_predicate()
+    {
+        var factory = await InitializeNonSharedTest<JsonScalarReaderContext>(
+            seed: context =>
+            {
+                context.Add(
+                    new JsonScalarReaderContext.Item
+                    {
+                        Id = 1,
+                        Data = new JsonScalarReaderContext.JsonData
+                        {
+                            Bytes = [],
+                            LegacyTimestamp = new DateTime(2026, 1, 1, 0, 0, 0, 123, DateTimeKind.Utc)
+                        }
+                    });
+                return context.SaveChangesAsync();
+            });
+
+        await Test(
+            """
+await using var context = new AdHocPrecompiledQuerySqliteTest.JsonScalarReaderContext(dbContextOptions);
+var timestamp = new DateTime(2026, 1, 1, 0, 0, 0, 123, DateTimeKind.Utc);
+var id = await context.Items.Where(e => e.Data.LegacyTimestamp == timestamp).Select(e => e.Id).SingleAsync();
+Assert.Equal(1, id);
+""",
+            typeof(JsonScalarReaderContext),
+            factory.GetOptions());
+    }
+
+    [Fact]
     public async Task Converted_JSON_scalars_use_native_precompiled_projections()
     {
         var factory = await InitializeNonSharedTest<JsonScalarReaderContext>(
@@ -61,6 +91,8 @@ Assert.Equal(new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc), result.Timesta
                     owned.Property(e => e.Timestamp).HasConversion(
                         v => new DateTimeOffset(v).ToUnixTimeMilliseconds(),
                         v => DateTimeOffset.FromUnixTimeMilliseconds(v).UtcDateTime);
+                    owned.Property(e => e.LegacyTimestamp)
+                        .HasJsonValueReaderWriter<OwnedEntityQueryRelationalTestBase.LegacyDateTimeJsonReaderWriter>();
                 });
         }
 
@@ -76,6 +108,7 @@ Assert.Equal(new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc), result.Timesta
             public int Number { get; set; }
             public int ConvertedNumber { get; set; }
             public DateTime Timestamp { get; set; }
+            public DateTime LegacyTimestamp { get; set; }
         }
     }
 

@@ -9,6 +9,7 @@
 
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Storage.Json;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -592,6 +593,26 @@ public class PropertyTest
         Assert.Same(JsonStringReaderWriter.Instance, element.TypeMapping.JsonValueReaderWriter);
         Assert.IsType<SimpleJasonValueReaderWriter>(new TypeMappingInfo(element).JsonValueReaderWriter);
         Assert.IsType<SimpleJasonValueReaderWriter>(new TypeMappingInfo(typeof(string), configuration).JsonValueReaderWriter);
+    }
+
+    [Theory, InlineData(false), InlineData(true)]
+    public void Convention_created_runtime_element_does_not_compose_converter_twice(bool configuredReader)
+    {
+        var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+        builder.Entity("Entity").Property<int>("Id");
+        var elementBuilder = builder.Entity("Entity").PrimitiveCollection<List<int>>("Values").ElementType()
+            .HasConversion(new ValueConverter<int, int>(v => v * 10, v => v / 10));
+        if (configuredReader)
+        {
+            elementBuilder.HasJsonValueReaderWriter<JsonInt32ReaderWriter>();
+        }
+
+        var model = builder.FinalizeModel(skipValidation: true);
+        var element = model.FindEntityType("Entity")!.FindProperty("Values")!.GetElementType()!;
+        var mapping = model.GetModelDependencies().TypeMappingSource.FindMapping(element)!;
+
+        Assert.Equal("430", mapping.JsonValueReaderWriter!.ToJsonString(43));
+        Assert.Equal(43, mapping.JsonValueReaderWriter.FromJsonString("430"));
     }
 
     [Fact]
