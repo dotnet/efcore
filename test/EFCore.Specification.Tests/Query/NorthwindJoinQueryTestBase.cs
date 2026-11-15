@@ -347,6 +347,112 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
             e => (e.c?.CustomerID, e.o?.OrderID)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Join_without_result_selector(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
+                .Join(
+                    ss.Set<Order>(),
+                    c => c.CustomerID,
+                    o => o.CustomerID),
+            e => (e.Outer.CustomerID, e.Inner.OrderID),
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.Outer, a.Outer);
+                AssertEqual(e.Inner, a.Inner);
+            });
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Join_without_result_selector_composed(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .Join(
+                    ss.Set<Order>(),
+                    c => c.CustomerID,
+                    o => o.CustomerID)
+                .Where(t => t.Outer.City == "London" && t.Inner.OrderID < 10500)
+                .Select(t => new { t.Outer.ContactName, t.Inner.OrderID }),
+            e => e.OrderID);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Join_without_result_selector_on_collection_navigation(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
+                .Select(c => new
+                {
+                    c.CustomerID,
+                    Count = c.Orders
+                        .Join(
+                            ss.Set<OrderDetail>(),
+                            o => o.OrderID,
+                            od => od.OrderID)
+                        .Count(t => t.Inner.Quantity > 10)
+                }),
+            e => e.CustomerID);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Join_without_result_selector_with_custom_comparer_does_not_translate(bool async)
+        => AssertTranslationFailed(() => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .Join(
+                    ss.Set<Order>(),
+                    c => c.CustomerID,
+                    o => o.CustomerID,
+                    StringComparer.Ordinal),
+            e => (e.Outer.CustomerID, e.Inner.OrderID)));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task LeftJoin_without_result_selector(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .LeftJoin(
+                    ss.Set<Order>(),
+                    c => c.CustomerID,
+                    o => o.CustomerID),
+            e => (e.Outer.CustomerID, e.Inner?.OrderID),
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.Outer, a.Outer);
+                AssertEqual(e.Inner, a.Inner);
+            });
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task RightJoin_without_result_selector(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A"))
+                .RightJoin(
+                    ss.Set<Order>(),
+                    c => c.CustomerID,
+                    o => o.CustomerID),
+            e => (e.Outer?.CustomerID, e.Inner.OrderID),
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.Outer, a.Outer);
+                AssertEqual(e.Inner, a.Inner);
+            });
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task FullJoin_without_result_selector(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A"))
+                .FullJoin(
+                    ss.Set<Order>().Where(o => o.CustomerID!.StartsWith("B")),
+                    c => c.CustomerID,
+                    o => o.CustomerID),
+            e => (e.Outer?.CustomerID, e.Inner?.OrderID),
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.Outer, a.Outer);
+                AssertEqual(e.Inner, a.Inner);
+            });
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupJoin_customers_employees_shadow(bool async)
         => AssertQuery(
             async,

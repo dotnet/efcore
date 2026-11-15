@@ -241,6 +241,7 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
             visitedMethodCall = TryNormalizeOrderAndOrderDescending(visitedMethodCall);
             visitedMethodCall = TryFlattenGroupJoinSelectMany(visitedMethodCall);
             visitedMethodCall = TryNormalizeMaxByMinBy(visitedMethodCall);
+            visitedMethodCall = TryNormalizeJoinWithoutResultSelector(visitedMethodCall);
 
             return visitedMethodCall;
         }
@@ -836,6 +837,72 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
         }
 
         return methodCallExpression;
+    }
+
+    private static MethodCallExpression TryNormalizeJoinWithoutResultSelector(MethodCallExpression methodCallExpression)
+    {
+        /*
+            Join(inner, o => o.Key, i => i.Key) --> Join(inner, o => o.Key, i => i.Key, (o, i) => new ValueTuple<TOuter, TInner>(o, i))
+
+            The same applies to LeftJoin, RightJoin and FullJoin.
+        */
+
+        var genericMethod = methodCallExpression.Method.GetGenericMethodDefinition();
+        MethodInfo joinMethod;
+        if (genericMethod == QueryableMethods.JoinWithoutResultSelector)
+        {
+            joinMethod = QueryableMethods.Join;
+        }
+        else if (genericMethod == QueryableMethods.LeftJoinWithoutResultSelector)
+        {
+            joinMethod = QueryableMethods.LeftJoin;
+        }
+        else if (genericMethod == QueryableMethods.RightJoinWithoutResultSelector)
+        {
+            joinMethod = QueryableMethods.RightJoin;
+        }
+        else if (genericMethod == QueryableMethods.FullJoinWithoutResultSelector)
+        {
+            joinMethod = QueryableMethods.FullJoin;
+        }
+        else
+        {
+            return methodCallExpression;
+        }
+
+        // A custom comparer can't be translated; leave the call as-is so that it fails translation.
+        var comparer = methodCallExpression.Arguments[4];
+        if (comparer is not ConstantExpression { Value: null })
+        {
+            return methodCallExpression;
+        }
+
+        var genericArguments = methodCallExpression.Method.GetGenericArguments();
+        var (outerType, innerType, keyType) = (genericArguments[0], genericArguments[1], genericArguments[2]);
+        var tupleType = typeof(ValueTuple<,>).MakeGenericType(outerType, innerType);
+        var outerParameter = Expression.Parameter(outerType, "outer");
+        var innerParameter = Expression.Parameter(innerType, "inner");
+        var resultSelector = Expression.Lambda(
+            Expression.New(tupleType.GetConstructor([outerType, innerType])!, outerParameter, innerParameter),
+            outerParameter,
+            innerParameter);
+
+        Expression[] arguments =
+        [
+            methodCallExpression.Arguments[0],
+            methodCallExpression.Arguments[1],
+            methodCallExpression.Arguments[2],
+            methodCallExpression.Arguments[3],
+            Expression.Quote(resultSelector)
+        ];
+
+        // Unlike Join/LeftJoin/RightJoin, Queryable.FullJoin only has an overload with a trailing (optional) comparer.
+        if (joinMethod == QueryableMethods.FullJoin)
+        {
+            arguments = [.. arguments, comparer];
+        }
+
+        return Expression.Call(joinMethod.MakeGenericMethod(outerType, innerType, keyType, tupleType), arguments);
     }
 
     private sealed class GroupJoinConvertingExpressionVisitor : ExpressionVisitor
