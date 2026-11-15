@@ -152,7 +152,10 @@ internal partial class MigrationsBundleCommand
     private string DiscoverContextType(IReadOnlyList<string> applicationArgs)
         => DiscoverContextType(
             applicationArgs,
-            (args, handleLine) => Exe.Run("dotnet", args, handleOutput: handleLine, handleError: handleLine),
+            // The child writes UTF-8 (see Program.Main), so decode it as UTF-8 regardless of the console code
+            // page; otherwise a non-ASCII context name would be mangled before it is embedded in the bundle.
+            (args, handleLine) => Exe.Run(
+                "dotnet", args, handleOutput: handleLine, handleError: handleLine, outputEncoding: Encoding.UTF8),
             Reporter.WriteError,
             Reporter.WriteWarning,
             Reporter.WriteInformation,
