@@ -123,14 +123,17 @@ WHERE (
     {
         await base.Parameter_collection_Count_with_huge_number_of_values_over_5_operations_same_parameter();
 
-        Assert.Contains("OPENJSON(@ids) WITH ([Value] int '$')", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
+        // The 1000 values are used five times, but all occurrences share one set of parameters, so no fallback is needed.
+        AssertExpandedParameters(0, "ids", 2);
+        AssertExpandedParameters(0, "extra", 1000);
     }
 
     public override async Task Parameter_collection_Count_with_huge_number_of_values_over_2_operations_same_parameter_different_property()
     {
         await base.Parameter_collection_Count_with_huge_number_of_values_over_2_operations_same_parameter_different_property();
 
-        Assert.Contains("OPENJSON(@ids) WITH ([Value] int '$')", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
+        AssertExpandedParameters(0, "ids", 2);
+        AssertExpandedParameters(0, "extra", 1666);
     }
 
     public override async Task Parameter_collection_Count_with_huge_number_of_values_over_5_operations_forced_constants()
@@ -185,8 +188,12 @@ WHERE [p].[Int] NOT IN (
     {
         await base.Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_same_parameter();
 
-        Assert.Contains("OPENJSON(@ints) WITH ([Value] int '$')", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
-        Assert.Contains("OPENJSON(@ints) WITH ([Value] int '$')", Fixture.TestSqlLoggerFactory.SqlStatements[1], StringComparison.Ordinal);
+        // The 1000 values are used five times, but all occurrences share one set of parameters, so no fallback is needed.
+        for (var i = 0; i < 2; i++)
+        {
+            AssertExpandedParameters(i, "ints", 2);
+            AssertExpandedParameters(i, "extra", 1000);
+        }
     }
 
     public override async Task
@@ -195,8 +202,12 @@ WHERE [p].[Int] NOT IN (
         await base
             .Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_2_operations_same_parameter_different_property();
 
-        Assert.Contains("OPENJSON(@ints) WITH ([Value] int '$')", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
-        Assert.Contains("OPENJSON(@ints) WITH ([Value] int '$')", Fixture.TestSqlLoggerFactory.SqlStatements[1], StringComparison.Ordinal);
+        // 1667 values, padded to 1700.
+        for (var i = 0; i < 2; i++)
+        {
+            AssertExpandedParameters(i, "ints", 2);
+            AssertExpandedParameters(i, "extra", 1700);
+        }
     }
 
     public override async Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_forced_constants()
@@ -3084,6 +3095,15 @@ WHERE (
         new SqlServerDbContextOptionsBuilder(optionsBuilder).UseParameterizedCollectionMode(parameterizedCollectionMode);
 
         return optionsBuilder;
+    }
+
+    private void AssertExpandedParameters(int statement, string name, int count)
+    {
+        var sql = Fixture.TestSqlLoggerFactory.SqlStatements[statement];
+
+        Assert.DoesNotContain("OPENJSON(@", sql, StringComparison.Ordinal);
+        Assert.Contains($"@{name}{count}=", sql, StringComparison.Ordinal);
+        Assert.DoesNotContain($"@{name}{count + 1}=", sql, StringComparison.Ordinal);
     }
 
     private void AssertSql(params string[] expected)
