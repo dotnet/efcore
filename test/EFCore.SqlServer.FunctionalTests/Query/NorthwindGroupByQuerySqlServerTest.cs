@@ -5040,6 +5040,29 @@ GROUP BY [o].[CustomerID]
 """);
     }
 
+    public override async Task GroupBy_aggregate_from_multiple_query_counting_rows_where_inner_key_not_null(bool async)
+    {
+        await base.GroupBy_aggregate_from_multiple_query_counting_rows_where_inner_key_not_null(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID] AS [Key], ISNULL((
+    SELECT TOP(1) (
+        SELECT COUNT(*)
+        FROM [Orders] AS [o0]
+        WHERE ([o].[CustomerID] = [o0].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)) AND [e].[City] IS NOT NULL)
+    FROM [Employees] AS [e]
+    WHERE [e].[City] = N'Seattle'
+    GROUP BY [e].[City]
+    ORDER BY (
+        SELECT COUNT(*)
+        FROM [Orders] AS [o0]
+        WHERE ([o].[CustomerID] = [o0].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)) AND [e].[City] IS NOT NULL)), 0) AS [A]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]
+""");
+    }
+
     public override async Task GroupBy_aggregate_from_multiple_query_in_aggregate_selector(bool async)
     {
         await base.GroupBy_aggregate_from_multiple_query_in_aggregate_selector(async);

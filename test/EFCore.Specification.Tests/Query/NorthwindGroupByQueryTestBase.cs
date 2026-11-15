@@ -4094,6 +4094,23 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
                 }),
             elementSorter: e => e.Key);
 
+    // A count of the rows where a column isn't null translates to COUNT(x). Here the column is the inner query's key, so
+    // SQL would evaluate COUNT([e].[City]) over the inner group's rows rather than over the outer group.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_from_multiple_query_counting_rows_where_inner_key_not_null(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(e => e.CustomerID)
+                .Select(g => new
+                {
+                    g.Key,
+                    A = ss.Set<Employee>().Where(e => e.City == "Seattle").GroupBy(e => e.City)
+                        .Select(g2 => g.Count(o => g2.Key != null))
+                        .OrderBy(e => e)
+                        .FirstOrDefault()
+                }),
+            elementSorter: e => e.Key);
+
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_aggregate_from_multiple_query_in_aggregate_selector(bool async)
         => AssertQuery(

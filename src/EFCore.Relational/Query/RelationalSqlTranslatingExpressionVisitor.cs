@@ -1857,8 +1857,9 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
             && IsCountOverNullableColumnSupported(nullCheckedColumn, selector))
         {
             // Counting rows where x isn't null is just COUNT(x), which unlike COUNT(CASE WHEN x IS NOT NULL THEN 1 END) can use
-            // an index on x. With DISTINCT applied this would instead count the distinct values of x.
-            enumerableExpression = new EnumerableExpression(nullCheckedColumn);
+            // an index on x. With DISTINCT applied this would instead count the distinct values of x. The grouping owner is
+            // kept, since x can be a column of a query other than the one that owns the grouping (#27130).
+            enumerableExpression = new EnumerableExpression(nullCheckedColumn) { GroupingOwner = enumerableExpression.GroupingOwner };
         }
 
         var translation = Dependencies.AggregateMethodCallTranslatorProvider.Translate(
