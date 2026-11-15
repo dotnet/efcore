@@ -479,9 +479,12 @@ ORDER BY [u].[Id], [o].[MainEntityManyId], [o].[Id]
                 c.Customers.Add(customer);
                 await c.SaveChangesAsync();
 
+                // Versions saved within the same clock tick get a zero-length period, which FOR SYSTEM_TIME filters out.
+                await Task.Delay(100);
                 customer.Name = "Customer2";
                 await c.SaveChangesAsync();
 
+                await Task.Delay(100);
                 customer.Name = "Customer3";
                 await c.SaveChangesAsync();
             });
@@ -512,9 +515,12 @@ ORDER BY [u].[Id], [o].[MainEntityManyId], [o].[Id]
                 c.Customers.Add(customer);
                 await c.SaveChangesAsync();
 
+                // Versions saved within the same clock tick get a zero-length period, which FOR SYSTEM_TIME filters out.
+                await Task.Delay(100);
                 customer.Name = "Customer2";
                 await c.SaveChangesAsync();
 
+                await Task.Delay(100);
                 customer.Name = "Customer3";
                 await c.SaveChangesAsync();
             });
