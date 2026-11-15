@@ -695,7 +695,14 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
         // TODO: Test invoking extension without extension syntax (as static)
         if (methodSymbol is { IsExtensionMethod: true /*, ReceiverType: { } */ })
         {
-            destArguments[0] = instance;
+            var receiverType = instance!.Type;
+            var parameterType = parameters[0].ParameterType;
+            destArguments[0] = receiverType.IsSZArray
+                && parameterType.IsGenericType
+                && parameterType.GetGenericTypeDefinition() == typeof(ReadOnlySpan<>)
+                && receiverType.GetElementType() == parameterType.GenericTypeArguments[0]
+                    ? Call(parameterType.GetMethod("op_Implicit", [receiverType])!, instance)
+                    : instance;
             paramIndex = 1;
             instance = null;
         }
