@@ -214,7 +214,7 @@ namespace Microsoft.Data.Sqlite.Properties
             => GetString("SqlBlobRequiresOpenConnection");
 
         /// <summary>
-        ///     This happens when a connection with an open read transaction, such as one with an unfinished data reader or a deferred transaction, tries to write after another connection has committed changes, because what it read is now out of date. Waiting cannot help. Finish reading and dispose any open readers before writing, or start the transaction with BeginTransaction() (not deferred) before reading.
+        ///     This happens when a connection that has read data tries to write after another connection has committed changes, because what it read is now out of date. Waiting cannot help. If there is a transaction, roll it back and retry it. To avoid this, start the transaction with BeginTransaction() (not deferred) before reading, and outside a transaction dispose any open readers before writing.
         /// </summary>
         public static string SqliteBusySnapshotGuidance
             => GetString("SqliteBusySnapshotGuidance");

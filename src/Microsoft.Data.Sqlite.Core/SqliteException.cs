@@ -17,9 +17,26 @@ public class SqliteException : DbException
     // Extended result codes that SQLitePCL.raw doesn't define.
     internal const int SQLITE_ERROR_MISSING_COLLSEQ = SQLITE_ERROR | (1 << 8);
     private const int SQLITE_ERROR_RETRY = SQLITE_ERROR | (2 << 8);
+    private const int SQLITE_ERROR_SNAPSHOT = SQLITE_ERROR | (3 << 8);
+    private const int SQLITE_BUSY_TIMEOUT = SQLITE_BUSY | (3 << 8);
+    private const int SQLITE_LOCKED_VTAB = SQLITE_LOCKED | (2 << 8);
     private const int SQLITE_READONLY_CANTINIT = SQLITE_READONLY | (5 << 8);
     private const int SQLITE_READONLY_DIRECTORY = SQLITE_READONLY | (6 << 8);
+    private const int SQLITE_IOERR_VNODE = SQLITE_IOERR | (27 << 8);
+    private const int SQLITE_IOERR_AUTH = SQLITE_IOERR | (28 << 8);
+    private const int SQLITE_IOERR_BEGIN_ATOMIC = SQLITE_IOERR | (29 << 8);
+    private const int SQLITE_IOERR_COMMIT_ATOMIC = SQLITE_IOERR | (30 << 8);
+    private const int SQLITE_IOERR_ROLLBACK_ATOMIC = SQLITE_IOERR | (31 << 8);
+    private const int SQLITE_IOERR_DATA = SQLITE_IOERR | (32 << 8);
+    private const int SQLITE_IOERR_CORRUPTFS = SQLITE_IOERR | (33 << 8);
+    private const int SQLITE_IOERR_IN_PAGE = SQLITE_IOERR | (34 << 8);
+    private const int SQLITE_CORRUPT_SEQUENCE = SQLITE_CORRUPT | (2 << 8);
+    private const int SQLITE_CORRUPT_INDEX = SQLITE_CORRUPT | (3 << 8);
     private const int SQLITE_CANTOPEN_DIRTYWAL = SQLITE_CANTOPEN | (5 << 8);
+    private const int SQLITE_CANTOPEN_SYMLINK = SQLITE_CANTOPEN | (6 << 8);
+    private const int SQLITE_CONSTRAINT_PINNED = SQLITE_CONSTRAINT | (11 << 8);
+    private const int SQLITE_CONSTRAINT_DATATYPE = SQLITE_CONSTRAINT | (12 << 8);
+    private const int SQLITE_AUTH_USER = SQLITE_AUTH | (1 << 8);
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="SqliteException" /> class.
@@ -96,9 +113,11 @@ public class SqliteException : DbException
         var result = Resources.SqliteNativeError(errorCode, message);
 
         // Surface the extended code, since it often identifies the specific cause (e.g. which kind of constraint failed).
-        if (extendedErrorCode != errorCode)
+        // When the caller has enabled extended result codes the two are equal, but the name is still worth showing.
+        var name = GetExtendedErrorName(extendedErrorCode);
+        if (extendedErrorCode != errorCode
+            || name != null)
         {
-            var name = GetExtendedErrorName(extendedErrorCode);
             result += " " + Resources.SqliteExtendedErrorCode(name == null ? extendedErrorCode : $"{extendedErrorCode} ({name})");
         }
 
@@ -125,20 +144,19 @@ public class SqliteException : DbException
         {
             SQLITE_ERROR_MISSING_COLLSEQ => nameof(SQLITE_ERROR_MISSING_COLLSEQ),
             SQLITE_ERROR_RETRY => nameof(SQLITE_ERROR_RETRY),
+            SQLITE_ERROR_SNAPSHOT => nameof(SQLITE_ERROR_SNAPSHOT),
+            SQLITE_ABORT_ROLLBACK => nameof(SQLITE_ABORT_ROLLBACK),
             SQLITE_BUSY_RECOVERY => nameof(SQLITE_BUSY_RECOVERY),
             SQLITE_BUSY_SNAPSHOT => nameof(SQLITE_BUSY_SNAPSHOT),
+            SQLITE_BUSY_TIMEOUT => nameof(SQLITE_BUSY_TIMEOUT),
             SQLITE_LOCKED_SHAREDCACHE => nameof(SQLITE_LOCKED_SHAREDCACHE),
+            SQLITE_LOCKED_VTAB => nameof(SQLITE_LOCKED_VTAB),
             SQLITE_READONLY_RECOVERY => nameof(SQLITE_READONLY_RECOVERY),
             SQLITE_READONLY_CANTLOCK => nameof(SQLITE_READONLY_CANTLOCK),
             SQLITE_READONLY_ROLLBACK => nameof(SQLITE_READONLY_ROLLBACK),
             SQLITE_READONLY_DBMOVED => nameof(SQLITE_READONLY_DBMOVED),
             SQLITE_READONLY_CANTINIT => nameof(SQLITE_READONLY_CANTINIT),
             SQLITE_READONLY_DIRECTORY => nameof(SQLITE_READONLY_DIRECTORY),
-            SQLITE_CANTOPEN_NOTEMPDIR => nameof(SQLITE_CANTOPEN_NOTEMPDIR),
-            SQLITE_CANTOPEN_ISDIR => nameof(SQLITE_CANTOPEN_ISDIR),
-            SQLITE_CANTOPEN_FULLPATH => nameof(SQLITE_CANTOPEN_FULLPATH),
-            SQLITE_CANTOPEN_CONVPATH => nameof(SQLITE_CANTOPEN_CONVPATH),
-            SQLITE_CANTOPEN_DIRTYWAL => nameof(SQLITE_CANTOPEN_DIRTYWAL),
             SQLITE_IOERR_READ => nameof(SQLITE_IOERR_READ),
             SQLITE_IOERR_SHORT_READ => nameof(SQLITE_IOERR_SHORT_READ),
             SQLITE_IOERR_WRITE => nameof(SQLITE_IOERR_WRITE),
@@ -149,12 +167,39 @@ public class SqliteException : DbException
             SQLITE_IOERR_UNLOCK => nameof(SQLITE_IOERR_UNLOCK),
             SQLITE_IOERR_RDLOCK => nameof(SQLITE_IOERR_RDLOCK),
             SQLITE_IOERR_DELETE => nameof(SQLITE_IOERR_DELETE),
+            SQLITE_IOERR_BLOCKED => nameof(SQLITE_IOERR_BLOCKED),
             SQLITE_IOERR_NOMEM => nameof(SQLITE_IOERR_NOMEM),
             SQLITE_IOERR_ACCESS => nameof(SQLITE_IOERR_ACCESS),
             SQLITE_IOERR_CHECKRESERVEDLOCK => nameof(SQLITE_IOERR_CHECKRESERVEDLOCK),
             SQLITE_IOERR_LOCK => nameof(SQLITE_IOERR_LOCK),
             SQLITE_IOERR_CLOSE => nameof(SQLITE_IOERR_CLOSE),
+            SQLITE_IOERR_DIR_CLOSE => nameof(SQLITE_IOERR_DIR_CLOSE),
+            SQLITE_IOERR_SHMOPEN => nameof(SQLITE_IOERR_SHMOPEN),
+            SQLITE_IOERR_SHMSIZE => nameof(SQLITE_IOERR_SHMSIZE),
+            SQLITE_IOERR_SHMLOCK => nameof(SQLITE_IOERR_SHMLOCK),
+            SQLITE_IOERR_SHMMAP => nameof(SQLITE_IOERR_SHMMAP),
             SQLITE_IOERR_SEEK => nameof(SQLITE_IOERR_SEEK),
+            SQLITE_IOERR_DELETE_NOENT => nameof(SQLITE_IOERR_DELETE_NOENT),
+            SQLITE_IOERR_MMAP => nameof(SQLITE_IOERR_MMAP),
+            SQLITE_IOERR_GETTEMPPATH => nameof(SQLITE_IOERR_GETTEMPPATH),
+            SQLITE_IOERR_CONVPATH => nameof(SQLITE_IOERR_CONVPATH),
+            SQLITE_IOERR_VNODE => nameof(SQLITE_IOERR_VNODE),
+            SQLITE_IOERR_AUTH => nameof(SQLITE_IOERR_AUTH),
+            SQLITE_IOERR_BEGIN_ATOMIC => nameof(SQLITE_IOERR_BEGIN_ATOMIC),
+            SQLITE_IOERR_COMMIT_ATOMIC => nameof(SQLITE_IOERR_COMMIT_ATOMIC),
+            SQLITE_IOERR_ROLLBACK_ATOMIC => nameof(SQLITE_IOERR_ROLLBACK_ATOMIC),
+            SQLITE_IOERR_DATA => nameof(SQLITE_IOERR_DATA),
+            SQLITE_IOERR_CORRUPTFS => nameof(SQLITE_IOERR_CORRUPTFS),
+            SQLITE_IOERR_IN_PAGE => nameof(SQLITE_IOERR_IN_PAGE),
+            SQLITE_CORRUPT_VTAB => nameof(SQLITE_CORRUPT_VTAB),
+            SQLITE_CORRUPT_SEQUENCE => nameof(SQLITE_CORRUPT_SEQUENCE),
+            SQLITE_CORRUPT_INDEX => nameof(SQLITE_CORRUPT_INDEX),
+            SQLITE_CANTOPEN_NOTEMPDIR => nameof(SQLITE_CANTOPEN_NOTEMPDIR),
+            SQLITE_CANTOPEN_ISDIR => nameof(SQLITE_CANTOPEN_ISDIR),
+            SQLITE_CANTOPEN_FULLPATH => nameof(SQLITE_CANTOPEN_FULLPATH),
+            SQLITE_CANTOPEN_CONVPATH => nameof(SQLITE_CANTOPEN_CONVPATH),
+            SQLITE_CANTOPEN_DIRTYWAL => nameof(SQLITE_CANTOPEN_DIRTYWAL),
+            SQLITE_CANTOPEN_SYMLINK => nameof(SQLITE_CANTOPEN_SYMLINK),
             SQLITE_CONSTRAINT_CHECK => nameof(SQLITE_CONSTRAINT_CHECK),
             SQLITE_CONSTRAINT_COMMITHOOK => nameof(SQLITE_CONSTRAINT_COMMITHOOK),
             SQLITE_CONSTRAINT_FOREIGNKEY => nameof(SQLITE_CONSTRAINT_FOREIGNKEY),
@@ -165,6 +210,9 @@ public class SqliteException : DbException
             SQLITE_CONSTRAINT_UNIQUE => nameof(SQLITE_CONSTRAINT_UNIQUE),
             SQLITE_CONSTRAINT_VTAB => nameof(SQLITE_CONSTRAINT_VTAB),
             SQLITE_CONSTRAINT_ROWID => nameof(SQLITE_CONSTRAINT_ROWID),
+            SQLITE_CONSTRAINT_PINNED => nameof(SQLITE_CONSTRAINT_PINNED),
+            SQLITE_CONSTRAINT_DATATYPE => nameof(SQLITE_CONSTRAINT_DATATYPE),
+            SQLITE_AUTH_USER => nameof(SQLITE_AUTH_USER),
             _ => null
         };
 }

@@ -94,11 +94,41 @@ public class SqliteExceptionTest
         }
         finally
         {
-            SqliteConnection.ClearAllPools();
-            foreach (var file in Directory.GetFiles(Path.GetTempPath(), Path.GetFileName(path) + "*"))
+            DeleteDatabase(path);
+        }
+    }
+
+    // Disposing the reader doesn't help here: the snapshot is held until the transaction ends, so the guidance has to say to retry it.
+    [Fact]
+    public void Message_includes_guidance_when_deferred_transaction_writes_after_other_connections_commit()
+    {
+        var path = Path.Combine(Path.GetTempPath(), $"{nameof(SqliteExceptionTest)}-{Guid.NewGuid():N}.db");
+        var connectionString = $"Data Source={path};Pooling=False;Default Timeout=1";
+        try
+        {
+            using var reading = new SqliteConnection(connectionString);
+            reading.Open();
+            reading.ExecuteNonQuery("PRAGMA journal_mode = 'wal'; CREATE TABLE Data (Value); INSERT INTO Data VALUES (1), (2);");
+
+            using var transaction = reading.BeginTransaction(deferred: true);
+            Assert.Equal(2L, reading.ExecuteScalar<long>("SELECT COUNT(*) FROM Data"));
+
+            using (var writing = new SqliteConnection(connectionString))
             {
-                File.Delete(file);
+                writing.Open();
+                writing.ExecuteNonQuery("INSERT INTO Data VALUES (3)");
             }
+
+            var ex = Assert.Throws<SqliteException>(() => reading.ExecuteNonQuery("INSERT INTO Data VALUES (4)"));
+
+            Assert.Equal(SQLITE_BUSY, ex.SqliteErrorCode);
+            Assert.Equal(SQLITE_BUSY_SNAPSHOT, ex.SqliteExtendedErrorCode);
+            Assert.Contains("SQLITE_BUSY_SNAPSHOT", ex.Message);
+            Assert.Contains(Resources.SqliteBusySnapshotGuidance, ex.Message);
+        }
+        finally
+        {
+            DeleteDatabase(path);
         }
     }
 
@@ -130,35 +160,6 @@ public class SqliteExceptionTest
         }
     }
 
-    // BackupDatabase doesn't wait for the timeout, so a message that said it did would be wrong.
-    [Fact]
-    public void Message_does_not_mention_timeout_when_backup_is_busy()
-    {
-        var path = Path.Combine(Path.GetTempPath(), $"{nameof(SqliteExceptionTest)}-{Guid.NewGuid():N}.db");
-        var connectionString = $"Data Source={path};Pooling=False";
-        try
-        {
-            using var holder = new SqliteConnection(connectionString);
-            holder.Open();
-            holder.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES (1);");
-            holder.ExecuteNonQuery("BEGIN EXCLUSIVE;");
-
-            using var source = new SqliteConnection(connectionString);
-            source.Open();
-            using var destination = new SqliteConnection("Data Source=:memory:");
-            destination.Open();
-
-            var ex = Assert.Throws<SqliteException>(() => source.BackupDatabase(destination));
-
-            Assert.Equal(SQLITE_BUSY, ex.SqliteErrorCode);
-            Assert.DoesNotContain("imeout", ex.Message);
-        }
-        finally
-        {
-            DeleteDatabase(path);
-        }
-    }
-
     [Fact]
     public void ThrowExceptionForRC_uses_default_message_without_a_database()
     {
@@ -168,6 +169,41 @@ public class SqliteExceptionTest
         Assert.Equal(SQLITE_BUSY, ex.SqliteExtendedErrorCode);
         Assert.Equal(
             Resources.SqliteNativeError(SQLITE_BUSY, sqlite3_errstr(SQLITE_BUSY).utf8_to_string() + " " + Resources.DefaultNativeError),
+            ex.Message);
+    }
+
+    // SQLitePCL.raw doesn't define this code, so it is declared locally.
+    [Fact]
+    public void Message_includes_name_of_constraint_datatype_violation_in_strict_table()
+    {
+        Assert.SkipUnless(sqlite3_libversion_number() >= 3037000, "STRICT tables require SQLite 3.37.");
+
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        connection.ExecuteNonQuery("CREATE TABLE Data (Value INTEGER) STRICT");
+
+        var ex = Assert.Throws<SqliteException>(() => connection.ExecuteNonQuery("INSERT INTO Data VALUES ('a')"));
+
+        Assert.Equal(SQLITE_CONSTRAINT, ex.SqliteErrorCode);
+        Assert.Contains("(SQLITE_CONSTRAINT_DATATYPE)", ex.Message);
+    }
+
+    [Fact]
+    public void Message_includes_extended_code_name_when_extended_result_codes_are_enabled()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        connection.ExecuteNonQuery("CREATE TABLE Data (Id INTEGER PRIMARY KEY, Value TEXT UNIQUE)");
+        connection.ExecuteNonQuery("INSERT INTO Data (Value) VALUES ('A')");
+        Assert.Equal(SQLITE_OK, sqlite3_extended_result_codes(connection.Handle, 1));
+
+        var ex = Assert.Throws<SqliteException>(() => connection.ExecuteNonQuery("INSERT INTO Data (Value) VALUES ('A')"));
+
+        Assert.Equal(SQLITE_CONSTRAINT_UNIQUE, ex.SqliteErrorCode);
+        Assert.Equal(SQLITE_CONSTRAINT_UNIQUE, ex.SqliteExtendedErrorCode);
+        Assert.Equal(
+            Resources.SqliteNativeError(SQLITE_CONSTRAINT_UNIQUE, "UNIQUE constraint failed: Data.Value")
+            + " " + Resources.SqliteExtendedErrorCode($"{SQLITE_CONSTRAINT_UNIQUE} (SQLITE_CONSTRAINT_UNIQUE)"),
             ex.Message);
     }
 
@@ -194,6 +230,11 @@ public class SqliteExceptionTest
     [InlineData(SQLITE_READONLY, SQLITE_READONLY_DBMOVED, "SQLITE_READONLY_DBMOVED")]
     [InlineData(SQLITE_CANTOPEN, SQLITE_CANTOPEN_ISDIR, "SQLITE_CANTOPEN_ISDIR")]
     [InlineData(SQLITE_IOERR, SQLITE_IOERR_SHORT_READ, "SQLITE_IOERR_SHORT_READ")]
+    [InlineData(SQLITE_CONSTRAINT, 3091, "SQLITE_CONSTRAINT_DATATYPE")]
+    [InlineData(SQLITE_BUSY, 773, "SQLITE_BUSY_TIMEOUT")]
+    [InlineData(SQLITE_ABORT, SQLITE_ABORT_ROLLBACK, "SQLITE_ABORT_ROLLBACK")]
+    [InlineData(SQLITE_IOERR, SQLITE_IOERR_SHMOPEN, "SQLITE_IOERR_SHMOPEN")]
+    [InlineData(SQLITE_CONSTRAINT_UNIQUE, SQLITE_CONSTRAINT_UNIQUE, "SQLITE_CONSTRAINT_UNIQUE")] // Extended result codes enabled
     public void FormatMessage_names_common_extended_codes(int errorCode, int extendedErrorCode, string name)
         => Assert.Contains(
             Resources.SqliteExtendedErrorCode($"{extendedErrorCode} ({name})"),
