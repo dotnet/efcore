@@ -131,6 +131,7 @@ public static class CoreEventId
         AccidentalEntityType = CoreBaseId + 633,
         AccidentalComplexPropertyCollection = CoreBaseId + 634,
         ShadowPropertyNameNotValidIdentifierWarning = CoreBaseId + 635,
+        AccidentalScalarCollection = CoreBaseId + 636,
 
         // ChangeTracking events
         DetectChangesStarting = CoreBaseId + 800,
@@ -761,6 +762,19 @@ public static class CoreEventId
     ///     </para>
     /// </remarks>
     public static readonly EventId AccidentalComplexPropertyCollection = MakeModelValidationId(Id.AccidentalComplexPropertyCollection);
+
+    /// <summary>
+    ///     A collection-typed property is configured as a scalar property.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="PropertyEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId AccidentalScalarCollection = MakeModelValidationId(Id.AccidentalScalarCollection);
 
     /// <summary>
     ///     A shadow property has a name that is not a valid identifier, which can cause issues in generated code.

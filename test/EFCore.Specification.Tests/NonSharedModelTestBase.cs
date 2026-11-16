@@ -160,7 +160,8 @@ public abstract class NonSharedModelTestBase(NonSharedFixture fixture) : IAsyncL
                 .Ignore(
                     CoreEventId.MappedEntityTypeIgnoredWarning,
                     CoreEventId.MappedPropertyIgnoredWarning,
-                    CoreEventId.MappedNavigationIgnoredWarning));
+                    CoreEventId.MappedNavigationIgnoredWarning,
+                    CoreEventId.AccidentalScalarCollection));
 
     protected virtual TestStore CreateTestStore()
         => NonSharedTestStoreFactory.Create(NonSharedStoreName);

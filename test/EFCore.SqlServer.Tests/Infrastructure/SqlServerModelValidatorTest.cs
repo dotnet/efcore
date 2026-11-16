@@ -14,6 +14,48 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 public class SqlServerModelValidatorTest : RelationalModelValidatorTest
 {
+    [Fact] // Issue #39600
+    public void Scalar_collection_warning_identifies_the_configuration_before_contains_translation_fails()
+    {
+        var options = new DbContextOptionsBuilder()
+            .UseSqlServer()
+            .UseLoggerFactory(LoggerFactory)
+            .Options;
+        var id = Guid.NewGuid();
+
+        using (var context = new ScalarCollectionQueryContext(options))
+        {
+            Assert.Throws<InvalidOperationException>(
+                () => context.Set<CollectionQueryRoom>().Where(r => r.Required.Contains(id)).ToQueryString());
+            var warning = Assert.Single(LoggerFactory.Log, e => e.Id == CoreEventId.AccidentalScalarCollection);
+            Assert.Contains("PrimitiveCollection()", warning.Message);
+        }
+
+        LoggerFactory.Clear();
+        using var collectionContext = new PrimitiveCollectionQueryContext(options);
+        var sql = collectionContext.Set<CollectionQueryRoom>().Where(r => r.Required.Contains(id)).ToQueryString();
+        Assert.Contains("OPENJSON", sql);
+        Assert.DoesNotContain(LoggerFactory.Log, e => e.Id == CoreEventId.AccidentalScalarCollection);
+    }
+
+    private class CollectionQueryRoom
+    {
+        public int Id { get; set; }
+        public Guid[] Required { get; set; } = [];
+    }
+
+    private class ScalarCollectionQueryContext(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<CollectionQueryRoom>().Property(r => r.Required).IsRequired();
+    }
+
+    private class PrimitiveCollectionQueryContext(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<CollectionQueryRoom>().PrimitiveCollection(r => r.Required).IsRequired();
+    }
+
     [Fact] // Issue #34324
     public virtual void Throws_for_nested_primitive_collections()
     {
