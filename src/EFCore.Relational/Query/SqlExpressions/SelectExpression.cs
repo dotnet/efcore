@@ -953,6 +953,13 @@ public sealed partial class SelectExpression : TableExpressionBase
                                 AppendOrderingInternal(new OrderingExpression(actualParentIdentifier[j].Column, ascending: true));
                                 outerSelectExpression.AppendOrderingInternal(
                                     new OrderingExpression(outerSelectExpression._identifier[j].Column, ascending: true));
+
+                                // If the limit/offset was already pushed down into a subquery (e.g. because a reference navigation
+                                // was joined after Skip/Take), the orderings above only reach the outer query, and the subquery
+                                // that selects the page can still return different rows for the main and the split query (#39206).
+                                AppendIdentifierOrderingToPagedSubquery(actualParentIdentifier[j].Column);
+                                outerSelectExpression.AppendIdentifierOrderingToPagedSubquery(
+                                    outerSelectExpression._identifier[j].Column);
                             }
 
                             if (outerSelectExpression.Limit != null
@@ -2098,6 +2105,22 @@ public sealed partial class SelectExpression : TableExpressionBase
         if (!_orderings.Any(o => o.Expression.Equals(orderingExpression.Expression)))
         {
             _orderings.Add(orderingExpression);
+        }
+    }
+
+    private void AppendIdentifierOrderingToPagedSubquery(ColumnExpression identifierColumn)
+    {
+        if (TryGetTable(identifierColumn, out var table, out _)
+            && table.UnwrapJoin() is SelectExpression subquery
+            && (subquery.Limit != null || subquery.Offset != null)
+            && subquery._projection.FirstOrDefault(p => p.Alias == identifierColumn.Name) is { } projection)
+        {
+            subquery.AppendOrderingInternal(new OrderingExpression(projection.Expression, ascending: true));
+
+            if (projection.Expression is ColumnExpression innerColumn)
+            {
+                subquery.AppendIdentifierOrderingToPagedSubquery(innerColumn);
+            }
         }
     }
 

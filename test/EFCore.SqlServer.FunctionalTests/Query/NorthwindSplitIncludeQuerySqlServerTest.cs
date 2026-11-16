@@ -850,7 +850,7 @@ CROSS APPLY (
     SELECT TOP(5) [o].[OrderID]
     FROM [Orders] AS [o]
     WHERE [o].[CustomerID] = [c].[CustomerID]
-    ORDER BY [c].[CustomerID]
+    ORDER BY [c].[CustomerID], [o].[OrderID]
 ) AS [o0]
 WHERE [c].[CustomerID] LIKE N'F%'
 ORDER BY [c].[CustomerID], [o0].[OrderID]
@@ -863,7 +863,7 @@ CROSS APPLY (
     SELECT TOP(5) [o].[OrderID]
     FROM [Orders] AS [o]
     WHERE [o].[CustomerID] = [c].[CustomerID]
-    ORDER BY [c].[CustomerID]
+    ORDER BY [c].[CustomerID], [o].[OrderID]
 ) AS [o0]
 INNER JOIN [Orders] AS [o1] ON [c].[CustomerID] = [o1].[CustomerID]
 WHERE [c].[CustomerID] LIKE N'F%'
@@ -883,7 +883,7 @@ OUTER APPLY (
     SELECT TOP(5) [o].[OrderID]
     FROM [Orders] AS [o]
     WHERE [o].[CustomerID] = [c].[CustomerID]
-    ORDER BY [c].[CustomerID]
+    ORDER BY [c].[CustomerID], [o].[OrderID]
 ) AS [o0]
 WHERE [c].[CustomerID] LIKE N'F%'
 ORDER BY [c].[CustomerID], [o0].[OrderID]
@@ -896,7 +896,7 @@ OUTER APPLY (
     SELECT TOP(5) [o].[OrderID]
     FROM [Orders] AS [o]
     WHERE [o].[CustomerID] = [c].[CustomerID]
-    ORDER BY [c].[CustomerID]
+    ORDER BY [c].[CustomerID], [o].[OrderID]
 ) AS [o0]
 INNER JOIN [Orders] AS [o1] ON [c].[CustomerID] = [o1].[CustomerID]
 WHERE [c].[CustomerID] LIKE N'F%'
@@ -1144,7 +1144,7 @@ OUTER APPLY (
     SELECT TOP(5) [o].[OrderID]
     FROM [Orders] AS [o]
     WHERE [o].[CustomerID] <> [c].[CustomerID] OR [o].[CustomerID] IS NULL
-    ORDER BY [c].[CustomerID]
+    ORDER BY [c].[CustomerID], [o].[OrderID]
 ) AS [o0]
 WHERE [c].[CustomerID] LIKE N'F%'
 ORDER BY [c].[CustomerID], [o0].[OrderID]
@@ -1157,7 +1157,7 @@ OUTER APPLY (
     SELECT TOP(5) [o].[OrderID]
     FROM [Orders] AS [o]
     WHERE [o].[CustomerID] <> [c].[CustomerID] OR [o].[CustomerID] IS NULL
-    ORDER BY [c].[CustomerID]
+    ORDER BY [c].[CustomerID], [o].[OrderID]
 ) AS [o0]
 INNER JOIN [Orders] AS [o1] ON [c].[CustomerID] = [o1].[CustomerID]
 WHERE [c].[CustomerID] LIKE N'F%'
