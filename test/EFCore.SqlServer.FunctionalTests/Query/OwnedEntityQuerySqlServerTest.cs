@@ -959,6 +959,48 @@ ORDER BY [o].[Id]
 """);
     }
 
+    public override async Task Owned_reference_separate_table_with_key_on_complex_property_and_nested_owned_reference()
+    {
+        await base.Owned_reference_separate_table_with_key_on_complex_property_and_nested_owned_reference();
+
+        AssertSql(
+            """
+SELECT TOP(2) [o].[Id], [o0].[OwnerOfNestedId], [o0].[Address_City], [o0].[Address_Street], [o0].[Address_Country_Code], [o0].[Address_Country_Name], [o0].[City_Name]
+FROM [OwnerOfNested] AS [o]
+LEFT JOIN [Owned] AS [o0] ON [o].[Id] = [o0].[OwnerOfNestedId]
+""");
+    }
+
+    public override async Task Owned_reference_with_key_on_nested_complex_property_equals_parameter()
+    {
+        await base.Owned_reference_with_key_on_nested_complex_property_equals_parameter();
+
+        AssertSql(
+            """
+@entity_equality_owned_Address_Country_Code='DE' (Size = 450)
+
+SELECT TOP(2) [o].[Id], [o].[Name], [o0].[Name], [o0].[OwnerId], [o0].[Address_City], [o0].[Address_Street], [o0].[Address_Country_Code], [o0].[Address_Country_Name]
+FROM [Owners] AS [o]
+LEFT JOIN [Owned] AS [o0] ON [o].[Id] = [o0].[OwnerId]
+WHERE [o0].[Address_Country_Code] = @entity_equality_owned_Address_Country_Code
+""");
+    }
+
+    public override async Task Owned_reference_with_key_on_nested_complex_property_in_local_collection()
+    {
+        await base.Owned_reference_with_key_on_nested_complex_property_in_local_collection();
+
+        AssertSql(
+            """
+@entity_equality_owned_Code1='DE' (Size = 450)
+
+SELECT TOP(2) [o].[Id], [o].[Name], [o0].[Name], [o0].[OwnerId], [o0].[Address_City], [o0].[Address_Street], [o0].[Address_Country_Code], [o0].[Address_Country_Name]
+FROM [Owners] AS [o]
+LEFT JOIN [Owned] AS [o0] ON [o].[Id] = [o0].[OwnerId]
+WHERE [o0].[Address_Country_Code] = @entity_equality_owned_Code1
+""");
+    }
+
     public override async Task Owned_reference_json()
     {
         await base.Owned_reference_json();
@@ -1238,7 +1280,7 @@ WHERE [o].[Id] = 1
 
         AssertSql(
             """
-@p0='{"Name":"Owned","Outer":{"Inner":{"Value":"New"}}}' (Nullable = false) (Size = 50)
+@p0='{"Name":"Owned","Outer":{"Inner":{"Flag":true,"Value":"New"}}}' (Nullable = false) (Size = 62)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1282,12 +1324,34 @@ FROM [OwnerOfNullableComplex] AS [o]
 
         AssertSql(
             """
-@p0='{"Name":"Owned","Outer":{"Inner":{"Value":"New"}}}' (Nullable = false) (Size = 50)
+@p0='{"":"New"}' (Nullable = false) (Size = 10)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [OwnerOfNullableComplex] SET [Owned] = @p0
+UPDATE [OwnerOfNullableComplex] SET [Owned] = JSON_MODIFY([Owned], 'strict $.Outer.Inner.Value', JSON_VALUE(@p0, '$.""'))
+OUTPUT 1
+WHERE [Id] = @p1;
+""",
+            //
+            """
+SELECT TOP(2) [o].[Id], [o].[Owned]
+FROM [OwnerOfNullableComplex] AS [o]
+""");
+    }
+
+    public override async Task Clear_nullable_bool_in_nullable_complex_property_of_json_owned_reference()
+    {
+        await base.Clear_nullable_bool_in_nullable_complex_property_of_json_owned_reference();
+
+        AssertSql(
+            """
+@p0=NULL (Nullable = false) (DbType = Boolean)
+@p1='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [OwnerOfNullableComplex] SET [Owned] = JSON_MODIFY([Owned], 'strict $.Outer.Inner.Flag', @p0)
 OUTPUT 1
 WHERE [Id] = @p1;
 """,

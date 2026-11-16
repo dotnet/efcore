@@ -1168,6 +1168,75 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
     }
 
     [Fact]
+    public virtual async Task Owned_reference_with_key_on_nested_complex_property_equals_parameter()
+    {
+        var contextFactory = await InitializeNonSharedTest<ContextOwnedComplex>(
+            onModelCreating: ConfigureSeparateTableOwnedReferenceWithKeyOnComplexProperty,
+            seed: c => c.SeedAsync());
+
+        using var context = contextFactory.CreateDbContext();
+        var owned = ContextOwnedComplex.CreateOwned("Owned2", "2 Hauptstrasse", "Berlin", "Germany", "DE");
+
+        var owner = await context.Owners.SingleAsync(e => e.Owned == owned);
+
+        Assert.Equal(2, owner.Id);
+    }
+
+    [Fact]
+    public virtual async Task Owned_reference_with_key_on_nested_complex_property_in_local_collection()
+    {
+        var contextFactory = await InitializeNonSharedTest<ContextOwnedComplex>(
+            onModelCreating: ConfigureSeparateTableOwnedReferenceWithKeyOnComplexProperty,
+            seed: c => c.SeedAsync());
+
+        using var context = contextFactory.CreateDbContext();
+        var owned = new[] { ContextOwnedComplex.CreateOwned("Owned2", "2 Hauptstrasse", "Berlin", "Germany", "DE") };
+
+        var owner = await context.Owners.SingleAsync(e => owned.Contains(e.Owned));
+
+        Assert.Equal(2, owner.Id);
+    }
+
+    [Fact]
+    public virtual async Task Owned_reference_separate_table_with_key_on_complex_property_and_nested_owned_reference()
+    {
+        var contextFactory = await InitializeNonSharedTest<ContextOwnedComplex>(
+            onModelCreating: mb =>
+            {
+                mb.Ignore<ContextOwnedComplex.Owner>();
+                mb.Entity<ContextOwnedComplex.OwnerOfNested>(b => b.OwnsOne(
+                    e => e.Owned, ob =>
+                    {
+                        ob.ToTable("Owned");
+                        ob.ComplexProperty(o => o.Address);
+                        ob.HasKey("Address.Country.Code");
+                        ob.OwnsOne(o => o.City);
+                    }));
+            },
+            seed: context =>
+            {
+                context.Add(
+                    new ContextOwnedComplex.OwnerOfNested
+                    {
+                        Id = 1,
+                        Owned = new ContextOwnedComplex.NestedOwned
+                        {
+                            Address = ContextOwnedComplex.CreateOwned(string.Empty, "1 Main St", "Sydney", "Australia", "AU").Address,
+                            City = new ContextOwnedComplex.City { Name = "Sydney" }
+                        }
+                    });
+
+                return context.SaveChangesAsync();
+            });
+
+        using var context = contextFactory.CreateDbContext();
+        var owner = await context.Set<ContextOwnedComplex.OwnerOfNested>().SingleAsync();
+
+        Assert.Equal("AU", owner.Owned.Address.Country.Code);
+        Assert.Equal("Sydney", owner.Owned.City.Name);
+    }
+
+    [Fact]
     public virtual async Task Owned_reference_json()
     {
         var contextFactory = await InitializeNonSharedTest<ContextOwnedComplex>(
@@ -1395,7 +1464,10 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
     public virtual Task Set_nullable_complex_property_of_json_owned_reference()
         => AssertUpdateNullableComplexProperty(
             initialValue: null,
-            o => o.Outer = new ContextOwnedComplex.OuterComplex { Inner = new ContextOwnedComplex.InnerComplex { Value = "New" } },
+            o => o.Outer = new ContextOwnedComplex.OuterComplex
+            {
+                Inner = new ContextOwnedComplex.InnerComplex { Value = "New", Flag = true }
+            },
             expectedValue: "New");
 
     [Fact]
@@ -1405,6 +1477,11 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
     [Fact]
     public virtual Task Update_property_in_nullable_complex_property_of_json_owned_reference()
         => AssertUpdateNullableComplexProperty(initialValue: "Old", o => o.Outer!.Inner.Value = "New", expectedValue: "New");
+
+    [Fact]
+    public virtual Task Clear_nullable_bool_in_nullable_complex_property_of_json_owned_reference()
+        => AssertUpdateNullableComplexProperty(
+            initialValue: "Old", o => o.Outer!.Inner.Flag = null, expectedValue: "Old", expectedFlag: null);
 
     [Fact(Skip = "Issue #35701")]
     public virtual async Task Optional_owned_reference_with_null_scalars_and_complex_property()
@@ -1677,7 +1754,8 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
     private async Task AssertUpdateNullableComplexProperty(
         string? initialValue,
         Action<ContextOwnedComplex.OwnedWithNullableComplex> change,
-        string? expectedValue)
+        string? expectedValue,
+        bool? expectedFlag = true)
     {
         var contextFactory = await InitializeNonSharedTest<ContextOwnedComplex>(
             onModelCreating: mb =>
@@ -1703,7 +1781,7 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
                                 ? null
                                 : new ContextOwnedComplex.OuterComplex
                                 {
-                                    Inner = new ContextOwnedComplex.InnerComplex { Value = initialValue }
+                                    Inner = new ContextOwnedComplex.InnerComplex { Value = initialValue, Flag = true }
                                 }
                         }
                     });
@@ -1725,6 +1803,7 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
 
             Assert.Equal("Owned", owned.Name);
             Assert.Equal(expectedValue, owned.Outer?.Inner.Value);
+            Assert.Equal(expectedValue == null ? null : expectedFlag, owned.Outer?.Inner.Flag);
         }
     }
 
@@ -2063,6 +2142,7 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
         public class InnerComplex
         {
             public string Value { get; set; } = null!;
+            public bool? Flag { get; set; }
         }
     }
 

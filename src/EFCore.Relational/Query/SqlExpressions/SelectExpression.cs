@@ -351,7 +351,7 @@ public sealed partial class SelectExpression : TableExpressionBase
 
                         foreach (var property in primaryKey.Properties)
                         {
-                            typeProjectionIdentifiers.Add(entityProjection.BindProperty(property));
+                            typeProjectionIdentifiers.Add(entityProjection.BindKeyProperty(property));
                             typeProjectionValueComparers.Add(property.GetKeyValueComparer());
                         }
 
@@ -2506,7 +2506,9 @@ public sealed partial class SelectExpression : TableExpressionBase
                             StructuralTypeShaperExpression { ValueBufferExpression: JsonQueryExpression jsonQuery1 } shaper1,
                             StructuralTypeShaperExpression { ValueBufferExpression: JsonQueryExpression jsonQuery2 } shaper2
                             ):
-                            ProcessJson(jsonQuery1, jsonQuery2);
+                            var outerJsonQuery = ProcessJson(jsonQuery1, jsonQuery2);
+                            complexPropertyCache[complexProperty] = new RelationalStructuralTypeShaperExpression(
+                                complexProperty.ComplexType, outerJsonQuery, shaper1.IsNullable || shaper2.IsNullable);
                             continue;
 
                         // Set operation over type that contains a JSON-mapped complex type (collection)
@@ -2515,7 +2517,8 @@ public sealed partial class SelectExpression : TableExpressionBase
                             CollectionResultExpression { QueryExpression: JsonQueryExpression jsonQuery1 } collection1,
                             CollectionResultExpression { QueryExpression: JsonQueryExpression jsonQuery2 } collection2
                             ):
-                            ProcessJson(jsonQuery1, jsonQuery2);
+                            complexPropertyCache[complexProperty] = new CollectionResultExpression(
+                                ProcessJson(jsonQuery1, jsonQuery2), complexProperty, complexProperty.ComplexType.ClrType);
                             continue;
 
                         default:
@@ -2523,7 +2526,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                                 "Unexpected complex property binding in set operation over structural types.");
                     }
 
-                    void ProcessJson(JsonQueryExpression jsonQuery1, JsonQueryExpression jsonQuery2)
+                    JsonQueryExpression ProcessJson(JsonQueryExpression jsonQuery1, JsonQueryExpression jsonQuery2)
                     {
                         Check.DebugAssert(jsonQuery1.StructuralType == jsonQuery2.StructuralType);
                         Check.DebugAssert(jsonQuery1.Type == jsonQuery2.Type);
@@ -2556,7 +2559,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                             outerColumn = outerColumn.MakeNullable();
                         }
 
-                        var outerJsonQuery = new JsonQueryExpression(
+                        return new JsonQueryExpression(
                             jsonQuery1.StructuralType,
                             outerColumn,
                             keyPropertyMap: null, // For owned entities only, here we're processing a complex type
@@ -2564,11 +2567,6 @@ public sealed partial class SelectExpression : TableExpressionBase
                             jsonQuery1.Type,
                             collection: jsonQuery1.IsCollection,
                             jsonQuery1.IsNullable || jsonQuery2.IsNullable);
-
-                        var outerShaper = new CollectionResultExpression(
-                            outerJsonQuery, complexProperty, complexProperty.ComplexType.ClrType);
-
-                        complexPropertyCache[complexProperty] = outerShaper;
                     }
                 }
 
@@ -2596,7 +2594,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                     Check.DebugAssert(primaryKey != null, "primary key is null.");
                     foreach (var property in primaryKey.Properties)
                     {
-                        entityProjectionIdentifiers.Add(outerProjection.BindProperty(property));
+                        entityProjectionIdentifiers.Add(outerProjection.BindKeyProperty(property));
                         entityProjectionValueComparers.Add(property.GetKeyValueComparer());
                     }
                 }
@@ -2728,7 +2726,7 @@ public sealed partial class SelectExpression : TableExpressionBase
     {
         // We first find the select expression where principal tableExpressionBase is located
         // That is where we find shared tableExpressionBase to pull columns from or add joins
-        var identifyingColumn = principalEntityProjection.BindProperty(
+        var identifyingColumn = principalEntityProjection.BindKeyProperty(
             navigation.DeclaringEntityType.FindPrimaryKey()!.Properties.First());
 
         var expressions = GetPropertyExpressions(
@@ -4528,7 +4526,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                         boundEntityShaperExpression.ValueBufferExpression is StructuralTypeProjectionExpression innerEntityProjection
                             ? LiftStructuralProjectionFromSubquery(innerEntityProjection, subquery, subqueryAlias, projectionMap)
                             : LiftJsonQueryFromSubquery(
-                        (JsonQueryExpression)boundEntityShaperExpression.ValueBufferExpression, subquery, subqueryAlias, projectionMap);
+                                (JsonQueryExpression)boundEntityShaperExpression.ValueBufferExpression, subquery, subqueryAlias, projectionMap);
 
                     boundEntityShaperExpression = boundEntityShaperExpression.Update(newValueBufferExpression);
                     newEntityProjection.AddNavigationBinding(navigation, boundEntityShaperExpression);

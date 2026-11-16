@@ -515,6 +515,72 @@ public abstract class ComplexTypeQueryRelationalTestBase<TFixture>(TFixture fixt
 
     #endregion SiblingJsonColumn
 
+    #region Key on complex property
+
+    [Fact]
+    public virtual async Task Distinct_over_entity_with_key_on_complex_property()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context31246>(seed: SeedPeopleAsync);
+        await using var context = contextFactory.CreateDbContext();
+
+        var people = await context.Set<Context31246.Person>().Distinct().OrderBy(p => p.Id.Id).ToListAsync();
+
+        Assert.Equal([1, 2], people.Select(p => p.Id.Id));
+    }
+
+    [Fact]
+    public virtual async Task Union_over_entity_with_key_on_complex_property()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context31246>(seed: SeedPeopleAsync);
+        await using var context = contextFactory.CreateDbContext();
+
+        var people = await context.Set<Context31246.Person>().Where(p => p.Address.City == "Seattle")
+            .Union(context.Set<Context31246.Person>().Where(p => p.Address.City == "Redmond"))
+            .OrderBy(p => p.Id.Id)
+            .ToListAsync();
+
+        Assert.Equal([1, 2], people.Select(p => p.Id.Id));
+    }
+
+    [Fact]
+    public virtual async Task Entity_with_key_on_complex_property_equals_parameter()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context31246>(seed: SeedPeopleAsync);
+        await using var context = contextFactory.CreateDbContext();
+        var person = CreatePerson(2, "Redmond", "98052");
+
+        var found = await context.Set<Context31246.Person>().SingleAsync(p => p == person);
+
+        Assert.Equal("Redmond", found.Address.City);
+    }
+
+    [Fact]
+    public virtual async Task Entity_with_key_on_complex_property_in_local_collection()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context31246>(seed: SeedPeopleAsync);
+        await using var context = contextFactory.CreateDbContext();
+        var people = new[] { CreatePerson(2, "Redmond", "98052") };
+
+        var found = await context.Set<Context31246.Person>().SingleAsync(p => people.Contains(p));
+
+        Assert.Equal("Redmond", found.Address.City);
+    }
+
+    private static Task SeedPeopleAsync(Context31246 context)
+    {
+        context.AddRange(CreatePerson(1, "Seattle", "98101"), CreatePerson(2, "Redmond", "98052"));
+
+        return context.SaveChangesAsync();
+    }
+
+    private static Context31246.Person CreatePerson(int id, string city, string postalCode)
+        => new()
+        {
+            Id = new Context31246.StronglyTypedId(id), Address = new Context31246.Address { City = city, PostalCode = postalCode }
+        };
+
+    #endregion Key on complex property
+
     protected TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;
 

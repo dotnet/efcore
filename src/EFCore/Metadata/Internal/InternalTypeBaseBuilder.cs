@@ -1148,14 +1148,12 @@ public abstract class InternalTypeBaseBuilder :
                     var typeBuilder = member.DeclaringType is not ComplexType ownerComplex
                         ? this
                         : member.IsInModel
-                            ? ownerComplex.ContainingEntityType.IsAssignableFrom(Metadata) ? ownerComplex.Builder : this
+                            ? ownerComplex.ContainingEntityType.IsAssignableFrom(Metadata)
+                                ? ownerComplex.Builder
+                                : this
                             : FindComplexType(Metadata, ownerComplex)?.Builder;
-                    if (typeBuilder == null)
-                    {
-                        return null;
-                    }
 
-                    var builder = typeBuilder.Property(
+                    var builder = typeBuilder?.Property(
                         typeConfigurationSource.Overrides(ConfigurationSource.DataAnnotation)
                         || (member.IsInModel && typeBuilder.Metadata.IsAssignableFrom(member.DeclaringType))
                             ? member.ClrType

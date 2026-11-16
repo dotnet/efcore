@@ -685,7 +685,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
             // Patch one scalar at a time, except for complex collections and null changes of complex properties
             if (modifiedMembers.Count == 1
                 && !entry.EntityType.GetFlattenedComplexProperties().Any(cp => cp.IsCollection && entry.IsModified(cp))
-                && GetComplexPropertyPath(modifiedMembers[0]) is { } complexPropertyPath)
+                && GetComplexPropertyPath(entry, modifiedMembers[0]) is { } complexPropertyPath)
             {
                 // The containing complex properties are part of the path, so that it's only merged with paths that share them
                 foreach (var complexProperty in complexPropertyPath)
@@ -710,20 +710,26 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
             // parent entity got deleted, no need to do any json-specific processing
             return currentEntry?.EntityState == EntityState.Deleted ? null : result;
 
-            // The complex properties containing the property, outermost first, or null if any of them is nullable
-            static List<IComplexProperty>? GetComplexPropertyPath(IProperty property)
+            // The complex properties containing the property, outermost first, or null if any of them is or was null
+            static List<IComplexProperty>? GetComplexPropertyPath(IUpdateEntry entry, IProperty property)
             {
                 var path = new List<IComplexProperty>();
                 var type = property.DeclaringType as IComplexType;
                 while (type != null)
                 {
-                    if (type.ComplexProperty.IsNullable)
+                    path.Insert(0, type.ComplexProperty);
+                    type = type.ComplexProperty.DeclaringType as IComplexType;
+                }
+
+                foreach (var complexProperty in path)
+                {
+                    if (complexProperty.IsNullable
+                        && (entry.GetCurrentValue(complexProperty) == null
+                            || !entry.CanHaveOriginalValue(complexProperty)
+                            || entry.GetOriginalValue(complexProperty) == null))
                     {
                         return null;
                     }
-
-                    path.Insert(0, type.ComplexProperty);
-                    type = type.ComplexProperty.DeclaringType as IComplexType;
                 }
 
                 return path;

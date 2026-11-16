@@ -78,8 +78,32 @@ WHERE (ARRAY_LENGTH(ARRAY_CONCAT(ARRAY(
     public override Task Over_different_collection_properties()
         => AssertTranslationFailed(base.Over_different_collection_properties);
 
+    public override async Task Union_over_associate_collections()
+    {
+        await base.Union_over_associate_collections();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (ARRAY_LENGTH(SetUnion(ARRAY(
+    SELECT VALUE a
+    FROM a IN c["AssociateCollection"]
+    WHERE (a["Int"] = 8)), ARRAY(
+    SELECT VALUE a0
+    FROM a0 IN c["AssociateCollection"]
+    WHERE (a0["String"] = "foo")))) = 2)
+""");
+    }
+
     // Set operations aren't supported on Cosmos
+    public override Task Union_associates_then_project_nested_associate()
+        => AssertTranslationFailed(base.Union_associates_then_project_nested_associate);
+
     // Set operations aren't supported on Cosmos
+    public override Task Union_associates_then_filter_on_nested_associate()
+        => AssertTranslationFailed(base.Union_associates_then_filter_on_nested_associate);
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

@@ -1720,6 +1720,69 @@ INNER JOIN [Dog] AS [d] ON [a].[Id] = [d].[Id]
 
     #endregion Non-shared test resources
 
+    public override async Task Distinct_over_entity_with_key_on_complex_property()
+    {
+        await base.Distinct_over_entity_with_key_on_complex_property();
+
+        AssertSql(
+            """
+SELECT [p0].[Id_Id], [p0].[Address_City], [p0].[Address_PostalCode]
+FROM (
+    SELECT DISTINCT [p].[Id_Id], [p].[Address_City], [p].[Address_PostalCode]
+    FROM [Person] AS [p]
+) AS [p0]
+ORDER BY [p0].[Id_Id]
+""");
+    }
+
+    public override async Task Union_over_entity_with_key_on_complex_property()
+    {
+        await base.Union_over_entity_with_key_on_complex_property();
+
+        AssertSql(
+            """
+SELECT [u].[Id_Id], [u].[Address_City], [u].[Address_PostalCode]
+FROM (
+    SELECT [p].[Id_Id], [p].[Address_City], [p].[Address_PostalCode]
+    FROM [Person] AS [p]
+    WHERE [p].[Address_City] = N'Seattle'
+    UNION
+    SELECT [p0].[Id_Id], [p0].[Address_City], [p0].[Address_PostalCode]
+    FROM [Person] AS [p0]
+    WHERE [p0].[Address_City] = N'Redmond'
+) AS [u]
+ORDER BY [u].[Id_Id]
+""");
+    }
+
+    public override async Task Entity_with_key_on_complex_property_equals_parameter()
+    {
+        await base.Entity_with_key_on_complex_property_equals_parameter();
+
+        AssertSql(
+            """
+@entity_equality_person_Id_Id='2' (Nullable = true)
+
+SELECT TOP(2) [p].[Id_Id], [p].[Address_City], [p].[Address_PostalCode]
+FROM [Person] AS [p]
+WHERE [p].[Id_Id] = @entity_equality_person_Id_Id
+""");
+    }
+
+    public override async Task Entity_with_key_on_complex_property_in_local_collection()
+    {
+        await base.Entity_with_key_on_complex_property_in_local_collection();
+
+        AssertSql(
+            """
+@entity_equality_people_Id1='2'
+
+SELECT TOP(2) [p].[Id_Id], [p].[Address_City], [p].[Address_PostalCode]
+FROM [Person] AS [p]
+WHERE [p].[Id_Id] = @entity_equality_people_Id1
+""");
+    }
+
     [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

@@ -2255,6 +2255,34 @@ public abstract partial class ModelBuilderTest
         }
 
         [Fact]
+        public virtual void Key_on_complex_property_of_owned_type_is_not_used_as_ownership_foreign_key()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<OwnerOfOwnedWithComplex>(b =>
+            {
+                b.Ignore(e => e.OwnedCollection);
+                b.OwnsOne(
+                    e => e.Owned, ob =>
+                    {
+                        ob.Ignore(o => o.ComplexCollection);
+                        ob.ComplexProperty(o => o.Complex);
+                        ob.HasKey("Complex.Number");
+                    });
+            });
+
+            // Not finalized: an owned reference whose key isn't its foreign key can't share its owner's table
+            var model = modelBuilder.Model;
+
+            var owned = model.FindEntityType(typeof(OwnerOfOwnedWithComplex))!
+                .FindNavigation(nameof(OwnerOfOwnedWithComplex.Owned))!.TargetEntityType;
+            var number = owned.FindComplexProperty(nameof(OwnedWithComplex.Complex))!.ComplexType
+                .FindProperty(nameof(ComplexInOwned.Number))!;
+            Assert.Same(number, owned.FindPrimaryKey()!.Properties.Single());
+            Assert.Same(owned.FindProperty("OwnerOfOwnedWithComplexId"), owned.FindOwnership()!.Properties.Single());
+        }
+
+        [Fact]
         public virtual void Principal_key_on_complex_property_of_owned_type_is_kept_when_it_becomes_shared_type()
         {
             var modelBuilder = CreateModelBuilder();
