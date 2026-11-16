@@ -4504,39 +4504,6 @@ WHERE CAST(DATEDIFF(day, '0001-01-01T00:00:00.0000000', [d].[Nullable]) AS bigin
             message.Replace("\r", "").Replace("\n", ""));
     }
 
-    [Fact]
-    public virtual async Task DateTime_Ticks_with_store_type_in_brackets_or_upper_case()
-    {
-        var contextFactory = await InitializeNonSharedTest<Context35436>(
-            onModelCreating: mb => mb.Entity<Dates35436>(
-                b =>
-                {
-                    b.Property(e => e.DateTime2_7).HasColumnType("DATETIME2(7)");
-                    b.Property(e => e.Date).HasColumnType("[date]");
-                }),
-            seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateDbContext();
-
-        var expected = context.Dates.AsNoTracking().OrderBy(d => d.Id).ToList()
-            .Select(d => new { DateTime2_7 = d.DateTime2_7.Ticks, Date = d.Date.Ticks })
-            .ToList();
-
-        ClearLog();
-
-        var actual = await context.Dates.OrderBy(d => d.Id)
-            .Select(d => new { DateTime2_7 = d.DateTime2_7.Ticks, Date = d.Date.Ticks })
-            .ToListAsync();
-
-        Assert.Equal(expected, actual);
-
-        AssertSql(
-            """
-SELECT CAST(DATEDIFF(day, '0001-01-01T00:00:00.0000000', [d].[DateTime2_7]) AS bigint) * CAST(864000000000 AS bigint) + CAST(DATEDIFF(second, CONVERT(date, [d].[DateTime2_7]), [d].[DateTime2_7]) AS bigint) * CAST(10000000 AS bigint) + CAST(DATEPART(nanosecond, [d].[DateTime2_7]) / 100 AS bigint) AS [DateTime2_7], CAST(DATEDIFF(day, '0001-01-01T00:00:00.0000000', [d].[Date]) AS bigint) * CAST(864000000000 AS bigint) AS [Date]
-FROM [Dates] AS [d]
-ORDER BY [d].[Id]
-""");
-    }
-
     protected class Context35436(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Dates35436> Dates { get; set; } = null!;
