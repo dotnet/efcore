@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using static System.Linq.Expressions.Expression;
 
 // ReSharper disable AssignNullToNotNullAttribute
@@ -147,6 +148,24 @@ public class ExpressionEqualityComparerTest
         Assert.Equal(expressionComparer.GetHashCode(lambda1), expressionComparer.GetHashCode(lambda2));
         Assert.NotEqual(expressionComparer.GetHashCode(lambda1), expressionComparer.GetHashCode(lambda3));
     }
+
+    [Fact]
+    public void Entity_query_roots_of_different_types_are_not_equal()
+    {
+        var expressionComparer = ExpressionEqualityComparer.Instance;
+
+        var entityType = new Model().AddEntityType(typeof(Node), owned: false, ConfigurationSource.Explicit)!;
+        var root1 = new EntityQueryRootExpression(entityType);
+        var root2 = new EntityQueryRootExpression(entityType);
+        var derivedRoot = new DerivedEntityQueryRootExpression(entityType);
+
+        Assert.True(expressionComparer.Equals(root1, root2));
+        Assert.Equal(expressionComparer.GetHashCode(root1), expressionComparer.GetHashCode(root2));
+        Assert.False(expressionComparer.Equals(root1, derivedRoot));
+        Assert.False(expressionComparer.Equals(derivedRoot, root1));
+    }
+
+    private class DerivedEntityQueryRootExpression(IEntityType entityType) : EntityQueryRootExpression(entityType);
 
     private class Node
     {

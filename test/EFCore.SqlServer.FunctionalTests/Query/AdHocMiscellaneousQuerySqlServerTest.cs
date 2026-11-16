@@ -3470,14 +3470,221 @@ ORDER BY [s].[PickupStatusId]
 
         AssertSql(
             """
-SELECT [s].[PickupStatusId], [r0].[pickupStatusId], [r0].[Count]
+SELECT [s].[PickupStatusId], [r0].[pickupStatusId], [r0].[Count], [r0].[marker]
 FROM (
-    SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count]
+    SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
     FROM [Requests] AS [r]
     GROUP BY [r].[PickupStatusId]
 ) AS [r0]
 RIGHT JOIN [Statuses] AS [s] ON [r0].[pickupStatusId] = [s].[PickupStatusId]
 ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task RightJoin_whole_object_outer_nullable_MemberInit_dto()
+    {
+        await base.RightJoin_whole_object_outer_nullable_MemberInit_dto();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[PickupStatusId], [r0].[Count], [r0].[marker]
+FROM (
+    SELECT [r].[PickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0]
+RIGHT JOIN [Statuses] AS [s] ON [r0].[PickupStatusId] = [s].[PickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task RightJoin_whole_object_outer_nullable_Distinct_outer()
+    {
+        await base.RightJoin_whole_object_outer_nullable_Distinct_outer();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[PickupStatusId], [r0].[Count], [r0].[marker]
+FROM (
+    SELECT DISTINCT [r].[PickupStatusId], 1 AS [Count], 1 AS [marker]
+    FROM [Requests] AS [r]
+) AS [r0]
+RIGHT JOIN [Statuses] AS [s] ON [r0].[PickupStatusId] = [s].[PickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task RightJoin_whole_object_outer_nullable_Take_outer()
+    {
+        await base.RightJoin_whole_object_outer_nullable_Take_outer();
+
+        AssertSql(
+            """
+@p='10'
+
+SELECT [s].[PickupStatusId], [r0].[pickupStatusId], [r0].[Count], [r0].[marker]
+FROM (
+    SELECT TOP(@p) [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+    ORDER BY [r].[PickupStatusId]
+) AS [r0]
+RIGHT JOIN [Statuses] AS [s] ON [r0].[pickupStatusId] = [s].[PickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task RightJoin_whole_object_outer_nullable_then_LeftJoin()
+    {
+        await base.RightJoin_whole_object_outer_nullable_then_LeftJoin();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[pickupStatusId], [r0].[Count], [r0].[marker], [s0].[Name]
+FROM (
+    SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0]
+RIGHT JOIN [Statuses] AS [s] ON [r0].[pickupStatusId] = [s].[PickupStatusId]
+LEFT JOIN [Statuses] AS [s0] ON [s].[PickupStatusId] = [s0].[PickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task RightJoin_whole_object_outer_nullable_client_projection_outer()
+    {
+        await base.RightJoin_whole_object_outer_nullable_client_projection_outer();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[PickupStatusId], [r0].[marker]
+FROM (
+    SELECT DISTINCT [r].[PickupStatusId], 1 AS [marker]
+    FROM [Requests] AS [r]
+) AS [r0]
+RIGHT JOIN [Statuses] AS [s] ON [r0].[PickupStatusId] = [s].[PickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task RightJoin_whole_object_outer_nullable_client_projection_both_sides()
+    {
+        await base.RightJoin_whole_object_outer_nullable_client_projection_both_sides();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[PickupStatusId], [r0].[marker]
+FROM (
+    SELECT DISTINCT [r].[PickupStatusId], 1 AS [marker]
+    FROM [Requests] AS [r]
+) AS [r0]
+RIGHT JOIN [Statuses] AS [s] ON [r0].[PickupStatusId] = [s].[PickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task RightJoin_whole_object_outer_nullable_mapping_outer_client_projection_inner()
+    {
+        await base.RightJoin_whole_object_outer_nullable_mapping_outer_client_projection_inner();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[pickupStatusId], [r0].[Count], [r0].[marker]
+FROM (
+    SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0]
+RIGHT JOIN [Statuses] AS [s] ON [r0].[pickupStatusId] = [s].[PickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task FullJoin_whole_object_both_sides_nullable()
+    {
+        await base.FullJoin_whole_object_both_sides_nullable();
+
+        AssertSql(
+            """
+SELECT [r0].[pickupStatusId], [r0].[Count], [r0].[marker], [s0].[PickupStatusId], [s0].[Name], [s0].[marker]
+FROM (
+    SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0]
+FULL JOIN (
+    SELECT DISTINCT [s].[PickupStatusId], [s].[Name], 1 AS [marker]
+    FROM [Statuses] AS [s]
+    WHERE [s].[PickupStatusId] <> 1
+) AS [s0] ON [r0].[pickupStatusId] = [s0].[PickupStatusId]
+""");
+    }
+
+    public override async Task RightJoin_whole_object_outer_nullable_Where_over_plain_Select_outer()
+    {
+        await base.RightJoin_whole_object_outer_nullable_Where_over_plain_Select_outer();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[PickupStatusId], 1 AS [Count]
+FROM (
+    SELECT [r].[PickupStatusId]
+    FROM [Requests] AS [r]
+    WHERE [r].[PickupStatusId] > 0
+) AS [r0]
+RIGHT JOIN [Statuses] AS [s] ON [r0].[PickupStatusId] = [s].[PickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task RightJoin_whole_object_outer_nullable_Take_over_plain_Select_outer()
+    {
+        await base.RightJoin_whole_object_outer_nullable_Take_over_plain_Select_outer();
+
+        AssertSql(
+            """
+@p='10'
+
+SELECT [s].[PickupStatusId], [r0].[PickupStatusId], 1 AS [Count]
+FROM (
+    SELECT TOP(@p) [r].[PickupStatusId]
+    FROM [Requests] AS [r]
+    ORDER BY [r].[PickupStatusId]
+) AS [r0]
+RIGHT JOIN [Statuses] AS [s] ON [r0].[PickupStatusId] = [s].[PickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task RightJoin_whole_object_outer_nullable_plain_outer_no_pushdown()
+    {
+        await base.RightJoin_whole_object_outer_nullable_plain_outer_no_pushdown();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r].[PickupStatusId], 1 AS [Count]
+FROM [Requests] AS [r]
+RIGHT JOIN [Statuses] AS [s] ON [r].[PickupStatusId] = [s].[PickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task RightJoin_whole_object_outer_nullable_outer_is_join_result()
+    {
+        await base.RightJoin_whole_object_outer_nullable_outer_is_join_result();
+
+        AssertSql(
+            """
+SELECT [r1].[Id], [s].[PickupStatusId], [r0].[pickupStatusId], [r0].[Count], [r0].[marker]
+FROM (
+    SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0]
+RIGHT JOIN [Statuses] AS [s] ON [r0].[pickupStatusId] = [s].[PickupStatusId]
+RIGHT JOIN [Requests] AS [r1] ON [s].[PickupStatusId] = [r1].[Id] + 10
+ORDER BY [r1].[Id]
 """);
     }
 
@@ -4082,6 +4289,76 @@ LEFT JOIN [EntityType] AS [e0] ON [e].[TypeID] = [e0].[ID]
 LEFT JOIN [Tag] AS [t] ON [e0].[ID] = [t].[EntityTypeID]
 ORDER BY [e].[ID]
 """);
+    }
+
+    #endregion
+
+    #region 26940
+
+    [Fact]
+    public async Task Count_with_not_null_predicate_over_large_object_column_type_in_any_case()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context26940>(seed: c => c.SeedAsync());
+
+        using var context = contextFactory.CreateDbContext();
+        var result = context.Entities
+            .GroupBy(e => e.GroupKey)
+            .Select(g => new
+            {
+                Text = g.Count(e => e.Text != null),
+                Ntext = g.LongCount(e => e.Ntext != null),
+                Image = g.Count(e => e.Image != null)
+            })
+            .Single();
+
+        Assert.Equal(1, result.Text);
+        Assert.Equal(1, result.Ntext);
+        Assert.Equal(1, result.Image);
+
+        AssertSql(
+            """
+SELECT TOP(2) COUNT(CASE
+    WHEN [e].[Text] IS NOT NULL THEN 1
+END) AS [Text], COUNT_BIG(CASE
+    WHEN [e].[Ntext] IS NOT NULL THEN 1
+END) AS [Ntext], COUNT(CASE
+    WHEN [e].[Image] IS NOT NULL THEN 1
+END) AS [Image]
+FROM [Entities] AS [e]
+GROUP BY [e].[GroupKey]
+""");
+    }
+
+    protected class Context26940(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Entity26940> Entities { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Entity26940>(
+                b =>
+                {
+                    b.Property(e => e.Text).HasColumnType("Text");
+                    b.Property(e => e.Ntext).HasColumnType("NTEXT");
+                    b.Property(e => e.Image).HasColumnType("[image]");
+                });
+
+        public Task SeedAsync()
+        {
+            AddRange(
+                new Entity26940 { GroupKey = 1, Text = "A", Ntext = "B", Image = [1] },
+                new Entity26940 { GroupKey = 1 });
+
+            return SaveChangesAsync();
+        }
+    }
+
+    protected class Entity26940
+    {
+        public int Id { get; set; }
+        public int GroupKey { get; set; }
+        public string? Text { get; set; }
+        public string? Ntext { get; set; }
+        public byte[]? Image { get; set; }
     }
 
     #endregion

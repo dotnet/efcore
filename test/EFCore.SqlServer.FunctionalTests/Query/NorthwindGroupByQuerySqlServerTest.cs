@@ -2506,9 +2506,7 @@ GROUP BY [o].[CustomerID]
         AssertSql(
             """
 SELECT [o].[CustomerID] AS [Key], CASE
-    WHEN COUNT_BIG(CASE
-        WHEN [o].[EmployeeID] IS NOT NULL THEN 1
-    END) > CAST(0 AS bigint) THEN ISNULL(SUM([o].[EmployeeID]), 0)
+    WHEN COUNT_BIG([o].[EmployeeID]) > CAST(0 AS bigint) THEN ISNULL(SUM([o].[EmployeeID]), 0)
 END AS [Employees]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
@@ -3735,6 +3733,138 @@ SELECT COUNT_BIG(CASE
 END)
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
+""");
+    }
+
+    public override async Task GroupBy_Property_Select_Where_not_null_Count(bool async)
+    {
+        await base.GroupBy_Property_Select_Where_not_null_Count(async);
+
+        AssertSql(
+            """
+SELECT [c].[Country] AS [Key], COUNT([c].[Region]) AS [Count]
+FROM [Customers] AS [c]
+GROUP BY [c].[Country]
+""");
+    }
+
+    public override async Task GroupBy_Property_Select_Where_not_null_Any(bool async)
+    {
+        await base.GroupBy_Property_Select_Where_not_null_Any(async);
+
+        AssertSql(
+            """
+SELECT [c].[Country] AS [Key], CASE
+    WHEN COUNT_BIG([c].[Region]) > CAST(0 AS bigint) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [Any]
+FROM [Customers] AS [c]
+GROUP BY [c].[Country]
+""");
+    }
+
+    public override async Task GroupBy_Property_Select_Where_not_null_All(bool async)
+    {
+        await base.GroupBy_Property_Select_Where_not_null_All(async);
+
+        AssertSql(
+            """
+SELECT [c].[Country] AS [Key], ~CAST(COUNT_BIG(CASE
+    WHEN [c].[Region] IS NOT NULL THEN CASE
+        WHEN [c].[CustomerID] <> N'ZZZZZ' THEN NULL
+        ELSE 1
+    END
+END) ^ CAST(0 AS bigint) AS bit) AS [All]
+FROM [Customers] AS [c]
+GROUP BY [c].[Country]
+""");
+    }
+
+    public override async Task GroupBy_Property_Select_Count_with_not_null_predicate(bool async)
+    {
+        await base.GroupBy_Property_Select_Count_with_not_null_predicate(async);
+
+        AssertSql(
+            """
+SELECT [c].[Country] AS [Key], COUNT([c].[Region]) AS [Count]
+FROM [Customers] AS [c]
+GROUP BY [c].[Country]
+""");
+    }
+
+    public override async Task GroupBy_Property_Select_LongCount_with_HasValue_predicate(bool async)
+    {
+        await base.GroupBy_Property_Select_LongCount_with_HasValue_predicate(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID] AS [Key], COUNT_BIG([o].[OrderDate]) AS [Count]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]
+""");
+    }
+
+    public override async Task GroupBy_Property_Select_Select_Count_with_not_null_predicate(bool async)
+    {
+        await base.GroupBy_Property_Select_Select_Count_with_not_null_predicate(async);
+
+        AssertSql(
+            """
+SELECT [c].[Country] AS [Key], COUNT([c].[Fax]) AS [Count]
+FROM [Customers] AS [c]
+GROUP BY [c].[Country]
+""");
+    }
+
+    public override async Task GroupBy_Property_Select_Select_Distinct_Count_with_not_null_predicate(bool async)
+    {
+        await base.GroupBy_Property_Select_Select_Distinct_Count_with_not_null_predicate(async);
+
+        AssertSql(
+            """
+SELECT [c].[Country] AS [Key], COUNT(DISTINCT ([c].[Region])) AS [Count]
+FROM [Customers] AS [c]
+GROUP BY [c].[Country]
+""");
+    }
+
+    public override async Task GroupBy_Property_Select_Count_with_not_null_and_other_predicate(bool async)
+    {
+        await base.GroupBy_Property_Select_Count_with_not_null_and_other_predicate(async);
+
+        AssertSql(
+            """
+SELECT [c].[Country] AS [Key], COUNT(CASE
+    WHEN [c].[Region] IS NOT NULL AND ([c].[City] <> N'London' OR [c].[City] IS NULL) THEN 1
+END) AS [Count]
+FROM [Customers] AS [c]
+GROUP BY [c].[Country]
+""");
+    }
+
+    public override async Task GroupBy_Property_Select_Count_with_not_null_predicate_over_function(bool async)
+    {
+        await base.GroupBy_Property_Select_Count_with_not_null_predicate_over_function(async);
+
+        AssertSql(
+            """
+SELECT [c].[Country] AS [Key], COUNT(CASE
+    WHEN [c].[Region] IS NOT NULL THEN 1
+END) AS [Count]
+FROM [Customers] AS [c]
+GROUP BY [c].[Country]
+""");
+    }
+
+    public override async Task GroupBy_Property_Select_Where_not_null_Select_other_column_Count(bool async)
+    {
+        await base.GroupBy_Property_Select_Where_not_null_Select_other_column_Count(async);
+
+        AssertSql(
+            """
+SELECT [c].[Country] AS [Key], COUNT([c].[Region]) AS [Count]
+FROM [Customers] AS [c]
+GROUP BY [c].[Country]
 """);
     }
 
