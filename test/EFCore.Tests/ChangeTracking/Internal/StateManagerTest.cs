@@ -829,6 +829,97 @@ public class StateManagerTest
         context.Add(new FailedTrackingOverlappingKeys { A = 1, B = 2, C = 3 });
     }
 
+    // Updating the identity maps of the first key must not leave the dependents of that key changed when the second key conflicts.
+    [Fact]
+    public void Failed_key_change_of_property_in_two_keys_does_not_change_foreign_keys_of_dependents()
+    {
+        using var context = new FailedTrackingContext();
+        context.ChangeTracker.AutoDetectChangesEnabled = false;
+
+        // Added, since the keys of an entity that is already in the database can't be changed.
+        var first = context.Add(new FailedTrackingTwoKeys { Id = 1, Code = 1, X = 1, Y = 1 }).Entity;
+        context.Add(new FailedTrackingTwoKeys { Id = 2, Code = 2, X = 2, Y = 1 });
+        var dependentX = context.Add(new FailedTrackingDependentX { Id = 1, PrincipalCode = 1, PrincipalX = 1 }).Entity;
+        var dependentY = context.Add(new FailedTrackingDependentY { Id = 1, PrincipalCode = 1, PrincipalY = 1 }).Entity;
+
+        // The first key {Code, X} can take the new value {2, 1}, but the second key {Code, Y} then conflicts.
+        first.Code = 2;
+        Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges());
+
+        Assert.Equal(1, dependentX.PrincipalCode);
+        Assert.Equal(1, dependentY.PrincipalCode);
+        Assert.Equal(EntityState.Added, context.Entry(dependentX).State);
+        Assert.Equal(EntityState.Added, context.Entry(dependentY).State);
+
+        // Reverting the change doesn't leave a dependent that references a principal that doesn't exist.
+        first.Code = 1;
+        context.ChangeTracker.DetectChanges();
+
+        Assert.Equal(1, dependentX.PrincipalCode);
+        Assert.Equal(1, dependentY.PrincipalCode);
+    }
+
+    // Marking a detached entry as Modified snapshots its original values, which must not outlive the failure.
+    [Fact]
+    public void Entity_can_be_tracked_after_failed_Update_once_its_key_is_changed()
+    {
+        using var context = new FailedTrackingContext();
+        context.Attach(new FailedTrackingSingle { Id = 77, AlternateId = 66 });
+
+        var conflicting = new FailedTrackingSingle { Id = 78, AlternateId = 66 };
+        Assert.Throws<InvalidOperationException>(() => context.Update(conflicting));
+
+        conflicting.AlternateId = 67;
+        context.Attach(conflicting);
+
+        Assert.Equal(EntityState.Unchanged, context.Entry(conflicting).State);
+        Assert.False(context.ChangeTracker.HasChanges());
+        Assert.Equal(0, context.SaveChanges());
+    }
+
+    // The alternate key is registered before the primary key conflict is found, which replaces the Deleted entry in its map.
+    [Fact]
+    public void Failed_tracking_restores_deleted_entry_replaced_in_alternate_key_map()
+    {
+        using var context = new FailedTrackingContext();
+        var stateManager = GetStateManager(context);
+        var alternateKey = context.Model.FindEntityType(typeof(FailedTrackingSingle))!.GetKeys().Single(k => !k.IsPrimaryKey());
+
+        var deleted = context.Attach(new FailedTrackingSingle { Id = 77, AlternateId = 66 }).Entity;
+        context.Attach(new FailedTrackingSingle { Id = 78, AlternateId = 65 });
+        context.Remove(deleted);
+        var deletedEntry = context.Entry(deleted).GetInfrastructure();
+
+        Assert.Throws<InvalidOperationException>(() => context.Add(new FailedTrackingSingle { Id = 78, AlternateId = 66 }));
+
+        Assert.Same(deletedEntry, stateManager.TryGetEntry(alternateKey, new object[] { 66 }));
+        Assert.Equal(EntityState.Deleted, deletedEntry.EntityState);
+    }
+
+    [Fact]
+    public async Task Failed_AddAsync_due_to_alternate_key_conflict_leaves_nothing_registered()
+    {
+        using var context = new FailedTrackingContext();
+        var first = new FailedTrackingSingle { Id = 1, AlternateId = 5 };
+        context.Add(first);
+        await context.SaveChangesAsync();
+
+        var second = new FailedTrackingSingle { Id = 2, AlternateId = 5 };
+        await Assert.ThrowsAsync<InvalidOperationException>(async () => await context.AddAsync(second));
+
+        Assert.Same(first, Assert.Single(context.ChangeTracker.Entries()).Entity);
+        Assert.False(context.ChangeTracker.HasChanges());
+        Assert.Equal(EntityState.Detached, context.Entry(second).State);
+
+        // The primary key of the entity that failed to be tracked is not reserved.
+        context.Attach(new FailedTrackingSingle { Id = 2, AlternateId = 6 });
+
+        // Removing the original entity and saving doesn't insert the entity that failed to be tracked.
+        context.Remove(first);
+        await context.SaveChangesAsync();
+        Assert.Equal(EntityState.Unchanged, context.Entry(context.ChangeTracker.Entries<FailedTrackingSingle>().Single().Entity).State);
+    }
+
     private static IStateManager GetStateManager(DbContext context)
         => ((IInfrastructure<IServiceProvider>)context).Instance.GetRequiredService<IStateManager>();
 
@@ -876,6 +967,29 @@ public class StateManagerTest
             {
                 b.HasKey(e => new { e.A, e.B });
                 b.HasAlternateKey(e => new { e.A, e.C });
+            });
+
+            modelBuilder.Entity<FailedTrackingTwoKeys>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+                b.HasAlternateKey(e => new { e.Code, e.X });
+                b.HasAlternateKey(e => new { e.Code, e.Y });
+            });
+
+            modelBuilder.Entity<FailedTrackingDependentX>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+                b.HasOne<FailedTrackingTwoKeys>().WithMany()
+                    .HasForeignKey(e => new { e.PrincipalCode, e.PrincipalX })
+                    .HasPrincipalKey(e => new { e.Code, e.X });
+            });
+
+            modelBuilder.Entity<FailedTrackingDependentY>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+                b.HasOne<FailedTrackingTwoKeys>().WithMany()
+                    .HasForeignKey(e => new { e.PrincipalCode, e.PrincipalY })
+                    .HasPrincipalKey(e => new { e.Code, e.Y });
             });
         }
     }
@@ -926,6 +1040,28 @@ public class StateManagerTest
         public int A { get; set; }
         public int B { get; set; }
         public int C { get; set; }
+    }
+
+    private class FailedTrackingTwoKeys
+    {
+        public int Id { get; set; }
+        public int Code { get; set; }
+        public int X { get; set; }
+        public int Y { get; set; }
+    }
+
+    private class FailedTrackingDependentX
+    {
+        public int Id { get; set; }
+        public int PrincipalCode { get; set; }
+        public int PrincipalX { get; set; }
+    }
+
+    private class FailedTrackingDependentY
+    {
+        public int Id { get; set; }
+        public int PrincipalCode { get; set; }
+        public int PrincipalY { get; set; }
     }
 
     private class SensitiveIdentityConflictContext : IdentityConflictContext

@@ -149,13 +149,7 @@ public class StateManager : IStateManager
     {
         Check.DebugAssert(entry.EntityState == EntityState.Detached, "Entry must still be detached");
 
-        // ChangingState moved the entry from the detached map to the map for the new state. Moving it back takes two
-        // steps because Update only adds an entry to the map of the state it is given when that state is not Detached
-        // or when there is no old state: the first call removes it from the map for the new state, and the second
-        // adds it to the detached map again. Without that, the entry would not be in any map and the next lookup
-        // of the entity would create a new entry instead of finding this one.
-        _entityReferenceMap.Update(entry, EntityState.Detached, newState);
-        _entityReferenceMap.Update(entry, EntityState.Detached, null);
+        _entityReferenceMap.MoveToDetached(entry, newState);
     }
 
     /// <summary>
@@ -620,7 +614,18 @@ public class StateManager : IStateManager
             // The map that threw did not register the entry, so only the ones before it are undone.
             foreach (var key in entityType.GetKeys().Take(registeredKeyCount))
             {
-                FindIdentityMap(key)?.Remove(entry);
+                var identityMap = FindIdentityMap(key);
+                if (identityMap == null)
+                {
+                    continue;
+                }
+
+                identityMap.Remove(entry);
+
+                if (!key.IsPrimaryKey())
+                {
+                    RestoreDisplacedDeletedEntry(key, identityMap, entry);
+                }
             }
 
             throw;
@@ -1068,6 +1073,23 @@ public class StateManager : IStateManager
             identityMap.AddUsingRelationshipSnapshot(entry);
 
             throw;
+        }
+    }
+
+    // Adding an entry to the map of an alternate key replaces a Deleted entry with the same key value, since the new entry is the
+    // one to be found while the old one waits to be deleted. That entry has to go back when the new entry doesn't get tracked.
+    // This is only called when tracking has failed, so searching for the entry is fine.
+    private void RestoreDisplacedDeletedEntry(IKey key, IIdentityMap identityMap, InternalEntityEntry failedEntry)
+    {
+        foreach (var deletedEntry in GetEntriesForState(deleted: true).ToList())
+        {
+            if (deletedEntry != failedEntry
+                && key.DeclaringEntityType.IsAssignableFrom(deletedEntry.EntityType)
+                && key.Properties.All(p => p.GetKeyValueComparer().Equals(deletedEntry[p], failedEntry[p]))
+                && identityMap.TryGetEntry(deletedEntry) == null)
+            {
+                identityMap.Add(deletedEntry);
+            }
         }
     }
 

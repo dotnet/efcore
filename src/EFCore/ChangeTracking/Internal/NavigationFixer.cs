@@ -545,27 +545,31 @@ public class NavigationFixer : INavigationFixer
                 stateManager.UpdateDependentMap(entry, foreignKey);
             }
 
+            // Update the identity maps of all the keys before changing anything else, so that a key conflict leaves
+            // nothing to undo other than the maps that have been updated.
             var updatedKeyCount = 0;
-            foreach (var key in containingPrincipalKeys)
+            try
             {
-                try
+                foreach (var key in containingPrincipalKeys)
                 {
                     stateManager.UpdateIdentityMap(entry, key);
+                    updatedKeyCount++;
                 }
-                catch
+            }
+            catch
+            {
+                // The relationship snapshot is only updated once all keys have been, so the keys already
+                // updated must go back to the values in the snapshot to stay consistent with it.
+                foreach (var updatedKey in containingPrincipalKeys.Take(updatedKeyCount))
                 {
-                    // The relationship snapshot is only updated once all keys have been, so the keys already
-                    // updated must go back to the values in the snapshot to stay consistent with it.
-                    foreach (var updatedKey in containingPrincipalKeys.Take(updatedKeyCount))
-                    {
-                        stateManager.CancelIdentityMapUpdate(entry, updatedKey);
-                    }
-
-                    throw;
+                    stateManager.CancelIdentityMapUpdate(entry, updatedKey);
                 }
 
-                updatedKeyCount++;
+                throw;
+            }
 
+            foreach (var key in containingPrincipalKeys)
+            {
                 // Propagate principal key values into FKs
                 foreach (var foreignKey in key.GetReferencingForeignKeys())
                 {

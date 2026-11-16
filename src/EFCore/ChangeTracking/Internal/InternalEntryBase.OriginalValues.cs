@@ -93,6 +93,9 @@ public partial class InternalEntryBase
                 _ => value
             };
 
+        public void Clear()
+            => _values = null!;
+
         public bool IsEmpty
             => _values == null;
     }
