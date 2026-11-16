@@ -15,7 +15,7 @@ public abstract class ComplexJsonProjectionRelationalTestBase<TFixture> : Comple
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Select_complex_properties_with_identity_resolution(bool async)
         => AssertQuery(
             async,
@@ -29,7 +29,7 @@ public abstract class ComplexJsonProjectionRelationalTestBase<TFixture> : Comple
             },
             queryTrackingBehavior: QueryTrackingBehavior.NoTrackingWithIdentityResolution);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Select_complex_properties_with_identity_resolution_member_init(bool async)
         => AssertQuery(
             async,
