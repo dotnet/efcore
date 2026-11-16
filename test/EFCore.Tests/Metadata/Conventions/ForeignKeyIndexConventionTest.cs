@@ -77,7 +77,7 @@ public class ForeignKeyIndexConventionTest
     private class PartialAwareConvention(ProviderConventionSetBuilderDependencies dependencies)
         : ForeignKeyIndexConvention(dependencies), IIndexAnnotationChangedConvention
     {
-        protected override bool IsPartial(IConventionIndex index)
+        protected override bool IsPartial(IConventionIndex index, IReadOnlyList<IConventionPropertyBase> properties)
             => index.FindAnnotation(PartialAnnotation) != null;
 
         public void ProcessIndexAnnotationChanged(
@@ -89,7 +89,7 @@ public class ForeignKeyIndexConventionTest
         {
             if (name == PartialAnnotation)
             {
-                ProcessIndexCoverageChanged(indexBuilder.Metadata);
+                OnIndexCoverageChanged(indexBuilder.Metadata);
             }
         }
     }

@@ -65,16 +65,51 @@ public class RelationalForeignKeyIndexConventionTest
         Assert.Empty(dependentEntityBuilder.Metadata.GetForeignKeys());
     }
 
+    // The filter that SQL Server adds excludes the rows where PeriodId is null, which a lookup on PeriodId doesn't need.
     [Fact]
-    public void Filter_added_by_SQL_Server_convention_to_unique_index_still_covers_foreign_key_index()
+    public void Filter_added_by_SQL_Server_convention_to_unique_index_still_covers_foreign_key_index_if_only_foreign_key_columns_are_nullable()
+    {
+        var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder();
+        modelBuilder.Entity<FilteredIndexInvoice>().HasOne(i => i.Period).WithMany().HasForeignKey(i => i.PeriodId);
+        modelBuilder.Entity<FilteredIndexInvoice>().HasIndex(i => new { i.PeriodId, i.RequiredId }).IsUnique();
+
+        var index = Assert.Single(modelBuilder.Model.FindEntityType(typeof(FilteredIndexInvoice))!.GetIndexes());
+        Assert.Equal("[PeriodId] IS NOT NULL", index.GetFilter());
+        Assert.Equal(["PeriodId", "RequiredId"], index.Properties.Select(p => p.Name));
+    }
+
+    // The filter that SQL Server adds also excludes the rows where CompanyId is null, which a lookup on PeriodId needs.
+    [Fact]
+    public void Filter_added_by_SQL_Server_convention_to_unique_index_does_not_cover_foreign_key_index_if_another_column_is_nullable()
     {
         var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder();
         modelBuilder.Entity<FilteredIndexInvoice>().HasOne(i => i.Period).WithMany().HasForeignKey(i => i.PeriodId);
         modelBuilder.Entity<FilteredIndexInvoice>().HasIndex(i => new { i.PeriodId, i.CompanyId }).IsUnique();
 
-        var index = Assert.Single(modelBuilder.Model.FindEntityType(typeof(FilteredIndexInvoice))!.GetIndexes());
-        Assert.Equal("[PeriodId] IS NOT NULL AND [CompanyId] IS NOT NULL", index.GetFilter());
-        Assert.Equal(["PeriodId", "CompanyId"], index.Properties.Select(p => p.Name));
+        var indexes = modelBuilder.Model.FindEntityType(typeof(FilteredIndexInvoice))!.GetIndexes().ToList();
+        Assert.Equal(2, indexes.Count);
+
+        var foreignKeyIndex = Assert.Single(indexes, i => i.Properties.Count == 1);
+        Assert.Equal(["PeriodId"], foreignKeyIndex.Properties.Select(p => p.Name));
+
+        var compositeIndex = Assert.Single(indexes, i => i.Properties.Count == 2);
+        Assert.Equal("[PeriodId] IS NOT NULL AND [CompanyId] IS NOT NULL", compositeIndex.GetFilter());
+    }
+
+    // What `dotnet ef dbcontext scaffold` generates for the index that migrations create for an optional one-to-one relationship.
+    [Fact]
+    public void Named_explicitly_filtered_unique_index_on_the_foreign_key_columns_is_not_duplicated_and_keeps_its_name()
+    {
+        var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder();
+        modelBuilder.Entity<FilteredIndexInvoice>()
+            .HasIndex(i => i.PeriodId, "IX_FilteredIndexInvoice_PeriodId").IsUnique().HasFilter("([PeriodId] IS NOT NULL)");
+        modelBuilder.Entity<FilteredIndexInvoice>().HasOne(i => i.Period).WithOne().HasForeignKey<FilteredIndexInvoice>(i => i.PeriodId);
+
+        var model = modelBuilder.FinalizeModel();
+
+        var index = Assert.Single(model.FindEntityType(typeof(FilteredIndexInvoice))!.GetIndexes());
+        Assert.Equal("IX_FilteredIndexInvoice_PeriodId", index.GetDatabaseName());
+        Assert.Equal("([PeriodId] IS NOT NULL)", index.GetFilter());
     }
 
     [Fact]
@@ -99,6 +134,7 @@ public class RelationalForeignKeyIndexConventionTest
         public int Id { get; set; }
         public int? PeriodId { get; set; }
         public int? CompanyId { get; set; }
+        public int RequiredId { get; set; }
         public FilteredIndexPeriod? Period { get; set; }
     }
 

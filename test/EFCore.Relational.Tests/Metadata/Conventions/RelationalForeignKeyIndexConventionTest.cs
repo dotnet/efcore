@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 /// <summary>
 ///     Tests for how index filters affect the creation and removal of foreign key indexes. See #24237.
 /// </summary>
-public class RelationalForeignKeyIndexFilterTest
+public class RelationalForeignKeyIndexConventionTest
 {
     [Fact]
     public void Unfiltered_index_covers_foreign_key_index()
@@ -145,40 +145,103 @@ public class RelationalForeignKeyIndexFilterTest
         Assert.Equal(["PeriodId WHERE x"], DescribeIndexes(modelBuilder));
     }
 
+    // The filter can't be interpreted, and a separate index would have the same columns as the named one, so (as for an unnamed index)
+    // the named index is the foreign key's index.
     [Fact]
-    public void Named_filtered_index_on_exactly_the_foreign_key_columns_gets_a_separate_foreign_key_index()
+    public void Named_filtered_index_on_exactly_the_foreign_key_columns_is_the_foreign_key_index()
     {
         var modelBuilder = CreateModelBuilder();
         modelBuilder.Entity<Invoice>().HasIndex(["PeriodId"], "Named").HasFilter("x");
 
-        var indexes = modelBuilder.Model.FindEntityType(typeof(Invoice))!.GetIndexes().OrderBy(i => i.Name).ToList();
-        Assert.Equal(2, indexes.Count);
-
-        Assert.Null(indexes[0].Name);
-        Assert.Null(indexes[0].GetFilter());
-        Assert.False(indexes[0].IsUnique);
-
-        Assert.Equal("Named", indexes[1].Name);
-        Assert.Equal("x", indexes[1].GetFilter());
+        var index = Assert.Single(modelBuilder.Model.FindEntityType(typeof(Invoice))!.GetIndexes());
+        Assert.Equal("Named", index.Name);
+        Assert.Equal("x", index.GetFilter());
     }
 
     [Fact]
-    public void Named_unique_filtered_index_on_exactly_the_unique_foreign_key_columns_gets_a_separate_unique_foreign_key_index()
+    public void Named_unique_filtered_index_on_exactly_the_unique_foreign_key_columns_is_the_foreign_key_index()
     {
         var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
         modelBuilder.Entity<Invoice>().HasOne(i => i.Period).WithOne().HasForeignKey<Invoice>(i => i.PeriodId);
         modelBuilder.Entity<Invoice>().HasIndex(["PeriodId"], "Named").IsUnique().HasFilter("x");
 
-        var indexes = modelBuilder.Model.FindEntityType(typeof(Invoice))!.GetIndexes().OrderBy(i => i.Name).ToList();
-        Assert.Equal(2, indexes.Count);
+        var index = Assert.Single(modelBuilder.Model.FindEntityType(typeof(Invoice))!.GetIndexes());
+        Assert.Equal("Named", index.Name);
+        Assert.Equal("x", index.GetFilter());
+        Assert.True(index.IsUnique);
+    }
 
-        Assert.Null(indexes[0].Name);
-        Assert.Null(indexes[0].GetFilter());
-        Assert.True(indexes[0].IsUnique);
+    // What `dotnet ef dbcontext scaffold` generates for the index that migrations create for an optional one-to-one relationship.
+    [Fact]
+    public void Named_explicitly_filtered_unique_index_on_the_foreign_key_columns_is_not_duplicated_and_keeps_its_name()
+    {
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
+        modelBuilder.Entity<OptionalInvoice>().HasIndex(i => i.PeriodId, "IX_Invoice_PeriodId").IsUnique()
+            .HasFilter("([PeriodId] IS NOT NULL)");
+        modelBuilder.Entity<OptionalInvoice>().HasOne(i => i.Period).WithOne().HasForeignKey<OptionalInvoice>(i => i.PeriodId);
 
-        Assert.Equal("Named", indexes[1].Name);
-        Assert.Equal("x", indexes[1].GetFilter());
-        Assert.True(indexes[1].IsUnique);
+        var index = Assert.Single(modelBuilder.FinalizeModel().FindEntityType(typeof(OptionalInvoice))!.GetIndexes());
+        Assert.Equal("IX_Invoice_PeriodId", index.Name);
+        Assert.Equal("IX_Invoice_PeriodId", index.GetDatabaseName());
+    }
+
+    [Fact]
+    public void Filter_set_by_convention_covers_foreign_key_index_if_the_nullable_columns_are_foreign_key_columns()
+    {
+        var modelBuilder = CreateOptionalModelBuilder();
+        var index = modelBuilder.Entity<OptionalInvoice>().HasIndex(i => new { i.PeriodId, i.RequiredId }).IsUnique().Metadata;
+
+        ((IConventionIndex)index).Builder.HasFilter("[PeriodId] IS NOT NULL");
+
+        Assert.Equal(["PeriodId,RequiredId WHERE [PeriodId] IS NOT NULL"], DescribeOptionalIndexes(modelBuilder));
+    }
+
+    // The filter excludes the rows where OptionalId is null, but a lookup on PeriodId needs them.
+    [Fact]
+    public void Filter_set_by_convention_does_not_cover_foreign_key_index_if_another_nullable_column_is_filtered()
+    {
+        var modelBuilder = CreateOptionalModelBuilder();
+        var index = modelBuilder.Entity<OptionalInvoice>().HasIndex(i => new { i.PeriodId, i.OptionalId }).IsUnique().Metadata;
+
+        Assert.Equal(["PeriodId,OptionalId"], DescribeOptionalIndexes(modelBuilder));
+
+        ((IConventionIndex)index).Builder.HasFilter("[PeriodId] IS NOT NULL AND [OptionalId] IS NOT NULL");
+
+        Assert.Equal(
+            ["PeriodId", "PeriodId,OptionalId WHERE [PeriodId] IS NOT NULL AND [OptionalId] IS NOT NULL"],
+            DescribeOptionalIndexes(modelBuilder));
+
+        ((IConventionIndex)index).Builder.HasFilter(null);
+
+        Assert.Equal(["PeriodId,OptionalId"], DescribeOptionalIndexes(modelBuilder));
+    }
+
+    // Raising the configuration source of a filter without changing its value isn't reported as a change.
+    [Fact]
+    public void Filter_upgraded_to_explicit_with_the_same_value_keeps_foreign_key_index_when_the_index_is_removed()
+    {
+        var modelBuilder = CreateOptionalModelBuilder();
+        var indexBuilder = modelBuilder.Entity<OptionalInvoice>().HasIndex(i => new { i.PeriodId, i.OptionalId });
+        ((IConventionIndex)indexBuilder.Metadata).Builder.HasFilter("x");
+
+        indexBuilder.HasFilter("x");
+        modelBuilder.Entity<OptionalInvoice>().Metadata.RemoveIndex(indexBuilder.Metadata);
+
+        Assert.Equal(["PeriodId"], DescribeOptionalIndexes(modelBuilder, finalize: true));
+    }
+
+    [Fact]
+    public void Filter_upgraded_to_explicit_with_the_same_value_restores_foreign_key_index_if_only_foreign_key_columns_are_nullable()
+    {
+        var modelBuilder = CreateOptionalModelBuilder();
+        var indexBuilder = modelBuilder.Entity<OptionalInvoice>().HasIndex(i => new { i.PeriodId, i.RequiredId });
+        ((IConventionIndex)indexBuilder.Metadata).Builder.HasFilter("x");
+
+        Assert.Equal(["PeriodId,RequiredId WHERE x"], DescribeOptionalIndexes(modelBuilder));
+
+        indexBuilder.HasFilter("x");
+
+        Assert.Equal(["PeriodId", "PeriodId,RequiredId WHERE x"], DescribeOptionalIndexes(modelBuilder, finalize: true));
     }
 
     [Fact]
@@ -301,6 +364,20 @@ public class RelationalForeignKeyIndexFilterTest
         return model.FindEntityType(typeof(Invoice))!.GetIndexes().Select(Describe).Order(StringComparer.Ordinal).ToArray();
     }
 
+    private static ModelBuilder CreateOptionalModelBuilder()
+    {
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
+        modelBuilder.Entity<OptionalInvoice>().HasOne(i => i.Period).WithMany().HasForeignKey(i => i.PeriodId);
+        return modelBuilder;
+    }
+
+    private static string[] DescribeOptionalIndexes(ModelBuilder modelBuilder, bool finalize = false)
+    {
+        IReadOnlyModel model = finalize ? modelBuilder.FinalizeModel() : modelBuilder.Model;
+
+        return model.FindEntityType(typeof(OptionalInvoice))!.GetIndexes().Select(Describe).Order(StringComparer.Ordinal).ToArray();
+    }
+
     private static string[] DerivedIndexes(ModelBuilder modelBuilder)
         => modelBuilder.Model.FindEntityType(typeof(DerivedInvoice))!.GetDeclaredIndexes().Select(Describe)
             .Order(StringComparer.Ordinal).ToArray();
@@ -318,6 +395,15 @@ public class RelationalForeignKeyIndexFilterTest
         public int Id { get; set; }
         public int PeriodId { get; set; }
         public int CompanyId { get; set; }
+        public Period? Period { get; set; }
+    }
+
+    private class OptionalInvoice
+    {
+        public int Id { get; set; }
+        public int? PeriodId { get; set; }
+        public int RequiredId { get; set; }
+        public int? OptionalId { get; set; }
         public Period? Period { get; set; }
     }
 

@@ -224,15 +224,15 @@ public class ForeignKeyIndexConvention :
     }
 
     /// <summary>
-    ///     Called when something other than the properties or uniqueness of an index changes which may affect whether
-    ///     the index covers the rows of the table. For example, a filter being added to or removed from the index.
+    ///     Re-evaluates an index after something other than its properties or uniqueness changed which may affect whether it
+    ///     covers other indexes. For example, a filter being added to or removed from the index.
     /// </summary>
     /// <remarks>
-    ///     When the index no longer covers all rows, any foreign key indexes that were removed because they were covered by it
-    ///     are re-created. When the index starts covering all rows, any indexes that it now covers are removed.
+    ///     Foreign key indexes that were removed or not created because of the index are created if the index doesn't cover
+    ///     them any more, and indexes that the index now covers are removed.
     /// </remarks>
     /// <param name="index">The index.</param>
-    protected virtual void ProcessIndexCoverageChanged(IConventionIndex index)
+    protected virtual void OnIndexCoverageChanged(IConventionIndex index)
     {
         if (!index.IsInModel
             || index.CollectionIndices is not null)
@@ -240,45 +240,40 @@ public class ForeignKeyIndexConvention :
             return;
         }
 
-        if (IsPartial(index))
-        {
-            CreateCoveredForeignKeyIndexes(index);
-        }
-        else
-        {
-            RemoveCoveredIndexes(index);
-        }
+        CreateCoveredForeignKeyIndexes(index);
+        RemoveCoveredIndexes(index);
     }
 
     /// <summary>
-    ///     Returns a value indicating whether the given index only includes a subset of the rows in the table, and so
-    ///     cannot be used in place of an index that includes all rows.
+    ///     Returns a value indicating whether the given index may exclude rows of the table that an index on the given properties
+    ///     would include, and so cannot be used in place of such an index. For example, an index with a filter.
     /// </summary>
     /// <remarks>
     ///     This is always <see langword="false" /> by default. Relational providers override this to account for index filters.
     /// </remarks>
     /// <param name="index">The index.</param>
-    /// <returns><see langword="true" /> if the index only includes a subset of the rows.</returns>
-    protected virtual bool IsPartial(IConventionIndex index)
+    /// <param name="properties">
+    ///     The properties that the index would stand in for. These are the leading properties of the index, or all of them.
+    /// </param>
+    /// <returns><see langword="true" /> if the index may exclude rows that an index on the properties would include.</returns>
+    protected virtual bool IsPartial(IConventionIndex index, IReadOnlyList<IConventionPropertyBase> properties)
         => false;
 
     private void RemoveCoveredIndexes(IConventionIndex index)
     {
-        if (IsPartial(index))
-        {
-            return;
-        }
-
         foreach (var otherIndex in index.DeclaringEntityType.GetDerivedTypesInclusive()
                      .SelectMany(t => t.GetDeclaredIndexes())
                      .Where(i => i != index
                          && i.CollectionIndices is null
-                         && AreIndexedBy(i.Properties, i.IsUnique, index.Properties, index.IsUnique)).ToList())
+                         && AreIndexedBy(i.Properties, i.IsUnique, index.Properties, index.IsUnique)
+                         && !IsPartial(index, i.Properties)).ToList())
         {
             RemoveIndex(otherIndex);
         }
     }
 
+    // Creates foreign key indexes for the foreign keys that the index could cover. Nothing is created if another index covers
+    // them, so this is safe to call whether the index was removed or changed.
     private void CreateCoveredForeignKeyIndexes(IConventionIndex index)
     {
         foreach (var foreignKey in index.DeclaringEntityType.GetDerivedTypesInclusive()
@@ -294,8 +289,8 @@ public class ForeignKeyIndexConvention :
         bool unique,
         IConventionIndex coveringIndex)
         => coveringIndex.CollectionIndices is null
-            && !IsPartial(coveringIndex)
-            && AreIndexedBy(properties, unique, coveringIndex.Properties, coveringIndex.IsUnique);
+            && AreIndexedBy(properties, unique, coveringIndex.Properties, coveringIndex.IsUnique)
+            && !IsPartial(coveringIndex, properties);
 
     /// <summary>
     ///     Called after an index is removed.
@@ -314,9 +309,7 @@ public class ForeignKeyIndexConvention :
         }
 
         // A removed complex index never covered any FK index, so nothing to re-create.
-        // Likewise, a partial index never caused a FK index to be removed.
-        if (index.CollectionIndices is not null
-            || IsPartial(index))
+        if (index.CollectionIndices is not null)
         {
             return;
         }
@@ -377,8 +370,7 @@ public class ForeignKeyIndexConvention :
         IConventionContext<bool?> context)
     {
         var index = indexBuilder.Metadata;
-        if (index.CollectionIndices is not null
-            || IsPartial(index))
+        if (index.CollectionIndices is not null)
         {
             return;
         }
@@ -389,7 +381,8 @@ public class ForeignKeyIndexConvention :
                          .SelectMany(t => t.GetDeclaredIndexes())
                          .Where(i => i != index
                              && i.CollectionIndices is null
-                             && AreIndexedBy(i.Properties, i.IsUnique, index.Properties, coveringIndexUnique: true))
+                             && AreIndexedBy(i.Properties, i.IsUnique, index.Properties, coveringIndexUnique: true)
+                             && !IsPartial(index, i.Properties))
                          .ToList())
             {
                 RemoveIndex(otherIndex);

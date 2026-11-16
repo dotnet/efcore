@@ -911,10 +911,7 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
         Assert.Equal("PIX", alternateIndex.GetDatabaseName());
         Assert.Equal("AlternateId <> NULL", alternateIndex.GetFilter());
 
-        // The filtered unique index doesn't cover all rows, so the foreign key also has an index of its own.
-        var foreignKeyIndex = principalBase.FindIndex(principalBaseId)!;
-        Assert.NotSame(alternateIndex, foreignKeyIndex);
-        Assert.Equal([foreignKeyIndex, alternateIndex], principalBaseId.GetContainingIndexes());
+        Assert.Equal([alternateIndex], principalBaseId.GetContainingIndexes());
 
         var insertSproc = principalBase.GetInsertStoredProcedure()!;
         Assert.Equal("PrincipalBase_Insert", insertSproc.Name);
