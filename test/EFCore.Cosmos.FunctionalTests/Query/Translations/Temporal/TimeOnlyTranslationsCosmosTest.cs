@@ -51,19 +51,65 @@ public class TimeOnlyTranslationsCosmosTest : TimeOnlyTranslationsTestBase<Basic
         => AssertTranslationFailed(() => base.IsBetween_parameters(async, range));
 
     public override Task IsBetween_boundaries(bool async)
-        => AssertTranslationFailed(() => base.IsBetween_boundaries(async));
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.IsBetween_boundaries(a);
+
+                AssertSql(
+                    """
+SELECT c["Id"], c["TimeOnly"]
+FROM root c
+""");
+            });
 
     public override Task IsBetween_precision(bool async)
-        => AssertTranslationFailed(() => base.IsBetween_precision(async));
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.IsBetween_precision(a);
+
+                AssertSql(
+                    """
+SELECT c["Id"], c["TimeOnly"]
+FROM root c
+""");
+            });
 
     public override Task IsBetween_negated(bool async)
         => AssertTranslationFailed(() => base.IsBetween_negated(async));
 
     public override Task IsBetween_nullable(bool async)
-        => AssertTranslationFailed(() => base.IsBetween_nullable(async));
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.IsBetween_nullable(a);
+
+                AssertSql(
+                    """
+SELECT VALUE
+{
+    "Id" : c["Id"],
+    "c" : (c["TimeOnly"] != null),
+    "TimeOnly" : c["TimeOnly"],
+    "c0" : NOT((c["TimeOnly"] != null))
+}
+FROM root c
+""");
+            });
 
     public override Task IsBetween_column_bounds(bool async)
-        => AssertTranslationFailed(() => base.IsBetween_column_bounds(async));
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.IsBetween_column_bounds(a);
+
+                AssertSql(
+                    """
+SELECT c["Id"], c["TimeOnly"]
+FROM root c
+""");
+            });
 
     public override async Task Subtract()
     {
