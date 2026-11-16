@@ -123,6 +123,14 @@ public abstract class NorthwindKeylessEntitiesQueryTestBase<TFixture>(TFixture f
             elementSorter: e => (e.Key, e.Count, e.Sum));
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task KeylessEntity_final_GroupBy(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<CustomerQuery>().GroupBy(cv => cv.City),
+            elementSorter: e => e.Key,
+            elementAsserter: (e, a) => AssertGrouping(e, a, elementSorter: c => c.CompanyName));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Entity_mapped_to_view_on_right_side_of_join(bool async)
         => AssertQuery(
             async,

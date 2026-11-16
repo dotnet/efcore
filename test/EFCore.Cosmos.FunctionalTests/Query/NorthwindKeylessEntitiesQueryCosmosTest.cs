@@ -158,6 +158,14 @@ WHERE ((c["$type"] = "Order") AND (c["CustomerID"] = "ALFKI"))
         AssertSql();
     }
 
+    public override async Task KeylessEntity_final_GroupBy(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.KeylessEntity_final_GroupBy(async));
+
+        AssertSql();
+    }
+
     public override async Task Collection_correlated_with_keyless_entity_in_predicate_works(bool async)
     {
         // Cosmos client evaluation. Issue #17246.

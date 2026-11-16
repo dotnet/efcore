@@ -1839,6 +1839,7 @@ public sealed partial class SelectExpression : TableExpressionBase
 
         _groupBy.AddRange(groupByTerms);
 
+        // Unlike the overload below, doesn't handle an empty identifier. Not used by the query pipeline.
         if (!_identifier.All(e => _groupBy.Contains(e.Column)))
         {
             _identifier.Clear();
