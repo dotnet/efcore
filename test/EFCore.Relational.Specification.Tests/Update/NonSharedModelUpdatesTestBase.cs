@@ -20,10 +20,13 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
                 mb.Entity<SharedComplexBase>().HasDiscriminator<int>("Discriminator")
                     .HasValue<SharedComplexA>(0)
                     .HasValue<SharedComplexB>(1);
+                mb.Entity<SharedComplexBase>().Property(e => e.Id).ValueGeneratedNever();
                 mb.Entity<SharedComplexA>().ComplexProperty(e => e.Value, ConfigureValue);
                 mb.Entity<SharedComplexB>().ComplexProperty(e => e.Value, ConfigureValue);
                 mb.Entity<SingleComplexBase>().HasDiscriminator<int>("Discriminator").HasValue<SingleComplex>(0);
+                mb.Entity<SingleComplexBase>().Property(e => e.Id).ValueGeneratedNever();
                 mb.Entity<SingleComplex>().ComplexProperty(e => e.Value, ConfigureValue);
+                mb.Entity<PlainComplex>().Property(e => e.Id).ValueGeneratedNever();
                 mb.Entity<PlainComplex>().ComplexProperty(e => e.Value, ConfigureValue);
             });
 
@@ -79,8 +82,8 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
 
         static void ConfigureValue(ComplexPropertyBuilder<ComplexValue> builder)
         {
-            builder.Property(e => e.Amount).HasColumnName("Amount");
-            builder.Property(e => e.Error).HasColumnName("Error");
+            builder.Property(e => e.Amount).HasColumnName("Amount").HasPrecision(18, 2);
+            builder.Property(e => e.Error).HasColumnName("Error").HasPrecision(18, 2);
             builder.Property(e => e.Precision).HasColumnName("Precision");
         }
     }
