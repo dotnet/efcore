@@ -369,7 +369,7 @@ optionsBuilder
 /// <summary>
 /// A view comment
 /// </summary>
-""",
+""".ReplaceLineEndings(),
                         code.AdditionalFiles.Single().Code.ReplaceLineEndings());
                     Assert.Contains(".HasComment(\"A view comment\")", code.ContextFile.Code);
                     Assert.Contains(".HasComment(\"A column comment\")", code.ContextFile.Code);

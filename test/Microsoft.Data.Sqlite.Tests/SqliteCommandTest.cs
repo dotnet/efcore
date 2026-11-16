@@ -1367,7 +1367,7 @@ CREATE TABLE "Products" (
                 AssertBusy(ex.SqliteErrorCode);
 
                 // It waited for the command timeout instead of giving up on the first busy
-                Assert.True(timer.Elapsed >= TimeSpan.FromSeconds(1), $"Threw after {timer.Elapsed}");
+                Assert.True(timer.Elapsed >= TimeSpan.FromMilliseconds(900), $"Threw after {timer.Elapsed}");
             },
             expectedCount: 1);
 

@@ -354,6 +354,57 @@ WHERE (IIF((c["DateTime"] = @dateTime), 0, IIF((c["DateTime"] > @dateTime), 1, I
     """);
     }
 
+    public override async Task DateTime_Compare_on_nullable_Value()
+    {
+        await base.DateTime_Compare_on_nullable_Value();
+
+        AssertSql(
+            """
+    SELECT VALUE c
+    FROM root c
+    WHERE ((c["DateTime"] != null) AND (IIF((c["DateTime"] = c["DateTime"]), 0, IIF((c["DateTime"] > c["DateTime"]), 1, IIF((c["DateTime"] < c["DateTime"]), -1, null))) = 0))
+    """);
+    }
+
+    public override async Task StringComparer_Compare()
+    {
+        await base.StringComparer_Compare();
+
+        AssertSql();
+    }
+
+    public override async Task Custom_Comparer_Compare()
+    {
+        await base.Custom_Comparer_Compare();
+
+        AssertSql();
+    }
+
+    public override async Task Default_Comparer_Compare()
+    {
+        await base.Default_Comparer_Compare();
+
+        AssertSql();
+    }
+
+    public override async Task Custom_Comparer_Compare_in_final_projection()
+    {
+        await base.Custom_Comparer_Compare_in_final_projection();
+
+        AssertSql(
+            """
+    SELECT VALUE c["Int"]
+    FROM root c
+    """);
+    }
+
+    public override async Task Nullable_Compare()
+    {
+        await base.Nullable_Compare();
+
+        AssertSql();
+    }
+
     #endregion Compare
 
     [Fact]

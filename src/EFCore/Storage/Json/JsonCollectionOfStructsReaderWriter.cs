@@ -55,7 +55,7 @@ public class JsonCollectionOfStructsReaderWriter<TConcreteCollection, TElement> 
         if (tokenType != JsonTokenType.StartArray)
         {
             throw new InvalidOperationException(
-                CoreStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
+                CoreStrings.JsonCollectionExpectedArray(typeof(TElement).ShortDisplayName(), tokenType));
         }
 
         while (tokenType != JsonTokenType.EndArray)
@@ -84,7 +84,7 @@ public class JsonCollectionOfStructsReaderWriter<TConcreteCollection, TElement> 
                 case JsonTokenType.PropertyName:
                 default:
                     throw new InvalidOperationException(
-                        CoreStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
+                        CoreStrings.JsonCollectionInvalidElement(typeof(TElement).ShortDisplayName(), tokenType));
             }
         }
 

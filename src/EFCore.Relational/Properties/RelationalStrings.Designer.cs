@@ -1484,6 +1484,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("JsonEmptyString");
 
         /// <summary>
+        ///     The JSON for '{entityType}.{navigation}' contains a '{tokenType}' token when a JSON array was expected.
+        /// </summary>
+        public static string JsonEntityCollectionExpectedArray(object? entityType, object? navigation, object? tokenType)
+            => string.Format(
+                GetString("JsonEntityCollectionExpectedArray", nameof(entityType), nameof(navigation), nameof(tokenType)),
+                entityType, navigation, tokenType);
+
+        /// <summary>
         ///     The JSON array for '{entityType}.{navigation}' contains a non-object element when a JSON object was expected.
         /// </summary>
         public static string JsonEntityCollectionExpectedObject(object? entityType, object? navigation)
@@ -1718,6 +1726,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("JsonRequiredEntityWithNullJson", nameof(entity)),
                 entity);
+
+        /// <summary>
+        ///     The JSON for '{structuralType}' contains a '{tokenType}' token when a JSON object was expected.
+        /// </summary>
+        public static string JsonStructuralTypeExpectedObject(object? structuralType, object? tokenType)
+            => string.Format(
+                GetString("JsonStructuralTypeExpectedObject", nameof(structuralType), nameof(tokenType)),
+                structuralType, tokenType);
 
         /// <summary>
         ///     Type mapping type '{typeMapping}', which is being used on property '{property}' on entity type '{entityType}' in a JSON document, has not defined a JsonValueReaderWriter.

@@ -41,8 +41,10 @@ public class CosmosComparisonTranslator : IMethodCallTranslator
             SqlExpression? left = null;
             SqlExpression? right = null;
             if (method.Name == nameof(string.Compare)
+                && method.IsStatic
                 && arguments.Count == 2
-                && arguments[0].Type == arguments[1].Type)
+                && arguments[0].Type == arguments[1].Type
+                && arguments[0].Type == method.DeclaringType)
             {
                 left = arguments[0];
                 right = arguments[1];

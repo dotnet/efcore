@@ -1190,7 +1190,7 @@ public abstract class QueryTestBase<TFixture> : NonSharedModelTestBase, IClassFi
     #region Non-shared test support
 
     protected override string NonSharedStoreName
-        => Fixture.StoreName + "_NonShared";
+        => Fixture.StoreName + "_" + GetType().Name + "_NonShared";
 
     protected override ITestStoreFactory NonSharedTestStoreFactory
         => Fixture.GetTestStoreFactory();

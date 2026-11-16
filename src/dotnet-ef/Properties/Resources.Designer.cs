@@ -518,7 +518,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("NoTransactionsDescription");
 
         /// <summary>
-        ///     The file to write the result to.
+        ///     The file to write the result to. Relative paths are resolved from the current directory.
         /// </summary>
         public static string OutputDescription
             => GetString("OutputDescription");
