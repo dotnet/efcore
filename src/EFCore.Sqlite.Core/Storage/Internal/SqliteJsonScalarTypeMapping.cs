@@ -57,23 +57,33 @@ public class SqliteJsonScalarTypeMapping : RelationalTypeMapping, IRelationalQuo
 
     /// <inheritdoc />
     protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
-        => new SqliteJsonScalarTypeMapping(parameters, SourceMapping);
+        => new SqliteJsonScalarTypeMapping(
+            parameters,
+            parameters.CoreParameters.Converter == SourceMapping.Converter
+                ? SourceMapping
+                : SourceMapping.Clone(converter: parameters.CoreParameters.Converter));
 
     /// <inheritdoc />
     public virtual Expression Quote()
-        => Expression.New(
+    {
+        var sourceMapping = SourceMapping.WithStoreTypeAndSize(StoreType, Size).WithPrecisionAndScale(Precision, Scale);
+        var sourceExpression = SourceMapping.Converter is { } converter
+            ? RelationalExpressionQuotingUtilities.QuoteTypeMapping(sourceMapping, converter.ProviderClrType)
+            : RelationalExpressionQuotingUtilities.QuoteTypeMapping(sourceMapping);
+
+        return Expression.New(
             _quotingConstructor,
             Expression.Convert(
                 Expression.Call(
-                    RelationalExpressionQuotingUtilities.QuoteTypeMapping(
-                        SourceMapping.WithStoreTypeAndSize(StoreType, Size).WithPrecisionAndScale(Precision, Scale)),
+                    sourceExpression,
                     _withComposedConverterMethod,
-                    Expression.Constant(null, typeof(ValueConverter)),
+                    Expression.Constant(SourceMapping.Converter, typeof(ValueConverter)),
                     Expression.Constant(null, typeof(ValueComparer)),
                     Expression.Constant(null, typeof(ValueComparer)),
                     Expression.Constant(null, typeof(CoreTypeMapping)),
                     JsonValueReaderWriter!.ConstructorExpression),
                 typeof(RelationalTypeMapping)));
+    }
 
     /// <inheritdoc />
     public override Expression GenerateCodeLiteral(object value)

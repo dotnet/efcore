@@ -670,15 +670,30 @@ WHERE ARRAY_CONTAINS(c["Timestamps"], @timestamp)
 """);
     }
 
-    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
-    public async Task Contains_uses_property_reader_writer(bool legacyDefault, bool memberOverride)
+    [Theory]
+    [InlineData(false, false, false)]
+    [InlineData(false, true, false)]
+    [InlineData(true, false, false)]
+    [InlineData(true, true, false)]
+    [InlineData(false, false, true)]
+    [InlineData(false, true, true)]
+    [InlineData(true, false, true)]
+    [InlineData(true, true, true)]
+    public async Task Contains_uses_property_reader_writer(bool legacyDefault, bool memberOverride, bool collectionDefault)
     {
         var timestamp = new DateTime(2026, 1, 1, 0, 0, 0, 123, DateTimeKind.Utc);
         var legacyMember = memberOverride ? !legacyDefault : legacyDefault;
         var factory = await InitializeNonSharedTest<PoolableDbContext>(
             onConfiguring: options => options.EnableSensitiveDataLogging(),
-            configureConventions: c => c.DefaultTypeMapping<DateTime>().HasJsonValueReaderWriter(
-                legacyDefault ? typeof(LegacyDateTimeJsonReaderWriter) : typeof(JsonDateTimeReaderWriter)),
+            configureConventions: c =>
+            {
+                c.DefaultTypeMapping<DateTime>().HasJsonValueReaderWriter(
+                    legacyDefault ? typeof(LegacyDateTimeJsonReaderWriter) : typeof(JsonDateTimeReaderWriter));
+                if (collectionDefault)
+                {
+                    c.DefaultTypeMapping<DateTime[]>().HasJsonValueReaderWriter<LegacyDateTimeArrayReaderWriter>();
+                }
+            },
             onModelCreating: b =>
             {
                 var entity = b.Entity<LegacyDateTimeContext.Item>().ToContainer("Entities").HasNoDiscriminator();
@@ -704,7 +719,7 @@ WHERE ARRAY_CONTAINS(c["Timestamps"], @timestamp)
         Assert.Equal(
             new[] { 1 },
             await context.Set<LegacyDateTimeContext.Item>()
-                .Where(e => timestamps.AsQueryable().Contains(e.Timestamp))
+                .Where(e => EF.Parameter(timestamps).AsQueryable().Contains(e.Timestamp))
                 .Select(e => e.Id).ToArrayAsync());
         var expectedTimestamp = legacyMember ? "2026-01-01T00:00:00.123Z" : "2026-01-01T00:00:00.1230000Z";
         AssertSql(
@@ -765,6 +780,21 @@ WHERE ARRAY_CONTAINS(@timestamps, c["Timestamp"])
 
         public override Expression ConstructorExpression
             => Expression.Property(null, typeof(LegacyDateTimeJsonReaderWriter), nameof(Instance));
+    }
+
+    public sealed class LegacyDateTimeArrayReaderWriter : JsonValueReaderWriter<DateTime[]>
+    {
+        private static readonly JsonCollectionOfStructsReaderWriter<DateTime[], DateTime> Reader =
+            new(LegacyDateTimeJsonReaderWriter.Instance);
+
+        public override DateTime[] FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
+            => (DateTime[])Reader.FromJsonTyped(ref manager, existingObject);
+
+        public override void ToJsonTyped(Utf8JsonWriter writer, DateTime[] value)
+            => Reader.ToJsonTyped(writer, value);
+
+        public override Expression ConstructorExpression
+            => Expression.New(typeof(LegacyDateTimeArrayReaderWriter));
     }
 
     [Theory, InlineData(false), InlineData(true)]

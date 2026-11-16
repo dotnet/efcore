@@ -220,20 +220,32 @@ public class SqliteTypeMappingTest : RelationalTypeMappingTest
         Assert.Equal(SqliteType.Blob, Assert.IsType<SqliteParameter>(clone.CreateParameter(command, "p", value)).SqliteType);
     }
 
-    [Fact]
-    public void JSON_byte_array_mapping_preserves_converter_and_reader_writer()
+    [Theory, InlineData(false), InlineData(true)]
+    public void JSON_byte_array_mapping_preserves_converter_and_reader_writer(bool composeAfterWrapping)
     {
         var converter = new NumberToBytesConverter<long>();
         var nativeMapping = (SqliteByteArrayTypeMapping)SqliteByteArrayTypeMapping.Default.WithComposedConverter(converter);
-        var mapping = new SqliteJsonScalarTypeMapping(nativeMapping);
+        var mapping = composeAfterWrapping
+            ? (SqliteJsonScalarTypeMapping)new SqliteJsonScalarTypeMapping(SqliteByteArrayTypeMapping.Default).WithComposedConverter(converter)
+            : new SqliteJsonScalarTypeMapping(nativeMapping);
 
         Assert.Same(nativeMapping.Converter, mapping.Converter);
-        Assert.Same(nativeMapping.JsonValueReaderWriter, mapping.JsonValueReaderWriter);
 
-        using var command = new SqliteCommand();
-        var parameter = Assert.IsType<SqliteParameter>(mapping.CreateParameter(command, "p", 42L));
-        Assert.Equal(SqliteType.Blob, parameter.SqliteType);
-        Assert.Equal((byte[])converter.ConvertToProvider(42L)!, parameter.Value);
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        foreach (var candidate in new[] { mapping, ReconstructJsonMapping(mapping) })
+        {
+            using var command = connection.CreateCommand();
+            var parameter = Assert.IsType<SqliteParameter>(candidate.CreateParameter(command, "p", 42L));
+            Assert.Equal(SqliteType.Blob, parameter.SqliteType);
+            Assert.Equal((byte[])converter.ConvertToProvider(42L)!, parameter.Value);
+            Assert.Equal("X'000000000000002A'", candidate.GenerateSqlLiteral(42L));
+            Assert.Equal("\"000000000000002A\"", candidate.JsonValueReaderWriter!.ToJsonString(42L));
+            Assert.Equal(42L, candidate.JsonValueReaderWriter.FromJsonString("\"000000000000002A\""));
+            command.Parameters.Add(parameter);
+            command.CommandText = "SELECT unhex('000000000000002A') = @p";
+            Assert.Equal(1L, command.ExecuteScalar());
+        }
     }
 
     [Theory, InlineData(DateTimeKind.Utc), InlineData(DateTimeKind.Unspecified)]
@@ -262,18 +274,23 @@ public class SqliteTypeMappingTest : RelationalTypeMappingTest
         Assert.Equal(expected, clone.CreateParameter(command, "p", value).Value);
         Assert.Equal("'" + expected + "'", clone.GenerateSqlLiteral(value));
 
-        var source = Assert.IsAssignableFrom<RelationalTypeMappingSource>(CreateTypeMapper());
-#pragma warning disable EF9100 // Precompiled query is experimental.
-        var quote = (NewExpression)RelationalExpressionQuotingUtilities.QuoteTypeMapping(clone);
-#pragma warning restore EF9100
-        var composition = (MethodCallExpression)((UnaryExpression)quote.Arguments[0]).Operand;
-        var lookup = (MethodCallExpression)composition.Object!;
-        var reconstructed = Expression.Lambda<Func<RelationalTypeMappingSource, RelationalTypeMapping>>(
-            quote, (ParameterExpression)lookup.Object!).Compile(preferInterpretation: true)(source);
+        var reconstructed = ReconstructJsonMapping(clone);
         Assert.IsType<SqliteJsonScalarTypeMapping>(reconstructed);
         Assert.Equal("datetime", reconstructed.StoreType);
         Assert.Equal(expected, reconstructed.CreateParameter(command, "p", value).Value);
         Assert.Equal("'" + expected + "'", reconstructed.GenerateSqlLiteral(value));
+    }
+
+    private static RelationalTypeMapping ReconstructJsonMapping(RelationalTypeMapping mapping)
+    {
+        var source = Assert.IsAssignableFrom<RelationalTypeMappingSource>(CreateTypeMapper());
+#pragma warning disable EF9100 // Precompiled query is experimental.
+        var quote = (NewExpression)RelationalExpressionQuotingUtilities.QuoteTypeMapping(mapping);
+#pragma warning restore EF9100
+        var composition = (MethodCallExpression)((UnaryExpression)quote.Arguments[0]).Operand;
+        var lookup = (MethodCallExpression)composition.Object!;
+        return Expression.Lambda<Func<RelationalTypeMappingSource, RelationalTypeMapping>>(
+            quote, (ParameterExpression)lookup.Object!).Compile(preferInterpretation: true)(source);
     }
 
     [Fact]
@@ -294,9 +311,12 @@ public class SqliteTypeMappingTest : RelationalTypeMappingTest
         var mapping = GetJsonDateTimeMapping(customReaderWriter: true, converted: true);
         var value = new DateTime(2026, 1, 1, 0, 0, 0, 123, DateTimeKind.Utc).Ticks;
 
-        using var command = new SqliteCommand();
-        Assert.Equal("2026-01-01T00:00:00.123Z", mapping.CreateParameter(command, "p", value).Value);
-        Assert.Equal("'2026-01-01T00:00:00.123Z'", mapping.GenerateSqlLiteral(value));
+        foreach (var candidate in new[] { mapping, ReconstructJsonMapping(mapping) })
+        {
+            using var command = new SqliteCommand();
+            Assert.Equal("2026-01-01T00:00:00.123Z", candidate.CreateParameter(command, "p", value).Value);
+            Assert.Equal("'2026-01-01T00:00:00.123Z'", candidate.GenerateSqlLiteral(value));
+        }
     }
 
     [Fact]

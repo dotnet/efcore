@@ -278,6 +278,8 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
             var mappingInfo = new TypeMappingInfo(type, typeConfiguration, elementMapping);
             mappingInfo = mappingInfo with
             {
+                // An inferred element mapping defines collection parameter transport, not document formatting.
+                JsonValueReaderWriter = elementMapping == null ? mappingInfo.JsonValueReaderWriter : null,
                 ElementTypeMapping = elementMapping ?? FindElementMapping(mappingInfo, model)
             };
             var providerClrType = typeConfiguration.GetProviderClrType()?.UnwrapNullableType();
