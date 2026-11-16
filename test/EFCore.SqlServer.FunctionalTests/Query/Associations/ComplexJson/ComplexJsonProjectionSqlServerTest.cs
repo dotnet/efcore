@@ -6,6 +6,28 @@ namespace Microsoft.EntityFrameworkCore.Query.Associations.ComplexJson;
 public class ComplexJsonProjectionSqlServerTest(ComplexJsonSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
     : ComplexJsonProjectionRelationalTestBase<ComplexJsonSqlServerFixture>(fixture, testOutputHelper)
 {
+    public override async Task Select_complex_properties_with_identity_resolution(bool async)
+    {
+        await base.Select_complex_properties_with_identity_resolution(async);
+
+        AssertSql(
+            """
+SELECT [r].[Id], [r].[RequiredAssociate], [r].[OptionalAssociate]
+FROM [RootEntity] AS [r]
+""");
+    }
+
+    public override async Task Select_complex_properties_with_identity_resolution_member_init(bool async)
+    {
+        await base.Select_complex_properties_with_identity_resolution_member_init(async);
+
+        AssertSql(
+            """
+SELECT [r].[Id], [r].[Name], [r].[RequiredAssociate], [r].[OptionalAssociate]
+FROM [RootEntity] AS [r]
+""");
+    }
+
     public override async Task Select_root(QueryTrackingBehavior queryTrackingBehavior)
     {
         await base.Select_root(queryTrackingBehavior);
