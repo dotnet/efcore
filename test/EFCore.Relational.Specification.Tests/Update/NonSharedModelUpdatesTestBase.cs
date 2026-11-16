@@ -11,6 +11,116 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
     protected override string NonSharedStoreName
         => "NonSharedModelUpdatesTestBase";
 
+    [Theory, MemberData(nameof(IsAsyncData))] // Issue #39596
+    public virtual async Task Optional_complex_properties_on_sibling_types_sharing_columns_can_be_set_to_null(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
+            onModelCreating: mb =>
+            {
+                mb.Entity<SharedComplexBase>().HasDiscriminator<int>("Discriminator")
+                    .HasValue<SharedComplexA>(0)
+                    .HasValue<SharedComplexB>(1);
+                mb.Entity<SharedComplexBase>().Property(e => e.Id).ValueGeneratedNever();
+                mb.Entity<SharedComplexA>().ComplexProperty(e => e.Value, ConfigureValue);
+                mb.Entity<SharedComplexB>().ComplexProperty(e => e.Value, ConfigureValue);
+                mb.Entity<SingleComplexBase>().HasDiscriminator<int>("Discriminator").HasValue<SingleComplex>(0);
+                mb.Entity<SingleComplexBase>().Property(e => e.Id).ValueGeneratedNever();
+                mb.Entity<SingleComplex>().ComplexProperty(e => e.Value, ConfigureValue);
+                mb.Entity<PlainComplex>().Property(e => e.Id).ValueGeneratedNever();
+                mb.Entity<PlainComplex>().ComplexProperty(e => e.Value, ConfigureValue);
+            });
+
+        await ExecuteWithStrategyInTransactionAsync(
+            contextFactory,
+            async context =>
+            {
+                context.AddRange(
+                    new SharedComplexA { Id = 1, Value = new ComplexValue(1, 2, 3) },
+                    new SharedComplexB { Id = 2, Value = new ComplexValue(4, 5, 6) },
+                    new SharedComplexB { Id = 3, Value = new ComplexValue(7, 8, 9) },
+                    new SingleComplex { Id = 4, Value = new ComplexValue(1, 2, 3) },
+                    new PlainComplex { Id = 5, Value = new ComplexValue(1, 2, 3) });
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                (await context.Set<SharedComplexA>().SingleAsync()).Value = null;
+                (await context.Set<SharedComplexB>().SingleAsync(e => e.Id == 2)).Value = null;
+                (await context.Set<SingleComplex>().SingleAsync()).Value = null;
+                (await context.Set<PlainComplex>().SingleAsync()).Value = null;
+
+                if (async)
+                {
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.SaveChanges();
+                }
+            },
+            async context =>
+            {
+                var a = await context.Set<SharedComplexA>().SingleAsync();
+                Assert.Null(a.Value);
+                Assert.Null((await context.Set<SharedComplexB>().SingleAsync(e => e.Id == 2)).Value);
+                Assert.Equal(new ComplexValue(7, 8, 9), (await context.Set<SharedComplexB>().SingleAsync(e => e.Id == 3)).Value);
+                Assert.Null((await context.Set<SingleComplex>().SingleAsync()).Value);
+                Assert.Null((await context.Set<PlainComplex>().SingleAsync()).Value);
+
+                a.Value = new ComplexValue(10, 11, 12);
+                if (async)
+                {
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.SaveChanges();
+                }
+            },
+            async context =>
+                Assert.Equal(new ComplexValue(10, 11, 12), (await context.Set<SharedComplexA>().SingleAsync()).Value));
+
+        static void ConfigureValue(ComplexPropertyBuilder<ComplexValue> builder)
+        {
+            builder.Property(e => e.Amount).HasColumnName("Amount").HasPrecision(18, 2);
+            builder.Property(e => e.Error).HasColumnName("Error").HasPrecision(18, 2);
+            builder.Property(e => e.Precision).HasColumnName("Precision");
+        }
+    }
+
+    private abstract class SharedComplexBase
+    {
+        public int Id { get; set; }
+    }
+
+    private sealed class SharedComplexA : SharedComplexBase
+    {
+        public ComplexValue? Value { get; set; }
+    }
+
+    private sealed class SharedComplexB : SharedComplexBase
+    {
+        public ComplexValue? Value { get; set; }
+    }
+
+    private abstract class SingleComplexBase
+    {
+        public int Id { get; set; }
+    }
+
+    private sealed class SingleComplex : SingleComplexBase
+    {
+        public ComplexValue? Value { get; set; }
+    }
+
+    private sealed class PlainComplex
+    {
+        public int Id { get; set; }
+        public ComplexValue? Value { get; set; }
+    }
+
+    private sealed record ComplexValue(decimal Amount, decimal Error, short Precision);
+
     [Theory, MemberData(nameof(IsAsyncData))] // Issue #29356
     public virtual async Task Principal_and_dependent_roundtrips_with_cycle_breaking(bool async)
     {
