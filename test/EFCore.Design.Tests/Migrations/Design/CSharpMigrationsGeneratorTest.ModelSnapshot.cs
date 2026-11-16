@@ -4956,7 +4956,7 @@ partial class Snapshot : ModelSnapshot
                                         b3.Property<string>("Name");
 
                                         b3
-                                            .ToJson("EntityWithTwoProperties_EntityWithStringKey_Properties")
+                                            .ToJson()
                                             .HasColumnType("nvarchar(max)");
                                     });
 
@@ -4989,8 +4989,35 @@ partial class Snapshot : ModelSnapshot
                 var nestedOwnedType = ownedType.FindNavigation(nameof(EntityWithTwoProperties.EntityWithStringKey))!.TargetEntityType;
                 var properties = nestedOwnedType.FindComplexProperty(nameof(EntityWithStringKey.Properties))!;
                 Assert.True(properties.IsCollection);
-                Assert.Equal("EntityWithTwoProperties_EntityWithStringKey_Properties", properties.ComplexType.GetContainerColumnName());
+                Assert.Equal(
+                    "EntityWithTwoProperties_EntityWithStringKey_Properties",
+                    properties.ComplexType.GetContainerColumnName(StoreObjectIdentifier.Table(nameof(EntityWithOneProperty), "DefaultSchema")));
             });
+
+    [Fact]
+    public virtual void Explicit_json_column_name_of_complex_property_on_owned_type_is_stored_in_snapshot()
+        => Test(
+            builder => builder.Entity<EntityWithOneProperty>(b => b.OwnsOne(
+                eo => eo.EntityWithTwoProperties, eb =>
+                {
+                    eb.Ignore(e => e.EntityWithOneProperty);
+                    eb.Ignore(e => e.Coordinates);
+                    eb.OwnsOne(
+                        e => e.EntityWithStringKey,
+                        sb => sb.ComplexCollection(e => e.Properties, pb => pb.ToJson(nameof(EntityWithStringKey.Properties))));
+                })),
+            """.ToJson("Properties")""",
+            o =>
+            {
+                var properties = o.FindEntityType(typeof(EntityWithOneProperty))!
+                    .FindNavigation(nameof(EntityWithOneProperty.EntityWithTwoProperties))!.TargetEntityType
+                    .FindNavigation(nameof(EntityWithTwoProperties.EntityWithStringKey))!.TargetEntityType
+                    .FindComplexProperty(nameof(EntityWithStringKey.Properties))!;
+                Assert.Equal(
+                    nameof(EntityWithStringKey.Properties),
+                    properties.ComplexType.GetContainerColumnName(StoreObjectIdentifier.Table(nameof(EntityWithOneProperty), "DefaultSchema")));
+            },
+            fullSnapshot: false);
 
     [Fact]
     public virtual void Complex_properties_on_owned_collection_configured_by_attributes_are_stored_in_snapshot()
@@ -8125,7 +8152,7 @@ partial class Snapshot : ModelSnapshot
                         b1.Property<string>("Country");
 
                         b1
-                            .ToJson("Owner")
+                            .ToJson()
                             .HasColumnType("nvarchar(max)");
                     });
 
@@ -8136,7 +8163,7 @@ partial class Snapshot : ModelSnapshot
                         b1.Property<string>("Title");
 
                         b1
-                            .ToJson("Posts")
+                            .ToJson()
                             .HasColumnType("nvarchar(max)");
                     });
 
@@ -8197,7 +8224,7 @@ partial class Snapshot : ModelSnapshot
                         b1.Property<string>("Country");
 
                         b1
-                            .ToJson("Owner")
+                            .ToJson()
                             .HasColumnType("nvarchar(max)");
                     });
 
@@ -8208,7 +8235,7 @@ partial class Snapshot : ModelSnapshot
                         b1.Property<string>("Title");
 
                         b1
-                            .ToJson("Posts")
+                            .ToJson()
                             .HasColumnType("nvarchar(max)");
                     });
 
@@ -8269,7 +8296,7 @@ partial class Snapshot : ModelSnapshot
                         b1.Property<string>("Country");
 
                         b1
-                            .ToJson("Owner")
+                            .ToJson()
                             .HasColumnType("nvarchar(max)");
                     });
 
@@ -8280,7 +8307,7 @@ partial class Snapshot : ModelSnapshot
                         b1.Property<string>("Title");
 
                         b1
-                            .ToJson("Posts")
+                            .ToJson()
                             .HasColumnType("nvarchar(max)");
                     });
 

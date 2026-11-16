@@ -443,6 +443,30 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     }
 
     [Fact]
+    public virtual void Detects_json_path_index_spanning_default_and_explicit_json_columns_on_owned_type()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<OwnerOfTwoJsonCollections>().OwnsOne(
+            e => e.Owned, b =>
+            {
+                b.ComplexCollection(e => e.ItemsA).ToJson();
+                b.ComplexCollection(e => e.ItemsB).ToJson("ItemsA");
+                b.HasIndex("ItemsA[].Value", "ItemsB[].Value");
+            });
+
+        VerifyError(
+            RelationalStrings.JsonPathIndexPropertiesInDifferentJsonColumns(
+                "{'Value', 'Value'}", nameof(EntityWithTwoJsonCollections), "Owned_ItemsA", "ItemsA"),
+            modelBuilder);
+    }
+
+    private sealed class OwnerOfTwoJsonCollections
+    {
+        public int Id { get; set; }
+        public EntityWithTwoJsonCollections Owned { get; set; } = null!;
+    }
+
+    [Fact]
     public virtual void GetNullableValueFactory_throws_for_index_containing_complex_property()
     {
         var modelBuilder = CreateConventionModelBuilder();

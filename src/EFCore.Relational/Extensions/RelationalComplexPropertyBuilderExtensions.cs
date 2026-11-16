@@ -18,9 +18,10 @@ public static class RelationalComplexPropertyBuilderExtensions
     /// <param name="jsonColumnName">The name of the JSON column. If not specified, the complex property name is used.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     /// <remarks>
-    ///     If the complex property is declared on an owned type that shares its owner's table, the default column name is
-    ///     prefixed with the names of the ownership navigations. For example, a complex property <c>Location</c> on the
-    ///     owned <c>Order.ShippingAddress</c> is mapped to the <c>ShippingAddress_Location</c> column.
+    ///     If the complex property is declared on an owned type that shares a table or view with its owner and the column name
+    ///     is not specified, the name is prefixed in that table or view with the names of the ownership navigations.
+    ///     For example, a complex property <c>Location</c> on the owned <c>Order.ShippingAddress</c> is mapped to the
+    ///     <c>ShippingAddress_Location</c> column.
     /// </remarks>
     public static ComplexPropertyBuilder ToJson(
         this ComplexPropertyBuilder complexPropertyBuilder,
@@ -28,24 +29,12 @@ public static class RelationalComplexPropertyBuilderExtensions
     {
         Check.NullButNotEmpty(jsonColumnName);
 
-        SetContainerColumnName(complexPropertyBuilder.Metadata, jsonColumnName);
+        var complexProperty = complexPropertyBuilder.Metadata;
+
+        // An empty name stands for the default one, see GetContainerColumnName
+        complexProperty.ComplexType.SetContainerColumnName(jsonColumnName ?? string.Empty);
 
         return complexPropertyBuilder;
-    }
-
-    // Marks a default JSON column name of a complex property on an entity type, prefixed once the table mapping is final.
-    // Setting the container column name removes it.
-    internal const string DefaultContainerColumnNameAnnotation = RelationalAnnotationNames.Prefix + "DefaultContainerColumnName";
-
-    internal static void SetContainerColumnName(IMutableComplexProperty complexProperty, string? jsonColumnName)
-    {
-        var complexType = complexProperty.ComplexType;
-        complexType.SetContainerColumnName(jsonColumnName ?? complexProperty.Name);
-        if (jsonColumnName == null
-            && complexProperty.DeclaringType is IMutableEntityType)
-        {
-            complexType.SetAnnotation(DefaultContainerColumnNameAnnotation, true);
-        }
     }
 
     /// <summary>
@@ -55,9 +44,10 @@ public static class RelationalComplexPropertyBuilderExtensions
     /// <param name="jsonColumnName">The name of the JSON column. If not specified, the complex property name is used.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     /// <remarks>
-    ///     If the complex property is declared on an owned type that shares its owner's table, the default column name is
-    ///     prefixed with the names of the ownership navigations. For example, a complex property <c>Location</c> on the
-    ///     owned <c>Order.ShippingAddress</c> is mapped to the <c>ShippingAddress_Location</c> column.
+    ///     If the complex property is declared on an owned type that shares a table or view with its owner and the column name
+    ///     is not specified, the name is prefixed in that table or view with the names of the ownership navigations.
+    ///     For example, a complex property <c>Location</c> on the owned <c>Order.ShippingAddress</c> is mapped to the
+    ///     <c>ShippingAddress_Location</c> column.
     /// </remarks>
     public static ComplexPropertyBuilder<TComplex> ToJson<TComplex>(
         this ComplexPropertyBuilder<TComplex> complexPropertyBuilder,

@@ -271,7 +271,8 @@ public class RelationalModelValidator(
                     complexProperty.DeclaringType.DisplayName(), complexProperty.Name));
         }
 
-        // OwnsMany().ToJson() is deprecated (#37289), no need to support complex properties (#33170)
+        // Only owned collections with synthetic keys are deprecated, see ValidateOwnedEntityMappedToJsonCollection
+        // TODO: Implement, see Issue 39692
         if (complexProperty.DeclaringType is IEntityType declaringEntityType
             && declaringEntityType.IsMappedToJson()
             && IsInJsonOwnedCollection(declaringEntityType))
@@ -293,12 +294,12 @@ public class RelationalModelValidator(
             && ((IConventionAnnotation?)complexProperty.ComplexType.FindAnnotation(RelationalAnnotationNames.JsonPropertyName))
                 ?.GetConfigurationSource() != ConfigurationSource.DataAnnotation)
         {
-            if (complexProperty.ComplexType.FindAnnotation(RelationalAnnotationNames.ContainerColumnName)?.Value is string columnName)
+            if (complexProperty.ComplexType.FindAnnotation(RelationalAnnotationNames.ContainerColumnName)?.Value is string)
             {
                 throw new InvalidOperationException(
                     RelationalStrings.ComplexPropertyBothJsonColumnAndJsonPropertyName(
                         $"{complexProperty.DeclaringType.DisplayName()}.{complexProperty.Name}",
-                        columnName,
+                        complexProperty.ComplexType.GetContainerColumnName(),
                         complexProperty.GetJsonPropertyName()));
             }
 
@@ -310,13 +311,13 @@ public class RelationalModelValidator(
             }
         }
 
-        if (complexProperty.ComplexType.FindAnnotation(RelationalAnnotationNames.ContainerColumnName)?.Value is string containerColumnName
+        if (complexProperty.ComplexType.FindAnnotation(RelationalAnnotationNames.ContainerColumnName)?.Value is string
             && complexProperty.DeclaringType.IsMappedToJson())
         {
             throw new InvalidOperationException(
                 RelationalStrings.NestedComplexPropertyJsonColumn(
                     $"{complexProperty.DeclaringType.DisplayName()}.{complexProperty.Name}",
-                    containerColumnName,
+                    complexProperty.ComplexType.GetContainerColumnName(),
                     complexProperty.DeclaringType.DisplayName(),
                     complexProperty.DeclaringType.GetContainerColumnName()));
         }
@@ -2911,6 +2912,7 @@ public class RelationalModelValidator(
 
     private static void ValidateJsonPathIndexSingleContainer(IIndex index)
     {
+        var table = StoreObjectIdentifier.Create(index.DeclaringEntityType, StoreObjectType.Table);
         string? firstContainer = null;
         for (var i = 0; i < index.Properties.Count; i++)
         {
@@ -2918,11 +2920,13 @@ public class RelationalModelValidator(
 
             // Only properties mapped inside a JSON container matter here. Mixed JSON / non-JSON indexes
             // are rejected earlier by ValidateIndexPropertyMapping.
-            var container = property.DeclaringType is IReadOnlyComplexType complexType && complexType.IsMappedToJson()
-                ? complexType.GetContainerColumnName()
+            var jsonComplexType = property.DeclaringType is IReadOnlyComplexType complexType && complexType.IsMappedToJson()
+                ? complexType
                 : property is IReadOnlyComplexProperty complexProperty && complexProperty.ComplexType.IsMappedToJson()
-                    ? complexProperty.ComplexType.GetContainerColumnName()
+                    ? complexProperty.ComplexType
                     : null;
+            var container = (table is { } tableIdentifier ? jsonComplexType?.GetContainerColumnName(tableIdentifier) : null)
+                ?? jsonComplexType?.GetContainerColumnName();
 
             if (container is null)
             {

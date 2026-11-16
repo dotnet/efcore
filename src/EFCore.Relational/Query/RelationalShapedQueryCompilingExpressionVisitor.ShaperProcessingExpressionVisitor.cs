@@ -2664,7 +2664,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             {
                 var jsonColumnName = structuralType.GetContainerColumnName()!;
                 jsonColumn = structuralType.ContainingEntityType.GetQueryMappings()
-                        .Select(m => m.Table.FindColumn(jsonColumnName))
+                        .Select(m => structuralType is IComplexType complexType
+                            ? m.Table.FindColumn(complexType.ComplexProperty)
+                            : m.Table.FindColumn(jsonColumnName))
                         .FirstOrDefault(c => c is not null)
                     ?? throw new UnreachableException(
                         $"Could not find JSON container column '{jsonColumnName}' for entity type '{structuralType.DisplayName()}'.");

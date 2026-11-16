@@ -275,9 +275,11 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
             && containerColumnNameAnnotation is { Value: string containerColumnName })
         {
             methodCallCodeFragments.Add(
-                new MethodCallCodeFragment(
-                    nameof(RelationalComplexPropertyBuilderExtensions.ToJson),
-                    containerColumnName));
+                containerColumnName.Length == 0
+                    ? new MethodCallCodeFragment(nameof(RelationalComplexPropertyBuilderExtensions.ToJson))
+                    : new MethodCallCodeFragment(
+                        nameof(RelationalComplexPropertyBuilderExtensions.ToJson),
+                        containerColumnName));
 
             annotations.Remove(RelationalAnnotationNames.ContainerColumnName);
         }

@@ -215,7 +215,7 @@ public partial class EntityWithNestedComplexCollectionEntityType
                 shadowCount: 0,
                 relationshipCount: 0,
                 storeGeneratedCount: 0));
-            complexType.AddAnnotation("Relational:ContainerColumnName", "Groups");
+            complexType.AddAnnotation("Relational:ContainerColumnName", "");
             complexType.AddAnnotation("Relational:FunctionName", null);
             complexType.AddAnnotation("Relational:Schema", null);
             complexType.AddAnnotation("Relational:SqlQuery", null);

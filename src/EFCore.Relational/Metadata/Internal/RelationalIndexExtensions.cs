@@ -152,7 +152,9 @@ public static class RelationalIndexExtensions
                     if (scalar.DeclaringType is IReadOnlyComplexType complexType && complexType.IsMappedToJson())
                     {
                         // Index over a scalar inside a JSON-mapped complex type: maps to the JSON container column.
-                        var jsonContainerName = complexType.GetContainerColumnName();
+                        var jsonContainerName = storeObject is { } jsonStoreObject
+                            ? complexType.GetContainerColumnName(jsonStoreObject)
+                            : complexType.GetContainerColumnName();
                         if (string.IsNullOrEmpty(jsonContainerName))
                         {
                             return null;
@@ -177,7 +179,9 @@ public static class RelationalIndexExtensions
                     break;
 
                 case IReadOnlyComplexProperty { ComplexType: var ct } when ct.IsMappedToJson():
-                    var containerColumnName = ct.GetContainerColumnName();
+                    var containerColumnName = storeObject is { } containerStoreObject
+                        ? ct.GetContainerColumnName(containerStoreObject)
+                        : ct.GetContainerColumnName();
                     if (string.IsNullOrEmpty(containerColumnName))
                     {
                         return null;

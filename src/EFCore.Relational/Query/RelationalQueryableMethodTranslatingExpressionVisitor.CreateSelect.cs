@@ -220,10 +220,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 
                                 if (complexType.IsMappedToJson())
                                 {
-                                    var containerColumnName = complexProperty.ComplexType.GetContainerColumnName();
-                                    Check.DebugAssert(containerColumnName is not null, "Complex JSON type without a container column");
-
-                                    var containerColumn = table.FindColumn(containerColumnName);
+                                    var containerColumn = table.FindColumn(complexProperty);
                                     Check.DebugAssert(
                                         containerColumn is not null, "Complex JSON container table not found on relational table");
 
@@ -299,9 +296,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                             var column = property switch
                             {
                                 IProperty p => table.FindColumn(p),
-                                IComplexProperty p => p.ComplexType.GetContainerColumnName() is string columnName
-                                    ? table.FindColumn(columnName)
-                                    : null,
+                                IComplexProperty p => table.FindColumn(p),
                                 _ => throw new UnreachableException("Unexpected property type when building TPC union projection.")
                             };
 
@@ -599,10 +594,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
     {
         Check.DebugAssert(complexProperty.ComplexType.IsMappedToJson());
 
-        var containerColumnName = complexProperty.ComplexType.GetContainerColumnName();
-        Check.DebugAssert(containerColumnName is not null, "Complex JSON type without a container column");
-
-        var containerColumn = table.FindColumn(containerColumnName);
+        var containerColumn = table.FindColumn(complexProperty);
         Check.DebugAssert(containerColumn is not null, "Complex JSON container table not found on relational table");
 
         return GenerateComplexJsonShaper(

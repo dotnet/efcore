@@ -1792,6 +1792,8 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
             modelBuilder.Entity<OwnerOfOwnedWithComplex>(b =>
             {
+                b.ToTable("Owners");
+                b.ToView("OwnersView");
                 b.OwnsOne(
                     e => e.Owned, ob =>
                     {
@@ -1810,21 +1812,69 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
             var owner = model.FindEntityType(typeof(OwnerOfOwnedWithComplex))!;
             var owned = owner.FindNavigation(nameof(OwnerOfOwnedWithComplex.Owned))!.TargetEntityType;
-            Assert.Equal(
-                "Owned_Complex",
-                owned.FindComplexProperty(nameof(OwnedWithComplex.Complex))!.ComplexType.GetContainerColumnName());
-            Assert.Equal(
-                "Items",
-                owned.FindComplexProperty(nameof(OwnedWithComplex.ComplexCollection))!.ComplexType.GetContainerColumnName());
+            var complex = owned.FindComplexProperty(nameof(OwnedWithComplex.Complex))!;
+            var complexCollection = owned.FindComplexProperty(nameof(OwnedWithComplex.ComplexCollection))!;
+            Assert.Equal(nameof(OwnedWithComplex.Complex), complex.ComplexType.GetContainerColumnName());
+
+            var table = owned.GetTableMappings().Single().Table;
+            Assert.Equal("Owners", table.Name);
+            Assert.Equal("Owned_Complex", table.FindColumn(complex)!.Name);
+            Assert.Equal("Items", table.FindColumn(complexCollection)!.Name);
+
+            var view = owned.GetViewMappings().Single().View;
+            Assert.Equal("OwnersView", view.Name);
+            Assert.Equal("Owned_Complex", view.FindColumn(complex)!.Name);
+            Assert.Equal("Items", view.FindColumn(complexCollection)!.Name);
 
             // The owned collection is mapped to its own table, so the names aren't prefixed
             var ownedCollection = owner.FindNavigation(nameof(OwnerOfOwnedWithComplex.OwnedCollection))!.TargetEntityType;
+            var ownedCollectionTable = ownedCollection.GetTableMappings().Single().Table;
             Assert.Equal(
                 nameof(OwnedWithComplex.Complex),
-                ownedCollection.FindComplexProperty(nameof(OwnedWithComplex.Complex))!.ComplexType.GetContainerColumnName());
+                ownedCollectionTable.FindColumn(ownedCollection.FindComplexProperty(nameof(OwnedWithComplex.Complex))!)!.Name);
             Assert.Equal(
                 nameof(OwnedWithComplex.ComplexCollection),
-                ownedCollection.FindComplexProperty(nameof(OwnedWithComplex.ComplexCollection))!.ComplexType.GetContainerColumnName());
+                ownedCollectionTable.FindColumn(ownedCollection.FindComplexProperty(nameof(OwnedWithComplex.ComplexCollection))!)!
+                    .Name);
+        }
+
+        [Fact]
+        public virtual void Json_complex_properties_on_owned_type_sharing_owner_table_keep_explicit_name_equal_to_property_name()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<OwnerOfOwnedWithComplex>(b =>
+            {
+                b.ToTable("Owners");
+                b.ToView("OwnersView");
+                b.Ignore(e => e.OwnedCollection);
+                b.OwnsOne(
+                    e => e.Owned, ob =>
+                    {
+                        ob.ComplexProperty(o => o.Complex, cb => cb.ToJson(nameof(OwnedWithComplex.Complex)));
+                        ob.ComplexCollection(
+                            o => o.ComplexCollection, cb =>
+                            {
+                                cb.ToJson();
+                                cb.ToJson(nameof(OwnedWithComplex.ComplexCollection));
+                            });
+                    });
+            });
+
+            var model = modelBuilder.FinalizeModel();
+
+            var owned = model.FindEntityType(typeof(OwnerOfOwnedWithComplex))!
+                .FindNavigation(nameof(OwnerOfOwnedWithComplex.Owned))!.TargetEntityType;
+            var complex = owned.FindComplexProperty(nameof(OwnedWithComplex.Complex))!;
+            var complexCollection = owned.FindComplexProperty(nameof(OwnedWithComplex.ComplexCollection))!;
+
+            var table = owned.GetTableMappings().Single().Table;
+            Assert.Equal(nameof(OwnedWithComplex.Complex), table.FindColumn(complex)!.Name);
+            Assert.Equal(nameof(OwnedWithComplex.ComplexCollection), table.FindColumn(complexCollection)!.Name);
+
+            var view = owned.GetViewMappings().Single().View;
+            Assert.Equal(nameof(OwnedWithComplex.Complex), view.FindColumn(complex)!.Name);
+            Assert.Equal(nameof(OwnedWithComplex.ComplexCollection), view.FindColumn(complexCollection)!.Name);
         }
 
         [Fact]
@@ -1849,7 +1899,6 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                             {
                                 cb.ToJson();
                                 cb.Metadata.ComplexType.SetContainerColumnName("Items");
-                                cb.Metadata.ComplexType.SetContainerColumnName(nameof(OwnedWithComplex.ComplexCollection));
                             });
                     });
             });
@@ -1860,8 +1909,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                 .FindNavigation(nameof(OwnerOfOwnedWithComplex.Owned))!.TargetEntityType;
             Assert.False(owned.FindComplexProperty(nameof(OwnedWithComplex.Complex))!.ComplexType.IsMappedToJson());
             Assert.Equal(
-                nameof(OwnedWithComplex.ComplexCollection),
-                owned.FindComplexProperty(nameof(OwnedWithComplex.ComplexCollection))!.ComplexType.GetContainerColumnName());
+                "Items",
+                owned.GetTableMappings().Single().Table
+                    .FindColumn(owned.FindComplexProperty(nameof(OwnedWithComplex.ComplexCollection))!)!.Name);
         }
 
         [Theory]
@@ -1894,13 +1944,14 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
             var owned = model.FindEntityType(typeof(OwnerOfOwnedWithComplex))!
                 .FindNavigation(nameof(OwnerOfOwnedWithComplex.Owned))!.TargetEntityType;
-            var prefix = sharesOwnerTable ? "Owned_" : "";
+            var table = owned.GetTableMappings().Single().Table;
+            var prefix = sharesOwnerTable ? "Owned_" : string.Empty;
             Assert.Equal(
                 prefix + nameof(OwnedWithComplex.Complex),
-                owned.FindComplexProperty(nameof(OwnedWithComplex.Complex))!.ComplexType.GetContainerColumnName());
+                table.FindColumn(owned.FindComplexProperty(nameof(OwnedWithComplex.Complex))!)!.Name);
             Assert.Equal(
                 prefix + nameof(OwnedWithComplex.ComplexCollection),
-                owned.FindComplexProperty(nameof(OwnedWithComplex.ComplexCollection))!.ComplexType.GetContainerColumnName());
+                table.FindColumn(owned.FindComplexProperty(nameof(OwnedWithComplex.ComplexCollection))!)!.Name);
         }
     }
 

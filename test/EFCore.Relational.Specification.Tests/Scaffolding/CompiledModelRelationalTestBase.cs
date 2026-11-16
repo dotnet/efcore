@@ -1239,7 +1239,9 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
                     "Owned_Location_Coordinates_Latitude",
                     location.ComplexType.FindComplexProperty(nameof(LocationComplex.Coordinates))!.ComplexType
                         .FindProperty(nameof(CoordinatesComplex.Latitude))!.GetTableColumnMappings().Single().Column.Name);
-                Assert.Equal("Owned_Tags", owned.FindComplexProperty(nameof(OwnedWithComplex.Tags))!.ComplexType.GetContainerColumnName());
+                Assert.Equal(
+                    "Owned_Tags",
+                    owned.GetTableMappings().Single().Table.FindColumn(owned.FindComplexProperty(nameof(OwnedWithComplex.Tags))!)!.Name);
 
                 var jsonOwned = owner.FindNavigation(nameof(OwnerWithComplex.JsonOwned))!.TargetEntityType;
                 Assert.Equal("JsonOwned", jsonOwned.GetContainerColumnName());

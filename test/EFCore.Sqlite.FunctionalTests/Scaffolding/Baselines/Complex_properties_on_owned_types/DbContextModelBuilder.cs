@@ -55,10 +55,10 @@ public partial class DbContextModel
         microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexTableBase.Columns.Add("Location_Coordinates_Latitude", location_Coordinates_LatitudeColumnBase);
         var location_Coordinates_LongitudeColumnBase = new ColumnBase<ColumnMappingBase>("Location_Coordinates_Longitude", "TEXT", microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexTableBase);
         microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexTableBase.Columns.Add("Location_Coordinates_Longitude", location_Coordinates_LongitudeColumnBase);
-        var owned_TagsColumnBase = new JsonColumnBase("Owned_Tags", "TEXT", microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexTableBase);
-        microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexTableBase.Columns.Add("Owned_Tags", owned_TagsColumnBase);
         var ownerWithComplexIdColumnBase = new ColumnBase<ColumnMappingBase>("OwnerWithComplexId", "INTEGER", microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexTableBase);
         microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexTableBase.Columns.Add("OwnerWithComplexId", ownerWithComplexIdColumnBase);
+        var tagsColumnBase = new JsonColumnBase("Tags", "TEXT", microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexTableBase);
+        microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexTableBase.Columns.Add("Tags", tagsColumnBase);
         var elementJsonObject = new RelationalJsonObject(jsonOwnedColumnBase, false);
         var ownerWithComplexIdJsonScalar = new RelationalJsonScalar("OwnerWithComplexId", elementJsonObject, false);
         elementJsonObject.AddProperty(ownerWithComplexIdJsonScalar);
@@ -79,12 +79,12 @@ public partial class DbContextModel
         tagsJsonArray.ElementType = elementJsonObject0;
         elementJsonObject.AddProperty(tagsJsonArray);
         jsonOwnedColumnBase.JsonElement = elementJsonObject;
-        var arrayJsonArray = new RelationalJsonArray(owned_TagsColumnBase, false);
+        var arrayJsonArray = new RelationalJsonArray(tagsColumnBase, false);
         var elementJsonObject1 = new RelationalJsonObject(arrayJsonArray, false);
         var textJsonScalar0 = new RelationalJsonScalar("Text", elementJsonObject1, false);
         elementJsonObject1.AddProperty(textJsonScalar0);
         arrayJsonArray.ElementType = elementJsonObject1;
-        owned_TagsColumnBase.JsonElement = arrayJsonArray;
+        tagsColumnBase.JsonElement = arrayJsonArray;
         relationalModel.DefaultTables.Add("Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelRelationalTestBase+OwnerWithComplex", microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexTableBase);
         var microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase = new TableMappingBase<ColumnMappingBase>(ownerWithComplex, microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexTableBase, null);
         microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexTableBase.AddTypeMapping(microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase, false);

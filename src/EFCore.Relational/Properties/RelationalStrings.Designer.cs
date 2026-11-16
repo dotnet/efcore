@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 complexProperty, columnName, propertyName);
 
         /// <summary>
-        ///     Complex property '{complexProperty}' cannot be declared on '{entityType}', which is mapped to JSON as part of an owned collection. Owned JSON collections ('OwnsMany(...).ToJson()') are obsolete and don't support complex properties; map the collection with 'ComplexCollection(...).ToJson()' instead.
+        ///     Complex property '{complexProperty}' cannot be declared on '{entityType}', which is mapped to JSON as part of an owned collection. Complex properties on owned types in JSON collections aren't supported; map the collection with 'ComplexCollection(...).ToJson()' instead.
         /// </summary>
         public static string ComplexPropertyInJsonOwnedCollection(object? complexProperty, object? entityType)
             => string.Format(

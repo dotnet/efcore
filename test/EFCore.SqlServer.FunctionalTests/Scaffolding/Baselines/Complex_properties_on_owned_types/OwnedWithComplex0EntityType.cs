@@ -459,7 +459,7 @@ public partial class OwnedWithComplex0EntityType
                 shadowCount: 0,
                 relationshipCount: 0,
                 storeGeneratedCount: 0));
-            complexType.AddAnnotation("Relational:ContainerColumnName", "Owned_Tags");
+            complexType.AddAnnotation("Relational:ContainerColumnName", "");
             complexType.AddAnnotation("Relational:FunctionName", null);
             complexType.AddAnnotation("Relational:Schema", null);
             complexType.AddAnnotation("Relational:SqlQuery", null);
