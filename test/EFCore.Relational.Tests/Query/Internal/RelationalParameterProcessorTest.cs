@@ -13,6 +13,7 @@ public class RelationalParameterProcessorTest
      InlineData("SELECT {0 ,5}", 0, true),
      InlineData("SELECT {0:x}", 0, true),
      InlineData("SELECT {0 }", 0, true),
+     InlineData("SELECT { 0}", 0, false), // string.Format doesn't accept whitespace before the index
      InlineData("SELECT {00}", 0, true),
      InlineData("SELECT {01}", 1, true),
      InlineData("SELECT {10}", 10, true),
