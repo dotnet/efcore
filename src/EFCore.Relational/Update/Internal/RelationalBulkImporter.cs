@@ -8,9 +8,7 @@ using System.Text;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Update.Internal;
@@ -24,31 +22,50 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal;
 public class RelationalBulkImporter : IBulkImporter
 {
     private readonly IRelationalConnection _connection;
-    private readonly IRawSqlCommandBuilder _rawSqlCommandBuilder;
+    private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
     private readonly ISqlGenerationHelper _sqlGenerationHelper;
     private readonly IRelationalCommandDiagnosticsLogger _logger;
     private readonly ICurrentDbContext _currentDbContext;
 
     public RelationalBulkImporter(
         IRelationalConnection connection,
-        IRawSqlCommandBuilder rawSqlCommandBuilder,
+        IRelationalCommandBuilderFactory commandBuilderFactory,
         ISqlGenerationHelper sqlGenerationHelper,
         IRelationalCommandDiagnosticsLogger logger,
         ICurrentDbContext currentDbContext)
     {
         _connection = connection;
-        _rawSqlCommandBuilder = rawSqlCommandBuilder;
+        _commandBuilderFactory = commandBuilderFactory;
         _sqlGenerationHelper = sqlGenerationHelper;
         _logger = logger;
         _currentDbContext = currentDbContext;
     }
+
+    protected IRelationalConnection Connection
+        => _connection;
+
+    protected ISqlGenerationHelper SqlGenerationHelper
+        => _sqlGenerationHelper;
 
     public virtual void Import<TEntity>(
         IEntityType entityType,
         IEnumerable<TEntity> entities,
         BulkImportOptions? options = null)
         where TEntity : class
-        => ImportAsync(entityType, entities, options, CancellationToken.None).GetAwaiter().GetResult();
+    {
+        Check.NotNull(entityType);
+        Check.NotNull(entities);
+
+        ValidateEntityType(entityType);
+
+        if (CanExecuteNativeImport(entityType, options))
+        {
+            ExecuteNativeImport(entityType, entities, options);
+            return;
+        }
+
+        ExecuteBatchInsert(entityType, entities, options);
+    }
 
     public virtual async Task ImportAsync<TEntity>(
         IEntityType entityType,
@@ -60,7 +77,15 @@ public class RelationalBulkImporter : IBulkImporter
         Check.NotNull(entityType);
         Check.NotNull(entities);
 
-        await ImportCoreAsync(entityType, AsAsyncEnumerable(entities), options, cancellationToken).ConfigureAwait(false);
+        ValidateEntityType(entityType);
+
+        if (CanExecuteNativeImport(entityType, options))
+        {
+            await ExecuteNativeImportAsync(entityType, entities, options, cancellationToken).ConfigureAwait(false);
+            return;
+        }
+
+        await ExecuteBatchInsertAsync(entityType, AsAsyncEnumerable(entities), options, cancellationToken).ConfigureAwait(false);
     }
 
     public virtual async Task ImportAsync<TEntity>(
@@ -73,32 +98,68 @@ public class RelationalBulkImporter : IBulkImporter
         Check.NotNull(entityType);
         Check.NotNull(entities);
 
-        await ImportCoreAsync(entityType, entities, options, cancellationToken).ConfigureAwait(false);
-    }
+        ValidateEntityType(entityType);
 
-    private static async IAsyncEnumerable<T> AsAsyncEnumerable<T>(IEnumerable<T> source)
-    {
-        foreach (var item in source)
+        if (CanExecuteNativeImport(entityType, options))
         {
-            yield return item;
+            await ExecuteNativeImportAsync(entityType, entities, options, cancellationToken).ConfigureAwait(false);
+            return;
         }
 
-        await Task.CompletedTask.ConfigureAwait(false);
+        await ExecuteBatchInsertAsync(entityType, entities, options, cancellationToken).ConfigureAwait(false);
     }
 
-    private readonly record struct PropertyColumn(
-        IProperty Property,
-        string ColumnName,
-        string DelimitedColumnName,
-        Func<object, object?> ValueAccessor,
-        ValueConverter? Converter);
+    protected virtual void ValidateEntityType(IEntityType entityType)
+    {
+        if (entityType.GetMappingStrategy() == RelationalAnnotationNames.TptMappingStrategy)
+        {
+            throw new NotSupportedException(
+                $"Bulk import does not currently support Table-per-Type (TPT) inheritance for entity type '{entityType.DisplayName()}'.");
+        }
 
-    private async Task ImportCoreAsync<TEntity>(
+        var tables = entityType.GetTableMappings().Select(m => m.Table.Name).Distinct().ToList();
+        if (tables.Count > 1)
+        {
+            throw new NotSupportedException(
+                $"Bulk import does not currently support entity splitting across multiple tables for entity type '{entityType.DisplayName()}'.");
+        }
+
+        if (entityType.IsMappedToJson())
+        {
+            throw new NotSupportedException(
+                $"Bulk import does not currently support entities mapped to JSON for entity type '{entityType.DisplayName()}'.");
+        }
+    }
+
+    protected virtual bool CanExecuteNativeImport(IEntityType entityType, BulkImportOptions? options)
+        => false;
+
+    protected virtual void ExecuteNativeImport<TEntity>(
+        IEntityType entityType,
+        IEnumerable<TEntity> entities,
+        BulkImportOptions? options)
+        where TEntity : class
+        => throw new NotSupportedException();
+
+    protected virtual Task ExecuteNativeImportAsync<TEntity>(
+        IEntityType entityType,
+        IEnumerable<TEntity> entities,
+        BulkImportOptions? options,
+        CancellationToken cancellationToken)
+        where TEntity : class
+        => throw new NotSupportedException();
+
+    protected virtual Task ExecuteNativeImportAsync<TEntity>(
         IEntityType entityType,
         IAsyncEnumerable<TEntity> entities,
         BulkImportOptions? options,
         CancellationToken cancellationToken)
         where TEntity : class
+        => throw new NotSupportedException();
+
+    protected virtual (string DestinationTable, StoreObjectIdentifier StoreObject) GetTableAndStoreObject(
+        IEntityType entityType,
+        BulkImportOptions? options)
     {
         var tableName = entityType.GetTableName();
         if (tableName is null)
@@ -108,72 +169,38 @@ public class RelationalBulkImporter : IBulkImporter
 
         var schema = entityType.GetSchema();
         var storeObject = StoreObjectIdentifier.Table(tableName, schema);
-        var delimitedTableName = _sqlGenerationHelper.DelimitIdentifier(tableName, schema);
+        var destinationTable = options?.DestinationTableName is not null
+            ? (schema is not null
+                ? _sqlGenerationHelper.DelimitIdentifier(options.DestinationTableName, schema)
+                : _sqlGenerationHelper.DelimitIdentifier(options.DestinationTableName))
+            : _sqlGenerationHelper.DelimitIdentifier(tableName, schema);
 
+        return (destinationTable, storeObject);
+    }
+
+    protected virtual int? GetEffectiveTimeout(BulkImportOptions? options)
+        => options?.Timeout ?? _connection.CommandTimeout;
+
+    protected virtual void ExecuteBatchInsert<TEntity>(
+        IEntityType entityType,
+        IEnumerable<TEntity> entities,
+        BulkImportOptions? options)
+        where TEntity : class
+    {
+        var (delimitedTableName, storeObject) = GetTableAndStoreObject(entityType, options);
         var keepIdentity = options?.KeepIdentity ?? false;
-        var columns = new List<PropertyColumn>();
-        var discriminatorProperty = entityType.FindDiscriminatorProperty();
-        var discriminatorValue = entityType.GetDiscriminatorValue();
 
-        foreach (var property in entityType.GetFlattenedProperties())
-        {
-            var columnName = property.GetColumnName(storeObject);
-            if (columnName is null)
-            {
-                continue;
-            }
-
-            // Exclude computed columns or columns marked to ignore before save
-            if (property.GetComputedColumnSql() is not null
-                || property.GetBeforeSaveBehavior() == PropertySaveBehavior.Ignore)
-            {
-                continue;
-            }
-
-            // Exclude store-generated identity primary keys unless keepIdentity is requested.
-            // Client-generated keys (such as GUIDs) are preserved.
-            if (property.IsPrimaryKey()
-                && !keepIdentity
-                && property.ValueGenerated == ValueGenerated.OnAdd
-                && property.ClrType != typeof(Guid)
-                && property.GetValueGeneratorFactory() == null)
-            {
-                continue;
-            }
-
-            Func<object, object?> valueAccessor;
-            if (property == discriminatorProperty)
-            {
-                valueAccessor = _ => discriminatorValue;
-            }
-            else if (property.GetGetter() is { } clrGetter)
-            {
-                valueAccessor = entity => clrGetter.GetClrValueUsingContainingEntity(entity);
-            }
-            else
-            {
-                valueAccessor = _ => null;
-            }
-
-            var converter = property.GetTypeMapping().Converter ?? property.GetValueConverter();
-            columns.Add(new PropertyColumn(
-                property,
-                columnName,
-                _sqlGenerationHelper.DelimitIdentifier(columnName),
-                valueAccessor,
-                converter));
-        }
-
+        using var reader = new EntityDataReader<TEntity>(entityType, entities, storeObject, keepIdentity);
+        var columns = reader.ColumnMappings;
         if (columns.Count == 0)
         {
+            ExecuteDefaultValuesBatch(entities, delimitedTableName, options);
             return;
         }
 
         var maxBatchSize = options?.BatchSize ?? 1000;
         var maxRowsPerBatch = Math.Max(1, Math.Min(maxBatchSize, 1000 / columns.Count));
-
-        var safeTableName = delimitedTableName.Replace("{", "{{").Replace("}", "}}");
-        var safeColumnList = string.Join(", ", columns.Select(c => c.DelimitedColumnName.Replace("{", "{{").Replace("}", "}}")));
+        var columnList = string.Join(", ", columns.Select(c => _sqlGenerationHelper.DelimitIdentifier(c.ColumnName)));
 
         var transactionEnlistManager = _connection as ITransactionEnlistmentManager;
         var shouldManageTransaction = _connection.CurrentTransaction is null
@@ -182,9 +209,88 @@ public class RelationalBulkImporter : IBulkImporter
         IDbContextTransaction? transaction = null;
 
         var previousTimeout = _connection.CommandTimeout;
-        if (options?.Timeout is not null)
+        var effectiveTimeout = GetEffectiveTimeout(options);
+        if (effectiveTimeout.HasValue)
         {
-            _connection.CommandTimeout = options.Timeout;
+            _connection.CommandTimeout = effectiveTimeout;
+        }
+
+        _connection.Open();
+        try
+        {
+            if (shouldManageTransaction)
+            {
+                transaction = _connection.BeginTransaction();
+            }
+
+            var batch = new List<TEntity>(maxRowsPerBatch);
+            foreach (var entity in entities)
+            {
+                batch.Add(entity);
+                if (batch.Count >= maxRowsPerBatch)
+                {
+                    ExecuteSingleBatch(batch, delimitedTableName, columnList, columns);
+                    batch.Clear();
+                }
+            }
+
+            if (batch.Count > 0)
+            {
+                ExecuteSingleBatch(batch, delimitedTableName, columnList, columns);
+            }
+
+            transaction?.Commit();
+        }
+        catch
+        {
+            transaction?.Rollback();
+            throw;
+        }
+        finally
+        {
+            if (effectiveTimeout.HasValue)
+            {
+                _connection.CommandTimeout = previousTimeout;
+            }
+
+            transaction?.Dispose();
+            _connection.Close();
+        }
+    }
+
+    protected virtual async Task ExecuteBatchInsertAsync<TEntity>(
+        IEntityType entityType,
+        IAsyncEnumerable<TEntity> entities,
+        BulkImportOptions? options,
+        CancellationToken cancellationToken)
+        where TEntity : class
+    {
+        var (delimitedTableName, storeObject) = GetTableAndStoreObject(entityType, options);
+        var keepIdentity = options?.KeepIdentity ?? false;
+
+        var reader = new EntityDataReader<TEntity>(entityType, entities, storeObject, keepIdentity, cancellationToken: cancellationToken);
+        var columns = reader.ColumnMappings;
+        if (columns.Count == 0)
+        {
+            await ExecuteDefaultValuesBatchAsync(entities, delimitedTableName, options, cancellationToken).ConfigureAwait(false);
+            return;
+        }
+
+        var maxBatchSize = options?.BatchSize ?? 1000;
+        var maxRowsPerBatch = Math.Max(1, Math.Min(maxBatchSize, 1000 / columns.Count));
+        var columnList = string.Join(", ", columns.Select(c => _sqlGenerationHelper.DelimitIdentifier(c.ColumnName)));
+
+        var transactionEnlistManager = _connection as ITransactionEnlistmentManager;
+        var shouldManageTransaction = _connection.CurrentTransaction is null
+            && transactionEnlistManager?.EnlistedTransaction is null
+            && transactionEnlistManager?.CurrentAmbientTransaction is null;
+        IDbContextTransaction? transaction = null;
+
+        var previousTimeout = _connection.CommandTimeout;
+        var effectiveTimeout = GetEffectiveTimeout(options);
+        if (effectiveTimeout.HasValue)
+        {
+            _connection.CommandTimeout = effectiveTimeout;
         }
 
         await _connection.OpenAsync(cancellationToken).ConfigureAwait(false);
@@ -202,14 +308,14 @@ public class RelationalBulkImporter : IBulkImporter
                 batch.Add(entity);
                 if (batch.Count >= maxRowsPerBatch)
                 {
-                    await ExecuteBatchAsync(batch, safeTableName, safeColumnList, columns, cancellationToken).ConfigureAwait(false);
+                    await ExecuteSingleBatchAsync(batch, delimitedTableName, columnList, columns, cancellationToken).ConfigureAwait(false);
                     batch.Clear();
                 }
             }
 
             if (batch.Count > 0)
             {
-                await ExecuteBatchAsync(batch, safeTableName, safeColumnList, columns, cancellationToken).ConfigureAwait(false);
+                await ExecuteSingleBatchAsync(batch, delimitedTableName, columnList, columns, cancellationToken).ConfigureAwait(false);
             }
 
             if (transaction is not null)
@@ -228,7 +334,7 @@ public class RelationalBulkImporter : IBulkImporter
         }
         finally
         {
-            if (options?.Timeout is not null)
+            if (effectiveTimeout.HasValue)
             {
                 _connection.CommandTimeout = previousTimeout;
             }
@@ -242,20 +348,236 @@ public class RelationalBulkImporter : IBulkImporter
         }
     }
 
-    private async Task ExecuteBatchAsync<TEntity>(
-        List<TEntity> batch,
+    private void ExecuteDefaultValuesBatch<TEntity>(
+        IEnumerable<TEntity> entities,
         string delimitedTableName,
-        string columnList,
-        List<PropertyColumn> columns,
+        BulkImportOptions? options)
+        where TEntity : class
+    {
+        var transactionEnlistManager = _connection as ITransactionEnlistmentManager;
+        var shouldManageTransaction = _connection.CurrentTransaction is null
+            && transactionEnlistManager?.EnlistedTransaction is null
+            && transactionEnlistManager?.CurrentAmbientTransaction is null;
+        IDbContextTransaction? transaction = null;
+
+        var previousTimeout = _connection.CommandTimeout;
+        var effectiveTimeout = GetEffectiveTimeout(options);
+        if (effectiveTimeout.HasValue)
+        {
+            _connection.CommandTimeout = effectiveTimeout;
+        }
+
+        _connection.Open();
+        try
+        {
+            if (shouldManageTransaction)
+            {
+                transaction = _connection.BeginTransaction();
+            }
+
+            var batchCount = 0;
+            var commandBuilder = _commandBuilderFactory.Create();
+
+            foreach (var _ in entities)
+            {
+                commandBuilder.AppendLine($"INSERT INTO {delimitedTableName} DEFAULT VALUES;");
+                batchCount++;
+                if (batchCount >= 500)
+                {
+                    commandBuilder.Build().ExecuteNonQuery(
+                        new RelationalCommandParameterObject(
+                            _connection,
+                            null,
+                            null,
+                            _currentDbContext.Context,
+                            _logger,
+                            CommandSource.ExecuteSqlRaw));
+                    commandBuilder = _commandBuilderFactory.Create();
+                    batchCount = 0;
+                }
+            }
+
+            if (batchCount > 0)
+            {
+                commandBuilder.Build().ExecuteNonQuery(
+                    new RelationalCommandParameterObject(
+                        _connection,
+                        null,
+                        null,
+                        _currentDbContext.Context,
+                        _logger,
+                        CommandSource.ExecuteSqlRaw));
+            }
+
+            transaction?.Commit();
+        }
+        catch
+        {
+            transaction?.Rollback();
+            throw;
+        }
+        finally
+        {
+            if (effectiveTimeout.HasValue)
+            {
+                _connection.CommandTimeout = previousTimeout;
+            }
+
+            transaction?.Dispose();
+            _connection.Close();
+        }
+    }
+
+    private async Task ExecuteDefaultValuesBatchAsync<TEntity>(
+        IAsyncEnumerable<TEntity> entities,
+        string delimitedTableName,
+        BulkImportOptions? options,
         CancellationToken cancellationToken)
         where TEntity : class
     {
+        var transactionEnlistManager = _connection as ITransactionEnlistmentManager;
+        var shouldManageTransaction = _connection.CurrentTransaction is null
+            && transactionEnlistManager?.EnlistedTransaction is null
+            && transactionEnlistManager?.CurrentAmbientTransaction is null;
+        IDbContextTransaction? transaction = null;
+
+        var previousTimeout = _connection.CommandTimeout;
+        var effectiveTimeout = GetEffectiveTimeout(options);
+        if (effectiveTimeout.HasValue)
+        {
+            _connection.CommandTimeout = effectiveTimeout;
+        }
+
+        await _connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            if (shouldManageTransaction)
+            {
+                transaction = await _connection.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
+            }
+
+            var batchCount = 0;
+            var commandBuilder = _commandBuilderFactory.Create();
+
+            await foreach (var _ in entities.WithCancellation(cancellationToken).ConfigureAwait(false))
+            {
+                commandBuilder.AppendLine($"INSERT INTO {delimitedTableName} DEFAULT VALUES;");
+                batchCount++;
+                if (batchCount >= 500)
+                {
+                    await commandBuilder.Build().ExecuteNonQueryAsync(
+                        new RelationalCommandParameterObject(
+                            _connection,
+                            null,
+                            null,
+                            _currentDbContext.Context,
+                            _logger,
+                            CommandSource.ExecuteSqlRaw),
+                        cancellationToken).ConfigureAwait(false);
+                    commandBuilder = _commandBuilderFactory.Create();
+                    batchCount = 0;
+                }
+            }
+
+            if (batchCount > 0)
+            {
+                await commandBuilder.Build().ExecuteNonQueryAsync(
+                    new RelationalCommandParameterObject(
+                        _connection,
+                        null,
+                        null,
+                        _currentDbContext.Context,
+                        _logger,
+                        CommandSource.ExecuteSqlRaw),
+                    cancellationToken).ConfigureAwait(false);
+            }
+
+            if (transaction is not null)
+            {
+                await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+            }
+        }
+        catch
+        {
+            if (transaction is not null)
+            {
+                await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
+            }
+
+            throw;
+        }
+        finally
+        {
+            if (effectiveTimeout.HasValue)
+            {
+                _connection.CommandTimeout = previousTimeout;
+            }
+
+            if (transaction is not null)
+            {
+                await transaction.DisposeAsync().ConfigureAwait(false);
+            }
+
+            await _connection.CloseAsync().ConfigureAwait(false);
+        }
+    }
+
+    private void ExecuteSingleBatch<TEntity>(
+        List<TEntity> batch,
+        string delimitedTableName,
+        string columnList,
+        IReadOnlyList<EntityDataReader<TEntity>.PropertyColumnMapping> columns)
+        where TEntity : class
+    {
+        var (relationalCommand, parameterValues) = BuildBatchCommand(batch, delimitedTableName, columnList, columns);
+        relationalCommand.ExecuteNonQuery(
+            new RelationalCommandParameterObject(
+                _connection,
+                parameterValues,
+                null,
+                _currentDbContext.Context,
+                _logger,
+                CommandSource.ExecuteSqlRaw));
+    }
+
+    private async Task ExecuteSingleBatchAsync<TEntity>(
+        List<TEntity> batch,
+        string delimitedTableName,
+        string columnList,
+        IReadOnlyList<EntityDataReader<TEntity>.PropertyColumnMapping> columns,
+        CancellationToken cancellationToken)
+        where TEntity : class
+    {
+        var (relationalCommand, parameterValues) = BuildBatchCommand(batch, delimitedTableName, columnList, columns);
+        await relationalCommand.ExecuteNonQueryAsync(
+            new RelationalCommandParameterObject(
+                _connection,
+                parameterValues,
+                null,
+                _currentDbContext.Context,
+                _logger,
+                CommandSource.ExecuteSqlRaw),
+            cancellationToken).ConfigureAwait(false);
+    }
+
+    private (IRelationalCommand Command, IReadOnlyDictionary<string, object?> ParameterValues) BuildBatchCommand<TEntity>(
+        List<TEntity> batch,
+        string delimitedTableName,
+        string columnList,
+        IReadOnlyList<EntityDataReader<TEntity>.PropertyColumnMapping> columns)
+        where TEntity : class
+    {
+        var commandBuilder = _commandBuilderFactory.Create();
+        var parameterValues = new Dictionary<string, object?>();
+
         var sqlBuilder = new StringBuilder();
-        sqlBuilder.Append("INSERT INTO ").Append(delimitedTableName).Append(" (").Append(columnList).Append(") VALUES ");
+        sqlBuilder.Append("INSERT INTO ")
+            .Append(delimitedTableName)
+            .Append(" (")
+            .Append(columnList)
+            .Append(") VALUES ");
 
-        var parameters = new List<object?>(batch.Count * columns.Count);
         var paramIndex = 0;
-
         for (var i = 0; i < batch.Count; i++)
         {
             if (i > 0)
@@ -273,33 +595,33 @@ public class RelationalBulkImporter : IBulkImporter
                     sqlBuilder.Append(", ");
                 }
 
-                var paramName = "@p" + paramIndex++;
-                sqlBuilder.Append(paramName);
+                var paramName = "p" + paramIndex++;
+                var placeholder = _sqlGenerationHelper.GenerateParameterNamePlaceholder(paramName);
+                sqlBuilder.Append(placeholder);
 
                 var column = columns[c];
                 var val = column.ValueAccessor(entity);
-                if (val is not null && column.Converter is not null)
-                {
-                    val = column.Converter.ConvertToProvider(val);
-                }
 
-                parameters.Add(val);
+                commandBuilder.AddParameter(paramName, placeholder, column.TypeMapping, column.Property.IsNullable);
+                parameterValues[paramName] = val;
             }
 
             sqlBuilder.Append(')');
         }
 
         sqlBuilder.Append(';');
+        commandBuilder.Append(sqlBuilder.ToString());
 
-        var rawSqlCommand = _rawSqlCommandBuilder.Build(sqlBuilder.ToString(), parameters);
-        await rawSqlCommand.RelationalCommand.ExecuteNonQueryAsync(
-            new RelationalCommandParameterObject(
-                _connection,
-                rawSqlCommand.ParameterValues,
-                null,
-                _currentDbContext.Context,
-                _logger,
-                CommandSource.ExecuteSqlRaw),
-            cancellationToken).ConfigureAwait(false);
+        return (commandBuilder.Build(), parameterValues);
+    }
+
+    private static async IAsyncEnumerable<T> AsAsyncEnumerable<T>(IEnumerable<T> source)
+    {
+        foreach (var item in source)
+        {
+            yield return item;
+        }
+
+        await Task.CompletedTask.ConfigureAwait(false);
     }
 }

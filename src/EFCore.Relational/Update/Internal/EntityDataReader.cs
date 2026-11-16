@@ -8,9 +8,10 @@ using System.Collections;
 using System.Data.Common;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal;
+namespace Microsoft.EntityFrameworkCore.Update.Internal;
 
 /// <summary>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -25,12 +26,16 @@ public sealed class EntityDataReader<TEntity> : DbDataReader
     private readonly IAsyncEnumerator<TEntity>? _asyncEnumerator;
     private readonly PropertyColumnMapping[] _mappings;
     private readonly Dictionary<string, int> _ordinals;
+    private readonly object?[] _rowValues;
+    private readonly bool[] _rowValuesComputed;
     private TEntity? _current;
     private bool _isClosed;
 
-    private readonly record struct PropertyColumnMapping(
+    public readonly record struct PropertyColumnMapping(
+        IProperty Property,
         string ColumnName,
         Type ClrType,
+        RelationalTypeMapping TypeMapping,
         Func<object, object?> ValueAccessor,
         ValueConverter? Converter);
 
@@ -44,12 +49,15 @@ public sealed class EntityDataReader<TEntity> : DbDataReader
         IEntityType entityType,
         IEnumerable<TEntity> source,
         StoreObjectIdentifier storeObject,
-        bool keepIdentity)
+        bool keepIdentity,
+        Func<IProperty, bool>? isStoreGeneratedIdentityColumn = null)
     {
         _syncEnumerator = source.GetEnumerator();
-        _mappings = CreateMappings(entityType, storeObject, keepIdentity);
+        _mappings = CreateMappings(entityType, storeObject, keepIdentity, isStoreGeneratedIdentityColumn);
+        _rowValues = new object?[_mappings.Length];
+        _rowValuesComputed = new bool[_mappings.Length];
         _ordinals = _mappings.Select((m, i) => (m.ColumnName, Index: i))
-            .ToDictionary(x => x.ColumnName, x => x.Index, StringComparer.OrdinalIgnoreCase);
+            .ToDictionary(x => x.ColumnName, x => x.Index, StringComparer.Ordinal);
     }
 
     /// <summary>
@@ -63,18 +71,22 @@ public sealed class EntityDataReader<TEntity> : DbDataReader
         IAsyncEnumerable<TEntity> source,
         StoreObjectIdentifier storeObject,
         bool keepIdentity,
+        Func<IProperty, bool>? isStoreGeneratedIdentityColumn = null,
         CancellationToken cancellationToken = default)
     {
         _asyncEnumerator = source.GetAsyncEnumerator(cancellationToken);
-        _mappings = CreateMappings(entityType, storeObject, keepIdentity);
+        _mappings = CreateMappings(entityType, storeObject, keepIdentity, isStoreGeneratedIdentityColumn);
+        _rowValues = new object?[_mappings.Length];
+        _rowValuesComputed = new bool[_mappings.Length];
         _ordinals = _mappings.Select((m, i) => (m.ColumnName, Index: i))
-            .ToDictionary(x => x.ColumnName, x => x.Index, StringComparer.OrdinalIgnoreCase);
+            .ToDictionary(x => x.ColumnName, x => x.Index, StringComparer.Ordinal);
     }
 
     private static PropertyColumnMapping[] CreateMappings(
         IEntityType entityType,
         StoreObjectIdentifier storeObject,
-        bool keepIdentity)
+        bool keepIdentity,
+        Func<IProperty, bool>? isStoreGeneratedIdentityColumn)
     {
         var list = new List<PropertyColumnMapping>();
         var discriminatorProperty = entityType.FindDiscriminatorProperty();
@@ -90,17 +102,20 @@ public sealed class EntityDataReader<TEntity> : DbDataReader
 
             // Exclude computed columns or columns marked to ignore before save
             if (property.GetComputedColumnSql() is not null
-                || property.GetBeforeSaveBehavior() == PropertySaveBehavior.Ignore)
+                || property.GetBeforeSaveBehavior() == PropertySaveBehavior.Ignore
+                || property.ValueGenerated == ValueGenerated.OnAddOrUpdate)
             {
                 continue;
             }
 
-            // Exclude store-generated identity primary keys unless keepIdentity is requested.
-            // Client-generated keys (such as GUIDs) have strategy == None and are preserved.
-            if (property.IsPrimaryKey()
-                && !keepIdentity
-                && (property.GetValueGenerationStrategy(storeObject) == SqlServerValueGenerationStrategy.IdentityColumn
-                    || (property.ValueGenerated == ValueGenerated.OnAdd && property.ClrType != typeof(Guid) && property.GetValueGeneratorFactory() == null)))
+            // Exclude store-generated identity primary keys unless keepIdentity is requested
+            var isIdentity = isStoreGeneratedIdentityColumn?.Invoke(property)
+                ?? (property.IsPrimaryKey()
+                    && property.ValueGenerated == ValueGenerated.OnAdd
+                    && property.ClrType != typeof(Guid)
+                    && property.GetValueGeneratorFactory() == null);
+
+            if (isIdentity && !keepIdentity)
             {
                 continue;
             }
@@ -112,18 +127,29 @@ public sealed class EntityDataReader<TEntity> : DbDataReader
             }
             else if (property.GetGetter() is { } clrGetter)
             {
-                valueAccessor = entity => clrGetter.GetClrValueUsingContainingEntity(entity);
+                valueAccessor = entity =>
+                {
+                    try
+                    {
+                        return clrGetter.GetClrValueUsingContainingEntity(entity);
+                    }
+                    catch (NullReferenceException)
+                    {
+                        return null;
+                    }
+                };
             }
             else
             {
                 valueAccessor = _ => null;
             }
 
-            var converter = property.GetTypeMapping().Converter ?? property.GetValueConverter();
+            var typeMapping = (RelationalTypeMapping)property.GetTypeMapping();
+            var converter = typeMapping.Converter ?? property.GetValueConverter();
             var targetType = converter?.ProviderClrType ?? property.ClrType;
             var unwrapped = Nullable.GetUnderlyingType(targetType) ?? targetType;
 
-            list.Add(new PropertyColumnMapping(columnName, unwrapped, valueAccessor, converter));
+            list.Add(new PropertyColumnMapping(property, columnName, unwrapped, typeMapping, valueAccessor, converter));
         }
 
         return list.ToArray();
@@ -134,6 +160,12 @@ public sealed class EntityDataReader<TEntity> : DbDataReader
     /// </summary>
     public IReadOnlyList<string> ColumnNames
         => _mappings.Select(m => m.ColumnName).ToArray();
+
+    /// <summary>
+    ///     The mapped column definitions.
+    /// </summary>
+    public IReadOnlyList<PropertyColumnMapping> ColumnMappings
+        => _mappings;
 
     public override int FieldCount
         => _mappings.Length;
@@ -160,15 +192,29 @@ public sealed class EntityDataReader<TEntity> : DbDataReader
         => _mappings[ordinal].ColumnName;
 
     public override int GetOrdinal(string name)
-        => _ordinals.TryGetValue(name, out var index)
-            ? index
-            : throw new IndexOutOfRangeException($"Column '{name}' not found.");
+    {
+        if (_ordinals.TryGetValue(name, out var index))
+        {
+            return index;
+        }
+
+        // Fallback for case-insensitive match if exact ordinal not found
+        for (var i = 0; i < _mappings.Length; i++)
+        {
+            if (string.Equals(_mappings[i].ColumnName, name, StringComparison.OrdinalIgnoreCase))
+            {
+                return i;
+            }
+        }
+
+        throw new IndexOutOfRangeException($"Column '{name}' not found.");
+    }
 
     public override Type GetFieldType(int ordinal)
         => _mappings[ordinal].ClrType;
 
     public override string GetDataTypeName(int ordinal)
-        => _mappings[ordinal].ClrType.Name;
+        => _mappings[ordinal].TypeMapping.StoreType;
 
     public override object GetValue(int ordinal)
     {
@@ -177,23 +223,28 @@ public sealed class EntityDataReader<TEntity> : DbDataReader
             throw new InvalidOperationException("No current row available. Call Read or ReadAsync first.");
         }
 
-        var mapping = _mappings[ordinal];
-        var val = mapping.ValueAccessor(_current);
-        if (val is null)
+        if (!_rowValuesComputed[ordinal])
         {
-            return DBNull.Value;
-        }
-
-        if (mapping.Converter != null)
-        {
-            val = mapping.Converter.ConvertToProvider(val);
+            var mapping = _mappings[ordinal];
+            var val = mapping.ValueAccessor(_current);
             if (val is null)
             {
-                return DBNull.Value;
+                _rowValues[ordinal] = DBNull.Value;
             }
+            else
+            {
+                if (mapping.Converter != null)
+                {
+                    val = mapping.Converter.ConvertToProvider(val);
+                }
+
+                _rowValues[ordinal] = val ?? DBNull.Value;
+            }
+
+            _rowValuesComputed[ordinal] = true;
         }
 
-        return val;
+        return _rowValues[ordinal]!;
     }
 
     public override int GetValues(object[] values)
@@ -210,11 +261,82 @@ public sealed class EntityDataReader<TEntity> : DbDataReader
     public override bool IsDBNull(int ordinal)
         => GetValue(ordinal) is DBNull;
 
-    public override Task<bool> IsDBNullAsync(int ordinal, CancellationToken cancellationToken)
-        => Task.FromResult(IsDBNull(ordinal));
+    public override bool GetBoolean(int ordinal)
+        => (bool)GetValue(ordinal);
+
+    public override byte GetByte(int ordinal)
+        => (byte)GetValue(ordinal);
+
+    public override long GetBytes(int ordinal, long dataOffset, byte[]? buffer, int bufferOffset, int length)
+    {
+        var bytes = (byte[])GetValue(ordinal);
+        if (buffer is null)
+        {
+            return bytes.Length;
+        }
+
+        var available = Math.Max(0, bytes.Length - (int)dataOffset);
+        var toCopy = Math.Min(available, length);
+        Array.Copy(bytes, dataOffset, buffer, bufferOffset, toCopy);
+        return toCopy;
+    }
+
+    public override char GetChar(int ordinal)
+        => (char)GetValue(ordinal);
+
+    public override long GetChars(int ordinal, long dataOffset, char[]? buffer, int bufferOffset, int length)
+    {
+        var chars = ((string)GetValue(ordinal)).ToCharArray();
+        if (buffer is null)
+        {
+            return chars.Length;
+        }
+
+        var available = Math.Max(0, chars.Length - (int)dataOffset);
+        var toCopy = Math.Min(available, length);
+        Array.Copy(chars, dataOffset, buffer, bufferOffset, toCopy);
+        return toCopy;
+    }
+
+    public override DateTime GetDateTime(int ordinal)
+        => (DateTime)GetValue(ordinal);
+
+    public override decimal GetDecimal(int ordinal)
+        => (decimal)GetValue(ordinal);
+
+    public override double GetDouble(int ordinal)
+        => (double)GetValue(ordinal);
+
+    public override float GetFloat(int ordinal)
+        => (float)GetValue(ordinal);
+
+    public override Guid GetGuid(int ordinal)
+        => (Guid)GetValue(ordinal);
+
+    public override short GetInt16(int ordinal)
+        => (short)GetValue(ordinal);
+
+    public override int GetInt32(int ordinal)
+        => (int)GetValue(ordinal);
+
+    public override long GetInt64(int ordinal)
+        => (long)GetValue(ordinal);
+
+    public override string GetString(int ordinal)
+        => (string)GetValue(ordinal);
+
+    public override IEnumerator GetEnumerator()
+        => new DbEnumerator(this, closeReader: false);
+
+    public override bool NextResult()
+        => false;
+
+    public override Task<bool> NextResultAsync(CancellationToken cancellationToken)
+        => Task.FromResult(false);
 
     public override bool Read()
     {
+        Array.Clear(_rowValuesComputed, 0, _rowValuesComputed.Length);
         if (_syncEnumerator is not null)
         {
             if (_syncEnumerator.MoveNext())
@@ -222,30 +344,23 @@ public sealed class EntityDataReader<TEntity> : DbDataReader
                 _current = _syncEnumerator.Current;
                 return true;
             }
-
-            _current = null;
-            return false;
         }
-
-        if (_asyncEnumerator is not null)
+        else if (_asyncEnumerator is not null)
         {
             if (_asyncEnumerator.MoveNextAsync().AsTask().GetAwaiter().GetResult())
             {
                 _current = _asyncEnumerator.Current;
                 return true;
             }
-
-            _current = null;
-            return false;
         }
 
+        _current = null;
         return false;
     }
 
     public override async Task<bool> ReadAsync(CancellationToken cancellationToken)
     {
-        cancellationToken.ThrowIfCancellationRequested();
-
+        Array.Clear(_rowValuesComputed, 0, _rowValuesComputed.Length);
         if (_asyncEnumerator is not null)
         {
             if (await _asyncEnumerator.MoveNextAsync().ConfigureAwait(false))
@@ -253,31 +368,19 @@ public sealed class EntityDataReader<TEntity> : DbDataReader
                 _current = _asyncEnumerator.Current;
                 return true;
             }
-
-            _current = null;
-            return false;
         }
-
-        if (_syncEnumerator is not null)
+        else if (_syncEnumerator is not null)
         {
             if (_syncEnumerator.MoveNext())
             {
                 _current = _syncEnumerator.Current;
                 return true;
             }
-
-            _current = null;
-            return false;
         }
 
+        _current = null;
         return false;
     }
-
-    public override bool NextResult()
-        => false;
-
-    public override Task<bool> NextResultAsync(CancellationToken cancellationToken)
-        => Task.FromResult(false);
 
     public override void Close()
     {
@@ -298,34 +401,4 @@ public sealed class EntityDataReader<TEntity> : DbDataReader
         _current = null;
         await base.DisposeAsync().ConfigureAwait(false);
     }
-
-    protected override void Dispose(bool disposing)
-    {
-        if (disposing)
-        {
-            Close();
-        }
-
-        base.Dispose(disposing);
-    }
-
-    public override bool GetBoolean(int ordinal) => (bool)GetValue(ordinal);
-    public override byte GetByte(int ordinal) => (byte)GetValue(ordinal);
-    public override long GetBytes(int ordinal, long dataOffset, byte[]? buffer, int bufferOffset, int length)
-        => throw new NotSupportedException();
-    public override char GetChar(int ordinal) => (char)GetValue(ordinal);
-    public override long GetChars(int ordinal, long dataOffset, char[]? buffer, int bufferOffset, int length)
-        => throw new NotSupportedException();
-    public override DateTime GetDateTime(int ordinal) => (DateTime)GetValue(ordinal);
-    public override decimal GetDecimal(int ordinal) => (decimal)GetValue(ordinal);
-    public override double GetDouble(int ordinal) => (double)GetValue(ordinal);
-    public override float GetFloat(int ordinal) => (float)GetValue(ordinal);
-    public override Guid GetGuid(int ordinal) => (Guid)GetValue(ordinal);
-    public override short GetInt16(int ordinal) => (short)GetValue(ordinal);
-    public override int GetInt32(int ordinal) => (int)GetValue(ordinal);
-    public override long GetInt64(int ordinal) => (long)GetValue(ordinal);
-    public override string GetString(int ordinal) => (string)GetValue(ordinal);
-
-    public override IEnumerator GetEnumerator()
-        => new DbEnumerator(this, closeReader: false);
 }

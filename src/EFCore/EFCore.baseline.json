@@ -450,10 +450,19 @@
           "Member": "static Microsoft.EntityFrameworkCore.Update.BulkImportOptions Default { get; }"
         },
         {
+          "Member": "string? DestinationTableName { get; init; }"
+        },
+        {
           "Member": "virtual System.Type EqualityContract { get; }"
         },
         {
+          "Member": "bool FireTriggers { get; init; }"
+        },
+        {
           "Member": "bool KeepIdentity { get; init; }"
+        },
+        {
+          "Member": "bool TableLock { get; init; }"
         },
         {
           "Member": "int? Timeout { get; init; }"

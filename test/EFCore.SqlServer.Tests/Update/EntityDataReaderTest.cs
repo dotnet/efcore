@@ -4,9 +4,9 @@
 using System.Data.Common;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.SqlServer.Update.Internal;
+using Microsoft.EntityFrameworkCore.Update.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Update;
+namespace Microsoft.EntityFrameworkCore.SqlServer.Update;
 
 public class EntityDataReaderTest
 {
@@ -51,7 +51,12 @@ public class EntityDataReaderTest
             new() { Id = 1, Name = "Alice", Email = "alice@example.com", Status = CustomerStatus.Active }
         };
 
-        using var reader = new EntityDataReader<Customer>(entityType, customers, storeObject, keepIdentity: false);
+        using var reader = new EntityDataReader<Customer>(
+            entityType,
+            customers,
+            storeObject,
+            keepIdentity: false,
+            p => p.GetValueGenerationStrategy(storeObject) == SqlServerValueGenerationStrategy.IdentityColumn);
 
         Assert.Equal(3, reader.FieldCount);
         Assert.DoesNotContain("Id", reader.ColumnNames);
@@ -78,7 +83,12 @@ public class EntityDataReaderTest
             new() { Id = 42, Name = "Bob", Email = null, Status = CustomerStatus.Suspended }
         };
 
-        using var reader = new EntityDataReader<Customer>(entityType, customers, storeObject, keepIdentity: true);
+        using var reader = new EntityDataReader<Customer>(
+            entityType,
+            customers,
+            storeObject,
+            keepIdentity: true,
+            p => p.GetValueGenerationStrategy(storeObject) == SqlServerValueGenerationStrategy.IdentityColumn);
 
         Assert.Equal(4, reader.FieldCount);
         Assert.Contains("Id", reader.ColumnNames);
@@ -105,7 +115,12 @@ public class EntityDataReaderTest
             yield return new Customer { Id = 2, Name = "Stream2", Status = CustomerStatus.Suspended };
         }
 
-        await using var reader = new EntityDataReader<Customer>(entityType, GetCustomersAsync(), storeObject, keepIdentity: false);
+        await using var reader = new EntityDataReader<Customer>(
+            entityType,
+            GetCustomersAsync(),
+            storeObject,
+            keepIdentity: false,
+            p => p.GetValueGenerationStrategy(storeObject) == SqlServerValueGenerationStrategy.IdentityColumn);
 
         Assert.True(await reader.ReadAsync());
         Assert.Equal("Stream1", reader["Name"]);

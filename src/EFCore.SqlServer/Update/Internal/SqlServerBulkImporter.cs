@@ -2,14 +2,17 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #pragma warning disable CS1591
+#pragma warning disable EF1001
 
 using System.Data.Common;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
-using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.EntityFrameworkCore.Update.Internal;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal;
 
@@ -19,81 +22,164 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqlServerBulkImporter : IBulkImporter
+public class SqlServerBulkImporter : RelationalBulkImporter
 {
-    private readonly ISqlServerConnection _connection;
+    private readonly ISqlServerConnection _sqlServerConnection;
 
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public SqlServerBulkImporter(ISqlServerConnection connection)
+    public SqlServerBulkImporter(
+        ISqlServerConnection connection,
+        IRelationalCommandBuilderFactory commandBuilderFactory,
+        ISqlGenerationHelper sqlGenerationHelper,
+        IRelationalCommandDiagnosticsLogger logger,
+        ICurrentDbContext currentDbContext)
+        : base(connection, commandBuilderFactory, sqlGenerationHelper, logger, currentDbContext)
     {
-        _connection = connection;
+        _sqlServerConnection = connection;
     }
 
-    public virtual void Import<TEntity>(
-        IEntityType entityType,
-        IEnumerable<TEntity> entities,
-        BulkImportOptions? options = null)
-        where TEntity : class
-        => ImportAsync(entityType, entities, options, CancellationToken.None).GetAwaiter().GetResult();
-
-    public virtual async Task ImportAsync<TEntity>(
-        IEntityType entityType,
-        IEnumerable<TEntity> entities,
-        BulkImportOptions? options = null,
-        CancellationToken cancellationToken = default)
-        where TEntity : class
+    protected override bool CanExecuteNativeImport(IEntityType entityType, BulkImportOptions? options)
     {
-        Check.NotNull(entityType);
-        Check.NotNull(entities);
+        if (_sqlServerConnection.DbConnection is not SqlConnection)
+        {
+            return false;
+        }
 
-        var (destinationTable, storeObject) = GetTableAndStoreObject(entityType);
+        var (_, storeObject) = GetTableAndStoreObject(entityType, options);
+        return entityType.GetFlattenedProperties().Any(p =>
+            p.GetColumnName(storeObject) is not null
+            && p.GetComputedColumnSql() is null
+            && p.GetBeforeSaveBehavior() != PropertySaveBehavior.Ignore
+            && p.ValueGenerated != ValueGenerated.OnAddOrUpdate
+            && (options?.KeepIdentity == true || p.GetValueGenerationStrategy(storeObject) != SqlServerValueGenerationStrategy.IdentityColumn));
+    }
+
+    protected override void ExecuteNativeImport<TEntity>(
+        IEntityType entityType,
+        IEnumerable<TEntity> entities,
+        BulkImportOptions? options)
+    {
+        var (destinationTable, storeObject) = GetTableAndStoreObject(entityType, options);
         var keepIdentity = options?.KeepIdentity ?? false;
 
-        var reader = new EntityDataReader<TEntity>(entityType, entities, storeObject, keepIdentity);
+        using var reader = new EntityDataReader<TEntity>(
+            entityType,
+            entities,
+            storeObject,
+            keepIdentity,
+            p => p.GetValueGenerationStrategy(storeObject) == SqlServerValueGenerationStrategy.IdentityColumn);
+
+        ExecuteBulkCopy(reader, reader.ColumnNames, destinationTable, options);
+    }
+
+    protected override async Task ExecuteNativeImportAsync<TEntity>(
+        IEntityType entityType,
+        IEnumerable<TEntity> entities,
+        BulkImportOptions? options,
+        CancellationToken cancellationToken)
+    {
+        var (destinationTable, storeObject) = GetTableAndStoreObject(entityType, options);
+        var keepIdentity = options?.KeepIdentity ?? false;
+
+        var reader = new EntityDataReader<TEntity>(
+            entityType,
+            entities,
+            storeObject,
+            keepIdentity,
+            p => p.GetValueGenerationStrategy(storeObject) == SqlServerValueGenerationStrategy.IdentityColumn);
+
         await using (reader.ConfigureAwait(false))
         {
             await ExecuteBulkCopyAsync(reader, reader.ColumnNames, destinationTable, options, cancellationToken).ConfigureAwait(false);
         }
     }
 
-    public virtual async Task ImportAsync<TEntity>(
+    protected override async Task ExecuteNativeImportAsync<TEntity>(
         IEntityType entityType,
         IAsyncEnumerable<TEntity> entities,
-        BulkImportOptions? options = null,
-        CancellationToken cancellationToken = default)
-        where TEntity : class
+        BulkImportOptions? options,
+        CancellationToken cancellationToken)
     {
-        Check.NotNull(entityType);
-        Check.NotNull(entities);
-
-        var (destinationTable, storeObject) = GetTableAndStoreObject(entityType);
+        var (destinationTable, storeObject) = GetTableAndStoreObject(entityType, options);
         var keepIdentity = options?.KeepIdentity ?? false;
 
-        var reader = new EntityDataReader<TEntity>(entityType, entities, storeObject, keepIdentity, cancellationToken);
+        var reader = new EntityDataReader<TEntity>(
+            entityType,
+            entities,
+            storeObject,
+            keepIdentity,
+            p => p.GetValueGenerationStrategy(storeObject) == SqlServerValueGenerationStrategy.IdentityColumn,
+            cancellationToken);
+
         await using (reader.ConfigureAwait(false))
         {
             await ExecuteBulkCopyAsync(reader, reader.ColumnNames, destinationTable, options, cancellationToken).ConfigureAwait(false);
         }
     }
 
-    private static (string DestinationTable, StoreObjectIdentifier StoreObject) GetTableAndStoreObject(IEntityType entityType)
+    private SqlBulkCopy CreateBulkCopy(
+        SqlConnection sqlConnection,
+        IReadOnlyList<string> columnNames,
+        string destinationTable,
+        BulkImportOptions? options)
     {
-        var tableName = entityType.GetTableName();
-        if (tableName is null)
+        var transaction = (SqlTransaction?)_sqlServerConnection.CurrentTransaction?.GetDbTransaction();
+
+        var bulkOptions = SqlBulkCopyOptions.CheckConstraints | SqlBulkCopyOptions.KeepNulls;
+        if (options?.KeepIdentity == true)
         {
-            throw new InvalidOperationException($"The entity type '{entityType.DisplayName()}' is not mapped to a table.");
+            bulkOptions |= SqlBulkCopyOptions.KeepIdentity;
+        }
+        if (options?.TableLock == true)
+        {
+            bulkOptions |= SqlBulkCopyOptions.TableLock;
+        }
+        if (options?.FireTriggers == true)
+        {
+            bulkOptions |= SqlBulkCopyOptions.FireTriggers;
         }
 
-        var schema = entityType.GetSchema();
-        var storeObject = StoreObjectIdentifier.Table(tableName, schema);
-        var destinationTable = schema is not null ? $"[{schema.Replace("]", "]]")}].[{tableName.Replace("]", "]]")}]" : $"[{tableName.Replace("]", "]]")}]";
+        var bulkCopy = new SqlBulkCopy(sqlConnection, bulkOptions, transaction)
+        {
+            DestinationTableName = destinationTable
+        };
 
-        return (destinationTable, storeObject);
+        if (options?.BatchSize.HasValue == true)
+        {
+            bulkCopy.BatchSize = options.BatchSize.Value;
+        }
+
+        var effectiveTimeout = GetEffectiveTimeout(options);
+        if (effectiveTimeout.HasValue)
+        {
+            bulkCopy.BulkCopyTimeout = effectiveTimeout.Value;
+        }
+
+        foreach (var col in columnNames)
+        {
+            bulkCopy.ColumnMappings.Add(col, col);
+        }
+
+        return bulkCopy;
+    }
+
+    private void ExecuteBulkCopy(
+        DbDataReader reader,
+        IReadOnlyList<string> columnNames,
+        string destinationTable,
+        BulkImportOptions? options)
+    {
+        var sqlConnection = (SqlConnection)_sqlServerConnection.DbConnection;
+        using var bulkCopy = CreateBulkCopy(sqlConnection, columnNames, destinationTable, options);
+
+        _sqlServerConnection.Open();
+        try
+        {
+            bulkCopy.WriteToServer(reader);
+        }
+        finally
+        {
+            _sqlServerConnection.Close();
+        }
     }
 
     private async Task ExecuteBulkCopyAsync(
@@ -103,41 +189,17 @@ public class SqlServerBulkImporter : IBulkImporter
         BulkImportOptions? options,
         CancellationToken cancellationToken)
     {
-        var sqlConnection = (SqlConnection)_connection.DbConnection;
-        var transaction = (SqlTransaction?)_connection.CurrentTransaction?.GetDbTransaction();
+        var sqlConnection = (SqlConnection)_sqlServerConnection.DbConnection;
+        using var bulkCopy = CreateBulkCopy(sqlConnection, columnNames, destinationTable, options);
 
-        var bulkOptions = SqlBulkCopyOptions.CheckConstraints | SqlBulkCopyOptions.KeepNulls;
-        if (options?.KeepIdentity == true)
-        {
-            bulkOptions |= SqlBulkCopyOptions.KeepIdentity;
-        }
-
-        using var bulkCopy = new SqlBulkCopy(sqlConnection, bulkOptions, transaction);
-        bulkCopy.DestinationTableName = destinationTable;
-
-        if (options?.BatchSize.HasValue == true)
-        {
-            bulkCopy.BatchSize = options.BatchSize.Value;
-        }
-
-        if (options?.Timeout.HasValue == true)
-        {
-            bulkCopy.BulkCopyTimeout = options.Timeout.Value;
-        }
-
-        foreach (var col in columnNames)
-        {
-            bulkCopy.ColumnMappings.Add(col, col);
-        }
-
-        await _connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+        await _sqlServerConnection.OpenAsync(cancellationToken).ConfigureAwait(false);
         try
         {
             await bulkCopy.WriteToServerAsync(reader, cancellationToken).ConfigureAwait(false);
         }
         finally
         {
-            await _connection.CloseAsync().ConfigureAwait(false);
+            await _sqlServerConnection.CloseAsync().ConfigureAwait(false);
         }
     }
 }
