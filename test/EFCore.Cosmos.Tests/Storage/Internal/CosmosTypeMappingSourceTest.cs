@@ -82,13 +82,28 @@ public class CosmosTypeMappingSourceTest
             => Expression.New(typeof(NullableDecimalReaderWriter));
     }
 
-    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
-    public void Parameter_collections_infer_compared_member_reader_writer(bool legacyDefault, bool memberOverride)
+    [Theory]
+    [InlineData(false, false, false)]
+    [InlineData(false, true, false)]
+    [InlineData(true, false, false)]
+    [InlineData(true, true, false)]
+    [InlineData(false, false, true)]
+    [InlineData(false, true, true)]
+    [InlineData(true, false, true)]
+    [InlineData(true, true, true)]
+    public void Parameter_collections_infer_compared_member_reader_writer(bool legacyDefault, bool memberOverride, bool collectionDefault)
     {
         var legacyMember = memberOverride ? !legacyDefault : legacyDefault;
         var builder = CosmosTestHelpers.Instance.CreateConventionBuilder(
-            configureConventions: c => c.DefaultTypeMapping<DateTime>().HasJsonValueReaderWriter(
-                legacyDefault ? typeof(LegacyDateTimeReaderWriter) : typeof(JsonDateTimeReaderWriter)));
+            configureConventions: c =>
+            {
+                c.DefaultTypeMapping<DateTime>().HasJsonValueReaderWriter(
+                    legacyDefault ? typeof(LegacyDateTimeReaderWriter) : typeof(JsonDateTimeReaderWriter));
+                if (collectionDefault)
+                {
+                    c.DefaultTypeMapping<DateTime[]>().HasJsonValueReaderWriter<LegacyDateTimeArrayReaderWriter>();
+                }
+            });
         var propertyBuilder = builder.Entity<MyType>().Property<DateTime>("Timestamp");
         if (memberOverride)
         {
@@ -103,7 +118,7 @@ public class CosmosTypeMappingSourceTest
         var factory = new SqlExpressionFactory(source, model);
         var (item, array) = factory.ApplyTypeMappingsOnItemAndArray(
             new ScalarReferenceExpression("Timestamp", typeof(DateTime), memberMapping),
-            new SqlParameterExpression("timestamps", typeof(DateTime[]), source.FindMapping(typeof(DateTime[]))));
+            new SqlParameterExpression("timestamps", typeof(DateTime[]), source.FindMapping(typeof(DateTime[]), model)));
         var timestamp = new DateTime(2026, 1, 1, 0, 0, 0, 123, DateTimeKind.Utc);
 
         Assert.Same(memberMapping, item.TypeMapping);
@@ -238,6 +253,20 @@ public class CosmosTypeMappingSourceTest
             => Reader.ToJsonTyped(writer, value);
         public override Expression ConstructorExpression
             => Expression.New(typeof(LegacyDateTimeReaderWriter));
+    }
+
+    public sealed class LegacyDateTimeArrayReaderWriter : JsonValueReaderWriter<DateTime[]>
+    {
+        private static readonly JsonCollectionOfStructsReaderWriter<DateTime[], DateTime> Reader = new(new LegacyDateTimeReaderWriter());
+
+        public override DateTime[] FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
+            => (DateTime[])Reader.FromJsonTyped(ref manager, existingObject);
+
+        public override void ToJsonTyped(Utf8JsonWriter writer, DateTime[] value)
+            => Reader.ToJsonTyped(writer, value);
+
+        public override Expression ConstructorExpression
+            => Expression.New(typeof(LegacyDateTimeArrayReaderWriter));
     }
 
     [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
