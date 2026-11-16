@@ -34,6 +34,13 @@ public class RelationalParameterProcessor : ExpressionVisitor
     /// </summary>
     private readonly HashSet<string> _prefixedParameterNames = [with(StringComparer.OrdinalIgnoreCase)];
 
+    /// <summary>
+    ///     Contains the (prefixed) names of the <see cref="DbParameter" />s whose names are written directly into the SQL passed to
+    ///     FromSql/SqlQuery (as opposed to referenced positionally via {n}). These names can't be changed, so every other parameter,
+    ///     whether it is visited before or after, has to avoid them. See #32932.
+    /// </summary>
+    private readonly HashSet<string> _hardCodedParameterNames = [with(StringComparer.OrdinalIgnoreCase)];
+
     private readonly Dictionary<string, SqlParameterExpression> _sqlParameters = [];
 
     private Dictionary<DbParameter, RawRelationalParameter>? _processedDbParameters;
@@ -75,10 +82,15 @@ public class RelationalParameterProcessor : ExpressionVisitor
     {
         _visitedFromSqlExpressions.Clear();
         _prefixedParameterNames.Clear();
+        _hardCodedParameterNames.Clear();
         _sqlParameters.Clear();
         _processedDbParameters?.Clear();
         _parameterNameGenerator = _parameterNameGeneratorFactory.Create();
         _parametersDecorator = parametersDecorator;
+
+        // The names hard-coded in FromSql SQL have to be known before any other parameter is named, since EF-generated parameters (e.g.
+        // for captured variables) may be visited first.
+        new HardCodedParameterNameCollector(this).Visit(queryExpression);
 
         var result = Visit(queryExpression);
 
@@ -230,22 +242,70 @@ public class RelationalParameterProcessor : ExpressionVisitor
             else
             {
                 var originalName = dbParameter.ParameterName;
-                var uniquifiedName = UniquifyParameterName(originalName);
 
-                // If the name had to be changed, this is only safe if EF is the one writing the parameter's name into the SQL (i.e. the
-                // SQL references the argument positionally via {n}). If the SQL hard-codes the original name, renaming the DbParameter
-                // would silently leave the SQL pointing at a different parameter with the same name. See #32932.
+                // The name can only be changed if EF is the one writing the parameter's name into the SQL (i.e. the SQL references the
+                // argument positionally via {n}). If the SQL hard-codes the name, renaming the DbParameter would silently leave the SQL
+                // pointing at a different parameter with the same name. See #32932.
                 // Note that this doesn't detect SQL which references the same argument both positionally and by name; the by-name
                 // reference would still be left pointing at the other parameter.
-                if (uniquifiedName != originalName && !ReferencesArgumentByPosition(fromSql.Sql, index))
+                if (IsNameHardCoded(fromSql, index))
                 {
-                    throw new InvalidOperationException(RelationalStrings.FromSqlDuplicateParameterName(originalName));
+                    // Other parameters avoid this name (see _hardCodedParameterNames), so it can only already be taken by another
+                    // DbParameter which also hard-codes it.
+                    if (!_prefixedParameterNames.Add(_sqlGenerationHelper.GenerateParameterName(originalName)))
+                    {
+                        throw new InvalidOperationException(RelationalStrings.FromSqlDuplicateParameterName(originalName));
+                    }
                 }
-
-                dbParameter.ParameterName = uniquifiedName;
+                else
+                {
+                    dbParameter.ParameterName = UniquifyParameterName(originalName);
+                }
             }
 
             return _processedDbParameters[dbParameter] = new RawRelationalParameter(dbParameter.ParameterName, dbParameter);
+        }
+    }
+
+    private static bool IsNameHardCoded(FromSqlExpression fromSql, int index)
+        => !ReferencesArgumentByPosition(fromSql.Sql, index);
+
+    private void CollectHardCodedParameterNames(FromSqlExpression fromSql)
+    {
+        var arguments = fromSql.Arguments switch
+        {
+            QueryParameterExpression queryParameter => (object?[]?)_parametersDecorator.GetAndDisableCaching()[queryParameter.Name],
+            ConstantExpression { Value: object?[] constantValues } => constantValues,
+            NewArrayExpression { Expressions: var expressions }
+                => expressions.Select(e => e is SqlConstantExpression constant ? constant.Value : null).ToArray(),
+            _ => null
+        };
+
+        if (arguments is null)
+        {
+            return;
+        }
+
+        for (var i = 0; i < arguments.Length; i++)
+        {
+            if (arguments[i] is DbParameter { ParameterName: { Length: > 0 } name }
+                && IsNameHardCoded(fromSql, i))
+            {
+                _hardCodedParameterNames.Add(_sqlGenerationHelper.GenerateParameterName(name));
+            }
+        }
+    }
+
+    private sealed class HardCodedParameterNameCollector(RelationalParameterProcessor processor) : ExpressionVisitor
+    {
+        protected override Expression VisitExtension(Expression expression)
+        {
+            if (expression is FromSqlExpression fromSql)
+            {
+                processor.CollectHardCodedParameterNames(fromSql);
+            }
+
+            return base.VisitExtension(expression);
         }
     }
 
@@ -271,11 +331,6 @@ public class RelationalParameterProcessor : ExpressionVisitor
             }
 
             var j = i + 1;
-            while (j < sql.Length && char.IsWhiteSpace(sql[j]))
-            {
-                j++;
-            }
-
             var digitsStart = j;
             while (j < sql.Length && sql[j] is >= '0' and <= '9')
             {
@@ -311,7 +366,7 @@ public class RelationalParameterProcessor : ExpressionVisitor
             name = _parameterNameGenerator.GenerateNext();
             prefixedName = _sqlGenerationHelper.GenerateParameterName(name);
         }
-        while (_prefixedParameterNames.Contains(prefixedName));
+        while (_prefixedParameterNames.Contains(prefixedName) || _hardCodedParameterNames.Contains(prefixedName));
 
         _prefixedParameterNames.Add(prefixedName);
         return name;
@@ -321,7 +376,7 @@ public class RelationalParameterProcessor : ExpressionVisitor
     {
         var parameterName = originalName;
         var prefixedName = _sqlGenerationHelper.GenerateParameterName(originalName);
-        for (var j = 0; _prefixedParameterNames.Contains(prefixedName); j++)
+        for (var j = 0; _prefixedParameterNames.Contains(prefixedName) || _hardCodedParameterNames.Contains(prefixedName); j++)
         {
             parameterName = originalName + j;
             prefixedName = _sqlGenerationHelper.GenerateParameterName(parameterName);

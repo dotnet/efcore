@@ -1380,16 +1380,16 @@ SELECT * FROM [Customers2]"))
         await AssertSeattleAndLondon(query, async);
     }
 
-    // The second parameter needs to be renamed, but it's hard-coded in the SQL.
+    // The second parameter's name is hard-coded in the SQL, so the first, which is referenced positionally, is renamed to make way for it.
     [Theory, MemberData(nameof(IsAsyncData))]
-    public virtual async Task Union_of_FromSql_with_same_named_db_parameters_positional_then_hardcoded_throws(bool async)
+    public virtual async Task Union_of_FromSql_with_same_named_db_parameters_positional_then_hardcoded(bool async)
     {
         using var context = CreateContext();
 
         var query = FromSqlCity(context, "{0}", CreateDbParameter("city", "Seattle"))
             .Union(FromSqlCity(context, "@city", CreateDbParameter("city", "London")));
 
-        await AssertDuplicateParameterNameThrows(query, "city", async);
+        await AssertSeattleAndLondon(query, async);
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -1414,9 +1414,10 @@ SELECT * FROM [Customers2]"))
         await AssertDuplicateParameterNameThrows(query, "City", async);
     }
 
-    // A parameter which isn't a DbParameter gets a generated name (p0), which then conflicts with the hard-coded DbParameter name.
+    // A parameter which isn't a DbParameter would get a generated name (p0), which is the name hard-coded for the DbParameter, so the
+    // generated name is changed.
     [Theory, MemberData(nameof(IsAsyncData))]
-    public virtual async Task Union_of_FromSql_with_db_parameter_name_conflicting_with_generated_name_hardcoded_in_sql_throws(bool async)
+    public virtual async Task Union_of_FromSql_with_db_parameter_name_conflicting_with_generated_name_hardcoded_in_sql(bool async)
     {
         using var context = CreateContext();
 
@@ -1425,7 +1426,48 @@ SELECT * FROM [Customers2]"))
             .FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"), seattle)
             .Union(FromSqlCity(context, "@p0", CreateDbParameter("p0", "London")));
 
-        await AssertDuplicateParameterNameThrows(query, "p0", async);
+        await AssertSeattleAndLondon(query, async);
+    }
+
+    // EF names the parameter for a captured variable after the variable. The name of a DbParameter hard-coded in the SQL can't be
+    // changed, so the one EF generates has to be, whichever of the two is encountered first.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Union_of_captured_variable_then_FromSql_with_db_parameter_of_same_name_hardcoded_in_sql(bool async)
+    {
+        using var context = CreateContext();
+
+        var city = "Seattle";
+        var query = context.Set<Customer>().Where(c => c.City == city)
+            .Union(FromSqlCity(context, "@city", CreateDbParameter("city", "London")));
+
+        await AssertSeattleAndLondon(query, async);
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Union_of_FromSql_with_db_parameter_hardcoded_in_sql_then_captured_variable_of_same_name(bool async)
+    {
+        using var context = CreateContext();
+
+        var city = "Seattle";
+        var query = FromSqlCity(context, "@city", CreateDbParameter("city", "London"))
+            .Union(context.Set<Customer>().Where(c => c.City == city));
+
+        await AssertSeattleAndLondon(query, async);
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Captured_variable_in_predicate_then_FromSql_subquery_with_db_parameter_of_same_name_hardcoded_in_sql(
+        bool async)
+    {
+        using var context = CreateContext();
+
+        var city = "Seattle";
+        var query = context.Set<Customer>()
+            .Where(
+                c => c.City == city
+                    || FromSqlCity(context, "@city", CreateDbParameter("city", "London")).Any(l => l.CustomerID == c.CustomerID));
+
+        await AssertSeattleAndLondon(query, async);
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -1434,25 +1476,28 @@ SELECT * FROM [Customers2]"))
         var sql = NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = @city");
         var expectedMessage = RelationalStrings.FromSqlDuplicateParameterName("city");
 
-        // Throws on every execution, not just the first
-        for (var i = 0; i < 2; i++)
+        // The same compiled query throws on every execution, not just the first
+        if (async)
         {
-            if (async)
-            {
-                var query = EF.CompileAsyncQuery((NorthwindContext context) => context.Set<Customer>()
-                    .FromSqlRaw(sql, CreateDbParameter("city", "Seattle"))
-                    .Union(context.Set<Customer>().FromSqlRaw(sql, CreateDbParameter("city", "London"))));
+            var query = EF.CompileAsyncQuery((NorthwindContext context) => context.Set<Customer>()
+                .FromSqlRaw(sql, CreateDbParameter("city", "Seattle"))
+                .Union(context.Set<Customer>().FromSqlRaw(sql, CreateDbParameter("city", "London"))));
 
+            for (var i = 0; i < 2; i++)
+            {
                 using var context = CreateContext();
                 var exception = await Assert.ThrowsAsync<InvalidOperationException>(async () => await query(context).ToListAsync());
                 Assert.Equal(expectedMessage, exception.Message);
             }
-            else
-            {
-                var query = EF.CompileQuery((NorthwindContext context) => context.Set<Customer>()
-                    .FromSqlRaw(sql, CreateDbParameter("city", "Seattle"))
-                    .Union(context.Set<Customer>().FromSqlRaw(sql, CreateDbParameter("city", "London"))));
+        }
+        else
+        {
+            var query = EF.CompileQuery((NorthwindContext context) => context.Set<Customer>()
+                .FromSqlRaw(sql, CreateDbParameter("city", "Seattle"))
+                .Union(context.Set<Customer>().FromSqlRaw(sql, CreateDbParameter("city", "London"))));
 
+            for (var i = 0; i < 2; i++)
+            {
                 using var context = CreateContext();
                 var exception = Assert.Throws<InvalidOperationException>(() => query(context).ToList());
                 Assert.Equal(expectedMessage, exception.Message);
@@ -1466,24 +1511,27 @@ SELECT * FROM [Customers2]"))
     {
         var sql = NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}");
 
-        for (var i = 0; i < 2; i++)
+        if (async)
         {
-            using var context = CreateContext();
+            var query = EF.CompileAsyncQuery((NorthwindContext context) => context.Set<Customer>()
+                .FromSqlRaw(sql, CreateDbParameter("city", "Seattle"))
+                .Union(context.Set<Customer>().FromSqlRaw(sql, CreateDbParameter("city", "London"))));
 
-            if (async)
+            for (var i = 0; i < 2; i++)
             {
-                var query = EF.CompileAsyncQuery((NorthwindContext context) => context.Set<Customer>()
-                    .FromSqlRaw(sql, CreateDbParameter("city", "Seattle"))
-                    .Union(context.Set<Customer>().FromSqlRaw(sql, CreateDbParameter("city", "London"))));
-
+                using var context = CreateContext();
                 Assert.Equal(SeattleAndLondonCustomerCount, (await query(context).ToListAsync()).Count);
             }
-            else
-            {
-                var query = EF.CompileQuery((NorthwindContext context) => context.Set<Customer>()
-                    .FromSqlRaw(sql, CreateDbParameter("city", "Seattle"))
-                    .Union(context.Set<Customer>().FromSqlRaw(sql, CreateDbParameter("city", "London"))));
+        }
+        else
+        {
+            var query = EF.CompileQuery((NorthwindContext context) => context.Set<Customer>()
+                .FromSqlRaw(sql, CreateDbParameter("city", "Seattle"))
+                .Union(context.Set<Customer>().FromSqlRaw(sql, CreateDbParameter("city", "London"))));
 
+            for (var i = 0; i < 2; i++)
+            {
+                using var context = CreateContext();
                 Assert.Equal(SeattleAndLondonCustomerCount, query(context).ToList().Count);
             }
         }
