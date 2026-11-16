@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.TestModels.BasicTypesModel;
+
 namespace Microsoft.EntityFrameworkCore.Query.Translations.Temporal;
 
 public class TimeOnlyTranslationsSqliteTest : TimeOnlyTranslationsTestBase<BasicTypesQuerySqliteFixture>
@@ -98,8 +100,120 @@ WHERE CAST(strftime('%S', "b"."TimeOnly") AS INTEGER) = 10
 
     public override async Task IsBetween()
     {
-        // TimeSpan. Issue #18844.
-        await AssertTranslationFailed(base.IsBetween);
+        await base.IsBetween();
+
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE "b"."TimeOnly" >= '14:00:00' AND "b"."TimeOnly" < '16:00:00'
+""");
+    }
+
+    public override async Task IsBetween_midnight(bool async)
+    {
+        await base.IsBetween_midnight(async);
+
+        AssertSql(
+            """
+SELECT "b"."Id"
+FROM "BasicTypesEntities" AS "b"
+WHERE "b"."TimeOnly" >= '22:00:00' OR "b"."TimeOnly" < '02:00:00'
+""");
+    }
+
+    public override async Task IsBetween_parameters(bool async, int range)
+    {
+        await base.IsBetween_parameters(async, range);
+
+        AssertSql(
+            $$"""
+@start='{{(range == 0 ? "14:00" : range == 3 ? "00:00" : "22:00")}}' (DbType = Time)
+@end='{{(range == 0 ? "16:00" : range == 1 ? "02:00" : range == 3 ? "00:00" : "22:00")}}' (DbType = Time)
+
+SELECT "b"."Id"
+FROM "BasicTypesEntities" AS "b"
+WHERE "b"."TimeOnly" >= @start {{(range == 1 ? "OR" : "AND")}} "b"."TimeOnly" < @end
+""");
+    }
+
+    public override async Task IsBetween_boundaries(bool async)
+    {
+        await base.IsBetween_boundaries(async);
+
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."TimeOnly" >= '15:30:10' AND "b"."TimeOnly" < '16:00:00' AS "Start", "b"."TimeOnly" >= '14:00:00' AND "b"."TimeOnly" < '15:30:10' AS "End", "b"."TimeOnly" >= '15:30:10' OR "b"."TimeOnly" < '14:00:00' AS "WrappedStart", "b"."TimeOnly" >= '16:00:00' OR "b"."TimeOnly" < '15:30:10' AS "WrappedEnd", "b"."TimeOnly" >= '15:30:10' AND "b"."TimeOnly" < '15:30:10' AS "Empty"
+FROM "BasicTypesEntities" AS "b"
+""");
+    }
+
+    public override async Task IsBetween_precision(bool async)
+    {
+        await base.IsBetween_precision(async);
+
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."TimeOnly" >= '00:00:00.0102004' AND "b"."TimeOnly" < '00:00:00.0102005' AS "Start", "b"."TimeOnly" >= '00:00:00.0102003' AND "b"."TimeOnly" < '00:00:00.0102004' AS "End"
+FROM "BasicTypesEntities" AS "b"
+""");
+    }
+
+    public override async Task IsBetween_negated(bool async)
+    {
+        await base.IsBetween_negated(async);
+
+        AssertSql(
+            """
+SELECT "b"."Id"
+FROM "BasicTypesEntities" AS "b"
+WHERE "b"."TimeOnly" < '22:00:00' AND "b"."TimeOnly" >= '02:00:00'
+""");
+    }
+
+    public override async Task IsBetween_nullable(bool async)
+    {
+        await base.IsBetween_nullable(async);
+
+        AssertSql(
+            """
+SELECT "n"."Id", "n"."TimeOnly" IS NOT NULL AND ("n"."TimeOnly" >= '22:00:00' OR "n"."TimeOnly" < '02:00:00') AS "Inside", "n"."TimeOnly" IS NULL OR ("n"."TimeOnly" < '22:00:00' AND "n"."TimeOnly" >= '02:00:00') AS "Outside"
+FROM "NullableBasicTypesEntities" AS "n"
+""");
+    }
+
+    public override async Task IsBetween_column_bounds(bool async)
+    {
+        await base.IsBetween_column_bounds(async);
+
+        AssertSql(
+            """
+@time='00:00' (DbType = Time)
+
+SELECT "b"."Id", ("b"."TimeOnly" <= '16:00:00' AND @time >= "b"."TimeOnly" AND @time < '16:00:00') OR ("b"."TimeOnly" > '16:00:00' AND (@time >= "b"."TimeOnly" OR @time < '16:00:00')) AS "Start", ('22:00:00' <= "b"."TimeOnly" AND @time >= '22:00:00' AND @time < "b"."TimeOnly") OR ('22:00:00' > "b"."TimeOnly" AND (@time >= '22:00:00' OR @time < "b"."TimeOnly")) AS "End"
+FROM "BasicTypesEntities" AS "b"
+""");
+    }
+
+    [Theory]
+    [InlineData(false, 0)]
+    [InlineData(true, 0)]
+    [InlineData(false, 1)]
+    [InlineData(true, 1)]
+    [InlineData(false, 2)]
+    [InlineData(true, 2)]
+    public async Task IsBetween_with_subquery(bool async, int position)
+    {
+        await AssertTranslationFailed(() => position switch
+        {
+            0 => AssertQuery(async, ss => ss.Set<BasicTypesEntity>().Where(b => ss.Set<BasicTypesEntity>()
+                .Where(o => o.Id == b.Id).Select(o => o.TimeOnly).FirstOrDefault()
+                .IsBetween(new TimeOnly(14, 0), new TimeOnly(16, 0)))),
+            1 => AssertQuery(async, ss => ss.Set<BasicTypesEntity>().Where(b => b.TimeOnly.IsBetween(
+                ss.Set<BasicTypesEntity>().Where(o => o.Id == b.Id).Select(o => o.TimeOnly).FirstOrDefault(), new TimeOnly(16, 0)))),
+            _ => AssertQuery(async, ss => ss.Set<BasicTypesEntity>().Where(b => b.TimeOnly.IsBetween(
+                new TimeOnly(14, 0), ss.Set<BasicTypesEntity>().Where(o => o.Id == b.Id).Select(o => o.TimeOnly).FirstOrDefault())))
+        });
 
         AssertSql();
     }

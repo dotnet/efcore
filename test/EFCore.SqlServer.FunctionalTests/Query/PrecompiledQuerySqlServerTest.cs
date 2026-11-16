@@ -2570,6 +2570,42 @@ ORDER BY [e].[Id]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
+    public override async Task TimeOnly_IsBetween()
+    {
+        await base.TimeOnly_IsBetween();
+
+        AssertSql(
+            """
+@start='22:00' (DbType = Time)
+@end='02:00' (DbType = Time)
+
+SELECT [t].[Id]
+FROM [TimeSlots] AS [t]
+WHERE (@start <= @end AND [t].[Time] >= @start AND [t].[Time] < @end) OR (@start > @end AND ([t].[Time] >= @start OR [t].[Time] < @end))
+ORDER BY [t].[Id]
+""",
+            //
+            """
+@start='14:00' (DbType = Time)
+@end='16:00' (DbType = Time)
+
+SELECT [t].[Id]
+FROM [TimeSlots] AS [t]
+WHERE (@start <= @end AND [t].[Time] >= @start AND [t].[Time] < @end) OR (@start > @end AND ([t].[Time] >= @start OR [t].[Time] < @end))
+ORDER BY [t].[Id]
+""",
+            //
+            """
+@start='14:00' (DbType = Time)
+@end='14:00' (DbType = Time)
+
+SELECT [t].[Id]
+FROM [TimeSlots] AS [t]
+WHERE (@start <= @end AND [t].[Time] >= @start AND [t].[Time] < @end) OR (@start > @end AND ([t].[Time] >= @start OR [t].[Time] < @end))
+ORDER BY [t].[Id]
+""");
+    }
+
     public class PrecompiledQuerySqlServerFixture : PrecompiledQueryRelationalFixture
     {
         protected override ITestStoreFactory TestStoreFactory

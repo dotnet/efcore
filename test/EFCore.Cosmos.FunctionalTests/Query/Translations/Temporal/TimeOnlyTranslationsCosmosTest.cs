@@ -44,6 +44,27 @@ public class TimeOnlyTranslationsCosmosTest : TimeOnlyTranslationsTestBase<Basic
     public override Task IsBetween()
         => AssertTranslationFailed(base.IsBetween);
 
+    public override Task IsBetween_midnight(bool async)
+        => AssertTranslationFailed(() => base.IsBetween_midnight(async));
+
+    public override Task IsBetween_parameters(bool async, int range)
+        => AssertTranslationFailed(() => base.IsBetween_parameters(async, range));
+
+    public override Task IsBetween_boundaries(bool async)
+        => AssertTranslationFailed(() => base.IsBetween_boundaries(async));
+
+    public override Task IsBetween_precision(bool async)
+        => AssertTranslationFailed(() => base.IsBetween_precision(async));
+
+    public override Task IsBetween_negated(bool async)
+        => AssertTranslationFailed(() => base.IsBetween_negated(async));
+
+    public override Task IsBetween_nullable(bool async)
+        => AssertTranslationFailed(() => base.IsBetween_nullable(async));
+
+    public override Task IsBetween_column_bounds(bool async)
+        => AssertTranslationFailed(() => base.IsBetween_column_bounds(async));
+
     public override async Task Subtract()
     {
         // See #35311

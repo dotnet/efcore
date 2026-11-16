@@ -181,6 +181,124 @@ WHERE [b].[TimeOnly] >= '16:00:00' OR [b].[TimeOnly] < '12:00:00'
 """);
     }
 
+    public override async Task IsBetween_midnight(bool async)
+    {
+        await base.IsBetween_midnight(async);
+
+        AssertSql(
+            """
+SELECT [b].[Id]
+FROM [BasicTypesEntities] AS [b]
+WHERE [b].[TimeOnly] >= '22:00:00' OR [b].[TimeOnly] < '02:00:00'
+""");
+    }
+
+    public override async Task IsBetween_parameters(bool async, int range)
+    {
+        await base.IsBetween_parameters(async, range);
+
+        AssertSql(
+            $$"""
+@start='{{(range == 0 ? "14:00" : range == 3 ? "00:00" : "22:00")}}' (DbType = Time)
+@end='{{(range == 0 ? "16:00" : range == 1 ? "02:00" : range == 3 ? "00:00" : "22:00")}}' (DbType = Time)
+
+SELECT [b].[Id]
+FROM [BasicTypesEntities] AS [b]
+WHERE (@start <= @end AND [b].[TimeOnly] >= @start AND [b].[TimeOnly] < @end) OR (@start > @end AND ([b].[TimeOnly] >= @start OR [b].[TimeOnly] < @end))
+""");
+    }
+
+    public override async Task IsBetween_boundaries(bool async)
+    {
+        await base.IsBetween_boundaries(async);
+
+        AssertSql(
+            """
+SELECT [b].[Id], CASE
+    WHEN [b].[TimeOnly] >= '15:30:10' AND [b].[TimeOnly] < '16:00:00' THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [Start], CASE
+    WHEN [b].[TimeOnly] >= '14:00:00' AND [b].[TimeOnly] < '15:30:10' THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [End], CASE
+    WHEN [b].[TimeOnly] >= '15:30:10' OR [b].[TimeOnly] < '14:00:00' THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [WrappedStart], CASE
+    WHEN [b].[TimeOnly] >= '16:00:00' OR [b].[TimeOnly] < '15:30:10' THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [WrappedEnd], CASE
+    WHEN [b].[TimeOnly] >= '15:30:10' AND [b].[TimeOnly] < '15:30:10' THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [Empty]
+FROM [BasicTypesEntities] AS [b]
+""");
+    }
+
+    public override async Task IsBetween_precision(bool async)
+    {
+        await base.IsBetween_precision(async);
+
+        AssertSql(
+            """
+SELECT [b].[Id], CASE
+    WHEN [b].[TimeOnly] >= '00:00:00.0102004' AND [b].[TimeOnly] < '00:00:00.0102005' THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [Start], CASE
+    WHEN [b].[TimeOnly] >= '00:00:00.0102003' AND [b].[TimeOnly] < '00:00:00.0102004' THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [End]
+FROM [BasicTypesEntities] AS [b]
+""");
+    }
+
+    public override async Task IsBetween_negated(bool async)
+    {
+        await base.IsBetween_negated(async);
+
+        AssertSql(
+            """
+SELECT [b].[Id]
+FROM [BasicTypesEntities] AS [b]
+WHERE [b].[TimeOnly] < '22:00:00' AND [b].[TimeOnly] >= '02:00:00'
+""");
+    }
+
+    public override async Task IsBetween_nullable(bool async)
+    {
+        await base.IsBetween_nullable(async);
+
+        AssertSql(
+            """
+SELECT [n].[Id], CASE
+    WHEN [n].[TimeOnly] IS NOT NULL AND ([n].[TimeOnly] >= '22:00:00' OR [n].[TimeOnly] < '02:00:00') THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [Inside], CASE
+    WHEN [n].[TimeOnly] IS NULL OR ([n].[TimeOnly] < '22:00:00' AND [n].[TimeOnly] >= '02:00:00') THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [Outside]
+FROM [NullableBasicTypesEntities] AS [n]
+""");
+    }
+
+    public override async Task IsBetween_column_bounds(bool async)
+    {
+        await base.IsBetween_column_bounds(async);
+
+        AssertSql(
+            """
+@time='00:00' (DbType = Time)
+
+SELECT [b].[Id], CASE
+    WHEN ([b].[TimeOnly] <= '16:00:00' AND @time >= [b].[TimeOnly] AND @time < '16:00:00') OR ([b].[TimeOnly] > '16:00:00' AND (@time >= [b].[TimeOnly] OR @time < '16:00:00')) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [Start], CASE
+    WHEN ('22:00:00' <= [b].[TimeOnly] AND @time >= '22:00:00' AND @time < [b].[TimeOnly]) OR ('22:00:00' > [b].[TimeOnly] AND (@time >= '22:00:00' OR @time < [b].[TimeOnly])) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [End]
+FROM [BasicTypesEntities] AS [b]
+""");
+    }
+
     public override async Task Subtract()
     {
         await AssertTranslationFailed(base.Subtract);
