@@ -458,8 +458,7 @@ public class ParametersCounter(
         // Mark the parameter as visited so the subsequent child visit on this SqlParameterExpression (which would
         // hit the generic SqlParameterExpression branch and add 1 to Count) is suppressed.
         var translationMode = sqlParameterExpression.TranslationMode ?? collectionParameterTranslationMode;
-        if (!_visitedSqlParameters.Add(sqlParameterExpression)
-            && translationMode != ParameterTranslationMode.MultipleParameters)
+        if (!_visitedSqlParameters.Add(sqlParameterExpression))
         {
             return;
         }
@@ -467,7 +466,7 @@ public class ParametersCounter(
         switch (translationMode)
         {
             case ParameterTranslationMode.MultipleParameters:
-                // Count expansion size per occurrence.
+                // Count expansion size for this parameter.
                 var parameters = parametersDecorator.GetAndDisableCaching();
                 var count = ((IEnumerable?)parameters[sqlParameterExpression.Name])?.Cast<object?>().Count() ?? 0;
                 Count += count;
