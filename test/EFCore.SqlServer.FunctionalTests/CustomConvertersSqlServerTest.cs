@@ -134,6 +134,60 @@ WHERE N'Yeps' IN (
 """);
     }
 
+    public override async Task Value_converter_in_complex_type_on_owned_reference()
+    {
+        await base.Value_converter_in_complex_type_on_owned_reference();
+
+        AssertSql(
+            """
+@p0='[{"Code":"A","Id":30,"Label":"Ten","RelatedIds":[]}]' (Nullable = false) (Size = 52)
+@p3='1'
+@p1='3'
+@p2='[5,6,7]' (Nullable = false) (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [OwnerWithConvertedTag] SET [Owned_Tags] = @p0, [Owned_Tag_Id] = @p1, [Owned_Tag_RelatedIds] = @p2
+OUTPUT 1
+WHERE [Id] = @p3;
+""",
+            //
+            """
+SELECT TOP(2) [o].[Id], [o].[Owned_Tag_Code], [o].[Owned_Tag_Id], [o].[Owned_Tag_Label], [o].[Owned_Tag_RelatedIds], [o].[Owned_Tags]
+FROM [OwnerWithConvertedTag] AS [o]
+WHERE [o].[Owned_Tag_Id] = 3
+""");
+    }
+
+    public override async Task Value_comparer_in_complex_type_on_owned_reference()
+    {
+        await base.Value_comparer_in_complex_type_on_owned_reference();
+
+        AssertSql(
+            """
+SELECT TOP(2) [o].[Id], [o].[Owned_Tag_Code], [o].[Owned_Tag_Id], [o].[Owned_Tag_Label], [o].[Owned_Tag_RelatedIds], [o].[Owned_Tags]
+FROM [OwnerWithComparedTag] AS [o]
+WHERE [o].[Id] = 1
+""",
+            //
+            """
+@p1='1'
+@p0='5,6,7' (Nullable = false) (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [OwnerWithComparedTag] SET [Owned_Tag_RelatedIds] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+""",
+            //
+            """
+SELECT TOP(2) [o].[Id], [o].[Owned_Tag_Code], [o].[Owned_Tag_Id], [o].[Owned_Tag_Label], [o].[Owned_Tag_RelatedIds], [o].[Owned_Tags]
+FROM [OwnerWithComparedTag] AS [o]
+WHERE [o].[Id] = 1
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
@@ -180,5 +234,9 @@ WHERE N'Yeps' IN (
 
             modelBuilder.Entity<BuiltInDataTypes>().Property(e => e.TestBoolean).IsFixedLength();
         }
+
+        // In relational, complex collections are only supported as JSON and must be explicitly configured as such
+        protected override void ConfigureTagCollection(ComplexCollectionBuilder<Tag> builder)
+            => builder.ToJson();
     }
 }

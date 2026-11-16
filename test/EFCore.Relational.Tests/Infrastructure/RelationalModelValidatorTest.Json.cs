@@ -928,6 +928,36 @@ public partial class RelationalModelValidatorTest
     }
 
     [Fact]
+    public void Json_complex_properties_on_same_owned_type_under_two_navigations_throws()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorJsonEntityOwnerBase>().OwnsOne(
+            x => x.Owned, bb =>
+            {
+                bb.ComplexProperty(x => x.Complex, cb => cb.ToJson("json_data"));
+                bb.Ignore(x => x.NestedReference);
+                bb.Ignore(x => x.NestedCollection);
+            });
+
+        // The default names are prefixed with the navigations, so they only collide when named explicitly
+        modelBuilder.Entity<ValidatorJsonEntityOwnerDerived>().OwnsOne(
+            x => x.DerivedOwned, bb =>
+            {
+                bb.ComplexProperty(x => x.Complex, cb => cb.ToJson("json_data"));
+                bb.Ignore(x => x.NestedReference);
+                bb.Ignore(x => x.NestedCollection);
+            });
+
+        VerifyError(
+            RelationalStrings.ComplexPropertiesSharedJsonColumn(
+                "ValidatorJsonEntityOwnerBase.Owned#ValidatorJsonOwnedWithComplex.Complex",
+                "ValidatorJsonEntityOwnerDerived.DerivedOwned#ValidatorJsonOwnedWithComplex.Complex",
+                "json_data",
+                nameof(ValidatorJsonEntityOwnerBase)),
+            modelBuilder);
+    }
+
+    [Fact]
     public void Throws_when_complex_properties_on_base_and_derived_types_are_mapped_to_same_json_column()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1446,6 +1476,17 @@ public partial class RelationalModelValidatorTest
         public ValidatorJsonOwnedBranch Complex { get; set; } = null!;
         public ValidatorJsonOwnedWithComplexLeaf NestedReference { get; set; } = null!;
         public List<ValidatorJsonOwnedWithComplexLeaf> NestedCollection { get; set; } = null!;
+    }
+
+    protected class ValidatorJsonEntityOwnerBase
+    {
+        public int Id { get; set; }
+        public ValidatorJsonOwnedWithComplex Owned { get; set; } = null!;
+    }
+
+    protected class ValidatorJsonEntityOwnerDerived : ValidatorJsonEntityOwnerBase
+    {
+        public ValidatorJsonOwnedWithComplex DerivedOwned { get; set; } = null!;
     }
 
     protected class ValidatorJsonOwnedWithComplexLeaf

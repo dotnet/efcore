@@ -13,6 +13,7 @@ public class InheritanceData : ISetSource
     public IReadOnlyList<Country> Countries { get; }
     public IReadOnlyList<Drink> Drinks { get; }
     public IReadOnlyList<Plant> Plants { get; }
+    public IReadOnlyList<Manufacturer> Manufacturers { get; }
 
     public InheritanceData(bool useGeneratedKeys)
     {
@@ -20,6 +21,7 @@ public class InheritanceData : ISetSource
         Countries = CreateCountries();
         Drinks = CreateDrinks(useGeneratedKeys);
         Plants = CreatePlants();
+        Manufacturers = CreateManufacturers();
 
         WireUp(Animals, Countries);
 
@@ -47,13 +49,15 @@ public class InheritanceData : ISetSource
         IReadOnlyList<AnimalQuery> animalQueries,
         IReadOnlyList<Country> countries,
         IReadOnlyList<Drink> drinks,
-        IReadOnlyList<Plant> plants)
+        IReadOnlyList<Plant> plants,
+        IReadOnlyList<Manufacturer> manufacturers)
     {
         Animals = animals;
         AnimalQueries = animalQueries;
         Countries = countries;
         Drinks = drinks;
         Plants = plants;
+        Manufacturers = manufacturers;
     }
 
     public virtual IQueryable<TEntity> Set<TEntity>()
@@ -132,6 +136,16 @@ public class InheritanceData : ISetSource
         if (typeof(TEntity) == typeof(Flower))
         {
             return (IQueryable<TEntity>)Plants.OfType<Flower>().AsQueryable();
+        }
+
+        if (typeof(TEntity) == typeof(Manufacturer))
+        {
+            return (IQueryable<TEntity>)Manufacturers.AsQueryable();
+        }
+
+        if (typeof(TEntity) == typeof(Brewery))
+        {
+            return (IQueryable<TEntity>)Manufacturers.OfType<Brewery>().AsQueryable();
         }
 
         return typeof(TEntity) == typeof(Daisy)
@@ -247,6 +261,43 @@ public class InheritanceData : ISetSource
                 Name = "Annual daisy"
             }
         ];
+
+    public static IReadOnlyList<Manufacturer> CreateManufacturers()
+        =>
+        [
+            new Manufacturer
+            {
+                Id = 1,
+                Name = "Bottler",
+                Headquarters = CreateSite("Bottler HQ", "1 Main St", "Sydney", "Australia", "AU")
+            },
+            new Brewery
+            {
+                Id = 2,
+                Name = "Brewer",
+                Headquarters = CreateSite("Brewer HQ", "2 Hauptstrasse", "Berlin", "Germany", "DE"),
+                Brewhouse = CreateSite("Brewer brewhouse", "4 Elizabeth St", "Hobart", "Australia", "AU")
+            },
+            new Brewery
+            {
+                Id = 3,
+                Name = "Craft brewer",
+                Headquarters = CreateSite("Craft brewer HQ", "3 Collins St", "Melbourne", "Australia", "AU"),
+                Brewhouse = CreateSite("Craft brewer brewhouse", "5 Marienplatz", "Munich", "Germany", "DE")
+            }
+        ];
+
+    private static Site CreateSite(string name, string street, string city, string country, string code)
+        => new()
+        {
+            Name = name,
+            Address = new SiteAddress
+            {
+                Street = street,
+                City = city,
+                Country = new SiteCountry { Name = country, Code = code }
+            }
+        };
 
     public static void WireUp(
         IReadOnlyList<Animal> animals,

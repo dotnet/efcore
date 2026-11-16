@@ -131,6 +131,59 @@ WHERE "b"."IndexerVisible" = 'Nay'
             CoreStrings.TranslationFailed("")[47..],
             Assert.Throws<InvalidOperationException>(base.Value_conversion_on_enum_collection_contains).Message);
 
+    public override async Task Value_converter_in_complex_type_on_owned_reference()
+    {
+        await base.Value_converter_in_complex_type_on_owned_reference();
+
+        AssertSql(
+            """
+@p0='[{"Code":"A","Id":30,"Label":"Ten","RelatedIds":[]}]' (Nullable = false) (Size = 52)
+@p3='1'
+@p1='3'
+@p2='[5,6,7]' (Nullable = false) (Size = 7)
+
+UPDATE "OwnerWithConvertedTag" SET "Owned_Tags" = @p0, "Owned_Tag_Id" = @p1, "Owned_Tag_RelatedIds" = @p2
+WHERE "Id" = @p3
+RETURNING 1;
+""",
+            //
+            """
+SELECT "o"."Id", "o"."Owned_Tag_Code", "o"."Owned_Tag_Id", "o"."Owned_Tag_Label", "o"."Owned_Tag_RelatedIds", "o"."Owned_Tags"
+FROM "OwnerWithConvertedTag" AS "o"
+WHERE "o"."Owned_Tag_Id" = 3
+LIMIT 2
+""");
+    }
+
+    public override async Task Value_comparer_in_complex_type_on_owned_reference()
+    {
+        await base.Value_comparer_in_complex_type_on_owned_reference();
+
+        AssertSql(
+            """
+SELECT "o"."Id", "o"."Owned_Tag_Code", "o"."Owned_Tag_Id", "o"."Owned_Tag_Label", "o"."Owned_Tag_RelatedIds", "o"."Owned_Tags"
+FROM "OwnerWithComparedTag" AS "o"
+WHERE "o"."Id" = 1
+LIMIT 2
+""",
+            //
+            """
+@p1='1'
+@p0='5,6,7' (Nullable = false) (Size = 5)
+
+UPDATE "OwnerWithComparedTag" SET "Owned_Tag_RelatedIds" = @p0
+WHERE "Id" = @p1
+RETURNING 1;
+""",
+            //
+            """
+SELECT "o"."Id", "o"."Owned_Tag_Code", "o"."Owned_Tag_Id", "o"."Owned_Tag_Label", "o"."Owned_Tag_RelatedIds", "o"."Owned_Tags"
+FROM "OwnerWithComparedTag" AS "o"
+WHERE "o"."Id" = 1
+LIMIT 2
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
@@ -165,5 +218,9 @@ WHERE "b"."IndexerVisible" = 'Nay'
 
         public override bool PreservesDateTimeKind
             => true;
+
+        // In relational, complex collections are only supported as JSON and must be explicitly configured as such
+        protected override void ConfigureTagCollection(ComplexCollectionBuilder<Tag> builder)
+            => builder.ToJson();
     }
 }
