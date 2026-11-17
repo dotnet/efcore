@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Globalization;
+using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
@@ -874,7 +875,12 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
         var dependentIndexes = dependentEntityType.GetIndexes()
             .Where(i => i.Properties.SequenceEqual(dependentProperties));
         newForeignKey.IsUnique = dependentKey != null
-            || dependentIndexes.Any(i => i.IsUnique);
+            || dependentIndexes.Any(
+                i => i.IsUnique
+                    && !HasRowRestrictingFilter(
+                        i.GetFilter(),
+                        foreignKey.Columns.Select(c => c.Name),
+                        foreignKey.Table.Columns.Select(c => c.Name)));
 
         if (!string.IsNullOrEmpty(foreignKey.Name)
             && foreignKey.Name != newForeignKey.GetDefaultName())
@@ -887,6 +893,89 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
         newForeignKey.AddAnnotations(foreignKey.GetAnnotations());
 
         return newForeignKey;
+    }
+
+    private const string NullGuardTerm =
+        """(?:\[(?<bracket>(?:[^\]]|\]\])+)\]|"(?<quote>(?:[^"]|"")+)"|`(?<backtick>(?:[^`]|``)+)`|(?<bare>[\p{L}_][\p{L}\p{N}_$]*))\s+IS\s+NOT\s+NULL""";
+
+    private static readonly Regex NullGuardTermRegex = new(
+        NullGuardTerm,
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant,
+        TimeSpan.FromMilliseconds(1000.0));
+
+    private static readonly Regex NullGuardFilterRegex = new(
+        $@"^[\s(]*{NullGuardTerm}(?:[\s)]*\sAND\s[\s(]*{NullGuardTerm})*[\s)]*$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant,
+        TimeSpan.FromMilliseconds(1000.0));
+
+    // A unique index with a filter only guarantees uniqueness for the rows that satisfy the filter, so it does not make the
+    // foreign key one-to-one. The exception is a filter that only excludes rows where the foreign key columns are null:
+    // those rows don't take part in the relationship, and this is the filter that providers generate by convention
+    // for unique indexes over nullable columns. Parsing arbitrary SQL is out of scope, so only this exact shape is
+    // recognized; anything else is assumed to restrict the rows. Wrongly assuming a restriction results in a collection
+    // navigation, which works for any data, while wrongly assuming uniqueness results in a reference navigation that
+    // throws when multiple dependents exist.
+    // The names in the filter are resolved against all the columns of the table, not just the foreign key columns, because
+    // case-sensitive databases can have columns that differ only by case, and the filter could refer to a different one.
+    private static bool HasRowRestrictingFilter(
+        string? filter,
+        IEnumerable<string> foreignKeyColumns,
+        IEnumerable<string> tableColumns)
+    {
+        if (string.IsNullOrWhiteSpace(filter))
+        {
+            return false;
+        }
+
+        try
+        {
+            if (!NullGuardFilterRegex.IsMatch(filter))
+            {
+                return true;
+            }
+
+            var foreignKeyColumnSet = foreignKeyColumns.ToHashSet(StringComparer.Ordinal);
+            var tableColumnList = tableColumns.ToList();
+            foreach (Match match in NullGuardTermRegex.Matches(filter))
+            {
+                var name = match.Groups["bracket"].Success
+                    ? match.Groups["bracket"].Value.Replace("]]", "]")
+                    : match.Groups["quote"].Success
+                        ? match.Groups["quote"].Value.Replace("\"\"", "\"")
+                        : match.Groups["backtick"].Success
+                            ? match.Groups["backtick"].Value.Replace("``", "`")
+                            : match.Groups["bare"].Value;
+
+                // A bare NULL is the keyword, which makes the predicate always false, not a column.
+                if (match.Groups["bare"].Success
+                    && name.Equals("NULL", StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+
+                // Prefer the exact name. Only fall back to ignoring case if that identifies a single column, since databases
+                // that are not case-sensitive resolve names this way and an ambiguous name can't be attributed to a column.
+                var column = tableColumnList.Contains(name, StringComparer.Ordinal)
+                    ? name
+                    : tableColumnList.Where(c => string.Equals(c, name, StringComparison.OrdinalIgnoreCase)).ToList()
+                        is [var single]
+                        ? single
+                        : null;
+
+                if (column == null
+                    || !foreignKeyColumnSet.Contains(column))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        catch (RegexMatchTimeoutException)
+        {
+            // Not something we can recognize, so assume that it restricts the rows.
+            return true;
+        }
     }
 
     /// <summary>
