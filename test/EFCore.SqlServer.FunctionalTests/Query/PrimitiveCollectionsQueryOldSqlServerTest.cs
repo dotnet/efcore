@@ -1014,8 +1014,12 @@ WHERE (
     {
         await base.Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_same_parameter();
 
-        Assert.DoesNotContain("OPENJSON", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
-        Assert.DoesNotContain("OPENJSON", Fixture.TestSqlLoggerFactory.SqlStatements[1], StringComparison.Ordinal);
+        // The 1000 values are used five times, but all occurrences share one set of parameters, so no fallback is needed.
+        for (var i = 0; i < 2; i++)
+        {
+            AssertExpandedParameters(i, "ints", 2);
+            AssertExpandedParameters(i, "extra", 1000);
+        }
     }
 
     public override async Task
@@ -1024,8 +1028,12 @@ WHERE (
         await base
             .Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_2_operations_same_parameter_different_property();
 
-        Assert.DoesNotContain("OPENJSON", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
-        Assert.DoesNotContain("OPENJSON", Fixture.TestSqlLoggerFactory.SqlStatements[1], StringComparison.Ordinal);
+        // 1667 values, padded to 1700.
+        for (var i = 0; i < 2; i++)
+        {
+            AssertExpandedParameters(i, "ints", 2);
+            AssertExpandedParameters(i, "extra", 1700);
+        }
     }
 
     public override async Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_forced_constants()
@@ -1241,6 +1249,44 @@ WHERE [t].[Id] IN (@ints1, @ints2)
 SELECT [t].[Id]
 FROM [TestEntity] AS [t]
 WHERE [t].[Id] IN (@ints1, @ints2, @ints3, @ints4, @ints5, @ints6, @ints7, @ints8, @ints9, @ints10, @ints11, @ints12, @ints13, @ints14, @ints15, @ints16, @ints17, @ints18, @ints19, @ints20)
+""");
+    }
+
+    public override async Task Parameter_collection_with_null_in_Count_then_Contains()
+    {
+        await base.Parameter_collection_with_null_in_Count_then_Contains();
+
+        AssertSql(
+            """
+@ints1='10'
+@ints2=NULL (DbType = Int32)
+@ints3='20'
+
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE (
+    SELECT COUNT(*)
+    FROM (VALUES (@ints1), (@ints2), (@ints3)) AS [i]([Value])
+    WHERE [i].[Value] > [p].[Id]) = 2 AND [p].[Int] IN (@ints1, @ints3)
+""");
+    }
+
+    public override async Task Parameter_collection_with_null_in_Contains_then_Count()
+    {
+        await base.Parameter_collection_with_null_in_Contains_then_Count();
+
+        AssertSql(
+            """
+@ints1='10'
+@ints2='20'
+@ints3=NULL (DbType = Int32)
+
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE [p].[Int] IN (@ints1, @ints2) AND (
+    SELECT COUNT(*)
+    FROM (VALUES (@ints1), (@ints3), (@ints2)) AS [i]([Value])
+    WHERE [i].[Value] > [p].[Id]) = 2
 """);
     }
 
@@ -2228,6 +2274,15 @@ WHERE (
 
     private Task AssertCompatibilityLevelTooLow(Func<Task> query)
         => AssertTranslationFailedWithDetails(query, SqlServerStrings.CompatibilityLevelTooLowForScalarCollections(120));
+
+    // Old SQL Server has no OPENJSON, so going over the limit inlines the values as constants instead.
+    private void AssertExpandedParameters(int statement, string name, int count)
+    {
+        var sql = Fixture.TestSqlLoggerFactory.SqlStatements[statement];
+
+        Assert.Contains($"@{name}{count}=", sql, StringComparison.Ordinal);
+        Assert.DoesNotContain($"@{name}{count + 1}=", sql, StringComparison.Ordinal);
+    }
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

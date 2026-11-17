@@ -1631,6 +1631,44 @@ WHERE [t].[Id] IN (@ints1, @ints2, @ints3, @ints4, @ints5, @ints6, @ints7, @ints
 """);
     }
 
+    public override async Task Parameter_collection_with_null_in_Count_then_Contains()
+    {
+        await base.Parameter_collection_with_null_in_Count_then_Contains();
+
+        AssertSql(
+            """
+@ints1='10'
+@ints2=NULL (DbType = Int32)
+@ints3='20'
+
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE (
+    SELECT COUNT(*)
+    FROM (VALUES (@ints1), (@ints2), (@ints3)) AS [i]([Value])
+    WHERE [i].[Value] > [p].[Id]) = 2 AND [p].[Int] IN (@ints1, @ints3)
+""");
+    }
+
+    public override async Task Parameter_collection_with_null_in_Contains_then_Count()
+    {
+        await base.Parameter_collection_with_null_in_Contains_then_Count();
+
+        AssertSql(
+            """
+@ints1='10'
+@ints2='20'
+@ints3=NULL (DbType = Int32)
+
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE [p].[Int] IN (@ints1, @ints2) AND (
+    SELECT COUNT(*)
+    FROM (VALUES (@ints1), (@ints3), (@ints2)) AS [i]([Value])
+    WHERE [i].[Value] > [p].[Id]) = 2
+""");
+    }
+
     public override async Task Parameter_collection_of_enum_Cast_from_different_enum_type(ParameterTranslationMode mode)
     {
         await base.Parameter_collection_of_enum_Cast_from_different_enum_type(mode);
@@ -4317,8 +4355,34 @@ WHERE (
                 .Where(c => extra.Contains(c.Int))
                 .Where(c => small.Contains(c.Int)),
             assertEmpty: true);
+        await AssertQuery(
+            ss => ss.Set<PrimitiveCollectionsEntity>()
+                .Where(c => extra.Contains(c.Int))
+                .Where(c => extra.Count(i => i > c.Id) > 0)
+                .Where(c => small.Contains(c.Int)),
+            assertEmpty: true);
 
         Assert.Contains("OPENJSON(@extra)", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
+        Assert.Contains("OPENJSON(@extra)", Fixture.TestSqlLoggerFactory.SqlStatements[1], StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public virtual async Task Parameter_collection_with_null_in_Count_and_Contains_with_huge_number_of_values()
+    {
+        // 1103 values, which the Contains pads to 1200. The Count and the Contains share them, which keeps the query under the limit.
+        int?[] ints = [.. Enumerable.Range(1000, 1100).Select(i => (int?)i), null, 10, 20];
+
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>()
+            .Where(c => ints.Count(i => i > c.Id) == 1102)
+            .Where(c => ints.Contains(c.Int)));
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>()
+            .Where(c => ints.Contains(c.Int))
+            .Where(c => ints.Count(i => i > c.Id) == 1102));
+
+        for (var i = 0; i < 2; i++)
+        {
+            AssertExpandedParameters(i, "ints", 1200);
+        }
     }
 
     protected override DbContextOptionsBuilder SetParameterizedCollectionMode(
