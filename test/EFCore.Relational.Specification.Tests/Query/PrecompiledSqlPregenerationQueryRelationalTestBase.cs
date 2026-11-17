@@ -251,6 +251,21 @@ for (var i = 0; i < values.Length; i++)
             interceptorCodeAsserter: code => Assert.Contains(nameof(RelationalCommandCache), code));
 
     [Fact]
+    public virtual Task Any_with_captured_array()
+        => Test(
+            """
+string[][] values = [["Blog1"], ["missing"], []];
+bool[] expected = [true, false, false];
+string[] names = [];
+for (var i = 0; i < values.Length; i++)
+{
+    names = values[i];
+    Assert.Equal(expected[i], await context.Blogs.AnyAsync(b => names.Contains(b.Name!)));
+}
+""",
+            interceptorCodeAsserter: code => Assert.Contains(nameof(RelationalCommandCache), code));
+
+    [Fact]
     public virtual Task Contains_with_captured_collection()
         => Test(
             """

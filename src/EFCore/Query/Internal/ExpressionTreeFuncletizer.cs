@@ -1060,7 +1060,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 }
             }
 
-            Expression VisitSpanRewrite(Expression rewritten, params int[] spanArgumentIndexes)
+            Expression VisitSpanRewrite(Expression rewritten, int spanArgumentIndex, int secondSpanArgumentIndex = -1)
             {
                 var result = Visit(rewritten);
                 if (_calculatingPath && _state.Path is { Children: { } children } path)
@@ -1073,7 +1073,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                             Children = children.Select(
                                 child => child.PathFromParent!(probe) is MethodCallExpression
                                     { Arguments: [ConstantExpression { Value: int index }] }
-                                    && spanArgumentIndexes.Contains(index)
+                                    && (index == spanArgumentIndex || index == secondSpanArgumentIndex)
                                         ? child with
                                         {
                                             PathFromParent = e => Call(
