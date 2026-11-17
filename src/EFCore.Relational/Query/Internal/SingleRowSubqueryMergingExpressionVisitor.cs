@@ -50,8 +50,9 @@ public class SingleRowSubqueryMergingExpressionVisitor(SqlAliasManager sqlAliasM
             return select;
         }
 
-        var reads = ReadCollector.Collect([.. select.Projection, .. select.Orderings]);
-        if (reads.Count < 2)
+        var (reads, guardedReads) = ReadCollector.Collect([.. select.Projection, .. select.Orderings]);
+        if (reads.Count == 0
+            || reads.Count + guardedReads.Count < 2)
         {
             return select;
         }
@@ -61,6 +62,12 @@ public class SingleRowSubqueryMergingExpressionVisitor(SqlAliasManager sqlAliasM
         foreach (var read in reads.Where(r => IsMergeable(r.Subquery, outerAliases)))
         {
             AddRead(rows, read);
+        }
+
+        // Guarded reads only join a row that is read unguarded anyway, and only with a stored column, since reading one can't throw.
+        foreach (var read in guardedReads.Where(r => ReadsStoredColumn(r.Subquery) && IsMergeable(r.Subquery, outerAliases)))
+        {
+            TryAddToRow(rows, read);
         }
 
         var merged = rows.Where(r => r.Reads.Count > 1).Select(MergeRow).ToList();
@@ -145,7 +152,21 @@ public class SingleRowSubqueryMergingExpressionVisitor(SqlAliasManager sqlAliasM
             _ => false
         };
 
+    private static bool ReadsStoredColumn(SelectExpression subquery)
+        => subquery.Projection[0].Expression is ColumnExpression member
+            && subquery.Tables.Select(t => t.UnwrapJoin()).OfType<TableExpression>().FirstOrDefault(t => t.Alias == member.TableAlias)
+                is { Table: ITable table }
+            && table.FindColumn(member.Name) is { ComputedColumnSql: null };
+
     private static void AddRead(List<Row> rows, ScalarSubqueryExpression read)
+    {
+        if (!TryAddToRow(rows, read))
+        {
+            rows.Add(new Row(read.Subquery, GetDeclaredAliases(read.Subquery), [(read, read.Subquery.Projection[0].Expression)]));
+        }
+    }
+
+    private static bool TryAddToRow(List<Row> rows, ScalarSubqueryExpression read)
     {
         var aliases = GetDeclaredAliases(read.Subquery);
         foreach (var row in rows)
@@ -154,11 +175,11 @@ public class SingleRowSubqueryMergingExpressionVisitor(SqlAliasManager sqlAliasM
             if (GetRowParts(rebased).SequenceEqual(GetRowParts(row.Subquery)))
             {
                 row.Reads.Add((read, rebased.Projection[0].Expression));
-                return;
+                return true;
             }
         }
 
-        rows.Add(new Row(read.Subquery, aliases, [(read, read.Subquery.Projection[0].Expression)]));
+        return false;
     }
 
     // Table aliases are unique across the query, so equal subqueries differ by the aliases they declare; a reused instance repeats them.
@@ -207,8 +228,11 @@ public class SingleRowSubqueryMergingExpressionVisitor(SqlAliasManager sqlAliasM
     private sealed class ReadCollector : ExpressionVisitor
     {
         private readonly List<ScalarSubqueryExpression> _reads = [];
+        private readonly List<ScalarSubqueryExpression> _guardedReads = [];
+        private bool _guarded;
 
-        public static List<ScalarSubqueryExpression> Collect(IEnumerable<Expression> expressions)
+        public static (List<ScalarSubqueryExpression> Reads, List<ScalarSubqueryExpression> GuardedReads) Collect(
+            IEnumerable<Expression> expressions)
         {
             var collector = new ReadCollector();
             foreach (var expression in expressions)
@@ -216,7 +240,7 @@ public class SingleRowSubqueryMergingExpressionVisitor(SqlAliasManager sqlAliasM
                 collector.Visit(expression);
             }
 
-            return collector._reads;
+            return (collector._reads, collector._guardedReads);
         }
 
         [return: NotNullIfNotNull(nameof(node))]
@@ -225,7 +249,7 @@ public class SingleRowSubqueryMergingExpressionVisitor(SqlAliasManager sqlAliasM
             switch (node)
             {
                 case ScalarSubqueryExpression read:
-                    _reads.Add(read);
+                    (_guarded ? _guardedReads : _reads).Add(read);
                     return node;
 
                 // Subqueries of nested selects are merged into their own select.
@@ -235,23 +259,41 @@ public class SingleRowSubqueryMergingExpressionVisitor(SqlAliasManager sqlAliasM
                 case CaseExpression { WhenClauses: [var first, ..] } caseExpression:
                     Visit(caseExpression.Operand);
                     Visit(first.Test);
+                    VisitGuarded(
+                        caseExpression.WhenClauses.SelectMany(c => new Expression?[] { c.Test, c.Result }).Skip(1)
+                            .Append(caseExpression.ElseResult));
                     return node;
 
                 case SqlFunctionExpression { IsBuiltIn: true, Arguments: [var first, ..] } function
                     when string.Equals(function.Name, "COALESCE", StringComparison.OrdinalIgnoreCase):
                     Visit(first);
+                    VisitGuarded(function.Arguments.Skip(1));
                     return node;
 
                 case InExpression inExpression:
                     Visit(inExpression.Item);
+                    VisitGuarded(inExpression.Values ?? []);
                     return node;
 
-                case SqlBinaryExpression { OperatorType: ExpressionType.AndAlso or ExpressionType.OrElse }:
+                case SqlBinaryExpression { OperatorType: ExpressionType.AndAlso or ExpressionType.OrElse } binary:
+                    VisitGuarded([binary.Left, binary.Right]);
                     return node;
 
                 default:
                     return base.Visit(node);
             }
+        }
+
+        private void VisitGuarded(IEnumerable<Expression?> expressions)
+        {
+            var guarded = _guarded;
+            _guarded = true;
+            foreach (var expression in expressions)
+            {
+                Visit(expression);
+            }
+
+            _guarded = guarded;
         }
     }
 }

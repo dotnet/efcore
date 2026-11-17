@@ -3505,6 +3505,99 @@ WHERE [c0].[CustomerID] LIKE N'B%'
 """);
     }
 
+    public override async Task Guarded_column_reads_of_single_result_subquery_read_unguarded_lift_to_single_join(bool async)
+    {
+        await base.Guarded_column_reads_of_single_result_subquery_read_unguarded_lift_to_single_join(async);
+
+        AssertSql(
+            """
+SELECT [o].[OrderID], [c0].[City], [c0].[ContactName], CASE
+    WHEN [o].[OrderID] <> 10248 AND [c0].[Fax] IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [HasFax], COALESCE([c0].[Region], [c0].[Country]) AS [Region]
+FROM [Orders] AS [o]
+OUTER APPLY (
+    SELECT TOP(1) [c].[City], [c].[ContactName], [c].[Region], [c].[Fax], [c].[Country]
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [c].[CustomerID]
+) AS [c0]
+WHERE [o].[OrderID] < 10300
+""");
+    }
+
+    public override async Task Guarded_reads_of_single_result_subquery_not_read_unguarded_are_not_lifted(bool async)
+    {
+        await base.Guarded_reads_of_single_result_subquery_not_read_unguarded_are_not_lifted(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], (
+    SELECT TOP(1) [o].[OrderDate]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [o].[OrderID]) AS [FirstOrderDate], CASE
+    WHEN [c].[CustomerID] <> N'ALFKI' THEN (
+        SELECT TOP(1) [o0].[OrderDate]
+        FROM [Orders] AS [o0]
+        WHERE [c].[CustomerID] = [o0].[CustomerID] AND [o0].[OrderID] / ([o0].[OrderID] - 10643) <> 0
+        ORDER BY [o0].[OrderID])
+END AS [OrderDate], CASE
+    WHEN [c].[CustomerID] <> N'ALFKI' THEN (
+        SELECT TOP(1) [o1].[EmployeeID]
+        FROM [Orders] AS [o1]
+        WHERE [c].[CustomerID] = [o1].[CustomerID] AND [o1].[OrderID] / ([o1].[OrderID] - 10643) <> 0
+        ORDER BY [o1].[OrderID])
+END AS [EmployeeID]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A%'
+""");
+    }
+
+    public override async Task Guarded_read_of_single_result_subquery_whose_unguarded_read_is_pruned_is_not_lifted(bool async)
+    {
+        await base.Guarded_read_of_single_result_subquery_whose_unguarded_read_is_pruned_is_not_lifted(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], CASE
+    WHEN [c].[CustomerID] <> N'ALFKI' THEN (
+        SELECT TOP(1) [o].[EmployeeID]
+        FROM [Orders] AS [o]
+        WHERE [c].[CustomerID] = [o].[CustomerID] AND [o].[OrderID] / ([o].[OrderID] - 10643) <> 0
+        ORDER BY [o].[OrderID])
+END AS [EmployeeID]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A%'
+UNION ALL
+SELECT [c0].[CustomerID], NULL AS [EmployeeID]
+FROM [Customers] AS [c0]
+WHERE [c0].[CustomerID] LIKE N'B%'
+""");
+    }
+
+    public override async Task Guarded_expression_read_of_single_result_subquery_read_unguarded_is_not_lifted(bool async)
+    {
+        await base.Guarded_expression_read_of_single_result_subquery_read_unguarded_is_not_lifted(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], (
+    SELECT TOP(1) [o].[OrderDate]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [o].[OrderID]) AS [OrderDate], CASE
+    WHEN [c].[CustomerID] <> N'ALFKI' THEN (
+        SELECT TOP(1) [o0].[OrderID] / ([o0].[OrderID] - 10643)
+        FROM [Orders] AS [o0]
+        WHERE [c].[CustomerID] = [o0].[CustomerID]
+        ORDER BY [o0].[OrderID])
+END AS [Ratio]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A%'
+""");
+    }
+
     public override async Task Repeated_single_result_subquery_reading_repeated_single_result_subqueries_lifts_both_to_single_joins(bool async)
     {
         await base.Repeated_single_result_subquery_reading_repeated_single_result_subqueries_lifts_both_to_single_joins(async);

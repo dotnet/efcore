@@ -7091,15 +7091,7 @@ FROM (
 
         AssertSql(
             """
-SELECT ISNULL((
-    SELECT TOP(1) [w].[Id]
-    FROM [Weapons] AS [w]
-    WHERE [u].[FullName] = [w].[OwnerFullName]
-    ORDER BY [w].[Id]), (
-    SELECT TOP(1) [w0].[Id]
-    FROM [Weapons] AS [w0]
-    WHERE [u].[FullName] = [w0].[OwnerFullName]
-    ORDER BY [w0].[Id]))
+SELECT [w0].[Id]
 FROM (
     SELECT [g].[FullName]
     FROM [Gears] AS [g]
@@ -7107,6 +7099,12 @@ FROM (
     SELECT [o].[FullName]
     FROM [Officers] AS [o]
 ) AS [u]
+OUTER APPLY (
+    SELECT TOP(1) [w].[Id]
+    FROM [Weapons] AS [w]
+    WHERE [u].[FullName] = [w].[OwnerFullName]
+    ORDER BY [w].[Id]
+) AS [w0]
 """);
     }
 

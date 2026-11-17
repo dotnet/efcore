@@ -4787,6 +4787,57 @@ FROM [Parents] AS [p]
         }
     }
 
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Guarded_read_of_computed_column_is_not_merged_with_unguarded_read_of_same_row(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context39605>(
+            seed: async context =>
+            {
+                context.Parents.AddRange(
+                    new Context39605.Parent { Key = 1, Children = [new Context39605.Child { Value = 10, Divisor = 2 }] },
+                    new Context39605.Parent { Key = 2, Children = [new Context39605.Child { Value = 20, Divisor = 2 }] });
+                await context.SaveChangesAsync();
+
+                // Saving reads the computed column back, so the divisor is zeroed afterwards.
+                await context.Set<Context39605.Child>().Where(c => c.Value == 10).ExecuteUpdateAsync(s => s.SetProperty(c => c.Divisor, 0));
+            });
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Parents.OrderBy(p => p.Key).Select(p => new
+        {
+            p.Key,
+            Value = p.Children.OrderBy(c => c.Id).Select(c => (int?)c.Value).FirstOrDefault(),
+            Ratio = p.Key != 1 ? p.Children.OrderBy(c => c.Id).Select(c => (int?)c.Ratio).FirstOrDefault() : null
+        });
+
+        var results = async ? await query.ToListAsync() : query.ToList();
+
+        Assert.Equal([(1, (int?)10, (int?)null), (2, 20, 10)], results.Select(r => (r.Key, r.Value, r.Ratio)));
+    }
+
+    protected class Context39605(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Parent> Parents { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Child>().Property(c => c.Ratio).HasComputedColumnSql("[Value] / [Divisor]");
+
+        public class Parent
+        {
+            public int Id { get; set; }
+            public int Key { get; set; }
+            public List<Child> Children { get; set; } = [];
+        }
+
+        public class Child
+        {
+            public int Id { get; set; }
+            public int Value { get; set; }
+            public int Divisor { get; set; }
+            public int Ratio { get; set; }
+        }
+    }
+
     #endregion
 
     [Fact]

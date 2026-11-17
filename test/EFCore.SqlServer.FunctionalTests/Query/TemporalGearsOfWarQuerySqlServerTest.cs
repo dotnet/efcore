@@ -6407,16 +6407,14 @@ FROM [Factions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [f]
 
         AssertSql(
             """
-SELECT ISNULL((
+SELECT [w0].[Id]
+FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
+OUTER APPLY (
     SELECT TOP(1) [w].[Id]
     FROM [Weapons] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [w]
     WHERE [g].[FullName] = [w].[OwnerFullName]
-    ORDER BY [w].[Id]), (
-    SELECT TOP(1) [w0].[Id]
-    FROM [Weapons] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [w0]
-    WHERE [g].[FullName] = [w0].[OwnerFullName]
-    ORDER BY [w0].[Id]))
-FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
+    ORDER BY [w].[Id]
+) AS [w0]
 """);
     }
 

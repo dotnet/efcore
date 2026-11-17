@@ -63,25 +63,23 @@ SELECT [c].[CustomerID], [c].[City], CASE
     WHEN EXISTS (
         SELECT 1
         FROM [Orders] AS [o]
-        WHERE [c].[CustomerID] = [o].[CustomerID]) THEN (
-        SELECT TOP(1) [o0].[OrderID]
-        FROM [Orders] AS [o0]
-        WHERE [c].[CustomerID] = [o0].[CustomerID]
-        ORDER BY [o0].[OrderDate] DESC, [o0].[OrderID] DESC)
+        WHERE [c].[CustomerID] = [o].[CustomerID]) THEN [o2].[OrderID]
     ELSE 0
-END AS [LatestOrderID], (
-    SELECT TOP(1) [o1].[OrderDate]
-    FROM [Orders] AS [o1]
-    WHERE [c].[CustomerID] = [o1].[CustomerID]
-    ORDER BY [o1].[OrderDate] DESC, [o1].[OrderID] DESC) AS [LatestOrderDate]
+END AS [LatestOrderID], [o2].[OrderDate] AS [LatestOrderDate]
 FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT TOP(1) [o0].[OrderDate], [o0].[OrderID]
+    FROM [Orders] AS [o0]
+    WHERE [c].[CustomerID] = [o0].[CustomerID]
+    ORDER BY [o0].[OrderDate] DESC, [o0].[OrderID] DESC
+) AS [o2]
 UNION ALL
 SELECT [c0].[CustomerID], [c0].[City], 0 AS [LatestOrderID], NULL AS [LatestOrderDate]
 FROM [Customers] AS [c0]
 WHERE NOT EXISTS (
     SELECT 1
-    FROM [Orders] AS [o2]
-    WHERE [c0].[CustomerID] = [o2].[CustomerID])
+    FROM [Orders] AS [o1]
+    WHERE [c0].[CustomerID] = [o1].[CustomerID])
 """,
             //
             """
@@ -97,17 +95,15 @@ SELECT [c0].[CustomerID], [c0].[City], CASE
         SELECT 1
         FROM [Orders] AS [o0]
         WHERE [c0].[CustomerID] = [o0].[CustomerID]) THEN 0
-    ELSE (
-        SELECT TOP(1) [o1].[OrderID]
-        FROM [Orders] AS [o1]
-        WHERE [c0].[CustomerID] = [o1].[CustomerID]
-        ORDER BY [o1].[OrderDate] DESC, [o1].[OrderID] DESC)
-END AS [LatestOrderID], (
-    SELECT TOP(1) [o2].[OrderDate]
-    FROM [Orders] AS [o2]
-    WHERE [c0].[CustomerID] = [o2].[CustomerID]
-    ORDER BY [o2].[OrderDate] DESC, [o2].[OrderID] DESC) AS [LatestOrderDate]
+    ELSE [o2].[OrderID]
+END AS [LatestOrderID], [o2].[OrderDate] AS [LatestOrderDate]
 FROM [Customers] AS [c0]
+OUTER APPLY (
+    SELECT TOP(1) [o1].[OrderDate], [o1].[OrderID]
+    FROM [Orders] AS [o1]
+    WHERE [c0].[CustomerID] = [o1].[CustomerID]
+    ORDER BY [o1].[OrderDate] DESC, [o1].[OrderID] DESC
+) AS [o2]
 """);
     }
 

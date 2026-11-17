@@ -6020,16 +6020,14 @@ INNER JOIN [LocustHordes] AS [l3] ON [f0].[Id] = [l3].[Id]
 
         AssertSql(
             """
-SELECT ISNULL((
+SELECT [w0].[Id]
+FROM [Gears] AS [g]
+OUTER APPLY (
     SELECT TOP(1) [w].[Id]
     FROM [Weapons] AS [w]
     WHERE [g].[FullName] = [w].[OwnerFullName]
-    ORDER BY [w].[Id]), (
-    SELECT TOP(1) [w0].[Id]
-    FROM [Weapons] AS [w0]
-    WHERE [g].[FullName] = [w0].[OwnerFullName]
-    ORDER BY [w0].[Id]))
-FROM [Gears] AS [g]
+    ORDER BY [w].[Id]
+) AS [w0]
 """);
     }
 

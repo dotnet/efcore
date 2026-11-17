@@ -227,6 +227,85 @@ public abstract class NorthwindSelectQueryRelationalTestBase<TFixture>(TFixture 
             elementSorter: e => e);
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Guarded_column_reads_of_single_result_subquery_read_unguarded_lift_to_single_join(bool async)
+        => AssertQuery(
+            async,
+            ss => from o in ss.Set<Order>().Where(o => o.OrderID < 10300)
+                  let customer = ss.Set<Customer>().Where(c => c.CustomerID == o.CustomerID).OrderBy(c => c.CustomerID).FirstOrDefault()
+                  select new
+                  {
+                      o.OrderID,
+                      customer.City,
+                      ContactName = customer != null ? customer.ContactName : null,
+                      HasFax = o.OrderID != 10248 && customer.Fax != null,
+                      Region = customer.Region ?? customer.Country
+                  },
+            elementSorter: e => e.OrderID);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Guarded_reads_of_single_result_subquery_not_read_unguarded_are_not_lifted(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A")).Select(c => new
+            {
+                c.CustomerID,
+                FirstOrderDate = c.Orders.OrderBy(o => o.OrderID).Select(o => o.OrderDate).FirstOrDefault(),
+                OrderDate = c.CustomerID != "ALFKI"
+                    ? c.Orders.Where(o => o.OrderID / (o.OrderID - 10643) != 0).OrderBy(o => o.OrderID).Select(o => o.OrderDate)
+                        .FirstOrDefault()
+                    : null,
+                EmployeeID = c.CustomerID != "ALFKI"
+                    ? c.Orders.Where(o => o.OrderID / (o.OrderID - 10643) != 0).OrderBy(o => o.OrderID).Select(o => o.EmployeeID)
+                        .FirstOrDefault()
+                    : null
+            }),
+            elementSorter: e => e.CustomerID);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Guarded_read_of_single_result_subquery_whose_unguarded_read_is_pruned_is_not_lifted(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A")).Select(c => new
+                {
+                    c.CustomerID,
+                    OrderDate = c.Orders.Where(o => o.OrderID / (o.OrderID - 10643) != 0).OrderBy(o => o.OrderID).Select(o => o.OrderDate)
+                        .FirstOrDefault(),
+                    EmployeeID = c.CustomerID != "ALFKI"
+                        ? c.Orders.Where(o => o.OrderID / (o.OrderID - 10643) != 0).OrderBy(o => o.OrderID).Select(o => o.EmployeeID)
+                            .FirstOrDefault()
+                        : null
+                })
+                .Concat(
+                    ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("B"))
+                        .Select(c => new { c.CustomerID, OrderDate = (DateTime?)null, EmployeeID = (uint?)null }))
+                .Select(x => new { x.CustomerID, x.EmployeeID }),
+            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A")).Select(c => new
+                {
+                    c.CustomerID,
+                    EmployeeID = c.CustomerID != "ALFKI"
+                        ? c.Orders.Where(o => o.OrderID / (o.OrderID - 10643) != 0).OrderBy(o => o.OrderID).Select(o => o.EmployeeID)
+                            .FirstOrDefault()
+                        : null
+                })
+                .Concat(
+                    ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("B")).Select(c => new { c.CustomerID, EmployeeID = (uint?)null })),
+            elementSorter: e => e.CustomerID);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Guarded_expression_read_of_single_result_subquery_read_unguarded_is_not_lifted(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A")).Select(c => new
+            {
+                c.CustomerID,
+                OrderDate = c.Orders.OrderBy(o => o.OrderID).Select(o => o.OrderDate).FirstOrDefault(),
+                Ratio = c.CustomerID != "ALFKI"
+                    ? c.Orders.OrderBy(o => o.OrderID).Select(o => (int?)(o.OrderID / (o.OrderID - 10643))).FirstOrDefault()
+                    : null
+            }),
+            elementSorter: e => e.CustomerID);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Repeated_single_result_subquery_reading_repeated_single_result_subqueries_lifts_both_to_single_joins(bool async)
         => AssertQuery(
             async,
