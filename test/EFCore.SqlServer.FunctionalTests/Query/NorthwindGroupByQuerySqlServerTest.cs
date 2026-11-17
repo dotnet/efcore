@@ -5829,6 +5829,50 @@ ORDER BY [o0].[CustomerID] DESC, [o0].[OrderDate], [o0].[OrderID] DESC
         AssertSql();
     }
 
+    public override async Task GroupBy_SelectMany_OrderBy_navigation_Take_fails(bool async)
+    {
+        await base.GroupBy_SelectMany_OrderBy_navigation_Take_fails(async);
+
+        AssertSql();
+    }
+
+    public override async Task GroupBy_SelectMany_Select_navigation_fails(bool async)
+    {
+        await base.GroupBy_SelectMany_Select_navigation_fails(async);
+
+        AssertSql();
+    }
+
+    public override async Task GroupBy_navigation_in_element_selector_SelectMany_fails(bool async)
+    {
+        await base.GroupBy_navigation_in_element_selector_SelectMany_fails(async);
+
+        AssertSql();
+    }
+
+    public override async Task Select_navigation_GroupBy_SelectMany_OrderBy_Take_fails(bool async)
+    {
+        await base.Select_navigation_GroupBy_SelectMany_OrderBy_Take_fails(async);
+
+        AssertSql();
+    }
+
+    public override async Task Join_GroupBy_SelectMany_OrderBy_Take(bool async)
+    {
+        await base.Join_GroupBy_SelectMany_OrderBy_Take(async);
+
+        AssertSql(
+            """
+SELECT [s].[OrderID], [s].[EmployeeID], [s].[City]
+FROM (
+    SELECT [o].[OrderID], [o].[EmployeeID], [c].[City], ROW_NUMBER() OVER(PARTITION BY [o].[EmployeeID] ORDER BY [c].[City], [o].[OrderID]) AS [row]
+    FROM [Orders] AS [o]
+    INNER JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+) AS [s]
+WHERE [s].[row] <= 1
+""");
+    }
+
     public override async Task GroupBy_Where_SelectMany_fails(bool async)
     {
         await base.GroupBy_Where_SelectMany_fails(async);

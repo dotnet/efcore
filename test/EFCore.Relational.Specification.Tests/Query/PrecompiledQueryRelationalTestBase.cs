@@ -302,6 +302,20 @@ _ = await context.Blogs.OrderBy(b => b.Name).Take(toTake).ToListAsync();
     public virtual Task GroupBy_Select_first_grouping_element()
         => Test("""var blogs = await context.Blogs.GroupBy(b => b.Name).Select(g => g.OrderBy(b => b.Id).First()).ToListAsync();""");
 
+    [Fact]
+    public virtual Task GroupBy_SelectMany_OrderBy_Skip_Take_Select()
+        => Test(
+            """
+var skip = 1;
+var take = 1;
+var titles = await context.Posts
+    .GroupBy(p => p.Blog!.Id)
+    .SelectMany(g => g.OrderBy(p => p.Id).Skip(skip).Take(take))
+    .Select(p => p.Title)
+    .ToListAsync();
+Assert.Equal(new[] { "Post12", "Post22" }, titles.OrderBy(t => t));
+""");
+
     #endregion Regular operators
 
     #region Terminating operators

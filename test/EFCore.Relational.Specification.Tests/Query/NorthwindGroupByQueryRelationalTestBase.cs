@@ -718,6 +718,53 @@ public abstract class NorthwindGroupByQueryRelationalTestBase<TFixture>(TFixture
                 .GroupBy(o => o.CustomerID)
                 .SelectMany(g => g.Select(o => new { o.OrderID, o.OrderDetails }))));
 
+    // A navigation read off the grouping's elements expands into a join over the grouping, which isn't flattened. This is so
+    // whether the navigation is in the collection selector, in the element selector, or in a projection before the GroupBy, since
+    // the projection's navigations are only expanded once the elements are read.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_SelectMany_OrderBy_navigation_Take_fails(bool async)
+        => AssertTranslationFailed(() => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.EmployeeID)
+                .SelectMany(g => g.OrderBy(o => o.Customer!.City).ThenBy(o => o.OrderID).Take(1))));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_SelectMany_Select_navigation_fails(bool async)
+        => AssertTranslationFailed(() => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.EmployeeID)
+                .SelectMany(g => g.Select(o => o.Customer!.City))));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_navigation_in_element_selector_SelectMany_fails(bool async)
+        => AssertTranslationFailed(() => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.EmployeeID, o => new { o.OrderID, o.Customer!.City })
+                .SelectMany(g => g)));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Select_navigation_GroupBy_SelectMany_OrderBy_Take_fails(bool async)
+        => AssertTranslationFailed(() => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .Select(o => new { o.OrderID, o.EmployeeID, o.Customer!.City })
+                .GroupBy(x => x.EmployeeID)
+                .SelectMany(g => g.OrderBy(x => x.City).ThenBy(x => x.OrderID).Take(1))));
+
+    // The rewrite for the above: an explicit join before the GroupBy, so the grouping's elements need no navigation.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Join_GroupBy_SelectMany_OrderBy_Take(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .Join(ss.Set<Customer>(), o => o.CustomerID, c => c.CustomerID, (o, c) => new { o.OrderID, o.EmployeeID, c.City })
+                .GroupBy(x => x.EmployeeID)
+                .SelectMany(g => g.OrderBy(x => x.City).ThenBy(x => x.OrderID).Take(1)),
+            elementSorter: e => e.OrderID);
+
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_Where_SelectMany_fails(bool async)
         => AssertTranslationFailed(() => AssertQuery(

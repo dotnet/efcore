@@ -483,6 +483,23 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture>(TFixture fixture) :
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_Where_select_dto_with_entity_set_from_dto_member(bool async)
+        => AssertUpdate(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
+                .Select(c => new CustomerHolder { Customer = c, City = c.City }),
+            e => e.Customer,
+            s => s.SetProperty(h => h.Customer.ContactName, h => h.City),
+            rowsAffectedCount: 8,
+            (b, a) => Assert.All(a, c => Assert.Equal(c.City, c.ContactName)));
+
+    private class CustomerHolder
+    {
+        public Customer Customer { get; set; } = null!;
+        public string? City { get; set; }
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Update_Where_Skip_set_constant(bool async)
         => AssertUpdate(
             async,

@@ -1678,6 +1678,48 @@ GROUP BY [b0].[Key]
 """);
     }
 
+    public override async Task GroupBy_SelectMany_OrderBy_Take_with_owned_navigations(bool async)
+    {
+        await base.GroupBy_SelectMany_OrderBy_Take_with_owned_navigations(async);
+
+        AssertSql(
+            """
+SELECT [o1].[Id], [o1].[Discriminator], [o1].[Name], [o1].[PeriodEnd], [o1].[PeriodStart], [s].[ClientId], [s].[Id], [s].[OrderDate], [s].[PeriodEnd], [s].[PeriodStart], [s].[OrderClientId], [s].[OrderId], [s].[Id0], [s].[Detail], [s].[PeriodEnd0], [s].[PeriodStart0], [o1].[PersonAddress_AddressLine], [o1].[PeriodEnd0], [o1].[PeriodStart0], [o1].[PersonAddress_PlaceType], [o1].[PersonAddress_ZipCode], [o1].[PersonAddress_Country_Name], [o1].[PersonAddress_Country_PlanetId], [o1].[BranchAddress_BranchName], [o1].[BranchAddress_PlaceType], [o1].[BranchAddress_Country_Name], [o1].[BranchAddress_Country_PlanetId], [o1].[LeafBAddress_LeafBType], [o1].[LeafBAddress_PlaceType], [o1].[LeafBAddress_Country_Name], [o1].[LeafBAddress_Country_PlanetId], [o1].[LeafAAddress_LeafType], [o1].[LeafAAddress_PlaceType], [o1].[LeafAAddress_Country_Name], [o1].[LeafAAddress_Country_PlanetId]
+FROM (
+    SELECT [o0].[Id], [o0].[Discriminator], [o0].[Name], [o0].[PeriodEnd], [o0].[PeriodStart], ROW_NUMBER() OVER(PARTITION BY [o0].[Key] ORDER BY [o0].[Id]) AS [row], [o0].[PersonAddress_AddressLine], [o0].[PeriodEnd0], [o0].[PeriodStart0], [o0].[PersonAddress_PlaceType], [o0].[PersonAddress_ZipCode], [o0].[PersonAddress_Country_Name], [o0].[PersonAddress_Country_PlanetId], [o0].[BranchAddress_BranchName], [o0].[BranchAddress_PlaceType], [o0].[BranchAddress_Country_Name], [o0].[BranchAddress_Country_PlanetId], [o0].[LeafBAddress_LeafBType], [o0].[LeafBAddress_PlaceType], [o0].[LeafBAddress_Country_Name], [o0].[LeafBAddress_Country_PlanetId], [o0].[LeafAAddress_LeafType], [o0].[LeafAAddress_PlaceType], [o0].[LeafAAddress_Country_Name], [o0].[LeafAAddress_Country_PlanetId]
+    FROM (
+        SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [o].[Id] % 2 AS [Key], [o].[PersonAddress_AddressLine], [o].[PeriodEnd] AS [PeriodEnd0], [o].[PeriodStart] AS [PeriodStart0], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
+        FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
+    ) AS [o0]
+) AS [o1]
+LEFT JOIN (
+    SELECT [o2].[ClientId], [o2].[Id], [o2].[OrderDate], [o2].[PeriodEnd], [o2].[PeriodStart], [o3].[OrderClientId], [o3].[OrderId], [o3].[Id] AS [Id0], [o3].[Detail], [o3].[PeriodEnd] AS [PeriodEnd0], [o3].[PeriodStart] AS [PeriodStart0]
+    FROM [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o2]
+    LEFT JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o3] ON [o2].[ClientId] = [o3].[OrderClientId] AND [o2].[Id] = [o3].[OrderId]
+) AS [s] ON [o1].[Id] = [s].[ClientId]
+WHERE [o1].[row] <= 1
+ORDER BY [o1].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId], [s].[Id0]
+""");
+    }
+
+    public override async Task GroupBy_SelectMany_OrderBy_Take_Select_owned_navigation_member(bool async)
+    {
+        await base.GroupBy_SelectMany_OrderBy_Take_Select_owned_navigation_member(async);
+
+        AssertSql(
+            """
+SELECT [o1].[PersonAddress_Country_Name]
+FROM (
+    SELECT ROW_NUMBER() OVER(PARTITION BY [o0].[Key] ORDER BY [o0].[Id]) AS [row], [o0].[PersonAddress_Country_Name]
+    FROM (
+        SELECT [o].[Id], [o].[Id] % 2 AS [Key], [o].[PersonAddress_Country_Name]
+        FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
+    ) AS [o0]
+) AS [o1]
+WHERE [o1].[row] <= 1
+""");
+    }
+
     // not AssertQuery so original (non-temporal) query gets executed, but data is modified
     // so results don't match expectations
     public override Task Owned_entity_without_owner_does_not_throw_for_identity_resolution(bool async, bool useAsTracking)

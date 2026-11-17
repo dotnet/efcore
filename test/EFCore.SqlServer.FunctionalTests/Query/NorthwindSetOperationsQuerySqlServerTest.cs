@@ -1799,6 +1799,67 @@ FROM (
 """);
     }
 
+    public override async Task Except_anonymous_member_navigation(bool async)
+    {
+        await base.Except_anonymous_member_navigation(async);
+
+        AssertSql(
+            """
+SELECT [e].[OrderID], [c].[City]
+FROM (
+    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+    WHERE [o].[OrderID] < 10260
+    EXCEPT
+    SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+    FROM [Orders] AS [o0]
+    WHERE [o0].[OrderID] < 10255
+) AS [e]
+LEFT JOIN [Customers] AS [c] ON [e].[CustomerID] = [c].[CustomerID]
+""");
+    }
+
+    public override async Task Join_anonymous_member_navigation(bool async)
+    {
+        await base.Join_anonymous_member_navigation(async);
+
+        AssertSql(
+            """
+SELECT [c].[ContactName], [o0].[OrderID], [c0].[City]
+FROM [Customers] AS [c]
+INNER JOIN (
+    SELECT DISTINCT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+) AS [o0] ON [c].[CustomerID] = [o0].[CustomerID]
+LEFT JOIN [Customers] AS [c0] ON [o0].[CustomerID] = [c0].[CustomerID]
+WHERE [c].[CustomerID] LIKE N'A%'
+""");
+    }
+
+    public override async Task SelectMany_anonymous_member_navigation(bool async)
+    {
+        await base.SelectMany_anonymous_member_navigation(async);
+
+        AssertSql(
+            """
+SELECT [o].[OrderID], [c0].[City], (
+    SELECT COUNT(*)
+    FROM [Order Details] AS [o0]
+    WHERE [o].[OrderID] = [o0].[OrderID]) AS [Count]
+FROM [Customers] AS [c]
+INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+LEFT JOIN [Customers] AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
+WHERE [c].[CustomerID] LIKE N'A%'
+""");
+    }
+
+    public override async Task Include_Union_dto_only_on_one_side_throws(bool async)
+    {
+        await base.Include_Union_dto_only_on_one_side_throws(async);
+
+        AssertSql();
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
