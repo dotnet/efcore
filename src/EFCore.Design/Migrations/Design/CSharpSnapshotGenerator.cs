@@ -1764,7 +1764,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                     .Append(".HasPrincipalKey(")
                     .Append(Code.Literal(GetFullName(foreignKey.PrincipalEntityType)))
                     .Append(", ")
-                    .Append(string.Join(", ", foreignKey.PrincipalKey.Properties.Select(p => Code.Literal(p.Name))))
+                    .Append(string.Join(", ", foreignKey.PrincipalKey.Properties.Select(p => Code.Literal(BuildIndexPropertyPath(p, collectionIndices: null)))))
                     .Append(")");
             }
         }
@@ -1795,7 +1795,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 stringBuilder
                     .AppendLine()
                     .Append(".HasPrincipalKey(")
-                    .Append(string.Join(", ", foreignKey.PrincipalKey.Properties.Select(p => Code.Literal(p.Name))))
+                    .Append(string.Join(", ", foreignKey.PrincipalKey.Properties.Select(p => Code.Literal(BuildIndexPropertyPath(p, collectionIndices: null)))))
                     .Append(")");
             }
         }
