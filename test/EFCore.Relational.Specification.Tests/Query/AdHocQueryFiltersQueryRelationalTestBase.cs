@@ -250,7 +250,8 @@ public abstract class AdHocQueryFiltersQueryRelationalTestBase(NonSharedFixture 
                 Count = g.Count(),
                 Distinct = g.Select(d => d.PrincipalId).Distinct().Count(),
                 Large = g.Where(d => d.Principal.Value > 5).Count(),
-                Sum = g.Select(d => (int?)d.Principal.Value).Sum()
+                Sum = g.Select(d => (int?)d.Principal.Value).Sum(),
+                Projected = g.Select(d => d.Principal.Value).Count()
             });
 
         var results = async
@@ -268,6 +269,7 @@ public abstract class AdHocQueryFiltersQueryRelationalTestBase(NonSharedFixture 
                 Assert.Equal(1, result.Distinct);
                 Assert.Equal(1, result.Large);
                 Assert.Equal(10, result.Sum);
+                Assert.Equal(1, result.Projected);
             },
             result =>
             {
@@ -276,6 +278,7 @@ public abstract class AdHocQueryFiltersQueryRelationalTestBase(NonSharedFixture 
                 Assert.Equal(1, result.Distinct);
                 Assert.Equal(0, result.Large);
                 Assert.Equal(0, result.Sum);
+                Assert.Equal(0, result.Projected);
             });
     }
 

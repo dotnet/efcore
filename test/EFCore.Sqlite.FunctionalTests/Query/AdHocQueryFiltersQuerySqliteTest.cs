@@ -73,7 +73,9 @@ SELECT "d"."GroupId" AS "Key", COUNT(*) AS "Count", COUNT(DISTINCT ("d"."Princip
     WHEN "p"."Id" IS NOT NULL AND "p"."Value" > 5 THEN 1
 END) AS "Large", COALESCE(SUM(CASE
     WHEN "p"."Id" IS NOT NULL THEN "p"."Value"
-END), 0) AS "Sum"
+END), 0) AS "Sum", COUNT(CASE
+    WHEN "p"."Id" IS NOT NULL THEN 1
+END) AS "Projected"
 FROM "Dependents" AS "d"
 LEFT JOIN "Principals" AS "p" ON "d"."PrincipalId" = "p"."Id" AND NOT ("p"."Filtered")
 GROUP BY "d"."GroupId"

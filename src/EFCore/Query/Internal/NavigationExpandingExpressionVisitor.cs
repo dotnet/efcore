@@ -1748,11 +1748,14 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
 
         // A distinct count over a navigation counts the null of a missing principal as a value in the correlated
         // translation (COUNT(*) over SELECT DISTINCT), but not once lifted (COUNT(DISTINCT ...)), so keep it there.
+        // This includes the navigation itself (o.Customer, whose Distinct the lifted translation would drop) and
+        // EF.Property over it.
         foreach (var aggregate in scanner.Aggregates)
         {
             if (aggregate.Chain.Any(c => c.Method.Name == nameof(Enumerable.Distinct))
                 && aggregate.ElementLambdas.Any(
-                    lambda => lambda != null && ContainsReferenceNavigationAccess(RemapLambdaExpression(parent, lambda))))
+                    lambda => lambda != null
+                        && ContainsReferenceNavigationAccess(RemapLambdaExpression(parent, lambda), includeNavigationValues: true)))
             {
                 return null;
             }
@@ -1836,12 +1839,17 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         var groupingParameter = Expression.Parameter(groupByCall.Type.GetSequenceType(), GetParameterName("g"));
         var originalElementType = selector.Parameters[0].Type.GetGenericArguments()[1];
 
+        // The aggregates are swapped into the result selector whole, so a g.Key read inside one of their lambdas
+        // (g.Where(o => o.Value == g.Key)) is bound to the new grouping here.
+        var keyRebinder = new LiftedResultSelectorRebinder(selector.Parameters[0], groupingParameter, []);
         var aggregateReplacements = new Dictionary<Expression, Expression>(ReferenceEqualityComparer.Instance);
         for (var i = 0; i < scanner.Aggregates.Count; i++)
         {
             var aggregate = scanner.Aggregates[i];
             var newLambdas = aggregateBodies[i]
-                .Select(body => body == null ? null : GenerateLambda(body, parent.CurrentParameter))
+                .Select(body => body == null
+                    ? null
+                    : (LambdaExpression)keyRebinder.Visit(GenerateLambda(body, parent.CurrentParameter)))
                 .ToList();
             var guard = aggregateGuardBodies[i] == null
                 ? null
@@ -1926,17 +1934,33 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     /// <summary>
     ///     Detects member chains rooted at an entity navigation tree node whose first member is a
     ///     non-collection navigation — accesses that would otherwise translate as a correlated subquery.
+    ///     With <paramref name="includeNavigationValues" />, the navigation on its own (e.Navigation or
+    ///     EF.Property(e, "Navigation")) counts too, not only a member read through it.
     /// </summary>
-    private static bool ContainsReferenceNavigationAccess(Expression body)
+    private static bool ContainsReferenceNavigationAccess(Expression body, bool includeNavigationValues = false)
     {
-        var detector = new ReferenceNavigationAccessDetector();
+        var detector = new ReferenceNavigationAccessDetector(includeNavigationValues);
         detector.Visit(body);
         return detector.Found;
     }
 
-    private sealed class ReferenceNavigationAccessDetector : ExpressionVisitor
+    private sealed class ReferenceNavigationAccessDetector(bool includeNavigationValues) : ExpressionVisitor
     {
         public bool Found { get; private set; }
+
+        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        {
+            if (includeNavigationValues
+                && methodCallExpression.TryGetEFPropertyArguments(out var source, out var propertyName)
+                && source.UnwrapTypeConversion(out _) is NavigationTreeExpression { Value: EntityReference entityReference }
+                && entityReference.EntityType.FindNavigation(propertyName) is { IsCollection: false })
+            {
+                Found = true;
+                return methodCallExpression;
+            }
+
+            return base.VisitMethodCall(methodCallExpression);
+        }
 
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
@@ -1949,7 +1973,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             }
 
             if (current is NavigationTreeExpression { Value: EntityReference entityReference }
-                && chain.Count > 1)
+                && (chain.Count > 1 || includeNavigationValues))
             {
                 var entityType = entityReference.EntityType;
 
@@ -2029,8 +2053,20 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                 : Expression.Call(EnumerableMethods.Where.MakeGenericMethod(newElementType), newSource, guard);
         }
 
+        // Count and LongCount count elements, not values: rebuilt over a trailing Select they would translate to
+        // COUNT(value) and skip the elements projected to null (g.Select(o => o.Customer.Region).Count()). Navigation
+        // expansion drops such a pending selector too. Its navigations have already been expanded on the source, so
+        // the joins and the guard it needs are kept.
+        var chainLength = aggregate.Chain.Count;
+        if (chainLength > 0
+            && aggregate.Chain[^1].Method.Name == nameof(Enumerable.Select)
+            && method.Name is nameof(Enumerable.Count) or nameof(Enumerable.LongCount))
+        {
+            chainLength--;
+        }
+
         var sourceType = newElementType;
-        for (var i = 0; i < aggregate.Chain.Count; i++)
+        for (var i = 0; i < chainLength; i++)
         {
             var chainMethod = aggregate.Chain[i].Method;
             var definition = chainMethod.GetGenericMethodDefinition();
