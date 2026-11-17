@@ -14,7 +14,7 @@ $versionErrorMessage = 'The Entity Framework Core Package Manager Console Tools 
     The name of the migration.
 
 .PARAMETER OutputDir
-    The directory to put files in. Paths are relative to the project directory. Defaults to "Migrations".
+    The directory to put files in, including the model snapshot. Paths are relative to the project directory. Defaults to "Migrations".
 
 .PARAMETER Context
     The DbContext to use.
@@ -440,7 +440,7 @@ function Script-Migration(
     Create a new migration with the given name and apply it immediately.
 
 .PARAMETER OutputDir
-    The directory to put files in. Paths are relative to the project directory. Requires -Add.
+    The directory to put files in, including the model snapshot. Paths are relative to the project directory. Requires -Add.
 
 .PARAMETER Namespace
     The namespace to use for the migration. Matches the directory by default. Requires -Add.

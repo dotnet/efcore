@@ -334,6 +334,9 @@ Change your target project to the migrations project by using the Package Manage
   <data name="InvalidCSharpLanguageVersion" xml:space="preserve">
     <value>The C# language version '{languageVersion}' is not supported. Specify a valid C# language version, such as 'latest' or '15.0'.</value>
   </data>
+  <data name="MultipleExistingSnapshotFiles" xml:space="preserve">
+    <value>The model snapshot class '{snapshotName}' is declared in more than one file: {files}. Remove the stale ones manually.</value>
+  </data>
   <data name="NoAnonymousSymbol" xml:space="preserve">
     <value>Could not find symbol for anonymous object creation initializer:</value>
   </data>
@@ -427,6 +430,9 @@ Change your target project to the migrations project by using the Package Manage
   <data name="ReadOnlyFiles" xml:space="preserve">
     <value>No files were generated in directory '{outputDirectoryName}'. The following file(s) already exist(s) and must be made writeable to continue: {readOnlyFiles}.</value>
   </data>
+  <data name="RemoveMigrationFilesNotFound" xml:space="preserve">
+    <value>Neither the migration file '{migrationFile}' nor the model snapshot file '{snapshotFile}' was found under the project directory or the output directory, so nothing was removed. If the files are in another directory, specify it with the '--output-dir' option ('-OutputDir' in PowerShell).</value>
+  </data>
   <data name="RemovingMigration" xml:space="preserve">
     <value>Removing migration '{name}'.</value>
   </data>
@@ -454,6 +460,12 @@ Change your target project to the migrations project by using the Package Manage
   </data>
   <data name="SequencesRequireName" xml:space="preserve">
     <value>Sequence name cannot be 'null' or empty. Entity Framework cannot model a sequence that does not have a name.</value>
+  </data>
+  <data name="SnapshotFileBelongsToAnotherType" xml:space="preserve">
+    <value>The file '{file}' already exists and this DbContext has no model snapshot to replace, so '{snapshotName}' was not written to it. The file probably belongs to a different DbContext. Use a different output directory.</value>
+  </data>
+  <data name="SnapshotFileNotFoundCreatingNew" xml:space="preserve">
+    <value>No file named '{file}' was found. A new model snapshot is being written to '{newFile}'. If the existing snapshot is in another directory, specify it with the '--output-dir' option ('-OutputDir' in PowerShell), and remove the stale model snapshot class manually.</value>
   </data>
   <data name="UnableToGenerateEntityType" xml:space="preserve">
     <value>Unable to generate entity type for table '{tableName}' since its primary key could not be scaffolded.</value>
