@@ -110,6 +110,15 @@ public class SqliteConnectionTest
     }
 
     [Fact]
+    public void DefaultTimeout_throws_when_negative()
+    {
+        var connection = new SqliteConnection();
+
+        Assert.Throws<ArgumentOutOfRangeException>(() => connection.DefaultTimeout = -1);
+        Assert.Equal(30, connection.DefaultTimeout);
+    }
+
+    [Fact]
     public void DefaultTimeout_works()
     {
         var connection = new SqliteConnection("Default Timeout=1") { DefaultTimeout = 2 };

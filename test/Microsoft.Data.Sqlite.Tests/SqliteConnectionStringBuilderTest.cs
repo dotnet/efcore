@@ -65,6 +65,19 @@ public class SqliteConnectionStringBuilderTest
         Assert.Equal(1, builder.DefaultTimeout);
     }
 
+    [Theory, InlineData("Default Timeout"), InlineData("Command Timeout")]
+    public void Ctor_throws_when_DefaultTimeout_is_negative(string keyword)
+        => Assert.Throws<ArgumentOutOfRangeException>(() => new SqliteConnectionStringBuilder($"{keyword}=-1"));
+
+    [Fact]
+    public void DefaultTimeout_throws_when_negative()
+    {
+        var builder = new SqliteConnectionStringBuilder();
+
+        Assert.Throws<ArgumentOutOfRangeException>(() => builder.DefaultTimeout = -1);
+        Assert.Equal(30, builder.DefaultTimeout);
+    }
+
     [Fact]
     public void Ctor_parses_Vfs()
     {

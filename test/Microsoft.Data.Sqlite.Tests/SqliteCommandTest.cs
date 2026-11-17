@@ -144,6 +144,15 @@ CREATE TABLE "Products" (
     }
 
     [Fact]
+    public void CommandTimeout_throws_when_negative()
+    {
+        var command = new SqliteCommand();
+
+        Assert.Throws<ArgumentOutOfRangeException>(() => command.CommandTimeout = -1);
+        Assert.Equal(30, command.CommandTimeout);
+    }
+
+    [Fact]
     public void CommandTimeout_defaults_to_30()
     {
         var command = new SqliteCommand();

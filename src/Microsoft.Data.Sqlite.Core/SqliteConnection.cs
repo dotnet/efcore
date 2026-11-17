@@ -219,7 +219,16 @@ public partial class SqliteConnection : DbConnection
     public virtual int DefaultTimeout
     {
         get => _defaultTimeout ?? ConnectionOptions.DefaultTimeout;
-        set => _defaultTimeout = value;
+        set
+        {
+            if (value < 0)
+            {
+                // NB: Message is provided by the framework
+                throw new ArgumentOutOfRangeException(nameof(value), value, message: null);
+            }
+
+            _defaultTimeout = value;
+        }
     }
 
     /// <summary>
