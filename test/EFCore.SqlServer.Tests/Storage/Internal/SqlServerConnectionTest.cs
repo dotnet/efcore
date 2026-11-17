@@ -16,7 +16,22 @@ public class SqlServerConnectionTest
     public void Creates_SQL_Server_connection_string()
     {
         using var connection = new SqlServerConnection(CreateDependencies());
-        Assert.IsType<SqlConnection>(connection.DbConnection);
+        var dbConnection = Assert.IsType<SqlConnection>(connection.DbConnection);
+        Assert.Equal(RegisteredApplication.EntityFrameworkCore, dbConnection.RegisteredApplication);
+    }
+
+    [Theory]
+    [InlineData(RegisteredApplication.Unknown)]
+    [InlineData(RegisteredApplication.EntityFrameworkCore)]
+    public void Does_not_change_registered_application_on_user_connection(RegisteredApplication registeredApplication)
+    {
+        using var dbConnection = new SqlConnection { RegisteredApplication = registeredApplication };
+        var options = new DbContextOptionsBuilder().UseSqlServer(dbConnection).Options;
+
+        using var connection = new SqlServerConnection(CreateDependencies(options));
+
+        Assert.Same(dbConnection, connection.DbConnection);
+        Assert.Equal(registeredApplication, dbConnection.RegisteredApplication);
     }
 
     #region Master connection
@@ -28,6 +43,7 @@ public class SqlServerConnectionTest
         using var master = connection.CreateMasterConnection();
         Assert.Equal(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=master", StripApplicationName(master.ConnectionString!));
         Assert.Equal(60, master.CommandTimeout);
+        Assert.Equal(RegisteredApplication.EntityFrameworkCore, Assert.IsType<SqlConnection>(master.DbConnection).RegisteredApplication);
     }
 
     [Fact]
