@@ -816,52 +816,134 @@ WHERE ARRAY_CONTAINS(@nullableInts, c["NullableInt"])
 
     public override async Task Parameter_collection_of_structs_Contains_struct()
     {
-        // Requires collections of converted elements
-        await Assert.ThrowsAsync<InvalidOperationException>(base.Parameter_collection_of_structs_Contains_struct);
+        await base.Parameter_collection_of_structs_Contains_struct();
 
-        AssertSql();
+        AssertSql(
+            """
+@values='[22,33]'
+
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(@values, c["WrappedId"])
+""",
+            //
+            """
+@values='[11,44]'
+
+SELECT VALUE c
+FROM root c
+WHERE NOT(ARRAY_CONTAINS(@values, c["WrappedId"]))
+""");
     }
 
     public override async Task Parameter_collection_of_structs_Contains_nullable_struct()
     {
-        // Requires collections of converted elements
-        await Assert.ThrowsAsync<InvalidOperationException>(base.Parameter_collection_of_structs_Contains_nullable_struct);
+        await base.Parameter_collection_of_structs_Contains_nullable_struct();
 
-        AssertSql();
+        AssertSql(
+            """
+@values='[22,33]'
+
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(@values, c["NullableWrappedId"])
+""",
+            //
+            """
+@values='[11,44]'
+
+SELECT VALUE c
+FROM root c
+WHERE NOT(ARRAY_CONTAINS(@values, c["NullableWrappedId"]))
+""");
     }
 
     public override async Task Parameter_collection_of_structs_Contains_nullable_struct_with_nullable_comparer()
     {
-        // Requires collections of converted elements
-        await Assert.ThrowsAsync<InvalidOperationException>(
-            base.Parameter_collection_of_structs_Contains_nullable_struct_with_nullable_comparer);
+        await base.Parameter_collection_of_structs_Contains_nullable_struct_with_nullable_comparer();
 
-        AssertSql();
+        AssertSql(
+            """
+@values='[22,33]'
+
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(@values, c["NullableWrappedIdWithNullableComparer"])
+""",
+            //
+            """
+@values='[11,44]'
+
+SELECT VALUE c
+FROM root c
+WHERE NOT(ARRAY_CONTAINS(@values, c["NullableWrappedId"]))
+""");
     }
 
     public override async Task Parameter_collection_of_nullable_structs_Contains_struct()
     {
-        // Requires collections of converted elements
-        await Assert.ThrowsAsync<InvalidOperationException>(base.Parameter_collection_of_nullable_structs_Contains_struct);
+        await base.Parameter_collection_of_nullable_structs_Contains_struct();
 
-        AssertSql();
+        AssertSql(
+            """
+@values='[null,22]'
+
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(@values, c["WrappedId"])
+""",
+            //
+            """
+@values='[11,44]'
+
+SELECT VALUE c
+FROM root c
+WHERE NOT(ARRAY_CONTAINS(@values, c["WrappedId"]))
+""");
     }
 
     public override async Task Parameter_collection_of_nullable_structs_Contains_nullable_struct()
     {
-        // Requires collections of converted elements
-        await Assert.ThrowsAsync<InvalidOperationException>(base.Parameter_collection_of_nullable_structs_Contains_nullable_struct);
+        await base.Parameter_collection_of_nullable_structs_Contains_nullable_struct();
 
-        AssertSql();
+        AssertSql(
+            """
+@values='[null,22]'
+
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(@values, c["NullableWrappedId"])
+""",
+            //
+            """
+@values='[11,44]'
+
+SELECT VALUE c
+FROM root c
+WHERE NOT(ARRAY_CONTAINS(@values, c["NullableWrappedId"]))
+""");
     }
 
     public override async Task Parameter_collection_of_nullable_structs_Contains_nullable_struct_with_nullable_comparer()
     {
-        // Requires collections of converted elements
-        await Assert.ThrowsAsync<InvalidOperationException>(
-            base.Parameter_collection_of_nullable_structs_Contains_nullable_struct_with_nullable_comparer);
+        await base.Parameter_collection_of_nullable_structs_Contains_nullable_struct_with_nullable_comparer();
 
-        AssertSql();
+        AssertSql(
+            """
+@values='[null,22]'
+
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(@values, c["NullableWrappedIdWithNullableComparer"])
+""",
+            //
+            """
+@values='[11,44]'
+
+SELECT VALUE c
+FROM root c
+WHERE NOT(ARRAY_CONTAINS(@values, c["NullableWrappedIdWithNullableComparer"]))
+""");
     }
 
     public override async Task Parameter_collection_of_strings_Contains_string()
