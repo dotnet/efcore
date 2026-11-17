@@ -595,7 +595,7 @@ GROUP BY [c0].[City]
 SELECT [c0].[City], (
     SELECT COUNT(*)
     FROM [Customers] AS [c1]
-    WHERE [c1].[CompanyName] LIKE @ef_filter__TenantPrefix_startswith ESCAPE N'\' AND ([c1].[City] = [c0].[City] OR ([c1].[City] IS NULL AND [c0].[City] IS NULL)) AND [c1].[CompanyName] = MAX([c0].[CompanyName])) AS [LastCompanyCustomers]
+    WHERE [c1].[CompanyName] LIKE @ef_filter__TenantPrefix_startswith ESCAPE N'\' AND ([c1].[City] = [c0].[City] OR ([c1].[City] IS NULL AND [c0].[City] IS NULL)) AND ([c1].[CompanyName] <> MAX([c0].[CompanyName]) OR MAX([c0].[CompanyName]) IS NULL)) AS [OtherCustomers]
 FROM [Orders] AS [o]
 LEFT JOIN (
     SELECT [c].[CustomerID], [c].[City], [c].[CompanyName]
@@ -623,7 +623,10 @@ SELECT [c0].[CustomerID], MAX([c0].[City]) AS [City], (
         FROM [Customers] AS [c1]
         WHERE [c1].[CompanyName] LIKE @ef_filter__TenantPrefix_startswith ESCAPE N'\'
     ) AS [c2] ON [o0].[CustomerID] = [c2].[CustomerID]
-    WHERE [c2].[CustomerID] IS NOT NULL AND [c2].[CompanyName] IS NOT NULL AND [c2].[CustomerID] = [c0].[CustomerID]) AS [Orders]
+    WHERE [c2].[CustomerID] IS NOT NULL AND [c2].[CompanyName] IS NOT NULL AND [c2].[CustomerID] = [c0].[CustomerID]) AS [Orders], (
+    SELECT COUNT(*)
+    FROM [Customers] AS [c3]
+    WHERE [c3].[CompanyName] LIKE @ef_filter__TenantPrefix_startswith ESCAPE N'\' AND ([c3].[Country] = [c0].[Country] OR ([c3].[Country] IS NULL AND [c0].[Country] IS NULL))) AS [Compatriots]
 FROM [Orders] AS [o]
 LEFT JOIN (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]

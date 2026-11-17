@@ -304,8 +304,8 @@ public abstract class NorthwindQueryFiltersQueryTestBase<TFixture>(TFixture fixt
                 .Select(g => new
                 {
                     City = g.Key,
-                    LastCompanyCustomers = ss.Set<Customer>()
-                        .Count((Customer c) => c.City == g.Key && c.CompanyName == g.Max<Order, string>(o => o.Customer!.CompanyName))
+                    OtherCustomers = ss.Set<Customer>()
+                        .Count((Customer c) => c.City == g.Key && c.CompanyName != g.Max<Order, string>(o => o.Customer!.CompanyName))
                 }),
             elementSorter: e => e.City ?? string.Empty);
 
@@ -319,7 +319,8 @@ public abstract class NorthwindQueryFiltersQueryTestBase<TFixture>(TFixture fixt
                 {
                     g.Key!.CustomerID,
                     City = g.Max(o => o.Customer!.City),
-                    Orders = ss.Set<Order>().Count(o => o.Customer == g.Key)
+                    Orders = ss.Set<Order>().Count(o => o.Customer == g.Key),
+                    Compatriots = ss.Set<Customer>().Count(c => c.Country == g.Key.Country)
                 }),
             elementSorter: e => e.CustomerID);
 

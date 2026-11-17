@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Runtime.CompilerServices;
+using System.Text;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
@@ -1822,8 +1823,8 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         // over another entity type) still needs navigation expansion, which applies query filters and expands
         // navigations (#39690). Stand placeholders in for g.Key and the aggregates, so that expansion never
         // sees the grouping, expand the remainder as ProcessSelect does when nothing is lifted, then
-        // substitute the rebuilt aggregates. The placeholders are named after what they stand for, so that a
-        // translation failure in the remainder still prints the query as written.
+        // substitute the rebuilt aggregates. The placeholders are named after what they stand for, so that an error
+        // raised while expanding the remainder prints the original g.Key and aggregates.
         var keyPlaceholder = Expression.Parameter(
             groupingParameter.Type.GetGenericArguments()[0], selector.Parameters[0].Name + "." + nameof(IGrouping<object, object>.Key));
         var placeholders = new List<Expression> { keyPlaceholder };
@@ -1844,7 +1845,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                 ? null
                 : GenerateLambda(aggregateGuardBodies[i]!, parent.CurrentParameter);
 
-            var placeholder = Expression.Parameter(aggregate.Call.Type, aggregate.Call.Print());
+            var placeholder = Expression.Parameter(aggregate.Call.Type, PrintOnOneLine(aggregate.Call));
             aggregatePlaceholders[aggregate.Call] = placeholder;
             placeholders.Add(placeholder);
             replacements.Add(
@@ -1865,6 +1866,32 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         var navigationTree = new NavigationTreeExpression(Expression.Default(result.Type.GetSequenceType()));
 
         return new NavigationExpansionExpression(result, navigationTree, navigationTree, GetParameterName("e"));
+    }
+
+    /// <summary>
+    ///     Prints an expression on one line. The printer breaks before each chained method call and indents nested
+    ///     lambdas, which reads badly in a placeholder's name once that name is printed inside another expression.
+    /// </summary>
+    private static string PrintOnOneLine(Expression expression)
+    {
+        var builder = new StringBuilder();
+        foreach (var line in expression.Print().Split('\n'))
+        {
+            var trimmed = line.Trim();
+            if (trimmed.Length == 0)
+            {
+                continue;
+            }
+
+            if (builder.Length > 0 && trimmed[0] != '.')
+            {
+                builder.Append(' ');
+            }
+
+            builder.Append(trimmed);
+        }
+
+        return builder.ToString();
     }
 
     /// <summary>
