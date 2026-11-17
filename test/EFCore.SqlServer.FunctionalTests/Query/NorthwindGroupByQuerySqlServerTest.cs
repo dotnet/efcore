@@ -6026,6 +6026,38 @@ HAVING 0.0E0 IN (LOG10(STDEVP(CAST([o].[Quantity] AS float)) + 1.0E0), -1.0E0)
         AssertSql();
     }
 
+    // string.Join over an array becomes CONCAT_WS, a function the folding knows nothing about; the string aggregate under it, which
+    // has no subquery to fall back to, must still be folded in.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task GroupBy_string_aggregate_under_CONCAT_WS_as_element_of_inline_collection_Contains(bool async)
+    {
+        if (!SqlServerTestEnvironment.IsFunctions2017Supported)
+        {
+            throw Xunit.Sdk.SkipException.ForSkip("Requires IsFunctions2017Supported");
+        }
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<Customer>().GroupBy(c => c.City)
+                .Select(g => new
+                {
+                    g.Key,
+                    A = new[] { string.Join("|", new[] { g.Key, string.Join(",", g.Select(c => c.CustomerID)) }), "" }
+                        .Contains("Berlin|ALFKI")
+                }),
+            elementSorter: e => e.Key);
+
+        AssertSql(
+            """
+SELECT [c].[City] AS [Key], CASE
+    WHEN N'Berlin|ALFKI' IN (CONCAT_WS(N'|', COALESCE([c].[City], N''), COALESCE(STRING_AGG([c].[CustomerID], N','), N'')), N'') THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [A]
+FROM [Customers] AS [c]
+GROUP BY [c].[City]
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

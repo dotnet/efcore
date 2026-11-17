@@ -124,6 +124,47 @@ GROUP BY "o"."CustomerID"
 """);
     }
 
+    // GLOB is a provider expression rather than a function, and a string aggregate under it, which has no subquery to fall back to,
+    // must still be folded in.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task GroupBy_string_aggregate_under_Glob_as_element_of_inline_collection_Contains_in_predicate(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ss.Set<Customer>().GroupBy(c => c.City)
+                .Where(g => new[] { EF.Functions.Glob(string.Join("|", g.Select(c => c.CustomerID)), "ALF*"), false }.Contains(true))
+                .Select(g => g.Key),
+            ss => ss.Set<Customer>().GroupBy(c => c.City)
+                .Where(g => string.Join("|", g.Select(c => c.CustomerID)).StartsWith("ALF", StringComparison.Ordinal))
+                .Select(g => g.Key));
+
+        AssertSql(
+            """
+SELECT "c"."City"
+FROM "Customers" AS "c"
+GROUP BY "c"."City"
+HAVING 1 IN (COALESCE(group_concat("c"."CustomerID", '|'), '') GLOB 'ALF*', 0)
+""");
+    }
+
+    // SQLite compares decimals with its own ef_compare function, which a decimal Sum can be folded under.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task GroupBy_decimal_Sum_compared_as_element_of_inline_collection_Contains(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ss.Set<OrderDetail>().GroupBy(od => od.OrderID)
+                .Select(g => new { g.Key, A = new[] { g.Sum(od => od.UnitPrice) > 100m, false }.Contains(true) }),
+            elementSorter: e => e.Key);
+
+        AssertSql(
+            """
+SELECT "o"."OrderID" AS "Key", 1 IN (ef_compare(COALESCE(ef_sum("o"."UnitPrice"), '0.0'), '100.0') > 0, 0) AS "A"
+FROM "Order Details" AS "o"
+GROUP BY "o"."OrderID"
+""");
+    }
+
     public override async Task GroupBy_aggregate_under_date_part_as_element_of_inline_collection_Contains(bool async)
     {
         await base.GroupBy_aggregate_under_date_part_as_element_of_inline_collection_Contains(async);

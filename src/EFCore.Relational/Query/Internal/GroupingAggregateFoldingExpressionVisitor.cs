@@ -9,11 +9,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 // Replaces every GroupingAggregateFallbackExpression with its folded aggregate where the final SQL tree shows SQL would evaluate that
 // aggregate over the owning query's GROUP BY, and with its subquery fallback everywhere else (#27130).
 //
-// The folded aggregate is used only when it sits directly in the projection, HAVING or ORDER BY of the query owning the grouping, with
-// nothing between them but scalar operators: not inside a nested query, where an aggregate naming none of the owner's columns would
-// be evaluated by the nested query instead; not in a clause where SQL doesn't allow aggregates; and not inside another aggregate or a
-// window function, which can't contain one. Anything this visitor doesn't recognize counts as such a boundary, so an unknown shape can
-// only lose a folded aggregate, never fold one into the wrong query.
+// The folded aggregate is used only when it sits in the projection, HAVING or ORDER BY of the query owning the grouping: not inside a
+// nested query, where an aggregate naming none of the owner's columns would be evaluated by the nested query instead; not in a clause
+// where SQL doesn't allow aggregates; and not inside another aggregate or a window function, which can't contain one. Everything else
+// in between - operators, scalar functions, and provider expressions this visitor doesn't know - leaves its operands evaluated where
+// they are, so a folded aggregate under it stays foldable.
 //
 // Runs once projections have been applied, so that every SelectExpression is immutable and in its final place, and before pruning and
 // alias postprocessing, which the tree must still be in step with the grouping keys for.
@@ -58,16 +58,15 @@ internal sealed class GroupingAggregateFoldingExpressionVisitor : ExpressionVisi
                 return select.Update(tables, predicate, groupBy, having, projections, orderings, offset, limit);
             }
 
-            // Scalar operators leave their operands evaluated where they are, so a folded aggregate under one stays foldable.
-            case ProjectionExpression or OrderingExpression or SqlBinaryExpression or SqlUnaryExpression or CaseExpression or InExpression
-                or LikeExpression or CollateExpression or AtTimeZoneExpression:
-                return base.VisitExtension(node);
-
-            case SqlFunctionExpression { IsBuiltIn: true } function when IsKnownScalarFunction(function):
-                return base.VisitExtension(function);
+            // An aggregate or a window function evaluates its arguments over a set of rows, and SQL doesn't allow an aggregate there.
+#pragma warning disable EF9001 // Window function support is experimental
+            case AggregateFunctionExpression or WindowFunctionExpression or RowNumberExpression or DistinctExpression:
+#pragma warning restore EF9001
+            case SqlFunctionExpression { IsBuiltIn: true } function when IsKnownAggregateFunction(function):
+                return VisitBoundary(node);
 
             default:
-                return VisitBoundary(node);
+                return base.VisitExtension(node);
         }
     }
 
@@ -122,34 +121,34 @@ internal sealed class GroupingAggregateFoldingExpressionVisitor : ExpressionVisi
     }
 
     // There's no representation of whether a function is an aggregate, and providers emit their own as plain functions (SQLite's
-    // ef_sum, for one), so only built-in functions known to be scalar - the null-handling functions translation wraps aggregates in,
-    // and the string and math functions the built-in providers translate methods to - are passed through; an aggregate folded under
-    // any other function would risk being nested in another aggregate.
-    private static bool IsKnownScalarFunction(SqlFunctionExpression function)
-        => KnownScalarFunctions.Contains(function.Name)
-            // SQLite's max and min are scalar with several arguments (Math.Max, Math.Min), but aggregates with one.
-            || (function.Name.ToLower(CultureInfo.InvariantCulture) is "max" or "min" && function.Arguments?.Count > 1);
-
-    private static readonly HashSet<string> KnownScalarFunctions = new(StringComparer.OrdinalIgnoreCase)
+    // ef_sum, for one), so the aggregates are recognized by name, as SqlServerAggregateArgumentPostprocessor does. An aggregate not
+    // known here only gets the folded aggregate nested in it, which SQL rejects - as it did before #27130, when every aggregate over a
+    // grouping was folded - while treating every unknown function as an aggregate would turn away the scalar functions of providers
+    // and users, failing to translate the aggregates which have no subquery to fall back to.
+    private static bool IsKnownAggregateFunction(SqlFunctionExpression function)
     {
-        // Null handling
-        "coalesce", "isnull", "ifnull", "nullif", "iif",
+        // SQL Server's spatial aggregates are called on the type, as geometry::UnionAggregate.
+        var name = function.Name;
+        var typeSeparator = name.LastIndexOf("::", StringComparison.Ordinal);
+        if (typeSeparator >= 0)
+        {
+            name = name[(typeSeparator + 2)..];
+        }
 
-        // Strings
-        "lower", "upper", "ltrim", "rtrim", "trim", "substring", "substr", "left", "right", "len", "length", "datalength", "replace",
-        "charindex", "patindex", "instr",
+        return KnownAggregateFunctions.Contains(name)
+            // SQLite's max, min and SpatiaLite's GUnion are aggregates with one argument, but scalar with several (Math.Max, Math.Min,
+            // Geometry.Union).
+            && !(name.ToLower(CultureInfo.InvariantCulture) is "max" or "min" or "gunion" && function.Arguments?.Count > 1);
+    }
 
-        // Math
-        "abs", "round", "trunc", "floor", "ceiling", "sign", "sqrt", "power", "pow", "exp", "log", "ln", "log10", "log2", "greatest",
-        "least", "degrees", "radians", "sin", "cos", "tan", "asin", "acos", "atan", "atn2", "atan2", "sinh", "cosh", "tanh", "asinh",
-        "acosh", "atanh",
+    private static readonly HashSet<string> KnownAggregateFunctions = new(StringComparer.OrdinalIgnoreCase)
+    {
+        // The built-in providers'
+        "count", "count_big", "sum", "avg", "min", "max", "stdev", "stdevp", "var", "varp", "string_agg", "group_concat", "ef_sum",
+        "ef_avg", "ef_min", "ef_max", "CollectionAggregate", "UnionAggregate", "ConvexHullAggregate", "EnvelopeAggregate", "Collect",
+        "Extent", "GUnion",
 
-        // Dates and times
-        "dateadd", "datediff", "datediff_big", "datepart", "datetrunc", "datefromparts", "timefromparts", "datetimefromparts",
-        "datetime2fromparts", "datetimeoffsetfromparts", "smalldatetimefromparts", "switchoffset", "todatetimeoffset", "isdate",
-        "strftime", "date", "julianday",
-
-        // Conversion
-        "convert"
+        // Other standard SQL aggregates
+        "array_agg", "listagg", "stddev_pop", "stddev_samp", "var_pop", "var_samp", "every", "bool_and", "bool_or"
     };
 }
