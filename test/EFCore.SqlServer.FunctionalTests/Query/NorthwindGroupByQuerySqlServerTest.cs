@@ -5232,6 +5232,48 @@ GROUP BY [o].[CustomerID]
 """);
     }
 
+    public override async Task GroupBy_Max_with_aggregate_over_grouping_in_inline_collection(bool async)
+    {
+        await base.GroupBy_Max_with_aggregate_over_grouping_in_inline_collection(async);
+
+        AssertSql(
+            """
+SELECT [o].[OrderID] AS [Key], MAX([s].[value]) AS [M]
+FROM [Order Details] AS [o]
+OUTER APPLY (
+    SELECT CASE
+        WHEN 2 IN ((
+            SELECT COUNT(*)
+            FROM [Order Details] AS [o0]
+            WHERE [o].[OrderID] = [o0].[OrderID]), 0) THEN CAST([o].[Quantity] AS int)
+        ELSE 0
+    END AS [value]
+) AS [s]
+GROUP BY [o].[OrderID]
+""");
+    }
+
+    public override async Task GroupBy_decimal_Sum_with_aggregate_over_grouping_in_inline_collection(bool async)
+    {
+        await base.GroupBy_decimal_Sum_with_aggregate_over_grouping_in_inline_collection(async);
+
+        AssertSql(
+            """
+SELECT [o].[OrderID] AS [Key], COALESCE(SUM([s].[value]), 0.0) AS [S]
+FROM [Order Details] AS [o]
+OUTER APPLY (
+    SELECT CASE
+        WHEN 2 IN ((
+            SELECT COUNT(*)
+            FROM [Order Details] AS [o0]
+            WHERE [o].[OrderID] = [o0].[OrderID]), 0) THEN [o].[UnitPrice]
+        ELSE 0.0
+    END AS [value]
+) AS [s]
+GROUP BY [o].[OrderID]
+""");
+    }
+
     public override async Task GroupBy_scalar_aggregate_in_set_operation(bool async)
     {
         await base.GroupBy_scalar_aggregate_in_set_operation(async);

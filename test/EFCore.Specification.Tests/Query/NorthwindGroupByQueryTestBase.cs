@@ -4206,6 +4206,23 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
                 }),
             elementSorter: e => e.Key);
 
+    // g.Count() inside the argument of another aggregate over the same grouping mustn't be folded into a nested aggregate.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Max_with_aggregate_over_grouping_in_inline_collection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OrderDetail>().GroupBy(od => od.OrderID)
+                .Select(g => new { g.Key, M = g.Max(od => new[] { g.Count(), 0 }.Contains(2) ? od.Quantity : 0) }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_decimal_Sum_with_aggregate_over_grouping_in_inline_collection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OrderDetail>().GroupBy(od => od.OrderID)
+                .Select(g => new { g.Key, S = g.Sum(od => new[] { g.Count(), 0 }.Contains(2) ? od.UnitPrice : 0m) }),
+            elementSorter: e => e.Key);
+
     #endregion
 
     #region GroupByAndDistinctWithCorrelatedCollection

@@ -79,4 +79,22 @@ public abstract class NorthwindAggregateOperatorsQueryRelationalTestBase<TFixtur
                       TotalOrders = projected.Sum(x => x.Orders)
                   },
             elementSorter: e => e.CustomerID);
+
+    // SQL evaluates an aggregate whose argument names only an outer query's columns in that outer query, so a selector over the
+    // outer entity alone must be evaluated over the collection's own rows.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Sum_over_correlated_collection_with_selector_on_outer_entity_only(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .Select(c => new { c.CustomerID, Total = c.Orders.Sum(o => c.CustomerID.Length) }),
+            elementSorter: e => e.CustomerID);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Max_over_correlated_collection_with_selector_on_outer_entity_only(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .Select(c => new { c.CustomerID, Max = c.Orders.Max(o => (int?)c.CustomerID.Length) }),
+            elementSorter: e => e.CustomerID);
 }

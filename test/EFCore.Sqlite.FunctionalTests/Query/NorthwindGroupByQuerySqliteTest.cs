@@ -83,14 +83,9 @@ GROUP BY "o"."CustomerID"
 
     // SQLite sums decimals with its own ef_sum aggregate, emitted as a plain function, so g.Count() inside its argument mustn't be
     // folded into a nested aggregate.
-    [Theory, MemberData(nameof(IsAsyncData))]
-    public virtual async Task GroupBy_decimal_Sum_with_aggregate_over_grouping_in_inline_collection(bool async)
+    public override async Task GroupBy_decimal_Sum_with_aggregate_over_grouping_in_inline_collection(bool async)
     {
-        await AssertQuery(
-            async,
-            ss => ss.Set<OrderDetail>().GroupBy(od => od.OrderID)
-                .Select(g => new { g.Key, S = g.Sum(od => new[] { g.Count(), 0 }.Contains(2) ? od.UnitPrice : 0m) }),
-            elementSorter: e => e.Key);
+        await base.GroupBy_decimal_Sum_with_aggregate_over_grouping_in_inline_collection(async);
 
         AssertSql(
             """
@@ -190,14 +185,9 @@ GROUP BY "o"."CustomerID"
     }
 
     // With a single argument, SQLite's max is the aggregate, so g.Count() inside its argument mustn't be folded into it.
-    [Theory, MemberData(nameof(IsAsyncData))]
-    public virtual async Task GroupBy_Max_with_aggregate_over_grouping_in_inline_collection(bool async)
+    public override async Task GroupBy_Max_with_aggregate_over_grouping_in_inline_collection(bool async)
     {
-        await AssertQuery(
-            async,
-            ss => ss.Set<OrderDetail>().GroupBy(od => od.OrderID)
-                .Select(g => new { g.Key, M = g.Max(od => new[] { g.Count(), 0 }.Contains(2) ? od.Quantity : 0) }),
-            elementSorter: e => e.Key);
+        await base.GroupBy_Max_with_aggregate_over_grouping_in_inline_collection(async);
 
         AssertSql(
             """
