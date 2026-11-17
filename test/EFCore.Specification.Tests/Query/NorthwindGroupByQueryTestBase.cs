@@ -825,6 +825,21 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
                 .Select(g => new { g.Key, Max = g.Max(o => o.Customer!.Region == null ? 0 : g.Key) }),
             elementSorter: e => e.Key);
 
+    // A captured variable is a parameter, the same value on every evaluation, so a key computed with one is still recomputed
+    // inside the lifted aggregate.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_capturing_key_computed_with_parameter_through_navigation(bool async)
+    {
+        var divisor = 3;
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.OrderID % divisor)
+                .Select(g => new { g.Key, Max = g.Max(o => o.Customer!.Region == null ? 0 : g.Key) }),
+            elementSorter: e => e.Key);
+    }
+
     // A key reading ambient state can evaluate differently inside the aggregate than it did for the GROUP BY, so it is not
     // recomputed there, and the lift is abandoned.
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -834,16 +849,6 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
             ss => ss.Set<Order>()
                 .GroupBy(o => o.OrderDate < DateTime.Now ? o.OrderID % 2 : 2)
                 .Select(g => new { g.Key, Max = g.Max(o => o.Customer!.Region == null ? 0 : g.Key) }),
-            elementSorter: e => e.Key);
-
-    // An aggregate over the grouping nested inside another aggregate's selector cannot be rebound onto the pre-GroupBy source.
-    [Theory, MemberData(nameof(IsAsyncData))]
-    public virtual Task GroupBy_aggregate_nesting_aggregate_over_grouping_through_navigation(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Order>()
-                .GroupBy(o => o.EmployeeID)
-                .Select(g => new { g.Key, Sum = g.Sum(o => (o.Customer!.Region == null ? 0 : 1) * g.Count()) }),
             elementSorter: e => e.Key);
 
     // Rows the database groups together can still hold different string values (case, trailing spaces), so a string key

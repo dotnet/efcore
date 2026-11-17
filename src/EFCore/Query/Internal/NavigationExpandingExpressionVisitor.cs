@@ -1780,15 +1780,18 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             // composition sees exactly the values the aggregate would have seen over the projected group. It is a pass of
             // its own because a replacement is returned without being traversed, so a navigation the element selector
             // projects is only reachable once it has been inlined. The second rebinds g.Key and analyzes the body.
-            var elementInliner = new ProjectionInliningVisitor(aggregateSelector.Parameters[0], parent.PendingSelector);
-            var aggregateBody = capturedKeyRebinder.Visit(elementInliner.Visit(aggregateSelector.Body));
+            //
+            // A member the inlining can't fold onto what the projection holds stays a read off the value the projection
+            // constructs, which the lifted aggregate evaluates per source row exactly as the correlated subquery does. A
+            // member of a value the provider constructs (new DateTimeOffset(...).Year) translates either way, and one of a
+            // type whose members don't map onto its constructor arguments fails to translate either way.
+            var aggregateBody = capturedKeyRebinder.Visit(RemapLambdaExpression(parent, aggregateSelector));
 
-            // A member that could not be bound back to what the element selector or the key projects (a projection into a
-            // type whose members don't map onto its constructor arguments) would be left reading a member the pre-GroupBy
-            // element does not have. The grouping parameter is left over too when the selector uses it other than as g.Key -
-            // an aggregate over g nested inside this one. Those shapes keep the translation they have today.
-            if (elementInliner.LeftMemberUnbound
-                || capturedKeyRebinder.LeftMemberUnbound
+            // A member that could not be bound back to what the key projects would be taken for a component of the key,
+            // narrowing the key checked below to whatever the member computes from it. The grouping parameter is left over
+            // too when the selector uses it other than as g.Key - an aggregate over g nested inside this one. Those shapes
+            // keep the translation they have today.
+            if (capturedKeyRebinder.LeftMemberUnbound
                 || capturedKeyRebinder.LeftGroupingParameter)
             {
                 return null;
@@ -1961,45 +1964,14 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     }
 
     /// <summary>
-    ///     Replaces expressions with projections, folding a member read off a projection onto what it projects, and records when a
-    ///     member can't be folded (a projection into a type whose members don't map onto its constructor arguments). Only a
-    ///     projection the replacement put there counts: a member the selector reads off a value it constructs itself -
-    ///     new DateTime(...).Year - is its own, and translates as before.
-    /// </summary>
-    private class ProjectionInliningVisitor(IReadOnlyList<Expression> originals, IReadOnlyList<Expression> replacements)
-        : ReplacingExpressionVisitor(originals, replacements)
-    {
-        public ProjectionInliningVisitor(Expression original, Expression replacement)
-            : this([original], [replacement])
-        {
-        }
-
-        public bool LeftMemberUnbound { get; private set; }
-
-        protected override Expression VisitMember(MemberExpression memberExpression)
-        {
-            var result = base.VisitMember(memberExpression);
-
-            // Through a cast too - ((IHasRegion)new OrderRegion(...)).Region.
-            if (result is MemberExpression { Expression: { } inner }
-                && inner.UnwrapTypeConversion(out _) is NewExpression or MemberInitExpression
-                && memberExpression.Expression.UnwrapTypeConversion(out _) is not (NewExpression or MemberInitExpression))
-            {
-                LeftMemberUnbound = true;
-            }
-
-            return result;
-        }
-    }
-
-    /// <summary>
     ///     Replaces g.Key captured inside a lifted aggregate's selector with the key expression, which reads the key from the
     ///     source row the aggregate is now evaluated over, folding a member read off a composite key onto the component it reads.
-    ///     The same pass finds whether the selectors read a reference navigation and whether they use the grouping parameter
-    ///     other than as g.Key. Each check is made on the node in hand, so the pass stays linear in the size of the body.
+    ///     The same pass finds whether the selectors read a reference navigation, whether they use the grouping parameter
+    ///     other than as g.Key and whether a member read off the key can't be folded. Each check is made on the node in hand, so
+    ///     the pass stays linear in the size of the body.
     /// </summary>
     private sealed class CapturedGroupingKeyRebinder(ParameterExpression groupingParameter, Expression keyBody)
-        : ProjectionInliningVisitor([], [])
+        : ReplacingExpressionVisitor([], [])
     {
         private readonly List<Expression> _boundKeys = [];
 
@@ -2026,6 +1998,15 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         /// </summary>
         public bool LeftGroupingParameter { get; private set; }
 
+        /// <summary>
+        ///     Whether a member read off the key can't be folded onto what the key projects (a key projected into a type whose
+        ///     members don't map onto its constructor arguments, or a member of a value the key constructs, g.Key.Hour over
+        ///     new DateTimeOffset(...)). Only a value the rebinding put there counts: a member read off a value already in the
+        ///     body - one the selector constructs itself, new DateTime(...).Year, or one the inlined element selector does - is
+        ///     left to translate as before.
+        /// </summary>
+        public bool LeftMemberUnbound { get; private set; }
+
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
             if (memberExpression is { Member.Name: nameof(IGrouping<,>.Key) }
@@ -2047,6 +2028,14 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             }
 
             var result = base.VisitMember(memberExpression);
+
+            // Through a cast too - ((IHasId)g.Key).Id.
+            if (result is MemberExpression { Expression: { } inner }
+                && inner.UnwrapTypeConversion(out _) is NewExpression or MemberInitExpression
+                && memberExpression.Expression.UnwrapTypeConversion(out _) is not (NewExpression or MemberInitExpression))
+            {
+                LeftMemberUnbound = true;
+            }
 
             // A member that picks a component out of a composite key just bound (g.Key.EmployeeID) narrows what is read of
             // the key to that component. Any other member (g.Key.Hour) computes from the key, so it is the key that is read
@@ -2232,6 +2221,11 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                 case MethodCallExpression methodCall when methodCall.TryGetEFPropertyArguments(out var source, out var propertyName):
                     return ResolveMember(source, propertyName);
 
+                // A captured variable or a compiled query's argument: one value for the whole query, so the same on every
+                // evaluation.
+                case QueryParameterExpression:
+                    return null;
+
                 // What a Distinct, a SelectMany or a join leaves of a projection it snapshots: a scalar is replaced with its
                 // default value, inside a navigation tree, and how it was stored is no longer visible. So is anything else the
                 // expansion represents with a node of its own.
@@ -2242,8 +2236,8 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                     return null;
 
                 default:
-                    // Not a read off an entity reference: a parameter, a constant or a value computed from scalars, whose
-                    // operands are checked in turn.
+                    // Not a read off an entity reference: a constant or a value computed from scalars, whose operands are
+                    // checked in turn.
                     Visit(expression);
                     return null;
             }

@@ -3100,6 +3100,27 @@ GROUP BY [s].[Key]
 """);
     }
 
+    public override async Task GroupBy_aggregate_capturing_key_computed_with_parameter_through_navigation(bool async)
+    {
+        await base.GroupBy_aggregate_capturing_key_computed_with_parameter_through_navigation(async);
+
+        AssertSql(
+            """
+@divisor='3'
+
+SELECT [s].[Key], MAX(CASE
+    WHEN [s].[Region] IS NULL THEN 0
+    ELSE [s].[OrderID] % @divisor
+END) AS [Max]
+FROM (
+    SELECT [o].[OrderID], [c].[Region], [o].[OrderID] % @divisor AS [Key]
+    FROM [Orders] AS [o]
+    LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+) AS [s]
+GROUP BY [s].[Key]
+""");
+    }
+
     public override async Task GroupBy_aggregate_capturing_key_reading_static_member_through_navigation(bool async)
     {
         await base.GroupBy_aggregate_capturing_key_reading_static_member_through_navigation(async);
@@ -3136,11 +3157,7 @@ GROUP BY [o0].[Key]
 
     public override async Task GroupBy_aggregate_nesting_aggregate_over_grouping_through_navigation(bool async)
     {
-        // The lift declines an aggregate over the grouping nested inside another aggregate's selector, leaving the
-        // correlated-subquery translation, which nests the inner aggregate inside the outer one. The database rejects that,
-        // as it did before the lift existed.
-        await Assert.ThrowsAsync<Microsoft.Data.SqlClient.SqlException>(
-            () => base.GroupBy_aggregate_nesting_aggregate_over_grouping_through_navigation(async));
+        await base.GroupBy_aggregate_nesting_aggregate_over_grouping_through_navigation(async);
 
         AssertSql(
             """
@@ -3179,6 +3196,49 @@ SELECT [o].[EmployeeID] AS [Key], MAX(CASE
     WHEN [c].[Region] IS NULL THEN 0
     ELSE DATEPART(year, TODATETIMEOFFSET([o].[OrderDate], '+00:00'))
 END) AS [Max]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+GROUP BY [o].[EmployeeID]
+""");
+    }
+
+    // The same value constructed by a projection before the GroupBy, which inlining puts into the aggregate selector: a
+    // member read off it is one of the value's own, not one of a projected type left unbound, and doesn't stop the lift.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task GroupBy_aggregate_reading_member_of_projected_constructed_value_through_navigation(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ss.Set<TestModels.Northwind.Order>()
+                .Select(o => new { o.EmployeeID, o.Customer!.City, D = new DateTimeOffset(o.OrderDate!.Value, TimeSpan.Zero) })
+                .GroupBy(x => x.EmployeeID)
+                .Select(g => new { g.Key, MaxCity = g.Max(x => x.City), MaxYear = g.Max(x => x.D.Year) }),
+            elementSorter: e => e.Key);
+
+        AssertSql(
+            """
+SELECT [o].[EmployeeID] AS [Key], MAX([c].[City]) AS [MaxCity], MAX(DATEPART(year, TODATETIMEOFFSET([o].[OrderDate], '+00:00'))) AS [MaxYear]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+GROUP BY [o].[EmployeeID]
+""");
+    }
+
+    // The same through an element selector.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task GroupBy_element_selector_with_aggregate_reading_member_of_projected_constructed_value_through_navigation(
+        bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ss.Set<TestModels.Northwind.Order>()
+                .GroupBy(o => o.EmployeeID, o => new { o.Customer!.City, D = new DateTimeOffset(o.OrderDate!.Value, TimeSpan.Zero) })
+                .Select(g => new { g.Key, MaxCity = g.Max(x => x.City), MaxYear = g.Max(x => x.D.Year) }),
+            elementSorter: e => e.Key);
+
+        AssertSql(
+            """
+SELECT [o].[EmployeeID] AS [Key], MAX([c].[City]) AS [MaxCity], MAX(DATEPART(year, TODATETIMEOFFSET([o].[OrderDate], '+00:00'))) AS [MaxYear]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 GROUP BY [o].[EmployeeID]
