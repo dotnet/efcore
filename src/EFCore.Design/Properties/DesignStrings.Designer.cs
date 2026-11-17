@@ -832,6 +832,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("SequencesRequireName");
 
         /// <summary>
+        ///     The file '{file}' already exists and this DbContext has no model snapshot to replace, so '{snapshotName}' was not written to it. The file probably belongs to a different DbContext. Use a different output directory.
+        /// </summary>
+        public static string SnapshotFileBelongsToAnotherType(object? file, object? snapshotName)
+            => string.Format(
+                GetString("SnapshotFileBelongsToAnotherType", nameof(file), nameof(snapshotName)),
+                file, snapshotName);
+
+        /// <summary>
         ///     Unable to generate entity type for table '{tableName}' since its primary key could not be scaffolded.
         /// </summary>
         public static string UnableToGenerateEntityType(object? tableName)

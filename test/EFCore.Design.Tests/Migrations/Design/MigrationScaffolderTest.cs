@@ -3,6 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
@@ -61,6 +62,84 @@ public class MigrationsScaffolderTest
         Assert.Contains($"public partial class _{migration.MigrationId} : Migration", migration.MigrationCode);
         Assert.Contains($"partial class _{migration.MigrationId}", migration.MetadataCode);
         Assert.Contains($"[Migration(\"{migration.MigrationId}\")]", migration.MetadataCode);
+    }
+
+    [Fact]
+    public void Save_writes_snapshot_to_output_dir_and_leaves_the_existing_snapshot_alone()
+    {
+        using var project = new TempDirectory();
+        var oldFile = CreateSnapshotFile(project, "Migrations/Old");
+        var oldContent = File.ReadAllText(oldFile);
+        var scaffolder = CreateMigrationScaffolder<ContextWithSnapshot>();
+        var migration = scaffolder.ScaffoldMigration("M", "WebApplication1");
+
+        var files = scaffolder.Save(project, migration, "Migrations/New", dryRun: false);
+
+        var newFile = Path.Combine(project, "Migrations", "New", SnapshotFileName);
+        Assert.Equal(newFile, files.SnapshotFile);
+        Assert.Equal(migration.SnapshotCode, File.ReadAllText(newFile));
+        Assert.Equal(oldContent, File.ReadAllText(oldFile));
+    }
+
+    [Fact]
+    public void Save_overwrites_snapshot_already_in_output_dir()
+    {
+        using var project = new TempDirectory();
+        var existing = CreateSnapshotFile(project, "Migrations/New");
+        var scaffolder = CreateMigrationScaffolder<ContextWithSnapshot>();
+        var migration = scaffolder.ScaffoldMigration("M", "WebApplication1");
+
+        scaffolder.Save(project, migration, "Migrations/New", dryRun: false);
+
+        Assert.Equal(migration.SnapshotCode, File.ReadAllText(existing));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Save_does_not_overwrite_existing_file_when_the_context_has_no_snapshot(bool dryRun)
+    {
+        using var project = new TempDirectory();
+        var otherFile = CreateSnapshotFile(project, "Migrations/New", nameof(GenericContext<int>) + "ModelSnapshot.cs");
+        var originalContent = File.ReadAllText(otherFile);
+        var scaffolder = CreateMigrationScaffolder<GenericContext<int>>();
+        var migration = scaffolder.ScaffoldMigration("M", "WebApplication1");
+
+        var ex = Assert.Throws<OperationException>(
+            () => scaffolder.Save(project, migration, "Migrations/New", dryRun));
+
+        Assert.Equal(DesignStrings.SnapshotFileBelongsToAnotherType(otherFile, migration.SnapshotName), ex.Message);
+        Assert.Equal(originalContent, File.ReadAllText(otherFile));
+        Assert.Single(Directory.EnumerateFiles(Path.Combine(project, "Migrations", "New")));
+    }
+
+    [Fact]
+    public void Save_dry_run_writes_nothing()
+    {
+        using var project = new TempDirectory();
+        var oldFile = CreateSnapshotFile(project, "Migrations/Old");
+        var scaffolder = CreateMigrationScaffolder<ContextWithSnapshot>();
+        var migration = scaffolder.ScaffoldMigration("M", "WebApplication1");
+
+        var files = scaffolder.Save(project, migration, "Migrations/New", dryRun: true);
+
+        Assert.Equal(Path.Combine(project, "Migrations", "New", SnapshotFileName), files.SnapshotFile);
+        Assert.True(File.Exists(oldFile));
+        Assert.False(Directory.Exists(Path.Combine(project, "Migrations", "New")));
+    }
+
+    private static readonly string SnapshotFileName = nameof(ContextWithSnapshotModelSnapshot) + ".cs";
+
+    private static string CreateSnapshotFile(string projectDir, string relativeDir, string? fileName = null)
+    {
+        var directory = Path.Combine(projectDir, relativeDir.Replace('/', Path.DirectorySeparatorChar));
+        Directory.CreateDirectory(directory);
+        var file = Path.Combine(directory, fileName ?? SnapshotFileName);
+        File.WriteAllText(
+            file,
+            $"// existing snapshot{Environment.NewLine}namespace {typeof(ContextWithSnapshotModelSnapshot).Namespace};"
+            + $"{Environment.NewLine}class {Path.GetFileNameWithoutExtension(file)} {{ }}");
+        return file;
     }
 
     private IMigrationsScaffolder CreateMigrationScaffolder<TContext>()
