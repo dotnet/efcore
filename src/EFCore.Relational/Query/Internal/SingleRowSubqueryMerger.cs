@@ -12,8 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SingleRowSubqueryMergingExpressionVisitor(SqlAliasManager sqlAliasManager, IReadOnlySet<string> volatileFunctions)
-    : ExpressionVisitor
+public class SingleRowSubqueryMerger(SqlAliasManager sqlAliasManager, IReadOnlySet<string> volatileFunctions)
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -21,27 +20,10 @@ public class SingleRowSubqueryMergingExpressionVisitor(SqlAliasManager sqlAliasM
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitExtension(Expression node)
-        => node switch
-        {
-            ShapedQueryExpression shapedQuery
-                => shapedQuery.Update(Visit(shapedQuery.QueryExpression), Visit(shapedQuery.ShaperExpression)),
-            SelectExpression select => Merge((SelectExpression)base.VisitExtension(select)),
-            _ => base.VisitExtension(node)
-        };
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual Expression MergeTopLevelSelect(Expression query)
-        => query is ShapedQueryExpression { QueryExpression: SelectExpression select } shapedQuery
-            ? shapedQuery.UpdateQueryExpression(Merge(select))
-            : query;
-
-    private SelectExpression Merge(SelectExpression select)
+    public virtual SelectExpression Merge(
+        SelectExpression select,
+        bool preserveProjection,
+        IReadOnlySet<string>? referencedProjectionAliases)
     {
         // With grouping, a subquery in the projection is evaluated per group, which a join can't express.
         if (select.GroupBy.Count > 0
@@ -50,7 +32,11 @@ public class SingleRowSubqueryMergingExpressionVisitor(SqlAliasManager sqlAliasM
             return select;
         }
 
-        var (reads, guardedReads) = ReadCollector.Collect([.. select.Projection, .. select.Orderings]);
+        var (reads, guardedReads) = ReadCollector.Collect(
+        [
+            .. select.Projection.Where(p => preserveProjection || referencedProjectionAliases?.Contains(p.Alias) == true),
+            .. select.Orderings
+        ]);
         if (reads.Count == 0
             || reads.Count + guardedReads.Count < 2)
         {
@@ -105,10 +91,9 @@ public class SingleRowSubqueryMergingExpressionVisitor(SqlAliasManager sqlAliasM
             columns.Add((read, new ColumnExpression(projection.Alias, tableAlias, read.Type, read.TypeMapping, nullable: true)));
         }
 
-        var apply = Merge(
-            subquery.Update(
-                subquery.Tables, subquery.Predicate, subquery.GroupBy, subquery.Having, projections, subquery.Orderings,
-                subquery.Offset, subquery.Limit));
+        var apply = subquery.Update(
+            subquery.Tables, subquery.Predicate, subquery.GroupBy, subquery.Having, projections, subquery.Orderings,
+            subquery.Offset, subquery.Limit);
 
         return (new OuterApplyExpression(apply.WithAlias(tableAlias)), columns);
     }

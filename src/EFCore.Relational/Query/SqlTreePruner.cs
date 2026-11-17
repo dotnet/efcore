@@ -185,6 +185,7 @@ public class SqlTreePruner : ExpressionVisitor
         List<ProjectionExpression>? projections = null;
 
         var referencedProjectionAliases = currentSelectAlias is not null ? referencedColumnMap.GetValueOrDefault(currentSelectAlias) : null;
+        select = PrepareSelect(select, preserveProjection, referencedProjectionAliases);
 
         for (var i = 0; i < select.Projection.Count; i++)
         {
@@ -270,6 +271,27 @@ public class SqlTreePruner : ExpressionVisitor
         return select.Update(
             tables ?? select.Tables, predicate, groupBy, having, projections ?? select.Projection, orderings, offset, limit);
     }
+
+    /// <summary>
+    ///     Called once it is known which projections of a <see cref="SelectExpression" /> survive pruning, before anything inside it
+    ///     is pruned.
+    /// </summary>
+    /// <param name="select">The <see cref="SelectExpression" /> about to be pruned.</param>
+    /// <param name="preserveProjection">Whether all of the projections survive.</param>
+    /// <param name="referencedProjectionAliases">The aliases of the projections referenced from outside, when not all survive.</param>
+    /// <returns>The <see cref="SelectExpression" /> to prune.</returns>
+    /// <remarks>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </remarks>
+    [EntityFrameworkInternal]
+    protected virtual SelectExpression PrepareSelect(
+        SelectExpression select,
+        bool preserveProjection,
+        IReadOnlySet<string>? referencedProjectionAliases)
+        => select;
 
     /// <summary>
     ///     Prunes a <see cref="ValuesExpression" />, removing columns inside it which aren't referenced.

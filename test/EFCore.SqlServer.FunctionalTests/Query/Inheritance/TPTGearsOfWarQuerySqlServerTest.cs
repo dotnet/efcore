@@ -5995,22 +5995,20 @@ OUTER APPLY (
 
         AssertSql(
             """
-SELECT [f].[Id], (
-    SELECT TOP(1) [l0].[Name]
-    FROM [LocustLeaders] AS [l0]
-    WHERE [f].[Id] = [l0].[LocustHordeId]
-    ORDER BY [l0].[Name]) AS [Name], (
-    SELECT TOP(1) [l2].[DefeatedByNickname]
-    FROM [LocustLeaders] AS [l1]
-    LEFT JOIN [LocustCommanders] AS [l2] ON [l1].[Name] = [l2].[Name]
-    WHERE [f].[Id] = [l1].[LocustHordeId]
-    ORDER BY [l1].[Name]) AS [DefeatedByNickname]
+SELECT [f].[Id], [s].[Name], [s].[DefeatedByNickname]
 FROM [Factions] AS [f]
 INNER JOIN [LocustHordes] AS [l] ON [f].[Id] = [l].[Id]
+OUTER APPLY (
+    SELECT TOP(1) [l0].[Name], [l1].[DefeatedByNickname]
+    FROM [LocustLeaders] AS [l0]
+    LEFT JOIN [LocustCommanders] AS [l1] ON [l0].[Name] = [l1].[Name]
+    WHERE [f].[Id] = [l0].[LocustHordeId]
+    ORDER BY [l0].[Name]
+) AS [s]
 UNION ALL
 SELECT [f0].[Id], NULL AS [Name], NULL AS [DefeatedByNickname]
 FROM [Factions] AS [f0]
-INNER JOIN [LocustHordes] AS [l3] ON [f0].[Id] = [l3].[Id]
+INNER JOIN [LocustHordes] AS [l2] ON [f0].[Id] = [l2].[Id]
 """);
     }
 
