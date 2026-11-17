@@ -11,6 +11,7 @@ internal partial class MigrationsRemoveCommand : ContextCommandBase
     private CommandOption? _force;
     private CommandOption? _offline;
     private CommandOption? _connection;
+    private CommandOption? _outputDir;
     private CommandOption? _json;
 
     public override void Configure(CommandLineApplication command)
@@ -20,6 +21,7 @@ internal partial class MigrationsRemoveCommand : ContextCommandBase
         _force = command.Option("-f|--force", Resources.MigrationsRemoveForceDescription);
         _offline = command.Option("--offline", Resources.MigrationsRemoveOfflineDescription);
         _connection = command.Option("--connection <CONNECTION>", Resources.DbContextConnectionDescription);
+        _outputDir = command.Option("-o|--output-dir <PATH>", Resources.MigrationsRemoveOutputDirDescription);
         _json = Json.ConfigureOption(command);
 
         base.Configure(command);

@@ -110,7 +110,7 @@ internal abstract class OperationExecutorBase : IOperationExecutor
                 ["namespace"] = @namespace
             });
 
-    public IDictionary RemoveMigration(string? contextType, bool force, bool offline, string? connectionString)
+    public IDictionary RemoveMigration(string? contextType, bool force, bool offline, string? connectionString, string? outputDir)
         => InvokeOperation<IDictionary>(
             "RemoveMigration",
             new Dictionary<string, object?>
@@ -118,7 +118,8 @@ internal abstract class OperationExecutorBase : IOperationExecutor
                 ["contextType"] = contextType,
                 ["force"] = force,
                 ["offline"] = offline,
-                ["connectionString"] = connectionString
+                ["connectionString"] = connectionString,
+                ["outputDir"] = outputDir
             });
 
     public IEnumerable<IDictionary> GetMigrations(string? contextType, string? connectionString, bool noConnect)
