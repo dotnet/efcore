@@ -3489,6 +3489,22 @@ WHERE [o].[OrderID] < 10252
 """);
     }
 
+    public override async Task Repeated_single_result_subquery_read_only_in_pruned_projection_is_not_lifted(bool async)
+    {
+        await base.Repeated_single_result_subquery_read_only_in_pruned_projection_is_not_lifted(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A%'
+UNION ALL
+SELECT [c0].[CustomerID]
+FROM [Customers] AS [c0]
+WHERE [c0].[CustomerID] LIKE N'B%'
+""");
+    }
+
     public override async Task Repeated_single_result_subquery_reading_repeated_single_result_subqueries_lifts_both_to_single_joins(bool async)
     {
         await base.Repeated_single_result_subquery_reading_repeated_single_result_subqueries_lifts_both_to_single_joins(async);

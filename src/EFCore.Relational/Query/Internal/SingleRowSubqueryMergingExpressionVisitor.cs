@@ -30,6 +30,17 @@ public class SingleRowSubqueryMergingExpressionVisitor(SqlAliasManager sqlAliasM
             _ => base.VisitExtension(node)
         };
 
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual Expression MergeTopLevelSelect(Expression query)
+        => query is ShapedQueryExpression { QueryExpression: SelectExpression select } shapedQuery
+            ? shapedQuery.UpdateQueryExpression(Merge(select))
+            : query;
+
     private SelectExpression Merge(SelectExpression select)
     {
         // With grouping, a subquery in the projection is evaluated per group, which a join can't express.

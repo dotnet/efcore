@@ -208,6 +208,25 @@ public abstract class NorthwindSelectQueryRelationalTestBase<TFixture>(TFixture 
             elementSorter: e => e.OrderID);
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Repeated_single_result_subquery_read_only_in_pruned_projection_is_not_lifted(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A")).Select(c => new
+                {
+                    c.CustomerID,
+                    OrderDate = c.Orders.Where(o => o.OrderID / (o.OrderID - 10643) != 0).OrderBy(o => o.OrderID).Select(o => o.OrderDate)
+                        .FirstOrDefault(),
+                    EmployeeID = c.Orders.Where(o => o.OrderID / (o.OrderID - 10643) != 0).OrderBy(o => o.OrderID).Select(o => o.EmployeeID)
+                        .FirstOrDefault()
+                })
+                .Concat(
+                    ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("B"))
+                        .Select(c => new { c.CustomerID, OrderDate = (DateTime?)null, EmployeeID = (uint?)null }))
+                .Select(x => x.CustomerID),
+            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A") || c.CustomerID.StartsWith("B")).Select(c => c.CustomerID),
+            elementSorter: e => e);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Repeated_single_result_subquery_reading_repeated_single_result_subqueries_lifts_both_to_single_joins(bool async)
         => AssertQuery(
             async,
