@@ -120,4 +120,16 @@ public abstract class DateTimeTranslationsTestBase<TFixture>(TFixture fixture) :
 
         await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(o => o.DateTime == new DateTime(year, month, date, hour, 30, 10)));
     }
+
+    [Fact]
+    public virtual Task AddMonths_past_end_of_month_gives_last_day_of_month()
+        => AssertQuery(
+            ss => ss.Set<BasicTypesEntity>()
+                .Where(o => o.DateTime.AddDays(27).AddMonths(1) == new DateTime(1998, 6, 30, 15, 30, 10)));
+
+    [Fact]
+    public virtual Task AddYears_from_leap_day_gives_last_day_of_February()
+        => AssertQuery(
+            ss => ss.Set<BasicTypesEntity>()
+                .Where(o => o.DateTime.AddDays(666).AddYears(1) == new DateTime(2001, 2, 28, 15, 30, 10)));
 }
