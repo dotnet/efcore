@@ -16,7 +16,22 @@ public class SqlServerConnectionTest
     public void Creates_SQL_Server_connection_string()
     {
         using var connection = new SqlServerConnection(CreateDependencies());
-        Assert.IsType<SqlConnection>(connection.DbConnection);
+        var dbConnection = Assert.IsType<SqlConnection>(connection.DbConnection);
+        Assert.Equal(RegisteredApplication.EntityFrameworkCore, dbConnection.RegisteredApplication);
+    }
+
+    [Theory]
+    [InlineData(RegisteredApplication.Unknown)]
+    [InlineData(RegisteredApplication.EntityFrameworkCore)]
+    public void Does_not_change_registered_application_on_user_connection(RegisteredApplication registeredApplication)
+    {
+        using var dbConnection = new SqlConnection { RegisteredApplication = registeredApplication };
+        var options = new DbContextOptionsBuilder().UseSqlServer(dbConnection).Options;
+
+        using var connection = new SqlServerConnection(CreateDependencies(options));
+
+        Assert.Same(dbConnection, connection.DbConnection);
+        Assert.Equal(registeredApplication, dbConnection.RegisteredApplication);
     }
 
     #region Master connection
@@ -26,8 +41,9 @@ public class SqlServerConnectionTest
     {
         using var connection = new SqlServerConnection(CreateDependencies());
         using var master = connection.CreateMasterConnection();
-        Assert.Equal(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=master", StripApplicationName(master.ConnectionString!));
+        Assert.Equal(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=master", master.ConnectionString);
         Assert.Equal(60, master.CommandTimeout);
+        Assert.Equal(RegisteredApplication.EntityFrameworkCore, Assert.IsType<SqlConnection>(master.DbConnection).RegisteredApplication);
     }
 
     [Fact]
@@ -41,7 +57,7 @@ public class SqlServerConnectionTest
 
         using var connection = new SqlServerConnection(CreateDependencies(options));
         using var master = connection.CreateMasterConnection();
-        Assert.Equal(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=master", StripApplicationName(master.ConnectionString!));
+        Assert.Equal(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=master", master.ConnectionString);
     }
 
     [Fact]
@@ -62,39 +78,31 @@ public class SqlServerConnectionTest
 
     #region Application Name
 
-    [Fact]
-    public void ApplicationName_is_injected_when_not_defined_with_connection_string()
+    [Theory]
+    [InlineData("")]
+    [InlineData(";Application Name=")]
+    [InlineData(";Application Name=Core Microsoft SqlClient Data Provider")]
+    [InlineData(";Application Name=foo")]
+    public void Does_not_rewrite_connection_string(string applicationName)
     {
+        var connectionString = @"Server=(localdb)\MSSQLLocalDB;Database=SqlServerConnectionTest" + applicationName;
         var options = new DbContextOptionsBuilder()
-            .UseSqlServer("""Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SqlServerConnectionTest""")
+            .UseSqlServer(connectionString)
             .Options;
 
         using var connection = new SqlServerConnection(CreateDependencies(options));
-        Assert.StartsWith(
-            """Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SqlServerConnectionTest;Application Name="EFCore/""",
-            connection.ConnectionString);
+        Assert.Equal(connectionString, connection.ConnectionString);
 
-        connection.ConnectionString = """Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SomeOtherDatabase""";
-        Assert.StartsWith(
-            """Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SomeOtherDatabase;Application Name="EFCore/""",
-            connection.ConnectionString);
-    }
+        var dbConnection = Assert.IsType<SqlConnection>(connection.DbConnection);
+        Assert.Equal(connectionString, dbConnection.ConnectionString);
+        Assert.Equal(RegisteredApplication.EntityFrameworkCore, dbConnection.RegisteredApplication);
 
-    [Fact]
-    public void ApplicationName_is_not_injected_when_user_defined_with_connection_string()
-    {
-        var options = new DbContextOptionsBuilder()
-            .UseSqlServer("""Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SqlServerConnectionTest;Application Name=foo""")
-            .Options;
+        connectionString = @"Server=(localdb)\MSSQLLocalDB;Database=SomeOtherDatabase" + applicationName;
+        connection.ConnectionString = connectionString;
 
-        using var connection = new SqlServerConnection(CreateDependencies(options));
-        Assert.Equal(
-            """Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SqlServerConnectionTest;Application Name=foo""",
-            connection.ConnectionString);
-
-        connection.ConnectionString = """Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SomeOtherDatabase;Application Name=foo""";
-        Assert.Equal(
-            """Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SomeOtherDatabase;Application Name=foo""", connection.ConnectionString);
+        Assert.Equal(connectionString, connection.ConnectionString);
+        Assert.Equal(connectionString, dbConnection.ConnectionString);
+        Assert.Equal(RegisteredApplication.EntityFrameworkCore, dbConnection.RegisteredApplication);
     }
 
     [Fact]
@@ -112,13 +120,6 @@ public class SqlServerConnectionTest
     }
 
     #endregion Application Name
-
-    private static string StripApplicationName(string connectionString)
-    {
-        var builder = new SqlConnectionStringBuilder(connectionString);
-        builder.Remove("Application Name");
-        return builder.ToString();
-    }
 
     public static RelationalConnectionDependencies CreateDependencies(DbContextOptions? options = null)
     {

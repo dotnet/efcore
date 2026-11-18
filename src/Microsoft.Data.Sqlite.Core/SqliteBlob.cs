@@ -254,6 +254,11 @@ public class SqliteBlob : Stream
     /// </param>
     public override void Write(ReadOnlySpan<byte> buffer)
     {
+        if (_blob == null)
+        {
+            throw new ObjectDisposedException(objectName: null);
+        }
+
         if (!CanWrite)
         {
             throw new NotSupportedException(Resources.WriteNotSupported);

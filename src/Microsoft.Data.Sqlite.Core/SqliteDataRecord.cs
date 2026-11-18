@@ -472,6 +472,8 @@ internal class SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnectio
             && sqlite3_stmt_readonly(Handle) == 0
             && sqlite3_stmt_busy(Handle) != 0)
         {
+            // The statement is already mid-write and so already holds the write lock, which means this commit can't
+            // fail with SQLITE_BUSY_SNAPSHOT. Hence the overload that doesn't check for it.
             while ((rc = sqlite3_step(Handle)) == SQLITE_ROW
                 || IsBusy(rc))
             {

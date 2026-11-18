@@ -944,6 +944,126 @@ ORDER BY "e"."DepartmentName"
 
     #endregion
 
+    #region 31388
+
+    public override async Task Keyless_entity_final_GroupBy_with_ToDictionary(bool async)
+    {
+        await base.Keyless_entity_final_GroupBy_with_ToDictionary(async);
+
+        AssertSql(
+            """
+SELECT "s"."Region", "s"."Product", "s"."Amount", "s"."Category"
+FROM "Sales" AS "s"
+WHERE "s"."Amount" > 0
+ORDER BY "s"."Region", "s"."Product"
+""");
+    }
+
+    public override async Task Keyless_entity_final_GroupBy_with_elements(bool async)
+    {
+        await base.Keyless_entity_final_GroupBy_with_elements(async);
+
+        AssertSql(
+            """
+SELECT "s"."Region", "s"."Amount", "s"."Category", "s"."Product"
+FROM "Sales" AS "s"
+ORDER BY "s"."Region"
+""");
+    }
+
+    public override async Task Keyless_entity_final_GroupBy_with_null_key(bool async)
+    {
+        await base.Keyless_entity_final_GroupBy_with_null_key(async);
+
+        AssertSql(
+            """
+SELECT "s"."Category", "s"."Amount", "s"."Product", "s"."Region"
+FROM "Sales" AS "s"
+ORDER BY "s"."Category"
+""");
+    }
+
+    public override async Task Keyless_entity_final_GroupBy_with_computed_key(bool async)
+    {
+        await base.Keyless_entity_final_GroupBy_with_computed_key(async);
+
+        AssertSql(
+            """
+SELECT "s0"."Key", "s0"."Amount", "s0"."Category", "s0"."Product", "s0"."Region"
+FROM (
+    SELECT "s"."Amount", "s"."Category", "s"."Product", "s"."Region", "s"."Amount" % 2 AS "Key"
+    FROM "Sales" AS "s"
+) AS "s0"
+ORDER BY "s0"."Key"
+""");
+    }
+
+    #endregion
+
+    #region 33494
+
+    public override async Task Final_GroupBy_over_set_operation(bool async)
+    {
+        await base.Final_GroupBy_over_set_operation(async);
+
+        AssertSql(
+            """
+SELECT "u"."Name", "u"."Id"
+FROM (
+    SELECT "m"."Id", "m"."Name"
+    FROM "Managers" AS "m"
+    WHERE "m"."Name" <> 'Cheng'
+    UNION ALL
+    SELECT "m0"."Id", "m0"."Name"
+    FROM "Managers" AS "m0"
+    WHERE "m0"."Name" = 'Cheng'
+) AS "u"
+ORDER BY "u"."Name"
+""");
+    }
+
+    public override async Task Final_GroupBy_over_Except_with_collection(bool async)
+    {
+        await base.Final_GroupBy_over_Except_with_collection(async);
+
+        AssertSql(
+            """
+SELECT "e1"."Name", "e1"."c", "e0"."Id"
+FROM (
+    SELECT "e"."Name", COUNT(*) AS "c"
+    FROM (
+        SELECT "m"."Id", "m"."Name"
+        FROM "Companies" AS "c"
+        INNER JOIN "Managers" AS "m" ON "c"."ManagerId" = "m"."Id"
+        EXCEPT
+        SELECT "m0"."Id", "m0"."Name"
+        FROM "Managers" AS "m0"
+        WHERE "m0"."Name" = 'Cheng'
+    ) AS "e"
+    GROUP BY "e"."Name"
+) AS "e1"
+LEFT JOIN (
+    SELECT "m1"."Id", "m1"."Name"
+    FROM "Companies" AS "c0"
+    INNER JOIN "Managers" AS "m1" ON "c0"."ManagerId" = "m1"."Id"
+    EXCEPT
+    SELECT "m2"."Id", "m2"."Name"
+    FROM "Managers" AS "m2"
+    WHERE "m2"."Name" = 'Cheng'
+) AS "e0" ON "e1"."Name" = "e0"."Name"
+ORDER BY "e1"."Name"
+""");
+    }
+
+    public override async Task Final_GroupBy_over_Concat_with_collection_throws(bool async)
+    {
+        await base.Final_GroupBy_over_Concat_with_collection_throws(async);
+
+        AssertSql();
+    }
+
+    #endregion
+
     #region 30233
 
     public override async Task Sum_over_property_with_value_converter_that_converts_nulls(bool async)

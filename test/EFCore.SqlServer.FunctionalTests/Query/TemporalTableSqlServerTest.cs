@@ -490,6 +490,42 @@ ORDER BY [u].[Id], [o].[MainEntityManyId], [o].[Id]
         Assert.NotEqual(default, result[0].PeriodEnd);
     }
 
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task TemporalAll_after_no_tracking_query_of_same_shape(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<ContextWithClrPeriodProperties>(
+            seed: async c =>
+            {
+                c.Customers.Add(new TemporalCustomerWithClrPeriods { Name = "Customer1" });
+                await c.SaveChangesAsync();
+            });
+
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Customers.AsNoTracking().OrderBy(c => c.Id);
+        var result = async ? await query.ToListAsync() : query.ToList();
+
+        Assert.Equal("Customer1", Assert.Single(result).Name);
+
+        var temporalQuery = context.Customers.TemporalAll().OrderBy(c => c.Id);
+        var temporalResult = async ? await temporalQuery.ToListAsync() : temporalQuery.ToList();
+
+        Assert.Equal("Customer1", Assert.Single(temporalResult).Name);
+
+        AssertSql(
+            """
+SELECT [t].[Id], [t].[Name], [t].[PeriodEnd], [t].[PeriodStart]
+FROM [TemporalCustomerWithClrPeriods] AS [t]
+ORDER BY [t].[Id]
+""",
+            //
+            """
+SELECT [t].[Id], [t].[Name], [t].[PeriodEnd], [t].[PeriodStart]
+FROM [TemporalCustomerWithClrPeriods] FOR SYSTEM_TIME ALL AS [t]
+ORDER BY [t].[Id]
+""");
+    }
+
     public class TemporalCustomerWithClrPeriods
     {
         public int Id { get; set; }

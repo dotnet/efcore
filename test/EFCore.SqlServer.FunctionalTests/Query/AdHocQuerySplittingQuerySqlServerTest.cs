@@ -505,6 +505,78 @@ ORDER BY [p0].[Id]
         optionsBuilder.UseSqlServerCompatibilityLevel(150);
     }
 
+    public override async Task Split_query_paging_with_non_unique_ordering_and_reference_navigation_in_projection(bool async)
+    {
+        await base.Split_query_paging_with_non_unique_ordering_and_reference_navigation_in_projection(async);
+
+        AssertSql(
+            """
+@p='1'
+@p1='2'
+
+SELECT [p0].[Id], [p0].[Name], [l].[Name]
+FROM (
+    SELECT [p].[Id], [p].[LocationId], [p].[Name]
+    FROM [Parents] AS [p]
+    ORDER BY [p].[Name], [p].[Id]
+    OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
+) AS [p0]
+INNER JOIN [Location39206] AS [l] ON [p0].[LocationId] = [l].[Id]
+ORDER BY [p0].[Name], [p0].[Id]
+""",
+            //
+            """
+@p='1'
+@p1='2'
+
+SELECT [c1].[Id], [p0].[Id]
+FROM (
+    SELECT [p].[Id], [p].[Name]
+    FROM [Parents] AS [p]
+    ORDER BY [p].[Name], [p].[Id]
+    OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
+) AS [p0]
+INNER JOIN [Child39206] AS [c1] ON [p0].[Id] = [c1].[Parent39206Id]
+ORDER BY [p0].[Name], [p0].[Id]
+""");
+    }
+
+    public override async Task Split_query_paging_with_non_unique_ordering_and_reference_include(bool async)
+    {
+        await base.Split_query_paging_with_non_unique_ordering_and_reference_include(async);
+
+        AssertSql(
+            """
+@p='1'
+@p1='2'
+
+SELECT [p0].[Id], [p0].[LocationId], [p0].[Name], [l].[Id], [l].[Name]
+FROM (
+    SELECT [p].[Id], [p].[LocationId], [p].[Name]
+    FROM [Parents] AS [p]
+    ORDER BY [p].[Name], [p].[Id]
+    OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
+) AS [p0]
+INNER JOIN [Location39206] AS [l] ON [p0].[LocationId] = [l].[Id]
+ORDER BY [p0].[Name], [p0].[Id]
+""",
+            //
+            """
+@p='1'
+@p1='2'
+
+SELECT [c].[Id], [c].[Parent39206Id], [p0].[Id]
+FROM (
+    SELECT [p].[Id], [p].[Name]
+    FROM [Parents] AS [p]
+    ORDER BY [p].[Name], [p].[Id]
+    OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
+) AS [p0]
+INNER JOIN [Child39206] AS [c] ON [p0].[Id] = [c].[Parent39206Id]
+ORDER BY [p0].[Name], [p0].[Id]
+""");
+    }
+
     [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
