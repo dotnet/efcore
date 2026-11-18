@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.TestModels.BasicTypesModel;
+
 namespace Microsoft.EntityFrameworkCore.Query.Translations.Temporal;
 
 public class DateTimeTranslationsSqliteTest : DateTimeTranslationsTestBase<BasicTypesQuerySqliteFixture>
@@ -238,6 +240,44 @@ WHERE "b"."DateTime" = '1998-05-04 15:30:10'
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
 WHERE "b"."DateTime" = @p
+""");
+    }
+
+    [Fact]
+    public virtual async Task Ticks()
+    {
+        await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(o => o.DateTime.Ticks == 630298926101234960L));
+
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE (CAST(strftime('%s', substr("b"."DateTime", 1, 19)) AS INTEGER) + 62135596800) * 10000000 + CAST(substr(substr("b"."DateTime", 21) || '0000000', 1, 7) AS INTEGER) = 630298926101234960
+""");
+    }
+
+    [Fact]
+    public virtual async Task Ticks_projection()
+    {
+        await AssertQueryScalar(ss => ss.Set<BasicTypesEntity>().Select(o => o.DateTime.Ticks));
+
+        AssertSql(
+            """
+SELECT (CAST(strftime('%s', substr("b"."DateTime", 1, 19)) AS INTEGER) + 62135596800) * 10000000 + CAST(substr(substr("b"."DateTime", 21) || '0000000', 1, 7) AS INTEGER)
+FROM "BasicTypesEntities" AS "b"
+""");
+    }
+
+    [Fact]
+    public virtual async Task Ticks_on_computed_value()
+    {
+        await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(o => o.DateTime.Date.Ticks == 630298368000000000L));
+
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE (CAST(round(julianday(rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', "b"."DateTime", 'start of day'), '0'), '.')) * 86400000.0) AS INTEGER) - 148731163200000) * 10000 = 630298368000000000
 """);
     }
 
