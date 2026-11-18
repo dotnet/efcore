@@ -56,13 +56,15 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         IMigrationsAnnotationProvider migrationsAnnotationProvider,
         IRelationalAnnotationProvider relationalAnnotationProvider,
         IRowIdentityMapFactory rowIdentityMapFactory,
-        CommandBatchPreparerDependencies commandBatchPreparerDependencies)
+        CommandBatchPreparerDependencies commandBatchPreparerDependencies,
+        IDiagnosticsLogger<DbLoggerCategory.Migrations> logger)
     {
         TypeMappingSource = typeMappingSource;
         MigrationsAnnotationProvider = migrationsAnnotationProvider;
         RelationalAnnotationProvider = relationalAnnotationProvider;
         RowIdentityMapFactory = rowIdentityMapFactory;
         CommandBatchPreparerDependencies = commandBatchPreparerDependencies;
+        Logger = logger;
     }
 
     /// <summary>
@@ -104,6 +106,14 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected virtual CommandBatchPreparerDependencies CommandBatchPreparerDependencies { get; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual IDiagnosticsLogger<DbLoggerCategory.Migrations> Logger { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -597,6 +607,21 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             yield break;
         }
 
+        foreach (var sourceMapping in source.EntityTypeMappings)
+        {
+            var targetMapping = target.EntityTypeMappings.FirstOrDefault(
+                m => string.Equals(m.TypeBase.Name, sourceMapping.TypeBase.Name, StringComparison.OrdinalIgnoreCase));
+            if (targetMapping != null
+                && sourceMapping.IsSplitFragmentOptional != targetMapping.IsSplitFragmentOptional
+                && targetMapping.TypeBase is IEntityType targetEntityType)
+            {
+                Logger.EntitySplittingFragmentOptionalityChangedWarning(
+                    targetEntityType,
+                    StoreObjectIdentifier.Table(target.Name, target.Schema),
+                    targetMapping.IsSplitFragmentOptional);
+            }
+        }
+
         if (source.Schema != target.Schema
             || source.Name != target.Name)
         {
@@ -741,7 +766,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             .Concat(jsonColumns);
     }
 
-    private static IEnumerable<IProperty> GetSortedProperties(IEntityType entityType, ITable table)
+    private static IEnumerable<IProperty> GetSortedProperties(ITypeBase typeBase, ITable table)
     {
         var leastPriorityProperties = new List<IProperty>();
         var leastPriorityPrimaryKeyProperties = new List<IProperty>();
@@ -750,7 +775,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         var unorderedGroups = new Dictionary<PropertyInfo, SortedDictionary<(int, string), IProperty>>();
         var types = new Dictionary<Type, SortedDictionary<int, PropertyInfo>>();
 
-        foreach (var property in entityType.GetDeclaredProperties())
+        foreach (var property in typeBase.GetDeclaredProperties())
         {
             var clrProperty = property.PropertyInfo;
             if (clrProperty == null
@@ -795,14 +820,34 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             types.GetOrAddNew(clrType)[index] = clrProperty;
         }
 
-        AddNestedComplexProperties(entityType, leastPriorityProperties);
+        foreach (var complexProperty in typeBase.GetDeclaredComplexProperties())
+        {
+            var complexClrProperty = complexProperty.PropertyInfo;
+            var properties = GetSortedProperties(complexProperty.ComplexType, table).ToList();
+            if (complexClrProperty == null
+                || complexProperty.IsIndexerProperty())
+            {
+                leastPriorityProperties.AddRange(properties);
+
+                continue;
+            }
+
+            groups.Add(complexClrProperty, properties);
+
+            var clrType = complexClrProperty.DeclaringType!;
+            var index = clrType.GetTypeInfo().DeclaredProperties
+                .IndexOf(complexClrProperty, PropertyInfoEqualityComparer.Instance);
+
+            types.GetOrAddNew(clrType)[index] = complexClrProperty;
+        }
 
         foreach (var (propertyInfo, properties) in unorderedGroups)
         {
             groups.Add(propertyInfo, properties.Values.ToList());
         }
 
-        if (table.EntityTypeMappings.Any(m => m.TypeBase == entityType))
+        if (typeBase is IEntityType entityType
+            && table.EntityTypeMappings.Any(m => m.TypeBase == entityType))
         {
             foreach (var linkingForeignKey in table.GetReferencingRowInternalForeignKeys(entityType))
             {
@@ -868,27 +913,14 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             .Concat(leastPriorityPrimaryKeyProperties)
             .Concat(
                 sortedPropertyInfos
-                    .Where(pi => !primaryKeyPropertyGroups.ContainsKey(pi) && entityType.ClrType.IsAssignableFrom(pi.DeclaringType))
+                    .Where(pi => !primaryKeyPropertyGroups.ContainsKey(pi) && typeBase.ClrType.IsAssignableFrom(pi.DeclaringType))
                     .SelectMany(p => groups[p]))
             .Concat(leastPriorityProperties)
-            .Concat(entityType.GetDirectlyDerivedTypes().SelectMany(et => GetSortedProperties(et, table)))
+            .Concat(typeBase.GetDirectlyDerivedTypes().SelectMany(et => GetSortedProperties(et, table)))
             .Concat(
                 sortedPropertyInfos
-                    .Where(pi => !primaryKeyPropertyGroups.ContainsKey(pi) && !entityType.ClrType.IsAssignableFrom(pi.DeclaringType))
+                    .Where(pi => !primaryKeyPropertyGroups.ContainsKey(pi) && !typeBase.ClrType.IsAssignableFrom(pi.DeclaringType))
                     .SelectMany(p => groups[p]));
-    }
-
-    private static void AddNestedComplexProperties(ITypeBase typeBase, List<IProperty> leastPriorityProperties)
-    {
-        foreach (var complexProperty in typeBase.GetDeclaredComplexProperties())
-        {
-            foreach (var complexTypeProperty in complexProperty.ComplexType.GetDeclaredProperties())
-            {
-                leastPriorityProperties.Add(complexTypeProperty);
-            }
-
-            AddNestedComplexProperties(complexProperty.ComplexType, leastPriorityProperties);
-        }
     }
 
     private sealed class PropertyInfoEqualityComparer : IEqualityComparer<PropertyInfo>
@@ -1889,6 +1921,14 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                 INonTrackedModificationCommand command;
                 var table = mapping.Table;
                 var keyConstraint = table.PrimaryKey!;
+
+                if (mapping.IsSplitFragmentOptional
+                    && mapping.ColumnMappings.All(
+                        m => m.Property.IsPrimaryKey() || getValue(m.Property, rawSeed).Item1 is null))
+                {
+                    continue;
+                }
+
                 if (!identityMaps.TryGetValue(table, out var identityMap))
                 {
                     identityMap = RowIdentityMapFactory.Create(keyConstraint);
@@ -2138,6 +2178,12 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                     continue;
                 }
 
+                if (targetKey.Columns.Count != sourceKey.Columns.Count)
+                {
+                    tableMapping.Add(targetTable, null);
+                    continue;
+                }
+
                 var mappingFound = true;
                 for (var i = 0; i < targetKey.Columns.Count; i++)
                 {
@@ -2152,8 +2198,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                     }
                 }
 
-                if (!mappingFound
-                    || targetKey.Columns.Count != sourceKey.Columns.Count)
+                if (!mappingFound)
                 {
                     tableMapping.Add(targetTable, null);
                     continue;

@@ -31,4 +31,32 @@ public abstract class TimeSpanTranslationsTestBase<TFixture>(TFixture fixture) :
     [Fact]
     public virtual Task Nanoseconds()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.TimeSpan.Nanoseconds == 400));
+
+    [Fact]
+    public virtual Task TotalDays()
+        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.TimeSpan.TotalDays > 0.1));
+
+    [Fact]
+    public virtual Task TotalHours()
+        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.TimeSpan.TotalHours > 2.5));
+
+    [Fact]
+    public virtual Task TotalMinutes()
+        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.TimeSpan.TotalMinutes > 120.25));
+
+    [Fact]
+    public virtual Task TotalSeconds()
+        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.TimeSpan.TotalSeconds > 7215.4));
+
+    [Fact]
+    public virtual Task TotalMilliseconds()
+        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.TimeSpan.TotalMilliseconds > 7215456.2));
+
+    [Fact]
+    public virtual Task TotalMicroseconds()
+        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.TimeSpan.TotalMicroseconds > 7215456200.3));
+
+    [Fact]
+    public virtual Task TotalNanoseconds()
+        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.TimeSpan.TotalNanoseconds > 7215456200300));
 }

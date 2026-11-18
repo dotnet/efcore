@@ -47,6 +47,9 @@ public class RelationalDatabaseFacadeExtensionsTest
         Assert.Equal(
             RelationalStrings.RelationalNotInUse,
             Assert.Throws<InvalidOperationException>(context.Database.GetDbConnection).Message);
+        Assert.Equal(
+            RelationalStrings.RelationalNotInUse,
+            Assert.Throws<InvalidOperationException>(() => context.Database.UseCommandTimeout(10)).Message);
     }
 
     [Theory, InlineData(true), InlineData(false)]

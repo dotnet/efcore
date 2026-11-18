@@ -179,6 +179,10 @@ public class CosmosDbContextOptionsExtensionsTests
     public void Throws_for_invalid_values()
         => Throws<ArgumentOutOfRangeException>(o => o.ConnectionMode((ConnectionMode)958410610));
 
+    [Fact]
+    public void Throws_for_invalid_session_token_management_mode()
+        => Throws<ArgumentOutOfRangeException>(o => o.SessionTokenManagementMode((SessionTokenManagementMode)42));
+
     private void Test(
         Action<CosmosDbContextOptionsBuilder> cosmosOptionsAction,
         Action<CosmosOptionsExtension> extensionAssert)

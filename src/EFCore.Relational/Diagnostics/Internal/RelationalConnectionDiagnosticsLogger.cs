@@ -953,7 +953,10 @@ public class RelationalConnectionDiagnosticsLogger
                 diagnosticSourceEnabled,
                 simpleLogEnabled);
 
-            interceptor?.ConnectionCanceled(connection.DbConnection, eventData);
+            if (interceptor != null)
+            {
+                return interceptor.ConnectionCanceledAsync(connection.DbConnection, eventData, cancellationToken);
+            }
         }
 
         return Task.CompletedTask;

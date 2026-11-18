@@ -1242,6 +1242,8 @@ public class RelationalCommandDiagnosticsLogger
         TimeSpan duration,
         CommandSource commandSource)
     {
+        _suppressCommandExecuteExpiration = default;
+
         var definition = RelationalResources.LogCommandFailed(this);
 
         LogCommandError(command, logCommandText, duration, definition);
@@ -1309,6 +1311,8 @@ public class RelationalCommandDiagnosticsLogger
         CommandSource commandSource,
         CancellationToken cancellationToken = default)
     {
+        _suppressCommandExecuteExpiration = default;
+
         var definition = RelationalResources.LogCommandFailed(this);
 
         LogCommandError(command, logCommandText, duration, definition);
@@ -1411,6 +1415,8 @@ public class RelationalCommandDiagnosticsLogger
         TimeSpan duration,
         CommandSource commandSource)
     {
+        _suppressCommandExecuteExpiration = default;
+
         var definition = RelationalResources.LogCommandCanceled(this);
 
         LogCommandCanceled(command, logCommandText, duration, definition);
@@ -1452,6 +1458,8 @@ public class RelationalCommandDiagnosticsLogger
         CommandSource commandSource,
         CancellationToken cancellationToken = default)
     {
+        _suppressCommandExecuteExpiration = default;
+
         var definition = RelationalResources.LogCommandCanceled(this);
 
         LogCommandCanceled(command, logCommandText, duration, definition);

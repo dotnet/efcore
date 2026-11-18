@@ -25,7 +25,8 @@ internal interface IOperationExecutor : IDisposable
         string? suffix,
         bool scaffoldModel,
         bool precompileQueries,
-        bool nativeAot);
+        bool nativeAot,
+        string? langVersion);
 
     IDictionary ScaffoldContext(
         string provider,

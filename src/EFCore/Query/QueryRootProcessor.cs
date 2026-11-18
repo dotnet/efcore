@@ -50,12 +50,14 @@ public class QueryRootProcessor : ExpressionVisitor
             // The element type doesn't have to be directly mappable; we allow unknown CLR types in order to support value convertors
             // (the precise type mapping - with the value converter - will be inferred later based on LINQ operators composed on the root).
             // However, we do exclude element CLR types which are associated to entity types in our model, since Contains over entity
-            // collections isn't yet supported (#30712).
+            // collections isn't yet supported (#30712). We also exclude [NotParameterized] arguments: these are guaranteed by the caller
+            // to survive as a plain ConstantExpression (e.g. ExecuteMerge's source rows, evaluated client-side rather than translated).
             var visitedArgument = parameterType.IsGenericType
                 && (parameterType.GetGenericTypeDefinition() == typeof(IEnumerable<>)
                     || parameterType.GetGenericTypeDefinition() == typeof(IQueryable<>))
                 && parameterType.GetGenericArguments()[0] is var elementClrType
                 && !_queryCompilationContext.Model.FindEntityTypes(elementClrType).Any()
+                && parameters[i].GetCustomAttribute<NotParameterizedAttribute>() is null
                     ? VisitQueryRootCandidate(argument, elementClrType)
                     : Visit(argument);
 
@@ -101,7 +103,7 @@ public class QueryRootProcessor : ExpressionVisitor
         {
             // An array containing only constants is represented as a ConstantExpression with the array as the value.
             // Convert that into a NewArrayExpression for use with InlineQueryRootExpression.
-            case ConstantExpression { Value: IEnumerable values }:
+            case ConstantExpression { Value: IEnumerable values and not string }:
                 var valueExpressions = new List<ConstantExpression>();
 
                 Type? valueClrType = null;
@@ -137,7 +139,7 @@ public class QueryRootProcessor : ExpressionVisitor
             case NewArrayExpression newArray when ShouldConvertToInlineQueryRoot(newArray):
                 return new InlineQueryRootExpression(newArray.Expressions, elementClrType);
 
-            case QueryParameterExpression queryParameter when ShouldConvertToParameterQueryRoot(queryParameter):
+            case QueryParameterExpression queryParameter when ShouldConvertToParameterQueryRoot(queryParameter) && queryParameter.Type != typeof(string):
                 return new ParameterQueryRootExpression(queryParameter.Type.GetSequenceType(), queryParameter);
 
             case ListInitExpression listInit

@@ -5484,7 +5484,7 @@ LEFT JOIN (
         ) AS [l2] ON [l0].[Id] = [l2].[Level1_Optional_Id]
     ) AS [s]
     WHERE [s].[row] <= 1
-) AS [s0] ON [l4].[Name] = [s0].[Name]
+) AS [s0] ON [l4].[Name] = [s0].[Name] OR ([l4].[Name] IS NULL AND [s0].[Name] IS NULL)
 LEFT JOIN (
     SELECT [l3].[Id], [l3].[Level2_Optional_Id], [l3].[Level2_Required_Id], [l3].[Level3_Name], [l3].[OneToMany_Optional_Inverse3Id], [l3].[OneToMany_Required_Inverse3Id], [l3].[OneToOne_Optional_PK_Inverse3Id]
     FROM [Level1] AS [l3]
@@ -6029,7 +6029,7 @@ LEFT JOIN (
         ) AS [l2] ON [l0].[Id] = [l2].[Level1_Optional_Id]
     ) AS [s]
     WHERE [s].[row] <= 1
-) AS [s0] ON [l3].[Name] = [s0].[Name]
+) AS [s0] ON [l3].[Name] = [s0].[Name] OR ([l3].[Name] IS NULL AND [s0].[Name] IS NULL)
 """);
     }
 

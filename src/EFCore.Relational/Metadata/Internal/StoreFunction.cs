@@ -82,6 +82,29 @@ public class StoreFunction : TableBase, IStoreFunction
         => Parameters.FirstOrDefault(p => p.Name == propertyName);
 
     /// <inheritdoc />
+    public override bool Equals(object? obj)
+        => ReferenceEquals(this, obj)
+            || (obj is StoreFunction other
+                && base.Equals(other)
+                && Parameters.Length == other.Parameters.Length
+                && Parameters.Zip(other.Parameters).All(
+                    p => p.First.Name == p.Second.Name && p.First.StoreType == p.Second.StoreType));
+
+    /// <inheritdoc />
+    public override int GetHashCode()
+    {
+        var hashCode = new HashCode();
+        hashCode.Add(base.GetHashCode());
+        foreach (var parameter in Parameters)
+        {
+            hashCode.Add(parameter.StoreType);
+            hashCode.Add(parameter.Name);
+        }
+
+        return hashCode.ToHashCode();
+    }
+
+    /// <inheritdoc />
     protected override IColumnBase? FindColumn(IProperty property)
         => property.GetFunctionColumnMappings()
                 .FirstOrDefault(cm => cm.TableMapping.Table == this)?.Column

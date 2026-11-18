@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
 public class ColumnBase<TColumnMappingBase> : Annotatable, IColumnBase
-    where TColumnMappingBase : class, IColumnMappingBase
+    where TColumnMappingBase : class, IColumnMappingBase, IComparable<TColumnMappingBase>
 {
     private Type? _providerClrType;
     private RelationalTypeMapping? _storeTypeMapping;
@@ -60,6 +60,17 @@ public class ColumnBase<TColumnMappingBase> : Annotatable, IColumnBase
     /// </summary>
     public override bool IsReadOnly
         => Table.Model.IsReadOnly;
+
+    /// <inheritdoc />
+    public override bool Equals(object? obj)
+        => ReferenceEquals(this, obj)
+            || (obj is IColumnBase other
+                && Table.Equals(other.Table)
+                && Name == other.Name);
+
+    /// <inheritdoc />
+    public override int GetHashCode()
+        => HashCode.Combine(Table, Name);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -143,11 +154,11 @@ public class ColumnBase<TColumnMappingBase> : Annotatable, IColumnBase
     public virtual bool AddPropertyMapping(TColumnMappingBase columnMapping)
     {
         Check.DebugAssert(
-            PropertyMappings.IndexOf(columnMapping, ColumnMappingBaseComparer.Instance) == -1,
+            PropertyMappings.IndexOf(columnMapping) == -1,
             $"Duplicate mapping for column {Name}");
 
         PropertyMappings.Add(columnMapping);
-        PropertyMappings.Sort(ColumnMappingBaseComparer.Instance);
+        PropertyMappings.Sort();
 
         return true;
     }
@@ -159,7 +170,7 @@ public class ColumnBase<TColumnMappingBase> : Annotatable, IColumnBase
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual void RemovePropertyMapping(TColumnMappingBase columnMapping)
-        => PropertyMappings.RemoveAt(PropertyMappings.IndexOf(columnMapping, ColumnMappingBaseComparer.Instance));
+        => PropertyMappings.RemoveAt(PropertyMappings.IndexOf(columnMapping));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

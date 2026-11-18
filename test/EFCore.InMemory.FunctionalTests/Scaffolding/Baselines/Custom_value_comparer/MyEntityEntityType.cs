@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 
 #pragma warning disable 219, 612, 618
@@ -27,7 +28,7 @@ public partial class MyEntityEntityType
             sharedClrType: true,
             indexerPropertyInfo: RuntimeEntityType.FindIndexerProperty(typeof(Dictionary<string, object>)),
             propertyBag: true,
-            propertyCount: 1,
+            propertyCount: 4,
             keyCount: 1);
 
         var id = runtimeEntityType.AddProperty(
@@ -95,6 +96,121 @@ public partial class MyEntityEntityType
             int (int v) => 0,
             int (int v) => 1));
 
+        var @int = runtimeEntityType.AddProperty(
+            "Int",
+            typeof(int),
+            propertyInfo: runtimeEntityType.FindIndexerPropertyInfo(),
+            providerPropertyType: typeof(int),
+            valueComparer: new CompiledModelTestBase.CustomValueComparer<int>());
+        @int.SetGetter(
+            int (Dictionary<string, object> instance) => ((((IDictionary<string, object>)instance).ContainsKey("Int") ? instance["Int"] : null) == null ? 0 : ((int)((((IDictionary<string, object>)instance).ContainsKey("Int") ? instance["Int"] : null)))),
+            bool (Dictionary<string, object> instance) => (((IDictionary<string, object>)instance).ContainsKey("Int") ? instance["Int"] : null) == null);
+        @int.SetSetter(
+            Dictionary<string, object> (Dictionary<string, object> instance, int value) =>
+            {
+                instance["Int"] = ((object)value);
+                return instance;
+            });
+        @int.SetMaterializationSetter(
+            Dictionary<string, object> (Dictionary<string, object> instance, int value) =>
+            {
+                instance["Int"] = ((object)value);
+                return instance;
+            });
+        @int.SetAccessors(
+            int (IInternalEntry entry) =>
+            {
+                var nullableValue = (((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("Int") ? ((Dictionary<string, object>)(entry.Entity))["Int"] : null);
+                return (nullableValue == null ? default(int) : ((int)nullableValue));
+            },
+            int (IInternalEntry entry) =>
+            {
+                var nullableValue = (((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("Int") ? ((Dictionary<string, object>)(entry.Entity))["Int"] : null);
+                return (nullableValue == null ? default(int) : ((int)nullableValue));
+            },
+            int (IInternalEntry entry) => entry.ReadOriginalValue<int>(@int, 1),
+            int (IInternalEntry entry) => entry.GetCurrentValue<int>(@int));
+        @int.SetPropertyIndexes(
+            index: 1,
+            originalValueIndex: 1,
+            shadowIndex: -1,
+            relationshipIndex: -1,
+            storeGenerationIndex: -1);
+        @int.TypeMapping = InMemoryTypeMapping<int>.Default.Clone(
+            jsonValueReaderWriter: JsonInt32ReaderWriter.Instance);
+
+        var nullableInt = runtimeEntityType.AddProperty(
+            "NullableInt",
+            typeof(int?),
+            propertyInfo: runtimeEntityType.FindIndexerPropertyInfo(),
+            nullable: true,
+            providerPropertyType: typeof(int),
+            valueComparer: new NullableValueComparer<int>(new CompiledModelTestBase.CustomValueComparer<int>()));
+        nullableInt.SetGetter(
+            int? (Dictionary<string, object> instance) => ((((IDictionary<string, object>)instance).ContainsKey("NullableInt") ? instance["NullableInt"] : null) == null ? null : ((int? )((((IDictionary<string, object>)instance).ContainsKey("NullableInt") ? instance["NullableInt"] : null)))),
+            bool (Dictionary<string, object> instance) => (((IDictionary<string, object>)instance).ContainsKey("NullableInt") ? instance["NullableInt"] : null) == null);
+        nullableInt.SetSetter(
+            Dictionary<string, object> (Dictionary<string, object> instance, int? value) =>
+            {
+                instance["NullableInt"] = ((object)value);
+                return instance;
+            });
+        nullableInt.SetMaterializationSetter(
+            Dictionary<string, object> (Dictionary<string, object> instance, int? value) =>
+            {
+                instance["NullableInt"] = ((object)value);
+                return instance;
+            });
+        nullableInt.SetAccessors(
+            int? (IInternalEntry entry) => ((int? )((((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("NullableInt") ? ((Dictionary<string, object>)(entry.Entity))["NullableInt"] : null))),
+            int? (IInternalEntry entry) => ((int? )((((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("NullableInt") ? ((Dictionary<string, object>)(entry.Entity))["NullableInt"] : null))),
+            int? (IInternalEntry entry) => entry.ReadOriginalValue<int?>(nullableInt, 2),
+            int? (IInternalEntry entry) => entry.GetCurrentValue<int?>(nullableInt));
+        nullableInt.SetPropertyIndexes(
+            index: 2,
+            originalValueIndex: 2,
+            shadowIndex: -1,
+            relationshipIndex: -1,
+            storeGenerationIndex: -1);
+        nullableInt.TypeMapping = InMemoryTypeMapping<int>.Default.Clone(
+            jsonValueReaderWriter: JsonInt32ReaderWriter.Instance);
+
+        var nullableIntWithNullableComparer = runtimeEntityType.AddProperty(
+            "NullableIntWithNullableComparer",
+            typeof(int?),
+            propertyInfo: runtimeEntityType.FindIndexerPropertyInfo(),
+            nullable: true,
+            providerPropertyType: typeof(int),
+            valueComparer: new CompiledModelTestBase.CustomValueComparer<int?>());
+        nullableIntWithNullableComparer.SetGetter(
+            int? (Dictionary<string, object> instance) => ((((IDictionary<string, object>)instance).ContainsKey("NullableIntWithNullableComparer") ? instance["NullableIntWithNullableComparer"] : null) == null ? null : ((int? )((((IDictionary<string, object>)instance).ContainsKey("NullableIntWithNullableComparer") ? instance["NullableIntWithNullableComparer"] : null)))),
+            bool (Dictionary<string, object> instance) => (((IDictionary<string, object>)instance).ContainsKey("NullableIntWithNullableComparer") ? instance["NullableIntWithNullableComparer"] : null) == null);
+        nullableIntWithNullableComparer.SetSetter(
+            Dictionary<string, object> (Dictionary<string, object> instance, int? value) =>
+            {
+                instance["NullableIntWithNullableComparer"] = ((object)value);
+                return instance;
+            });
+        nullableIntWithNullableComparer.SetMaterializationSetter(
+            Dictionary<string, object> (Dictionary<string, object> instance, int? value) =>
+            {
+                instance["NullableIntWithNullableComparer"] = ((object)value);
+                return instance;
+            });
+        nullableIntWithNullableComparer.SetAccessors(
+            int? (IInternalEntry entry) => ((int? )((((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("NullableIntWithNullableComparer") ? ((Dictionary<string, object>)(entry.Entity))["NullableIntWithNullableComparer"] : null))),
+            int? (IInternalEntry entry) => ((int? )((((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("NullableIntWithNullableComparer") ? ((Dictionary<string, object>)(entry.Entity))["NullableIntWithNullableComparer"] : null))),
+            int? (IInternalEntry entry) => entry.ReadOriginalValue<int?>(nullableIntWithNullableComparer, 3),
+            int? (IInternalEntry entry) => entry.GetCurrentValue<int?>(nullableIntWithNullableComparer));
+        nullableIntWithNullableComparer.SetPropertyIndexes(
+            index: 3,
+            originalValueIndex: 3,
+            shadowIndex: -1,
+            relationshipIndex: -1,
+            storeGenerationIndex: -1);
+        nullableIntWithNullableComparer.TypeMapping = InMemoryTypeMapping<int>.Default.Clone(
+            jsonValueReaderWriter: JsonInt32ReaderWriter.Instance);
+
         var key = runtimeEntityType.AddKey(
             new[] { id });
         runtimeEntityType.SetPrimaryKey(key);
@@ -105,6 +221,9 @@ public partial class MyEntityEntityType
     public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
     {
         var id = runtimeEntityType.FindProperty("Id");
+        var @int = runtimeEntityType.FindProperty("Int");
+        var nullableInt = runtimeEntityType.FindProperty("NullableInt");
+        var nullableIntWithNullableComparer = runtimeEntityType.FindProperty("NullableIntWithNullableComparer");
         var key = runtimeEntityType.FindKey(new[] { id });
         key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateSimpleNonNullableFactory<int>(key));
         key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<int>(key));
@@ -112,7 +231,7 @@ public partial class MyEntityEntityType
             ISnapshot (IInternalEntry source) =>
             {
                 var structuralType = ((Dictionary<string, object>)(source.Entity));
-                return ((ISnapshot)(new Snapshot<int>(((ValueComparer<int>)(((IProperty)id).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(id)))));
+                return ((ISnapshot)(new Snapshot<int, int, int?, int?>(((ValueComparer<int>)(((IProperty)id).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(id)), ((ValueComparer<int>)(((IProperty)@int).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(@int)), (source.GetCurrentValue<int?>(nullableInt) == null ? null : ((ValueComparer<int?>)(((IProperty)nullableInt).GetValueComparer())).Snapshot(source.GetCurrentValue<int?>(nullableInt))), (source.GetCurrentValue<int?>(nullableIntWithNullableComparer) == null ? null : ((ValueComparer<int?>)(((IProperty)nullableIntWithNullableComparer).GetValueComparer())).Snapshot(source.GetCurrentValue<int?>(nullableIntWithNullableComparer))))));
             });
         runtimeEntityType.SetStoreGeneratedValuesFactory(
             ISnapshot () => ((ISnapshot)(new Snapshot<int>(((ValueComparer<int>)(((IProperty)id).GetValueComparer())).Snapshot(default(int))))));
@@ -129,11 +248,11 @@ public partial class MyEntityEntityType
                 return ((ISnapshot)(new Snapshot<int>(((ValueComparer<int>)(((IProperty)id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<int>(id)))));
             });
         runtimeEntityType.SetCounts(new PropertyCounts(
-            propertyCount: 1,
+            propertyCount: 4,
             navigationCount: 0,
             complexPropertyCount: 0,
             complexCollectionCount: 0,
-            originalValueCount: 1,
+            originalValueCount: 4,
             shadowCount: 0,
             relationshipCount: 1,
             storeGeneratedCount: 1));

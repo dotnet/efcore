@@ -377,7 +377,10 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
                 return extensionExpression;
 
             case QueryParameterExpression queryParameter:
-                return new SqlParameterExpression(queryParameter.Name, queryParameter.Type, null);
+                return new SqlParameterExpression(
+                    name: queryParameter.Name,
+                    queryParameter.Type.UnwrapNullableType(),
+                    typeMapping: null);
 
             case StructuralTypeShaperExpression shaper:
                 return new StructuralTypeReferenceExpression(shaper);

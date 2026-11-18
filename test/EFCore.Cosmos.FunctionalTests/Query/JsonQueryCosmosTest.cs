@@ -430,6 +430,10 @@ WHERE (c["$type"] = "CustomNaming")
         => base.Group_by_on_json_scalar_using_collection_indexer(async);
 
     [Theory(Skip = "issue #17313")]
+    public override Task Group_by_on_json_scalar_with_multiple_aggregates(bool async)
+        => base.Group_by_on_json_scalar_with_multiple_aggregates(async);
+
+    [Theory(Skip = "issue #17313")]
     public override Task Group_by_Skip_Take_on_json_scalar(bool async)
         => base.Group_by_Skip_Take_on_json_scalar(async);
 
@@ -1435,7 +1439,7 @@ WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestDateOnly"] != "0003-02
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestDateTime"] != "2000-01-03T00:00:00"))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestDateTime"] != "2000-01-03T00:00:00.0000000"))
 """);
             });
 

@@ -38,6 +38,18 @@ public class IndentedStringBuilderTest
     }
 
     [Fact]
+    public void AppendLine_with_FormattableString_appends_a_new_line()
+    {
+        var indentedStringBuilder = new IndentedStringBuilder();
+
+        FormattableString value = $"Foo{1}";
+        indentedStringBuilder.AppendLine(value);
+        indentedStringBuilder.AppendLine(value);
+
+        Assert.Equal("Foo1" + EOL + "Foo1" + EOL, indentedStringBuilder.ToString());
+    }
+
+    [Fact]
     public void Append_in_middle_when_new_line()
     {
         var indentedStringBuilder = new IndentedStringBuilder();

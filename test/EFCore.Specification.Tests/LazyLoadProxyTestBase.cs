@@ -368,6 +368,27 @@ public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClass
         }
     }
 
+    [Fact] // Issue #34167
+    public virtual void Lazy_load_reference_failure_after_fixup_is_not_hidden()
+    {
+        using var context = CreateContext(lazyLoadingEnabled: true);
+        var child = context.Set<Child>().Single(e => e.Id == 12);
+
+        // Fail the load once the parent is tracked, and so already fixed up to the child,
+        // like a query failing part way through
+        context.ChangeTracker.Tracked += (_, args) =>
+        {
+            if (args.Entry.Entity is Parent)
+            {
+                throw new InvalidOperationException("The load failed.");
+            }
+        };
+
+        var exception = Assert.Throws<InvalidOperationException>(() => child.Parent);
+
+        Assert.Equal("The load failed.", exception.Message);
+    }
+
     [Theory, InlineData(EntityState.Unchanged, false, false), InlineData(EntityState.Added, false, false),
      InlineData(EntityState.Modified, false, false), InlineData(EntityState.Deleted, false, false),
      InlineData(EntityState.Detached, false, false), InlineData(EntityState.Unchanged, true, false),

@@ -456,6 +456,127 @@ ORDER BY [p0].[Id]
     public override Task Split_include_collection_not_dropped_when_other_parent_made_childless_concurrently(bool async)
         => base.Split_include_collection_not_dropped_when_other_parent_made_childless_concurrently(async);
 
+    public override async Task Split_query_with_inline_collection_Max_over_related_columns(bool async)
+    {
+        await base.Split_query_with_inline_collection_Max_over_related_columns(async);
+
+        AssertSql(
+            """
+@p='0'
+@p1='50'
+
+SELECT [p0].[Id], (
+    SELECT MAX([v].[Value])
+    FROM (VALUES ([p0].[ModifiedAt]), ([a].[ModifiedAt]), ((
+        SELECT MAX([c].[ModifiedAt])
+        FROM [Child38700] AS [c]
+        WHERE [p0].[Id] = [c].[Parent38700Id]))) AS [v]([Value]))
+FROM (
+    SELECT [p].[Id], [p].[AddressId], [p].[ModifiedAt]
+    FROM [Parents] AS [p]
+    ORDER BY [p].[Id]
+    OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
+) AS [p0]
+LEFT JOIN [Address38700] AS [a] ON [p0].[AddressId] = [a].[Id]
+ORDER BY [p0].[Id]
+""",
+            //
+            """
+@p='0'
+@p1='50'
+
+SELECT [c1].[Id], [p0].[Id]
+FROM (
+    SELECT [p].[Id]
+    FROM [Parents] AS [p]
+    ORDER BY [p].[Id]
+    OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
+) AS [p0]
+INNER JOIN [Child38700] AS [c1] ON [p0].[Id] = [c1].[Parent38700Id]
+ORDER BY [p0].[Id]
+""");
+    }
+
+    // Force the VALUES + MAX translation (no GREATEST) used when SQL Server compat is below 160 —
+    // this is the path that manifested #38700 with split-query pagination.
+    protected override void Configure38700(DbContextOptionsBuilder optionsBuilder)
+    {
+        base.Configure38700(optionsBuilder);
+        optionsBuilder.UseSqlServerCompatibilityLevel(150);
+    }
+
+    public override async Task Split_query_paging_with_non_unique_ordering_and_reference_navigation_in_projection(bool async)
+    {
+        await base.Split_query_paging_with_non_unique_ordering_and_reference_navigation_in_projection(async);
+
+        AssertSql(
+            """
+@p='1'
+@p1='2'
+
+SELECT [p0].[Id], [p0].[Name], [l].[Name]
+FROM (
+    SELECT [p].[Id], [p].[LocationId], [p].[Name]
+    FROM [Parents] AS [p]
+    ORDER BY [p].[Name], [p].[Id]
+    OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
+) AS [p0]
+INNER JOIN [Location39206] AS [l] ON [p0].[LocationId] = [l].[Id]
+ORDER BY [p0].[Name], [p0].[Id]
+""",
+            //
+            """
+@p='1'
+@p1='2'
+
+SELECT [c1].[Id], [p0].[Id]
+FROM (
+    SELECT [p].[Id], [p].[Name]
+    FROM [Parents] AS [p]
+    ORDER BY [p].[Name], [p].[Id]
+    OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
+) AS [p0]
+INNER JOIN [Child39206] AS [c1] ON [p0].[Id] = [c1].[Parent39206Id]
+ORDER BY [p0].[Name], [p0].[Id]
+""");
+    }
+
+    public override async Task Split_query_paging_with_non_unique_ordering_and_reference_include(bool async)
+    {
+        await base.Split_query_paging_with_non_unique_ordering_and_reference_include(async);
+
+        AssertSql(
+            """
+@p='1'
+@p1='2'
+
+SELECT [p0].[Id], [p0].[LocationId], [p0].[Name], [l].[Id], [l].[Name]
+FROM (
+    SELECT [p].[Id], [p].[LocationId], [p].[Name]
+    FROM [Parents] AS [p]
+    ORDER BY [p].[Name], [p].[Id]
+    OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
+) AS [p0]
+INNER JOIN [Location39206] AS [l] ON [p0].[LocationId] = [l].[Id]
+ORDER BY [p0].[Name], [p0].[Id]
+""",
+            //
+            """
+@p='1'
+@p1='2'
+
+SELECT [c].[Id], [c].[Parent39206Id], [p0].[Id]
+FROM (
+    SELECT [p].[Id], [p].[Name]
+    FROM [Parents] AS [p]
+    ORDER BY [p].[Name], [p].[Id]
+    OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
+) AS [p0]
+INNER JOIN [Child39206] AS [c] ON [p0].[Id] = [c].[Parent39206Id]
+ORDER BY [p0].[Name], [p0].[Id]
+""");
+    }
+
     [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

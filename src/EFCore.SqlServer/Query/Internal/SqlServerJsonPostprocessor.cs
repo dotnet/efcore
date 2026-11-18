@@ -31,15 +31,11 @@ public sealed class SqlServerJsonPostprocessor(
     SqlAliasManager? sqlAliasManager)
     : ExpressionVisitor
 {
-    private static readonly bool UseOldBehavior39277 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue39277", out var enabled) && enabled;
-
     private readonly List<OuterApplyExpression> _openjsonOuterAppliesToAdd = [];
     private readonly Dictionary<(string, string), ColumnInfo> _columnsToRewrite = [];
     private readonly HashSet<(string, string)> _jsonColumnsToCast = [];
-
-    private RelationalTypeMapping? _nvarcharMaxTypeMapping;
     private bool _supportsJsonTypeInOpenJson;
+    private readonly RelationalTypeMapping _nvarcharMaxTypeMapping = typeMappingSource.FindMapping("nvarchar(max)")!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -91,8 +87,7 @@ public sealed class SqlServerJsonPostprocessor(
                 {
                     var table = selectExpression.Tables[i];
 
-                    if (!UseOldBehavior39277
-                        && !_supportsJsonTypeInOpenJson
+                    if (!_supportsJsonTypeInOpenJson
                         && table.UnwrapJoin() is SqlServerOpenJsonExpression { ColumnInfos: { } jsonColumnInfos } jsonTable)
                     {
                         foreach (var columnInfo in jsonColumnInfos)
@@ -375,7 +370,11 @@ public sealed class SqlServerJsonPostprocessor(
             // The new OPENJSON (without WITH) always projects a `value` column, instead of a properly named column for individual
             // values inside; create a new ColumnExpression with that name.
             SqlExpression rewrittenColumn = new ColumnExpression(
-                "value", columnExpression.TableAlias, columnExpression.Type, _nvarcharMaxTypeMapping, columnExpression.IsNullable);
+                "value",
+                columnExpression.TableAlias,
+                columnExpression.Type,
+                columnInfo.TypeMapping.StoreType == "nvarchar(max)" ? columnInfo.TypeMapping : _nvarcharMaxTypeMapping,
+                columnExpression.IsNullable);
 
             Check.DebugAssert(columnInfo.Path is not null, "Path shouldn't be null in OPENJSON WITH");
             //Check.DebugAssert(
@@ -389,8 +388,6 @@ public sealed class SqlServerJsonPostprocessor(
                 // nvarchar(max); add a CAST to convert.
                 if (columnInfo.TypeMapping.StoreType != "nvarchar(max)")
                 {
-                    _nvarcharMaxTypeMapping ??= typeMappingSource.FindMapping("nvarchar(max)");
-
                     rewrittenColumn = sqlExpressionFactory.Convert(
                         rewrittenColumn,
                         columnExpression.Type,

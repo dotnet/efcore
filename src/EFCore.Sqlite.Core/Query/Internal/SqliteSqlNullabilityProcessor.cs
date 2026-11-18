@@ -156,9 +156,10 @@ public class SqliteSqlNullabilityProcessor : SqlNullabilityProcessor
             nullable = false;
 
             var sqlExpressionFactory = Dependencies.SqlExpressionFactory;
+            var resultType = resultFunctionExpression.Type.UnwrapNullableType();
             return sqlExpressionFactory.Coalesce(
                 result,
-                sqlExpressionFactory.Constant(0, resultFunctionExpression.TypeMapping),
+                sqlExpressionFactory.Constant(resultType.GetDefaultValue(), resultType, resultFunctionExpression.TypeMapping),
                 resultFunctionExpression.TypeMapping);
         }
 

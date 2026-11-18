@@ -28,11 +28,8 @@ public static class CSharpAnalyzerVerifier<TAnalyzer>
     {
         public Test()
         {
-#if NET11_0
-            // Microsoft.CodeAnalysis.Testing currently does not have built-in support for .NET 11.0.
-            // ReferenceAssemblies = ReferenceAssemblies.Net.Net110;
-
-            ReferenceAssemblies = ReferenceAssembliesNet110;
+#if NET12_0
+            ReferenceAssemblies = ReferenceAssembliesNet120;
 #else
 #error Update the above to match the targeted TFM
 #endif
@@ -57,6 +54,6 @@ public static class CSharpAnalyzerVerifier<TAnalyzer>
         protected override CompilationOptions CreateCompilationOptions()
             => ((CSharpCompilationOptions)base.CreateCompilationOptions()).WithNullableContextOptions(NullableContextOptions.Enable);
 
-        private static readonly ReferenceAssemblies ReferenceAssembliesNet110 = new("net11.0");
+        private static readonly ReferenceAssemblies ReferenceAssembliesNet120 = new("net12.0");
     }
 }

@@ -52,6 +52,22 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
                 entityType1, property1, entityType2, property2, columnName, table);
 
         /// <summary>
+        ///     SQLite version {sqliteVersion} is being used, but version 3.35.0 or higher is required for 'ExecuteMergeReturning'.
+        /// </summary>
+        public static string ExecuteMergeReturningNotSupported(object? sqliteVersion)
+            => string.Format(
+                GetString("ExecuteMergeReturningNotSupported", nameof(sqliteVersion)),
+                sqliteVersion);
+
+        /// <summary>
+        ///     'ExecuteMergeReturning' cannot be used with the table '{table}', since it is configured to not use the SQL RETURNING clause.
+        /// </summary>
+        public static string ExecuteMergeReturningWithoutReturningClause(object? table)
+            => string.Format(
+                GetString("ExecuteMergeReturningWithoutReturningClause", nameof(table)),
+                table);
+
+        /// <summary>
         ///     ExecuteUpdate partial updates of ulong properties within JSON columns is not supported.
         /// </summary>
         public static string ExecuteUpdateJsonPartialUpdateDoesNotSupportUlong
@@ -189,6 +205,31 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
             }
 
             return (EventDefinition<string, string, string, string>)definition;
+        }
+
+        /// <summary>
+        ///     Skipping index '{indexName}' on table '{tableName}', since it is defined on an expression and indexes on expressions are not supported.
+        /// </summary>
+        public static EventDefinition<string?, string?> LogExpressionIndexSkipped(IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogExpressionIndexSkipped;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogExpressionIndexSkipped,
+                    logger,
+                    static logger => new EventDefinition<string?, string?>(
+                        logger.Options,
+                        SqliteEventId.ExpressionIndexSkippedWarning,
+                        LogLevel.Warning,
+                        "SqliteEventId.ExpressionIndexSkippedWarning",
+                        level => LoggerMessage.Define<string?, string?>(
+                            level,
+                            SqliteEventId.ExpressionIndexSkippedWarning,
+                            _resourceManager.GetString("LogExpressionIndexSkipped")!)));
+            }
+
+            return (EventDefinition<string?, string?>)definition;
         }
 
         /// <summary>

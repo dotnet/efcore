@@ -8,8 +8,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 /// <summary>
 ///     Represents property mapping to a stored procedure result column.
 /// </summary>
-public interface IStoredProcedureResultColumnMapping : IColumnMappingBase
+public interface IStoredProcedureResultColumnMapping : IColumnMappingBase, IComparable<IStoredProcedureResultColumnMapping>
 {
+    /// <inheritdoc />
+    int IComparable<IStoredProcedureResultColumnMapping>.CompareTo(IStoredProcedureResultColumnMapping? other)
+        => ((IColumnMappingBase)this).CompareTo(other);
+
     /// <summary>
     ///     Gets the target column.
     /// </summary>

@@ -495,6 +495,77 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Null(index.GetFilter());
         }
 
+        [Fact] // #32689
+        public void Index_convention_does_not_set_filter_for_unique_index_on_required_property_in_TPT()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Ignore<Customer>();
+            modelBuilder.Entity<DetailsBase>().ToTable("DetailsBase");
+            modelBuilder.Entity<CustomerDetails>(b =>
+            {
+                b.ToTable("CustomerDetails");
+                b.HasIndex(e => e.CustomerId).IsUnique();
+            });
+
+            var model = modelBuilder.FinalizeModel();
+
+            var index = model.FindEntityType(typeof(CustomerDetails))!.GetDeclaredIndexes().Single();
+            Assert.Null(index.GetFilter());
+        }
+
+        [Fact] // #32689
+        public void Index_convention_does_not_set_filter_for_unique_index_on_required_property_in_TPC()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Ignore<Customer>();
+            modelBuilder.Entity<CustomerDetails>()
+                .HasIndex(e => e.CustomerId)
+                .IsUnique();
+            modelBuilder.Entity<DetailsBase>().UseTpcMappingStrategy();
+
+            var model = modelBuilder.FinalizeModel();
+
+            var index = model.FindEntityType(typeof(CustomerDetails))!.GetDeclaredIndexes().Single();
+            Assert.Null(index.GetFilter());
+        }
+
+        [Fact] // #32689
+        public void Index_convention_keeps_only_nullable_columns_in_filter_for_composite_unique_index_in_TPT()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Ignore<Customer>();
+            modelBuilder.Entity<DetailsBase>().ToTable("DetailsBase");
+            modelBuilder.Entity<CustomerDetails>(b =>
+            {
+                b.ToTable("CustomerDetails");
+                b.Property<string?>("Note");
+                b.HasIndex(nameof(CustomerDetails.CustomerId), "Note").IsUnique();
+            });
+
+            var model = modelBuilder.FinalizeModel();
+
+            var index = model.FindEntityType(typeof(CustomerDetails))!.GetDeclaredIndexes().Single();
+            Assert.Equal("[Note] IS NOT NULL", index.GetFilter());
+        }
+
+        [Fact] // #32689
+        public void Index_convention_keeps_only_nullable_columns_in_filter_for_composite_unique_index_in_TPC()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Ignore<Customer>();
+            modelBuilder.Entity<CustomerDetails>(b =>
+            {
+                b.Property<string?>("Note");
+                b.HasIndex(nameof(CustomerDetails.CustomerId), "Note").IsUnique();
+            });
+            modelBuilder.Entity<DetailsBase>().UseTpcMappingStrategy();
+
+            var model = modelBuilder.FinalizeModel();
+
+            var index = model.FindEntityType(typeof(CustomerDetails))!.GetDeclaredIndexes().Single();
+            Assert.Equal("[Note] IS NOT NULL", index.GetFilter());
+        }
+
         [Fact]
         public virtual void Can_override_TPC_with_TPH()
         {

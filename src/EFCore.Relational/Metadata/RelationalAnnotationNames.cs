@@ -320,6 +320,11 @@ public static class RelationalAnnotationNames
     public const string MappingFragments = Prefix + "MappingFragments";
 
     /// <summary>
+    ///     The name for the annotation that indicates whether an entity type mapping fragment is optional.
+    /// </summary>
+    public const string EntityTypeMappingFragmentIsOptional = Prefix + "EntityTypeMappingFragmentIsOptional";
+
+    /// <summary>
     ///     The name for the annotation that contains table-specific facet overrides.
     /// </summary>
     public const string RelationalOverrides = Prefix + "RelationalOverrides";
@@ -440,6 +445,7 @@ public static class RelationalAnnotationNames
         TableIndexMappings,
         UniqueConstraintMappings,
         MappingFragments,
+        EntityTypeMappingFragmentIsOptional,
         RelationalOverrides,
         ModelDependencies,
         FieldValueGetter,

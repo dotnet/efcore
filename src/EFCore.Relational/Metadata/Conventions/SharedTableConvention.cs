@@ -261,22 +261,24 @@ public class SharedTableConvention : IModelFinalizingConvention
                 continue;
             }
 
-            var declaringEntityType = property.DeclaringType as IConventionEntityType;
+            var declaringEntityType = property.DeclaringType.ContainingEntityType;
+            var otherDeclaringEntityType = otherProperty.DeclaringType.ContainingEntityType;
+            var sameHierarchy = declaringEntityType.IsAssignableFrom(otherDeclaringEntityType)
+                || otherDeclaringEntityType.IsAssignableFrom(declaringEntityType);
 #pragma warning disable EF1001 // Internal EF Core API usage.
             var identifyingMemberInfo = property.GetIdentifyingMemberInfo();
             var isInheritedSharedMember =
-                type is not IConventionComplexType
+                !sameHierarchy
+                && type is not IConventionComplexType
+                && otherProperty.DeclaringType is IConventionEntityType
                 && identifyingMemberInfo != null
-                && ((declaringEntityType != null && identifyingMemberInfo.DeclaringType != type.ClrType)
-                    || (declaringEntityType == null
-                        && otherProperty.DeclaringType is IConventionComplexType otherDeclaringComplexType
-                        && ((IConventionComplexType)property.DeclaringType).ComplexProperty.GetIdentifyingMemberInfo()
-                        .IsSameAs(otherDeclaringComplexType.ComplexProperty.GetIdentifyingMemberInfo())))
+                && identifyingMemberInfo.DeclaringType != type.ClrType
                 && identifyingMemberInfo.IsSameAs(otherProperty.GetIdentifyingMemberInfo());
 #pragma warning restore EF1001 // Internal EF Core API usage.
             if (isInheritedSharedMember
-                || (property.IsPrimaryKey() && otherProperty.IsPrimaryKey())
-                || (property.IsConcurrencyToken && otherProperty.IsConcurrencyToken)
+                || (!sameHierarchy && property.IsPrimaryKey() && otherProperty.IsPrimaryKey())
+                || (property.IsConcurrencyToken && otherProperty.IsConcurrencyToken
+                    && (!sameHierarchy || property.IsShadowProperty() || otherProperty.IsShadowProperty()))
                 || (!property.Builder.CanSetColumnName(null) && !otherProperty.Builder.CanSetColumnName(null)))
             {
                 // Handle this with a default value convention #9329
@@ -295,11 +297,16 @@ public class SharedTableConvention : IModelFinalizingConvention
                 continue;
             }
 
-            var differentTypes = property.DeclaringType != otherProperty.DeclaringType;
+            var differentTypes = declaringEntityType != otherDeclaringEntityType;
+            var complexPropertyCollision = property.DeclaringType is IConventionComplexType
+                || otherProperty.DeclaringType is IConventionComplexType;
             if (!differentTypes
-                || (!property.DeclaringType.IsStrictlyDerivedFrom(otherProperty.DeclaringType)
-                    && !otherProperty.DeclaringType.IsStrictlyDerivedFrom(property.DeclaringType))
-                || declaringEntityType?.FindRowInternalForeignKeys(storeObject).Any() == true)
+                || !sameHierarchy
+                || (complexPropertyCollision
+                    && (declaringEntityType.IsStrictlyDerivedFrom(otherDeclaringEntityType)
+                        || !otherProperty.Builder.CanSetColumnName(null)
+                        || !otherProperty.Builder.CanSetColumnName(null, storeObject)))
+                || declaringEntityType.FindRowInternalForeignKeys(storeObject).Any())
             {
                 var prefix = CreatePrefix(property.DeclaringType, otherProperty.DeclaringType);
                 var newColumnName = TryUniquify(property, columnName, columns, storeObject, prefix, maxLength);
@@ -311,9 +318,12 @@ public class SharedTableConvention : IModelFinalizingConvention
             }
 
             if (!differentTypes
-                || (!property.DeclaringType.IsStrictlyDerivedFrom(otherProperty.DeclaringType)
-                    && !otherProperty.DeclaringType.IsStrictlyDerivedFrom(property.DeclaringType))
-                || (otherProperty.DeclaringType as IConventionEntityType)?.FindRowInternalForeignKeys(storeObject).Any() == true)
+                || !sameHierarchy
+                || (complexPropertyCollision
+                    && (otherDeclaringEntityType.IsStrictlyDerivedFrom(declaringEntityType)
+                        || !property.Builder.CanSetColumnName(null)
+                        || !property.Builder.CanSetColumnName(null, storeObject)))
+                || otherDeclaringEntityType.FindRowInternalForeignKeys(storeObject).Any())
             {
                 var prefix = CreatePrefix(otherProperty.DeclaringType, property.DeclaringType);
                 var newOtherColumnName = TryUniquify(otherProperty, columnName, columns, storeObject, prefix, maxLength);

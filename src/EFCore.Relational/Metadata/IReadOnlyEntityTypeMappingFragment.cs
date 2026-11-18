@@ -30,6 +30,14 @@ public interface IReadOnlyEntityTypeMappingFragment : IReadOnlyAnnotatable
     bool? IsTableExcludedFromMigrations { get; }
 
     /// <summary>
+    ///     Gets a value indicating whether a row might not exist for this fragment's store object even when the
+    ///     principal row exists in the main table for the entity type.
+    /// </summary>
+    /// <returns><see langword="true" /> if a row for this fragment is optional; <see langword="false" /> otherwise.</returns>
+    bool IsOptional
+        => false;
+
+    /// <summary>
     ///     <para>
     ///         Creates a human-readable representation of the given metadata.
     ///     </para>
@@ -54,6 +62,11 @@ public interface IReadOnlyEntityTypeMappingFragment : IReadOnlyAnnotatable
         if (IsTableExcludedFromMigrations == true)
         {
             builder.Append("ExcludedFromMigrations");
+        }
+
+        if (IsOptional)
+        {
+            builder.Append(" Optional");
         }
 
         if ((options & MetadataDebugStringOptions.SingleLine) == 0)

@@ -12,8 +12,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 ///     See <see href="https://aka.ms/efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
 ///     for more information and examples.
 /// </remarks>
-public interface ISqlQueryMapping : ITableMappingBase
+public interface ISqlQueryMapping : ITableMappingBase, IComparable<ISqlQueryMapping>
 {
+    /// <inheritdoc />
+    int IComparable<ISqlQueryMapping>.CompareTo(ISqlQueryMapping? other)
+        => ((ITableMappingBase)this).CompareTo(other);
+
     /// <summary>
     ///     Gets the value indicating whether this is the SQL query mapping
     ///     that should be used when the entity type is queried.

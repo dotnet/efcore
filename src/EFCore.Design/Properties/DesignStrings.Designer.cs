@@ -104,6 +104,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("CannotGenerateTypeQualifiedMethodCall");
 
         /// <summary>
+        ///     The provider '{provider}' does not support reverse engineering.
+        /// </summary>
+        public static string CannotScaffoldProvider(object? provider)
+            => string.Format(
+                GetString("CannotScaffoldProvider", nameof(provider)),
+                provider);
+
+        /// <summary>
+        ///     The C# language version '{languageVersion}' is not supported. Specify a valid C# language version, such as 'latest' or '15.0'.
+        /// </summary>
+        public static string InvalidCSharpLanguageVersion(object? languageVersion)
+            => string.Format(
+                GetString("InvalidCSharpLanguageVersion", nameof(languageVersion)),
+                languageVersion);
+
+        /// <summary>
         ///     You cannot add a migration with the name 'Migration'.
         /// </summary>
         public static string CircularBaseClassDependency
@@ -814,6 +830,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static string SequencesRequireName
             => GetString("SequencesRequireName");
+
+        /// <summary>
+        ///     The exception '{rootException}' was thrown while searching the application's service provider for additional 'DbContext' types. Only the types found by other means will be used.
+        /// </summary>
+        public static string ServiceProviderContextDiscoveryFailed(object? rootException)
+            => string.Format(
+                GetString("ServiceProviderContextDiscoveryFailed", nameof(rootException)),
+                rootException);
 
         /// <summary>
         ///     Unable to generate entity type for table '{tableName}' since its primary key could not be scaffolded.

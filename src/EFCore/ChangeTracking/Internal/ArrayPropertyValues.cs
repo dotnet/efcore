@@ -410,6 +410,8 @@ public class ArrayPropertyValues : PropertyValues
                             CoreStrings.ComplexPropertyValueNotList(
                                 complexProperty.Name, complexProperty.ClrType, value.GetType().ShortDisplayName()));
                 }
+
+                return;
             }
 
             // If neither found this will throw an appropriate exception

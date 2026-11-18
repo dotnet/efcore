@@ -640,7 +640,7 @@ public class CSharpMigrationOperationGenerator : ICSharpMigrationOperationGenera
                     .Append("oldComputedColumnSql: ")
                     .Append(Code.Literal(operation.OldColumn.ComputedColumnSql));
 
-                if (operation.IsStored != null)
+                if (operation.OldColumn.IsStored != null)
                 {
                     builder
                         .AppendLine(",")

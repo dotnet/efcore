@@ -14,6 +14,7 @@ internal partial class DbContextOptimizeCommand : ContextCommandBase
     private CommandOption? _noScaffold;
     private CommandOption? _precompileQueries;
     private CommandOption? _nativeAot;
+    private CommandOption? _langVersion;
 
     public override void Configure(CommandLineApplication command)
     {
@@ -25,6 +26,7 @@ internal partial class DbContextOptimizeCommand : ContextCommandBase
         _noScaffold = command.Option("--no-scaffold", Resources.NoScaffoldDescription);
         _precompileQueries = command.Option("--precompile-queries", Resources.PrecompileQueriesDescription);
         _nativeAot = command.Option("--nativeaot", Resources.NativeAotDescription);
+        _langVersion = command.Option("--lang-version|--langversion <VERSION>", Resources.LanguageVersionDescription);
 
         base.Configure(command);
     }

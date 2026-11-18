@@ -365,6 +365,156 @@ public abstract class ComplexTypeQueryRelationalTestBase<TFixture>(TFixture fixt
 
     #endregion 38928
 
+    #region SiblingJsonColumn
+
+    [Fact]
+    public virtual async Task Json_complex_properties_on_sibling_types_mapped_to_same_column()
+    {
+        var contextFactory = await InitializeNonSharedTest<ContextSiblingJsonColumn>(
+            seed: context =>
+            {
+                context.AddRange(
+                    new ContextSiblingJsonColumn.Dog
+                    {
+                        Name = "Rex", Details = new ContextSiblingJsonColumn.DogDetails { Breed = "Collie", Trained = true }
+                    },
+                    new ContextSiblingJsonColumn.Cat { Name = "Tom", Details = new ContextSiblingJsonColumn.CatDetails { Lives = 9 } });
+
+                return context.SaveChangesAsync();
+            });
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var cat = await context.Set<ContextSiblingJsonColumn.Cat>().SingleAsync();
+            cat.Details.Lives = 8;
+
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var animals = await context.Set<ContextSiblingJsonColumn.Animal>().OrderBy(a => a.Name).ToListAsync();
+
+            var dog = Assert.IsType<ContextSiblingJsonColumn.Dog>(animals[0]);
+            Assert.Equal("Collie", dog.Details.Breed);
+            Assert.True(dog.Details.Trained);
+            Assert.Equal(8, Assert.IsType<ContextSiblingJsonColumn.Cat>(animals[1]).Details.Lives);
+
+            Assert.Equal(
+                "Rex",
+                (await context.Set<ContextSiblingJsonColumn.Dog>().SingleAsync(d => d.Details.Breed == "Collie")).Name);
+        }
+    }
+
+    private class ContextSiblingJsonColumn(DbContextOptions options) : DbContext(options)
+    {
+        public abstract class Animal
+        {
+            public int Id { get; set; }
+            public required string Name { get; set; }
+        }
+
+        public class Dog : Animal
+        {
+            public required DogDetails Details { get; set; }
+        }
+
+        public class Cat : Animal
+        {
+            public required CatDetails Details { get; set; }
+        }
+
+        public class DogDetails
+        {
+            public required string Breed { get; set; }
+            public bool Trained { get; set; }
+        }
+
+        public class CatDetails
+        {
+            public int Lives { get; set; }
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Animal>();
+            modelBuilder.Entity<Dog>().ComplexProperty(d => d.Details, b => b.ToJson("Details"));
+            modelBuilder.Entity<Cat>().ComplexProperty(c => c.Details, b => b.ToJson("Details"));
+        }
+    }
+
+    [Fact]
+    public virtual async Task Json_complex_properties_on_base_and_derived_types_mapped_to_same_column_with_TPT()
+    {
+        var contextFactory = await InitializeNonSharedTest<ContextTptJsonColumn>(
+            seed: context =>
+            {
+                context.Add(
+                    new ContextTptJsonColumn.Dog
+                    {
+                        Name = "Rex",
+                        Details = new ContextTptJsonColumn.AnimalDetails { Weight = 30 },
+                        DogDetails = new ContextTptJsonColumn.DogDetails { Breed = "Collie" }
+                    });
+
+                return context.SaveChangesAsync();
+            });
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var dog = await context.Set<ContextTptJsonColumn.Dog>().SingleAsync();
+            dog.Details.Weight = 31;
+            dog.DogDetails.Breed = "Border Collie";
+
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var dog = await context.Set<ContextTptJsonColumn.Dog>().SingleAsync();
+
+            Assert.Equal(31, dog.Details.Weight);
+            Assert.Equal("Border Collie", dog.DogDetails.Breed);
+        }
+    }
+
+    private class ContextTptJsonColumn(DbContextOptions options) : DbContext(options)
+    {
+        public class Animal
+        {
+            public int Id { get; set; }
+            public required string Name { get; set; }
+            public required AnimalDetails Details { get; set; }
+        }
+
+        public class Dog : Animal
+        {
+            public required DogDetails DogDetails { get; set; }
+        }
+
+        public class AnimalDetails
+        {
+            public int Weight { get; set; }
+        }
+
+        public class DogDetails
+        {
+            public required string Breed { get; set; }
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Animal>(b =>
+            {
+                b.UseTptMappingStrategy();
+                b.ComplexProperty(a => a.Details, cb => cb.ToJson("Details"));
+            });
+            modelBuilder.Entity<Dog>().ComplexProperty(d => d.DogDetails, cb => cb.ToJson("Details"));
+        }
+    }
+
+    #endregion SiblingJsonColumn
+
     protected TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;
 

@@ -69,6 +69,52 @@ public class CSharpToLinqTranslatorTest
             """new[] { "foo", "bar" }.Select(s => s + "foo")""");
 
     [Fact]
+    public void Binary_equality_with_implicit_conversion()
+        => AssertExpression(
+            () => new[] { new ConvertibleName("foo") }.Where(name => (string)name == "foo"),
+            """new[] { new CSharpToLinqTranslatorTest.ConvertibleName("foo") }.Where(name => name == "foo")""");
+
+    [Fact]
+    public void Binary_equality_with_implicit_conversion_on_right()
+        => AssertExpression(
+            () => new[] { new ConvertibleName("foo") }.Where(name => "foo" == (string)name),
+            """new[] { new CSharpToLinqTranslatorTest.ConvertibleName("foo") }.Where(name => "foo" == name)""");
+
+    [Fact]
+    public void Binary_equality_with_implicit_conversion_and_explicit_conversion()
+        => AssertExpression(
+            () => new[] { new ConvertibleWithIntAndLong(1) }.Where(value => 1L == value),
+            "new[] { new CSharpToLinqTranslatorTest.ConvertibleWithIntAndLong(1) }.Where(value => 1L == value)");
+
+    [Fact]
+    public void Binary_equality_with_implicit_conversion_to_int_and_numeric_widening()
+        => AssertExpression(
+            () => new[] { new ConvertibleInt(1) }.Where(value => 1L == value),
+            "new[] { new CSharpToLinqTranslatorTest.ConvertibleInt(1) }.Where(value => 1L == value)");
+
+    [Fact]
+    public void Binary_equality_with_nullable_lifted_implicit_conversion()
+        => AssertExpression(
+            () => new[] { new NullableConversionPair(1L, new ConvertibleInt(1)) }
+                .Where(pair => pair.LongValue == pair.Value),
+            "new[] { new CSharpToLinqTranslatorTest.NullableConversionPair(1L, new CSharpToLinqTranslatorTest.ConvertibleInt(1)) }.Where(pair => pair.LongValue == pair.Value)");
+
+    [Fact]
+    public void Binary_inequality_with_implicit_conversion()
+        => AssertExpression(
+            () => new[] { new ConvertibleName("foo") }.Where(name => (string)name != "bar"),
+            """new[] { new CSharpToLinqTranslatorTest.ConvertibleName("foo") }.Where(name => name != "bar")""");
+
+    [Fact]
+    public void Binary_equality_without_implicit_conversion()
+        => AssertExpression(
+            () => new[] { new ConvertibleName("foo") }.Where(name => name == new ConvertibleName("foo")),
+            """
+new[] { new CSharpToLinqTranslatorTest.ConvertibleName("foo") }
+    .Where(name => name == new CSharpToLinqTranslatorTest.ConvertibleName("foo"))
+""");
+
+    [Fact]
     public void Cast()
         => AssertExpression(
             () => (object)1,
@@ -79,6 +125,50 @@ public class CSharpToLinqTranslatorTest
         => AssertExpression(
             () => (object?)"foo" ?? (object)"bar",
             """(object?)"foo" ?? (object)"bar" """);
+
+    [Theory]
+    [InlineData("condition ? Math.Sqrt(4.0) : null")]
+    [InlineData("condition ? (double?)Math.Sqrt(4.0) : null")]
+    public void Conditional_with_nullable_true_branch(string conditional)
+        => AssertExpression(
+            () => new[] { true, false }.Select(condition => new NullableMetric(condition ? (double?)Math.Sqrt(4.0) : null)),
+            $$"""
+new[] { true, false }.Select(condition => new CSharpToLinqTranslatorTest.NullableMetric({{conditional}}))
+""");
+
+    [Theory]
+    [InlineData("condition ? null : Math.Sqrt(4.0)")]
+    [InlineData("condition ? null : (double?)Math.Sqrt(4.0)")]
+    public void Conditional_with_nullable_false_branch(string conditional)
+        => AssertExpression(
+            () => new[] { true, false }.Select(condition => new NullableMetric(condition ? null : (double?)Math.Sqrt(4.0))),
+            $$"""
+new[] { true, false }.Select(condition => new CSharpToLinqTranslatorTest.NullableMetric({{conditional}}))
+""");
+
+    [Fact]
+    public void Conditional_with_numeric_conversion()
+        => AssertExpression(
+            () => new[] { true, false }.Select(condition => condition ? Math.Abs(8) : Math.Sqrt(4.0)),
+            "new[] { true, false }.Select(condition => condition ? Math.Abs(8) : Math.Sqrt(4.0))");
+
+    [Fact]
+    public void Coalesce_nullable_long_with_non_nullable_fallback()
+        => AssertExpression(
+            () => new long?[] { }.Select(value => value ?? 0L),
+            "new long?[] { }.Select(value => value ?? 0L)");
+
+    [Fact]
+    public void Coalesce_nullable_long_with_nullable_fallback()
+        => AssertExpression(
+            () => new long?[] { }.Select(value => value ?? (long?)0L),
+            "new long?[] { }.Select(value => value ?? (long?)0L)");
+
+    [Fact]
+    public void Coalesce_nullable_int_with_non_nullable_fallback()
+        => AssertExpression(
+            () => new int?[] { }.Select(value => value ?? 0),
+            "new int?[] { }.Select(value => value ?? 0)");
 
     [Fact]
     public void ElementAccess_over_array()
@@ -102,6 +192,34 @@ public class CSharpToLinqTranslatorTest
         => AssertExpression(
             () => new[] { 1, 2, 3 }.Where(i => i == 2),
             "new[] { 1, 2, 3 }.Where(i => i == 2);");
+
+    [Theory]
+    [InlineData("int", "8", 8, typeof(int))]
+    [InlineData("string", "\"Blog1\"", "Blog1", typeof(string))]
+    [InlineData("string", "null", null, typeof(string))]
+    [InlineData("object", "null", null, typeof(object))]
+    [InlineData(
+        "Microsoft.EntityFrameworkCore.Query.CSharpToLinqTranslatorTest.SomeEnum",
+        "Microsoft.EntityFrameworkCore.Query.CSharpToLinqTranslatorTest.SomeEnum.One",
+        SomeEnum.One, typeof(SomeEnum))]
+    public void IdentifierName_for_class_constant(string typeName, string initializer, object? value, Type type)
+    {
+        var compilation = Compile(
+            $$"""
+_ = TestContainer.Test();
+
+class TestContainer
+{
+    private const {{typeName}} Value = {{initializer}};
+    public static {{typeName}} Test() => Value;
+}
+""");
+
+        var expression = compilation.SyntaxTrees.Single().GetRoot().DescendantNodes()
+            .OfType<ArrowExpressionClauseSyntax>().Single().Expression;
+
+        Assert.Equal(Constant(value, type), Translate(expression, compilation), ExpressionEqualityComparer.Instance);
+    }
 
     [Fact]
     public void ImplicitArrayCreation()
@@ -264,6 +382,39 @@ public class CSharpToLinqTranslatorTest
         => AssertExpression(
             () => 1.5m,
             "1.5m");
+
+    [Theory]
+    [InlineData("(decimal amount) => amount > 0 ? amount : 0")]
+    [InlineData("(decimal amount) => amount > 0m ? amount : 0")]
+    [InlineData("(decimal amount) => amount > 0m ? amount : 0m")]
+    public void Literal_implicitly_converted_to_decimal(string code)
+        => AssertExpression(
+            () => new[] { 1m }.Select(amount => amount > 0m ? amount : 0m),
+            $"new[] {{ 1m }}.Select({code})");
+
+    [Fact]
+    public void Literal_char_implicitly_converted_to_decimal()
+        => AssertExpression(
+            () => new decimal[] { 'a' },
+            "new decimal[] { 'a' }");
+
+    [Fact]
+    public void Literal_implicitly_converted_to_byte()
+        => AssertExpression(
+            () => new byte[] { 255 },
+            "new byte[] { 255 }");
+
+    [Fact]
+    public void Literal_implicitly_converted_to_long()
+        => AssertExpression(
+            () => new long[] { 1 },
+            "new long[] { 1 }");
+
+    [Fact]
+    public void Literal_implicitly_converted_to_double()
+        => AssertExpression(
+            () => new double[] { 1 },
+            "new double[] { 1 }");
 
     [Fact]
     public void Literal_null()
@@ -488,6 +639,41 @@ _ = {code};
     }
 
     private class BlogContext : DbContext;
+
+    public sealed record NullableMetric(double? Value);
+
+    public class ConvertibleName(string value)
+    {
+        private readonly string _value = value;
+
+        public static implicit operator string(ConvertibleName name)
+            => name._value;
+    }
+
+    public class ConvertibleWithIntAndLong(int value)
+    {
+        public int Value { get; } = value;
+
+        public static implicit operator int(ConvertibleWithIntAndLong value)
+            => value.Value;
+
+        public static explicit operator long(ConvertibleWithIntAndLong value)
+            => value.Value + 100;
+    }
+
+    public readonly struct ConvertibleInt(int value)
+    {
+        public int Value { get; } = value;
+
+        public static implicit operator int(ConvertibleInt value)
+            => value.Value;
+    }
+
+    public class NullableConversionPair(long longValue, ConvertibleInt value)
+    {
+        public long? LongValue { get; } = longValue;
+        public ConvertibleInt? Value { get; } = value;
+    }
 
     public class Blog
     {

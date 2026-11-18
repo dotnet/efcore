@@ -54,7 +54,7 @@ WHERE instr("b"."ByteArray", X'01') > 0
 
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
-WHERE instr("b"."ByteArray", char(@someByte)) > 0
+WHERE instr("b"."ByteArray", unhex(printf('%02X', @someByte))) > 0
 """);
     }
 
@@ -66,7 +66,21 @@ WHERE instr("b"."ByteArray", char(@someByte)) > 0
             """
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
-WHERE instr("b"."ByteArray", char("b"."Byte")) > 0
+WHERE instr("b"."ByteArray", unhex(printf('%02X', "b"."Byte"))) > 0
+""");
+    }
+
+    public override async Task Contains_with_parameter_above_ascii_range()
+    {
+        await base.Contains_with_parameter_above_ascii_range();
+
+        AssertSql(
+            """
+@someByte='222'
+
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE instr("b"."ByteArray", unhex(printf('%02X', @someByte))) > 0
 """);
     }
 

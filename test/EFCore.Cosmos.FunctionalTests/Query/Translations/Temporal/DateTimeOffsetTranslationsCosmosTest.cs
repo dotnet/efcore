@@ -324,6 +324,17 @@ WHERE (c["DateTimeOffset"] = "1902-01-02T10:00:00.1234567+01:30")
 """);
     }
 
+    public override async Task Select_Ctor_Parameter_DateTime_New_TimeSpan()
+    {
+        await base.Select_Ctor_Parameter_DateTime_New_TimeSpan();
+
+        AssertSql("""
+SELECT VALUE c["DateTime"]
+FROM root c
+WHERE (DateTimePart("yyyy", c["DateTime"]) > 1)
+""");
+    }
+
     [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

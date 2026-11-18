@@ -1083,7 +1083,8 @@ public abstract class NorthwindWhereQueryTestBase<TFixture>(TFixture fixture) : 
     public virtual Task Where_compare_constructed_multi_value_not_equal(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => new { x = c.City, y = c.Country } != new { x = "London", y = "UK" }));
+            ss => ss.Set<Customer>().Where(c => new { x = c.City, y = c.Country } != new { x = "London", y = "UK" }),
+            ss => ss.Set<Customer>().Where(c => c.City != "London" || c.Country != "UK"));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Where_compare_tuple_constructed_equal(bool async)
@@ -1922,6 +1923,22 @@ public abstract class NorthwindWhereQueryTestBase<TFixture>(TFixture fixture) : 
             async,
             ss => ss.Set<Customer>().Where(c => c.CustomerID == EF.Constant(i + j)),
             ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI"));
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task EF_Constant_with_enum_cast(bool async)
+    {
+        var id = OrderIdEnum.First;
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Order>().Where(o => o.OrderID == EF.Constant((int)id)),
+            ss => ss.Set<Order>().Where(o => o.OrderID == 10248));
+    }
+
+    private enum OrderIdEnum
+    {
+        First = 10248
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]

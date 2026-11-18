@@ -79,8 +79,12 @@ internal partial class MigrationsBundleCommand
         };
         programGenerator.Initialize();
 
+#if NET10_0_OR_GREATER
+        var tempDirectory = Directory.CreateTempSubdirectory().FullName;
+#else
         var tempDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
         Directory.CreateDirectory(tempDirectory);
+#endif
         try
         {
             var directory = tempDirectory;

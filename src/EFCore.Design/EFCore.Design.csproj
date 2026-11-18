@@ -48,7 +48,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="build\**\*" PackagePath="build\" Pack="true" />
+    <None Include="build\**\*" PackagePath="build\$(DefaultNetCoreTargetFramework)" Pack="true" />
   </ItemGroup>
 
   <ItemGroup>

@@ -712,4 +712,101 @@ INNER JOIN (
 ) AS [m1] ON [m].[RulerOf] = [m1].[Affiliation]
 """);
     }
+
+    public override async Task GroupBy_aggregate_on_owned_navigation_mapped_to_its_own_table(bool async)
+    {
+        await base.GroupBy_aggregate_on_owned_navigation_mapped_to_its_own_table(async);
+
+        AssertSql(
+            """
+SELECT [i].[Region] AS [Key], (
+    SELECT ISNULL(SUM([s].[Amount]), 0)
+    FROM [Invoice] AS [i0]
+    LEFT JOIN [Summaries] AS [s] ON [i0].[Id] = [s].[InvoiceId]
+    WHERE [i].[Region] = [i0].[Region]) AS [Total]
+FROM [Invoice] AS [i]
+GROUP BY [i].[Region]
+""");
+    }
+
+    public override async Task GroupBy_aggregate_on_owned_navigation_split_over_two_tables(bool async)
+    {
+        await base.GroupBy_aggregate_on_owned_navigation_split_over_two_tables(async);
+
+        AssertSql(
+            """
+SELECT [o].[Region] AS [Key], ISNULL(SUM([o].[Total_Net]), 0) AS [Total], ISNULL(SUM(CASE
+    WHEN [o].[Total_Net] IS NOT NULL THEN [o0].[Tax]
+END), 0) AS [Tax]
+FROM [Order] AS [o]
+LEFT JOIN [OrderTotalTax] AS [o0] ON [o].[Id] = [o0].[OrderId]
+GROUP BY [o].[Region]
+""");
+    }
+
+    public override async Task Owned_collection_select_many_without_result_selector(bool async)
+    {
+        await base.Owned_collection_select_many_without_result_selector(async);
+        AssertSql(
+            """
+SELECT [v0].[Id], [v0].[PrintMargin_Foo], [v0].[Id0], [v0].[DocumentTestId], [v0].[Number]
+FROM [DocumentTest] AS [d]
+CROSS APPLY (
+    SELECT [d].[Id], [v].[Id] AS [Id0], [v].[DocumentTestId], [v].[Number], [d].[PrintMargin_Foo]
+    FROM [VersionTest] AS [v]
+    WHERE [d].[Id] = [v].[DocumentTestId]
+) AS [v0]
+""");
+    }
+
+    public override async Task Owned_collection_select_many_with_result_selector(bool async)
+    {
+        await base.Owned_collection_select_many_with_result_selector(async);
+        AssertSql(
+            """
+SELECT [d].[Id], [d].[PrintMargin_Foo], [v].[Id], [v].[DocumentTestId], [v].[Number]
+FROM [DocumentTest] AS [d]
+INNER JOIN [VersionTest] AS [v] ON [d].[Id] = [v].[DocumentTestId]
+""");
+    }
+
+    public override async Task Owned_collection_select_many_without_result_selector_owned_in_separate_table(bool async)
+    {
+        await base.Owned_collection_select_many_without_result_selector_owned_in_separate_table(async);
+        AssertSql(
+            """
+SELECT [v0].[Id], [p].[DocumentTestId], [p].[Foo], [v0].[Id0], [v0].[DocumentTestId], [v0].[Number]
+FROM [DocumentTest] AS [d]
+CROSS APPLY (
+    SELECT [d].[Id], [v].[Id] AS [Id0], [v].[DocumentTestId], [v].[Number]
+    FROM [VersionTest] AS [v]
+    WHERE [d].[Id] = [v].[DocumentTestId]
+) AS [v0]
+LEFT JOIN [PrintMargins] AS [p] ON [d].[Id] = [p].[DocumentTestId]
+""");
+    }
+
+    public override async Task Owned_entity_where_after_include(bool async)
+    {
+        await base.Owned_entity_where_after_include(async);
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[BaseEntityProperty], [b].[Information_Boolean], [b].[Information_NavId], [n].[Id]
+FROM [BaseMyClass] AS [b]
+LEFT JOIN [Nav] AS [n] ON [b].[Information_NavId] = [n].[Id]
+WHERE [b].[Id] = 1 AND [b].[Information_Boolean] = CAST(1 AS bit)
+""");
+    }
+
+    public override async Task Owned_entity_where_before_include(bool async)
+    {
+        await base.Owned_entity_where_before_include(async);
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[BaseEntityProperty], [b].[Information_Boolean], [b].[Information_NavId], [n].[Id]
+FROM [BaseMyClass] AS [b]
+LEFT JOIN [Nav] AS [n] ON [b].[Information_NavId] = [n].[Id]
+WHERE [b].[Id] = 1 AND [b].[Information_Boolean] = CAST(1 AS bit)
+""");
+    }
 }

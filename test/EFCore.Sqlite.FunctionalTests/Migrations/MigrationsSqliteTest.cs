@@ -2079,10 +2079,10 @@ CREATE TABLE "Contacts" (
     "Name" TEXT NULL,
     "Number" INTEGER NULL,
     "MyComplex_Prop" TEXT NULL,
-    "MyComplex_MyNestedComplex_Bar" TEXT NULL,
-    "MyComplex_MyNestedComplex_Foo" INTEGER NULL,
-    "MyComplex_Nested_Bar" TEXT NULL,
     "MyComplex_Nested_Foo" INTEGER NULL,
+    "MyComplex_Nested_Bar" TEXT NULL,
+    "MyComplex_MyNestedComplex_Foo" INTEGER NULL,
+    "MyComplex_MyNestedComplex_Bar" TEXT NULL,
     "NestedCollection" TEXT NULL
 );
 """);
@@ -2098,10 +2098,10 @@ CREATE TABLE "Suppliers" (
     "Id" INTEGER NOT NULL CONSTRAINT "PK_Suppliers" PRIMARY KEY AUTOINCREMENT,
     "Number" INTEGER NOT NULL,
     "MyComplex_Prop" TEXT NULL,
-    "MyComplex_MyNestedComplex_Bar" TEXT NULL,
-    "MyComplex_MyNestedComplex_Foo" INTEGER NULL,
-    "MyComplex_Nested_Bar" TEXT NULL,
     "MyComplex_Nested_Foo" INTEGER NULL,
+    "MyComplex_Nested_Bar" TEXT NULL,
+    "MyComplex_MyNestedComplex_Foo" INTEGER NULL,
+    "MyComplex_MyNestedComplex_Bar" TEXT NULL,
     "NestedCollection" TEXT NULL
 );
 """);
@@ -2307,10 +2307,6 @@ CREATE TABLE "Customers" (
 
     // Our current version Sqlite doesn't seem to support scaffolding collations
     protected override bool AssertCollations
-        => false;
-
-    // Reverse engineering of index filters isn't supported in SQLite
-    protected override bool AssertIndexFilters
         => false;
 
     // Reverse engineering of constraint names isn't supported in SQLite

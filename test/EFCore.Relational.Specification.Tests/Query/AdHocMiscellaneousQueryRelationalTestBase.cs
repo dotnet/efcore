@@ -379,6 +379,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var filteredQuery = users.Where(u => u.Role.ToString() == "Admin").Select(u => u.Role.ToString());
             Assert.Equal(["Admin"], async ? await filteredQuery.ToListAsync() : filteredQuery.ToList());
+
+            var containsQuery = users.Where(u => u.Role.ToString().Contains("Adm")).Select(u => u.Role.ToString());
+            Assert.Equal(["Admin"], async ? await containsQuery.ToListAsync() : containsQuery.ToList());
         }
 
         protected class Context39146(DbContextOptions options) : DbContext(options)
@@ -479,6 +482,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         //   after the DefaultIfEmpty, and GroupBy applied after the left join then reduced via a to-one
         //   subquery / FirstOrDefault, also correctly materialize the whole non-entity object as null on a
         //   no-match (the marker survives the shaper rebuild across the subsequent join / grouping).
+        //   The same holds for RightJoin, where the OUTER side is the nullable one, when the outer is a GroupBy and/or
+        //   Distinct (optionally with Take over the GroupBy); a MemberInit DTO outer and a subsequent LeftJoin are covered too.
         // DEFERRED (still failing, tracked as #30915 follow-ups; these tests assert the throw /
         //   translation failure): constructor-bound (read-only) reference-type DTO and positional record
         //   struct (fail to translate: ReplacingExpressionVisitor's constructor-parameter fold is
@@ -486,8 +491,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         //   since only those BCL types have a closed, guaranteed constructor-to-property contract; an
         //   arbitrary named type's "matching name" convention can't be verified and could silently fold to
         //   the wrong value for a transforming constructor); plain inner with no aggregate / no
-        //   pushdown; Union and other set operations over the projection; and server-side OrderBy/Where
-        //   null-checks against the whole non-entity projection.
+        //   pushdown (including a plain RightJoin outer, one with only Where/Take over a plain Select, and one that is already a
+        //   join result); and a GroupBy followed by a client-evaluated Select (a pre-existing limitation of
+        //   LEFT JOIN as well); and server-side OrderBy/Where null-checks against the
+        //   whole non-entity projection.
 
         #region Category A: whole non-entity object projected from the nullable side
 
@@ -1490,12 +1497,302 @@ namespace Microsoft.EntityFrameworkCore.Query
                     context.Statuses, c => c.pickupStatusId, s => s.PickupStatusId, (countInfo, s) => new { s.PickupStatusId, countInfo })
                 .OrderBy(e => e.PickupStatusId);
 
-            // The RightJoin operator makes the OUTER (non-entity categories) the nullable side; the fix's
-            // marker is injected for the INNER nullable side of LEFT JOIN / DefaultIfEmpty only, so this
-            // RIGHT JOIN whole-object shape is not covered and still fails during materialization.
+            var result = await query.ToListAsync();
+
+            Assert.Equal(3, result.Count);
+
+            Assert.Equal(1, result[0].PickupStatusId);
+            Assert.NotNull(result[0].countInfo);
+            Assert.Equal(1, result[0].countInfo!.pickupStatusId);
+            Assert.Equal(2, result[0].countInfo!.Count);
+
+            // status 2 -> no match, the (outer) whole non-entity object is null
+            Assert.Equal(2, result[1].PickupStatusId);
+            Assert.Null(result[1].countInfo);
+
+            Assert.Equal(3, result[2].PickupStatusId);
+            Assert.NotNull(result[2].countInfo);
+            Assert.Equal(3, result[2].countInfo!.pickupStatusId);
+            Assert.Equal(1, result[2].countInfo!.Count);
+        }
+
+        private static void AssertRightJoinOuterNullable(
+            IEnumerable<(int PickupStatusId, int? Count)> rows,
+            int? count1 = 2)
+            => Assert.Equal([(1, count1), (2, (int?)null), (3, (int?)1)], rows.ToArray());
+
+        [Fact]
+        public virtual async Task RightJoin_whole_object_outer_nullable_MemberInit_dto()
+        {
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new Context30915.CountDto30915 { PickupStatusId = k, Count = els.Count() });
+
+            var query = categories
+                .RightJoin(
+                    context.Statuses, c => c.PickupStatusId, s => s.PickupStatusId, (countInfo, s) => new { s.PickupStatusId, countInfo })
+                .OrderBy(e => e.PickupStatusId);
+
+            var result = await query.ToListAsync();
+
+            AssertRightJoinOuterNullable(result.Select(e => (e.PickupStatusId, e.countInfo?.Count)));
+        }
+
+        [Fact]
+        public virtual async Task RightJoin_whole_object_outer_nullable_Distinct_outer()
+        {
+            // Distinct on the outer pushes it into a subquery, so the marker column is nulled by the RIGHT JOIN.
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .Select(r => new { r.PickupStatusId, Count = 1 })
+                .Distinct();
+
+            var query = categories
+                .RightJoin(
+                    context.Statuses, c => c.PickupStatusId, s => s.PickupStatusId, (countInfo, s) => new { s.PickupStatusId, countInfo })
+                .OrderBy(e => e.PickupStatusId);
+
+            var result = await query.ToListAsync();
+
+            AssertRightJoinOuterNullable(result.Select(e => (e.PickupStatusId, e.countInfo?.Count)), count1: 1);
+        }
+
+        [Fact]
+        public virtual async Task RightJoin_whole_object_outer_nullable_Take_outer()
+        {
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new { pickupStatusId = k, Count = els.Count() })
+                .OrderBy(c => c.pickupStatusId)
+                .Take(10);
+
+            var query = categories
+                .RightJoin(
+                    context.Statuses, c => c.pickupStatusId, s => s.PickupStatusId, (countInfo, s) => new { s.PickupStatusId, countInfo })
+                .OrderBy(e => e.PickupStatusId);
+
+            var result = await query.ToListAsync();
+
+            AssertRightJoinOuterNullable(result.Select(e => (e.PickupStatusId, e.countInfo?.Count)));
+        }
+
+        [Fact]
+        public virtual async Task RightJoin_whole_object_outer_nullable_then_LeftJoin()
+        {
+            // A subsequent join rebuilds the shaper containing the right-joined object; the marker must survive.
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new { pickupStatusId = k, Count = els.Count() });
+
+            var query = categories
+                .RightJoin(
+                    context.Statuses, c => c.pickupStatusId, s => s.PickupStatusId, (countInfo, s) => new { s.PickupStatusId, countInfo })
+                .LeftJoin(
+                    context.Statuses, e => e.PickupStatusId, s2 => s2.PickupStatusId,
+                    (e, s2) => new { e.PickupStatusId, e.countInfo, s2!.Name })
+                .OrderBy(e => e.PickupStatusId);
+
+            var result = await query.ToListAsync();
+
+            AssertRightJoinOuterNullable(result.Select(e => (e.PickupStatusId, e.countInfo?.Count)));
+        }
+
+        [Fact]
+        public virtual async Task RightJoin_whole_object_outer_nullable_plain_outer_no_pushdown()
+        {
+            // The outer needs no pushdown here, so (as for the plain-inner LEFT JOIN case) there is no subquery for the
+            // marker to be nulled through. Characterization of the current behavior.
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests.Select(r => new { r.PickupStatusId, Count = 1 });
+
+            var query = categories
+                .RightJoin(
+                    context.Statuses, c => c.PickupStatusId, s => s.PickupStatusId, (countInfo, s) => new { s.PickupStatusId, countInfo })
+                .OrderBy(e => e.PickupStatusId);
+
             var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
             Assert.Contains("Cannot read the Value property of a Nullable object that has no value", ex.Message);
-            // #30915 TODO: RightJoin (outer-nullable) whole-object not yet covered; flip to assert results if/when fixed.
+            // #30915 TODO: plain (no pushdown) outer not yet covered; flip to assert results if/when fixed.
+        }
+
+        private static string Format30915(int value)
+            => $"#{value}";
+
+        [Fact]
+        public virtual async Task RightJoin_whole_object_outer_nullable_client_projection_outer()
+        {
+            // A client-evaluated member in the outer puts it in the client-projection representation, which takes a
+            // different remapping path in AddJoin than the projection-mapping representation.
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .Select(r => new { r.PickupStatusId, Count = 1, Label = Format30915(r.PickupStatusId) })
+                .Distinct();
+
+            var query = categories
+                .RightJoin(
+                    context.Statuses, c => c.PickupStatusId, s => s.PickupStatusId, (countInfo, s) => new { s.PickupStatusId, countInfo })
+                .OrderBy(e => e.PickupStatusId);
+
+            var result = await query.ToListAsync();
+
+            AssertRightJoinOuterNullable(result.Select(e => (e.PickupStatusId, e.countInfo?.Count)), count1: 1);
+            Assert.Equal("#1", result[0].countInfo!.Label);
+        }
+
+        [Fact]
+        public virtual async Task RightJoin_whole_object_outer_nullable_client_projection_both_sides()
+        {
+            // Client projections on both the outer and the inner.
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .Select(r => new { r.PickupStatusId, Count = 1, Label = Format30915(r.PickupStatusId) })
+                .Distinct();
+
+            var query = categories
+                .RightJoin(
+                    context.Statuses.Select(s => new { s.PickupStatusId, Label = Format30915(s.PickupStatusId) }),
+                    c => c.PickupStatusId, s => s.PickupStatusId, (countInfo, s) => new { s.PickupStatusId, s.Label, countInfo })
+                .OrderBy(e => e.PickupStatusId);
+
+            var result = await query.ToListAsync();
+
+            AssertRightJoinOuterNullable(result.Select(e => (e.PickupStatusId, e.countInfo?.Count)), count1: 1);
+        }
+
+        [Fact]
+        public virtual async Task RightJoin_whole_object_outer_nullable_mapping_outer_client_projection_inner()
+        {
+            // Outer in the projection-mapping representation, inner in the client-projection representation.
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new { pickupStatusId = k, Count = els.Count() });
+
+            var query = categories
+                .RightJoin(
+                    context.Statuses.Select(s => new { s.PickupStatusId, Label = Format30915(s.PickupStatusId) }),
+                    c => c.pickupStatusId, s => s.PickupStatusId, (countInfo, s) => new { s.PickupStatusId, s.Label, countInfo })
+                .OrderBy(e => e.PickupStatusId);
+
+            var result = await query.ToListAsync();
+
+            AssertRightJoinOuterNullable(result.Select(e => (e.PickupStatusId, e.countInfo?.Count)));
+            Assert.Equal("#2", result[1].Label);
+        }
+
+        [Fact]
+        public virtual async Task FullJoin_whole_object_both_sides_nullable()
+        {
+            // Both sides of a FULL JOIN are nullable, so each gets its own marker.
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var left = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new { pickupStatusId = k, Count = els.Count() });
+
+            var right = context.Statuses
+                .Where(s => s.PickupStatusId != 1)
+                .Select(s => new { s.PickupStatusId, Name = s.Name })
+                .Distinct();
+
+            var query = left.FullJoin(right, l => l.pickupStatusId, r => r.PickupStatusId, (l, r) => new { l, r });
+
+            var result = (await query.ToListAsync())
+                .OrderBy(e => e.l?.pickupStatusId ?? e.r!.PickupStatusId)
+                .ToList();
+
+            Assert.Equal(3, result.Count);
+
+            // status 1 -> only on the left
+            Assert.Equal(2, result[0].l!.Count);
+            Assert.Null(result[0].r);
+
+            // status 2 -> only on the right
+            Assert.Null(result[1].l);
+            Assert.Equal(2, result[1].r!.PickupStatusId);
+
+            // status 3 -> on both sides
+            Assert.Equal(1, result[2].l!.Count);
+            Assert.Equal(3, result[2].r!.PickupStatusId);
+        }
+
+        [Fact]
+        public virtual async Task RightJoin_whole_object_outer_nullable_Where_over_plain_Select_outer()
+        {
+            // A Where over a plain Select outer pushes down, but the whole object is not gated on the marker (cause not diagnosed;
+            // the LEFT JOIN analogue differs, since an inner Where is folded into the ON clause).
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests.Select(r => new { r.PickupStatusId, Count = 1 }).Where(c => c.PickupStatusId > 0);
+
+            var query = categories
+                .RightJoin(
+                    context.Statuses, c => c.PickupStatusId, s => s.PickupStatusId, (countInfo, s) => new { s.PickupStatusId, countInfo })
+                .OrderBy(e => e.PickupStatusId);
+
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
+            Assert.Contains("Cannot read the Value property of a Nullable object that has no value", ex.Message);
+            // #30915 TODO: not yet covered; flip to assert results if/when fixed.
+        }
+
+        [Fact]
+        public virtual async Task RightJoin_whole_object_outer_nullable_Take_over_plain_Select_outer()
+        {
+            // A Take over a plain Select outer pushes down, but the whole object is not gated on the marker (cause not diagnosed).
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests.Select(r => new { r.PickupStatusId, Count = 1 }).OrderBy(c => c.PickupStatusId).Take(10);
+
+            var query = categories
+                .RightJoin(
+                    context.Statuses, c => c.PickupStatusId, s => s.PickupStatusId, (countInfo, s) => new { s.PickupStatusId, countInfo })
+                .OrderBy(e => e.PickupStatusId);
+
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
+            Assert.Contains("Cannot read the Value property of a Nullable object that has no value", ex.Message);
+            // #30915 TODO: not yet covered; flip to assert results if/when fixed.
+        }
+
+        [Fact]
+        public virtual async Task RightJoin_whole_object_outer_nullable_outer_is_join_result()
+        {
+            // The outer is itself the result of a join, so it needs no pushdown and the marker is inlined as a constant.
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new { pickupStatusId = k, Count = els.Count() });
+
+            var first = categories
+                .RightJoin(
+                    context.Statuses, c => c.pickupStatusId, s => s.PickupStatusId, (countInfo, s) => new { s.PickupStatusId, countInfo });
+
+            var query = first
+                // No request id (+ 10) matches a status id, so the (outer) join result is unmatched on every row.
+                .RightJoin(
+                    context.Requests, f => f.PickupStatusId, r => r.Id + 10, (f, r) => new { r.Id, f })
+                .OrderBy(e => e.Id);
+
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
+            Assert.Contains("Cannot read the Value property of a Nullable object that has no value", ex.Message);
+            // #30915 TODO: not yet covered; flip to assert results if/when fixed.
         }
 
         [Fact]
@@ -2091,6 +2388,1039 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             public record struct CountRecordStruct30915(int PickupStatusId, int Count);
+        }
+
+        #endregion
+
+        #region 33663
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task GroupBy_nullable_foreign_key_in_anonymous_key(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<Context33663>(seed: async c =>
+            {
+                var country = new Context33663.Country();
+                c.AddRange(
+                    new Context33663.Company { Country = country },
+                    new Context33663.Company { Country = country },
+                    new Context33663.Company());
+                await c.SaveChangesAsync();
+            });
+            using var context = contextFactory.CreateDbContext();
+
+            var group = context.Companies.GroupBy(x => new { x.CountryId });
+            var group1 = context.Companies.GroupBy(x => new { x.CountryId, x.Id });
+            var select2 = group.Select(x => new { x.Key, C = x.ToArray() });
+            var select4 = group1.Select(x => new { x.Key, C = x.ToArray() });
+
+            var groupRes = async ? await group.ToListAsync() : group.ToList();
+            var groupres1 = async ? await group1.ToListAsync() : group1.ToList();
+            var select2Res = async ? await select2.ToListAsync() : select2.ToList();
+            var select4Res = async ? await select4.ToListAsync() : select4.ToList();
+
+            Assert.Equal([1, 2], groupRes.Select(g => g.Count()).Order());
+            Assert.Single(groupRes, g => g.Key.CountryId == null);
+            Assert.Equal([1, 1, 1], groupres1.Select(g => g.Count()));
+            Assert.Equal([1, 2], select2Res.Select(g => g.C.Length).Order());
+            Assert.Single(select2Res, g => g.Key.CountryId == null);
+            Assert.Equal([1, 1, 1], select4Res.Select(g => g.C.Length));
+        }
+
+        // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+        protected class Context33663(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<Company> Companies
+                => Set<Company>();
+
+            public class Country
+            {
+                public int Id { get; set; }
+            }
+
+            public class Company
+            {
+                public int Id { get; set; }
+                public int? CountryId { get; set; }
+                public Country? Country { get; set; }
+            }
+        }
+
+        #endregion
+
+        #region 39241
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task GroupBy_elements_with_keys_differing_only_in_case(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<Context39241>(seed: async c =>
+            {
+                c.AddRange(
+                    new Context39241.Employee { Name = "Alice", DepartmentName = "Engineering" },
+                    new Context39241.Employee { Name = "Bob", DepartmentName = "Engineering" },
+                    new Context39241.Employee { Name = "Cheng", DepartmentName = "Engineering" },
+                    new Context39241.Employee { Name = "Fen", DepartmentName = "engineering" },
+                    new Context39241.Employee { Name = "Dara", DepartmentName = "Sales" });
+                await c.SaveChangesAsync();
+            });
+            using var context = contextFactory.CreateDbContext();
+
+            // Whether keys differing only in case are one group depends on the database's collation; either way, the groupings have to
+            // be the database's groups.
+            var databaseGroups = context.Employees.GroupBy(e => e.DepartmentName).Select(g => g.Count());
+            var groupings = context.Employees.GroupBy(e => e.DepartmentName).Select(g => g.Select(e => e.Name).ToList());
+
+            var databaseGroupsRes = async ? await databaseGroups.ToListAsync() : databaseGroups.ToList();
+            ClearLog();
+            var groupingsRes = async ? await groupings.ToListAsync() : groupings.ToList();
+
+            Assert.Equal(databaseGroupsRes.Order(), groupingsRes.Select(g => g.Count).Order());
+            Assert.Equal(["Alice", "Bob", "Cheng", "Dara", "Fen"], groupingsRes.SelectMany(g => g).Order());
+        }
+
+        // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+        protected class Context39241(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<Employee> Employees
+                => Set<Employee>();
+
+            public class Employee
+            {
+                public int Id { get; set; }
+                public string Name { get; set; } = null!;
+                public string DepartmentName { get; set; } = null!;
+            }
+        }
+
+        #endregion
+
+        #region 31388
+
+        // A keyless entity has no identifier, so the grouping terms have to stand in for it when a final GroupBy is shaped on the client.
+        // Without one, the rows of every group looked like part of the first group (or, before that was guarded, the query threw).
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Keyless_entity_final_GroupBy_with_ToDictionary(bool async)
+        {
+            var contextFactory = await SeedKeyless31388();
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Sales
+                .Where(s => s.Amount > 0)
+                .GroupBy(s => new { s.Region, s.Product });
+
+            var result = async
+                ? await query.ToDictionaryAsync(g => g.Key.Region, g => g.Key.Product)
+                : query.ToDictionary(g => g.Key.Region, g => g.Key.Product);
+
+            Assert.Equal(
+                new Dictionary<string, string> { ["North"] = "Chair", ["South"] = "Desk" },
+                result);
+        }
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Keyless_entity_final_GroupBy_with_elements(bool async)
+        {
+            var contextFactory = await SeedKeyless31388();
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Sales.GroupBy(s => s.Region);
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            Assert.Equal(["North", "South"], result.Select(g => g.Key).Order());
+            Assert.Equal([1, 2, 3], result.Single(g => g.Key == "North").Select(s => s.Amount).Order());
+            Assert.Equal([4], result.Single(g => g.Key == "South").Select(s => s.Amount));
+        }
+
+        // The grouping key can be null, and can be computed (which pushes the query down into a subquery).
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Keyless_entity_final_GroupBy_with_null_key(bool async)
+        {
+            var contextFactory = await SeedKeyless31388();
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Sales.GroupBy(s => s.Category);
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            Assert.Equal([null, "A"], result.Select(g => g.Key).OrderBy(k => k));
+            Assert.Equal([2, 3], result.Single(g => g.Key == null).Select(s => s.Amount).Order());
+            Assert.Equal([1, 4], result.Single(g => g.Key == "A").Select(s => s.Amount).Order());
+        }
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Keyless_entity_final_GroupBy_with_computed_key(bool async)
+        {
+            var contextFactory = await SeedKeyless31388();
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Sales.GroupBy(s => s.Amount % 2);
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            Assert.Equal([0, 1], result.Select(g => g.Key).Order());
+            Assert.Equal([2, 4], result.Single(g => g.Key == 0).Select(s => s.Amount).Order());
+            Assert.Equal([1, 3], result.Single(g => g.Key == 1).Select(s => s.Amount).Order());
+        }
+
+        private async Task<ContextFactory<Context31388>> SeedKeyless31388()
+            => await InitializeNonSharedTest<Context31388>(
+                seed: c => c.Database.ExecuteSqlRawAsync(
+                    """
+INSERT INTO Sales (Region, Product, Amount, Category) VALUES ('North', 'Chair', 1, 'A'), ('North', 'Chair', 2, NULL), ('North', 'Chair', 3, NULL), ('South', 'Desk', 4, 'A')
+"""));
+
+        protected class Context31388(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<Sale> Sales
+                => Set<Sale>();
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+                => modelBuilder.Entity<Sale>().HasNoKey().ToTable("Sales");
+
+            public class Sale
+            {
+                public string Region { get; set; } = null!;
+                public string Product { get; set; } = null!;
+                public int Amount { get; set; }
+                public string? Category { get; set; }
+            }
+        }
+
+        #endregion
+
+        #region 33494
+
+        // A non-distinct set operation (UNION ALL) has no identifier, so a final GroupBy over it had the same problem as a keyless entity.
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Final_GroupBy_over_set_operation(bool async)
+        {
+            var contextFactory = await SeedSetOperations33494();
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Managers.Where(m => m.Name != "Cheng")
+                .Concat(context.Managers.Where(m => m.Name == "Cheng"))
+                .GroupBy(m => m.Name);
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            Assert.Equal(["Alice", "Bob", "Cheng"], result.Select(g => g.Key).Order());
+            Assert.Equal([2, 1, 1], result.OrderBy(g => g.Key).Select(g => g.Count()));
+        }
+
+        // A distinct set operation keeps the identifier, so the elements of each group can be told apart and projected as a collection.
+        // This is the shape from the issue.
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Final_GroupBy_over_Except_with_collection(bool async)
+        {
+            var contextFactory = await SeedSetOperations33494();
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Companies.Select(c => c.Manager)
+                .Except(context.Managers.Where(m => m.Name == "Cheng"))
+                .GroupBy(m => m.Name)
+                .Select(g => new { g.Key, Count = g.Count(), Ids = g.Select(m => m.Id).ToList() });
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            Assert.Equal(["Alice", "Bob"], result.Select(g => g.Key).Order());
+            Assert.Equal([2, 1], result.OrderBy(g => g.Key).Select(g => g.Count));
+            Assert.Equal([1, 2], result.Single(g => g.Key == "Alice").Ids.Order());
+            Assert.Equal([3], result.Single(g => g.Key == "Bob").Ids);
+        }
+
+        // UNION ALL has no identifier, so the elements of a group can't be told apart on the client. This is the same limitation as for
+        // a collection projected from a Concat; see the *SetOperations* tests.
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Final_GroupBy_over_Concat_with_collection_throws(bool async)
+        {
+            var contextFactory = await SeedSetOperations33494();
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Managers.Where(m => m.Name != "Cheng")
+                .Concat(context.Managers.Where(m => m.Name == "Cheng"))
+                .GroupBy(m => m.Name)
+                .Select(g => new { g.Key, Count = g.Count(), Ids = g.Select(m => m.Id).ToList() });
+
+            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+                async () => _ = async ? await query.ToListAsync() : query.ToList())).Message;
+
+            Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
+        }
+
+        private async Task<ContextFactory<Context33494>> SeedSetOperations33494()
+            => await InitializeNonSharedTest<Context33494>(seed: async c =>
+            {
+                Context33494.Manager[] managers =
+                [
+                    new() { Name = "Alice" },
+                    new() { Name = "Alice" },
+                    new() { Name = "Bob" },
+                    new() { Name = "Cheng" }
+                ];
+                c.AddRange(managers);
+                c.AddRange(managers.Select(m => new Context33494.Company { Manager = m }));
+                await c.SaveChangesAsync();
+            });
+
+        protected class Context33494(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<Manager> Managers
+                => Set<Manager>();
+
+            public DbSet<Company> Companies
+                => Set<Company>();
+
+            public class Manager
+            {
+                public int Id { get; set; }
+                public string Name { get; set; } = null!;
+            }
+
+            public class Company
+            {
+                public int Id { get; set; }
+                public Manager Manager { get; set; } = null!;
+            }
+        }
+
+        #endregion
+
+        #region 39366
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task GroupBy_value_converted_reference_type_key_with_elements_and_aggregate(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<ContextConvertedReferenceKey>(seed: c => c.SeedAsync());
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Posts
+                .GroupBy(p => p.Tag)
+                .Select(g => new { g.Key, Ids = g.Select(p => p.Id).ToList(), Count = g.Count() });
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            Assert.Collection(
+                result.OrderBy(g => g.Key.Name),
+                efcore =>
+                {
+                    Assert.Equal("efcore", efcore.Key.Name);
+                    Assert.Equal([1, 2], efcore.Ids.Order());
+                    Assert.Equal(2, efcore.Count);
+                },
+                linq =>
+                {
+                    Assert.Equal("linq", linq.Key.Name);
+                    Assert.Equal([3], linq.Ids);
+                    Assert.Equal(1, linq.Count);
+                });
+        }
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Distinct_value_converted_reference_type_with_collection(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<ContextConvertedReferenceKey>(seed: c => c.SeedAsync());
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Posts
+                .Select(p => p.Tag)
+                .Distinct()
+                .Select(t => new { Tag = t, Ids = context.Posts.Where(p => p.Tag == t).Select(p => p.Id).ToList() });
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            Assert.Collection(
+                result.OrderBy(t => t.Tag.Name),
+                efcore =>
+                {
+                    Assert.Equal("efcore", efcore.Tag.Name);
+                    Assert.Equal([1, 2], efcore.Ids.Order());
+                },
+                linq =>
+                {
+                    Assert.Equal("linq", linq.Tag.Name);
+                    Assert.Equal([3], linq.Ids);
+                });
+        }
+
+        // A set operation's projected columns become its identifiers.
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Union_value_converted_reference_type_with_collection(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<ContextConvertedReferenceKey>(seed: c => c.SeedAsync());
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Posts.Where(p => p.Id < 3).Select(p => p.Tag)
+                .Union(context.Posts.Where(p => p.Id > 1).Select(p => p.Tag))
+                .Select(t => new { Tag = t, Ids = context.Posts.Where(p => p.Tag == t).Select(p => p.Id).ToList() });
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            Assert.Collection(
+                result.OrderBy(t => t.Tag.Name),
+                efcore =>
+                {
+                    Assert.Equal("efcore", efcore.Tag.Name);
+                    Assert.Equal([1, 2], efcore.Ids.Order());
+                },
+                linq =>
+                {
+                    Assert.Equal("linq", linq.Tag.Name);
+                    Assert.Equal([3], linq.Ids);
+                });
+        }
+
+        // An entity's key becomes the identifier of a set operation over it.
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_entity_with_value_converted_key_with_collection(bool async)
+            => AssertUnionEntityWithConvertedKey(async, splitQuery: false);
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_entity_with_value_converted_key_with_split_collection(bool async)
+            => AssertUnionEntityWithConvertedKey(async, splitQuery: true);
+
+        private async Task AssertUnionEntityWithConvertedKey(bool async, bool splitQuery)
+        {
+            var contextFactory = await InitializeNonSharedTest<ContextConvertedEntityKey>(seed: c => c.SeedAsync());
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Blogs.Where(b => b.Name == "efcore")
+                .Union(context.Blogs.Where(b => b.Name == "linq"))
+                .Select(b => new { b.Name, PostIds = b.Posts.Select(p => p.Id).ToList() });
+            if (splitQuery)
+            {
+                query = query.AsSplitQuery();
+            }
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            Assert.Collection(
+                result.OrderBy(b => b.Name),
+                efcore =>
+                {
+                    Assert.Equal("efcore", efcore.Name);
+                    Assert.Equal([1, 2], efcore.PostIds.Order());
+                },
+                linq =>
+                {
+                    Assert.Equal("linq", linq.Name);
+                    Assert.Equal([3], linq.PostIds);
+                });
+        }
+
+        // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+        protected class ContextConvertedEntityKey(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<Blog> Blogs
+                => Set<Blog>();
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Blog>().Property(b => b.Id).HasConversion(k => k.Value, v => new BlogKey(v)).ValueGeneratedNever();
+                modelBuilder.Entity<Post>().Property(p => p.Id).ValueGeneratedNever();
+                modelBuilder.Entity<Post>().Property(p => p.BlogId).HasConversion(k => k.Value, v => new BlogKey(v));
+            }
+
+            public Task SeedAsync()
+            {
+                AddRange(
+                    new Blog
+                    {
+                        Id = new BlogKey(10),
+                        Name = "efcore",
+                        Posts = [new Post { Id = 1 }, new Post { Id = 2 }]
+                    },
+                    new Blog
+                    {
+                        Id = new BlogKey(20),
+                        Name = "linq",
+                        Posts = [new Post { Id = 3 }]
+                    });
+
+                return SaveChangesAsync();
+            }
+
+            public class Blog
+            {
+                public BlogKey Id { get; set; } = null!;
+                public string Name { get; set; } = null!;
+                public List<Post> Posts { get; set; } = [];
+            }
+
+            public class Post
+            {
+                public int Id { get; set; }
+                public BlogKey BlogId { get; set; } = null!;
+            }
+
+            // A strongly typed key, as commonly converted.
+            public record BlogKey(int Value);
+        }
+
+        // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+        protected class ContextConvertedReferenceKey(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<Post> Posts
+                => Set<Post>();
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Post>().Property(p => p.Id).ValueGeneratedNever();
+                modelBuilder.Entity<Post>().Property(p => p.Tag).HasConversion(t => t.Name, n => new Tag { Name = n });
+            }
+
+            public Task SeedAsync()
+            {
+                AddRange(
+                    new Post { Id = 1, Tag = new Tag { Name = "efcore" } },
+                    new Post { Id = 2, Tag = new Tag { Name = "efcore" } },
+                    new Post { Id = 3, Tag = new Tag { Name = "linq" } });
+
+                return SaveChangesAsync();
+            }
+
+            public class Post
+            {
+                public int Id { get; set; }
+                public Tag Tag { get; set; } = null!;
+            }
+
+            // Deliberately without Equals/GetHashCode overrides: two instances read from the same database value are distinct.
+            public class Tag
+            {
+                public string Name { get; set; } = null!;
+            }
+        }
+
+        // A final GroupBy's key is compared as LINQ would compare it, as the model value: database values that the converter reads as
+        // the same one belong to the same grouping, unlike a collection's identifiers, which are compared as provider values.
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Final_GroupBy_value_converted_key_read_as_same_value_from_different_database_values(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<ContextLossyConvertedKey>(seed: c => c.SeedAsync());
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Items.GroupBy(i => i.Number);
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            Assert.Collection(
+                result.OrderBy(g => g.Key),
+                one =>
+                {
+                    Assert.Equal(1, one.Key);
+                    Assert.Equal([1, 2, 4], one.Select(i => i.Id).Order());
+                },
+                two =>
+                {
+                    Assert.Equal(2, two.Key);
+                    Assert.Equal([3], two.Select(i => i.Id));
+                });
+        }
+
+        // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+        protected class ContextLossyConvertedKey(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<Item> Items
+                => Set<Item>();
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Item>().Property(i => i.Id).ValueGeneratedNever();
+                modelBuilder.Entity<Item>().Property(i => i.Number).HasConversion(n => n.ToString(), s => int.Parse(s));
+            }
+
+            // "1" and "01" are both read as 1; EF only writes the former, so the rows are inserted directly.
+            public Task SeedAsync()
+            {
+                var sqlGenerationHelper = this.GetService<ISqlGenerationHelper>();
+                var entityType = Model.FindEntityType(typeof(Item))!;
+                var table = StoreObjectIdentifier.Table(entityType.GetTableName()!, entityType.GetSchema());
+                var tableName = sqlGenerationHelper.DelimitIdentifier(table.Name, table.Schema);
+                var idColumn = sqlGenerationHelper.DelimitIdentifier(entityType.FindProperty(nameof(Item.Id))!.GetColumnName(table)!);
+                var numberColumn = sqlGenerationHelper.DelimitIdentifier(
+                    entityType.FindProperty(nameof(Item.Number))!.GetColumnName(table)!);
+
+                return Database.ExecuteSqlRawAsync(
+                    $"INSERT INTO {tableName} ({idColumn}, {numberColumn}) VALUES (1, '1'), (2, '01'), (3, '2'), (4, '1')");
+            }
+
+            public class Item
+            {
+                public int Id { get; set; }
+                public int Number { get; set; }
+            }
+        }
+
+        // A distinct complex type is identified by all its columns, which include a converted property's.
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Distinct_complex_type_with_value_converted_reference_type_with_collection(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<ContextConvertedReferenceInComplexType>(seed: c => c.SeedAsync());
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Posts
+                .Select(p => p.Details)
+                .Distinct()
+                .Select(d => new { Details = d, Ids = context.Posts.Where(p => p.Details.Tag == d.Tag).Select(p => p.Id).ToList() });
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            AssertDetails(result.Select(r => (r.Details, r.Ids)));
+        }
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Distinct_complex_type_with_value_converted_reference_type_with_split_collection(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<ContextConvertedReferenceInComplexType>(seed: c => c.SeedAsync());
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Posts
+                .Select(p => p.Details)
+                .Distinct()
+                .Select(d => new { Details = d, Ids = context.Posts.Where(p => p.Details.Tag == d.Tag).Select(p => p.Id).ToList() })
+                .AsSplitQuery();
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            AssertDetails(result.Select(r => (r.Details, r.Ids)));
+        }
+
+        private static void AssertDetails(IEnumerable<(ContextConvertedReferenceInComplexType.Details Details, List<int> Ids)> result)
+            => Assert.Collection(
+                result.OrderBy(r => r.Details.Tag.Name).ThenBy(r => r.Details.Rating),
+                efcore1 =>
+                {
+                    Assert.Equal(("efcore", 1), (efcore1.Details.Tag.Name, efcore1.Details.Rating));
+                    Assert.Equal([1, 2, 3], efcore1.Ids.Order());
+                },
+                efcore2 =>
+                {
+                    Assert.Equal(("efcore", 2), (efcore2.Details.Tag.Name, efcore2.Details.Rating));
+                    Assert.Equal([1, 2, 3], efcore2.Ids.Order());
+                },
+                linq =>
+                {
+                    Assert.Equal(("linq", 1), (linq.Details.Tag.Name, linq.Details.Rating));
+                    Assert.Equal([4], linq.Ids);
+                });
+
+        // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+        protected class ContextConvertedReferenceInComplexType(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<Post> Posts
+                => Set<Post>();
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Post>().Property(p => p.Id).ValueGeneratedNever();
+                modelBuilder.Entity<Post>().ComplexProperty(
+                    p => p.Details, d => d.Property(d => d.Tag).HasConversion(t => t.Name, n => new Tag { Name = n }));
+            }
+
+            public Task SeedAsync()
+            {
+                AddRange(
+                    new Post { Id = 1, Details = new Details { Tag = new Tag { Name = "efcore" }, Rating = 1 } },
+                    new Post { Id = 2, Details = new Details { Tag = new Tag { Name = "efcore" }, Rating = 1 } },
+                    new Post { Id = 3, Details = new Details { Tag = new Tag { Name = "efcore" }, Rating = 2 } },
+                    new Post { Id = 4, Details = new Details { Tag = new Tag { Name = "linq" }, Rating = 1 } });
+
+                return SaveChangesAsync();
+            }
+
+            public class Post
+            {
+                public int Id { get; set; }
+                public Details Details { get; set; } = null!;
+            }
+
+            public class Details
+            {
+                public Tag Tag { get; set; } = null!;
+                public int Rating { get; set; }
+            }
+
+            // Deliberately without Equals/GetHashCode overrides: two instances read from the same database value are distinct.
+            public class Tag
+            {
+                public string Name { get; set; } = null!;
+            }
+        }
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Distinct_value_converted_string_with_nondeterministic_write_with_collection(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<ContextNondeterministicConvertedKey>(seed: c => c.SeedAsync());
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Posts
+                .Select(p => p.Tag)
+                .Distinct()
+                .Select(t => new { Tag = t, Ids = context.Posts.Where(p => p.Tag == t).Select(p => p.Id).ToList() });
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            // Every stored value is distinct, but the strings read back are compared as strings, as they always were: comparing them
+            // by converting them back to provider values would never match even the row just read, and never finish.
+            Assert.Equal([1, 2, 3], result.SelectMany(t => t.Ids).Order());
+        }
+
+        // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+        protected class ContextNondeterministicConvertedKey(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<Post> Posts
+                => Set<Post>();
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Post>().Property(p => p.Id).ValueGeneratedNever();
+
+                // Like randomized encryption, writing the same value twice stores two different values.
+                modelBuilder.Entity<Post>().Property(p => p.Tag).HasConversion(
+                    t => t + "#" + Guid.NewGuid(),
+                    s => s.Substring(0, s.IndexOf('#')));
+            }
+
+            public Task SeedAsync()
+            {
+                AddRange(
+                    new Post { Id = 1, Tag = "efcore" },
+                    new Post { Id = 2, Tag = "efcore" },
+                    new Post { Id = 3, Tag = "linq" });
+
+                return SaveChangesAsync();
+            }
+
+            public class Post
+            {
+                public int Id { get; set; }
+                public string Tag { get; set; } = null!;
+            }
+        }
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Distinct_value_converted_object_with_collection(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<ContextConvertedObjectKey>(seed: c => c.SeedAsync());
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Posts
+                .Select(p => p.Tag)
+                .Distinct()
+                .Select(t => new { Tag = t, Ids = context.Posts.Where(p => p.Tag == t).Select(p => p.Id).ToList() });
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            Assert.Collection(
+                result.OrderBy(t => ((ContextConvertedObjectKey.Tag)t.Tag).Name),
+                efcore =>
+                {
+                    Assert.Equal("efcore", ((ContextConvertedObjectKey.Tag)efcore.Tag).Name);
+                    Assert.Equal([1, 2], efcore.Ids.Order());
+                },
+                linq =>
+                {
+                    Assert.Equal("linq", ((ContextConvertedObjectKey.Tag)linq.Tag).Name);
+                    Assert.Equal([3], linq.Ids);
+                });
+        }
+
+        // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+        protected class ContextConvertedObjectKey(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<Post> Posts
+                => Set<Post>();
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Post>().Property(p => p.Id).ValueGeneratedNever();
+                modelBuilder.Entity<Post>().Property(p => p.Tag).HasConversion<string>(t => ((Tag)t).Name, n => new Tag { Name = n });
+            }
+
+            public Task SeedAsync()
+            {
+                AddRange(
+                    new Post { Id = 1, Tag = new Tag { Name = "efcore" } },
+                    new Post { Id = 2, Tag = new Tag { Name = "efcore" } },
+                    new Post { Id = 3, Tag = new Tag { Name = "linq" } });
+
+                return SaveChangesAsync();
+            }
+
+            public class Post
+            {
+                public int Id { get; set; }
+                public object Tag { get; set; } = null!;
+            }
+
+            // The default comparer for object compares with ==, so even an Equals override doesn't make two reads equal.
+            public class Tag
+            {
+                public string Name { get; set; } = null!;
+
+                public override bool Equals(object? obj)
+                    => obj is Tag other && other.Name == Name;
+
+                public override int GetHashCode()
+                    => Name.GetHashCode();
+            }
+        }
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Distinct_primitive_collection_with_collection(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<ContextPrimitiveCollectionKey>(seed: c => c.SeedAsync());
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Posts
+                .Select(p => p.Tags)
+                .Distinct()
+                .Select(t => new { Tags = t, Ids = context.Posts.Where(p => p.Tags == t).Select(p => p.Id).ToList() });
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            // The mapping's own structural comparer is kept, rather than serializing both lists again to compare them.
+            Assert.Collection(
+                result.OrderBy(t => t.Tags[0]),
+                efcore =>
+                {
+                    Assert.Equal(["efcore", "query"], efcore.Tags);
+                    Assert.Equal([1, 2], efcore.Ids.Order());
+                },
+                linq =>
+                {
+                    Assert.Equal(["linq"], linq.Tags);
+                    Assert.Equal([3], linq.Ids);
+                });
+        }
+
+        // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+        protected class ContextPrimitiveCollectionKey(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<Post> Posts
+                => Set<Post>();
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+                => modelBuilder.Entity<Post>().Property(p => p.Id).ValueGeneratedNever();
+
+            public Task SeedAsync()
+            {
+                AddRange(
+                    new Post { Id = 1, Tags = ["efcore", "query"] },
+                    new Post { Id = 2, Tags = ["efcore", "query"] },
+                    new Post { Id = 3, Tags = ["linq"] });
+
+                return SaveChangesAsync();
+            }
+
+            public class Post
+            {
+                public int Id { get; set; }
+                public List<string> Tags { get; set; } = null!;
+            }
+        }
+
+        #endregion
+
+        #region 30233
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Sum_over_property_with_value_converter_that_converts_nulls(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<Context30233>(seed: async c =>
+            {
+                c.AddRange(
+                    new Context30233.Entity { Id = 1, Group = 1, LongValue = 5, DecimalValue = 1.5m },
+                    new Context30233.Entity { Id = 2, Group = 1 },
+                    new Context30233.Entity { Id = 3, Group = 2, LongValue = 3, DecimalValue = 2.5m });
+                await c.SaveChangesAsync();
+            });
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Set<Context30233.Entity>()
+                .GroupBy(e => e.Group)
+                .Select(g => new
+                {
+                    g.Key,
+                    SumLong = g.Sum(e => e.LongValue),
+                    SumDecimal = g.Sum(e => e.DecimalValue)
+                })
+                .OrderBy(x => x.Key);
+
+            var result = async
+                ? await query.ToListAsync()
+                : query.ToList();
+
+            Assert.Collection(
+                result,
+                r =>
+                {
+                    Assert.Equal(5, r.SumLong);
+                    Assert.Equal(1.5m, r.SumDecimal);
+                },
+                r =>
+                {
+                    Assert.Equal(3, r.SumLong);
+                    Assert.Equal(2.5m, r.SumDecimal);
+                });
+        }
+
+        // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+        protected class Context30233(DbContextOptions options) : DbContext(options)
+        {
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+                => modelBuilder.Entity<Entity>(b =>
+                {
+                    b.Property(e => e.Id).ValueGeneratedNever();
+                    b.Property(e => e.LongValue).HasConversion<LongConverter>();
+                    b.Property(e => e.DecimalValue).HasConversion<DecimalConverter>().HasPrecision(18, 2);
+                });
+
+            public class Entity
+            {
+                public int Id { get; set; }
+                public int Group { get; set; }
+                public long? LongValue { get; set; }
+                public decimal? DecimalValue { get; set; }
+            }
+
+            public class LongConverter() : ValueConverter<long?, long>(v => v ?? 0L, v => v == 0L ? null : v, convertsNulls: true);
+
+            public class DecimalConverter() : ValueConverter<decimal?, decimal>(v => v ?? 0m, v => v == 0m ? null : v, convertsNulls: true);
+        }
+
+        #endregion
+
+        #region 29240
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task GroupBy_nullable_key_Select_First_ordered_by_date(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<Context29240>(seed: async c =>
+            {
+                c.AddRange(
+                    new Context29240.Category { GroupId = 1, CreationDateTime = new DateTime(2022, 1, 1) },
+                    new Context29240.Category { GroupId = 1, CreationDateTime = new DateTime(2022, 1, 2) },
+                    new Context29240.Category { CreationDateTime = new DateTime(2022, 1, 3) },
+                    new Context29240.Category { CreationDateTime = new DateTime(2022, 1, 4) });
+                await c.SaveChangesAsync();
+            });
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Categories
+                .GroupBy(c => c.GroupId)
+                .Select(g => g.OrderByDescending(c => c.CreationDateTime).First());
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            Assert.All(result, Assert.NotNull);
+            Assert.Equal([new DateTime(2022, 1, 2), new DateTime(2022, 1, 4)], result.Select(c => c.CreationDateTime).Order());
+        }
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task GroupBy_nullable_key_Select_First_ordered_with_owned_types(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<Context29240>(seed: async c =>
+            {
+                c.AddRange(
+                    new Context29240.Product
+                    {
+                        GroupId = 1, Rank = 1, Details = new() { Description = "a" }, Tags = [new() { Name = "x" }]
+                    },
+                    new Context29240.Product
+                    {
+                        GroupId = 1, Rank = 2, Details = new() { Description = "b" }, Tags = [new() { Name = "y" }, new() { Name = "z" }]
+                    },
+                    new Context29240.Product { Rank = 3, Details = new() { Description = "c" }, Tags = [] },
+                    new Context29240.Product { Rank = 4, Details = new() { Description = "d" }, Tags = [new() { Name = "w" }] });
+                await c.SaveChangesAsync();
+            });
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Products
+                .GroupBy(p => p.GroupId)
+                .Select(g => g.OrderByDescending(p => p.Rank).First());
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            Assert.Collection(
+                result.OrderBy(p => p.Rank),
+                p =>
+                {
+                    Assert.Equal(2, p.Rank);
+                    Assert.Equal("b", p.Details.Description);
+                    Assert.Equal(["y", "z"], p.Tags.Select(t => t.Name));
+                },
+                p =>
+                {
+                    Assert.Equal(4, p.Rank);
+                    Assert.Equal("d", p.Details.Description);
+                    Assert.Equal(["w"], p.Tags.Select(t => t.Name));
+                });
+        }
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task GroupBy_Select_First_ordered_with_owned_types_then_DefaultIfEmpty(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<Context29240>(seed: async c =>
+            {
+                c.Add(new Context29240.Product { GroupId = 1, Rank = 1, Details = new() { Description = "a" }, Tags = [] });
+                await c.SaveChangesAsync();
+            });
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Products
+                .Where(p => p.Rank > 1)
+                .GroupBy(p => p.GroupId)
+                .Select(g => g.OrderByDescending(p => p.Rank).First())
+                .DefaultIfEmpty();
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            Assert.Null(Assert.Single(result));
+        }
+
+        // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+        protected class Context29240(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<Category> Categories
+                => Set<Category>();
+
+            public DbSet<Product> Products
+                => Set<Product>();
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+                => modelBuilder.Entity<Product>(b =>
+                {
+                    b.OwnsOne(p => p.Details);
+                    b.ComplexCollection(p => p.Tags, t => t.ToJson());
+                });
+
+            public class Category
+            {
+                public int Id { get; set; }
+                public int? GroupId { get; set; }
+                public DateTime CreationDateTime { get; set; }
+            }
+
+            public class Product
+            {
+                public int Id { get; set; }
+                public int? GroupId { get; set; }
+                public int Rank { get; set; }
+                public ProductDetails Details { get; set; } = null!;
+                public List<Tag> Tags { get; set; } = null!;
+            }
+
+            public class ProductDetails
+            {
+                public string? Description { get; set; }
+            }
+
+            public class Tag
+            {
+                public string? Name { get; set; }
+            }
         }
 
         #endregion

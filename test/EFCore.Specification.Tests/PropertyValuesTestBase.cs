@@ -1088,6 +1088,35 @@ public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClas
     }
 
     [Fact]
+    public virtual void Setting_complex_collection_via_string_indexer_sets_the_value()
+    {
+        using var context = CreateContext();
+
+        // Complex collection query support. Issue #31411
+        var school = CreateSchool();
+        context.Set<School>().Attach(school);
+
+        var clonedSchoolValues = context.Entry(school).CurrentValues.Clone();
+
+        var newDepartments = new List<Department>
+        {
+            new()
+            {
+                Name = "New Department",
+                Building = "New Building",
+                Courses = [new Course { Name = "New Course", Credits = 3 }]
+            }
+        };
+
+        clonedSchoolValues["Departments"] = newDepartments;
+
+        var departments = (IList<Department>)clonedSchoolValues["Departments"]!;
+        Assert.Single(departments);
+        Assert.Equal("New Department", departments[0].Name);
+        Assert.Equal("New Building", departments[0].Building);
+    }
+
+    [Fact]
     public virtual Task Current_values_can_be_copied_into_a_non_generic_cloned_dictionary()
         => TestNonGenericPropertyValuesCloneToValues(e => Task.FromResult(e.CurrentValues), expectOriginalValues: false);
 

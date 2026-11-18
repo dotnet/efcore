@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections.Specialized;
 using System.ComponentModel;
 using Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 
@@ -196,6 +197,80 @@ public abstract class DataBindingTestBase<TFixture>(TFixture fixture) : IClassFi
 
         Assert.Equal(0, local.Count(d => d.TeamId == UnchangedTeam));
         Assert.Equal(TotalCount - UnchangedCount, local.Count);
+    }
+
+    [Fact] // Issue #36543
+    public virtual void ChangeTracker_Clear_empties_existing_local_view_collections_and_keeps_them_bound()
+    {
+        using var context = CreateF1Context();
+        SetupContext(context);
+
+        var localView = context.Drivers.Local;
+        var observable = localView.ToObservableCollection();
+        var bindingList = localView.ToBindingList();
+
+        var observableResets = 0;
+        observable.CollectionChanged += (_, args) =>
+        {
+            if (args.Action == NotifyCollectionChangedAction.Reset)
+            {
+                observableResets++;
+            }
+        };
+
+        var countChanges = 0;
+        localView.PropertyChanged += (_, args) =>
+        {
+            if (args.PropertyName == nameof(LocalView<Driver>.Count))
+            {
+                countChanges++;
+            }
+        };
+
+        Assert.Equal(TotalCount, observable.Count);
+
+        context.ChangeTracker.Clear();
+
+        Assert.Equal(1, observableResets);
+        Assert.Equal(1, countChanges);
+        Assert.Equal(0, localView.Count);
+        Assert.Empty(observable);
+        Assert.Empty(bindingList);
+        Assert.Same(observable, localView.ToObservableCollection());
+        Assert.Same(bindingList, localView.ToBindingList());
+
+        var larry = new Driver
+        {
+            Name = "Larry David",
+            TeamId = Team.Ferrari,
+            CarNumber = 13
+        };
+        context.Drivers.Add(larry);
+
+        Assert.Equal(1, localView.Count);
+        Assert.Equal([larry], observable);
+        Assert.Equal([larry], bindingList);
+        Assert.Equal(2, countChanges);
+    }
+
+    [Fact]
+    public virtual void Loading_with_forced_identity_resolution_does_not_clear_local_view()
+    {
+        using var context = CreateF1Context();
+        SetupContext(context);
+
+        var localView = context.Drivers.Local;
+        var observable = localView.ToObservableCollection();
+
+        Assert.Equal(TotalCount, observable.Count);
+
+        // Loading into a detached entity uses a temporary state manager, which is cleared afterwards
+        var team = context.Teams.AsNoTracking().Single(t => t.Id == Team.Ferrari);
+        context.Entry(team).Collection(t => t.Drivers).Load(LoadOptions.ForceIdentityResolution);
+
+        Assert.NotEmpty(team.Drivers);
+        Assert.Equal(TotalCount, localView.Count);
+        Assert.Equal(TotalCount, observable.Count);
     }
 
     [Theory, InlineData(false), InlineData(true)]

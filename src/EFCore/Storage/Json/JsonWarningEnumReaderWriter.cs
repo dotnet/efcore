@@ -39,7 +39,7 @@ public sealed class JsonWarningEnumReaderWriter<TEnum> : JsonValueReaderWriter<T
                 ? result
                 : _isSigned && long.TryParse(value, out var longValue)
                     ? (TEnum)Convert.ChangeType(longValue, typeof(TEnum).GetEnumUnderlyingType())
-                    : !_isSigned && !ulong.TryParse(value, out var ulongValue)
+                    : !_isSigned && ulong.TryParse(value, out var ulongValue)
                         ? (TEnum)Convert.ChangeType(ulongValue, typeof(TEnum).GetEnumUnderlyingType())
                         : throw new InvalidOperationException(CoreStrings.BadEnumValue(value, typeof(TEnum).ShortDisplayName()));
         }

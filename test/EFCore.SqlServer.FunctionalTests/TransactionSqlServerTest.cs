@@ -68,8 +68,11 @@ public class TransactionSqlServerTest(TransactionSqlServerTest.TransactionSqlSer
     protected DbContext CreateContextWithConnectionString(string? connectionString)
     {
         var options = Fixture.AddOptions(
-                new DbContextOptionsBuilder()
-                    .UseSqlServer(
+                SqlServerTestEnvironment.IsAzureSql
+                    ? new DbContextOptionsBuilder().UseAzureSql(
+                        connectionString ?? TestStore.ConnectionString,
+                        b => b.ApplyConfiguration().ExecutionStrategy(c => new SqlServerExecutionStrategy(c)))
+                    : new DbContextOptionsBuilder().UseSqlServer(
                         connectionString ?? TestStore.ConnectionString,
                         b => b.ApplyConfiguration().ExecutionStrategy(c => new SqlServerExecutionStrategy(c))))
             .ConfigureWarnings(b => b.Log(SqlServerEventId.SavepointsDisabledBecauseOfMARS))

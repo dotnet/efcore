@@ -32,7 +32,7 @@
     <!-- Azure SDK for .NET dependencies -->
     <PackageVersion Include="Microsoft.Azure.Cosmos" Version="3.64.0" />
     <!-- SQL Server dependencies -->
-    <PackageVersion Include="Microsoft.Data.SqlClient" Version="7.1.2" />
+    <PackageVersion Include="Microsoft.Data.SqlClient" Version="8.0.0-preview1.26313.4" />
     <PackageVersion Include="Microsoft.SqlServer.Types" Version="170.1000.7" />
     <!-- external dependencies -->
     <PackageVersion Include="Castle.Core" Version="5.2.1" />
@@ -47,6 +47,6 @@
     <PackageVersion Include="SQLitePCLRaw.bundle_e_sqlite3" Version="$(SQLitePCLRawVersion)" />
     <PackageVersion Include="SQLite3MC.PCLRaw.bundle" Version="$(SQLite3MCPCLRawBundleVersion)" />
     <!-- Transitive dependency for Microsoft.Data.SqlClient -->
-    <PackageVersion Include="System.Security.Cryptography.Pkcs" Version="$(SystemSecurityCryptographyPkcsVersion)" />
+    <PackageVersion Include="System.Security.Cryptography.Pkcs" Version="10.0.13" />
   </ItemGroup>
 </Project>

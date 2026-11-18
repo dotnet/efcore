@@ -11,7 +11,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
 /// </remarks>
-public class RelationalPropertyJsonPropertyNameAttributeConvention : PropertyAttributeConventionBase<JsonPropertyNameAttribute>
+public class RelationalPropertyJsonPropertyNameAttributeConvention : PropertyAttributeConventionBase<JsonPropertyNameAttribute>,
+    IComplexPropertyAddedConvention,
+    IComplexPropertyFieldChangedConvention,
+    IModelFinalizingConvention
 {
     /// <summary>
     ///     Creates a new instance of <see cref="RelationalPropertyJsonPropertyNameAttributeConvention" />.
@@ -40,5 +43,25 @@ public class RelationalPropertyJsonPropertyNameAttributeConvention : PropertyAtt
         {
             propertyBuilder.HasJsonPropertyName(attribute.Name, fromDataAnnotation: true);
         }
+    }
+
+    /// <inheritdoc />
+    protected override void ProcessPropertyAdded(
+        IConventionComplexPropertyBuilder propertyBuilder,
+        JsonPropertyNameAttribute attribute,
+        MemberInfo clrMember,
+        IConventionContext context)
+    {
+        if (!string.IsNullOrWhiteSpace(attribute.Name))
+        {
+            propertyBuilder.Metadata.ComplexType.Builder.HasJsonPropertyName(attribute.Name, fromDataAnnotation: true);
+        }
+    }
+
+    /// <inheritdoc />
+    public virtual void ProcessModelFinalizing(
+        IConventionModelBuilder modelBuilder,
+        IConventionContext<IConventionModelBuilder> context)
+    {
     }
 }

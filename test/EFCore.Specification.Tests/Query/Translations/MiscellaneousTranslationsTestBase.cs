@@ -355,5 +355,46 @@ public abstract class MiscellaneousTranslationsTestBase<TFixture>(TFixture fixtu
         }
     }
 
+    [Fact]
+    public virtual Task DateTime_Compare_on_nullable_Value()
+        => AssertQuery(ss => ss.Set<NullableBasicTypesEntity>()
+            .Where(c => c.DateTime != null && DateTime.Compare(c.DateTime.Value, c.DateTime.Value) == 0));
+
+    [Fact]
+    public virtual Task StringComparer_Compare()
+        => AssertTranslationFailed(() => AssertQuery(ss => ss.Set<BasicTypesEntity>()
+            .Where(c => StringComparer.OrdinalIgnoreCase.Compare(c.String, "seattle") == 0)));
+
+    [Fact]
+    public virtual async Task Custom_Comparer_Compare()
+    {
+        var reversed = Comparer<int>.Create((x, y) => y.CompareTo(x));
+
+        await AssertTranslationFailed(() => AssertQuery(ss => ss.Set<BasicTypesEntity>()
+            .Where(c => reversed.Compare(c.Int, 8) > 0)));
+
+        await AssertTranslationFailed(() => AssertQuery(
+            ss => ss.Set<BasicTypesEntity>().OrderBy(c => reversed.Compare(c.Int, 8)).ThenBy(c => c.Id),
+            assertOrder: true));
+    }
+
+    [Fact]
+    public virtual Task Default_Comparer_Compare()
+        => AssertTranslationFailed(() => AssertQuery(ss => ss.Set<BasicTypesEntity>()
+            .Where(c => Comparer<int>.Default.Compare(c.Int, 8) > 0)));
+
+    [Fact]
+    public virtual Task Custom_Comparer_Compare_in_final_projection()
+    {
+        var reversed = Comparer<int>.Create((x, y) => y.CompareTo(x));
+
+        return AssertQuery(ss => ss.Set<BasicTypesEntity>().Select(c => reversed.Compare(c.Int, 8)));
+    }
+
+    [Fact]
+    public virtual Task Nullable_Compare()
+        => AssertTranslationFailed(() => AssertQuery(ss => ss.Set<NullableBasicTypesEntity>()
+            .Where(c => Nullable.Compare(c.Int, 8) == 0)));
+
     #endregion
 }

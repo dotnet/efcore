@@ -186,7 +186,22 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
             && method.DeclaringType is { IsGenericType: true } existsDeclaringType
             && existsDeclaringType.GetGenericTypeDefinition() == typeof(List<>))
         {
-            visitedExpression = TryConvertListExistsToQueryableAny(methodCallExpression);
+            visitedExpression = TryConvertExistsToQueryableAny(
+                methodCallExpression,
+                methodCallExpression.Object!,
+                methodCallExpression.Arguments[0],
+                existsDeclaringType.GetGenericArguments()[0]);
+        }
+
+        if (method.Name == nameof(Array.Exists)
+            && method.DeclaringType == typeof(Array)
+            && method.IsGenericMethod)
+        {
+            visitedExpression = TryConvertExistsToQueryableAny(
+                methodCallExpression,
+                methodCallExpression.Arguments[0],
+                methodCallExpression.Arguments[1],
+                method.GetGenericArguments()[0]);
         }
 
         if (method.DeclaringType == typeof(EntityFrameworkQueryableExtensions)
@@ -241,6 +256,7 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
             visitedMethodCall = TryNormalizeOrderAndOrderDescending(visitedMethodCall);
             visitedMethodCall = TryFlattenGroupJoinSelectMany(visitedMethodCall);
             visitedMethodCall = TryNormalizeMaxByMinBy(visitedMethodCall);
+            visitedMethodCall = TryNormalizeJoinWithoutResultSelector(visitedMethodCall);
 
             return visitedMethodCall;
         }
@@ -516,21 +532,24 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
         return methodCallExpression.Update(Visit(methodCallExpression.Object), arguments);
     }
 
-    private Expression TryConvertListExistsToQueryableAny(MethodCallExpression methodCallExpression)
+    private Expression TryConvertExistsToQueryableAny(
+        MethodCallExpression methodCallExpression,
+        Expression source,
+        Expression predicate,
+        Type sourceType)
     {
-        if (methodCallExpression.Object is MemberInitExpression or NewExpression)
+        if (source is MemberInitExpression or NewExpression)
         {
             return base.VisitMethodCall(methodCallExpression);
         }
 
-        // List<T>.Exists takes a Predicate<T>; rewrite the lambda to Func<T, bool> so it matches
+        // List<T>.Exists and Array.Exists take a Predicate<T>; rewrite the lambda to Func<T, bool> so it matches
         // Queryable.Any's Expression<Func<T, bool>> parameter.
-        if (methodCallExpression.Arguments[0] is not LambdaExpression predicateLambda)
+        if (predicate is not LambdaExpression predicateLambda)
         {
             return base.VisitMethodCall(methodCallExpression);
         }
 
-        var sourceType = methodCallExpression.Method.DeclaringType!.GetGenericArguments()[0];
         var rewrittenPredicate = Expression.Lambda(
             typeof(Func<,>).MakeGenericType(sourceType, typeof(bool)),
             predicateLambda.Body,
@@ -541,7 +560,7 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                 QueryableMethods.AnyWithPredicate.MakeGenericMethod(sourceType),
                 Expression.Call(
                     QueryableMethods.AsQueryable.MakeGenericMethod(sourceType),
-                    methodCallExpression.Object!),
+                    source),
                 Expression.Quote(rewrittenPredicate)));
     }
 
@@ -836,6 +855,72 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
         }
 
         return methodCallExpression;
+    }
+
+    private static MethodCallExpression TryNormalizeJoinWithoutResultSelector(MethodCallExpression methodCallExpression)
+    {
+        /*
+            Join(inner, o => o.Key, i => i.Key) --> Join(inner, o => o.Key, i => i.Key, (o, i) => new ValueTuple<TOuter, TInner>(o, i))
+
+            The same applies to LeftJoin, RightJoin and FullJoin.
+        */
+
+        var genericMethod = methodCallExpression.Method.GetGenericMethodDefinition();
+        MethodInfo joinMethod;
+        if (genericMethod == QueryableMethods.JoinWithoutResultSelector)
+        {
+            joinMethod = QueryableMethods.Join;
+        }
+        else if (genericMethod == QueryableMethods.LeftJoinWithoutResultSelector)
+        {
+            joinMethod = QueryableMethods.LeftJoin;
+        }
+        else if (genericMethod == QueryableMethods.RightJoinWithoutResultSelector)
+        {
+            joinMethod = QueryableMethods.RightJoin;
+        }
+        else if (genericMethod == QueryableMethods.FullJoinWithoutResultSelector)
+        {
+            joinMethod = QueryableMethods.FullJoin;
+        }
+        else
+        {
+            return methodCallExpression;
+        }
+
+        // A custom comparer can't be translated; leave the call as-is so that it fails translation.
+        var comparer = methodCallExpression.Arguments[4];
+        if (comparer is not ConstantExpression { Value: null })
+        {
+            return methodCallExpression;
+        }
+
+        var genericArguments = methodCallExpression.Method.GetGenericArguments();
+        var (outerType, innerType, keyType) = (genericArguments[0], genericArguments[1], genericArguments[2]);
+        var tupleType = typeof(ValueTuple<,>).MakeGenericType(outerType, innerType);
+        var outerParameter = Expression.Parameter(outerType, "outer");
+        var innerParameter = Expression.Parameter(innerType, "inner");
+        var resultSelector = Expression.Lambda(
+            Expression.New(tupleType.GetConstructor([outerType, innerType])!, outerParameter, innerParameter),
+            outerParameter,
+            innerParameter);
+
+        Expression[] arguments =
+        [
+            methodCallExpression.Arguments[0],
+            methodCallExpression.Arguments[1],
+            methodCallExpression.Arguments[2],
+            methodCallExpression.Arguments[3],
+            Expression.Quote(resultSelector)
+        ];
+
+        // Unlike Join/LeftJoin/RightJoin, Queryable.FullJoin only has an overload with a trailing (optional) comparer.
+        if (joinMethod == QueryableMethods.FullJoin)
+        {
+            arguments = [.. arguments, comparer];
+        }
+
+        return Expression.Call(joinMethod.MakeGenericMethod(outerType, innerType, keyType, tupleType), arguments);
     }
 
     private sealed class GroupJoinConvertingExpressionVisitor : ExpressionVisitor

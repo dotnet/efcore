@@ -2938,6 +2938,18 @@ WHERE [c].[CustomerID] = N'ALFKI'
 """);
     }
 
+    public override async Task EF_Constant_with_enum_cast(bool async)
+    {
+        await base.EF_Constant_with_enum_cast(async);
+
+        AssertSql(
+            """
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] = 10248
+""");
+    }
+
     public override async Task EF_Constant_does_not_parameterized_as_part_of_bigger_subtree(bool async)
     {
         await base.EF_Constant_does_not_parameterized_as_part_of_bigger_subtree(async);

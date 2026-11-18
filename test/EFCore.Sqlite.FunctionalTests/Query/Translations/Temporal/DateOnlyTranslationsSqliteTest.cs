@@ -94,7 +94,7 @@ WHERE CAST(julianday("b"."DateOnly") - julianday('0001-01-01') AS INTEGER) = 726
             """
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
-WHERE date("b"."DateOnly", CAST(3 AS TEXT) || ' years') = '1993-11-10'
+WHERE date("b"."DateOnly", CAST(3 AS TEXT) || ' years', 'floor') = '1993-11-10'
 """);
     }
 
@@ -106,7 +106,7 @@ WHERE date("b"."DateOnly", CAST(3 AS TEXT) || ' years') = '1993-11-10'
             """
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
-WHERE date("b"."DateOnly", CAST(3 AS TEXT) || ' months') = '1991-02-10'
+WHERE date("b"."DateOnly", CAST(3 AS TEXT) || ' months', 'floor') = '1991-02-10'
 """);
     }
 
@@ -183,7 +183,7 @@ WHERE date("b"."DateTime") IN (@dateOnly, '1998-05-04')
             """
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
-WHERE CAST(strftime('%Y', "b"."DateOnly", CAST(3 AS TEXT) || ' years') AS INTEGER) = 1993
+WHERE CAST(strftime('%Y', "b"."DateOnly", CAST(3 AS TEXT) || ' years', 'floor') AS INTEGER) = 1993
 """);
     }
 
@@ -196,7 +196,46 @@ WHERE CAST(strftime('%Y', "b"."DateOnly", CAST(3 AS TEXT) || ' years') AS INTEGE
             """
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
-WHERE date("b"."DateOnly", CAST(3 AS TEXT) || ' years', CAST(3 AS TEXT) || ' months') = '1994-02-10'
+WHERE date("b"."DateOnly", CAST(3 AS TEXT) || ' years', 'floor', CAST(3 AS TEXT) || ' months', 'floor') = '1994-02-10'
+""");
+    }
+
+    [Fact]
+    public override async Task AddMonths_past_end_of_month_gives_last_day_of_month()
+    {
+        await base.AddMonths_past_end_of_month_gives_last_day_of_month();
+
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE date("b"."DateOnly", CAST(82 AS TEXT) || ' days', CAST(1 AS TEXT) || ' months', 'floor') = '1991-02-28'
+""");
+    }
+
+    [Fact]
+    public override async Task AddMonths_negative_past_end_of_month_gives_last_day_of_month()
+    {
+        await base.AddMonths_negative_past_end_of_month_gives_last_day_of_month();
+
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE date("b"."DateOnly", CAST(51 AS TEXT) || ' days', CAST(-1 AS TEXT) || ' months', 'floor') = '1990-11-30'
+""");
+    }
+
+    [Fact]
+    public override async Task AddYears_from_leap_day_gives_last_day_of_February()
+    {
+        await base.AddYears_from_leap_day_gives_last_day_of_February();
+
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE date("b"."DateOnly", CAST(476 AS TEXT) || ' days', CAST(1 AS TEXT) || ' years', 'floor') = '1993-02-28'
 """);
     }
 

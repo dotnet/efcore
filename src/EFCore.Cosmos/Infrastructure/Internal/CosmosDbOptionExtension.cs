@@ -586,6 +586,11 @@ public class CosmosOptionsExtension : IDbContextOptionsExtension
     /// </summary>
     public virtual CosmosOptionsExtension WithSessionTokenManagementMode(SessionTokenManagementMode mode)
     {
+        if (!Enum.IsDefined(mode))
+        {
+            throw new ArgumentOutOfRangeException(nameof(mode));
+        }
+
         var clone = Clone();
 
         clone._sessionTokenManagementMode = mode;

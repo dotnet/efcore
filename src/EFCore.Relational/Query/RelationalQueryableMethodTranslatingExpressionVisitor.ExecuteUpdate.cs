@@ -320,6 +320,20 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                     RelationalStrings.ExecuteOperationOnOwnedJsonIsNotSupported("ExecuteUpdate", entityType.DisplayName()));
             }
 
+            // A row for an optional entity-splitting fragment isn't guaranteed to exist, so an UPDATE targeting it may silently
+            // affect no rows. ExecuteUpdate bypasses the change tracker, so it can't fall back to inserting the row like
+            // SaveChanges does; throw instead of generating an update that may do nothing.
+            if (targetProperty is IProperty targetScalarProperty
+                && targetScalarProperty.GetTableColumnMappings()
+                    .FirstOrDefault(m => m.TableMapping.IsSplitFragmentOptional) is { } optionalFragmentMapping)
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.ExecuteUpdateOnOptionalEntitySplittingFragment(
+                        targetProperty.DeclaringType.DisplayName(),
+                        targetProperty.Name,
+                        optionalFragmentMapping.TableMapping.Table.SchemaQualifiedName));
+            }
+
             // Hack: when returning a StructuralTypeShaperExpression, _sqlTranslator returns it wrapped by a
             // StructuralTypeReferenceExpression, which is supposed to be a private wrapper only with the SQL translator.
             // Call TranslateProjection to unwrap it (need to look into getting rid StructuralTypeReferenceExpression altogether).

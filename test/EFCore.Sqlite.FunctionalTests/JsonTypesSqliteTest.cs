@@ -184,6 +184,35 @@ public class JsonTypesSqliteTest(NonSharedFixture fixture) : JsonTypesRelational
         => base.Can_read_write_collection_of_nullable_GUID_JSON_values(
             """{"Prop":["00000000-0000-0000-0000-000000000000",null,"8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD","FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF"]}""");
 
+    public override Task Can_read_write_TimeOnly_JSON_values(string value, string json)
+        => base.Can_read_write_TimeOnly_JSON_values(
+            value, value switch
+            {
+                "00:00:00.0000000" => """{"Prop":"00:00:00"}""",
+                "23:59:59.9999999" => """{"Prop":"23:59:59.9999999"}""",
+                "11:05:12.3456789" => """{"Prop":"11:05:12.3456789"}""",
+                _ => throw new ArgumentOutOfRangeException(nameof(value), value, null)
+            });
+
+    public override Task Can_read_write_nullable_TimeOnly_JSON_values(string? value, string json)
+        => base.Can_read_write_nullable_TimeOnly_JSON_values(
+            value, value switch
+            {
+                "00:00:00.0000000" => """{"Prop":"00:00:00"}""",
+                "23:59:59.9999999" => """{"Prop":"23:59:59.9999999"}""",
+                "11:05:12.3456789" => """{"Prop":"11:05:12.3456789"}""",
+                null => """{"Prop":null}""",
+                _ => throw new ArgumentOutOfRangeException(nameof(value), value, null)
+            });
+
+    public override Task Can_read_write_collection_of_TimeOnly_JSON_values(string _)
+        => base.Can_read_write_collection_of_TimeOnly_JSON_values(
+            """{"Prop":["00:00:00","11:05:02.0030040","23:59:59.9999999"]}""");
+
+    public override Task Can_read_write_collection_of_nullable_TimeOnly_JSON_values(string _)
+        => base.Can_read_write_collection_of_nullable_TimeOnly_JSON_values(
+            """{"Prop":[null,"00:00:00","11:05:02.0030040","23:59:59.9999999"]}""");
+
     [Theory, InlineData(-65504f, """{"Prop":-65504}"""), InlineData(65504f, """{"Prop":65504}"""), InlineData(0f, """{"Prop":0}"""),
      InlineData(1.5f, """{"Prop":1.5}""")]
     public virtual Task Can_read_write_Half_JSON_values(float value, string json)
@@ -193,41 +222,6 @@ public class JsonTypesSqliteTest(NonSharedFixture fixture) : JsonTypesRelational
     {
         public Half Half { get; set; }
     }
-
-    public override Task Can_read_write_ulong_enum_JSON_values(EnumU64 value, string json)
-        => Can_read_and_write_JSON_value<EnumU64Type, EnumU64>(nameof(EnumU64Type.EnumU64), value, json);
-
-    public override Task Can_read_write_nullable_ulong_enum_JSON_values(object? value, string json)
-        => Can_read_and_write_JSON_value<NullableEnumU64Type, EnumU64?>(
-            nameof(NullableEnumU64Type.EnumU64),
-            value == null ? default(EnumU64?) : (EnumU64)value, json);
-
-    public override Task Can_read_write_collection_of_ulong_enum_JSON_values()
-        => Can_read_and_write_JSON_value<EnumU64CollectionType, List<EnumU64>>(
-            nameof(EnumU64CollectionType.EnumU64),
-            [
-                EnumU64.Min,
-                EnumU64.Max,
-                EnumU64.Default,
-                EnumU64.One,
-                (EnumU64)8
-            ],
-            """{"Prop":[0,18446744073709551615,0,1,8]}""",
-            mappedCollection: true);
-
-    public override Task Can_read_write_collection_of_nullable_ulong_enum_JSON_values()
-        => Can_read_and_write_JSON_value<NullableEnumU64CollectionType, List<EnumU64?>>(
-            nameof(NullableEnumU64CollectionType.EnumU64),
-            [
-                EnumU64.Min,
-                null,
-                EnumU64.Max,
-                EnumU64.Default,
-                EnumU64.One,
-                (EnumU64?)8
-            ],
-            """{"Prop":[0,null,18446744073709551615,0,1,8]}""",
-            mappedCollection: true);
 
     protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqliteTestStoreFactory.Instance;

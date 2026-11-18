@@ -4483,6 +4483,43 @@ CREATE TABLE MyTable (
             "DROP TABLE MyTable;");
 
     [Fact]
+    public void Simple_date_literals_are_parsed_for_HasDefaultValue_with_Persian_locale()
+    {
+        var currentCulture = CultureInfo.CurrentCulture;
+
+        try
+        {
+            CultureInfo.CurrentCulture = new CultureInfo("fa-IR");
+            Test(
+                @"
+CREATE TABLE MyTable (
+    Id int,
+    A datetime2 DEFAULT ('1968-10-23'),
+    B date DEFAULT ('1968-10-23'),
+);",
+                [],
+                [],
+                (dbModel, scaffoldingFactory) =>
+                {
+                    var columns = dbModel.Tables.Single().Columns;
+
+                    var column = columns.Single(c => c.Name == "A");
+                    Assert.Equal("('1968-10-23')", column.DefaultValueSql);
+                    Assert.Equal(new DateTime(1968, 10, 23, 0, 0, 0, 0, DateTimeKind.Unspecified), column.DefaultValue);
+
+                    column = columns.Single(c => c.Name == "B");
+                    Assert.Equal("('1968-10-23')", column.DefaultValueSql);
+                    Assert.Equal(new DateOnly(1968, 10, 23), column.DefaultValue);
+                },
+                "DROP TABLE MyTable;");
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = currentCulture;
+        }
+    }
+
+    [Fact]
     public void Simple_Guid_literals_are_parsed_for_HasDefaultValue()
         => Test(
             @"
@@ -4588,6 +4625,80 @@ CREATE TABLE MyTable (
 
                 var model = scaffoldingFactory.Create(dbModel, new ModelReverseEngineerOptions());
                 Assert.Equal(1, model.GetEntityTypes().Count());
+            },
+            "DROP TABLE MyTable;");
+
+    [Fact]
+    public void String_literals_with_escaped_quotes_are_unescaped_for_HasDefaultValue()
+        => Test(
+            @"
+CREATE TABLE MyTable (
+    Id int,
+    A nvarchar(max) DEFAULT 'It''s',
+    B varchar(max) DEFAULT (N'O''Brien''s'),
+    C nvarchar(100) DEFAULT (''''),
+    D nvarchar(20) DEFAULT (CONVERT([nvarchar](20),('Tea''s'))),
+);",
+            [],
+            [],
+            (dbModel, scaffoldingFactory) =>
+            {
+                var columns = dbModel.Tables.Single().Columns;
+
+                var column = columns.Single(c => c.Name == "A");
+                Assert.Equal("('It''s')", column.DefaultValueSql);
+                Assert.Equal("It's", column.DefaultValue);
+
+                column = columns.Single(c => c.Name == "B");
+                Assert.Equal("(N'O''Brien''s')", column.DefaultValueSql);
+                Assert.Equal("O'Brien's", column.DefaultValue);
+
+                column = columns.Single(c => c.Name == "C");
+                Assert.Equal("('''')", column.DefaultValueSql);
+                Assert.Equal("'", column.DefaultValue);
+
+                column = columns.Single(c => c.Name == "D");
+                Assert.Equal("(CONVERT([nvarchar](20),'Tea''s'))", column.DefaultValueSql);
+                Assert.Equal("Tea's", column.DefaultValue);
+
+                var model = scaffoldingFactory.Create(dbModel, new ModelReverseEngineerOptions());
+                var entityType = model.GetEntityTypes().Single();
+                Assert.Equal("It's", entityType.GetProperty("A").GetDefaultValue());
+                Assert.Equal("O'Brien's", entityType.GetProperty("B").GetDefaultValue());
+                Assert.Equal("'", entityType.GetProperty("C").GetDefaultValue());
+                Assert.Equal("Tea's", entityType.GetProperty("D").GetDefaultValue());
+            },
+            "DROP TABLE MyTable;");
+
+    [Fact]
+    public void String_concatenation_default_values_are_passed_through()
+        => Test(
+            @"
+CREATE TABLE MyTable (
+    Id int,
+    A nvarchar(max) DEFAULT N'a' + N'b',
+    B varchar(max) DEFAULT ('It''s' + '!'),
+);",
+            [],
+            [],
+            (dbModel, scaffoldingFactory) =>
+            {
+                var columns = dbModel.Tables.Single().Columns;
+
+                var column = columns.Single(c => c.Name == "A");
+                Assert.Equal("(N'a'+N'b')", column.DefaultValueSql);
+                Assert.Null(column.DefaultValue);
+
+                column = columns.Single(c => c.Name == "B");
+                Assert.Equal("('It''s'+'!')", column.DefaultValueSql);
+                Assert.Null(column.DefaultValue);
+
+                var model = scaffoldingFactory.Create(dbModel, new ModelReverseEngineerOptions());
+                var entityType = model.GetEntityTypes().Single();
+                Assert.Null(entityType.GetProperty("A").GetDefaultValue());
+                Assert.Equal("(N'a'+N'b')", entityType.GetProperty("A").GetDefaultValueSql());
+                Assert.Null(entityType.GetProperty("B").GetDefaultValue());
+                Assert.Equal("('It''s'+'!')", entityType.GetProperty("B").GetDefaultValueSql());
             },
             "DROP TABLE MyTable;");
 
@@ -5439,6 +5550,106 @@ CREATE UNIQUE INDEX IX_UNIQUE ON FilteredIndexTable ( Id2 ) WHERE Id2 > 10;",
             "DROP TABLE FilteredIndexTable;");
 
     [Fact]
+    public void Foreign_key_with_filtered_unique_index_is_not_one_to_one()
+        => Test(
+            @"
+CREATE TABLE FilteredPerson (
+    PersonId varchar(10) NOT NULL PRIMARY KEY
+);
+
+CREATE TABLE FilteredPersonRole (
+    PersonRoleId int IDENTITY(1,1) NOT NULL PRIMARY KEY,
+    PersonId varchar(10) NOT NULL REFERENCES FilteredPerson (PersonId),
+    IsActive bit NOT NULL
+);
+
+CREATE UNIQUE INDEX IX_FilteredPersonRole_PersonId ON FilteredPersonRole ( PersonId ) WHERE IsActive = 1;",
+            [],
+            [],
+            (dbModel, scaffoldingFactory) =>
+            {
+                var model = scaffoldingFactory.Create(dbModel, new ModelReverseEngineerOptions());
+
+                var role = model.GetEntityTypes().Single(e => e.Name == "FilteredPersonRole");
+                var index = Assert.Single(role.GetIndexes());
+                Assert.True(index.IsUnique);
+                Assert.Equal("([IsActive]=(1))", index.GetFilter());
+
+                var fk = Assert.Single(role.GetForeignKeys());
+                Assert.False(fk.IsUnique);
+                Assert.True(fk.PrincipalToDependent!.IsCollection);
+            },
+            "DROP TABLE FilteredPersonRole; DROP TABLE FilteredPerson;");
+
+    [Fact]
+    public void Foreign_key_with_unique_index_filtering_only_nulls_is_one_to_one()
+        => Test(
+            @"
+CREATE TABLE NullableFilteredPerson (
+    PersonId varchar(10) NOT NULL PRIMARY KEY
+);
+
+CREATE TABLE NullableFilteredPersonRole (
+    PersonRoleId int IDENTITY(1,1) NOT NULL PRIMARY KEY,
+    PersonId varchar(10) NULL REFERENCES NullableFilteredPerson (PersonId)
+);
+
+CREATE UNIQUE INDEX IX_NullableFilteredPersonRole_PersonId ON NullableFilteredPersonRole ( PersonId ) WHERE PersonId IS NOT NULL;",
+            [],
+            [],
+            (dbModel, scaffoldingFactory) =>
+            {
+                var model = scaffoldingFactory.Create(dbModel, new ModelReverseEngineerOptions());
+
+                var role = model.GetEntityTypes().Single(e => e.Name == "NullableFilteredPersonRole");
+                var index = Assert.Single(role.GetIndexes());
+                Assert.Equal("([PersonId] IS NOT NULL)", index.GetFilter());
+
+                var fk = Assert.Single(role.GetForeignKeys());
+                Assert.True(fk.IsUnique);
+                Assert.False(fk.PrincipalToDependent!.IsCollection);
+            },
+            "DROP TABLE NullableFilteredPersonRole; DROP TABLE NullableFilteredPerson;");
+
+    [Theory]
+    [InlineData("A IS NOT NULL AND B IS NOT NULL", true)]
+    [InlineData("A IS NOT NULL", true)]
+    [InlineData("A IS NOT NULL AND B > 0", false)]
+    [InlineData("A > 0", false)]
+    public void Composite_foreign_key_on_filtered_unique_index_is_one_to_one_only_if_filter_just_excludes_nulls(
+        string filter,
+        bool expectedUnique)
+        => Test(
+            $@"
+CREATE TABLE CompositePrincipal (
+    A int NOT NULL,
+    B int NOT NULL,
+    PRIMARY KEY (A, B)
+);
+
+CREATE TABLE CompositeDependent (
+    Id int NOT NULL PRIMARY KEY,
+    A int NULL,
+    B int NULL,
+    FOREIGN KEY (A, B) REFERENCES CompositePrincipal (A, B)
+);
+
+CREATE UNIQUE INDEX IX_CompositeDependent ON CompositeDependent (A, B) WHERE {filter};",
+            [],
+            [],
+            (dbModel, scaffoldingFactory) =>
+            {
+                var model = scaffoldingFactory.Create(dbModel, new ModelReverseEngineerOptions());
+
+                var dependent = model.GetEntityTypes().Single(e => e.Name == "CompositeDependent");
+                var fk = Assert.Single(dependent.GetForeignKeys());
+
+                Assert.Equal(expectedUnique, fk.IsUnique);
+                Assert.Equal(!expectedUnique, fk.PrincipalToDependent!.IsCollection);
+            },
+            "DROP TABLE CompositeDependent; DROP TABLE CompositePrincipal;");
+
+    [Fact]
     public void Ignore_hypothetical_index()
         => Test(
             @"
@@ -5985,6 +6196,43 @@ DROP TABLE PrincipalTable;");
                 Assert.True(property.GetTypeMapping() is SqlServerVectorTypeMapping { Size: 3 });
             },
             "DROP TABLE [dbo].[VectorTable]");
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsVectorTypeSupported))]
+    public void Vector_type_with_compatibility_level_below_170()
+    {
+        var compatibilityLevel = Fixture.TestStore.ExecuteScalar<byte>(
+            "SELECT [compatibility_level] FROM [sys].[databases] WHERE [name] = DB_NAME();");
+
+        // Restore the level even if the setup fails, since the fixture database is shared with the other tests.
+        try
+        {
+            Test(
+                [
+                    "ALTER DATABASE CURRENT SET COMPATIBILITY_LEVEL = 160;",
+                    "CREATE TABLE [dbo].[VectorTable] (vector VECTOR(3))"
+                ],
+                tables: [],
+                schemas: [],
+                (dbModel, scaffoldingFactory) =>
+                {
+                    var table = Assert.Single(dbModel.Tables);
+                    var column = Assert.Single(table.Columns);
+                    Assert.Equal("vector", column.Name);
+                    Assert.Equal("vector(3)", column.StoreType);
+
+                    var model = scaffoldingFactory.Create(dbModel, new ModelReverseEngineerOptions());
+                    var entityType = Assert.Single(model.GetEntityTypes());
+                    var property = Assert.Single(entityType.GetProperties());
+                    Assert.Equal("Vector", property.Name);
+                    Assert.True(property.GetTypeMapping() is SqlServerVectorTypeMapping { Size: 3 });
+                },
+                "DROP TABLE IF EXISTS [dbo].[VectorTable];");
+        }
+        finally
+        {
+            Fixture.TestStore.ExecuteNonQuery($"ALTER DATABASE CURRENT SET COMPATIBILITY_LEVEL = {compatibilityLevel};");
+        }
+    }
 
     #endregion
 

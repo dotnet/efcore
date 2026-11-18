@@ -11,8 +11,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information and examples.
 /// </remarks>
-public interface IFunctionColumnMapping : IColumnMappingBase
+public interface IFunctionColumnMapping : IColumnMappingBase, IComparable<IFunctionColumnMapping>
 {
+    /// <inheritdoc />
+    int IComparable<IFunctionColumnMapping>.CompareTo(IFunctionColumnMapping? other)
+        => ((IColumnMappingBase)this).CompareTo(other);
+
     /// <summary>
     ///     Gets the target column.
     /// </summary>

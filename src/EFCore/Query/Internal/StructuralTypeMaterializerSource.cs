@@ -303,6 +303,12 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
 
         foreach (var serviceInstance in bindingInfo.ServiceInstances)
         {
+            if (serviceInstance.Type.IsSealed
+                && !typeof(IInjectableService).IsAssignableFrom(serviceInstance.Type))
+            {
+                continue;
+            }
+
             blockExpressions.Add(
                 IfThen(
                     TypeIs(serviceInstance, typeof(IInjectableService)),

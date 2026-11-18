@@ -2236,7 +2236,7 @@ WHERE ((c["$type"] = "Order") AND (c["OrderDate"] != null))
 
                 AssertSql(
                     """
-SELECT VALUE DateTimeAdd("mi", (c["OrderID"] % 25), "1900-01-01T00:00:00")
+SELECT VALUE DateTimeAdd("mi", (c["OrderID"] % 25), "1900-01-01T00:00:00.0000000")
 FROM root c
 WHERE ((c["$type"] = "Order") AND (c["OrderID"] < 10500))
 ORDER BY c["OrderID"]

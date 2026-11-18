@@ -432,6 +432,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// </summary>
 
         /// <summary>
+        ///     The C# language version to use when generating code.
+        /// </summary>
+        public static string LanguageVersionDescription
+            => GetString("LanguageVersionDescription");
+
+        /// <summary>
         ///     Additionally generate all the code required for NativeAOT compilation and precompiled queries (experimental).
         /// </summary>
         public static string NativeAotDescription
@@ -500,7 +506,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
                 options);
 
         /// <summary>
-        ///     The file to write the result to.
+        ///     The file to write the result to. Relative paths are resolved from the current directory.
         /// </summary>
         public static string OutputDescription
             => GetString("OutputDescription");

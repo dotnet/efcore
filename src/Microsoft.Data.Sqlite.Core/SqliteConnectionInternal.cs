@@ -188,6 +188,12 @@ internal class SqliteConnectionInternal
             {
                 outerConnection!.Deactivate();
             }
+
+            // A failed rollback can detach the managed transaction without ending the native transaction.
+            if (sqlite3_get_autocommit(_db) == 0)
+            {
+                _canBePooled = false;
+            }
         }
         else
         {

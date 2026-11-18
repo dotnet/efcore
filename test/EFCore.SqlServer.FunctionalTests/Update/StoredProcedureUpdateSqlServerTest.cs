@@ -7,7 +7,7 @@ public class StoredProcedureUpdateSqlServerTest(NonSharedFixture fixture) : Stor
 {
     public override async Task Insert_with_output_parameter(bool async)
     {
-        await Insert_with_output_parameter(
+        await Insert_with_output_parameter_implementation(
             async,
             """
 CREATE PROCEDURE Entity_Insert(@Name varchar(max), @Id int OUT)
@@ -29,7 +29,7 @@ EXEC [Entity_Insert] @p0, @p1 OUTPUT;
 
     public override async Task Insert_twice_with_output_parameter(bool async)
     {
-        await Insert_twice_with_output_parameter(
+        await Insert_twice_with_output_parameter_implementation(
             async,
             """
 CREATE PROCEDURE Entity_Insert(@Name varchar(max), @Id int OUT)
@@ -54,7 +54,7 @@ EXEC [Entity_Insert] @p2, @p3 OUTPUT;
 
     public override async Task Insert_with_result_column(bool async)
     {
-        await Insert_with_result_column(
+        await Insert_with_result_column_implementation(
             async,
             """
 CREATE PROCEDURE Entity_Insert(@Name varchar(max))
@@ -72,7 +72,7 @@ EXEC [Entity_Insert] @p0;
 
     public override async Task Insert_with_two_result_columns(bool async)
     {
-        await Insert_with_two_result_columns(
+        await Insert_with_two_result_columns_implementation(
             async,
             """
 CREATE PROCEDURE EntityWithAdditionalProperty_Insert(@Name varchar(max))
@@ -90,7 +90,7 @@ EXEC [EntityWithAdditionalProperty_Insert] @p0;
 
     public override async Task Insert_with_output_parameter_and_result_column(bool async)
     {
-        await Insert_with_output_parameter_and_result_column(
+        await Insert_with_output_parameter_and_result_column_implementation(
             async,
             """
 CREATE PROCEDURE EntityWithAdditionalProperty_Insert(@Id int OUT, @Name varchar(max))
@@ -113,7 +113,7 @@ EXEC [EntityWithAdditionalProperty_Insert] @p0 OUTPUT, @p1;
 
     public override async Task Update(bool async)
     {
-        await Update(
+        await Update_implementation(
             async,
             """
 CREATE PROCEDURE Entity_Update(@Id int, @Name varchar(max))
@@ -132,7 +132,7 @@ EXEC [Entity_Update] @p0, @p1;
 
     public override async Task Update_partial(bool async)
     {
-        await Update_partial(
+        await Update_partial_implementation(
             async,
             """
 CREATE PROCEDURE EntityWithAdditionalProperty_Update(@Id int, @Name varchar(max), @AdditionalProperty int)
@@ -152,7 +152,7 @@ EXEC [EntityWithAdditionalProperty_Update] @p0, @p1, @p2;
 
     public override async Task Update_with_output_parameter_and_rows_affected_result_column(bool async)
     {
-        await Update_with_output_parameter_and_rows_affected_result_column(
+        await Update_with_output_parameter_and_rows_affected_result_column_implementation(
             async,
             """
 CREATE PROCEDURE EntityWithAdditionalProperty_Update(@Id int, @Name varchar(max), @AdditionalProperty int OUT)
@@ -175,7 +175,7 @@ EXEC [EntityWithAdditionalProperty_Update] @p0, @p1, @p2 OUTPUT;
 
     public override async Task Update_with_output_parameter_and_rows_affected_result_column_concurrency_failure(bool async)
     {
-        await Update_with_output_parameter_and_rows_affected_result_column_concurrency_failure(
+        await Update_with_output_parameter_and_rows_affected_result_column_concurrency_failure_implementation(
             async,
             """
 CREATE PROCEDURE EntityWithAdditionalProperty_Update(@Id int, @Name varchar(max), @AdditionalProperty int OUT)
@@ -198,7 +198,7 @@ EXEC [EntityWithAdditionalProperty_Update] @p0, @p1, @p2 OUTPUT;
 
     public override async Task Delete(bool async)
     {
-        await Delete(
+        await Delete_implementation(
             async,
             """
 CREATE PROCEDURE Entity_Delete(@Id int)
@@ -216,7 +216,7 @@ EXEC [Entity_Delete] @p0;
 
     public override async Task Delete_and_insert(bool async)
     {
-        await Delete_and_insert(
+        await Delete_and_insert_implementation(
             async,
             """
 CREATE PROCEDURE Entity_Insert(@Name varchar(max), @Id int OUT)
@@ -245,7 +245,7 @@ EXEC [Entity_Insert] @p1, @p2 OUTPUT;
 
     public override async Task Rows_affected_parameter(bool async)
     {
-        await Rows_affected_parameter(
+        await Rows_affected_parameter_implementation(
             async,
             """
 CREATE PROCEDURE Entity_Update(@Id int, @Name varchar(max), @RowsAffected int OUT)
@@ -268,7 +268,7 @@ EXEC [Entity_Update] @p0, @p1, @p2 OUTPUT;
 
     public override async Task Rows_affected_parameter_and_concurrency_failure(bool async)
     {
-        await Rows_affected_parameter_and_concurrency_failure(
+        await Rows_affected_parameter_and_concurrency_failure_implementation(
             async,
             """
 CREATE PROCEDURE Entity_Update(@Id int, @Name varchar(max), @RowsAffected int OUT)
@@ -291,7 +291,7 @@ EXEC [Entity_Update] @p0, @p1, @p2 OUTPUT;
 
     public override async Task Rows_affected_result_column(bool async)
     {
-        await Rows_affected_result_column(
+        await Rows_affected_result_column_implementation(
             async,
             """
 CREATE PROCEDURE Entity_Update(@Id int, @Name varchar(max))
@@ -313,7 +313,7 @@ EXEC [Entity_Update] @p0, @p1;
 
     public override async Task Rows_affected_result_column_and_concurrency_failure(bool async)
     {
-        await Rows_affected_result_column_and_concurrency_failure(
+        await Rows_affected_result_column_and_concurrency_failure_implementation(
             async,
             """
 CREATE PROCEDURE Entity_Update(@Id int, @Name varchar(max))
@@ -335,7 +335,7 @@ EXEC [Entity_Update] @p0, @p1;
 
     public override async Task Rows_affected_return_value(bool async)
     {
-        await Rows_affected_return_value(
+        await Rows_affected_return_value_implementation(
             async,
             """
 CREATE PROCEDURE Entity_Update(@Id int, @Name varchar(max))
@@ -358,7 +358,7 @@ EXEC @p0 = [Entity_Update] @p1, @p2;
 
     public override async Task Rows_affected_return_value_and_concurrency_failure(bool async)
     {
-        await Rows_affected_return_value_and_concurrency_failure(
+        await Rows_affected_return_value_and_concurrency_failure_implementation(
             async,
             """
 CREATE PROCEDURE Entity_Update(@Id int, @Name varchar(max))
@@ -381,7 +381,7 @@ EXEC @p0 = [Entity_Update] @p1, @p2;
 
     public override async Task Store_generated_concurrency_token_as_in_out_parameter(bool async)
     {
-        await Store_generated_concurrency_token_as_in_out_parameter(
+        await Store_generated_concurrency_token_as_in_out_parameter_implementation(
             async,
             """
 CREATE PROCEDURE Entity_Update(@Id int, @ConcurrencyToken rowversion OUT, @Name varchar(max), @RowsAffected int OUT)
@@ -406,7 +406,7 @@ EXEC [Entity_Update] @p0, @p1 OUTPUT, @p2, @p3 OUTPUT;",
 
     public override async Task Store_generated_concurrency_token_as_two_parameters(bool async)
     {
-        await Store_generated_concurrency_token_as_two_parameters(
+        await Store_generated_concurrency_token_as_two_parameters_implementation(
             async,
             """
 CREATE PROCEDURE Entity_Update(@Id int, @ConcurrencyTokenIn rowversion, @Name varchar(max), @ConcurrencyTokenOut rowversion OUT, @RowsAffected int OUT)
@@ -430,7 +430,7 @@ EXEC [Entity_Update] @p0, @p1, @p2, @p3 OUTPUT, @p4 OUTPUT;",
 
     public override async Task User_managed_concurrency_token(bool async)
     {
-        await User_managed_concurrency_token(
+        await User_managed_concurrency_token_implementation(
             async,
             """
 CREATE PROCEDURE EntityWithAdditionalProperty_Update(@Id int, @ConcurrencyTokenOriginal int, @Name varchar(max), @ConcurrencyTokenCurrent int, @RowsAffected int OUT)
@@ -455,7 +455,7 @@ EXEC [EntityWithAdditionalProperty_Update] @p0, @p1, @p2, @p3, @p4 OUTPUT;
 
     public override async Task Original_and_current_value_on_non_concurrency_token(bool async)
     {
-        await Original_and_current_value_on_non_concurrency_token(
+        await Original_and_current_value_on_non_concurrency_token_implementation(
             async,
             """
 CREATE PROCEDURE Entity_Update(@Id int, @NameCurrent varchar(max), @NameOriginal varchar(max))
@@ -480,7 +480,7 @@ EXEC [Entity_Update] @p0, @p1, @p2;
 
     public override async Task Input_or_output_parameter_with_input(bool async)
     {
-        await Input_or_output_parameter_with_input(
+        await Input_or_output_parameter_with_input_implementation(
             async,
             """
 CREATE PROCEDURE Entity_Insert(@Id int OUT, @Name varchar(max) OUT)
@@ -512,7 +512,7 @@ EXEC [Entity_Insert] @p0 OUTPUT, @p1 OUTPUT;
 
     public override async Task Input_or_output_parameter_with_output(bool async)
     {
-        await Input_or_output_parameter_with_output(
+        await Input_or_output_parameter_with_output_implementation(
             async,
             """
 CREATE PROCEDURE Entity_Insert(@Id int OUT, @Name varchar(max) OUT)
@@ -544,7 +544,7 @@ EXEC [Entity_Insert] @p0 OUTPUT, @p1 OUTPUT;
 
     public override async Task Tph(bool async)
     {
-        await Tph(
+        await Tph_implementation(
             async,
             """
 CREATE PROCEDURE Tph_Insert(@Id int OUT, @Discriminator varchar(max), @Name varchar(max), @Child2InputProperty int, @Child2OutputParameterProperty int OUT, @Child1Property int)
@@ -573,7 +573,7 @@ EXEC [Tph_Insert] @p0 OUTPUT, @p1, @p2, @p3, @p4 OUTPUT, @p5;
 
     public override async Task Tpt(bool async)
     {
-        await Tpt(
+        await Tpt_implementation(
             async,
             """
 CREATE PROCEDURE Parent_Insert(@Id int OUT, @Name varchar(max))
@@ -611,7 +611,7 @@ EXEC [Child1_Insert] @p2, @p3;
 
     public override async Task Tpt_mixed_sproc_and_non_sproc(bool async)
     {
-        await Tpt_mixed_sproc_and_non_sproc(
+        await Tpt_mixed_sproc_and_non_sproc_implementation(
             async,
             """
 CREATE PROCEDURE Parent_Insert(@Id int OUT, @Name varchar(max))
@@ -643,7 +643,7 @@ VALUES (@p2, @p3);
 
     public override async Task Tpc(bool async)
     {
-        await Tpc(
+        await Tpc_implementation(
             async,
             """
 CREATE PROCEDURE Child1_Insert(@Id int OUT, @Name varchar(max), @Child1Property int)
@@ -667,7 +667,7 @@ EXEC [Child1_Insert] @p0 OUTPUT, @p1, @p2;
 
     public override async Task Non_sproc_followed_by_sproc_commands_in_the_same_batch(bool async)
     {
-        await Non_sproc_followed_by_sproc_commands_in_the_same_batch(
+        await Non_sproc_followed_by_sproc_commands_in_the_same_batch_implementation(
             async,
             """
 CREATE PROCEDURE EntityWithAdditionalProperty_Insert(@Name varchar(max), @Id int OUT, @AdditionalProperty int)

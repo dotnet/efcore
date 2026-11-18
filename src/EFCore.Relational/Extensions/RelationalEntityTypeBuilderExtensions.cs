@@ -1129,6 +1129,86 @@ public static partial class RelationalEntityTypeBuilderExtensions
     }
 
     /// <summary>
+    ///     Configures the name of the container column to which the entity type is mapped.
+    /// </summary>
+    /// <param name="entityTypeBuilder">The builder for the entity type.</param>
+    /// <param name="columnName">The name of the container column.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>
+    ///     The same builder instance if the configuration was applied,
+    ///     <see langword="null" /> otherwise.
+    /// </returns>
+    public static IConventionEntityTypeBuilder? HasContainerColumnName(
+        this IConventionEntityTypeBuilder entityTypeBuilder,
+        string? columnName,
+        bool fromDataAnnotation = false)
+    {
+        Check.NullButNotEmpty(columnName);
+
+        if (!entityTypeBuilder.CanSetContainerColumnName(columnName, fromDataAnnotation))
+        {
+            return null;
+        }
+
+        entityTypeBuilder.Metadata.SetContainerColumnName(columnName, fromDataAnnotation);
+
+        return entityTypeBuilder;
+    }
+
+    /// <summary>
+    ///     Returns a value indicating whether the container column name can be configured
+    ///     using the specified configuration source.
+    /// </summary>
+    /// <param name="entityTypeBuilder">The builder for the entity type.</param>
+    /// <param name="columnName">The name of the container column.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns><see langword="true" /> if the configuration can be applied.</returns>
+    public static bool CanSetContainerColumnName(
+        this IConventionEntityTypeBuilder entityTypeBuilder,
+        string? columnName,
+        bool fromDataAnnotation = false)
+        => entityTypeBuilder.CanSetAnnotation(RelationalAnnotationNames.ContainerColumnName, columnName, fromDataAnnotation);
+
+    /// <summary>
+    ///     Configures the type of the container column to which the entity type is mapped.
+    /// </summary>
+    /// <param name="entityTypeBuilder">The builder for the entity type.</param>
+    /// <param name="columnType">The database type for the container column.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>
+    ///     The same builder instance if the configuration was applied,
+    ///     <see langword="null" /> otherwise.
+    /// </returns>
+    public static IConventionEntityTypeBuilder? HasContainerColumnType(
+        this IConventionEntityTypeBuilder entityTypeBuilder,
+        string? columnType,
+        bool fromDataAnnotation = false)
+    {
+        if (!entityTypeBuilder.CanSetContainerColumnType(columnType, fromDataAnnotation))
+        {
+            return null;
+        }
+
+        entityTypeBuilder.Metadata.SetContainerColumnType(columnType, fromDataAnnotation);
+
+        return entityTypeBuilder;
+    }
+
+    /// <summary>
+    ///     Returns a value indicating whether the container column type can be configured
+    ///     using the specified configuration source.
+    /// </summary>
+    /// <param name="entityTypeBuilder">The builder for the entity type.</param>
+    /// <param name="columnType">The database type for the container column.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns><see langword="true" /> if the configuration can be applied.</returns>
+    public static bool CanSetContainerColumnType(
+        this IConventionEntityTypeBuilder entityTypeBuilder,
+        string? columnType,
+        bool fromDataAnnotation = false)
+        => entityTypeBuilder.CanSetAnnotation(RelationalAnnotationNames.ContainerColumnType, columnType, fromDataAnnotation);
+
+    /// <summary>
     ///     Returns a value indicating whether the given value can be used as a JSON property name for the entity type.
     /// </summary>
     /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
