@@ -784,6 +784,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
         var selectExpression = (SelectExpression)source.QueryExpression;
         if (selectExpression.Orderings.Count == 0
+            && selectExpression.Having == null
             && (selectExpression.Predicate == null
                 || (_subquery && IsFilteredOnlyByForeignKeyCorrelation(selectExpression))))
         {
