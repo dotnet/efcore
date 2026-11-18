@@ -1169,8 +1169,9 @@ WHERE EXISTS (
 SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
 FROM [JsonEntitiesBasic] AS [j]
 WHERE (
-    SELECT JSON_VALUE([o].[value], '$.OwnedReferenceLeaf.SomethingSomething')
+    SELECT [o0].[SomethingSomething]
     FROM OPENJSON([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch') AS [o]
+    OUTER APPLY OPENJSON([o].[value]) WITH ([SomethingSomething] nvarchar(max) '$.OwnedReferenceLeaf.SomethingSomething') AS [o0]
     WHERE CAST(JSON_VALUE([o].[value], '$.Enum') AS int) = -3
     ORDER BY CAST([o].[key] AS int)
     OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY) = N'e1_r_c2_r'
@@ -1188,8 +1189,9 @@ FROM [JsonEntitiesBasic] AS [j]
 WHERE (
     SELECT [o0].[c]
     FROM (
-        SELECT JSON_VALUE([o].[value], '$.OwnedReferenceLeaf.SomethingSomething') AS [c], CAST([o].[key] AS int) AS [c0]
+        SELECT [o1].[SomethingSomething] AS [c], CAST([o].[key] AS int) AS [c0]
         FROM OPENJSON([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch') AS [o]
+        OUTER APPLY OPENJSON([o].[value]) WITH ([SomethingSomething] nvarchar(max) '$.OwnedReferenceLeaf.SomethingSomething') AS [o1]
         ORDER BY CAST([o].[key] AS int)
         OFFSET 1 ROWS
     ) AS [o0]
@@ -1363,11 +1365,12 @@ ORDER BY [j].[Id]
 
         AssertSql(
             """
- SELECT [j].[Id], JSON_VALUE([o].[value], '$.Name') AS [Name], CAST(JSON_VALUE([o].[value], '$.Number') AS int) AS [Number], [o].[key]
- FROM [JsonEntitiesBasic] AS [j]
- OUTER APPLY OPENJSON([j].[OwnedCollectionRoot], '$') AS [o]
- ORDER BY [j].[Id], CAST([o].[key] AS int)
- """);
+SELECT [j].[Id], [o2].[Name], CAST(JSON_VALUE([o].[value], '$.Number') AS int) AS [Number], [o].[key]
+FROM [JsonEntitiesBasic] AS [j]
+OUTER APPLY OPENJSON([j].[OwnedCollectionRoot], '$') AS [o]
+OUTER APPLY OPENJSON([o].[value]) WITH ([Name] nvarchar(max) '$.Name') AS [o2]
+ORDER BY [j].[Id], CAST([o].[key] AS int)
+""");
     }
 
     public override async Task Json_collection_in_projection_with_composition_where_and_anonymous_projection_of_scalars(bool async)
@@ -1379,9 +1382,10 @@ ORDER BY [j].[Id]
 SELECT [j].[Id], [o0].[Name], [o0].[Number], [o0].[key]
 FROM [JsonEntitiesBasic] AS [j]
 OUTER APPLY (
-    SELECT JSON_VALUE([o].[value], '$.Name') AS [Name], CAST(JSON_VALUE([o].[value], '$.Number') AS int) AS [Number], [o].[key], CAST([o].[key] AS int) AS [c]
+    SELECT [o3].[Name], CAST(JSON_VALUE([o].[value], '$.Number') AS int) AS [Number], [o].[key], CAST([o].[key] AS int) AS [c]
     FROM OPENJSON([j].[OwnedCollectionRoot], '$') AS [o]
-    WHERE JSON_VALUE([o].[value], '$.Name') = N'Foo'
+    OUTER APPLY OPENJSON([o].[value]) WITH ([Name] nvarchar(max) '$.Name') AS [o3]
+    WHERE [o3].[Name] = N'Foo'
 ) AS [o0]
 ORDER BY [j].[Id], [o0].[c]
 """);
@@ -1398,7 +1402,8 @@ FROM [JsonEntitiesBasic] AS [j]
 OUTER APPLY (
     SELECT JSON_QUERY([o].[value], '$.Names') AS [Names], JSON_QUERY([o].[value], '$.Numbers') AS [Numbers], [o].[key], CAST([o].[key] AS int) AS [c]
     FROM OPENJSON([j].[OwnedCollectionRoot], '$') AS [o]
-    WHERE JSON_VALUE([o].[value], '$.Name') = N'Foo'
+    OUTER APPLY OPENJSON([o].[value]) WITH ([Name] nvarchar(max) '$.Name') AS [o3]
+    WHERE [o3].[Name] = N'Foo'
 ) AS [o0]
 ORDER BY [j].[Id], [o0].[c]
 """);
@@ -1413,9 +1418,10 @@ ORDER BY [j].[Id], [o0].[c]
 SELECT [j].[Id], [o0].[Id], [o0].[Id0], [o0].[Name], [o0].[Names], [o0].[Number], [o0].[Numbers], [o0].[c], [o0].[c0], [o0].[key]
 FROM [JsonEntitiesBasic] AS [j]
 OUTER APPLY (
-    SELECT [j].[Id], CAST(JSON_VALUE([o].[value], '$.Id') AS int) AS [Id0], JSON_VALUE([o].[value], '$.Name') AS [Name], JSON_QUERY([o].[value], '$.Names') AS [Names], CAST(JSON_VALUE([o].[value], '$.Number') AS int) AS [Number], JSON_QUERY([o].[value], '$.Numbers') AS [Numbers], JSON_QUERY([o].[value], '$.OwnedCollectionBranch') AS [c], JSON_QUERY([o].[value], '$.OwnedReferenceBranch') AS [c0], [o].[key], CAST([o].[key] AS int) AS [c1]
+    SELECT [j].[Id], CAST(JSON_VALUE([o].[value], '$.Id') AS int) AS [Id0], [o3].[Name], JSON_QUERY([o].[value], '$.Names') AS [Names], CAST(JSON_VALUE([o].[value], '$.Number') AS int) AS [Number], JSON_QUERY([o].[value], '$.Numbers') AS [Numbers], JSON_QUERY([o].[value], '$.OwnedCollectionBranch') AS [c], JSON_QUERY([o].[value], '$.OwnedReferenceBranch') AS [c0], [o].[key], CAST([o].[key] AS int) AS [c1]
     FROM OPENJSON([j].[OwnedCollectionRoot], '$') AS [o]
-    WHERE JSON_VALUE([o].[value], '$.Name') <> N'Foo' OR JSON_VALUE([o].[value], '$.Name') IS NULL
+    OUTER APPLY OPENJSON([o].[value]) WITH ([Name] nvarchar(max) '$.Name') AS [o3]
+    WHERE [o3].[Name] <> N'Foo' OR [o3].[Name] IS NULL
 ) AS [o0]
 ORDER BY [j].[Id], [o0].[c1]
 """);
@@ -1465,16 +1471,17 @@ ORDER BY [j].[Id], [s].[c1], [s].[key], [s].[c10]
 
         AssertSql(
             """
- SELECT [j].[Id], [o0].[Id], [o0].[Id0], [o0].[Name], [o0].[Names], [o0].[Number], [o0].[Numbers], [o0].[c], [o0].[c0], [o0].[key]
- FROM [JsonEntitiesBasic] AS [j]
- OUTER APPLY (
-     SELECT [j].[Id], CAST(JSON_VALUE([o].[value], '$.Id') AS int) AS [Id0], JSON_VALUE([o].[value], '$.Name') AS [Name], JSON_QUERY([o].[value], '$.Names') AS [Names], CAST(JSON_VALUE([o].[value], '$.Number') AS int) AS [Number], JSON_QUERY([o].[value], '$.Numbers') AS [Numbers], JSON_QUERY([o].[value], '$.OwnedCollectionBranch') AS [c], JSON_QUERY([o].[value], '$.OwnedReferenceBranch') AS [c0], [o].[key]
-     FROM OPENJSON([j].[OwnedCollectionRoot], '$') AS [o]
-     ORDER BY JSON_VALUE([o].[value], '$.Name')
-     OFFSET 1 ROWS FETCH NEXT 5 ROWS ONLY
- ) AS [o0]
- ORDER BY [j].[Id], [o0].[Name]
- """);
+SELECT [j].[Id], [o0].[Id], [o0].[Id0], [o0].[Name], [o0].[Names], [o0].[Number], [o0].[Numbers], [o0].[c], [o0].[c0], [o0].[key]
+FROM [JsonEntitiesBasic] AS [j]
+OUTER APPLY (
+    SELECT [j].[Id], CAST(JSON_VALUE([o].[value], '$.Id') AS int) AS [Id0], [o3].[Name], JSON_QUERY([o].[value], '$.Names') AS [Names], CAST(JSON_VALUE([o].[value], '$.Number') AS int) AS [Number], JSON_QUERY([o].[value], '$.Numbers') AS [Numbers], JSON_QUERY([o].[value], '$.OwnedCollectionBranch') AS [c], JSON_QUERY([o].[value], '$.OwnedReferenceBranch') AS [c0], [o].[key]
+    FROM OPENJSON([j].[OwnedCollectionRoot], '$') AS [o]
+    OUTER APPLY OPENJSON([o].[value]) WITH ([Name] nvarchar(max) '$.Name') AS [o3]
+    ORDER BY [o3].[Name]
+    OFFSET 1 ROWS FETCH NEXT 5 ROWS ONLY
+) AS [o0]
+ORDER BY [j].[Id], [o0].[Name]
+""");
     }
 
     public override async Task Json_collection_skip_take_in_projection_project_into_anonymous_type(bool async)
@@ -1483,16 +1490,17 @@ ORDER BY [j].[Id], [s].[c1], [s].[key], [s].[c10]
 
         AssertSql(
             """
- SELECT [j].[Id], [o0].[Name], [o0].[Names], [o0].[Number], [o0].[Numbers], [o0].[c], [o0].[Id], [o0].[c0], [o0].[key]
- FROM [JsonEntitiesBasic] AS [j]
- OUTER APPLY (
-     SELECT JSON_VALUE([o].[value], '$.Name') AS [Name], JSON_QUERY([o].[value], '$.Names') AS [Names], CAST(JSON_VALUE([o].[value], '$.Number') AS int) AS [Number], JSON_QUERY([o].[value], '$.Numbers') AS [Numbers], JSON_QUERY([o].[value], '$.OwnedCollectionBranch') AS [c], [j].[Id], JSON_QUERY([o].[value], '$.OwnedReferenceBranch') AS [c0], [o].[key]
-     FROM OPENJSON([j].[OwnedCollectionRoot], '$') AS [o]
-     ORDER BY JSON_VALUE([o].[value], '$.Name')
-     OFFSET 1 ROWS FETCH NEXT 5 ROWS ONLY
- ) AS [o0]
- ORDER BY [j].[Id], [o0].[Name]
- """);
+SELECT [j].[Id], [o0].[Name], [o0].[Names], [o0].[Number], [o0].[Numbers], [o0].[c], [o0].[Id], [o0].[c0], [o0].[key]
+FROM [JsonEntitiesBasic] AS [j]
+OUTER APPLY (
+    SELECT [o3].[Name], JSON_QUERY([o].[value], '$.Names') AS [Names], CAST(JSON_VALUE([o].[value], '$.Number') AS int) AS [Number], JSON_QUERY([o].[value], '$.Numbers') AS [Numbers], JSON_QUERY([o].[value], '$.OwnedCollectionBranch') AS [c], [j].[Id], JSON_QUERY([o].[value], '$.OwnedReferenceBranch') AS [c0], [o].[key]
+    FROM OPENJSON([j].[OwnedCollectionRoot], '$') AS [o]
+    OUTER APPLY OPENJSON([o].[value]) WITH ([Name] nvarchar(max) '$.Name') AS [o3]
+    ORDER BY [o3].[Name]
+    OFFSET 1 ROWS FETCH NEXT 5 ROWS ONLY
+) AS [o0]
+ORDER BY [j].[Id], [o0].[Name]
+""");
     }
 
     public override async Task Json_collection_skip_take_in_projection_with_json_reference_access_as_final_operation(bool async)
@@ -1501,16 +1509,17 @@ ORDER BY [j].[Id], [s].[c1], [s].[key], [s].[c10]
 
         AssertSql(
             """
- SELECT [j].[Id], [o0].[c], [o0].[Id], [o0].[key]
- FROM [JsonEntitiesBasic] AS [j]
- OUTER APPLY (
-     SELECT JSON_QUERY([o].[value], '$.OwnedReferenceBranch') AS [c], [j].[Id], [o].[key], JSON_VALUE([o].[value], '$.Name') AS [Name]
-     FROM OPENJSON([j].[OwnedCollectionRoot], '$') AS [o]
-     ORDER BY JSON_VALUE([o].[value], '$.Name')
-     OFFSET 1 ROWS FETCH NEXT 5 ROWS ONLY
- ) AS [o0]
- ORDER BY [j].[Id], [o0].[Name]
- """);
+SELECT [j].[Id], [o0].[c], [o0].[Id], [o0].[key]
+FROM [JsonEntitiesBasic] AS [j]
+OUTER APPLY (
+    SELECT JSON_QUERY([o].[value], '$.OwnedReferenceBranch') AS [c], [j].[Id], [o].[key], [o3].[Name]
+    FROM OPENJSON([j].[OwnedCollectionRoot], '$') AS [o]
+    OUTER APPLY OPENJSON([o].[value]) WITH ([Name] nvarchar(max) '$.Name') AS [o3]
+    ORDER BY [o3].[Name]
+    OFFSET 1 ROWS FETCH NEXT 5 ROWS ONLY
+) AS [o0]
+ORDER BY [j].[Id], [o0].[Name]
+""");
     }
 
     public override async Task Json_collection_distinct_in_projection(bool async)
@@ -1582,9 +1591,10 @@ ORDER BY [j].[Id], [o0].[Id0], [o0].[Name], [o0].[Names], [o0].[Number]
 SELECT [j].[Id], [o0].[Id], [o0].[SomethingSomething], [o0].[key]
 FROM [JsonEntitiesBasic] AS [j]
 OUTER APPLY (
-    SELECT [j].[Id], JSON_VALUE([o].[value], '$.SomethingSomething') AS [SomethingSomething], [o].[key], CAST([o].[key] AS int) AS [c]
+    SELECT [j].[Id], [o3].[SomethingSomething], [o].[key], CAST([o].[key] AS int) AS [c]
     FROM OPENJSON([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedCollectionLeaf') AS [o]
-    WHERE JSON_VALUE([o].[value], '$.SomethingSomething') <> N'Baz' OR JSON_VALUE([o].[value], '$.SomethingSomething') IS NULL
+    OUTER APPLY OPENJSON([o].[value]) WITH ([SomethingSomething] nvarchar(max) '$.SomethingSomething') AS [o3]
+    WHERE [o3].[SomethingSomething] <> N'Baz' OR [o3].[SomethingSomething] IS NULL
 ) AS [o0]
 ORDER BY [j].[Id], [o0].[c]
 """);
@@ -1603,9 +1613,10 @@ ORDER BY [j].[Id], [o0].[c]
 SELECT [j].[Id], [o4].[Id], [o4].[SomethingSomething], [o4].[key], [o1].[Id], [o1].[Id0], [o1].[Name], [o1].[Names], [o1].[Number], [o1].[Numbers], [o1].[c], [o1].[c0], [s].[key], [s].[Id], [s].[Date], [s].[Enum], [s].[Enums], [s].[Fraction], [s].[Id0], [s].[NullableEnum], [s].[NullableEnums], [s].[c], [s].[c0], [s].[key0], [j0].[Id], [j0].[Name], [j0].[ParentId]
 FROM [JsonEntitiesBasic] AS [j]
 OUTER APPLY (
-    SELECT [j].[Id], JSON_VALUE([o].[value], '$.SomethingSomething') AS [SomethingSomething], [o].[key], CAST([o].[key] AS int) AS [c]
+    SELECT [j].[Id], [o16].[SomethingSomething], [o].[key], CAST([o].[key] AS int) AS [c]
     FROM OPENJSON([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedCollectionLeaf') AS [o]
-    WHERE JSON_VALUE([o].[value], '$.SomethingSomething') <> N'Baz' OR JSON_VALUE([o].[value], '$.SomethingSomething') IS NULL
+    OUTER APPLY OPENJSON([o].[value]) WITH ([SomethingSomething] nvarchar(max) '$.SomethingSomething') AS [o16]
+    WHERE [o16].[SomethingSomething] <> N'Baz' OR [o16].[SomethingSomething] IS NULL
 ) AS [o4]
 OUTER APPLY (
     SELECT DISTINCT [j].[Id], [o0].[Id] AS [Id0], [o0].[Name], [o0].[Names], [o0].[Number], [o0].[Numbers], [o0].[OwnedCollectionBranch] AS [c], [o0].[OwnedReferenceBranch] AS [c0]
@@ -1642,9 +1653,10 @@ ORDER BY [j].[Id], [o4].[c], [o4].[key], [o1].[Id0], [o1].[Name], [o1].[Names], 
 SELECT [j].[Id], [o4].[Id], [o4].[SomethingSomething], [o4].[key], [o1].[Id], [o1].[Id0], [o1].[Name], [o1].[Names], [o1].[Number], [o1].[Numbers], [o1].[c], [o1].[c0], [s].[key], [s].[Id], [s].[Date], [s].[Enum], [s].[Enums], [s].[Fraction], [s].[Id0], [s].[NullableEnum], [s].[NullableEnums], [s].[c], [s].[c0], [s].[key0], [j0].[Id], [j0].[Name], [j0].[ParentId]
 FROM [JsonEntitiesBasic] AS [j]
 OUTER APPLY (
-    SELECT [j].[Id], JSON_VALUE([o].[value], '$.SomethingSomething') AS [SomethingSomething], [o].[key], CAST([o].[key] AS int) AS [c]
+    SELECT [j].[Id], [o16].[SomethingSomething], [o].[key], CAST([o].[key] AS int) AS [c]
     FROM OPENJSON([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedCollectionLeaf') AS [o]
-    WHERE JSON_VALUE([o].[value], '$.SomethingSomething') <> N'Baz' OR JSON_VALUE([o].[value], '$.SomethingSomething') IS NULL
+    OUTER APPLY OPENJSON([o].[value]) WITH ([SomethingSomething] nvarchar(max) '$.SomethingSomething') AS [o16]
+    WHERE [o16].[SomethingSomething] <> N'Baz' OR [o16].[SomethingSomething] IS NULL
 ) AS [o4]
 OUTER APPLY (
     SELECT DISTINCT [j].[Id], [o0].[Id] AS [Id0], [o0].[Name], [o0].[Names], [o0].[Number], [o0].[Numbers], [o0].[OwnedCollectionBranch] AS [c], [o0].[OwnedReferenceBranch] AS [c0]
@@ -4493,12 +4505,16 @@ INNER JOIN [OtherTable] AS [o] ON [m].[Id] = [o].[Id]
 
         AssertSql(
             """
-SELECT [e0].[Id], JSON_VALUE([i].[value], '$.key') AS [key0], JSON_VALUE([i].[value], '$.Value') AS [Value], [i].[key]
+SELECT [e0].[Id], [i2].[key0], [i2].[Value], [i].[key]
 FROM (
     SELECT TOP(2) [e].[Id], [e].[Items]
     FROM [Entity] AS [e]
 ) AS [e0]
 OUTER APPLY OPENJSON([e0].[Items], '$') AS [i]
+OUTER APPLY OPENJSON([i].[value]) WITH (
+    [key0] nvarchar(max) '$.key',
+    [Value] nvarchar(max) '$.Value'
+) AS [i2]
 ORDER BY [e0].[Id], CAST([i].[key] AS int)
 """);
     }
@@ -4515,8 +4531,9 @@ FROM (
     FROM [Entity] AS [e]
 ) AS [e0]
 OUTER APPLY (
-    SELECT TOP(1) JSON_VALUE([i].[value], '$.key') AS [key0], [i].[key], CAST([i].[key] AS int) AS [c]
+    SELECT TOP(1) [i3].[key0], [i].[key], CAST([i].[key] AS int) AS [c]
     FROM OPENJSON([e0].[Items], '$') AS [i]
+    OUTER APPLY OPENJSON([i].[value]) WITH ([key0] nvarchar(max) '$.key') AS [i3]
     ORDER BY CAST([i].[key] AS int)
 ) AS [i0]
 ORDER BY [e0].[Id], [i0].[c]
@@ -4544,12 +4561,16 @@ WHERE EXISTS (
 
         AssertSql(
             """
-SELECT [e0].[Id], JSON_VALUE([i].[value], '$.Key') AS [Key], JSON_VALUE([i].[value], '$.Value') AS [Value], [i].[key]
+SELECT [e0].[Id], [i2].[Key], [i2].[Value], [i].[key]
 FROM (
     SELECT TOP(2) [e].[Id], [e].[Items]
     FROM [Entity] AS [e]
 ) AS [e0]
 OUTER APPLY OPENJSON([e0].[Items], '$') AS [i]
+OUTER APPLY OPENJSON([i].[value]) WITH (
+    [Key] nvarchar(max) '$.Key',
+    [Value] nvarchar(max) '$.Value'
+) AS [i2]
 ORDER BY [e0].[Id], CAST([i].[key] AS int)
 """);
     }
@@ -4560,12 +4581,16 @@ ORDER BY [e0].[Id], CAST([i].[key] AS int)
 
         AssertSql(
             """
-SELECT [e0].[Id], JSON_VALUE([i].[value], '$.key') AS [key1], JSON_VALUE([i].[value], '$.key0') AS [key0], [i].[key]
+SELECT [e0].[Id], [i2].[key0] AS [key1], [i2].[key00] AS [key0], [i].[key]
 FROM (
     SELECT TOP(2) [e].[Id], [e].[Items]
     FROM [Entity] AS [e]
 ) AS [e0]
 OUTER APPLY OPENJSON([e0].[Items], '$') AS [i]
+OUTER APPLY OPENJSON([i].[value]) WITH (
+    [key0] nvarchar(max) '$.key',
+    [key00] nvarchar(max) '$.key0'
+) AS [i2]
 ORDER BY [e0].[Id], CAST([i].[key] AS int)
 """);
     }
@@ -4576,12 +4601,16 @@ ORDER BY [e0].[Id], CAST([i].[key] AS int)
 
         AssertSql(
             """
-SELECT [e0].[Id], JSON_VALUE([i].[value], '$.code') AS [code], JSON_VALUE([i].[value], '$.key0') AS [key0], [i].[key]
+SELECT [e0].[Id], [i2].[code], [i2].[key0], [i].[key]
 FROM (
     SELECT TOP(2) [e].[Id], [e].[Items]
     FROM [Entity] AS [e]
 ) AS [e0]
 OUTER APPLY OPENJSON([e0].[Items], '$') AS [i]
+OUTER APPLY OPENJSON([i].[value]) WITH (
+    [code] nvarchar(max) '$.code',
+    [key0] nvarchar(max) '$.key0'
+) AS [i2]
 ORDER BY [e0].[Id], CAST([i].[key] AS int)
 """);
     }
@@ -4592,12 +4621,16 @@ ORDER BY [e0].[Id], CAST([i].[key] AS int)
 
         AssertSql(
             """
-SELECT [e0].[Id], JSON_VALUE([i].[value], '$.Name') AS [Name], JSON_VALUE([i].[value], '$.key.Code'), [i].[key]
+SELECT [e0].[Id], [i2].[Name], [i2].[Code], [i].[key]
 FROM (
     SELECT TOP(2) [e].[Id], [e].[Items]
     FROM [Entity] AS [e]
 ) AS [e0]
 OUTER APPLY OPENJSON([e0].[Items], '$') AS [i]
+OUTER APPLY OPENJSON([i].[value]) WITH (
+    [Name] nvarchar(max) '$.Name',
+    [Code] nvarchar(max) '$.key.Code'
+) AS [i2]
 ORDER BY [e0].[Id], CAST([i].[key] AS int)
 """);
     }
@@ -4608,12 +4641,227 @@ ORDER BY [e0].[Id], CAST([i].[key] AS int)
 
         AssertSql(
             """
-SELECT [e0].[Id], JSON_VALUE([i].[value], '$.key') AS [key0], JSON_VALUE([i].[value], '$.Value') AS [Value], [i].[key]
+SELECT [e0].[Id], [i2].[key0], [i2].[Value], [i].[key]
 FROM (
     SELECT TOP(2) [e].[Id], [e].[Items]
     FROM [Entity] AS [e]
 ) AS [e0]
 OUTER APPLY OPENJSON([e0].[Items], '$') AS [i]
+OUTER APPLY OPENJSON([i].[value]) WITH (
+    [key0] nvarchar(max) '$.key',
+    [Value] nvarchar(max) '$.Value'
+) AS [i2]
+ORDER BY [e0].[Id], CAST([i].[key] AS int)
+""");
+    }
+
+    public override async Task Project_complex_collection_with_long_string()
+    {
+        await base.Project_complex_collection_with_long_string();
+
+        AssertSql(
+            """
+SELECT [e0].[Id], JSON_VALUE([i].[value], '$.Code') AS [Code], [i2].[Description], [i2].[Description0], [i].[key]
+FROM (
+    SELECT TOP(2) [e].[Id], [e].[Items]
+    FROM [Entity] AS [e]
+) AS [e0]
+OUTER APPLY OPENJSON([e0].[Items], '$') AS [i]
+OUTER APPLY OPENJSON([i].[value]) WITH (
+    [Description] nvarchar(max) '$.Description',
+    [Description0] nvarchar(max) '$.Details.Description'
+) AS [i2]
+ORDER BY [e0].[Id], CAST([i].[key] AS int)
+""");
+    }
+
+    public override async Task Project_complex_collection_with_long_string_with_predicate_and_Take()
+    {
+        await base.Project_complex_collection_with_long_string_with_predicate_and_Take();
+
+        AssertSql(
+            """
+SELECT [e0].[Id], [i0].[Description], [i0].[key]
+FROM (
+    SELECT TOP(2) [e].[Id], [e].[Items]
+    FROM [Entity] AS [e]
+) AS [e0]
+OUTER APPLY (
+    SELECT TOP(1) [i3].[Description], [i].[key], CAST([i].[key] AS int) AS [c]
+    FROM OPENJSON([e0].[Items], '$') AS [i]
+    OUTER APPLY OPENJSON([i].[value]) WITH ([Description] nvarchar(max) '$.Description') AS [i3]
+    WHERE [i3].[Description] LIKE N'%z'
+    ORDER BY CAST([i].[key] AS int)
+) AS [i0]
+ORDER BY [e0].[Id], [i0].[c]
+""");
+    }
+
+    public override async Task Project_complex_collection_with_long_string_of_various_store_types()
+    {
+        await base.Project_complex_collection_with_long_string_of_various_store_types();
+
+        AssertSql(
+            """
+SELECT [e0].[Id], JSON_VALUE([i].[value], '$.Code') AS [Code], JSON_VALUE([i].[value], '$.NonUnicodeBounded') AS [NonUnicodeBounded], [i2].[NonUnicode], [i2].[NonUnicode8000], [i2].[FixedLength8000], [i].[key]
+FROM (
+    SELECT TOP(2) [e].[Id], [e].[Items]
+    FROM [Entity] AS [e]
+) AS [e0]
+OUTER APPLY OPENJSON([e0].[Items], '$') AS [i]
+OUTER APPLY OPENJSON([i].[value]) WITH (
+    [NonUnicode] nvarchar(max) '$.NonUnicode',
+    [NonUnicode8000] varchar(8000) '$.NonUnicode8000',
+    [FixedLength8000] char(8000) '$.FixedLength8000'
+) AS [i2]
+ORDER BY [e0].[Id], CAST([i].[key] AS int)
+""");
+    }
+
+    public override async Task Project_owned_collection_with_long_string_of_various_store_types()
+    {
+        await base.Project_owned_collection_with_long_string_of_various_store_types();
+
+        AssertSql(
+            """
+SELECT [e0].[Id], JSON_VALUE([i].[value], '$.Code') AS [Code], JSON_VALUE([i].[value], '$.NonUnicodeBounded') AS [NonUnicodeBounded], [i2].[NonUnicode], [i2].[NonUnicode8000], [i2].[FixedLength8000], [i].[key]
+FROM (
+    SELECT TOP(2) [e].[Id], [e].[Items]
+    FROM [Entity] AS [e]
+) AS [e0]
+OUTER APPLY OPENJSON([e0].[Items], '$') AS [i]
+OUTER APPLY OPENJSON([i].[value]) WITH (
+    [NonUnicode] nvarchar(max) '$.NonUnicode',
+    [NonUnicode8000] varchar(8000) '$.NonUnicode8000',
+    [FixedLength8000] char(8000) '$.FixedLength8000'
+) AS [i2]
+ORDER BY [e0].[Id], CAST([i].[key] AS int)
+""");
+    }
+
+    // varchar(8000) and char(8000) properties are read with their store type, like when the OPENJSON keeps its WITH clause
+    protected override string ExpectedBoundedNonUnicodeString(string value)
+        => string.Concat(value.Select(c => c <= '' ? c : '?'));
+
+    protected override string ExpectedFixedLength8000String(string value)
+        => value.PadRight(8000);
+
+    public override async Task Project_complex_collection_with_long_string_with_unbounded_column_type(string columnType)
+    {
+        await base.Project_complex_collection_with_long_string_with_unbounded_column_type(columnType);
+
+        AssertSql(
+            """
+SELECT [e0].[Id], [i2].[Description], [i].[key]
+FROM (
+    SELECT TOP(2) [e].[Id], [e].[Items]
+    FROM [Entity] AS [e]
+) AS [e0]
+OUTER APPLY OPENJSON([e0].[Items], '$') AS [i]
+OUTER APPLY OPENJSON([i].[value]) WITH ([Description] nvarchar(max) '$.Description') AS [i2]
+ORDER BY [e0].[Id], CAST([i].[key] AS int)
+""");
+    }
+
+    public override async Task Project_complex_collection_with_long_string_with_bounded_column_type(string columnType)
+    {
+        await base.Project_complex_collection_with_long_string_with_bounded_column_type(columnType);
+
+        AssertSql(
+            """
+SELECT [e0].[Id], [i2].[Description], [i].[key]
+FROM (
+    SELECT TOP(2) [e].[Id], [e].[Items]
+    FROM [Entity] AS [e]
+) AS [e0]
+OUTER APPLY OPENJSON([e0].[Items], '$') AS [i]
+OUTER APPLY OPENJSON([i].[value]) WITH ([Description] character varying(8000) '$.Description') AS [i2]
+ORDER BY [e0].[Id], CAST([i].[key] AS int)
+""");
+    }
+
+    public override async Task Project_complex_collection_with_long_string_IndexOf()
+    {
+        await base.Project_complex_collection_with_long_string_IndexOf();
+
+        AssertSql(
+            """
+SELECT [e0].[Id], CAST(CHARINDEX(N'z', [i2].[Description]) AS int) - 1, CAST(CHARINDEX('u', [i2].[NonUnicode]) AS int) - 1, CHARINDEX('w', [i2].[NonUnicode8000]) - 1, CHARINDEX('w', [i2].[FixedLength8000]) - 1, [i].[key]
+FROM (
+    SELECT TOP(2) [e].[Id], [e].[Items]
+    FROM [Entity] AS [e]
+) AS [e0]
+OUTER APPLY OPENJSON([e0].[Items], '$') AS [i]
+OUTER APPLY OPENJSON([i].[value]) WITH (
+    [Description] nvarchar(max) '$.Description',
+    [NonUnicode] nvarchar(max) '$.NonUnicode',
+    [NonUnicode8000] varchar(8000) '$.NonUnicode8000',
+    [FixedLength8000] char(8000) '$.FixedLength8000'
+) AS [i2]
+ORDER BY [e0].[Id], CAST([i].[key] AS int)
+""");
+    }
+
+    public override async Task Project_complex_collection_with_long_string_with_OrderBy()
+    {
+        await base.Project_complex_collection_with_long_string_with_OrderBy();
+
+        AssertSql(
+            """
+SELECT [e0].[Id], JSON_VALUE([i].[value], '$.Code') AS [Code], [i2].[Description], [i].[key]
+FROM (
+    SELECT TOP(2) [e].[Id], [e].[Items]
+    FROM [Entity] AS [e]
+) AS [e0]
+OUTER APPLY OPENJSON([e0].[Items], '$') AS [i]
+OUTER APPLY OPENJSON([i].[value]) WITH ([Description] nvarchar(max) '$.Description') AS [i2]
+ORDER BY [e0].[Id], [i2].[Description]
+""");
+    }
+
+    public override async Task Project_complex_collection_with_property_named_key_AsSplitQuery()
+    {
+        await base.Project_complex_collection_with_property_named_key_AsSplitQuery();
+
+        AssertSql(
+            """
+SELECT TOP(2) [e].[Id]
+FROM [Entity] AS [e]
+ORDER BY [e].[Id]
+""",
+            //
+            """
+SELECT [i2].[key0] AS [Key], [i2].[Value], [e0].[Id]
+FROM (
+    SELECT TOP(1) [e].[Id], [e].[Items]
+    FROM [Entity] AS [e]
+    ORDER BY [e].[Id]
+) AS [e0]
+CROSS APPLY OPENJSON([e0].[Items], '$') AS [i1]
+OUTER APPLY OPENJSON([i1].[value]) WITH (
+    [key0] nvarchar(max) '$.key',
+    [Value] nvarchar(max) '$.Value'
+) AS [i2]
+ORDER BY [e0].[Id], CAST([i1].[key] AS int)
+""");
+    }
+
+    public override async Task Project_owned_collection_with_long_string()
+    {
+        await base.Project_owned_collection_with_long_string();
+
+        AssertSql(
+            """
+SELECT [e0].[Id], JSON_VALUE([i].[value], '$.Code') AS [Code], [i2].[Description], [i2].[Description0], [i].[key]
+FROM (
+    SELECT TOP(2) [e].[Id], [e].[Items]
+    FROM [Entity] AS [e]
+) AS [e0]
+OUTER APPLY OPENJSON([e0].[Items], '$') AS [i]
+OUTER APPLY OPENJSON([i].[value]) WITH (
+    [Description] nvarchar(max) '$.Description',
+    [Description0] nvarchar(max) '$.Details.Description'
+) AS [i2]
 ORDER BY [e0].[Id], CAST([i].[key] AS int)
 """);
     }

@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
@@ -1463,6 +1464,318 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
     }
 
     #endregion 39438
+
+    #region LongStringInCollection
+
+    [Fact]
+    public virtual async Task Project_complex_collection_with_long_string()
+    {
+        var contextFactory = await InitializeContextLongString();
+        await using var context = contextFactory.CreateDbContext();
+
+        var items = await context.Set<ContextLongString.Entity>()
+            .Select(e => e.Items.Select(i => new { i.Code, i.Description, DetailsDescription = i.Details.Description }).ToList())
+            .SingleAsync();
+
+        Assert.Equal(["c2", "c1"], items.Select(i => i.Code));
+        Assert.Equal([ContextLongString.LongDescription, "Short"], items.Select(i => i.Description));
+        Assert.Equal([ContextLongString.LongDetailsDescription, "Short details"], items.Select(i => i.DetailsDescription));
+    }
+
+    [Fact]
+    public virtual async Task Project_complex_collection_with_long_string_with_predicate_and_Take()
+    {
+        var contextFactory = await InitializeContextLongString();
+        await using var context = contextFactory.CreateDbContext();
+
+        var descriptions = await context.Set<ContextLongString.Entity>()
+            .Select(e => e.Items.Where(i => i.Description.EndsWith("z")).Select(i => i.Description).Take(1).ToList())
+            .SingleAsync();
+
+        Assert.Equal([ContextLongString.LongDescription], descriptions);
+    }
+
+    [Fact]
+    public virtual async Task Project_owned_collection_with_long_string()
+    {
+        var contextFactory = await InitializeNonSharedTest<ContextLongString>(
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            onModelCreating: m => m.Entity<ContextLongString.Entity>().OwnsMany(
+                e => e.Items, b =>
+                {
+                    b.ToJson().HasColumnType(JsonColumnType);
+                    b.OwnsOne(i => i.Details);
+                }),
+            seed: context => ContextLongString.SeedAsync(context));
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var items = await context.Set<ContextLongString.Entity>()
+            .Select(e => e.Items.Select(i => new { i.Code, i.Description, DetailsDescription = i.Details.Description }).ToList())
+            .SingleAsync();
+
+        Assert.Equal(["c2", "c1"], items.Select(i => i.Code));
+        Assert.Equal([ContextLongString.LongDescription, "Short"], items.Select(i => i.Description));
+        Assert.Equal([ContextLongString.LongDetailsDescription, "Short details"], items.Select(i => i.DetailsDescription));
+    }
+
+    [Fact]
+    public virtual async Task Project_complex_collection_with_long_string_of_various_store_types()
+    {
+        var contextFactory = await InitializeContextLongString();
+        await using var context = contextFactory.CreateDbContext();
+
+        var items = await context.Set<ContextLongString.Entity>()
+            .Select(e => e.Items.Select(i => new { i.Code, i.NonUnicodeBounded, i.NonUnicode, i.NonUnicode8000, i.FixedLength8000 })
+                .ToList())
+            .SingleAsync();
+
+        AssertLongStringsOfVariousStoreTypes(items.Select(i => (i.Code, i.NonUnicodeBounded, i.NonUnicode, i.NonUnicode8000, i.FixedLength8000)));
+    }
+
+    [Fact]
+    public virtual async Task Project_owned_collection_with_long_string_of_various_store_types()
+    {
+        var contextFactory = await InitializeNonSharedTest<ContextLongString>(
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            onModelCreating: m => m.Entity<ContextLongString.Entity>().OwnsMany(
+                e => e.Items, b =>
+                {
+                    b.ToJson().HasColumnType(JsonColumnType);
+                    b.OwnsOne(i => i.Details);
+                    b.Property(i => i.FixedLength8000).IsFixedLength();
+                }),
+            seed: context => ContextLongString.SeedAsync(context));
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var items = await context.Set<ContextLongString.Entity>()
+            .Select(e => e.Items.Select(i => new { i.Code, i.NonUnicodeBounded, i.NonUnicode, i.NonUnicode8000, i.FixedLength8000 })
+                .ToList())
+            .SingleAsync();
+
+        AssertLongStringsOfVariousStoreTypes(items.Select(i => (i.Code, i.NonUnicodeBounded, i.NonUnicode, i.NonUnicode8000, i.FixedLength8000)));
+    }
+
+    [Theory]
+    [InlineData("NVARCHAR(MAX)")]
+    [InlineData("VARCHAR(MAX)")]
+    [InlineData("national character varying(max)")]
+    public virtual Task Project_complex_collection_with_long_string_with_unbounded_column_type(string columnType)
+        => AssertLongStringWithColumnType(columnType);
+
+    // The store type is kept in the WITH clause, as written; one synonym is enough to show that it's not matched by name
+    [Theory]
+    [InlineData("character varying(8000)")]
+    public virtual Task Project_complex_collection_with_long_string_with_bounded_column_type(string columnType)
+        => AssertLongStringWithColumnType(columnType);
+
+    private async Task AssertLongStringWithColumnType(string columnType)
+    {
+        var contextFactory = await InitializeNonSharedTest<ContextLongString>(
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            onModelCreating: m => m.Entity<ContextLongString.Entity>().ComplexCollection(
+                e => e.Items, b =>
+                {
+                    b.ToJson();
+                    if (JsonColumnType != null)
+                    {
+                        b.HasColumnType(JsonColumnType);
+                    }
+
+                    b.ComplexProperty(i => i.Details);
+                    // ComplexCollectionTypePropertyBuilder has no HasColumnType()
+                    b.Property(i => i.Description).HasAnnotation(RelationalAnnotationNames.ColumnType, columnType);
+                }),
+            seed: context => ContextLongString.SeedAsync(context));
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var descriptions = await context.Set<ContextLongString.Entity>()
+            .Select(e => e.Items.Select(i => i.Description).ToList())
+            .SingleAsync();
+
+        Assert.Equal([ContextLongString.LongDescription, "Short"], descriptions);
+    }
+
+    [Fact]
+    public virtual async Task Project_complex_collection_with_long_string_IndexOf()
+    {
+        var contextFactory = await InitializeContextLongString();
+        await using var context = contextFactory.CreateDbContext();
+
+        var items = await context.Set<ContextLongString.Entity>()
+            .Select(e => e.Items.Select(i => new
+            {
+                Description = i.Description.IndexOf("z"),
+                NonUnicode = i.NonUnicode.IndexOf("u"),
+                NonUnicode8000 = i.NonUnicode8000.IndexOf("w"),
+                FixedLength8000 = i.FixedLength8000.IndexOf("w")
+            }).ToList())
+            .SingleAsync();
+
+        Assert.Equal([5000, -1], items.Select(i => i.Description));
+        Assert.Equal([0, -1], items.Select(i => i.NonUnicode));
+        Assert.Equal([0, -1], items.Select(i => i.NonUnicode8000));
+        Assert.Equal([0, -1], items.Select(i => i.FixedLength8000));
+    }
+
+    [Fact]
+    public virtual async Task Project_complex_collection_with_long_string_with_OrderBy()
+    {
+        var contextFactory = await InitializeContextLongString();
+        await using var context = contextFactory.CreateDbContext();
+
+        // Read with JSON_VALUE(), the long string would be NULL and sort first
+        var items = await context.Set<ContextLongString.Entity>()
+            .Select(e => e.Items.OrderBy(i => i.Description).Select(i => new { i.Code, i.Description }).ToList())
+            .SingleAsync();
+
+        Assert.Equal(["c1", "c2"], items.Select(i => i.Code));
+        Assert.Equal(["Short", ContextLongString.LongDescription], items.Select(i => i.Description));
+    }
+
+    [Fact]
+    public virtual async Task Project_complex_collection_with_property_named_key_AsSplitQuery()
+    {
+        var contextFactory = await InitializeContext39438();
+        await using var context = contextFactory.CreateDbContext();
+
+        var items = await context.Set<Context39438.Entity>()
+            .AsSplitQuery()
+            .Select(e => e.Items.Select(i => new { i.Key, i.Value }).ToList())
+            .SingleAsync();
+
+        Assert.Equal(["k2", "k1"], items.Select(i => i.Key));
+        Assert.Equal(["Zeta", "Alpha"], items.Select(i => i.Value));
+    }
+
+    private void AssertLongStringsOfVariousStoreTypes(
+        IEnumerable<(string Code, string NonUnicodeBounded, string NonUnicode, string NonUnicode8000, string FixedLength8000)> items)
+    {
+        var list = items.ToList();
+        Assert.Equal(["c2", "c1"], list.Select(i => i.Code));
+        Assert.Equal([ContextLongString.Length4000, "Short"], list.Select(i => i.NonUnicodeBounded));
+        Assert.Equal([ContextLongString.LongNonAscii, "Short"], list.Select(i => i.NonUnicode));
+        Assert.Equal(
+            [ContextLongString.Length4001, ExpectedBoundedNonUnicodeString(ContextLongString.ShortNonAscii)],
+            list.Select(i => i.NonUnicode8000));
+        Assert.Equal(
+            [ExpectedFixedLength8000String(ContextLongString.Length4001), ExpectedFixedLength8000String("Short")],
+            list.Select(i => i.FixedLength8000));
+    }
+
+    /// <summary>
+    ///     The value of a long string property with a bounded, non-Unicode store type (varchar(8000)) as read from a JSON
+    ///     collection element, where the store type may lose characters outside of its code page.
+    /// </summary>
+    protected virtual string ExpectedBoundedNonUnicodeString(string value)
+        => value;
+
+    /// <summary>
+    ///     The value of a long string property with a fixed-length store type (char(8000)) as read from a JSON collection element,
+    ///     where the store type may pad it.
+    /// </summary>
+    protected virtual string ExpectedFixedLength8000String(string value)
+        => value;
+
+    private Task<ContextFactory<ContextLongString>> InitializeContextLongString()
+        => InitializeNonSharedTest<ContextLongString>(
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            onModelCreating: m => m.Entity<ContextLongString.Entity>().ComplexCollection(
+                e => e.Items, b =>
+                {
+                    b.ToJson();
+                    if (JsonColumnType != null)
+                    {
+                        b.HasColumnType(JsonColumnType);
+                    }
+
+                    b.ComplexProperty(i => i.Details);
+                    // ComplexCollectionTypePropertyBuilder has no IsFixedLength()
+                    b.Property(i => i.FixedLength8000).HasAnnotation(RelationalAnnotationNames.IsFixedLength, true);
+                }),
+            seed: context => ContextLongString.SeedAsync(context));
+
+    protected class ContextLongString(DbContextOptions options) : DbContext(options)
+    {
+        // Longer than the 4000 characters which SQL Server's JSON_VALUE() can return
+        public static readonly string LongDescription = new string('x', 5000) + "z";
+        public static readonly string LongDetailsDescription = new('y', 5000);
+
+        // Right at, and right above, that limit
+        public static readonly string Length4000 = new('v', 4000);
+        public static readonly string Length4001 = new('w', 4001);
+
+        // Characters outside of the code page of non-Unicode store types
+        public static readonly string LongNonAscii = new string('u', 4001) + "日本";
+        public const string ShortNonAscii = "日本";
+
+        public static Task SeedAsync(ContextLongString context)
+        {
+            context.Set<Entity>().Add(
+                new Entity
+                {
+                    Items =
+                    [
+                        new Item
+                        {
+                            Code = "c2",
+                            Description = LongDescription,
+                            Details = new ItemDetails { Description = LongDetailsDescription },
+                            NonUnicodeBounded = Length4000,
+                            NonUnicode = LongNonAscii,
+                            NonUnicode8000 = Length4001,
+                            FixedLength8000 = Length4001
+                        },
+                        new Item
+                        {
+                            Code = "c1",
+                            Description = "Short",
+                            Details = new ItemDetails { Description = "Short details" },
+                            NonUnicodeBounded = "Short",
+                            NonUnicode = "Short",
+                            NonUnicode8000 = ShortNonAscii,
+                            FixedLength8000 = "Short"
+                        }
+                    ]
+                });
+
+            return context.SaveChangesAsync();
+        }
+
+        public class Entity
+        {
+            public int Id { get; set; }
+            public List<Item> Items { get; set; } = null!;
+        }
+
+        public class Item
+        {
+            [MaxLength(4000)]
+            public string Code { get; set; } = null!;
+            public string Description { get; set; } = null!;
+            public ItemDetails Details { get; set; } = null!;
+            [Unicode(false), MaxLength(4000)]
+            public string NonUnicodeBounded { get; set; } = null!;
+
+            [Unicode(false)]
+            public string NonUnicode { get; set; } = null!;
+
+            [Unicode(false), MaxLength(8000)]
+            public string NonUnicode8000 { get; set; } = null!;
+
+            [Unicode(false), MaxLength(8000)] // Fixed length, configured in OnModelCreating
+            public string FixedLength8000 { get; set; } = null!;
+        }
+
+        public class ItemDetails
+        {
+            public string Description { get; set; } = null!;
+        }
+    }
+
+    #endregion LongStringInCollection
 
     #region 38615
 
