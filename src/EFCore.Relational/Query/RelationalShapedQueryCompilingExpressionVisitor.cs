@@ -634,6 +634,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
             var nullableParameterList = new List<SqlParameterExpression>();
             foreach (var parameter in new SqlParameterLocator().LocateParameters(select))
             {
+                // Collection expansion and null compensation can depend on the actual elements, not just nullability.
+                if (parameter.Type != typeof(string)
+                    && typeof(System.Collections.IEnumerable).IsAssignableFrom(parameter.Type))
+                {
+                    resolver = null;
+                    return false;
+                }
+
                 if (parameter.IsNullable)
                 {
                     nullableParameterList.Add(parameter);
