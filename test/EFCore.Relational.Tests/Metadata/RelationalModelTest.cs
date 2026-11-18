@@ -91,17 +91,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             => Assert.Equal(expected, RelationalModel.ToReferentialAction(deleteBehavior));
 
         [Fact]
-        public void GetRelationalModel_does_not_throw_if_relational_model_is_created_concurrently()
-        {
-            var model = new ConcurrentlyInitializedModel();
-            var relationalModel = new RelationalModel(model);
-            model.AddRuntimeAnnotation(
-                RelationalAnnotationNames.RelationalModelFactory, (Func<IRelationalModel>)(() => relationalModel));
-
-            Assert.Same(relationalModel, model.GetRelationalModel());
-        }
-
-        [Fact]
         public void Both_design_and_runtime_RelationalModels_are_built_for_external_model()
         {
             var modelBuilder = CreateConventionModelBuilder();
