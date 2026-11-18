@@ -110,6 +110,15 @@ public class SqliteConnectionTest
     }
 
     [Fact]
+    public void DefaultTimeout_throws_when_negative()
+    {
+        var connection = new SqliteConnection();
+
+        Assert.Throws<ArgumentOutOfRangeException>(() => connection.DefaultTimeout = -1);
+        Assert.Equal(30, connection.DefaultTimeout);
+    }
+
+    [Fact]
     public void DefaultTimeout_works()
     {
         var connection = new SqliteConnection("Default Timeout=1") { DefaultTimeout = 2 };
@@ -566,7 +575,10 @@ public class SqliteConnectionTest
 
         var ex = Assert.Throws<SqliteException>(() => connection.ExecuteScalar<long>("SELECT 'Νικοσ' = 'ΝΙΚΟΣ' COLLATE MY_NOCASE;"));
 
-        Assert.Equal(Resources.SqliteNativeError(SQLITE_ERROR, "no such collation sequence: MY_NOCASE"), ex.Message);
+        Assert.Equal(
+            Resources.SqliteNativeError(SQLITE_ERROR, "no such collation sequence: MY_NOCASE")
+            + " " + Resources.SqliteExtendedErrorCode($"{SqliteException.SQLITE_ERROR_MISSING_COLLSEQ} (SQLITE_ERROR_MISSING_COLLSEQ)"),
+            ex.Message);
     }
 
     [Fact]

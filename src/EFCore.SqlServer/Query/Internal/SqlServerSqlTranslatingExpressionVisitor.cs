@@ -959,6 +959,31 @@ public class SqlServerSqlTranslatingExpressionVisitor(
             "LEAST", expressions, nullable: true, Enumerable.Repeat(false, expressions.Count), resultType, resultTypeMapping);
     }
 
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override bool IsCountOverNullableColumnSupported(ColumnExpression column, Expression? selector)
+        => base.IsCountOverNullableColumnSupported(column, selector)
+            && !IsLargeObjectType(column.TypeMapping!.StoreTypeNameBase);
+
+    // COUNT doesn't accept the legacy text, ntext and image types, but IS NOT NULL does. The store type keeps the spelling from
+    // HasColumnType, which SQL Server matches regardless of case or brackets.
+    private static bool IsLargeObjectType(string storeTypeNameBase)
+    {
+        var name = storeTypeNameBase.Trim();
+        if (name.StartsWith('[') && name.EndsWith(']'))
+        {
+            name = name[1..^1];
+        }
+
+        return name.Equals("text", StringComparison.OrdinalIgnoreCase)
+            || name.Equals("ntext", StringComparison.OrdinalIgnoreCase)
+            || name.Equals("image", StringComparison.OrdinalIgnoreCase);
+    }
+
     private Expression TranslateByteArrayElementAccess(Expression array, Expression index, Type resultType)
     {
         var visitedArray = Visit(array);

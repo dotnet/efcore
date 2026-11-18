@@ -702,15 +702,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                 || !entityType.GetAllBaseTypesInclusiveAscending()
                     .All(e => (e == entityType || e.IsAbstract()) && !HasSiblings(e))))
         {
-            var discriminatorColumn = GetMappedProjection(selectExpression).BindProperty(discriminatorProperty);
-            var concreteEntityTypes = entityType.GetConcreteDerivedTypesInclusive().ToList();
-            var predicate = _sqlExpressionFactory.In(
-                discriminatorColumn,
-                concreteEntityTypes
-                    .Select(et => _sqlExpressionFactory.Constant(et.GetDiscriminatorValue(), discriminatorColumn.Type))
-                    .ToArray());
-
-            selectExpression.ApplyPredicate(predicate);
+            selectExpression.ApplyPredicate(
+                IsOfType(GetMappedProjection(selectExpression).BindProperty(discriminatorProperty), entityType));
 
             // If discriminator predicate is added then it will also serve as condition for existence of dependents in table sharing
             return;
@@ -762,11 +755,51 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                 selectExpression.ApplyPredicate(predicate);
             }
         }
+        else if (GetRowExistencePredicate(entityType) is { } predicate)
+        {
+            selectExpression.ApplyPredicate(predicate);
+        }
 
         return;
 
         bool HasSiblings(IEntityType entityType)
             => entityType.BaseType?.GetDirectlyDerivedTypes().Any(i => i != entityType) == true;
+
+        // A derived type in a TPH hierarchy only exists in the rows of that type, and a required dependent only exists in the rows
+        // of any of its principals. Returns null if the entity type exists in all rows.
+        SqlExpression? GetRowExistencePredicate(IEntityType rowEntityType)
+        {
+            if (rowEntityType.BaseType != null
+                && rowEntityType.FindDiscriminatorProperty() is { } rowDiscriminatorProperty)
+            {
+                return IsOfType(
+                    CreateColumnExpression(
+                        rowDiscriminatorProperty, table, selectExpression.Tables[0].GetRequiredAlias(), nullable: false),
+                    rowEntityType);
+            }
+
+            SqlExpression? existencePredicate = null;
+            foreach (var foreignKey in table.GetRowInternalForeignKeys(rowEntityType))
+            {
+                if (GetRowExistencePredicate(foreignKey.PrincipalEntityType) is not { } principalExistencePredicate)
+                {
+                    return null;
+                }
+
+                existencePredicate = existencePredicate == null
+                    ? principalExistencePredicate
+                    : _sqlExpressionFactory.OrElse(existencePredicate, principalExistencePredicate);
+            }
+
+            return existencePredicate;
+        }
+
+        SqlExpression IsOfType(SqlExpression discriminatorColumn, IEntityType discriminatedEntityType)
+            => _sqlExpressionFactory.In(
+                discriminatorColumn,
+                discriminatedEntityType.GetConcreteDerivedTypesInclusive()
+                    .Select(et => _sqlExpressionFactory.Constant(et.GetDiscriminatorValue(), discriminatorColumn.Type))
+                    .ToArray());
 
         static StructuralTypeProjectionExpression GetMappedProjection(SelectExpression selectExpression)
             => (StructuralTypeProjectionExpression)selectExpression.GetProjection(

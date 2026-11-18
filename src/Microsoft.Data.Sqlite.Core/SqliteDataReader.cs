@@ -189,7 +189,7 @@ public class SqliteDataReader : DbDataReader
 
                 var timer = SharedStopwatch.StartNew();
 
-                while (IsBusy(rc = sqlite3_step(stmt)))
+                while (IsBusy(rc = sqlite3_step(stmt), connectionHandle))
                 {
                     if (_command.CommandTimeout != 0
                         && (_totalElapsedTime + timer.Elapsed).TotalMilliseconds >= _command.CommandTimeout * 1000L)

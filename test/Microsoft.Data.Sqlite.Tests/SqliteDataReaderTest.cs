@@ -279,6 +279,32 @@ public class SqliteDataReaderTest
         }
     }
 
+    [Theory,
+     InlineData("UTF-16le", "SELECT rowid, Value FROM Data;"),
+     InlineData("UTF-16be", "SELECT rowid, Value FROM Data;"),
+     InlineData("UTF-16le", "SELECT 0, Value FROM Data;"),
+     InlineData("UTF-16be", "SELECT 0, Value FROM Data;"),
+     InlineData("UTF-16le", "SELECT 0, Value || '' FROM Data;"),
+     InlineData("UTF-8", "SELECT rowid, Value FROM Data;")]
+    public void GetChars_works_for_database_encoding(string encoding, string query)
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+
+        connection.ExecuteNonQuery(
+            $"PRAGMA encoding = '{encoding}'; CREATE TABLE Data (Value TEXT); INSERT INTO Data VALUES ('têst');");
+
+        using var reader = connection.ExecuteReader(query);
+        var hasData = reader.Read();
+        Assert.True(hasData);
+
+        var buffer = new char[2];
+        var charsRead = reader.GetChars(1, 1, buffer, 0, buffer.Length);
+        Assert.Equal(2, charsRead);
+        Assert.Equal(new[] { 'ê', 's' }, buffer);
+        Assert.Equal(4, reader.GetChars(1, 0, null, 0, 0));
+    }
+
     [Fact]
     public void GetChars_throws_when_dataOffset_out_of_range()
     {
@@ -614,6 +640,83 @@ public class SqliteDataReaderTest
         using var textReader = reader.GetTextReader(0);
         Assert.IsType<MemoryStream>(Assert.IsType<StreamReader>(textReader).BaseStream);
         Assert.Equal("test", textReader.ReadToEnd());
+    }
+
+    [Theory,
+     InlineData("UTF-16le", "SELECT rowid, Value FROM Data;"),
+     InlineData("UTF-16be", "SELECT rowid, Value FROM Data;"),
+     InlineData("UTF-16le", "SELECT 0, Value FROM Data;"),
+     InlineData("UTF-16be", "SELECT 0, Value FROM Data;"),
+     InlineData("UTF-16le", "SELECT 0, Value || '' FROM Data;"),
+     InlineData("UTF-8", "SELECT rowid, Value FROM Data;")]
+    public void GetTextReader_works_for_database_encoding(string encoding, string query)
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+
+        connection.ExecuteNonQuery(
+            $"PRAGMA encoding = '{encoding}'; CREATE TABLE Data (Value TEXT); INSERT INTO Data VALUES ('têst');");
+
+        using var reader = connection.ExecuteReader(query);
+        var hasData = reader.Read();
+        Assert.True(hasData);
+
+        using var textReader = reader.GetTextReader(1);
+        Assert.Equal("têst", textReader.ReadToEnd());
+    }
+
+    [Fact]
+    public void GetTextReader_works_for_parameter_when_UTF16_database()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+
+        connection.ExecuteNonQuery("PRAGMA encoding = 'UTF-16le'; CREATE TABLE Data (Value TEXT);");
+
+        using var command = connection.CreateCommand();
+        command.CommandText = "SELECT $value;";
+        command.Parameters.AddWithValue("$value", "têst");
+
+        using var reader = command.ExecuteReader();
+        var hasData = reader.Read();
+        Assert.True(hasData);
+
+        using var textReader = reader.GetTextReader(0);
+        Assert.Equal("têst", textReader.ReadToEnd());
+    }
+
+    [Fact]
+    public void GetTextReader_reads_blob_as_UTF8_when_UTF16_database()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+
+        connection.ExecuteNonQuery("PRAGMA encoding = 'UTF-16le'; CREATE TABLE Data (Value BLOB);");
+        connection.ExecuteNonQuery("INSERT INTO Data VALUES (X'74C3AA7374');");
+
+        using var reader = connection.ExecuteReader("SELECT rowid, Value FROM Data;");
+        var hasData = reader.Read();
+        Assert.True(hasData);
+
+        using var textReader = reader.GetTextReader(1);
+        Assert.Equal("têst", textReader.ReadToEnd());
+    }
+
+    [Fact]
+    public void GetFieldValue_of_TextReader_works_when_UTF16_database()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+
+        connection.ExecuteNonQuery(
+            "PRAGMA encoding = 'UTF-16le'; CREATE TABLE Data (Value TEXT); INSERT INTO Data VALUES ('têst');");
+
+        using var reader = connection.ExecuteReader("SELECT rowid, Value FROM Data;");
+        var hasData = reader.Read();
+        Assert.True(hasData);
+
+        using var textReader = reader.GetFieldValue<TextReader>(1);
+        Assert.Equal("têst", textReader.ReadToEnd());
     }
 
     [Fact]

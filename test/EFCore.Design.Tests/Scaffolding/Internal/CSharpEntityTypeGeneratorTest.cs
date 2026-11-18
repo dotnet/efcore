@@ -1333,6 +1333,44 @@ public partial class Entity
             model => { });
 
     [Fact]
+    public Task Comments_with_quotes_and_ampersands_are_generated()
+        => TestAsync(
+            modelBuilder => modelBuilder
+                .Entity(
+                    "Entity",
+                    x =>
+                    {
+                        x.ToTable(tb => tb.HasComment("The user's \"saved\" maps & routes"));
+                        x.Property<int>("Id").HasComment("Filename under which map data are saved when cached on user's machine.");
+                    })
+            ,
+            new ModelCodeGenerationOptions { UseDataAnnotations = true },
+            code => AssertFileContents(
+                """
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+
+namespace TestNamespace;
+
+/// <summary>
+/// The user's "saved" maps &amp; routes
+/// </summary>
+public partial class Entity
+{
+    /// <summary>
+    /// Filename under which map data are saved when cached on user's machine.
+    /// </summary>
+    [Key]
+    public int Id { get; set; }
+}
+""",
+                code.AdditionalFiles.Single(f => f.Path == "Entity.cs")),
+            model => { });
+
+    [Fact]
     public Task Properties_are_sorted_in_order_of_definition_in_table()
         => TestAsync(
             modelBuilder => modelBuilder

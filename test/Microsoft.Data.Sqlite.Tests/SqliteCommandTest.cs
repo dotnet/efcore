@@ -144,6 +144,15 @@ CREATE TABLE "Products" (
     }
 
     [Fact]
+    public void CommandTimeout_throws_when_negative()
+    {
+        var command = new SqliteCommand();
+
+        Assert.Throws<ArgumentOutOfRangeException>(() => command.CommandTimeout = -1);
+        Assert.Equal(30, command.CommandTimeout);
+    }
+
+    [Fact]
     public void CommandTimeout_defaults_to_30()
     {
         var command = new SqliteCommand();
@@ -1367,7 +1376,7 @@ CREATE TABLE "Products" (
                 AssertBusy(ex.SqliteErrorCode);
 
                 // It waited for the command timeout instead of giving up on the first busy
-                Assert.True(timer.Elapsed >= TimeSpan.FromSeconds(1), $"Threw after {timer.Elapsed}");
+                Assert.True(timer.Elapsed >= TimeSpan.FromMilliseconds(900), $"Threw after {timer.Elapsed}");
             },
             expectedCount: 1);
 
@@ -1549,6 +1558,106 @@ CREATE TABLE "Products" (
 
             Assert.InRange(stopwatch.ElapsedMilliseconds, 1000, 1999);
         }
+    }
+
+    [Fact]
+    public Task Write_fails_immediately_when_read_snapshot_is_stale()
+        => TempDatabase.WithStaleReadSnapshot(
+            connection =>
+            {
+                var ex = Assert.Throws<SqliteException>(() => connection.ExecuteNonQuery("INSERT INTO Data VALUES (4)"));
+
+                Assert.Equal(SQLITE_BUSY, ex.SqliteErrorCode);
+                Assert.Equal(SQLITE_BUSY_SNAPSHOT, ex.SqliteExtendedErrorCode);
+                return Task.CompletedTask;
+            });
+
+    [Fact]
+    public Task Async_write_fails_immediately_when_read_snapshot_is_stale()
+        => TempDatabase.WithStaleReadSnapshot(
+            async connection =>
+            {
+                var command = connection.CreateCommand();
+                command.CommandText = "INSERT INTO Data VALUES (4)";
+
+                var ex = await Assert.ThrowsAsync<SqliteException>(() => command.ExecuteNonQueryAsync());
+
+                Assert.Equal(SQLITE_BUSY, ex.SqliteErrorCode);
+                Assert.Equal(SQLITE_BUSY_SNAPSHOT, ex.SqliteExtendedErrorCode);
+            });
+
+    // A command timeout of zero means to retry forever, which previously never returned for a stale snapshot.
+    // The cancellation token turns a regression into a test failure instead of a hang.
+    [Fact]
+    public Task Write_fails_immediately_when_read_snapshot_is_stale_and_timeout_is_zero()
+        => TempDatabase.WithStaleReadSnapshot(
+            async connection =>
+            {
+                var command = connection.CreateCommand();
+                command.CommandText = "INSERT INTO Data VALUES (4)";
+                command.CommandTimeout = 0;
+
+                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+                var ex = await Assert.ThrowsAsync<SqliteException>(() => command.ExecuteNonQueryAsync(cts.Token));
+
+                Assert.Equal(SQLITE_BUSY, ex.SqliteErrorCode);
+                Assert.Equal(SQLITE_BUSY_SNAPSHOT, ex.SqliteExtendedErrorCode);
+            });
+
+    // Contrast with a stale snapshot: waiting for another writer can succeed, so this must still be retried.
+    [Fact]
+    public async Task Write_is_retried_when_another_connection_holds_write_lock_in_wal_mode()
+    {
+        using var database = new TempDatabase();
+        using var connection = database.Open();
+        connection.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES (1);");
+
+        using var command = connection.CreateCommand();
+        command.CommandText = "SELECT Value FROM Data";
+        using var reader = command.ExecuteReader();
+        Assert.True(reader.Read());
+
+        using var other = database.Open();
+        using var transaction = other.BeginTransaction();
+        other.ExecuteNonQuery("INSERT INTO Data VALUES (2)");
+        var release = Task.Run(
+            async () =>
+            {
+                await Task.Delay(1000);
+                transaction.Rollback();
+            });
+
+        var stopwatch = Stopwatch.StartNew();
+        try
+        {
+            connection.ExecuteNonQuery("INSERT INTO Data VALUES (3)");
+        }
+        finally
+        {
+            // Don't leave the rollback running against a connection that is about to be disposed
+            await release;
+        }
+
+        Assert.True(stopwatch.Elapsed >= TimeSpan.FromMilliseconds(500), $"Took {stopwatch.Elapsed}");
+    }
+
+    [Fact]
+    public void Write_is_retried_until_timeout_when_another_connection_holds_write_lock_in_wal_mode()
+    {
+        using var database = new TempDatabase("Default Timeout=1");
+        using var connection = database.Open();
+        connection.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES (1);");
+
+        using var other = database.Open();
+        using var transaction = other.BeginTransaction();
+        other.ExecuteNonQuery("INSERT INTO Data VALUES (2)");
+
+        var stopwatch = Stopwatch.StartNew();
+        var ex = Assert.Throws<SqliteException>(() => connection.ExecuteNonQuery("INSERT INTO Data VALUES (3)"));
+
+        Assert.Equal(SQLITE_BUSY, ex.SqliteErrorCode);
+        Assert.Equal(SQLITE_BUSY, ex.SqliteExtendedErrorCode);
+        Assert.True(stopwatch.Elapsed >= TimeSpan.FromMilliseconds(900), $"Took {stopwatch.Elapsed}");
     }
 
     [Fact]

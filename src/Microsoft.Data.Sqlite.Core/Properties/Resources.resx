@@ -198,6 +198,12 @@
   <data name="SqlBlobRequiresOpenConnection" xml:space="preserve">
     <value>SqliteBlob can only be used when the connection is open.</value>
   </data>
+  <data name="SqliteBusySnapshotGuidance" xml:space="preserve">
+    <value>This happens when a connection that has read data tries to write after another connection has committed changes, because what it read is now out of date. Waiting cannot help. If there is a transaction, roll it back and retry it. To avoid this, start the transaction with BeginTransaction() (not deferred) before reading, and outside a transaction dispose any open readers before writing.</value>
+  </data>
+  <data name="SqliteExtendedErrorCode" xml:space="preserve">
+    <value>Extended error code: {extendedErrorCode}.</value>
+  </data>
   <data name="SqliteNativeError" xml:space="preserve">
     <value>SQLite Error {errorCode}: '{message}'.</value>
   </data>

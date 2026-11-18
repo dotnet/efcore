@@ -3174,6 +3174,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var model = Finalize(modelBuilder);
 
             Assert.Single(model.Model.GetEntityTypes());
+            var dbFunctions = model.Model.GetDbFunctions().ToArray();
+            Assert.Equal(dbFunctions.OrderBy(f => f.ModelName, StringComparer.Ordinal), dbFunctions);
             Assert.Equal(4, model.Functions.Count());
             Assert.Empty(model.Views);
             Assert.Empty(model.Tables);
@@ -3187,17 +3189,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(orderMapping.IsSplitEntityTypePrincipal);
             Assert.True(orderMapping.IsDefaultFunctionMapping);
 
-            var tvfMapping = orderType.GetFunctionMappings().ElementAt(2);
+            var tvfMapping = orderType.GetFunctionMappings().Single(
+                m => m.StoreFunction.Name == nameof(GetOrdersForCustomer)
+                    && m.StoreFunction.Parameters.Select(p => p.StoreType).SequenceEqual(["default_int_mapping"]));
             Assert.Null(tvfMapping.IsSharedTablePrincipal);
             Assert.Null(tvfMapping.IsSplitEntityTypePrincipal);
             Assert.False(tvfMapping.IsDefaultFunctionMapping);
 
-            var tvfMapping2 = orderType.GetFunctionMappings().ElementAt(3);
+            var tvfMapping2 = orderType.GetFunctionMappings().Single(
+                m => m.StoreFunction.Name == nameof(GetOrdersForCustomer)
+                    && m.StoreFunction.Parameters.Select(p => p.StoreType).SequenceEqual(["just_string(max)"]));
             Assert.Null(tvfMapping2.IsSharedTablePrincipal);
             Assert.Null(tvfMapping2.IsSplitEntityTypePrincipal);
             Assert.False(tvfMapping2.IsDefaultFunctionMapping);
 
-            var tvfMapping3 = orderType.GetFunctionMappings().ElementAt(1);
+            var tvfMapping3 = orderType.GetFunctionMappings().Single(
+                m => m.StoreFunction.Name == nameof(GetOrdersForCustomer)
+                    && m.StoreFunction.Parameters.Select(p => p.StoreType)
+                        .SequenceEqual(["default_int_mapping", "just_string(max)"]));
             Assert.Null(tvfMapping3.IsSharedTablePrincipal);
             Assert.Null(tvfMapping3.IsSplitEntityTypePrincipal);
             Assert.False(tvfMapping3.IsDefaultFunctionMapping);

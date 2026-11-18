@@ -154,6 +154,20 @@ GROUP BY [m].[City]
 """);
     }
 
+    public override async Task KeylessEntity_final_GroupBy(bool async)
+    {
+        await base.KeylessEntity_final_GroupBy(async);
+
+        AssertSql(
+            """
+SELECT [m].[City], [m].[Address], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle]
+FROM (
+    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]
+) AS [m]
+ORDER BY [m].[City]
+""");
+    }
+
     public override async Task Entity_mapped_to_view_on_right_side_of_join(bool async)
     {
         await base.Entity_mapped_to_view_on_right_side_of_join(async);

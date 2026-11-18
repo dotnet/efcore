@@ -155,6 +155,10 @@
     <value>Both the SqliteValueGenerationStrategy '{generationStrategy}' and '{otherGenerationStrategy}' have been set on property '{propertyName}' on entity type '{entityName}'. Configuring two strategies is usually unintentional and will likely result in a database error.</value>
     <comment>Warning SqliteEventId.ConflictingValueGenerationStrategiesWarning string string string string</comment>
   </data>
+  <data name="LogExpressionIndexSkipped" xml:space="preserve">
+    <value>Skipping index '{indexName}' on table '{tableName}', since it is defined on an expression and indexes on expressions are not supported.</value>
+    <comment>Warning SqliteEventId.ExpressionIndexSkippedWarning string? string?</comment>
+  </data>
   <data name="LogForeignKeyScaffoldErrorPrincipalTableNotFound" xml:space="preserve">
     <value>Skipping foreign key with identity '{id}' on table '{tableName}' since principal table '{principalTableName}' was not found in the model. This usually happens when the principal table was not included in the selection set.</value>
     <comment>Warning SqliteEventId.ForeignKeyReferencesMissingTableWarning string? string? string?</comment>

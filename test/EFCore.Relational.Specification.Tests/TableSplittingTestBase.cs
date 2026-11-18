@@ -92,6 +92,138 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase, IClassFix
     }
 
     [Fact]
+    public virtual async Task Can_query_required_dependent_of_derived_type()
+    {
+        var contextFactory = await InitializeNonSharedTest<AnimalContext>(
+            onModelCreating: modelBuilder =>
+            {
+                modelBuilder.Entity<Animal>();
+                modelBuilder.Entity<Dog>();
+                modelBuilder.Entity<Cat>(b =>
+                {
+                    b.HasOne(c => c.Profile).WithOne().HasForeignKey<CatProfile>(p => p.Id);
+                    b.Navigation(c => c.Profile).IsRequired();
+                });
+                modelBuilder.Entity<CatProfile>().ToTable("Animals");
+            },
+            shouldLogCategory: _ => true,
+            seed: context =>
+            {
+                context.AddRange(
+                    new Dog { Name = "Rex" },
+                    new Cat { Name = "Tom", Profile = new CatProfile { Note = "cat" } });
+                return context.SaveChangesAsync();
+            });
+
+        using var context = contextFactory.CreateDbContext();
+        var profiles = await context.Set<CatProfile>().ToListAsync();
+
+        Assert.Equal("cat", Assert.Single(profiles).Note);
+    }
+
+    [Fact]
+    public virtual async Task Can_query_required_dependent_of_derived_type_mapped_to_view()
+    {
+        var contextFactory = await InitializeNonSharedTest<AnimalContext>(
+            onModelCreating: modelBuilder =>
+            {
+                modelBuilder.Entity<Animal>().ToTable("Animals").ToView("AnimalsView");
+                modelBuilder.Entity<Dog>();
+                modelBuilder.Entity<Cat>(b =>
+                {
+                    b.HasOne(c => c.Profile).WithOne().HasForeignKey<CatProfile>(p => p.Id);
+                    b.Navigation(c => c.Profile).IsRequired();
+                });
+                modelBuilder.Entity<CatProfile>().ToTable("Animals").ToView("AnimalsView");
+            },
+            shouldLogCategory: _ => true,
+            seed: async context =>
+            {
+                var helper = context.GetService<ISqlGenerationHelper>();
+                await context.Database.ExecuteSqlRawAsync(
+                    $"CREATE VIEW {helper.DelimitIdentifier("AnimalsView")} AS SELECT * FROM {helper.DelimitIdentifier("Animals")}");
+                context.AddRange(
+                    new Dog { Name = "Rex" },
+                    new Cat { Name = "Tom", Profile = new CatProfile { Note = "cat" } });
+                await context.SaveChangesAsync();
+            });
+
+        using var context = contextFactory.CreateDbContext();
+        var profiles = await context.Set<CatProfile>().ToListAsync();
+
+        Assert.Equal("cat", Assert.Single(profiles).Note);
+    }
+
+    [Fact]
+    public virtual async Task Can_query_required_dependent_of_required_dependent_of_derived_type()
+    {
+        var contextFactory = await InitializeNonSharedTest<AnimalContext>(
+            onModelCreating: modelBuilder =>
+            {
+                modelBuilder.Entity<Animal>();
+                modelBuilder.Entity<Dog>();
+                modelBuilder.Entity<Lion>(b =>
+                {
+                    b.HasOne(c => c.Profile).WithOne().HasForeignKey<LionProfile>(p => p.Id);
+                    b.Navigation(c => c.Profile).IsRequired();
+                });
+                modelBuilder.Entity<LionProfile>(b =>
+                {
+                    b.ToTable("Animals");
+                    b.HasOne(c => c.Details).WithOne().HasForeignKey<LionProfileDetails>(p => p.Id);
+                    b.Navigation(c => c.Details).IsRequired();
+                });
+                modelBuilder.Entity<LionProfileDetails>().ToTable("Animals");
+            },
+            shouldLogCategory: _ => true,
+            seed: context =>
+            {
+                context.AddRange(
+                    new Dog { Name = "Rex" },
+                    new Lion
+                    {
+                        Name = "Leo", Profile = new LionProfile { Note = "lion", Details = new LionProfileDetails { Text = "details" } }
+                    });
+                return context.SaveChangesAsync();
+            });
+
+        using var context = contextFactory.CreateDbContext();
+        var details = await context.Set<LionProfileDetails>().ToListAsync();
+
+        Assert.Equal("details", Assert.Single(details).Text);
+    }
+
+    [Fact]
+    public virtual async Task Can_query_required_dependent_of_base_type_that_is_also_dependent_of_derived_type()
+    {
+        var contextFactory = await InitializeNonSharedTest<PetContext>(
+            onModelCreating: modelBuilder =>
+            {
+                modelBuilder.Entity<Pet>(b =>
+                {
+                    b.HasOne(c => c.Profile).WithOne().HasForeignKey<PetProfile>(p => p.Id);
+                    b.Navigation(c => c.Profile).IsRequired();
+                });
+                modelBuilder.Entity<Puppy>();
+                modelBuilder.Entity<Kitten>().HasOne<PetProfile>().WithOne().HasForeignKey<PetProfile>(p => p.Id);
+                modelBuilder.Entity<PetProfile>().ToTable("Pets");
+            },
+            shouldLogCategory: _ => true,
+            seed: context =>
+            {
+                context.AddRange(
+                    new Puppy { Name = "Rex", Profile = new PetProfile { Note = "puppy" } },
+                    new Kitten { Name = "Tom", Profile = new PetProfile { Note = "kitten" } });
+                return context.SaveChangesAsync();
+            });
+
+        using var context = contextFactory.CreateDbContext();
+        var profiles = await context.Set<PetProfile>().ToListAsync();
+
+        Assert.Equal(["kitten", "puppy"], profiles.Select(p => p.Note).Order());
+    }
+
+    [Fact]
     public virtual Task Can_use_with_redundant_relationships()
         => Test_roundtrip(OnModelCreating);
 
@@ -1637,6 +1769,70 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase, IClassFix
 
         ContextFactory = null;
         SharedContextFactory = null;
+    }
+
+    protected class AnimalContext(DbContextOptions options) : PoolableDbContext(options)
+    {
+        public DbSet<Animal> Animals { get; set; } = null!;
+    }
+
+    protected abstract class Animal
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = null!;
+    }
+
+    protected class Dog : Animal;
+
+    protected class Cat : Animal
+    {
+        public CatProfile? Profile { get; set; }
+    }
+
+    protected class CatProfile
+    {
+        public int Id { get; set; }
+        public string? Note { get; set; }
+    }
+
+    protected class Lion : Animal
+    {
+        public LionProfile? Profile { get; set; }
+    }
+
+    protected class LionProfile
+    {
+        public int Id { get; set; }
+        public string? Note { get; set; }
+        public LionProfileDetails? Details { get; set; }
+    }
+
+    protected class LionProfileDetails
+    {
+        public int Id { get; set; }
+        public string? Text { get; set; }
+    }
+
+    protected class PetContext(DbContextOptions options) : PoolableDbContext(options)
+    {
+        public DbSet<Pet> Pets { get; set; } = null!;
+    }
+
+    protected abstract class Pet
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = null!;
+        public PetProfile? Profile { get; set; }
+    }
+
+    protected class Puppy : Pet;
+
+    protected class Kitten : Pet;
+
+    protected class PetProfile
+    {
+        public int Id { get; set; }
+        public string Note { get; set; } = null!;
     }
 
     protected class SharedTableContext(DbContextOptions options) : PoolableDbContext(options)

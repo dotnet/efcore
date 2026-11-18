@@ -16,6 +16,20 @@ public class PrecompiledQuerySqlServerTest(
 
     #region Expression types
 
+    public override async Task MemberInit_with_required_init_only_properties()
+    {
+        await base.MemberInit_with_required_init_only_properties();
+
+        AssertSql(
+            """
+@id='8'
+
+SELECT TOP(1) [b].[Id], [b].[Name]
+FROM [Blogs] AS [b]
+WHERE [b].[Id] = @id
+""");
+    }
+
     public override async Task Class_constant_in_predicate()
     {
         await base.Class_constant_in_predicate();
@@ -69,6 +83,180 @@ SELECT CASE
     ELSE N'no'
 END
 FROM [Blogs] AS [b]
+""");
+    }
+
+    public override async Task Conditional_test_contains_captured_variable(bool async, bool fullyEvaluatable)
+    {
+        await base.Conditional_test_contains_captured_variable(async, fullyEvaluatable);
+
+        if (fullyEvaluatable)
+        {
+            AssertSql(
+                """
+@p='9'
+
+SELECT [b].[Id]
+FROM [Blogs] AS [b]
+WHERE [b].[Id] = @p
+""",
+                //
+                """
+@p='8'
+
+SELECT [b].[Id]
+FROM [Blogs] AS [b]
+WHERE [b].[Id] = @p
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+@flag='False'
+
+SELECT [b].[Id]
+FROM [Blogs] AS [b]
+WHERE CASE
+    WHEN @flag = CAST(1 AS bit) THEN CASE
+        WHEN [b].[Id] = 8 THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END
+    WHEN [b].[Id] = 9 THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END = CAST(1 AS bit)
+""",
+                //
+                """
+@flag='True'
+
+SELECT [b].[Id]
+FROM [Blogs] AS [b]
+WHERE CASE
+    WHEN @flag = CAST(1 AS bit) THEN CASE
+        WHEN [b].[Id] = 8 THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END
+    WHEN [b].[Id] = 9 THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END = CAST(1 AS bit)
+""");
+        }
+    }
+
+    public override async Task Logical_binary_contains_captured_variable(bool async, bool andAlso, bool capturedOnLeft)
+    {
+        await base.Logical_binary_contains_captured_variable(async, andAlso, capturedOnLeft);
+
+        if (andAlso)
+        {
+            if (capturedOnLeft)
+            {
+                AssertSql(
+                    """
+@flag='False'
+
+SELECT [b].[Id]
+FROM [Blogs] AS [b]
+WHERE @flag = CAST(1 AS bit) AND [b].[Id] = 8
+ORDER BY [b].[Id]
+""",
+                    //
+                    """
+@flag='True'
+
+SELECT [b].[Id]
+FROM [Blogs] AS [b]
+WHERE @flag = CAST(1 AS bit) AND [b].[Id] = 8
+ORDER BY [b].[Id]
+""");
+            }
+            else
+            {
+                AssertSql(
+                    """
+@flag='False'
+
+SELECT [b].[Id]
+FROM [Blogs] AS [b]
+WHERE [b].[Id] = 8 AND @flag = CAST(1 AS bit)
+ORDER BY [b].[Id]
+""",
+                    //
+                    """
+@flag='True'
+
+SELECT [b].[Id]
+FROM [Blogs] AS [b]
+WHERE [b].[Id] = 8 AND @flag = CAST(1 AS bit)
+ORDER BY [b].[Id]
+""");
+            }
+        }
+        else
+        {
+            if (capturedOnLeft)
+            {
+                AssertSql(
+                    """
+@flag='False'
+
+SELECT [b].[Id]
+FROM [Blogs] AS [b]
+WHERE @flag = CAST(1 AS bit) OR [b].[Id] = 8
+ORDER BY [b].[Id]
+""",
+                    //
+                    """
+@flag='True'
+
+SELECT [b].[Id]
+FROM [Blogs] AS [b]
+WHERE @flag = CAST(1 AS bit) OR [b].[Id] = 8
+ORDER BY [b].[Id]
+""");
+            }
+            else
+            {
+                AssertSql(
+                    """
+@flag='False'
+
+SELECT [b].[Id]
+FROM [Blogs] AS [b]
+WHERE [b].[Id] = 8 OR @flag = CAST(1 AS bit)
+ORDER BY [b].[Id]
+""",
+                    //
+                    """
+@flag='True'
+
+SELECT [b].[Id]
+FROM [Blogs] AS [b]
+WHERE [b].[Id] = 8 OR @flag = CAST(1 AS bit)
+ORDER BY [b].[Id]
+""");
+            }
+        }
+    }
+
+    public override async Task Coalesce_left_contains_captured_variable(bool async)
+    {
+        await base.Coalesce_left_contains_captured_variable(async);
+
+        AssertSql(
+            """
+SELECT COALESCE(NULL, [b].[Name])
+FROM [Blogs] AS [b]
+ORDER BY [b].[Id]
+""",
+            //
+            """
+@name='captured' (Size = 4000)
+
+SELECT @name
+FROM [Blogs] AS [b]
+ORDER BY [b].[Id]
 """);
     }
 
@@ -363,6 +551,66 @@ ORDER BY [b].[Name]
 SELECT TOP(@p) [b].[Id], [b].[Name], [b].[Json]
 FROM [Blogs] AS [b]
 ORDER BY [b].[Name]
+""");
+    }
+
+    public override async Task Skip_Take_with_parameters()
+    {
+        await base.Skip_Take_with_parameters();
+
+        AssertSql(
+            """
+@p='0'
+@p1='3'
+
+SELECT [p].[Id]
+FROM [Posts] AS [p]
+ORDER BY [p].[Id]
+OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
+""",
+            """
+@p='1'
+@p1='2'
+
+SELECT [p].[Id]
+FROM [Posts] AS [p]
+ORDER BY [p].[Id]
+OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
+""",
+            """
+@p='1'
+@p1='1'
+
+SELECT [p].[Id]
+FROM [Posts] AS [p]
+ORDER BY [p].[Id]
+OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
+""",
+            """
+@p='5'
+@p1='1'
+
+SELECT [p].[Id]
+FROM [Posts] AS [p]
+ORDER BY [p].[Id]
+OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
+""");
+    }
+
+    public override async Task Skip_Take_with_captured_parameters_in_local_function()
+    {
+        await base.Skip_Take_with_captured_parameters_in_local_function();
+
+        AssertSql(
+            """
+@p='1'
+@p1='2'
+
+SELECT [p].[Id]
+FROM [Posts] AS [p]
+WHERE [p].[Id] > 10
+ORDER BY [p].[Id]
+OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
 """);
     }
 

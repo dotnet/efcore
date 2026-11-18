@@ -68,6 +68,34 @@ public class SqliteDatabaseModelFactoryTest : IClassFixture<SqliteDatabaseModelF
         }
     }
 
+    private void Test(
+        string createSql,
+        IEnumerable<string> tables,
+        IEnumerable<string> schemas,
+        Action<DatabaseModel, IScaffoldingModelFactory> asserter,
+        string cleanupSql)
+    {
+        Fixture.TestStore.ExecuteNonQuery(createSql);
+
+        try
+        {
+            var serviceProvider = SqliteTestHelpers.Instance.CreateDesignServiceProvider().CreateScope().ServiceProvider;
+
+            var databaseModel = serviceProvider.GetRequiredService<IDatabaseModelFactory>().Create(
+                Fixture.TestStore.ConnectionString,
+                new DatabaseModelFactoryOptions(tables, schemas));
+            Assert.NotNull(databaseModel);
+            asserter(databaseModel, serviceProvider.GetRequiredService<IScaffoldingModelFactory>());
+        }
+        finally
+        {
+            if (!string.IsNullOrEmpty(cleanupSql))
+            {
+                Fixture.TestStore.ExecuteNonQuery(cleanupSql);
+            }
+        }
+    }
+
     #region FilteringSchemaTable
 
     [Fact]
@@ -1363,6 +1391,272 @@ CREATE UNIQUE INDEX IX_UNIQUE on UniqueIndex (Id2);",
                     ["Id2"], index.Columns.Select(ic => ic.Name).ToList());
             },
             "DROP TABLE UniqueIndex;");
+
+    [Fact]
+    public void Set_filter_to_null_for_index_without_filter()
+        => Test(
+            @"
+CREATE TABLE UnfilteredIndex (
+    Id1 int,
+    Id2 text
+);
+
+CREATE UNIQUE INDEX IX_UNFILTERED on UnfilteredIndex (Id2);",
+            [],
+            [],
+            dbModel => Assert.Null(Assert.Single(dbModel.Tables.Single().Indexes).Filter),
+            "DROP TABLE UnfilteredIndex;");
+
+    [Theory]
+    [InlineData("WHERE Id1 = 1", "Id1 = 1")]
+    [InlineData("where \"Id2\" IS NOT NULL AND \"Id2\" <> ''", "\"Id2\" IS NOT NULL AND \"Id2\" <> ''")]
+    [InlineData("WHERE Id2 = ' where (x'", "Id2 = ' where (x'")]
+    [InlineData("/* where */ -- where\n WHERE Id1 IS NOT NULL", "Id1 IS NOT NULL")]
+    [InlineData("WHERE -- where\n Id1 IS NOT NULL", "Id1 IS NOT NULL")]
+    [InlineData("WHERE Id1 IS NOT NULL -- trailing", "Id1 IS NOT NULL")]
+    [InlineData("WHERE Id1 IS NOT NULL /* trailing */", "Id1 IS NOT NULL")]
+    [InlineData("WHERE Id2 = '-- not a comment' /* c */", "Id2 = '-- not a comment'")]
+    [InlineData("WHERE Id2 = 'it''s'", "Id2 = 'it''s'")]
+    [InlineData("WHERE (Id1 > 1) ", "(Id1 > 1)")]
+    public void Set_filter_for_partial_index(string whereClause, string expectedFilter)
+        => Test(
+            $@"
+CREATE TABLE ""Filtered where"" (
+    Id1 int,
+    Id2 text
+);
+
+CREATE UNIQUE INDEX ""IX where"" on ""Filtered where"" (Id2) {whereClause};",
+            [],
+            [],
+            dbModel =>
+            {
+                var index = Assert.Single(dbModel.Tables.Single().Indexes);
+
+                Assert.Equal("IX where", index.Name);
+                Assert.True(index.IsUnique);
+                Assert.Equal(expectedFilter, index.Filter);
+            },
+            "DROP TABLE \"Filtered where\";");
+
+    [Theory]
+    [InlineData("CREATE UNIQUE INDEX IF NOT EXISTS IX ON T (A) WHERE A = 'it''s' -- tail", "A = 'it''s'")]
+    [InlineData("CREATE INDEX main.IX ON T (A) WHERE A > 1", "A > 1")]
+    [InlineData("CREATE INDEX \"main\".\"IX\" ON [T] (A) WHERE A > 1", "A > 1")]
+    [InlineData("CREATE\n\tINDEX IX ON T (A)\n\tWHERE\tA > 1\n", "A > 1")]
+    [InlineData("CREATE INDEX IX ON T (A) WHERE (A > 1) AND (A < 5)", "(A > 1) AND (A < 5)")]
+    public void Set_filter_for_partial_index_with_different_statement_forms(string createIndexSql, string expectedFilter)
+        => Test(
+            $@"
+CREATE TABLE T (
+    A int
+);
+
+{createIndexSql};",
+            [],
+            [],
+            dbModel =>
+            {
+                var index = Assert.Single(dbModel.Tables.Single().Indexes);
+
+                Assert.Equal("IX", index.Name);
+                Assert.Equal(expectedFilter, index.Filter);
+            },
+            "DROP TABLE T;");
+
+    [Theory]
+    [InlineData("where\u2603")]
+    [InlineData("\u2603where")]
+    [InlineData("where\u00e9")]
+    [InlineData("where\U0001F600")]
+    public void Set_filter_for_partial_index_with_unquoted_identifier_containing_where(string indexName)
+        => Test(
+            $@"
+CREATE TABLE T (
+    A int
+);
+
+CREATE UNIQUE INDEX {indexName} ON T (A) WHERE A IS NOT NULL;",
+            [],
+            [],
+            dbModel =>
+            {
+                var index = Assert.Single(dbModel.Tables.Single().Indexes);
+
+                Assert.Equal(indexName, index.Name);
+                Assert.Equal("A IS NOT NULL", index.Filter);
+            },
+            "DROP TABLE T;");
+
+    [Theory]
+    [InlineData("WHERE IsActive = 1", false)]
+    [InlineData("WHERE IsActive = 1 AND PersonId IS NOT NULL", false)]
+    [InlineData("WHERE PersonId IS NOT NULL", true)]
+    [InlineData("WHERE \"PersonId\" IS NOT NULL -- no nulls", true)]
+    [InlineData("", true)]
+    public void Foreign_key_on_filtered_unique_index_is_one_to_one_only_if_filter_just_excludes_nulls(
+        string whereClause,
+        bool expectedUnique)
+        => Test(
+            $@"
+CREATE TABLE FilteredPerson (
+    PersonId text PRIMARY KEY
+);
+
+CREATE TABLE FilteredPersonRole (
+    PersonRoleId integer PRIMARY KEY,
+    PersonId text NULL REFERENCES FilteredPerson (PersonId),
+    IsActive int NOT NULL
+);
+
+CREATE UNIQUE INDEX IX_FilteredPersonRole_PersonId ON FilteredPersonRole (PersonId) {whereClause};",
+            [],
+            [],
+            (dbModel, scaffoldingFactory) =>
+            {
+                var model = scaffoldingFactory.Create(dbModel, new ModelReverseEngineerOptions());
+
+                var role = model.GetEntityTypes().Single(e => e.Name == "FilteredPersonRole");
+                var index = Assert.Single(role.GetIndexes());
+                Assert.True(index.IsUnique);
+
+                var fk = Assert.Single(role.GetForeignKeys());
+                Assert.Equal(expectedUnique, fk.IsUnique);
+                Assert.Equal(!expectedUnique, fk.PrincipalToDependent!.IsCollection);
+            },
+            "DROP TABLE FilteredPersonRole; DROP TABLE FilteredPerson;");
+
+    [Fact]
+    public void Skip_index_on_expression_with_warning()
+        => Test(
+            @"
+CREATE TABLE ExpressionIndexTable (
+    Id integer PRIMARY KEY,
+    Name text
+);
+
+CREATE INDEX IX_LOWER_NAME on ExpressionIndexTable (lower(Name));
+CREATE INDEX IX_NAME on ExpressionIndexTable (Name);",
+            [],
+            [],
+            dbModel =>
+            {
+                var index = Assert.Single(dbModel.Tables.Single().Indexes);
+                Assert.Equal("IX_NAME", index.Name);
+                Assert.Equal(["Name"], index.Columns.Select(ic => ic.Name).ToList());
+
+                var (_, id, message, _, _) = Assert.Single(Fixture.ListLoggerFactory.Log, t => t.Level == LogLevel.Warning);
+
+                var definition = SqliteResources.LogExpressionIndexSkipped(new TestLogger<SqliteLoggingDefinitions>());
+                Assert.Equal(definition.EventId, id);
+                Assert.Equal(definition.GenerateMessage("IX_LOWER_NAME", "ExpressionIndexTable"), message);
+            },
+            "DROP TABLE ExpressionIndexTable;");
+
+    [Fact]
+    public void Skip_index_mixing_columns_and_expressions_with_warning()
+        => Test(
+            @"
+CREATE TABLE MixedIndexTable (
+    Id integer PRIMARY KEY,
+    Name text
+);
+
+CREATE UNIQUE INDEX IX_MIXED on MixedIndexTable (Name, (Name || 'x'));",
+            [],
+            [],
+            dbModel =>
+            {
+                Assert.Empty(dbModel.Tables.Single().Indexes);
+
+                var (level, id, _, _, _) = Assert.Single(Fixture.ListLoggerFactory.Log, t => t.Level == LogLevel.Warning);
+                Assert.Equal(LogLevel.Warning, level);
+                Assert.Equal(SqliteEventId.ExpressionIndexSkippedWarning, id);
+            },
+            "DROP TABLE MixedIndexTable;");
+
+    [Fact]
+    public void Skip_only_the_index_on_expression_and_keep_the_other_indexes()
+        => Test(
+            @"
+CREATE TABLE SeveralIndexesTable (
+    Id integer PRIMARY KEY,
+    Name text
+);
+
+CREATE INDEX IX_NAME on SeveralIndexesTable (Name);
+CREATE INDEX IX_EXPR on SeveralIndexesTable (lower(Name));
+CREATE INDEX IX_OTHER on SeveralIndexesTable (Id, Name);",
+            [],
+            [],
+            dbModel =>
+            {
+                Assert.Equal(["IX_NAME", "IX_OTHER"], dbModel.Tables.Single().Indexes.Select(i => i.Name).Order().ToList());
+
+                var (_, id, message, _, _) = Assert.Single(Fixture.ListLoggerFactory.Log, t => t.Level == LogLevel.Warning);
+                var definition = SqliteResources.LogExpressionIndexSkipped(new TestLogger<SqliteLoggingDefinitions>());
+                Assert.Equal(definition.EventId, id);
+                Assert.Equal(definition.GenerateMessage("IX_EXPR", "SeveralIndexesTable"), message);
+            },
+            "DROP TABLE SeveralIndexesTable;");
+
+    [Fact]
+    public void Skip_all_indexes_on_expressions_with_a_warning_for_each()
+        => Test(
+            @"
+CREATE TABLE OnlyExpressionIndexesTable (
+    Id integer PRIMARY KEY,
+    Name text,
+    Amount int
+);
+
+CREATE INDEX ""IX_i'q"" on OnlyExpressionIndexesTable (lower(Name));
+CREATE UNIQUE INDEX IX_ABS on OnlyExpressionIndexesTable (abs(Amount));",
+            [],
+            [],
+            dbModel =>
+            {
+                var table = Assert.Single(dbModel.Tables);
+                Assert.Empty(table.Indexes);
+
+                var definition = SqliteResources.LogExpressionIndexSkipped(new TestLogger<SqliteLoggingDefinitions>());
+                var messages = Fixture.ListLoggerFactory.Log
+                    .Where(t => t.Level == LogLevel.Warning)
+                    .Select(t => t.Message!)
+                    .Order()
+                    .ToList();
+
+                Assert.Equal(
+                    new[]
+                    {
+                        definition.GenerateMessage("IX_ABS", "OnlyExpressionIndexesTable"),
+                        definition.GenerateMessage("IX_i'q", "OnlyExpressionIndexesTable")
+                    }.Order().ToList(),
+                    messages);
+            },
+            "DROP TABLE OnlyExpressionIndexesTable;");
+
+    [Fact]
+    public void Skip_index_on_expression_but_keep_unique_constraint()
+        => Test(
+            @"
+CREATE TABLE ConstraintAndExpressionTable (
+    Id integer PRIMARY KEY,
+    Code text,
+    UNIQUE (Code)
+);
+
+CREATE INDEX IX_EXPR on ConstraintAndExpressionTable (lower(Code));",
+            [],
+            [],
+            dbModel =>
+            {
+                var table = Assert.Single(dbModel.Tables);
+                Assert.Empty(table.Indexes);
+                Assert.Equal(["Code"], Assert.Single(table.UniqueConstraints).Columns.Select(c => c.Name).ToList());
+                Assert.Single(Fixture.ListLoggerFactory.Log, t => t.Level == LogLevel.Warning);
+            },
+            "DROP TABLE ConstraintAndExpressionTable;");
 
     #endregion
 

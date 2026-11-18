@@ -110,7 +110,8 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
             dataFlow = _semanticModel.AnalyzeDataFlow(parent);
         }
 
-        foreach (var flowsIn in dataFlow.DataFlowsIn)
+        // Include variables captured by an enclosing local function, which may not appear in DataFlowsIn.
+        foreach (var flowsIn in dataFlow.DataFlowsIn.Concat(dataFlow.Captured))
         {
             _dataFlowsIn[flowsIn] = null;
         }
@@ -260,8 +261,14 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     /// </summary>
     public override Expression VisitBinaryExpression(BinaryExpressionSyntax binary)
     {
-        var left = Visit(binary.Left);
-        var right = Visit(binary.Right);
+        // The compiler omits implicit reference conversions in binary expression trees.
+        var typeOperator = binary.Kind() is SyntaxKind.IsExpression or SyntaxKind.AsExpression;
+        var left = typeOperator
+            ? Visit(binary.Left)
+            : VisitWithConversion(binary.Left, convertReferenceTypes: false);
+        var right = typeOperator
+            ? Visit(binary.Right)
+            : VisitWithConversion(binary.Right, convertReferenceTypes: false);
 
         if (binary.IsKind(SyntaxKind.CoalesceExpression))
         {
@@ -354,8 +361,68 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     public override Expression VisitConditionalExpression(ConditionalExpressionSyntax conditional)
         => Condition(
             Visit(conditional.Condition),
-            Visit(conditional.WhenTrue),
-            Visit(conditional.WhenFalse));
+            VisitWithConversion(conditional.WhenTrue),
+            VisitWithConversion(conditional.WhenFalse));
+
+    private Expression VisitWithConversion(ExpressionSyntax node, bool convertReferenceTypes = true)
+    {
+        var expression = Visit(node);
+        var conversion = _semanticModel.GetConversion(node);
+
+        if (_semanticModel.GetTypeInfo(node).ConvertedType is { } typeSymbol)
+        {
+            var convertedType = ResolveType(typeSymbol);
+            if (expression.Type != convertedType
+                && (convertReferenceTypes || !conversion.IsReference))
+            {
+                return ApplyConversion(expression, convertedType, conversion);
+            }
+        }
+
+        return expression;
+    }
+
+    private Expression ApplyConversion(Expression expression, Type convertedType, Conversion conversion)
+    {
+        if (!conversion.IsUserDefined)
+        {
+            return Convert(expression, convertedType);
+        }
+
+        var methodSymbol = conversion.MethodSymbol
+            ?? throw new InvalidOperationException($"Could not find method for user-defined conversion: {expression}");
+        var declaringType = ResolveType(methodSymbol.ContainingType);
+        var methodInfo = declaringType.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)
+            .SingleOrDefault(
+                method => method.Name == methodSymbol.Name
+                    && method.ReturnType == ResolveType(methodSymbol.ReturnType)
+                    && method.GetParameters() is [var parameter]
+                    && parameter.ParameterType == ResolveType(methodSymbol.Parameters[0].Type))
+            ?? throw new InvalidOperationException(
+                $"Could not find method '{methodSymbol.Name}' on type '{declaringType.Name}' for user-defined conversion: {expression}");
+
+        var parameterType = methodInfo.GetParameters()[0].ParameterType;
+        var returnType = methodInfo.ReturnType;
+        if (Nullable.GetUnderlyingType(expression.Type) is not null
+            && parameterType.IsValueType
+            && returnType.IsValueType
+            && Nullable.GetUnderlyingType(parameterType) is null
+            && Nullable.GetUnderlyingType(returnType) is null)
+        {
+            parameterType = typeof(Nullable<>).MakeGenericType(parameterType);
+            returnType = typeof(Nullable<>).MakeGenericType(returnType);
+        }
+
+        if (expression.Type != parameterType)
+        {
+            expression = Convert(expression, parameterType);
+        }
+
+        expression = Convert(expression, returnType, methodInfo);
+        return expression.Type == convertedType
+            ? expression
+            : Convert(expression, convertedType);
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -783,9 +850,25 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override Expression VisitLiteralExpression(LiteralExpressionSyntax literal)
-        => _semanticModel.GetTypeInfo(literal) is { ConvertedType: { } type }
-            ? Constant(literal.Token.Value, ResolveType(type))
-            : Constant(literal.Token.Value);
+    {
+        var value = literal.Token.Value;
+        if (_semanticModel.GetTypeInfo(literal) is not { ConvertedType: { } type })
+        {
+            return Constant(value);
+        }
+
+        var clrType = ResolveType(type);
+        if (value is not null
+            && value.GetType() != clrType.UnwrapNullableType()
+            && value.GetType().IsNumeric()
+            && clrType.IsNumeric())
+        {
+            value = System.Convert.ChangeType(
+                value is char c ? (int)c : value, clrType.UnwrapNullableType(), CultureInfo.InvariantCulture);
+        }
+
+        return Constant(value, clrType);
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

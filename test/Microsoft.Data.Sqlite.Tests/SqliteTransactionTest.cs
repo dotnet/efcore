@@ -464,4 +464,30 @@ public class SqliteTransactionTest
 
         transaction.Rollback();
     }
+
+    [Fact]
+    public Task BeginTransaction_fails_immediately_when_read_snapshot_is_stale()
+        => TempDatabase.WithStaleReadSnapshot(
+            connection =>
+            {
+                var ex = Assert.Throws<SqliteException>(() => connection.BeginTransaction());
+
+                Assert.Equal(SQLITE_BUSY, ex.SqliteErrorCode);
+                Assert.Equal(SQLITE_BUSY_SNAPSHOT, ex.SqliteExtendedErrorCode);
+                return Task.CompletedTask;
+            });
+
+    // The snapshot is held by the transaction, so disposing the reader doesn't help.
+    [Fact]
+    public Task Write_in_deferred_transaction_fails_immediately_when_read_snapshot_is_stale()
+        => TempDatabase.WithStaleReadSnapshot(
+            connection =>
+            {
+                var ex = Assert.Throws<SqliteException>(() => connection.ExecuteNonQuery("INSERT INTO Data VALUES (4)"));
+
+                Assert.Equal(SQLITE_BUSY_SNAPSHOT, ex.SqliteExtendedErrorCode);
+                return Task.CompletedTask;
+            },
+            deferred: true,
+            disposeReaderFirst: true);
 }

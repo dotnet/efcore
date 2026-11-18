@@ -352,7 +352,7 @@
     <value>Don't generate SQL transaction statements.</value>
   </data>
   <data name="OutputDescription" xml:space="preserve">
-    <value>The file to write the result to.</value>
+    <value>The file to write the result to. Relative paths are resolved from the current directory.</value>
   </data>
   <data name="OutputDirDescription" xml:space="preserve">
     <value>The directory to put files in. Paths are relative to the project or file-based app directory.</value>

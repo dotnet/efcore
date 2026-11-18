@@ -8,6 +8,53 @@ namespace Microsoft.EntityFrameworkCore;
 public class TableSplittingSqliteTest(NonSharedFixture fixture, ITestOutputHelper testOutputHelper)
     : TableSplittingTestBase(fixture, testOutputHelper)
 {
+    public override async Task Can_query_required_dependent_of_derived_type()
+    {
+        await base.Can_query_required_dependent_of_derived_type();
+
+        AssertSql(
+            """
+SELECT "a"."Id", "a"."Note"
+FROM "Animals" AS "a"
+WHERE "a"."Discriminator" = 'Cat'
+""");
+    }
+
+    public override async Task Can_query_required_dependent_of_derived_type_mapped_to_view()
+    {
+        await base.Can_query_required_dependent_of_derived_type_mapped_to_view();
+
+        AssertSql(
+            """
+SELECT "a"."Id", "a"."Note"
+FROM "AnimalsView" AS "a"
+WHERE "a"."Discriminator" = 'Cat'
+""");
+    }
+
+    public override async Task Can_query_required_dependent_of_required_dependent_of_derived_type()
+    {
+        await base.Can_query_required_dependent_of_required_dependent_of_derived_type();
+
+        AssertSql(
+            """
+SELECT "a"."Id", "a"."Text"
+FROM "Animals" AS "a"
+WHERE "a"."Discriminator" = 'Lion'
+""");
+    }
+
+    public override async Task Can_query_required_dependent_of_base_type_that_is_also_dependent_of_derived_type()
+    {
+        await base.Can_query_required_dependent_of_base_type_that_is_also_dependent_of_derived_type();
+
+        AssertSql(
+            """
+SELECT "p"."Id", "p"."Note"
+FROM "Pets" AS "p"
+""");
+    }
+
     public override async Task Can_remove_optional_dependent_with_json_complex_property()
     {
         await base.Can_remove_optional_dependent_with_json_complex_property();

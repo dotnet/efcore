@@ -4145,6 +4145,12 @@
           "Member": "static string IQueryableNotAsync(object? genericParameter);"
         },
         {
+          "Member": "static string JsonCollectionExpectedArray(object? elementType, object? tokenType);"
+        },
+        {
+          "Member": "static string JsonCollectionInvalidElement(object? elementType, object? tokenType);"
+        },
+        {
           "Member": "static string JsonReaderInvalidTokenType(object? tokenType);"
         },
         {
@@ -19969,6 +19975,9 @@
           "Member": "static System.Reflection.MethodInfo FullJoin { get; }"
         },
         {
+          "Member": "static System.Reflection.MethodInfo FullJoinWithoutResultSelector { get; }"
+        },
+        {
           "Member": "static System.Reflection.MethodInfo GroupByWithKeyElementResultSelector { get; }"
         },
         {
@@ -19990,6 +19999,9 @@
           "Member": "static System.Reflection.MethodInfo Join { get; }"
         },
         {
+          "Member": "static System.Reflection.MethodInfo JoinWithoutResultSelector { get; }"
+        },
+        {
           "Member": "static System.Reflection.MethodInfo LastOrDefaultWithoutPredicate { get; }"
         },
         {
@@ -20003,6 +20015,9 @@
         },
         {
           "Member": "static System.Reflection.MethodInfo LeftJoin { get; }"
+        },
+        {
+          "Member": "static System.Reflection.MethodInfo LeftJoinWithoutResultSelector { get; }"
         },
         {
           "Member": "static System.Reflection.MethodInfo LongCountWithoutPredicate { get; }"
@@ -20048,6 +20063,9 @@
         },
         {
           "Member": "static System.Reflection.MethodInfo RightJoin { get; }"
+        },
+        {
+          "Member": "static System.Reflection.MethodInfo RightJoinWithoutResultSelector { get; }"
         },
         {
           "Member": "static System.Reflection.MethodInfo Select { get; }"
