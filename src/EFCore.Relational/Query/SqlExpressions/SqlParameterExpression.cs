@@ -85,9 +85,12 @@ public sealed class SqlParameterExpression : SqlExpression
     public override Expression Quote()
         => New(
             _quotingConstructor ??= typeof(SqlParameterExpression).GetConstructor(
-                [typeof(string), typeof(Type), typeof(RelationalTypeMapping)])!, // TODO: There's a dead IsNullable there...
+                [typeof(string), typeof(string), typeof(Type), typeof(bool), typeof(ParameterTranslationMode?), typeof(RelationalTypeMapping)])!,
+            Constant(InvariantName, typeof(string)),
             Constant(Name, typeof(string)),
             Constant(Type),
+            Constant(IsNullable),
+            Constant(TranslationMode, typeof(ParameterTranslationMode?)),
             RelationalExpressionQuotingUtilities.QuoteTypeMapping(TypeMapping));
 
     /// <inheritdoc />

@@ -158,7 +158,19 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
             _ => Visit(node),
         };
 
-        // TODO: Insert necessary Convert nodes etc. when the expected and actual types differ
+        return result is null ? null : ApplyImplicitSpanConversion(result, expectedType);
+    }
+
+    private static Expression ApplyImplicitSpanConversion(Expression result, Type expectedType)
+    {
+        if (expectedType.IsGenericType
+            && (expectedType.GetGenericTypeDefinition() == typeof(ReadOnlySpan<>)
+                || expectedType.GetGenericTypeDefinition() == typeof(Span<>))
+            && expectedType.GetGenericArguments()[0].MakeArrayType() is var arrayType
+            && arrayType.IsAssignableFrom(result.Type))
+        {
+            return Call(expectedType.GetMethod("op_Implicit", [arrayType])!, result);
+        }
 
         return result;
     }
@@ -652,7 +664,7 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
         var declaringType = ResolveType(methodSymbol.ContainingType);
 
         Expression? instance = null;
-        if (!methodSymbol.IsStatic || methodSymbol.IsExtensionMethod)
+        if (!methodSymbol.IsStatic || methodSymbol.ReducedFrom is not null)
         {
             // In normal method calls (the ones we support), the invocation node is composed on top of a member access
             if (invocation.Expression is not MemberAccessExpressionSyntax { Expression: var receiver })
@@ -759,10 +771,9 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
 
         // At the syntactic level, an extension method invocation looks like a normal instance's.
         // Prepend the instance to the argument list.
-        // TODO: Test invoking extension without extension syntax (as static)
-        if (methodSymbol is { IsExtensionMethod: true /*, ReceiverType: { } */ })
+        if (methodSymbol.ReducedFrom is not null)
         {
-            destArguments[0] = instance;
+            destArguments[0] = ApplyImplicitSpanConversion(instance!, parameters[0].ParameterType);
             paramIndex = 1;
             instance = null;
         }
