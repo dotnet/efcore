@@ -3,6 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 
@@ -14,6 +15,74 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 /// </summary>
 public class SqliteQuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : QuerySqlGenerator(dependencies)
 {
+    /// <inheritdoc />
+    protected override void GenerateRootCommand(Expression queryExpression)
+    {
+        if (queryExpression is not SelectExpression { Predicate: ColumnExpression flag, Tables: [TableExpression table] } select
+            || table.FindAnnotation(SqliteParameterBasedSqlProcessor.NonCoveringBooleanFilter) == null)
+        {
+            base.GenerateRootCommand(queryExpression);
+            return;
+        }
+
+        GenerateTagsHeaderComment(select.Tags);
+        var helper = Dependencies.SqlGenerationHelper;
+        var name = "ef_density";
+        while (name.Equals(table.Name, StringComparison.OrdinalIgnoreCase) || name.Equals(table.Alias, StringComparison.OrdinalIgnoreCase))
+        {
+            name += "_";
+        }
+
+        var gate = helper.DelimitIdentifier(name);
+        var source = helper.DelimitIdentifier(table.Name, table.Schema);
+        var column = helper.DelimitIdentifier(flag.Name);
+        if (Sql is SqliteRelationalCommandBuilderFactory.Builder builder)
+        {
+            // Look for a 1,025th row before paying to prepare the compound query.
+            // Both queries independently evaluate the original predicate if the table changes between reads.
+            var probe = Dependencies.RelationalCommandBuilderFactory.Create();
+            if (select.Tags.Count > 0)
+            {
+                // The builder contains only the query tag header at this point.
+                probe.Append(builder.ToString());
+            }
+
+            builder.SizeProbe = probe.Append("SELECT 1 FROM ").Append(source).Append(" LIMIT 1 OFFSET 1024").Build();
+            builder.SmallTableQuery = new QuerySqlGenerator(Dependencies).GetCommand(select);
+        }
+
+        // Probe at most one eighth of the table plus one entry using only the index. Beyond this
+        // threshold prefer the original scan to fetching each matching payload separately.
+        // Nonnumeric storage can affect the estimate; both arms still apply SQLite's original predicate.
+        Sql.Append("WITH ").Append(gate).AppendLine("(dense) AS (")
+            .Append("    SELECT EXISTS (SELECT 1 FROM ").Append(source).Append(" WHERE ").Append(column).AppendLine(" > 0")
+            .Append("        UNION ALL SELECT 1 FROM ").Append(source).Append(" WHERE ").Append(column).AppendLine(" < 0")
+            .Append("        LIMIT 1 OFFSET (SELECT COUNT(*) FROM ").Append(source).AppendLine(") / 8))");
+        // CROSS JOIN keeps the one-row decision outside the table loop; the inactive arm does no row lookups.
+        void GenerateArm(bool dense)
+        {
+            Sql.Append("SELECT ");
+            GenerateProjection(select);
+            Sql.AppendLine().Append("FROM ").Append(gate).Append(" CROSS JOIN ");
+            Visit(table);
+            Sql.AppendLine().Append("WHERE ").Append(dense ? "" : "NOT ").Append(gate).Append(".dense AND ");
+            if (!dense)
+            {
+                Sql.Append("(");
+                Visit(flag);
+                Sql.Append(" > 0 OR ");
+                Visit(flag);
+                Sql.Append(" < 0) AND ");
+            }
+
+            Visit(flag);
+        }
+
+        GenerateArm(dense: false);
+        Sql.AppendLine().AppendLine("UNION ALL");
+        GenerateArm(dense: true);
+    }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in

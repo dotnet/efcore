@@ -94,6 +94,7 @@ public static class SqliteServiceCollectionExtensions
             .TryAdd<IDatabaseProvider, DatabaseProvider<SqliteOptionsExtension>>()
             .TryAdd<IRelationalTypeMappingSource, SqliteTypeMappingSource>()
             .TryAdd<ISqlGenerationHelper, SqliteSqlGenerationHelper>()
+            .TryAdd<IRelationalCommandBuilderFactory, SqliteRelationalCommandBuilderFactory>()
             .TryAdd<IRelationalAnnotationProvider, SqliteAnnotationProvider>()
             .TryAdd<IModelValidator, SqliteModelValidator>()
             .TryAdd<IProviderConventionSetBuilder, SqliteConventionSetBuilder>()
