@@ -1333,9 +1333,6 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
 
     private sealed class ColumnValuePropagator
     {
-        private static readonly bool UseOldBehavior39617 =
-            AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue39617", out var enabled) && enabled;
-
         private bool _write;
         private object? _originalValue;
         private object? _currentValue;
@@ -1366,7 +1363,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                     var currentProviderValue = Update.ColumnModification.GetCurrentProviderValue(entry, property);
                     // A deleted entry's null is not a value from a current writer.
                     if (_originalValueInitialized
-                        && (UseOldBehavior39617 || !_currentValueFromDeleted)
+                        && !_currentValueFromDeleted
                         && mapping.Column.ProviderValueComparer.Equals(_originalValue, currentProviderValue))
                     {
                         // This Added entry has the same value as the original (pre-modification) value.
