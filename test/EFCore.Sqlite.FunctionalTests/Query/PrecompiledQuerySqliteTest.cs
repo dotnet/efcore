@@ -14,6 +14,21 @@ public class PrecompiledQuerySqliteTest(
     protected override bool AlwaysPrintGeneratedSources
         => false;
 
+    public override async Task MemberInit_with_required_init_only_properties()
+    {
+        await base.MemberInit_with_required_init_only_properties();
+
+        AssertSql(
+            """
+@id='8'
+
+SELECT "b"."Id", "b"."Name"
+FROM "Blogs" AS "b"
+WHERE "b"."Id" = @id
+LIMIT 1
+""");
+    }
+
     public override async Task Class_constant_in_predicate()
     {
         await base.Class_constant_in_predicate();
