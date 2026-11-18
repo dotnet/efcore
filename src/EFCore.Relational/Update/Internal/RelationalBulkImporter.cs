@@ -41,10 +41,10 @@ public class RelationalBulkImporter : IBulkImporter
         _currentDbContext = currentDbContext;
     }
 
-    protected IRelationalConnection Connection
+    protected virtual IRelationalConnection Connection
         => _connection;
 
-    protected ISqlGenerationHelper SqlGenerationHelper
+    protected virtual ISqlGenerationHelper SqlGenerationHelper
         => _sqlGenerationHelper;
 
     public virtual void Import<TEntity>(
