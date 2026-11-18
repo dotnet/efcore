@@ -5,6 +5,7 @@ using System.Collections;
 using System.Data;
 using Microsoft.Data.SqlTypes;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
@@ -146,7 +147,8 @@ public class SqlServerTypeMappingSource(
                 { typeof(float), SqlServerFloatTypeMapping.Default },
                 { typeof(decimal), SqlServerDecimalTypeMapping.Default },
                 { typeof(TimeOnly), SqlServerTimeOnlyTypeMapping.Default },
-                { typeof(TimeSpan), SqlServerTimeSpanTypeMapping.Default }
+                { typeof(TimeSpan), SqlServerTimeSpanTypeMapping.Default },
+                { typeof(SqlServerFullTextCatalog), SqlServerFullTextCatalogTypeMapping.Default }
             };
 
         _clrNoFacetTypeMappings
