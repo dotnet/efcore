@@ -648,9 +648,26 @@ SELECT [d].[GroupId] AS [Key], COUNT(*) AS [Count], COUNT(DISTINCT ([d].[Princip
     WHEN [p0].[Id] IS NOT NULL AND [p0].[Value] > 5 THEN 1
 END) AS [Large], ISNULL(SUM(CASE
     WHEN [p0].[Id] IS NOT NULL THEN [p0].[Value]
-END), 0) AS [Sum], COUNT(CASE
-    WHEN [p0].[Id] IS NOT NULL THEN 1
-END) AS [Projected]
+END), 0) AS [Sum], COUNT(*) AS [Projected]
+FROM [Dependents] AS [d]
+LEFT JOIN (
+    SELECT [p].[Id], [p].[Value]
+    FROM [Principals] AS [p]
+    WHERE [p].[Filtered] = CAST(0 AS bit)
+) AS [p0] ON [d].[PrincipalId] = [p0].[Id]
+GROUP BY [d].[GroupId]
+""");
+    }
+
+    public override async Task GroupBy_count_and_any_over_projection_through_required_navigation_with_query_filter(bool async)
+    {
+        await base.GroupBy_count_and_any_over_projection_through_required_navigation_with_query_filter(async);
+
+        AssertSql(
+            """
+SELECT [d].[GroupId] AS [Key], ISNULL(SUM([p0].[Value]), 0) AS [Sum], COUNT(*) AS [Count], COUNT_BIG(*) AS [LongCount], CAST(1 AS bit) AS [Any], COUNT(CASE
+    WHEN [d].[Id] > 0 THEN 1
+END) AS [WhereCount]
 FROM [Dependents] AS [d]
 LEFT JOIN (
     SELECT [p].[Id], [p].[Value]

@@ -2956,6 +2956,26 @@ GROUP BY [o].[EmployeeID]
 """);
     }
 
+    public override async Task GroupBy_aggregate_through_navigation_with_nested_aggregate_in_where(bool async)
+    {
+        await base.GroupBy_aggregate_through_navigation_with_nested_aggregate_in_where(async);
+
+        AssertSql(
+            """
+SELECT [o].[EmployeeID] AS [Key], (
+    SELECT MAX([c].[Region])
+    FROM [Orders] AS [o0]
+    LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
+    WHERE [o].[EmployeeID] = [o0].[EmployeeID] OR ([o].[EmployeeID] IS NULL AND [o0].[EmployeeID] IS NULL)) AS [Region], (
+    SELECT MAX([c0].[City])
+    FROM [Orders] AS [o1]
+    LEFT JOIN [Customers] AS [c0] ON [o1].[CustomerID] = [c0].[CustomerID]
+    WHERE ([o].[EmployeeID] = [o1].[EmployeeID] OR ([o].[EmployeeID] IS NULL AND [o1].[EmployeeID] IS NULL)) AND [o1].[OrderID] = MAX([o].[OrderID])) AS [LatestCity]
+FROM [Orders] AS [o]
+GROUP BY [o].[EmployeeID]
+""");
+    }
+
     public override async Task GroupBy_with_aggregate_containing_complex_where(bool async)
     {
         await base.GroupBy_with_aggregate_containing_complex_where(async);

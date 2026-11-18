@@ -1748,8 +1748,8 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
 
         // A distinct count over a navigation counts the null of a missing principal as a value in the correlated
         // translation (COUNT(*) over SELECT DISTINCT), but not once lifted (COUNT(DISTINCT ...)), so keep it there.
-        // This includes the navigation itself (o.Customer, whose Distinct the lifted translation would drop) and
-        // EF.Property over it.
+        // This includes the navigation itself (o.Customer, whose Distinct the lifted translation would drop),
+        // EF.Property over it and a navigation reached through a cast (((Derived)o).Navigation.Value).
         foreach (var aggregate in scanner.Aggregates)
         {
             if (aggregate.Chain.Any(c => c.Method.Name == nameof(Enumerable.Distinct))
@@ -1935,7 +1935,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     ///     Detects member chains rooted at an entity navigation tree node whose first member is a
     ///     non-collection navigation — accesses that would otherwise translate as a correlated subquery.
     ///     With <paramref name="includeNavigationValues" />, the navigation on its own (e.Navigation or
-    ///     EF.Property(e, "Navigation")) counts too, not only a member read through it.
+    ///     EF.Property(e, "Navigation")) counts too, not only a member read through it, and so does a cast entity.
     /// </summary>
     private static bool ContainsReferenceNavigationAccess(Expression body, bool includeNavigationValues = false)
     {
@@ -1960,6 +1960,21 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             }
 
             return base.VisitMethodCall(methodCallExpression);
+        }
+
+        protected override Expression VisitUnary(UnaryExpression unaryExpression)
+        {
+            // A navigation reached through a cast (((Derived)e).Navigation) may be declared on a derived type, which
+            // isn't resolved here, so an entity cast conservatively counts as a navigation too.
+            if (includeNavigationValues
+                && unaryExpression.NodeType is ExpressionType.Convert or ExpressionType.ConvertChecked or ExpressionType.TypeAs
+                && unaryExpression.Operand is NavigationTreeExpression { Value: EntityReference })
+            {
+                Found = true;
+                return unaryExpression;
+            }
+
+            return base.VisitUnary(unaryExpression);
         }
 
         protected override Expression VisitMember(MemberExpression memberExpression)
@@ -2053,20 +2068,8 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                 : Expression.Call(EnumerableMethods.Where.MakeGenericMethod(newElementType), newSource, guard);
         }
 
-        // Count and LongCount count elements, not values: rebuilt over a trailing Select they would translate to
-        // COUNT(value) and skip the elements projected to null (g.Select(o => o.Customer.Region).Count()). Navigation
-        // expansion drops such a pending selector too. Its navigations have already been expanded on the source, so
-        // the joins and the guard it needs are kept.
-        var chainLength = aggregate.Chain.Count;
-        if (chainLength > 0
-            && aggregate.Chain[^1].Method.Name == nameof(Enumerable.Select)
-            && method.Name is nameof(Enumerable.Count) or nameof(Enumerable.LongCount))
-        {
-            chainLength--;
-        }
-
         var sourceType = newElementType;
-        for (var i = 0; i < chainLength; i++)
+        for (var i = 0; i < aggregate.Chain.Count; i++)
         {
             var chainMethod = aggregate.Chain[i].Method;
             var definition = chainMethod.GetGenericMethodDefinition();
@@ -2119,6 +2122,8 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         private static readonly string[] PredicateAggregateMethodNames =
             [nameof(Enumerable.Any), nameof(Enumerable.All), nameof(Enumerable.Count), nameof(Enumerable.LongCount)];
 
+        private int _elementLambdaDepth;
+
         public List<GroupingAggregateCall> Aggregates { get; } = [];
         public bool HasUnsupportedUsage { get; private set; }
 
@@ -2143,7 +2148,17 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         {
             if (TryMatchAggregate(methodCallExpression, out var aggregate))
             {
+                // An aggregate over the grouping nested in another one's lambda (g.Where(o => o.Id == g.Max(x => x.Id)))
+                // would be swapped out of the result selector together with the outer aggregate and keep the old
+                // grouping parameter, so such a projection stays on the correlated translation.
+                if (_elementLambdaDepth > 0)
+                {
+                    HasUnsupportedUsage = true;
+                    return methodCallExpression;
+                }
+
                 Aggregates.Add(aggregate);
+                _elementLambdaDepth++;
                 foreach (var lambda in aggregate.ElementLambdas)
                 {
                     if (lambda != null)
@@ -2151,6 +2166,8 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                         base.Visit(lambda.Body);
                     }
                 }
+
+                _elementLambdaDepth--;
 
                 return methodCallExpression;
             }
@@ -2239,6 +2256,18 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             else if (isSelectorAggregate && !projected)
             {
                 return false;
+            }
+
+            // Count, LongCount and a parameterless Any observe elements, not values, so a trailing Select is
+            // dropped without expanding its navigations, as navigation expansion drops such a pending selector.
+            // Expanded, it would join a filtered-out principal and guard the element away from the count
+            // (g.Select(d => d.Principal.Value).Count()), or count values instead of elements.
+            if (chain.Count > 0
+                && chain[^1].Method.Name == nameof(Enumerable.Select)
+                && methodCallExpression.Arguments.Count == 1
+                && method.Name is nameof(Enumerable.Count) or nameof(Enumerable.LongCount) or nameof(Enumerable.Any))
+            {
+                chain.RemoveAt(chain.Count - 1);
             }
 
             aggregate = new GroupingAggregateCall(

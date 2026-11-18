@@ -766,6 +766,20 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
             elementSorter: e => e.Key);
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_through_navigation_with_nested_aggregate_in_where(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.EmployeeID)
+                .Select(g => new
+                {
+                    g.Key,
+                    Region = g.Max(o => o.Customer!.Region),
+                    LatestCity = g.Where(o => o.OrderID == g.Max(x => x.OrderID)).Select(o => o.Customer!.City).Max()
+                }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_with_aggregate_containing_complex_where(bool async)
         => AssertQuery(
             async,

@@ -73,9 +73,22 @@ SELECT "d"."GroupId" AS "Key", COUNT(*) AS "Count", COUNT(DISTINCT ("d"."Princip
     WHEN "p"."Id" IS NOT NULL AND "p"."Value" > 5 THEN 1
 END) AS "Large", COALESCE(SUM(CASE
     WHEN "p"."Id" IS NOT NULL THEN "p"."Value"
-END), 0) AS "Sum", COUNT(CASE
-    WHEN "p"."Id" IS NOT NULL THEN 1
-END) AS "Projected"
+END), 0) AS "Sum", COUNT(*) AS "Projected"
+FROM "Dependents" AS "d"
+LEFT JOIN "Principals" AS "p" ON "d"."PrincipalId" = "p"."Id" AND NOT ("p"."Filtered")
+GROUP BY "d"."GroupId"
+""");
+    }
+
+    public override async Task GroupBy_count_and_any_over_projection_through_required_navigation_with_query_filter(bool async)
+    {
+        await base.GroupBy_count_and_any_over_projection_through_required_navigation_with_query_filter(async);
+
+        AssertSql(
+            """
+SELECT "d"."GroupId" AS "Key", COALESCE(SUM("p"."Value"), 0) AS "Sum", COUNT(*) AS "Count", COUNT(*) AS "LongCount", 1 AS "Any", COUNT(CASE
+    WHEN "d"."Id" > 0 THEN 1
+END) AS "WhereCount"
 FROM "Dependents" AS "d"
 LEFT JOIN "Principals" AS "p" ON "d"."PrincipalId" = "p"."Id" AND NOT ("p"."Filtered")
 GROUP BY "d"."GroupId"
