@@ -80,6 +80,30 @@ WHERE DATEPART(year, DATEADD(year, CAST(1 AS int), [b].[DateTime])) = 1999
 """);
     }
 
+    public override async Task AddMonths_past_end_of_month_gives_last_day_of_month()
+    {
+        await base.AddMonths_past_end_of_month_gives_last_day_of_month();
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE DATEADD(month, CAST(1 AS int), DATEADD(day, CAST(27.0E0 AS int), [b].[DateTime])) = '1998-06-30T15:30:10.0000000'
+""");
+    }
+
+    public override async Task AddYears_from_leap_day_gives_last_day_of_February()
+    {
+        await base.AddYears_from_leap_day_gives_last_day_of_February();
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE DATEADD(year, CAST(1 AS int), DATEADD(day, CAST(666.0E0 AS int), [b].[DateTime])) = '2001-02-28T15:30:10.0000000'
+""");
+    }
+
     public override async Task Year()
     {
         await base.Year();

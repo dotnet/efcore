@@ -37,6 +37,15 @@ public class DateOnlyTranslationsCosmosTest : DateOnlyTranslationsTestBase<Basic
     public override Task AddMonths()
         => AssertTranslationFailed(base.AddMonths);
 
+    public override Task AddMonths_past_end_of_month_gives_last_day_of_month()
+        => AssertTranslationFailed(base.AddMonths_past_end_of_month_gives_last_day_of_month);
+
+    public override Task AddMonths_negative_past_end_of_month_gives_last_day_of_month()
+        => AssertTranslationFailed(base.AddMonths_negative_past_end_of_month_gives_last_day_of_month);
+
+    public override Task AddYears_from_leap_day_gives_last_day_of_February()
+        => AssertTranslationFailed(base.AddYears_from_leap_day_gives_last_day_of_February);
+
     public override Task AddDays()
         => AssertTranslationFailed(base.AddDays);
 

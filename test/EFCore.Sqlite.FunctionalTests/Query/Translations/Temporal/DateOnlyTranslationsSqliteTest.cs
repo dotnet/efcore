@@ -201,10 +201,9 @@ WHERE date("b"."DateOnly", CAST(3 AS TEXT) || ' years', 'floor', CAST(3 AS TEXT)
     }
 
     [Fact]
-    public virtual async Task AddMonths_past_end_of_month_gives_last_day_of_month()
+    public override async Task AddMonths_past_end_of_month_gives_last_day_of_month()
     {
-        // 1991-01-31 + 1 month
-        await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(m => m.DateOnly.AddDays(82).AddMonths(1) == new DateOnly(1991, 2, 28)));
+        await base.AddMonths_past_end_of_month_gives_last_day_of_month();
 
         AssertSql(
             """
@@ -215,10 +214,9 @@ WHERE date("b"."DateOnly", CAST(82 AS TEXT) || ' days', CAST(1 AS TEXT) || ' mon
     }
 
     [Fact]
-    public virtual async Task AddMonths_negative_past_end_of_month_gives_last_day_of_month()
+    public override async Task AddMonths_negative_past_end_of_month_gives_last_day_of_month()
     {
-        // 1990-12-31 - 1 month
-        await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(m => m.DateOnly.AddDays(51).AddMonths(-1) == new DateOnly(1990, 11, 30)));
+        await base.AddMonths_negative_past_end_of_month_gives_last_day_of_month();
 
         AssertSql(
             """
@@ -229,10 +227,9 @@ WHERE date("b"."DateOnly", CAST(51 AS TEXT) || ' days', CAST(-1 AS TEXT) || ' mo
     }
 
     [Fact]
-    public virtual async Task AddYears_from_leap_day_gives_last_day_of_February()
+    public override async Task AddYears_from_leap_day_gives_last_day_of_February()
     {
-        // 1992-02-29 + 1 year
-        await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(m => m.DateOnly.AddDays(476).AddYears(1) == new DateOnly(1993, 2, 28)));
+        await base.AddYears_from_leap_day_gives_last_day_of_February();
 
         AssertSql(
             """

@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.TestModels.BasicTypesModel;
 using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query.Translations.Temporal;
@@ -259,12 +258,9 @@ WHERE "b"."DateTime" = @p
 """);
     }
 
-    [Fact]
-    public virtual async Task AddMonths_past_end_of_month_gives_last_day_of_month()
+    public override async Task AddMonths_past_end_of_month_gives_last_day_of_month()
     {
-        // 1998-05-31 + 1 month
-        await AssertQuery(
-            ss => ss.Set<BasicTypesEntity>().Where(o => o.DateTime.AddDays(27).AddMonths(1) == new DateTime(1998, 6, 30, 15, 30, 10)));
+        await base.AddMonths_past_end_of_month_gives_last_day_of_month();
 
         AssertSql(
             """
@@ -274,12 +270,9 @@ WHERE rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', "b"."DateTime", CAST(27.0 AS TEX
 """);
     }
 
-    [Fact]
-    public virtual async Task AddYears_from_leap_day_gives_last_day_of_February()
+    public override async Task AddYears_from_leap_day_gives_last_day_of_February()
     {
-        // 2000-02-29 + 1 year
-        await AssertQuery(
-            ss => ss.Set<BasicTypesEntity>().Where(o => o.DateTime.AddDays(666).AddYears(1) == new DateTime(2001, 2, 28, 15, 30, 10)));
+        await base.AddYears_from_leap_day_gives_last_day_of_February();
 
         AssertSql(
             """
