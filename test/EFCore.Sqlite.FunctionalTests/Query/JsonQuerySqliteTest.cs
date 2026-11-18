@@ -934,6 +934,178 @@ ORDER BY "e0"."Id", "i"."key"
 """);
     }
 
+    public override async Task Project_complex_collection_with_long_string()
+    {
+        await base.Project_complex_collection_with_long_string();
+
+        AssertSql(
+            """
+SELECT "e0"."Id", "i"."value" ->> 'Code' AS "Code", "i"."value" ->> 'Description' AS "Description", "i"."value" ->> 'Details' ->> 'Description', "i"."key"
+FROM (
+    SELECT "e"."Id", "e"."Items"
+    FROM "Entity" AS "e"
+    LIMIT 2
+) AS "e0"
+LEFT JOIN json_each("e0"."Items", '$') AS "i" ON 1
+ORDER BY "e0"."Id", "i"."key"
+""");
+    }
+
+    public override async Task Project_complex_collection_with_long_string_with_predicate_and_Take()
+    {
+        Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Project_complex_collection_with_long_string_with_predicate_and_Take()))
+            .Message);
+
+        AssertSql();
+    }
+
+    public override async Task Project_complex_collection_with_long_string_of_various_store_types()
+    {
+        await base.Project_complex_collection_with_long_string_of_various_store_types();
+
+        AssertSql(
+            """
+SELECT "e0"."Id", "i"."value" ->> 'Code' AS "Code", "i"."value" ->> 'NonUnicodeBounded' AS "NonUnicodeBounded", "i"."value" ->> 'NonUnicode' AS "NonUnicode", "i"."value" ->> 'NonUnicode8000' AS "NonUnicode8000", "i"."value" ->> 'FixedLength8000' AS "FixedLength8000", "i"."key"
+FROM (
+    SELECT "e"."Id", "e"."Items"
+    FROM "Entity" AS "e"
+    LIMIT 2
+) AS "e0"
+LEFT JOIN json_each("e0"."Items", '$') AS "i" ON 1
+ORDER BY "e0"."Id", "i"."key"
+""");
+    }
+
+    public override async Task Project_owned_collection_with_long_string_of_various_store_types()
+    {
+        await base.Project_owned_collection_with_long_string_of_various_store_types();
+
+        AssertSql(
+            """
+SELECT "e0"."Id", "i"."value" ->> 'Code' AS "Code", "i"."value" ->> 'NonUnicodeBounded' AS "NonUnicodeBounded", "i"."value" ->> 'NonUnicode' AS "NonUnicode", "i"."value" ->> 'NonUnicode8000' AS "NonUnicode8000", "i"."value" ->> 'FixedLength8000' AS "FixedLength8000", "i"."key"
+FROM (
+    SELECT "e"."Id", "e"."Items"
+    FROM "Entity" AS "e"
+    LIMIT 2
+) AS "e0"
+LEFT JOIN json_each("e0"."Items", '$') AS "i" ON 1
+ORDER BY "e0"."Id", "i"."key"
+""");
+    }
+
+    public override async Task Project_complex_collection_with_long_string_with_unbounded_column_type(string columnType)
+    {
+        await base.Project_complex_collection_with_long_string_with_unbounded_column_type(columnType);
+
+        AssertSql(
+            """
+SELECT "e0"."Id", "i"."value" ->> 'Description' AS "Description", "i"."key"
+FROM (
+    SELECT "e"."Id", "e"."Items"
+    FROM "Entity" AS "e"
+    LIMIT 2
+) AS "e0"
+LEFT JOIN json_each("e0"."Items", '$') AS "i" ON 1
+ORDER BY "e0"."Id", "i"."key"
+""");
+    }
+
+    public override async Task Project_complex_collection_with_long_string_with_bounded_column_type(string columnType)
+    {
+        await base.Project_complex_collection_with_long_string_with_bounded_column_type(columnType);
+
+        AssertSql(
+            """
+SELECT "e0"."Id", "i"."value" ->> 'Description' AS "Description", "i"."key"
+FROM (
+    SELECT "e"."Id", "e"."Items"
+    FROM "Entity" AS "e"
+    LIMIT 2
+) AS "e0"
+LEFT JOIN json_each("e0"."Items", '$') AS "i" ON 1
+ORDER BY "e0"."Id", "i"."key"
+""");
+    }
+
+    public override async Task Project_complex_collection_with_long_string_IndexOf()
+    {
+        await base.Project_complex_collection_with_long_string_IndexOf();
+
+        AssertSql(
+            """
+SELECT "e0"."Id", instr("i"."value" ->> 'Description', 'z') - 1, instr("i"."value" ->> 'NonUnicode', 'u') - 1, instr("i"."value" ->> 'NonUnicode8000', 'w') - 1, instr("i"."value" ->> 'FixedLength8000', 'w') - 1, "i"."key"
+FROM (
+    SELECT "e"."Id", "e"."Items"
+    FROM "Entity" AS "e"
+    LIMIT 2
+) AS "e0"
+LEFT JOIN json_each("e0"."Items", '$') AS "i" ON 1
+ORDER BY "e0"."Id", "i"."key"
+""");
+    }
+
+    public override async Task Project_complex_collection_with_long_string_with_OrderBy()
+    {
+        await base.Project_complex_collection_with_long_string_with_OrderBy();
+
+        AssertSql(
+            """
+SELECT "e0"."Id", "i"."value" ->> 'Code' AS "Code", "i"."value" ->> 'Description' AS "Description", "i"."key"
+FROM (
+    SELECT "e"."Id", "e"."Items"
+    FROM "Entity" AS "e"
+    LIMIT 2
+) AS "e0"
+LEFT JOIN json_each("e0"."Items", '$') AS "i" ON 1
+ORDER BY "e0"."Id", "i"."value" ->> 'Description'
+""");
+    }
+
+    public override async Task Project_complex_collection_with_property_named_key_AsSplitQuery()
+    {
+        await base.Project_complex_collection_with_property_named_key_AsSplitQuery();
+
+        AssertSql(
+            """
+SELECT "e"."Id"
+FROM "Entity" AS "e"
+ORDER BY "e"."Id"
+LIMIT 2
+""",
+            //
+            """
+SELECT "i3"."value" ->> 'key' AS "Key", "i3"."value" ->> 'Value' AS "Value", "e0"."Id"
+FROM (
+    SELECT "e"."Id", "e"."Items"
+    FROM "Entity" AS "e"
+    ORDER BY "e"."Id"
+    LIMIT 1
+) AS "e0"
+CROSS JOIN json_each("e0"."Items", '$') AS "i3"
+ORDER BY "e0"."Id", "i3"."key"
+""");
+    }
+
+    public override async Task Project_owned_collection_with_long_string()
+    {
+        await base.Project_owned_collection_with_long_string();
+
+        AssertSql(
+            """
+SELECT "e0"."Id", "i"."value" ->> 'Code' AS "Code", "i"."value" ->> 'Description' AS "Description", "i"."value" ->> 'Details' ->> 'Description', "i"."key"
+FROM (
+    SELECT "e"."Id", "e"."Items"
+    FROM "Entity" AS "e"
+    LIMIT 2
+) AS "e0"
+LEFT JOIN json_each("e0"."Items", '$') AS "i" ON 1
+ORDER BY "e0"."Id", "i"."key"
+""");
+    }
+
     public override Task SelectMany_over_primitive_collection_nested_in_complex_collection_inside_json_column()
         => Assert.ThrowsAsync<InvalidOperationException>(
             base.SelectMany_over_primitive_collection_nested_in_complex_collection_inside_json_column);

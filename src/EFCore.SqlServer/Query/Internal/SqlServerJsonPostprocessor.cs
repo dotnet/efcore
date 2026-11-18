@@ -17,6 +17,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 ///     * When the column type in the WITH clause is a SQL Server "CLR type" - these are incompatible with WITH (e.g. hierarchy id).
 ///     2. Rewrite JsonScalarExpression (JSON_VALUE()) to OPENJSON for when JSON_VALUE() isn't compatible with the type (e.g. binary data
 ///     which needs to be base64-decoded).
+///     3. When the WITH clause is removed (1), read string properties which may be longer than 4000 characters via an additional
+///     OPENJSON with WITH over the element, since JSON_VALUE() would return NULL for these.
 /// </summary>
 /// <remarks>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -32,6 +34,7 @@ public sealed class SqlServerJsonPostprocessor(
 {
     private readonly List<OuterApplyExpression> _openjsonOuterAppliesToAdd = [];
     private readonly Dictionary<(string, string), ColumnInfo> _columnsToRewrite = [];
+    private readonly Dictionary<string, (string Alias, List<ColumnInfo> ColumnInfos)> _elementOpenJsonsToAdd = [];
 
     private readonly RelationalTypeMapping _nvarcharMaxTypeMapping = typeMappingSource.FindMapping("nvarchar(max)")!;
 
@@ -44,6 +47,7 @@ public sealed class SqlServerJsonPostprocessor(
     public Expression Process(Expression expression)
     {
         _columnsToRewrite.Clear();
+        _elementOpenJsonsToAdd.Clear();
 
         return Visit(expression);
     }
@@ -154,6 +158,41 @@ public sealed class SqlServerJsonPostprocessor(
                     foreach (var columnsToRewriteKey in columnsToRewrite.Keys)
                     {
                         _columnsToRewrite.Remove(columnsToRewriteKey);
+
+                        // Some properties of the OPENJSON's elements need to be read via an additional OPENJSON with WITH (see
+                        // ReadElementProperty); add it right after the OPENJSON it reads from, so that anything which could reference the
+                        // original OPENJSON can reference it as well.
+                        var openJsonAlias = columnsToRewriteKey.Item1;
+                        if (_elementOpenJsonsToAdd.Remove(openJsonAlias, out var elementOpenJson))
+                        {
+                            var tables = result.Tables.ToList();
+                            var index = tables.FindIndex(
+                                t => t.UnwrapJoin() is SqlServerOpenJsonExpression { Alias: var alias } && alias == openJsonAlias);
+                            if (index < 0)
+                            {
+                                throw new UnreachableException("OPENJSON table not found");
+                            }
+
+                            tables.Insert(
+                                index + 1,
+                                new OuterApplyExpression(
+                                    new SqlServerOpenJsonExpression(
+                                        elementOpenJson.Alias,
+                                        new ColumnExpression(
+                                            "value", openJsonAlias, typeof(string), _nvarcharMaxTypeMapping, nullable: true),
+                                        path: null,
+                                        columnInfos: elementOpenJson.ColumnInfos)));
+
+                            result = result.Update(
+                                tables,
+                                result.Predicate,
+                                result.GroupBy,
+                                result.Having,
+                                result.Projection,
+                                result.Orderings,
+                                result.Offset,
+                                result.Limit);
+                        }
                     }
                 }
 
@@ -193,7 +232,7 @@ public sealed class SqlServerJsonPostprocessor(
 
                 // The new OPENJSON (without WITH) always projects a `value` column, instead of a properly named column for individual
                 // values inside; create a new ColumnExpression with that name.
-                SqlExpression rewrittenColumn = new ColumnExpression(
+                var rewrittenColumn = new ColumnExpression(
                     "value",
                     columnExpression.TableAlias,
                     columnExpression.Type,
@@ -205,7 +244,7 @@ public sealed class SqlServerJsonPostprocessor(
                     ? jsonScalarExpression.Path
                     : columnInfo.Path.Concat(jsonScalarExpression.Path).ToList();
 
-                return new JsonScalarExpression(
+                return ReadElementProperty(
                     rewrittenColumn,
                     path,
                     jsonScalarExpression.Type,
@@ -314,12 +353,13 @@ public sealed class SqlServerJsonPostprocessor(
 
             // The new OPENJSON (without WITH) always projects a `value` column, instead of a properly named column for individual
             // values inside; create a new ColumnExpression with that name.
-            SqlExpression rewrittenColumn = new ColumnExpression(
+            var valueColumn = new ColumnExpression(
                 "value",
                 columnExpression.TableAlias,
                 columnExpression.Type,
                 columnInfo.TypeMapping.StoreType == "nvarchar(max)" ? columnInfo.TypeMapping : _nvarcharMaxTypeMapping,
                 columnExpression.IsNullable);
+            SqlExpression rewrittenColumn = valueColumn;
 
             Check.DebugAssert(columnInfo.Path is not null, "Path shouldn't be null in OPENJSON WITH");
             //Check.DebugAssert(
@@ -344,8 +384,8 @@ public sealed class SqlServerJsonPostprocessor(
                 // Non-primitive collection case - elements in the JSON collection represent a structural type.
                 // We need JSON_VALUE to get the individual properties out of those fragments. Note that the appropriate CASTs are added
                 // in SQL generation.
-                rewrittenColumn = new JsonScalarExpression(
-                    rewrittenColumn,
+                rewrittenColumn = ReadElementProperty(
+                    valueColumn,
                     columnInfo.Path,
                     columnExpression.Type,
                     columnExpression.TypeMapping,
@@ -353,6 +393,67 @@ public sealed class SqlServerJsonPostprocessor(
             }
 
             return rewrittenColumn;
+        }
+
+        // Reads a property out of an element of a JSON collection, i.e. out of the [value] column of an OPENJSON without WITH.
+        SqlExpression ReadElementProperty(
+            ColumnExpression valueColumn,
+            IReadOnlyList<PathSegment> path,
+            Type type,
+            RelationalTypeMapping? typeMapping,
+            bool nullable)
+        {
+            // JSON_VALUE() returns nvarchar(4000), and NULL for longer strings; the RETURNING clause lifts that limit, but is only
+            // supported over the json type, whereas the [value] column of OPENJSON is nvarchar(max). So for strings which may be longer,
+            // we read the property via an additional OPENJSON with WITH over the element instead, just like the WITH clause we removed
+            // did:
+            // JSON_VALUE([o].[value], '$.Foo') -> OUTER APPLY OPENJSON([o].[value]) WITH ([Foo] nvarchar(max) '$.Foo') AS [o0]
+            // The decision is made on the facets rather than on the store type name, which can be any casing or synonym (VARCHAR(MAX),
+            // national character varying(max)...): a string may be longer than 4000 characters unless it has a size of at most 4000, or
+            // is fixed-length without a size (char(1)). Note that a max store type can come with a size of -1 (e.g. when its casing
+            // differs from the type mapping source's). text and ntext can't be used in a WITH clause, so they keep JSON_VALUE().
+            if (typeMapping is not StringTypeMapping { ElementTypeMapping: null } stringTypeMapping
+                || stringTypeMapping.Size is >= 0 and <= 4000
+                || (stringTypeMapping.Size is null && stringTypeMapping.IsFixedLength)
+                || string.Equals(stringTypeMapping.StoreTypeNameBase, "text", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(stringTypeMapping.StoreTypeNameBase, "ntext", StringComparison.OrdinalIgnoreCase)
+                || sqlAliasManager is null
+                || !path.All(s => s.PropertyName is not null || s.ArrayIndex is SqlConstantExpression))
+            {
+                return new JsonScalarExpression(valueColumn, path, type, typeMapping, nullable);
+            }
+
+            // All such properties of a given OPENJSON's elements are read via a single additional OPENJSON, which gets added when we're
+            // done visiting the SelectExpression containing the original OPENJSON.
+            if (!_elementOpenJsonsToAdd.TryGetValue(valueColumn.TableAlias, out var elementOpenJson))
+            {
+                elementOpenJson = _elementOpenJsonsToAdd[valueColumn.TableAlias] =
+                    (sqlAliasManager.GenerateTableAlias(valueColumn.TableAlias), []);
+            }
+
+            var columnInfos = elementOpenJson.ColumnInfos;
+            var name = columnInfos.FirstOrDefault(c => c.Path!.SequenceEqual(path)).Name;
+            if (name is null)
+            {
+                // [key] is avoided, like in GetJsonElementColumnName: it would be taken for OPENJSON's [key] (the array index) if this
+                // OPENJSON gets visited again, e.g. for split queries, and its WITH clause would then be removed.
+                var baseName = name = path.LastOrDefault(s => s.PropertyName is not null).PropertyName ?? "value";
+                for (var i = 0;
+                     name == "key" || columnInfos.Any(c => c.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+                     i++)
+                {
+                    name = baseName + i;
+                }
+
+                // A bounded store type (varchar(8000), char(8000)) is kept in the WITH column, as in the WITH clause we removed: the
+                // query was translated for it (e.g. IndexOf() expects CHARINDEX() to return an int, which it doesn't over max types).
+                // Unbounded store types all become nvarchar(max), which the translators handle like varchar(max), and which doesn't
+                // lose the characters outside of the collation's code page that JSON_VALUE() returned.
+                columnInfos.Add(
+                    new ColumnInfo(name, stringTypeMapping.Size > 4000 ? stringTypeMapping : _nvarcharMaxTypeMapping, path));
+            }
+
+            return new ColumnExpression(name, elementOpenJson.Alias, type, typeMapping, nullable);
         }
     }
 }
