@@ -17469,6 +17469,9 @@
           "Member": "System.Linq.Expressions.Expression AddRightJoin(Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression innerSource, Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression joinPredicate, System.Linq.Expressions.Expression outerShaper);"
         },
         {
+          "Member": "void AddToIdentifier(Microsoft.EntityFrameworkCore.Query.SqlExpressions.ColumnExpression column, Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer comparer);"
+        },
+        {
           "Member": "int AddToProjection(Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression sqlExpression);"
         },
         {
