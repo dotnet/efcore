@@ -257,7 +257,7 @@ public class CompiledModelSqlServerTest(NonSharedFixture fixture) : CompiledMode
             },
             async context =>
             {
-                var entity = new TemporalEntity { Id = 1, Name = "Initial" };
+                var entity = new TemporalEntity { Name = "Initial" };
                 context.Add(entity);
                 await context.SaveChangesAsync();
 
