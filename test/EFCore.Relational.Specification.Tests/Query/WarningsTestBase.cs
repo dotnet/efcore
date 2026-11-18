@@ -97,6 +97,47 @@ public abstract class WarningsTestBase<TFixture> : IClassFixture<TFixture>
     }
 
     [Fact]
+    public virtual void FirstOrDefault_without_orderby_but_with_having_filter_doesnt_issue_warning_subquery()
+    {
+        using var context = CreateContext();
+        var query = context.Customers
+            .OrderBy(c => c.CustomerID)
+            .Select(c => c.Orders
+                .GroupBy(o => o.CustomerID)
+                .Where(g => g.Count() > 1)
+                .Select(g => g.Count())
+                .FirstOrDefault())
+            .ToList();
+        Assert.Equal(91, query.Count);
+
+        var orderCounts = context.Orders.AsEnumerable().GroupBy(o => o.CustomerID!).ToDictionary(g => g.Key, g => g.Count());
+        var expected = context.Customers
+            .OrderBy(c => c.CustomerID)
+            .Select(c => c.CustomerID)
+            .AsEnumerable()
+            .Select(id => orderCounts.GetValueOrDefault(id) is > 1 and var count ? count : 0)
+            .ToList();
+        Assert.Equal(expected, query);
+        Assert.Contains(query, count => count > 1);
+
+        Assert.DoesNotContain(Fixture.ListLoggerFactory.Log, l => l.Id == CoreEventId.FirstWithoutOrderByAndFilterWarning);
+    }
+
+    [Fact]
+    public virtual void FirstOrDefault_without_orderby_but_with_having_filter_doesnt_issue_warning()
+    {
+        using var context = CreateContext();
+        var query = context.Orders
+            .GroupBy(o => o.CustomerID)
+            .Where(g => g.Count() > 30)
+            .Select(g => g.Key)
+            .FirstOrDefault();
+        Assert.NotNull(query);
+
+        Assert.DoesNotContain(Fixture.ListLoggerFactory.Log, l => l.Id == CoreEventId.FirstWithoutOrderByAndFilterWarning);
+    }
+
+    [Fact]
     public virtual void FirstOrDefault_without_orderby_doesnt_issue_warning_subquery_correlated_by_non_key()
     {
         using var context = CreateContext();
