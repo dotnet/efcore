@@ -193,12 +193,11 @@ public class SqlServerDateTimeMemberTranslator(
         {
             // Parameters reach member translators without a type mapping.
             dateTime = sqlExpressionFactory.ApplyDefaultTypeMapping(dateTime);
-            if (dateTime.TypeMapping?.StoreTypeNameBase is not ("datetime2" or "datetime" or "smalldatetime" or "date"))
+            var storeType = dateTime.TypeMapping?.StoreTypeNameBase;
+            if (storeType is not ("datetime2" or "datetime" or "smalldatetime" or "date"))
             {
                 return null;
             }
-
-            var storeType = dateTime.TypeMapping.StoreTypeNameBase;
 
             var days = DateDiff("day", sqlExpressionFactory.Constant(DateTime.MinValue, typeMappingSource.FindMapping("datetime2")));
             var ticks = Multiply(days, TimeSpan.TicksPerDay);
