@@ -15,6 +15,14 @@ public class CosmosQueryTranslationPreprocessor(
     : QueryTranslationPreprocessor(dependencies, cosmosQueryCompilationContext)
 {
     /// <inheritdoc />
+    public override Expression Process(Expression query)
+    {
+        cosmosQueryCompilationContext.IsMinMaxBy = query is MethodCallExpression { Method: { IsGenericMethod: true } method }
+            && (method.GetGenericMethodDefinition() == QueryableMethods.MinBy || method.GetGenericMethodDefinition() == QueryableMethods.MaxBy);
+        return base.Process(query);
+    }
+
+    /// <inheritdoc />
     protected override Expression ProcessQueryRoots(Expression expression)
         => new CosmosQueryRootProcessor(Dependencies, QueryCompilationContext).Visit(expression);
 }

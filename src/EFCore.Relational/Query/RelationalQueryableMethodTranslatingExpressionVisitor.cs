@@ -790,7 +790,9 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             _queryCompilationContext.Logger.FirstWithoutOrderByAndFilterWarning();
         }
 
-        ApplyLimit(selectExpression, TranslateExpression(Expression.Constant(1))!);
+        var one = TranslateExpression(Expression.Constant(1))!;
+        selectExpression.TryApplyExtremalKeyLookup(_sqlExpressionFactory, one);
+        ApplyLimit(selectExpression, one);
 
         return source.ShaperExpression.Type != returnType
             ? source.UpdateShaperExpression(Expression.Convert(source.ShaperExpression, returnType))

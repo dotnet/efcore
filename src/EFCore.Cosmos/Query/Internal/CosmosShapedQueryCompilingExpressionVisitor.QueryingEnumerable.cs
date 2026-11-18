@@ -3,6 +3,7 @@
 
 using System.Collections;
 using System.Text;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
@@ -30,6 +31,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private readonly bool _standAloneStateManager;
         private readonly bool _threadSafetyChecksEnabled;
 
+        private readonly string? _firstNonNullProjection;
+        private readonly string? _valueProjection;
+
         public QueryingEnumerable(
             CosmosQueryContext cosmosQueryContext,
             ISqlExpressionFactory sqlExpressionFactory,
@@ -40,13 +44,17 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             IEntityType rootEntityType,
             List<Expression> partitionKeyPropertyValues,
             bool standAloneStateManager,
-            bool threadSafetyChecksEnabled)
+            bool threadSafetyChecksEnabled,
+            string? firstNonNullProjection,
+            string? valueProjection)
         {
             _cosmosQueryContext = cosmosQueryContext;
             _sqlExpressionFactory = sqlExpressionFactory;
             _querySqlGeneratorFactory = querySqlGeneratorFactory;
             _selectExpression = selectExpression;
             _shaper = shaper;
+            _firstNonNullProjection = firstNonNullProjection;
+            _valueProjection = valueProjection;
             _contextType = contextType;
             _queryLogger = cosmosQueryContext.QueryLogger;
             _standAloneStateManager = standAloneStateManager;
@@ -151,7 +159,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             {
                 try
                 {
-                    using var _ = _concurrencyDetector?.EnterCriticalSection();
+                    using var criticalSection = _concurrencyDetector?.EnterCriticalSection();
 
                     if (_enumerator == null)
                     {
@@ -163,6 +171,23 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             .ExecuteSqlQueryAsync(_cosmosContainer, _cosmosPartitionKey, sqlQuery, _cosmosQueryContext.SessionTokenStorage)
                             .GetAsyncEnumerator(_cancellationToken);
                         _cosmosQueryContext.InitializeStateManager(_standAloneStateManager);
+                    }
+
+                    if (_queryingEnumerable._firstNonNullProjection is { } projection)
+                    {
+                        if (_ordinal != 0)
+                        {
+                            return false;
+                        }
+
+                        var winner = await ReadFirstNonNullAsync(projection).ConfigureAwait(false);
+                        if (winner.IsEmpty)
+                        {
+                            return false;
+                        }
+
+                        _current = _shaper(_cosmosQueryContext, winner, _ordinal++, out _);
+                        return true;
                     }
 
                     ReadNext:
@@ -207,6 +232,73 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     throw;
                 }
             }
+
+            // Ascending order puts nulls first. Keep their first document until a non-null key wins,
+            // and materialize only the winning document so discarded entities never enter the change tracker.
+            private async ValueTask<ReadOnlyMemory<byte>> ReadFirstNonNullAsync(string projection)
+            {
+                Shaper<Candidate> readCandidate = ReadCandidate;
+                ReadOnlyMemory<byte> first = default;
+                while (await _enumerator!.MoveNextAsync().ConfigureAwait(false))
+                {
+                    var data = ShaperProcessingExpressionVisitor.ExtractDocuments(_enumerator.Current);
+                    while (ShaperProcessingExpressionVisitor.TryMaterializeNextJsonCollectionItem(
+                               _cosmosQueryContext, data, readCandidate, 0, out var consumed, out Candidate candidate))
+                    {
+                        data = data[consumed..];
+                        if (candidate.Data.IsEmpty)
+                        {
+                            continue;
+                        }
+
+                        if (candidate.HasKey)
+                        {
+                            return candidate.Data;
+                        }
+
+                        if (first.IsEmpty)
+                        {
+                            first = candidate.Data.ToArray();
+                        }
+                    }
+                }
+
+                return first;
+
+                Candidate ReadCandidate(QueryContext context, ReadOnlyMemory<byte> data, int ordinal, out int bytesConsumed)
+                {
+                    var reader = new Utf8JsonReader(data.Span);
+                    reader.Read();
+                    var hasKey = reader.TokenType != JsonTokenType.Null;
+                    ReadOnlyMemory<byte> value = default;
+                    if (projection.Length == 0)
+                    {
+                        reader.Skip();
+                    }
+                    else
+                    {
+                        hasKey = false;
+                        while (reader.Read() && reader.TokenType == JsonTokenType.PropertyName)
+                        {
+                            var isKey = reader.ValueTextEquals(projection);
+                            var isValue = _queryingEnumerable._valueProjection is { } alias && reader.ValueTextEquals(alias);
+                            reader.Read();
+                            var start = (int)reader.TokenStartIndex;
+                            hasKey |= isKey && reader.TokenType != JsonTokenType.Null;
+                            reader.Skip();
+                            if (isValue)
+                            {
+                                value = data[start..(int)reader.BytesConsumed];
+                            }
+                        }
+                    }
+
+                    bytesConsumed = (int)reader.BytesConsumed;
+                    return new Candidate(_queryingEnumerable._valueProjection is null ? data[..bytesConsumed] : value, hasKey);
+                }
+            }
+
+            private readonly record struct Candidate(ReadOnlyMemory<byte> Data, bool HasKey);
 
             public ValueTask DisposeAsync()
             {
