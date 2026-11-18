@@ -21,9 +21,7 @@ public class AdHocPrecompiledQuerySqlServerTest(NonSharedFixture fixture, ITestO
 @since='2026-01-01T00:00:00.0000000'
 
 SELECT [t].[State], COUNT(*), CASE
-    WHEN COUNT_BIG(CASE
-        WHEN [t].[CompletedAt] IS NOT NULL THEN 1
-    END) > CAST(0 AS bigint) THEN AVG(CASE
+    WHEN COUNT_BIG([t].[CompletedAt]) > CAST(0 AS bigint) THEN AVG(CASE
         WHEN [t].[CompletedAt] IS NOT NULL THEN CAST([t].[Id] AS float)
     END)
 END
