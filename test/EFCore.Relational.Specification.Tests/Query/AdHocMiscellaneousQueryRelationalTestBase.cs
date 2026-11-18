@@ -2493,6 +2493,198 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #endregion
 
+        #region 31388
+
+        // A keyless entity has no identifier, so the grouping terms have to stand in for it when a final GroupBy is shaped on the client.
+        // Without one, the rows of every group looked like part of the first group (or, before that was guarded, the query threw).
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Keyless_entity_final_GroupBy_with_ToDictionary(bool async)
+        {
+            var contextFactory = await SeedKeyless31388();
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Sales
+                .Where(s => s.Amount > 0)
+                .GroupBy(s => new { s.Region, s.Product });
+
+            var result = async
+                ? await query.ToDictionaryAsync(g => g.Key.Region, g => g.Key.Product)
+                : query.ToDictionary(g => g.Key.Region, g => g.Key.Product);
+
+            Assert.Equal(
+                new Dictionary<string, string> { ["North"] = "Chair", ["South"] = "Desk" },
+                result);
+        }
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Keyless_entity_final_GroupBy_with_elements(bool async)
+        {
+            var contextFactory = await SeedKeyless31388();
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Sales.GroupBy(s => s.Region);
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            Assert.Equal(["North", "South"], result.Select(g => g.Key).Order());
+            Assert.Equal([1, 2, 3], result.Single(g => g.Key == "North").Select(s => s.Amount).Order());
+            Assert.Equal([4], result.Single(g => g.Key == "South").Select(s => s.Amount));
+        }
+
+        // The grouping key can be null, and can be computed (which pushes the query down into a subquery).
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Keyless_entity_final_GroupBy_with_null_key(bool async)
+        {
+            var contextFactory = await SeedKeyless31388();
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Sales.GroupBy(s => s.Category);
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            Assert.Equal([null, "A"], result.Select(g => g.Key).OrderBy(k => k));
+            Assert.Equal([2, 3], result.Single(g => g.Key == null).Select(s => s.Amount).Order());
+            Assert.Equal([1, 4], result.Single(g => g.Key == "A").Select(s => s.Amount).Order());
+        }
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Keyless_entity_final_GroupBy_with_computed_key(bool async)
+        {
+            var contextFactory = await SeedKeyless31388();
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Sales.GroupBy(s => s.Amount % 2);
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            Assert.Equal([0, 1], result.Select(g => g.Key).Order());
+            Assert.Equal([2, 4], result.Single(g => g.Key == 0).Select(s => s.Amount).Order());
+            Assert.Equal([1, 3], result.Single(g => g.Key == 1).Select(s => s.Amount).Order());
+        }
+
+        private async Task<ContextFactory<Context31388>> SeedKeyless31388()
+            => await InitializeNonSharedTest<Context31388>(
+                seed: c => c.Database.ExecuteSqlRawAsync(
+                    """
+INSERT INTO Sales (Region, Product, Amount, Category) VALUES ('North', 'Chair', 1, 'A'), ('North', 'Chair', 2, NULL), ('North', 'Chair', 3, NULL), ('South', 'Desk', 4, 'A')
+"""));
+
+        protected class Context31388(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<Sale> Sales
+                => Set<Sale>();
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+                => modelBuilder.Entity<Sale>().HasNoKey().ToTable("Sales");
+
+            public class Sale
+            {
+                public string Region { get; set; } = null!;
+                public string Product { get; set; } = null!;
+                public int Amount { get; set; }
+                public string? Category { get; set; }
+            }
+        }
+
+        #endregion
+
+        #region 33494
+
+        // A non-distinct set operation (UNION ALL) has no identifier, so a final GroupBy over it had the same problem as a keyless entity.
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Final_GroupBy_over_set_operation(bool async)
+        {
+            var contextFactory = await SeedSetOperations33494();
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Managers.Where(m => m.Name != "Cheng")
+                .Concat(context.Managers.Where(m => m.Name == "Cheng"))
+                .GroupBy(m => m.Name);
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            Assert.Equal(["Alice", "Bob", "Cheng"], result.Select(g => g.Key).Order());
+            Assert.Equal([2, 1, 1], result.OrderBy(g => g.Key).Select(g => g.Count()));
+        }
+
+        // A distinct set operation keeps the identifier, so the elements of each group can be told apart and projected as a collection.
+        // This is the shape from the issue.
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Final_GroupBy_over_Except_with_collection(bool async)
+        {
+            var contextFactory = await SeedSetOperations33494();
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Companies.Select(c => c.Manager)
+                .Except(context.Managers.Where(m => m.Name == "Cheng"))
+                .GroupBy(m => m.Name)
+                .Select(g => new { g.Key, Count = g.Count(), Ids = g.Select(m => m.Id).ToList() });
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+
+            Assert.Equal(["Alice", "Bob"], result.Select(g => g.Key).Order());
+            Assert.Equal([2, 1], result.OrderBy(g => g.Key).Select(g => g.Count));
+            Assert.Equal([1, 2], result.Single(g => g.Key == "Alice").Ids.Order());
+            Assert.Equal([3], result.Single(g => g.Key == "Bob").Ids);
+        }
+
+        // UNION ALL has no identifier, so the elements of a group can't be told apart on the client. This is the same limitation as for
+        // a collection projected from a Concat; see the *SetOperations* tests.
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Final_GroupBy_over_Concat_with_collection_throws(bool async)
+        {
+            var contextFactory = await SeedSetOperations33494();
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Managers.Where(m => m.Name != "Cheng")
+                .Concat(context.Managers.Where(m => m.Name == "Cheng"))
+                .GroupBy(m => m.Name)
+                .Select(g => new { g.Key, Count = g.Count(), Ids = g.Select(m => m.Id).ToList() });
+
+            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+                async () => _ = async ? await query.ToListAsync() : query.ToList())).Message;
+
+            Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
+        }
+
+        private async Task<ContextFactory<Context33494>> SeedSetOperations33494()
+            => await InitializeNonSharedTest<Context33494>(seed: async c =>
+            {
+                Context33494.Manager[] managers =
+                [
+                    new() { Name = "Alice" },
+                    new() { Name = "Alice" },
+                    new() { Name = "Bob" },
+                    new() { Name = "Cheng" }
+                ];
+                c.AddRange(managers);
+                c.AddRange(managers.Select(m => new Context33494.Company { Manager = m }));
+                await c.SaveChangesAsync();
+            });
+
+        protected class Context33494(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<Manager> Managers
+                => Set<Manager>();
+
+            public DbSet<Company> Companies
+                => Set<Company>();
+
+            public class Manager
+            {
+                public int Id { get; set; }
+                public string Name { get; set; } = null!;
+            }
+
+            public class Company
+            {
+                public int Id { get; set; }
+                public Manager Manager { get; set; } = null!;
+            }
+        }
+
+        #endregion
+
         #region 39366
 
         [Theory, MemberData(nameof(IsAsyncData))]

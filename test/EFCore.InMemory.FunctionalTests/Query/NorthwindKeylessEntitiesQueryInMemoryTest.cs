@@ -1,6 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.InMemory.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public class NorthwindKeylessEntitiesQueryInMemoryTest(NorthwindQueryInMemoryFixture<NoopModelCustomizer> fixture)
@@ -12,6 +14,11 @@ public class NorthwindKeylessEntitiesQueryInMemoryTest(NorthwindQueryInMemoryFix
 
     public override Task Entity_mapped_to_view_on_right_side_of_join(bool async)
         => Task.CompletedTask;
+
+    public override Task KeylessEntity_final_GroupBy(bool async)
+        => AssertTranslationFailedWithDetails(
+            () => base.KeylessEntity_final_GroupBy(async),
+            InMemoryStrings.NonComposedGroupByNotSupported);
 
     public override async Task KeylessEntity_with_included_nav(bool async)
         => await Assert.ThrowsAsync<InvalidOperationException>(() => base.KeylessEntity_with_included_nav(async));

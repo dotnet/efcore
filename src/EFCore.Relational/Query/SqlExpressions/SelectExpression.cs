@@ -1846,6 +1846,7 @@ public sealed partial class SelectExpression : TableExpressionBase
 
         _groupBy.AddRange(groupByTerms);
 
+        // Unlike the overload below, doesn't handle an empty identifier. Not used by the query pipeline.
         if (!_identifier.All(e => _groupBy.Contains(e.Column)))
         {
             _identifier.Clear();
@@ -1914,7 +1915,9 @@ public sealed partial class SelectExpression : TableExpressionBase
         clonedSelectExpression._groupBy.Clear();
         clonedSelectExpression.ApplyPredicate(correlationPredicate);
 
-        if (!_identifier.All(e => _groupBy.Contains(e.Column)))
+        // A SelectExpression without an identifier (e.g. a keyless entity type) vacuously has every identifier column in the grouping
+        // terms, but it still needs the grouping terms to tell its groups apart, so it is treated like one whose identifier isn't.
+        if (_identifier.Count == 0 || !_identifier.All(e => _groupBy.Contains(e.Column)))
         {
             _preGroupByIdentifier = _identifier.ToList();
             _identifier.Clear();
