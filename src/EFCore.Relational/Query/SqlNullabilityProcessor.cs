@@ -594,7 +594,6 @@ public class SqlNullabilityProcessor : ExpressionVisitor
 
         // Column nullability known to hold for the clause being visited, because all the earlier tests have failed.
         var previousTestsNonNullableColumnsCount = currentNonNullableColumnsCount;
-        var previousTestsNullValueColumnsCount = currentNullValueColumnsCount;
 
         var testEvaluatesToTrue = false;
         foreach (var whenClause in caseExpression.WhenClauses)
@@ -617,7 +616,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
             {
                 // if test evaluates to 'false' we can remove the WhenClause
                 RestoreNonNullableColumnsList(previousTestsNonNullableColumnsCount);
-                RestoreNullValueColumnsList(previousTestsNullValueColumnsCount);
+                RestoreNullValueColumnsList(currentNullValueColumnsCount);
 
                 continue;
             }
@@ -627,13 +626,12 @@ public class SqlNullabilityProcessor : ExpressionVisitor
             nullable |= resultNullable;
             whenClauses.Add(new CaseWhenClause(test, newResult));
             RestoreNonNullableColumnsList(previousTestsNonNullableColumnsCount);
-            RestoreNullValueColumnsList(previousTestsNullValueColumnsCount);
+            RestoreNullValueColumnsList(currentNullValueColumnsCount);
 
             if (testIsCondition)
             {
-                AddColumnNullabilityForFailedTest(test);
+                AddColumnNonNullabilityForFailedTest(test);
                 previousTestsNonNullableColumnsCount = _nonNullableColumns.Count;
-                previousTestsNullValueColumnsCount = _nullValueColumns.Count;
             }
 
             // if test evaluates to 'true' we can remove every condition that comes after, including ElseResult
@@ -1998,7 +1996,8 @@ public class SqlNullabilityProcessor : ExpressionVisitor
     }
 
     // A failed test is either false or null; only null checks are guaranteed to be false then, as they never evaluate to null.
-    private void AddColumnNullabilityForFailedTest(SqlExpression test)
+    // A failed IS NOT NULL isn't recorded, as only OrElse consumes null value columns, and only those added within it.
+    private void AddColumnNonNullabilityForFailedTest(SqlExpression test)
     {
         switch (test)
         {
@@ -2006,13 +2005,9 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 _nonNullableColumns.Add(column);
                 break;
 
-            case SqlUnaryExpression { OperatorType: ExpressionType.NotEqual, Operand: ColumnExpression column }:
-                _nullValueColumns.Add(column);
-                break;
-
             case SqlBinaryExpression { OperatorType: ExpressionType.OrElse } orElse:
-                AddColumnNullabilityForFailedTest(orElse.Left);
-                AddColumnNullabilityForFailedTest(orElse.Right);
+                AddColumnNonNullabilityForFailedTest(orElse.Left);
+                AddColumnNonNullabilityForFailedTest(orElse.Right);
                 break;
         }
     }
