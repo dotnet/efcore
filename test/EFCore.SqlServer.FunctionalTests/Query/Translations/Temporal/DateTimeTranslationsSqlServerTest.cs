@@ -80,6 +80,18 @@ WHERE DATEPART(year, DATEADD(year, CAST(1 AS int), [b].[DateTime])) = 1999
 """);
     }
 
+    public override async Task AddMicroseconds()
+    {
+        await base.AddMicroseconds();
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE DATEPART(millisecond, DATEADD(microsecond, CAST(500000.0E0 AS int), [b].[DateTime])) = 623
+""");
+    }
+
     public override async Task Year()
     {
         await base.Year();

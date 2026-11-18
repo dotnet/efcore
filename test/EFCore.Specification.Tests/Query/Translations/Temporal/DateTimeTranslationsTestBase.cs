@@ -43,6 +43,10 @@ public abstract class DateTimeTranslationsTestBase<TFixture>(TFixture fixture) :
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(o => o.DateTime.AddYears(1).Year == 1999));
 
     [Fact]
+    public virtual Task AddMicroseconds()
+        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(o => o.DateTime.AddMicroseconds(500_000).Millisecond == 623));
+
+    [Fact]
     public virtual Task Year()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(o => o.DateTime.Year == 1998));
 

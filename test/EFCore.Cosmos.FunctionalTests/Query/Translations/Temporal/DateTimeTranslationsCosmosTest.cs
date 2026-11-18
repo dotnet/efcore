@@ -62,6 +62,18 @@ WHERE (DateTimePart("yyyy", DateTimeAdd("yyyy", 1, c["DateTime"])) = 1999)
 """);
     }
 
+    public override async Task AddMicroseconds()
+    {
+        await base.AddMicroseconds();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (DateTimePart("ms", DateTimeAdd("mcs", 500000, c["DateTime"])) = 623)
+""");
+    }
+
     public override async Task Year()
     {
         await base.Year();

@@ -3112,6 +3112,14 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture>(TFixture fix
             e => e.OrderDate);
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Select_expression_datetime_add_microsecond(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().Where(o => o.OrderDate != null)
+                .Select(o => new Order { OrderDate = o.OrderDate!.Value.AddMicroseconds(300) }),
+            e => e.OrderDate);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Select_expression_datetime_add_ticks(bool async)
         => AssertQuery(
             async,
@@ -3157,6 +3165,16 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture>(TFixture fix
             ss => ss.Set<Order>().Where(c => c.OrderID < 10500)
                 .OrderBy(o => o.OrderID)
                 .Select(o => new { Test = new DateTime(1900, 1, 1).AddMinutes(o.OrderID % 25) }),
+            assertOrder: true,
+            elementAsserter: (e, a) => AssertEqual(e.Test, a.Test));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Add_microseconds_on_constant_value(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().Where(c => c.OrderID < 10500)
+                .OrderBy(o => o.OrderID)
+                .Select(o => new { Test = new DateTime(1900, 1, 1).AddMicroseconds(o.OrderID % 25) }),
             assertOrder: true,
             elementAsserter: (e, a) => AssertEqual(e.Test, a.Test));
 

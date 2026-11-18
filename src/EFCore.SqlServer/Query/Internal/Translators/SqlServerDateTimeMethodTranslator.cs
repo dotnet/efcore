@@ -43,6 +43,7 @@ public class SqlServerDateTimeMethodTranslator(
                 nameof(DateTime.AddMinutes) => "minute",
                 nameof(DateTime.AddSeconds) => "second",
                 nameof(DateTime.AddMilliseconds) => "millisecond",
+                nameof(DateTime.AddMicroseconds) => "microsecond",
                 _ => null
             };
 
@@ -56,7 +57,17 @@ public class SqlServerDateTimeMethodTranslator(
 
                 // DATEADD defaults to interpreting its last argument as datetime, not datetime2.
                 // Our default mapping for DateTime is datetime2, so we force constants to be datetime instead here.
-                if (instance is SqlConstantExpression instanceConstant)
+                // However, the microsecond datepart isn't supported over datetime, smalldatetime or date; in that case, we instead
+                // explicitly convert constants and such columns to the default store type (datetime2 or datetimeoffset).
+                if (datePart is "microsecond")
+                {
+                    if (instance is SqlConstantExpression
+                        || instance.TypeMapping?.StoreTypeNameBase is "datetime" or "smalldatetime" or "date")
+                    {
+                        instance = sqlExpressionFactory.Convert(instance, instance.Type, typeMappingSource.FindMapping(instance.Type));
+                    }
+                }
+                else if (instance is SqlConstantExpression instanceConstant)
                 {
                     instance = instanceConstant.ApplyTypeMapping(typeMappingSource.FindMapping(typeof(DateTime), "datetime"));
                 }

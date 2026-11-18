@@ -178,6 +178,18 @@ WHERE "o"."OrderDate" IS NOT NULL
 """);
     }
 
+    public override async Task Select_expression_datetime_add_microsecond(bool async)
+    {
+        await base.Select_expression_datetime_add_microsecond(async);
+
+        AssertSql(
+            """
+SELECT "o"."OrderDate"
+FROM "Orders" AS "o"
+WHERE "o"."OrderDate" IS NOT NULL
+""");
+    }
+
     public override async Task Select_expression_datetime_add_ticks(bool async)
     {
         // modifying the original scenario - Sqlite gives inaccurate results for values of granularity less than 1 second
@@ -240,6 +252,19 @@ WHERE "o"."OrderDate" IS NOT NULL
         AssertSql(
             """
 SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', '1900-01-01 00:00:00', CAST(CAST("o"."OrderID" % 25 AS REAL) AS TEXT) || ' minutes'), '0'), '.') AS "Test"
+FROM "Orders" AS "o"
+WHERE "o"."OrderID" < 10500
+ORDER BY "o"."OrderID"
+""");
+    }
+
+    public override async Task Add_microseconds_on_constant_value(bool async)
+    {
+        await base.Add_microseconds_on_constant_value(async);
+
+        AssertSql(
+            """
+SELECT CAST('1900-01-01 00:00:00' AS TEXT), CAST("o"."OrderID" % 25 AS REAL)
 FROM "Orders" AS "o"
 WHERE "o"."OrderID" < 10500
 ORDER BY "o"."OrderID"

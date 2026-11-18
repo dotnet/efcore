@@ -3478,6 +3478,18 @@ WHERE [o].[OrderDate] IS NOT NULL
 """);
     }
 
+    public override async Task Select_expression_datetime_add_microsecond(bool async)
+    {
+        await base.Select_expression_datetime_add_microsecond(async);
+
+        AssertSql(
+            """
+SELECT DATEADD(microsecond, CAST(300.0E0 AS int), CAST([o].[OrderDate] AS datetime2)) AS [OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[OrderDate] IS NOT NULL
+""");
+    }
+
     public override async Task Select_expression_date_add_milliseconds_above_the_range(bool async)
     {
         await base.Select_expression_date_add_milliseconds_above_the_range(async);
@@ -3523,6 +3535,19 @@ WHERE [o].[OrderDate] IS NOT NULL
         AssertSql(
             """
 SELECT DATEADD(minute, CAST(CAST([o].[OrderID] % 25 AS float) AS int), '1900-01-01T00:00:00.000') AS [Test]
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] < 10500
+ORDER BY [o].[OrderID]
+""");
+    }
+
+    public override async Task Add_microseconds_on_constant_value(bool async)
+    {
+        await base.Add_microseconds_on_constant_value(async);
+
+        AssertSql(
+            """
+SELECT DATEADD(microsecond, CAST(CAST([o].[OrderID] % 25 AS float) AS int), CAST('1900-01-01T00:00:00.0000000' AS datetime2)) AS [Test]
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] < 10500
 ORDER BY [o].[OrderID]
