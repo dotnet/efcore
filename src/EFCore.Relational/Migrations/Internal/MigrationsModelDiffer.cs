@@ -213,29 +213,15 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             }
             else if (type == typeof(AlterDatabaseOperation))
             {
+                // An operation that only removes annotations drops database objects that columns or tables altered
+                // later might still use, so it runs after those operations
                 var alterDatabaseOperation = (AlterDatabaseOperation)operation;
-                var removedAnnotations = alterDatabaseOperation.OldDatabase.GetAnnotations()
-                    .Where(a => alterDatabaseOperation.FindAnnotation(a.Name) == null)
-                    .ToList();
-                if (removedAnnotations.Count == 0)
+                if (alterDatabaseOperation.Collation == alterDatabaseOperation.OldDatabase.Collation
+                    && !alterDatabaseOperation.GetAnnotations().Any())
                 {
-                    alterDatabaseOperations.Add(alterDatabaseOperation);
-                    continue;
+                    removeDatabaseAnnotationsOperations.Add(alterDatabaseOperation);
                 }
-
-                // Database objects that are removed might still be used by columns or tables that are altered later,
-                // so remove them after those operations
-                var removeAnnotationsOperation = new AlterDatabaseOperation();
-                foreach (var annotation in removedAnnotations)
-                {
-                    alterDatabaseOperation.OldDatabase.RemoveAnnotation(annotation.Name);
-                    removeAnnotationsOperation.OldDatabase.AddAnnotation(annotation.Name, annotation.Value);
-                }
-
-                removeDatabaseAnnotationsOperations.Add(removeAnnotationsOperation);
-
-                if (alterDatabaseOperation.Collation != alterDatabaseOperation.OldDatabase.Collation
-                    || HasDifferences(alterDatabaseOperation.OldDatabase.GetAnnotations(), alterDatabaseOperation.GetAnnotations()))
+                else
                 {
                     alterDatabaseOperations.Add(alterDatabaseOperation);
                 }
@@ -416,9 +402,20 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         var operations = Enumerable.Empty<MigrationOperation>();
         if (source != null && target != null)
         {
-            var sourceMigrationsAnnotations = source.GetAnnotations();
-            var targetMigrationsAnnotations = target.GetAnnotations();
+            var targetMigrationsAnnotations = target.GetAnnotations().ToList();
 
+            // Annotations removed from the database go into an operation of their own, which Sort places after the
+            // table and column operations, since the database objects they drop might still be in use until then
+            var sourceMigrationsAnnotations = new List<IAnnotation>();
+            var removedMigrationsAnnotations = new List<IAnnotation>();
+            foreach (var annotation in source.GetAnnotations())
+            {
+                (target.FindAnnotation(annotation.Name) == null
+                    ? removedMigrationsAnnotations
+                    : sourceMigrationsAnnotations).Add(annotation);
+            }
+
+            var databaseOperations = new List<MigrationOperation>();
             if (source.Collation != target.Collation
                 || HasDifferences(sourceMigrationsAnnotations, targetMigrationsAnnotations))
             {
@@ -431,10 +428,18 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                 alterDatabaseOperation.AddAnnotations(targetMigrationsAnnotations);
                 alterDatabaseOperation.OldDatabase.AddAnnotations(sourceMigrationsAnnotations);
 
-                operations = [alterDatabaseOperation];
+                databaseOperations.Add(alterDatabaseOperation);
             }
 
-            operations = operations
+            if (removedMigrationsAnnotations.Count > 0)
+            {
+                var removeAnnotationsOperation = new AlterDatabaseOperation();
+                removeAnnotationsOperation.OldDatabase.AddAnnotations(removedMigrationsAnnotations);
+
+                databaseOperations.Add(removeAnnotationsOperation);
+            }
+
+            operations = databaseOperations
                 .Concat(Diff(GetSchemas(source), GetSchemas(target), diffContext))
                 .Concat(Diff(source.Tables, target.Tables, diffContext))
                 .Concat(Diff(source.Sequences, target.Sequences, diffContext))
