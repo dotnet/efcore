@@ -575,7 +575,10 @@ public class SqliteConnectionTest
 
         var ex = Assert.Throws<SqliteException>(() => connection.ExecuteScalar<long>("SELECT 'Νικοσ' = 'ΝΙΚΟΣ' COLLATE MY_NOCASE;"));
 
-        Assert.Equal(Resources.SqliteNativeError(SQLITE_ERROR, "no such collation sequence: MY_NOCASE"), ex.Message);
+        Assert.Equal(
+            Resources.SqliteNativeError(SQLITE_ERROR, "no such collation sequence: MY_NOCASE")
+            + " " + Resources.SqliteExtendedErrorCode($"{SqliteException.SQLITE_ERROR_MISSING_COLLSEQ} (SQLITE_ERROR_MISSING_COLLSEQ)"),
+            ex.Message);
     }
 
     [Fact]
