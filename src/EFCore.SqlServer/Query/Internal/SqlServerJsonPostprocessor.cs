@@ -191,17 +191,20 @@ public sealed class SqlServerJsonPostprocessor(
                 return result;
             }
 
-            case SqlFunctionExpression { IsBuiltIn: true, Name: "JSON_CONTAINS", Arguments: [_, _] } jsonContains:
+            case SqlFunctionExpression { IsBuiltIn: true, Name: "JSON_CONTAINS", Arguments: [_, _, ..] } jsonContains:
             {
                 jsonContains = (SqlFunctionExpression)base.VisitExtension(jsonContains);
-                var json = jsonContains.Arguments![0];
+                var arguments = jsonContains.Arguments!.ToArray();
+                var json = arguments[0];
 
                 // OPENJSON/WITH on Azure SQL and OPENJSON without WITH return text even when the model uses json.
-                return RequiresJsonCast(json)
-                    ? jsonContains.Update(
-                        jsonContains.Instance,
-                        [sqlExpressionFactory.Convert(json, json.Type, SqlServerJsonTypeMapping.Default), jsonContains.Arguments[1]])
-                    : jsonContains;
+                if (RequiresJsonCast(json))
+                {
+                    arguments[0] = sqlExpressionFactory.Convert(json, json.Type, SqlServerJsonTypeMapping.Default);
+                    return jsonContains.Update(jsonContains.Instance, arguments);
+                }
+
+                return jsonContains;
             }
 
             case ColumnExpression columnExpression

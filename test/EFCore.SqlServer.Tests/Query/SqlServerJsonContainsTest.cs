@@ -114,6 +114,37 @@ WHERE EXISTS (
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
+    public void JsonContains_over_nested_document_with_path_and_search_mode(bool azure)
+    {
+        var options = new DbContextOptionsBuilder<NestedContainsContext>();
+        if (azure)
+        {
+            options.UseAzureSql((string?)null, b => b.UseCompatibilityLevel(170));
+        }
+        else
+        {
+            options.UseSqlServer((string?)null, b => b.UseCompatibilityLevel(170));
+        }
+
+        using var context = new NestedContainsContext(options.Options);
+
+#pragma warning disable EF9106 // JsonContains is experimental
+        var withPath = context.Entities
+            .Where(e => e.Details.Tags.Any(t => EF.Functions.JsonContains(t.Names, "a", "$") == 1))
+            .ToQueryString();
+        var withSearchMode = context.Entities
+            .Where(e => e.Details.Tags.Any(t => EF.Functions.JsonContains(t.Names, "a", "$", 1) == 1))
+            .ToQueryString();
+#pragma warning restore EF9106
+
+        var jsonDocument = azure ? "CAST([t].[Names] AS json)" : "[t].[Names]";
+        Assert.Contains($"JSON_CONTAINS({jsonDocument}, N'a', N'$') = 1", withPath);
+        Assert.Contains($"JSON_CONTAINS({jsonDocument}, N'a', N'$', 1) = 1", withSearchMode);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
     public void Contains_preserves_native_json_documents_and_casts_nested_text_documents(bool azure)
     {
         var options = new DbContextOptionsBuilder<NestedContainsContext>();
