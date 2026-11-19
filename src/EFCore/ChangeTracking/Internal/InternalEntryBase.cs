@@ -320,6 +320,14 @@ public abstract partial class InternalEntryBase : IInternalEntry
                 StructuralType.PropertyCount, PropertyFlag.Modified,
                 flagged: false);
 
+            // Navigation flags are stored in navigation slots, of which there can be more than property slots
+            if (StructuralType.NullableCollectionCount > 0)
+            {
+                _stateData.FlagAllProperties(
+                    Math.Max(StructuralType.PropertyCount, StructuralType.NavigationCount), PropertyFlag.NavigationModified,
+                    flagged: false);
+            }
+
             foreach (var complexCollection in structuralType.GetFlattenedComplexProperties())
             {
                 if (complexCollection.IsCollection)
@@ -586,6 +594,7 @@ public abstract partial class InternalEntryBase : IInternalEntry
                  && changeState
                  && !isModified
                  && !_stateData.AnyPropertiesFlagged(PropertyFlag.Modified)
+                 && !_stateData.AnyPropertiesFlagged(PropertyFlag.NavigationModified)
                  && StructuralType.GetFlattenedComplexProperties()
                      .All(p => !p.IsCollection || !_complexCollectionEntries[p.GetIndex()].IsModified()))
         {
@@ -661,6 +670,15 @@ public abstract partial class InternalEntryBase : IInternalEntry
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual void OnComplexPropertyModified(IComplexProperty property, bool isModified = true)
+        => OnModifiedFlagChanged(isModified);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual void OnModifiedFlagChanged(bool isModified)
     {
         var currentState = _stateData.EntityState;
         if (currentState == EntityState.Deleted)
@@ -682,6 +700,7 @@ public abstract partial class InternalEntryBase : IInternalEntry
         else if (currentState == EntityState.Modified
                  && !isModified
                  && !_stateData.AnyPropertiesFlagged(PropertyFlag.Modified)
+                 && !_stateData.AnyPropertiesFlagged(PropertyFlag.NavigationModified)
                  && StructuralType.GetFlattenedComplexProperties()
                      .All(p => !p.IsCollection || !_complexCollectionEntries[p.GetIndex()].IsModified()))
         {
@@ -1057,6 +1076,11 @@ public abstract partial class InternalEntryBase : IInternalEntry
         else if (propertyBase is IProperty property)
         {
             DetectChanges(property);
+        }
+        else if (propertyBase is INavigation { IsCollection: true, IsNullable: true } navigation
+                 && this is InternalEntityEntry entityEntry)
+        {
+            ((StateManager as StateManager)?.ChangeDetector as ChangeDetector)?.DetectCollectionNullnessChange(entityEntry, navigation);
         }
     }
 

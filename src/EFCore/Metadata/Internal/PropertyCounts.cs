@@ -25,7 +25,8 @@ public class PropertyCounts
         int originalValueCount,
         int shadowCount,
         int relationshipCount,
-        int storeGeneratedCount)
+        int storeGeneratedCount,
+        int nullableCollectionCount = 0)
     {
         PropertyCount = propertyCount;
         NavigationCount = navigationCount;
@@ -35,6 +36,7 @@ public class PropertyCounts
         ShadowCount = shadowCount;
         RelationshipCount = relationshipCount;
         StoreGeneratedCount = storeGeneratedCount;
+        NullableCollectionCount = nullableCollectionCount;
     }
 
     /// <summary>
@@ -100,4 +102,12 @@ public class PropertyCounts
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual int StoreGeneratedCount { get; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual int NullableCollectionCount { get; }
 }

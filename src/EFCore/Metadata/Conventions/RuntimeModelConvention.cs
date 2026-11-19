@@ -756,6 +756,7 @@ public class RuntimeModelConvention : IModelFinalizedConvention
                 runtimeForeignKey,
                 navigation.IsOnDependent,
                 navigation.ClrType,
+                navigation.IsNullable,
                 navigation.PropertyInfo,
                 navigation.FieldInfo,
                 navigation.GetPropertyAccessMode(),

@@ -1211,6 +1211,85 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
                 Assert.Contains(relationalModel.Tables, t => t.Indexes.Any());
             });
 
+    [Fact] // Issue #33452
+    public virtual Task Nullable_owned_json_collection()
+        => Test(
+            modelBuilder => modelBuilder.Entity<NullableJsonCollectionOwner>().OwnsMany(e => e.Items, b => b.ToJson()),
+            model =>
+            {
+                var owner = model.FindEntityType(typeof(NullableJsonCollectionOwner))!;
+                var items = owner.FindNavigation(nameof(NullableJsonCollectionOwner.Items))!;
+
+                Assert.True(items.IsNullable);
+                Assert.IsType<RuntimeNavigation>(items);
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                Assert.Equal(1, ((Microsoft.EntityFrameworkCore.Metadata.Internal.IRuntimeEntityType)owner).NullableCollectionCount);
+#pragma warning restore EF1001 // Internal EF Core API usage.
+            },
+            options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true, ForNativeAot = true });
+
+    [Fact] // Issue #33452
+    public virtual Task Nullable_owned_json_collection_with_change_notifications_and_inheritance()
+        => Test(
+            modelBuilder =>
+            {
+                modelBuilder.Entity<ChangedNotifyingJsonOwner>(
+                    b =>
+                    {
+                        b.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications);
+                        b.OwnsMany(
+                            e => e.Items, ib =>
+                            {
+                                ib.ToJson();
+                                ib.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications);
+                            });
+                    });
+
+                modelBuilder.Entity<ChangingAndChangedNotifyingJsonOwner>(
+                    b =>
+                    {
+                        b.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues);
+                        b.OwnsMany(
+                            e => e.Items, ib =>
+                            {
+                                ib.ToJson();
+                                ib.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues);
+                            });
+                    });
+
+                modelBuilder.Entity<NullableJsonCollectionBaseOwner>();
+                modelBuilder.Entity<NullableJsonCollectionDerivedOwner>().OwnsMany(e => e.Items, b => b.ToJson());
+            },
+            model =>
+            {
+                var changed = model.FindEntityType(typeof(ChangedNotifyingJsonOwner))!;
+                var changing = model.FindEntityType(typeof(ChangingAndChangedNotifyingJsonOwner))!;
+                var derived = model.FindEntityType(typeof(NullableJsonCollectionDerivedOwner))!;
+                var baseType = model.FindEntityType(typeof(NullableJsonCollectionBaseOwner))!;
+
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                var changedItems = changed.FindNavigation(nameof(ChangedNotifyingJsonOwner.Items))!;
+                var changingItems = changing.FindNavigation(nameof(ChangingAndChangedNotifyingJsonOwner.Items))!;
+                var derivedItems = derived.FindNavigation(nameof(NullableJsonCollectionDerivedOwner.Items))!;
+
+                Assert.True(changedItems.IsNullable);
+                Assert.True(changingItems.IsNullable);
+                Assert.True(derivedItems.IsNullable);
+
+                // Original values are kept, unless it is configured that they aren't for entities with changing and changed notifications,
+                // but that can't be used with a compiled model
+                Assert.True(Microsoft.EntityFrameworkCore.Metadata.Internal.PropertyBaseExtensions.GetOriginalValueIndex(changedItems) >= 0);
+                Assert.True(Microsoft.EntityFrameworkCore.Metadata.Internal.PropertyBaseExtensions.GetOriginalValueIndex(changingItems) >= 0);
+                Assert.True(Microsoft.EntityFrameworkCore.Metadata.Internal.PropertyBaseExtensions.GetOriginalValueIndex(derivedItems) >= 0);
+
+                Assert.Equal(1, ((Microsoft.EntityFrameworkCore.Metadata.Internal.IRuntimeEntityType)changed).NullableCollectionCount);
+                Assert.Equal(1, ((Microsoft.EntityFrameworkCore.Metadata.Internal.IRuntimeEntityType)changing).NullableCollectionCount);
+                Assert.Equal(1, ((Microsoft.EntityFrameworkCore.Metadata.Internal.IRuntimeEntityType)derived).NullableCollectionCount);
+                Assert.Equal(0, ((Microsoft.EntityFrameworkCore.Metadata.Internal.IRuntimeEntityType)baseType).NullableCollectionCount);
+#pragma warning restore EF1001 // Internal EF Core API usage.
+            },
+            options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true, ForNativeAot = true });
+
     [Fact]
     public virtual Task DbFunctions()
         => Test<DbFunctionContext>(
@@ -1618,6 +1697,87 @@ public partial class DbContextModel
     public class Author
     {
         public string Name { get; set; } = "";
+    }
+
+    public class NullableJsonCollectionOwner
+    {
+        public int Id { get; set; }
+        public List<NullableJsonCollectionItem>? Items { get; set; }
+    }
+
+    public class NullableJsonCollectionItem
+    {
+        public string? Name { get; set; }
+    }
+
+    public class NullableJsonCollectionBaseOwner
+    {
+        public int Id { get; set; }
+    }
+
+    public class NullableJsonCollectionDerivedOwner : NullableJsonCollectionBaseOwner
+    {
+        public List<NullableJsonCollectionItem>? Items { get; set; }
+    }
+
+    public abstract class NotifyingJsonBase : System.ComponentModel.INotifyPropertyChanged, System.ComponentModel.INotifyPropertyChanging
+    {
+        public event System.ComponentModel.PropertyChangedEventHandler? PropertyChanged;
+        public event System.ComponentModel.PropertyChangingEventHandler? PropertyChanging;
+
+        protected void SetValue<T>(ref T field, T value, [CallerMemberName] string propertyName = "")
+        {
+            PropertyChanging?.Invoke(this, new System.ComponentModel.PropertyChangingEventArgs(propertyName));
+            field = value;
+            PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+        }
+    }
+
+    public class NotifyingJsonItem : NotifyingJsonBase
+    {
+        private string? _name;
+
+        public string? Name
+        {
+            get => _name;
+            set => SetValue(ref _name, value);
+        }
+    }
+
+    public class ChangedNotifyingJsonOwner : NotifyingJsonBase
+    {
+        private int _id;
+        private Microsoft.EntityFrameworkCore.ChangeTracking.ObservableHashSet<NotifyingJsonItem>? _items;
+
+        public int Id
+        {
+            get => _id;
+            set => SetValue(ref _id, value);
+        }
+
+        public Microsoft.EntityFrameworkCore.ChangeTracking.ObservableHashSet<NotifyingJsonItem>? Items
+        {
+            get => _items;
+            set => SetValue(ref _items, value);
+        }
+    }
+
+    public class ChangingAndChangedNotifyingJsonOwner : NotifyingJsonBase
+    {
+        private int _id;
+        private Microsoft.EntityFrameworkCore.ChangeTracking.ObservableHashSet<NotifyingJsonItem>? _items;
+
+        public int Id
+        {
+            get => _id;
+            set => SetValue(ref _id, value);
+        }
+
+        public Microsoft.EntityFrameworkCore.ChangeTracking.ObservableHashSet<NotifyingJsonItem>? Items
+        {
+            get => _items;
+            set => SetValue(ref _items, value);
+        }
     }
 
     public class EntityWithNestedComplexCollection

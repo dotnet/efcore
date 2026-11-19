@@ -1243,6 +1243,9 @@
   <data name="NoSetPropertyInvocation" xml:space="preserve">
     <value>An 'ExecuteUpdate' call must specify at least one 'SetProperty' invocation, to indicate the properties to be updated.</value>
   </data>
+  <data name="NullableCollectionNavigationNotMappedToJson" xml:space="preserve">
+    <value>The collection navigation '{entityType}.{navigation}' is configured to distinguish a null collection from an empty one, but this is only supported for collections that are mapped to JSON.</value>
+  </data>
   <data name="NullKeyValue" xml:space="preserve">
     <value>Unable to modify a row in table '{table}' because its key column '{keyColumn}' is 'null'.</value>
   </data>

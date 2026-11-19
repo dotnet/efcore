@@ -93,8 +93,13 @@ public class InternalEntrySubscriber : IInternalEntrySubscriber
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual void SubscribeCollectionChanged(InternalEntityEntry entry, INavigationBase navigation)
-        => AsINotifyCollectionChanged(entry, navigation, entry.EntityType, entry.EntityType.GetChangeTrackingStrategy()).CollectionChanged
-            += entry.HandleINotifyCollectionChanged;
+    {
+        var collection = AsINotifyCollectionChanged(entry, navigation, entry.EntityType, entry.EntityType.GetChangeTrackingStrategy());
+        if (collection != null)
+        {
+            collection.CollectionChanged += entry.HandleINotifyCollectionChanged;
+        }
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -167,8 +172,13 @@ public class InternalEntrySubscriber : IInternalEntrySubscriber
     public virtual void UnsubscribeCollectionChanged(
         InternalEntityEntry entry,
         INavigationBase navigation)
-        => AsINotifyCollectionChanged(entry, navigation, entry.EntityType, entry.EntityType.GetChangeTrackingStrategy()).CollectionChanged
-            -= entry.HandleINotifyCollectionChanged;
+    {
+        var collection = AsINotifyCollectionChanged(entry, navigation, entry.EntityType, entry.EntityType.GetChangeTrackingStrategy());
+        if (collection != null)
+        {
+            collection.CollectionChanged -= entry.HandleINotifyCollectionChanged;
+        }
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -181,12 +191,20 @@ public class InternalEntrySubscriber : IInternalEntrySubscriber
         // TODO: Support complex value type collections. Issue #31411
     }
 
-    private static INotifyCollectionChanged AsINotifyCollectionChanged(
+    private static INotifyCollectionChanged? AsINotifyCollectionChanged(
         InternalEntityEntry entry,
         INavigationBase navigation,
         IEntityType entityType,
         ChangeTrackingStrategy changeTrackingStrategy)
     {
+        if (navigation is INavigation { IsNullable: true }
+            && entry.GetCurrentValue(navigation) == null)
+        {
+            // A null value of a nullable collection navigation is meaningful, so it must not be replaced with an empty collection.
+            // There is nothing to subscribe to; the collection is subscribed to when it is assigned.
+            return null;
+        }
+
         var collection = entry.GetOrCreateCollection(navigation, forMaterialization: false);
         if (collection is not INotifyCollectionChanged notifyingCollection)
         {
