@@ -342,6 +342,12 @@ public sealed class SqlServerJsonPostprocessor(
             return json switch
             {
                 JsonScalarExpression scalar => RequiresJsonCast(scalar.Json),
+                ScalarSubqueryExpression subquery => RequiresJsonCast(subquery.Subquery.Projection[0].Expression),
+                CaseExpression caseExpression
+                    => caseExpression.WhenClauses.Any(c => RequiresJsonCast(c.Result))
+                        || (caseExpression.ElseResult is { } elseResult && RequiresJsonCast(elseResult)),
+                SqlFunctionExpression { IsBuiltIn: true, Name: "COALESCE", Arguments: { } arguments }
+                    => arguments.Any(RequiresJsonCast),
                 ColumnExpression column when _tables.TryGetValue(column.TableAlias, out var table) => table switch
                 {
                     SqlServerOpenJsonExpression { ColumnInfos: null } => true,
