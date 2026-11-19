@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Runtime.CompilerServices;
-using System.Text;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
@@ -1845,7 +1844,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                 ? null
                 : GenerateLambda(aggregateGuardBodies[i]!, parent.CurrentParameter);
 
-            var placeholder = Expression.Parameter(aggregate.Call.Type, PrintOnOneLine(aggregate.Call));
+            var placeholder = Expression.Parameter(aggregate.Call.Type, aggregate.Call.Print());
             aggregatePlaceholders[aggregate.Call] = placeholder;
             placeholders.Add(placeholder);
             replacements.Add(
@@ -1866,32 +1865,6 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         var navigationTree = new NavigationTreeExpression(Expression.Default(result.Type.GetSequenceType()));
 
         return new NavigationExpansionExpression(result, navigationTree, navigationTree, GetParameterName("e"));
-    }
-
-    /// <summary>
-    ///     Prints an expression on one line. The printer breaks before each chained method call and indents nested
-    ///     lambdas, which reads badly in a placeholder's name once that name is printed inside another expression.
-    /// </summary>
-    private static string PrintOnOneLine(Expression expression)
-    {
-        var builder = new StringBuilder();
-        foreach (var line in expression.Print().Split('\n'))
-        {
-            var trimmed = line.Trim();
-            if (trimmed.Length == 0)
-            {
-                continue;
-            }
-
-            if (builder.Length > 0 && trimmed[0] != '.')
-            {
-                builder.Append(' ');
-            }
-
-            builder.Append(trimmed);
-        }
-
-        return builder.ToString();
     }
 
     /// <summary>
