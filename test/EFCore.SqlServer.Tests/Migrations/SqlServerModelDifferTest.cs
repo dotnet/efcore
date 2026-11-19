@@ -44,6 +44,88 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
             });
 
     [Fact]
+    public void Removed_database_annotations_are_dropped_after_column_operations()
+        => Execute(
+            common => common.Entity(
+                "Person",
+                x =>
+                {
+                    x.Property<int>("Id");
+                    x.Property<string>("Name");
+                }),
+            source => source.Entity("Person").Property<string>("Name").HasMaxLength(100),
+            target =>
+            {
+                target.HasFullTextCatalog("MyCatalog");
+                target.Entity("Person").Property<string>("Name").HasMaxLength(200);
+            },
+            upOps => Assert.Collection(
+                upOps,
+                o =>
+                {
+                    var operation = Assert.IsType<AlterDatabaseOperation>(o);
+                    Assert.Equal(SqlServerAnnotationNames.FullTextCatalogs, Assert.Single(operation.GetAnnotations()).Name);
+                    Assert.Empty(operation.OldDatabase.GetAnnotations());
+                },
+                o => Assert.Equal("Name", Assert.IsType<AlterColumnOperation>(o).Name)),
+            downOps => Assert.Collection(
+                downOps,
+                o => Assert.Equal("Name", Assert.IsType<AlterColumnOperation>(o).Name),
+                o =>
+                {
+                    var operation = Assert.IsType<AlterDatabaseOperation>(o);
+                    Assert.Empty(operation.GetAnnotations());
+                    Assert.Equal(SqlServerAnnotationNames.FullTextCatalogs, Assert.Single(operation.OldDatabase.GetAnnotations()).Name);
+                }));
+
+    [Fact]
+    public void Database_annotation_removals_are_split_from_other_database_changes()
+        => Execute(
+            common => common.Entity(
+                "Person",
+                x =>
+                {
+                    x.Property<int>("Id");
+                    x.Property<string>("Name");
+                }),
+            source =>
+            {
+                source.HasDatabaseMaxSize("100 MB");
+                source.HasFullTextCatalog("MyCatalog");
+                source.Entity("Person").Property<string>("Name").HasMaxLength(100);
+            },
+            target =>
+            {
+                target.HasServiceTier("basic");
+                target.Entity("Person").Property<string>("Name").HasMaxLength(200);
+            },
+            upOps => Assert.Collection(
+                upOps,
+                o =>
+                {
+                    var operation = Assert.IsType<AlterDatabaseOperation>(o);
+                    Assert.Equal("EDITION = 'basic'", Assert.Single(operation.GetAnnotations()).Value);
+                    Assert.Equal("MAXSIZE = 100 MB", Assert.Single(operation.OldDatabase.GetAnnotations()).Value);
+                },
+                o => Assert.Equal("Name", Assert.IsType<AlterColumnOperation>(o).Name),
+                o =>
+                {
+                    var operation = Assert.IsType<AlterDatabaseOperation>(o);
+                    Assert.Empty(operation.GetAnnotations());
+                    Assert.Equal(SqlServerAnnotationNames.FullTextCatalogs, Assert.Single(operation.OldDatabase.GetAnnotations()).Name);
+                }),
+            downOps => Assert.Collection(
+                downOps,
+                o =>
+                {
+                    var operation = Assert.IsType<AlterDatabaseOperation>(o);
+                    Assert.Equal("MAXSIZE = 100 MB", operation[SqlServerAnnotationNames.EditionOptions]);
+                    Assert.NotNull(operation[SqlServerAnnotationNames.FullTextCatalogs]);
+                    Assert.Equal("EDITION = 'basic'", Assert.Single(operation.OldDatabase.GetAnnotations()).Value);
+                },
+                o => Assert.Equal("Name", Assert.IsType<AlterColumnOperation>(o).Name)));
+
+    [Fact]
     public void Alter_table_MemoryOptimized()
         => Execute(
             common => common.Entity(
@@ -80,20 +162,20 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
             {
                 Assert.Equal(2, downOps.Count);
 
-                var alterDatabaseOperation = Assert.IsType<AlterDatabaseOperation>(downOps[0]);
-                Assert.Null(IsMemoryOptimized(alterDatabaseOperation));
-                Assert.True(IsMemoryOptimized(alterDatabaseOperation.OldDatabase));
-
-                Assert.Empty(alterDatabaseOperation.GetAnnotations());
-                Assert.Single(alterDatabaseOperation.OldDatabase.GetAnnotations());
-
-                var alterTableOperation = Assert.IsType<AlterTableOperation>(downOps[1]);
+                var alterTableOperation = Assert.IsType<AlterTableOperation>(downOps[0]);
                 Assert.Equal("Person", alterTableOperation.Name);
                 Assert.Null(IsMemoryOptimized(alterTableOperation));
                 Assert.True(IsMemoryOptimized(alterTableOperation.OldTable));
 
                 Assert.Empty(alterTableOperation.GetAnnotations());
                 Assert.Single(alterTableOperation.OldTable.GetAnnotations());
+
+                var alterDatabaseOperation = Assert.IsType<AlterDatabaseOperation>(downOps[1]);
+                Assert.Null(IsMemoryOptimized(alterDatabaseOperation));
+                Assert.True(IsMemoryOptimized(alterDatabaseOperation.OldDatabase));
+
+                Assert.Empty(alterDatabaseOperation.GetAnnotations());
+                Assert.Single(alterDatabaseOperation.OldDatabase.GetAnnotations());
             });
 
     [Fact]
