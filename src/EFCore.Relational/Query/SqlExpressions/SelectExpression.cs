@@ -2008,6 +2008,20 @@ public sealed partial class SelectExpression : TableExpressionBase
         _groupIdentifier = groupIdentifier;
     }
 
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public void AddToIdentifier(ColumnExpression column, ValueComparer comparer)
+    {
+        Check.DebugAssert(_identifier.Count > 0, "Only a key-based identifier can be extended.");
+
+        _identifier.Add((column, comparer));
+    }
+
     private static void PopulateGroupByTerms(
         Expression keySelector,
         List<SqlExpression> groupByTerms,
