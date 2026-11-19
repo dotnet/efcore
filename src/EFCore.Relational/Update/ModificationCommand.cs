@@ -300,15 +300,17 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
         var columnModifications = new List<IColumnModification>();
         Dictionary<string, ColumnValuePropagator>? sharedTableColumnMap = null;
 
-        // Detect table-splitting and populate shared columns to propagate values back to the sharing entries.
-        if (_entries.Count > 1
-            || (_entries is [var singleEntry]
-                && (singleEntry.SharedIdentityEntry is not null
-                    || singleEntry.EntityType.GetComplexProperties()
-                        .Any(cp => !cp.IsCollection && !cp.ComplexType.IsMappedToJson()))))
-        {
-            Check.DebugAssert(StoreStoredProcedure is null, "Multiple entries/shared identity not supported with stored procedures");
+        Check.DebugAssert(StoreStoredProcedure is null || _entries.Count == 1, "Multiple entries not supported with stored procedures");
 
+        // Detect table-splitting and populate shared columns to propagate values back to the sharing entries.
+        // Stored procedures are always sent all their parameters, so they don't need this, even for a shared identity entry.
+        if (StoreStoredProcedure is null
+            && (_entries.Count > 1
+                || (_entries is [var singleEntry]
+                    && (singleEntry.SharedIdentityEntry is not null
+                        || singleEntry.EntityType.GetComplexProperties()
+                            .Any(cp => !cp.IsCollection && !cp.ComplexType.IsMappedToJson())))))
+        {
             sharedTableColumnMap = [];
 
             if (_comparer != null

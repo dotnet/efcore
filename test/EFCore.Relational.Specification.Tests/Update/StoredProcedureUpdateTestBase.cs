@@ -367,6 +367,88 @@ public abstract class StoredProcedureUpdateTestBase(NonSharedFixture fixture)
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public abstract Task Delete_and_insert_with_same_key(bool async);
+
+    protected async Task Delete_and_insert_with_same_key_implementation(bool async, string createSprocSql)
+    {
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
+            modelBuilder => modelBuilder.Entity<Entity>(b =>
+            {
+                b.Property(w => w.Id).ValueGeneratedNever();
+                b.InsertUsingStoredProcedure(
+                    nameof(Entity) + "_Insert",
+                    spb => spb
+                        .HasParameter(w => w.Id)
+                        .HasParameter(w => w.Name));
+                b.UpdateUsingStoredProcedure(
+                    nameof(Entity) + "_Update",
+                    spb => spb
+                        .HasOriginalValueParameter(w => w.Id)
+                        .HasParameter(w => w.Name));
+                b.DeleteUsingStoredProcedure(
+                    nameof(Entity) + "_Delete",
+                    spb => spb.HasOriginalValueParameter(w => w.Id));
+            }),
+            seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var entity1 = new Entity { Id = 1, Name = "Entity1" };
+        context.Set<Entity>().Add(entity1);
+        await context.SaveChangesAsync();
+
+        ClearLog();
+
+        // The delete and the insert share the same key, so they are merged into a single update of the row
+        context.Set<Entity>().Remove(entity1);
+        context.Set<Entity>().Add(new Entity { Id = 1, Name = "Entity2" });
+        await SaveChanges(context, async);
+
+        using (TestSqlLoggerFactory.SuspendRecordingEvents())
+        {
+            Assert.Equal("Entity2", (await context.Set<Entity>().SingleAsync()).Name);
+        }
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public abstract Task Delete_and_insert_with_same_key_without_update_sproc(bool async);
+
+    protected async Task Delete_and_insert_with_same_key_without_update_sproc_implementation(bool async, string createSprocSql)
+    {
+        var contextFactory = await InitializeNonSharedTest<DbContext>(
+            modelBuilder => modelBuilder.Entity<Entity>(b =>
+            {
+                b.Property(w => w.Id).ValueGeneratedNever();
+                b.InsertUsingStoredProcedure(
+                    nameof(Entity) + "_Insert",
+                    spb => spb
+                        .HasParameter(w => w.Id)
+                        .HasParameter(w => w.Name));
+                b.DeleteUsingStoredProcedure(
+                    nameof(Entity) + "_Delete",
+                    spb => spb.HasOriginalValueParameter(w => w.Id));
+            }),
+            seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var entity1 = new Entity { Id = 1, Name = "Entity1" };
+        context.Set<Entity>().Add(entity1);
+        await context.SaveChangesAsync();
+
+        ClearLog();
+
+        context.Set<Entity>().Remove(entity1);
+        context.Set<Entity>().Add(new Entity { Id = 1, Name = "Entity2" });
+        await SaveChanges(context, async);
+
+        using (TestSqlLoggerFactory.SuspendRecordingEvents())
+        {
+            Assert.Equal("Entity2", (await context.Set<Entity>().SingleAsync()).Name);
+        }
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Rows_affected_parameter(bool async);
 
     protected async Task Rows_affected_parameter_implementation(bool async, string createSprocSql)
