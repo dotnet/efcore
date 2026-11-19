@@ -105,9 +105,6 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         private static readonly PropertyInfo Utf8JsonReaderTokenTypeProperty
             = typeof(Utf8JsonReader).GetProperty(nameof(Utf8JsonReader.TokenType))!;
 
-        private static readonly MethodInfo PropertyGetJsonValueReaderWriterMethod =
-            typeof(IReadOnlyProperty).GetMethod(nameof(IReadOnlyProperty.GetJsonValueReaderWriter), [])!;
-
         private static readonly MethodInfo PropertyGetTypeMappingMethod =
             typeof(IReadOnlyProperty).GetMethod(nameof(IReadOnlyProperty.GetTypeMapping), [])!;
 
@@ -3163,8 +3160,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             var jsonPrimitiveCollectionReaderWriter = converter is { ConvertsNulls: false, ProviderClrType: var providerClrType }
                 && providerClrType == typeof(string)
                 ? property is IProperty { IsPrimitiveCollection: true } primitiveCollectionProperty
-                    ? primitiveCollectionProperty.GetJsonValueReaderWriter()
-                    ?? primitiveCollectionProperty.GetTypeMapping().JsonValueReaderWriter
+                    ? primitiveCollectionProperty.GetTypeMapping().JsonValueReaderWriter
                     : property is null && typeMapping.ElementTypeMapping is not null
                         ? typeMapping.JsonValueReaderWriter
                         : null
@@ -3179,17 +3175,12 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     jsonReaderWriterExpression = _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
                         jsonPrimitiveCollectionReaderWriter,
                         Lambda<Func<MaterializerLiftableConstantContext, object>>(
-                            Coalesce(
+                            Property(
                                 Call(
                                     LiftableConstantExpressionHelpers.BuildMemberAccessForProperty(
                                         jsonProperty, liftableConstantParameter),
-                                    PropertyGetJsonValueReaderWriterMethod),
-                                Property(
-                                    Call(
-                                        LiftableConstantExpressionHelpers.BuildMemberAccessForProperty(
-                                            jsonProperty, liftableConstantParameter),
-                                        PropertyGetTypeMappingMethod),
-                                    nameof(CoreTypeMapping.JsonValueReaderWriter))),
+                                    PropertyGetTypeMappingMethod),
+                                nameof(CoreTypeMapping.JsonValueReaderWriter)),
                             liftableConstantParameter),
                         jsonProperty.Name + "JsonReaderWriter",
                         typeof(JsonValueReaderWriter));
@@ -3414,20 +3405,16 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             ParameterExpression jsonReaderManagerParameter,
             IProperty property)
         {
-            var jsonReaderWriter = property.GetJsonValueReaderWriter() ?? property.GetTypeMapping().JsonValueReaderWriter!;
+            var jsonReaderWriter = property.GetTypeMapping().JsonValueReaderWriter!;
             var prm = Parameter(typeof(MaterializerLiftableConstantContext), "c");
             var jsonReaderWriterExpression = _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
-                property.GetJsonValueReaderWriter() ?? property.GetTypeMapping().JsonValueReaderWriter!,
+                property.GetTypeMapping().JsonValueReaderWriter!,
                 Lambda<Func<MaterializerLiftableConstantContext, object>>(
-                    Coalesce(
+                    Property(
                         Call(
                             LiftableConstantExpressionHelpers.BuildMemberAccessForProperty(property, prm),
-                            PropertyGetJsonValueReaderWriterMethod),
-                        Property(
-                            Call(
-                                LiftableConstantExpressionHelpers.BuildMemberAccessForProperty(property, prm),
-                                PropertyGetTypeMappingMethod),
-                            nameof(CoreTypeMapping.JsonValueReaderWriter))),
+                            PropertyGetTypeMappingMethod),
+                        nameof(CoreTypeMapping.JsonValueReaderWriter)),
                     prm),
                 property.Name + "PropertyName",
                 jsonReaderWriter.GetType());
@@ -3438,17 +3425,12 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
             Expression resultExpression = Convert(
                 Call(jsonReaderWriterExpression, fromJsonMethod, jsonReaderManagerParameter, Default(typeof(object))),
-                property.GetTypeMapping().ClrType);
+                property.ClrType);
 
             if (property.IsNullable)
             {
                 // in case of null value we can't just use the JsonReader method, but rather check the current token type
                 // if it's JsonTokenType.Null means value is null, only if it's not we are safe to read the value
-                if (resultExpression.Type != property.ClrType)
-                {
-                    resultExpression = Convert(resultExpression, property.ClrType);
-                }
-
                 var converter = property.GetTypeMapping().Converter;
                 Expression nullExpression;
                 if (converter?.ConvertsNulls == true)
@@ -3516,11 +3498,6 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 // as empty, the same as an absent key and as the Cosmos provider does, when the collection type is one the reader/writer
                 // itself would create. A property-level reader/writer decides how its collection is created, so for one of those the
                 // clear, property-named error stays instead of the cryptic reader/writer "Invalid token type". See #38625 and #34881.
-                if (resultExpression.Type != property.ClrType)
-                {
-                    resultExpression = Convert(resultExpression, property.ClrType);
-                }
-
                 resultExpression = Condition(
                     Equal(
                         Property(

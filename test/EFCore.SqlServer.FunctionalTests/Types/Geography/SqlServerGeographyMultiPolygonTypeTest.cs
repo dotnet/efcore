@@ -84,7 +84,7 @@ WHERE CAST(JSON_VALUE([j].[JsonContainer], '$.Value') AS geography).STEquals(@Fi
             """
 @p0='{"OtherValue":"MULTIPOLYGON (((-121.36 46.625, -121.36 46.62, -121.355 46.62, -121.355 46.625, -121.36 46.625))
 ((-121.354 46.624, -121.354 46.622, -121.3525 46.622, -121.3525 46.624, -121.354 46.624)))","Value":"MULTIPOLYGON (((-121.36 46.625, -121.36 46.62, -121.355 46.62, -121.355 46.625, -121.36 46.625))
-((-121.354 46.624, -121.354 46.622, -121.3525 46.622, -121.3525 46.624, -121.354 46.624)))"}' (Nullable = false) (Size = 404)
+((-121.354 46.624, -121.354 46.622, -121.3525 46.622, -121.3525 46.624, -121.354 46.624)))"}' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -103,12 +103,12 @@ WHERE [Id] = @p1;
         {
             AssertSql(
                 """
-@complex_type_Fixture_OtherValue='MULTIPOLYGON (((-121.36 46.625, -121.36 46.62, -121.355 46.62, -121.355 46.625, -121.36 46.625))
+@Fixture_OtherValue='MULTIPOLYGON (((-121.36 46.625, -121.36 46.62, -121.355 46.62, -121.355 46.625, -121.36 46.625))
 ((-121.354 46.624, -121.354 46.622, -121.3525 46.622, -121.3525 46.624, -121.354 46.624)))' (Size = 4000)
 
 SET NOCOUNT OFF;
 UPDATE [j]
-SET [JsonContainer].modify('$.Value', @complex_type_Fixture_OtherValue)
+SET [JsonContainer].modify('$.Value', @Fixture_OtherValue)
 FROM [JsonTypeEntity] AS [j]
 """);
         }
@@ -116,12 +116,12 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
-@complex_type_Fixture_OtherValue='MULTIPOLYGON (((-121.36 46.625, -121.36 46.62, -121.355 46.62, -121.355 46.625, -121.36 46.625))
+@Fixture_OtherValue='MULTIPOLYGON (((-121.36 46.625, -121.36 46.62, -121.355 46.62, -121.355 46.625, -121.36 46.625))
 ((-121.354 46.624, -121.354 46.622, -121.3525 46.622, -121.3525 46.624, -121.354 46.624)))' (Size = 4000)
 
 SET NOCOUNT OFF;
 UPDATE [j]
-SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', @complex_type_Fixture_OtherValue)
+SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', @Fixture_OtherValue)
 FROM [JsonTypeEntity] AS [j]
 """);
         }

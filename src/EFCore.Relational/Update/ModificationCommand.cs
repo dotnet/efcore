@@ -8,6 +8,8 @@ using System.Text.Json;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 using IColumnMapping = Microsoft.EntityFrameworkCore.Metadata.IColumnMapping;
 using ITableMapping = Microsoft.EntityFrameworkCore.Metadata.ITableMapping;
 
@@ -993,36 +995,27 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
     ///     Performs processing specifically needed for column modifications that correspond to single-property JSON updates.
     /// </summary>
     /// <remarks>
-    ///     By default, strings, numeric types and bool and sent as a regular relational parameter, since database functions responsible for
-    ///     patching JSON documents support this. Other types get converted to JSON via the normal means and sent as a string parameter.
+    ///     Values are serialized through the property's JSON reader/writer. Scalars are sent as relational values,
+    ///     while objects and arrays are sent as JSON text.
     /// </remarks>
     protected virtual void ProcessSinglePropertyJsonUpdate(ref ColumnModificationParameters parameters)
     {
         var property = parameters.Property!;
-        var mapping = property.GetRelationalTypeMapping();
-        var propertyProviderClrType = (mapping.Converter?.ProviderClrType ?? property.ClrType).UnwrapNullableType();
+        var readerWriter = property.GetRelationalTypeMapping().JsonValueReaderWriter!;
         var value = parameters.Value;
-
-        // On most databases, the function which patches a JSON document (e.g. SQL Server JSON_MODIFY) accepts relational string, numeric
-        // and bool types directly, without serializing it to a JSON string. So by default, for those cases simply return the value as-is,
-        // with the property's type mapping which will take care of sending the parameter with the relational value.
-        // Note that we haven't yet applied a value converter if one is configured, in order to allow for it to get applied later with
-        // the regular parameter flow.
-        if (value == null
-            || propertyProviderClrType == typeof(string)
-            || propertyProviderClrType == typeof(bool)
-            || propertyProviderClrType.IsNumeric())
+        using var document = JsonDocument.Parse(
+            value is null && !readerWriter.HandlesNullWrites ? "null" : readerWriter.ToJsonString(value));
+        var element = document.RootElement;
+        value = Query.Internal.RelationalJsonUtilities.ReadJsonScalar(element, value, readerWriter);
+        parameters = parameters with
         {
-            parameters = parameters with { Value = value, TypeMapping = mapping };
-        }
-        else
-        {
-            var jsonValueReaderWriter = mapping.JsonValueReaderWriter;
-            value = jsonValueReaderWriter?.ToJsonString(value)[1..^1] // The JSON string contains enclosing quotes, remove these.
-                ?? (mapping.Converter == null ? value : mapping.Converter.ConvertToProvider(value));
-
-            parameters = parameters with { Value = value };
-        }
+            Value = value,
+            TypeMapping = element.ValueKind is JsonValueKind.Object or JsonValueKind.Array
+                ? parameters.TypeMapping
+                // JSON numbers are not limited to a relational column's default precision and scale.
+                : ((IRelationalTypeMappingSource)property.DeclaringType.Model.GetModelDependencies().TypeMappingSource)
+                    .GetMapping(value?.GetType() ?? typeof(string)).WithPrecisionAndScale(null, null)
+        };
     }
 
     private void WriteJson(
@@ -1111,7 +1104,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
             var propertyValue = entry.GetCurrentValue(property);
             writer.WritePropertyName(jsonPropertyName);
 
-            var jsonValueReaderWriter = property.GetJsonValueReaderWriter() ?? property.GetTypeMapping().JsonValueReaderWriter;
+            var jsonValueReaderWriter = property.GetTypeMapping().JsonValueReaderWriter;
             if (propertyValue is not null || jsonValueReaderWriter?.HandlesNullWrites == true)
             {
                 Check.DebugAssert(jsonValueReaderWriter is not null, "Missing JsonValueReaderWriter on JSON property");

@@ -3,13 +3,56 @@
 
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Data;
+using System.Linq.Expressions;
+using System.Text.Json;
 using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Json;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
 
 public class SqliteTypeMappingTest : RelationalTypeMappingTest
 {
+    [Theory, InlineData(false), InlineData(true)]
+    public void Configured_reader_preserves_nullable_provider_conversion(bool typeMappingDefault)
+    {
+        var builder = SqliteTestHelpers.Instance.CreateConventionBuilder(
+            configureConventions: c =>
+            {
+                if (typeMappingDefault)
+                {
+                    c.DefaultTypeMapping<int>().HasJsonValueReaderWriter<JsonInt32ReaderWriter>();
+                }
+            });
+        var property = builder.Entity<JsonConvertedNumberContainer>().OwnsOne(e => e.Data).ToJson().Property(e => e.Value)
+            .HasConversion(new ValueConverter<int?, int?>(v => v * 10, v => v / 10));
+        if (!typeMappingDefault)
+        {
+            property.HasJsonValueReaderWriter<JsonInt32ReaderWriter>();
+        }
+
+        var model = builder.FinalizeModel();
+        var mapping = model.FindEntityType(typeof(JsonConvertedNumberContainer))!.FindNavigation("Data")!.TargetEntityType.FindProperty("Value")!
+            .GetTypeMapping();
+
+        Assert.Equal("430", mapping.JsonValueReaderWriter!.ToJsonString(43));
+        Assert.Equal(43, mapping.JsonValueReaderWriter.FromJsonString("430"));
+    }
+
+    private class JsonConvertedNumber
+    {
+        public int? Value { get; set; }
+    }
+
+    private class JsonConvertedNumberContainer
+    {
+        public int Id { get; set; }
+        public JsonConvertedNumber Data { get; set; } = null!;
+    }
+
     private class YouNoTinyContext(SqliteConnection connection) : DbContext
     {
         private readonly SqliteConnection _connection = connection;
@@ -98,6 +141,238 @@ public class SqliteTypeMappingTest : RelationalTypeMappingTest
             GetMapping(typeof(DateTime)),
             new DateTime(2015, 3, 12, 13, 36, 37, 371, DateTimeKind.Utc),
             "'2015-03-12 13:36:37.371'");
+
+    [Theory]
+    [InlineData(typeof(byte), 43, "43")]
+    [InlineData(typeof(byte), 256, "256")]
+    [InlineData(typeof(byte), -1, "-1")]
+    [InlineData(typeof(sbyte), -43, "-43")]
+    [InlineData(typeof(sbyte), 128, "128")]
+    [InlineData(typeof(short), 32768, "32768")]
+    [InlineData(typeof(ushort), -1, "-1")]
+    [InlineData(typeof(char), 99, "'c'")]
+    public void JSON_scalar_literals_normalize_promoted_values(Type type, int value, string expected)
+    {
+        var mapping = new SqliteJsonScalarTypeMapping(GetMapping(type));
+        Assert.Equal(expected, mapping.GenerateSqlLiteral(value));
+        using var command = new SqliteCommand();
+        var parameter = mapping.CreateParameter(command, "p", value);
+        if (type == typeof(char))
+        {
+            Assert.Equal("c", parameter.Value);
+        }
+        else
+        {
+            Assert.Equal(value, Convert.ToInt32(parameter.Value));
+        }
+    }
+
+    [Theory, InlineData(null), InlineData("custom_blob")]
+    public void JSON_byte_array_mapping_preserves_native_materialization_and_parameters(string? storeType)
+    {
+        var modelBuilder = SqliteTestHelpers.Instance.CreateConventionBuilder();
+        modelBuilder.Entity("Owner").Property<int>("Id");
+        modelBuilder.Entity("Owner").OwnsOne(
+            "JsonData", "Data", owned =>
+            {
+                owned.ToJson();
+                var property = owned.Property<byte[]>("Value");
+                if (storeType != null)
+                {
+                    property.HasColumnType(storeType);
+                }
+            });
+        var model = modelBuilder.FinalizeModel();
+        var property = model.FindEntityType("Owner")!.FindNavigation("Data")!.TargetEntityType.FindProperty("Value")!;
+        var mapping = Assert.IsType<SqliteJsonScalarTypeMapping>(CreateTypeMapper().FindMapping(property));
+        if (storeType != null)
+        {
+            Assert.Equal(storeType, mapping.StoreType);
+        }
+
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        using var command = connection.CreateCommand();
+        byte[] value = [1, 2, 255];
+        var parameter = Assert.IsType<SqliteParameter>(mapping.CreateParameter(command, "p", value));
+        Assert.Equal(SqliteType.Blob, parameter.SqliteType);
+        Assert.Equal(value, parameter.Value);
+        Assert.Equal("X'0102FF'", mapping.GenerateSqlLiteral(value));
+        Assert.Equal(DBNull.Value, mapping.CreateParameter(command, "p", null, nullable: true).Value);
+
+        command.CommandText = "SELECT typeof(@p), @p";
+        command.Parameters.Add(parameter);
+        using (var reader = command.ExecuteReader())
+        {
+            Assert.True(reader.Read());
+            Assert.Equal("blob", reader.GetString(0));
+            Assert.Equal(value, reader.GetFieldValue<byte[]>(1));
+        }
+
+        var nativeParameter = Assert.IsType<SqliteParameter>(SqliteByteArrayTypeMapping.Default.CreateParameter(command, "p", value));
+        Assert.Equal(SqliteType.Blob, nativeParameter.SqliteType);
+        Assert.Equal(value, nativeParameter.Value);
+
+        var clone = Assert.IsType<SqliteJsonScalarTypeMapping>(
+            mapping.Clone(new RelationalTypeMappingInfo(storeTypeName: "another_blob", size: 32)));
+        Assert.Equal("another_blob", clone.StoreType);
+        Assert.Equal(32, clone.Size);
+        Assert.Equal(SqliteType.Blob, Assert.IsType<SqliteParameter>(clone.CreateParameter(command, "p", value)).SqliteType);
+    }
+
+    [Theory, InlineData(false), InlineData(true)]
+    public void JSON_byte_array_mapping_preserves_converter_and_reader_writer(bool composeAfterWrapping)
+    {
+        var converter = new NumberToBytesConverter<long>();
+        var nativeMapping = (SqliteByteArrayTypeMapping)SqliteByteArrayTypeMapping.Default.WithComposedConverter(converter);
+        var mapping = composeAfterWrapping
+            ? (SqliteJsonScalarTypeMapping)new SqliteJsonScalarTypeMapping(SqliteByteArrayTypeMapping.Default).WithComposedConverter(converter)
+            : new SqliteJsonScalarTypeMapping(nativeMapping);
+
+        Assert.Same(nativeMapping.Converter, mapping.Converter);
+
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        foreach (var candidate in new[] { mapping, ReconstructJsonMapping(mapping) })
+        {
+            using var command = connection.CreateCommand();
+            var parameter = Assert.IsType<SqliteParameter>(candidate.CreateParameter(command, "p", 42L));
+            Assert.Equal(SqliteType.Blob, parameter.SqliteType);
+            Assert.Equal((byte[])converter.ConvertToProvider(42L)!, parameter.Value);
+            Assert.Equal("X'000000000000002A'", candidate.GenerateSqlLiteral(42L));
+            Assert.Equal("\"000000000000002A\"", candidate.JsonValueReaderWriter!.ToJsonString(42L));
+            Assert.Equal(42L, candidate.JsonValueReaderWriter.FromJsonString("\"000000000000002A\""));
+            command.Parameters.Add(parameter);
+            command.CommandText = "SELECT unhex('000000000000002A') = @p";
+            Assert.Equal(1L, command.ExecuteScalar());
+        }
+    }
+
+    [Theory, InlineData(DateTimeKind.Utc), InlineData(DateTimeKind.Unspecified)]
+    public void JSON_DateTime_mapping_formats_literals_and_parameters(DateTimeKind kind)
+    {
+        var mapping = (SqliteDateTimeTypeMapping)SqliteDateTimeTypeMapping.Default.WithComposedConverter(
+            converter: null, jsonValueReaderWriter: LegacyDateTimeJsonReaderWriter.Instance);
+        var jsonMapping = GetJsonDateTimeMapping(customReaderWriter: true);
+        var value = new DateTime(2026, 1, 1, 0, 0, 0, 123, kind);
+        var expected = "2026-01-01T00:00:00.123" + (kind == DateTimeKind.Utc ? "Z" : "");
+
+        using var command = new SqliteCommand();
+        Assert.Equal(expected, jsonMapping.CreateParameter(command, "p", value).Value);
+        Assert.Equal(DbType.DateTime, jsonMapping.DbType);
+        Assert.Equal("'" + expected + "'", jsonMapping.GenerateSqlLiteral(value));
+        Assert.Equal(DBNull.Value, jsonMapping.CreateParameter(command, "p", null, nullable: true).Value);
+        Assert.Equal("NULL", jsonMapping.GenerateSqlLiteral(null));
+
+        Assert.Equal(value, mapping.CreateParameter(command, "p", value).Value);
+        Assert.Equal(DbType.DateTime, mapping.DbType);
+        Assert.Equal("'2026-01-01 00:00:00.123'", mapping.GenerateSqlLiteral(value));
+
+        var clone = jsonMapping.Clone(new RelationalTypeMappingInfo(storeTypeName: "datetime"));
+        Assert.IsType<SqliteJsonScalarTypeMapping>(clone);
+        Assert.Equal(DbType.DateTime, clone.DbType);
+        Assert.Equal(expected, clone.CreateParameter(command, "p", value).Value);
+        Assert.Equal("'" + expected + "'", clone.GenerateSqlLiteral(value));
+
+        var reconstructed = ReconstructJsonMapping(clone);
+        Assert.IsType<SqliteJsonScalarTypeMapping>(reconstructed);
+        Assert.Equal("datetime", reconstructed.StoreType);
+        Assert.Equal(expected, reconstructed.CreateParameter(command, "p", value).Value);
+        Assert.Equal("'" + expected + "'", reconstructed.GenerateSqlLiteral(value));
+    }
+
+    private static RelationalTypeMapping ReconstructJsonMapping(RelationalTypeMapping mapping)
+    {
+        var source = Assert.IsAssignableFrom<RelationalTypeMappingSource>(CreateTypeMapper());
+#pragma warning disable EF9100 // Precompiled query is experimental.
+        var quote = (NewExpression)RelationalExpressionQuotingUtilities.QuoteTypeMapping(mapping);
+#pragma warning restore EF9100
+        var composition = (MethodCallExpression)((UnaryExpression)quote.Arguments[0]).Operand;
+        var lookup = (MethodCallExpression)composition.Object!;
+        return Expression.Lambda<Func<RelationalTypeMappingSource, RelationalTypeMapping>>(
+            quote, (ParameterExpression)lookup.Object!).Compile(preferInterpretation: true)(source);
+    }
+
+    [Fact]
+    public void Native_DateTime_mapping_with_string_DbType_does_not_use_JSON_formatter()
+    {
+        var mapping = new SqliteDateTimeTypeMapping("TEXT", DbType.String)
+            .Clone(jsonValueReaderWriter: LegacyDateTimeJsonReaderWriter.Instance);
+        var value = new DateTime(2026, 1, 1, 0, 0, 0, 123, DateTimeKind.Utc);
+
+        using var command = new SqliteCommand();
+        Assert.Equal(value, mapping.CreateParameter(command, "p", value).Value);
+        Assert.Equal("'2026-01-01 00:00:00.123'", mapping.GenerateSqlLiteral(value));
+    }
+
+    [Fact]
+    public void JSON_DateTime_mapping_converts_values_once()
+    {
+        var mapping = GetJsonDateTimeMapping(customReaderWriter: true, converted: true);
+        var value = new DateTime(2026, 1, 1, 0, 0, 0, 123, DateTimeKind.Utc).Ticks;
+
+        foreach (var candidate in new[] { mapping, ReconstructJsonMapping(mapping) })
+        {
+            using var command = new SqliteCommand();
+            Assert.Equal("2026-01-01T00:00:00.123Z", candidate.CreateParameter(command, "p", value).Value);
+            Assert.Equal("'2026-01-01T00:00:00.123Z'", candidate.GenerateSqlLiteral(value));
+        }
+    }
+
+    [Fact]
+    public void Default_JSON_DateTime_mapping_preserves_native_format()
+    {
+        var mapping = GetJsonDateTimeMapping(customReaderWriter: false);
+        Assert.Equal(DbType.DateTime, mapping.DbType);
+        Assert.Equal("'2026-01-01 00:00:00.123'", mapping.GenerateSqlLiteral(new DateTime(2026, 1, 1, 0, 0, 0, 123)));
+    }
+
+    private static RelationalTypeMapping GetJsonDateTimeMapping(bool customReaderWriter, bool converted = false)
+    {
+        var modelBuilder = SqliteTestHelpers.Instance.CreateConventionBuilder();
+        modelBuilder.Entity("Owner").Property<int>("Id");
+        modelBuilder.Entity("Owner").OwnsOne(
+            "JsonData", "Data", owned =>
+            {
+                owned.ToJson();
+                if (converted)
+                {
+                    owned.Property<long>("Value").HasConversion(
+                        new ValueConverter<long, DateTime>(
+                            ticks => new DateTime(ticks, DateTimeKind.Utc),
+                            date => date.Ticks));
+                }
+                else
+                {
+                    owned.Property<DateTime>("Value");
+                }
+
+                if (customReaderWriter)
+                {
+                    owned.Property("Value").HasJsonValueReaderWriter<LegacyDateTimeJsonReaderWriter>();
+                }
+            });
+        var model = modelBuilder.FinalizeModel();
+        var property = model.FindEntityType("Owner")!.FindNavigation("Data")!.TargetEntityType.FindProperty("Value")!;
+        var mapping = CreateTypeMapper().FindMapping(property);
+        return Assert.IsType<SqliteJsonScalarTypeMapping>(mapping);
+    }
+
+    public sealed class LegacyDateTimeJsonReaderWriter : JsonValueReaderWriter<DateTime>
+    {
+        private static readonly JsonDateTimeReaderWriter ReaderWriter = new("yyyy-MM-dd'T'HH:mm:ss.fffK");
+
+        public static LegacyDateTimeJsonReaderWriter Instance { get; } = new();
+
+        public override DateTime FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
+            => ReaderWriter.FromJsonTyped(ref manager, existingObject);
+
+        public override void ToJsonTyped(Utf8JsonWriter writer, DateTime value)
+            => ReaderWriter.ToJsonTyped(writer, value);
+
+        public override Expression ConstructorExpression
+            => Expression.Property(null, typeof(LegacyDateTimeJsonReaderWriter), nameof(Instance));
+    }
 
     [Fact]
     public override void DateOnly_literal_generated_correctly()

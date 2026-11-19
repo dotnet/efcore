@@ -60,16 +60,14 @@ public class CosmosStructuralTypeSerializer
 
         _discriminatorProperty = structuralType.FindDiscriminatorProperty() is { } dp
             ? (dp, dp.GetJsonPropertyName(),
-                dp.GetJsonValueReaderWriter()
-                ?? dp.GetTypeMapping().JsonValueReaderWriter ?? throw new UnreachableException("Property without JsonValueReaderWriter"))
+                dp.GetTypeMapping().JsonValueReaderWriter ?? throw new UnreachableException("Property without JsonValueReaderWriter"))
             : null;
         _ordinalKeyProperty = structuralType.GetProperties().SingleOrDefault(p => p.IsOrdinalKeyProperty());
         _scalarProperties =
         [
             .. structuralType.GetProperties().Where(p => p.IsPersisted() && p != _discriminatorProperty?.Property).Select(p
                 => (p, p.GetJsonPropertyName(),
-                    p.GetJsonValueReaderWriter()
-                    ?? p.GetTypeMapping().JsonValueReaderWriter
+                    p.GetTypeMapping().JsonValueReaderWriter
                     ?? throw new UnreachableException("Property without JsonValueReaderWriter")))
         ];
         _complexProperties =
@@ -113,8 +111,10 @@ public class CosmosStructuralTypeSerializer
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual string GetJsonId(IUpdateEntry entry)
-        => (string)entry.GetCurrentProviderValue(
-            _jsonIdProperty ?? throw new UnreachableException("Can not get json id for non root document type"))!;
+    {
+        var property = _jsonIdProperty ?? throw new UnreachableException("Can not get json id for non root document type");
+        return property.SerializeJsonId(entry.GetCurrentProviderValue(property));
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -156,9 +156,10 @@ public partial class ManyTypesEntityType
                 JsonBoolReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<bool[], bool>(
                 JsonBoolReaderWriter.Instance),
-            elementMapping: BoolTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(BoolTypeMapping.Default.Clone(
                 mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "INTEGER")));
+                    storeTypeName: "INTEGER"))).Clone(
+                comparer: DefaultValueComparer<bool>.Default));
         var boolArrayElementType = boolArray.SetElementType(typeof(bool));
         boolArrayElementType.TypeMapping = boolArray.TypeMapping.ElementTypeMapping;
 
@@ -200,9 +201,10 @@ public partial class ManyTypesEntityType
                 JsonBoolReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<bool>, bool>(
                 JsonBoolReaderWriter.Instance),
-            elementMapping: BoolTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(BoolTypeMapping.Default.Clone(
                 mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "INTEGER")));
+                    storeTypeName: "INTEGER"))).Clone(
+                comparer: DefaultValueComparer<bool>.Default));
         var boolReadOnlyCollectionElementType = boolReadOnlyCollection.SetElementType(typeof(bool));
         boolReadOnlyCollectionElementType.TypeMapping = boolReadOnlyCollection.TypeMapping.ElementTypeMapping;
 
@@ -405,8 +407,10 @@ public partial class ManyTypesEntityType
                 SqliteJsonByteArrayReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<byte[][], byte[]>(
                 SqliteJsonByteArrayReaderWriter.Instance),
-            elementMapping: SqliteByteArrayTypeMapping.Default.Clone(
-                ));
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteByteArrayTypeMapping.Default.Clone(
+                )).Clone(
+                comparer: ValueComparer<byte[]>.Default,
+                keyComparer: ValueComparer<byte[]>.DefaultWithStructuralComparisons));
         var bytesArrayElementType = bytesArray.SetElementType(typeof(byte[]));
         bytesArrayElementType.TypeMapping = bytesArray.TypeMapping.ElementTypeMapping;
 
@@ -567,9 +571,10 @@ public partial class ManyTypesEntityType
                 JsonCharReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<char[], char>(
                 JsonCharReaderWriter.Instance),
-            elementMapping: CharTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(CharTypeMapping.Default.Clone(
                 mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "TEXT")));
+                    storeTypeName: "TEXT"))).Clone(
+                comparer: DefaultValueComparer<char>.Default));
         var charArrayElementType = charArray.SetElementType(typeof(char));
         charArrayElementType.TypeMapping = charArray.TypeMapping.ElementTypeMapping;
 
@@ -688,7 +693,8 @@ public partial class ManyTypesEntityType
                 JsonDateOnlyReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<DateOnly[], DateOnly>(
                 JsonDateOnlyReaderWriter.Instance),
-            elementMapping: SqliteDateOnlyTypeMapping.Default);
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteDateOnlyTypeMapping.Default).Clone(
+                comparer: DefaultValueComparer<DateOnly>.Default));
         var dateOnlyArrayElementType = dateOnlyArray.SetElementType(typeof(DateOnly));
         dateOnlyArrayElementType.TypeMapping = dateOnlyArray.TypeMapping.ElementTypeMapping;
 
@@ -807,7 +813,8 @@ public partial class ManyTypesEntityType
                 SqliteJsonDateTimeReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<DateTime[], DateTime>(
                 SqliteJsonDateTimeReaderWriter.Instance),
-            elementMapping: SqliteDateTimeTypeMapping.Default);
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteDateTimeTypeMapping.Default).Clone(
+                comparer: DefaultValueComparer<DateTime>.Default));
         var dateTimeArrayElementType = dateTimeArray.SetElementType(typeof(DateTime));
         dateTimeArrayElementType.TypeMapping = dateTimeArray.TypeMapping.ElementTypeMapping;
 
@@ -1132,7 +1139,8 @@ public partial class ManyTypesEntityType
                 SqliteJsonDecimalReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<decimal[], decimal>(
                 SqliteJsonDecimalReaderWriter.Instance),
-            elementMapping: SqliteDecimalTypeMapping.Default);
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteDecimalTypeMapping.Default).Clone(
+                comparer: DefaultValueComparer<decimal>.Default));
         var decimalArrayElementType = decimalArray.SetElementType(typeof(decimal));
         decimalArrayElementType.TypeMapping = decimalArray.TypeMapping.ElementTypeMapping;
 
@@ -1296,9 +1304,10 @@ public partial class ManyTypesEntityType
                 JsonDoubleReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<double[], double>(
                 JsonDoubleReaderWriter.Instance),
-            elementMapping: DoubleTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(DoubleTypeMapping.Default.Clone(
                 mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "REAL")));
+                    storeTypeName: "REAL"))).Clone(
+                comparer: DefaultDoubleValueComparer.Default));
         var doubleArrayElementType = doubleArray.SetElementType(typeof(double));
         doubleArrayElementType.TypeMapping = doubleArray.TypeMapping.ElementTypeMapping;
 
@@ -1472,7 +1481,7 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, short>(
                     JsonInt16ReaderWriter.Instance,
                     EnumToNumberConverter<CompiledModelTestBase.Enum16, short>.Instance)),
-            elementMapping: ShortTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(ShortTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.Enum16>.Default,
                 providerValueComparer: DefaultValueComparer<short>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -1480,7 +1489,9 @@ public partial class ManyTypesEntityType
                 converter: EnumToNumberConverter<CompiledModelTestBase.Enum16, short>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, short>(
                     JsonInt16ReaderWriter.Instance,
-                    EnumToNumberConverter<CompiledModelTestBase.Enum16, short>.Instance)));
+                    EnumToNumberConverter<CompiledModelTestBase.Enum16, short>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.Enum16>.Default,
+                providerValueComparer: DefaultValueComparer<short>.Default));
         var enum16ArrayElementType = enum16Array.SetElementType(typeof(CompiledModelTestBase.Enum16));
         enum16ArrayElementType.TypeMapping = enum16Array.TypeMapping.ElementTypeMapping;
 
@@ -1567,13 +1578,15 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, string>(
                     JsonStringReaderWriter.Instance,
                     EnumToStringConverter<CompiledModelTestBase.Enum16>.Instance)),
-            elementMapping: SqliteStringTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteStringTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.Enum16>.Default,
                 providerValueComparer: DefaultValueComparer<string>.Default,
                 converter: EnumToStringConverter<CompiledModelTestBase.Enum16>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, string>(
                     JsonStringReaderWriter.Instance,
-                    EnumToStringConverter<CompiledModelTestBase.Enum16>.Instance)));
+                    EnumToStringConverter<CompiledModelTestBase.Enum16>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.Enum16>.Default,
+                providerValueComparer: DefaultValueComparer<string>.Default));
         var enum16AsStringArrayElementType = enum16AsStringArray.SetElementType(typeof(CompiledModelTestBase.Enum16),
             providerClrType: typeof(string));
         enum16AsStringArrayElementType.TypeMapping = enum16AsStringArray.TypeMapping.ElementTypeMapping;
@@ -1620,13 +1633,15 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, string>(
                     JsonStringReaderWriter.Instance,
                     EnumToStringConverter<CompiledModelTestBase.Enum16>.Instance)),
-            elementMapping: SqliteStringTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteStringTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.Enum16>.Default,
                 providerValueComparer: DefaultValueComparer<string>.Default,
                 converter: EnumToStringConverter<CompiledModelTestBase.Enum16>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, string>(
                     JsonStringReaderWriter.Instance,
-                    EnumToStringConverter<CompiledModelTestBase.Enum16>.Instance)));
+                    EnumToStringConverter<CompiledModelTestBase.Enum16>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.Enum16>.Default,
+                providerValueComparer: DefaultValueComparer<string>.Default));
         var enum16AsStringCollectionElementType = enum16AsStringCollection.SetElementType(typeof(CompiledModelTestBase.Enum16),
             providerClrType: typeof(string));
         enum16AsStringCollectionElementType.TypeMapping = enum16AsStringCollection.TypeMapping.ElementTypeMapping;
@@ -1673,7 +1688,7 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, short>(
                     JsonInt16ReaderWriter.Instance,
                     EnumToNumberConverter<CompiledModelTestBase.Enum16, short>.Instance)),
-            elementMapping: ShortTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(ShortTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.Enum16>.Default,
                 providerValueComparer: DefaultValueComparer<short>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -1681,7 +1696,9 @@ public partial class ManyTypesEntityType
                 converter: EnumToNumberConverter<CompiledModelTestBase.Enum16, short>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, short>(
                     JsonInt16ReaderWriter.Instance,
-                    EnumToNumberConverter<CompiledModelTestBase.Enum16, short>.Instance)));
+                    EnumToNumberConverter<CompiledModelTestBase.Enum16, short>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.Enum16>.Default,
+                providerValueComparer: DefaultValueComparer<short>.Default));
         var enum16CollectionElementType = enum16Collection.SetElementType(typeof(CompiledModelTestBase.Enum16));
         enum16CollectionElementType.TypeMapping = enum16Collection.TypeMapping.ElementTypeMapping;
 
@@ -1769,7 +1786,7 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, int>(
                     JsonInt32ReaderWriter.Instance,
                     EnumToNumberConverter<CompiledModelTestBase.Enum32, int>.Instance)),
-            elementMapping: IntTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(IntTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.Enum32>.Default,
                 providerValueComparer: DefaultValueComparer<int>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -1777,7 +1794,9 @@ public partial class ManyTypesEntityType
                 converter: EnumToNumberConverter<CompiledModelTestBase.Enum32, int>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, int>(
                     JsonInt32ReaderWriter.Instance,
-                    EnumToNumberConverter<CompiledModelTestBase.Enum32, int>.Instance)));
+                    EnumToNumberConverter<CompiledModelTestBase.Enum32, int>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.Enum32>.Default,
+                providerValueComparer: DefaultValueComparer<int>.Default));
         var enum32ArrayElementType = enum32Array.SetElementType(typeof(CompiledModelTestBase.Enum32));
         enum32ArrayElementType.TypeMapping = enum32Array.TypeMapping.ElementTypeMapping;
 
@@ -1864,13 +1883,15 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, string>(
                     JsonStringReaderWriter.Instance,
                     EnumToStringConverter<CompiledModelTestBase.Enum32>.Instance)),
-            elementMapping: SqliteStringTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteStringTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.Enum32>.Default,
                 providerValueComparer: DefaultValueComparer<string>.Default,
                 converter: EnumToStringConverter<CompiledModelTestBase.Enum32>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, string>(
                     JsonStringReaderWriter.Instance,
-                    EnumToStringConverter<CompiledModelTestBase.Enum32>.Instance)));
+                    EnumToStringConverter<CompiledModelTestBase.Enum32>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.Enum32>.Default,
+                providerValueComparer: DefaultValueComparer<string>.Default));
         var enum32AsStringArrayElementType = enum32AsStringArray.SetElementType(typeof(CompiledModelTestBase.Enum32),
             providerClrType: typeof(string));
         enum32AsStringArrayElementType.TypeMapping = enum32AsStringArray.TypeMapping.ElementTypeMapping;
@@ -1917,13 +1938,15 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, string>(
                     JsonStringReaderWriter.Instance,
                     EnumToStringConverter<CompiledModelTestBase.Enum32>.Instance)),
-            elementMapping: SqliteStringTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteStringTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.Enum32>.Default,
                 providerValueComparer: DefaultValueComparer<string>.Default,
                 converter: EnumToStringConverter<CompiledModelTestBase.Enum32>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, string>(
                     JsonStringReaderWriter.Instance,
-                    EnumToStringConverter<CompiledModelTestBase.Enum32>.Instance)));
+                    EnumToStringConverter<CompiledModelTestBase.Enum32>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.Enum32>.Default,
+                providerValueComparer: DefaultValueComparer<string>.Default));
         var enum32AsStringCollectionElementType = enum32AsStringCollection.SetElementType(typeof(CompiledModelTestBase.Enum32),
             providerClrType: typeof(string));
         enum32AsStringCollectionElementType.TypeMapping = enum32AsStringCollection.TypeMapping.ElementTypeMapping;
@@ -1970,7 +1993,7 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, int>(
                     JsonInt32ReaderWriter.Instance,
                     EnumToNumberConverter<CompiledModelTestBase.Enum32, int>.Instance)),
-            elementMapping: IntTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(IntTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.Enum32>.Default,
                 providerValueComparer: DefaultValueComparer<int>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -1978,7 +2001,9 @@ public partial class ManyTypesEntityType
                 converter: EnumToNumberConverter<CompiledModelTestBase.Enum32, int>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, int>(
                     JsonInt32ReaderWriter.Instance,
-                    EnumToNumberConverter<CompiledModelTestBase.Enum32, int>.Instance)));
+                    EnumToNumberConverter<CompiledModelTestBase.Enum32, int>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.Enum32>.Default,
+                providerValueComparer: DefaultValueComparer<int>.Default));
         var enum32CollectionElementType = enum32Collection.SetElementType(typeof(CompiledModelTestBase.Enum32));
         enum32CollectionElementType.TypeMapping = enum32Collection.TypeMapping.ElementTypeMapping;
 
@@ -2066,7 +2091,7 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, long>(
                     JsonInt64ReaderWriter.Instance,
                     EnumToNumberConverter<CompiledModelTestBase.Enum64, long>.Instance)),
-            elementMapping: LongTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(LongTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.Enum64>.Default,
                 providerValueComparer: DefaultValueComparer<long>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -2074,7 +2099,9 @@ public partial class ManyTypesEntityType
                 converter: EnumToNumberConverter<CompiledModelTestBase.Enum64, long>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, long>(
                     JsonInt64ReaderWriter.Instance,
-                    EnumToNumberConverter<CompiledModelTestBase.Enum64, long>.Instance)));
+                    EnumToNumberConverter<CompiledModelTestBase.Enum64, long>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.Enum64>.Default,
+                providerValueComparer: DefaultValueComparer<long>.Default));
         var enum64ArrayElementType = enum64Array.SetElementType(typeof(CompiledModelTestBase.Enum64));
         enum64ArrayElementType.TypeMapping = enum64Array.TypeMapping.ElementTypeMapping;
 
@@ -2161,13 +2188,15 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, string>(
                     JsonStringReaderWriter.Instance,
                     EnumToStringConverter<CompiledModelTestBase.Enum64>.Instance)),
-            elementMapping: SqliteStringTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteStringTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.Enum64>.Default,
                 providerValueComparer: DefaultValueComparer<string>.Default,
                 converter: EnumToStringConverter<CompiledModelTestBase.Enum64>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, string>(
                     JsonStringReaderWriter.Instance,
-                    EnumToStringConverter<CompiledModelTestBase.Enum64>.Instance)));
+                    EnumToStringConverter<CompiledModelTestBase.Enum64>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.Enum64>.Default,
+                providerValueComparer: DefaultValueComparer<string>.Default));
         var enum64AsStringArrayElementType = enum64AsStringArray.SetElementType(typeof(CompiledModelTestBase.Enum64),
             providerClrType: typeof(string));
         enum64AsStringArrayElementType.TypeMapping = enum64AsStringArray.TypeMapping.ElementTypeMapping;
@@ -2214,13 +2243,15 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, string>(
                     JsonStringReaderWriter.Instance,
                     EnumToStringConverter<CompiledModelTestBase.Enum64>.Instance)),
-            elementMapping: SqliteStringTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteStringTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.Enum64>.Default,
                 providerValueComparer: DefaultValueComparer<string>.Default,
                 converter: EnumToStringConverter<CompiledModelTestBase.Enum64>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, string>(
                     JsonStringReaderWriter.Instance,
-                    EnumToStringConverter<CompiledModelTestBase.Enum64>.Instance)));
+                    EnumToStringConverter<CompiledModelTestBase.Enum64>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.Enum64>.Default,
+                providerValueComparer: DefaultValueComparer<string>.Default));
         var enum64AsStringCollectionElementType = enum64AsStringCollection.SetElementType(typeof(CompiledModelTestBase.Enum64),
             providerClrType: typeof(string));
         enum64AsStringCollectionElementType.TypeMapping = enum64AsStringCollection.TypeMapping.ElementTypeMapping;
@@ -2267,7 +2298,7 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, long>(
                     JsonInt64ReaderWriter.Instance,
                     EnumToNumberConverter<CompiledModelTestBase.Enum64, long>.Instance)),
-            elementMapping: LongTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(LongTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.Enum64>.Default,
                 providerValueComparer: DefaultValueComparer<long>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -2275,7 +2306,9 @@ public partial class ManyTypesEntityType
                 converter: EnumToNumberConverter<CompiledModelTestBase.Enum64, long>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, long>(
                     JsonInt64ReaderWriter.Instance,
-                    EnumToNumberConverter<CompiledModelTestBase.Enum64, long>.Instance)));
+                    EnumToNumberConverter<CompiledModelTestBase.Enum64, long>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.Enum64>.Default,
+                providerValueComparer: DefaultValueComparer<long>.Default));
         var enum64CollectionElementType = enum64Collection.SetElementType(typeof(CompiledModelTestBase.Enum64));
         enum64CollectionElementType.TypeMapping = enum64Collection.TypeMapping.ElementTypeMapping;
 
@@ -2363,7 +2396,7 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, sbyte>(
                     JsonSByteReaderWriter.Instance,
                     EnumToNumberConverter<CompiledModelTestBase.Enum8, sbyte>.Instance)),
-            elementMapping: SByteTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(SByteTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.Enum8>.Default,
                 providerValueComparer: DefaultValueComparer<sbyte>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -2371,7 +2404,9 @@ public partial class ManyTypesEntityType
                 converter: EnumToNumberConverter<CompiledModelTestBase.Enum8, sbyte>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, sbyte>(
                     JsonSByteReaderWriter.Instance,
-                    EnumToNumberConverter<CompiledModelTestBase.Enum8, sbyte>.Instance)));
+                    EnumToNumberConverter<CompiledModelTestBase.Enum8, sbyte>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.Enum8>.Default,
+                providerValueComparer: DefaultValueComparer<sbyte>.Default));
         var enum8ArrayElementType = enum8Array.SetElementType(typeof(CompiledModelTestBase.Enum8));
         enum8ArrayElementType.TypeMapping = enum8Array.TypeMapping.ElementTypeMapping;
 
@@ -2458,13 +2493,15 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, string>(
                     JsonStringReaderWriter.Instance,
                     EnumToStringConverter<CompiledModelTestBase.Enum8>.Instance)),
-            elementMapping: SqliteStringTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteStringTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.Enum8>.Default,
                 providerValueComparer: DefaultValueComparer<string>.Default,
                 converter: EnumToStringConverter<CompiledModelTestBase.Enum8>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, string>(
                     JsonStringReaderWriter.Instance,
-                    EnumToStringConverter<CompiledModelTestBase.Enum8>.Instance)));
+                    EnumToStringConverter<CompiledModelTestBase.Enum8>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.Enum8>.Default,
+                providerValueComparer: DefaultValueComparer<string>.Default));
         var enum8AsStringArrayElementType = enum8AsStringArray.SetElementType(typeof(CompiledModelTestBase.Enum8),
             providerClrType: typeof(string));
         enum8AsStringArrayElementType.TypeMapping = enum8AsStringArray.TypeMapping.ElementTypeMapping;
@@ -2511,13 +2548,15 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, string>(
                     JsonStringReaderWriter.Instance,
                     EnumToStringConverter<CompiledModelTestBase.Enum8>.Instance)),
-            elementMapping: SqliteStringTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteStringTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.Enum8>.Default,
                 providerValueComparer: DefaultValueComparer<string>.Default,
                 converter: EnumToStringConverter<CompiledModelTestBase.Enum8>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, string>(
                     JsonStringReaderWriter.Instance,
-                    EnumToStringConverter<CompiledModelTestBase.Enum8>.Instance)));
+                    EnumToStringConverter<CompiledModelTestBase.Enum8>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.Enum8>.Default,
+                providerValueComparer: DefaultValueComparer<string>.Default));
         var enum8AsStringCollectionElementType = enum8AsStringCollection.SetElementType(typeof(CompiledModelTestBase.Enum8),
             providerClrType: typeof(string));
         enum8AsStringCollectionElementType.TypeMapping = enum8AsStringCollection.TypeMapping.ElementTypeMapping;
@@ -2564,7 +2603,7 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, sbyte>(
                     JsonSByteReaderWriter.Instance,
                     EnumToNumberConverter<CompiledModelTestBase.Enum8, sbyte>.Instance)),
-            elementMapping: SByteTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(SByteTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.Enum8>.Default,
                 providerValueComparer: DefaultValueComparer<sbyte>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -2572,7 +2611,9 @@ public partial class ManyTypesEntityType
                 converter: EnumToNumberConverter<CompiledModelTestBase.Enum8, sbyte>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, sbyte>(
                     JsonSByteReaderWriter.Instance,
-                    EnumToNumberConverter<CompiledModelTestBase.Enum8, sbyte>.Instance)));
+                    EnumToNumberConverter<CompiledModelTestBase.Enum8, sbyte>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.Enum8>.Default,
+                providerValueComparer: DefaultValueComparer<sbyte>.Default));
         var enum8CollectionElementType = enum8Collection.SetElementType(typeof(CompiledModelTestBase.Enum8));
         enum8CollectionElementType.TypeMapping = enum8Collection.TypeMapping.ElementTypeMapping;
 
@@ -2744,7 +2785,7 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, ushort>(
                     JsonUInt16ReaderWriter.Instance,
                     EnumToNumberConverter<CompiledModelTestBase.EnumU16, ushort>.Instance)),
-            elementMapping: UShortTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(UShortTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.EnumU16>.Default,
                 providerValueComparer: DefaultValueComparer<ushort>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -2752,7 +2793,9 @@ public partial class ManyTypesEntityType
                 converter: EnumToNumberConverter<CompiledModelTestBase.EnumU16, ushort>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, ushort>(
                     JsonUInt16ReaderWriter.Instance,
-                    EnumToNumberConverter<CompiledModelTestBase.EnumU16, ushort>.Instance)));
+                    EnumToNumberConverter<CompiledModelTestBase.EnumU16, ushort>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.EnumU16>.Default,
+                providerValueComparer: DefaultValueComparer<ushort>.Default));
         var enumU16ArrayElementType = enumU16Array.SetElementType(typeof(CompiledModelTestBase.EnumU16));
         enumU16ArrayElementType.TypeMapping = enumU16Array.TypeMapping.ElementTypeMapping;
 
@@ -2839,13 +2882,15 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, string>(
                     JsonStringReaderWriter.Instance,
                     EnumToStringConverter<CompiledModelTestBase.EnumU16>.Instance)),
-            elementMapping: SqliteStringTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteStringTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.EnumU16>.Default,
                 providerValueComparer: DefaultValueComparer<string>.Default,
                 converter: EnumToStringConverter<CompiledModelTestBase.EnumU16>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, string>(
                     JsonStringReaderWriter.Instance,
-                    EnumToStringConverter<CompiledModelTestBase.EnumU16>.Instance)));
+                    EnumToStringConverter<CompiledModelTestBase.EnumU16>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.EnumU16>.Default,
+                providerValueComparer: DefaultValueComparer<string>.Default));
         var enumU16AsStringArrayElementType = enumU16AsStringArray.SetElementType(typeof(CompiledModelTestBase.EnumU16),
             providerClrType: typeof(string));
         enumU16AsStringArrayElementType.TypeMapping = enumU16AsStringArray.TypeMapping.ElementTypeMapping;
@@ -2892,13 +2937,15 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, string>(
                     JsonStringReaderWriter.Instance,
                     EnumToStringConverter<CompiledModelTestBase.EnumU16>.Instance)),
-            elementMapping: SqliteStringTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteStringTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.EnumU16>.Default,
                 providerValueComparer: DefaultValueComparer<string>.Default,
                 converter: EnumToStringConverter<CompiledModelTestBase.EnumU16>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, string>(
                     JsonStringReaderWriter.Instance,
-                    EnumToStringConverter<CompiledModelTestBase.EnumU16>.Instance)));
+                    EnumToStringConverter<CompiledModelTestBase.EnumU16>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.EnumU16>.Default,
+                providerValueComparer: DefaultValueComparer<string>.Default));
         var enumU16AsStringCollectionElementType = enumU16AsStringCollection.SetElementType(typeof(CompiledModelTestBase.EnumU16),
             providerClrType: typeof(string));
         enumU16AsStringCollectionElementType.TypeMapping = enumU16AsStringCollection.TypeMapping.ElementTypeMapping;
@@ -2945,7 +2992,7 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, ushort>(
                     JsonUInt16ReaderWriter.Instance,
                     EnumToNumberConverter<CompiledModelTestBase.EnumU16, ushort>.Instance)),
-            elementMapping: UShortTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(UShortTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.EnumU16>.Default,
                 providerValueComparer: DefaultValueComparer<ushort>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -2953,7 +3000,9 @@ public partial class ManyTypesEntityType
                 converter: EnumToNumberConverter<CompiledModelTestBase.EnumU16, ushort>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, ushort>(
                     JsonUInt16ReaderWriter.Instance,
-                    EnumToNumberConverter<CompiledModelTestBase.EnumU16, ushort>.Instance)));
+                    EnumToNumberConverter<CompiledModelTestBase.EnumU16, ushort>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.EnumU16>.Default,
+                providerValueComparer: DefaultValueComparer<ushort>.Default));
         var enumU16CollectionElementType = enumU16Collection.SetElementType(typeof(CompiledModelTestBase.EnumU16));
         enumU16CollectionElementType.TypeMapping = enumU16Collection.TypeMapping.ElementTypeMapping;
 
@@ -3041,7 +3090,7 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, uint>(
                     JsonUInt32ReaderWriter.Instance,
                     EnumToNumberConverter<CompiledModelTestBase.EnumU32, uint>.Instance)),
-            elementMapping: UIntTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(UIntTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.EnumU32>.Default,
                 providerValueComparer: DefaultValueComparer<uint>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -3049,7 +3098,9 @@ public partial class ManyTypesEntityType
                 converter: EnumToNumberConverter<CompiledModelTestBase.EnumU32, uint>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, uint>(
                     JsonUInt32ReaderWriter.Instance,
-                    EnumToNumberConverter<CompiledModelTestBase.EnumU32, uint>.Instance)));
+                    EnumToNumberConverter<CompiledModelTestBase.EnumU32, uint>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.EnumU32>.Default,
+                providerValueComparer: DefaultValueComparer<uint>.Default));
         var enumU32ArrayElementType = enumU32Array.SetElementType(typeof(CompiledModelTestBase.EnumU32));
         enumU32ArrayElementType.TypeMapping = enumU32Array.TypeMapping.ElementTypeMapping;
 
@@ -3136,13 +3187,15 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, string>(
                     JsonStringReaderWriter.Instance,
                     EnumToStringConverter<CompiledModelTestBase.EnumU32>.Instance)),
-            elementMapping: SqliteStringTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteStringTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.EnumU32>.Default,
                 providerValueComparer: DefaultValueComparer<string>.Default,
                 converter: EnumToStringConverter<CompiledModelTestBase.EnumU32>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, string>(
                     JsonStringReaderWriter.Instance,
-                    EnumToStringConverter<CompiledModelTestBase.EnumU32>.Instance)));
+                    EnumToStringConverter<CompiledModelTestBase.EnumU32>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.EnumU32>.Default,
+                providerValueComparer: DefaultValueComparer<string>.Default));
         var enumU32AsStringArrayElementType = enumU32AsStringArray.SetElementType(typeof(CompiledModelTestBase.EnumU32),
             providerClrType: typeof(string));
         enumU32AsStringArrayElementType.TypeMapping = enumU32AsStringArray.TypeMapping.ElementTypeMapping;
@@ -3189,13 +3242,15 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, string>(
                     JsonStringReaderWriter.Instance,
                     EnumToStringConverter<CompiledModelTestBase.EnumU32>.Instance)),
-            elementMapping: SqliteStringTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteStringTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.EnumU32>.Default,
                 providerValueComparer: DefaultValueComparer<string>.Default,
                 converter: EnumToStringConverter<CompiledModelTestBase.EnumU32>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, string>(
                     JsonStringReaderWriter.Instance,
-                    EnumToStringConverter<CompiledModelTestBase.EnumU32>.Instance)));
+                    EnumToStringConverter<CompiledModelTestBase.EnumU32>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.EnumU32>.Default,
+                providerValueComparer: DefaultValueComparer<string>.Default));
         var enumU32AsStringCollectionElementType = enumU32AsStringCollection.SetElementType(typeof(CompiledModelTestBase.EnumU32),
             providerClrType: typeof(string));
         enumU32AsStringCollectionElementType.TypeMapping = enumU32AsStringCollection.TypeMapping.ElementTypeMapping;
@@ -3242,7 +3297,7 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, uint>(
                     JsonUInt32ReaderWriter.Instance,
                     EnumToNumberConverter<CompiledModelTestBase.EnumU32, uint>.Instance)),
-            elementMapping: UIntTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(UIntTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.EnumU32>.Default,
                 providerValueComparer: DefaultValueComparer<uint>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -3250,7 +3305,9 @@ public partial class ManyTypesEntityType
                 converter: EnumToNumberConverter<CompiledModelTestBase.EnumU32, uint>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, uint>(
                     JsonUInt32ReaderWriter.Instance,
-                    EnumToNumberConverter<CompiledModelTestBase.EnumU32, uint>.Instance)));
+                    EnumToNumberConverter<CompiledModelTestBase.EnumU32, uint>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.EnumU32>.Default,
+                providerValueComparer: DefaultValueComparer<uint>.Default));
         var enumU32CollectionElementType = enumU32Collection.SetElementType(typeof(CompiledModelTestBase.EnumU32));
         enumU32CollectionElementType.TypeMapping = enumU32Collection.TypeMapping.ElementTypeMapping;
 
@@ -3336,13 +3393,15 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, ulong>(
                     JsonUInt64ReaderWriter.Instance,
                     EnumToNumberConverter<CompiledModelTestBase.EnumU64, ulong>.Instance)),
-            elementMapping: SqliteULongTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteULongTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.EnumU64>.Default,
                 providerValueComparer: DefaultValueComparer<ulong>.Default,
                 converter: EnumToNumberConverter<CompiledModelTestBase.EnumU64, ulong>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, ulong>(
                     JsonUInt64ReaderWriter.Instance,
-                    EnumToNumberConverter<CompiledModelTestBase.EnumU64, ulong>.Instance)));
+                    EnumToNumberConverter<CompiledModelTestBase.EnumU64, ulong>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.EnumU64>.Default,
+                providerValueComparer: DefaultValueComparer<ulong>.Default));
         var enumU64ArrayElementType = enumU64Array.SetElementType(typeof(CompiledModelTestBase.EnumU64));
         enumU64ArrayElementType.TypeMapping = enumU64Array.TypeMapping.ElementTypeMapping;
 
@@ -3429,13 +3488,15 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, string>(
                     JsonStringReaderWriter.Instance,
                     EnumToStringConverter<CompiledModelTestBase.EnumU64>.Instance)),
-            elementMapping: SqliteStringTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteStringTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.EnumU64>.Default,
                 providerValueComparer: DefaultValueComparer<string>.Default,
                 converter: EnumToStringConverter<CompiledModelTestBase.EnumU64>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, string>(
                     JsonStringReaderWriter.Instance,
-                    EnumToStringConverter<CompiledModelTestBase.EnumU64>.Instance)));
+                    EnumToStringConverter<CompiledModelTestBase.EnumU64>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.EnumU64>.Default,
+                providerValueComparer: DefaultValueComparer<string>.Default));
         var enumU64AsStringArrayElementType = enumU64AsStringArray.SetElementType(typeof(CompiledModelTestBase.EnumU64),
             providerClrType: typeof(string));
         enumU64AsStringArrayElementType.TypeMapping = enumU64AsStringArray.TypeMapping.ElementTypeMapping;
@@ -3482,13 +3543,15 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, string>(
                     JsonStringReaderWriter.Instance,
                     EnumToStringConverter<CompiledModelTestBase.EnumU64>.Instance)),
-            elementMapping: SqliteStringTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteStringTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.EnumU64>.Default,
                 providerValueComparer: DefaultValueComparer<string>.Default,
                 converter: EnumToStringConverter<CompiledModelTestBase.EnumU64>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, string>(
                     JsonStringReaderWriter.Instance,
-                    EnumToStringConverter<CompiledModelTestBase.EnumU64>.Instance)));
+                    EnumToStringConverter<CompiledModelTestBase.EnumU64>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.EnumU64>.Default,
+                providerValueComparer: DefaultValueComparer<string>.Default));
         var enumU64AsStringCollectionElementType = enumU64AsStringCollection.SetElementType(typeof(CompiledModelTestBase.EnumU64),
             providerClrType: typeof(string));
         enumU64AsStringCollectionElementType.TypeMapping = enumU64AsStringCollection.TypeMapping.ElementTypeMapping;
@@ -3535,13 +3598,15 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, ulong>(
                     JsonUInt64ReaderWriter.Instance,
                     EnumToNumberConverter<CompiledModelTestBase.EnumU64, ulong>.Instance)),
-            elementMapping: SqliteULongTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteULongTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.EnumU64>.Default,
                 providerValueComparer: DefaultValueComparer<ulong>.Default,
                 converter: EnumToNumberConverter<CompiledModelTestBase.EnumU64, ulong>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, ulong>(
                     JsonUInt64ReaderWriter.Instance,
-                    EnumToNumberConverter<CompiledModelTestBase.EnumU64, ulong>.Instance)));
+                    EnumToNumberConverter<CompiledModelTestBase.EnumU64, ulong>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.EnumU64>.Default,
+                providerValueComparer: DefaultValueComparer<ulong>.Default));
         var enumU64CollectionElementType = enumU64Collection.SetElementType(typeof(CompiledModelTestBase.EnumU64));
         enumU64CollectionElementType.TypeMapping = enumU64Collection.TypeMapping.ElementTypeMapping;
 
@@ -3629,7 +3694,7 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, byte>(
                     JsonByteReaderWriter.Instance,
                     EnumToNumberConverter<CompiledModelTestBase.EnumU8, byte>.Instance)),
-            elementMapping: ByteTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(ByteTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.EnumU8>.Default,
                 providerValueComparer: DefaultValueComparer<byte>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -3637,7 +3702,9 @@ public partial class ManyTypesEntityType
                 converter: EnumToNumberConverter<CompiledModelTestBase.EnumU8, byte>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, byte>(
                     JsonByteReaderWriter.Instance,
-                    EnumToNumberConverter<CompiledModelTestBase.EnumU8, byte>.Instance)));
+                    EnumToNumberConverter<CompiledModelTestBase.EnumU8, byte>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.EnumU8>.Default,
+                providerValueComparer: DefaultValueComparer<byte>.Default));
         var enumU8ArrayElementType = enumU8Array.SetElementType(typeof(CompiledModelTestBase.EnumU8));
         enumU8ArrayElementType.TypeMapping = enumU8Array.TypeMapping.ElementTypeMapping;
 
@@ -3724,13 +3791,15 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, string>(
                     JsonStringReaderWriter.Instance,
                     EnumToStringConverter<CompiledModelTestBase.EnumU8>.Instance)),
-            elementMapping: SqliteStringTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteStringTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.EnumU8>.Default,
                 providerValueComparer: DefaultValueComparer<string>.Default,
                 converter: EnumToStringConverter<CompiledModelTestBase.EnumU8>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, string>(
                     JsonStringReaderWriter.Instance,
-                    EnumToStringConverter<CompiledModelTestBase.EnumU8>.Instance)));
+                    EnumToStringConverter<CompiledModelTestBase.EnumU8>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.EnumU8>.Default,
+                providerValueComparer: DefaultValueComparer<string>.Default));
         var enumU8AsStringArrayElementType = enumU8AsStringArray.SetElementType(typeof(CompiledModelTestBase.EnumU8),
             providerClrType: typeof(string));
         enumU8AsStringArrayElementType.TypeMapping = enumU8AsStringArray.TypeMapping.ElementTypeMapping;
@@ -3777,13 +3846,15 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, string>(
                     JsonStringReaderWriter.Instance,
                     EnumToStringConverter<CompiledModelTestBase.EnumU8>.Instance)),
-            elementMapping: SqliteStringTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteStringTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.EnumU8>.Default,
                 providerValueComparer: DefaultValueComparer<string>.Default,
                 converter: EnumToStringConverter<CompiledModelTestBase.EnumU8>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, string>(
                     JsonStringReaderWriter.Instance,
-                    EnumToStringConverter<CompiledModelTestBase.EnumU8>.Instance)));
+                    EnumToStringConverter<CompiledModelTestBase.EnumU8>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.EnumU8>.Default,
+                providerValueComparer: DefaultValueComparer<string>.Default));
         var enumU8AsStringCollectionElementType = enumU8AsStringCollection.SetElementType(typeof(CompiledModelTestBase.EnumU8),
             providerClrType: typeof(string));
         enumU8AsStringCollectionElementType.TypeMapping = enumU8AsStringCollection.TypeMapping.ElementTypeMapping;
@@ -3830,7 +3901,7 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, byte>(
                     JsonByteReaderWriter.Instance,
                     EnumToNumberConverter<CompiledModelTestBase.EnumU8, byte>.Instance)),
-            elementMapping: ByteTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(ByteTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.EnumU8>.Default,
                 providerValueComparer: DefaultValueComparer<byte>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -3838,7 +3909,9 @@ public partial class ManyTypesEntityType
                 converter: EnumToNumberConverter<CompiledModelTestBase.EnumU8, byte>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, byte>(
                     JsonByteReaderWriter.Instance,
-                    EnumToNumberConverter<CompiledModelTestBase.EnumU8, byte>.Instance)));
+                    EnumToNumberConverter<CompiledModelTestBase.EnumU8, byte>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.EnumU8>.Default,
+                providerValueComparer: DefaultValueComparer<byte>.Default));
         var enumU8CollectionElementType = enumU8Collection.SetElementType(typeof(CompiledModelTestBase.EnumU8));
         enumU8CollectionElementType.TypeMapping = enumU8Collection.TypeMapping.ElementTypeMapping;
 
@@ -3916,9 +3989,10 @@ public partial class ManyTypesEntityType
                 JsonFloatReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<float[], float>(
                 JsonFloatReaderWriter.Instance),
-            elementMapping: FloatTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(FloatTypeMapping.Default.Clone(
                 mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "REAL")));
+                    storeTypeName: "REAL"))).Clone(
+                comparer: DefaultFloatValueComparer.Default));
         var floatArrayElementType = floatArray.SetElementType(typeof(float));
         floatArrayElementType.TypeMapping = floatArray.TypeMapping.ElementTypeMapping;
 
@@ -3994,7 +4068,8 @@ public partial class ManyTypesEntityType
                 SqliteJsonGuidReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<Guid[], Guid>(
                 SqliteJsonGuidReaderWriter.Instance),
-            elementMapping: SqliteGuidTypeMapping.Default);
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteGuidTypeMapping.Default).Clone(
+                comparer: DefaultValueComparer<Guid>.Default));
         var guidArrayElementType = guidArray.SetElementType(typeof(Guid));
         guidArrayElementType.TypeMapping = guidArray.TypeMapping.ElementTypeMapping;
 
@@ -4167,7 +4242,7 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<IPAddress, string>(
                     JsonStringReaderWriter.Instance,
                     IPAddressToStringConverter.Instance)),
-            elementMapping: SqliteStringTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteStringTypeMapping.Default.Clone(
                 comparer: ValueComparer<IPAddress>.Default,
                 providerValueComparer: DefaultValueComparer<string>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -4175,7 +4250,9 @@ public partial class ManyTypesEntityType
                 converter: IPAddressToStringConverter.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<IPAddress, string>(
                     JsonStringReaderWriter.Instance,
-                    IPAddressToStringConverter.Instance)));
+                    IPAddressToStringConverter.Instance))).Clone(
+                comparer: ValueComparer<IPAddress>.Default,
+                providerValueComparer: DefaultValueComparer<string>.Default));
         var iPAddressArrayElementType = iPAddressArray.SetElementType(typeof(IPAddress));
         iPAddressArrayElementType.TypeMapping = iPAddressArray.TypeMapping.ElementTypeMapping;
 
@@ -4221,7 +4298,7 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<IPAddress, string>(
                     JsonStringReaderWriter.Instance,
                     IPAddressToStringConverter.Instance)),
-            elementMapping: SqliteStringTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteStringTypeMapping.Default.Clone(
                 comparer: ValueComparer<IPAddress>.Default,
                 providerValueComparer: DefaultValueComparer<string>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -4229,7 +4306,9 @@ public partial class ManyTypesEntityType
                 converter: IPAddressToStringConverter.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<IPAddress, string>(
                     JsonStringReaderWriter.Instance,
-                    IPAddressToStringConverter.Instance)));
+                    IPAddressToStringConverter.Instance))).Clone(
+                comparer: ValueComparer<IPAddress>.Default,
+                providerValueComparer: DefaultValueComparer<string>.Default));
         var iPAddressReadOnlyCollectionElementType = iPAddressReadOnlyCollection.SetElementType(typeof(IPAddress),
             providerClrType: typeof(string));
         iPAddressReadOnlyCollectionElementType.TypeMapping = iPAddressReadOnlyCollection.TypeMapping.ElementTypeMapping;
@@ -4392,9 +4471,10 @@ public partial class ManyTypesEntityType
                 JsonInt16ReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<short[], short>(
                 JsonInt16ReaderWriter.Instance),
-            elementMapping: ShortTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(ShortTypeMapping.Default.Clone(
                 mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "INTEGER")));
+                    storeTypeName: "INTEGER"))).Clone(
+                comparer: DefaultValueComparer<short>.Default));
         var int16ArrayElementType = int16Array.SetElementType(typeof(short));
         int16ArrayElementType.TypeMapping = int16Array.TypeMapping.ElementTypeMapping;
 
@@ -4472,9 +4552,10 @@ public partial class ManyTypesEntityType
                 JsonInt32ReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<int[], int>(
                 JsonInt32ReaderWriter.Instance),
-            elementMapping: IntTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(IntTypeMapping.Default.Clone(
                 mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "INTEGER")));
+                    storeTypeName: "INTEGER"))).Clone(
+                comparer: DefaultValueComparer<int>.Default));
         var int32ArrayElementType = int32Array.SetElementType(typeof(int));
         int32ArrayElementType.TypeMapping = int32Array.TypeMapping.ElementTypeMapping;
 
@@ -4516,9 +4597,10 @@ public partial class ManyTypesEntityType
                 JsonInt32ReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<int>, int>(
                 JsonInt32ReaderWriter.Instance),
-            elementMapping: IntTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(IntTypeMapping.Default.Clone(
                 mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "INTEGER")));
+                    storeTypeName: "INTEGER"))).Clone(
+                comparer: DefaultValueComparer<int>.Default));
         var int32ReadOnlyCollectionElementType = int32ReadOnlyCollection.SetElementType(typeof(int));
         int32ReadOnlyCollectionElementType.TypeMapping = int32ReadOnlyCollection.TypeMapping.ElementTypeMapping;
 
@@ -4596,9 +4678,10 @@ public partial class ManyTypesEntityType
                 JsonInt64ReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<long[], long>(
                 JsonInt64ReaderWriter.Instance),
-            elementMapping: LongTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(LongTypeMapping.Default.Clone(
                 mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "INTEGER")));
+                    storeTypeName: "INTEGER"))).Clone(
+                comparer: DefaultValueComparer<long>.Default));
         var int64ArrayElementType = int64Array.SetElementType(typeof(long));
         int64ArrayElementType.TypeMapping = int64Array.TypeMapping.ElementTypeMapping;
 
@@ -4676,9 +4759,10 @@ public partial class ManyTypesEntityType
                 JsonSByteReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<sbyte[], sbyte>(
                 JsonSByteReaderWriter.Instance),
-            elementMapping: SByteTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(SByteTypeMapping.Default.Clone(
                 mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "INTEGER")));
+                    storeTypeName: "INTEGER"))).Clone(
+                comparer: DefaultValueComparer<sbyte>.Default));
         var int8ArrayElementType = int8Array.SetElementType(typeof(sbyte));
         int8ArrayElementType.TypeMapping = int8Array.TypeMapping.ElementTypeMapping;
 
@@ -4884,9 +4968,10 @@ public partial class ManyTypesEntityType
                 JsonBoolReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<bool?[], bool>(
                 JsonBoolReaderWriter.Instance),
-            elementMapping: BoolTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(BoolTypeMapping.Default.Clone(
                 mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "INTEGER")));
+                    storeTypeName: "INTEGER"))).Clone(
+                comparer: DefaultValueComparer<bool>.Default));
         var nullableBoolArrayElementType = nullableBoolArray.SetElementType(typeof(bool?),
             nullable: true);
         nullableBoolArrayElementType.TypeMapping = nullableBoolArray.TypeMapping.ElementTypeMapping;
@@ -4965,8 +5050,10 @@ public partial class ManyTypesEntityType
                 SqliteJsonByteArrayReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<byte[][], byte[]>(
                 SqliteJsonByteArrayReaderWriter.Instance),
-            elementMapping: SqliteByteArrayTypeMapping.Default.Clone(
-                ));
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteByteArrayTypeMapping.Default.Clone(
+                )).Clone(
+                comparer: ValueComparer<byte[]>.Default,
+                keyComparer: ValueComparer<byte[]>.DefaultWithStructuralComparisons));
         var nullableBytesArrayElementType = nullableBytesArray.SetElementType(typeof(byte[]),
             nullable: true);
         nullableBytesArrayElementType.TypeMapping = nullableBytesArray.TypeMapping.ElementTypeMapping;
@@ -5046,9 +5133,10 @@ public partial class ManyTypesEntityType
                 JsonCharReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<char?[], char>(
                 JsonCharReaderWriter.Instance),
-            elementMapping: CharTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(CharTypeMapping.Default.Clone(
                 mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "TEXT")));
+                    storeTypeName: "TEXT"))).Clone(
+                comparer: DefaultValueComparer<char>.Default));
         var nullableCharArrayElementType = nullableCharArray.SetElementType(typeof(char?),
             nullable: true);
         nullableCharArrayElementType.TypeMapping = nullableCharArray.TypeMapping.ElementTypeMapping;
@@ -5127,7 +5215,8 @@ public partial class ManyTypesEntityType
                 JsonDateOnlyReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<DateOnly?[], DateOnly>(
                 JsonDateOnlyReaderWriter.Instance),
-            elementMapping: SqliteDateOnlyTypeMapping.Default);
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteDateOnlyTypeMapping.Default).Clone(
+                comparer: DefaultValueComparer<DateOnly>.Default));
         var nullableDateOnlyArrayElementType = nullableDateOnlyArray.SetElementType(typeof(DateOnly?),
             nullable: true);
         nullableDateOnlyArrayElementType.TypeMapping = nullableDateOnlyArray.TypeMapping.ElementTypeMapping;
@@ -5206,7 +5295,8 @@ public partial class ManyTypesEntityType
                 SqliteJsonDateTimeReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<DateTime?[], DateTime>(
                 SqliteJsonDateTimeReaderWriter.Instance),
-            elementMapping: SqliteDateTimeTypeMapping.Default);
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteDateTimeTypeMapping.Default).Clone(
+                comparer: DefaultValueComparer<DateTime>.Default));
         var nullableDateTimeArrayElementType = nullableDateTimeArray.SetElementType(typeof(DateTime?),
             nullable: true);
         nullableDateTimeArrayElementType.TypeMapping = nullableDateTimeArray.TypeMapping.ElementTypeMapping;
@@ -5285,7 +5375,8 @@ public partial class ManyTypesEntityType
                 SqliteJsonDecimalReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<decimal?[], decimal>(
                 SqliteJsonDecimalReaderWriter.Instance),
-            elementMapping: SqliteDecimalTypeMapping.Default);
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteDecimalTypeMapping.Default).Clone(
+                comparer: DefaultValueComparer<decimal>.Default));
         var nullableDecimalArrayElementType = nullableDecimalArray.SetElementType(typeof(decimal?),
             nullable: true);
         nullableDecimalArrayElementType.TypeMapping = nullableDecimalArray.TypeMapping.ElementTypeMapping;
@@ -5366,9 +5457,10 @@ public partial class ManyTypesEntityType
                 JsonDoubleReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<double?[], double>(
                 JsonDoubleReaderWriter.Instance),
-            elementMapping: DoubleTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(DoubleTypeMapping.Default.Clone(
                 mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "REAL")));
+                    storeTypeName: "REAL"))).Clone(
+                comparer: DefaultDoubleValueComparer.Default));
         var nullableDoubleArrayElementType = nullableDoubleArray.SetElementType(typeof(double?),
             nullable: true);
         nullableDoubleArrayElementType.TypeMapping = nullableDoubleArray.TypeMapping.ElementTypeMapping;
@@ -5459,7 +5551,7 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, short>(
                     JsonInt16ReaderWriter.Instance,
                     EnumToNumberConverter<CompiledModelTestBase.Enum16, short>.Instance)),
-            elementMapping: ShortTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(ShortTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.Enum16>.Default,
                 providerValueComparer: DefaultValueComparer<short>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -5467,7 +5559,9 @@ public partial class ManyTypesEntityType
                 converter: EnumToNumberConverter<CompiledModelTestBase.Enum16, short>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, short>(
                     JsonInt16ReaderWriter.Instance,
-                    EnumToNumberConverter<CompiledModelTestBase.Enum16, short>.Instance)));
+                    EnumToNumberConverter<CompiledModelTestBase.Enum16, short>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.Enum16>.Default,
+                providerValueComparer: DefaultValueComparer<short>.Default));
         var nullableEnum16ArrayElementType = nullableEnum16Array.SetElementType(typeof(CompiledModelTestBase.Enum16?),
             nullable: true);
         nullableEnum16ArrayElementType.TypeMapping = nullableEnum16Array.TypeMapping.ElementTypeMapping;
@@ -5558,7 +5652,7 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, short>(
                     JsonInt16ReaderWriter.Instance,
                     EnumToNumberConverter<CompiledModelTestBase.Enum16, short>.Instance)),
-            elementMapping: ShortTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(ShortTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.Enum16>.Default,
                 providerValueComparer: DefaultValueComparer<short>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -5566,7 +5660,9 @@ public partial class ManyTypesEntityType
                 converter: EnumToNumberConverter<CompiledModelTestBase.Enum16, short>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, short>(
                     JsonInt16ReaderWriter.Instance,
-                    EnumToNumberConverter<CompiledModelTestBase.Enum16, short>.Instance)));
+                    EnumToNumberConverter<CompiledModelTestBase.Enum16, short>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.Enum16>.Default,
+                providerValueComparer: DefaultValueComparer<short>.Default));
         var nullableEnum16AsStringArrayElementType = nullableEnum16AsStringArray.SetElementType(typeof(CompiledModelTestBase.Enum16?),
             nullable: true);
         nullableEnum16AsStringArrayElementType.TypeMapping = nullableEnum16AsStringArray.TypeMapping.ElementTypeMapping;
@@ -5614,7 +5710,7 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, short>(
                     JsonInt16ReaderWriter.Instance,
                     EnumToNumberConverter<CompiledModelTestBase.Enum16, short>.Instance)),
-            elementMapping: ShortTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(ShortTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.Enum16>.Default,
                 providerValueComparer: DefaultValueComparer<short>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -5622,7 +5718,9 @@ public partial class ManyTypesEntityType
                 converter: EnumToNumberConverter<CompiledModelTestBase.Enum16, short>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, short>(
                     JsonInt16ReaderWriter.Instance,
-                    EnumToNumberConverter<CompiledModelTestBase.Enum16, short>.Instance)));
+                    EnumToNumberConverter<CompiledModelTestBase.Enum16, short>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.Enum16>.Default,
+                providerValueComparer: DefaultValueComparer<short>.Default));
         var nullableEnum16AsStringCollectionElementType = nullableEnum16AsStringCollection.SetElementType(typeof(CompiledModelTestBase.Enum16?),
             nullable: true);
         nullableEnum16AsStringCollectionElementType.TypeMapping = nullableEnum16AsStringCollection.TypeMapping.ElementTypeMapping;
@@ -5670,7 +5768,7 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, short>(
                     JsonInt16ReaderWriter.Instance,
                     EnumToNumberConverter<CompiledModelTestBase.Enum16, short>.Instance)),
-            elementMapping: ShortTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(ShortTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.Enum16>.Default,
                 providerValueComparer: DefaultValueComparer<short>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -5678,7 +5776,9 @@ public partial class ManyTypesEntityType
                 converter: EnumToNumberConverter<CompiledModelTestBase.Enum16, short>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, short>(
                     JsonInt16ReaderWriter.Instance,
-                    EnumToNumberConverter<CompiledModelTestBase.Enum16, short>.Instance)));
+                    EnumToNumberConverter<CompiledModelTestBase.Enum16, short>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.Enum16>.Default,
+                providerValueComparer: DefaultValueComparer<short>.Default));
         var nullableEnum16CollectionElementType = nullableEnum16Collection.SetElementType(typeof(CompiledModelTestBase.Enum16?),
             nullable: true);
         nullableEnum16CollectionElementType.TypeMapping = nullableEnum16Collection.TypeMapping.ElementTypeMapping;
@@ -5769,7 +5869,7 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, int>(
                     JsonInt32ReaderWriter.Instance,
                     EnumToNumberConverter<CompiledModelTestBase.Enum32, int>.Instance)),
-            elementMapping: IntTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(IntTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.Enum32>.Default,
                 providerValueComparer: DefaultValueComparer<int>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -5777,7 +5877,9 @@ public partial class ManyTypesEntityType
                 converter: EnumToNumberConverter<CompiledModelTestBase.Enum32, int>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, int>(
                     JsonInt32ReaderWriter.Instance,
-                    EnumToNumberConverter<CompiledModelTestBase.Enum32, int>.Instance)));
+                    EnumToNumberConverter<CompiledModelTestBase.Enum32, int>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.Enum32>.Default,
+                providerValueComparer: DefaultValueComparer<int>.Default));
         var nullableEnum32ArrayElementType = nullableEnum32Array.SetElementType(typeof(CompiledModelTestBase.Enum32?),
             nullable: true);
         nullableEnum32ArrayElementType.TypeMapping = nullableEnum32Array.TypeMapping.ElementTypeMapping;
@@ -5868,7 +5970,7 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, int>(
                     JsonInt32ReaderWriter.Instance,
                     EnumToNumberConverter<CompiledModelTestBase.Enum32, int>.Instance)),
-            elementMapping: IntTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(IntTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.Enum32>.Default,
                 providerValueComparer: DefaultValueComparer<int>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -5876,7 +5978,9 @@ public partial class ManyTypesEntityType
                 converter: EnumToNumberConverter<CompiledModelTestBase.Enum32, int>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, int>(
                     JsonInt32ReaderWriter.Instance,
-                    EnumToNumberConverter<CompiledModelTestBase.Enum32, int>.Instance)));
+                    EnumToNumberConverter<CompiledModelTestBase.Enum32, int>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.Enum32>.Default,
+                providerValueComparer: DefaultValueComparer<int>.Default));
         var nullableEnum32AsStringArrayElementType = nullableEnum32AsStringArray.SetElementType(typeof(CompiledModelTestBase.Enum32?),
             nullable: true);
         nullableEnum32AsStringArrayElementType.TypeMapping = nullableEnum32AsStringArray.TypeMapping.ElementTypeMapping;
@@ -5924,7 +6028,7 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, int>(
                     JsonInt32ReaderWriter.Instance,
                     EnumToNumberConverter<CompiledModelTestBase.Enum32, int>.Instance)),
-            elementMapping: IntTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(IntTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.Enum32>.Default,
                 providerValueComparer: DefaultValueComparer<int>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -5932,7 +6036,9 @@ public partial class ManyTypesEntityType
                 converter: EnumToNumberConverter<CompiledModelTestBase.Enum32, int>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, int>(
                     JsonInt32ReaderWriter.Instance,
-                    EnumToNumberConverter<CompiledModelTestBase.Enum32, int>.Instance)));
+                    EnumToNumberConverter<CompiledModelTestBase.Enum32, int>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.Enum32>.Default,
+                providerValueComparer: DefaultValueComparer<int>.Default));
         var nullableEnum32AsStringCollectionElementType = nullableEnum32AsStringCollection.SetElementType(typeof(CompiledModelTestBase.Enum32?),
             nullable: true);
         nullableEnum32AsStringCollectionElementType.TypeMapping = nullableEnum32AsStringCollection.TypeMapping.ElementTypeMapping;
@@ -5980,7 +6086,7 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, int>(
                     JsonInt32ReaderWriter.Instance,
                     EnumToNumberConverter<CompiledModelTestBase.Enum32, int>.Instance)),
-            elementMapping: IntTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(IntTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.Enum32>.Default,
                 providerValueComparer: DefaultValueComparer<int>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -5988,7 +6094,9 @@ public partial class ManyTypesEntityType
                 converter: EnumToNumberConverter<CompiledModelTestBase.Enum32, int>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, int>(
                     JsonInt32ReaderWriter.Instance,
-                    EnumToNumberConverter<CompiledModelTestBase.Enum32, int>.Instance)));
+                    EnumToNumberConverter<CompiledModelTestBase.Enum32, int>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.Enum32>.Default,
+                providerValueComparer: DefaultValueComparer<int>.Default));
         var nullableEnum32CollectionElementType = nullableEnum32Collection.SetElementType(typeof(CompiledModelTestBase.Enum32?),
             nullable: true);
         nullableEnum32CollectionElementType.TypeMapping = nullableEnum32Collection.TypeMapping.ElementTypeMapping;
@@ -6079,7 +6187,7 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, long>(
                     JsonInt64ReaderWriter.Instance,
                     EnumToNumberConverter<CompiledModelTestBase.Enum64, long>.Instance)),
-            elementMapping: LongTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(LongTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.Enum64>.Default,
                 providerValueComparer: DefaultValueComparer<long>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -6087,7 +6195,9 @@ public partial class ManyTypesEntityType
                 converter: EnumToNumberConverter<CompiledModelTestBase.Enum64, long>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, long>(
                     JsonInt64ReaderWriter.Instance,
-                    EnumToNumberConverter<CompiledModelTestBase.Enum64, long>.Instance)));
+                    EnumToNumberConverter<CompiledModelTestBase.Enum64, long>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.Enum64>.Default,
+                providerValueComparer: DefaultValueComparer<long>.Default));
         var nullableEnum64ArrayElementType = nullableEnum64Array.SetElementType(typeof(CompiledModelTestBase.Enum64?),
             nullable: true);
         nullableEnum64ArrayElementType.TypeMapping = nullableEnum64Array.TypeMapping.ElementTypeMapping;
@@ -6178,7 +6288,7 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, long>(
                     JsonInt64ReaderWriter.Instance,
                     EnumToNumberConverter<CompiledModelTestBase.Enum64, long>.Instance)),
-            elementMapping: LongTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(LongTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.Enum64>.Default,
                 providerValueComparer: DefaultValueComparer<long>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -6186,7 +6296,9 @@ public partial class ManyTypesEntityType
                 converter: EnumToNumberConverter<CompiledModelTestBase.Enum64, long>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, long>(
                     JsonInt64ReaderWriter.Instance,
-                    EnumToNumberConverter<CompiledModelTestBase.Enum64, long>.Instance)));
+                    EnumToNumberConverter<CompiledModelTestBase.Enum64, long>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.Enum64>.Default,
+                providerValueComparer: DefaultValueComparer<long>.Default));
         var nullableEnum64AsStringArrayElementType = nullableEnum64AsStringArray.SetElementType(typeof(CompiledModelTestBase.Enum64?),
             nullable: true);
         nullableEnum64AsStringArrayElementType.TypeMapping = nullableEnum64AsStringArray.TypeMapping.ElementTypeMapping;
@@ -6234,7 +6346,7 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, long>(
                     JsonInt64ReaderWriter.Instance,
                     EnumToNumberConverter<CompiledModelTestBase.Enum64, long>.Instance)),
-            elementMapping: LongTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(LongTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.Enum64>.Default,
                 providerValueComparer: DefaultValueComparer<long>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -6242,7 +6354,9 @@ public partial class ManyTypesEntityType
                 converter: EnumToNumberConverter<CompiledModelTestBase.Enum64, long>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, long>(
                     JsonInt64ReaderWriter.Instance,
-                    EnumToNumberConverter<CompiledModelTestBase.Enum64, long>.Instance)));
+                    EnumToNumberConverter<CompiledModelTestBase.Enum64, long>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.Enum64>.Default,
+                providerValueComparer: DefaultValueComparer<long>.Default));
         var nullableEnum64AsStringCollectionElementType = nullableEnum64AsStringCollection.SetElementType(typeof(CompiledModelTestBase.Enum64?),
             nullable: true);
         nullableEnum64AsStringCollectionElementType.TypeMapping = nullableEnum64AsStringCollection.TypeMapping.ElementTypeMapping;
@@ -6290,7 +6404,7 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, long>(
                     JsonInt64ReaderWriter.Instance,
                     EnumToNumberConverter<CompiledModelTestBase.Enum64, long>.Instance)),
-            elementMapping: LongTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(LongTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.Enum64>.Default,
                 providerValueComparer: DefaultValueComparer<long>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -6298,7 +6412,9 @@ public partial class ManyTypesEntityType
                 converter: EnumToNumberConverter<CompiledModelTestBase.Enum64, long>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, long>(
                     JsonInt64ReaderWriter.Instance,
-                    EnumToNumberConverter<CompiledModelTestBase.Enum64, long>.Instance)));
+                    EnumToNumberConverter<CompiledModelTestBase.Enum64, long>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.Enum64>.Default,
+                providerValueComparer: DefaultValueComparer<long>.Default));
         var nullableEnum64CollectionElementType = nullableEnum64Collection.SetElementType(typeof(CompiledModelTestBase.Enum64?),
             nullable: true);
         nullableEnum64CollectionElementType.TypeMapping = nullableEnum64Collection.TypeMapping.ElementTypeMapping;
@@ -6389,7 +6505,7 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, sbyte>(
                     JsonSByteReaderWriter.Instance,
                     EnumToNumberConverter<CompiledModelTestBase.Enum8, sbyte>.Instance)),
-            elementMapping: SByteTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(SByteTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.Enum8>.Default,
                 providerValueComparer: DefaultValueComparer<sbyte>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -6397,7 +6513,9 @@ public partial class ManyTypesEntityType
                 converter: EnumToNumberConverter<CompiledModelTestBase.Enum8, sbyte>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, sbyte>(
                     JsonSByteReaderWriter.Instance,
-                    EnumToNumberConverter<CompiledModelTestBase.Enum8, sbyte>.Instance)));
+                    EnumToNumberConverter<CompiledModelTestBase.Enum8, sbyte>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.Enum8>.Default,
+                providerValueComparer: DefaultValueComparer<sbyte>.Default));
         var nullableEnum8ArrayElementType = nullableEnum8Array.SetElementType(typeof(CompiledModelTestBase.Enum8?),
             nullable: true);
         nullableEnum8ArrayElementType.TypeMapping = nullableEnum8Array.TypeMapping.ElementTypeMapping;
@@ -6488,7 +6606,7 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, sbyte>(
                     JsonSByteReaderWriter.Instance,
                     EnumToNumberConverter<CompiledModelTestBase.Enum8, sbyte>.Instance)),
-            elementMapping: SByteTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(SByteTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.Enum8>.Default,
                 providerValueComparer: DefaultValueComparer<sbyte>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -6496,7 +6614,9 @@ public partial class ManyTypesEntityType
                 converter: EnumToNumberConverter<CompiledModelTestBase.Enum8, sbyte>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, sbyte>(
                     JsonSByteReaderWriter.Instance,
-                    EnumToNumberConverter<CompiledModelTestBase.Enum8, sbyte>.Instance)));
+                    EnumToNumberConverter<CompiledModelTestBase.Enum8, sbyte>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.Enum8>.Default,
+                providerValueComparer: DefaultValueComparer<sbyte>.Default));
         var nullableEnum8AsStringArrayElementType = nullableEnum8AsStringArray.SetElementType(typeof(CompiledModelTestBase.Enum8?),
             nullable: true);
         nullableEnum8AsStringArrayElementType.TypeMapping = nullableEnum8AsStringArray.TypeMapping.ElementTypeMapping;
@@ -6544,7 +6664,7 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, sbyte>(
                     JsonSByteReaderWriter.Instance,
                     EnumToNumberConverter<CompiledModelTestBase.Enum8, sbyte>.Instance)),
-            elementMapping: SByteTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(SByteTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.Enum8>.Default,
                 providerValueComparer: DefaultValueComparer<sbyte>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -6552,7 +6672,9 @@ public partial class ManyTypesEntityType
                 converter: EnumToNumberConverter<CompiledModelTestBase.Enum8, sbyte>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, sbyte>(
                     JsonSByteReaderWriter.Instance,
-                    EnumToNumberConverter<CompiledModelTestBase.Enum8, sbyte>.Instance)));
+                    EnumToNumberConverter<CompiledModelTestBase.Enum8, sbyte>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.Enum8>.Default,
+                providerValueComparer: DefaultValueComparer<sbyte>.Default));
         var nullableEnum8AsStringCollectionElementType = nullableEnum8AsStringCollection.SetElementType(typeof(CompiledModelTestBase.Enum8?),
             nullable: true);
         nullableEnum8AsStringCollectionElementType.TypeMapping = nullableEnum8AsStringCollection.TypeMapping.ElementTypeMapping;
@@ -6600,7 +6722,7 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, sbyte>(
                     JsonSByteReaderWriter.Instance,
                     EnumToNumberConverter<CompiledModelTestBase.Enum8, sbyte>.Instance)),
-            elementMapping: SByteTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(SByteTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.Enum8>.Default,
                 providerValueComparer: DefaultValueComparer<sbyte>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -6608,7 +6730,9 @@ public partial class ManyTypesEntityType
                 converter: EnumToNumberConverter<CompiledModelTestBase.Enum8, sbyte>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, sbyte>(
                     JsonSByteReaderWriter.Instance,
-                    EnumToNumberConverter<CompiledModelTestBase.Enum8, sbyte>.Instance)));
+                    EnumToNumberConverter<CompiledModelTestBase.Enum8, sbyte>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.Enum8>.Default,
+                providerValueComparer: DefaultValueComparer<sbyte>.Default));
         var nullableEnum8CollectionElementType = nullableEnum8Collection.SetElementType(typeof(CompiledModelTestBase.Enum8?),
             nullable: true);
         nullableEnum8CollectionElementType.TypeMapping = nullableEnum8Collection.TypeMapping.ElementTypeMapping;
@@ -6699,7 +6823,7 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, ushort>(
                     JsonUInt16ReaderWriter.Instance,
                     EnumToNumberConverter<CompiledModelTestBase.EnumU16, ushort>.Instance)),
-            elementMapping: UShortTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(UShortTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.EnumU16>.Default,
                 providerValueComparer: DefaultValueComparer<ushort>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -6707,7 +6831,9 @@ public partial class ManyTypesEntityType
                 converter: EnumToNumberConverter<CompiledModelTestBase.EnumU16, ushort>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, ushort>(
                     JsonUInt16ReaderWriter.Instance,
-                    EnumToNumberConverter<CompiledModelTestBase.EnumU16, ushort>.Instance)));
+                    EnumToNumberConverter<CompiledModelTestBase.EnumU16, ushort>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.EnumU16>.Default,
+                providerValueComparer: DefaultValueComparer<ushort>.Default));
         var nullableEnumU16ArrayElementType = nullableEnumU16Array.SetElementType(typeof(CompiledModelTestBase.EnumU16?),
             nullable: true);
         nullableEnumU16ArrayElementType.TypeMapping = nullableEnumU16Array.TypeMapping.ElementTypeMapping;
@@ -6798,7 +6924,7 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, ushort>(
                     JsonUInt16ReaderWriter.Instance,
                     EnumToNumberConverter<CompiledModelTestBase.EnumU16, ushort>.Instance)),
-            elementMapping: UShortTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(UShortTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.EnumU16>.Default,
                 providerValueComparer: DefaultValueComparer<ushort>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -6806,7 +6932,9 @@ public partial class ManyTypesEntityType
                 converter: EnumToNumberConverter<CompiledModelTestBase.EnumU16, ushort>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, ushort>(
                     JsonUInt16ReaderWriter.Instance,
-                    EnumToNumberConverter<CompiledModelTestBase.EnumU16, ushort>.Instance)));
+                    EnumToNumberConverter<CompiledModelTestBase.EnumU16, ushort>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.EnumU16>.Default,
+                providerValueComparer: DefaultValueComparer<ushort>.Default));
         var nullableEnumU16AsStringArrayElementType = nullableEnumU16AsStringArray.SetElementType(typeof(CompiledModelTestBase.EnumU16?),
             nullable: true);
         nullableEnumU16AsStringArrayElementType.TypeMapping = nullableEnumU16AsStringArray.TypeMapping.ElementTypeMapping;
@@ -6854,7 +6982,7 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, ushort>(
                     JsonUInt16ReaderWriter.Instance,
                     EnumToNumberConverter<CompiledModelTestBase.EnumU16, ushort>.Instance)),
-            elementMapping: UShortTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(UShortTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.EnumU16>.Default,
                 providerValueComparer: DefaultValueComparer<ushort>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -6862,7 +6990,9 @@ public partial class ManyTypesEntityType
                 converter: EnumToNumberConverter<CompiledModelTestBase.EnumU16, ushort>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, ushort>(
                     JsonUInt16ReaderWriter.Instance,
-                    EnumToNumberConverter<CompiledModelTestBase.EnumU16, ushort>.Instance)));
+                    EnumToNumberConverter<CompiledModelTestBase.EnumU16, ushort>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.EnumU16>.Default,
+                providerValueComparer: DefaultValueComparer<ushort>.Default));
         var nullableEnumU16AsStringCollectionElementType = nullableEnumU16AsStringCollection.SetElementType(typeof(CompiledModelTestBase.EnumU16?),
             nullable: true);
         nullableEnumU16AsStringCollectionElementType.TypeMapping = nullableEnumU16AsStringCollection.TypeMapping.ElementTypeMapping;
@@ -6910,7 +7040,7 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, ushort>(
                     JsonUInt16ReaderWriter.Instance,
                     EnumToNumberConverter<CompiledModelTestBase.EnumU16, ushort>.Instance)),
-            elementMapping: UShortTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(UShortTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.EnumU16>.Default,
                 providerValueComparer: DefaultValueComparer<ushort>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -6918,7 +7048,9 @@ public partial class ManyTypesEntityType
                 converter: EnumToNumberConverter<CompiledModelTestBase.EnumU16, ushort>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, ushort>(
                     JsonUInt16ReaderWriter.Instance,
-                    EnumToNumberConverter<CompiledModelTestBase.EnumU16, ushort>.Instance)));
+                    EnumToNumberConverter<CompiledModelTestBase.EnumU16, ushort>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.EnumU16>.Default,
+                providerValueComparer: DefaultValueComparer<ushort>.Default));
         var nullableEnumU16CollectionElementType = nullableEnumU16Collection.SetElementType(typeof(CompiledModelTestBase.EnumU16?),
             nullable: true);
         nullableEnumU16CollectionElementType.TypeMapping = nullableEnumU16Collection.TypeMapping.ElementTypeMapping;
@@ -7009,7 +7141,7 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, uint>(
                     JsonUInt32ReaderWriter.Instance,
                     EnumToNumberConverter<CompiledModelTestBase.EnumU32, uint>.Instance)),
-            elementMapping: UIntTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(UIntTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.EnumU32>.Default,
                 providerValueComparer: DefaultValueComparer<uint>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -7017,7 +7149,9 @@ public partial class ManyTypesEntityType
                 converter: EnumToNumberConverter<CompiledModelTestBase.EnumU32, uint>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, uint>(
                     JsonUInt32ReaderWriter.Instance,
-                    EnumToNumberConverter<CompiledModelTestBase.EnumU32, uint>.Instance)));
+                    EnumToNumberConverter<CompiledModelTestBase.EnumU32, uint>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.EnumU32>.Default,
+                providerValueComparer: DefaultValueComparer<uint>.Default));
         var nullableEnumU32ArrayElementType = nullableEnumU32Array.SetElementType(typeof(CompiledModelTestBase.EnumU32?),
             nullable: true);
         nullableEnumU32ArrayElementType.TypeMapping = nullableEnumU32Array.TypeMapping.ElementTypeMapping;
@@ -7108,7 +7242,7 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, uint>(
                     JsonUInt32ReaderWriter.Instance,
                     EnumToNumberConverter<CompiledModelTestBase.EnumU32, uint>.Instance)),
-            elementMapping: UIntTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(UIntTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.EnumU32>.Default,
                 providerValueComparer: DefaultValueComparer<uint>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -7116,7 +7250,9 @@ public partial class ManyTypesEntityType
                 converter: EnumToNumberConverter<CompiledModelTestBase.EnumU32, uint>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, uint>(
                     JsonUInt32ReaderWriter.Instance,
-                    EnumToNumberConverter<CompiledModelTestBase.EnumU32, uint>.Instance)));
+                    EnumToNumberConverter<CompiledModelTestBase.EnumU32, uint>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.EnumU32>.Default,
+                providerValueComparer: DefaultValueComparer<uint>.Default));
         var nullableEnumU32AsStringArrayElementType = nullableEnumU32AsStringArray.SetElementType(typeof(CompiledModelTestBase.EnumU32?),
             nullable: true);
         nullableEnumU32AsStringArrayElementType.TypeMapping = nullableEnumU32AsStringArray.TypeMapping.ElementTypeMapping;
@@ -7164,7 +7300,7 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, uint>(
                     JsonUInt32ReaderWriter.Instance,
                     EnumToNumberConverter<CompiledModelTestBase.EnumU32, uint>.Instance)),
-            elementMapping: UIntTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(UIntTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.EnumU32>.Default,
                 providerValueComparer: DefaultValueComparer<uint>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -7172,7 +7308,9 @@ public partial class ManyTypesEntityType
                 converter: EnumToNumberConverter<CompiledModelTestBase.EnumU32, uint>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, uint>(
                     JsonUInt32ReaderWriter.Instance,
-                    EnumToNumberConverter<CompiledModelTestBase.EnumU32, uint>.Instance)));
+                    EnumToNumberConverter<CompiledModelTestBase.EnumU32, uint>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.EnumU32>.Default,
+                providerValueComparer: DefaultValueComparer<uint>.Default));
         var nullableEnumU32AsStringCollectionElementType = nullableEnumU32AsStringCollection.SetElementType(typeof(CompiledModelTestBase.EnumU32?),
             nullable: true);
         nullableEnumU32AsStringCollectionElementType.TypeMapping = nullableEnumU32AsStringCollection.TypeMapping.ElementTypeMapping;
@@ -7220,7 +7358,7 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, uint>(
                     JsonUInt32ReaderWriter.Instance,
                     EnumToNumberConverter<CompiledModelTestBase.EnumU32, uint>.Instance)),
-            elementMapping: UIntTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(UIntTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.EnumU32>.Default,
                 providerValueComparer: DefaultValueComparer<uint>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -7228,7 +7366,9 @@ public partial class ManyTypesEntityType
                 converter: EnumToNumberConverter<CompiledModelTestBase.EnumU32, uint>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, uint>(
                     JsonUInt32ReaderWriter.Instance,
-                    EnumToNumberConverter<CompiledModelTestBase.EnumU32, uint>.Instance)));
+                    EnumToNumberConverter<CompiledModelTestBase.EnumU32, uint>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.EnumU32>.Default,
+                providerValueComparer: DefaultValueComparer<uint>.Default));
         var nullableEnumU32CollectionElementType = nullableEnumU32Collection.SetElementType(typeof(CompiledModelTestBase.EnumU32?),
             nullable: true);
         nullableEnumU32CollectionElementType.TypeMapping = nullableEnumU32Collection.TypeMapping.ElementTypeMapping;
@@ -7317,13 +7457,15 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, ulong>(
                     JsonUInt64ReaderWriter.Instance,
                     EnumToNumberConverter<CompiledModelTestBase.EnumU64, ulong>.Instance)),
-            elementMapping: SqliteULongTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteULongTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.EnumU64>.Default,
                 providerValueComparer: DefaultValueComparer<ulong>.Default,
                 converter: EnumToNumberConverter<CompiledModelTestBase.EnumU64, ulong>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, ulong>(
                     JsonUInt64ReaderWriter.Instance,
-                    EnumToNumberConverter<CompiledModelTestBase.EnumU64, ulong>.Instance)));
+                    EnumToNumberConverter<CompiledModelTestBase.EnumU64, ulong>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.EnumU64>.Default,
+                providerValueComparer: DefaultValueComparer<ulong>.Default));
         var nullableEnumU64ArrayElementType = nullableEnumU64Array.SetElementType(typeof(CompiledModelTestBase.EnumU64?),
             nullable: true);
         nullableEnumU64ArrayElementType.TypeMapping = nullableEnumU64Array.TypeMapping.ElementTypeMapping;
@@ -7412,13 +7554,15 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, ulong>(
                     JsonUInt64ReaderWriter.Instance,
                     EnumToNumberConverter<CompiledModelTestBase.EnumU64, ulong>.Instance)),
-            elementMapping: SqliteULongTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteULongTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.EnumU64>.Default,
                 providerValueComparer: DefaultValueComparer<ulong>.Default,
                 converter: EnumToNumberConverter<CompiledModelTestBase.EnumU64, ulong>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, ulong>(
                     JsonUInt64ReaderWriter.Instance,
-                    EnumToNumberConverter<CompiledModelTestBase.EnumU64, ulong>.Instance)));
+                    EnumToNumberConverter<CompiledModelTestBase.EnumU64, ulong>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.EnumU64>.Default,
+                providerValueComparer: DefaultValueComparer<ulong>.Default));
         var nullableEnumU64AsStringArrayElementType = nullableEnumU64AsStringArray.SetElementType(typeof(CompiledModelTestBase.EnumU64?),
             nullable: true);
         nullableEnumU64AsStringArrayElementType.TypeMapping = nullableEnumU64AsStringArray.TypeMapping.ElementTypeMapping;
@@ -7466,13 +7610,15 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, ulong>(
                     JsonUInt64ReaderWriter.Instance,
                     EnumToNumberConverter<CompiledModelTestBase.EnumU64, ulong>.Instance)),
-            elementMapping: SqliteULongTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteULongTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.EnumU64>.Default,
                 providerValueComparer: DefaultValueComparer<ulong>.Default,
                 converter: EnumToNumberConverter<CompiledModelTestBase.EnumU64, ulong>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, ulong>(
                     JsonUInt64ReaderWriter.Instance,
-                    EnumToNumberConverter<CompiledModelTestBase.EnumU64, ulong>.Instance)));
+                    EnumToNumberConverter<CompiledModelTestBase.EnumU64, ulong>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.EnumU64>.Default,
+                providerValueComparer: DefaultValueComparer<ulong>.Default));
         var nullableEnumU64AsStringCollectionElementType = nullableEnumU64AsStringCollection.SetElementType(typeof(CompiledModelTestBase.EnumU64?),
             nullable: true);
         nullableEnumU64AsStringCollectionElementType.TypeMapping = nullableEnumU64AsStringCollection.TypeMapping.ElementTypeMapping;
@@ -7520,13 +7666,15 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, ulong>(
                     JsonUInt64ReaderWriter.Instance,
                     EnumToNumberConverter<CompiledModelTestBase.EnumU64, ulong>.Instance)),
-            elementMapping: SqliteULongTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteULongTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.EnumU64>.Default,
                 providerValueComparer: DefaultValueComparer<ulong>.Default,
                 converter: EnumToNumberConverter<CompiledModelTestBase.EnumU64, ulong>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, ulong>(
                     JsonUInt64ReaderWriter.Instance,
-                    EnumToNumberConverter<CompiledModelTestBase.EnumU64, ulong>.Instance)));
+                    EnumToNumberConverter<CompiledModelTestBase.EnumU64, ulong>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.EnumU64>.Default,
+                providerValueComparer: DefaultValueComparer<ulong>.Default));
         var nullableEnumU64CollectionElementType = nullableEnumU64Collection.SetElementType(typeof(CompiledModelTestBase.EnumU64?),
             nullable: true);
         nullableEnumU64CollectionElementType.TypeMapping = nullableEnumU64Collection.TypeMapping.ElementTypeMapping;
@@ -7617,7 +7765,7 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, byte>(
                     JsonByteReaderWriter.Instance,
                     EnumToNumberConverter<CompiledModelTestBase.EnumU8, byte>.Instance)),
-            elementMapping: ByteTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(ByteTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.EnumU8>.Default,
                 providerValueComparer: DefaultValueComparer<byte>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -7625,7 +7773,9 @@ public partial class ManyTypesEntityType
                 converter: EnumToNumberConverter<CompiledModelTestBase.EnumU8, byte>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, byte>(
                     JsonByteReaderWriter.Instance,
-                    EnumToNumberConverter<CompiledModelTestBase.EnumU8, byte>.Instance)));
+                    EnumToNumberConverter<CompiledModelTestBase.EnumU8, byte>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.EnumU8>.Default,
+                providerValueComparer: DefaultValueComparer<byte>.Default));
         var nullableEnumU8ArrayElementType = nullableEnumU8Array.SetElementType(typeof(CompiledModelTestBase.EnumU8?),
             nullable: true);
         nullableEnumU8ArrayElementType.TypeMapping = nullableEnumU8Array.TypeMapping.ElementTypeMapping;
@@ -7716,7 +7866,7 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, byte>(
                     JsonByteReaderWriter.Instance,
                     EnumToNumberConverter<CompiledModelTestBase.EnumU8, byte>.Instance)),
-            elementMapping: ByteTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(ByteTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.EnumU8>.Default,
                 providerValueComparer: DefaultValueComparer<byte>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -7724,7 +7874,9 @@ public partial class ManyTypesEntityType
                 converter: EnumToNumberConverter<CompiledModelTestBase.EnumU8, byte>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, byte>(
                     JsonByteReaderWriter.Instance,
-                    EnumToNumberConverter<CompiledModelTestBase.EnumU8, byte>.Instance)));
+                    EnumToNumberConverter<CompiledModelTestBase.EnumU8, byte>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.EnumU8>.Default,
+                providerValueComparer: DefaultValueComparer<byte>.Default));
         var nullableEnumU8AsStringArrayElementType = nullableEnumU8AsStringArray.SetElementType(typeof(CompiledModelTestBase.EnumU8?),
             nullable: true);
         nullableEnumU8AsStringArrayElementType.TypeMapping = nullableEnumU8AsStringArray.TypeMapping.ElementTypeMapping;
@@ -7772,7 +7924,7 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, byte>(
                     JsonByteReaderWriter.Instance,
                     EnumToNumberConverter<CompiledModelTestBase.EnumU8, byte>.Instance)),
-            elementMapping: ByteTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(ByteTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.EnumU8>.Default,
                 providerValueComparer: DefaultValueComparer<byte>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -7780,7 +7932,9 @@ public partial class ManyTypesEntityType
                 converter: EnumToNumberConverter<CompiledModelTestBase.EnumU8, byte>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, byte>(
                     JsonByteReaderWriter.Instance,
-                    EnumToNumberConverter<CompiledModelTestBase.EnumU8, byte>.Instance)));
+                    EnumToNumberConverter<CompiledModelTestBase.EnumU8, byte>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.EnumU8>.Default,
+                providerValueComparer: DefaultValueComparer<byte>.Default));
         var nullableEnumU8AsStringCollectionElementType = nullableEnumU8AsStringCollection.SetElementType(typeof(CompiledModelTestBase.EnumU8?),
             nullable: true);
         nullableEnumU8AsStringCollectionElementType.TypeMapping = nullableEnumU8AsStringCollection.TypeMapping.ElementTypeMapping;
@@ -7828,7 +7982,7 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, byte>(
                     JsonByteReaderWriter.Instance,
                     EnumToNumberConverter<CompiledModelTestBase.EnumU8, byte>.Instance)),
-            elementMapping: ByteTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(ByteTypeMapping.Default.Clone(
                 comparer: ValueComparer<CompiledModelTestBase.EnumU8>.Default,
                 providerValueComparer: DefaultValueComparer<byte>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -7836,7 +7990,9 @@ public partial class ManyTypesEntityType
                 converter: EnumToNumberConverter<CompiledModelTestBase.EnumU8, byte>.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, byte>(
                     JsonByteReaderWriter.Instance,
-                    EnumToNumberConverter<CompiledModelTestBase.EnumU8, byte>.Instance)));
+                    EnumToNumberConverter<CompiledModelTestBase.EnumU8, byte>.Instance))).Clone(
+                comparer: ValueComparer<CompiledModelTestBase.EnumU8>.Default,
+                providerValueComparer: DefaultValueComparer<byte>.Default));
         var nullableEnumU8CollectionElementType = nullableEnumU8Collection.SetElementType(typeof(CompiledModelTestBase.EnumU8?),
             nullable: true);
         nullableEnumU8CollectionElementType.TypeMapping = nullableEnumU8Collection.TypeMapping.ElementTypeMapping;
@@ -7917,9 +8073,10 @@ public partial class ManyTypesEntityType
                 JsonFloatReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<float?[], float>(
                 JsonFloatReaderWriter.Instance),
-            elementMapping: FloatTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(FloatTypeMapping.Default.Clone(
                 mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "REAL")));
+                    storeTypeName: "REAL"))).Clone(
+                comparer: DefaultFloatValueComparer.Default));
         var nullableFloatArrayElementType = nullableFloatArray.SetElementType(typeof(float?),
             nullable: true);
         nullableFloatArrayElementType.TypeMapping = nullableFloatArray.TypeMapping.ElementTypeMapping;
@@ -7998,7 +8155,8 @@ public partial class ManyTypesEntityType
                 SqliteJsonGuidReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<Guid?[], Guid>(
                 SqliteJsonGuidReaderWriter.Instance),
-            elementMapping: SqliteGuidTypeMapping.Default);
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteGuidTypeMapping.Default).Clone(
+                comparer: DefaultValueComparer<Guid>.Default));
         var nullableGuidArrayElementType = nullableGuidArray.SetElementType(typeof(Guid?),
             nullable: true);
         nullableGuidArrayElementType.TypeMapping = nullableGuidArray.TypeMapping.ElementTypeMapping;
@@ -8088,7 +8246,7 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<IPAddress, string>(
                     JsonStringReaderWriter.Instance,
                     IPAddressToStringConverter.Instance)),
-            elementMapping: SqliteStringTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteStringTypeMapping.Default.Clone(
                 comparer: ValueComparer<IPAddress>.Default,
                 providerValueComparer: DefaultValueComparer<string>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -8096,7 +8254,9 @@ public partial class ManyTypesEntityType
                 converter: IPAddressToStringConverter.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<IPAddress, string>(
                     JsonStringReaderWriter.Instance,
-                    IPAddressToStringConverter.Instance)));
+                    IPAddressToStringConverter.Instance))).Clone(
+                comparer: ValueComparer<IPAddress>.Default,
+                providerValueComparer: DefaultValueComparer<string>.Default));
         var nullableIPAddressArrayElementType = nullableIPAddressArray.SetElementType(typeof(IPAddress),
             nullable: true);
         nullableIPAddressArrayElementType.TypeMapping = nullableIPAddressArray.TypeMapping.ElementTypeMapping;
@@ -8176,9 +8336,10 @@ public partial class ManyTypesEntityType
                 JsonInt16ReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<short?[], short>(
                 JsonInt16ReaderWriter.Instance),
-            elementMapping: ShortTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(ShortTypeMapping.Default.Clone(
                 mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "INTEGER")));
+                    storeTypeName: "INTEGER"))).Clone(
+                comparer: DefaultValueComparer<short>.Default));
         var nullableInt16ArrayElementType = nullableInt16Array.SetElementType(typeof(short?),
             nullable: true);
         nullableInt16ArrayElementType.TypeMapping = nullableInt16Array.TypeMapping.ElementTypeMapping;
@@ -8259,9 +8420,10 @@ public partial class ManyTypesEntityType
                 JsonInt32ReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<int?[], int>(
                 JsonInt32ReaderWriter.Instance),
-            elementMapping: IntTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(IntTypeMapping.Default.Clone(
                 mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "INTEGER")));
+                    storeTypeName: "INTEGER"))).Clone(
+                comparer: DefaultValueComparer<int>.Default));
         var nullableInt32ArrayElementType = nullableInt32Array.SetElementType(typeof(int?),
             nullable: true);
         nullableInt32ArrayElementType.TypeMapping = nullableInt32Array.TypeMapping.ElementTypeMapping;
@@ -8342,9 +8504,10 @@ public partial class ManyTypesEntityType
                 JsonInt64ReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<long?[], long>(
                 JsonInt64ReaderWriter.Instance),
-            elementMapping: LongTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(LongTypeMapping.Default.Clone(
                 mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "INTEGER")));
+                    storeTypeName: "INTEGER"))).Clone(
+                comparer: DefaultValueComparer<long>.Default));
         var nullableInt64ArrayElementType = nullableInt64Array.SetElementType(typeof(long?),
             nullable: true);
         nullableInt64ArrayElementType.TypeMapping = nullableInt64Array.TypeMapping.ElementTypeMapping;
@@ -8425,9 +8588,10 @@ public partial class ManyTypesEntityType
                 JsonSByteReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<sbyte?[], sbyte>(
                 JsonSByteReaderWriter.Instance),
-            elementMapping: SByteTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(SByteTypeMapping.Default.Clone(
                 mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "INTEGER")));
+                    storeTypeName: "INTEGER"))).Clone(
+                comparer: DefaultValueComparer<sbyte>.Default));
         var nullableInt8ArrayElementType = nullableInt8Array.SetElementType(typeof(sbyte?),
             nullable: true);
         nullableInt8ArrayElementType.TypeMapping = nullableInt8Array.TypeMapping.ElementTypeMapping;
@@ -8517,7 +8681,7 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<PhysicalAddress, string>(
                     JsonStringReaderWriter.Instance,
                     PhysicalAddressToStringConverter.Instance)),
-            elementMapping: SqliteStringTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteStringTypeMapping.Default.Clone(
                 comparer: ValueComparer<PhysicalAddress>.Default,
                 providerValueComparer: DefaultValueComparer<string>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -8525,7 +8689,9 @@ public partial class ManyTypesEntityType
                 converter: PhysicalAddressToStringConverter.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<PhysicalAddress, string>(
                     JsonStringReaderWriter.Instance,
-                    PhysicalAddressToStringConverter.Instance)));
+                    PhysicalAddressToStringConverter.Instance))).Clone(
+                comparer: ValueComparer<PhysicalAddress>.Default,
+                providerValueComparer: DefaultValueComparer<string>.Default));
         var nullablePhysicalAddressArrayElementType = nullablePhysicalAddressArray.SetElementType(typeof(PhysicalAddress),
             nullable: true);
         nullablePhysicalAddressArrayElementType.TypeMapping = nullablePhysicalAddressArray.TypeMapping.ElementTypeMapping;
@@ -8603,7 +8769,8 @@ public partial class ManyTypesEntityType
                 JsonStringReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<string[], string>(
                 JsonStringReaderWriter.Instance),
-            elementMapping: SqliteStringTypeMapping.Default);
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteStringTypeMapping.Default).Clone(
+                comparer: DefaultValueComparer<string>.Default));
         var nullableStringArrayElementType = nullableStringArray.SetElementType(typeof(string),
             nullable: true);
         nullableStringArrayElementType.TypeMapping = nullableStringArray.TypeMapping.ElementTypeMapping;
@@ -8681,7 +8848,8 @@ public partial class ManyTypesEntityType
                 SqliteJsonTimeOnlyReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<TimeOnly?[], TimeOnly>(
                 SqliteJsonTimeOnlyReaderWriter.Instance),
-            elementMapping: SqliteTimeOnlyTypeMapping.Default);
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteTimeOnlyTypeMapping.Default).Clone(
+                comparer: DefaultValueComparer<TimeOnly>.Default));
         var nullableTimeOnlyArrayElementType = nullableTimeOnlyArray.SetElementType(typeof(TimeOnly?),
             nullable: true);
         nullableTimeOnlyArrayElementType.TypeMapping = nullableTimeOnlyArray.TypeMapping.ElementTypeMapping;
@@ -8762,9 +8930,10 @@ public partial class ManyTypesEntityType
                 JsonTimeSpanReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<TimeSpan?[], TimeSpan>(
                 JsonTimeSpanReaderWriter.Instance),
-            elementMapping: TimeSpanTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(TimeSpanTypeMapping.Default.Clone(
                 mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "TEXT")));
+                    storeTypeName: "TEXT"))).Clone(
+                comparer: DefaultValueComparer<TimeSpan>.Default));
         var nullableTimeSpanArrayElementType = nullableTimeSpanArray.SetElementType(typeof(TimeSpan?),
             nullable: true);
         nullableTimeSpanArrayElementType.TypeMapping = nullableTimeSpanArray.TypeMapping.ElementTypeMapping;
@@ -8845,9 +9014,10 @@ public partial class ManyTypesEntityType
                 JsonUInt16ReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<ushort?[], ushort>(
                 JsonUInt16ReaderWriter.Instance),
-            elementMapping: UShortTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(UShortTypeMapping.Default.Clone(
                 mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "INTEGER")));
+                    storeTypeName: "INTEGER"))).Clone(
+                comparer: DefaultValueComparer<ushort>.Default));
         var nullableUInt16ArrayElementType = nullableUInt16Array.SetElementType(typeof(ushort?),
             nullable: true);
         nullableUInt16ArrayElementType.TypeMapping = nullableUInt16Array.TypeMapping.ElementTypeMapping;
@@ -8928,9 +9098,10 @@ public partial class ManyTypesEntityType
                 JsonUInt32ReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<uint?[], uint>(
                 JsonUInt32ReaderWriter.Instance),
-            elementMapping: UIntTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(UIntTypeMapping.Default.Clone(
                 mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "INTEGER")));
+                    storeTypeName: "INTEGER"))).Clone(
+                comparer: DefaultValueComparer<uint>.Default));
         var nullableUInt32ArrayElementType = nullableUInt32Array.SetElementType(typeof(uint?),
             nullable: true);
         nullableUInt32ArrayElementType.TypeMapping = nullableUInt32Array.TypeMapping.ElementTypeMapping;
@@ -9009,7 +9180,8 @@ public partial class ManyTypesEntityType
                 JsonUInt64ReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<ulong?[], ulong>(
                 JsonUInt64ReaderWriter.Instance),
-            elementMapping: SqliteULongTypeMapping.Default);
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteULongTypeMapping.Default).Clone(
+                comparer: DefaultValueComparer<ulong>.Default));
         var nullableUInt64ArrayElementType = nullableUInt64Array.SetElementType(typeof(ulong?),
             nullable: true);
         nullableUInt64ArrayElementType.TypeMapping = nullableUInt64Array.TypeMapping.ElementTypeMapping;
@@ -9090,9 +9262,10 @@ public partial class ManyTypesEntityType
                 JsonByteReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<byte?[], byte>(
                 JsonByteReaderWriter.Instance),
-            elementMapping: ByteTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(ByteTypeMapping.Default.Clone(
                 mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "INTEGER")));
+                    storeTypeName: "INTEGER"))).Clone(
+                comparer: DefaultValueComparer<byte>.Default));
         var nullableUInt8ArrayElementType = nullableUInt8Array.SetElementType(typeof(byte?),
             nullable: true);
         nullableUInt8ArrayElementType.TypeMapping = nullableUInt8Array.TypeMapping.ElementTypeMapping;
@@ -9180,13 +9353,15 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<Uri, string>(
                     JsonStringReaderWriter.Instance,
                     UriToStringConverter.Instance)),
-            elementMapping: SqliteStringTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteStringTypeMapping.Default.Clone(
                 comparer: ValueComparer<Uri>.Default,
                 providerValueComparer: DefaultValueComparer<string>.Default,
                 converter: UriToStringConverter.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<Uri, string>(
                     JsonStringReaderWriter.Instance,
-                    UriToStringConverter.Instance)));
+                    UriToStringConverter.Instance))).Clone(
+                comparer: ValueComparer<Uri>.Default,
+                providerValueComparer: DefaultValueComparer<string>.Default));
         var nullableUriArrayElementType = nullableUriArray.SetElementType(typeof(Uri),
             nullable: true);
         nullableUriArrayElementType.TypeMapping = nullableUriArray.TypeMapping.ElementTypeMapping;
@@ -9274,7 +9449,7 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<PhysicalAddress, string>(
                     JsonStringReaderWriter.Instance,
                     PhysicalAddressToStringConverter.Instance)),
-            elementMapping: SqliteStringTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteStringTypeMapping.Default.Clone(
                 comparer: ValueComparer<PhysicalAddress>.Default,
                 providerValueComparer: DefaultValueComparer<string>.Default,
                 mappingInfo: new RelationalTypeMappingInfo(
@@ -9282,7 +9457,9 @@ public partial class ManyTypesEntityType
                 converter: PhysicalAddressToStringConverter.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<PhysicalAddress, string>(
                     JsonStringReaderWriter.Instance,
-                    PhysicalAddressToStringConverter.Instance)));
+                    PhysicalAddressToStringConverter.Instance))).Clone(
+                comparer: ValueComparer<PhysicalAddress>.Default,
+                providerValueComparer: DefaultValueComparer<string>.Default));
         var physicalAddressArrayElementType = physicalAddressArray.SetElementType(typeof(PhysicalAddress));
         physicalAddressArrayElementType.TypeMapping = physicalAddressArray.TypeMapping.ElementTypeMapping;
 
@@ -9441,7 +9618,8 @@ public partial class ManyTypesEntityType
                 JsonStringReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<string[], string>(
                 JsonStringReaderWriter.Instance),
-            elementMapping: SqliteStringTypeMapping.Default);
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteStringTypeMapping.Default).Clone(
+                comparer: DefaultValueComparer<string>.Default));
         var stringArrayElementType = stringArray.SetElementType(typeof(string));
         stringArrayElementType.TypeMapping = stringArray.TypeMapping.ElementTypeMapping;
 
@@ -9483,7 +9661,8 @@ public partial class ManyTypesEntityType
                 JsonStringReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
                 JsonStringReaderWriter.Instance),
-            elementMapping: SqliteStringTypeMapping.Default);
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteStringTypeMapping.Default).Clone(
+                comparer: DefaultValueComparer<string>.Default));
         var stringReadOnlyCollectionElementType = stringReadOnlyCollection.SetElementType(typeof(string));
         stringReadOnlyCollectionElementType.TypeMapping = stringReadOnlyCollection.TypeMapping.ElementTypeMapping;
 
@@ -10137,7 +10316,8 @@ public partial class ManyTypesEntityType
                 SqliteJsonTimeOnlyReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<TimeOnly[], TimeOnly>(
                 SqliteJsonTimeOnlyReaderWriter.Instance),
-            elementMapping: SqliteTimeOnlyTypeMapping.Default);
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteTimeOnlyTypeMapping.Default).Clone(
+                comparer: DefaultValueComparer<TimeOnly>.Default));
         var timeOnlyArrayElementType = timeOnlyArray.SetElementType(typeof(TimeOnly));
         timeOnlyArrayElementType.TypeMapping = timeOnlyArray.TypeMapping.ElementTypeMapping;
 
@@ -10301,9 +10481,10 @@ public partial class ManyTypesEntityType
                 JsonTimeSpanReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<TimeSpan[], TimeSpan>(
                 JsonTimeSpanReaderWriter.Instance),
-            elementMapping: TimeSpanTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(TimeSpanTypeMapping.Default.Clone(
                 mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "TEXT")));
+                    storeTypeName: "TEXT"))).Clone(
+                comparer: DefaultValueComparer<TimeSpan>.Default));
         var timeSpanArrayElementType = timeSpanArray.SetElementType(typeof(TimeSpan));
         timeSpanArrayElementType.TypeMapping = timeSpanArray.TypeMapping.ElementTypeMapping;
 
@@ -10467,9 +10648,10 @@ public partial class ManyTypesEntityType
                 JsonUInt16ReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<ushort[], ushort>(
                 JsonUInt16ReaderWriter.Instance),
-            elementMapping: UShortTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(UShortTypeMapping.Default.Clone(
                 mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "INTEGER")));
+                    storeTypeName: "INTEGER"))).Clone(
+                comparer: DefaultValueComparer<ushort>.Default));
         var uInt16ArrayElementType = uInt16Array.SetElementType(typeof(ushort));
         uInt16ArrayElementType.TypeMapping = uInt16Array.TypeMapping.ElementTypeMapping;
 
@@ -10547,9 +10729,10 @@ public partial class ManyTypesEntityType
                 JsonUInt32ReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<uint[], uint>(
                 JsonUInt32ReaderWriter.Instance),
-            elementMapping: UIntTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(UIntTypeMapping.Default.Clone(
                 mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "INTEGER")));
+                    storeTypeName: "INTEGER"))).Clone(
+                comparer: DefaultValueComparer<uint>.Default));
         var uInt32ArrayElementType = uInt32Array.SetElementType(typeof(uint));
         uInt32ArrayElementType.TypeMapping = uInt32Array.TypeMapping.ElementTypeMapping;
 
@@ -10625,7 +10808,8 @@ public partial class ManyTypesEntityType
                 JsonUInt64ReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<ulong[], ulong>(
                 JsonUInt64ReaderWriter.Instance),
-            elementMapping: SqliteULongTypeMapping.Default);
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteULongTypeMapping.Default).Clone(
+                comparer: DefaultValueComparer<ulong>.Default));
         var uInt64ArrayElementType = uInt64Array.SetElementType(typeof(ulong));
         uInt64ArrayElementType.TypeMapping = uInt64Array.TypeMapping.ElementTypeMapping;
 
@@ -10737,9 +10921,10 @@ public partial class ManyTypesEntityType
                 JsonByteReaderWriter.Instance)),
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<byte>, byte>(
                 JsonByteReaderWriter.Instance),
-            elementMapping: ByteTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(ByteTypeMapping.Default.Clone(
                 mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "INTEGER")));
+                    storeTypeName: "INTEGER"))).Clone(
+                comparer: DefaultValueComparer<byte>.Default));
         var uInt8ReadOnlyCollectionElementType = uInt8ReadOnlyCollection.SetElementType(typeof(byte));
         uInt8ReadOnlyCollectionElementType.TypeMapping = uInt8ReadOnlyCollection.TypeMapping.ElementTypeMapping;
 
@@ -10824,13 +11009,15 @@ public partial class ManyTypesEntityType
                 new JsonConvertedValueReaderWriter<Uri, string>(
                     JsonStringReaderWriter.Instance,
                     UriToStringConverter.Instance)),
-            elementMapping: SqliteStringTypeMapping.Default.Clone(
+            elementMapping: new SqliteJsonScalarTypeMapping(SqliteStringTypeMapping.Default.Clone(
                 comparer: ValueComparer<Uri>.Default,
                 providerValueComparer: DefaultValueComparer<string>.Default,
                 converter: UriToStringConverter.Instance,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<Uri, string>(
                     JsonStringReaderWriter.Instance,
-                    UriToStringConverter.Instance)));
+                    UriToStringConverter.Instance))).Clone(
+                comparer: ValueComparer<Uri>.Default,
+                providerValueComparer: DefaultValueComparer<string>.Default));
         var uriArrayElementType = uriArray.SetElementType(typeof(Uri));
         uriArrayElementType.TypeMapping = uriArray.TypeMapping.ElementTypeMapping;
 

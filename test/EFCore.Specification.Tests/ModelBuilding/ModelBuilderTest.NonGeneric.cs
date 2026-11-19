@@ -957,6 +957,12 @@ public abstract partial class ModelBuilderTest
     protected class NonGenericTestPropertyBuilder<TProperty>(PropertyBuilder propertyBuilder)
         : TestPropertyBuilder<TProperty>, IInfrastructure<PropertyBuilder>
     {
+        public override TestPropertyBuilder<TProperty> HasJsonValueReaderWriter<TReaderWriter>()
+            => Wrap(PropertyBuilder.HasJsonValueReaderWriter<TReaderWriter>());
+
+        public override TestPropertyBuilder<TProperty> HasJsonValueReaderWriter(Type? readerWriterType)
+            => Wrap(PropertyBuilder.HasJsonValueReaderWriter(readerWriterType));
+
         private PropertyBuilder PropertyBuilder { get; } = propertyBuilder;
 
         public override IMutableProperty Metadata
@@ -1174,6 +1180,12 @@ public abstract partial class ModelBuilderTest
         TestComplexTypePropertyBuilder<TProperty>,
         IInfrastructure<ComplexTypePropertyBuilder>
     {
+        public override TestComplexTypePropertyBuilder<TProperty> HasJsonValueReaderWriter<TReaderWriter>()
+            => Wrap(PropertyBuilder.HasJsonValueReaderWriter<TReaderWriter>());
+
+        public override TestComplexTypePropertyBuilder<TProperty> HasJsonValueReaderWriter(Type? readerWriterType)
+            => Wrap(PropertyBuilder.HasJsonValueReaderWriter(readerWriterType));
+
         private ComplexTypePropertyBuilder PropertyBuilder { get; } = propertyBuilder;
 
         public override IMutableProperty Metadata
@@ -1317,6 +1329,12 @@ public abstract partial class ModelBuilderTest
         TestComplexCollectionTypePropertyBuilder<TProperty>,
         IInfrastructure<ComplexCollectionTypePropertyBuilder>
     {
+        public override TestComplexCollectionTypePropertyBuilder<TProperty> HasJsonValueReaderWriter<TReaderWriter>()
+            => Wrap(PropertyBuilder.HasJsonValueReaderWriter<TReaderWriter>());
+
+        public override TestComplexCollectionTypePropertyBuilder<TProperty> HasJsonValueReaderWriter(Type? readerWriterType)
+            => Wrap(PropertyBuilder.HasJsonValueReaderWriter(readerWriterType));
+
         protected ComplexCollectionTypePropertyBuilder PropertyBuilder { get; } = propertyBuilder;
 
         public override IMutableProperty Metadata

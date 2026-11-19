@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -116,4 +117,13 @@ public class TypeMappingConfigurationBuilder<TProperty> : TypeMappingConfigurati
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public new virtual TypeMappingConfigurationBuilder<TProperty> HasConversion(Type conversionType)
         => (TypeMappingConfigurationBuilder<TProperty>)base.HasConversion(conversionType);
+
+    /// <inheritdoc cref="TypeMappingConfigurationBuilder.HasJsonValueReaderWriter{TReaderWriter}()" />
+    public new virtual TypeMappingConfigurationBuilder<TProperty> HasJsonValueReaderWriter<TReaderWriter>()
+        where TReaderWriter : JsonValueReaderWriter
+        => (TypeMappingConfigurationBuilder<TProperty>)base.HasJsonValueReaderWriter<TReaderWriter>();
+
+    /// <inheritdoc cref="TypeMappingConfigurationBuilder.HasJsonValueReaderWriter(Type)" />
+    public new virtual TypeMappingConfigurationBuilder<TProperty> HasJsonValueReaderWriter(Type? readerWriterType)
+        => (TypeMappingConfigurationBuilder<TProperty>)base.HasJsonValueReaderWriter(readerWriterType);
 }

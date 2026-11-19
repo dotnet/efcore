@@ -4,6 +4,7 @@
 using System.Data;
 using System.Globalization;
 using System.Text;
+using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal;
 
@@ -154,26 +155,15 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
         stringBuilder.Append(", 'strict ");
         columnModification.JsonPath.AppendTo(stringBuilder);
         stringBuilder.Append("', ");
-        var mapping = columnModification.Property?.GetRelationalTypeMapping();
-        var propertyProviderClrType = (mapping?.Converter?.ProviderClrType ?? columnModification.Property?.ClrType)?.UnwrapNullableType();
-
-        if (columnModification.Value is null
-            || propertyProviderClrType == typeof(bool)
-            || (propertyProviderClrType != null && propertyProviderClrType.IsNumeric()))
-        {
-            base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
-        }
-        else if (columnModification.Property is { IsPrimitiveCollection: false })
-        {
-            stringBuilder.Append("JSON_VALUE(");
-            base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
-            stringBuilder.Append(", '$.\"\"')");
-        }
-        else
+        if (columnModification.TypeMapping is SqlServerStructuralJsonTypeMapping)
         {
             stringBuilder.Append("JSON_QUERY(");
             base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
             stringBuilder.Append(")");
+        }
+        else
+        {
+            base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
         }
 
         stringBuilder.Append(")");

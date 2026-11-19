@@ -12374,6 +12374,10 @@
         {
           "Member": "static System.Linq.Expressions.Expression QuoteTypeMapping(Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping? typeMapping);",
           "Stage": "Experimental"
+        },
+        {
+          "Member": "static System.Linq.Expressions.Expression QuoteTypeMapping(Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping typeMapping, System.Type clrType);",
+          "Stage": "Experimental"
         }
       ]
     },

@@ -4663,7 +4663,7 @@ WHERE [c].[Vin] = '1FA6P8TH8J5123456' AND [c].[DealerId] = 'DEALER-001' AND [o].
 
         AssertSql(
             """
-@entity_equality_complexType='{"IntToString":"\u003Cnull\u003E"}' (Size = 34)
+@entity_equality_complexType='{"IntToString":"\u003Cnull\u003E"}' (Size = 4000)
 
 SELECT COUNT(*)
 FROM [Entities] AS [e]

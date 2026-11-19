@@ -26,6 +26,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IRu
     private CoreTypeMapping? _typeMapping;
     private ValueComparer? _valueComparer;
     private ValueComparer? _keyValueComparer;
+    private JsonValueReaderWriter? _jsonValueReaderWriter;
     private readonly ElementType? _elementType;
 
     private ConfigurationSource? _typeConfigurationSource;
@@ -1371,7 +1372,13 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IRu
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual JsonValueReaderWriter? GetJsonValueReaderWriter()
-        => JsonValueReaderWriter.CreateFromType((Type?)this[CoreAnnotationNames.JsonValueReaderWriterType]);
+    {
+        var readerWriter = _jsonValueReaderWriter
+            ?? JsonValueReaderWriter.CreateFromType((Type?)this[CoreAnnotationNames.JsonValueReaderWriterType]);
+        return IsReadOnly && readerWriter != null
+            ? NonCapturingLazyInitializer.EnsureInitialized(ref _jsonValueReaderWriter, readerWriter)
+            : readerWriter;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

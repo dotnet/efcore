@@ -86,7 +86,7 @@ WHERE CAST(JSON_VALUE([j].[JsonContainer], '$.Value') AS geography).STEquals(@Fi
 LINESTRING (-121.9 46.95, -121.6 46.82)
 POLYGON ((-121.88 46.94, -121.88 46.92, -121.86 46.92, -121.86 46.94, -121.88 46.94)))","Value":"GEOMETRYCOLLECTION (POINT (-121.9 46.95)
 LINESTRING (-121.9 46.95, -121.6 46.82)
-POLYGON ((-121.88 46.94, -121.88 46.92, -121.86 46.92, -121.86 46.94, -121.88 46.94)))"}' (Nullable = false) (Size = 366)
+POLYGON ((-121.88 46.94, -121.88 46.92, -121.86 46.92, -121.86 46.94, -121.88 46.94)))"}' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -105,13 +105,13 @@ WHERE [Id] = @p1;
         {
             AssertSql(
                 """
-@complex_type_Fixture_OtherValue='GEOMETRYCOLLECTION (POINT (-121.9 46.95)
+@Fixture_OtherValue='GEOMETRYCOLLECTION (POINT (-121.9 46.95)
 LINESTRING (-121.9 46.95, -121.6 46.82)
 POLYGON ((-121.88 46.94, -121.88 46.92, -121.86 46.92, -121.86 46.94, -121.88 46.94)))' (Size = 4000)
 
 SET NOCOUNT OFF;
 UPDATE [j]
-SET [JsonContainer].modify('$.Value', @complex_type_Fixture_OtherValue)
+SET [JsonContainer].modify('$.Value', @Fixture_OtherValue)
 FROM [JsonTypeEntity] AS [j]
 """);
         }
@@ -119,13 +119,13 @@ FROM [JsonTypeEntity] AS [j]
         {
             AssertSql(
                 """
-@complex_type_Fixture_OtherValue='GEOMETRYCOLLECTION (POINT (-121.9 46.95)
+@Fixture_OtherValue='GEOMETRYCOLLECTION (POINT (-121.9 46.95)
 LINESTRING (-121.9 46.95, -121.6 46.82)
 POLYGON ((-121.88 46.94, -121.88 46.92, -121.86 46.92, -121.86 46.94, -121.88 46.94)))' (Size = 4000)
 
 SET NOCOUNT OFF;
 UPDATE [j]
-SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', @complex_type_Fixture_OtherValue)
+SET [j].[JsonContainer] = JSON_MODIFY([j].[JsonContainer], '$.Value', @Fixture_OtherValue)
 FROM [JsonTypeEntity] AS [j]
 """);
         }

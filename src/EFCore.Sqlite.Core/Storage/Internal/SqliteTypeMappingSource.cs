@@ -1,6 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Json;
+
 namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 
 /// <summary>
@@ -140,20 +143,26 @@ public class SqliteTypeMappingSource : RelationalTypeMappingSource
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     /// <remarks>
-    ///     Finds the type mapping for a given property. This method is overridden to special-case <c>byte[]</c>
-    ///     properties inside JSON columns, returning a mapping that works with hex-encoded string representation.
+    ///     Finds the type mapping for a given property, accounting for its JSON representation.
     /// </remarks>
     /// <param name="property">The property for which mapping is to be found.</param>
     /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
     public override RelationalTypeMapping? FindMapping(IProperty property)
     {
         var mapping = base.FindMapping(property);
-        if (mapping is SqliteByteArrayTypeMapping byteArrayMapping && property.DeclaringType.IsMappedToJson())
-        {
-            return byteArrayMapping.WithJsonColumn();
-        }
-        return mapping;
+        return property.DeclaringType.IsMappedToJson() ? FindJsonMapping(mapping) : mapping;
     }
+
+    /// <inheritdoc />
+    public override RelationalTypeMapping? FindMapping(IElementType elementType)
+        => FindJsonMapping(base.FindMapping(elementType));
+
+    private static RelationalTypeMapping? FindJsonMapping(RelationalTypeMapping? mapping)
+        => mapping is null or SqliteJsonScalarTypeMapping
+            || mapping.ElementTypeMapping is not null
+            || mapping.JsonValueReaderWriter is null
+                ? mapping
+                : new SqliteJsonScalarTypeMapping(mapping);
 
     private RelationalTypeMapping? FindRawMapping(RelationalTypeMappingInfo mappingInfo)
     {

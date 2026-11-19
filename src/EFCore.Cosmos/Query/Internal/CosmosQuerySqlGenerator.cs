@@ -23,10 +23,10 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource, IMode
     private List<SqlParameter> _sqlParameters = null!;
 
     /// <summary>
-    ///     Lookup table from <see cref="SqlParameterExpression.Name" /> (the "original" name) to the Cosmos <see cref="SqlParameter" />,
-    ///     whose name has underdone uniquification and prefixing. This is used when the same parameter is referenced multiple times in the query.
+    ///     Lookup table from the original parameter name and type mapping to the Cosmos <see cref="SqlParameter" />,
+    ///     whose name has undergone uniquification and prefixing. This is used when the same parameter is referenced multiple times in the query.
     /// </summary>
-    private Dictionary<string, SqlParameter> _sqlParametersByOriginalName = null!;
+    private Dictionary<(string, CoreTypeMapping), SqlParameter> _sqlParametersByOriginalName = null!;
 
     /// <summary>
     ///     Contains final parameter names (prefixed, uniquified) seen so far, for uniquification purposes.
@@ -815,18 +815,19 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource, IMode
     /// </summary>
     protected virtual Expression VisitSqlParameter(SqlParameterExpression sqlParameterExpression)
     {
-        if (!_sqlParametersByOriginalName.TryGetValue(sqlParameterExpression.Name, out var sqlParameter))
-        {
-            Check.DebugAssert(sqlParameterExpression.TypeMapping is not null, "SqlParameterExpression without a type mapping.");
+        Check.DebugAssert(sqlParameterExpression.TypeMapping is not null, "SqlParameterExpression without a type mapping.");
+        var typeMapping = (CosmosTypeMapping)sqlParameterExpression.TypeMapping;
+        var key = (sqlParameterExpression.Name, typeMapping);
 
+        if (!_sqlParametersByOriginalName.TryGetValue(key, out var sqlParameter))
+        {
             var parameterName = PrefixAndUniquifyParameterName(sqlParameterExpression.Name);
 
             var value = _parameterValues[sqlParameterExpression.Name];
 
-            sqlParameter = ((CosmosTypeMapping)sqlParameterExpression.TypeMapping)
-                .CreateParameter(parameterName, value);
+            sqlParameter = typeMapping.CreateParameter(parameterName, value);
 
-            _sqlParametersByOriginalName[sqlParameterExpression.Name] = sqlParameter;
+            _sqlParametersByOriginalName[key] = sqlParameter;
             _sqlParameters.Add(sqlParameter);
         }
 
