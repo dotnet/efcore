@@ -122,7 +122,12 @@ public class SqliteMathTranslator(ISqlExpressionFactory sqlExpressionFactory) : 
 
                     nameof(Math.Sign) when arguments is [var arg]
                         && arg.Type is { } t
-                        && (t == typeof(double) || t == typeof(float) || t == typeof(long) || t == typeof(sbyte) || t == typeof(short))
+                        && (t == typeof(double)
+                            || t == typeof(float)
+                            || t == typeof(int)
+                            || t == typeof(long)
+                            || t == typeof(sbyte)
+                            || t == typeof(short))
                         => TranslateFunction("sign", arg),
 
                     nameof(Math.Sin) when arguments is [var arg]
