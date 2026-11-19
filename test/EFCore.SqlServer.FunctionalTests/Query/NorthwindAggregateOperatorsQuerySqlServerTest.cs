@@ -444,6 +444,7 @@ ORDER BY COALESCE([p].[UnitPrice], 0.0)
             """
 SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN (N'FISSA', N'CENTC')
 ORDER BY (
     SELECT ISNULL(SUM([o].[OrderID]), 0)
     FROM [Orders] AS [o]
