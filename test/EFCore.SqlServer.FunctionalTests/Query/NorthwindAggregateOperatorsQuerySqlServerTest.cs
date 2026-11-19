@@ -1479,6 +1479,17 @@ WHERE [p].[ProductID] < 40
 """);
     }
 
+    public override async Task Min_over_constant_DateTime(bool async)
+    {
+        await base.Min_over_constant_DateTime(async);
+
+        AssertSql(
+            """
+SELECT MIN(CAST('0001-01-01T00:00:00.0000000' AS datetime2))
+FROM [Orders] AS [o]
+""");
+    }
+
     public override async Task Min_over_subquery(bool async)
     {
         await base.Min_over_subquery(async);
@@ -1585,6 +1596,17 @@ FROM [Orders] AS [o]
 SELECT MAX(COALESCE([p].[UnitPrice], 0.0))
 FROM [Products] AS [p]
 WHERE [p].[ProductID] < 40
+""");
+    }
+
+    public override async Task Max_over_constant_DateTime(bool async)
+    {
+        await base.Max_over_constant_DateTime(async);
+
+        AssertSql(
+            """
+SELECT MAX(CAST('9999-12-31T23:59:59.9999999' AS datetime2))
+FROM [Orders] AS [o]
 """);
     }
 

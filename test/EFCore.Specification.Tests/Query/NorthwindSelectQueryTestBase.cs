@@ -245,6 +245,19 @@ public abstract class NorthwindSelectQueryTestBase<TFixture>(TFixture fixture) :
             e => e.CustomerID);
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Select_anonymous_conditional_non_numeric_constants(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Select(c => new
+            {
+                c.CustomerID,
+                ConditionalGuid = c.CustomerID == "ALFKI" ? Guid.Empty : new Guid("8a4d1d6c-5ad8-4b1e-9b0e-2f1c2d3e4f50"),
+                ConditionalDateTime = c.CustomerID == "ALFKI" ? DateTime.MinValue : DateTime.MaxValue,
+                ConditionalTimeSpan = c.CustomerID == "ALFKI" ? TimeSpan.Zero : TimeSpan.FromHours(1)
+            }),
+            e => e.CustomerID);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Select_anonymous_constant_in_expression(bool async)
         => AssertQuery(
             async,
