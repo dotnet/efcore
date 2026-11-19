@@ -3834,6 +3834,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
+        ///     The property '{entityType}.{property}' has collection type '{collectionType}' but is mapped as a scalar property. If this property should be mapped as a primitive collection, configure it using 'PrimitiveCollection()' instead of 'Property()'.
+        /// </summary>
+        public static EventDefinition<string, string, string> LogAccidentalScalarCollection(IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogAccidentalScalarCollection;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((LoggingDefinitions)logger.Definitions).LogAccidentalScalarCollection,
+                    logger,
+                    static logger => new EventDefinition<string, string, string>(
+                        logger.Options,
+                        CoreEventId.AccidentalScalarCollection,
+                        LogLevel.Warning,
+                        "CoreEventId.AccidentalScalarCollection",
+                        level => LoggerMessage.Define<string, string, string>(
+                            level,
+                            CoreEventId.AccidentalScalarCollection,
+                            _resourceManager.GetString("LogAccidentalScalarCollection")!)));
+            }
+
+            return (EventDefinition<string, string, string>)definition;
+        }
+
+        /// <summary>
         ///     The foreign key {foreignKeyProperties} on entity type '{entityType}' cannot be configured as required since the dependent side cannot be determined. To identify the dependent side of the relationship, configure the foreign key property or the principal key before configuring the foreign key as required in 'OnModelCreating'. See https://go.microsoft.com/fwlink/?LinkId=724062 for more details.
         /// </summary>
         public static EventDefinition<string, string> LogAmbiguousEndRequired(IDiagnosticsLogger logger)

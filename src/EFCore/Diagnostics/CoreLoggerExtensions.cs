@@ -1707,6 +1707,36 @@ public static class CoreLoggerExtensions
     }
 
     /// <summary>
+    ///     Logs for the <see cref="CoreEventId.AccidentalScalarCollection" /> event.
+    /// </summary>
+    /// <param name="diagnostics">The diagnostics logger to use.</param>
+    /// <param name="property">The property.</param>
+    public static void AccidentalScalarCollection(
+        this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
+        IProperty property)
+    {
+        var definition = CoreResources.LogAccidentalScalarCollection(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(diagnostics, property.DeclaringType.DisplayName(), property.Name, property.ClrType.ShortDisplayName());
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new PropertyEventData(definition, AccidentalScalarCollection, property);
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    private static string AccidentalScalarCollection(EventDefinitionBase definition, EventData payload)
+    {
+        var d = (EventDefinition<string, string, string>)definition;
+        var property = ((PropertyEventData)payload).Property;
+        return d.GenerateMessage(property.DeclaringType.DisplayName(), property.Name, property.ClrType.ShortDisplayName());
+    }
+
+    /// <summary>
     ///     Logs for the <see cref="CoreEventId.AmbiguousEndRequiredWarning" /> event.
     /// </summary>
     /// <param name="diagnostics">The diagnostics logger to use.</param>

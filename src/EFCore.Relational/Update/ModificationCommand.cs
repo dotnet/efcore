@@ -1337,6 +1337,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
         private object? _originalValue;
         private object? _currentValue;
         private bool _originalValueInitialized;
+        private bool _currentValueFromDeleted;
 
         public IColumnModification? ColumnModification { get; set; }
 
@@ -1352,6 +1353,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                     {
                         _write = true;
                         _currentValue = Update.ColumnModification.GetCurrentProviderValue(entry, property);
+                        _currentValueFromDeleted = false;
                         _originalValue = Update.ColumnModification.GetOriginalProviderValue(entry, property);
                         _originalValueInitialized = true;
                     }
@@ -1359,7 +1361,9 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                     break;
                 case EntityState.Added:
                     var currentProviderValue = Update.ColumnModification.GetCurrentProviderValue(entry, property);
+                    // A deleted entry's null is not a value from a current writer.
                     if (_originalValueInitialized
+                        && !_currentValueFromDeleted
                         && mapping.Column.ProviderValueComparer.Equals(_originalValue, currentProviderValue))
                     {
                         // This Added entry has the same value as the original (pre-modification) value.
@@ -1373,6 +1377,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                             property.Sentinel))
                     {
                         _currentValue = currentProviderValue;
+                        _currentValueFromDeleted = false;
                     }
 
                     _write = true;
@@ -1386,6 +1391,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                     {
                         _write = true;
                         _currentValue = null;
+                        _currentValueFromDeleted = true;
                     }
 
                     break;
@@ -1406,9 +1412,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
         public bool TryPropagate(IColumnMappingBase mapping, IUpdateEntry entry)
         {
             var property = mapping.Property;
-            if (!_write
-                || (property.DeclaringType is IComplexType complexType
-                    && entry.GetCurrentValue(complexType.ComplexProperty) == null))
+            if (!_write)
             {
                 return true;
             }
@@ -1424,6 +1428,12 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
             if (!shouldPropagate)
             {
                 return false;
+            }
+
+            if (property.DeclaringType is IComplexType complexType
+                && entry.GetCurrentValue(complexType.ComplexProperty) == null)
+            {
+                return true;
             }
 
             if ((property.GetAfterSaveBehavior() == PropertySaveBehavior.Save

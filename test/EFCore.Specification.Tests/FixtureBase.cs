@@ -13,7 +13,8 @@ public abstract class FixtureBase
             .EnableSensitiveDataLogging()
             .ConfigureWarnings(b => b.Default(WarningBehavior.Throw)
                 .Log(CoreEventId.SensitiveDataLoggingEnabledWarning)
-                .Log(CoreEventId.PossibleUnintendedReferenceComparisonWarning));
+                .Log(CoreEventId.PossibleUnintendedReferenceComparisonWarning)
+                .Ignore(CoreEventId.AccidentalScalarCollection));
 
     protected virtual void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
