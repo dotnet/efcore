@@ -342,14 +342,22 @@ public sealed class SqlServerJsonPostprocessor(
             return json switch
             {
                 JsonScalarExpression scalar => RequiresJsonCast(scalar.Json),
+                ClrTypeChangeExpression clrTypeChange => RequiresJsonCast(clrTypeChange.Operand),
+                CollateExpression collate => RequiresJsonCast(collate.Operand),
                 ScalarSubqueryExpression subquery => RequiresJsonCast(subquery.Subquery.Projection[0].Expression),
                 CaseExpression caseExpression
                     => caseExpression.WhenClauses.Any(c => RequiresJsonCast(c.Result))
                         || (caseExpression.ElseResult is { } elseResult && RequiresJsonCast(elseResult)),
                 SqlFunctionExpression { IsBuiltIn: true, Name: "COALESCE", Arguments: { } arguments }
                     => arguments.Any(RequiresJsonCast),
+                SqlConstantExpression or SqlParameterExpression or SqlUnaryExpression
+                    {
+                        OperatorType: ExpressionType.Convert,
+                        TypeMapping.StoreType: "json"
+                    } => false,
                 ColumnExpression column when _tables.TryGetValue(column.TableAlias, out var table) => table switch
                 {
+                    TableExpression => false,
                     SqlServerOpenJsonExpression { ColumnInfos: null } => true,
                     SqlServerOpenJsonExpression { ColumnInfos: { } columns }
                         when columns.Any(c => c.Name == column.Name && c.AsJson)
@@ -360,9 +368,9 @@ public sealed class SqlServerJsonPostprocessor(
                     SetOperationBase setOperation
                         => RequiresJsonCast(setOperation.Source1.Projection.Single(p => p.Alias == column.Name).Expression)
                             || RequiresJsonCast(setOperation.Source2.Projection.Single(p => p.Alias == column.Name).Expression),
-                    _ => false
+                    _ => true
                 },
-                _ => false
+                _ => true
             };
         }
 

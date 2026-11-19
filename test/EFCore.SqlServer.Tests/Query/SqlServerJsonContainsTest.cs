@@ -142,6 +142,25 @@ WHERE EXISTS (
         Assert.Contains($"JSON_CONTAINS({jsonDocument}, N'a', N'$', 1) = 1", withSearchMode);
     }
 
+    [Fact]
+    public void JsonContains_casts_collated_nested_document()
+    {
+        var options = new DbContextOptionsBuilder<NestedContainsContext>()
+            .UseAzureSql((string?)null, b => b.UseCompatibilityLevel(170));
+
+        using var context = new NestedContainsContext(options.Options);
+#pragma warning disable EF9106 // JsonContains is experimental
+        var sql = context.Entities
+            .Where(e => e.Details.Tags.Any(t => EF.Functions.JsonContains(
+                EF.Functions.Collate(t.Names, "Latin1_General_100_BIN2"), "a") == 1))
+            .ToQueryString();
+#pragma warning restore EF9106
+
+        Assert.Contains(
+            "JSON_CONTAINS(CAST([t].[Names] COLLATE Latin1_General_100_BIN2 AS json), N'a') = 1",
+            sql);
+    }
+
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
