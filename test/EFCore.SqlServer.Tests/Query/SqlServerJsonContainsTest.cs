@@ -96,6 +96,21 @@ WHERE EXISTS (
             ignoreLineEndingDifferences: true);
     }
 
+    [Fact]
+    public void Contains_over_primitive_collection_in_json_collection_concat()
+    {
+        var options = new DbContextOptionsBuilder<NestedContainsContext>()
+            .UseAzureSql((string?)null, b => b.UseCompatibilityLevel(170));
+
+        using var context = new NestedContainsContext(options.Options);
+        var sql = context.Entities
+            .Where(e => e.Details.Tags.Concat(e.Details.Tags).Any(t => t.Names.Contains("a")))
+            .ToQueryString();
+
+        Assert.Contains("UNION ALL", sql);
+        Assert.Contains("JSON_CONTAINS(CAST([u].[Names] AS json), N'a')", sql);
+    }
+
     [Theory]
     [InlineData(false)]
     [InlineData(true)]

@@ -72,9 +72,8 @@ public sealed class SqlServerJsonPostprocessor(
 
             case SelectExpression selectExpression:
             {
-                foreach (var table in selectExpression.Tables)
+                foreach (var unwrappedTable in selectExpression.Tables.Select(t => t.UnwrapJoin()))
                 {
-                    var unwrappedTable = table.UnwrapJoin();
                     _tables[unwrappedTable.Alias!] = unwrappedTable;
                 }
 
@@ -349,6 +348,9 @@ public sealed class SqlServerJsonPostprocessor(
                             || sqlServerSingletonOptions.SqlServerCompatibilityLevel < 170,
                     SelectExpression subquery
                         => RequiresJsonCast(subquery.Projection.Single(p => p.Alias == column.Name).Expression),
+                    SetOperationBase setOperation
+                        => RequiresJsonCast(setOperation.Source1.Projection.Single(p => p.Alias == column.Name).Expression)
+                            || RequiresJsonCast(setOperation.Source2.Projection.Single(p => p.Alias == column.Name).Expression),
                     _ => false
                 },
                 _ => false
