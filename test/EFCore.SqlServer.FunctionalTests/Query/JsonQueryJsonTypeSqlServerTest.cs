@@ -1837,6 +1837,42 @@ ORDER BY JSON_VALUE([j].[OwnedReferenceRoot], '$.Numbers[0]' RETURNING int)
 """);
     }
 
+    public override async Task Json_collection_of_primitives_in_json_collection_contains(bool async)
+    {
+        await base.Json_collection_of_primitives_in_json_collection_contains(async);
+
+        if (SqlServerTestEnvironment.IsAzureSql)
+        {
+            AssertSql(
+                """
+SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM OPENJSON([j].[OwnedCollectionRoot], '$') WITH ([Names] nvarchar(max) '$.Names' AS JSON) AS [o]
+        WHERE JSON_CONTAINS(CAST([o].[Names] AS json), N'e1_c11') = 1) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+FROM [JsonEntitiesBasic] AS [j]
+ORDER BY [j].[Id]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM OPENJSON([j].[OwnedCollectionRoot], '$') WITH ([Names] json '$.Names' AS JSON) AS [o]
+        WHERE JSON_CONTAINS([o].[Names], N'e1_c11') = 1) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+FROM [JsonEntitiesBasic] AS [j]
+ORDER BY [j].[Id]
+""");
+        }
+    }
+
     public override async Task Json_collection_of_primitives_contains_in_predicate(bool async)
     {
         await base.Json_collection_of_primitives_contains_in_predicate(async);

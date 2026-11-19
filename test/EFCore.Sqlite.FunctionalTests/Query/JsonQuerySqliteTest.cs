@@ -17,6 +17,27 @@ public class JsonQuerySqliteTest : JsonQueryRelationalTestBase<JsonQuerySqliteFi
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
+    public override async Task Json_collection_of_primitives_in_json_collection_contains(bool async)
+    {
+        await base.Json_collection_of_primitives_in_json_collection_contains(async);
+
+        AssertSql(
+            """
+SELECT EXISTS (
+    SELECT 1
+    FROM (
+        SELECT "o"."value" ->> 'Names' AS "Names"
+        FROM json_each("j"."OwnedCollectionRoot", '$') AS "o"
+    ) AS "o0"
+    WHERE 'e1_c11' IN (
+        SELECT "n"."value"
+        FROM json_each("o0"."Names") AS "n"
+    ))
+FROM "JsonEntitiesBasic" AS "j"
+ORDER BY "j"."Id"
+""");
+    }
+
     public override async Task Json_scalar_length(bool async)
     {
         await base.Json_scalar_length(async);

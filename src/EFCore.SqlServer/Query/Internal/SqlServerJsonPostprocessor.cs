@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using ColumnInfo = Microsoft.EntityFrameworkCore.SqlServer.Query.Internal.SqlServerOpenJsonExpression.ColumnInfo;
@@ -17,6 +18,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 ///     * When the column type in the WITH clause is a SQL Server "CLR type" - these are incompatible with WITH (e.g. hierarchy id).
 ///     2. Rewrite JsonScalarExpression (JSON_VALUE()) to OPENJSON for when JSON_VALUE() isn't compatible with the type (e.g. binary data
 ///     which needs to be base64-decoded).
+///     3. Cast JSON_CONTAINS document arguments to json when OPENJSON actually returns text.
 /// </summary>
 /// <remarks>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -27,11 +29,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 public sealed class SqlServerJsonPostprocessor(
     IRelationalTypeMappingSource typeMappingSource,
     ISqlExpressionFactory sqlExpressionFactory,
+    ISqlServerSingletonOptions sqlServerSingletonOptions,
     SqlAliasManager? sqlAliasManager)
     : ExpressionVisitor
 {
     private readonly List<OuterApplyExpression> _openjsonOuterAppliesToAdd = [];
     private readonly Dictionary<(string, string), ColumnInfo> _columnsToRewrite = [];
+    private readonly Dictionary<string, TableExpressionBase> _tables = [];
 
     private readonly RelationalTypeMapping _nvarcharMaxTypeMapping = typeMappingSource.FindMapping("nvarchar(max)")!;
 
@@ -44,6 +48,7 @@ public sealed class SqlServerJsonPostprocessor(
     public Expression Process(Expression expression)
     {
         _columnsToRewrite.Clear();
+        _tables.Clear();
 
         return Visit(expression);
     }
@@ -67,6 +72,11 @@ public sealed class SqlServerJsonPostprocessor(
 
             case SelectExpression selectExpression:
             {
+                foreach (var unwrappedTable in selectExpression.Tables.Select(t => t.UnwrapJoin()))
+                {
+                    _tables[unwrappedTable.Alias!] = unwrappedTable;
+                }
+
                 TableExpressionBase[]? newTables = null;
                 Dictionary<(string, string), ColumnInfo>? columnsToRewrite = null;
 
@@ -89,6 +99,7 @@ public sealed class SqlServerJsonPostprocessor(
                             openJsonExpression.Json,
                             openJsonExpression.Path,
                             columnInfos: null);
+                        _tables[newOpenJsonExpression.Alias] = newOpenJsonExpression;
 
                         table = table switch
                         {
@@ -172,7 +183,28 @@ public sealed class SqlServerJsonPostprocessor(
                     _openjsonOuterAppliesToAdd.Clear();
                 }
 
+                if (result.Alias is { } alias)
+                {
+                    _tables[alias] = result;
+                }
+
                 return result;
+            }
+
+            case SqlFunctionExpression { IsBuiltIn: true, Name: "JSON_CONTAINS", Arguments: [_, _, ..] } jsonContains:
+            {
+                jsonContains = (SqlFunctionExpression)base.VisitExtension(jsonContains);
+                var arguments = jsonContains.Arguments!.ToArray();
+                var json = arguments[0];
+
+                // OPENJSON/WITH on Azure SQL and OPENJSON without WITH return text even when the model uses json.
+                if (RequiresJsonCast(json))
+                {
+                    arguments[0] = sqlExpressionFactory.Convert(json, json.Type, SqlServerJsonTypeMapping.Default);
+                    return jsonContains.Update(jsonContains.Instance, arguments);
+                }
+
+                return jsonContains;
             }
 
             case ColumnExpression columnExpression
@@ -257,14 +289,20 @@ public sealed class SqlServerJsonPostprocessor(
             // to both sides. We exempt this when one of the sides is a constant null (not required).
             case SqlBinaryExpression
             {
-                OperatorType: ExpressionType.Equal or ExpressionType.NotEqual,
-                Left: var left,
-                Right: var right
-            } comparison
-                when (left.TypeMapping?.StoreType is "json" || right.TypeMapping?.StoreType is "json")
-                && left is not SqlConstantExpression { Value: null }
-                && right is not SqlConstantExpression { Value: null }:
+                OperatorType: ExpressionType.Equal or ExpressionType.NotEqual
+            } comparison:
             {
+                comparison = (SqlBinaryExpression)base.VisitExtension(comparison);
+                var left = comparison.Left;
+                var right = comparison.Right;
+
+                if ((left.TypeMapping?.StoreType is not "json" && right.TypeMapping?.StoreType is not "json")
+                    || left is SqlConstantExpression { Value: null }
+                    || right is SqlConstantExpression { Value: null })
+                {
+                    return comparison;
+                }
+
                 var stringTypeMapping = typeMappingSource.FindMapping(typeof(string))!;
 
                 return comparison.Update(ConvertToString(left), ConvertToString(right));
@@ -299,6 +337,48 @@ public sealed class SqlServerJsonPostprocessor(
                     Operand: var operand
                 }
                     && IsKeyColumn(operand, openJsonTableAlias));
+
+        bool RequiresJsonCast(SqlExpression json)
+        {
+            if (json.TypeMapping?.StoreType != "json")
+            {
+                return true;
+            }
+
+            return json switch
+            {
+                JsonScalarExpression scalar => RequiresJsonCast(scalar.Json),
+                ClrTypeChangeExpression clrTypeChange => RequiresJsonCast(clrTypeChange.Operand),
+                CollateExpression collate => RequiresJsonCast(collate.Operand),
+                ScalarSubqueryExpression subquery => RequiresJsonCast(subquery.Subquery.Projection[0].Expression),
+                CaseExpression caseExpression
+                    => caseExpression.WhenClauses.Any(c => RequiresJsonCast(c.Result))
+                        || (caseExpression.ElseResult is { } elseResult && RequiresJsonCast(elseResult)),
+                SqlFunctionExpression { IsBuiltIn: true, Name: "COALESCE", Arguments: { } arguments }
+                    => arguments.Any(RequiresJsonCast),
+                SqlConstantExpression or SqlParameterExpression or SqlUnaryExpression
+                    {
+                        OperatorType: ExpressionType.Convert,
+                        TypeMapping.StoreType: "json"
+                    } => false,
+                ColumnExpression column when _tables.TryGetValue(column.TableAlias, out var table) => table switch
+                {
+                    TableExpression => false,
+                    SqlServerOpenJsonExpression { ColumnInfos: null } => true,
+                    SqlServerOpenJsonExpression { ColumnInfos: { } columns }
+                        when columns.Any(c => c.Name == column.Name && c.AsJson)
+                        => sqlServerSingletonOptions.EngineType != SqlServerEngineType.SqlServer
+                            || sqlServerSingletonOptions.SqlServerCompatibilityLevel < 170,
+                    SelectExpression subquery
+                        => RequiresJsonCast(subquery.Projection.Single(p => p.Alias == column.Name).Expression),
+                    SetOperationBase setOperation
+                        => RequiresJsonCast(setOperation.Source1.Projection.Single(p => p.Alias == column.Name).Expression)
+                            || RequiresJsonCast(setOperation.Source2.Projection.Single(p => p.Alias == column.Name).Expression),
+                    _ => true
+                },
+                _ => true
+            };
+        }
 
         SqlExpression RewriteOpenJsonColumn(ColumnExpression columnExpression, ColumnInfo columnInfo)
         {

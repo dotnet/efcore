@@ -1624,6 +1624,27 @@ ORDER BY CAST(JSON_VALUE([j].[OwnedReferenceRoot], '$.Numbers[0]') AS int)
 """);
     }
 
+    public override async Task Json_collection_of_primitives_in_json_collection_contains(bool async)
+    {
+        await base.Json_collection_of_primitives_in_json_collection_contains(async);
+
+        AssertSql(
+            """
+SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM OPENJSON([j].[OwnedCollectionRoot], '$') WITH ([Names] nvarchar(max) '$.Names' AS JSON) AS [o]
+        WHERE N'e1_c11' IN (
+            SELECT [n].[value]
+            FROM OPENJSON([o].[Names]) WITH ([value] nvarchar(max) '$') AS [n]
+        )) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+FROM [JsonEntitiesBasic] AS [j]
+ORDER BY [j].[Id]
+""");
+    }
+
     public override async Task Json_collection_of_primitives_contains_in_predicate(bool async)
     {
         await base.Json_collection_of_primitives_contains_in_predicate(async);
