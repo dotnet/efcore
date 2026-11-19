@@ -1,6 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
+
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 
 /// <summary>
@@ -11,6 +13,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 /// </summary>
 public class SqlServerQueryTranslationPostprocessorFactory : IQueryTranslationPostprocessorFactory
 {
+    private readonly ISqlServerSingletonOptions _sqlServerSingletonOptions;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -19,10 +23,12 @@ public class SqlServerQueryTranslationPostprocessorFactory : IQueryTranslationPo
     /// </summary>
     public SqlServerQueryTranslationPostprocessorFactory(
         QueryTranslationPostprocessorDependencies dependencies,
-        RelationalQueryTranslationPostprocessorDependencies relationalDependencies)
+        RelationalQueryTranslationPostprocessorDependencies relationalDependencies,
+        ISqlServerSingletonOptions sqlServerSingletonOptions)
     {
         Dependencies = dependencies;
         RelationalDependencies = relationalDependencies;
+        _sqlServerSingletonOptions = sqlServerSingletonOptions;
     }
 
     /// <summary>
@@ -44,5 +50,5 @@ public class SqlServerQueryTranslationPostprocessorFactory : IQueryTranslationPo
     [DebuggerStepThrough]
     public virtual QueryTranslationPostprocessor Create(QueryCompilationContext queryCompilationContext)
         => new SqlServerQueryTranslationPostprocessor(
-            Dependencies, RelationalDependencies, (SqlServerQueryCompilationContext)queryCompilationContext);
+            Dependencies, RelationalDependencies, (SqlServerQueryCompilationContext)queryCompilationContext, _sqlServerSingletonOptions);
 }

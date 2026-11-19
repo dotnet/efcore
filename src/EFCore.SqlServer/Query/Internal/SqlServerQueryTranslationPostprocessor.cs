@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
+
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 
 /// <summary>
@@ -12,12 +14,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 public class SqlServerQueryTranslationPostprocessor(
     QueryTranslationPostprocessorDependencies dependencies,
     RelationalQueryTranslationPostprocessorDependencies relationalDependencies,
-    SqlServerQueryCompilationContext queryCompilationContext)
+    SqlServerQueryCompilationContext queryCompilationContext,
+    ISqlServerSingletonOptions sqlServerSingletonOptions)
     : RelationalQueryTranslationPostprocessor(dependencies, relationalDependencies, queryCompilationContext)
 {
     private readonly SqlServerJsonPostprocessor _jsonPostprocessor = new(
         relationalDependencies.TypeMappingSource,
         relationalDependencies.SqlExpressionFactory,
+        sqlServerSingletonOptions,
         queryCompilationContext.SqlAliasManager);
 
     private readonly SqlServerAggregateArgumentPostprocessor _aggregatePostprocessor = new(queryCompilationContext.SqlAliasManager);

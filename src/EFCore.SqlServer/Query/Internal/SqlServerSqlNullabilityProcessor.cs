@@ -331,6 +331,7 @@ public class SqlServerSqlNullabilityProcessor(
                 var jsonPostprocessor = new SqlServerJsonPostprocessor(
                     Dependencies.TypeMappingSource,
                     Dependencies.SqlExpressionFactory,
+                    _sqlServerSingletonOptions,
                     sqlAliasManager: null);
                 openJsonResult = (SqlServerOpenJsonExpression)jsonPostprocessor.Process(openJsonExpression);
                 constantsResult = default;

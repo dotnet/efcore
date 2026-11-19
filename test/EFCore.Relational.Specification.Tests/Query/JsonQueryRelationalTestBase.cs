@@ -9,6 +9,15 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : JsonQueryTestBase<TFixture>(fixture)
     where TFixture : JsonQueryRelationalFixture, new()
 {
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_collection_of_primitives_in_json_collection_contains(bool async)
+        => AssertQueryScalar(
+            async,
+            ss => ss.Set<JsonEntityBasic>()
+                .OrderBy(e => e.Id)
+                .Select(e => e.OwnedCollectionRoot.Any(r => r.Names!.Contains("e1_c11"))),
+            assertOrder: true);
+
     [Theory]
     public override async Task Project_json_reference_in_tracking_query_fails(bool async)
     {
