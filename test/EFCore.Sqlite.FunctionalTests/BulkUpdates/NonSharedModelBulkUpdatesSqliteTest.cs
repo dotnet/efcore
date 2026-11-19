@@ -292,6 +292,66 @@ SET "ComplexThing_Prop1" = @p
 """);
     }
 
+    public override async Task Update_with_left_join_to_group_by_projection(bool async)
+    {
+        await base.Update_with_left_join_to_group_by_projection(async);
+
+        AssertSql(
+            """
+UPDATE "Parts" AS "p0"
+SET "NormalHours" = COALESCE(CASE
+    WHEN "s"."marker" IS NULL THEN NULL
+    ELSE "s"."NormalHours0"
+END, '0.0')
+FROM (
+    SELECT "p"."Id", "r0"."NormalHours" AS "NormalHours0", "r0"."marker"
+    FROM "Parts" AS "p"
+    LEFT JOIN (
+        SELECT "r"."PartId", COALESCE(ef_sum("r"."Hours"), '0.0') AS "NormalHours", 1 AS "marker"
+        FROM "Records" AS "r"
+        GROUP BY "r"."PartId"
+    ) AS "r0" ON "p"."Id" = "r0"."PartId"
+) AS "s"
+WHERE "p0"."Id" = "s"."Id"
+""",
+            //
+            """
+SELECT "p"."Id", "p"."NormalHours", "p"."RecordCount"
+FROM "Parts" AS "p"
+ORDER BY "p"."Id"
+""");
+    }
+
+    public override async Task Update_with_left_join_to_group_by_dto_projection(bool async)
+    {
+        await base.Update_with_left_join_to_group_by_dto_projection(async);
+
+        AssertSql(
+            """
+UPDATE "Parts" AS "p0"
+SET "RecordCount" = CASE
+    WHEN "s"."marker" IS NULL THEN NULL
+    ELSE "s"."Count"
+END
+FROM (
+    SELECT "p"."Id", "r0"."Count", "r0"."marker"
+    FROM "Parts" AS "p"
+    LEFT JOIN (
+        SELECT "r"."PartId", COUNT(*) AS "Count", 1 AS "marker"
+        FROM "Records" AS "r"
+        GROUP BY "r"."PartId"
+    ) AS "r0" ON "p"."Id" = "r0"."PartId"
+) AS "s"
+WHERE "p0"."Id" = "s"."Id"
+""",
+            //
+            """
+SELECT "p"."Id", "p"."NormalHours", "p"."RecordCount"
+FROM "Parts" AS "p"
+ORDER BY "p"."Id"
+""");
+    }
+
     protected override DbContextOptionsBuilder AddNonSharedOptions(DbContextOptionsBuilder builder)
         => base.AddNonSharedOptions(builder).ConfigureWarnings(wcb => wcb.Log(SqliteEventId.CompositeKeyWithValueGeneration));
 

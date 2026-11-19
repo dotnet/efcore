@@ -321,6 +321,60 @@ FROM [Blogs] AS [b]
 """);
     }
 
+    public override async Task Update_with_left_join_to_group_by_projection(bool async)
+    {
+        await base.Update_with_left_join_to_group_by_projection(async);
+
+        AssertSql(
+            """
+SET NOCOUNT OFF;
+UPDATE [p]
+SET [p].[NormalHours] = ISNULL(CASE
+    WHEN [r0].[marker] IS NULL THEN NULL
+    ELSE [r0].[NormalHours]
+END, 0.0)
+FROM [Parts] AS [p]
+LEFT JOIN (
+    SELECT [r].[PartId], ISNULL(SUM([r].[Hours]), 0.0) AS [NormalHours], 1 AS [marker]
+    FROM [Records] AS [r]
+    GROUP BY [r].[PartId]
+) AS [r0] ON [p].[Id] = [r0].[PartId]
+""",
+            //
+            """
+SELECT [p].[Id], [p].[NormalHours], [p].[RecordCount]
+FROM [Parts] AS [p]
+ORDER BY [p].[Id]
+""");
+    }
+
+    public override async Task Update_with_left_join_to_group_by_dto_projection(bool async)
+    {
+        await base.Update_with_left_join_to_group_by_dto_projection(async);
+
+        AssertSql(
+            """
+SET NOCOUNT OFF;
+UPDATE [p]
+SET [p].[RecordCount] = CASE
+    WHEN [r0].[marker] IS NULL THEN NULL
+    ELSE [r0].[Count]
+END
+FROM [Parts] AS [p]
+LEFT JOIN (
+    SELECT [r].[PartId], COUNT(*) AS [Count], 1 AS [marker]
+    FROM [Records] AS [r]
+    GROUP BY [r].[PartId]
+) AS [r0] ON [p].[Id] = [r0].[PartId]
+""",
+            //
+            """
+SELECT [p].[Id], [p].[NormalHours], [p].[RecordCount]
+FROM [Parts] AS [p]
+ORDER BY [p].[Id]
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => TestSqlLoggerFactory.AssertBaseline(expected);
 

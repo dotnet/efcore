@@ -647,16 +647,41 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
         {
             // Fold member access into conditional, i.e. transform
             // (test ? expr1 : expr2).Member -> (test ? expr1.Member : expr2.Member)
+            // When either branch is null (e.g. a non-entity outer-join projection gated on its nullability marker),
+            // propagate SQL NULL instead of creating an untranslatable member access on null.
             case ConditionalExpression conditional:
-                return Visit(
-                    Expression.Condition(
-                        conditional.Test,
-                        Expression.MakeMemberAccess(conditional.IfTrue, member),
-                        Expression.MakeMemberAccess(conditional.IfFalse, member)));
+            {
+                var ifTrue = MakeMemberAccess(conditional.IfTrue, member, memberExpression.Type);
+                var ifFalse = MakeMemberAccess(conditional.IfFalse, member, memberExpression.Type);
+                if (ifTrue.Type != ifFalse.Type)
+                {
+                    var nullableType = memberExpression.Type.MakeNullable();
+                    if (ifTrue.Type != nullableType)
+                    {
+                        ifTrue = Expression.Convert(ifTrue, nullableType);
+                    }
+
+                    if (ifFalse.Type != nullableType)
+                    {
+                        ifFalse = Expression.Convert(ifFalse, nullableType);
+                    }
+                }
+
+                return Visit(Expression.Condition(conditional.Test, ifTrue, ifFalse));
+
+                static Expression MakeMemberAccess(Expression target, MemberInfo member, Type memberType)
+                    => target is ConstantExpression { Value: null } or DefaultExpression { Type.IsValueType: false }
+                        ? Expression.Constant(null, memberType.MakeNullable())
+                        : Expression.MakeMemberAccess(target, member);
+            }
 
             // Reduce member accesses on new expressions (new { A = 8 }.Select(x => x.A) => 8)
             case NewExpression @new when @new.Members?.IndexOf(member) is int index && index >= 0:
                 return Visit(@new.Arguments[index]);
+
+            case MemberInitExpression memberInit
+                when memberInit.Bindings.SingleOrDefault(mb => mb.Member.IsSameAs(member)) is MemberAssignment memberAssignment:
+                return Visit(memberAssignment.Expression);
         }
 
         var inner = Visit(memberExpression.Expression);
