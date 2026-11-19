@@ -380,6 +380,13 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
             = typeof(QueryContext).GetMethods()
                 .Single(mi => mi.GetParameters().Length == 4 && mi.Name == nameof(QueryContext.TryGetEntry));
 
+        private static readonly MethodInfo TryGetEntryWithExistenceCheckMethodInfo
+            = typeof(QueryContext).GetMethods()
+                .Single(mi => mi.GetParameters().Length == 5 && mi.Name == nameof(QueryContext.TryGetEntry));
+
+        private static readonly bool UseOldBehavior39717
+            = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue39717", out var enabled) && enabled;
+
         private static readonly MethodInfo StartTrackingMethodInfo
             = typeof(QueryContext).GetMethod(
                 nameof(QueryContext.StartTracking), [typeof(IEntityType), typeof(object), typeof(ISnapshot).MakeByRefType()])!;
@@ -469,33 +476,45 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                 variables.Add(hasNullKeyVariable);
 
                 var resolverPrm = Parameter(typeof(MaterializerLiftableConstantContext), "c");
+                // Optional table-split dependents have a materialization condition that returns null
+                // even with a non-null key. Use its presence check before promoting an Added entry.
+                var presenceCheck = !UseOldBehavior39717
+                    && shaper.MaterializationCondition.Body is ConditionalExpression { IfFalse: DefaultExpression } condition
+                        ? ReplacingExpressionVisitor.Replace(
+                            shaper.MaterializationCondition.Parameters[0], valueBufferExpression, condition.Test)
+                        : null;
+
+                Expression[] lookupArguments =
+                [
+                    supportsPrecompiledQuery
+                        ? liftableConstantFactory.CreateLiftableConstant(
+                            primaryKey,
+                            Lambda<Func<MaterializerLiftableConstantContext, object>>(
+                                Call(
+                                    LiftableConstantExpressionHelpers.BuildMemberAccessForEntityOrComplexType(
+                                        typeBase, resolverPrm),
+                                    EntityTypeFindPrimaryKeyMethod),
+                                resolverPrm),
+                            /*typeBase.Name +*/ "key",
+                            typeof(IKey))
+                        : Constant(primaryKey),
+                    NewArrayInit(
+                        typeof(object),
+                        primaryKey.Properties
+                            .Select(p => valueBufferExpression.CreateValueBufferReadValueExpression(
+                                typeof(object),
+                                p.GetIndex(),
+                                p))),
+                    Constant(!shaper.IsNullable),
+                    hasNullKeyVariable
+                ];
                 expressions.Add(
                     Assign(
                         entryVariable,
                         Call(
                             QueryCompilationContext.QueryContextParameter,
-                            TryGetEntryMethodInfo,
-                            supportsPrecompiledQuery
-                                ? liftableConstantFactory.CreateLiftableConstant(
-                                    primaryKey,
-                                    Lambda<Func<MaterializerLiftableConstantContext, object>>(
-                                        Call(
-                                            LiftableConstantExpressionHelpers.BuildMemberAccessForEntityOrComplexType(
-                                                typeBase, resolverPrm),
-                                            EntityTypeFindPrimaryKeyMethod),
-                                        resolverPrm),
-                                    /*typeBase.Name +*/ "key",
-                                    typeof(IKey))
-                                : Constant(primaryKey),
-                            NewArrayInit(
-                                typeof(object),
-                                primaryKey.Properties
-                                    .Select(p => valueBufferExpression.CreateValueBufferReadValueExpression(
-                                        typeof(object),
-                                        p.GetIndex(),
-                                        p))),
-                            Constant(!shaper.IsNullable),
-                            hasNullKeyVariable)));
+                            presenceCheck is null ? TryGetEntryMethodInfo : TryGetEntryWithExistenceCheckMethodInfo,
+                            presenceCheck is null ? lookupArguments : [..lookupArguments, presenceCheck])));
 
                 expressions.Add(
                     IfThen(

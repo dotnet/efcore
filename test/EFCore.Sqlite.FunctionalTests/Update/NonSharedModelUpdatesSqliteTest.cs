@@ -6,6 +6,53 @@ namespace Microsoft.EntityFrameworkCore.Update;
 public class NonSharedModelUpdatesSqliteTest(NonSharedFixture fixture) : NonSharedModelUpdatesTestBase(fixture)
 {
     [Theory, InlineData(false), InlineData(true)]
+    public async Task Tracking_query_only_marks_added_owned_reference_unchanged_if_present_in_store(bool existsInStore)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context39595>(
+            onModelCreating: b =>
+            {
+                var owner = b.Entity<Context39595.Owner>();
+                owner.OwnsOne(o => o.Patch, p => p.Property(e => e.Title).IsRequired());
+                owner.Navigation(o => o.Patch).IsRequired(false);
+            },
+            seed: async context =>
+            {
+                context.Add(
+                    new Context39595.Owner
+                    {
+                        Id = 1, Patch = existsInStore ? new Context39595.Patch { Title = "stored title" } : null!
+                    });
+                await context.SaveChangesAsync();
+            });
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var owner = existsInStore
+                ? context.Attach(new Context39595.Owner { Id = 1 }).Entity
+                : await context.Set<Context39595.Owner>().SingleAsync();
+            Assert.Null(owner.Patch);
+
+            var patch = new Context39595.Patch { Title = "new title", Start = 5 };
+            owner.Patch = patch;
+            context.ChangeTracker.DetectChanges();
+            Assert.Equal(EntityState.Added, context.Entry(patch).State);
+
+            Assert.Same(owner, await context.Set<Context39595.Owner>().SingleAsync());
+
+            Assert.Equal(existsInStore ? EntityState.Unchanged : EntityState.Added, context.Entry(patch).State);
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var owner = await context.Set<Context39595.Owner>().SingleAsync();
+            Assert.NotNull(owner.Patch);
+            Assert.Equal(existsInStore ? "stored title" : "new title", owner.Patch.Title);
+            Assert.Equal(existsInStore ? (int?)null : 5, owner.Patch.Start);
+        }
+    }
+
+    [Theory, InlineData(false), InlineData(true)]
     public async Task Tracking_query_preserves_replaced_owned_reference(bool json)
     {
         var contextFactory = await InitializeNonSharedTest<Context39595>(
