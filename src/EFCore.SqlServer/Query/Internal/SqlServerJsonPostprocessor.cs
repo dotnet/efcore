@@ -289,14 +289,20 @@ public sealed class SqlServerJsonPostprocessor(
             // to both sides. We exempt this when one of the sides is a constant null (not required).
             case SqlBinaryExpression
             {
-                OperatorType: ExpressionType.Equal or ExpressionType.NotEqual,
-                Left: var left,
-                Right: var right
-            } comparison
-                when (left.TypeMapping?.StoreType is "json" || right.TypeMapping?.StoreType is "json")
-                && left is not SqlConstantExpression { Value: null }
-                && right is not SqlConstantExpression { Value: null }:
+                OperatorType: ExpressionType.Equal or ExpressionType.NotEqual
+            } comparison:
             {
+                comparison = (SqlBinaryExpression)base.VisitExtension(comparison);
+                var left = comparison.Left;
+                var right = comparison.Right;
+
+                if ((left.TypeMapping?.StoreType is not "json" && right.TypeMapping?.StoreType is not "json")
+                    || left is SqlConstantExpression { Value: null }
+                    || right is SqlConstantExpression { Value: null })
+                {
+                    return comparison;
+                }
+
                 var stringTypeMapping = typeMappingSource.FindMapping(typeof(string))!;
 
                 return comparison.Update(ConvertToString(left), ConvertToString(right));

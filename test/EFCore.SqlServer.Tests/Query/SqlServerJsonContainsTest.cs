@@ -161,6 +161,36 @@ WHERE EXISTS (
             sql);
     }
 
+    [Fact]
+    public void JsonContains_inside_json_equality_comparison_visits_operands()
+    {
+        var options = new DbContextOptionsBuilder<NestedContainsContext>()
+            .UseAzureSql((string?)null, b => b.UseCompatibilityLevel(170));
+
+        using var context = new NestedContainsContext(options.Options);
+        var sql = context.Entities
+            .Where(e => e.Details.Tags.Any(t =>
+                (t.Names.Contains("a") ? t.Names : t.AlternativeNames) == t.Names))
+            .ToQueryString();
+
+        Assert.Contains("JSON_CONTAINS(CAST([t].[Names] AS json), N'a') = 1", sql);
+    }
+
+    [Fact]
+    public void JsonContains_inside_json_inequality_comparison_visits_operands()
+    {
+        var options = new DbContextOptionsBuilder<NestedContainsContext>()
+            .UseAzureSql((string?)null, b => b.UseCompatibilityLevel(170));
+
+        using var context = new NestedContainsContext(options.Options);
+        var sql = context.Entities
+            .Where(e => e.Details.Tags.Any(t =>
+                (t.Names.Contains("a") ? t.Names : t.AlternativeNames) != t.Names))
+            .ToQueryString();
+
+        Assert.Contains("JSON_CONTAINS(CAST([t].[Names] AS json), N'a') = 1", sql);
+    }
+
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
