@@ -367,7 +367,7 @@ FROM "PolygonEntity" AS "p"
 
 SELECT "p"."Id", CASE
     WHEN "p"."Polygon" IS NULL THEN NULL
-    WHEN "p"."Polygon" IS NOT NULL THEN Disjoint("p"."Polygon", @point)
+    ELSE Disjoint("p"."Polygon", @point)
 END AS "Disjoint"
 FROM "PolygonEntity" AS "p"
 """);

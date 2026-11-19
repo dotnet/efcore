@@ -1816,6 +1816,31 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
             ss => ss.Set<NullSemanticsEntity1>().Select(e => e.NullableStringA != null ? e.NullableStringA != e.StringA : e.BoolA));
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Nullable_column_info_propagates_to_else_of_conditional(bool async)
+        => AssertQueryScalar(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>().Select(e => e.NullableStringA == null ? e.BoolA : e.NullableStringA != e.StringA));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Nullable_column_info_propagates_to_else_of_conditional_in_predicate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>()
+                .Where(e => e.NullableIntA == null ? e.IntB == e.NullableIntB : e.NullableIntC == e.NullableIntA));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Nullable_column_info_propagates_to_later_clauses_of_conditional(bool async)
+        => AssertQueryScalar(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>().Select(e => e.NullableIntA == null
+                ? 0
+                : e.NullableIntB == null
+                    ? 1
+                    : e.NullableIntA == e.NullableIntB
+                        ? 2
+                        : 3));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Nullable_column_info_doesnt_propagate_between_projections(bool async)
         => AssertQuery(
             async,
