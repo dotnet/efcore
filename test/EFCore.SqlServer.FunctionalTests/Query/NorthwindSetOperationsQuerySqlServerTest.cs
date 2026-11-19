@@ -1621,6 +1621,157 @@ WHERE [c1].[CustomerID] LIKE N'A%'
 """);
     }
 
+    public override async Task Append(bool async)
+    {
+        await base.Append(async);
+
+        AssertSql(
+            """
+@p='ZZZZZ' (Size = 5) (DbType = StringFixedLength)
+
+SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE [c].[City] IN (N'Berlin', N'Madrid')
+UNION ALL
+SELECT [v].[Value] AS [CustomerID]
+FROM (VALUES (@p)) AS [v]([Value])
+""");
+    }
+
+    public override async Task Prepend(bool async)
+    {
+        await base.Prepend(async);
+
+        AssertSql(
+            """
+@p='AAAAA' (Size = 5) (DbType = StringFixedLength)
+
+SELECT [v].[Value]
+FROM (VALUES (@p)) AS [v]([Value])
+UNION ALL
+SELECT [c].[CustomerID] AS [Value]
+FROM [Customers] AS [c]
+WHERE [c].[City] IN (N'Berlin', N'Madrid')
+""");
+    }
+
+    public override async Task Append_and_Prepend_followed_by_OrderBy(bool async)
+    {
+        await base.Append_and_Prepend_followed_by_OrderBy(async);
+
+        AssertSql(
+            """
+@p1='AAAAA' (Size = 5) (DbType = StringFixedLength)
+@p='ZZZZZ' (Size = 5) (DbType = StringFixedLength)
+
+SELECT [u0].[Value]
+FROM (
+    SELECT [v].[Value]
+    FROM (VALUES (@p1)) AS [v]([Value])
+    UNION ALL
+    SELECT [c].[CustomerID]
+    FROM [Customers] AS [c]
+    WHERE [c].[City] IN (N'Berlin', N'Madrid')
+    UNION ALL
+    SELECT [v0].[Value] AS [CustomerID]
+    FROM (VALUES (@p)) AS [v0]([Value])
+) AS [u0]
+ORDER BY [u0].[Value] DESC
+""");
+    }
+
+    public override async Task Append_followed_by_Count(bool async)
+    {
+        await base.Append_followed_by_Count(async);
+
+        AssertSql(
+            """
+@p='ZZZZZ' (Size = 5) (DbType = StringFixedLength)
+
+SELECT COUNT(*)
+FROM (
+    SELECT 1 AS empty
+    FROM [Customers] AS [c]
+    WHERE [c].[City] = N'Berlin'
+    UNION ALL
+    SELECT 1 AS empty
+    FROM (VALUES (@p)) AS [v]([Value])
+) AS [u]
+""");
+    }
+
+    public override async Task Append_on_collection_navigation_in_projection(bool async)
+    {
+        await base.Append_on_collection_navigation_in_projection(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], (
+    SELECT MAX([u].[OrderID])
+    FROM (
+        SELECT [o].[OrderID]
+        FROM [Orders] AS [o]
+        WHERE [c].[CustomerID] = [o].[CustomerID]
+        UNION ALL
+        SELECT [v].[Value] AS [OrderID]
+        FROM (VALUES (CAST(0 AS int))) AS [v]([Value])
+    ) AS [u]) AS [MaxOrderId]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'F%'
+""");
+    }
+
+    public override async Task Append_parameter_on_collection_navigation_in_predicate(bool async)
+    {
+        await base.Append_parameter_on_collection_navigation_in_predicate(async);
+
+        AssertSql(
+            """
+@orderId='10300'
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE (
+    SELECT MAX([u].[OrderID])
+    FROM (
+        SELECT [o].[OrderID]
+        FROM [Orders] AS [o]
+        WHERE [c].[CustomerID] = [o].[CustomerID]
+        UNION ALL
+        SELECT [v].[Value] AS [OrderID]
+        FROM (VALUES (@orderId)) AS [v]([Value])
+    ) AS [u]) = @orderId
+""");
+    }
+
+    public override async Task Prepend_column_on_collection_navigation_in_projection(bool async)
+    {
+        await base.Prepend_column_on_collection_navigation_in_projection(async);
+
+        AssertSql(
+            """
+SELECT [o].[OrderID], (
+    SELECT MAX([u].[Value])
+    FROM (
+        SELECT [v].[Value]
+        FROM (VALUES ([o].[OrderID])) AS [v]([Value])
+        UNION ALL
+        SELECT [o0].[ProductID] AS [Value]
+        FROM [Order Details] AS [o0]
+        WHERE [o].[OrderID] = [o0].[OrderID]
+    ) AS [u]) AS [MaxId]
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] < 10260
+""");
+    }
+
+    public override async Task Append_entity(bool async)
+    {
+        await base.Append_entity(async);
+
+        AssertSql();
+    }
+
     public override async Task Client_eval_Union_FirstOrDefault(bool async)
     {
         // Client evaluation in projection. Issue #16243.

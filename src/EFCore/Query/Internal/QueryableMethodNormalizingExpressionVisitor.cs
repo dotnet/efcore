@@ -257,6 +257,7 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
             visitedMethodCall = TryFlattenGroupJoinSelectMany(visitedMethodCall);
             visitedMethodCall = TryNormalizeMaxByMinBy(visitedMethodCall);
             visitedMethodCall = TryNormalizeJoinWithoutResultSelector(visitedMethodCall);
+            visitedMethodCall = TryNormalizeAppendPrepend(visitedMethodCall);
 
             return visitedMethodCall;
         }
@@ -921,6 +922,36 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
         }
 
         return Expression.Call(joinMethod.MakeGenericMethod(outerType, innerType, keyType, tupleType), arguments);
+    }
+
+    private static MethodCallExpression TryNormalizeAppendPrepend(MethodCallExpression methodCallExpression)
+    {
+        /*
+            Append(element) --> Concat(new[] { element })
+            Prepend(element) --> new[] { element }.AsQueryable().Concat(source)
+
+            The single-element array is later converted to an inline query root by the query root processor (e.g. VALUES on
+            relational databases), so the result gets translated like any other Concat.
+        */
+
+        var genericMethod = methodCallExpression.Method.GetGenericMethodDefinition();
+        if (genericMethod != QueryableMethods.Append
+            && genericMethod != QueryableMethods.Prepend)
+        {
+            return methodCallExpression;
+        }
+
+        var elementType = methodCallExpression.Method.GetGenericArguments()[0];
+        var source = methodCallExpression.Arguments[0];
+        var elementArray = Expression.NewArrayInit(elementType, methodCallExpression.Arguments[1]);
+        var concatMethod = QueryableMethods.Concat.MakeGenericMethod(elementType);
+
+        return genericMethod == QueryableMethods.Append
+            ? Expression.Call(concatMethod, source, elementArray)
+            : Expression.Call(
+                concatMethod,
+                Expression.Call(QueryableMethods.AsQueryable.MakeGenericMethod(elementType), elementArray),
+                source);
     }
 
     private sealed class GroupJoinConvertingExpressionVisitor : ExpressionVisitor
