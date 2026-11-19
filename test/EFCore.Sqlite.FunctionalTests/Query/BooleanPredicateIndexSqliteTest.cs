@@ -150,6 +150,46 @@ ANALYZE;
     }
 
     [Theory]
+    [InlineData(10000, "indexed", false)]
+    [InlineData(200000, "indexed", false)]
+    [InlineData(200000, "nonrowid", false)]
+    [InlineData(200000, "indexed", true)]
+    [InlineData(200000, "nonrowid", true)]
+    public async Task Noncovering_stream_bounds_work_before_first_row(int rowCount, string shape, bool includeZeros)
+    {
+        await using var connection = new SqliteConnection("Data Source=:memory:");
+        await connection.OpenAsync();
+        await using var context = CreateContext(connection, shape);
+        await context.Database.EnsureCreatedAsync();
+        await context.Database.ExecuteSqlRawAsync(
+            """
+WITH RECURSIVE n(x) AS (SELECT 1 UNION ALL SELECT x+1 FROM n WHERE x<{0})
+INSERT INTO Rows (Id, Flag, Enabled) SELECT x, CASE WHEN {1} AND x%4 = 0 THEN 0 WHEN x%2 = 0 THEN 2 ELSE -1 END, 0 FROM n;
+""", rowCount, includeZeros);
+
+        // Include the index probe and the reader through early disposal.
+        var steps = 0;
+        SQLitePCL.raw.sqlite3_progress_handler(connection.Handle!, 10, _ =>
+        {
+            steps += 10;
+            return 0;
+        }, null);
+        try
+        {
+            var query = context.Rows.AsNoTracking().Where(r => r.Flag == true);
+            await using var enumerator = query.AsAsyncEnumerable().GetAsyncEnumerator();
+            Assert.True(await enumerator.MoveNextAsync());
+            Assert.True(enumerator.Current.Flag);
+        }
+        finally
+        {
+            SQLitePCL.raw.sqlite3_progress_handler(connection.Handle!, 0, null, null);
+        }
+
+        Assert.InRange(steps, 0, includeZeros ? 15000 : 500);
+    }
+
+    [Theory]
     [InlineData(false)]
     [InlineData(true)]
     public async Task Noncovering_list_switches_access_path_after_data_changes(bool async)
@@ -172,7 +212,7 @@ ANALYZE;
         {
             if (dense)
             {
-                await context.Database.ExecuteSqlRawAsync("UPDATE Rows SET Flag = CASE Id%2 WHEN 0 THEN 2 ELSE -1 END WHERE Id >= 14");
+                await context.Database.ExecuteSqlRawAsync("UPDATE Rows SET Flag = CASE Id%2 WHEN 0 THEN 2 ELSE -1 END WHERE Id >= 14 AND Id%4 <> 0");
             }
 
             var reference = context.Rows.FromSqlRaw("SELECT * FROM Rows WHERE Flag").AsNoTracking();
@@ -239,44 +279,44 @@ INSERT INTO "EF_DENSITY" ("Id", "some""flag", "Flag") VALUES (1, 2, 0), (2, -1, 
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
-    public async Task Noncovering_list_rechecks_size_across_transaction_and_rollback(bool async)
+    public async Task Noncovering_list_rechecks_zero_and_null_entries_across_transaction_and_rollback(bool async)
     {
         await using var connection = new SqliteConnection("Data Source=:memory:");
         await connection.OpenAsync();
         await using var context = CreateContext(connection);
-        await Seed(context);
+        await context.Database.EnsureCreatedAsync();
         await context.Database.ExecuteSqlRawAsync(
             """
-WITH RECURSIVE n(x) AS (SELECT 14 UNION ALL SELECT x+1 FROM n WHERE x<1024)
-INSERT INTO Rows (Id, Flag, Enabled) SELECT x, 0, 0 FROM n;
+WITH RECURSIVE n(x) AS (SELECT 1 UNION ALL SELECT x+1 FROM n WHERE x<1024)
+INSERT INTO Rows (Id, Flag, Enabled) SELECT x, CASE WHEN x%2 = 0 THEN 0 END, 0 FROM n;
+INSERT INTO Rows (Id, Flag, Enabled) VALUES (1025,-1,0);
 """);
 
         var query = context.Rows.AsNoTracking().Where(r => r.Flag == true).TagWith("boundary");
-        var original = new[] { 2, 3, 4, 6, 7, 10, 12 };
-        async Task Check(bool large, int[] ids)
+        async Task Check(bool sampleDensity, int[] ids)
         {
             var rows = async ? await query.ToListAsync() : query.ToList();
             Assert.Equal(ids, rows.Select(r => r.Id).Order());
             Assert.Contains("boundary", context.LastSql);
             Assert.Contains("boundary", context.LastScalarSql);
-            Assert.Equal(large, context.LastSql.Contains("CROSS JOIN", StringComparison.Ordinal));
+            Assert.Equal(sampleDensity, context.LastSql.Contains("CROSS JOIN", StringComparison.Ordinal));
         }
 
-        await Check(false, original);
+        await Check(false, [1025]);
         await using (var transaction = await context.Database.BeginTransactionAsync())
         {
-            await context.Database.ExecuteSqlRawAsync("INSERT INTO Rows (Id,Flag,Enabled) VALUES (1025,-1,0)");
-            await Check(true, [.. original, 1025]);
+            await context.Database.ExecuteSqlRawAsync("INSERT INTO Rows (Id,Flag,Enabled) VALUES (1026,NULL,0), (1027,2,0)");
+            await Check(true, [1025, 1027]);
             await transaction.RollbackAsync();
         }
 
-        await Check(false, original);
+        await Check(false, [1025]);
     }
 
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
-    public async Task Size_probe_releases_connection_on_failure_and_next_query_can_retry(bool async)
+    public async Task Index_probe_releases_connection_on_failure_and_next_query_can_retry(bool async)
     {
         var connectionString = $"Data Source={Guid.NewGuid():N};Mode=Memory;Cache=Shared;Pooling=False";
         await using var anchor = new SqliteConnection(connectionString);

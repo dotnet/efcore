@@ -11,42 +11,42 @@ internal sealed class SqliteRelationalCommandBuilderFactory(RelationalCommandBui
 
     internal sealed class Builder(RelationalCommandBuilderDependencies dependencies) : RelationalCommandBuilder(dependencies)
     {
-        internal IRelationalCommand? SizeProbe { get; set; }
-        internal IRelationalCommand? SmallTableQuery { get; set; }
+        internal IRelationalCommand? IndexProbe { get; set; }
+        internal IRelationalCommand? ScanQuery { get; set; }
 
         public override IRelationalCommand Build()
         {
             // An empty builder creates the command which a connection rents for executing query templates.
-            if (CommandTextLength != 0 && SizeProbe == null)
+            if (CommandTextLength != 0 && IndexProbe == null)
             {
                 return base.Build();
             }
 
             var command = base.Build();
-            return new Command(Dependencies, command, SizeProbe, SmallTableQuery);
+            return new Command(Dependencies, command, IndexProbe, ScanQuery);
         }
     }
 
     private sealed class Command(
         RelationalCommandBuilderDependencies dependencies,
         IRelationalCommandTemplate template,
-        IRelationalCommand? sizeProbe,
-        IRelationalCommand? smallTableQuery)
+        IRelationalCommand? indexProbe,
+        IRelationalCommand? scanQuery)
         : RelationalCommand(dependencies, template.CommandText, template.LogCommandText, template.Parameters)
     {
-        private IRelationalCommand? _sizeProbe = sizeProbe;
-        private IRelationalCommand? _smallTableQuery = smallTableQuery;
+        private IRelationalCommand? _indexProbe = indexProbe;
+        private IRelationalCommand? _scanQuery = scanQuery;
 
         public override void PopulateFrom(IRelationalCommandTemplate commandTemplate)
         {
             base.PopulateFrom(commandTemplate);
-            _sizeProbe = (commandTemplate as Command)?._sizeProbe;
-            _smallTableQuery = (commandTemplate as Command)?._smallTableQuery;
+            _indexProbe = (commandTemplate as Command)?._indexProbe;
+            _scanQuery = (commandTemplate as Command)?._scanQuery;
         }
 
         public override RelationalDataReader ExecuteReader(RelationalCommandParameterObject parameterObject)
         {
-            if (_sizeProbe == null)
+            if (_indexProbe == null)
             {
                 return base.ExecuteReader(parameterObject);
             }
@@ -55,8 +55,8 @@ internal sealed class SqliteRelationalCommandBuilderFactory(RelationalCommandBui
             connection.Open();
             try
             {
-                return _sizeProbe.ExecuteScalar(parameterObject) == null
-                    ? CreateSmallTableCommand().ExecuteReader(parameterObject)
+                return _indexProbe.ExecuteScalar(parameterObject) == null
+                    ? CreateScanCommand().ExecuteReader(parameterObject)
                     : base.ExecuteReader(parameterObject);
             }
             finally
@@ -68,15 +68,15 @@ internal sealed class SqliteRelationalCommandBuilderFactory(RelationalCommandBui
         public override Task<RelationalDataReader> ExecuteReaderAsync(
             RelationalCommandParameterObject parameterObject,
             CancellationToken cancellationToken = default)
-            => _sizeProbe == null
+            => _indexProbe == null
                 ? base.ExecuteReaderAsync(parameterObject, cancellationToken)
-                : ExecuteWithSizeProbeAsync(parameterObject, cancellationToken);
+                : ExecuteWithIndexProbeAsync(parameterObject, cancellationToken);
 
         // The template is shared between contexts. Each active reader needs its own command.
-        private RelationalCommand CreateSmallTableCommand()
-            => new(Dependencies, _smallTableQuery!.CommandText, _smallTableQuery.LogCommandText, _smallTableQuery.Parameters);
+        private RelationalCommand CreateScanCommand()
+            => new(Dependencies, _scanQuery!.CommandText, _scanQuery.LogCommandText, _scanQuery.Parameters);
 
-        private async Task<RelationalDataReader> ExecuteWithSizeProbeAsync(
+        private async Task<RelationalDataReader> ExecuteWithIndexProbeAsync(
             RelationalCommandParameterObject parameterObject,
             CancellationToken cancellationToken)
         {
@@ -84,9 +84,9 @@ internal sealed class SqliteRelationalCommandBuilderFactory(RelationalCommandBui
             await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
             try
             {
-                var size = await _sizeProbe!.ExecuteScalarAsync(parameterObject, cancellationToken).ConfigureAwait(false);
-                return size == null
-                    ? await CreateSmallTableCommand().ExecuteReaderAsync(parameterObject, cancellationToken).ConfigureAwait(false)
+                var probe = await _indexProbe!.ExecuteScalarAsync(parameterObject, cancellationToken).ConfigureAwait(false);
+                return probe == null
+                    ? await CreateScanCommand().ExecuteReaderAsync(parameterObject, cancellationToken).ConfigureAwait(false)
                     : await base.ExecuteReaderAsync(parameterObject, cancellationToken).ConfigureAwait(false);
             }
             finally

@@ -38,7 +38,7 @@ public class SqliteQuerySqlGenerator(QuerySqlGeneratorDependencies dependencies)
         var column = helper.DelimitIdentifier(flag.Name);
         if (Sql is SqliteRelationalCommandBuilderFactory.Builder builder)
         {
-            // Look for a 1,025th row before paying to prepare the compound query.
+            // Only sample density if the Boolean index can skip more than 1,024 zero or NULL entries.
             // Both queries independently evaluate the original predicate if the table changes between reads.
             var probe = Dependencies.RelationalCommandBuilderFactory.Create();
             if (select.Tags.Count > 0)
@@ -47,17 +47,35 @@ public class SqliteQuerySqlGenerator(QuerySqlGeneratorDependencies dependencies)
                 probe.Append(builder.ToString());
             }
 
-            builder.SizeProbe = probe.Append("SELECT 1 FROM ").Append(source).Append(" LIMIT 1 OFFSET 1024").Build();
-            builder.SmallTableQuery = new QuerySqlGenerator(Dependencies).GetCommand(select);
+            builder.IndexProbe = probe.Append("SELECT 1 FROM ").Append(source).Append(" WHERE ").Append(column).AppendLine(" = 0")
+                .Append("UNION ALL SELECT 1 FROM ").Append(source).Append(" WHERE ").Append(column).Append(" IS NULL LIMIT 1 OFFSET 1024")
+                .Build();
+            builder.ScanQuery = new QuerySqlGenerator(Dependencies).GetCommand(select);
         }
 
-        // Probe at most one eighth of the table plus one entry using only the index. Beyond this
-        // threshold prefer the original scan to fetching each matching payload separately.
-        // Nonnumeric storage can affect the estimate; both arms still apply SQLite's original predicate.
-        Sql.Append("WITH ").Append(gate).AppendLine("(dense) AS (")
-            .Append("    SELECT EXISTS (SELECT 1 FROM ").Append(source).Append(" WHERE ").Append(column).AppendLine(" > 0")
-            .Append("        UNION ALL SELECT 1 FROM ").Append(source).Append(" WHERE ").Append(column).AppendLine(" < 0")
-            .Append("        LIMIT 1 OFFSET (SELECT COUNT(*) FROM ").Append(source).AppendLine(") / 8))");
+        // Estimate density with bounded table reads so streaming one result never requires
+        // counting all rows or walking a table-sized fraction of the Boolean index.
+        Sql.Append("WITH ").Append(gate).AppendLine("(dense) AS (");
+        if (table.Table is ITable { PrimaryKey.Columns: [{ StoreType: "INTEGER" } key] })
+        {
+            // Sample across the key range so a cluster at one position does not decide the plan.
+            var id = helper.DelimitIdentifier(key.Name);
+            Sql.AppendLine("    SELECT SUM((SELECT COUNT(*) FROM (")
+                .Append("        SELECT ").Append(column).Append(" FROM ").Append(source).Append(" WHERE ").Append(id).AppendLine(" >= (")
+                .Append("            (SELECT MIN(").Append(id).Append(") FROM ").Append(source).Append(") * ((16 - ")
+                .Append(gate).AppendLine(".column1) / 16.0)")
+                .Append("            + (SELECT MAX(").Append(id).Append(") FROM ").Append(source).Append(") * (")
+                .Append(gate).AppendLine(".column1 / 16.0))")
+                .Append("        ORDER BY ").Append(id).Append(" LIMIT 100) WHERE ").Append(column).AppendLine(")) > 100")
+                .Append("    FROM (VALUES (1), (3), (5), (7), (9), (11), (13), (15)) AS ").Append(gate).AppendLine(")");
+        }
+        else
+        {
+            // Without an integer key, sample in table order rather than in Boolean index order.
+            Sql.Append("    SELECT EXISTS (SELECT 1 FROM (SELECT ").Append(column).Append(" FROM ").Append(source)
+                .Append(" NOT INDEXED LIMIT 400) WHERE ").Append(column).AppendLine(" LIMIT 1 OFFSET 50))");
+        }
+
         // CROSS JOIN keeps the one-row decision outside the table loop; the inactive arm does no row lookups.
         void GenerateArm(bool dense)
         {
