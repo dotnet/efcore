@@ -2275,6 +2275,9 @@ public sealed partial class SelectExpression : TableExpressionBase
         var outerIdentifiers = select1._identifier.Count == select2._identifier.Count
             ? new ColumnExpression?[select1._identifier.Count]
             : [];
+        // A distinct set operation's result is uniquely identified by all its projected columns, so they can serve as the identifier
+        // even when the identifiers of the two sides can't be matched (e.g. they have different counts).
+        var canIdentifyByProjection = distinct && select1._identifier.Count > 0 && select2._identifier.Count > 0;
         var entityProjectionIdentifiers = new List<ColumnExpression>();
         var entityProjectionValueComparers = new List<ValueComparer>();
         var otherExpressions = new List<(SqlExpression Expression, ValueComparer Comparer)>();
@@ -2378,7 +2381,10 @@ public sealed partial class SelectExpression : TableExpressionBase
                         outerIdentifiers = [];
                     }
                 }
+            }
 
+            if (outerIdentifiers.Length > 0 || canIdentifyByProjection)
+            {
                 // we need comparer (that we get from type mapping) for identifiers
                 // it may happen that one side of the set operation comes from collection parameter
                 // and therefore doesn't have type mapping (yet - we infer those after the translation is complete)
@@ -2413,11 +2419,10 @@ public sealed partial class SelectExpression : TableExpressionBase
         select2.IsMutable = false;
 
         // We should apply _identifiers only when it is distinct and actual select expression had identifiers.
-        if (distinct
-            && outerIdentifiers.Length > 0)
+        if (canIdentifyByProjection)
         {
             // If we find matching identifier in outer level then we just use them.
-            if (outerIdentifiers.All(e => e != null))
+            if (outerIdentifiers.Length > 0 && outerIdentifiers.All(e => e != null))
             {
                 _identifier.AddRange(outerIdentifiers.Zip(select1._identifier, (c, i) => (c!, i.Comparer)));
             }
@@ -2499,20 +2504,23 @@ public sealed partial class SelectExpression : TableExpressionBase
                                 outerIdentifiers = [];
                             }
                         }
-                        // If the top-level projection - not the current nested one - is a complex type and not an entity type, then add
-                        // all its columns to the "otherExpressions" list (i.e. columns not part of a an entity primary key). This is
-                        // the same as with a non-structural type projection.
-                        else if (projection1.StructuralType is IComplexType)
-                        {
-                            var outerTypeMapping = column1.TypeMapping ?? column1.TypeMapping;
-                            if (outerTypeMapping == null)
-                            {
-                                throw new InvalidOperationException(
-                                    RelationalStrings.SetOperationsRequireAtLeastOneSideWithValidTypeMapping(setOperationType));
-                            }
+                    }
 
-                            otherExpressions.Add((outerColumn, outerTypeMapping.KeyComparer));
+                    // If the top-level projection - not the current nested one - is a complex type and not an entity type, then add
+                    // all its columns to the "otherExpressions" list (i.e. columns not part of a an entity primary key). This is
+                    // the same as with a non-structural type projection. Identifier columns are included too, since this list is
+                    // only used when the outer identifiers couldn't all be matched.
+                    if ((outerIdentifiers.Length > 0 || canIdentifyByProjection)
+                        && projection1.StructuralType is IComplexType)
+                    {
+                        var outerTypeMapping = column1.TypeMapping ?? column2.TypeMapping;
+                        if (outerTypeMapping == null)
+                        {
+                            throw new InvalidOperationException(
+                                RelationalStrings.SetOperationsRequireAtLeastOneSideWithValidTypeMapping(setOperationType));
                         }
+
+                        otherExpressions.Add((outerColumn, outerTypeMapping.KeyComparer));
                     }
                 }
 
@@ -2627,7 +2635,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                     type, propertyExpressions, complexPropertyCache, nullable: false, discriminatorExpression,
                     structuralProjection1.TableMap);
 
-                if (outerIdentifiers.Length > 0 && outerProjection is { StructuralType: IEntityType entityType })
+                if (canIdentifyByProjection && outerProjection is { StructuralType: IEntityType entityType })
                 {
                     var primaryKey = entityType.FindPrimaryKey();
 
