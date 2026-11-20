@@ -282,5 +282,13 @@ dotnet_naming_rule.everything_else_naming.severity = suggestion
 # ReSharper properties
 resharper_local_function_body = expression_body
 
+# StyleCop: suppress warnings introduced in 1.3.180
+dotnet_diagnostic.SA1143.severity = none
+dotnet_diagnostic.SA1315.severity = none
+dotnet_diagnostic.SA1316.severity = none
+dotnet_diagnostic.SA1317.severity = none
+dotnet_diagnostic.SA1414.severity = none
+dotnet_diagnostic.SA1653.severity = none
+
 # CS9236: Compiling requires binding the lambda expression at least 100 times
 dotnet_diagnostic.CS9236.severity = error
