@@ -25,9 +25,22 @@ public class SqliteDateOnlyMethodTranslator(SqliteSqlExpressionFactory sqlExpres
         MethodInfo method,
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-        => method.DeclaringType == typeof(DateOnly)
-            && method.Name == nameof(DateOnly.FromDateTime)
-            && arguments is [var arg]
-                ? sqlExpressionFactory.Date(method.ReturnType, arg)
-                : null;
+        => method.DeclaringType != typeof(DateOnly)
+            ? null
+            : (instance, method.Name, arguments) switch
+            {
+                (null, nameof(DateOnly.FromDateTime), [var dateTime]) => sqlExpressionFactory.Date(method.ReturnType, dateTime),
+
+                // Done in .NET, since datetime() would drop the sub-millisecond part of the time.
+                (not null, nameof(DateOnly.ToDateTime), [var time]) when time.Type == typeof(TimeOnly)
+                    => sqlExpressionFactory.ApplyDefaultTypeMapping(
+                        sqlExpressionFactory.Function(
+                            "ef_datetime",
+                            [instance, time],
+                            nullable: true,
+                            argumentsPropagateNullability: Statics.TrueArrays[2],
+                            method.ReturnType)),
+
+                _ => null
+            };
 }
