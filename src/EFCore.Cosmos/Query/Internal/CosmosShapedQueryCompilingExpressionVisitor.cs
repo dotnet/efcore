@@ -63,8 +63,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
         var shaperSelect = selectExpression;
 
         // Cosmos can order by the indexed path, but cannot order by the computed null discriminator.
-        string? firstNonNullProjection = null;
+        string? extremumKeyProjection = null;
         string? valueProjection = null;
+        (string Alias, bool Ascending)[]? tieBreakers = null;
         if (cosmosQueryCompilationContext.IsMinMaxBy
             && shapedQueryExpression.ResultCardinality != ResultCardinality.Enumerable
             && selectExpression is
@@ -79,14 +80,26 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
             }
             && key.Equals(keyOrdering.Expression))
         {
+            var sourceOrderings = selectExpression.Orderings.Skip(2).Where(o => !o.Expression.Equals(key)).ToArray();
+            var compareTies = sourceOrderings.Length > 0 && sourceOrderings.All(o => IsScalarSortKey(o.Expression));
             selectExpression = selectExpression.Update(
                 [.. selectExpression.Sources], selectExpression.Predicate, [.. selectExpression.Projection],
-                [.. selectExpression.Orderings.Skip(1)], offset: null, keyOrdering.IsAscending ? null : selectExpression.Limit);
-            if (keyOrdering.IsAscending)
+                compareTies ? [keyOrdering] : [keyOrdering, .. sourceOrderings], offset: null,
+                keyOrdering.IsAscending || compareTies ? null : selectExpression.Limit);
+            if (keyOrdering.IsAscending || compareTies)
             {
                 var index = selectExpression.AddToProjection(key);
+                if (compareTies)
+                {
+                    tieBreakers = sourceOrderings.Select(o =>
+                    {
+                        var projectionIndex = selectExpression.AddToProjection(o.Expression);
+                        return (selectExpression.Projection[projectionIndex].Alias, o.IsAscending);
+                    }).ToArray();
+                }
+
                 var projection = selectExpression.Projection[index];
-                firstNonNullProjection = projection.IsValueProjection ? string.Empty : projection.Alias;
+                extremumKeyProjection = projection.IsValueProjection ? string.Empty : projection.Alias;
                 if (!projection.IsValueProjection && shaperSelect.Projection is [{ IsValueProjection: true } original])
                 {
                     valueProjection = original.Alias;
@@ -155,9 +168,18 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
                 Constant(cosmosQueryCompilationContext.PartitionKeyPropertyValues),
                 standAloneStateManagerConstant,
                 threadSafetyConstant,
-                Constant(firstNonNullProjection, typeof(string)),
-                Constant(valueProjection, typeof(string)))
+                Constant(extremumKeyProjection, typeof(string)),
+                Constant(valueProjection, typeof(string)),
+                Constant(tieBreakers, typeof((string, bool)[])))
         };
+    }
+
+    private static bool IsScalarSortKey(SqlExpression expression)
+    {
+        var type = (expression.TypeMapping?.Converter?.ProviderClrType ?? expression.Type).UnwrapNullableType();
+        return type.IsNumeric() || type.IsEnum || type == typeof(bool) || type == typeof(string)
+            || type == typeof(Guid) || type == typeof(DateTime) || type == typeof(DateTimeOffset)
+            || type == typeof(DateOnly) || type == typeof(TimeOnly) || type == typeof(TimeSpan);
     }
 
     private static PartitionKey GeneratePartitionKey(

@@ -27,6 +27,41 @@ public class MinMaxByQueryInMemoryTest(NonSharedFixture fixture, ITestOutputHelp
         Assert.Equal(count, counter.Visits);
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Nullable_key_selector_is_evaluated_once_per_item(bool maximum)
+    {
+        var rows = Enumerable.Range(1, 4).Select(id => new Item { Id = id }).ToArray();
+        var factory = await InitializeNonSharedTest<MinMaxByContext>(
+            onModelCreating: b => b.Entity<Item>().Property(i => i.Id).ValueGeneratedNever(),
+            seed: c =>
+            {
+                c.AddRange(rows);
+                return c.SaveChangesAsync();
+            });
+        using var context = factory.CreateDbContext();
+        var reference = new KeyCounter();
+        var expected = maximum ? rows.MaxBy(i => reference.GetKey(i.Id)) : rows.MinBy(i => reference.GetKey(i.Id));
+        var actual = new KeyCounter();
+        var items = context.Set<Item>().OrderBy(i => i.Id);
+        var winner = maximum ? items.MaxBy(i => actual.GetKey(i.Id)) : items.MinBy(i => actual.GetKey(i.Id));
+
+        Assert.Equal((expected!.Id, rows.Length), (winner!.Id, actual.Calls));
+    }
+
+    private sealed class KeyCounter
+    {
+        private readonly HashSet<int> _seen = [];
+        public int Calls { get; private set; }
+
+        public int? GetKey(int id)
+        {
+            Calls++;
+            return _seen.Add(id) ? id : -id;
+        }
+    }
+
     private sealed class Counter
     {
         public int Visits { get; private set; }
