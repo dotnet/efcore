@@ -1,0 +1,9 @@
+using Microsoft.EntityFrameworkCore.Design;
+
+namespace TestApp;
+
+public sealed class {{FactoryName}} : IDesignTimeDbContextFactory<BlogContext>
+{
+    public BlogContext CreateDbContext(string[] args)
+        => new BlogContextFactory().CreateDbContext(args);
+}

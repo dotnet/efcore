@@ -1,0 +1,18 @@
+using Microsoft.EntityFrameworkCore;
+
+namespace TestApp;
+
+public static class Queries
+{
+    public static async Task<string> ReadNameAsync()
+    {
+        await using var context = new BlogContext();
+        return await context.Blogs.Where(blog => blog.Id == 1).Select(blog => blog.Name).SingleAsync();
+    }
+
+    public static string ReadName()
+    {
+        using var context = new BlogContext();
+        return context.Blogs.Where(blog => blog.Id == 1).Select(blog => blog.Name).Single();
+    }
+}

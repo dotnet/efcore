@@ -1,0 +1,45 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+
+namespace TestApp;
+
+public sealed class Blog
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = "";
+}
+
+public sealed class BlogContext : DbContext
+{
+    public DbSet<Blog> Blogs => Set<Blog>();
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        => optionsBuilder
+            .UseSqlite(
+                "Data Source=" + (Environment.GetEnvironmentVariable("EF_TEST_DATABASE")
+                    ?? throw new InvalidOperationException("EF_TEST_DATABASE is required.")),
+                options => options.MigrationsAssembly("{{MigrationsAssembly}}"))
+            .LogTo(_ => QueryProbe.CompilationCount++, [CoreEventId.QueryCompilationStarting]);
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+        => modelBuilder.Entity<Blog>().Property(blog => blog.Name).HasMaxLength(64);
+}
+
+public sealed class BlogContextFactory : IDesignTimeDbContextFactory<BlogContext>
+{
+    public BlogContext CreateDbContext(string[] args)
+    {
+        if (Environment.GetEnvironmentVariable("EF_TEST_FACTORY_OUTPUT") is { } path)
+        {
+            File.WriteAllLines(path, args);
+        }
+
+        return new BlogContext();
+    }
+}
+
+public static class QueryProbe
+{
+    public static int CompilationCount { get; set; }
+}

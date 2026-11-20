@@ -22,7 +22,7 @@ NuGet package `Microsoft.EntityFrameworkCore.Tasks` provides build/publish-time 
 
 ## Command Option Ownership
 
-Trace an option to the code that consumes it before changing command or operation contracts. The outer `dotnet-ef` launcher builds the project and forwards remaining command-line arguments to `ef.dll`; the inner command under `src/ef/Commands/` parses command-specific options.
+Trace an option to the code that consumes it before changing command or operation contracts. In a change plan, explain the existing transport separately from any new operation parameter: `src/dotnet-ef/RootCommand.cs` builds the project and already forwards remaining command-line arguments to `tools/net/ef.dll`; the inner command under `src/ef/Commands/` parses command-specific options. Generic launcher forwarding does not mean a new value belongs in `IOperationExecutor`.
 
 - Keep presentation-only behavior in the inner command. For example, suppressing the completion message from `MigrationsAddCommand.Execute()` should guard its `Reporter.WriteInformation()` call and must not change `IOperationExecutor.AddMigration()`.
 - Forward a value through `OperationExecutorBase` only when the design-time operation in `Microsoft.EntityFrameworkCore.Design` needs it.
@@ -30,10 +30,15 @@ Trace an option to the code that consumes it before changing command or operatio
 
 ## Testing
 
-- CLI tests: `test/dotnet-ef.Tests/`, `test/ef.Tests/`
-- EFCore.Tasks has no dedicated test project — for task/target changes, create a test project and manually run `dotnet build` / `dotnet publish` with `EFOptimizeContext=true` to verify
+- Keep parser/command unit tests in `test/dotnet-ef.Tests/` and `test/ef.Tests/`; use `test/dotnet-ef.FunctionalTests/` and `test/EFCore.Tasks.FunctionalTests/` for real SDK/build/publish behavior.
+- Reuse `test/EFCore.Design.TestUtilities/` to stage checkout-built task/tool binaries and materialize isolated project graphs before EF packages exist. A project reference to the tasks assembly does not reproduce the package's props/targets imports or relative tool layout.
+- SDK option interception requires invoking `dotnet ef`, not only the launcher DLL, inner `ef.dll`, or parser. Assert the option's generated-code/database effect, not just successful exit.
+- Distinguish startup, context, migrations, and query project roles. Keep runtime/design-time migrations-assembly configuration consistent without adding inverse project references.
+- Resolve the SDK through the configured `DOTNET_ROOT` and propagate it to children. Samples reference prebuilt product projects with `Targets=GetTargetPath`; do not disable building their own project graph. Clean only owned projects with reference cleaning disabled.
+- Native coverage uses materialized `xunit.v3.aot` test targets, published and executed directly with real test-result counts. Running the unpublished test project is not NativeAOT validation.
 
 ## Validation
 
-- For tool changes, create a test project and manually run affected commands to verify behavior
+- Use `EFScaffoldModelStage` / `EFPrecompileQueriesStage` for generation stages; `EFOptimizeContext` is rejected.
+- Run the owning functional suite and inspect command logs/binlogs plus generated artifacts and runtime results. Expected experimental failures belong in narrowly scoped issue-linked skips, not process-failure-to-skip fallbacks.
 - `dotnet ef migrations script` output matches expected DDL

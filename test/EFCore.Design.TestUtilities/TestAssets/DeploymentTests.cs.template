@@ -1,0 +1,35 @@
+using System.Runtime.CompilerServices;
+using TestApp;
+using Xunit;
+
+public sealed class DeploymentTests
+{
+    [Fact]
+    public void Runtime_matches_publish_mode()
+    {
+#if NATIVE_AOT
+        Assert.False(RuntimeFeature.IsDynamicCodeSupported);
+#else
+        Assert.True(RuntimeFeature.IsDynamicCodeSupported);
+#endif
+    }
+
+    [Fact]
+    public async Task Executes_precompiled_queries()
+    {
+        Assert.Equal("Alice", Queries.ReadName());
+        Assert.Equal("Alice", await Queries.ReadNameAsync());
+        Assert.Equal(0, QueryProbe.CompilationCount);
+    }
+
+    [Fact]
+    public async Task Saves_changes_with_compiled_model()
+    {
+        await using var context = new BlogContext();
+        var blog = new Blog { Name = "Saved by published tests" };
+        context.Add(blog);
+        Assert.Equal(1, await context.SaveChangesAsync());
+        Assert.True(blog.Id > 0);
+        Assert.Equal("TestApp.BlogContextModel", context.Model.GetType().FullName);
+    }
+}

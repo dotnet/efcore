@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
+    <RootNamespace>Microsoft.EntityFrameworkCore.TestUtilities</RootNamespace>
+    <AssemblyName>Microsoft.EntityFrameworkCore.Design.TestUtilities</AssemblyName>
+    <IsTestProject>false</IsTestProject>
+    <IsTestUtilityProject>true</IsTestUtilityProject>
+    <IsPackable>false</IsPackable>
+    <OutputType>Library</OutputType>
+    <ImplicitUsings>true</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Remove="Microsoft.DotNet.XUnitV3Extensions;Microsoft.Testing.Extensions.CodeCoverage" />
+    <PackageReference Include="xunit.v3.extensibility.core" />
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\EFCore.Design\EFCore.Design.csproj" />
+    <ProjectReference Include="..\..\src\EFCore.Sqlite.Core\EFCore.Sqlite.Core.csproj" />
+    <ProjectReference Include="..\..\src\dotnet-ef\dotnet-ef.csproj" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\..\src\EFCore.Tasks\EFCore.Tasks.csproj" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+</Project>

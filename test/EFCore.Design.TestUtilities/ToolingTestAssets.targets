@@ -1,0 +1,70 @@
+<Project>
+  <PropertyGroup>
+    <TestDotNetRoot Condition="'$(TestDotNetRoot)' == '' and '$(DOTNET_ROOT)' != ''">$([MSBuild]::NormalizeDirectory('$(DOTNET_ROOT)'))</TestDotNetRoot>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="$(MSBuildThisFileDirectory)TestAssets\**\*"
+             Link="TestAssets\%(RecursiveDir)%(Filename)%(Extension)"
+             CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <Target Name="StageToolingTestAssets" AfterTargets="Build">
+    <MSBuild Projects="$(RepoRoot)src\dotnet-ef\dotnet-ef.csproj;$(RepoRoot)src\ef\ef.csproj;$(RepoRoot)src\EFCore.Tasks\EFCore.Tasks.csproj"
+             Targets="GetTargetPath"
+             Properties="Configuration=$(Configuration);TargetFramework=$(NetMinimum)">
+      <Output TaskParameter="TargetOutputs" ItemName="_ToolingTarget" />
+    </MSBuild>
+
+    <PropertyGroup>
+      <_ToolingAssetsDir>$(TargetDir)ToolingAssets\</_ToolingAssetsDir>
+      <_ToolingSourceDir>$([MSBuild]::NormalizeDirectory('$(RepoRoot)', 'src'))</_ToolingSourceDir>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <_ToolingTarget>
+        <SourceDir>%(RootDir)%(Directory)</SourceDir>
+        <DestinationDir Condition="'%(Filename)' == 'dotnet-ef'">$(_ToolingAssetsDir)</DestinationDir>
+        <DestinationDir Condition="'%(Filename)' == 'ef'">$(_ToolingAssetsDir)tools\net\</DestinationDir>
+        <DestinationDir Condition="'%(Filename)' == 'Microsoft.EntityFrameworkCore.Tasks'">$(_ToolingAssetsDir)tasks\net\</DestinationDir>
+      </_ToolingTarget>
+      <_ToolingFile Include="%(_ToolingTarget.SourceDir)*"
+                    DestinationDir="%(_ToolingTarget.DestinationDir)" />
+      <_ToolingImport Include="$(RepoRoot)src\EFCore.Tasks\buildTransitive\*.props;$(RepoRoot)src\EFCore.Tasks\buildTransitive\*.targets" />
+      <_ToolingCli Include="@(_ToolingTarget)" Condition="'%(Filename)' == 'dotnet-ef'" />
+      <_ToolingProductReference Include="@(ReferenceCopyLocalPaths)"
+                                Condition="$([System.String]::Copy('%(ReferenceCopyLocalPaths.MSBuildSourceProjectFile)').StartsWith('$(_ToolingSourceDir)'))" />
+    </ItemGroup>
+
+    <RemoveDuplicates Inputs="@(_ToolingProductReference->WithMetadataValue('Filename', 'Microsoft.EntityFrameworkCore')->WithMetadataValue('Extension', '.dll'))">
+      <Output TaskParameter="Filtered" ItemName="_ToolingCoreReference" />
+    </RemoveDuplicates>
+
+    <PropertyGroup>
+      <_ToolingCliAssembly>@(_ToolingCli)</_ToolingCliAssembly>
+      <_ToolingCoreAssembly>@(_ToolingCoreReference)</_ToolingCoreAssembly>
+    </PropertyGroup>
+
+    <Error Condition="'@(_ToolingCli->Count())' != '1'" Text="Expected exactly one checkout-built dotnet-ef assembly." />
+    <Error Condition="'@(_ToolingCoreReference->Count())' != '1'" Text="Expected exactly one checkout-built EF Core assembly." />
+    <Error Condition="!Exists('%(_ToolingTarget.Identity)')" Text="Missing tooling test input: %(_ToolingTarget.Identity)" />
+    <Copy SourceFiles="@(_ToolingFile)"
+          DestinationFiles="@(_ToolingFile->'%(DestinationDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(_ToolingImport)"
+          DestinationFolder="$(_ToolingAssetsDir)buildTransitive"
+          SkipUnchangedFiles="true" />
+    <RemoveDuplicates Inputs="@(_ToolingProductReference->'%(MSBuildSourceProjectFile)')">
+      <Output TaskParameter="Filtered" ItemName="_ToolingProductProject" />
+    </RemoveDuplicates>
+    <Error Condition="'@(_ToolingProductProject)' == ''" Text="No prebuilt EF project references were resolved for the tooling tests." />
+    <WriteLinesToFile File="$(_ToolingAssetsDir)ProductReferences.txt"
+                      Lines="@(_ToolingProductProject)"
+                      Overwrite="true"
+                      WriteOnlyWhenDifferent="true" />
+    <WriteLinesToFile File="$(_ToolingAssetsDir)ToolingAssets.properties"
+                      Lines="RepositoryRoot=$(RepoRoot);Configuration=$(Configuration);TargetFramework=$(TargetFramework);SdkVersion=$(NETCoreSdkVersion);DotNetRoot=$(DOTNET_ROOT);NuGetPackageRoot=$(NuGetPackageRoot);XUnitVersion=$(XUnitV3Version);TestingPlatformVersion=$(MicrosoftTestingPlatformVersion);SqliteVersion=$(SQLitePCLRawVersion);ArtifactsDir=$(ArtifactsDir);CliAssembly=$(_ToolingCliAssembly);CoreAssembly=$(_ToolingCoreAssembly)"
+                      Overwrite="true"
+                      WriteOnlyWhenDifferent="true" />
+  </Target>
+</Project>
