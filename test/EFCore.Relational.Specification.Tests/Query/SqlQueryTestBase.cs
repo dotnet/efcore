@@ -1113,6 +1113,44 @@ SELECT * FROM [Customers2]
             elementSorter: e => e.CustomerID,
             elementAsserter: AssertUnmappedCustomers);
 
+    // See #32932.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Union_of_SqlQuery_with_same_named_db_parameters_hardcoded_in_sql_throws(bool async)
+    {
+        using var context = CreateContext();
+
+        var sql = NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = @city");
+        var query = context.Database.SqlQueryRaw<UnmappedCustomer>(sql, CreateDbParameter("city", "Seattle"))
+            .Union(context.Database.SqlQueryRaw<UnmappedCustomer>(sql, CreateDbParameter("city", "London")));
+
+        var exception = async
+            ? await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync())
+            : Assert.Throws<InvalidOperationException>(() => query.ToList());
+
+        Assert.Equal(RelationalStrings.FromSqlDuplicateParameterName("city"), exception.Message);
+    }
+
+    // The first parameter keeps the name that is hard-coded in the SQL. The second is renamed, which is fine since it's referenced
+    // positionally.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Union_of_SqlQuery_with_same_named_db_parameters_hardcoded_then_positional(bool async)
+    {
+        using var context = CreateContext();
+
+        var query = context.Database.SqlQueryRaw<UnmappedCustomer>(
+                NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = @city"), CreateDbParameter("city", "Seattle"))
+            .Union(
+                context.Database.SqlQueryRaw<UnmappedCustomer>(
+                    NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"), CreateDbParameter("city", "London")));
+
+        var actual = async
+            ? await query.ToListAsync()
+            : query.ToList();
+
+        // Northwind has 1 customer in Seattle and 6 in London.
+        Assert.Equal(7, actual.Count);
+    }
+
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Multiple_occurrences_of_SqlQuery_with_db_parameter_adds_two_parameters(bool async)
     {

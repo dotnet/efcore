@@ -15596,6 +15596,9 @@
           "Member": "static string ExplicitDefaultConstraintNamesNotSupportedForTpc(object? explicitDefaultConstraintName);"
         },
         {
+          "Member": "static string FromSqlDuplicateParameterName(object? parameterName);"
+        },
+        {
           "Member": "static string FromSqlMissingColumn(object? column);"
         },
         {

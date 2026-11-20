@@ -1180,6 +1180,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 explicitDefaultConstraintName);
 
         /// <summary>
+        ///     The DbParameter name '{parameterName}' is used by more than one parameter in the same query, and the SQL passed to 'FromSqlRaw' or 'SqlQueryRaw' references it by name. EF cannot rename a parameter whose name is written directly in the SQL, even if the parameters have the same value. Use a distinct name for each parameter, or reference the parameters positionally (for example '{{0}}') so that EF can assign unique names.
+        /// </summary>
+        public static string FromSqlDuplicateParameterName(object? parameterName)
+            => string.Format(
+                GetString("FromSqlDuplicateParameterName", nameof(parameterName)),
+                parameterName);
+
+        /// <summary>
         ///     The required column '{column}' was not present in the results of a 'FromSql' operation.
         /// </summary>
         public static string FromSqlMissingColumn(object? column)
