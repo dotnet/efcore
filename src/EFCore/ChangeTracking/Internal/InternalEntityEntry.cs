@@ -495,18 +495,37 @@ public sealed partial class InternalEntityEntry : InternalEntryBase, IUpdateEntr
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override void MarkUnchangedFromQuery()
+        => MarkFromQuery(EntityState.Unchanged);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    internal override void MarkFromQuery(EntityState entityState)
     {
-        StateManager.OnTracking(this, EntityState.Unchanged, fromQuery: true);
+        Check.DebugAssert(entityState is EntityState.Unchanged or EntityState.Deleted, "Unexpected query tracking state.");
 
-        StateManager.InternalEntityEntryNotifier.StateChanging(this, EntityState.Unchanged);
+        StateManager.OnTracking(this, entityState, fromQuery: true);
 
-        base.MarkUnchangedFromQuery();
+        StateManager.InternalEntityEntryNotifier.StateChanging(this, entityState);
+
+        base.MarkFromQuery(entityState);
+
+        if (entityState == EntityState.Deleted)
+        {
+            StateManager.ChangedCount++;
+        }
 
         StateManager.InternalEntityEntryNotifier.StateChanged(this, EntityState.Detached, fromQuery: true);
 
         StateManager.OnTracked(this, fromQuery: true);
 
-        StateManager.InternalEntityEntryNotifier.TrackedFromQuery(this);
+        if (entityState == EntityState.Unchanged)
+        {
+            StateManager.InternalEntityEntryNotifier.TrackedFromQuery(this);
+        }
     }
 
     /// <summary>

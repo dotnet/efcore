@@ -342,14 +342,35 @@ public class StateManager : IStateManager
             ? new InternalEntityEntry(this, entityType, entity)
             : new InternalEntityEntry(this, entityType, entity, snapshot);
 
+        var addedOwnedEntry = !QueryContext.UseOldBehavior39717
+            && entityType.FindOwnership() is { IsUnique: true }
+                ? FindIdentityMap(entityType.FindPrimaryKey()!)?.TryGetEntry(newEntry)
+                : null;
+
         foreach (var key in baseEntityType.GetKeys())
         {
             GetOrCreateIdentityMap(key).AddOrUpdate(newEntry);
         }
 
-        UpdateReferenceMaps(newEntry, EntityState.Unchanged, null);
+        if (addedOwnedEntry is { EntityState: EntityState.Added })
+        {
+            newEntry.SharedIdentityEntry = addedOwnedEntry;
+            addedOwnedEntry.SharedIdentityEntry = newEntry;
 
-        newEntry.MarkUnchangedFromQuery();
+            // Keep the Added instance canonical; the store instance supplies the deleted original values.
+            foreach (var key in baseEntityType.GetKeys())
+            {
+                GetOrCreateIdentityMap(key).AddOrUpdate(addedOwnedEntry);
+            }
+
+            UpdateReferenceMaps(newEntry, EntityState.Deleted, null);
+            newEntry.MarkFromQuery(EntityState.Deleted);
+        }
+        else
+        {
+            UpdateReferenceMaps(newEntry, EntityState.Unchanged, null);
+            newEntry.MarkUnchangedFromQuery();
+        }
 
         if (_internalEntityEntrySubscriber.SnapshotAndSubscribe(newEntry))
         {

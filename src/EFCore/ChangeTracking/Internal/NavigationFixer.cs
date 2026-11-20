@@ -637,7 +637,8 @@ public class NavigationFixer : INavigationFixer
         var delayingFixup = BeginDelayedFixup();
         try
         {
-            if (oldState == EntityState.Detached)
+            if (oldState == EntityState.Detached
+                && (QueryContext.UseOldBehavior39717 || !fromQuery || !IsAmbiguous(entry)))
             {
                 InitialFixup(entry, null, fromQuery);
             }

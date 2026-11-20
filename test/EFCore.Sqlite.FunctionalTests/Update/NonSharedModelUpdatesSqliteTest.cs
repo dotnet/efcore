@@ -6,6 +6,114 @@ namespace Microsoft.EntityFrameworkCore.Update;
 public class NonSharedModelUpdatesSqliteTest(NonSharedFixture fixture) : NonSharedModelUpdatesTestBase(fixture)
 {
     [Theory, InlineData(false), InlineData(true)]
+    public async Task Tracking_query_preserves_first_owned_reference(bool json)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context39595>(
+            onModelCreating: b =>
+            {
+                b.Entity<Context39595.Owner>().OwnsOne(
+                    o => o.Patch, p =>
+                    {
+                        p.Property(e => e.Title).IsRequired();
+                        if (json)
+                        {
+                            p.ToJson();
+                        }
+                    });
+                b.Entity<Context39595.Owner>().Navigation(o => o.Patch).IsRequired(false);
+            });
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            context.Add(new Context39595.Owner());
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var owner = await context.Set<Context39595.Owner>().SingleAsync();
+            Assert.Null(owner.Patch);
+
+            owner.Patch = new Context39595.Patch { Title = "new title", Start = 5 };
+            context.ChangeTracker.DetectChanges();
+            Assert.Equal(EntityState.Added, context.Entry(owner.Patch).State);
+
+            Assert.Same(owner, await context.Set<Context39595.Owner>().SingleAsync());
+
+            Assert.Equal(EntityState.Added, context.Entry(owner.Patch).State);
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var owner = await context.Set<Context39595.Owner>().SingleAsync();
+            Assert.Equal("new title", owner.Patch.Title);
+            Assert.Equal(5, owner.Patch.Start);
+        }
+    }
+
+    [Theory, InlineData(false, false), InlineData(true, false), InlineData(false, true)]
+    public async Task Tracking_query_replaces_untracked_owned_reference(bool separateTable, bool json)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context39595>(
+            onModelCreating: b => b.Entity<Context39595.Owner>().OwnsOne(
+                o => o.Patch, p =>
+                {
+                    if (separateTable)
+                    {
+                        p.ToTable("Patches");
+                    }
+
+                    if (json)
+                    {
+                        p.ToJson();
+                    }
+                }));
+
+        int ownerId;
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var owner = new Context39595.Owner { Patch = new Context39595.Patch { Title = "old title", Start = 1 } };
+            context.Add(owner);
+            await context.SaveChangesAsync();
+            ownerId = owner.Id;
+        }
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var owner = new Context39595.Owner { Id = ownerId };
+            context.Attach(owner);
+            var patch = new Context39595.Patch { Title = "new title" };
+            owner.Patch = patch;
+            context.ChangeTracker.DetectChanges();
+            Assert.Equal(EntityState.Added, context.Entry(patch).State);
+
+            var trackedEvents = new List<EntityTrackedEventArgs>();
+            context.ChangeTracker.Tracked += (_, args) => trackedEvents.Add(args);
+
+            Assert.Same(owner, await context.Set<Context39595.Owner>().SingleAsync());
+            Assert.Same(patch, owner.Patch);
+            Assert.Equal(EntityState.Added, context.Entry(patch).State);
+            var original = Assert.Single(context.ChangeTracker.Entries<Context39595.Patch>(), e => e.State == EntityState.Deleted);
+            Assert.Equal("old title", original.Entity.Title);
+            Assert.Equal(1, original.Entity.Start);
+            Assert.Same(original.GetInfrastructure(), context.Entry(patch).GetInfrastructure().SharedIdentityEntry);
+            Assert.True(Assert.Single(trackedEvents).FromQuery);
+
+            Assert.Same(owner, await context.Set<Context39595.Owner>().SingleAsync());
+            Assert.Equal(2, context.ChangeTracker.Entries<Context39595.Patch>().Count());
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var owner = await context.Set<Context39595.Owner>().SingleAsync();
+            Assert.Equal("new title", owner.Patch.Title);
+            Assert.Null(owner.Patch.Start);
+        }
+    }
+
+    [Theory, InlineData(false), InlineData(true)]
     public async Task Tracking_query_preserves_replaced_owned_reference(bool json)
     {
         var contextFactory = await InitializeNonSharedTest<Context39595>(

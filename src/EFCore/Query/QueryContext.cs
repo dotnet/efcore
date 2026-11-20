@@ -20,6 +20,9 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// </remarks>
 public abstract class QueryContext
 {
+    internal static readonly bool UseOldBehavior39717 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue39717", out var enabled) && enabled;
+
     private IStateManager? _stateManager;
 
     /// <summary>
@@ -128,6 +131,13 @@ public abstract class QueryContext
         // causing a duplicate key. See #35762.
         if (entry is { EntityState: EntityState.Added, SharedIdentityEntry: not { EntityState: EntityState.Deleted } })
         {
+            if (!UseOldBehavior39717
+                && entry.EntityType.FindOwnership() is { IsUnique: true })
+            {
+                // A shared row's key does not establish that an optional owned reference exists in the store.
+                return null;
+            }
+
             entry.SetEntityState(EntityState.Unchanged);
         }
 
