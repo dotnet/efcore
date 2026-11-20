@@ -171,6 +171,129 @@ public abstract class NonSharedModelBulkUpdatesRelationalTestBase(NonSharedFixtu
         }
     }
 
+    [Theory, MemberData(nameof(IsAsyncData))] // #39714
+    public virtual async Task Update_with_left_join_to_group_by_projection(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context39714>(seed: async context => await context.Seed());
+
+        await TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            contextFactory.CreateDbContext,
+            UseTransaction,
+            async context =>
+            {
+                var aggQ = from r in context.Records
+                           group r by r.PartId into g
+                           select new
+                           {
+                               PartId = g.Key,
+                               NormalHours = (decimal?)g.Sum(r => r.Hours),
+                               Count = g.Count()
+                           };
+
+                var query = from pe in context.Parts
+                            join a in aggQ on pe.Id equals a.PartId into ljg
+                            from lj in ljg.DefaultIfEmpty()
+                            select new { Part = pe, Agg = lj };
+
+                var rowsAffected = async
+                    ? await query.ExecuteUpdateAsync(u => u
+                        .SetProperty(x => x.Part.NormalHours, x => x.Agg.NormalHours.GetValueOrDefault()))
+                    : query.ExecuteUpdate(u => u
+                        .SetProperty(x => x.Part.NormalHours, x => x.Agg.NormalHours.GetValueOrDefault()));
+
+                Assert.Equal(2, rowsAffected);
+
+                var parts = await context.Parts.AsNoTracking().OrderBy(p => p.Id).ToListAsync();
+                Assert.Equal(2, parts.Count);
+                Assert.Equal(15m, parts[0].NormalHours);
+                Assert.Equal(0m, parts[1].NormalHours);
+            });
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))] // #39714
+    public virtual async Task Update_with_left_join_to_group_by_dto_projection(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context39714>(seed: async context => await context.Seed());
+
+        await TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            contextFactory.CreateDbContext,
+            UseTransaction,
+            async context =>
+            {
+                var aggQ = from r in context.Records
+                           group r by r.PartId into g
+                           select new Context39714.AggDto
+                           {
+                               PartId = g.Key,
+                               NormalHours = (decimal?)g.Sum(r => r.Hours),
+                               Count = g.Count()
+                           };
+
+                var query = from pe in context.Parts
+                            join a in aggQ on pe.Id equals a.PartId into ljg
+                            from lj in ljg.DefaultIfEmpty()
+                            select new { Part = pe, Agg = lj };
+
+                var rowsAffected = async
+                    ? await query.ExecuteUpdateAsync(u => u
+                        .SetProperty(x => x.Part.RecordCount, x => (int?)x.Agg.Count))
+                    : query.ExecuteUpdate(u => u
+                        .SetProperty(x => x.Part.RecordCount, x => (int?)x.Agg.Count));
+
+                Assert.Equal(2, rowsAffected);
+
+                var parts = await context.Parts.AsNoTracking().OrderBy(p => p.Id).ToListAsync();
+                Assert.Equal(2, parts.Count);
+                Assert.Equal(2, parts[0].RecordCount);
+                Assert.Null(parts[1].RecordCount);
+            });
+    }
+
+    protected class Context39714(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Part> Parts => Set<Part>();
+        public DbSet<Record> Records => Set<Record>();
+
+        public async Task Seed()
+        {
+            Parts.AddRange(
+                new Part { Id = 1, NormalHours = 99m, RecordCount = 99 },
+                new Part { Id = 2, NormalHours = 99m, RecordCount = 99 });
+            Records.AddRange(
+                new Record { Id = 1, PartId = 1, Hours = 10m },
+                new Record { Id = 2, PartId = 1, Hours = 5m });
+            await SaveChangesAsync();
+        }
+
+        public class Part
+        {
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
+            public int Id { get; set; }
+
+            [Precision(18, 2)]
+            public decimal NormalHours { get; set; }
+            public int? RecordCount { get; set; }
+        }
+
+        public class Record
+        {
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
+            public int Id { get; set; }
+
+            public int PartId { get; set; }
+
+            [Precision(18, 2)]
+            public decimal Hours { get; set; }
+        }
+
+        public class AggDto
+        {
+            public int PartId { get; set; }
+            public decimal? NormalHours { get; set; }
+            public int Count { get; set; }
+        }
+    }
+
     #region HelperMethods
 
     protected static async Task AssertTranslationFailedWithDetails(string details, Func<Task> query)
