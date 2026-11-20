@@ -1818,7 +1818,22 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         var groupingParameter = Expression.Parameter(groupByCall.Type.GetSequenceType(), GetParameterName("g"));
         var originalElementType = selector.Parameters[0].Type.GetGenericArguments()[1];
 
-        var aggregateReplacements = new Dictionary<Expression, Expression>(ReferenceEqualityComparer.Instance);
+        // The rest of the result selector (anything besides g.Key and the lifted aggregates, e.g. a subquery
+        // over another entity type) still needs navigation expansion, which applies query filters and expands
+        // navigations (#39690). Stand placeholders in for g.Key and the aggregates, so that expansion never
+        // sees the grouping, expand the remainder as ProcessSelect does when nothing is lifted, then
+        // substitute the rebuilt aggregates. The placeholders are named after what they stand for, so that an error
+        // raised while expanding the remainder prints the original g.Key and aggregates.
+        var keyPlaceholder = Expression.Parameter(
+            groupingParameter.Type.GetGenericArguments()[0], selector.Parameters[0].Name + "." + nameof(IGrouping<object, object>.Key));
+        var placeholders = new List<Expression> { keyPlaceholder };
+        var replacements = new List<Expression>
+        {
+            Expression.MakeMemberAccess(
+                groupingParameter, groupingParameter.Type.GetProperty(nameof(IGrouping<object, object>.Key))!)
+        };
+
+        var aggregatePlaceholders = new Dictionary<Expression, Expression>(ReferenceEqualityComparer.Instance);
         for (var i = 0; i < scanner.Aggregates.Count; i++)
         {
             var aggregate = scanner.Aggregates[i];
@@ -1828,12 +1843,20 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             var guard = aggregateGuardBodies[i] == null
                 ? null
                 : GenerateLambda(aggregateGuardBodies[i]!, parent.CurrentParameter);
-            aggregateReplacements[aggregate.Call] = RebuildLiftedAggregate(
-                aggregate, groupingParameter, originalElementType, elementType, newSelector, guard);
+
+            var placeholder = Expression.Parameter(aggregate.Call.Type, aggregate.Call.Print());
+            aggregatePlaceholders[aggregate.Call] = placeholder;
+            placeholders.Add(placeholder);
+            replacements.Add(
+                RebuildLiftedAggregate(aggregate, groupingParameter, originalElementType, elementType, newSelector, guard));
         }
 
-        var resultBody = new LiftedResultSelectorRebinder(selector.Parameters[0], groupingParameter, aggregateReplacements)
+        var resultBody = new LiftedResultSelectorRebinder(selector.Parameters[0], keyPlaceholder, aggregatePlaceholders)
             .Visit(selector.Body);
+        resultBody = Visit(resultBody);
+        resultBody = new PendingSelectorExpandingExpressionVisitor(this, _extensibilityHelper, applyIncludes: true).Visit(resultBody);
+        resultBody = Reduce(resultBody);
+        resultBody = new ReplacingExpressionVisitor(placeholders, replacements).Visit(resultBody);
         var result = Expression.Call(
             QueryableMethods.Select.MakeGenericMethod(groupingParameter.Type, resultBody.Type),
             groupByCall,
@@ -2108,7 +2131,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
 
     private sealed class LiftedResultSelectorRebinder(
         ParameterExpression originalParameter,
-        ParameterExpression newParameter,
+        Expression keyReplacement,
         Dictionary<Expression, Expression> aggregateReplacements)
         : ExpressionVisitor
     {
@@ -2121,8 +2144,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         protected override Expression VisitMember(MemberExpression memberExpression)
             => memberExpression.Expression == originalParameter
                 && memberExpression.Member.Name == nameof(IGrouping<object, object>.Key)
-                    ? Expression.MakeMemberAccess(
-                        newParameter, newParameter.Type.GetProperty(nameof(IGrouping<object, object>.Key))!)
+                    ? keyReplacement
                     : base.VisitMember(memberExpression);
     }
 

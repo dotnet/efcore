@@ -253,6 +253,99 @@ public abstract class NorthwindQueryFiltersQueryTestBase<TFixture>(TFixture fixt
             async,
             ss => ss.Set<Order>());
 
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_lifted_aggregate_with_subquery_over_filtered_entity(bool async)
+        => AssertFilteredQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.Customer!.City)
+                .Select(g => new
+                {
+                    City = g.Key,
+                    LastCompany = g.Max(o => o.Customer!.CompanyName),
+                    Customers = ss.Set<Customer>().Count(c => c.City == g.Key)
+                }),
+            elementSorter: e => e.City ?? string.Empty);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_lifted_aggregate_with_subquery_using_navigation(bool async)
+        => AssertFilteredQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.Customer!.City)
+                .Select(g => new
+                {
+                    City = g.Key,
+                    LastCompany = g.Max(o => o.Customer!.CompanyName),
+                    Buyers = ss.Set<Customer>().Count(c => c.City == g.Key && c.Orders.Any())
+                }),
+            elementSorter: e => e.City ?? string.Empty);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_lifted_aggregate_with_subquery_over_grouped_entity(bool async)
+        => AssertFilteredQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.Customer!.City)
+                .Select(g => new
+                {
+                    City = g.Key,
+                    LastCompany = g.Max(o => o.Customer!.CompanyName),
+                    Orders = ss.Set<Order>().Count(o => o.Customer!.City == g.Key)
+                }),
+            elementSorter: e => e.City ?? string.Empty);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_lifted_aggregate_inside_subquery_over_filtered_entity(bool async)
+        => AssertFilteredQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.Customer!.City)
+                .Select(g => new
+                {
+                    City = g.Key,
+                    OtherCustomers = ss.Set<Customer>()
+                        .Count((Customer c) => c.City == g.Key && c.CompanyName != g.Max<Order, string>(o => o.Customer!.CompanyName))
+                }),
+            elementSorter: e => e.City ?? string.Empty);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_lifted_aggregate_with_entity_key_and_subquery(bool async)
+        => AssertFilteredQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.Customer)
+                .Select(g => new
+                {
+                    g.Key!.CustomerID,
+                    City = g.Max(o => o.Customer!.City),
+                    Orders = ss.Set<Order>().Count(o => o.Customer == g.Key),
+                    Compatriots = ss.Set<Customer>().Count(c => c.Country == g.Key.Country)
+                }),
+            elementSorter: e => e.CustomerID);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_lifted_aggregate_with_subquery_projecting_entity_and_collection(bool async)
+        => AssertFilteredQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.Customer!.City)
+                .Select(g => new
+                {
+                    City = g.Key,
+                    LastCompany = g.Max(o => o.Customer!.CompanyName),
+                    First = ss.Set<Customer>().Where(c => c.City == g.Key).OrderBy(c => c.CustomerID).FirstOrDefault(),
+                    Ids = ss.Set<Customer>().Where(c => c.City == g.Key).Select(c => c.CustomerID).ToList()
+                }),
+            elementSorter: e => e.City ?? string.Empty,
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.City, a.City);
+                Assert.Equal(e.LastCompany, a.LastCompany);
+                AssertEqual(e.First, a.First);
+                AssertCollection(e.Ids, a.Ids, elementSorter: x => x);
+            });
+
     private string RemoveNewLines(string message)
         => message.Replace("\n", "").Replace("\r", "");
 }
