@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Query.ExpressionExtensions;
 
 // ReSharper disable once CheckNamespace
@@ -37,12 +38,22 @@ public class SqliteTimeOnlyMethodTranslator(SqliteSqlExpressionFactory sqlExpres
             return null;
         }
 
-        var typeMapping = ExpressionExtensions.InferTypeMapping(instance, arguments[0], arguments[1]);
+        var typeMapping = ExpressionExtensions.InferTypeMapping(instance, arguments[0], arguments[1])
+            ?? sqlExpressionFactory.ApplyDefaultTypeMapping(instance)!.TypeMapping;
         instance = sqlExpressionFactory.ApplyTypeMapping(instance, typeMapping);
         var start = sqlExpressionFactory.ApplyTypeMapping(arguments[0], typeMapping);
         var end = sqlExpressionFactory.ApplyTypeMapping(arguments[1], typeMapping);
-        var isAfterStart = sqlExpressionFactory.GreaterThanOrEqual(instance, start);
-        var isBeforeEnd = sqlExpressionFactory.LessThan(instance, end);
+        var nativeText = IsNativeText(instance) && IsNativeText(start) && IsNativeText(end);
+        if (!nativeText && (instance.TypeMapping != start.TypeMapping || instance.TypeMapping != end.TypeMapping))
+        {
+            // A custom converter may encode the same time differently, even with the same store type.
+            return null;
+        }
+
+        var startKey = nativeText ? LowerBound(start) : start;
+        var endKey = nativeText ? LowerBound(end) : end;
+        var isAfterStart = sqlExpressionFactory.GreaterThanOrEqual(instance, startKey);
+        var isBeforeEnd = sqlExpressionFactory.LessThan(instance, endKey);
 
         if (arguments is [SqlConstantExpression { Value: TimeOnly startValue }, SqlConstantExpression { Value: TimeOnly endValue }])
         {
@@ -51,12 +62,33 @@ public class SqliteTimeOnlyMethodTranslator(SqliteSqlExpressionFactory sqlExpres
                 : sqlExpressionFactory.AndAlso(isAfterStart, isBeforeEnd);
         }
 
+        // Constants and parameters use the provider's canonical format. A stored bound can have a shorter fraction.
+        var compareKeys = nativeText && (start is ColumnExpression || end is ColumnExpression);
         return sqlExpressionFactory.OrElse(
             sqlExpressionFactory.AndAlso(
-                sqlExpressionFactory.LessThanOrEqual(start, end),
+                compareKeys ? sqlExpressionFactory.GreaterThanOrEqual(end, startKey) : sqlExpressionFactory.LessThanOrEqual(start, end),
                 sqlExpressionFactory.AndAlso(isAfterStart, isBeforeEnd)),
             sqlExpressionFactory.AndAlso(
-                sqlExpressionFactory.GreaterThan(start, end),
+                compareKeys ? sqlExpressionFactory.LessThan(end, startKey) : sqlExpressionFactory.GreaterThan(start, end),
                 sqlExpressionFactory.OrElse(isAfterStart, isBeforeEnd)));
+    }
+
+    private static bool IsNativeText(SqlExpression time)
+        => time.TypeMapping is SqliteTimeOnlyTypeMapping { Converter: null, DbType: System.Data.DbType.Time } mapping
+            && mapping.StoreType.Equals(SqliteTypeMappingSource.TextTypeName, StringComparison.OrdinalIgnoreCase);
+
+    private SqlExpression LowerBound(SqlExpression time)
+    {
+        if (time is SqlConstantExpression { Value: TimeOnly value }
+            && (value.Ticks % TimeSpan.TicksPerSecond == 0 || value.Ticks % 10 != 0))
+        {
+            return time;
+        }
+
+        // With fixed-width HH:mm:ss, the trimmed prefix sorts after every earlier time and at or
+        // before all representations of this time. Only the bound needs trimming for >= and <.
+        return sqlExpressionFactory.Function(
+            "rtrim", [time, sqlExpressionFactory.Constant("0.")],
+            nullable: true, argumentsPropagateNullability: Statics.TrueFalse, typeof(TimeOnly), time.TypeMapping);
     }
 }

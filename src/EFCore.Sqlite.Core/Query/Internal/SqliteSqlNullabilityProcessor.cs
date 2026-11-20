@@ -51,7 +51,8 @@ public class SqliteSqlNullabilityProcessor : SqlNullabilityProcessor
             {
                 nullable = false;
                 return Dependencies.SqlExpressionFactory.Constant(
-                    sqlBinaryExpression.OperatorType == ExpressionType.GreaterThan ? start > end : start <= end);
+                    sqlBinaryExpression.OperatorType == ExpressionType.GreaterThan ? start > end : start <= end,
+                    sqlBinaryExpression.TypeMapping);
             }
         }
 

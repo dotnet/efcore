@@ -133,7 +133,7 @@ WHERE "b"."TimeOnly" >= '22:00:00' OR "b"."TimeOnly" < '02:00:00'
 
 SELECT "b"."Id"
 FROM "BasicTypesEntities" AS "b"
-WHERE "b"."TimeOnly" >= @start {{(range == 1 ? "OR" : "AND")}} "b"."TimeOnly" < @end
+WHERE "b"."TimeOnly" >= rtrim(@start, '0.') {{(range == 1 ? "OR" : "AND")}} "b"."TimeOnly" < rtrim(@end, '0.')
 """);
     }
 
@@ -171,6 +171,35 @@ WHERE "b"."TimeOnly" < '22:00:00' AND "b"."TimeOnly" >= '02:00:00'
 """);
     }
 
+    [Theory]
+    [InlineData(null, 9)]
+    [InlineData(17, null)]
+    [InlineData(null, null)]
+    [InlineData(17, 9)]
+    [InlineData(9, 17)]
+    public void Nullable_TimeOnly_parameter_comparisons_in_projection(int? startHour, int? endHour)
+    {
+        using var context = Fixture.CreateContext();
+        var compare = EF.CompileQuery((BasicTypesContext db, TimeOnly? start, TimeOnly? end) =>
+            db.BasicTypesEntities.Where(b => b.Id == 0)
+                .Select(b => new { After = start > end, AtMost = start <= end, NotAfter = !(start > end) }).Single());
+
+        TimeOnly? start = startHour is int s ? new TimeOnly(s, 0) : null;
+        TimeOnly? end = endHour is int e ? new TimeOnly(e, 0) : null;
+        var actual = compare(context, start, end);
+        Assert.Equal((start > end, start <= end, !(start > end)), (actual.After, actual.AtMost, actual.NotAfter));
+
+        if (start is null || end is null)
+        {
+            var left = start is null ? "NULL" : "@start";
+            var right = end is null ? "NULL" : "@end";
+            var sql = Assert.Single(Fixture.TestSqlLoggerFactory.SqlStatements);
+            Assert.Contains($"WHEN {left} > {right} THEN 1", sql);
+            Assert.Contains($"WHEN {left} <= {right} THEN 1", sql);
+            Assert.Contains($"WHEN {left} > {right} THEN 0", sql);
+        }
+    }
+
     public override async Task IsBetween_nullable(bool async)
     {
         await base.IsBetween_nullable(async);
@@ -190,7 +219,7 @@ FROM "NullableBasicTypesEntities" AS "n"
             """
 @time='00:00' (DbType = Time)
 
-SELECT "b"."Id", ("b"."TimeOnly" <= '16:00:00' AND @time >= "b"."TimeOnly" AND @time < '16:00:00') OR ("b"."TimeOnly" > '16:00:00' AND (@time >= "b"."TimeOnly" OR @time < '16:00:00')) AS "Start", ('22:00:00' <= "b"."TimeOnly" AND @time >= '22:00:00' AND @time < "b"."TimeOnly") OR ('22:00:00' > "b"."TimeOnly" AND (@time >= '22:00:00' OR @time < "b"."TimeOnly")) AS "End"
+SELECT "b"."Id", ('16:00:00' >= rtrim("b"."TimeOnly", '0.') AND @time >= rtrim("b"."TimeOnly", '0.') AND @time < '16:00:00') OR ('16:00:00' < rtrim("b"."TimeOnly", '0.') AND (@time >= rtrim("b"."TimeOnly", '0.') OR @time < '16:00:00')) AS "Start", ("b"."TimeOnly" >= '22:00:00' AND @time >= '22:00:00' AND @time < rtrim("b"."TimeOnly", '0.')) OR ("b"."TimeOnly" < '22:00:00' AND (@time >= '22:00:00' OR @time < rtrim("b"."TimeOnly", '0.'))) AS "End"
 FROM "BasicTypesEntities" AS "b"
 """);
     }

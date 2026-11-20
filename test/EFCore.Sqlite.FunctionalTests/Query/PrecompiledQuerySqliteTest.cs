@@ -42,7 +42,7 @@ LIMIT 2
 
 SELECT "t"."Id"
 FROM "TimeSlots" AS "t"
-WHERE "t"."Time" >= @start OR "t"."Time" < @end
+WHERE "t"."Time" >= rtrim(@start, '0.') OR "t"."Time" < rtrim(@end, '0.')
 ORDER BY "t"."Id"
 """,
             //
@@ -52,7 +52,7 @@ ORDER BY "t"."Id"
 
 SELECT "t"."Id"
 FROM "TimeSlots" AS "t"
-WHERE "t"."Time" >= @start AND "t"."Time" < @end
+WHERE "t"."Time" >= rtrim(@start, '0.') AND "t"."Time" < rtrim(@end, '0.')
 ORDER BY "t"."Id"
 """,
             //
@@ -62,7 +62,7 @@ ORDER BY "t"."Id"
 
 SELECT "t"."Id"
 FROM "TimeSlots" AS "t"
-WHERE "t"."Time" >= @start AND "t"."Time" < @end
+WHERE "t"."Time" >= rtrim(@start, '0.') AND "t"."Time" < rtrim(@end, '0.')
 ORDER BY "t"."Id"
 """);
     }
