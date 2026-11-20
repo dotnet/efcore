@@ -674,17 +674,17 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                         Condition(
                             Equal(concreteEntityTypeVariable, Default(typeof(IEntityType))),
                             Default(typeof(InternalEntityEntry)),
-                            Call(
-                                QueryCompilationContext.QueryContextParameter,
-                                StartTrackingMethodInfo,
-                                concreteEntityTypeVariable,
-                                instanceVariable,
-                                shadowValuesVariable))));
-
-                expressions.Add(
-                    IfThen(
-                        NotEqual(entryVariable!, Default(typeof(InternalEntityEntry))),
-                        Assign(instanceVariable, Convert(MakeMemberAccess(entryVariable!, EntityMemberInfo), returnType))));
+                            Block(
+                                Assign(
+                                    entryVariable!,
+                                    Call(
+                                        QueryCompilationContext.QueryContextParameter,
+                                        StartTrackingMethodInfo,
+                                        concreteEntityTypeVariable,
+                                        instanceVariable,
+                                        shadowValuesVariable)),
+                                Assign(instanceVariable, Convert(MakeMemberAccess(entryVariable!, EntityMemberInfo), returnType)),
+                                entryVariable!))));
             }
 
             expressions.Add(instanceVariable);
