@@ -77,6 +77,25 @@ public class SqlServerFullTextCatalog(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    /// <param name="name">The catalog name.</param>
+    /// <param name="isDefault">Whether the catalog is the default catalog.</param>
+    /// <param name="isAccentSensitive">Whether the catalog is accent-sensitive.</param>
+    public SqlServerFullTextCatalog(
+        string name,
+        bool isDefault,
+        bool isAccentSensitive)
+        : this(name, model: null!, ConfigurationSource.Explicit)
+    {
+        SetIsDefault(isDefault, ConfigurationSource.Explicit);
+        SetIsAccentSensitive(isAccentSensitive, ConfigurationSource.Explicit);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public static SqlServerFullTextCatalog? RemoveFullTextCatalog(IMutableModel model, string name)
     {
         var catalogs = (Dictionary<string, SqlServerFullTextCatalog>?)model[SqlServerAnnotationNames.FullTextCatalogs];

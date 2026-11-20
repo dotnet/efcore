@@ -5,8 +5,10 @@ using System.Data;
 using Microsoft.Data.SqlClient;
 using Microsoft.Data.SqlTypes;
 using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
@@ -564,6 +566,22 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
             new SqlServerVectorTypeMapping(3),
             SqlVector<float>.CreateNull(3),
             "Microsoft.Data.SqlTypes.SqlVector<float>.CreateNull(3)");
+
+    [Fact]
+    public virtual void GenerateCodeLiteral_generates_full_text_catalog_literal()
+    {
+        var catalog = new SqlServerFullTextCatalog("MyCatalog", new Model(), ConfigurationSource.Explicit)
+        {
+            IsDefault = true,
+            IsAccentSensitive = false
+        };
+
+        Test_GenerateCodeLiteral_helper(
+            SqlServerFullTextCatalogTypeMapping.Default,
+            new Dictionary<string, SqlServerFullTextCatalog> { ["MyCatalog"] = catalog },
+            "new Dictionary<string, SqlServerFullTextCatalog> { [\"MyCatalog\"] = "
+            + "new Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal.SqlServerFullTextCatalog(\"MyCatalog\", true, false) }");
+    }
 
     [Fact, UseCulture("de-DE")]
     public virtual void GenerateSqlLiteral_formats_vector_floats_with_the_invariant_culture()
