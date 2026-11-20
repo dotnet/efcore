@@ -34,6 +34,12 @@ public class SqliteTimeOnlyMemberTranslator(SqliteSqlExpressionFactory sqlExpres
                 nameof(TimeOnly.Minute) => DatePart("%M"),
                 nameof(TimeOnly.Second) => DatePart("%S"),
 
+                // strftime('%f') rounds to milliseconds, so the digits are read from the text instead. Padding covers values
+                // without a fraction or with fewer than seven digits.
+                nameof(TimeOnly.Millisecond) => FractionPart(10, 3),
+                nameof(TimeOnly.Microsecond) => FractionPart(13, 3),
+                nameof(TimeOnly.Nanosecond) => sqlExpressionFactory.Multiply(FractionPart(16, 1), sqlExpressionFactory.Constant(100)),
+
                 _ => null
             };
 
@@ -44,5 +50,23 @@ public class SqliteTimeOnlyMemberTranslator(SqliteSqlExpressionFactory sqlExpres
                     datePart,
                     instance),
                 returnType);
+
+        SqlExpression FractionPart(int start, int length)
+        {
+            var padding = sqlExpressionFactory.ApplyDefaultTypeMapping(sqlExpressionFactory.Constant("0000000"));
+
+            return sqlExpressionFactory.Convert(
+                sqlExpressionFactory.Function(
+                    "substr",
+                    [
+                        new SqlBinaryExpression(ExpressionType.Add, instance, padding, typeof(string), padding.TypeMapping),
+                        sqlExpressionFactory.Constant(start),
+                        sqlExpressionFactory.Constant(length)
+                    ],
+                    nullable: true,
+                    argumentsPropagateNullability: Statics.TrueArrays[3],
+                    typeof(string)),
+                returnType);
+        }
     }
 }
