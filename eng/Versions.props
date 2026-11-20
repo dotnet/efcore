@@ -18,9 +18,9 @@
   </PropertyGroup>
   <PropertyGroup Label="MSBuild and Roslyn" Condition="'$(IsServicingBuild)' == 'true'">
     <!-- Use the current stable builds for MSBuild and Roslyn packages, next version (non-servicing) will use the preview builds -->
-    <MicrosoftBuildFrameworkVersion>18.0.2</MicrosoftBuildFrameworkVersion>
-    <MicrosoftBuildUtilitiesCoreVersion>18.0.2</MicrosoftBuildUtilitiesCoreVersion>
-    <MicrosoftBuildTasksCoreVersion>18.0.2</MicrosoftBuildTasksCoreVersion>
+    <MicrosoftBuildFrameworkVersion>18.0.38</MicrosoftBuildFrameworkVersion>
+    <MicrosoftBuildUtilitiesCoreVersion>18.0.38</MicrosoftBuildUtilitiesCoreVersion>
+    <MicrosoftBuildTasksCoreVersion>18.0.38</MicrosoftBuildTasksCoreVersion>
     <MicrosoftCodeAnalysisCSharpVersion>5.0.0</MicrosoftCodeAnalysisCSharpVersion>
     <MicrosoftCodeAnalysisCSharpWorkspacesVersion>5.0.0</MicrosoftCodeAnalysisCSharpWorkspacesVersion>
     <MicrosoftCodeAnalysisWorkspacesMSBuildVersion>5.0.0</MicrosoftCodeAnalysisWorkspacesMSBuildVersion>
