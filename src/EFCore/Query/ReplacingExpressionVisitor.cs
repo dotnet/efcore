@@ -192,4 +192,20 @@ public class ReplacingExpressionVisitor : ExpressionVisitor
 
         return base.VisitMethodCall(methodCallExpression);
     }
+
+    /// <inheritdoc />
+    protected override Expression VisitBinary(BinaryExpression binaryExpression)
+    {
+        if (binaryExpression is { NodeType: ExpressionType.Assign, Left: MemberExpression { Member: FieldInfo { IsInitOnly: true } } })
+        {
+            var left = (MemberExpression)Visit(binaryExpression.Left);
+            var right = Visit(binaryExpression.Right);
+
+            return left == binaryExpression.Left && right == binaryExpression.Right
+                ? binaryExpression
+                : left.Assign(right);
+        }
+
+        return base.VisitBinary(binaryExpression);
+    }
 }
