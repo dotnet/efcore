@@ -151,6 +151,94 @@ GROUP BY "o0"."Key"
         AssertSql();
     }
 
+    public override async Task CountBy_property(bool async)
+    {
+        await base.CountBy_property(async);
+
+        AssertSql(
+            """
+SELECT "o"."ProductID" AS "Key", COUNT(*) AS "Value"
+FROM "Order Details" AS "o"
+GROUP BY "o"."ProductID"
+""");
+    }
+
+    public override async Task CountBy_after_Where(bool async)
+    {
+        await base.CountBy_after_Where(async);
+
+        AssertSql(
+            """
+SELECT "o"."CustomerID" AS "Key", COUNT(*) AS "Value"
+FROM "Orders" AS "o"
+WHERE "o"."CustomerID" LIKE 'A%'
+GROUP BY "o"."CustomerID"
+""");
+    }
+
+    public override async Task CountBy_anonymous_type_key(bool async)
+    {
+        await base.CountBy_anonymous_type_key(async);
+
+        AssertSql(
+            """
+SELECT "p"."SupplierID", "p"."Discontinued", COUNT(*) AS "Value"
+FROM "Products" AS "p"
+GROUP BY "p"."SupplierID", "p"."Discontinued"
+""");
+    }
+
+    public override async Task CountBy_Where_on_count(bool async)
+    {
+        await base.CountBy_Where_on_count(async);
+
+        AssertSql(
+            """
+SELECT "o"."ProductID" AS "Key", COUNT(*) AS "Value"
+FROM "Order Details" AS "o"
+GROUP BY "o"."ProductID"
+HAVING COUNT(*) > 40
+""");
+    }
+
+    public override async Task CountBy_OrderByDescending_count_Take(bool async)
+    {
+        await base.CountBy_OrderByDescending_count_Take(async);
+
+        AssertSql(
+            """
+@p='5'
+
+SELECT "o"."ProductID" AS "Key", COUNT(*) AS "Value"
+FROM "Order Details" AS "o"
+GROUP BY "o"."ProductID"
+ORDER BY COUNT(*) DESC, "o"."ProductID"
+LIMIT @p
+""");
+    }
+
+    public override async Task CountBy_Select_key(bool async)
+    {
+        await base.CountBy_Select_key(async);
+
+        AssertSql(
+            """
+SELECT "o"."ProductID"
+FROM "Order Details" AS "o"
+GROUP BY "o"."ProductID"
+""");
+    }
+
+    public override Task CountBy_over_navigation_in_projection(bool async)
+        => AssertApplyNotSupported(() => base.CountBy_over_navigation_in_projection(async));
+
+    public override async Task CountBy_with_comparer(bool async)
+    {
+        await base.CountBy_with_comparer(async);
+
+        AssertSql();
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
