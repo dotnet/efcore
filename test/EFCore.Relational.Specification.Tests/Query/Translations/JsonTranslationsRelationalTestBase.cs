@@ -36,12 +36,63 @@ public abstract class JsonTranslationsRelationalTestBase<TFixture>(TFixture fixt
             ss => ss.Set<JsonTranslationsEntity>()
                 .Where(b => ((IDictionary<string, JsonNode>)JsonNode.Parse(b.JsonString)!).ContainsKey("OptionalInt")));
 
+    // MaybeJsonString covers all the interesting inputs across the four seeded rows: a valid JSON object (1), a valid JSON array (2),
+    // a string which isn't JSON at all (3) and SQL NULL (4). Only rows 1 and 2 are expected back.
+    [Fact]
+    public virtual Task IsJson_on_scalar_string_column()
+        => AssertQuery(
+            ss => ss.Set<JsonTranslationsEntity>()
+                .Where(b => EF.Functions.IsJson(b.MaybeJsonString!)),
+            ss => ss.Set<JsonTranslationsEntity>()
+                .Where(b => IsValidJson(b.MaybeJsonString)));
+
+    [Fact]
+    public virtual Task IsJson_on_complex_property()
+        => AssertQuery(
+            ss => ss.Set<JsonTranslationsEntity>()
+                .Where(b => EF.Functions.IsJson(b.JsonComplexType)),
+            // EF always writes valid JSON out to a complex JSON column, so every row is expected back.
+            ss => ss.Set<JsonTranslationsEntity>());
+
+    [Fact]
+    public virtual Task IsJson_on_owned_entity()
+        => AssertQuery(
+            ss => ss.Set<JsonTranslationsEntity>()
+                .Where(b => EF.Functions.IsJson(b.JsonOwnedType)),
+            // EF always writes valid JSON out to an owned JSON column, so every row is expected back.
+            ss => ss.Set<JsonTranslationsEntity>());
+
+    // Deliberately stricter than RFC 8259: SQL Server's single-argument ISJSON() only considers objects and arrays to be valid JSON,
+    // while SQLite's json_valid() also accepts bare scalars such as 8. The seeded data contains no bare scalars, so this check matches
+    // both providers.
+    private static bool IsValidJson(string? value)
+    {
+        if (value is null)
+        {
+            return false;
+        }
+
+        try
+        {
+            using var document = JsonDocument.Parse(value);
+            return document.RootElement.ValueKind is JsonValueKind.Object or JsonValueKind.Array;
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
+    }
+
     public class JsonTranslationsEntity
     {
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
 
         public required string JsonString { get; set; }
+
+        // Unlike JsonString, this column is nullable and is not required to contain valid JSON; it exists so that EF.Functions.IsJson
+        // can be tested against invalid JSON and SQL NULL.
+        public string? MaybeJsonString { get; set; }
 
         public required JsonComplexType JsonComplexType { get; set; }
         public required JsonOwnedType JsonOwnedType { get; set; }
@@ -133,6 +184,9 @@ public abstract class JsonTranslationsRelationalTestBase<TFixture>(TFixture fixt
                         using var expectedJson = JsonDocument.Parse(ee.JsonString);
                         using var actualJson = JsonDocument.Parse(aa.JsonString);
                         Assert.True(JsonElement.DeepEquals(expectedJson.RootElement, actualJson.RootElement));
+
+                        // MaybeJsonString isn't necessarily valid JSON, so compare it as an opaque string.
+                        Assert.Equal(ee.MaybeJsonString, aa.MaybeJsonString);
                     }
                 }
             }
@@ -166,6 +220,8 @@ public abstract class JsonTranslationsRelationalTestBase<TFixture>(TFixture fixt
                 {
                     Id = 1,
                     JsonString = """{ "RequiredInt": 8, "OptionalInt": 8 }""",
+                    // Valid JSON object
+                    MaybeJsonString = """{ "RequiredInt": 8, "OptionalInt": 8 }""",
                     JsonComplexType = new JsonComplexType { RequiredInt = 8, OptionalInt = 8 },
                     JsonOwnedType = new JsonOwnedType { RequiredInt = 8, OptionalInt = 8 }
                 },
@@ -174,6 +230,8 @@ public abstract class JsonTranslationsRelationalTestBase<TFixture>(TFixture fixt
                 {
                     Id = 2,
                     JsonString = """{ "RequiredInt": 9, "OptionalInt": 9 }""",
+                    // Valid JSON array
+                    MaybeJsonString = "[1, 2, 3]",
                     JsonComplexType = new JsonComplexType { RequiredInt = 9, OptionalInt = 9 },
                     JsonOwnedType = new JsonOwnedType { RequiredInt = 9, OptionalInt = 9 }
                 },
@@ -182,6 +240,8 @@ public abstract class JsonTranslationsRelationalTestBase<TFixture>(TFixture fixt
                 {
                     Id = 3,
                     JsonString = """{ "RequiredInt": 10, "OptionalInt": null }""",
+                    // Not JSON at all
+                    MaybeJsonString = "not json",
                     JsonComplexType = new JsonComplexType { RequiredInt = 10, OptionalInt = null },
                     JsonOwnedType = new JsonOwnedType { RequiredInt = 10, OptionalInt = null }
                 },
@@ -192,6 +252,8 @@ public abstract class JsonTranslationsRelationalTestBase<TFixture>(TFixture fixt
                 {
                     Id = 4,
                     JsonString = """{ "RequiredInt": 10 }""",
+                    // SQL NULL
+                    MaybeJsonString = null,
                     JsonComplexType = new JsonComplexType
                     {
                         RequiredInt = 10, OptionalInt = null // This will be replaced by a missing property

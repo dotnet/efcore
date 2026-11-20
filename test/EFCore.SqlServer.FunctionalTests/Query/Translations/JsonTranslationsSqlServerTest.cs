@@ -70,6 +70,44 @@ WHERE JSON_PATH_EXISTS([j].[JsonOwnedType], N'$.OptionalInt') = 1
 """);
     }
 
+    // Note that ISJSON() is supported from SQL Server 2016 (compatibility level 130), which is EF's floor, so unlike
+    // JsonPathExists above these tests need no version gating.
+    public override async Task IsJson_on_scalar_string_column()
+    {
+        await base.IsJson_on_scalar_string_column();
+
+        AssertSql(
+            """
+SELECT [j].[Id], [j].[JsonString], [j].[MaybeJsonString], [j].[JsonComplexType], [j].[JsonOwnedType]
+FROM [JsonEntities] AS [j]
+WHERE ISJSON([j].[MaybeJsonString]) = 1
+""");
+    }
+
+    public override async Task IsJson_on_complex_property()
+    {
+        await base.IsJson_on_complex_property();
+
+        AssertSql(
+            """
+SELECT [j].[Id], [j].[JsonString], [j].[MaybeJsonString], [j].[JsonComplexType], [j].[JsonOwnedType]
+FROM [JsonEntities] AS [j]
+WHERE ISJSON([j].[JsonComplexType]) = 1
+""");
+    }
+
+    public override async Task IsJson_on_owned_entity()
+    {
+        await base.IsJson_on_owned_entity();
+
+        AssertSql(
+            """
+SELECT [j].[Id], [j].[JsonString], [j].[MaybeJsonString], [j].[JsonComplexType], [j].[JsonOwnedType]
+FROM [JsonEntities] AS [j]
+WHERE ISJSON([j].[JsonOwnedType]) = 1
+""");
+    }
+
 #pragma warning disable EF9106 // JsonContains is experimental
     [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
     public async Task JsonContains_on_scalar_string_column()
