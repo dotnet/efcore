@@ -2468,10 +2468,10 @@ public sealed partial class SelectExpression : TableExpressionBase
 
                     // If the top-level projection - not the current nested one - is a complex type and not an entity type, then add
                     // all its columns to the "otherExpressions" list (i.e. columns not part of a an entity primary key). This is
-                    // the same as with a non-structural type projection.
+                    // the same as with a non-structural type projection. Identifier columns are included too, since this list is
+                    // only used when the outer identifiers couldn't all be matched.
                     if ((outerIdentifiers.Length > 0 || canIdentifyByProjection)
-                        && projection1.StructuralType is IComplexType
-                        && !select1._identifier.Any(e => e.Column.Equals(column1)))
+                        && projection1.StructuralType is IComplexType)
                     {
                         var outerTypeMapping = column1.TypeMapping ?? column2.TypeMapping;
                         if (outerTypeMapping == null)
