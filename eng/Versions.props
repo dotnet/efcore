@@ -3,7 +3,7 @@
   <Import Project="Version.Details.props" />
 
   <PropertyGroup Label="Version settings">
-    <VersionPrefix>11.0.1</VersionPrefix>
+    <VersionPrefix>11.0.2</VersionPrefix>
     <PreReleaseVersionLabel>servicing</PreReleaseVersionLabel>
     <PreReleaseVersionIteration></PreReleaseVersionIteration>
     <!-- Allowed values: '', 'prerelease', 'release'. Set to 'release' when stabilizing. -->
