@@ -2350,6 +2350,14 @@ public sealed partial class SelectExpression : TableExpressionBase
             select2._projection.Add(innerProjection2);
             var outerProjection = CreateColumnExpression(innerProjection1, setOperationAlias);
 
+            // The first source may not have a type mapping yet, e.g. an inline or parameter collection (VALUES, OPENJSON...), whose
+            // type mapping gets inferred from the other source later. Take the type mapping from the other source in that case.
+            if (outerProjection.TypeMapping is null
+                && innerProjection2.Expression.TypeMapping is { } typeMapping2)
+            {
+                outerProjection = (ColumnExpression)outerProjection.ApplyTypeMapping(typeMapping2);
+            }
+
             if (IsNullableProjection(innerProjection1)
                 || IsNullableProjection(innerProjection2))
             {
