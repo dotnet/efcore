@@ -3,6 +3,7 @@
 
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
+using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 
 namespace Microsoft.EntityFrameworkCore.Query.Inheritance;
 
@@ -195,6 +196,36 @@ WHERE (
     WHERE "s"."Id" = "g"."SquadId"
     ORDER BY "g"."Nickname"
     LIMIT 1 OFFSET "s"."Id") = 'Cole Train'
+""");
+    }
+
+    public override async Task Client_eval_followed_by_aggregate_operation(bool async)
+    {
+        // TimeSpan.Ticks is translated on SQLite, so unlike other relational providers the aggregates don't throw.
+        await AssertSum(async, ss => ss.Set<Mission>().Select(m => m.Duration.Ticks));
+        await AssertAverage(async, ss => ss.Set<Mission>().Select(m => m.Duration.Ticks));
+        await AssertMin(async, ss => ss.Set<Mission>().Select(m => m.Duration.Ticks));
+        await AssertMax(async, ss => ss.Set<Mission>().Select(m => m.Duration.Ticks));
+
+        AssertSql(
+            """
+SELECT COALESCE(SUM(ef_ticks("m"."Duration")), 0)
+FROM "Missions" AS "m"
+""",
+            //
+            """
+SELECT AVG(CAST(ef_ticks("m"."Duration") AS REAL))
+FROM "Missions" AS "m"
+""",
+            //
+            """
+SELECT MIN(ef_ticks("m"."Duration"))
+FROM "Missions" AS "m"
+""",
+            //
+            """
+SELECT MAX(ef_ticks("m"."Duration"))
+FROM "Missions" AS "m"
 """);
     }
 

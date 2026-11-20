@@ -3,6 +3,7 @@
 
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
+using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -25,7 +26,9 @@ public class GearsOfWarQuerySqliteTest : GearsOfWarQueryRelationalTestBase<Gears
 
         AssertSql(
             """
-SELECT "m"."Duration"
+@interval='00:00:00.0000010'
+
+SELECT ef_timespan(ef_ticks("m"."Duration") + ef_ticks(@interval))
 FROM "Missions" AS "m"
 """);
     }
@@ -7883,9 +7886,32 @@ FROM "Gears" AS "g"
 
     public override async Task Client_eval_followed_by_aggregate_operation(bool async)
     {
-        await base.Client_eval_followed_by_aggregate_operation(async);
+        // TimeSpan.Ticks is translated on SQLite, so unlike other relational providers the aggregates don't throw.
+        await AssertSum(async, ss => ss.Set<Mission>().Select(m => m.Duration.Ticks));
+        await AssertAverage(async, ss => ss.Set<Mission>().Select(m => m.Duration.Ticks));
+        await AssertMin(async, ss => ss.Set<Mission>().Select(m => m.Duration.Ticks));
+        await AssertMax(async, ss => ss.Set<Mission>().Select(m => m.Duration.Ticks));
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT COALESCE(SUM(ef_ticks("m"."Duration")), 0)
+FROM "Missions" AS "m"
+""",
+            //
+            """
+SELECT AVG(CAST(ef_ticks("m"."Duration") AS REAL))
+FROM "Missions" AS "m"
+""",
+            //
+            """
+SELECT MIN(ef_ticks("m"."Duration"))
+FROM "Missions" AS "m"
+""",
+            //
+            """
+SELECT MAX(ef_ticks("m"."Duration"))
+FROM "Missions" AS "m"
+""");
     }
 
     public override async Task Client_member_and_unsupported_string_Equals_in_the_same_query(bool async)
