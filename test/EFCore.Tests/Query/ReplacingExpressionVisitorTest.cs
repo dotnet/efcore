@@ -194,4 +194,28 @@ public class ReplacingExpressionVisitorTest
         Assert.IsAssignableFrom<MemberExpression>(visited);
         Assert.Equal(42, new TransformingDto(41).Value);
     }
+
+    private readonly struct InitOnlyStruct
+    {
+        public int Value { get; init; }
+    }
+
+    [Fact]
+    public void Replacing_parameter_in_initonly_field_assignment_preserves_writeable_assignment()
+    {
+        var originalParam = Expression.Parameter(typeof(InitOnlyStruct), "orig");
+        var replacementParam = Expression.Parameter(typeof(InitOnlyStruct), "repl");
+        var backingField = typeof(InitOnlyStruct).GetField("<Value>k__BackingField", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+        var assign = Expression.Field(originalParam, backingField).Assign(Expression.Constant(42));
+
+        var visited = ReplacingExpressionVisitor.Replace(originalParam, replacementParam, assign);
+
+        var lambda = Expression.Lambda<Func<int>>(
+            Expression.Block(
+                [replacementParam],
+                visited,
+                Expression.Property(replacementParam, nameof(InitOnlyStruct.Value))));
+
+        Assert.Equal(42, lambda.Compile()());
+    }
 }
