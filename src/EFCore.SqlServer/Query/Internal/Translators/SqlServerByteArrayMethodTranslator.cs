@@ -70,9 +70,29 @@ public class SqlServerByteArrayMethodTranslator(ISqlExpressionFactory sqlExpress
                             argumentsPropagateNullability: Statics.TrueArrays[1],
                             typeof(int)),
                         sqlExpressionFactory.Constant(0));
+
+                // Binary concatenation. The translation is typed as byte[] rather than as the method's IEnumerable<byte>, so that byte
+                // array operations (ToArray, Length, SequenceEqual...) can be composed over it.
+                case nameof(Enumerable.Concat)
+                    when arguments is [var first, var second]
+                    && IsBinary(first)
+                    && IsBinary(second)
+                    && (first.TypeMapping ?? second.TypeMapping) is { } typeMapping:
+                    return sqlExpressionFactory.Add(
+                        sqlExpressionFactory.ApplyTypeMapping(first, typeMapping),
+                        sqlExpressionFactory.ApplyTypeMapping(second, typeMapping),
+                        typeMapping);
+
+                // ToArray over a byte array (e.g. over Concat above) doesn't change the value
+                case nameof(Enumerable.ToArray) when arguments is [var source] && source.Type == typeof(byte[]):
+                    return source;
             }
         }
 
         return null;
+
+        // A byte[] value converter could store something other than the bytes themselves, which can't be concatenated in SQL
+        static bool IsBinary(SqlExpression expression)
+            => expression is { Type: var type, TypeMapping: null or { Converter: null } } && type == typeof(byte[]);
     }
 }
