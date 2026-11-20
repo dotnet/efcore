@@ -18,5 +18,5 @@ Non-relational provider with its own parallel query pipeline. Uses JSON for docu
 
 ## Azure Cosmos DB Emulator for Tests
 
-- `TestEnvironment.InitializeAsync()` auto-starts a `Testcontainers.CosmosDb` container when `Test__Cosmos__DefaultConnection` is not set. Set the env var to use an existing emulator instead.
+- `CosmosTestEnvironment.InitializeAsync()` uses `Test__Cosmos__DefaultConnection` if set, otherwise probes `https://localhost:8081` before starting a Linux emulator testcontainer.
 - Skip tests requiring unsupported features on the Linux emulator with ` [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]`.
