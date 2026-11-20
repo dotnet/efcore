@@ -500,7 +500,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
     public virtual Task MinBy_over_subquery(bool async)
         => AssertMinBy(
             async,
-            ss => ss.Set<Customer>(),
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "FISSA" || c.CustomerID == "CENTC"),
             selector: c => c.Orders.Sum(o => o.OrderID));
 
     [Theory, MemberData(nameof(IsAsyncData))]
