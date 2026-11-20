@@ -113,6 +113,61 @@ public class NonSharedModelUpdatesSqliteTest(NonSharedFixture fixture) : NonShar
         }
     }
 
+    [Fact]
+    public async Task Tracking_query_projection_returns_added_owned_reference()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context39595>(
+            onModelCreating: b =>
+            {
+                b.Entity<Context39595.Owner>().OwnsOne(
+                    o => o.Patch, p => p.Property(e => e.Title).IsRequired());
+                b.Entity<Context39595.Owner>().Navigation(o => o.Patch).IsRequired(false);
+            });
+
+        int ownerId;
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var owner = new Context39595.Owner { Patch = new Context39595.Patch { Title = "old title", Start = 1 } };
+            context.Add(owner);
+            await context.SaveChangesAsync();
+            ownerId = owner.Id;
+        }
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var owner = new Context39595.Owner { Id = ownerId };
+            context.Attach(owner);
+            var patch = new Context39595.Patch { Title = "new title" };
+            owner.Patch = patch;
+            context.ChangeTracker.DetectChanges();
+
+            var projection = await context.Set<Context39595.Owner>()
+                .Select(o => new { Owner = o, Patch = o.Patch })
+                .SingleAsync();
+
+            Assert.Same(owner, projection.Owner);
+            Assert.Same(patch, projection.Patch);
+            Assert.Same(patch, owner.Patch);
+
+            projection.Patch!.Title = "edited title";
+
+            projection = await context.Set<Context39595.Owner>()
+                .Select(o => new { Owner = o, Patch = o.Patch })
+                .SingleAsync();
+
+            Assert.Same(owner, projection.Owner);
+            Assert.Same(patch, projection.Patch);
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var owner = await context.Set<Context39595.Owner>().SingleAsync();
+            Assert.Equal("edited title", owner.Patch.Title);
+            Assert.Null(owner.Patch.Start);
+        }
+    }
+
     [Theory, InlineData(false), InlineData(true)]
     public async Task Tracking_query_preserves_replaced_owned_reference(bool json)
     {

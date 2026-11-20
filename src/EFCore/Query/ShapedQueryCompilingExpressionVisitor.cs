@@ -680,6 +680,11 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                                 concreteEntityTypeVariable,
                                 instanceVariable,
                                 shadowValuesVariable))));
+
+                expressions.Add(
+                    IfThen(
+                        NotEqual(entryVariable!, Default(typeof(InternalEntityEntry))),
+                        Assign(instanceVariable, Convert(MakeMemberAccess(entryVariable!, EntityMemberInfo), returnType))));
             }
 
             expressions.Add(instanceVariable);

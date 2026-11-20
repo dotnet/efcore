@@ -155,8 +155,17 @@ public abstract class QueryContext
             IEntityType entityType,
             object entity,
             in ISnapshot snapshot)
+    {
         // InitializeStateManager will populate the field before calling here
-        => _stateManager!.StartTrackingFromQuery(entityType, entity, snapshot);
+        var entry = _stateManager!.StartTrackingFromQuery(entityType, entity, snapshot);
+
+        return !UseOldBehavior39717
+            && entry.EntityState == EntityState.Deleted
+            && entry.EntityType.FindOwnership() is { IsUnique: true }
+            && entry.SharedIdentityEntry is { EntityState: EntityState.Added } addedEntry
+            ? addedEntry
+            : entry;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
