@@ -129,6 +129,80 @@ Assert.Equal(new long[] { 0L, 8L }, rows.Select(r => r.SizeBytes));
     }
 
     [Fact]
+    public virtual async Task GroupBy_element_selector_with_aggregates_through_navigation()
+    {
+        var contextFactory = await InitializeNonSharedTest<GroupByNavigationContext>(seed: async context =>
+        {
+            var north = new GroupByNavigationCustomer { Region = "North" };
+            var south = new GroupByNavigationCustomer { Region = "South" };
+            var unknown = new GroupByNavigationCustomer { Region = null };
+            context.Orders.AddRange(
+                new GroupByNavigationOrder { EmployeeId = 1, Amount = 10, Customer = north },
+                new GroupByNavigationOrder { EmployeeId = 1, Amount = 20, Customer = south },
+                new GroupByNavigationOrder { EmployeeId = 2, Amount = 5, Customer = unknown });
+            await context.SaveChangesAsync();
+        });
+
+        // The aggregate selectors are written over the element selector's projection and read through a navigation, so
+        // they are inlined onto the pre-GroupBy source and the navigation joined there; g.Key is rebound to the key per row.
+        await Test(
+            """
+await using var context = new AdHocPrecompiledQueryRelationalTestBase.GroupByNavigationContext(dbContextOptions);
+
+var groups = await context.Orders
+    .GroupBy(o => o.EmployeeId, o => new { o.Customer.Region, o.Amount })
+    .Select(g => new
+    {
+        g.Key,
+        Region = g.Max(x => x.Region),
+        Total = g.Sum(x => x.Amount),
+        KeyWhereRegion = g.Max(x => x.Region == null ? 0 : g.Key)
+    })
+    .OrderBy(g => g.Key)
+    .ToListAsync();
+
+Assert.Collection(
+    groups,
+    g =>
+    {
+        Assert.Equal(1, g.Key);
+        Assert.Equal("South", g.Region);
+        Assert.Equal(30, g.Total);
+        Assert.Equal(1, g.KeyWhereRegion);
+    },
+    g =>
+    {
+        Assert.Equal(2, g.Key);
+        Assert.Null(g.Region);
+        Assert.Equal(5, g.Total);
+        Assert.Equal(0, g.KeyWhereRegion);
+    });
+""",
+            typeof(GroupByNavigationContext),
+            contextFactory.GetOptions());
+    }
+
+    public class GroupByNavigationContext(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<GroupByNavigationOrder> Orders { get; set; } = null!;
+    }
+
+    public class GroupByNavigationOrder
+    {
+        public int Id { get; set; }
+        public int EmployeeId { get; set; }
+        public int Amount { get; set; }
+        public int CustomerId { get; set; }
+        public GroupByNavigationCustomer Customer { get; set; } = null!;
+    }
+
+    public class GroupByNavigationCustomer
+    {
+        public int Id { get; set; }
+        public string? Region { get; set; }
+    }
+
+    [Fact]
     public virtual async Task Decimal_projection_with_implicitly_converted_zero()
     {
         var contextFactory = await InitializeNonSharedTest<DecimalContext>();

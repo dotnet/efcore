@@ -816,6 +816,113 @@ public abstract class AdHocQueryFiltersQueryRelationalTestBase(NonSharedFixture 
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task GroupBy_element_selector_projecting_required_navigation_with_query_filter(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context38965>(
+            onConfiguring: b => b.ConfigureWarnings(
+                w => w.Ignore(CoreEventId.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning)),
+            seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        // The element selector is what reaches the filtered principal, so the lift only sees the navigation after
+        // inlining it into the aggregates (#38775). It must still be joined as an outer join, or the group whose only
+        // row has a filtered-out principal disappears along with its Count().
+        var query = context.Dependents
+            .GroupBy(d => d.GroupId, d => new { Value = (int?)d.Principal.Value, d.GroupId })
+            .Select(g => new
+            {
+                g.Key,
+                Count = g.Count(),
+                MaxValue = g.Max(x => x.Value),
+                SumGroupId = g.Sum(x => x.GroupId)
+            });
+
+        var results = async
+            ? await query.ToListAsync()
+            : query.ToList();
+
+        Assert.Collection(
+            results.OrderBy(e => e.Key),
+            result =>
+            {
+                Assert.Equal(1, result.Key);
+                Assert.Equal(1, result.Count);
+                Assert.Equal(10, result.MaxValue);
+                Assert.Equal(1, result.SumGroupId);
+            },
+            result =>
+            {
+                Assert.Equal(2, result.Key);
+                Assert.Equal(1, result.Count);
+                Assert.Null(result.MaxValue);
+                Assert.Equal(2, result.SumGroupId);
+            });
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task GroupBy_All_over_element_selector_projecting_required_navigation_with_query_filter(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context38965>(
+            onConfiguring: b => b.ConfigureWarnings(
+                w => w.Ignore(CoreEventId.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning)),
+            seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Dependents
+            .GroupBy(d => d.GroupId, d => new { Value = (int?)d.Principal.Value })
+            .Select(g => new { g.Key, AllLarge = g.All(x => x.Value > 15) });
+
+        var results = async
+            ? await query.ToListAsync()
+            : query.ToList();
+
+        // All()'s guard has to survive the element selector supplying the filtered traversal: the group whose only
+        // row has a filtered-out principal aggregates over an empty set and still answers true.
+        Assert.Collection(
+            results.OrderBy(e => e.Key),
+            result =>
+            {
+                Assert.Equal(1, result.Key);
+                Assert.False(result.AllLarge);
+            },
+            result =>
+            {
+                Assert.Equal(2, result.Key);
+                Assert.True(result.AllLarge);
+            });
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task GroupBy_aggregate_capturing_key_over_filtered_required_navigation(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context38965>(
+            onConfiguring: b => b.ConfigureWarnings(
+                w => w.Ignore(CoreEventId.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning)),
+            seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        // Grouping by a filtered principal's column removes those rows, and a g.Key captured inside an aggregate is
+        // rebound to that same key expression. The key is expanded first, so the rebound copy reuses its inner join
+        // rather than picking up a second, outer-joined expansion of the same navigation - the SQL baseline pins the
+        // single join.
+        var query = context.Dependents
+            .GroupBy(d => d.Principal.Value)
+            .Select(g => new { g.Key, Max = g.Max(d => d.Principal.Value > 0 ? g.Key : 0) });
+
+        var results = async
+            ? await query.ToListAsync()
+            : query.ToList();
+
+        Assert.Collection(
+            results,
+            result =>
+            {
+                Assert.Equal(10, result.Key);
+                Assert.Equal(10, result.Max);
+            });
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Repeated_single_result_subquery_read_through_required_navigation_with_query_filter(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context38965>(

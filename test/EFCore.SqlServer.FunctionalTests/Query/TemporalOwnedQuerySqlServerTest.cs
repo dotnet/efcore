@@ -1282,36 +1282,14 @@ ORDER BY [o].[Id], [o1].[ClientId], [o1].[Id]
 
         AssertSql(
             """
-SELECT (
-    SELECT AVG(CAST([s].[Id] AS float))
-    FROM (
-        SELECT 1 AS [Key], [o2].[PersonAddress_Country_PlanetId]
-        FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o2]
-    ) AS [o1]
-    LEFT JOIN [Planet] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [p] ON [o1].[PersonAddress_Country_PlanetId] = [p].[Id]
-    LEFT JOIN [Star] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [s] ON [p].[StarId] = [s].[Id]
-    WHERE [o0].[Key] = [o1].[Key]) AS [p1], (
-    SELECT ISNULL(SUM([s0].[Id]), 0)
-    FROM (
-        SELECT 1 AS [Key], [o4].[PersonAddress_Country_PlanetId]
-        FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o4]
-    ) AS [o3]
-    LEFT JOIN [Planet] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [p0] ON [o3].[PersonAddress_Country_PlanetId] = [p0].[Id]
-    LEFT JOIN [Star] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [s0] ON [p0].[StarId] = [s0].[Id]
-    WHERE [o0].[Key] = [o3].[Key]) AS [p2], (
-    SELECT MAX(CAST(LEN([s1].[Name]) AS int))
-    FROM (
-        SELECT 1 AS [Key], [o6].[PersonAddress_Country_PlanetId]
-        FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o6]
-    ) AS [o5]
-    LEFT JOIN [Planet] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [p1] ON [o5].[PersonAddress_Country_PlanetId] = [p1].[Id]
-    LEFT JOIN [Star] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [s1] ON [p1].[StarId] = [s1].[Id]
-    WHERE [o0].[Key] = [o5].[Key]) AS [p3]
+SELECT AVG(CAST([s0].[Id1] AS float)) AS [p1], ISNULL(SUM([s0].[Id1]), 0) AS [p2], MAX(CAST(LEN([s0].[Name1]) AS int)) AS [p3]
 FROM (
-    SELECT 1 AS [Key]
+    SELECT [s].[Id] AS [Id1], [s].[Name] AS [Name1], 1 AS [Key]
     FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
-) AS [o0]
-GROUP BY [o0].[Key]
+    LEFT JOIN [Planet] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
+    LEFT JOIN [Star] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [s] ON [p].[StarId] = [s].[Id]
+) AS [s0]
+GROUP BY [s0].[Key]
 """);
     }
 
