@@ -5189,16 +5189,14 @@ FROM [Gears] AS [g]
 
         AssertSql(
             """
-SELECT [w1].[Id]
+SELECT [w0].[Id]
 FROM [Gears] AS [g]
-LEFT JOIN (
-    SELECT [w0].[Id], [w0].[OwnerFullName]
-    FROM (
-        SELECT [w].[Id], [w].[OwnerFullName], ROW_NUMBER() OVER(PARTITION BY [w].[OwnerFullName] ORDER BY [w].[Id]) AS [row]
-        FROM [Weapons] AS [w]
-    ) AS [w0]
-    WHERE [w0].[row] <= 1
-) AS [w1] ON [g].[FullName] = [w1].[OwnerFullName]
+OUTER APPLY (
+    SELECT TOP(1) [w].[Id]
+    FROM [Weapons] AS [w]
+    WHERE [g].[FullName] = [w].[OwnerFullName]
+    ORDER BY [w].[Id]
+) AS [w0]
 """);
     }
 

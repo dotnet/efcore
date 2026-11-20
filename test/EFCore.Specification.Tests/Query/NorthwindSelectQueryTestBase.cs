@@ -2480,7 +2480,7 @@ public abstract class NorthwindSelectQueryTestBase<TFixture>(TFixture fixture) :
             elementSorter: e => e.OrderID);
 
     [Theory, MemberData(nameof(IsAsyncData))]
-    public virtual Task Single_result_subquery_read_whole_and_null_checked_lift_to_single_join(bool async)
+    public virtual Task Single_result_subquery_read_whole_and_null_checked(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Select(c => new
@@ -2533,7 +2533,7 @@ public abstract class NorthwindSelectQueryTestBase<TFixture>(TFixture fixture) :
             elementSorter: e => e.CustomerID);
 
     [Theory, MemberData(nameof(IsAsyncData))]
-    public virtual Task Repeated_single_result_subqueries_that_are_not_lifted(bool async)
+    public virtual Task Repeated_single_result_subqueries_of_one_member_lift_to_single_join(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Select(c => new

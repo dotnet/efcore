@@ -982,6 +982,33 @@ ORDER BY [d].[GroupId]
 """);
     }
 
+    public override async Task Repeated_single_result_subquery_reads_through_same_filtered_required_navigation(bool async)
+    {
+        await base.Repeated_single_result_subquery_reads_through_same_filtered_required_navigation(async);
+
+        AssertSql(
+            """
+SELECT (
+    SELECT TOP(1) [d0].[GroupId]
+    FROM [Dependents] AS [d0]
+    WHERE [d0].[GroupId] <= [d].[GroupId]
+    ORDER BY [d0].[GroupId] DESC) AS [GroupId], [s].[Value], [s].[Filtered]
+FROM [Dependents] AS [d]
+OUTER APPLY (
+    SELECT TOP(1) [p0].[Value], [p0].[Filtered]
+    FROM [Dependents] AS [d1]
+    INNER JOIN (
+        SELECT [p].[Id], [p].[Filtered], [p].[Value]
+        FROM [Principals] AS [p]
+        WHERE [p].[Filtered] = CAST(0 AS bit)
+    ) AS [p0] ON [d1].[PrincipalId] = [p0].[Id]
+    WHERE [d1].[GroupId] <= [d].[GroupId]
+    ORDER BY [d1].[GroupId] DESC
+) AS [s]
+ORDER BY [d].[GroupId]
+""");
+    }
+
     public override async Task Single_result_subquery_null_check_preserves_filtered_projection(bool async)
     {
         await base.Single_result_subquery_null_check_preserves_filtered_projection(async);

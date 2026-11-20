@@ -1234,8 +1234,17 @@ public partial class NavigationExpandingExpressionVisitor
             return (NavigationTreeNode)Visit(navigationTreeNode);
         }
 
-        public IReadOnlyDictionary<NavigationTreeNode, NavigationTreeNode> ClonedNodesMap
-            => _clonedMap;
+        public NavigationExpansionExpression Clone(NavigationExpansionExpression navigationExpansionExpression)
+        {
+            var currentTree = Clone(navigationExpansionExpression.CurrentTree);
+
+            return new NavigationExpansionExpression(
+                navigationExpansionExpression.Source,
+                currentTree,
+                new ReplacingExpressionVisitor(_clonedMap.Keys.ToList(), _clonedMap.Values.ToList())
+                    .Visit(navigationExpansionExpression.PendingSelector),
+                navigationExpansionExpression.CurrentParameter.Name!);
+        }
 
         [return: NotNullIfNotNull(nameof(expression))]
         public override Expression? Visit(Expression? expression)
@@ -1272,6 +1281,16 @@ public partial class NavigationExpandingExpressionVisitor
                     return base.Visit(expression);
             }
         }
+    }
+
+    private sealed class CollectionSourceCloningExpressionVisitor : ExpressionVisitor
+    {
+        private readonly CloningExpressionVisitor _cloningExpressionVisitor = new();
+
+        protected override Expression VisitExtension(Expression extensionExpression)
+            => extensionExpression is NavigationExpansionExpression { CardinalityReducingGenericMethodInfo: null } source
+                ? _cloningExpressionVisitor.Clone(source)
+                : extensionExpression;
     }
 
     private sealed class GroupingElementReplacingExpressionVisitor : ExpressionVisitor
@@ -1326,16 +1345,7 @@ public partial class NavigationExpandingExpressionVisitor
                     || methodCallExpression.Method.GetGenericMethodDefinition() == EnumerableMethods.ToArray)
                 && methodCallExpression.Arguments[0] == _parameterExpression)
             {
-                var currentTree = _cloningExpressionVisitor.Clone(_navigationExpansionExpression.CurrentTree);
-
-                var navigationExpansionExpression = new NavigationExpansionExpression(
-                    _navigationExpansionExpression.Source,
-                    currentTree,
-                    new ReplacingExpressionVisitor(
-                            _cloningExpressionVisitor.ClonedNodesMap.Keys.ToList(),
-                            _cloningExpressionVisitor.ClonedNodesMap.Values.ToList())
-                        .Visit(_navigationExpansionExpression.PendingSelector),
-                    _navigationExpansionExpression.CurrentParameter.Name!);
+                var navigationExpansionExpression = _cloningExpressionVisitor.Clone(_navigationExpansionExpression);
 
                 return methodCallExpression.Update(null, [navigationExpansionExpression]);
             }

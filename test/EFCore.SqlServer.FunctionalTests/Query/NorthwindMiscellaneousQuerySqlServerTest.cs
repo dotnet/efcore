@@ -366,13 +366,12 @@ ORDER BY (
             """
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-ORDER BY (
-    SELECT TOP(1) [o0].[OrderID]
+OUTER APPLY (
+    SELECT TOP(1) [o0].[OrderID], [o0].[ProductID]
     FROM [Order Details] AS [o0]
-    WHERE [o].[OrderID] = [o0].[OrderID]) DESC, (
-    SELECT TOP(1) [o1].[ProductID]
-    FROM [Order Details] AS [o1]
-    WHERE [o].[OrderID] = [o1].[OrderID]) DESC
+    WHERE [o].[OrderID] = [o0].[OrderID]
+) AS [o1]
+ORDER BY [o1].[OrderID] DESC, [o1].[ProductID] DESC
 """);
     }
 
@@ -3312,19 +3311,18 @@ WHERE [c].[CustomerID] = @customerId
             """
 @p='3'
 
-SELECT [o0].[OrderID] AS [OrderId], (
-    SELECT TOP(1) [c0].[City]
-    FROM [Customers] AS [c0]
-    WHERE [c0].[CustomerID] = [o0].[CustomerID]) AS [City]
+SELECT [o0].[OrderID] AS [OrderId], [c0].[City]
 FROM (
     SELECT TOP(@p) [o].[OrderID], [o].[CustomerID]
     FROM [Orders] AS [o]
     ORDER BY [o].[OrderID]
 ) AS [o0]
-ORDER BY (
+OUTER APPLY (
     SELECT TOP(1) [c].[City]
     FROM [Customers] AS [c]
-    WHERE [c].[CustomerID] = [o0].[CustomerID])
+    WHERE [c].[CustomerID] = [o0].[CustomerID]
+) AS [c0]
+ORDER BY [c0].[City]
 """);
     }
 
@@ -3336,19 +3334,18 @@ ORDER BY (
             """
 @p='3'
 
-SELECT [o0].[OrderID] AS [OrderId], (
-    SELECT TOP(1) [c0].[City]
-    FROM [Customers] AS [c0]
-    WHERE [c0].[CustomerID] = [o0].[CustomerID]) AS [City]
+SELECT [o0].[OrderID] AS [OrderId], [c0].[City]
 FROM (
     SELECT TOP(@p) [o].[OrderID], [o].[CustomerID]
     FROM [Orders] AS [o]
     ORDER BY [o].[OrderID]
 ) AS [o0]
-ORDER BY (
+OUTER APPLY (
     SELECT TOP(1) [c].[City]
     FROM [Customers] AS [c]
-    WHERE [c].[CustomerID] = [o0].[CustomerID])
+    WHERE [c].[CustomerID] = [o0].[CustomerID]
+) AS [c0]
+ORDER BY [c0].[City]
 """);
     }
 
@@ -4126,21 +4123,19 @@ ORDER BY [c].[CustomerID] + COALESCE([c].[City], N'')
 
         AssertSql(
             """
-SELECT (
-    SELECT TOP(1) [o1].[OrderDate]
-    FROM [Orders] AS [o1]
-    WHERE [c].[CustomerID] = [o1].[CustomerID]
-    ORDER BY [o1].[OrderID] DESC) AS [A]
+SELECT [o1].[OrderDate] AS [A]
 FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT TOP(1) [o0].[OrderDate]
+    FROM [Orders] AS [o0]
+    WHERE [c].[CustomerID] = [o0].[CustomerID]
+    ORDER BY [o0].[OrderID] DESC
+) AS [o1]
 WHERE (
     SELECT COUNT(*)
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]) > 1
-ORDER BY (
-    SELECT TOP(1) [o0].[OrderDate]
-    FROM [Orders] AS [o0]
-    WHERE [c].[CustomerID] = [o0].[CustomerID]
-    ORDER BY [o0].[OrderID] DESC)
+ORDER BY [o1].[OrderDate]
 """);
     }
 
@@ -4242,21 +4237,19 @@ FROM (
 
         AssertSql(
             """
-SELECT (
-    SELECT TOP(1) [o1].[OrderDate]
-    FROM [Orders] AS [o1]
-    WHERE [c].[CustomerID] = [o1].[CustomerID]
-    ORDER BY [o1].[OrderID] DESC) AS [Property]
+SELECT [o1].[OrderDate] AS [Property]
 FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT TOP(1) [o0].[OrderDate]
+    FROM [Orders] AS [o0]
+    WHERE [c].[CustomerID] = [o0].[CustomerID]
+    ORDER BY [o0].[OrderID] DESC
+) AS [o1]
 WHERE (
     SELECT COUNT(*)
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]) > 1
-ORDER BY (
-    SELECT TOP(1) [o0].[OrderDate]
-    FROM [Orders] AS [o0]
-    WHERE [c].[CustomerID] = [o0].[CustomerID]
-    ORDER BY [o0].[OrderID] DESC)
+ORDER BY [o1].[OrderDate]
 """);
     }
 

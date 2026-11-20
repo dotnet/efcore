@@ -4724,6 +4724,122 @@ WHERE CAST(DATEDIFF(day, '0001-01-01T00:00:00.0000000', [d].[Nullable]) AS bigin
 
     #endregion
 
+    #region 39605
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Repeated_single_result_subquery_ordered_by_volatile_computed_column_is_not_lifted(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context39605_VolatileComputedColumn>(
+            seed: async context =>
+            {
+                context.Parents.Add(
+                    new Context39605_VolatileComputedColumn.Parent
+                    {
+                        Children = [new Context39605_VolatileComputedColumn.Child { Value = 10 }]
+                    });
+                await context.SaveChangesAsync();
+            });
+        using var context = contextFactory.CreateDbContext();
+        ClearLog();
+
+        var query = context.Parents.Select(p => new
+        {
+            Value = p.Children.OrderBy(c => c.Random).Select(c => (int?)c.Value).FirstOrDefault(),
+            Id = p.Children.OrderBy(c => c.Random).Select(c => (int?)c.Id).FirstOrDefault()
+        });
+
+        var result = Assert.Single(async ? await query.ToListAsync() : query.ToList());
+
+        Assert.Equal(10, result.Value);
+        AssertSql(
+            """
+SELECT (
+    SELECT TOP(1) [c].[Value]
+    FROM [Child] AS [c]
+    WHERE [p].[Id] = [c].[ParentId]
+    ORDER BY [c].[Random]) AS [Value], (
+    SELECT TOP(1) [c0].[Id]
+    FROM [Child] AS [c0]
+    WHERE [p].[Id] = [c0].[ParentId]
+    ORDER BY [c0].[Random]) AS [Id]
+FROM [Parents] AS [p]
+""");
+    }
+
+    protected class Context39605_VolatileComputedColumn(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Parent> Parents { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Child>().Property(c => c.Random).HasComputedColumnSql("NEWID()");
+
+        public class Parent
+        {
+            public int Id { get; set; }
+            public List<Child> Children { get; set; } = [];
+        }
+
+        public class Child
+        {
+            public int Id { get; set; }
+            public int Value { get; set; }
+            public Guid Random { get; set; }
+        }
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Guarded_read_of_computed_column_is_not_merged_with_unguarded_read_of_same_row(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context39605>(
+            seed: async context =>
+            {
+                context.Parents.AddRange(
+                    new Context39605.Parent { Key = 1, Children = [new Context39605.Child { Value = 10, Divisor = 2 }] },
+                    new Context39605.Parent { Key = 2, Children = [new Context39605.Child { Value = 20, Divisor = 2 }] });
+                await context.SaveChangesAsync();
+
+                // Saving reads the computed column back, so the divisor is zeroed afterwards.
+                await context.Set<Context39605.Child>().Where(c => c.Value == 10).ExecuteUpdateAsync(s => s.SetProperty(c => c.Divisor, 0));
+            });
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Parents.OrderBy(p => p.Key).Select(p => new
+        {
+            p.Key,
+            Value = p.Children.OrderBy(c => c.Id).Select(c => (int?)c.Value).FirstOrDefault(),
+            Ratio = p.Key != 1 ? p.Children.OrderBy(c => c.Id).Select(c => (int?)c.Ratio).FirstOrDefault() : null
+        });
+
+        var results = async ? await query.ToListAsync() : query.ToList();
+
+        Assert.Equal([(1, (int?)10, (int?)null), (2, 20, 10)], results.Select(r => (r.Key, r.Value, r.Ratio)));
+    }
+
+    protected class Context39605(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Parent> Parents { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Child>().Property(c => c.Ratio).HasComputedColumnSql("[Value] / [Divisor]");
+
+        public class Parent
+        {
+            public int Id { get; set; }
+            public int Key { get; set; }
+            public List<Child> Children { get; set; } = [];
+        }
+
+        public class Child
+        {
+            public int Id { get; set; }
+            public int Value { get; set; }
+            public int Divisor { get; set; }
+            public int Ratio { get; set; }
+        }
+    }
+
+    #endregion
+
     [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

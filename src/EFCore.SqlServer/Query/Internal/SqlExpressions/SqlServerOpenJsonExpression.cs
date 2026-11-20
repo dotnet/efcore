@@ -142,7 +142,7 @@ public class SqlServerOpenJsonExpression : TableValuedFunctionExpression
         }
 
         return jsonExpression == Json
-            && (ReferenceEquals(path, Path) || (path is not null && Path is not null && path.SequenceEqual(Path)))
+            && PathEquals(path, Path)
             && (ReferenceEquals(columnInfos, ColumnInfos)
                 || (columnInfos is not null && ColumnInfos is not null && columnInfos.SequenceEqual(ColumnInfos)))
                 ? this
@@ -283,7 +283,9 @@ public class SqlServerOpenJsonExpression : TableValuedFunctionExpression
 
     private bool Equals(SqlServerOpenJsonExpression other)
     {
-        if (!base.Equals(other) || ColumnInfos?.Count != other.ColumnInfos?.Count)
+        if (!base.Equals(other)
+            || ColumnInfos?.Count != other.ColumnInfos?.Count
+            || !PathEquals(Path, other.Path))
         {
             return false;
         }
@@ -300,10 +302,7 @@ public class SqlServerOpenJsonExpression : TableValuedFunctionExpression
             if (columnInfo.Name != otherColumnInfo.Name
                 || !columnInfo.TypeMapping.Equals(otherColumnInfo.TypeMapping)
                 || columnInfo.AsJson != otherColumnInfo.AsJson
-                || (columnInfo.Path is null) != (otherColumnInfo.Path is null)
-                || (columnInfo.Path is not null
-                    && otherColumnInfo.Path is not null
-                    && !columnInfo.Path.SequenceEqual(otherColumnInfo.Path)))
+                || !PathEquals(columnInfo.Path, otherColumnInfo.Path))
             {
                 return false;
             }
@@ -311,6 +310,9 @@ public class SqlServerOpenJsonExpression : TableValuedFunctionExpression
 
         return true;
     }
+
+    private static bool PathEquals(IReadOnlyList<PathSegment>? path, IReadOnlyList<PathSegment>? otherPath)
+        => ReferenceEquals(path, otherPath) || (path is not null && otherPath is not null && path.SequenceEqual(otherPath));
 
     /// <inheritdoc />
     public override int GetHashCode()

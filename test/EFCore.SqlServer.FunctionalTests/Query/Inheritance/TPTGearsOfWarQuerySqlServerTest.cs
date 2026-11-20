@@ -5970,22 +5970,62 @@ FROM [Gears] AS [g]
 """);
     }
 
+    public override async Task Repeated_single_result_subquery_reading_base_and_derived_columns_lifts_to_single_join(bool async)
+    {
+        await base.Repeated_single_result_subquery_reading_base_and_derived_columns_lifts_to_single_join(async);
+
+        AssertSql(
+            """
+SELECT [f].[Id], [s].[Name], [s].[ThreatLevel], [s].[DefeatedByNickname]
+FROM [Factions] AS [f]
+INNER JOIN [LocustHordes] AS [l] ON [f].[Id] = [l].[Id]
+OUTER APPLY (
+    SELECT TOP(1) [l0].[Name], [l0].[ThreatLevel], [l1].[DefeatedByNickname]
+    FROM [LocustLeaders] AS [l0]
+    LEFT JOIN [LocustCommanders] AS [l1] ON [l0].[Name] = [l1].[Name]
+    WHERE [f].[Id] = [l0].[LocustHordeId]
+    ORDER BY [l0].[Name]
+) AS [s]
+""");
+    }
+
+    public override async Task Repeated_single_result_subquery_reading_base_and_derived_columns_in_set_operation(bool async)
+    {
+        await base.Repeated_single_result_subquery_reading_base_and_derived_columns_in_set_operation(async);
+
+        AssertSql(
+            """
+SELECT [f].[Id], [s].[Name], [s].[DefeatedByNickname]
+FROM [Factions] AS [f]
+INNER JOIN [LocustHordes] AS [l] ON [f].[Id] = [l].[Id]
+OUTER APPLY (
+    SELECT TOP(1) [l0].[Name], [l1].[DefeatedByNickname]
+    FROM [LocustLeaders] AS [l0]
+    LEFT JOIN [LocustCommanders] AS [l1] ON [l0].[Name] = [l1].[Name]
+    WHERE [f].[Id] = [l0].[LocustHordeId]
+    ORDER BY [l0].[Name]
+) AS [s]
+UNION ALL
+SELECT [f0].[Id], NULL AS [Name], NULL AS [DefeatedByNickname]
+FROM [Factions] AS [f0]
+INNER JOIN [LocustHordes] AS [l2] ON [f0].[Id] = [l2].[Id]
+""");
+    }
+
     public override async Task Select_subquery_int_with_pushdown_and_coalesce2(bool async)
     {
         await base.Select_subquery_int_with_pushdown_and_coalesce2(async);
 
         AssertSql(
             """
-SELECT [w1].[Id]
+SELECT [w0].[Id]
 FROM [Gears] AS [g]
-LEFT JOIN (
-    SELECT [w0].[Id], [w0].[OwnerFullName]
-    FROM (
-        SELECT [w].[Id], [w].[OwnerFullName], ROW_NUMBER() OVER(PARTITION BY [w].[OwnerFullName] ORDER BY [w].[Id]) AS [row]
-        FROM [Weapons] AS [w]
-    ) AS [w0]
-    WHERE [w0].[row] <= 1
-) AS [w1] ON [g].[FullName] = [w1].[OwnerFullName]
+OUTER APPLY (
+    SELECT TOP(1) [w].[Id]
+    FROM [Weapons] AS [w]
+    WHERE [g].[FullName] = [w].[OwnerFullName]
+    ORDER BY [w].[Id]
+) AS [w0]
 """);
     }
 

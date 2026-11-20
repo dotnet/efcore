@@ -105,18 +105,16 @@ WHERE [o].[OrderID] % 23 = 13
             """
 SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
 FROM (
-    SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], (
-        SELECT TOP(1) [o].[OrderDate]
-        FROM [Orders] AS [o]
-        WHERE [c].[CustomerID] = [o].[CustomerID]
-        ORDER BY [o].[OrderDate] DESC) AS [c]
+    SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o1].[OrderDate] AS [c]
     FROM [Customers] AS [c]
-    WHERE [c].[CustomerID] LIKE N'W%'
-    ORDER BY (
+    OUTER APPLY (
         SELECT TOP(1) [o].[OrderDate]
         FROM [Orders] AS [o]
         WHERE [c].[CustomerID] = [o].[CustomerID]
-        ORDER BY [o].[OrderDate] DESC) DESC
+        ORDER BY [o].[OrderDate] DESC
+    ) AS [o1]
+    WHERE [c].[CustomerID] LIKE N'W%'
+    ORDER BY [o1].[OrderDate] DESC
 ) AS [c0]
 LEFT JOIN [Orders] AS [o0] ON [c0].[CustomerID] = [o0].[CustomerID]
 ORDER BY [c0].[c] DESC, [c0].[CustomerID]
@@ -1957,18 +1955,16 @@ WHERE [o].[CustomerID] = N'ALFKI'
             """
 SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
 FROM (
-    SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], (
-        SELECT TOP(1) [o].[OrderDate]
-        FROM [Orders] AS [o]
-        WHERE [c].[CustomerID] = [o].[CustomerID]
-        ORDER BY [o].[EmployeeID]) AS [c]
+    SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o1].[OrderDate] AS [c]
     FROM [Customers] AS [c]
-    WHERE [c].[CustomerID] = N'ALFKI'
-    ORDER BY (
+    OUTER APPLY (
         SELECT TOP(1) [o].[OrderDate]
         FROM [Orders] AS [o]
         WHERE [c].[CustomerID] = [o].[CustomerID]
-        ORDER BY [o].[EmployeeID])
+        ORDER BY [o].[EmployeeID]
+    ) AS [o1]
+    WHERE [c].[CustomerID] = N'ALFKI'
+    ORDER BY [o1].[OrderDate]
 ) AS [c0]
 LEFT JOIN [Orders] AS [o0] ON [c0].[CustomerID] = [o0].[CustomerID]
 ORDER BY [c0].[c], [c0].[CustomerID]
@@ -1998,18 +1994,16 @@ ORDER BY [o].[OrderID]
             """
 SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region], [s].[OrderID], [s].[CustomerID], [s].[EmployeeID], [s].[OrderDate], [s].[OrderID0], [s].[ProductID], [s].[Discount], [s].[Quantity], [s].[UnitPrice]
 FROM (
-    SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], (
-        SELECT TOP(1) [o].[OrderDate]
-        FROM [Orders] AS [o]
-        WHERE [c].[CustomerID] = [o].[CustomerID]
-        ORDER BY [o].[OrderDate] DESC) AS [c]
+    SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o2].[OrderDate] AS [c]
     FROM [Customers] AS [c]
-    WHERE [c].[CustomerID] LIKE N'W%'
-    ORDER BY (
+    OUTER APPLY (
         SELECT TOP(1) [o].[OrderDate]
         FROM [Orders] AS [o]
         WHERE [c].[CustomerID] = [o].[CustomerID]
-        ORDER BY [o].[OrderDate] DESC) DESC
+        ORDER BY [o].[OrderDate] DESC
+    ) AS [o2]
+    WHERE [c].[CustomerID] LIKE N'W%'
+    ORDER BY [o2].[OrderDate] DESC
 ) AS [c0]
 LEFT JOIN (
     SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [o1].[OrderID] AS [OrderID0], [o1].[ProductID], [o1].[Discount], [o1].[Quantity], [o1].[UnitPrice]
