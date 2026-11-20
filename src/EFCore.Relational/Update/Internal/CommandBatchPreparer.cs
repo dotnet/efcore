@@ -284,7 +284,15 @@ public class CommandBatchPreparer : ICommandBatchPreparer
             Func<string> generateParameterName,
             ref Dictionary<(string Name, string? Schema), SharedTableEntryMap<IModificationCommand>>? sharedTablesCommandsMap)
         {
-            var sprocMapping = entry.EntityState switch
+            // A deleted entry replaced by an added one with the same key is saved as an update of the row (see
+            // ModificationCommand.AddEntry), so it must use the update sproc rather than the insert one.
+            var entityState = entry.SharedIdentityEntry is { } sharedIdentityEntry
+                && (sharedIdentityEntry.EntityType == entry.EntityType
+                    || sharedIdentityEntry.EntityType.GetTableMappings().Any(m => m.Table == tableMapping.Table))
+                    ? EntityState.Modified
+                    : entry.EntityState;
+
+            var sprocMapping = entityState switch
             {
                 EntityState.Added => tableMapping.InsertStoredProcedureMapping,
                 EntityState.Modified => tableMapping.UpdateStoredProcedureMapping,
