@@ -270,6 +270,7 @@ public abstract class NonSharedModelBulkUpdatesRelationalTestBase(NonSharedFixtu
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int Id { get; set; }
 
+            [Precision(18, 2)]
             public decimal NormalHours { get; set; }
             public int? RecordCount { get; set; }
         }
@@ -280,6 +281,8 @@ public abstract class NonSharedModelBulkUpdatesRelationalTestBase(NonSharedFixtu
             public int Id { get; set; }
 
             public int PartId { get; set; }
+
+            [Precision(18, 2)]
             public decimal Hours { get; set; }
         }
 
