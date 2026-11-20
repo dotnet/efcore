@@ -670,7 +670,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                 return Visit(Expression.Condition(conditional.Test, ifTrue, ifFalse));
 
                 static Expression MakeMemberAccess(Expression target, MemberInfo member, Type memberType)
-                    => target is ConstantExpression { Value: null } or DefaultExpression { Type.IsValueType: false }
+                    => !target.Type.IsValueType && target is ConstantExpression { Value: null } or DefaultExpression
                         ? Expression.Constant(null, memberType.MakeNullable())
                         : Expression.MakeMemberAccess(target, member);
             }
