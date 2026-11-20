@@ -3626,6 +3626,40 @@ FROM [Customers] AS [c]
 """);
     }
 
+    public override async Task Sum_over_correlated_collection_with_selector_on_outer_entity_only(bool async)
+    {
+        await base.Sum_over_correlated_collection_with_selector_on_outer_entity_only(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], (
+    SELECT ISNULL(SUM([o0].[c]), 0)
+    FROM (
+        SELECT CAST(LEN([c].[CustomerID]) AS int) AS [c]
+        FROM [Orders] AS [o]
+        WHERE [c].[CustomerID] = [o].[CustomerID]
+    ) AS [o0]) AS [Total]
+FROM [Customers] AS [c]
+""");
+    }
+
+    public override async Task Max_over_correlated_collection_with_selector_on_outer_entity_only(bool async)
+    {
+        await base.Max_over_correlated_collection_with_selector_on_outer_entity_only(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], (
+    SELECT MAX([o0].[c])
+    FROM (
+        SELECT CAST(LEN([c].[CustomerID]) AS int) AS [c]
+        FROM [Orders] AS [o]
+        WHERE [c].[CustomerID] = [o].[CustomerID]
+    ) AS [o0]) AS [Max]
+FROM [Customers] AS [c]
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

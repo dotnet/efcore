@@ -266,7 +266,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                         }
 
                         _clientProjections!.Add(
-                            _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(
+                            TranslateSubquery(
                                 materializeCollectionNavigationExpression.Subquery)!);
 
                         return new CollectionResultExpression(
@@ -276,7 +276,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                             materializeCollectionNavigationExpression.Navigation.ClrType.GetSequenceType());
                 }
 
-                switch (_sqlTranslator.TranslateProjection(expression))
+                switch (_sqlTranslator.TranslateProjection(expression, _selectExpression))
                 {
                     case SqlExpression sqlExpression:
                         return AddClientProjection(sqlExpression, expression.Type.MakeNullable());
@@ -301,7 +301,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                         && method.DeclaringType == typeof(Enumerable)
                         && argument.Type.TryGetElementType(typeof(IQueryable<>)) != null)
                     {
-                        if (_queryableMethodTranslatingExpressionVisitor.TranslateSubquery(argument) is { } subquery)
+                        if (TranslateSubquery(argument) is { } subquery)
                         {
                             _clientProjections!.Add(subquery);
                             // expression.Type here will be List<T>
@@ -313,7 +313,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                     }
                     else
                     {
-                        var subquery = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression);
+                        var subquery = TranslateSubquery(methodCallExpression);
                         if (subquery != null)
                         {
                             _clientProjections!.Add(subquery);
@@ -339,7 +339,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
 
             default:
             {
-                switch (_sqlTranslator.TranslateProjection(expression))
+                switch (_sqlTranslator.TranslateProjection(expression, _selectExpression))
                 {
                     case SqlExpression sqlExpression:
                         _projectionMapping[_projectionMembers.Peek()] = sqlExpression;
@@ -923,6 +923,21 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
         }
 
         return expression;
+    }
+
+    // A collection subquery is projected out of this query, so an aggregate in it over this query's grouping can be evaluated here
+    // (#27130).
+    private ShapedQueryExpression? TranslateSubquery(Expression expression)
+    {
+        _sqlTranslator.PushTranslationScope(_selectExpression);
+        try
+        {
+            return _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(expression);
+        }
+        finally
+        {
+            _sqlTranslator.PopTranslationScope();
+        }
     }
 
     private ProjectionBindingExpression AddClientProjection(Expression expression, Type type)
