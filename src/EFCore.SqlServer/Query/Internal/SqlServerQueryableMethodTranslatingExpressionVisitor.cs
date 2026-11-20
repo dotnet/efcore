@@ -690,7 +690,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                     // JSON_CONTAINS() is only supported over json, not nvarchar
                     Json: { TypeMapping: SqlServerJsonTypeMapping } json,
                     Path: null,
-                    ColumnInfos: [{ Name: "value" }]
+                    ColumnInfos: [{ Name: "value", TypeMapping: { Converter: null } elementTypeMapping }]
                 }
                 ],
                 Predicate: null,
@@ -701,6 +701,15 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                 Offset: null
             }
             && TranslateExpression(item, applyDefaultTypeMapping: false) is { } translatedItem
+            // JSON_CONTAINS only accepts numeric, character and bit SQL values, and the item must use the same
+            // representation as the collection elements.
+            && _sqlExpressionFactory.ApplyDefaultTypeMapping(translatedItem) is
+            {
+                TypeMapping.StoreTypeNameBase: "bigint" or "int" or "smallint" or "tinyint" or "decimal" or "numeric"
+                    or "float" or "real" or "money" or "smallmoney" or "bit" or "char" or "varchar" or "nchar" or "nvarchar"
+            } mappedItem
+            && string.Equals(
+                mappedItem.TypeMapping!.StoreTypeNameBase, elementTypeMapping.StoreTypeNameBase, StringComparison.OrdinalIgnoreCase)
             // Literal untyped NULL not supported as item by JSON_CONTAINS().
             // For any other nullable item, SqlServerNullabilityProcessor will add a null check around the JSON_CONTAINS call.
             // TODO: reverify this once JSON_CONTAINS comes out of preview, #37715
@@ -717,7 +726,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
             var jsonContains = _sqlExpressionFactory.Equal(
                 _sqlExpressionFactory.Function(
                     "JSON_CONTAINS",
-                    [json, translatedItem],
+                    [json, mappedItem],
                     nullable: true,
                     argumentsPropagateNullability: [true, false],
                     typeof(int)),
