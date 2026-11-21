@@ -599,6 +599,62 @@ optionsBuilder
                 });
 
         [Fact]
+        public Task Foreign_key_with_mismatched_types_uses_principal_clr_type_and_dependent_column_type()
+            => TestAsync(
+                serviceProvider => serviceProvider.GetRequiredService<IScaffoldingModelFactory>().Create(
+                    BuildModelWithMismatchedForeignKeyTypes(), new ModelReverseEngineerOptions()),
+                new ModelCodeGenerationOptions(),
+                code =>
+                {
+                    Assert.Contains(".HasColumnType(\"bigint\")", code.ContextFile.Code);
+                    Assert.Contains(".HasForeignKey(d => d.ParentId)", code.ContextFile.Code);
+                    Assert.Contains(
+                        "public int ParentId",
+                        code.AdditionalFiles.Single(f => f.Path.EndsWith("Child.cs", StringComparison.Ordinal)).Code);
+                },
+                model =>
+                {
+                    var child = model.FindEntityType("TestNamespace.Child")!;
+                    var property = child.GetProperty("ParentId");
+                    Assert.Equal(typeof(int), property.ClrType);
+                    Assert.Equal("bigint", property.GetColumnType());
+                    Assert.Equal(property, Assert.Single(Assert.Single(child.GetForeignKeys()).Properties));
+                });
+
+        private static DatabaseModel BuildModelWithMismatchedForeignKeyTypes()
+        {
+            var dbModel = new DatabaseModel();
+            var parentIdColumn = new DatabaseColumn { Name = "Id", StoreType = "int" };
+            var parentTable = new DatabaseTable { Database = dbModel, Name = "Parent" };
+            parentIdColumn.Table = parentTable;
+            parentTable.Columns.Add(parentIdColumn);
+            parentTable.PrimaryKey = new DatabasePrimaryKey { Table = parentTable, Name = "PK_Parent", Columns = { parentIdColumn } };
+
+            var childIdColumn = new DatabaseColumn { Name = "Id", StoreType = "int" };
+            var childParentIdColumn = new DatabaseColumn { Name = "ParentId", StoreType = "bigint" };
+            var childTable = new DatabaseTable { Database = dbModel, Name = "Child" };
+            childIdColumn.Table = childTable;
+            childParentIdColumn.Table = childTable;
+            childTable.Columns.Add(childIdColumn);
+            childTable.Columns.Add(childParentIdColumn);
+            childTable.PrimaryKey = new DatabasePrimaryKey { Table = childTable, Name = "PK_Child", Columns = { childIdColumn } };
+            childTable.ForeignKeys.Add(
+                new DatabaseForeignKey
+                {
+                    Table = childTable,
+                    Name = "FK_Child_Parent",
+                    Columns = { childParentIdColumn },
+                    PrincipalTable = parentTable,
+                    PrincipalColumns = { parentIdColumn }
+                });
+
+            dbModel.Tables.Add(parentTable);
+            dbModel.Tables.Add(childTable);
+
+            return dbModel;
+        }
+
+        [Fact]
         public Task IsUnicode_works()
             => TestAsync(
                 modelBuilder =>
