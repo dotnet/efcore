@@ -2544,9 +2544,9 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                 : left.Value is IReadOnlyDictionary<string, string> leftDictionary
                 && right.Value is IReadOnlyDictionary<string, string> rightDictionary
                     ? leftDictionary.Count == rightDictionary.Count
-                    && leftDictionary.OrderBy(e => e.Key, StringComparer.Ordinal)
-                        .SequenceEqual(rightDictionary.OrderBy(e => e.Key, StringComparer.Ordinal))
-                : StructuralComparisons.StructuralEqualityComparer.Equals(left.Value, right.Value);
+                        && leftDictionary.OrderBy(e => e.Key, StringComparer.Ordinal)
+                            .SequenceEqual(rightDictionary.OrderBy(e => e.Key, StringComparer.Ordinal))
+                    : StructuralComparisons.StructuralEqualityComparer.Equals(left.Value, right.Value);
     }
 
     private static bool MultilineEquals(
