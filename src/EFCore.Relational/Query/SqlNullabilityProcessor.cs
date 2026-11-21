@@ -1230,15 +1230,19 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 // parameters all share the same query plan, reducing query plan fragmentation.
                 if (translationMode is ParameterTranslationMode.MultipleParameters)
                 {
-                    var padding = CalculateBucketPadding(values.Count, elementTypeMapping);
-                    for (var i = 0; i < padding; i++)
+                    var paddingValue = removeNulls ? values.FindLast(v => v is not null) : values.LastOrDefault();
+                    if (paddingValue is not null || !removeNulls)
                     {
-                        // Create parameter for value if we didn't create it yet,
-                        // otherwise reuse it.
-                        ExpandParameterIfNeeded(
-                            valuesParameter.Name, expandedParameters, parameters, values.Count + i, values[^1], elementTypeMapping);
+                        var padding = CalculateBucketPadding(values.Count, elementTypeMapping);
+                        for (var i = 0; i < padding; i++)
+                        {
+                            // Create parameter for value if we didn't create it yet,
+                            // otherwise reuse it.
+                            ExpandParameterIfNeeded(
+                                valuesParameter.Name, expandedParameters, parameters, values.Count + i, paddingValue, elementTypeMapping);
 
-                        processedValues.Add(expandedParameters[expandedParametersCounter++]);
+                            processedValues.Add(expandedParameters[expandedParametersCounter++]);
+                        }
                     }
                 }
             }
