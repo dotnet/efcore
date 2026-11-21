@@ -12487,6 +12487,22 @@
       ]
     },
     {
+      "Type": "class Microsoft.EntityFrameworkCore.Metadata.Conventions.RelationalForeignKeyIndexConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.ForeignKeyIndexConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IIndexAnnotationChangedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConvention",
+      "Methods": [
+        {
+          "Member": "RelationalForeignKeyIndexConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies, Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.RelationalConventionSetBuilderDependencies relationalDependencies);"
+        },
+        {
+          "Member": "virtual void ProcessIndexAnnotationChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionIndexBuilder indexBuilder, string name, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? annotation, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? oldAnnotation, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation> context);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.RelationalConventionSetBuilderDependencies RelationalDependencies { get; }"
+        }
+      ]
+    },
+    {
       "Type": "abstract class Microsoft.EntityFrameworkCore.Storage.RelationalGeometryTypeMapping<TGeometry, TProvider> : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
       "Methods": [
         {
