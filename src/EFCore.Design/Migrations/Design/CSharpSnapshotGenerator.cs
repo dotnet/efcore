@@ -846,7 +846,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         stringBuilder
             .Append(entityTypeBuilderName)
             .Append(primary ? ".HasKey(" : ".HasAlternateKey(")
-            .Append(string.Join(", ", key.Properties.Select(p => Code.Literal(p.Name))))
+            .Append(string.Join(", ", key.Properties.Select(p => Code.Literal(BuildPropertyPath(p, collectionIndices: null)))))
             .Append(')');
 
         // Note that GenerateAnnotations below does the corresponding decrement
@@ -915,7 +915,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 stringBuilder.Append(", ");
             }
 
-            stringBuilder.Append(Code.Literal(BuildIndexPropertyPath(index.Properties[i], collectionIndices?[i])));
+            stringBuilder.Append(Code.Literal(BuildPropertyPath(index.Properties[i], collectionIndices?[i])));
         }
 
         if (index.Name is not null)
@@ -950,7 +950,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
             indexBuilderName, stringBuilder, chainedCall, typeQualifiedCalls, inChainedCall: true);
     }
 
-    private static string BuildIndexPropertyPath(IPropertyBase property, IReadOnlyList<int?>? collectionIndices)
+    private static string BuildPropertyPath(IPropertyBase property, IReadOnlyList<int?>? collectionIndices)
     {
         // Fast path: a scalar declared directly on the entity has no brackets in any form.
         if (property.DeclaringType is IEntityType
@@ -1764,7 +1764,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                     .Append(".HasPrincipalKey(")
                     .Append(Code.Literal(GetFullName(foreignKey.PrincipalEntityType)))
                     .Append(", ")
-                    .Append(string.Join(", ", foreignKey.PrincipalKey.Properties.Select(p => Code.Literal(p.Name))))
+                    .Append(string.Join(", ", foreignKey.PrincipalKey.Properties.Select(p => Code.Literal(BuildPropertyPath(p, collectionIndices: null)))))
                     .Append(")");
             }
         }
@@ -1795,7 +1795,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 stringBuilder
                     .AppendLine()
                     .Append(".HasPrincipalKey(")
-                    .Append(string.Join(", ", foreignKey.PrincipalKey.Properties.Select(p => Code.Literal(p.Name))))
+                    .Append(string.Join(", ", foreignKey.PrincipalKey.Properties.Select(p => Code.Literal(BuildPropertyPath(p, collectionIndices: null)))))
                     .Append(")");
             }
         }
