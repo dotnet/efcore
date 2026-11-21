@@ -250,46 +250,6 @@ public static class RelationalPropertyExtensions
 
         return Uniquifier.Truncate(baseName, property.DeclaringType.Model.GetMaxIdentifierLength());
 
-        [return: NotNullIfNotNull("builder")]
-        static StringBuilder? CreateOwnershipPrefix(
-            IReadOnlyEntityType entityType,
-            in StoreObjectIdentifier storeObject,
-            StringBuilder? builder)
-        {
-            while (true)
-            {
-                var ownership = entityType.GetForeignKeys().SingleOrDefault(fk => fk.IsOwnership);
-                if (ownership == null)
-                {
-                    return builder;
-                }
-
-                var ownerType = ownership.PrincipalEntityType;
-                if (StoreObjectIdentifier.Create(ownerType, storeObject.StoreObjectType) != storeObject)
-                {
-                    var foundMappedFragment = false;
-                    foreach (var fragment in ownerType.GetMappingFragments(storeObject.StoreObjectType))
-                    {
-                        if (fragment.StoreObject == storeObject)
-                        {
-                            foundMappedFragment = true;
-                        }
-                    }
-
-                    if (!foundMappedFragment)
-                    {
-                        return builder;
-                    }
-                }
-
-                builder ??= new StringBuilder();
-
-                builder.Insert(0, "_");
-                builder.Insert(0, ownership.PrincipalToDependent!.Name);
-                entityType = ownerType;
-            }
-        }
-
         static StringBuilder CreateComplexPrefix(
             IReadOnlyComplexType complexType,
             in StoreObjectIdentifier storeObject,
@@ -312,6 +272,46 @@ public static class RelationalPropertyExtensions
                         return builder;
                 }
             }
+        }
+    }
+
+    [return: NotNullIfNotNull("builder")]
+    internal static StringBuilder? CreateOwnershipPrefix(
+        IReadOnlyEntityType entityType,
+        in StoreObjectIdentifier storeObject,
+        StringBuilder? builder)
+    {
+        while (true)
+        {
+            var ownership = entityType.GetForeignKeys().SingleOrDefault(fk => fk.IsOwnership);
+            if (ownership == null)
+            {
+                return builder;
+            }
+
+            var ownerType = ownership.PrincipalEntityType;
+            if (StoreObjectIdentifier.Create(ownerType, storeObject.StoreObjectType) != storeObject)
+            {
+                var foundMappedFragment = false;
+                foreach (var fragment in ownerType.GetMappingFragments(storeObject.StoreObjectType))
+                {
+                    if (fragment.StoreObject == storeObject)
+                    {
+                        foundMappedFragment = true;
+                    }
+                }
+
+                if (!foundMappedFragment)
+                {
+                    return builder;
+                }
+            }
+
+            builder ??= new StringBuilder();
+
+            builder.Insert(0, "_");
+            builder.Insert(0, ownership.PrincipalToDependent!.Name);
+            entityType = ownerType;
         }
     }
 

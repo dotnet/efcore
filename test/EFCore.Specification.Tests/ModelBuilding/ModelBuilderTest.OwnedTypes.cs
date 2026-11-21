@@ -2185,5 +2185,199 @@ public abstract partial class ModelBuilderTest
                 Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<CustomerDetails>().Property<string>("Customer.Name"))
                     .Message);
         }
+
+        [Fact]
+        public virtual void Can_configure_complex_property_on_owned_types_on_base_and_derived_owner()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<OwnerOfOwnedWithComplex>(b =>
+            {
+                b.Ignore(e => e.OwnedCollection);
+                b.OwnsOne(
+                    e => e.Owned, ob =>
+                    {
+                        ob.Ignore(o => o.ComplexCollection);
+                        ob.ComplexProperty(o => o.Complex);
+                    });
+            });
+            modelBuilder.Entity<DerivedOwnerOfOwnedWithComplex>(b => b.OwnsOne(
+                e => e.DerivedOwned, ob =>
+                {
+                    ob.Ignore(o => o.ComplexCollection);
+                    ob.ComplexProperty(o => o.Complex);
+                }));
+
+            var model = modelBuilder.FinalizeModel();
+
+            Assert.Null(model.FindEntityType(typeof(ComplexInOwned)));
+            var owned = model.FindEntityType(typeof(OwnerOfOwnedWithComplex))!
+                .FindNavigation(nameof(OwnerOfOwnedWithComplex.Owned))!.TargetEntityType;
+            var derivedOwned = model.FindEntityType(typeof(DerivedOwnerOfOwnedWithComplex))!
+                .FindNavigation(nameof(DerivedOwnerOfOwnedWithComplex.DerivedOwned))!.TargetEntityType;
+            Assert.Equal(owned.Name + ".Complex#ComplexInOwned", owned.GetComplexProperties().Single().ComplexType.Name);
+            Assert.Equal(derivedOwned.Name + ".Complex#ComplexInOwned", derivedOwned.GetComplexProperties().Single().ComplexType.Name);
+        }
+
+        [Fact]
+        public virtual void Key_on_complex_property_of_owned_collection_is_kept_when_it_becomes_shared_type()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<OwnerOfOwnedWithComplex>(b =>
+            {
+                b.OwnsMany(
+                    e => e.OwnedCollection, ob =>
+                    {
+                        ob.Ignore(o => o.ComplexCollection);
+                        ob.ComplexProperty(o => o.Complex);
+                        ob.HasKey("OwnerOfOwnedWithComplexId", "Complex.Number");
+                    });
+
+                // A second ownership of the same CLR type makes the owned collection type shared-type
+                b.OwnsOne(
+                    e => e.Owned, ob =>
+                    {
+                        ob.Ignore(o => o.ComplexCollection);
+                        ob.ComplexProperty(o => o.Complex);
+                    });
+            });
+
+            var model = modelBuilder.FinalizeModel();
+
+            var ownedCollection = model.FindEntityType(typeof(OwnerOfOwnedWithComplex))!
+                .FindNavigation(nameof(OwnerOfOwnedWithComplex.OwnedCollection))!.TargetEntityType;
+            var number = ownedCollection.FindComplexProperty(nameof(OwnedWithComplex.Complex))!.ComplexType
+                .FindProperty(nameof(ComplexInOwned.Number))!;
+            Assert.Equal(
+                [ownedCollection.FindProperty("OwnerOfOwnedWithComplexId")!, number],
+                ownedCollection.FindPrimaryKey()!.Properties);
+        }
+
+        [Fact]
+        public virtual void Key_on_complex_property_of_owned_type_is_not_used_as_ownership_foreign_key()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<OwnerOfOwnedWithComplex>(b =>
+            {
+                b.Ignore(e => e.OwnedCollection);
+                b.OwnsOne(
+                    e => e.Owned, ob =>
+                    {
+                        ob.Ignore(o => o.ComplexCollection);
+                        ob.ComplexProperty(o => o.Complex);
+                        ob.HasKey("Complex.Number");
+                    });
+            });
+
+            // Not finalized: an owned reference whose key isn't its foreign key can't share its owner's table
+            var model = modelBuilder.Model;
+
+            var owned = model.FindEntityType(typeof(OwnerOfOwnedWithComplex))!
+                .FindNavigation(nameof(OwnerOfOwnedWithComplex.Owned))!.TargetEntityType;
+            var number = owned.FindComplexProperty(nameof(OwnedWithComplex.Complex))!.ComplexType
+                .FindProperty(nameof(ComplexInOwned.Number))!;
+            Assert.Same(number, owned.FindPrimaryKey()!.Properties.Single());
+            Assert.Same(owned.FindProperty("OwnerOfOwnedWithComplexId"), owned.FindOwnership()!.Properties.Single());
+        }
+
+        [Fact]
+        public virtual void Principal_key_on_complex_property_of_owned_type_is_kept_when_it_becomes_shared_type()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<OwnerOfNestedOwned>(b =>
+            {
+                b.OwnsOne(
+                    e => e.First, ob =>
+                    {
+                        ob.ComplexProperty(o => o.Complex);
+                        ob.OwnsOne(o => o.Leaf, lb => lb.WithOwner().HasPrincipalKey("Complex.Number"));
+                    });
+
+                // A second ownership of the same CLR type makes the owned type shared-type
+                b.OwnsOne(
+                    e => e.Second, ob =>
+                    {
+                        ob.ComplexProperty(o => o.Complex);
+                        ob.OwnsOne(o => o.Leaf);
+                    });
+            });
+
+            // Not finalized: an owned reference with a non-primary principal key can't share its owner's table
+            var model = modelBuilder.Model;
+
+            var first = model.FindEntityType(typeof(OwnerOfNestedOwned))!
+                .FindNavigation(nameof(OwnerOfNestedOwned.First))!.TargetEntityType;
+            var number = first.FindComplexProperty(nameof(OwnedWithComplexAndNested.Complex))!.ComplexType
+                .FindProperty(nameof(ComplexInOwned.Number))!;
+            Assert.Same(
+                number,
+                first.FindNavigation(nameof(OwnedWithComplexAndNested.Leaf))!.ForeignKey.PrincipalKey.Properties.Single());
+        }
+
+        [Fact]
+        public virtual void Can_configure_complex_property_on_owned_type_using_attributes()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<OwnerOfAttributeOwned>();
+
+            var model = modelBuilder.FinalizeModel();
+
+            var owned = model.FindEntityType(typeof(OwnerOfAttributeOwned))!
+                .FindNavigation(nameof(OwnerOfAttributeOwned.Owneds))!.TargetEntityType;
+            Assert.True(owned.IsOwned());
+            var complexProperty = owned.GetComplexProperties().Single();
+            Assert.Equal(nameof(AttributeOwnedWithComplex.Complex), complexProperty.Name);
+            Assert.Null(model.FindEntityType(typeof(AttributeComplexInOwned)));
+        }
+
+        [Fact]
+        public virtual void Can_configure_complex_property_on_owned_type_using_configure_conventions()
+        {
+            var modelBuilder = CreateModelBuilder(c => c.ComplexProperties<ComplexInOwned>());
+
+            modelBuilder.Entity<OwnerOfOwnedWithComplex>(b =>
+            {
+                b.Ignore(e => e.OwnedCollection);
+                b.OwnsOne(e => e.Owned, ob => ob.Ignore(o => o.ComplexCollection));
+            });
+
+            var model = modelBuilder.FinalizeModel();
+
+            var owned = model.FindEntityType(typeof(OwnerOfOwnedWithComplex))!
+                .FindNavigation(nameof(OwnerOfOwnedWithComplex.Owned))!.TargetEntityType;
+            Assert.Equal(nameof(OwnedWithComplex.Complex), owned.GetComplexProperties().Single().Name);
+            Assert.Null(model.FindEntityType(typeof(ComplexInOwned)));
+        }
+
+        [Fact]
+        public virtual void Can_configure_same_complex_type_on_owner_and_owned_type()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<OwnerOfOwnedAndComplex>(b =>
+            {
+                b.ComplexProperty(e => e.Complex);
+                b.OwnsOne(
+                    e => e.Owned, ob =>
+                    {
+                        ob.Ignore(o => o.ComplexCollection);
+                        ob.ComplexProperty(o => o.Complex);
+                    });
+            });
+
+            var model = modelBuilder.FinalizeModel();
+
+            var owner = model.FindEntityType(typeof(OwnerOfOwnedAndComplex))!;
+            var owned = owner.FindNavigation(nameof(OwnerOfOwnedAndComplex.Owned))!.TargetEntityType;
+            var ownerComplexType = owner.GetComplexProperties().Single().ComplexType;
+            var ownedComplexType = owned.GetComplexProperties().Single().ComplexType;
+            Assert.Equal(typeof(ComplexInOwned), ownedComplexType.ClrType);
+            Assert.NotSame(ownerComplexType, ownedComplexType);
+            Assert.NotEqual(ownerComplexType.Name, ownedComplexType.Name);
+        }
     }
 }

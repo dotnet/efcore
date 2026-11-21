@@ -4580,6 +4580,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
         public Snapshot(
             EntityType entityType,
             PropertiesSnapshot? properties,
+            List<ComplexPropertySnapshot>? complexProperties,
             List<InternalIndexBuilder>? indexes,
             List<(InternalKeyBuilder, ConfigurationSource?)>? keys,
             List<RelationshipSnapshot>? relationships,
@@ -4588,6 +4589,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
         {
             EntityType = entityType;
             Properties = properties ?? new PropertiesSnapshot(null, null, null, null);
+            ComplexProperties = complexProperties;
             if (indexes != null)
             {
                 Properties.Add(indexes);
@@ -4609,6 +4611,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
 
         private EntityType EntityType { [DebuggerStepThrough] get; }
         private PropertiesSnapshot Properties { [DebuggerStepThrough] get; }
+        private List<ComplexPropertySnapshot>? ComplexProperties { [DebuggerStepThrough] get; }
         private List<InternalSkipNavigationBuilder>? SkipNavigations { [DebuggerStepThrough] get; }
         private List<InternalServicePropertyBuilder>? ServiceProperties { [DebuggerStepThrough] get; }
 
@@ -4659,6 +4662,14 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
                 foreach (var detachedServiceProperty in ServiceProperties)
                 {
                     detachedServiceProperty.Attach(entityTypeBuilder);
+                }
+            }
+
+            if (ComplexProperties != null)
+            {
+                foreach (var detachedComplexProperty in ComplexProperties)
+                {
+                    detachedComplexProperty.Attach(entityTypeBuilder);
                 }
             }
 

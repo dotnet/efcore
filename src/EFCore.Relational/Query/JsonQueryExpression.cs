@@ -199,12 +199,7 @@ public class JsonQueryExpression : Expression, IPrintableExpression
 
             case IComplexProperty complexProperty:
             {
-                if (StructuralType is not IComplexType complexType)
-                {
-                    throw new UnreachableException("Non-root complex property on entity type");
-                }
-
-                Check.DebugAssert(KeyPropertyMap is null);
+                Check.DebugAssert(StructuralType is IEntityType || KeyPropertyMap is null);
 
                 var targetComplexType = complexProperty.ComplexType;
                 var newPath = Path.ToList();

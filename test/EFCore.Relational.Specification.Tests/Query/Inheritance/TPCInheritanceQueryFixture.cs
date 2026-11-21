@@ -16,6 +16,10 @@ public abstract class TPCInheritanceQueryFixture : InheritanceQueryRelationalFix
     public override bool UseGeneratedKeys
         => false;
 
+    // The owned type on the base type of the Manufacturer hierarchy references a TPC principal
+    public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+        => base.AddOptions(builder).ConfigureWarnings(w => w.Log(RelationalEventId.ForeignKeyTpcPrincipalWarning));
+
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
         base.OnModelCreating(modelBuilder, context);
@@ -45,6 +49,16 @@ public abstract class TPCInheritanceQueryFixture : InheritanceQueryRelationalFix
         modelBuilder.Entity<Lilt>().Property(e => e.Carbonation).HasColumnName("LiltCO2");
         modelBuilder.Entity<Lilt>().Property(e => e.SugarGrams).HasColumnName("SugarGrams");
         modelBuilder.Entity<Tea>().Property(e => e.CaffeineGrams).HasColumnName("CaffeineGrams");
+
+        if (EnableComplexTypes)
+        {
+            // The owned type on the base type can't share the tables of the concrete types, so it's mapped to its own table
+            modelBuilder.Entity<Manufacturer>(b =>
+            {
+                b.UseTpcMappingStrategy();
+                b.OwnsOne(e => e.Headquarters, ob => ob.ToTable("ManufacturerHeadquarters"));
+            });
+        }
 
         // Keyless entities are mapped to TPH so ignoring them
         modelBuilder.Ignore<AnimalQuery>();

@@ -373,7 +373,17 @@ public class ForeignKeyPropertyDiscoveryConvention :
         IReadOnlyList<IConventionProperty> propertiesToReference)
     {
         var dependentPkProperties = dependentEntityType.FindPrimaryKey()?.Properties;
-        return dependentPkProperties != null && ForeignKey.AreCompatible( propertiesToReference, dependentPkProperties, principalEntityType, dependentEntityType, shouldThrow: false) ? dependentPkProperties : null;
+        return dependentPkProperties != null
+            // Foreign keys can't use properties declared on complex types
+            && dependentPkProperties.All(p => p.DeclaringType is IConventionEntityType)
+            && ForeignKey.AreCompatible(
+                propertiesToReference,
+                dependentPkProperties,
+                principalEntityType,
+                dependentEntityType,
+                shouldThrow: false)
+                ? dependentPkProperties
+                : null;
     }
 
     private bool TryFindMatchingProperties(

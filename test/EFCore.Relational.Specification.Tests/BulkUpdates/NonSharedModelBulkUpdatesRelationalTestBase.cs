@@ -132,6 +132,23 @@ public abstract class NonSharedModelBulkUpdatesRelationalTestBase(NonSharedFixtu
             rowsAffectedCount: 1);
     }
 
+    [Fact]
+    public virtual async Task ExecuteUpdate_complex_property_of_json_owned_reference()
+    {
+        var contextFactory = await InitializeNonSharedTest<ContextOwnedComplexProperties>(
+            onModelCreating: mb => mb.Entity<ContextOwnedComplexProperties.Owner>().OwnsOne(e => e.Owned, ob => ob.ToJson()),
+            seed: c => c.SeedAsync());
+
+        using var context = contextFactory.CreateDbContext();
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => context.Owners.ExecuteUpdateAsync(s => s.SetProperty(e => e.Owned.Address.City, "Melbourne")));
+
+        Assert.Equal(
+            RelationalStrings.ExecuteOperationOnOwnedJsonIsNotSupported("ExecuteUpdate", "Owned"),
+            Assert.IsType<InvalidOperationException>(exception.InnerException).Message);
+    }
+
     protected class Context34677(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Foo> Foos
@@ -186,9 +203,6 @@ public abstract class NonSharedModelBulkUpdatesRelationalTestBase(NonSharedFixtu
 
     protected TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;
-
-    protected void ClearLog()
-        => TestSqlLoggerFactory.Clear();
 
     #endregion
 }

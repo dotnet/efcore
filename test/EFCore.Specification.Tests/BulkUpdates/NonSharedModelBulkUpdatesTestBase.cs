@@ -337,7 +337,98 @@ public abstract class NonSharedModelBulkUpdatesTestBase(NonSharedFixture fixture
         public virtual Blog? Blog { get; set; }
     }
 
+    [Fact]
+    public virtual async Task ExecuteUpdate_complex_property_of_owned_reference()
+    {
+        var contextFactory = await InitializeNonSharedTest<ContextOwnedComplexProperties>(seed: c => c.SeedAsync());
+
+        using (var context = contextFactory.CreateDbContext())
+        {
+            ClearLog();
+            await context.Owners.Where(e => e.Id == 1)
+                .ExecuteUpdateAsync(s => s.SetProperty(e => e.Owned.Address.City, "Melbourne"));
+        }
+
+        using (var context = contextFactory.CreateDbContext())
+        {
+            Assert.Equal("Melbourne", (await context.Owners.SingleAsync(e => e.Id == 1)).Owned.Address.City);
+        }
+    }
+
+    protected class ContextOwnedComplexProperties(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Owner> Owners { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Owner>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+                b.OwnsOne(e => e.Owned, ob => ob.ComplexProperty(o => o.Address));
+            });
+
+        public Task SeedAsync()
+        {
+            AddRange(
+                new Owner
+                {
+                    Id = 1,
+                    Name = "Owner1",
+                    Owned = CreateOwned("Owned1", "1 Main St", "Sydney", "Australia", "AU")
+                },
+                new Owner
+                {
+                    Id = 2,
+                    Name = "Owner2",
+                    Owned = CreateOwned("Owned2", "2 Hauptstrasse", "Berlin", "Germany", "DE")
+                });
+
+            return SaveChangesAsync();
+        }
+
+        private static Owned CreateOwned(string name, string street, string city, string country, string code)
+            => new()
+            {
+                Name = name,
+                Address = new Address
+                {
+                    Street = street,
+                    City = city,
+                    Country = new Country { Name = country, Code = code }
+                }
+            };
+
+        public class Owner
+        {
+            public int Id { get; set; }
+            public string Name { get; set; } = null!;
+            public Owned Owned { get; set; } = null!;
+        }
+
+        public class Owned
+        {
+            public string Name { get; set; } = null!;
+            public Address Address { get; set; } = null!;
+        }
+
+        public class Address
+        {
+            public string Street { get; set; } = null!;
+            public string City { get; set; } = null!;
+            public Country Country { get; set; } = null!;
+        }
+
+        public class Country
+        {
+            public string Name { get; set; } = null!;
+            public string Code { get; set; } = null!;
+        }
+    }
+
     #region HelperMethods
+
+    protected void ClearLog()
+        => ListLoggerFactory.Clear();
+
 
     public Task AssertDelete<TContext, TResult>(
         bool async,

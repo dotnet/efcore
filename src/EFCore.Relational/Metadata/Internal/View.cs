@@ -34,6 +34,12 @@ public class View : TableBase, IView
             ?? property.GetJsonElementMappings()
                 .FirstOrDefault(m => m.TableMapping.Table == this)?.Element.ContainingColumn;
 
+    /// <inheritdoc />
+    protected override IColumnBase? FindColumn(IComplexProperty complexProperty)
+        => complexProperty.ComplexType.GetContainerColumnName(StoreObjectIdentifier.View(Name, Schema)) is { Length: > 0 } containerName
+            ? FindColumn(containerName)
+            : null;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in

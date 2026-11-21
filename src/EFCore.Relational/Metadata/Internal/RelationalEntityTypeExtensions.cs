@@ -161,8 +161,7 @@ public static class RelationalEntityTypeExtensions
         // A JSON column can't be shared with a principal, as they share a row
         properties.AddRange(entityType.GetComplexProperties().Where(p =>
             p.ComplexType.IsMappedToJson()
-            && p.ComplexType.GetContainerColumnName() is { } columnName
-            && table.FindColumn(columnName) != null));
+            && table.FindColumn(p) != null));
 
         return properties;
 

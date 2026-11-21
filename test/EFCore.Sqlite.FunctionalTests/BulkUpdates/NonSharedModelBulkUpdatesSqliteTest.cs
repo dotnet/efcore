@@ -295,6 +295,34 @@ SET "ComplexThing_Prop1" = @p
     protected override DbContextOptionsBuilder AddNonSharedOptions(DbContextOptionsBuilder builder)
         => base.AddNonSharedOptions(builder).ConfigureWarnings(wcb => wcb.Log(SqliteEventId.CompositeKeyWithValueGeneration));
 
+    public override async Task ExecuteUpdate_complex_property_of_owned_reference()
+    {
+        await base.ExecuteUpdate_complex_property_of_owned_reference();
+
+        AssertSql(
+            """
+@p='Melbourne' (Size = 9)
+
+UPDATE "Owners" AS "o"
+SET "Owned_Address_City" = @p
+WHERE "o"."Id" = 1
+""",
+            //
+            """
+SELECT "o"."Id", "o"."Name", "o"."Owned_Name", "o"."Owned_Address_City", "o"."Owned_Address_Street", "o"."Owned_Address_Country_Code", "o"."Owned_Address_Country_Name"
+FROM "Owners" AS "o"
+WHERE "o"."Id" = 1
+LIMIT 2
+""");
+    }
+
+    public override async Task ExecuteUpdate_complex_property_of_json_owned_reference()
+    {
+        await base.ExecuteUpdate_complex_property_of_json_owned_reference();
+
+        AssertSql();
+    }
+
     private void AssertSql(params string[] expected)
         => TestSqlLoggerFactory.AssertBaseline(expected);
 

@@ -154,6 +154,72 @@ WHERE (
 """);
     }
 
+    public override async Task Owned_reference_with_complex_type_on_base_and_derived_types(bool async)
+    {
+        await base.Owned_reference_with_complex_type_on_base_and_derived_types(async);
+
+        AssertSql(
+            """
+SELECT [m].[Id], [m].[Name], CASE
+    WHEN [b].[Id] IS NOT NULL THEN N'Brewery'
+END AS [Discriminator], [m].[Headquarters_Name], [m].[Headquarters_Address], [b].[Id], [b].[Brewhouse_Name], [b].[Brewhouse_Address]
+FROM [Manufacturer] AS [m]
+LEFT JOIN [Brewery] AS [b] ON [m].[Id] = [b].[Id]
+""");
+    }
+
+    public override async Task Filter_on_complex_type_property_of_owned_reference_on_base_type(bool async)
+    {
+        await base.Filter_on_complex_type_property_of_owned_reference_on_base_type(async);
+
+        AssertSql(
+            """
+SELECT [m].[Id], [m].[Name], CASE
+    WHEN [b].[Id] IS NOT NULL THEN N'Brewery'
+END AS [Discriminator], [m].[Headquarters_Name], [m].[Headquarters_Address], [b].[Id], [b].[Brewhouse_Name], [b].[Brewhouse_Address]
+FROM [Manufacturer] AS [m]
+LEFT JOIN [Brewery] AS [b] ON [m].[Id] = [b].[Id]
+WHERE JSON_VALUE([m].[Headquarters_Address], '$.Country.Code') = N'DE'
+""");
+    }
+
+    public override async Task Filter_on_complex_type_property_of_owned_reference_on_derived_type(bool async)
+    {
+        await base.Filter_on_complex_type_property_of_owned_reference_on_derived_type(async);
+
+        AssertSql(
+            """
+SELECT [m].[Id], [m].[Name], [m].[Headquarters_Name], [m].[Headquarters_Address], [b].[Id], [b].[Brewhouse_Name], [b].[Brewhouse_Address]
+FROM [Manufacturer] AS [m]
+INNER JOIN [Brewery] AS [b] ON [m].[Id] = [b].[Id]
+WHERE JSON_VALUE([b].[Brewhouse_Address], '$.Country.Code') = N'DE'
+""");
+    }
+
+    public override async Task Project_complex_type_of_owned_reference_on_base_type(bool async)
+    {
+        await base.Project_complex_type_of_owned_reference_on_base_type(async);
+
+        AssertSql(
+            """
+SELECT [m].[Headquarters_Address]
+FROM [Manufacturer] AS [m]
+""");
+    }
+
+    public override async Task Project_complex_type_of_owned_reference_on_derived_type(bool async)
+    {
+        await base.Project_complex_type_of_owned_reference_on_derived_type(async);
+
+        AssertSql(
+            """
+SELECT [b].[Brewhouse_Address]
+FROM [Manufacturer] AS [m]
+LEFT JOIN [Brewery] AS [b] ON [m].[Id] = [b].[Id]
+WHERE [b].[Id] IS NOT NULL
+""");
+    }
+
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 }

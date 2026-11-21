@@ -220,10 +220,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 
                                 if (complexType.IsMappedToJson())
                                 {
-                                    var containerColumnName = complexProperty.ComplexType.GetContainerColumnName();
-                                    Check.DebugAssert(containerColumnName is not null, "Complex JSON type without a container column");
-
-                                    var containerColumn = table.FindColumn(containerColumnName);
+                                    var containerColumn = table.FindColumn(complexProperty);
                                     Check.DebugAssert(
                                         containerColumn is not null, "Complex JSON container table not found on relational table");
 
@@ -299,9 +296,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                             var column = property switch
                             {
                                 IProperty p => table.FindColumn(p),
-                                IComplexProperty p => p.ComplexType.GetContainerColumnName() is string columnName
-                                    ? table.FindColumn(columnName)
-                                    : null,
+                                IComplexProperty p => table.FindColumn(p),
                                 _ => throw new UnreachableException("Unexpected property type when building TPC union projection.")
                             };
 
@@ -458,49 +453,49 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 
             static ITableBase GetTableBaseFiltered(IEntityType entityType, Dictionary<ITableBase, string> existingTables)
                 => entityType.GetQueryMappings().Single(m => !existingTables.ContainsKey(m.Table)).Table;
+        }
+    }
 
-            static ITableBase FindTable(IComplexProperty complexProperty, IReadOnlyList<ITableMappingBase> mappings)
-                => TryFindTable(complexProperty, mappings)
-                    ?? complexProperty.ComplexType.GetQueryMappings().Single().Table;
+    internal static ITableBase FindTable(IComplexProperty complexProperty, IReadOnlyList<ITableMappingBase> mappings)
+        => TryFindTable(complexProperty, mappings)
+            ?? complexProperty.ComplexType.GetQueryMappings().Single().Table;
 
-            static ITableBase? TryFindTable(IComplexProperty complexProperty, IReadOnlyList<ITableMappingBase> mappings)
+    private static ITableBase? TryFindTable(IComplexProperty complexProperty, IReadOnlyList<ITableMappingBase> mappings)
+    {
+        if (complexProperty.ComplexType.IsMappedToJson())
+        {
+            foreach (var mapping in mappings)
             {
-                if (complexProperty.ComplexType.IsMappedToJson())
+                if (mapping.Table.FindColumn(complexProperty) is { } containerColumn)
                 {
-                    foreach (var mapping in mappings)
-                    {
-                        if (mapping.Table.FindColumn(complexProperty) is { } containerColumn)
-                        {
-                            return containerColumn.Table;
-                        }
-                    }
-
-                    return null;
+                    return containerColumn.Table;
                 }
+            }
 
-                foreach (var property in complexProperty.ComplexType.GetProperties())
+            return null;
+        }
+
+        foreach (var property in complexProperty.ComplexType.GetProperties())
+        {
+            foreach (var mapping in mappings)
+            {
+                if (mapping.Table.FindColumn(property) is { } column)
                 {
-                    foreach (var mapping in mappings)
-                    {
-                        if (mapping.Table.FindColumn(property) is { } column)
-                        {
-                            return column.Table;
-                        }
-                    }
+                    return column.Table;
                 }
-
-                foreach (var nestedComplexProperty in complexProperty.ComplexType.GetComplexProperties())
-                {
-                    var nestedTable = TryFindTable(nestedComplexProperty, mappings);
-                    if (nestedTable is not null)
-                    {
-                        return nestedTable;
-                    }
-                }
-
-                return null;
             }
         }
+
+        foreach (var nestedComplexProperty in complexProperty.ComplexType.GetComplexProperties())
+        {
+            var nestedTable = TryFindTable(nestedComplexProperty, mappings);
+            if (nestedTable is not null)
+            {
+                return nestedTable;
+            }
+        }
+
+        return null;
     }
 
     private SelectExpression GenerateSingleTableSelect(IEntityType entityType, ITableBase table, TableExpressionBase tableExpression)
@@ -530,37 +525,14 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         {
             foreach (var property in primaryKey.Properties)
             {
-                if (!propertyMap.TryGetValue(property, out var columnExpression))
-                {
-                    // The key property is declared on a complex type; navigate the complex-property chain
-                    // from the entity to its declaring complex type and bind the property there.
-                    var chain = new Stack<IComplexProperty>();
-                    for (var current = property.DeclaringType as IComplexType;
-                         current != null;
-                         current = current.ComplexProperty.DeclaringType as IComplexType)
-                    {
-                        chain.Push(current.ComplexProperty);
-                    }
-
-                    var shaper = (RelationalStructuralTypeShaperExpression)complexPropertyMap[chain.Pop()];
-                    var complexProjection = (StructuralTypeProjectionExpression)shaper.ValueBufferExpression;
-                    while (chain.Count > 0)
-                    {
-                        shaper = (RelationalStructuralTypeShaperExpression)complexProjection.BindComplexProperty(chain.Pop());
-                        complexProjection = (StructuralTypeProjectionExpression)shaper.ValueBufferExpression;
-                    }
-
-                    columnExpression = complexProjection.BindProperty(property);
-                }
-
-                identifier.Add((columnExpression, property.GetKeyValueComparer()));
+                identifier.Add((projection.BindKeyProperty(property), property.GetKeyValueComparer()));
             }
         }
 
         return new SelectExpression([tableExpression], projection, identifier, _sqlAliasManager);
     }
 
-    private static Expression ProcessComplexProperty(
+    internal static Expression ProcessComplexProperty(
         IComplexProperty complexProperty,
         ITableBase table,
         string tableAlias,
@@ -599,10 +571,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
     {
         Check.DebugAssert(complexProperty.ComplexType.IsMappedToJson());
 
-        var containerColumnName = complexProperty.ComplexType.GetContainerColumnName();
-        Check.DebugAssert(containerColumnName is not null, "Complex JSON type without a container column");
-
-        var containerColumn = table.FindColumn(containerColumnName);
+        var containerColumn = table.FindColumn(complexProperty);
         Check.DebugAssert(containerColumn is not null, "Complex JSON container table not found on relational table");
 
         return GenerateComplexJsonShaper(

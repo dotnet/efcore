@@ -216,6 +216,31 @@ WHERE JSON_VALUE([j].[JsonThing], '$.StringProperty') = N'foo'
 """);
     }
 
+    public override async Task Complex_properties_on_owned_types()
+    {
+        await base.Complex_properties_on_owned_types();
+
+        AssertSql(
+            """
+SELECT [o].[Id], [o].[JsonOwned], [o].[Owned_Address_City], [o].[Owned_Address_Country_Code], [o].[Owned_JsonAddress], [o0].[Id], [o0].[OwnedComplexOwnerId], [o0].[Address_City], [o0].[Address_Country_Code]
+FROM [Owners] AS [o]
+LEFT JOIN [Owners_OwnedCollection] AS [o0] ON [o].[Id] = [o0].[OwnedComplexOwnerId]
+WHERE [o].[Owned_Address_City] = N'Sydney'
+ORDER BY [o].[Id]
+""");
+    }
+
+    public override async Task Complex_properties_on_owned_types_projected()
+    {
+        await base.Complex_properties_on_owned_types_projected();
+
+        AssertSql(
+            """
+SELECT [o].[Owned_Address_City], [o].[Owned_Address_Country_Code], [o].[Owned_JsonAddress], JSON_VALUE([o].[JsonOwned], '$.Address.City') AS [JsonOwnedCity]
+FROM [Owners] AS [o]
+""");
+    }
+
     public override async Task Materialize_sealed_entity()
     {
         await base.Materialize_sealed_entity();

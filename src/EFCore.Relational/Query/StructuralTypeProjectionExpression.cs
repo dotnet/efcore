@@ -307,6 +307,22 @@ public class StructuralTypeProjectionExpression : Expression
                         "complexProperty", complexProperty.Name, StructuralType.DisplayName()))
                 : _complexPropertyMap[complexProperty];
 
+    // Key properties can be declared on (table-split) complex types, so bind them through the complex property chain
+    internal ColumnExpression BindKeyProperty(IProperty property)
+        => property.DeclaringType is IComplexType complexType
+            ? BindComplexType(complexType).BindProperty(property)
+            : BindProperty(property);
+
+    private StructuralTypeProjectionExpression BindComplexType(IComplexType complexType)
+    {
+        var declaringProjection = complexType.ComplexProperty.DeclaringType is IComplexType declaringComplexType
+            ? BindComplexType(declaringComplexType)
+            : this;
+
+        return (StructuralTypeProjectionExpression)((StructuralTypeShaperExpression)declaringProjection
+            .BindComplexProperty(complexType.ComplexProperty)).ValueBufferExpression;
+    }
+
     /// <summary>
     ///     Adds a navigation binding for this entity projection when the target entity type of the navigation is owned or weak.
     /// </summary>

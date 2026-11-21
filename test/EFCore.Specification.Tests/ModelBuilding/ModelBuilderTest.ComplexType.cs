@@ -1403,6 +1403,92 @@ public abstract partial class ModelBuilderTest
                     .Message);
         }
 
+        [Fact]
+        public virtual void Can_configure_complex_property_on_owned_type()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<OwnerOfOwnedWithComplex>(b =>
+            {
+                b.Ignore(e => e.OwnedCollection);
+                b.OwnsOne(
+                    e => e.Owned, ob =>
+                    {
+                        ob.Ignore(o => o.ComplexCollection);
+                        ob.ComplexProperty(
+                            o => o.Complex, cb =>
+                            {
+                                cb.HasTypeAnnotation("foo", "bar");
+                                cb.Property(c => c.Value).HasMaxLength(20);
+                            });
+                    });
+            });
+
+            var model = modelBuilder.FinalizeModel();
+
+            var owned = model.FindEntityType(typeof(OwnerOfOwnedWithComplex))!
+                .FindNavigation(nameof(OwnerOfOwnedWithComplex.Owned))!.TargetEntityType;
+            var complexProperty = owned.GetComplexProperties().Single();
+            Assert.Equal(nameof(OwnedWithComplex.Complex), complexProperty.Name);
+            Assert.False(complexProperty.IsCollection);
+            Assert.Equal("bar", complexProperty.ComplexType["foo"]);
+            Assert.Equal(20, complexProperty.ComplexType.FindProperty(nameof(ComplexInOwned.Value))!.GetMaxLength());
+            Assert.NotNull(complexProperty.ComplexType.FindProperty(nameof(ComplexInOwned.Number)));
+        }
+
+        [Fact]
+        public virtual void Can_configure_complex_property_on_owned_type_by_name()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<OwnerOfOwnedWithComplex>(b =>
+            {
+                b.Ignore(e => e.OwnedCollection);
+                b.OwnsOne(
+                    e => e.Owned, ob =>
+                    {
+                        ob.Ignore(o => o.ComplexCollection);
+                        ob.ComplexProperty<ComplexInOwned>(
+                            nameof(OwnedWithComplex.Complex), cb => cb.Property(c => c.Value).HasMaxLength(20));
+                    });
+            });
+
+            var model = modelBuilder.FinalizeModel();
+
+            var owned = model.FindEntityType(typeof(OwnerOfOwnedWithComplex))!
+                .FindNavigation(nameof(OwnerOfOwnedWithComplex.Owned))!.TargetEntityType;
+            var complexProperty = owned.GetComplexProperties().Single();
+            Assert.Equal(nameof(OwnedWithComplex.Complex), complexProperty.Name);
+            Assert.Equal(20, complexProperty.ComplexType.FindProperty(nameof(ComplexInOwned.Value))!.GetMaxLength());
+        }
+
+        [Fact]
+        public virtual void Can_configure_complex_property_on_owned_type_collection_by_name()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<OwnerOfOwnedWithComplex>(b =>
+            {
+                b.Ignore(e => e.Owned);
+                b.OwnsMany(
+                    e => e.OwnedCollection, ob =>
+                    {
+                        ob.Ignore(o => o.ComplexCollection);
+                        ob.ComplexProperty<ComplexInOwned>(nameof(OwnedWithComplex.Complex));
+                    });
+            });
+
+            var model = modelBuilder.FinalizeModel();
+
+            var owned = model.FindEntityType(typeof(OwnerOfOwnedWithComplex))!
+                .FindNavigation(nameof(OwnerOfOwnedWithComplex.OwnedCollection))!.TargetEntityType;
+            var complexProperty = owned.GetComplexProperties().Single();
+            Assert.Equal(nameof(OwnedWithComplex.Complex), complexProperty.Name);
+            Assert.Equal(
+                [nameof(ComplexInOwned.Number), nameof(ComplexInOwned.Value)],
+                complexProperty.ComplexType.GetProperties().Select(p => p.Name));
+        }
+
 #pragma warning disable CS9113 // Parameter 'foo' is unread
         private class BadCustomValueGenerator1(string foo) : CustomValueGenerator
 #pragma warning restore CS9113
