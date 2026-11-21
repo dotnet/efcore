@@ -180,6 +180,11 @@ public static class RelationalAnnotationNames
     public const string IsForeignKeyExcludedFromMigrations = Prefix + "IsForeignKeyExcludedFromMigrations";
 
     /// <summary>
+    ///     The name for the annotation determining whether checking of the foreign key constraint can be deferred.
+    /// </summary>
+    public const string Deferrability = Prefix + "Deferrability";
+
+    /// <summary>
     ///     The name for the annotation determining the mapping strategy for inherited properties.
     /// </summary>
     public const string MappingStrategy = Prefix + "MappingStrategy";
@@ -420,6 +425,7 @@ public static class RelationalAnnotationNames
         ViewDefinitionSql,
         IsTableExcludedFromMigrations,
         IsForeignKeyExcludedFromMigrations,
+        Deferrability,
         MappingStrategy,
         RelationalModel,
         RelationalModelFactory,

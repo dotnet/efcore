@@ -1820,6 +1820,50 @@ CREATE INDEX "IX_Orders_CustomerId" ON "Orders" ("CustomerId");
 """);
     }
 
+    public override async Task Add_deferrable_foreign_key()
+    {
+        await base.Add_deferrable_foreign_key();
+
+        AssertSql(
+            """
+CREATE INDEX "IX_Orders_CustomerId" ON "Orders" ("CustomerId");
+""",
+            //
+            """
+CREATE TABLE "ef_temp_Orders" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_Orders" PRIMARY KEY AUTOINCREMENT,
+    "CustomerId" INTEGER NOT NULL,
+    CONSTRAINT "FK_Orders_Customers_CustomerId" FOREIGN KEY ("CustomerId") REFERENCES "Customers" ("Id") ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED
+);
+""",
+            //
+            """
+INSERT INTO "ef_temp_Orders" ("Id", "CustomerId")
+SELECT "Id", "CustomerId"
+FROM "Orders";
+""",
+            //
+            """
+PRAGMA foreign_keys = 0;
+""",
+            //
+            """
+DROP TABLE "Orders";
+""",
+            //
+            """
+ALTER TABLE "ef_temp_Orders" RENAME TO "Orders";
+""",
+            //
+            """
+PRAGMA foreign_keys = 1;
+""",
+            //
+            """
+CREATE INDEX "IX_Orders_CustomerId" ON "Orders" ("CustomerId");
+""");
+    }
+
     public override async Task Add_unique_constraint()
     {
         await base.Add_unique_constraint();
