@@ -215,7 +215,7 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
         }
     }
 
-    private async Task<(Context25225, Context25225)> CreateTwoContext25225()
+    private async Task<(Context25225 First, Context25225 Second)> CreateTwoContext25225()
     {
         var factory = await CreateContext25225Async();
         var context1 = factory.CreateDbContext();

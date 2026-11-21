@@ -48,12 +48,12 @@ public class SqlServerZeroLimitConverter : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitExtension(Expression extensionExpression)
+    protected override Expression VisitExtension(Expression node)
     {
         // SQL Server doesn't support 0 in the FETCH NEXT x ROWS ONLY clause. We use this clause when translating LINQ Take(), but
         // only if there's also a Skip(), otherwise we translate to SQL TOP(x), which does allow 0.
         // Check for this case, and replace with a false predicate (since no rows should be returned).
-        if (extensionExpression is SelectExpression { Offset: not null, Limit: not null } selectExpression)
+        if (node is SelectExpression { Offset: not null, Limit: not null } selectExpression)
         {
             if (IsZero(selectExpression.Limit))
             {
@@ -77,6 +77,6 @@ public class SqlServerZeroLimitConverter : ExpressionVisitor
                 };
         }
 
-        return base.VisitExtension(extensionExpression);
+        return base.VisitExtension(node);
     }
 }

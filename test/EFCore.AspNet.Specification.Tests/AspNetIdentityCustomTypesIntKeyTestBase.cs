@@ -176,11 +176,11 @@ public class CustomTypesIdentityContextInt(DbContextOptions options)
     : IdentityDbContext<CustomUserInt, CustomRoleInt, int, CustomUserClaimInt, CustomUserRoleInt,
         CustomUserLoginInt, CustomRoleClaimInt, CustomUserTokenInt>(options)
 {
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    protected override void OnModelCreating(ModelBuilder builder)
     {
-        base.OnModelCreating(modelBuilder);
+        base.OnModelCreating(builder);
 
-        modelBuilder.Entity<CustomUserInt>(b =>
+        builder.Entity<CustomUserInt>(b =>
         {
             b.HasMany(e => e.Claims).WithOne().HasForeignKey(uc => uc.UserId).IsRequired();
             b.HasMany(e => e.Logins).WithOne().HasForeignKey(ul => ul.UserId).IsRequired();

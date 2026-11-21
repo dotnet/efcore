@@ -30,8 +30,8 @@ public class SelectExpressionProjectionApplyingExpressionVisitor : ExpressionVis
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitExtension(Expression extensionExpression)
-        => extensionExpression switch
+    protected override Expression VisitExtension(Expression node)
+        => node switch
         {
             ShapedQueryExpression { QueryExpression: SelectExpression selectExpression } shapedQueryExpression
                 => shapedQueryExpression.UpdateShaperExpression(
@@ -41,6 +41,6 @@ public class SelectExpressionProjectionApplyingExpressionVisitor : ExpressionVis
             UpdateExpression update => update,
             DeleteExpression delete => delete,
 
-            _ => base.VisitExtension(extensionExpression),
+            _ => base.VisitExtension(node),
         };
 }

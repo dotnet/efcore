@@ -1173,47 +1173,47 @@ namespace Identity30.Data
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseSqlite("DataSource=Test.db");
 
-        protected override void OnModelCreating(ModelBuilder builder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(builder);
+            base.OnModelCreating(modelBuilder);
 
-            builder.Entity<IdentityUser>(b =>
+            modelBuilder.Entity<IdentityUser>(b =>
             {
                 b.HasIndex(u => u.NormalizedUserName).HasDatabaseName("UserNameIndex").IsUnique();
                 b.HasIndex(u => u.NormalizedEmail).HasDatabaseName("EmailIndex");
                 b.ToTable("AspNetUsers");
             });
 
-            builder.Entity<IdentityUserClaim<string>>(b => b.ToTable("AspNetUserClaims"));
+            modelBuilder.Entity<IdentityUserClaim<string>>(b => b.ToTable("AspNetUserClaims"));
 
-            builder.Entity<IdentityUserLogin<string>>(b => b.ToTable("AspNetUserLogins"));
+            modelBuilder.Entity<IdentityUserLogin<string>>(b => b.ToTable("AspNetUserLogins"));
 
-            builder.Entity<IdentityUserToken<string>>(b => b.ToTable("AspNetUserTokens"));
+            modelBuilder.Entity<IdentityUserToken<string>>(b => b.ToTable("AspNetUserTokens"));
 
-            builder.Entity<IdentityRole>(b =>
+            modelBuilder.Entity<IdentityRole>(b =>
             {
                 b.HasIndex(r => r.NormalizedName).HasDatabaseName("RoleNameIndex").IsUnique();
                 b.ToTable("AspNetRoles");
             });
 
-            builder.Entity<IdentityRoleClaim<string>>(b => b.ToTable("AspNetRoleClaims"));
+            modelBuilder.Entity<IdentityRoleClaim<string>>(b => b.ToTable("AspNetRoleClaims"));
 
-            builder.Entity<IdentityUserRole<string>>(b => b.ToTable("AspNetUserRoles"));
+            modelBuilder.Entity<IdentityUserRole<string>>(b => b.ToTable("AspNetUserRoles"));
 
-            builder.Entity<IdentityRole>(b =>
+            modelBuilder.Entity<IdentityRole>(b =>
             {
                 b.Property(e => e.ConcurrencyStamp).IsRequired(false);
                 b.Property(e => e.Name).IsRequired(false);
                 b.Property(e => e.NormalizedName).IsRequired(false);
             });
 
-            builder.Entity<IdentityRoleClaim<string>>(b =>
+            modelBuilder.Entity<IdentityRoleClaim<string>>(b =>
             {
                 b.Property(e => e.ClaimType).IsRequired(false);
                 b.Property(e => e.ClaimValue).IsRequired(false);
             });
 
-            builder.Entity<IdentityUser>(b =>
+            modelBuilder.Entity<IdentityUser>(b =>
             {
                 b.Property(e => e.ConcurrencyStamp).IsRequired(false);
                 b.Property(e => e.Email).IsRequired(false);
@@ -1225,17 +1225,17 @@ namespace Identity30.Data
                 b.Property(e => e.UserName).IsRequired(false);
             });
 
-            builder.Entity<IdentityUserClaim<string>>(b =>
+            modelBuilder.Entity<IdentityUserClaim<string>>(b =>
             {
                 b.Property(e => e.ClaimType).IsRequired(false);
                 b.Property(e => e.ClaimValue).IsRequired(false);
             });
 
-            builder.Entity<IdentityUserLogin<string>>()
+            modelBuilder.Entity<IdentityUserLogin<string>>()
                 .Property(e => e.ProviderDisplayName)
                 .IsRequired(false);
 
-            builder.Entity<IdentityUserToken<string>>()
+            modelBuilder.Entity<IdentityUserToken<string>>()
                 .Property(e => e.Value)
                 .IsRequired(false);
         }

@@ -636,8 +636,8 @@ public class DbContextOperationsTest
 
     private class BaseContext(string factoryUsed) : DbContext
     {
-        protected override void OnConfiguring(DbContextOptionsBuilder options)
-            => options.UseInMemoryDatabase(GetType().Name);
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder.UseInMemoryDatabase(GetType().Name);
 
         public string FactoryUsed { get; } = factoryUsed;
     }

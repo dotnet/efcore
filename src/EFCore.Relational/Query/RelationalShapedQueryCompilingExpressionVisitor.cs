@@ -84,15 +84,15 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
         => 3;
 
     /// <inheritdoc />
-    protected override Expression VisitExtension(Expression extensionExpression)
+    protected override Expression VisitExtension(Expression node)
     {
-        return extensionExpression switch
+        return node switch
         {
             UpdateExpression updateExpression => GenerateNonQueryShaper(updateExpression.ApplyTags(_tags), CommandSource.ExecuteUpdate),
             DeleteExpression deleteExpression => GenerateNonQueryShaper(deleteExpression.ApplyTags(_tags), CommandSource.ExecuteDelete),
             MergeExpression { Returning: null } mergeExpression => GenerateNonQueryShaper(mergeExpression.ApplyTags(_tags), CommandSource.ExecuteMerge),
             MergeExpression { Returning: not null } mergeExpression => GenerateMergeReturningShaper(mergeExpression.ApplyTags(_tags)),
-            _ => base.VisitExtension(extensionExpression)
+            _ => base.VisitExtension(node)
         };
 
         Expression GenerateNonQueryShaper(Expression nonQueryExpression, CommandSource commandSource)

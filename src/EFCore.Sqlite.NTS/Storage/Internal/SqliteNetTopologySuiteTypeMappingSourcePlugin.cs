@@ -73,15 +73,7 @@ public class SqliteNetTopologySuiteTypeMappingSourcePlugin : IRelationalTypeMapp
         string? defaultStoreType = null;
         Type? defaultClrType = null;
 
-        return (clrType != null
-                && TryGetDefaultStoreType(clrType, out defaultStoreType))
-            || (storeTypeName != null
-                && StoreTypeMappings.TryGetValue(storeTypeName, out defaultClrType))
-                ? (RelationalTypeMapping)Activator.CreateInstance(
-                    typeof(SqliteGeometryTypeMapping<>).MakeGenericType(clrType ?? defaultClrType ?? typeof(Geometry)),
-                    _geometryServices,
-                    storeTypeName ?? defaultStoreType ?? "GEOMETRY")!
-                : null;
+        return (clrType != null && TryGetDefaultStoreType(clrType, out defaultStoreType)) || (storeTypeName != null && StoreTypeMappings.TryGetValue(storeTypeName, out defaultClrType)) ? (RelationalTypeMapping)Activator.CreateInstance( typeof(SqliteGeometryTypeMapping<>).MakeGenericType(clrType ?? defaultClrType ?? typeof(Geometry)), _geometryServices, storeTypeName ?? defaultStoreType ?? "GEOMETRY")! : null;
     }
 
     private static bool TryGetDefaultStoreType(Type type, out string? defaultStoreType)

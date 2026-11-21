@@ -24,9 +24,9 @@ public class ModelSourceTest
 
     private class MyModelCustomizer(ModelCustomizerDependencies dependencies) : ModelCustomizer(dependencies)
     {
-        public override void Customize(ModelBuilder modelBuilder, DbContext dbContext)
+        public override void Customize(ModelBuilder modelBuilder, DbContext context)
         {
-            base.Customize(modelBuilder, dbContext);
+            base.Customize(modelBuilder, context);
             modelBuilder.Model["AllYourModelAreBelongTo"] = "Us!";
         }
     }

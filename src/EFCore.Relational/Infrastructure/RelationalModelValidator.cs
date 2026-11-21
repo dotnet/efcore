@@ -3555,20 +3555,20 @@ public class RelationalModelValidator(
     ///     available, indicating possible reasons why the property cannot be mapped.
     /// </summary>
     /// <param name="propertyType">The property CLR type.</param>
-    /// <param name="typeBase">The structural type.</param>
+    /// <param name="structuralType">The structural type.</param>
     /// <param name="unmappedProperty">The property.</param>
     protected override void ThrowPropertyNotMappedException(
         string propertyType,
-        ITypeBase typeBase,
+        ITypeBase structuralType,
         IProperty unmappedProperty)
     {
         if (unmappedProperty.ClrType.FullName?.StartsWith("NetTopologySuite.Geometries.", StringComparison.Ordinal) == true
-            || typeBase.ClrType.FullName?.StartsWith("NetTopologySuite.Geometries.", StringComparison.Ordinal) == true)
+            || structuralType.ClrType.FullName?.StartsWith("NetTopologySuite.Geometries.", StringComparison.Ordinal) == true)
         {
             throw new InvalidOperationException(
                 RelationalStrings.PropertyNotMappedSpatial(
                     propertyType,
-                    typeBase.DisplayName(),
+                    structuralType.DisplayName(),
                     unmappedProperty.Name));
         }
 
@@ -3578,11 +3578,11 @@ public class RelationalModelValidator(
             throw new InvalidOperationException(
                 RelationalStrings.PropertyNotMapped(
                     propertyType,
-                    typeBase.DisplayName(),
+                    structuralType.DisplayName(),
                     unmappedProperty.Name,
                     storeType));
         }
 
-        base.ThrowPropertyNotMappedException(propertyType, typeBase, unmappedProperty);
+        base.ThrowPropertyNotMappedException(propertyType, structuralType, unmappedProperty);
     }
 }

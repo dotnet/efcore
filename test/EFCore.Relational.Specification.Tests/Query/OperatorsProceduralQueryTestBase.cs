@@ -285,7 +285,7 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase,
         int maxDepth,
         Type[] types,
         RootEntityExpressionInfo[] rootPropertyExpressions,
-        List<((Type, Type) InputTypes, Type ResultType, Func<Expression, Expression, Expression> OperatorCreator)> possibleBinaries,
+        List<((Type Left, Type Right) InputTypes, Type ResultType, Func<Expression, Expression, Expression> OperatorCreator)> possibleBinaries,
         List<(Type InputType, Type ResultType, Func<Expression, Expression> OperatorCreator)> possibleUnaries)
     {
         // see if we want additional level of nesting, the deeper we go the lower the probability
@@ -369,16 +369,16 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase,
         Random random,
         int currentDepth,
         int maxDepth,
-        ((Type, Type) InputTypes, Type ResultType, Func<Expression, Expression, Expression> OperatorCreator) operation,
+        ((Type Left, Type Right) InputTypes, Type ResultType, Func<Expression, Expression, Expression> OperatorCreator) operation,
         Type[] types,
         RootEntityExpressionInfo[] rootPropertyExpressions,
-        List<((Type, Type) InputTypes, Type ResultType, Func<Expression, Expression, Expression> OperatorCreator)> possibleBinaries,
+        List<((Type Left, Type Right) InputTypes, Type ResultType, Func<Expression, Expression, Expression> OperatorCreator)> possibleBinaries,
         List<(Type InputType, Type ResultType, Func<Expression, Expression> OperatorCreator)> possibleUnaries)
     {
         currentDepth++;
         var left = MainLoop(
             random,
-            operation.InputTypes.Item1,
+            operation.InputTypes.Left,
             currentDepth,
             maxDepth,
             types,
@@ -390,14 +390,14 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase,
         var rollFakeBinary = random.Next(3);
         if (rollFakeBinary > 1)
         {
-            var constants = OperatorsData.Instance.ConstantExpressionsPerType[operation.InputTypes.Item2];
+            var constants = OperatorsData.Instance.ConstantExpressionsPerType[operation.InputTypes.Right];
             right = constants.Skip(random.Next(constants.Count)).First();
         }
         else
         {
             right = MainLoop(
                 random,
-                operation.InputTypes.Item2,
+                operation.InputTypes.Right,
                 currentDepth,
                 maxDepth,
                 types,
@@ -416,7 +416,7 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase,
         (Type InputType, Type ResultType, Func<Expression, Expression> OperatorCreator) operation,
         Type[] types,
         RootEntityExpressionInfo[] rootPropertyExpressions,
-        List<((Type, Type) InputTypes, Type ResultType, Func<Expression, Expression, Expression> OperatorCreator)> possibleBinaries,
+        List<((Type Left, Type Right) InputTypes, Type ResultType, Func<Expression, Expression, Expression> OperatorCreator)> possibleBinaries,
         List<(Type InputType, Type ResultType, Func<Expression, Expression> OperatorCreator)> possibleUnaries)
     {
         currentDepth++;
@@ -665,19 +665,19 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase,
         private readonly Expression[] _roots = roots;
         private readonly Expression _resultExpression = resultExpression;
 
-        protected override Expression VisitNew(NewExpression newExpression)
+        protected override Expression VisitNew(NewExpression node)
         {
-            if (newExpression.Constructor is { DeclaringType: { IsGenericType: true } declaringType })
+            if (node.Constructor is { DeclaringType: { IsGenericType: true } declaringType })
             {
                 if (declaringType.GetGenericTypeDefinition() == typeof(OperatorDto1<,>))
                 {
                     var replaced = new ReplacingExpressionVisitor(
                         _roots,
-                        [Expression.Property(newExpression.Arguments[0], "Value")]).Visit(_resultExpression);
+                        [Expression.Property(node.Arguments[0], "Value")]).Visit(_resultExpression);
 
-                    var newArgs = new List<Expression> { newExpression.Arguments[0], replaced };
+                    var newArgs = new List<Expression> { node.Arguments[0], replaced };
 
-                    return newExpression.Update(newArgs);
+                    return node.Update(newArgs);
                 }
 
                 if (declaringType.GetGenericTypeDefinition() == typeof(OperatorDto2<,,>))
@@ -685,18 +685,18 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase,
                     var replaced = new ReplacingExpressionVisitor(
                         _roots,
                         [
-                            Expression.Property(newExpression.Arguments[0], "Value"),
-                            Expression.Property(newExpression.Arguments[1], "Value")
+                            Expression.Property(node.Arguments[0], "Value"),
+                            Expression.Property(node.Arguments[1], "Value")
                         ]).Visit(_resultExpression);
 
                     var newArgs = new List<Expression>
                     {
-                        newExpression.Arguments[0],
-                        newExpression.Arguments[1],
+                        node.Arguments[0],
+                        node.Arguments[1],
                         replaced
                     };
 
-                    return newExpression.Update(newArgs);
+                    return node.Update(newArgs);
                 }
 
                 if (declaringType.GetGenericTypeDefinition() == typeof(OperatorDto3<,,,>))
@@ -704,20 +704,20 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase,
                     var replaced = new ReplacingExpressionVisitor(
                         _roots,
                         [
-                            Expression.Property(newExpression.Arguments[0], "Value"),
-                            Expression.Property(newExpression.Arguments[1], "Value"),
-                            Expression.Property(newExpression.Arguments[2], "Value")
+                            Expression.Property(node.Arguments[0], "Value"),
+                            Expression.Property(node.Arguments[1], "Value"),
+                            Expression.Property(node.Arguments[2], "Value")
                         ]).Visit(_resultExpression);
 
                     var newArgs = new List<Expression>
                     {
-                        newExpression.Arguments[0],
-                        newExpression.Arguments[1],
-                        newExpression.Arguments[2],
+                        node.Arguments[0],
+                        node.Arguments[1],
+                        node.Arguments[2],
                         replaced
                     };
 
-                    return newExpression.Update(newArgs);
+                    return node.Update(newArgs);
                 }
 
                 if (declaringType.GetGenericTypeDefinition() == typeof(OperatorDto4<,,,,>))
@@ -725,22 +725,22 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase,
                     var replaced = new ReplacingExpressionVisitor(
                         _roots,
                         [
-                            Expression.Property(newExpression.Arguments[0], "Value"),
-                            Expression.Property(newExpression.Arguments[1], "Value"),
-                            Expression.Property(newExpression.Arguments[2], "Value"),
-                            Expression.Property(newExpression.Arguments[3], "Value")
+                            Expression.Property(node.Arguments[0], "Value"),
+                            Expression.Property(node.Arguments[1], "Value"),
+                            Expression.Property(node.Arguments[2], "Value"),
+                            Expression.Property(node.Arguments[3], "Value")
                         ]).Visit(_resultExpression);
 
                     var newArgs = new List<Expression>
                     {
-                        newExpression.Arguments[0],
-                        newExpression.Arguments[1],
-                        newExpression.Arguments[2],
-                        newExpression.Arguments[3],
+                        node.Arguments[0],
+                        node.Arguments[1],
+                        node.Arguments[2],
+                        node.Arguments[3],
                         replaced
                     };
 
-                    return newExpression.Update(newArgs);
+                    return node.Update(newArgs);
                 }
 
                 if (declaringType.GetGenericTypeDefinition() == typeof(OperatorDto5<,,,,,>))
@@ -748,24 +748,24 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase,
                     var replaced = new ReplacingExpressionVisitor(
                         _roots,
                         [
-                            Expression.Property(newExpression.Arguments[0], "Value"),
-                            Expression.Property(newExpression.Arguments[1], "Value"),
-                            Expression.Property(newExpression.Arguments[2], "Value"),
-                            Expression.Property(newExpression.Arguments[3], "Value"),
-                            Expression.Property(newExpression.Arguments[4], "Value")
+                            Expression.Property(node.Arguments[0], "Value"),
+                            Expression.Property(node.Arguments[1], "Value"),
+                            Expression.Property(node.Arguments[2], "Value"),
+                            Expression.Property(node.Arguments[3], "Value"),
+                            Expression.Property(node.Arguments[4], "Value")
                         ]).Visit(_resultExpression);
 
                     var newArgs = new List<Expression>
                     {
-                        newExpression.Arguments[0],
-                        newExpression.Arguments[1],
-                        newExpression.Arguments[2],
-                        newExpression.Arguments[3],
-                        newExpression.Arguments[4],
+                        node.Arguments[0],
+                        node.Arguments[1],
+                        node.Arguments[2],
+                        node.Arguments[3],
+                        node.Arguments[4],
                         replaced
                     };
 
-                    return newExpression.Update(newArgs);
+                    return node.Update(newArgs);
                 }
 
                 if (declaringType.GetGenericTypeDefinition() == typeof(OperatorDto6<,,,,,,>))
@@ -773,30 +773,30 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase,
                     var replaced = new ReplacingExpressionVisitor(
                         _roots,
                         [
-                            Expression.Property(newExpression.Arguments[0], "Value"),
-                            Expression.Property(newExpression.Arguments[1], "Value"),
-                            Expression.Property(newExpression.Arguments[2], "Value"),
-                            Expression.Property(newExpression.Arguments[3], "Value"),
-                            Expression.Property(newExpression.Arguments[4], "Value"),
-                            Expression.Property(newExpression.Arguments[5], "Value")
+                            Expression.Property(node.Arguments[0], "Value"),
+                            Expression.Property(node.Arguments[1], "Value"),
+                            Expression.Property(node.Arguments[2], "Value"),
+                            Expression.Property(node.Arguments[3], "Value"),
+                            Expression.Property(node.Arguments[4], "Value"),
+                            Expression.Property(node.Arguments[5], "Value")
                         ]).Visit(_resultExpression);
 
                     var newArgs = new List<Expression>
                     {
-                        newExpression.Arguments[0],
-                        newExpression.Arguments[1],
-                        newExpression.Arguments[2],
-                        newExpression.Arguments[3],
-                        newExpression.Arguments[4],
-                        newExpression.Arguments[5],
+                        node.Arguments[0],
+                        node.Arguments[1],
+                        node.Arguments[2],
+                        node.Arguments[3],
+                        node.Arguments[4],
+                        node.Arguments[5],
                         replaced
                     };
 
-                    return newExpression.Update(newArgs);
+                    return node.Update(newArgs);
                 }
             }
 
-            return base.VisitNew(newExpression);
+            return base.VisitNew(node);
         }
     }
 
@@ -1166,93 +1166,93 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase,
         private readonly Expression[] _roots = roots;
         private readonly Expression _resultExpression = resultExpression;
 
-        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            if (methodCallExpression.Method.Name == nameof(DummyTrue))
+            if (node.Method.Name == nameof(DummyTrue))
             {
                 // replace dummy with the actual predicate
-                if (methodCallExpression.Arguments.Count == 1)
+                if (node.Arguments.Count == 1)
                 {
                     var replaced = ReplacingExpressionVisitor.Replace(
                         _roots[0],
-                        Expression.Property(methodCallExpression.Arguments[0], "Value"),
+                        Expression.Property(node.Arguments[0], "Value"),
                         _resultExpression);
 
                     return replaced;
                 }
 
-                if (methodCallExpression.Arguments.Count == 2)
+                if (node.Arguments.Count == 2)
                 {
                     var replaced = new ReplacingExpressionVisitor(
                         _roots,
                         [
-                            Expression.Property(methodCallExpression.Arguments[0], "Value"),
-                            Expression.Property(methodCallExpression.Arguments[1], "Value")
+                            Expression.Property(node.Arguments[0], "Value"),
+                            Expression.Property(node.Arguments[1], "Value")
                         ]).Visit(_resultExpression);
 
                     return replaced;
                 }
 
-                if (methodCallExpression.Arguments.Count == 3)
+                if (node.Arguments.Count == 3)
                 {
                     var replaced = new ReplacingExpressionVisitor(
                         _roots,
                         [
-                            Expression.Property(methodCallExpression.Arguments[0], "Value"),
-                            Expression.Property(methodCallExpression.Arguments[1], "Value"),
-                            Expression.Property(methodCallExpression.Arguments[2], "Value")
+                            Expression.Property(node.Arguments[0], "Value"),
+                            Expression.Property(node.Arguments[1], "Value"),
+                            Expression.Property(node.Arguments[2], "Value")
                         ]).Visit(_resultExpression);
 
                     return replaced;
                 }
 
-                if (methodCallExpression.Arguments.Count == 4)
+                if (node.Arguments.Count == 4)
                 {
                     var replaced = new ReplacingExpressionVisitor(
                         _roots,
                         [
-                            Expression.Property(methodCallExpression.Arguments[0], "Value"),
-                            Expression.Property(methodCallExpression.Arguments[1], "Value"),
-                            Expression.Property(methodCallExpression.Arguments[2], "Value"),
-                            Expression.Property(methodCallExpression.Arguments[3], "Value")
+                            Expression.Property(node.Arguments[0], "Value"),
+                            Expression.Property(node.Arguments[1], "Value"),
+                            Expression.Property(node.Arguments[2], "Value"),
+                            Expression.Property(node.Arguments[3], "Value")
                         ]).Visit(_resultExpression);
 
                     return replaced;
                 }
 
-                if (methodCallExpression.Arguments.Count == 5)
+                if (node.Arguments.Count == 5)
                 {
                     var replaced = new ReplacingExpressionVisitor(
                         _roots,
                         [
-                            Expression.Property(methodCallExpression.Arguments[0], "Value"),
-                            Expression.Property(methodCallExpression.Arguments[1], "Value"),
-                            Expression.Property(methodCallExpression.Arguments[2], "Value"),
-                            Expression.Property(methodCallExpression.Arguments[3], "Value"),
-                            Expression.Property(methodCallExpression.Arguments[4], "Value")
+                            Expression.Property(node.Arguments[0], "Value"),
+                            Expression.Property(node.Arguments[1], "Value"),
+                            Expression.Property(node.Arguments[2], "Value"),
+                            Expression.Property(node.Arguments[3], "Value"),
+                            Expression.Property(node.Arguments[4], "Value")
                         ]).Visit(_resultExpression);
 
                     return replaced;
                 }
 
-                if (methodCallExpression.Arguments.Count == 6)
+                if (node.Arguments.Count == 6)
                 {
                     var replaced = new ReplacingExpressionVisitor(
                         _roots,
                         [
-                            Expression.Property(methodCallExpression.Arguments[0], "Value"),
-                            Expression.Property(methodCallExpression.Arguments[1], "Value"),
-                            Expression.Property(methodCallExpression.Arguments[2], "Value"),
-                            Expression.Property(methodCallExpression.Arguments[3], "Value"),
-                            Expression.Property(methodCallExpression.Arguments[4], "Value"),
-                            Expression.Property(methodCallExpression.Arguments[5], "Value")
+                            Expression.Property(node.Arguments[0], "Value"),
+                            Expression.Property(node.Arguments[1], "Value"),
+                            Expression.Property(node.Arguments[2], "Value"),
+                            Expression.Property(node.Arguments[3], "Value"),
+                            Expression.Property(node.Arguments[4], "Value"),
+                            Expression.Property(node.Arguments[5], "Value")
                         ]).Visit(_resultExpression);
 
                     return replaced;
                 }
             }
 
-            return base.VisitMethodCall(methodCallExpression);
+            return base.VisitMethodCall(node);
         }
     }
 
@@ -1286,24 +1286,24 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase,
             = typeof(string).GetRuntimeMethod(
                 nameof(string.EndsWith), [typeof(string)])!;
 
-        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            if (methodCallExpression.Method == LikeMethodInfo)
+            if (node.Method == LikeMethodInfo)
             {
-                return methodCallExpression.Arguments[2] is ConstantExpression { Value: "A%" }
+                return node.Arguments[2] is ConstantExpression { Value: "A%" }
                     ? Expression.Call(
-                        methodCallExpression.Arguments[1],
+                        node.Arguments[1],
                         _startsWithMethodInfo,
                         Expression.Constant("A"))
-                    : methodCallExpression.Arguments[2] is ConstantExpression { Value: "%B" }
+                    : node.Arguments[2] is ConstantExpression { Value: "%B" }
                         ? Expression.Call(
-                            methodCallExpression.Arguments[1],
+                            node.Arguments[1],
                             _endsWithMethodInfo,
                             Expression.Constant("B"))
-                        : Expression.Equal(methodCallExpression.Arguments[1], methodCallExpression.Arguments[2]);
+                        : Expression.Equal(node.Arguments[1], node.Arguments[2]);
             }
 
-            return base.VisitMethodCall(methodCallExpression);
+            return base.VisitMethodCall(node);
         }
     }
 

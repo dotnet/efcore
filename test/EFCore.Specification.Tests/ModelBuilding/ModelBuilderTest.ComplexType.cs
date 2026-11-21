@@ -1355,7 +1355,7 @@ public abstract partial class ModelBuilderTest
 
         private class CustomValueGeneratorFactory : ValueGeneratorFactory
         {
-            public override ValueGenerator Create(IProperty property, ITypeBase entityType)
+            public override ValueGenerator Create(IProperty property, ITypeBase typeBase)
                 => new CustomValueGenerator();
         }
 

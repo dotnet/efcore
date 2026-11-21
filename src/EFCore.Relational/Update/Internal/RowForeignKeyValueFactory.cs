@@ -36,20 +36,20 @@ public abstract class RowForeignKeyValueFactory<TKey, TForeignKey> : IRowForeign
         ColumnAccessors = typeof(TKey) == typeof(TForeignKey)
             ? columnAccessors
             : new ColumnAccessors(
-                ConvertAccessor((Func<IReadOnlyModificationCommand, (TForeignKey, bool)>)columnAccessors.CurrentValueGetter),
-                ConvertAccessor((Func<IReadOnlyModificationCommand, (TForeignKey, bool)>)columnAccessors.OriginalValueGetter));
+                ConvertAccessor((Func<IReadOnlyModificationCommand, (TForeignKey Value, bool Found)>)columnAccessors.CurrentValueGetter),
+                ConvertAccessor((Func<IReadOnlyModificationCommand, (TForeignKey Value, bool Found)>)columnAccessors.OriginalValueGetter));
         _principalKeyValueFactory =
             (IRowKeyValueFactory<TKey>)((UniqueConstraint)foreignKey.PrincipalUniqueConstraint).GetRowKeyValueFactory();
     }
 
-    private Func<IReadOnlyModificationCommand, (TKey, bool)> ConvertAccessor(
-        Func<IReadOnlyModificationCommand, (TForeignKey, bool)> columnAccessor)
+    private Func<IReadOnlyModificationCommand, (TKey Value, bool Found)> ConvertAccessor(
+        Func<IReadOnlyModificationCommand, (TForeignKey Value, bool Found)> columnAccessor)
         => command =>
         {
             var tuple = columnAccessor(command);
-            return (tuple.Item1 == null
-                ? (default, tuple.Item2)
-                : ((TKey)ValueConverter!.ConvertFromProvider(tuple.Item1)!, tuple.Item2))!;
+            return (tuple.Value == null
+                ? (default, tuple.Found)
+                : ((TKey)ValueConverter!.ConvertFromProvider(tuple.Value)!, tuple.Found))!;
         };
 
     /// <summary>
@@ -148,7 +148,7 @@ public abstract class RowForeignKeyValueFactory<TKey, TForeignKey> : IRowForeign
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public abstract bool TryCreateDependentKeyValue(
-        IDictionary<string, object?> keyPropertyValues,
+        IDictionary<string, object?> keyValues,
         [NotNullWhen(true)] out TKey? key);
 
     /// <summary>

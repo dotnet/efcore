@@ -13,7 +13,7 @@ public abstract class ComplexNavigationsQueryFixtureBase : QueryFixtureBase<Comp
     public override ISetSource GetExpectedData()
         => ComplexNavigationsDefaultData.Instance;
 
-    public virtual Dictionary<(Type, string), Func<object, object?>> GetShadowPropertyMappings()
+    public virtual Dictionary<(Type EntityType, string PropertyName), Func<object, object?>> GetShadowPropertyMappings()
     {
         var l1s = GetExpectedData().Set<Level1>().ToList();
         var l2s = GetExpectedData().Set<Level2>().ToList();

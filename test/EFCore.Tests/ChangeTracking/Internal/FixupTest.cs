@@ -3740,8 +3740,8 @@ public class FixupTest
         public DbSet<TestAssembly> Assemblies { get; set; } = null!;
         public DbSet<TestClass> Classes { get; set; } = null!;
 
-        protected internal override void OnConfiguring(DbContextOptionsBuilder options)
-            => options
+        protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder
                 .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
                 .UseInMemoryDatabase(nameof(FixupContext));
 
@@ -3773,8 +3773,8 @@ public class FixupTest
         public DbSet<Principal> Principals { get; set; } = null!;
         public DbSet<Dependent> Dependents { get; set; } = null!;
 
-        protected internal override void OnConfiguring(DbContextOptionsBuilder options)
-            => options
+        protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder
                 .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
                 .UseInMemoryDatabase(nameof(DetachingContext));
     }

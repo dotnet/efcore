@@ -577,10 +577,7 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
             }
 
             // elementType is the collection element type for collection navigations and null for reference navigations.
-            var targetType = Dependencies.MemberClassifier.IsCandidateNavigationProperty(
-                clrProperty, conventionModel, useAttributes: true, out var elementType, out var targetOwned, out _)
-                ? elementType ?? propertyType
-                : null;
+            var targetType = Dependencies.MemberClassifier.IsCandidateNavigationProperty( clrProperty, conventionModel, useAttributes: true, out var elementType, out var targetOwned, out _) ? elementType ?? propertyType : null;
             if (targetType == null
                 && clrProperty.FindSetterProperty() == null)
             {

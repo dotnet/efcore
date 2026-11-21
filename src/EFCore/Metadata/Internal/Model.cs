@@ -436,15 +436,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     /// </summary>
     // TODO: Use layering to get the updated type #15898
     public virtual EntityType? FindActualEntityType(EntityType entityType)
-        => entityType.IsInModel
-            ? entityType
-            : FindEntityType(entityType.Name)
-            ?? (entityType.HasSharedClrType
-                ? entityType.FindOwnership() is { } ownership
-                    ? FindActualEntityType(ownership.PrincipalEntityType)
-                        ?.FindNavigation(ownership.PrincipalToDependent!.Name)?.TargetEntityType
-                    : null
-                : null);
+        => entityType.IsInModel ? entityType : FindEntityType(entityType.Name) ?? (entityType.HasSharedClrType ? entityType.FindOwnership() is { } ownership ? FindActualEntityType(ownership.PrincipalEntityType) ?.FindNavigation(ownership.PrincipalToDependent!.Name)?.TargetEntityType : null : null);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -591,8 +583,8 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual ConfigurationSource? FindIgnoredConfigurationSource(string name)
-        => _ignoredTypeNames.TryGetValue(Check.NotEmpty(name), out var ignoredConfigurationSource)
+    public virtual ConfigurationSource? FindIgnoredConfigurationSource(string typeName)
+        => _ignoredTypeNames.TryGetValue(Check.NotEmpty(typeName), out var ignoredConfigurationSource)
             ? ignoredConfigurationSource
             : null;
 
@@ -602,8 +594,8 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool IsIgnored(string name)
-        => FindIgnoredConfigurationSource(name) != null;
+    public virtual bool IsIgnored(string typeName)
+        => FindIgnoredConfigurationSource(typeName) != null;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -641,12 +633,12 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual string? RemoveIgnored(string name)
+    public virtual string? RemoveIgnored(string typeName)
     {
-        Check.NotNull(name);
+        Check.NotNull(typeName);
         EnsureMutable();
 
-        return _ignoredTypeNames.Remove(name) ? name : null;
+        return _ignoredTypeNames.Remove(typeName) ? typeName : null;
     }
 
     /// <summary>
@@ -664,8 +656,8 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual ITypeMappingConfiguration? FindTypeMappingConfiguration(Type propertyType)
-        => Configuration?.FindTypeMappingConfiguration(propertyType);
+    public virtual ITypeMappingConfiguration? FindTypeMappingConfiguration(Type scalarType)
+        => Configuration?.FindTypeMappingConfiguration(scalarType);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1589,10 +1581,10 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     [DebuggerStepThrough]
     IConventionEntityType? IConventionModel.AddEntityType(
         string name,
-        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type,
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type clrType,
         bool fromDataAnnotation)
         => AddEntityType(
-            name, type, owned: false, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+            name, clrType, owned: false, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1683,10 +1675,10 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     [DebuggerStepThrough]
     IConventionEntityType? IConventionModel.AddOwnedEntityType(
         string name,
-        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type,
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type clrType,
         bool fromDataAnnotation)
         => AddEntityType(
-            name, type, owned: true,
+            name, clrType, owned: true,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
@@ -1848,8 +1840,8 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    string IMutableModel.AddIgnored(string name)
-        => AddIgnored(name, ConfigurationSource.Explicit)!;
+    string IMutableModel.AddIgnored(string typeName)
+        => AddIgnored(typeName, ConfigurationSource.Explicit)!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1858,8 +1850,8 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    string? IConventionModel.AddIgnored(string name, bool fromDataAnnotation)
-        => AddIgnored(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+    string? IConventionModel.AddIgnored(string typeName, bool fromDataAnnotation)
+        => AddIgnored(typeName, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -54,7 +54,7 @@ internal class RootCommand : CommandBase
         _command = command;
     }
 
-    protected override int Execute(string[] _)
+    protected override int Execute(string[] args)
     {
         var commands = _args!.TakeWhile(a => a[0] != '-').ToList();
         if (_help!.HasValue()
@@ -120,7 +120,7 @@ internal class RootCommand : CommandBase
         }
 
         string executable;
-        var args = new List<string>();
+        var processArguments = new List<string>();
 
         var toolsPath = Path.Join(
             Path.GetDirectoryName(typeof(Program).Assembly.Location)!,
@@ -162,9 +162,9 @@ internal class RootCommand : CommandBase
             }
 
             executable = "dotnet";
-            args.Add("exec");
-            args.Add("--depsfile");
-            args.Add(depsFile);
+            processArguments.Add("exec");
+            processArguments.Add("--depsfile");
+            processArguments.Add(depsFile);
 
             if (!string.IsNullOrEmpty(projectAssetsFile))
             {
@@ -175,23 +175,23 @@ internal class RootCommand : CommandBase
 
                 foreach (var packageFolder in packageFolders)
                 {
-                    args.Add("--additionalprobingpath");
-                    args.Add(packageFolder.TrimEnd(Path.DirectorySeparatorChar));
+                    processArguments.Add("--additionalprobingpath");
+                    processArguments.Add(packageFolder.TrimEnd(Path.DirectorySeparatorChar));
                 }
             }
 
             if (File.Exists(runtimeConfig))
             {
-                args.Add("--runtimeconfig");
-                args.Add(runtimeConfig);
+                processArguments.Add("--runtimeconfig");
+                processArguments.Add(runtimeConfig);
             }
             else if (startupProject.RuntimeFrameworkVersion!.Length != 0)
             {
-                args.Add("--fx-version");
-                args.Add(startupProject.RuntimeFrameworkVersion);
+                processArguments.Add("--fx-version");
+                processArguments.Add(startupProject.RuntimeFrameworkVersion);
             }
 
-            args.Add(Path.Join(toolsPath, "net", "ef.dll"));
+            processArguments.Add(Path.Join(toolsPath, "net", "ef.dll"));
         }
         else if (targetFramework.Identifier == ".NETStandard")
         {
@@ -203,71 +203,71 @@ internal class RootCommand : CommandBase
                 Resources.UnsupportedFramework(startupProject.ProjectName, targetFramework.Identifier));
         }
 
-        args.AddRange(remainingArguments);
-        args.Add("--assembly");
-        args.Add(targetPath);
-        args.Add("--project");
-        args.Add(projectFile);
-        args.Add("--startup-assembly");
-        args.Add(startupTargetPath);
-        args.Add("--startup-project");
-        args.Add(startupProjectFile);
-        args.Add("--project-dir");
-        args.Add(project.ProjectDir!);
-        args.Add("--root-namespace");
-        args.Add(project.RootNamespace!);
-        args.Add("--language");
-        args.Add(project.Language!);
-        args.Add("--framework");
-        args.Add(startupProject.TargetFramework!);
+        processArguments.AddRange(remainingArguments);
+        processArguments.Add("--assembly");
+        processArguments.Add(targetPath);
+        processArguments.Add("--project");
+        processArguments.Add(projectFile);
+        processArguments.Add("--startup-assembly");
+        processArguments.Add(startupTargetPath);
+        processArguments.Add("--startup-project");
+        processArguments.Add(startupProjectFile);
+        processArguments.Add("--project-dir");
+        processArguments.Add(project.ProjectDir!);
+        processArguments.Add("--root-namespace");
+        processArguments.Add(project.RootNamespace!);
+        processArguments.Add("--language");
+        processArguments.Add(project.Language!);
+        processArguments.Add("--framework");
+        processArguments.Add(startupProject.TargetFramework!);
 
         var designAssembly = startupProject.DesignAssembly;
         if (!string.IsNullOrEmpty(designAssembly))
         {
-            args.Add("--design-assembly");
-            args.Add(designAssembly);
+            processArguments.Add("--design-assembly");
+            processArguments.Add(designAssembly);
         }
 
         if (configuration != null)
         {
-            args.Add("--configuration");
-            args.Add(configuration);
+            processArguments.Add("--configuration");
+            processArguments.Add(configuration);
         }
 
         if (string.Equals(project.Nullable, "enable", StringComparison.OrdinalIgnoreCase)
             || string.Equals(project.Nullable, "annotations", StringComparison.OrdinalIgnoreCase))
         {
-            args.Add("--nullable");
+            processArguments.Add("--nullable");
         }
 
-        args.Add("--working-dir");
-        args.Add(Directory.GetCurrentDirectory());
+        processArguments.Add("--working-dir");
+        processArguments.Add(Directory.GetCurrentDirectory());
 
         if (Reporter.IsVerbose)
         {
-            args.Add("--verbose");
+            processArguments.Add("--verbose");
         }
 
         if (Reporter.NoColor)
         {
-            args.Add("--no-color");
+            processArguments.Add("--no-color");
         }
 
         if (Reporter.PrefixOutput)
         {
-            args.Add("--prefix-output");
+            processArguments.Add("--prefix-output");
         }
 
         if (_applicationArgs!.Any())
         {
-            args.Add("--");
-            args.AddRange(_applicationArgs!);
+            processArguments.Add("--");
+            processArguments.AddRange(_applicationArgs!);
         }
 
-        return Exe.Run(executable, args, startupProject.ProjectDir);
+        return Exe.Run(executable, processArguments, startupProject.ProjectDir);
     }
 
-    private static (string, string) ResolveProjects(
+    private static (string ProjectPath, string StartupProjectPath) ResolveProjects(
         string? projectPath,
         string? startupProjectPath)
     {

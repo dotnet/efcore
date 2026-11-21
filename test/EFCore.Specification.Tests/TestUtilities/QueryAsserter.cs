@@ -1867,8 +1867,8 @@ public class QueryAsserter(
             = typeof(EntityFrameworkQueryableExtensions).GetTypeInfo()
                 .GetDeclaredMethod(nameof(EntityFrameworkQueryableExtensions.AsNoTrackingWithIdentityResolution))!;
 
-        protected override Expression VisitExtension(Expression expression)
-            => expression is EntityQueryRootExpression root
+        protected override Expression VisitExtension(Expression node)
+            => node is EntityQueryRootExpression root
                 ? queryTrackingBehavior switch
                 {
                     QueryTrackingBehavior.NoTracking
@@ -1876,10 +1876,10 @@ public class QueryAsserter(
                     QueryTrackingBehavior.NoTrackingWithIdentityResolution
                         => Expression.Call(AsNoTrackingWithIdentityResolutionMethodInfo.MakeGenericMethod(root.ElementType), root),
                     QueryTrackingBehavior.TrackAll
-                        => base.VisitExtension(expression),
+                        => base.VisitExtension(node),
 
                     _ => throw new UnreachableException()
                 }
-                : base.VisitExtension(expression);
+                : base.VisitExtension(node);
     }
 }

@@ -142,9 +142,9 @@ public class SqlServerQuerySqlGenerator(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitTableValuedFunction(TableValuedFunctionExpression function)
+    protected override Expression VisitTableValuedFunction(TableValuedFunctionExpression tableValuedFunctionExpression)
     {
-        switch (function)
+        switch (tableValuedFunctionExpression)
         {
             // The VECTOR_SEARCH() function requires some special syntax (specifically named parameters), as well as
             // some special handling for its column parameter, which needs to be written out without a table alias.
@@ -189,9 +189,9 @@ public class SqlServerQuerySqlGenerator(
 
                 Sql.Append(")")
                     .Append(AliasSeparator)
-                    .Append(_sqlGenerationHelper.DelimitIdentifier(function.Alias));
+                    .Append(_sqlGenerationHelper.DelimitIdentifier(tableValuedFunctionExpression.Alias));
 
-                return function;
+                return tableValuedFunctionExpression;
 
             // FREETEXTTABLE and CONTAINSTABLE full-text search functions
             // Syntax: FREETEXTTABLE/CONTAINSTABLE(table, column, 'search_string' [, LANGUAGE language_term] [, top_n_by_rank])
@@ -201,7 +201,7 @@ public class SqlServerQuerySqlGenerator(
                 Arguments: [TableExpression table, var columnsArgument, SqlExpression searchText, ..]
             }:
             {
-                Sql.Append(function.Name).Append("(");
+                Sql.Append(tableValuedFunctionExpression.Name).Append("(");
 
                 // Table name
                 Sql.Append(_sqlGenerationHelper.DelimitIdentifier(table.Name, table.Schema));
@@ -247,7 +247,7 @@ public class SqlServerQuerySqlGenerator(
                 Visit(searchText);
 
                 // Check remaining arguments for LANGUAGE and top_n
-                var arguments = function.Arguments;
+                var arguments = tableValuedFunctionExpression.Arguments;
                 var argIndex = 3;
                 if (arguments.Count > argIndex && arguments[argIndex] is SqlConstantExpression { Value: string } languageTerm)
                 {
@@ -264,13 +264,13 @@ public class SqlServerQuerySqlGenerator(
 
                 Sql.Append(")")
                     .Append(AliasSeparator)
-                    .Append(_sqlGenerationHelper.DelimitIdentifier(function.Alias));
+                    .Append(_sqlGenerationHelper.DelimitIdentifier(tableValuedFunctionExpression.Alias));
 
-                return function;
+                return tableValuedFunctionExpression;
             }
 
             default:
-                return base.VisitTableValuedFunction(function);
+                return base.VisitTableValuedFunction(tableValuedFunctionExpression);
         }
     }
 
@@ -674,9 +674,9 @@ public class SqlServerQuerySqlGenerator(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitExtension(Expression extensionExpression)
+    protected override Expression VisitExtension(Expression node)
     {
-        switch (extensionExpression)
+        switch (node)
         {
             case TableExpression tableExpression
                 when tableExpression.FindAnnotation(SqlServerAnnotationNames.TemporalOperationType) != null:
@@ -754,7 +754,7 @@ public class SqlServerQuerySqlGenerator(
                 return withApproximate;
         }
 
-        return base.VisitExtension(extensionExpression);
+        return base.VisitExtension(node);
     }
 
     /// <summary>

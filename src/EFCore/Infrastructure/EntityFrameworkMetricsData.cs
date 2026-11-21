@@ -94,13 +94,13 @@ public static class EntityFrameworkMetricsData
     /// <summary>
     ///     Gets number of hits and misses and also the computed hit rate for the compiled query cache.
     /// </summary>
-    internal static (int hits, int misses, double hitRate) GetCompiledQueryCacheHitRate()
+    internal static (int Hits, int Misses, double HitRate) GetCompiledQueryCacheHitRate()
         => _compiledQueryCacheInfo.CalculateHitsMissesHitRate(false);
 
     /// <summary>
     ///     Gets number of hits and misses and also the computed hit rate for the compiled query cache.
     /// </summary>
-    internal static (int hits, int misses, double hitRate) GetCompiledQueryCacheHitRateEventSource()
+    internal static (int Hits, int Misses, double HitRate) GetCompiledQueryCacheHitRateEventSource()
         => _compiledQueryCacheInfoEventSource.CalculateHitsMissesHitRate(true);
 
     /// <summary>
@@ -142,14 +142,14 @@ public static class EntityFrameworkMetricsData
         /// <summary>
         ///     Returns the atomically-calculated hits, misses and hit rate and atomically resets <see cref="Hits" /> and <see cref="Misses" /> to 0.
         /// </summary>
-        internal (int hits, int misses, double hitRate) CalculateHitsMissesHitRate(bool reset)
+        internal (int Hits, int Misses, double HitRate) CalculateHitsMissesHitRate(bool reset)
         {
             var clone = reset
                 ? new CacheInfo { _all = Interlocked.Exchange(ref _all, 0) }
                 : new CacheInfo { _all = Interlocked.Read(ref _all) };
             return CalculateHitsMissesHitRateImpl(clone);
 
-            static (int hits, int misses, double hitRate) CalculateHitsMissesHitRateImpl(CacheInfo cacheInfo)
+            static (int Hits, int Misses, double HitRate) CalculateHitsMissesHitRateImpl(CacheInfo cacheInfo)
             {
                 var hitsAndMisses = cacheInfo.Hits + cacheInfo.Misses;
                 // Report -1 for no data to avoid returning NaN, which can trigger issues in downstream consumers

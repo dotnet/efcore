@@ -175,21 +175,26 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
         Type modelType,
         Type? providerType,
         CoreTypeMapping? elementMapping)
-        => TryFindJsonCollectionMapping(
-            info, modelType, providerType, ref elementMapping, out var comparer, out var collectionReaderWriter)
-            ? FindMapping(
-                    info.WithConverter(
-                        // Note that the converter info is only used temporarily here and never creates an instance.
-                        new ValueConverterInfo(modelType, typeof(string), _ => null!)))!
-                .WithComposedConverter(
-                    (ValueConverter)Activator.CreateInstance(
-                        typeof(CollectionToJsonStringConverter<>).MakeGenericType(modelType.TryGetElementType(typeof(IEnumerable<>))!),
-                        collectionReaderWriter!)!,
-                    comparer,
-                    comparer,
-                    elementMapping,
-                    collectionReaderWriter)
-            : null;
+    {
+        if (!TryFindJsonCollectionMapping(
+                info, modelType, providerType, ref elementMapping, out var comparer, out var collectionReaderWriter))
+        {
+            return null;
+        }
+
+        return FindMapping(
+                info.WithConverter(
+                    // Note that the converter info is only used temporarily here and never creates an instance.
+                    new ValueConverterInfo(modelType, typeof(string), _ => null!)))!
+            .WithComposedConverter(
+                (ValueConverter)Activator.CreateInstance(
+                    typeof(CollectionToJsonStringConverter<>).MakeGenericType(modelType.TryGetElementType(typeof(IEnumerable<>))!),
+                    collectionReaderWriter!)!,
+                comparer,
+                comparer,
+                elementMapping,
+                collectionReaderWriter);
+    }
 
     /// <summary>
     ///     Finds the type mapping for a given <see cref="IProperty" />.

@@ -28,10 +28,7 @@ public abstract class ManyToManyTrackingRelationalTestBase<TFixture>(TFixture fi
         foreach (var skipNavigation in model.GetEntityTypes().SelectMany(e => e.GetSkipNavigations()))
         {
             Assert.Equal(
-                CustomDeleteBehaviors.TryGetValue(
-                    $"{skipNavigation.DeclaringEntityType.ShortName()}.{skipNavigation.Name}", out var deleteBehavior)
-                    ? deleteBehavior
-                    : DeleteBehavior.Cascade,
+                CustomDeleteBehaviors.TryGetValue( $"{skipNavigation.DeclaringEntityType.ShortName()}.{skipNavigation.Name}", out var deleteBehavior) ? deleteBehavior : DeleteBehavior.Cascade,
                 skipNavigation.ForeignKey.DeleteBehavior);
         }
     }

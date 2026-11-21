@@ -23,16 +23,16 @@ public class QueryRootProcessor : ExpressionVisitor
         => _queryCompilationContext = queryCompilationContext;
 
     /// <inheritdoc />
-    protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+    protected override Expression VisitMethodCall(MethodCallExpression node)
     {
         // We'll look for IEnumerable/IQueryable arguments to methods on Enumerable/Queryable, and convert these to constant/parameter query
         // root nodes. These will later get translated to e.g. VALUES (constant) and OPENJSON (parameter) on SQL Server.
-        var method = methodCallExpression.Method;
+        var method = node.Method;
         if (method.DeclaringType != typeof(Queryable)
             && method.DeclaringType != typeof(Enumerable)
             && method.DeclaringType != typeof(EntityFrameworkQueryableExtensions))
         {
-            return base.VisitMethodCall(methodCallExpression);
+            return base.VisitMethodCall(node);
         }
 
         var parameters = method.GetParameters();
@@ -41,9 +41,9 @@ public class QueryRootProcessor : ExpressionVisitor
         // All methods over queryable are extensions.
         Expression[]? newArguments = null;
 
-        for (var i = 0; i < methodCallExpression.Arguments.Count; i++)
+        for (var i = 0; i < node.Arguments.Count; i++)
         {
-            var argument = methodCallExpression.Arguments[i];
+            var argument = node.Arguments[i];
             var parameterType = parameters[i].ParameterType;
 
             // This converts collections over constants and parameters to query roots, for later translation of LINQ operators over them.
@@ -67,11 +67,11 @@ public class QueryRootProcessor : ExpressionVisitor
             }
             else if (!ReferenceEquals(visitedArgument, argument))
             {
-                newArguments = new Expression[methodCallExpression.Arguments.Count];
+                newArguments = new Expression[node.Arguments.Count];
 
                 for (var j = 0; j < i; j++)
                 {
-                    newArguments[j] = methodCallExpression.Arguments[j];
+                    newArguments[j] = node.Arguments[j];
                 }
 
                 newArguments[i] = visitedArgument;
@@ -79,8 +79,8 @@ public class QueryRootProcessor : ExpressionVisitor
         }
 
         return newArguments is null
-            ? methodCallExpression
-            : methodCallExpression.Update(methodCallExpression.Object, newArguments);
+            ? node
+            : node.Update(node.Object, newArguments);
     }
 
     private Expression VisitQueryRootCandidate(Expression expression, Type elementClrType)

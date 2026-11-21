@@ -3964,16 +3964,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                 // Counts the non-null-check conjuncts in the extracted join predicate; when more than one remains the resulting join
                 // predicate is a conjunction subject to C# null semantics expansion.
                 static int CountNonNullCheckConjuncts(SqlExpression predicate, List<SqlExpression> outerColumnExpressions)
-                    => predicate is SqlBinaryExpression { OperatorType: ExpressionType.AndAlso } andAlso
-                        ? CountNonNullCheckConjuncts(andAlso.Left, outerColumnExpressions)
-                        + CountNonNullCheckConjuncts(andAlso.Right, outerColumnExpressions)
-                        : predicate is SqlBinaryExpression
-                        {
-                            OperatorType: ExpressionType.NotEqual, Right: SqlConstantExpression { Value: null }
-                        } nullCheck
-                        && outerColumnExpressions.Contains(nullCheck.Left)
-                            ? 0
-                            : 1;
+                    => predicate is SqlBinaryExpression { OperatorType: ExpressionType.AndAlso } andAlso ? CountNonNullCheckConjuncts(andAlso.Left, outerColumnExpressions) + CountNonNullCheckConjuncts(andAlso.Right, outerColumnExpressions) : predicate is SqlBinaryExpression { OperatorType: ExpressionType.NotEqual, Right: SqlConstantExpression { Value: null } } nullCheck && outerColumnExpressions.Contains(nullCheck.Left) ? 0 : 1;
             }
         }
     }
@@ -5385,21 +5376,7 @@ public sealed partial class SelectExpression : TableExpressionBase
     // This isn't a good state of affairs (e.g. it's impossible to keep a SelectExpression - or any expression containing one - as a
     // dictionary key across the state change from mutable to immutable (we fortunately don't do that).
     private bool Equals(SelectExpression selectExpression)
-        => IsMutable
-            ? ReferenceEquals(this, selectExpression)
-            : base.Equals(selectExpression)
-            && Tables.SequenceEqual(selectExpression.Tables)
-            && ((Predicate is null && selectExpression.Predicate is null)
-                || (Predicate is not null && Predicate.Equals(selectExpression.Predicate)))
-            && GroupBy.SequenceEqual(selectExpression.GroupBy)
-            && ((Having is null && selectExpression.Having is null)
-                || (Having is not null && Having.Equals(selectExpression.Having)))
-            && Projection.SequenceEqual(selectExpression.Projection)
-            && Orderings.SequenceEqual(selectExpression.Orderings)
-            && ((Limit is null && selectExpression.Limit is null)
-                || (Limit is not null && Limit.Equals(selectExpression.Limit)))
-            && ((Offset is null && selectExpression.Offset is null)
-                || (Offset is not null && Offset.Equals(selectExpression.Offset)));
+        => IsMutable ? ReferenceEquals(this, selectExpression) : base.Equals(selectExpression) && Tables.SequenceEqual(selectExpression.Tables) && ((Predicate is null && selectExpression.Predicate is null) || (Predicate is not null && Predicate.Equals(selectExpression.Predicate))) && GroupBy.SequenceEqual(selectExpression.GroupBy) && ((Having is null && selectExpression.Having is null) || (Having is not null && Having.Equals(selectExpression.Having))) && Projection.SequenceEqual(selectExpression.Projection) && Orderings.SequenceEqual(selectExpression.Orderings) && ((Limit is null && selectExpression.Limit is null) || (Limit is not null && Limit.Equals(selectExpression.Limit))) && ((Offset is null && selectExpression.Offset is null) || (Offset is not null && Offset.Equals(selectExpression.Offset)));
 
     // ReSharper disable NonReadonlyMemberInGetHashCode
     /// <inheritdoc />

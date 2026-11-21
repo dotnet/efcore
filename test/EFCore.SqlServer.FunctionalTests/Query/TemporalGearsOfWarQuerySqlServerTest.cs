@@ -858,9 +858,9 @@ INNER JOIN [Cities] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [c] O
 """);
     }
 
-    public override async Task Conditional_expression_with_test_being_simplified_to_constant_simple(bool async)
+    public override async Task Conditional_expression_with_test_being_simplified_to_constant_simple(bool isAsync)
     {
-        await base.Conditional_expression_with_test_being_simplified_to_constant_simple(async);
+        await base.Conditional_expression_with_test_being_simplified_to_constant_simple(isAsync);
 
         AssertSql(
             """
@@ -1116,9 +1116,9 @@ ORDER BY [g].[Nickname]
 """);
     }
 
-    public override async Task Conditional_expression_with_test_being_simplified_to_constant_complex(bool async)
+    public override async Task Conditional_expression_with_test_being_simplified_to_constant_complex(bool isAsync)
     {
-        await base.Conditional_expression_with_test_being_simplified_to_constant_complex(async);
+        await base.Conditional_expression_with_test_being_simplified_to_constant_complex(isAsync);
 
         AssertSql(
             """
@@ -6489,9 +6489,9 @@ WHERE [w].[Id] = 0
 """);
     }
 
-    public override async Task Checked_context_with_cast_does_not_fail(bool async)
+    public override async Task Checked_context_with_cast_does_not_fail(bool isAsync)
     {
-        await base.Checked_context_with_cast_does_not_fail(async);
+        await base.Checked_context_with_cast_does_not_fail(isAsync);
 
         AssertSql(
             """
@@ -6853,9 +6853,9 @@ WHERE 'Unknown' = [c].[Location]
 """);
     }
 
-    public override async Task Checked_context_with_addition_does_not_fail(bool async)
+    public override async Task Checked_context_with_addition_does_not_fail(bool isAsync)
     {
-        await base.Checked_context_with_addition_does_not_fail(async);
+        await base.Checked_context_with_addition_does_not_fail(isAsync);
 
         AssertSql(
             """
@@ -8681,9 +8681,9 @@ ORDER BY [g].[Nickname], [g].[SquadId]
         AssertSql();
     }
 
-    public override async Task Checked_context_throws_on_client_evaluation(bool async)
+    public override async Task Checked_context_throws_on_client_evaluation(bool isAsync)
     {
-        await base.Checked_context_throws_on_client_evaluation(async);
+        await base.Checked_context_throws_on_client_evaluation(isAsync);
 
         AssertSql();
     }

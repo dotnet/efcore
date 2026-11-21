@@ -20,6 +20,6 @@ public class SqliteParameterBasedSqlProcessor(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression ProcessSqlNullability(Expression queryExpression, ParametersCacheDecorator parametersDecorator)
-        => new SqliteSqlNullabilityProcessor(Dependencies, Parameters).Process(queryExpression, parametersDecorator);
+    protected override Expression ProcessSqlNullability(Expression queryExpression, ParametersCacheDecorator decorator)
+        => new SqliteSqlNullabilityProcessor(Dependencies, Parameters).Process(queryExpression, decorator);
 }

@@ -349,54 +349,54 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
     }
 
     /// <inheritdoc />
-    protected override Expression VisitBinary(BinaryExpression binary)
+    protected override Expression VisitBinary(BinaryExpression node)
     {
         using var _ = ChangeContext(ExpressionContext.Expression);
 
         // Handle some special cases
-        switch (binary.NodeType)
+        switch (node.NodeType)
         {
             // TODO: Confirm what to do with the checked expression types
 
             case ExpressionType.Assign:
-                return VisitAssignment(binary, SyntaxKind.SimpleAssignmentExpression);
+                return VisitAssignment(node, SyntaxKind.SimpleAssignmentExpression);
 
             case ExpressionType.AddAssign:
-                return VisitAssignment(binary, SyntaxKind.AddAssignmentExpression);
+                return VisitAssignment(node, SyntaxKind.AddAssignmentExpression);
             case ExpressionType.AddAssignChecked:
-                return VisitAssignment(binary, SyntaxKind.AddAssignmentExpression);
+                return VisitAssignment(node, SyntaxKind.AddAssignmentExpression);
             case ExpressionType.MultiplyAssign:
-                return VisitAssignment(binary, SyntaxKind.MultiplyAssignmentExpression);
+                return VisitAssignment(node, SyntaxKind.MultiplyAssignmentExpression);
             case ExpressionType.MultiplyAssignChecked:
-                return VisitAssignment(binary, SyntaxKind.MultiplyAssignmentExpression);
+                return VisitAssignment(node, SyntaxKind.MultiplyAssignmentExpression);
             case ExpressionType.DivideAssign:
-                return VisitAssignment(binary, SyntaxKind.DivideAssignmentExpression);
+                return VisitAssignment(node, SyntaxKind.DivideAssignmentExpression);
             case ExpressionType.ModuloAssign:
-                return VisitAssignment(binary, SyntaxKind.ModuloAssignmentExpression);
+                return VisitAssignment(node, SyntaxKind.ModuloAssignmentExpression);
             case ExpressionType.SubtractAssign:
-                return VisitAssignment(binary, SyntaxKind.SubtractAssignmentExpression);
+                return VisitAssignment(node, SyntaxKind.SubtractAssignmentExpression);
             case ExpressionType.SubtractAssignChecked:
-                return VisitAssignment(binary, SyntaxKind.SubtractAssignmentExpression);
+                return VisitAssignment(node, SyntaxKind.SubtractAssignmentExpression);
 
             // Bitwise assignment operators
             case ExpressionType.AndAssign:
-                return VisitAssignment(binary, SyntaxKind.AndAssignmentExpression);
+                return VisitAssignment(node, SyntaxKind.AndAssignmentExpression);
             case ExpressionType.OrAssign:
-                return VisitAssignment(binary, SyntaxKind.OrAssignmentExpression);
+                return VisitAssignment(node, SyntaxKind.OrAssignmentExpression);
             case ExpressionType.LeftShiftAssign:
-                return VisitAssignment(binary, SyntaxKind.LeftShiftAssignmentExpression);
+                return VisitAssignment(node, SyntaxKind.LeftShiftAssignmentExpression);
             case ExpressionType.RightShiftAssign:
-                return VisitAssignment(binary, SyntaxKind.RightShiftAssignmentExpression);
+                return VisitAssignment(node, SyntaxKind.RightShiftAssignmentExpression);
             case ExpressionType.ExclusiveOrAssign:
-                return VisitAssignment(binary, SyntaxKind.ExclusiveOrAssignmentExpression);
+                return VisitAssignment(node, SyntaxKind.ExclusiveOrAssignmentExpression);
 
-            case ExpressionType.Power when binary.Left.Type == typeof(double) && binary.Right.Type == typeof(double):
+            case ExpressionType.Power when node.Left.Type == typeof(double) && node.Right.Type == typeof(double):
                 return Visit(
                     Expression.Call(
                         _mathPowMethod ??= typeof(Math).GetMethod(
                             nameof(Math.Pow), BindingFlags.Static | BindingFlags.Public, [typeof(double), typeof(double)])!,
-                        binary.Left,
-                        binary.Right));
+                        node.Left,
+                        node.Right));
 
             case ExpressionType.Power:
                 throw new NotImplementedException("Power over non-double operands");
@@ -404,16 +404,16 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
             case ExpressionType.PowerAssign:
                 return Visit(
                     Expression.Assign(
-                        binary.Left,
+                        node.Left,
                         Expression.Power(
-                            binary.Left,
-                            binary.Right)));
+                            node.Left,
+                            node.Right)));
         }
 
         var liftedStatementOrigPosition = _liftedState.Statements.Count;
-        var left = Translate<ExpressionSyntax>(binary.Left);
+        var left = Translate<ExpressionSyntax>(node.Left);
         var liftedStatementLeftPosition = _liftedState.Statements.Count;
-        var right = Translate<ExpressionSyntax>(binary.Right);
+        var right = Translate<ExpressionSyntax>(node.Right);
 
         // If both sides were lifted, we don't need to do anything special. Same if the left side was lifted.
         // But if the right side was lifted and the left wasn't, then in order to preserve evaluation order we need to lift the left side
@@ -431,15 +431,15 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
             left = IdentifierName(name);
         }
 
-        if (binary.NodeType == ExpressionType.ArrayIndex)
+        if (node.NodeType == ExpressionType.ArrayIndex)
         {
             Result = ElementAccessExpression(left, BracketedArgumentList(SingletonSeparatedList(Argument(right))));
-            return binary;
+            return node;
         }
 
         // TODO: Confirm what to do with the checked expression types
 
-        var syntaxKind = binary.NodeType switch
+        var syntaxKind = node.NodeType switch
         {
             ExpressionType.Equal => SyntaxKind.EqualsExpression,
             ExpressionType.NotEqual => SyntaxKind.NotEqualsExpression,
@@ -474,12 +474,12 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
             ExpressionType.TypeAs => SyntaxKind.AsExpression,
             ExpressionType.Coalesce => SyntaxKind.CoalesceExpression,
 
-            _ => throw new ArgumentOutOfRangeException("BinaryExpression with " + binary.NodeType)
+            _ => throw new ArgumentOutOfRangeException("BinaryExpression with " + node.NodeType)
         };
 
         Result = BinaryExpression(syntaxKind, left, right);
 
-        return binary;
+        return node;
 
         Expression VisitAssignment(BinaryExpression assignment, SyntaxKind kind)
         {
@@ -537,7 +537,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
     }
 
     /// <inheritdoc />
-    protected override Expression VisitBlock(BlockExpression block)
+    protected override Expression VisitBlock(BlockExpression node)
     {
         var blockContext = _context;
 
@@ -559,7 +559,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
 
         // Go over the block's variables, assign names to any unnamed ones and uniquify. Then add them to our stack frame, unless
         // this is an expression block that will get lifted.
-        foreach (var parameter in block.Variables)
+        foreach (var parameter in node.Variables)
         {
             var (variables, variableNames) = (stackFrame.Variables, stackFrame.VariableNames);
 
@@ -586,16 +586,16 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
             }
         }
 
-        var unassignedVariables = block.Variables.ToList();
+        var unassignedVariables = node.Variables.ToList();
 
         var statements = new List<StatementSyntax>();
         LabeledStatementSyntax? pendingLabeledStatement = null;
 
         // Now visit the block's expressions
-        for (var i = 0; i < block.Expressions.Count; i++)
+        for (var i = 0; i < node.Expressions.Count; i++)
         {
-            var expression = block.Expressions[i];
-            var onLastBlockLine = i == block.Expressions.Count - 1;
+            var expression = node.Expressions[i];
+            var onLastBlockLine = i == node.Expressions.Count - 1;
             _onLastLambdaLine = parentOnLastLambdaLine && onLastBlockLine;
 
             // Any lines before the last are evaluated in statement context (they aren't returned); the last line is evaluated in the
@@ -758,7 +758,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
         _onLastLambdaLine = parentOnLastLambdaLine;
         _liftedState = parentLiftedState;
 
-        return block;
+        return node;
 
         // Returns true for expressions which have side-effects, and can therefore appear alone as a statement
         static bool IsExpressionValidAsStatement(ExpressionSyntax expression)
@@ -797,7 +797,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
             // labels to their parent's stack frame (since they get lifted).
             var stackFrame = _stack.Peek();
 
-            foreach (var label in block.Expressions.OfType<LabelExpression>())
+            foreach (var label in node.Expressions.OfType<LabelExpression>())
             {
                 if (stackFrame.Labels.TryGetValue(label.Target, out var identifier))
                 {
@@ -821,11 +821,11 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
     }
 
     /// <inheritdoc />
-    protected override CatchBlock VisitCatchBlock(CatchBlock catchBlock)
+    protected override CatchBlock VisitCatchBlock(CatchBlock node)
     {
-        Result = TranslateCatchBlock(catchBlock);
+        Result = TranslateCatchBlock(node);
 
-        return catchBlock;
+        return node;
     }
 
     /// <summary>
@@ -880,11 +880,11 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
     }
 
     /// <inheritdoc />
-    protected override Expression VisitConditional(ConditionalExpression conditional)
+    protected override Expression VisitConditional(ConditionalExpression node)
     {
-        Result = TranslateConditional(conditional, lowerableAssignmentVariable: null);
+        Result = TranslateConditional(node, lowerableAssignmentVariable: null);
 
-        return conditional;
+        return node;
     }
 
     /// <summary>
@@ -1055,11 +1055,11 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
     }
 
     /// <inheritdoc />
-    protected override Expression VisitConstant(ConstantExpression constant)
+    protected override Expression VisitConstant(ConstantExpression node)
     {
-        Result = GenerateValue(constant.Value);
+        Result = GenerateValue(node.Value);
 
-        return constant;
+        return node;
     }
 
     /// <summary>
@@ -1284,27 +1284,27 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
     }
 
     /// <inheritdoc />
-    protected override Expression VisitGoto(GotoExpression gotoNode)
+    protected override Expression VisitGoto(GotoExpression node)
     {
-        Result = GotoStatement(SyntaxKind.GotoStatement, TranslateLabelTarget(gotoNode.Target));
-        return gotoNode;
+        Result = GotoStatement(SyntaxKind.GotoStatement, TranslateLabelTarget(node.Target));
+        return node;
     }
 
     /// <inheritdoc />
-    protected override Expression VisitInvocation(InvocationExpression invocation)
+    protected override Expression VisitInvocation(InvocationExpression node)
     {
-        if (invocation.Expression is LambdaExpression lambda)
+        if (node.Expression is LambdaExpression lambda)
         {
             // We need to inline the lambda invocation into the tree, by replacing parameters in the lambda body with the invocation arguments.
             // However, if an argument to the invocation can have side effects (e.g. a method call), and it's referenced multiple times from
             // the body, then that would cause multiple evaluation, which is wrong (same if the arguments are evaluated only once but in reverse
             // order).
             // So we have to lift such arguments.
-            var arguments = new Expression[invocation.Arguments.Count];
+            var arguments = new Expression[node.Arguments.Count];
 
             for (var i = 0; i < arguments.Length; i++)
             {
-                var argument = invocation.Arguments[i];
+                var argument = node.Arguments[i];
 
                 if (argument is ConstantExpression)
                 {
@@ -1330,39 +1330,39 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
         else
         {
             // The invocation is over a non-inline lambda expression (i.e. field/property/method)
-            var expression = (ExpressionSyntax)Translate(invocation.Expression);
+            var expression = (ExpressionSyntax)Translate(node.Expression);
 
-            var translatedExpressions = TranslateList(invocation.Arguments);
+            var translatedExpressions = TranslateList(node.Arguments);
 
             Result = InvocationExpression(
                 expression,
                 ArgumentList(SeparatedList(translatedExpressions.Select(Argument))));
         }
 
-        return invocation;
+        return node;
     }
 
     /// <inheritdoc />
-    protected override Expression VisitLabel(LabelExpression label)
+    protected override Expression VisitLabel(LabelExpression node)
     {
         // C# labels apply on a statement, but in LINQ they can appear anywhere (i.e. last thing in a block).
         // So we apply the label to a dummy null literal statement, which we'll filter out of the block in statement context anyway.
         Result = LabeledStatement(
-            TranslateLabelTarget(label.Target).Identifier.Text,
+            TranslateLabelTarget(node.Target).Identifier.Text,
             ExpressionStatement(LiteralExpression(SyntaxKind.NullLiteralExpression)));
-        return label;
+        return node;
     }
 
     /// <inheritdoc />
-    protected override LabelTarget VisitLabelTarget(LabelTarget? labelTarget)
+    protected override LabelTarget VisitLabelTarget(LabelTarget? node)
     {
-        if (labelTarget is null)
+        if (node is null)
         {
             throw new NotImplementedException("Null argument in VisitLabelTarget");
         }
 
-        Result = TranslateLabelTarget(labelTarget);
-        return labelTarget;
+        Result = TranslateLabelTarget(node);
+        return node;
     }
 
     /// <summary>
@@ -1590,10 +1590,10 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
     }
 
     /// <inheritdoc />
-    protected override Expression VisitLambda<T>(Expression<T> lambda)
+    protected override Expression VisitLambda<T>(Expression<T> node)
     {
         using var _ = ChangeContext(
-            lambda.ReturnType == typeof(void) ? ExpressionContext.Statement : ExpressionContext.ExpressionLambda);
+            node.ReturnType == typeof(void) ? ExpressionContext.Statement : ExpressionContext.ExpressionLambda);
         var parentOnLastLambdaLine = _onLastLambdaLine;
         _onLastLambdaLine = true;
 
@@ -1601,7 +1601,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
 
         var localUnnamedParameterCounter = 0;
         var lambdaParameterNames = new HashSet<string>();
-        foreach (var parameter in lambda.Parameters)
+        foreach (var parameter in node.Parameters)
         {
             var name = parameter.Name is null
                 ? "unnamed" + (++localUnnamedParameterCounter)
@@ -1627,13 +1627,13 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
             stackFrame.VariableNames.Add(name);
         }
 
-        var body = Translate(lambda.Body);
+        var body = Translate(node.Body);
         var expressionBody = body as ExpressionSyntax;
         var blockBody = body as BlockSyntax;
 
         if (_liftedState.Statements.Count > 0)
         {
-            Check.DebugAssert(lambda.ReturnType != typeof(void));
+            Check.DebugAssert(node.ReturnType != typeof(void));
 
             if (expressionBody != null)
             {
@@ -1658,10 +1658,10 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
         Result = ParenthesizedLambdaExpression(
             attributeLists: List<AttributeListSyntax>(),
             modifiers: TokenList(),
-            returnType: lambda.ReturnType == typeof(void) || !TryGenerate(lambda.ReturnType, out var returnSyntax) ? null : returnSyntax,
+            returnType: node.ReturnType == typeof(void) || !TryGenerate(node.ReturnType, out var returnSyntax) ? null : returnSyntax,
             ParameterList(
                 SeparatedList(
-                    lambda.Parameters.Select(p => Parameter(Identifier(LookupVariableName(p)))
+                    node.Parameters.Select(p => Parameter(Identifier(LookupVariableName(p)))
                         .WithType(p.Type.IsAnonymousType() ? null : Generate(p.Type))))),
             blockBody,
             expressionBody);
@@ -1671,48 +1671,48 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
 
         _onLastLambdaLine = parentOnLastLambdaLine;
 
-        return lambda;
+        return node;
     }
 
     /// <inheritdoc />
-    protected override Expression VisitLoop(LoopExpression loop)
+    protected override Expression VisitLoop(LoopExpression node)
     {
         if (_context == ExpressionContext.Expression)
         {
             throw new NotImplementedException();
         }
 
-        var rewrittenLoop1 = loop;
+        var rewrittenLoop1 = node;
 
-        if (loop.ContinueLabel is not null)
+        if (node.ContinueLabel is not null)
         {
-            var blockBody = loop.Body is BlockExpression b ? b : Expression.Block(loop.Body);
+            var blockBody = node.Body is BlockExpression b ? b : Expression.Block(node.Body);
             blockBody = blockBody.Update(
                 blockBody.Variables,
-                new[] { Expression.Label(loop.ContinueLabel) }.Concat(blockBody.Expressions));
+                new[] { Expression.Label(node.ContinueLabel) }.Concat(blockBody.Expressions));
 
-            rewrittenLoop1 = loop.Update(
-                loop.BreakLabel,
+            rewrittenLoop1 = node.Update(
+                node.BreakLabel,
                 continueLabel: null,
                 blockBody);
         }
 
         Expression rewrittenLoop2 = rewrittenLoop1;
 
-        if (loop.BreakLabel is not null)
+        if (node.BreakLabel is not null)
         {
             rewrittenLoop2 =
                 Expression.Block(
                     rewrittenLoop1.Update(breakLabel: null, rewrittenLoop1.ContinueLabel, rewrittenLoop1.Body),
-                    Expression.Label(loop.BreakLabel));
+                    Expression.Label(node.BreakLabel));
         }
 
-        if (rewrittenLoop2 != loop)
+        if (rewrittenLoop2 != node)
         {
             return Visit(rewrittenLoop2);
         }
 
-        var translatedBody = Translate(loop.Body) switch
+        var translatedBody = Translate(node.Body) switch
         {
             BlockSyntax b => b,
             StatementSyntax s => Block(s),
@@ -1726,48 +1726,48 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
 
         Result = translated;
 
-        return loop;
+        return node;
     }
 
     /// <inheritdoc />
-    protected override Expression VisitMember(MemberExpression member)
+    protected override Expression VisitMember(MemberExpression node)
     {
         using var _ = ChangeContext(ExpressionContext.Expression);
 
-        switch (member)
+        switch (node)
         {
             case { Member: FieldInfo { IsPublic: false } or PropertyInfo { GetMethod.IsPublic: false } }:
-                TranslateNonPublicMemberAccess(member);
+                TranslateNonPublicMemberAccess(node);
                 break;
 
             case { Member: FieldInfo closureField, Expression: ConstantExpression constantExpression }
                 when constantExpression.Type.Attributes.HasFlag(TypeAttributes.NestedPrivate)
                 && Attribute.IsDefined(constantExpression.Type, typeof(CompilerGeneratedAttribute), inherit: true):
                 // Unwrap closure
-                VisitConstant(Expression.Constant(closureField.GetValue(constantExpression.Value), member.Type));
+                VisitConstant(Expression.Constant(closureField.GetValue(constantExpression.Value), node.Type));
                 break;
 
             // TODO: private event
 
             default:
-                var expression = member switch
+                var expression = node switch
                 {
                     // Static member
-                    { Expression: null } => Generate(member.Member.DeclaringType!),
+                    { Expression: null } => Generate(node.Member.DeclaringType!),
 
                     // If the member is declared on an interface, add a cast up to it, to handle explicit interface implementation.
-                    _ when member.Member.DeclaringType is { IsInterface: true } && member.Expression.Type != member.Member.DeclaringType
+                    _ when node.Member.DeclaringType is { IsInterface: true } && node.Expression.Type != node.Member.DeclaringType
                         => ParenthesizedExpression(
-                            CastExpression(Generate(member.Member.DeclaringType), Translate<ExpressionSyntax>(member.Expression))),
+                            CastExpression(Generate(node.Member.DeclaringType), Translate<ExpressionSyntax>(node.Expression))),
 
-                    _ => Translate<ExpressionSyntax>(member.Expression)
+                    _ => Translate<ExpressionSyntax>(node.Expression)
                 };
 
-                Result = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, expression, IdentifierName(member.Member.Name));
+                Result = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, expression, IdentifierName(node.Member.Name));
                 break;
         }
 
-        return member;
+        return node;
     }
 
     /// <summary>
@@ -2020,61 +2020,61 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
     }
 
     /// <inheritdoc />
-    protected override Expression VisitIndex(IndexExpression index)
+    protected override Expression VisitIndex(IndexExpression node)
     {
         using var _ = ChangeContext(ExpressionContext.Expression);
 
-        if (index.Arguments.Count > 1)
+        if (node.Arguments.Count > 1)
         {
             throw new NotImplementedException("IndexExpression with multiple arguments");
         }
 
         Result =
-            ElementAccessExpression(Translate<ExpressionSyntax>(index.Object!))
+            ElementAccessExpression(Translate<ExpressionSyntax>(node.Object!))
                 .WithArgumentList(
                     BracketedArgumentList(
                         SingletonSeparatedList(
                             Argument(
-                                Translate<ExpressionSyntax>(index.Arguments.Single())))));
+                                Translate<ExpressionSyntax>(node.Arguments.Single())))));
 
-        return index;
+        return node;
     }
 
     /// <inheritdoc />
-    protected override Expression VisitMethodCall(MethodCallExpression call)
+    protected override Expression VisitMethodCall(MethodCallExpression node)
     {
-        if (call.Method.DeclaringType is null)
+        if (node.Method.DeclaringType is null)
         {
-            throw new NotSupportedException($"Can't translate method '{call.Method.Name}' which has no declaring type");
+            throw new NotSupportedException($"Can't translate method '{node.Method.Name}' which has no declaring type");
         }
 
         using var _ = ChangeContext(ExpressionContext.Expression);
 
-        var arguments = TranslateMethodArguments(call.Method.GetParameters(), call.Arguments);
+        var arguments = TranslateMethodArguments(node.Method.GetParameters(), node.Arguments);
 
         // For generic methods, we check whether the generic type arguments are inferrable (e.g. they all appear in the parameters), and
         // only explicitly specify the arguments if not. Note that this isn't just for prettier code: anonymous types cannot be explicitly
         // named in code.
         SimpleNameSyntax methodIdentifier;
-        if (!call.Method.IsGenericMethod || GenericTypeParameterAreInferrable())
+        if (!node.Method.IsGenericMethod || GenericTypeParameterAreInferrable())
         {
-            methodIdentifier = IdentifierName(call.Method.Name);
+            methodIdentifier = IdentifierName(node.Method.Name);
         }
         else
         {
             Check.DebugAssert(
-                call.Method.GetGenericArguments().All(ga => !ga.IsAnonymousType()),
+                node.Method.GetGenericArguments().All(ga => !ga.IsAnonymousType()),
                 "Anonymous type as generic type argument for method whose type arguments aren't inferrable");
 
             methodIdentifier = GenericName(
-                Identifier(call.Method.Name),
+                Identifier(node.Method.Name),
                 TypeArgumentList(
                     SeparatedList(
-                        call.Method.GetGenericArguments().Select(Generate))));
+                        node.Method.GetGenericArguments().Select(Generate))));
         }
 
         // Extension syntax
-        if (call.Method.IsDefined(typeof(ExtensionAttribute), inherit: false)
+        if (node.Method.IsDefined(typeof(ExtensionAttribute), inherit: false)
             && !IsNull(arguments[0].Expression))
         {
             Result = InvocationExpression(
@@ -2084,30 +2084,30 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
                     methodIdentifier),
                 ArgumentList(SeparatedList(arguments[1..])));
         }
-        else if (call.Method is { Name: "op_Equality", IsHideBySig: true, IsSpecialName: true })
+        else if (node.Method is { Name: "op_Equality", IsHideBySig: true, IsSpecialName: true })
         {
             Result = BinaryExpression(
                 SyntaxKind.EqualsExpression,
-                Translate<ExpressionSyntax>(call.Arguments[0]),
-                Translate<ExpressionSyntax>(call.Arguments[1]));
+                Translate<ExpressionSyntax>(node.Arguments[0]),
+                Translate<ExpressionSyntax>(node.Arguments[1]));
         }
         else
         {
-            var expression = call switch
+            var expression = node switch
             {
-                { Method.IsStatic: true } => Generate(call.Method.DeclaringType),
+                { Method.IsStatic: true } => Generate(node.Method.DeclaringType),
 
                 // If the member isn't declared on the same type as the expression, (e.g. explicit interface implementation), add
                 // a cast up to the declaring type.
                 { Method.DeclaringType: { } declaringType, Object.Type: var objectType, } when declaringType != objectType
-                    => ParenthesizedExpression(CastExpression(Generate(declaringType), Translate<ExpressionSyntax>(call.Object))),
+                    => ParenthesizedExpression(CastExpression(Generate(declaringType), Translate<ExpressionSyntax>(node.Object))),
 
-                _ => Translate<ExpressionSyntax>(call.Object)
+                _ => Translate<ExpressionSyntax>(node.Object)
             };
 
-            Result = call.Method.Name.StartsWith("get_", StringComparison.Ordinal)
-                && call.Method.GetParameters().Length == 1
-                && call.Method is { IsHideBySig: true, IsSpecialName: true }
+            Result = node.Method.Name.StartsWith("get_", StringComparison.Ordinal)
+                && node.Method.GetParameters().Length == 1
+                && node.Method is { IsHideBySig: true, IsSpecialName: true }
                     ? ElementAccessExpression(
                         expression,
                         BracketedArgumentList(SeparatedList(arguments)))
@@ -2119,13 +2119,13 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
                         ArgumentList(SeparatedList(arguments)));
         }
 
-        AddNamespace(call.Method.DeclaringType);
+        AddNamespace(node.Method.DeclaringType);
 
-        return call;
+        return node;
 
         bool GenericTypeParameterAreInferrable()
         {
-            var originalDefinition = call.Method.GetGenericMethodDefinition();
+            var originalDefinition = node.Method.GetGenericMethodDefinition();
             var unseenTypeParameters = originalDefinition.GetGenericArguments().ToList();
 
             foreach (var parameter in originalDefinition.GetParameters())
@@ -2187,14 +2187,14 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
     }
 
     /// <inheritdoc />
-    protected override Expression VisitNewArray(NewArrayExpression newArray)
+    protected override Expression VisitNewArray(NewArrayExpression node)
     {
         using var _ = ChangeContext(ExpressionContext.Expression);
 
-        var elementType = Generate(newArray.Type.GetElementType()!);
-        var expressions = TranslateList(newArray.Expressions);
+        var elementType = Generate(node.Type.GetElementType()!);
+        var expressions = TranslateList(node.Expressions);
 
-        if (newArray.NodeType == ExpressionType.NewArrayBounds)
+        if (node.NodeType == ExpressionType.NewArrayBounds)
         {
             Result =
                 ArrayCreationExpression(
@@ -2202,14 +2202,14 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
                         elementType,
                         SingletonList(ArrayRankSpecifier(SeparatedList(expressions)))));
 
-            return newArray;
+            return node;
         }
 
-        Check.DebugAssert(newArray.NodeType == ExpressionType.NewArrayInit);
+        Check.DebugAssert(node.NodeType == ExpressionType.NewArrayInit);
 
         Result = _g.ArrayCreationExpression(elementType, expressions);
 
-        return newArray;
+        return node;
     }
 
     /// <inheritdoc />
@@ -2274,23 +2274,23 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
     }
 
     /// <inheritdoc />
-    protected override Expression VisitParameter(ParameterExpression parameter)
+    protected override Expression VisitParameter(ParameterExpression node)
     {
         // Note that the parameter in the lambda declaration is handled separately in VisitLambda
-        if (_stack.Peek().Variables.TryGetValue(parameter, out var name)
-            || _liftedState.Variables.TryGetValue(parameter, out name))
+        if (_stack.Peek().Variables.TryGetValue(node, out var name)
+            || _liftedState.Variables.TryGetValue(node, out name))
         {
             Result = IdentifierName(name);
 
-            return parameter;
+            return node;
         }
 
         // This parameter is unknown to us - it's captured from outside the entire expression tree.
         // Simply return its name without worrying about uniquification, since the variable needs to correspond to the outside in any
         // case (it's the callers responsibility).
-        _capturedVariables.Add(parameter);
+        _capturedVariables.Add(node);
 
-        if (parameter.Name is null)
+        if (node.Name is null)
         {
             throw new NotSupportedException("Unnamed captured variable");
         }
@@ -2298,18 +2298,18 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
         // Since the name is emitted as-is, anything we generated under that same name would capture the reference instead. That
         // includes generated locals, which exist in these scopes by name only. Constant replacement names are excluded: they are
         // the caller's own declarations, and referencing them is exactly what a captured variable of that name means to do.
-        var comparableName = WithoutFormattingCharacters(parameter.Name);
+        var comparableName = WithoutFormattingCharacters(node.Name);
         if ((_stack.Peek().VariableNames.Contains(comparableName) || _liftedState.VariableNames.Contains(comparableName))
             && !IsCallerDeclaredName(comparableName))
         {
             throw new NotSupportedException(
-                $"Captured variable '{parameter.Name}' is shadowed by a variable generated for the translated expression");
+                $"Captured variable '{node.Name}' is shadowed by a variable generated for the translated expression");
         }
 
         _capturedVariableNames.Add(comparableName);
 
-        Result = IdentifierName(parameter.Name);
-        return parameter;
+        Result = IdentifierName(node.Name);
+        return node;
     }
 
     /// <inheritdoc />
@@ -2321,11 +2321,11 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
         => throw new NotSupportedException("Translation happens as part of VisitSwitch");
 
     /// <inheritdoc />
-    protected override Expression VisitSwitch(SwitchExpression switchNode)
+    protected override Expression VisitSwitch(SwitchExpression node)
     {
-        Result = TranslateSwitch(switchNode, lowerableAssignmentVariable: null);
+        Result = TranslateSwitch(node, lowerableAssignmentVariable: null);
 
-        return switchNode;
+        return node;
     }
 
     /// <summary>
@@ -2542,15 +2542,15 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
     }
 
     /// <inheritdoc />
-    protected override Expression VisitTry(TryExpression tryNode)
+    protected override Expression VisitTry(TryExpression node)
     {
-        var translatedBody = Translate(tryNode.Body) switch
+        var translatedBody = Translate(node.Body) switch
         {
             BlockSyntax b => (IEnumerable<SyntaxNode>)b.Statements,
             var n => [n]
         };
 
-        var translatedFinally = Translate(tryNode.Finally) switch
+        var translatedFinally = Translate(node.Finally) switch
         {
             BlockSyntax b => (IEnumerable<SyntaxNode>)b.Statements,
             null => null,
@@ -2560,30 +2560,30 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
         switch (_context)
         {
             case ExpressionContext.Statement:
-                if (tryNode.Fault is not null)
+                if (node.Fault is not null)
                 {
                     Check.DebugAssert(
-                        tryNode.Finally is null && tryNode.Handlers.Count == 0);
+                        node.Finally is null && node.Handlers.Count == 0);
 
                     Result = _g.TryCatchStatement(
                         translatedBody,
-                        catchClauses: [TranslateCatchBlock(Expression.Catch(typeof(Exception), tryNode.Fault), noType: true)]);
+                        catchClauses: [TranslateCatchBlock(Expression.Catch(typeof(Exception), node.Fault), noType: true)]);
 
-                    return tryNode;
+                    return node;
                 }
 
                 Result = _g.TryCatchStatement(
                     translatedBody,
-                    catchClauses: tryNode.Handlers.Select(h => TranslateCatchBlock(h)),
+                    catchClauses: node.Handlers.Select(h => TranslateCatchBlock(h)),
                     translatedFinally);
 
-                return tryNode;
+                return node;
 
             case ExpressionContext.Expression:
             case ExpressionContext.ExpressionLambda:
-                var liftedVariable = LiftTryExpression(tryNode);
+                var liftedVariable = LiftTryExpression(node);
                 Result = Translate(liftedVariable);
-                return tryNode;
+                return node;
             default:
                 throw new ArgumentOutOfRangeException();
         }
@@ -2609,53 +2609,53 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
     }
 
     /// <inheritdoc />
-    protected override Expression VisitUnary(UnaryExpression unary)
+    protected override Expression VisitUnary(UnaryExpression node)
     {
-        if (unary.Method is not null
-            && !unary.Method.IsHideBySig
-            && !unary.Method.IsSpecialName
-            && unary.Method.Name != "op_Implicit"
-            && unary.Method.Name != "op_Explicit")
+        if (node.Method is not null
+            && !node.Method.IsHideBySig
+            && !node.Method.IsSpecialName
+            && node.Method.Name != "op_Implicit"
+            && node.Method.Name != "op_Explicit")
         {
             throw new NotImplementedException("Unary node with non-null method");
         }
 
         using var _ = ChangeContext(ExpressionContext.Expression);
 
-        var operand = Translate<ExpressionSyntax>(unary.Operand);
+        var operand = Translate<ExpressionSyntax>(node.Operand);
 
         // TODO: Confirm what to do with the checked expression types
 
-        Result = unary.NodeType switch
+        Result = node.NodeType switch
         {
             ExpressionType.Negate => _g.NegateExpression(operand),
             ExpressionType.NegateChecked => _g.NegateExpression(operand),
-            ExpressionType.Not when unary.Type.UnwrapNullableType() == typeof(bool) => _g.LogicalNotExpression(operand),
+            ExpressionType.Not when node.Type.UnwrapNullableType() == typeof(bool) => _g.LogicalNotExpression(operand),
             ExpressionType.Not => _g.BitwiseNotExpression(operand),
             ExpressionType.OnesComplement => _g.BitwiseNotExpression(operand),
             ExpressionType.IsFalse => _g.LogicalNotExpression(operand),
             ExpressionType.IsTrue => operand,
             ExpressionType.ArrayLength => _g.MemberAccessExpression(operand, "Length"),
-            ExpressionType.Convert => ParenthesizedExpression((ExpressionSyntax)_g.ConvertExpression(Generate(unary.Type), operand)),
+            ExpressionType.Convert => ParenthesizedExpression((ExpressionSyntax)_g.ConvertExpression(Generate(node.Type), operand)),
             ExpressionType.ConvertChecked =>
-                ParenthesizedExpression((ExpressionSyntax)_g.ConvertExpression(Generate(unary.Type), operand)),
-            ExpressionType.Throw when unary.Type == typeof(void) => _g.ThrowStatement(operand),
+                ParenthesizedExpression((ExpressionSyntax)_g.ConvertExpression(Generate(node.Type), operand)),
+            ExpressionType.Throw when node.Type == typeof(void) => _g.ThrowStatement(operand),
             ExpressionType.Throw => _g.ThrowExpression(operand),
-            ExpressionType.TypeAs => BinaryExpression(SyntaxKind.AsExpression, operand, Generate(unary.Type)),
+            ExpressionType.TypeAs => BinaryExpression(SyntaxKind.AsExpression, operand, Generate(node.Type)),
             ExpressionType.Quote => operand,
             ExpressionType.UnaryPlus => PrefixUnaryExpression(SyntaxKind.UnaryPlusExpression, operand),
             ExpressionType.Unbox => operand,
-            ExpressionType.Increment => Translate(IncrementOrDecrement(ExpressionType.Add, unary.Operand)),
-            ExpressionType.Decrement => Translate(IncrementOrDecrement(ExpressionType.Subtract, unary.Operand)),
+            ExpressionType.Increment => Translate(IncrementOrDecrement(ExpressionType.Add, node.Operand)),
+            ExpressionType.Decrement => Translate(IncrementOrDecrement(ExpressionType.Subtract, node.Operand)),
             ExpressionType.PostIncrementAssign => PostfixUnaryExpression(SyntaxKind.PostIncrementExpression, operand),
             ExpressionType.PostDecrementAssign => PostfixUnaryExpression(SyntaxKind.PostDecrementExpression, operand),
             ExpressionType.PreIncrementAssign => PrefixUnaryExpression(SyntaxKind.PreIncrementExpression, operand),
             ExpressionType.PreDecrementAssign => PrefixUnaryExpression(SyntaxKind.PreDecrementExpression, operand),
 
-            _ => throw new ArgumentOutOfRangeException("Unsupported LINQ unary node: " + unary.NodeType)
+            _ => throw new ArgumentOutOfRangeException("Unsupported LINQ unary node: " + node.NodeType)
         };
 
-        return unary;
+        return node;
 
         // C# promotes short/ushort arithmetic to int, so compute in int and convert back to keep the expression's type
         static Expression IncrementOrDecrement(ExpressionType binaryType, Expression operand)
@@ -2676,16 +2676,16 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
     }
 
     /// <inheritdoc />
-    protected override Expression VisitMemberInit(MemberInitExpression memberInit)
+    protected override Expression VisitMemberInit(MemberInitExpression node)
     {
-        var objectCreation = TranslateNew(memberInit.NewExpression, memberInit.Bindings) as ObjectCreationExpressionSyntax
+        var objectCreation = TranslateNew(node.NewExpression, node.Bindings) as ObjectCreationExpressionSyntax
             ?? throw new NotSupportedException("MemberInit: constructor requires an unsafe accessor");
 
         List<MemberListBinding>? incompatibleListBindings = null;
 
-        var initializerExpressions = new List<AssignmentExpressionSyntax>(memberInit.Bindings.Count);
+        var initializerExpressions = new List<AssignmentExpressionSyntax>(node.Bindings.Count);
 
-        foreach (var binding in memberInit.Bindings)
+        foreach (var binding in node.Bindings)
         {
             // C# collection initialization syntax only works when Add is called on an IEnumerable, but LINQ supports arbitrary add
             // methods. Skip these, we'll add them later outside the initializer
@@ -2722,24 +2722,24 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
                 SyntaxKind.ObjectInitializerExpression,
                 SeparatedList<ExpressionSyntax>(initializerExpressions)));
 
-        return memberInit;
+        return node;
     }
 
     /// <inheritdoc />
-    protected override Expression VisitListInit(ListInitExpression listInit)
+    protected override Expression VisitListInit(ListInitExpression node)
     {
-        var objectCreation = Translate<ObjectCreationExpressionSyntax>(listInit.NewExpression);
+        var objectCreation = Translate<ObjectCreationExpressionSyntax>(node.NewExpression);
 
         List<ElementInit>? incompatibleListBindings = null;
 
-        var initializerExpressions = new List<ExpressionSyntax>(listInit.Initializers.Count);
+        var initializerExpressions = new List<ExpressionSyntax>(node.Initializers.Count);
 
-        foreach (var initializer in listInit.Initializers)
+        foreach (var initializer in node.Initializers)
         {
             // C# collection initialization syntax only works when Add is called on an IEnumerable, but LINQ supports arbitrary add
             // methods. Skip these, we'll add them later outside the initializer
-            if (!listInit.NewExpression.Type.IsAssignableTo(typeof(IEnumerable))
-                || listInit.Initializers.Any(e => e.AddMethod.Name != "Add" || e.Arguments.Count != 1))
+            if (!node.NewExpression.Type.IsAssignableTo(typeof(IEnumerable))
+                || node.Initializers.Any(e => e.AddMethod.Name != "Add" || e.Arguments.Count != 1))
             {
                 incompatibleListBindings ??= [];
                 incompatibleListBindings.Add(initializer);
@@ -2771,64 +2771,64 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
                 SyntaxKind.CollectionInitializerExpression,
                 SeparatedList(initializerExpressions)));
 
-        return listInit;
+        return node;
     }
 
     /// <inheritdoc />
-    protected override ElementInit VisitElementInit(ElementInit elementInit)
+    protected override ElementInit VisitElementInit(ElementInit node)
     {
-        Check.DebugAssert(elementInit.Arguments.Count == 1);
+        Check.DebugAssert(node.Arguments.Count == 1);
 
-        Visit(elementInit.Arguments.Single());
+        Visit(node.Arguments.Single());
 
-        return elementInit;
+        return node;
     }
 
     /// <inheritdoc />
-    protected override MemberAssignment VisitMemberAssignment(MemberAssignment memberAssignment)
-    {
-        Result = AssignmentExpression(
-            SyntaxKind.SimpleAssignmentExpression,
-            IdentifierName(memberAssignment.Member.Name),
-            Translate<ExpressionSyntax>(memberAssignment.Expression));
-
-        return memberAssignment;
-    }
-
-    /// <inheritdoc />
-    protected override MemberMemberBinding VisitMemberMemberBinding(MemberMemberBinding memberMemberBinding)
+    protected override MemberAssignment VisitMemberAssignment(MemberAssignment node)
     {
         Result = AssignmentExpression(
             SyntaxKind.SimpleAssignmentExpression,
-            IdentifierName(memberMemberBinding.Member.Name),
+            IdentifierName(node.Member.Name),
+            Translate<ExpressionSyntax>(node.Expression));
+
+        return node;
+    }
+
+    /// <inheritdoc />
+    protected override MemberMemberBinding VisitMemberMemberBinding(MemberMemberBinding node)
+    {
+        Result = AssignmentExpression(
+            SyntaxKind.SimpleAssignmentExpression,
+            IdentifierName(node.Member.Name),
             InitializerExpression(
                 SyntaxKind.ObjectInitializerExpression,
                 SeparatedList(
-                    memberMemberBinding.Bindings.Select(b =>
+                    node.Bindings.Select(b =>
                     {
                         VisitMemberBinding(b);
                         return (ExpressionSyntax)Result!;
                     }))));
 
-        return memberMemberBinding;
+        return node;
     }
 
     /// <inheritdoc />
-    protected override MemberListBinding VisitMemberListBinding(MemberListBinding memberListBinding)
+    protected override MemberListBinding VisitMemberListBinding(MemberListBinding node)
     {
         Result = AssignmentExpression(
             SyntaxKind.SimpleAssignmentExpression,
-            IdentifierName(memberListBinding.Member.Name),
+            IdentifierName(node.Member.Name),
             InitializerExpression(
                 SyntaxKind.CollectionInitializerExpression,
                 SeparatedList(
-                    memberListBinding.Initializers.Select(i =>
+                    node.Initializers.Select(i =>
                     {
                         VisitElementInit(i);
                         return (ExpressionSyntax)Result!;
                     }))));
 
-        return memberListBinding;
+        return node;
     }
 
     /// <summary>

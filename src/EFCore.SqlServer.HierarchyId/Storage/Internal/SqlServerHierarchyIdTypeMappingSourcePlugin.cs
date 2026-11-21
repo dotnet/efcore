@@ -24,17 +24,6 @@ public class SqlServerHierarchyIdTypeMappingSourcePlugin : IRelationalTypeMappin
         var clrType = mappingInfo.ClrType;
         var storeTypeName = mappingInfo.StoreTypeName;
 
-        return string.Equals(storeTypeName, "hierarchyid", StringComparison.OrdinalIgnoreCase)
-            ? clrType is null
-            || clrType == typeof(HierarchyId)
-                ? SqlServerHierarchyIdTypeMapping.Default
-                : clrType == typeof(SqlHierarchyId)
-                    ? SqlServerSqlHierarchyIdTypeMapping.Default
-                    : (RelationalTypeMapping?)null
-            : clrType == typeof(HierarchyId)
-                ? SqlServerHierarchyIdTypeMapping.Default
-                : clrType == typeof(SqlHierarchyId)
-                    ? SqlServerSqlHierarchyIdTypeMapping.Default
-                    : (RelationalTypeMapping?)null;
+        return string.Equals(storeTypeName, "hierarchyid", StringComparison.OrdinalIgnoreCase) ? clrType is null || clrType == typeof(HierarchyId) ? SqlServerHierarchyIdTypeMapping.Default : clrType == typeof(SqlHierarchyId) ? SqlServerSqlHierarchyIdTypeMapping.Default : (RelationalTypeMapping?)null : clrType == typeof(HierarchyId) ? SqlServerHierarchyIdTypeMapping.Default : clrType == typeof(SqlHierarchyId) ? SqlServerSqlHierarchyIdTypeMapping.Default : (RelationalTypeMapping?)null;
     }
 }

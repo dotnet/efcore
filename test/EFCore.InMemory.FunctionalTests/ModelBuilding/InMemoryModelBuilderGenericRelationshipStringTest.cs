@@ -236,8 +236,8 @@ public class InMemoryModelBuilderGenericRelationshipStringTest : InMemoryModelBu
         where TDependentEntity : class
     {
         protected override GenericTestOwnedNavigationBuilder<TNewEntity, TNewRelatedEntity> Wrap<TNewEntity, TNewRelatedEntity>(
-            OwnedNavigationBuilder<TNewEntity, TNewRelatedEntity> referenceOwnershipBuilder)
-            => new GenericStringTestOwnedNavigationBuilder<TNewEntity, TNewRelatedEntity>(referenceOwnershipBuilder);
+            OwnedNavigationBuilder<TNewEntity, TNewRelatedEntity> ownershipBuilder)
+            => new GenericStringTestOwnedNavigationBuilder<TNewEntity, TNewRelatedEntity>(ownershipBuilder);
 
         public override TestOwnershipBuilder<TEntity, TDependentEntity> WithOwner(
             Expression<Func<TDependentEntity, TEntity?>>? referenceExpression)

@@ -147,7 +147,7 @@ public class FromSqlExpression : TableExpressionBase, ITableBasedExpression
         => this;
 
     /// <inheritdoc />
-    public override TableExpressionBase Clone(string? alias, ExpressionVisitor cloningVisitor)
+    public override TableExpressionBase Clone(string? alias, ExpressionVisitor cloningExpressionVisitor)
         => new FromSqlExpression(alias!, Table, Sql, Arguments, Annotations);
 
     /// <inheritdoc />

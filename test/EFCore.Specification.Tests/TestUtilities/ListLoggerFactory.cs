@@ -38,11 +38,11 @@ public class ListLoggerFactory(Func<string, bool> shouldLogCategory) : ILoggerFa
     public void SetTestOutputHelper(ITestOutputHelper testOutputHelper)
         => Logger.TestOutputHelper = testOutputHelper;
 
-    public virtual ILogger CreateLogger(string name)
+    public virtual ILogger CreateLogger(string categoryName)
     {
         CheckDisposed();
 
-        return !_shouldLogCategory(name)
+        return !_shouldLogCategory(categoryName)
             ? NullLogger.Instance
             : Logger;
     }

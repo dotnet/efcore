@@ -63,20 +63,20 @@ public class SqliteQueryTranslationPostprocessor : RelationalQueryTranslationPos
 
     private sealed class ApplyValidatingVisitor : ExpressionVisitor
     {
-        protected override Expression VisitExtension(Expression extensionExpression)
+        protected override Expression VisitExtension(Expression node)
         {
-            if (extensionExpression is ShapedQueryExpression shapedQueryExpression)
+            if (node is ShapedQueryExpression shapedQueryExpression)
             {
                 Visit(shapedQueryExpression.QueryExpression);
                 Visit(shapedQueryExpression.ShaperExpression);
 
-                return extensionExpression;
+                return node;
             }
 
-            return extensionExpression is SelectExpression selectExpression
+            return node is SelectExpression selectExpression
                 && selectExpression.Tables.Any(t => t is CrossApplyExpression or OuterApplyExpression)
                     ? throw new InvalidOperationException(SqliteStrings.ApplyNotSupported)
-                    : base.VisitExtension(extensionExpression);
+                    : base.VisitExtension(node);
         }
     }
 }

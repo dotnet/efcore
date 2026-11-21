@@ -96,7 +96,7 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
         IReadOnlyDictionary<MemberInfo, QualifiedName> memberAccessReplacements,
         List<QueryPrecompilationError> precompilationErrors,
         ISet<string> generatedFileNames,
-        Assembly? additionalAssembly = null,
+        Assembly? assembly = null,
         string? suffix = null,
         CancellationToken cancellationToken = default)
     {
@@ -120,7 +120,7 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
             dbContext.GetService<IDiagnosticsLogger<DbLoggerCategory.Query>>());
 
         // This must be done after we complete generating the final compilation above
-        _csharpToLinqTranslator.Load(compilation, dbContext, additionalAssembly);
+        _csharpToLinqTranslator.Load(compilation, dbContext, assembly);
 
         // TODO: Ignore our auto-generated code! Also compiled model, generated code (comment, filename...?).
         var generatedFiles = new List<ScaffoldedFile>();

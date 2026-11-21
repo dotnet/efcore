@@ -12,11 +12,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         IReadOnlyDictionary<string, object?> parametersValues)
         : ExpressionVisitor
     {
-        protected override Expression VisitExtension(Expression expression)
+        protected override Expression VisitExtension(Expression node)
         {
-            expression = base.VisitExtension(expression);
+            node = base.VisitExtension(node);
 
-            switch (expression)
+            switch (node)
             {
                 // Inlines array parameter of InExpression, transforming: 'item IN (@valuesArray)' to: 'item IN (value1, value2)'
                 case InExpression inExpression:
@@ -78,7 +78,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                 offsetPrm.TypeMapping));
                     }
 
-                    return base.VisitExtension(expression);
+                    return base.VisitExtension(node);
                 }
 
                 // Inlines array parameter of full-text functions, transforming FullTextContainsAll(x, @keywordsArray) to FullTextContainsAll(x, keyword1, keyword2))
@@ -110,7 +110,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 }
 
                 default:
-                    return expression;
+                    return node;
             }
         }
     }

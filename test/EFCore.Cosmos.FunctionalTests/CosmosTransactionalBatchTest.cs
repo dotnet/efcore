@@ -690,9 +690,9 @@ public class CosmosTransactionalBatchTest(CosmosTransactionalBatchTest.CosmosFix
 
         public DbSet<Order> Orders { get; set; } = null!;
 
-        protected override void OnModelCreating(ModelBuilder builder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            builder.Entity<Customer>(b =>
+            modelBuilder.Entity<Customer>(b =>
             {
                 b.HasKey(c => c.Id);
                 b.Property(c => c.ETag).IsETagConcurrency();
@@ -700,7 +700,7 @@ public class CosmosTransactionalBatchTest(CosmosTransactionalBatchTest.CosmosFix
                 b.HasPartitionKey(c => c.PartitionKey);
             });
 
-            builder.Entity<CustomerWithTrigger>(b =>
+            modelBuilder.Entity<CustomerWithTrigger>(b =>
             {
                 b.HasKey(c => c.Id);
                 b.Property(c => c.ETag).IsETagConcurrency();
@@ -708,7 +708,7 @@ public class CosmosTransactionalBatchTest(CosmosTransactionalBatchTest.CosmosFix
                 b.HasTrigger("trigger", TriggerType.Pre, TriggerOperation.All);
             });
 
-            builder.Entity<Order>(b =>
+            modelBuilder.Entity<Order>(b =>
             {
                 b.HasKey(c => c.Id);
                 b.HasPartitionKey(c => c.PartitionKey);

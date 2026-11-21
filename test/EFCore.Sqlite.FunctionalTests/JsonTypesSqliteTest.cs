@@ -205,11 +205,11 @@ public class JsonTypesSqliteTest(NonSharedFixture fixture) : JsonTypesRelational
                 _ => throw new ArgumentOutOfRangeException(nameof(value), value, null)
             });
 
-    public override Task Can_read_write_collection_of_TimeOnly_JSON_values(string _)
+    public override Task Can_read_write_collection_of_TimeOnly_JSON_values(string expected)
         => base.Can_read_write_collection_of_TimeOnly_JSON_values(
             """{"Prop":["00:00:00","11:05:02.0030040","23:59:59.9999999"]}""");
 
-    public override Task Can_read_write_collection_of_nullable_TimeOnly_JSON_values(string _)
+    public override Task Can_read_write_collection_of_nullable_TimeOnly_JSON_values(string expected)
         => base.Can_read_write_collection_of_nullable_TimeOnly_JSON_values(
             """{"Prop":[null,"00:00:00","11:05:02.0030040","23:59:59.9999999"]}""");
 

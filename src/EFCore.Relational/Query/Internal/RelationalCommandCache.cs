@@ -129,23 +129,23 @@ public class RelationalCommandCache : IPrintableExpression
             => obj is CommandCacheKey commandCacheKey
                 && Equals(commandCacheKey);
 
-        public bool Equals(CommandCacheKey commandCacheKey)
+        public bool Equals(CommandCacheKey other)
         {
             // Intentionally reference equal, don't check internal components
-            if (!ReferenceEquals(_queryExpression, commandCacheKey._queryExpression))
+            if (!ReferenceEquals(_queryExpression, other._queryExpression))
             {
                 return false;
             }
 
             Check.DebugAssert(
-                _parameterInfos.Count == commandCacheKey._parameterInfos.Count,
+                _parameterInfos.Count == other._parameterInfos.Count,
                 "Parameter Count mismatch between identical queries");
 
             if (_parameterInfos.Count > 0)
             {
                 foreach (var (key, info) in _parameterInfos)
                 {
-                    if (!commandCacheKey._parameterInfos.TryGetValue(key, out var otherInfo) || info != otherInfo)
+                    if (!other._parameterInfos.TryGetValue(key, out var otherInfo) || info != otherInfo)
                     {
                         return false;
                     }

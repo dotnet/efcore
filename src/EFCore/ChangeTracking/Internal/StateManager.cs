@@ -408,12 +408,12 @@ public class StateManager : IStateManager
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual InternalEntityEntry? TryGetEntry(object entity, IEntityType entityType, bool throwOnTypeMismatch = true)
-        => _entityReferenceMap.TryGet(entity, entityType, out var entry, throwOnNonUniqueness: false)
-            ? !entityType.IsAssignableFrom(entry.EntityType)
+    public virtual InternalEntityEntry? TryGetEntry(object entity, IEntityType type, bool throwOnTypeMismatch = true)
+        => _entityReferenceMap.TryGet(entity, type, out var entry, throwOnNonUniqueness: false)
+            ? !type.IsAssignableFrom(entry.EntityType)
                 ? throwOnTypeMismatch
                     ? throw new InvalidOperationException(
-                        CoreStrings.TrackingTypeMismatch(entry.EntityType.DisplayName(), entityType.DisplayName()))
+                        CoreStrings.TrackingTypeMismatch(entry.EntityType.DisplayName(), type.DisplayName()))
                     : null
                 : entry
             : null;
@@ -510,8 +510,8 @@ public class StateManager : IStateManager
         bool modified = false,
         bool deleted = false,
         bool unchanged = false,
-        bool countDeletedSharedIdentity = false)
-        => _entityReferenceMap.GetCountForState(added, modified, deleted, unchanged, countDeletedSharedIdentity);
+        bool returnSharedIdentity = false)
+        => _entityReferenceMap.GetCountForState(added, modified, deleted, unchanged, returnSharedIdentity);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -520,7 +520,7 @@ public class StateManager : IStateManager
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual int Count
-        => GetCountForState(added: true, modified: true, deleted: true, unchanged: true, countDeletedSharedIdentity: true);
+        => GetCountForState(added: true, modified: true, deleted: true, unchanged: true, returnSharedIdentity: true);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -533,8 +533,8 @@ public class StateManager : IStateManager
         bool modified = false,
         bool deleted = false,
         bool unchanged = false,
-        bool returnDeletedSharedIdentity = false)
-        => _entityReferenceMap.GetEntriesForState(added, modified, deleted, unchanged, returnDeletedSharedIdentity);
+        bool returnSharedIdentity = false)
+        => _entityReferenceMap.GetEntriesForState(added, modified, deleted, unchanged, returnSharedIdentity);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -543,7 +543,7 @@ public class StateManager : IStateManager
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual IEnumerable<InternalEntityEntry> Entries
-        => GetEntriesForState(added: true, modified: true, deleted: true, unchanged: true, returnDeletedSharedIdentity: true);
+        => GetEntriesForState(added: true, modified: true, deleted: true, unchanged: true, returnSharedIdentity: true);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1001,14 +1001,14 @@ public class StateManager : IStateManager
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void UpdateIdentityMap(InternalEntityEntry entry, IKey key)
+    public virtual void UpdateIdentityMap(InternalEntityEntry entry, IKey principalKey)
     {
         if (entry.EntityState == EntityState.Detached)
         {
             return;
         }
 
-        var identityMap = FindIdentityMap(key);
+        var identityMap = FindIdentityMap(principalKey);
         if (identityMap == null)
         {
             return;

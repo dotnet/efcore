@@ -153,13 +153,7 @@ public class InternalNavigationBuilder :
     public virtual bool CanSetIsRequired(bool? required, ConfigurationSource configurationSource)
     {
         var foreignKey = Metadata.ForeignKey;
-        return foreignKey.IsUnique
-            ? foreignKey.GetPrincipalEndConfigurationSource() != null
-            && (Metadata.IsOnDependent
-                ? foreignKey.Builder.CanSetIsRequired(required, configurationSource)
-                : foreignKey.Builder.CanSetIsRequiredDependent(required, configurationSource))
-            : Metadata.IsOnDependent
-            && foreignKey.Builder.CanSetIsRequired(required, configurationSource);
+        return foreignKey.IsUnique ? foreignKey.GetPrincipalEndConfigurationSource() != null && (Metadata.IsOnDependent ? foreignKey.Builder.CanSetIsRequired(required, configurationSource) : foreignKey.Builder.CanSetIsRequiredDependent(required, configurationSource)) : Metadata.IsOnDependent && foreignKey.Builder.CanSetIsRequired(required, configurationSource);
     }
 
     /// <summary>

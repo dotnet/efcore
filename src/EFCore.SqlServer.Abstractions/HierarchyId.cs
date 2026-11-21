@@ -101,10 +101,10 @@ public class HierarchyId : IComparable<HierarchyId>
         => _value.CompareTo((SqlHierarchyId)other);
 
     /// <inheritdoc />
-    public override bool Equals(object? other)
-        => other is HierarchyId or null
-            ? Equals((SqlHierarchyId)(HierarchyId?)other)
-            : _value.Equals(other);
+    public override bool Equals(object? obj)
+        => obj is HierarchyId or null
+            ? Equals((SqlHierarchyId)(HierarchyId?)obj)
+            : _value.Equals(obj);
 
     /// <summary>
     ///     Gets the node <paramref name="n" /> levels up the hierarchical tree.

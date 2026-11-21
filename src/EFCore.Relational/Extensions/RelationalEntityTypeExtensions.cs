@@ -158,12 +158,7 @@ public static class RelationalEntityTypeExtensions
         var skipNavigationSchema = entityType.GetForeignKeys().SelectMany(fk => fk.GetReferencingSkipNavigations())
             .FirstOrDefault(n => !n.IsOnDependent)
             ?.DeclaringEntityType.GetSchema();
-        return skipNavigationSchema != null
-            && entityType.GetForeignKeys().SelectMany(fk => fk.GetReferencingSkipNavigations())
-                .Where(n => !n.IsOnDependent)
-                .All(n => n.DeclaringEntityType.GetSchema() == skipNavigationSchema)
-                ? skipNavigationSchema
-                : entityType.Model.GetDefaultSchema();
+        return skipNavigationSchema != null && entityType.GetForeignKeys().SelectMany(fk => fk.GetReferencingSkipNavigations()) .Where(n => !n.IsOnDependent) .All(n => n.DeclaringEntityType.GetSchema() == skipNavigationSchema) ? skipNavigationSchema : entityType.Model.GetDefaultSchema();
     }
 
     /// <summary>

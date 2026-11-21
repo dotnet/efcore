@@ -216,26 +216,7 @@ public class ComplexProperty : PropertyBase, IMutableComplexProperty, IConventio
         bool shouldThrow)
     {
         var memberClrType = memberInfo.GetMemberType().TryGetSequenceType();
-        return shouldBeCollection
-            && memberClrType?.IsAssignableFrom(targetType) != true
-                ? shouldThrow
-                    ? throw new InvalidOperationException(
-                        CoreStrings.ComplexCollectionWrongClrType(
-                            propertyName,
-                            sourceType.DisplayName(),
-                            memberInfo.GetMemberType().ShortDisplayName(),
-                            targetType.ShortDisplayName()))
-                    : false
-                : shouldBeCollection
-                || memberInfo.GetMemberType().IsAssignableFrom(targetType)
-                || (shouldThrow
-                    ? throw new InvalidOperationException(
-                        CoreStrings.ComplexPropertyWrongClrType(
-                            propertyName,
-                            sourceType.DisplayName(),
-                            memberInfo.GetMemberType().ShortDisplayName(),
-                            targetType.ShortDisplayName()))
-                    : false);
+        return shouldBeCollection && memberClrType?.IsAssignableFrom(targetType) != true ? shouldThrow ? throw new InvalidOperationException( CoreStrings.ComplexCollectionWrongClrType( propertyName, sourceType.DisplayName(), memberInfo.GetMemberType().ShortDisplayName(), targetType.ShortDisplayName())) : false : shouldBeCollection || memberInfo.GetMemberType().IsAssignableFrom(targetType) || (shouldThrow ? throw new InvalidOperationException( CoreStrings.ComplexPropertyWrongClrType( propertyName, sourceType.DisplayName(), memberInfo.GetMemberType().ShortDisplayName(), targetType.ShortDisplayName())) : false);
     }
 
     /// <summary>

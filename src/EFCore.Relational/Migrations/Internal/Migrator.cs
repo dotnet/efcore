@@ -457,7 +457,7 @@ public class Migrator : IMigrator
         }
     }
 
-    private IEnumerable<(string, Func<IReadOnlyList<MigrationCommand>>)> GetMigrationCommandLists(MigratorData migratorData)
+    private IEnumerable<(string MigrationId, Func<IReadOnlyList<MigrationCommand>> Commands)> GetMigrationCommandLists(MigratorData migratorData)
     {
         var migrationsToApply = migratorData.AppliedMigrations;
         var migrationsToRevert = migratorData.RevertedMigrations;

@@ -398,10 +398,10 @@ public class RuntimeModel : RuntimeAnnotatableBase, IRuntimeModel
         => _typeConfigurations.Values;
 
     /// <inheritdoc />
-    ITypeMappingConfiguration? IModel.FindTypeMappingConfiguration(Type propertyType)
+    ITypeMappingConfiguration? IModel.FindTypeMappingConfiguration(Type scalarType)
         => _typeConfigurations.Count == 0
             ? null
-            : _typeConfigurations.GetValueOrDefault(propertyType);
+            : _typeConfigurations.GetValueOrDefault(scalarType);
 
     /// <inheritdoc />
     Guid IReadOnlyModel.ModelId

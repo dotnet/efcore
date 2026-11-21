@@ -40,28 +40,28 @@ public class RelationalQueryFilterRewritingConvention : QueryFilterRewritingConv
         }
 
         /// <inheritdoc />
-        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            var methodName = methodCallExpression.Method.Name;
-            if (methodCallExpression.Method.DeclaringType == typeof(RelationalQueryableExtensions)
+            var methodName = node.Method.Name;
+            if (node.Method.DeclaringType == typeof(RelationalQueryableExtensions)
                 && methodName is nameof(RelationalQueryableExtensions.FromSqlRaw)
                     or nameof(RelationalQueryableExtensions.FromSqlInterpolated)
                     or nameof(RelationalQueryableExtensions.FromSql))
             {
-                var newSource = (EntityQueryRootExpression)Visit(methodCallExpression.Arguments[0]);
+                var newSource = (EntityQueryRootExpression)Visit(node.Arguments[0]);
 
                 string sql;
                 Expression argument;
 
                 if (methodName == nameof(RelationalQueryableExtensions.FromSqlRaw))
                 {
-                    sql = (string)((ConstantExpression)methodCallExpression.Arguments[1]).Value!;
-                    argument = methodCallExpression.Arguments[2];
+                    sql = (string)((ConstantExpression)node.Arguments[1]).Value!;
+                    argument = node.Arguments[2];
                 }
                 else
                 {
                     var formattableString = Expression.Lambda<Func<FormattableString>>(
-                            Expression.Convert(methodCallExpression.Arguments[1], typeof(FormattableString)))
+                            Expression.Convert(node.Arguments[1], typeof(FormattableString)))
                         .Compile(preferInterpretation: true)
                         .Invoke();
 
@@ -72,7 +72,7 @@ public class RelationalQueryFilterRewritingConvention : QueryFilterRewritingConv
                 return new FromSqlQueryRootExpression(newSource.EntityType, sql, argument);
             }
 
-            return base.VisitMethodCall(methodCallExpression);
+            return base.VisitMethodCall(node);
         }
     }
 }

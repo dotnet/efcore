@@ -943,9 +943,9 @@ ORDER BY [o].[PersonAddress_ZipCode], [o].[Id]
 """);
     }
 
-    public override async Task Can_group_by_indexer_property(bool isAsync)
+    public override async Task Can_group_by_indexer_property(bool async)
     {
-        await base.Can_group_by_indexer_property(isAsync);
+        await base.Can_group_by_indexer_property(async);
 
         AssertSql(
             """
@@ -955,9 +955,9 @@ GROUP BY [o].[Name]
 """);
     }
 
-    public override async Task Can_group_by_converted_indexer_property(bool isAsync)
+    public override async Task Can_group_by_converted_indexer_property(bool async)
     {
-        await base.Can_group_by_converted_indexer_property(isAsync);
+        await base.Can_group_by_converted_indexer_property(async);
 
         AssertSql(
             """
@@ -967,9 +967,9 @@ GROUP BY [o].[Name]
 """);
     }
 
-    public override async Task Can_group_by_owned_indexer_property(bool isAsync)
+    public override async Task Can_group_by_owned_indexer_property(bool async)
     {
-        await base.Can_group_by_owned_indexer_property(isAsync);
+        await base.Can_group_by_owned_indexer_property(async);
 
         AssertSql(
             """
@@ -979,9 +979,9 @@ GROUP BY [o].[PersonAddress_ZipCode]
 """);
     }
 
-    public override async Task Can_group_by_converted_owned_indexer_property(bool isAsync)
+    public override async Task Can_group_by_converted_owned_indexer_property(bool async)
     {
-        await base.Can_group_by_converted_owned_indexer_property(isAsync);
+        await base.Can_group_by_converted_owned_indexer_property(async);
 
         AssertSql(
             """
@@ -991,9 +991,9 @@ GROUP BY [o].[PersonAddress_ZipCode]
 """);
     }
 
-    public override async Task Can_join_on_indexer_property_on_query(bool isAsync)
+    public override async Task Can_join_on_indexer_property_on_query(bool async)
     {
-        await base.Can_join_on_indexer_property_on_query(isAsync);
+        await base.Can_join_on_indexer_property_on_query(async);
 
         AssertSql(
             """
@@ -1003,9 +1003,9 @@ INNER JOIN [OwnedPerson] AS [o0] ON [o].[PersonAddress_ZipCode] = [o0].[PersonAd
 """);
     }
 
-    public override async Task Projecting_indexer_property_ignores_include(bool isAsync)
+    public override async Task Projecting_indexer_property_ignores_include(bool async)
     {
-        await base.Projecting_indexer_property_ignores_include(isAsync);
+        await base.Projecting_indexer_property_ignores_include(async);
 
         AssertSql(
             """
@@ -1014,9 +1014,9 @@ FROM [OwnedPerson] AS [o]
 """);
     }
 
-    public override async Task Projecting_indexer_property_ignores_include_converted(bool isAsync)
+    public override async Task Projecting_indexer_property_ignores_include_converted(bool async)
     {
-        await base.Projecting_indexer_property_ignores_include_converted(isAsync);
+        await base.Projecting_indexer_property_ignores_include_converted(async);
 
         AssertSql(
             """
@@ -1025,9 +1025,9 @@ FROM [OwnedPerson] AS [o]
 """);
     }
 
-    public override async Task Indexer_property_is_pushdown_into_subquery(bool isAsync)
+    public override async Task Indexer_property_is_pushdown_into_subquery(bool async)
     {
-        await base.Indexer_property_is_pushdown_into_subquery(isAsync);
+        await base.Indexer_property_is_pushdown_into_subquery(async);
 
         AssertSql(
             """
@@ -1040,9 +1040,9 @@ WHERE (
 """);
     }
 
-    public override async Task Can_query_indexer_property_on_owned_collection(bool isAsync)
+    public override async Task Can_query_indexer_property_on_owned_collection(bool async)
     {
-        await base.Can_query_indexer_property_on_owned_collection(isAsync);
+        await base.Can_query_indexer_property_on_owned_collection(async);
 
         AssertSql(
             """

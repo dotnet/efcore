@@ -273,7 +273,8 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
     private static readonly string MetadataNamespace = typeof(IReadOnlyModel).Namespace!;
     private static readonly string MetadataBuilderNamespace = typeof(IConventionModelBuilder).Namespace!;
 
-    protected virtual string? ValidateMetadata(KeyValuePair<Type, (Type, Type, Type?, Type?)> types)
+    protected virtual string? ValidateMetadata(
+        KeyValuePair<Type, (Type MutableType, Type ConventionType, Type? ConventionBuilderType, Type? RuntimeType)> types)
     {
         var readOnlyType = types.Key;
         var (mutableType, conventionType, conventionBuilderType, runtimeType) = types.Value;
@@ -607,17 +608,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
                 continue;
             }
 
-            var expectedName = methodName.StartsWith("HasNo", StringComparison.Ordinal)
-                ? "CanRemove" + methodName[5..]
-                : "CanSet"
-                + (methodName.StartsWith("Has", StringComparison.Ordinal)
-                    || methodName.StartsWith("Use", StringComparison.Ordinal)
-                        ? methodName[3..]
-                        : methodName.StartsWith("To", StringComparison.Ordinal)
-                            ? methodName[2..]
-                            : methodName.StartsWith("With", StringComparison.Ordinal)
-                                ? methodName[4..]
-                                : methodName);
+            var expectedName = methodName.StartsWith("HasNo", StringComparison.Ordinal) ? "CanRemove" + methodName[5..] : "CanSet" + (methodName.StartsWith("Has", StringComparison.Ordinal) || methodName.StartsWith("Use", StringComparison.Ordinal) ? methodName[3..] : methodName.StartsWith("To", StringComparison.Ordinal) ? methodName[2..] : methodName.StartsWith("With", StringComparison.Ordinal) ? methodName[4..] : methodName);
 
             if (!methodLookup.TryGetValue(expectedName, out var canSetMethod))
             {
@@ -1216,15 +1207,15 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
         private readonly MethodInfo _targetMethod = targetMethod;
         private readonly ApiConsistencyTestBase<TFixture> _tests = tests;
 
-        public bool Equals(Type? sourceParameterType, Type? targetParameterType)
+        public bool Equals(Type? x, Type? y)
         {
-            if (sourceParameterType == targetParameterType)
+            if (x == y)
             {
                 return true;
             }
 
-            if (sourceParameterType is null
-                || targetParameterType is null)
+            if (x is null
+                || y is null)
             {
                 return false;
             }
@@ -1232,23 +1223,23 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
             var sourceType = _sourceMethod.DeclaringType;
             var targetType = _targetMethod.DeclaringType;
             if (_targetMethod.DeclaringType!.IsGenericType
-                && sourceParameterType
+                && x
                 == _tests.GetEquivalentGenericType(
-                    sourceParameterType, _targetMethod.DeclaringType.GetGenericArguments(),
-                    sourceParameterType.IsGenericType ? sourceParameterType.GetGenericArguments() : []))
+                    x, _targetMethod.DeclaringType.GetGenericArguments(),
+                    x.IsGenericType ? x.GetGenericArguments() : []))
             {
                 return true;
             }
 
             if (sourceType!.IsGenericType
                 && targetType!.IsGenericType
-                && sourceParameterType.IsGenericType
-                && sourceParameterType.GetGenericTypeDefinition() == typeof(Expression<>)
-                && targetParameterType.IsGenericType
-                && targetParameterType.GetGenericTypeDefinition() == typeof(Expression<>))
+                && x.IsGenericType
+                && x.GetGenericTypeDefinition() == typeof(Expression<>)
+                && y.IsGenericType
+                && y.GetGenericTypeDefinition() == typeof(Expression<>))
             {
-                var sourceExpressionType = sourceParameterType.GetGenericArguments()[0];
-                var targetExpressionType = targetParameterType.GetGenericArguments()[0];
+                var sourceExpressionType = x.GetGenericArguments()[0];
+                var targetExpressionType = y.GetGenericArguments()[0];
                 if (sourceExpressionType.IsGenericType
                     && sourceExpressionType.GetGenericTypeDefinition() == typeof(Func<,>)
                     && targetExpressionType.IsGenericType

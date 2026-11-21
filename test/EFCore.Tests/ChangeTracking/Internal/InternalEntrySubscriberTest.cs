@@ -517,11 +517,11 @@ public class InternalEntrySubscriberTest
         public List<Tuple<IInternalEntry, IPropertyBase>> Changing { get; } = [];
         public List<Tuple<IInternalEntry, IPropertyBase>> Changed { get; } = [];
 
-        public void PropertyChanged(IInternalEntry entry, IPropertyBase property, bool setModified)
-            => Changed.Add(Tuple.Create(entry, property));
+        public void PropertyChanged(IInternalEntry entry, IPropertyBase propertyBase, bool setModified)
+            => Changed.Add(Tuple.Create(entry, propertyBase));
 
-        public void PropertyChanging(IInternalEntry entry, IPropertyBase property)
-            => Changing.Add(Tuple.Create(entry, property));
+        public void PropertyChanging(IInternalEntry entry, IPropertyBase propertyBase)
+            => Changing.Add(Tuple.Create(entry, propertyBase));
 
         public void DetectChanges(IStateManager stateManager)
         {

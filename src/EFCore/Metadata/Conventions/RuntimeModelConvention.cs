@@ -882,9 +882,9 @@ public class RuntimeModelConvention : IModelFinalizedConvention
             => Visit(expression);
 
         /// <inheritdoc />
-        protected override Expression VisitExtension(Expression extensionExpression)
-            => extensionExpression is EntityQueryRootExpression entityQueryRootExpression
+        protected override Expression VisitExtension(Expression node)
+            => node is EntityQueryRootExpression entityQueryRootExpression
                 ? entityQueryRootExpression.UpdateEntityType(_model.FindEntityType(entityQueryRootExpression.EntityType.Name)!)
-                : base.VisitExtension(extensionExpression);
+                : base.VisitExtension(node);
     }
 }

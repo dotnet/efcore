@@ -39,13 +39,13 @@ public class SqlServerTypeMappingPostprocessor : RelationalTypeMappingPostproces
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitExtension(Expression expression)
-        => expression switch
+    protected override Expression VisitExtension(Expression node)
+        => node switch
         {
             SqlServerOpenJsonExpression openJsonExpression
                 => ApplyTypeMappingsOnOpenJsonExpression(openJsonExpression),
 
-            _ => base.VisitExtension(expression)
+            _ => base.VisitExtension(node)
         };
 
     /// <summary>
@@ -101,12 +101,6 @@ public class SqlServerTypeMappingPostprocessor : RelationalTypeMappingPostproces
             elementTypeMapping = e;
         }
 
-        return parameterTypeMapping is not SqlServerStringTypeMapping { ElementTypeMapping: not null }
-            and not SqlServerJsonTypeMapping { ElementTypeMapping: not null }
-            ? throw new UnreachableException("A string/JSON collection type mapping was not found")
-            : openJsonExpression.Update(
-                parameterExpression.ApplyTypeMapping(parameterTypeMapping),
-                path: null,
-                [new SqlServerOpenJsonExpression.ColumnInfo("value", elementTypeMapping, Path: [])]);
+        return parameterTypeMapping is not SqlServerStringTypeMapping { ElementTypeMapping: not null } and not SqlServerJsonTypeMapping { ElementTypeMapping: not null } ? throw new UnreachableException("A string/JSON collection type mapping was not found") : openJsonExpression.Update( parameterExpression.ApplyTypeMapping(parameterTypeMapping), path: null, [new SqlServerOpenJsonExpression.ColumnInfo("value", elementTypeMapping, Path: [])]);
     }
 }

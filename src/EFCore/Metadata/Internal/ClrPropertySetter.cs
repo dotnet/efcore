@@ -52,8 +52,8 @@ public sealed class ClrPropertySetter<TEntity, TStructural, TValue> : IClrProper
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetClrValueUsingContainingEntity(object entity, IReadOnlyList<int> indices, object? value)
-        => _setClrValueUsingContainingEntity((TEntity)entity, indices, (TValue)value!);
+    public void SetClrValueUsingContainingEntity(object instance, IReadOnlyList<int> indices, object? value)
+        => _setClrValueUsingContainingEntity((TEntity)instance, indices, (TValue)value!);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

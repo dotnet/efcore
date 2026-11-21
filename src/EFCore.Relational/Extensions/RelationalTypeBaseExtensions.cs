@@ -422,11 +422,7 @@ public static class RelationalTypeBaseExtensions
             if (containingEntityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy)
             {
                 var localStoreObject = storeObject;
-                return StoreObjectIdentifier.Create(containingEntityType, localStoreObject.StoreObjectType) == localStoreObject
-                    || containingEntityType.GetDerivedTypes().Any(e
-                        => StoreObjectIdentifier.Create(e, localStoreObject.StoreObjectType) == localStoreObject)
-                        ? containerColumnName
-                        : null;
+                return StoreObjectIdentifier.Create(containingEntityType, localStoreObject.StoreObjectType) == localStoreObject || containingEntityType.GetDerivedTypes().Any(e => StoreObjectIdentifier.Create(e, localStoreObject.StoreObjectType) == localStoreObject) ? containerColumnName : null;
             }
 
             // TODO: Support entity splitting with JSON columns. Issue #36172

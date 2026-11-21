@@ -34,14 +34,14 @@ public class QueryExpressionReplacingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [return: NotNullIfNotNull(nameof(expression))]
-    public override Expression? Visit(Expression? expression)
-        => expression is ProjectionBindingExpression projectionBindingExpression
+    [return: NotNullIfNotNull(nameof(node))]
+    public override Expression? Visit(Expression? node)
+        => node is ProjectionBindingExpression projectionBindingExpression
             && ReferenceEquals(projectionBindingExpression.QueryExpression, _oldQuery)
                 ? projectionBindingExpression.ProjectionMember != null
                     ? new ProjectionBindingExpression(
                         _newQuery, projectionBindingExpression.ProjectionMember!, projectionBindingExpression.Type)
                     : new ProjectionBindingExpression(
                         _newQuery, projectionBindingExpression.Index!.Value, projectionBindingExpression.Type)
-                : base.Visit(expression);
+                : base.Visit(node);
 }

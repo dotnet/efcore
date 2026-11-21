@@ -52,13 +52,6 @@ public abstract class NamedConnectionStringResolverBase
     private static string? TryGetConnectionName(string connectionString)
     {
         var firstEquals = connectionString.IndexOf('=');
-        return firstEquals < 0
-            ? null
-            : connectionString.IndexOf('=', firstEquals + 1) >= 0
-                ? null
-                : connectionString[..firstEquals].Trim().Equals(
-                    "name", StringComparison.OrdinalIgnoreCase)
-                    ? connectionString[(firstEquals + 1)..].Trim()
-                    : null;
+        return firstEquals < 0 ? null : connectionString.IndexOf('=', firstEquals + 1) >= 0 ? null : connectionString[..firstEquals].Trim().Equals( "name", StringComparison.OrdinalIgnoreCase) ? connectionString[(firstEquals + 1)..].Trim() : null;
     }
 }

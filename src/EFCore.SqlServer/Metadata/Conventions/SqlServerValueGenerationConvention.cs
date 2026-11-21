@@ -137,10 +137,5 @@ public class SqlServerValueGenerationConvention : RelationalValueGenerationConve
                 : null);
 
     private static ValueGenerated? GetTemporalValueGenerated(IReadOnlyProperty property)
-        => property.DeclaringType is IReadOnlyEntityType entityType
-            && entityType.IsTemporal()
-            && (entityType.GetPeriodStartPropertyName() == property.Name
-                || entityType.GetPeriodEndPropertyName() == property.Name)
-                ? ValueGenerated.OnAddOrUpdate
-                : null;
+        => property.DeclaringType is IReadOnlyEntityType entityType && entityType.IsTemporal() && (entityType.GetPeriodStartPropertyName() == property.Name || entityType.GetPeriodEndPropertyName() == property.Name) ? ValueGenerated.OnAddOrUpdate : null;
 }

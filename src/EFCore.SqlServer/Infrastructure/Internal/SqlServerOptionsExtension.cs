@@ -244,12 +244,7 @@ public class SqlServerOptionsExtension : RelationalOptionsExtension, IDbContextO
 
     /// <inheritdoc />
     public virtual IDbContextOptionsExtension ApplyDefaults(IDbContextOptions options)
-        => ExecutionStrategyFactory == null
-            && (EngineType == SqlServerEngineType.AzureSql
-                || EngineType == SqlServerEngineType.AzureSynapse
-                || UseRetryingStrategyByDefault)
-                ? WithExecutionStrategyFactory(c => new SqlServerRetryingExecutionStrategy(c))
-                : (IDbContextOptionsExtension)this;
+        => ExecutionStrategyFactory == null && (EngineType == SqlServerEngineType.AzureSql || EngineType == SqlServerEngineType.AzureSynapse || UseRetryingStrategyByDefault) ? WithExecutionStrategyFactory(c => new SqlServerRetryingExecutionStrategy(c)) : (IDbContextOptionsExtension)this;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
