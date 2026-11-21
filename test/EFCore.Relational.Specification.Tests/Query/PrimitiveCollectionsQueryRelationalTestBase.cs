@@ -258,6 +258,25 @@ public abstract class PrimitiveCollectionsQueryRelationalTestBase<TFixture>(TFix
     }
 
     [Fact]
+    public virtual async Task Parameter_collection_Contains_ending_in_null_with_bucket_padding()
+    {
+        var contextFactory = await InitializeNonSharedTest<TestContext>(
+            onConfiguring: b => SetParameterizedCollectionMode(b, ParameterTranslationMode.MultipleParameters),
+            seed: context =>
+            {
+                context.AddRange(
+                    Enumerable.Range(1, 11).Select(i => new TestEntity { Id = i }));
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        int?[] values = [1, 2, 3, 4, 5, 6, null];
+        var result = await context.Set<TestEntity>().Where(c => !values.Contains(c.Id)).OrderBy(c => c.Id).Select(c => c.Id).ToListAsync();
+        Assert.Equivalent(new[] { 7, 8, 9, 10, 11 }, result);
+    }
+
+    [Fact]
     public virtual async Task Column_collection_inside_json_owned_entity()
     {
         var contextFactory = await InitializeNonSharedTest<TestContext>(
