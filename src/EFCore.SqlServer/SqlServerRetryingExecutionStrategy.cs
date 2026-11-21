@@ -29,6 +29,7 @@ namespace Microsoft.EntityFrameworkCore;
 public class SqlServerRetryingExecutionStrategy : ExecutionStrategy
 {
     private readonly HashSet<int>? _additionalErrorNumbers;
+    private readonly TimeSpan _minThrottlingDelay;
 
     /// <summary>
     ///     The default minimum time delay between retries for throttling errors.
@@ -97,6 +98,46 @@ public class SqlServerRetryingExecutionStrategy : ExecutionStrategy
     /// <remarks>
     ///     Default values of 6 for the maximum retry count and 30 seconds for the maximum default delay are used.
     /// </remarks>
+    /// <param name="context">The context on which the operations will be invoked.</param>
+    /// <param name="minThrottlingDelay">The minimum additional delay for throttling errors.</param>
+    public SqlServerRetryingExecutionStrategy(
+        DbContext context,
+        TimeSpan minThrottlingDelay)
+        : this(
+            context,
+            DefaultMaxRetryCount,
+            DefaultMaxDelay,
+            errorNumbersToAdd: null,
+            minThrottlingDelay: minThrottlingDelay)
+    {
+    }
+
+    /// <summary>
+    ///     Creates a new instance of <see cref="SqlServerRetryingExecutionStrategy" />.
+    /// </summary>
+    /// <remarks>
+    ///     Default values of 6 for the maximum retry count and 30 seconds for the maximum default delay are used.
+    /// </remarks>
+    /// <param name="dependencies">Parameter object containing service dependencies.</param>
+    /// <param name="minThrottlingDelay">The minimum additional delay for throttling errors.</param>
+    public SqlServerRetryingExecutionStrategy(
+        ExecutionStrategyDependencies dependencies,
+        TimeSpan minThrottlingDelay)
+        : this(
+            dependencies,
+            DefaultMaxRetryCount,
+            DefaultMaxDelay,
+            errorNumbersToAdd: null,
+            minThrottlingDelay: minThrottlingDelay)
+    {
+    }
+
+    /// <summary>
+    ///     Creates a new instance of <see cref="SqlServerRetryingExecutionStrategy" />.
+    /// </summary>
+    /// <remarks>
+    ///     Default values of 6 for the maximum retry count and 30 seconds for the maximum default delay are used.
+    /// </remarks>
     /// <param name="dependencies">Parameter object containing service dependencies.</param>
     /// <param name="errorNumbersToAdd">Additional SQL error numbers that should be considered transient.</param>
     public SqlServerRetryingExecutionStrategy(
@@ -118,11 +159,34 @@ public class SqlServerRetryingExecutionStrategy : ExecutionStrategy
         int maxRetryCount,
         TimeSpan maxRetryDelay,
         IEnumerable<int>? errorNumbersToAdd)
-        : base(
-            context,
-            maxRetryCount,
-            maxRetryDelay)
-        => _additionalErrorNumbers = errorNumbersToAdd?.ToHashSet();
+        : this(context, maxRetryCount, maxRetryDelay, errorNumbersToAdd, DefaultMinDelayThrottling)
+    {
+    }
+
+    /// <summary>
+    ///     Creates a new instance of <see cref="SqlServerRetryingExecutionStrategy" />.
+    /// </summary>
+    /// <param name="context">The context on which the operations will be invoked.</param>
+    /// <param name="maxRetryCount">The maximum number of retry attempts.</param>
+    /// <param name="maxRetryDelay">The maximum delay between retries.</param>
+    /// <param name="errorNumbersToAdd">Additional SQL error numbers that should be considered transient.</param>
+    /// <param name="minThrottlingDelay">The minimum additional delay for throttling errors.</param>
+    public SqlServerRetryingExecutionStrategy(
+        DbContext context,
+        int maxRetryCount,
+        TimeSpan maxRetryDelay,
+        IEnumerable<int>? errorNumbersToAdd,
+        TimeSpan minThrottlingDelay)
+        : base(context, maxRetryCount, maxRetryDelay)
+    {
+        if (minThrottlingDelay < TimeSpan.Zero)
+        {
+            throw new ArgumentOutOfRangeException(nameof(minThrottlingDelay));
+        }
+
+        _additionalErrorNumbers = errorNumbersToAdd?.ToHashSet();
+        _minThrottlingDelay = minThrottlingDelay;
+    }
 
     /// <summary>
     ///     Creates a new instance of <see cref="SqlServerRetryingExecutionStrategy" />.
@@ -136,8 +200,34 @@ public class SqlServerRetryingExecutionStrategy : ExecutionStrategy
         int maxRetryCount,
         TimeSpan maxRetryDelay,
         IEnumerable<int>? errorNumbersToAdd)
+        : this(dependencies, maxRetryCount, maxRetryDelay, errorNumbersToAdd, DefaultMinDelayThrottling)
+    {
+    }
+
+    /// <summary>
+    ///     Creates a new instance of <see cref="SqlServerRetryingExecutionStrategy" />.
+    /// </summary>
+    /// <param name="dependencies">Parameter object containing service dependencies.</param>
+    /// <param name="maxRetryCount">The maximum number of retry attempts.</param>
+    /// <param name="maxRetryDelay">The maximum delay between retries.</param>
+    /// <param name="errorNumbersToAdd">Additional SQL error numbers that should be considered transient.</param>
+    /// <param name="minThrottlingDelay">The minimum additional delay for throttling errors.</param>
+    public SqlServerRetryingExecutionStrategy(
+        ExecutionStrategyDependencies dependencies,
+        int maxRetryCount,
+        TimeSpan maxRetryDelay,
+        IEnumerable<int>? errorNumbersToAdd,
+        TimeSpan minThrottlingDelay)
         : base(dependencies, maxRetryCount, maxRetryDelay)
-        => _additionalErrorNumbers = errorNumbersToAdd?.ToHashSet();
+    {
+        if (minThrottlingDelay < TimeSpan.Zero)
+        {
+            throw new ArgumentOutOfRangeException(nameof(minThrottlingDelay));
+        }
+
+        _additionalErrorNumbers = errorNumbersToAdd?.ToHashSet();
+        _minThrottlingDelay = minThrottlingDelay;
+    }
 
     /// <summary>
     ///     Additional SQL error numbers that should be considered transient.
@@ -186,7 +276,7 @@ public class SqlServerRetryingExecutionStrategy : ExecutionStrategy
             : CallOnWrappedException(lastException, IsMemoryOptimizedError)
                 ? TimeSpan.FromMilliseconds(baseDelay.Value.TotalSeconds)
                 : CallOnWrappedException(lastException, IsThrottlingError)
-                    ? baseDelay + DefaultMinDelayThrottling
+                    ? baseDelay + _minThrottlingDelay
                     : baseDelay;
     }
 
