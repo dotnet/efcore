@@ -16,6 +16,45 @@ using Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Migrations;
 
+public class FullTextIndexSnapshotSqlServerTest
+{
+    [Fact]
+    public void Full_text_index_with_languages_has_no_pending_changes_after_snapshot()
+    {
+        var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder();
+        modelBuilder.Entity(
+            "Article",
+            b =>
+            {
+                b.Property<int>("Id");
+                b.Property<string>("Title").HasColumnName("Headline");
+                b.Property<string>("Contents");
+                b.HasKey("Id");
+                b.HasFullTextIndex("Title", "Contents")
+                    .UseKeyIndex("PK_Article")
+                    .UseLanguage("Title", "English")
+                    .UseLanguage("Contents", "French");
+            });
+
+        var model = modelBuilder.FinalizeModel(designTime: true);
+        var generator = SqlServerTestHelpers.Instance.CreateDesignServiceProvider().GetRequiredService<IMigrationsCodeGenerator>();
+        var snapshotCode = generator.GenerateSnapshot(null, typeof(DbContext), "TestSnapshot", model);
+        var build = new BuildSource { Sources = { { "Snapshot.cs", snapshotCode } } };
+        build.References.Add(BuildReference.ByName("Microsoft.EntityFrameworkCore"));
+        build.References.Add(BuildReference.ByName("Microsoft.EntityFrameworkCore.Abstractions"));
+        build.References.Add(BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational"));
+        build.References.Add(BuildReference.ByName("Microsoft.EntityFrameworkCore.SqlServer"));
+        var snapshot = (ModelSnapshot)Activator.CreateInstance(build.BuildInMemory().GetType("TestSnapshot")!)!;
+        var services = SqlServerTestHelpers.Instance.CreateContextServices();
+        var snapshotModel = new SnapshotModelProcessor(
+            new TestOperationReporter(), services.GetRequiredService<IModelRuntimeInitializer>()).Process(snapshot.Model)!;
+        var differ = services.GetRequiredService<IMigrationsModelDiffer>();
+
+        Assert.False(differ.HasDifferences(snapshotModel.GetRelationalModel(), model.GetRelationalModel()));
+        Assert.Empty(differ.GetDifferences(snapshotModel.GetRelationalModel(), model.GetRelationalModel()));
+    }
+}
+
 public partial class MigrationsSqlServerTest : MigrationsTestBase<MigrationsSqlServerTest.MigrationsSqlServerFixture>
 {
     public MigrationsSqlServerTest(MigrationsSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
