@@ -10,6 +10,77 @@ namespace Microsoft.EntityFrameworkCore.Migrations;
 
 public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
 {
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Full_text_index_with_unchanged_languages_is_not_recreated(bool reverseOrder)
+        => Execute(
+            model => model.Entity(
+                "Article",
+                b =>
+                {
+                    b.Property<int>("Id");
+                    b.Property<string>("Title").HasColumnName("Headline");
+                    b.Property<string>("Contents");
+                    b.HasKey("Id");
+                }),
+            source => source.Entity("Article").HasFullTextIndex("Title", "Contents")
+                .UseKeyIndex("PK_Article").UseLanguage("Title", "English").UseLanguage("Contents", "French"),
+            target =>
+            {
+                var index = target.Entity("Article").HasFullTextIndex("Title", "Contents").UseKeyIndex("PK_Article");
+                if (reverseOrder)
+                {
+                    index.UseLanguage("Contents", "French").UseLanguage("Title", "English");
+                }
+                else
+                {
+                    index.UseLanguage("Title", "English").UseLanguage("Contents", "French");
+                }
+            },
+            Assert.Empty,
+            Assert.Empty);
+
+    [Theory]
+    [InlineData("Title", "German")]
+    [InlineData("Contents", "English")]
+    [InlineData(null, null)]
+    public void Full_text_index_with_changed_languages_is_recreated(string? property, string? language)
+        => Execute(
+            model => model.Entity(
+                "Article",
+                b =>
+                {
+                    b.Property<int>("Id");
+                    b.Property<string>("Title").HasColumnName("Headline");
+                    b.Property<string>("Contents");
+                    b.HasKey("Id");
+                }),
+            source => source.Entity("Article").HasFullTextIndex("Title", "Contents")
+                .UseKeyIndex("PK_Article").UseLanguage("Title", "English"),
+            target =>
+            {
+                var index = target.Entity("Article").HasFullTextIndex("Title", "Contents").UseKeyIndex("PK_Article");
+                if (property is not null)
+                {
+                    index.UseLanguage(property, language!);
+                }
+            },
+            operations =>
+            {
+                Assert.Collection(
+                    operations,
+                    operation => Assert.IsType<DropIndexOperation>(operation),
+                    operation => Assert.IsType<CreateIndexOperation>(operation));
+            },
+            operations =>
+            {
+                Assert.Collection(
+                    operations,
+                    operation => Assert.IsType<DropIndexOperation>(operation),
+                    operation => Assert.IsType<CreateIndexOperation>(operation));
+            });
+
     [Fact]
     public void Alter_database_edition_options()
         => Execute(
