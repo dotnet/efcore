@@ -2793,9 +2793,13 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         }
 
         var keyComparisons = new List<(ColumnExpression Outer, ColumnExpression Inner)>();
+        var nullChecks = new List<ColumnExpression>();
         if (!IsCorrelation(selectExpression.Predicate!)
             || keyComparisons.Count == 0
-            || keyComparisons[0].Inner.Column is not IColumn { Table: var dependentTable })
+            || keyComparisons[0].Inner.Column is not IColumn { Table: var dependentTable }
+            // A null check is only a navigation-generated guard if it is on one of the compared principal key columns.
+            // Any other one, e.g. c.City != null, is a user filter.
+            || nullChecks.Any(n => !keyComparisons.Any(c => c.Outer.TableAlias == n.TableAlias && c.Outer.Name == n.Name)))
         {
             return false;
         }
@@ -2816,6 +2820,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                 {
                     OperatorType: ExpressionType.NotEqual, Left: ColumnExpression column, Right: SqlConstantExpression { Value: null }
                 }:
+                    nullChecks.Add(column);
                     return IsOuter(column);
 
                 case SqlBinaryExpression
