@@ -1361,6 +1361,12 @@ WHERE [p].[Int] NOT IN (10, 999)
     public override Task Column_collection_of_bools_Contains()
         => AssertCompatibilityLevelTooLow(() => base.Column_collection_of_bools_Contains());
 
+    public override Task Column_collection_Any_with_predicate_referencing_parameter_on_both_sides()
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_Any_with_predicate_referencing_parameter_on_both_sides());
+
+    public override Task Column_collection_All_with_predicate_referencing_parameter_on_both_sides()
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_All_with_predicate_referencing_parameter_on_both_sides());
+
     [Fact]
     public virtual async Task Json_representation_of_bool_array()
     {

@@ -155,6 +155,7 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
     {
         // Normalize x.Any(i => i == foo) to x.Contains(foo)
         // And x.All(i => i != foo) to !x.Contains(foo)
+        // foo gets moved out of the lambda, so this only applies when it doesn't reference i
         if (methodCallExpression.Method.IsGenericMethod
             && methodCallExpression.Method.GetGenericMethodDefinition() is var methodInfo
             && (methodInfo == EnumerableMethods.AnyWithPredicate
@@ -170,7 +171,8 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
                     ? left
                     : null;
 
-            if (itemExpression is not null)
+            if (itemExpression is not null
+                && !ParameterFindingExpressionVisitor.ContainsParameter(itemExpression, lambda.Parameters[0]))
             {
                 var containsMethodDefinition = methodInfo.DeclaringType == typeof(Enumerable)
                     ? EnumerableMethods.Contains
@@ -414,5 +416,28 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
         }
 
         return null;
+    }
+
+    private sealed class ParameterFindingExpressionVisitor(ParameterExpression parameter) : ExpressionVisitor
+    {
+        private bool _found;
+
+        public static bool ContainsParameter(Expression expression, ParameterExpression parameter)
+        {
+            var visitor = new ParameterFindingExpressionVisitor(parameter);
+            visitor.Visit(expression);
+
+            return visitor._found;
+        }
+
+        protected override Expression VisitParameter(ParameterExpression parameterExpression)
+        {
+            if (parameterExpression == parameter)
+            {
+                _found = true;
+            }
+
+            return base.VisitParameter(parameterExpression);
+        }
     }
 }
