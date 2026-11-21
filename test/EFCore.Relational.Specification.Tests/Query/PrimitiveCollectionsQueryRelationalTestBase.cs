@@ -257,6 +257,27 @@ public abstract class PrimitiveCollectionsQueryRelationalTestBase<TFixture>(TFix
         Assert.Equivalent(new[] { 2 }, result);
     }
 
+    // The Count keeps the null and the Contains drops it, but both share the collection's expanded parameters.
+    [Fact]
+    public virtual Task Parameter_collection_with_null_in_Count_then_Contains()
+    {
+        var ints = new int?[] { 10, null, 20 };
+
+        return AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>()
+            .Where(c => ints.Count(i => i > c.Id) == 2)
+            .Where(c => ints.Contains(c.Int)));
+    }
+
+    [Fact]
+    public virtual Task Parameter_collection_with_null_in_Contains_then_Count()
+    {
+        var ints = new int?[] { 10, null, 20 };
+
+        return AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>()
+            .Where(c => ints.Contains(c.Int))
+            .Where(c => ints.Count(i => i > c.Id) == 2));
+    }
+
     [Fact]
     public virtual async Task Column_collection_inside_json_owned_entity()
     {
