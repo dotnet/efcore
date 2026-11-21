@@ -3,6 +3,7 @@
 
 using System.Collections;
 using System.ComponentModel;
+using Microsoft.EntityFrameworkCore.Update;
 
 namespace Microsoft.EntityFrameworkCore;
 
@@ -717,6 +718,64 @@ public abstract class DbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyA
     /// </remarks>
     bool IListSource.ContainsListCollection
         => false;
+
+    /// <summary>
+    ///     Imports the specified entities directly into the database table without change tracking.
+    /// </summary>
+    /// <param name="entities">The entities to import.</param>
+    /// <param name="options">Options to configure the bulk import operation.</param>
+    public virtual void ImportFrom(
+        IEnumerable<TEntity> entities,
+        BulkImportOptions? options = null)
+        => throw new NotSupportedException();
+
+    /// <summary>
+    ///     Asynchronously imports the specified entities directly into the database table without change tracking.
+    /// </summary>
+    /// <param name="entities">The entities to import.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous bulk import operation.</returns>
+    public virtual Task ImportFromAsync(
+        IEnumerable<TEntity> entities,
+        CancellationToken cancellationToken = default)
+        => ImportFromAsync(entities, options: null, cancellationToken);
+
+    /// <summary>
+    ///     Asynchronously imports the specified entities directly into the database table without change tracking.
+    /// </summary>
+    /// <param name="entities">The entities to import.</param>
+    /// <param name="options">Options to configure the bulk import operation.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous bulk import operation.</returns>
+    public virtual Task ImportFromAsync(
+        IEnumerable<TEntity> entities,
+        BulkImportOptions? options,
+        CancellationToken cancellationToken = default)
+        => throw new NotSupportedException();
+
+    /// <summary>
+    ///     Asynchronously imports the specified entities stream directly into the database table without change tracking.
+    /// </summary>
+    /// <param name="entities">The stream of entities to import.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous bulk import operation.</returns>
+    public virtual Task ImportFromAsync(
+        IAsyncEnumerable<TEntity> entities,
+        CancellationToken cancellationToken = default)
+        => ImportFromAsync(entities, options: null, cancellationToken);
+
+    /// <summary>
+    ///     Asynchronously imports the specified entities stream directly into the database table without change tracking.
+    /// </summary>
+    /// <param name="entities">The stream of entities to import.</param>
+    /// <param name="options">Options to configure the bulk import operation.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous bulk import operation.</returns>
+    public virtual Task ImportFromAsync(
+        IAsyncEnumerable<TEntity> entities,
+        BulkImportOptions? options,
+        CancellationToken cancellationToken = default)
+        => throw new NotSupportedException();
 
     #region Hidden System.Object members
 
