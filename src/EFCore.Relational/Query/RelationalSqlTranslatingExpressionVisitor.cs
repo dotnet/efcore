@@ -560,11 +560,23 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                     innerExpression = unaryExpression.Operand;
                 }
 
+                // A single-result subquery whose entity has included (e.g. owned) navigations, such as the element of a grouping.
+                // The includes are kept aside, so that a reference navigation accessed on the entity can be bound over the subquery
+                // (see TryBindMember).
+                Dictionary<INavigationBase, Expression>? includedNavigations = null;
+                while (innerExpression is IncludeExpression includeExpression)
+                {
+                    includedNavigations ??= [];
+                    includedNavigations[includeExpression.Navigation] = includeExpression.NavigationExpression;
+                    innerExpression = includeExpression.EntityExpression;
+                }
+
                 if (innerExpression is StructuralTypeShaperExpression ese
                     && (convertedType == null
                         || convertedType.IsAssignableFrom(ese.Type)))
                 {
-                    return new StructuralTypeReferenceExpression(shapedQueryExpression.UpdateShaperExpression(innerExpression));
+                    return new StructuralTypeReferenceExpression(
+                        shapedQueryExpression.UpdateShaperExpression(innerExpression), includedNavigations);
                 }
 
                 if (innerExpression is ProjectionBindingExpression pbe
@@ -1281,6 +1293,22 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
 
             expression = BindComplexProperty(typeReference, complexProperty);
             property = complexProperty;
+            return true;
+        }
+
+        // A reference navigation on an entity produced by a single-result subquery,
+        // which the subquery already includes (e.g. an owned navigation):
+        // bind it over the same subquery, projecting the navigation's target instead of the entity.
+        if (typeReference is { Subquery: { } subquery, IncludedNavigations: { } includedNavigations }
+            && structuralType is IEntityType entityType
+            && (member.MemberInfo != null
+                ? entityType.FindNavigation(member.MemberInfo)
+                : entityType.FindNavigation(member.Name!)) is { IsCollection: false } navigation
+            && includedNavigations.TryGetValue(navigation, out var navigationExpression)
+            && Visit(subquery.UpdateShaperExpression(navigationExpression)) is StructuralTypeReferenceExpression navigationReference)
+        {
+            expression = navigationReference;
+            property = navigation;
             return true;
         }
 
@@ -2026,9 +2054,12 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
             StructuralType = parameter.StructuralType;
         }
 
-        public StructuralTypeReferenceExpression(ShapedQueryExpression subquery)
+        public StructuralTypeReferenceExpression(
+            ShapedQueryExpression subquery,
+            IReadOnlyDictionary<INavigationBase, Expression>? includedNavigations = null)
         {
             Subquery = subquery;
+            IncludedNavigations = includedNavigations;
             StructuralType = ((StructuralTypeShaperExpression)subquery.ShaperExpression).StructuralType;
         }
 
@@ -2036,11 +2067,15 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
         {
             Parameter = typeReference.Parameter;
             Subquery = typeReference.Subquery;
+            IncludedNavigations = typeReference.IncludedNavigations;
             StructuralType = structuralType;
         }
 
         public new StructuralTypeShaperExpression? Parameter { get; }
         public ShapedQueryExpression? Subquery { get; }
+
+        // For a subquery reference: the navigations the subquery includes, with the shapers of their targets.
+        public IReadOnlyDictionary<INavigationBase, Expression>? IncludedNavigations { get; }
         public ITypeBase StructuralType { get; }
 
         public override Type Type

@@ -359,6 +359,158 @@ LEFT JOIN (
         }
     }
 
+    public override async Task Where_on_root_property_on_GroupBy_First()
+    {
+        await base.Where_on_root_property_on_GroupBy_First();
+
+        AssertSql(
+            """
+SELECT [r7].[Id], [r7].[Name], [r7].[c], [r7].[c0], [r7].[c1]
+FROM (
+    SELECT [r0].[Key]
+    FROM (
+        SELECT [r].[Id] % 2 AS [Key]
+        FROM [RootEntity] AS [r]
+    ) AS [r0]
+    GROUP BY [r0].[Key]
+    HAVING (
+        SELECT TOP(1) [r3].[Id]
+        FROM (
+            SELECT [r4].[Id], [r4].[Id] % 2 AS [Key]
+            FROM [RootEntity] AS [r4]
+        ) AS [r3]
+        WHERE ([r0].[Key] = [r3].[Key] OR ([r0].[Key] IS NULL AND [r3].[Key] IS NULL)) AND [r3].[Id] > 0
+        ORDER BY [r3].[Id]) > 1
+) AS [r5]
+LEFT JOIN (
+    SELECT [r6].[Id], [r6].[Name], [r6].[c] AS [c], [r6].[c0] AS [c0], [r6].[c1] AS [c1], [r6].[Key]
+    FROM (
+        SELECT [r1].[Id], [r1].[Name], [r1].[c] AS [c], [r1].[c0] AS [c0], [r1].[c1] AS [c1], [r1].[Key], ROW_NUMBER() OVER(PARTITION BY [r1].[Key] ORDER BY [r1].[Id]) AS [row]
+        FROM (
+            SELECT [r2].[Id], [r2].[Name], [r2].[AssociateCollection] AS [c], [r2].[OptionalAssociate] AS [c0], [r2].[RequiredAssociate] AS [c1], [r2].[Id] % 2 AS [Key]
+            FROM [RootEntity] AS [r2]
+        ) AS [r1]
+        WHERE [r1].[Id] > 0
+    ) AS [r6]
+    WHERE [r6].[row] <= 1
+) AS [r7] ON [r5].[Key] = [r7].[Key] OR ([r5].[Key] IS NULL AND [r7].[Key] IS NULL)
+""");
+    }
+
+    public override async Task Select_multiple_associates_on_GroupBy_OrderByDescending_First()
+    {
+        await base.Select_multiple_associates_on_GroupBy_OrderByDescending_First();
+
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                """
+SELECT [r1].[Id], [r1].[c1], JSON_QUERY([r1].[c1], '$.RequiredNestedAssociate')
+FROM (
+    SELECT [r0].[Id], [r0].[c1] AS [c1], ROW_NUMBER() OVER(PARTITION BY [r0].[Key] ORDER BY [r0].[Id] DESC) AS [row]
+    FROM (
+        SELECT [r].[Id], [r].[RequiredAssociate] AS [c1], [r].[Id] % 2 AS [Key]
+        FROM [RootEntity] AS [r]
+    ) AS [r0]
+) AS [r1]
+WHERE [r1].[row] <= 1
+ORDER BY JSON_VALUE([r1].[c1], '$.Int' RETURNING int) DESC, [r1].[Id]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+SELECT [r1].[Id], [r1].[c1], JSON_QUERY([r1].[c1], '$.RequiredNestedAssociate')
+FROM (
+    SELECT [r0].[Id], [r0].[c1] AS [c1], ROW_NUMBER() OVER(PARTITION BY [r0].[Key] ORDER BY [r0].[Id] DESC) AS [row]
+    FROM (
+        SELECT [r].[Id], [r].[RequiredAssociate] AS [c1], [r].[Id] % 2 AS [Key]
+        FROM [RootEntity] AS [r]
+    ) AS [r0]
+) AS [r1]
+WHERE [r1].[row] <= 1
+ORDER BY CAST(JSON_VALUE([r1].[c1], '$.Int') AS int) DESC, [r1].[Id]
+""");
+        }
+    }
+
+    public override async Task Select_multiple_associates_on_GroupBy_MaxBy()
+    {
+        await base.Select_multiple_associates_on_GroupBy_MaxBy();
+
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                """
+SELECT [r1].[Id], [r1].[c1], JSON_QUERY([r1].[c1], '$.RequiredNestedAssociate')
+FROM (
+    SELECT [r0].[Id], [r0].[c1] AS [c1], ROW_NUMBER() OVER(PARTITION BY [r0].[Key] ORDER BY [r0].[Id] DESC) AS [row]
+    FROM (
+        SELECT [r].[Id], [r].[RequiredAssociate] AS [c1], [r].[Id] % 2 AS [Key]
+        FROM [RootEntity] AS [r]
+    ) AS [r0]
+) AS [r1]
+WHERE [r1].[row] <= 1
+ORDER BY JSON_VALUE([r1].[c1], '$.Int' RETURNING int) DESC, [r1].[Id]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+SELECT [r1].[Id], [r1].[c1], JSON_QUERY([r1].[c1], '$.RequiredNestedAssociate')
+FROM (
+    SELECT [r0].[Id], [r0].[c1] AS [c1], ROW_NUMBER() OVER(PARTITION BY [r0].[Key] ORDER BY [r0].[Id] DESC) AS [row]
+    FROM (
+        SELECT [r].[Id], [r].[RequiredAssociate] AS [c1], [r].[Id] % 2 AS [Key]
+        FROM [RootEntity] AS [r]
+    ) AS [r0]
+) AS [r1]
+WHERE [r1].[row] <= 1
+ORDER BY CAST(JSON_VALUE([r1].[c1], '$.Int') AS int) DESC, [r1].[Id]
+""");
+        }
+    }
+
+    public override async Task OrderBy_associate_scalar_property_on_GroupBy_First()
+    {
+        await base.OrderBy_associate_scalar_property_on_GroupBy_First();
+
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                """
+SELECT [r1].[Id], [r1].[Name], [r1].[c], [r1].[c0], [r1].[c1]
+FROM (
+    SELECT [r0].[Id], [r0].[Name], [r0].[c] AS [c], [r0].[c0] AS [c0], [r0].[c1] AS [c1], ROW_NUMBER() OVER(PARTITION BY [r0].[Key] ORDER BY [r0].[Id] DESC) AS [row]
+    FROM (
+        SELECT [r].[Id], [r].[Name], [r].[AssociateCollection] AS [c], [r].[OptionalAssociate] AS [c0], [r].[RequiredAssociate] AS [c1], [r].[Id] % 2 AS [Key]
+        FROM [RootEntity] AS [r]
+    ) AS [r0]
+) AS [r1]
+WHERE [r1].[row] <= 1
+ORDER BY JSON_VALUE([r1].[c1], '$.Int' RETURNING int), [r1].[Id]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+SELECT [r1].[Id], [r1].[Name], [r1].[c], [r1].[c0], [r1].[c1]
+FROM (
+    SELECT [r0].[Id], [r0].[Name], [r0].[c] AS [c], [r0].[c0] AS [c0], [r0].[c1] AS [c1], ROW_NUMBER() OVER(PARTITION BY [r0].[Key] ORDER BY [r0].[Id] DESC) AS [row]
+    FROM (
+        SELECT [r].[Id], [r].[Name], [r].[AssociateCollection] AS [c], [r].[OptionalAssociate] AS [c0], [r].[RequiredAssociate] AS [c1], [r].[Id] % 2 AS [Key]
+        FROM [RootEntity] AS [r]
+    ) AS [r0]
+) AS [r1]
+WHERE [r1].[row] <= 1
+ORDER BY CAST(JSON_VALUE([r1].[c1], '$.Int') AS int), [r1].[Id]
+""");
+        }
+    }
+
     #endregion Subquery
 
     [Fact]

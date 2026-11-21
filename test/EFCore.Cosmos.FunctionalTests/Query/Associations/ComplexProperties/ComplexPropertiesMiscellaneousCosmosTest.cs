@@ -94,6 +94,17 @@ WHERE (c["OptionalAssociate"] != null)
     public override Task Where_on_associate_scalar_property_on_GroupBy_First()
         => AssertTranslationFailed(base.Where_on_associate_scalar_property_on_GroupBy_First);
 
+    public override Task Where_on_root_property_on_GroupBy_First()
+        => AssertTranslationFailed(base.Where_on_root_property_on_GroupBy_First);
+
+    public override Task Select_multiple_associates_on_GroupBy_OrderByDescending_First()
+        => AssertTranslationFailed(base.Select_multiple_associates_on_GroupBy_OrderByDescending_First);
+
+    public override Task Select_multiple_associates_on_GroupBy_MaxBy()
+        => AssertTranslationFailed(base.Select_multiple_associates_on_GroupBy_MaxBy);
+    public override Task OrderBy_associate_scalar_property_on_GroupBy_First()
+        => AssertTranslationFailed(base.OrderBy_associate_scalar_property_on_GroupBy_First);
+
     #endregion Subquery
 
     [Fact]

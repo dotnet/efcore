@@ -357,6 +357,32 @@ Assert.Equal("Hobart", address.JsonOwnedCity);
             options);
     }
 
+    [Fact]
+    public virtual async Task Complex_properties_on_owned_types_on_GroupBy_First()
+    {
+        var contextFactory = await InitializeNonSharedTest<OwnedComplexContext>(seed: OwnedComplexContext.SeedAsync);
+        var options = contextFactory.GetOptions();
+
+        await Test(
+            """
+await using var context = new AdHocPrecompiledQueryRelationalTestBase.OwnedComplexContext(dbContextOptions);
+
+var addresses = await context.Owners
+    .GroupBy(o => o.Id)
+    .Select(g => g.OrderBy(o => o.Id).First(o => o.Id > 0))
+    .Where(o => o.Owned.Address.City == "Sydney" && o.Owned.JsonAddress.City == "Melbourne" && o.JsonOwned.Address.City == "Hobart")
+    .Select(o => new { o.Id, o.Owned.Address.Country.Code, JsonAddressCity = o.Owned.JsonAddress.City, JsonOwnedCity = o.JsonOwned.Address.City })
+    .ToListAsync();
+var address = Assert.Single(addresses);
+Assert.Equal(1, address.Id);
+Assert.Equal("AU", address.Code);
+Assert.Equal("Melbourne", address.JsonAddressCity);
+Assert.Equal("Hobart", address.JsonOwnedCity);
+""",
+            typeof(OwnedComplexContext),
+            options);
+    }
+
     public class OwnedComplexContext(DbContextOptions options) : DbContext(options)
     {
         public DbSet<OwnedComplexOwner> Owners { get; set; } = null!;
