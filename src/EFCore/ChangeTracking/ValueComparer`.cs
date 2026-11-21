@@ -251,15 +251,15 @@ T> : ValueComparer, IEqualityComparer<T>
     /// <summary>
     ///     Compares the two instances to determine if they are equal.
     /// </summary>
-    /// <param name="left">The first instance.</param>
-    /// <param name="right">The second instance.</param>
+    /// <param name="x">The first instance.</param>
+    /// <param name="y">The second instance.</param>
     /// <returns><see langword="true" /> if they are equal; <see langword="false" /> otherwise.</returns>
-    public override bool Equals(object? left, object? right)
+    public override bool Equals(object? x, object? y)
     {
-        var v1Null = left == null;
-        var v2Null = right == null;
+        var v1Null = x == null;
+        var v2Null = y == null;
 
-        return v1Null || v2Null ? v1Null && v2Null : Equals((T?)left, (T?)right);
+        return v1Null || v2Null ? v1Null && v2Null : Equals((T?)x, (T?)y);
     }
 
     /// <inheritdoc />
@@ -296,29 +296,29 @@ T> : ValueComparer, IEqualityComparer<T>
     /// <summary>
     ///     Returns the hash code for the given instance.
     /// </summary>
-    /// <param name="instance">The instance.</param>
+    /// <param name="obj">The instance.</param>
     /// <returns>The hash code.</returns>
-    public override int GetHashCode(object? instance)
-        => instance is null ? 0 : GetHashCode((T)instance);
+    public override int GetHashCode(object? obj)
+        => obj is null ? 0 : GetHashCode((T)obj);
 
     /// <summary>
     ///     Compares the two instances to determine if they are equal.
     /// </summary>
-    /// <param name="left">The first instance.</param>
-    /// <param name="right">The second instance.</param>
+    /// <param name="x">The first instance.</param>
+    /// <param name="y">The second instance.</param>
     /// <returns><see langword="true" /> if they are equal; <see langword="false" /> otherwise.</returns>
-    public virtual bool Equals(T? left, T? right)
+    public virtual bool Equals(T? x, T? y)
         => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _equals, this, static c => c.EqualsExpression.Compile())(left, right);
+            ref _equals, this, static c => c.EqualsExpression.Compile())(x, y);
 
     /// <summary>
     ///     Returns the hash code for the given instance.
     /// </summary>
-    /// <param name="instance">The instance.</param>
+    /// <param name="obj">The instance.</param>
     /// <returns>The hash code.</returns>
-    public virtual int GetHashCode(T instance)
+    public virtual int GetHashCode(T obj)
         => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _hashCode, this, static c => c.HashCodeExpression.Compile())(instance);
+            ref _hashCode, this, static c => c.HashCodeExpression.Compile())(obj);
 
     /// <summary>
     ///     Creates a snapshot of the given instance.

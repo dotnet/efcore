@@ -42,9 +42,9 @@ public class SqliteTypeMappingPostprocessor : RelationalTypeMappingPostprocessor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitExtension(Expression expression)
+    protected override Expression VisitExtension(Expression node)
     {
-        switch (expression)
+        switch (node)
         {
             case JsonEachExpression jsonEachExpression
                 when TryGetInferredTypeMapping(
@@ -79,7 +79,7 @@ public class SqliteTypeMappingPostprocessor : RelationalTypeMappingPostprocessor
                     }
                 }
 
-                var visited = base.VisitExtension(expression);
+                var visited = base.VisitExtension(node);
 
                 _currentSelectInferredTypeMappings = previousSelectInferredTypeMappings;
 
@@ -98,7 +98,7 @@ public class SqliteTypeMappingPostprocessor : RelationalTypeMappingPostprocessor
                     columnExpression.IsNullable);
 
             default:
-                return base.VisitExtension(expression);
+                return base.VisitExtension(node);
         }
     }
 

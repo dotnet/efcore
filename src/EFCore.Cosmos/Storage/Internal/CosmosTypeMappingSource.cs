@@ -110,13 +110,7 @@ public class CosmosTypeMappingSource : TypeMappingSource
         {
             var elementMappingInfo = new TypeMappingInfo(memoryType);
             CoreTypeMapping? typeMapping = null;
-            return !TryFindJsonCollectionMapping(
-                elementMappingInfo, memoryType.MakeArrayType(), null, ref typeMapping, out _, out var readerWriter)
-                ? null
-                : CreateMapping(clrType, jsonValueReaderWriter: readerWriter)
-                    .WithComposedConverter(
-                        (ValueConverter)Activator.CreateInstance(typeof(ReadOnlyMemoryConverter<>).MakeGenericType(memoryType))!,
-                        (ValueComparer)Activator.CreateInstance(typeof(ReadOnlyMemoryComparer<>).MakeGenericType(memoryType))!);
+            return !TryFindJsonCollectionMapping( elementMappingInfo, memoryType.MakeArrayType(), null, ref typeMapping, out _, out var readerWriter) ? null : CreateMapping(clrType, jsonValueReaderWriter: readerWriter) .WithComposedConverter( (ValueConverter)Activator.CreateInstance(typeof(ReadOnlyMemoryConverter<>).MakeGenericType(memoryType))!, (ValueComparer)Activator.CreateInstance(typeof(ReadOnlyMemoryComparer<>).MakeGenericType(memoryType))!);
         }
 
         return clrType.IsNumeric()

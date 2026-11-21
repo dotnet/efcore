@@ -20,7 +20,7 @@ public class StoreValueGenerationWithoutReturningSqliteTest : StoreValueGenerati
         EntityState firstOperationType,
         EntityState? secondOperationType,
         GeneratedValues generatedValues,
-        bool withDatabaseGenerated)
+        bool withSameEntityType)
         => secondOperationType is null ? 1 : 2;
 
     protected override bool ShouldCreateImplicitTransaction(

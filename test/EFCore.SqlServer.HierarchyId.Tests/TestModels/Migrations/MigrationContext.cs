@@ -20,8 +20,8 @@ internal abstract class MigrationContext<TEntity1, TEntity2> : DbContext
     public DbSet<TEntity1> TestModels { get; set; } = null!;
     public DbSet<TEntity2> ConvertedTestModels { get; set; } = null!;
 
-    protected override void OnConfiguring(DbContextOptionsBuilder options)
-        => options
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        => optionsBuilder
             .UseSqlServer(
                 @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=HierarchyIdMigrationTests",
                 x => x.UseHierarchyId());

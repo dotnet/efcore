@@ -244,7 +244,7 @@ public class QueryTest
         public DbSet<Blog> Blogs { get; set; } = null!;
         public DbSet<Post> Posts { get; set; } = null!;
 
-        protected override void OnModelCreating(ModelBuilder builder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
         }
     }

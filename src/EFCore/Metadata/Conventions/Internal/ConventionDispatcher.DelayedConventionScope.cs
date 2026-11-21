@@ -105,19 +105,19 @@ public partial class ConventionDispatcher
             return annotation;
         }
 
-        public override string OnComplexTypeMemberIgnored(IConventionComplexTypeBuilder complexTypeBuilder, string name)
+        public override string OnComplexTypeMemberIgnored(IConventionComplexTypeBuilder propertyBuilder, string name)
         {
-            Add(new OnComplexTypeMemberIgnoredNode(complexTypeBuilder, name));
+            Add(new OnComplexTypeMemberIgnoredNode(propertyBuilder, name));
             return name;
         }
 
         public override IConventionAnnotation? OnComplexTypeAnnotationChanged(
-            IConventionComplexTypeBuilder complexTypeBuilder,
+            IConventionComplexTypeBuilder propertyBuilder,
             string name,
             IConventionAnnotation? annotation,
             IConventionAnnotation? oldAnnotation)
         {
-            Add(new OnComplexTypeAnnotationChangedNode(complexTypeBuilder, name, annotation, oldAnnotation));
+            Add(new OnComplexTypeAnnotationChangedNode(propertyBuilder, name, annotation, oldAnnotation));
             return annotation;
         }
 
@@ -332,18 +332,18 @@ public partial class ConventionDispatcher
         }
 
         public override IConventionTriggerBuilder OnTriggerAdded(
-            IConventionTriggerBuilder navigationBuilder)
+            IConventionTriggerBuilder triggerBuilder)
         {
-            Add(new OnTriggerAddedNode(navigationBuilder));
-            return navigationBuilder;
+            Add(new OnTriggerAddedNode(triggerBuilder));
+            return triggerBuilder;
         }
 
         public override IConventionTrigger OnTriggerRemoved(
             IConventionEntityTypeBuilder entityTypeBuilder,
-            IConventionTrigger navigation)
+            IConventionTrigger trigger)
         {
-            Add(new OnTriggerRemovedNode(entityTypeBuilder, navigation));
-            return navigation;
+            Add(new OnTriggerRemovedNode(entityTypeBuilder, trigger));
+            return trigger;
         }
 
         public override IReadOnlyList<IConventionProperty> OnForeignKeyPropertiesChanged(

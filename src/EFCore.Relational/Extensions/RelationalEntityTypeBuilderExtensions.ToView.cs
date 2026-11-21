@@ -5,12 +5,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-/// <summary>
-///     Relational database specific extension methods for <see cref="EntityTypeBuilder" />.
-/// </summary>
-/// <remarks>
-///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
-/// </remarks>
 public static partial class RelationalEntityTypeBuilderExtensions
 {
     /// <summary>

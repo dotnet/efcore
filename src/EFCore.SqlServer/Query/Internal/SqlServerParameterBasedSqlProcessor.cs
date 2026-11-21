@@ -39,7 +39,7 @@ public class SqlServerParameterBasedSqlProcessor(
     }
 
     /// <inheritdoc />
-    protected override Expression ProcessSqlNullability(Expression selectExpression, ParametersCacheDecorator Decorator)
+    protected override Expression ProcessSqlNullability(Expression queryExpression, ParametersCacheDecorator decorator)
         => new SqlServerSqlNullabilityProcessor(Dependencies, Parameters, _sqlServerSingletonOptions)
-            .Process(selectExpression, Decorator);
+            .Process(queryExpression, decorator);
 }

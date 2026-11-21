@@ -1588,8 +1588,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         private class SequenceContext : DbContext
         {
-            protected override void OnConfiguring(DbContextOptionsBuilder options)
-                => options.UseSqlServer();
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseSqlServer();
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => modelBuilder.HasSequence<int>("Foo", "Bar")
@@ -1634,8 +1634,8 @@ namespace Ownership
 
     internal class OwnershipContext : DbContext
     {
-        protected override void OnConfiguring(DbContextOptionsBuilder options)
-            => options.UseSqlServer();
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder.UseSqlServer();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

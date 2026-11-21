@@ -136,10 +136,7 @@ public abstract class NullSemanticsQueryFixtureBase : QueryFixtureBase<NullSeman
     }
 
     public static int? Cases(bool c1, int v1, bool c2, int v2, bool c3, int v3)
-        => c1 ? v1 :
-            c2 ? v2 :
-            c3 ? v3 :
-            null;
+        => c1 ? v1 : c2 ? v2 : c3 ? v3 : null;
 
     public static int BoolSwitch(bool x, int whenTrue, int whenFalse)
         => x ? whenTrue : whenFalse;

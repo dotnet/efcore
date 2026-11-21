@@ -60,9 +60,9 @@ public class CompositeRowIndexValueFactory : CompositeRowValueFactory, IRowIndex
     public virtual bool TryCreateIndexValue(
         IReadOnlyModificationCommand command,
         bool fromOriginalValues,
-        out object?[]? keyValue,
+        out object?[]? key,
         out bool hasNullValue)
-        => TryCreateDependentKeyValue(command, fromOriginalValues, out keyValue, out hasNullValue);
+        => TryCreateDependentKeyValue(command, fromOriginalValues, out key, out hasNullValue);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

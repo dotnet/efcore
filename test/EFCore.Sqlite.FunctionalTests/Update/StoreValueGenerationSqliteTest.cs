@@ -19,7 +19,7 @@ public class StoreValueGenerationSqliteTest : StoreValueGenerationTestBase<Store
         EntityState firstOperationType,
         EntityState? secondOperationType,
         GeneratedValues generatedValues,
-        bool withDatabaseGenerated)
+        bool withSameEntityType)
         => secondOperationType is null ? 1 : 2;
 
     #region Single operation

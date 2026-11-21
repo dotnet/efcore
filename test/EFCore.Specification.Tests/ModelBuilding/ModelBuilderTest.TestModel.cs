@@ -911,8 +911,8 @@ public abstract partial class ModelBuilderTest
         public int Id { get; set; }
         public ProductLabel Label { get; set; }
         public ProductLabel OldLabel { get; set; }
-        public (string, int) Tuple { get; set; }
-        public List<(string, int)> Tuples { get; set; } = [];
+        public (string Value, int Number) Tuple { get; set; }
+        public List<(string Value, int Number)> Tuples { get; set; } = [];
     }
 
     protected struct ProductLabel

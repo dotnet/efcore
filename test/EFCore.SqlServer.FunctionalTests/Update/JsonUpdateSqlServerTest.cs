@@ -2550,9 +2550,9 @@ WHERE [j].[Id] = 2
             _ => "JSON_QUERY(@p0)"
         };
 
-        AssertSql(
-            SqlServerTestEnvironment.IsAzureSql
-                ? $"""
+        var expectedSql = SqlServerTestEnvironment.IsAzureSql switch
+        {
+            true => $"""
 {p0}
 @p1='7624'
 @p2='[]' (Size = 2)
@@ -2585,8 +2585,8 @@ SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 INSERT INTO [JsonEntitiesAllTypes] ([Collection], [Id], [TestBooleanCollection], [TestByteCollection], [TestCharacterCollection], [TestDateTimeCollection], [TestDateTimeOffsetCollection], [TestDecimalCollection], [TestDefaultStringCollection], [TestDoubleCollection], [TestEnumCollection], [TestEnumWithIntConverterCollection], [TestGuidCollection], [TestInt16Collection], [TestInt32Collection], [TestInt64Collection], [TestMaxLengthStringCollection], [TestNullableEnumCollection], [TestNullableEnumWithConverterThatHandlesNullsCollection], [TestNullableEnumWithIntConverterCollection], [TestNullableInt32Collection], [TestSignedByteCollection], [TestSingleCollection], [TestTimeSpanCollection], [TestUnsignedInt16Collection], [TestUnsignedInt32Collection], [TestUnsignedInt64Collection])
 VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19, @p20, @p21, @p22, @p23, @p24, @p25, @p26);
-"""
-                : $"""
+""",
+            false => $"""
 {p0}
 @p1='7624'
 @p2='[]' (Size = 4000)
@@ -2619,7 +2619,11 @@ SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 INSERT INTO [JsonEntitiesAllTypes] ([Collection], [Id], [TestBooleanCollection], [TestByteCollection], [TestCharacterCollection], [TestDateTimeCollection], [TestDateTimeOffsetCollection], [TestDecimalCollection], [TestDefaultStringCollection], [TestDoubleCollection], [TestEnumCollection], [TestEnumWithIntConverterCollection], [TestGuidCollection], [TestInt16Collection], [TestInt32Collection], [TestInt64Collection], [TestMaxLengthStringCollection], [TestNullableEnumCollection], [TestNullableEnumWithConverterThatHandlesNullsCollection], [TestNullableEnumWithIntConverterCollection], [TestNullableInt32Collection], [TestSignedByteCollection], [TestSingleCollection], [TestTimeSpanCollection], [TestUnsignedInt16Collection], [TestUnsignedInt32Collection], [TestUnsignedInt64Collection])
 VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19, @p20, @p21, @p22, @p23, @p24, @p25, @p26);
-""",
+"""
+        };
+
+        AssertSql(
+            expectedSql,
             //
             """
 SELECT TOP(2) [j].[Id], [j].[TestBooleanCollection], [j].[TestByteCollection], [j].[TestCharacterCollection], [j].[TestDateTimeCollection], [j].[TestDateTimeOffsetCollection], [j].[TestDecimalCollection], [j].[TestDefaultStringCollection], [j].[TestDoubleCollection], [j].[TestEnumCollection], [j].[TestEnumWithIntConverterCollection], [j].[TestGuidCollection], [j].[TestInt16Collection], [j].[TestInt32Collection], [j].[TestInt64Collection], [j].[TestMaxLengthStringCollection], [j].[TestNullableEnumCollection], [j].[TestNullableEnumWithConverterThatHandlesNullsCollection], [j].[TestNullableEnumWithIntConverterCollection], [j].[TestNullableInt32Collection], [j].[TestSignedByteCollection], [j].[TestSingleCollection], [j].[TestTimeSpanCollection], [j].[TestUnsignedInt16Collection], [j].[TestUnsignedInt32Collection], [j].[TestUnsignedInt64Collection], [j].[Collection], [j].[Reference]

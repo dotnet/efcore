@@ -153,18 +153,18 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitBinary(BinaryExpression binaryExpression)
+    protected override Expression VisitBinary(BinaryExpression node)
     {
-        if (binaryExpression.Left.Type == typeof(object[])
-            && binaryExpression is { Left: NewArrayExpression, NodeType: ExpressionType.Equal })
+        if (node.Left.Type == typeof(object[])
+            && node is { Left: NewArrayExpression, NodeType: ExpressionType.Equal })
         {
-            return Visit(ConvertObjectArrayEqualityComparison(binaryExpression.Left, binaryExpression.Right));
+            return Visit(ConvertObjectArrayEqualityComparison(node.Left, node.Right));
         }
 
-        if (binaryExpression.NodeType is ExpressionType.Equal or ExpressionType.NotEqual
-            && (binaryExpression.Left.IsNullConstantExpression() || binaryExpression.Right.IsNullConstantExpression()))
+        if (node.NodeType is ExpressionType.Equal or ExpressionType.NotEqual
+            && (node.Left.IsNullConstantExpression() || node.Right.IsNullConstantExpression()))
         {
-            var nonNullExpression = binaryExpression.Left.IsNullConstantExpression() ? binaryExpression.Right : binaryExpression.Left;
+            var nonNullExpression = node.Left.IsNullConstantExpression() ? node.Right : node.Left;
             if (nonNullExpression is MethodCallExpression nonNullMethodCallExpression
                 && nonNullMethodCallExpression.Method.DeclaringType == typeof(Queryable)
                 && nonNullMethodCallExpression.Method.IsGenericMethod
@@ -192,7 +192,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
                             translatedSubquery);
 
                         return Visit(
-                            binaryExpression.NodeType == ExpressionType.Equal
+                            node.NodeType == ExpressionType.Equal
                                 ? Expression.Not(anySubquery)
                                 : anySubquery);
                     }
@@ -205,25 +205,25 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
             }
         }
 
-        if (binaryExpression.NodeType == ExpressionType.Equal
-            || (binaryExpression.NodeType == ExpressionType.NotEqual
-                && binaryExpression.Left.Type == typeof(Type)))
+        if (node.NodeType == ExpressionType.Equal
+            || (node.NodeType == ExpressionType.NotEqual
+                && node.Left.Type == typeof(Type)))
         {
-            if (IsGetTypeMethodCall(binaryExpression.Left, out var entityReference1)
-                && IsTypeConstant(binaryExpression.Right, out var type1))
+            if (IsGetTypeMethodCall(node.Left, out var entityReference1)
+                && IsTypeConstant(node.Right, out var type1))
             {
-                return ProcessGetType(entityReference1!, type1!, binaryExpression.NodeType == ExpressionType.Equal);
+                return ProcessGetType(entityReference1!, type1!, node.NodeType == ExpressionType.Equal);
             }
 
-            if (IsGetTypeMethodCall(binaryExpression.Right, out var entityReference2)
-                && IsTypeConstant(binaryExpression.Left, out var type2))
+            if (IsGetTypeMethodCall(node.Right, out var entityReference2)
+                && IsTypeConstant(node.Left, out var type2))
             {
-                return ProcessGetType(entityReference2!, type2!, binaryExpression.NodeType == ExpressionType.Equal);
+                return ProcessGetType(entityReference2!, type2!, node.NodeType == ExpressionType.Equal);
             }
         }
 
-        var newLeft = Visit(binaryExpression.Left);
-        var newRight = Visit(binaryExpression.Right);
+        var newLeft = Visit(node.Left);
+        var newRight = Visit(node.Right);
 
         if (newLeft == QueryCompilationContext.NotTranslatedExpression
             || newRight == QueryCompilationContext.NotTranslatedExpression)
@@ -231,10 +231,10 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
             return QueryCompilationContext.NotTranslatedExpression;
         }
 
-        if (binaryExpression.NodeType is ExpressionType.Equal or ExpressionType.NotEqual
+        if (node.NodeType is ExpressionType.Equal or ExpressionType.NotEqual
             // Visited expression could be null, We need to pass MemberInitExpression
             && TryRewriteEntityEquality(
-                binaryExpression.NodeType,
+                node.NodeType,
                 newLeft,
                 newRight,
                 equalsMethod: false,
@@ -243,17 +243,17 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
             return result;
         }
 
-        if (IsConvertedToNullable(newLeft, binaryExpression.Left)
-            || IsConvertedToNullable(newRight, binaryExpression.Right))
+        if (IsConvertedToNullable(newLeft, node.Left)
+            || IsConvertedToNullable(newRight, node.Right))
         {
             newLeft = ConvertToNullable(newLeft);
             newRight = ConvertToNullable(newRight);
         }
 
-        if (binaryExpression.NodeType is ExpressionType.Equal or ExpressionType.NotEqual
+        if (node.NodeType is ExpressionType.Equal or ExpressionType.NotEqual
             && TryUseComparer(newLeft, newRight, out var updatedExpression))
         {
-            if (binaryExpression.NodeType == ExpressionType.NotEqual)
+            if (node.NodeType == ExpressionType.NotEqual)
             {
                 updatedExpression = Expression.IsFalse(updatedExpression!);
             }
@@ -262,12 +262,12 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
         }
 
         return Expression.MakeBinary(
-            binaryExpression.NodeType,
+            node.NodeType,
             newLeft,
             newRight,
-            binaryExpression.IsLiftedToNull,
-            binaryExpression.Method,
-            binaryExpression.Conversion);
+            node.IsLiftedToNull,
+            node.Method,
+            node.Conversion);
 
         Expression ProcessGetType(StructuralTypeReferenceExpression typeReference, Type comparisonType, bool match)
         {
@@ -444,11 +444,11 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
+    protected override Expression VisitConditional(ConditionalExpression node)
     {
-        var test = Visit(conditionalExpression.Test);
-        var ifTrue = Visit(conditionalExpression.IfTrue);
-        var ifFalse = Visit(conditionalExpression.IfFalse);
+        var test = Visit(node.Test);
+        var ifTrue = Visit(node.IfTrue);
+        var ifFalse = Visit(node.IfFalse);
 
         if (test == QueryCompilationContext.NotTranslatedExpression
             || ifTrue == QueryCompilationContext.NotTranslatedExpression
@@ -462,8 +462,8 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
             test = Expression.Equal(test, Expression.Constant(true, typeof(bool?)));
         }
 
-        if (IsConvertedToNullable(ifTrue, conditionalExpression.IfTrue)
-            || IsConvertedToNullable(ifFalse, conditionalExpression.IfFalse))
+        if (IsConvertedToNullable(ifTrue, node.IfTrue)
+            || IsConvertedToNullable(ifFalse, node.IfFalse))
         {
             ifTrue = ConvertToNullable(ifTrue);
             ifFalse = ConvertToNullable(ifFalse);
@@ -478,11 +478,11 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitExtension(Expression extensionExpression)
-        => extensionExpression switch
+    protected override Expression VisitExtension(Expression node)
+        => node switch
         {
             EntityProjectionExpression or StructuralTypeReferenceExpression
-                => extensionExpression,
+                => node,
 
             QueryParameterExpression queryParameter
                 => Expression.Call(
@@ -505,7 +505,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitInvocation(InvocationExpression invocationExpression)
+    protected override Expression VisitInvocation(InvocationExpression node)
         => QueryCompilationContext.NotTranslatedExpression;
 
     /// <summary>
@@ -514,8 +514,8 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitLambda<T>(Expression<T> lambdaExpression)
-        => throw new InvalidOperationException(CoreStrings.TranslationFailed(lambdaExpression.Print()));
+    protected override Expression VisitLambda<T>(Expression<T> node)
+        => throw new InvalidOperationException(CoreStrings.TranslationFailed(node.Print()));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -523,7 +523,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitListInit(ListInitExpression listInitExpression)
+    protected override Expression VisitListInit(ListInitExpression node)
         => QueryCompilationContext.NotTranslatedExpression;
 
     /// <summary>
@@ -532,36 +532,36 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitMember(MemberExpression memberExpression)
+    protected override Expression VisitMember(MemberExpression node)
     {
-        var innerExpression = Visit(memberExpression.Expression);
+        var innerExpression = Visit(node.Expression);
 
         // when visiting unary we remove converts from nullable to non-nullable
         // however if this happens for memberExpression.Expression we are unable to bind
         if (innerExpression != null
-            && memberExpression.Expression != null
-            && innerExpression.Type != memberExpression.Expression.Type
+            && node.Expression != null
+            && innerExpression.Type != node.Expression.Type
             && innerExpression.Type.IsNullableType()
-            && innerExpression.Type.UnwrapNullableType() == memberExpression.Expression.Type)
+            && innerExpression.Type.UnwrapNullableType() == node.Expression.Type)
         {
-            innerExpression = Expression.Convert(innerExpression, memberExpression.Expression.Type);
+            innerExpression = Expression.Convert(innerExpression, node.Expression.Type);
         }
 
-        if (memberExpression.Expression != null
+        if (node.Expression != null
             && innerExpression == QueryCompilationContext.NotTranslatedExpression)
         {
             return QueryCompilationContext.NotTranslatedExpression;
         }
 
-        if (TryBindMember(innerExpression, MemberIdentity.Create(memberExpression.Member), memberExpression.Type) is { } result)
+        if (TryBindMember(innerExpression, MemberIdentity.Create(node.Member), node.Type) is { } result)
         {
             return result;
         }
 
-        var updatedMemberExpression = (Expression)memberExpression.Update(innerExpression);
+        var updatedMemberExpression = (Expression)node.Update(innerExpression);
         if (innerExpression != null
             && innerExpression.Type.IsNullableType()
-            && ShouldApplyNullProtectionForMemberAccess(innerExpression.Type, memberExpression.Member.Name))
+            && ShouldApplyNullProtectionForMemberAccess(innerExpression.Type, node.Member.Name))
         {
             updatedMemberExpression = ConvertToNullable(updatedMemberExpression);
 
@@ -586,20 +586,20 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override MemberAssignment VisitMemberAssignment(MemberAssignment memberAssignment)
+    protected override MemberAssignment VisitMemberAssignment(MemberAssignment node)
     {
-        var expression = Visit(memberAssignment.Expression);
+        var expression = Visit(node.Expression);
         if (expression == QueryCompilationContext.NotTranslatedExpression)
         {
-            return memberAssignment.Update(Expression.Convert(expression, memberAssignment.Expression.Type));
+            return node.Update(Expression.Convert(expression, node.Expression.Type));
         }
 
-        if (IsConvertedToNullable(expression, memberAssignment.Expression))
+        if (IsConvertedToNullable(expression, node.Expression))
         {
             expression = ConvertToNonNullable(expression);
         }
 
-        return memberAssignment.Update(expression);
+        return node.Update(expression);
     }
 
     /// <summary>
@@ -608,23 +608,23 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitMemberInit(MemberInitExpression memberInitExpression)
+    protected override Expression VisitMemberInit(MemberInitExpression node)
     {
-        var newExpression = Visit(memberInitExpression.NewExpression);
+        var newExpression = Visit(node.NewExpression);
         if (newExpression == QueryCompilationContext.NotTranslatedExpression)
         {
             return QueryCompilationContext.NotTranslatedExpression;
         }
 
-        var newBindings = new MemberBinding[memberInitExpression.Bindings.Count];
+        var newBindings = new MemberBinding[node.Bindings.Count];
         for (var i = 0; i < newBindings.Length; i++)
         {
-            if (memberInitExpression.Bindings[i].BindingType != MemberBindingType.Assignment)
+            if (node.Bindings[i].BindingType != MemberBindingType.Assignment)
             {
                 return QueryCompilationContext.NotTranslatedExpression;
             }
 
-            newBindings[i] = VisitMemberBinding(memberInitExpression.Bindings[i]);
+            newBindings[i] = VisitMemberBinding(node.Bindings[i]);
             if (((MemberAssignment)newBindings[i]).Expression is UnaryExpression { NodeType: ExpressionType.Convert } unaryExpression
                 && unaryExpression.Operand == QueryCompilationContext.NotTranslatedExpression)
             {
@@ -632,7 +632,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
             }
         }
 
-        return memberInitExpression.Update((NewExpression)newExpression, newBindings);
+        return node.Update((NewExpression)newExpression, newBindings);
     }
 
     /// <summary>
@@ -641,30 +641,30 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+    protected override Expression VisitMethodCall(MethodCallExpression node)
     {
-        if (methodCallExpression.Method.IsGenericMethod
-            && methodCallExpression.Method.GetGenericMethodDefinition() == ExpressionExtensions.ValueBufferTryReadValueMethod)
+        if (node.Method.IsGenericMethod
+            && node.Method.GetGenericMethodDefinition() == ExpressionExtensions.ValueBufferTryReadValueMethod)
         {
-            return methodCallExpression;
+            return node;
         }
 
         // EF.Property case
-        if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var propertyName))
+        if (node.TryGetEFPropertyArguments(out var source, out var propertyName))
         {
-            return TryBindMember(Visit(source), MemberIdentity.Create(propertyName), methodCallExpression.Type)
-                ?? throw new InvalidOperationException(CoreStrings.QueryUnableToTranslateEFProperty(methodCallExpression.Print()));
+            return TryBindMember(Visit(source), MemberIdentity.Create(propertyName), node.Type)
+                ?? throw new InvalidOperationException(CoreStrings.QueryUnableToTranslateEFProperty(node.Print()));
         }
 
         // EF Indexer property
-        if (methodCallExpression.TryGetIndexerArguments(_model, out source, out propertyName))
+        if (node.TryGetIndexerArguments(_model, out source, out propertyName))
         {
-            return TryBindMember(Visit(source), MemberIdentity.Create(propertyName), methodCallExpression.Type)
+            return TryBindMember(Visit(source), MemberIdentity.Create(propertyName), node.Type)
                 ?? QueryCompilationContext.NotTranslatedExpression;
         }
 
         // Subquery case
-        var subqueryTranslation = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression);
+        var subqueryTranslation = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(node);
         if (subqueryTranslation != null)
         {
             var subquery = (InMemoryQueryExpression)subqueryTranslation.QueryExpression;
@@ -705,20 +705,20 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
             return ProcessSingleResultScalar(
                 subquery,
                 subquery.GetProjection(projectionBindingExpression),
-                methodCallExpression.Type);
+                node.Type);
         }
 
-        if (methodCallExpression.Method == LikeMethodInfo
-            || methodCallExpression.Method == LikeMethodInfoWithEscape)
+        if (node.Method == LikeMethodInfo
+            || node.Method == LikeMethodInfoWithEscape)
         {
             // EF.Functions.Like
             var visitedArguments = new Expression[3];
             visitedArguments[2] = Expression.Constant(null, typeof(string));
             // Skip first DbFunctions argument
-            for (var i = 1; i < methodCallExpression.Arguments.Count; i++)
+            for (var i = 1; i < node.Arguments.Count; i++)
             {
-                var argument = Visit(methodCallExpression.Arguments[i]);
-                if (TranslationFailed(methodCallExpression.Arguments[i], argument))
+                var argument = Visit(node.Arguments[i]);
+                if (TranslationFailed(node.Arguments[i], argument))
                 {
                     return QueryCompilationContext.NotTranslatedExpression;
                 }
@@ -729,33 +729,33 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
             return Expression.Call(InMemoryLikeMethodInfo, visitedArguments);
         }
 
-        if (methodCallExpression.Method == RandomMethodInfo)
+        if (node.Method == RandomMethodInfo)
         {
             return Expression.Call(Expression.New(typeof(Random)), RandomNextDoubleMethodInfo);
         }
 
         Expression? @object = null;
         Expression[] arguments;
-        var method = methodCallExpression.Method;
+        var method = node.Method;
 
         if (method.Name == nameof(object.Equals)
-            && methodCallExpression is { Object: not null, Arguments.Count: 1 })
+            && node is { Object: not null, Arguments.Count: 1 })
         {
-            var left = Visit(methodCallExpression.Object);
-            var right = Visit(methodCallExpression.Arguments[0]);
+            var left = Visit(node.Object);
+            var right = Visit(node.Arguments[0]);
 
             if (TryRewriteEntityEquality(
                     ExpressionType.Equal,
-                    left == QueryCompilationContext.NotTranslatedExpression ? methodCallExpression.Object : left,
-                    right == QueryCompilationContext.NotTranslatedExpression ? methodCallExpression.Arguments[0] : right,
+                    left == QueryCompilationContext.NotTranslatedExpression ? node.Object : left,
+                    right == QueryCompilationContext.NotTranslatedExpression ? node.Arguments[0] : right,
                     equalsMethod: true,
                     out var result))
             {
                 return result;
             }
 
-            if (TranslationFailed(methodCallExpression.Object, left)
-                || TranslationFailed(methodCallExpression.Arguments[0], right))
+            if (TranslationFailed(node.Object, left)
+                || TranslationFailed(node.Arguments[0], right))
             {
                 return QueryCompilationContext.NotTranslatedExpression;
             }
@@ -764,19 +764,19 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
             arguments = [right];
         }
         else if (method.Name == nameof(object.Equals)
-                 && methodCallExpression.Object == null
-                 && methodCallExpression.Arguments.Count == 2)
+                 && node.Object == null
+                 && node.Arguments.Count == 2)
         {
-            if (methodCallExpression.Arguments[0].Type == typeof(object[])
-                && methodCallExpression.Arguments[0] is NewArrayExpression)
+            if (node.Arguments[0].Type == typeof(object[])
+                && node.Arguments[0] is NewArrayExpression)
             {
                 return Visit(
                     ConvertObjectArrayEqualityComparison(
-                        methodCallExpression.Arguments[0], methodCallExpression.Arguments[1]));
+                        node.Arguments[0], node.Arguments[1]));
             }
 
-            var left = Visit(methodCallExpression.Arguments[0]);
-            var right = Visit(methodCallExpression.Arguments[1]);
+            var left = Visit(node.Arguments[0]);
+            var right = Visit(node.Arguments[1]);
 
             if (TryUseComparer(left, right, out var updatedExpression))
             {
@@ -785,16 +785,16 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
 
             if (TryRewriteEntityEquality(
                     ExpressionType.Equal,
-                    left == QueryCompilationContext.NotTranslatedExpression ? methodCallExpression.Arguments[0] : left,
-                    right == QueryCompilationContext.NotTranslatedExpression ? methodCallExpression.Arguments[1] : right,
+                    left == QueryCompilationContext.NotTranslatedExpression ? node.Arguments[0] : left,
+                    right == QueryCompilationContext.NotTranslatedExpression ? node.Arguments[1] : right,
                     equalsMethod: true,
                     out var result))
             {
                 return result;
             }
 
-            if (TranslationFailed(methodCallExpression.Arguments[0], left)
-                || TranslationFailed(methodCallExpression.Arguments[1], right))
+            if (TranslationFailed(node.Arguments[0], left)
+                || TranslationFailed(node.Arguments[1], right))
             {
                 return QueryCompilationContext.NotTranslatedExpression;
             }
@@ -804,41 +804,41 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
         else if (method.IsGenericMethod
                  && method.GetGenericMethodDefinition().Equals(EnumerableMethods.Contains))
         {
-            var enumerable = Visit(methodCallExpression.Arguments[0]);
-            var item = Visit(methodCallExpression.Arguments[1]);
+            var enumerable = Visit(node.Arguments[0]);
+            var item = Visit(node.Arguments[1]);
 
             if (TryRewriteContainsEntity(
                     enumerable,
-                    item == QueryCompilationContext.NotTranslatedExpression ? methodCallExpression.Arguments[1] : item,
+                    item == QueryCompilationContext.NotTranslatedExpression ? node.Arguments[1] : item,
                     out var result))
             {
                 return result;
             }
 
-            if (TranslationFailed(methodCallExpression.Arguments[0], enumerable)
-                || TranslationFailed(methodCallExpression.Arguments[1], item))
+            if (TranslationFailed(node.Arguments[0], enumerable)
+                || TranslationFailed(node.Arguments[1], item))
             {
                 return QueryCompilationContext.NotTranslatedExpression;
             }
 
             arguments = [enumerable, item];
         }
-        else if (methodCallExpression.Arguments.Count == 1
+        else if (node.Arguments.Count == 1
                  && method.IsContainsMethod())
         {
-            var enumerable = Visit(methodCallExpression.Object);
-            var item = Visit(methodCallExpression.Arguments[0]);
+            var enumerable = Visit(node.Object);
+            var item = Visit(node.Arguments[0]);
 
             if (TryRewriteContainsEntity(
                     enumerable,
-                    item == QueryCompilationContext.NotTranslatedExpression ? methodCallExpression.Arguments[0] : item,
+                    item == QueryCompilationContext.NotTranslatedExpression ? node.Arguments[0] : item,
                     out var result))
             {
                 return result;
             }
 
-            if (TranslationFailed(methodCallExpression.Object, enumerable)
-                || TranslationFailed(methodCallExpression.Arguments[0], item))
+            if (TranslationFailed(node.Object, enumerable)
+                || TranslationFailed(node.Arguments[0], item))
             {
                 return QueryCompilationContext.NotTranslatedExpression;
             }
@@ -848,17 +848,17 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
         }
         else
         {
-            @object = Visit(methodCallExpression.Object);
-            if (TranslationFailed(methodCallExpression.Object, @object))
+            @object = Visit(node.Object);
+            if (TranslationFailed(node.Object, @object))
             {
                 return QueryCompilationContext.NotTranslatedExpression;
             }
 
-            arguments = new Expression[methodCallExpression.Arguments.Count];
+            arguments = new Expression[node.Arguments.Count];
             for (var i = 0; i < arguments.Length; i++)
             {
-                var argument = Visit(methodCallExpression.Arguments[i]);
-                if (TranslationFailed(methodCallExpression.Arguments[i], argument))
+                var argument = Visit(node.Arguments[i]);
+                if (TranslationFailed(node.Arguments[i], argument))
                 {
                     return QueryCompilationContext.NotTranslatedExpression;
                 }
@@ -869,11 +869,11 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
 
         // if the nullability of arguments change, we have no easy/reliable way to adjust the actual methodInfo to match the new type,
         // so we are forced to cast back to the original type
-        var parameterTypes = methodCallExpression.Method.GetParameters().Select(p => p.ParameterType).ToArray();
+        var parameterTypes = node.Method.GetParameters().Select(p => p.ParameterType).ToArray();
         for (var i = 0; i < arguments.Length; i++)
         {
             var argument = arguments[i];
-            if (IsConvertedToNullable(argument, methodCallExpression.Arguments[i])
+            if (IsConvertedToNullable(argument, node.Arguments[i])
                 && !parameterTypes[i].IsAssignableFrom(argument.Type))
             {
                 argument = ConvertToNonNullable(argument);
@@ -885,16 +885,16 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
         // if object is nullable, add null safeguard before calling the function
         // we special-case Nullable<>.GetValueOrDefault, which doesn't need the safeguard,
         // and Nullable<>.ToString when the object is a nullable value type.
-        if (methodCallExpression.Object != null
+        if (node.Object != null
             && @object!.Type.IsNullableType()
-            && methodCallExpression.Method.Name != nameof(Nullable<int>.GetValueOrDefault)
+            && node.Method.Name != nameof(Nullable<int>.GetValueOrDefault)
             && !(@object!.Type.IsNullableValueType()
-                && methodCallExpression.Method.Name == nameof(Nullable<int>.ToString)
-                && methodCallExpression.Method.DeclaringType != null
-                && methodCallExpression.Method.DeclaringType.IsNullableType()))
+                && node.Method.Name == nameof(Nullable<int>.ToString)
+                && node.Method.DeclaringType != null
+                && node.Method.DeclaringType.IsNullableType()))
         {
-            var result = (Expression)methodCallExpression.Update(
-                Expression.Convert(@object, methodCallExpression.Object.Type),
+            var result = (Expression)node.Update(
+                Expression.Convert(@object, node.Object.Type),
                 arguments);
 
             result = ConvertToNullable(result);
@@ -927,14 +927,14 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
 
         // Null-compensate any extension method where the 'this' argument is a reference type
         // (in theory should do this for value types as well, but that's more complicated as the expression type needs to be changed etc.)
-        return methodCallExpression is { Object: null, Method: { IsStatic: true } staticMethod }
+        return node is { Object: null, Method: { IsStatic: true } staticMethod }
             && staticMethod.IsDefined(typeof(ExtensionAttribute), inherit: false)
             && arguments is [{ Type.IsValueType: false } instance, ..]
                 ? Expression.Condition(
                     Expression.Equal(instance, Expression.Constant(null, instance.Type)),
-                    Expression.Default(methodCallExpression.Type),
-                    Expression.Call(methodCallExpression.Method, arguments))
-                : methodCallExpression.Update(@object, arguments);
+                    Expression.Default(node.Type),
+                    Expression.Call(node.Method, arguments))
+                : node.Update(@object, arguments);
     }
 
     /// <summary>
@@ -943,10 +943,10 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitNew(NewExpression newExpression)
+    protected override Expression VisitNew(NewExpression node)
     {
         var newArguments = new List<Expression>();
-        foreach (var argument in newExpression.Arguments)
+        foreach (var argument in node.Arguments)
         {
             var newArgument = Visit(argument);
             if (newArgument == QueryCompilationContext.NotTranslatedExpression)
@@ -962,7 +962,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
             newArguments.Add(newArgument);
         }
 
-        return newExpression.Update(newArguments);
+        return node.Update(newArguments);
     }
 
     /// <summary>
@@ -971,10 +971,10 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitNewArray(NewArrayExpression newArrayExpression)
+    protected override Expression VisitNewArray(NewArrayExpression node)
     {
         var newExpressions = new List<Expression>();
-        foreach (var expression in newArrayExpression.Expressions)
+        foreach (var expression in node.Expressions)
         {
             var newExpression = Visit(expression);
             if (newExpression == QueryCompilationContext.NotTranslatedExpression)
@@ -990,7 +990,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
             newExpressions.Add(newExpression);
         }
 
-        return newArrayExpression.Update(newExpressions);
+        return node.Update(newExpressions);
     }
 
     /// <summary>
@@ -999,8 +999,8 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitParameter(ParameterExpression parameterExpression)
-        => throw new InvalidOperationException(CoreStrings.TranslationFailed(parameterExpression.Print()));
+    protected override Expression VisitParameter(ParameterExpression node)
+        => throw new InvalidOperationException(CoreStrings.TranslationFailed(node.Print()));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1008,22 +1008,22 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitTypeBinary(TypeBinaryExpression typeBinaryExpression)
+    protected override Expression VisitTypeBinary(TypeBinaryExpression node)
     {
-        if (typeBinaryExpression.NodeType == ExpressionType.TypeIs
-            && Visit(typeBinaryExpression.Expression) is StructuralTypeReferenceExpression typeReference)
+        if (node.NodeType == ExpressionType.TypeIs
+            && Visit(node.Expression) is StructuralTypeReferenceExpression typeReference)
         {
             if (typeReference.StructuralType is not IEntityType entityType)
             {
-                return Expression.Constant(typeReference.StructuralType.ClrType == typeBinaryExpression.TypeOperand);
+                return Expression.Constant(typeReference.StructuralType.ClrType == node.TypeOperand);
             }
 
-            if (entityType.GetAllBaseTypesInclusive().Any(et => et.ClrType == typeBinaryExpression.TypeOperand))
+            if (entityType.GetAllBaseTypesInclusive().Any(et => et.ClrType == node.TypeOperand))
             {
                 return Expression.Constant(true);
             }
 
-            var derivedType = entityType.GetDerivedTypes().SingleOrDefault(et => et.ClrType == typeBinaryExpression.TypeOperand);
+            var derivedType = entityType.GetDerivedTypes().SingleOrDefault(et => et.ClrType == node.TypeOperand);
             if (derivedType != null)
             {
                 // All hierarchies have discriminator property
@@ -1058,33 +1058,33 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitUnary(UnaryExpression unaryExpression)
+    protected override Expression VisitUnary(UnaryExpression node)
     {
-        var newOperand = Visit(unaryExpression.Operand);
+        var newOperand = Visit(node.Operand);
         if (newOperand == QueryCompilationContext.NotTranslatedExpression)
         {
             return QueryCompilationContext.NotTranslatedExpression;
         }
 
         if (newOperand is StructuralTypeReferenceExpression typeReference
-            && unaryExpression.NodeType is ExpressionType.Convert or ExpressionType.ConvertChecked or ExpressionType.TypeAs)
+            && node.NodeType is ExpressionType.Convert or ExpressionType.ConvertChecked or ExpressionType.TypeAs)
         {
-            return typeReference.Convert(unaryExpression.Type);
+            return typeReference.Convert(node.Type);
         }
 
-        if (unaryExpression.NodeType == ExpressionType.Convert
-            && newOperand.Type == unaryExpression.Type)
-        {
-            return newOperand;
-        }
-
-        if (unaryExpression.NodeType == ExpressionType.Convert
-            && IsConvertedToNullable(newOperand, unaryExpression))
+        if (node.NodeType == ExpressionType.Convert
+            && newOperand.Type == node.Type)
         {
             return newOperand;
         }
 
-        var result = (Expression)Expression.MakeUnary(unaryExpression.NodeType, newOperand, unaryExpression.Type);
+        if (node.NodeType == ExpressionType.Convert
+            && IsConvertedToNullable(newOperand, node))
+        {
+            return newOperand;
+        }
+
+        var result = (Expression)Expression.MakeUnary(node.NodeType, newOperand, node.Type);
         if (result is UnaryExpression
             {
                 NodeType: ExpressionType.Convert,
@@ -1150,12 +1150,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
 
             // if the result type change was just nullability change e.g from int to int?
             // we want to preserve the new type for null propagation
-            return result.Type != type
-                && !(result.Type.IsNullableType()
-                    && !type.IsNullableType()
-                    && result.Type.UnwrapNullableType() == type)
-                    ? Expression.Convert(result, type)
-                    : result;
+            return result.Type != type && !(result.Type.IsNullableType() && !type.IsNullableType() && result.Type.UnwrapNullableType() == type) ? Expression.Convert(result, type) : result;
         }
 
         if (typeReference.Subquery != null)
@@ -1638,21 +1633,21 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
             return _found;
         }
 
-        [return: NotNullIfNotNull(nameof(expression))]
-        public override Expression? Visit(Expression? expression)
+        [return: NotNullIfNotNull(nameof(node))]
+        public override Expression? Visit(Expression? node)
         {
             if (_found)
             {
-                return expression;
+                return node;
             }
 
-            if (expression is StructuralTypeReferenceExpression)
+            if (node is StructuralTypeReferenceExpression)
             {
                 _found = true;
-                return expression;
+                return node;
             }
 
-            return base.Visit(expression);
+            return base.Visit(node);
         }
     }
 

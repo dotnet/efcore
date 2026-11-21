@@ -2140,14 +2140,14 @@ public class ChangeDetectorTest
 
         public override void NavigationCollectionChanged(
             InternalEntityEntry entry,
-            INavigationBase navigation,
+            INavigationBase navigationBase,
             IEnumerable<object> added,
             IEnumerable<object> removed)
         {
             // ReSharper disable PossibleMultipleEnumeration
-            CollectionChange = Tuple.Create(entry, navigation, added, removed);
+            CollectionChange = Tuple.Create(entry, navigationBase, added, removed);
 
-            base.NavigationCollectionChanged(entry, navigation, added, removed);
+            base.NavigationCollectionChanged(entry, navigationBase, added, removed);
             // ReSharper restore PossibleMultipleEnumeration
         }
 

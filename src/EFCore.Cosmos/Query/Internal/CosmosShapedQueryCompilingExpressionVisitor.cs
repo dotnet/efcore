@@ -7,11 +7,12 @@ using static System.Linq.Expressions.Expression;
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
 /// <summary>
-///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-///     any release. You should only use it directly in your code with extreme caution and knowing that
-///     doing so can result in application failures when updating to a new Entity Framework Core release.
+///     Initializes a new instance of the <see cref="CosmosShapedQueryCompilingExpressionVisitor" /> class.
 /// </summary>
+/// <param name="dependencies">The query compilation dependencies.</param>
+/// <param name="cosmosQueryCompilationContext">The Cosmos query compilation context.</param>
+/// <param name="sqlExpressionFactory">The SQL expression factory.</param>
+/// <param name="querySqlGeneratorFactory">The SQL generator factory.</param>
 public partial class CosmosShapedQueryCompilingExpressionVisitor(
     ShapedQueryCompilingExpressionVisitorDependencies dependencies,
     CosmosQueryCompilationContext cosmosQueryCompilationContext,

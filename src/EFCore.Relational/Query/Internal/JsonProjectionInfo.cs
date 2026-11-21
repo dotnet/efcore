@@ -19,7 +19,7 @@ public readonly struct JsonProjectionInfo
     /// </summary>
     public JsonProjectionInfo(
         int jsonColumnIndex,
-        List<(IProperty?, int?, int?)> keyAccessInfo,
+        List<(IProperty? KeyProperty, int? ConstantKeyValue, int? KeyProjectionIndex)> keyAccessInfo,
         IColumnBase? jsonColumn = null)
     {
         JsonColumnIndex = jsonColumnIndex;

@@ -11655,9 +11655,9 @@ ORDER BY [u].[Nickname], [u].[SquadId]
         AssertSql();
     }
 
-    public override async Task Checked_context_throws_on_client_evaluation(bool async)
+    public override async Task Checked_context_throws_on_client_evaluation(bool isAsync)
     {
-        await base.Checked_context_throws_on_client_evaluation(async);
+        await base.Checked_context_throws_on_client_evaluation(isAsync);
 
         AssertSql();
     }

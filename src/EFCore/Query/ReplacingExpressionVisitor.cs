@@ -53,43 +53,43 @@ public class ReplacingExpressionVisitor : ExpressionVisitor
     }
 
     /// <inheritdoc />
-    [return: NotNullIfNotNull(nameof(expression))]
-    public override Expression? Visit(Expression? expression)
+    [return: NotNullIfNotNull(nameof(node))]
+    public override Expression? Visit(Expression? node)
     {
-        if (expression is null or ShapedQueryExpression or StructuralTypeShaperExpression or GroupByShaperExpression
+        if (node is null or ShapedQueryExpression or StructuralTypeShaperExpression or GroupByShaperExpression
             or LiftableConstantExpression)
         {
-            return expression;
+            return node;
         }
 
         // We use two arrays rather than a dictionary because hash calculation here can be prohibitively expensive
         // for deep trees. Locality of reference makes arrays better for the small number of replacements anyway.
         for (var i = 0; i < _originals.Count; i++)
         {
-            if (ReferenceEquals(expression, _originals[i]))
+            if (ReferenceEquals(node, _originals[i]))
             {
                 return _replacements[i];
             }
         }
 
-        return base.Visit(expression);
+        return base.Visit(node);
     }
 
     /// <inheritdoc />
-    protected override Expression VisitMember(MemberExpression memberExpression)
+    protected override Expression VisitMember(MemberExpression node)
     {
-        var innerExpression = Visit(memberExpression.Expression);
+        var innerExpression = Visit(node.Expression);
 
         if (innerExpression is GroupByShaperExpression groupByShaperExpression
-            && memberExpression.Member.Name == nameof(IGrouping<,>.Key))
+            && node.Member.Name == nameof(IGrouping<,>.Key))
         {
             return groupByShaperExpression.KeySelector;
         }
 
         if (innerExpression is NewExpression newExpression)
         {
-            var index = newExpression.Members?.IndexOf(memberExpression.Member)
-                ?? GetConstructorParameterIndex(newExpression, memberExpression.Member.Name);
+            var index = newExpression.Members?.IndexOf(node.Member)
+                ?? GetConstructorParameterIndex(newExpression, node.Member.Name);
             if (index >= 0)
             {
                 return newExpression.Arguments[index.Value];
@@ -97,11 +97,7 @@ public class ReplacingExpressionVisitor : ExpressionVisitor
         }
 
         var mayBeMemberInitExpression = innerExpression.UnwrapTypeConversion(out _);
-        return mayBeMemberInitExpression is MemberInitExpression memberInitExpression
-            && memberInitExpression.Bindings.SingleOrDefault(mb => mb.Member.IsSameAs(memberExpression.Member)) is MemberAssignment
-                memberAssignment
-                ? memberAssignment.Expression
-                : memberExpression.Update(innerExpression);
+        return mayBeMemberInitExpression is MemberInitExpression memberInitExpression && memberInitExpression.Bindings.SingleOrDefault(mb => mb.Member.IsSameAs(node.Member)) is MemberAssignment memberAssignment ? memberAssignment.Expression : node.Update(innerExpression);
     }
 
     // The compiler only populates NewExpression.Members for anonymous types; it is always null for every other type
@@ -159,9 +155,9 @@ public class ReplacingExpressionVisitor : ExpressionVisitor
         => type.IsGenericType && ValueTupleAndTupleOpenGenericTypes.Contains(type.GetGenericTypeDefinition());
 
     /// <inheritdoc />
-    protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+    protected override Expression VisitMethodCall(MethodCallExpression node)
     {
-        if (methodCallExpression.TryGetEFPropertyArguments(out var entityExpression, out var propertyName))
+        if (node.TryGetEFPropertyArguments(out var entityExpression, out var propertyName))
         {
             var newEntityExpression = Visit(entityExpression);
 
@@ -187,9 +183,9 @@ public class ReplacingExpressionVisitor : ExpressionVisitor
             return unwrappedEntityExpression is MemberInitExpression memberInitExpression
                 && memberInitExpression.Bindings.SingleOrDefault(mb => mb.Member.Name == propertyName) is MemberAssignment memberAssignment
                     ? memberAssignment.Expression
-                    : methodCallExpression.Update(null, [newEntityExpression, methodCallExpression.Arguments[1]]);
+                    : node.Update(null, [newEntityExpression, node.Arguments[1]]);
         }
 
-        return base.VisitMethodCall(methodCallExpression);
+        return base.VisitMethodCall(node);
     }
 }

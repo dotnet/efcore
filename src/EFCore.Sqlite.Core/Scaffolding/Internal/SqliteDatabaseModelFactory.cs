@@ -520,7 +520,7 @@ ORDER BY "cid"
         commandText.Append("SELECT");
 
         var i = 0;
-        var dictionary = new Dictionary<DatabaseColumn, (int offset, Type? defaultClrType)>();
+        var dictionary = new Dictionary<DatabaseColumn, (int Offset, Type? DefaultClrType)>();
         foreach (var column in table.Columns)
         {
             if (string.Equals(column.StoreType, "BLOB", StringComparison.OrdinalIgnoreCase)

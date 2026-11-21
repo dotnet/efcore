@@ -383,12 +383,7 @@ public abstract class BuiltInDataTypesTestBase<TFixture>(TFixture fixture) : ICl
     }
 
     private bool Equal(long left, long right)
-        => left >= 0
-            && right >= 0
-                ? Equal((ulong)left, (ulong)right)
-                : left < 0
-                && right < 0
-                && Equal((ulong)-left, (ulong)-right);
+        => left >= 0 && right >= 0 ? Equal((ulong)left, (ulong)right) : left < 0 && right < 0 && Equal((ulong)-left, (ulong)-right);
 
     private bool Equal(ulong left, ulong right)
     {

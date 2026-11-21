@@ -353,14 +353,7 @@ public class JsonQueryExpression : Expression, IPrintableExpression
     public virtual JsonQueryExpression Update(
         ColumnExpression jsonColumn,
         IReadOnlyDictionary<IProperty, ColumnExpression>? keyPropertyMap)
-        => (jsonColumn == JsonColumn
-            && ((keyPropertyMap is null && KeyPropertyMap is null)
-                || (keyPropertyMap is not null
-                    && KeyPropertyMap is not null
-                    && keyPropertyMap.Count == KeyPropertyMap.Count
-                    && KeyPropertyMapEquals(keyPropertyMap))))
-            ? this
-            : new JsonQueryExpression(StructuralType, jsonColumn, keyPropertyMap, Path, Type, IsCollection, IsNullable);
+        => (jsonColumn == JsonColumn && ((keyPropertyMap is null && KeyPropertyMap is null) || (keyPropertyMap is not null && KeyPropertyMap is not null && keyPropertyMap.Count == KeyPropertyMap.Count && KeyPropertyMapEquals(keyPropertyMap)))) ? this : new JsonQueryExpression(StructuralType, jsonColumn, keyPropertyMap, Path, Type, IsCollection, IsNullable);
 
     /// <inheritdoc />
     public override bool Equals(object? obj)

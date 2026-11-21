@@ -168,11 +168,11 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
 
         Assert.Equal(2, _sessionTokenStorage.TrackSessionTokenCalls.Count);
         var (containerName, sessionToken) =
-            _sessionTokenStorage.TrackSessionTokenCalls.Single(c => c.containerName == nameof(CosmosSessionTokenContext));
-        var otherContainerCall = _sessionTokenStorage.TrackSessionTokenCalls.Single(c => c.containerName == OtherContainerName);
+            _sessionTokenStorage.TrackSessionTokenCalls.Single(c => c.ContainerName == nameof(CosmosSessionTokenContext));
+        var otherContainerCall = _sessionTokenStorage.TrackSessionTokenCalls.Single(c => c.ContainerName == OtherContainerName);
 
         Assert.NotEmpty(sessionToken);
-        Assert.NotEmpty(otherContainerCall.sessionToken);
+        Assert.NotEmpty(otherContainerCall.SessionToken);
     }
 
     [Fact]
@@ -185,11 +185,11 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
 
         Assert.Equal(2, _sessionTokenStorage.TrackSessionTokenCalls.Count);
         var (containerName, sessionToken) =
-            _sessionTokenStorage.TrackSessionTokenCalls.Single(c => c.containerName == nameof(CosmosSessionTokenContext));
-        var otherContainerCall = _sessionTokenStorage.TrackSessionTokenCalls.Single(c => c.containerName == OtherContainerName);
+            _sessionTokenStorage.TrackSessionTokenCalls.Single(c => c.ContainerName == nameof(CosmosSessionTokenContext));
+        var otherContainerCall = _sessionTokenStorage.TrackSessionTokenCalls.Single(c => c.ContainerName == OtherContainerName);
 
         Assert.NotEmpty(sessionToken);
-        Assert.NotEmpty(otherContainerCall.sessionToken);
+        Assert.NotEmpty(otherContainerCall.SessionToken);
     }
 
     [Fact]
@@ -202,11 +202,11 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
 
         Assert.Equal(2, _sessionTokenStorage.TrackSessionTokenCalls.Count);
         var (containerName, sessionToken) =
-            _sessionTokenStorage.TrackSessionTokenCalls.Single(c => c.containerName == nameof(CosmosSessionTokenContext));
-        var otherContainerCall = _sessionTokenStorage.TrackSessionTokenCalls.Single(c => c.containerName == OtherContainerName);
+            _sessionTokenStorage.TrackSessionTokenCalls.Single(c => c.ContainerName == nameof(CosmosSessionTokenContext));
+        var otherContainerCall = _sessionTokenStorage.TrackSessionTokenCalls.Single(c => c.ContainerName == OtherContainerName);
 
         Assert.NotEmpty(sessionToken);
-        Assert.NotEmpty(otherContainerCall.sessionToken);
+        Assert.NotEmpty(otherContainerCall.SessionToken);
     }
 
     [Fact]
@@ -219,11 +219,11 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
 
         Assert.Equal(2, _sessionTokenStorage.TrackSessionTokenCalls.Count);
         var (containerName, sessionToken) =
-            _sessionTokenStorage.TrackSessionTokenCalls.Single(c => c.containerName == nameof(CosmosSessionTokenContext));
-        var otherContainerCall = _sessionTokenStorage.TrackSessionTokenCalls.Single(c => c.containerName == OtherContainerName);
+            _sessionTokenStorage.TrackSessionTokenCalls.Single(c => c.ContainerName == nameof(CosmosSessionTokenContext));
+        var otherContainerCall = _sessionTokenStorage.TrackSessionTokenCalls.Single(c => c.ContainerName == OtherContainerName);
 
         Assert.NotEmpty(sessionToken);
-        Assert.NotEmpty(otherContainerCall.sessionToken);
+        Assert.NotEmpty(otherContainerCall.SessionToken);
     }
 
     [Fact]
@@ -238,11 +238,11 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
 
         Assert.Equal(2, _sessionTokenStorage.TrackSessionTokenCalls.Count);
         var (containerName, sessionToken) =
-            _sessionTokenStorage.TrackSessionTokenCalls.Single(c => c.containerName == nameof(CosmosSessionTokenContext));
-        var otherContainerCall = _sessionTokenStorage.TrackSessionTokenCalls.Single(c => c.containerName == OtherContainerName);
+            _sessionTokenStorage.TrackSessionTokenCalls.Single(c => c.ContainerName == nameof(CosmosSessionTokenContext));
+        var otherContainerCall = _sessionTokenStorage.TrackSessionTokenCalls.Single(c => c.ContainerName == OtherContainerName);
 
         Assert.NotEmpty(sessionToken);
-        Assert.NotEmpty(otherContainerCall.sessionToken);
+        Assert.NotEmpty(otherContainerCall.SessionToken);
     }
 
     [Theory, InlineData(true), InlineData(false)]
@@ -292,8 +292,8 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         // Order between the two containers within a single SaveChanges is not guaranteed; look up by name.
         Assert.Equal(2, _sessionTokenStorage.TrackSessionTokenCalls.Count);
         var (containerName, sessionToken) =
-            _sessionTokenStorage.TrackSessionTokenCalls.Single(c => c.containerName == nameof(CosmosSessionTokenContext));
-        var initialOtherContainerCall = _sessionTokenStorage.TrackSessionTokenCalls.Single(c => c.containerName == OtherContainerName);
+            _sessionTokenStorage.TrackSessionTokenCalls.Single(c => c.ContainerName == nameof(CosmosSessionTokenContext));
+        var initialOtherContainerCall = _sessionTokenStorage.TrackSessionTokenCalls.Single(c => c.ContainerName == OtherContainerName);
 
         // Separate the create phase from the delete phase so the assertions below don't depend on
         // the relative ordering or count of the two phases' tracked calls.
@@ -306,14 +306,14 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
 
         Assert.Equal(2, _sessionTokenStorage.TrackSessionTokenCalls.Count);
         var defaultContainerCall =
-            _sessionTokenStorage.TrackSessionTokenCalls.Single(c => c.containerName == nameof(CosmosSessionTokenContext));
-        var otherContainerCall = _sessionTokenStorage.TrackSessionTokenCalls.Single(c => c.containerName == OtherContainerName);
+            _sessionTokenStorage.TrackSessionTokenCalls.Single(c => c.ContainerName == nameof(CosmosSessionTokenContext));
+        var otherContainerCall = _sessionTokenStorage.TrackSessionTokenCalls.Single(c => c.ContainerName == OtherContainerName);
 
-        Assert.NotEmpty(defaultContainerCall.sessionToken);
-        Assert.NotEmpty(otherContainerCall.sessionToken);
+        Assert.NotEmpty(defaultContainerCall.SessionToken);
+        Assert.NotEmpty(otherContainerCall.SessionToken);
 
-        Assert.NotEqual(sessionToken, defaultContainerCall.sessionToken);
-        Assert.NotEqual(initialOtherContainerCall.sessionToken, otherContainerCall.sessionToken);
+        Assert.NotEqual(sessionToken, defaultContainerCall.SessionToken);
+        Assert.NotEqual(initialOtherContainerCall.SessionToken, otherContainerCall.SessionToken);
     }
 
     [Theory, InlineData(true), InlineData(false)]
@@ -352,17 +352,17 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
 
         if (defaultContainer)
         {
-            Assert.Equal(nameof(CosmosSessionTokenContext), call.containerName);
+            Assert.Equal(nameof(CosmosSessionTokenContext), call.ContainerName);
         }
         else
         {
-            Assert.Equal(OtherContainerName, call.containerName);
+            Assert.Equal(OtherContainerName, call.ContainerName);
         }
 
-        Assert.NotEmpty(call.sessionToken);
+        Assert.NotEmpty(call.SessionToken);
 
-        Assert.Equal(containerName, call.containerName);
-        Assert.NotEqual(sessionToken, call.sessionToken);
+        Assert.Equal(containerName, call.ContainerName);
+        Assert.NotEqual(sessionToken, call.SessionToken);
     }
 
     [Fact]
@@ -380,9 +380,9 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
 
         // Order between the two containers within a single SaveChanges is not guaranteed; look up by name.
         var (containerName, sessionToken) = _sessionTokenStorage.TrackSessionTokenCalls.Take(2)
-            .Single(c => c.containerName == nameof(CosmosSessionTokenContext));
+            .Single(c => c.ContainerName == nameof(CosmosSessionTokenContext));
         var initialOtherContainerCall =
-            _sessionTokenStorage.TrackSessionTokenCalls.Take(2).Single(c => c.containerName == OtherContainerName);
+            _sessionTokenStorage.TrackSessionTokenCalls.Take(2).Single(c => c.ContainerName == OtherContainerName);
 
         customer.Name = "updated";
         otherContainerCustomer.Name = "updated";
@@ -391,14 +391,14 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
 
         Assert.Equal(4, _sessionTokenStorage.TrackSessionTokenCalls.Count);
         var defaultContainerCall = _sessionTokenStorage.TrackSessionTokenCalls.Skip(2)
-            .Single(c => c.containerName == nameof(CosmosSessionTokenContext));
-        var otherContainerCall = _sessionTokenStorage.TrackSessionTokenCalls.Skip(2).Single(c => c.containerName == OtherContainerName);
+            .Single(c => c.ContainerName == nameof(CosmosSessionTokenContext));
+        var otherContainerCall = _sessionTokenStorage.TrackSessionTokenCalls.Skip(2).Single(c => c.ContainerName == OtherContainerName);
 
-        Assert.NotEmpty(defaultContainerCall.sessionToken);
-        Assert.NotEmpty(otherContainerCall.sessionToken);
+        Assert.NotEmpty(defaultContainerCall.SessionToken);
+        Assert.NotEmpty(otherContainerCall.SessionToken);
 
-        Assert.NotEqual(sessionToken, defaultContainerCall.sessionToken);
-        Assert.NotEqual(initialOtherContainerCall.sessionToken, otherContainerCall.sessionToken);
+        Assert.NotEqual(sessionToken, defaultContainerCall.SessionToken);
+        Assert.NotEqual(initialOtherContainerCall.SessionToken, otherContainerCall.SessionToken);
     }
 
     [Theory, InlineData(true), InlineData(false)]
@@ -449,17 +449,17 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
 
         if (defaultContainer)
         {
-            Assert.Equal(nameof(CosmosSessionTokenContext), call.containerName);
+            Assert.Equal(nameof(CosmosSessionTokenContext), call.ContainerName);
         }
         else
         {
-            Assert.Equal(OtherContainerName, call.containerName);
+            Assert.Equal(OtherContainerName, call.ContainerName);
         }
 
-        Assert.NotEmpty(call.sessionToken);
+        Assert.NotEmpty(call.SessionToken);
 
-        Assert.Equal(containerName, call.containerName);
-        Assert.NotEqual(sessionToken, call.sessionToken);
+        Assert.Equal(containerName, call.ContainerName);
+        Assert.NotEqual(sessionToken, call.SessionToken);
     }
 
     [Theory, InlineData(AutoTransactionBehavior.WhenNeeded, true), InlineData(AutoTransactionBehavior.WhenNeeded, false),
@@ -945,7 +945,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
 
     private class TestSessionTokenStorageFactory : ISessionTokenStorageFactory
     {
-        public ISessionTokenStorage Create(DbContext _)
+        public ISessionTokenStorage Create(DbContext dbContext)
             => _sessionTokenStorage = new TestSessionTokenStorage();
     }
 
@@ -959,7 +959,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         public List<string> SetDefaultContainerSessionTokenCalls { get; } = [];
 
         public List<IReadOnlyDictionary<string, string?>> SetSessionTokensCalls { get; } = [];
-        public List<(string containerName, string sessionToken)> TrackSessionTokenCalls { get; } = [];
+        public List<(string ContainerName, string SessionToken)> TrackSessionTokenCalls { get; } = [];
         public bool ClearCalled { get; set; }
 
         public void AppendDefaultContainerSessionToken(string sessionToken)
@@ -1008,9 +1008,9 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
         public DbSet<Customer> Customers { get; set; } = null!;
         public DbSet<OtherContainerCustomer> OtherContainerCustomers { get; set; } = null!;
 
-        protected override void OnModelCreating(ModelBuilder builder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            builder.Entity<Customer>(b =>
+            modelBuilder.Entity<Customer>(b =>
             {
                 b.HasKey(c => c.Id);
                 b.Property(c => c.ETag).IsETagConcurrency();
@@ -1018,7 +1018,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
                 b.HasPartitionKey(c => c.PartitionKey);
             });
 
-            builder.Entity<OtherContainerCustomer>(b =>
+            modelBuilder.Entity<OtherContainerCustomer>(b =>
             {
                 b.HasKey(c => c.Id);
                 b.HasPartitionKey(c => c.PartitionKey);

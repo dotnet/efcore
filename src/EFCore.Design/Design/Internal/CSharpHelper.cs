@@ -654,8 +654,8 @@ public class CSharpHelper : ICSharpHelper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual string Literal(Type value, bool? useFullName = null)
-        => $"typeof({Reference(value, useFullName)})";
+    public virtual string Literal(Type value, bool? fullName = null)
+        => $"typeof({Reference(value, fullName)})";
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -896,9 +896,9 @@ public class CSharpHelper : ICSharpHelper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual string Literal<TKey, TValue>(Dictionary<TKey, TValue> dict, bool vertical = false)
+    public virtual string Literal<TKey, TValue>(Dictionary<TKey, TValue> values, bool vertical = false)
         where TKey : notnull
-        => Dictionary(typeof(TKey), typeof(TValue), dict, vertical);
+        => Dictionary(typeof(TKey), typeof(TValue), values, vertical);
 
     private string Dictionary(Type keyType, Type valueType, IDictionary dict, bool vertical = false)
     {

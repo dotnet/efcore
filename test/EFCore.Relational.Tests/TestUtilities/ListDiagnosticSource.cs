@@ -7,9 +7,9 @@ public class ListDiagnosticSource(List<Tuple<string, object>> diagnosticList) : 
 {
     public List<Tuple<string, object>> DiagnosticList { get; } = diagnosticList;
 
-    public override void Write(string diagnosticName, object? parameters)
-        => DiagnosticList?.Add(new Tuple<string, object>(diagnosticName, parameters!));
+    public override void Write(string name, object? value)
+        => DiagnosticList?.Add(new Tuple<string, object>(name, value!));
 
-    public override bool IsEnabled(string diagnosticName)
+    public override bool IsEnabled(string name)
         => true;
 }

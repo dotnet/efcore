@@ -292,11 +292,7 @@ public class CosmosDatabaseWrapper : Database, IResettableService
 
             var firstEntry = batchableEntries[0];
             var key = new Grouping(firstEntry.CollectionId, _cosmosClient.GetPartitionKeyValue(firstEntry.Entry));
-            return batchableEntries.Count > 100
-                || !batchableEntries.All(entry =>
-                    entry.CollectionId == key.ContainerId && _cosmosClient.GetPartitionKeyValue(entry.Entry) == key.PartitionKeyValue)
-                    ? throw new InvalidOperationException(CosmosStrings.SaveChangesAutoTransactionBehaviorAlwaysAtomicity)
-                    : new SaveGroups { BatchableUpdateEntries = [(key, batchableEntries)], SingleUpdateEntries = [] };
+            return batchableEntries.Count > 100 || !batchableEntries.All(entry => entry.CollectionId == key.ContainerId && _cosmosClient.GetPartitionKeyValue(entry.Entry) == key.PartitionKeyValue) ? throw new InvalidOperationException(CosmosStrings.SaveChangesAutoTransactionBehaviorAlwaysAtomicity) : new SaveGroups { BatchableUpdateEntries = [(key, batchableEntries)], SingleUpdateEntries = [] };
         }
 
         var batches = CreateBatches(batchableEntries);
@@ -540,12 +536,7 @@ public class CosmosDatabaseWrapper : Database, IResettableService
             var errorEntries = new[] { updateEntry.Entry };
             var exception = WrapUpdateException(ex, errorEntries);
 
-            return exception is not DbUpdateConcurrencyException
-                || !(await Dependencies.Logger.OptimisticConcurrencyExceptionAsync(
-                        updateEntry.Entry.Context, errorEntries, (DbUpdateConcurrencyException)exception, null, cancellationToken)
-                    .ConfigureAwait(false)).IsSuppressed
-                    ? throw exception
-                    : false;
+            return exception is not DbUpdateConcurrencyException || !(await Dependencies.Logger.OptimisticConcurrencyExceptionAsync( updateEntry.Entry.Context, errorEntries, (DbUpdateConcurrencyException)exception, null, cancellationToken) .ConfigureAwait(false)).IsSuppressed ? throw exception : false;
         }
     }
 

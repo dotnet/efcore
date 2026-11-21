@@ -763,8 +763,8 @@ public class DbFunction : ConventionAnnotatable, IMutableDbFunction, IConvention
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    RelationalTypeMapping? IConventionDbFunction.SetTypeMapping(RelationalTypeMapping? returnTypeMapping, bool fromDataAnnotation)
-        => SetTypeMapping(returnTypeMapping, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+    RelationalTypeMapping? IConventionDbFunction.SetTypeMapping(RelationalTypeMapping? typeMapping, bool fromDataAnnotation)
+        => SetTypeMapping(typeMapping, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <inheritdoc />
     [DebuggerStepThrough]

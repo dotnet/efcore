@@ -284,10 +284,7 @@ internal static class SharedTypeExtensions
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] this Type type)
     {
         var interfaces = type.GetInterfaces();
-        return type.BaseType == typeof(object)
-            || type.BaseType == null
-            ? interfaces
-            : interfaces.Except(GetInterfacesSuppressed(type.BaseType));
+        return type.BaseType == typeof(object) || type.BaseType == null ? interfaces : interfaces.Except(GetInterfacesSuppressed(type.BaseType));
         [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2070", Justification = "https://github.com/dotnet/linker/issues/2473")]
         static IEnumerable<Type> GetInterfacesSuppressed(Type type)
             => type.GetInterfaces();

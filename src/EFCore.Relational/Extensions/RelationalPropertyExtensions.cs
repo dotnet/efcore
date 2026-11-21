@@ -1263,15 +1263,7 @@ public static class RelationalPropertyExtensions
         }
 
         var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
-        return sharedTableRootProperty != null
-            ? sharedTableRootProperty.IsColumnNullable(storeObject)
-            : property.IsNullable
-            || (property.DeclaringType.ContainingEntityType is { } entityType
-                && ((entityType.BaseType != null
-                        && entityType.GetMappingStrategy() == RelationalAnnotationNames.TphMappingStrategy)
-                    || entityType.IsOptionalSharingDependent(storeObject)))
-            || (property.DeclaringType is IReadOnlyComplexType complexType
-                && IsNullable(complexType.ComplexProperty));
+        return sharedTableRootProperty != null ? sharedTableRootProperty.IsColumnNullable(storeObject) : property.IsNullable || (property.DeclaringType.ContainingEntityType is { } entityType && ((entityType.BaseType != null && entityType.GetMappingStrategy() == RelationalAnnotationNames.TphMappingStrategy) || entityType.IsOptionalSharingDependent(storeObject))) || (property.DeclaringType is IReadOnlyComplexType complexType && IsNullable(complexType.ComplexProperty));
     }
 
     /// <summary>
@@ -2087,13 +2079,7 @@ public static class RelationalPropertyExtensions
     /// </summary>
     /// <param name="property">The property.</param>
     public static string? GetDefaultConstraintName(this IReadOnlyProperty property)
-        => property is RuntimeProperty
-            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
-            : (string?)property[RelationalAnnotationNames.DefaultConstraintName]
-            ?? (ShouldHaveDefaultConstraintName(property)
-                && StoreObjectIdentifier.Create(property.DeclaringType, StoreObjectType.Table) is { } table
-                    ? property.GetDefaultDefaultConstraintName(table)
-                    : null);
+        => property is RuntimeProperty ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData) : (string?)property[RelationalAnnotationNames.DefaultConstraintName] ?? (ShouldHaveDefaultConstraintName(property) && StoreObjectIdentifier.Create(property.DeclaringType, StoreObjectType.Table) is { } table ? property.GetDefaultDefaultConstraintName(table) : null);
 
     /// <summary>
     ///     Gets the default constraint name.
@@ -2101,12 +2087,7 @@ public static class RelationalPropertyExtensions
     /// <param name="property">The property.</param>
     /// <param name="storeObject">The store object identifier to generate the name for.</param>
     public static string? GetDefaultConstraintName(this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
-        => property is RuntimeProperty
-            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
-            : (string?)property[RelationalAnnotationNames.DefaultConstraintName]
-            ?? (ShouldHaveDefaultConstraintName(property)
-                ? property.GetDefaultDefaultConstraintName(storeObject)
-                : null);
+        => property is RuntimeProperty ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData) : (string?)property[RelationalAnnotationNames.DefaultConstraintName] ?? (ShouldHaveDefaultConstraintName(property) ? property.GetDefaultDefaultConstraintName(storeObject) : null);
 
     private static bool ShouldHaveDefaultConstraintName(IReadOnlyProperty property)
         => property.DeclaringType.Model.AreNamedDefaultConstraintsUsed()

@@ -33,72 +33,72 @@ public class ExpectedQueryRewritingVisitor(Dictionary<(Type, string), Func<objec
         _maybeScalarNonNullableMethod = maybeScalarMethods.Single(x => !x.argument.IsNullableValueType()).method;
     }
 
-    protected override Expression VisitMember(MemberExpression memberExpression)
+    protected override Expression VisitMember(MemberExpression node)
     {
-        if (!memberExpression.Type.IsValueType
-            && !memberExpression.Type.IsNullableValueType()
-            && memberExpression.Expression != null)
+        if (!node.Type.IsValueType
+            && !node.Type.IsNullableValueType()
+            && node.Expression != null)
         {
-            var expression = Visit(memberExpression.Expression);
+            var expression = Visit(node.Expression);
 
             var lambdaParameter = Expression.Parameter(expression.Type, "x");
-            var lambda = Expression.Lambda(memberExpression.Update(lambdaParameter), lambdaParameter);
-            var method = _maybeMethod.MakeGenericMethod(expression.Type, memberExpression.Type);
+            var lambda = Expression.Lambda(node.Update(lambdaParameter), lambdaParameter);
+            var method = _maybeMethod.MakeGenericMethod(expression.Type, node.Type);
 
             return Expression.Call(method, expression, lambda);
         }
 
-        if (memberExpression.Type == typeof(bool)
+        if (node.Type == typeof(bool)
             && !_negated
-            && memberExpression.Expression != null)
+            && node.Expression != null)
         {
-            var expression = Visit(memberExpression.Expression);
+            var expression = Visit(node.Expression);
 
             var lambdaParameter = Expression.Parameter(expression.Type, "x");
-            var lambda = Expression.Lambda(memberExpression.Update(lambdaParameter), lambdaParameter);
-            var method = _maybeScalarNonNullableMethod.MakeGenericMethod(expression.Type, memberExpression.Type);
+            var lambda = Expression.Lambda(node.Update(lambdaParameter), lambdaParameter);
+            var method = _maybeScalarNonNullableMethod.MakeGenericMethod(expression.Type, node.Type);
 
             return Expression.Equal(
                 Expression.Call(method, expression, lambda),
                 Expression.Constant(true, typeof(bool?)));
         }
 
-        return base.VisitMember(memberExpression);
+        return base.VisitMember(node);
     }
 
-    protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+    protected override Expression VisitMethodCall(MethodCallExpression node)
     {
-        if (methodCallExpression.Method.DeclaringType == typeof(Queryable)
-            && methodCallExpression.Method.IsGenericMethod)
+        if (node.Method.DeclaringType == typeof(Queryable)
+            && node.Method.IsGenericMethod)
         {
-            var genericMethod = methodCallExpression.Method.GetGenericMethodDefinition();
+            var genericMethod = node.Method.GetGenericMethodDefinition();
 
             if (genericMethod == QueryableMethods.Join
                 || genericMethod == QueryableMethods.GroupJoin)
             {
-                return RewriteJoinGroupJoin(methodCallExpression);
+                return RewriteJoinGroupJoin(node);
             }
         }
 
-        if (methodCallExpression.Method.IsEFPropertyMethod())
+        if (node.Method.IsEFPropertyMethod())
         {
-            var rewritten = TryConvertEFPropertyToMemberAccess(methodCallExpression);
+            var rewritten = TryConvertEFPropertyToMemberAccess(node);
 
             return Visit(rewritten);
         }
 
-        if (methodCallExpression.Method.IsGenericMethod
-            && methodCallExpression.Method.GetGenericMethodDefinition() == EnumerableMethods.DefaultIfEmptyWithoutArgument)
+        if (node.Method.IsGenericMethod
+            && node.Method.GetGenericMethodDefinition() == EnumerableMethods.DefaultIfEmptyWithoutArgument)
         {
-            var source = Visit(methodCallExpression.Arguments[0]);
+            var source = Visit(node.Arguments[0]);
 
             return Expression.Call(
                 _maybeDefaultIfEmpty.MakeGenericMethod(
-                    methodCallExpression.Method.GetGenericArguments()[0]),
+                    node.Method.GetGenericArguments()[0]),
                 source);
         }
 
-        return base.VisitMethodCall(methodCallExpression);
+        return base.VisitMethodCall(node);
     }
 
     private Expression RewriteJoinGroupJoin(MethodCallExpression methodCallExpression)
@@ -252,9 +252,9 @@ public class ExpectedQueryRewritingVisitor(Dictionary<(Type, string), Func<objec
         return Visit(expression);
     }
 
-    protected override Expression VisitUnary(UnaryExpression unaryExpression)
+    protected override Expression VisitUnary(UnaryExpression node)
     {
-        if (unaryExpression is
+        if (node is
             {
                 NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked or ExpressionType.TypeAs,
                 Operand: MemberExpression
@@ -264,8 +264,8 @@ public class ExpectedQueryRewritingVisitor(Dictionary<(Type, string), Func<objec
                 } memberOperand
             }
             && !memberOperand.Type.IsNullableValueType()
-            && unaryExpression.Type.IsNullableValueType()
-            && unaryExpression.Type.UnwrapNullableType() == memberOperand.Type)
+            && node.Type.IsNullableValueType()
+            && node.Type.UnwrapNullableType() == memberOperand.Type)
         {
             var expression = Visit(memberOperand.Expression);
 
@@ -273,34 +273,34 @@ public class ExpectedQueryRewritingVisitor(Dictionary<(Type, string), Func<objec
             var lambda = Expression.Lambda(memberOperand.Update(lambdaParameter), lambdaParameter);
             var method = _maybeScalarNonNullableMethod.MakeGenericMethod(expression.Type, memberOperand.Type);
 
-            return unaryExpression.Update(
+            return node.Update(
                 Expression.Call(method, expression, lambda));
         }
 
-        if (unaryExpression.NodeType == ExpressionType.Not)
+        if (node.NodeType == ExpressionType.Not)
         {
             var negated = _negated;
             _negated = true;
-            var operand = Visit(unaryExpression.Operand);
+            var operand = Visit(node.Operand);
             _negated = negated;
 
-            return unaryExpression.Update(operand);
+            return node.Update(operand);
         }
 
-        return base.VisitUnary(unaryExpression);
+        return base.VisitUnary(node);
     }
 
-    protected override Expression VisitBinary(BinaryExpression binaryExpression)
+    protected override Expression VisitBinary(BinaryExpression node)
     {
-        if (binaryExpression.NodeType is ExpressionType.Equal
+        if (node.NodeType is ExpressionType.Equal
             or ExpressionType.NotEqual
             or ExpressionType.GreaterThan
             or ExpressionType.GreaterThanOrEqual
             or ExpressionType.LessThan
             or ExpressionType.LessThanOrEqual)
         {
-            var left = AddNullProtectionForNonNullableMemberAccess(binaryExpression.Left);
-            var right = AddNullProtectionForNonNullableMemberAccess(binaryExpression.Right);
+            var left = AddNullProtectionForNonNullableMemberAccess(node.Left);
+            var right = AddNullProtectionForNonNullableMemberAccess(node.Right);
 
             if (left.Type.IsNullableValueType()
                 && right.Type.IsValueType
@@ -316,9 +316,9 @@ public class ExpectedQueryRewritingVisitor(Dictionary<(Type, string), Func<objec
                 left = Expression.Convert(left, right.Type);
             }
 
-            return binaryExpression.Update(left, binaryExpression.Conversion, right);
+            return node.Update(left, node.Conversion, right);
         }
 
-        return base.VisitBinary(binaryExpression);
+        return base.VisitBinary(node);
     }
 }

@@ -92,42 +92,42 @@ public class QueryFilterRewritingConvention : IModelFinalizingConvention
         }
 
         /// <inheritdoc />
-        protected override Expression VisitMember(MemberExpression memberExpression)
+        protected override Expression VisitMember(MemberExpression node)
         {
-            Check.NotNull(memberExpression);
+            Check.NotNull(node);
 
-            if (memberExpression.Expression != null
-                && (memberExpression.Expression.Type.IsAssignableFrom(_contextType)
-                    || _contextType.IsAssignableFrom(memberExpression.Expression.Type))
-                && memberExpression.Type.IsGenericType
-                && memberExpression.Type.GetGenericTypeDefinition() == typeof(DbSet<>)
+            if (node.Expression != null
+                && (node.Expression.Type.IsAssignableFrom(_contextType)
+                    || _contextType.IsAssignableFrom(node.Expression.Type))
+                && node.Type.IsGenericType
+                && node.Type.GetGenericTypeDefinition() == typeof(DbSet<>)
                 && _model != null)
             {
-                var entityClrType = memberExpression.Type.GetGenericArguments()[0];
+                var entityClrType = node.Type.GetGenericArguments()[0];
                 return new EntityQueryRootExpression(FindEntityType(entityClrType)!);
             }
 
-            return base.VisitMember(memberExpression);
+            return base.VisitMember(node);
         }
 
         /// <inheritdoc />
-        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            Check.NotNull(methodCallExpression);
+            Check.NotNull(node);
 
-            if (methodCallExpression.Method.Name == nameof(DbContext.Set)
-                && methodCallExpression.Object != null
-                && typeof(DbContext).IsAssignableFrom(methodCallExpression.Object.Type)
-                && methodCallExpression.Type.IsGenericType
-                && methodCallExpression.Type.GetGenericTypeDefinition() == typeof(DbSet<>)
+            if (node.Method.Name == nameof(DbContext.Set)
+                && node.Object != null
+                && typeof(DbContext).IsAssignableFrom(node.Object.Type)
+                && node.Type.IsGenericType
+                && node.Type.GetGenericTypeDefinition() == typeof(DbSet<>)
                 && _model != null)
             {
                 IEntityType? entityType;
-                var entityClrType = methodCallExpression.Type.GetGenericArguments()[0];
-                if (methodCallExpression.Arguments.Count == 1)
+                var entityClrType = node.Type.GetGenericArguments()[0];
+                if (node.Arguments.Count == 1)
                 {
                     // STET Set method
-                    var entityTypeName = methodCallExpression.Arguments[0].GetConstantValue<string>();
+                    var entityTypeName = node.Arguments[0].GetConstantValue<string>();
                     entityType = (IEntityType?)_model.FindEntityType(entityTypeName);
                 }
                 else
@@ -172,7 +172,7 @@ public class QueryFilterRewritingConvention : IModelFinalizingConvention
                 return new EntityQueryRootExpression(entityType);
             }
 
-            return base.VisitMethodCall(methodCallExpression);
+            return base.VisitMethodCall(node);
         }
 
         private IEntityType? FindEntityType(Type entityClrType)

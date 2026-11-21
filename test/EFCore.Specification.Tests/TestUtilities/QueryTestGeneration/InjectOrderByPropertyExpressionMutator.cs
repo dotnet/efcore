@@ -69,34 +69,34 @@ public class InjectOrderByPropertyExpressionMutator(DbContext context) : Express
 
         public Dictionary<Expression, List<PropertyInfo>> FoundExpressions { get; } = [];
 
-        [return: NotNullIfNotNull(nameof(expression))]
-        public override Expression? Visit(Expression? expression)
+        [return: NotNullIfNotNull(nameof(node))]
+        public override Expression? Visit(Expression? node)
         {
             // can't inject OrderBy inside of include - would have to rewrite the ThenInclude method to one that accepts ordered input
             var insideThenInclude = default(bool?);
-            if (expression is MethodCallExpression { Method.Name: "ThenInclude" or "ThenBy" or "ThenByDescending" })
+            if (node is MethodCallExpression { Method.Name: "ThenInclude" or "ThenBy" or "ThenByDescending" })
             {
                 insideThenInclude = _insideThenInclude;
                 _insideThenInclude = true;
             }
 
             if (!_insideThenInclude
-                && expression != null
-                && IsQueryableResult(expression)
-                && !FoundExpressions.ContainsKey(expression))
+                && node != null
+                && IsQueryableResult(node)
+                && !FoundExpressions.ContainsKey(node))
             {
-                var validProperties = GetValidPropertiesForOrderBy(expression);
-                validProperties = mutator.FilterPropertyInfos(expression.Type.GetGenericArguments()[0], validProperties);
+                var validProperties = GetValidPropertiesForOrderBy(node);
+                validProperties = mutator.FilterPropertyInfos(node.Type.GetGenericArguments()[0], validProperties);
 
                 if (validProperties.Any())
                 {
-                    FoundExpressions.Add(expression, validProperties);
+                    FoundExpressions.Add(node, validProperties);
                 }
             }
 
             try
             {
-                return base.Visit(expression);
+                return base.Visit(node);
             }
             finally
             {

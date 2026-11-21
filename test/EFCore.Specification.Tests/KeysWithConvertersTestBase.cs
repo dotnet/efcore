@@ -5659,8 +5659,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
     protected void ValidateOptional(
         IList<IIntPrincipal> principals,
         IList<IIntOptionalDependent> dependents,
-        IList<(int, int[])> expectedPrincipalToDependents,
-        IList<(int, int?)> expectedDependentToPrincipals,
+        IList<(int PrincipalIndex, int[] DependentIndexes)> expectedPrincipalToDependents,
+        IList<(int DependentIndex, int? PrincipalIndex)> expectedDependentToPrincipals,
         Func<IIntPrincipal, IList<IIntOptionalDependent>> getDependents,
         Func<IIntOptionalDependent, IIntPrincipal?> getPrincipal)
     {
@@ -5704,8 +5704,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
     protected void ValidateRequired(
         IList<IIntPrincipal> principals,
         IList<IIntRequiredDependent> dependents,
-        IList<(int, int[])> expectedPrincipalToDependents,
-        IList<(int, int)> expectedDependentToPrincipals,
+        IList<(int PrincipalIndex, int[] DependentIndexes)> expectedPrincipalToDependents,
+        IList<(int DependentIndex, int PrincipalIndex)> expectedDependentToPrincipals,
         Func<IIntPrincipal, IList<IIntRequiredDependent>> getDependents,
         Func<IIntRequiredDependent, IIntPrincipal> getPrincipal)
     {
@@ -5788,8 +5788,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
     protected void ValidateOptionalBytes(
         IList<IBytesPrincipal> principals,
         IList<IBytesOptionalDependent> dependents,
-        IList<(int, int[])> expectedPrincipalToDependents,
-        IList<(int, int?)> expectedDependentToPrincipals,
+        IList<(int PrincipalIndex, int[] DependentIndexes)> expectedPrincipalToDependents,
+        IList<(int DependentIndex, int? PrincipalIndex)> expectedDependentToPrincipals,
         Func<IBytesPrincipal, IList<IBytesOptionalDependent>> getDependents,
         Func<IBytesOptionalDependent, IBytesPrincipal?> getPrincipal)
     {
@@ -5835,8 +5835,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
     protected void ValidateRequiredBytes(
         IList<IBytesPrincipal> principals,
         IList<IBytesRequiredDependent> dependents,
-        IList<(int, int[])> expectedPrincipalToDependents,
-        IList<(int, int)> expectedDependentToPrincipals,
+        IList<(int PrincipalIndex, int[] DependentIndexes)> expectedPrincipalToDependents,
+        IList<(int DependentIndex, int PrincipalIndex)> expectedDependentToPrincipals,
         Func<IBytesPrincipal, IList<IBytesRequiredDependent>> getDependents,
         Func<IBytesRequiredDependent, IBytesPrincipal> getPrincipal)
     {
@@ -5924,8 +5924,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
         public int Id { get; set; } = id;
 
-        public int CompareTo(object? other)
-            => Id - ((ComparableIntStructKey)other!).Id;
+        public int CompareTo(object? obj)
+            => Id - ((ComparableIntStructKey)obj!).Id;
     }
 
     protected struct ComparableBytesStructKey(byte[] id) : IComparable
@@ -5958,13 +5958,13 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             return code.ToHashCode();
         }
 
-        public int CompareTo(object? other)
+        public int CompareTo(object? obj)
         {
-            var result = Id.Length - ((ComparableBytesStructKey)other!).Id.Length;
+            var result = Id.Length - ((ComparableBytesStructKey)obj!).Id.Length;
 
             return result != 0
                 ? result
-                : StructuralComparisons.StructuralComparer.Compare(Id, ((ComparableBytesStructKey)other).Id);
+                : StructuralComparisons.StructuralComparer.Compare(Id, ((ComparableBytesStructKey)obj).Id);
         }
     }
 
@@ -6144,8 +6144,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
         public override int GetHashCode()
             => Id;
 
-        public int CompareTo(object? other)
-            => Id - ((ComparableIntClassKey)other!).Id;
+        public int CompareTo(object? obj)
+            => Id - ((ComparableIntClassKey)obj!).Id;
     }
 
     protected class GenericComparableIntClassKey(int id) : IComparable<GenericComparableIntClassKey>

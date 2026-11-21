@@ -37,13 +37,13 @@ public abstract class IdentityUserContext<TUser, TKey, TUserClaim, TUserLogin, T
             => data;
     }
 
-    protected override void OnModelCreating(ModelBuilder builder)
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         const int maxKeyLength = 128;
         const bool encryptPersonalData = true;
         var converter = new PersonalDataConverter(new PersonalDataProtector());
 
-        builder.Entity<TUser>(b =>
+        modelBuilder.Entity<TUser>(b =>
         {
             b.HasKey(u => u.Id);
             b.HasIndex(u => u.NormalizedUserName).IsUnique();
@@ -75,9 +75,9 @@ public abstract class IdentityUserContext<TUser, TKey, TUserClaim, TUserLogin, T
             b.HasMany<TUserToken>().WithOne().HasForeignKey(ut => ut.UserId).IsRequired();
         });
 
-        builder.Entity<TUserClaim>(b => b.HasKey(uc => uc.Id));
+        modelBuilder.Entity<TUserClaim>(b => b.HasKey(uc => uc.Id));
 
-        builder.Entity<TUserLogin>(b =>
+        modelBuilder.Entity<TUserLogin>(b =>
         {
             b.HasKey(l => new { l.LoginProvider, l.ProviderKey });
 
@@ -88,7 +88,7 @@ public abstract class IdentityUserContext<TUser, TKey, TUserClaim, TUserLogin, T
             }
         });
 
-        builder.Entity<TUserToken>(b =>
+        modelBuilder.Entity<TUserToken>(b =>
         {
             b.HasKey(t => new
             {

@@ -20,13 +20,13 @@ public class CosmosValueConverterCompensatingExpressionVisitor(ISqlExpressionFac
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitExtension(Expression extensionExpression)
-        => extensionExpression switch
+    protected override Expression VisitExtension(Expression node)
+        => node switch
         {
             ShapedQueryExpression shapedQueryExpression => VisitShapedQueryExpression(shapedQueryExpression),
             SelectExpression selectExpression => VisitSelect(selectExpression),
             SqlConditionalExpression sqlConditionalExpression => VisitSqlConditional(sqlConditionalExpression),
-            _ => base.VisitExtension(extensionExpression)
+            _ => base.VisitExtension(node)
         };
 
     private Expression VisitShapedQueryExpression(ShapedQueryExpression shapedQueryExpression)

@@ -141,12 +141,7 @@ public class SqlServerOpenJsonExpression : TableValuedFunctionExpression
             columnInfos = null;
         }
 
-        return jsonExpression == Json
-            && (ReferenceEquals(path, Path) || (path is not null && Path is not null && path.SequenceEqual(Path)))
-            && (ReferenceEquals(columnInfos, ColumnInfos)
-                || (columnInfos is not null && ColumnInfos is not null && columnInfos.SequenceEqual(ColumnInfos)))
-                ? this
-                : new SqlServerOpenJsonExpression(Alias, jsonExpression, path, columnInfos);
+        return jsonExpression == Json && (ReferenceEquals(path, Path) || (path is not null && Path is not null && path.SequenceEqual(Path))) && (ReferenceEquals(columnInfos, ColumnInfos) || (columnInfos is not null && ColumnInfos is not null && columnInfos.SequenceEqual(ColumnInfos))) ? this : new SqlServerOpenJsonExpression(Alias, jsonExpression, path, columnInfos);
     }
 
     /// <summary>

@@ -27,10 +27,10 @@ public class SimpleNullablePrincipalRowForeignKeyValueFactory<TKey, TForeignKey>
 
     /// <inheritdoc />
     public override bool TryCreateDependentKeyValue(
-        IDictionary<string, object?> keyPropertyValues,
+        IDictionary<string, object?> keyValues,
         [NotNullWhen(true)] out TKey? key)
     {
-        if (keyPropertyValues.TryGetValue(Column.Name, out var value))
+        if (keyValues.TryGetValue(Column.Name, out var value))
         {
             key = (TKey?)value!;
             return true;

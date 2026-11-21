@@ -90,8 +90,8 @@ public class RelationalParameterProcessor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitExtension(Expression expression)
-        => expression switch
+    protected override Expression VisitExtension(Expression node)
+        => node switch
         {
             FromSqlExpression fromSql
                 => _visitedFromSqlExpressions.TryGetValue(fromSql, out var visitedFromSql)
@@ -100,7 +100,7 @@ public class RelationalParameterProcessor : ExpressionVisitor
 
             SqlParameterExpression parameter => VisitSqlParameter(parameter),
 
-            _ => base.VisitExtension(expression)
+            _ => base.VisitExtension(node)
         };
 
     private SqlParameterExpression VisitSqlParameter(SqlParameterExpression parameter)

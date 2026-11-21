@@ -560,16 +560,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                     // different than the target complex type, despite the two having the same CLR type, e.g. compare ShippingAddress to
                     // BillingAddress).
                     // Otherwise, if the value expression is a constant/parameter, just use the target complex property.
-                    var nestedValueComplexProperty = valueExpression is StructuralTypeShaperExpression
-                    {
-                        StructuralType: IComplexType valueNestedComplexType
-                    }
-                        ? valueNestedComplexType!.FindComplexProperty(nestedTargetComplexProperty.Name)
-                        ?? throw new InvalidOperationException(
-                            RelationalStrings.IncompatibleComplexTypesInAssignment(
-                                targetNestedComplexType.DisplayName(), valueNestedComplexType.DisplayName(),
-                                nestedTargetComplexProperty.Name))
-                        : nestedTargetComplexProperty;
+                    var nestedValueComplexProperty = valueExpression is StructuralTypeShaperExpression { StructuralType: IComplexType valueNestedComplexType } ? valueNestedComplexType!.FindComplexProperty(nestedTargetComplexProperty.Name) ?? throw new InvalidOperationException( RelationalStrings.IncompatibleComplexTypesInAssignment( targetNestedComplexType.DisplayName(), valueNestedComplexType.DisplayName(), nestedTargetComplexProperty.Name)) : nestedTargetComplexProperty;
 
                     var nestedValueExpression = CreateComplexPropertyAccessExpression(valueExpression, nestedValueComplexProperty);
 

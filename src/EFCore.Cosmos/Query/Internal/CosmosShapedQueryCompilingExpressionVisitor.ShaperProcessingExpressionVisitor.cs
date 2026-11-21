@@ -327,11 +327,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             return shaperLambda;
         }
 
-        protected override Expression VisitExtension(Expression extensionExpression)
+        protected override Expression VisitExtension(Expression node)
         {
             // Every deserialize action sets innerShaperBytesConsumed, so it can be used by the parent shaper to slice the data.
-            var resultVariable = Variable(extensionExpression.Type, "result");
-            switch (extensionExpression)
+            var resultVariable = Variable(node.Type, "result");
+            switch (node)
             {
                 case StructuralTypeShaperExpression structuralTypeShaperExpression:
                 {
@@ -438,13 +438,13 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 return shaper;
             }
 
-            return base.VisitExtension(extensionExpression);
+            return base.VisitExtension(node);
         }
 
-        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        protected override Expression VisitMethodCall(MethodCallExpression node)
         {
             // Converts valueBuffer.TryReadValue to jsonValueReaderWriter.FromJsonTyped(jsonReaderManager, null)
-            if (IsValueBufferTryReadValueMethodCall(methodCallExpression, out var property))
+            if (IsValueBufferTryReadValueMethodCall(node, out var property))
             {
                 var typeMapping = property.GetTypeMapping();
                 var jsonValueReaderWriter = property.GetJsonValueReaderWriter() ?? typeMapping.JsonValueReaderWriter;
@@ -458,28 +458,28 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     property.ClrType,
                     true); // Matches 10.0 behaviour. Missing OR null properties were materialized as the default value.
 
-                return ConvertIfNotMatch(jsonReadPropertyValueExpression, methodCallExpression.Type);
+                return ConvertIfNotMatch(jsonReadPropertyValueExpression, node.Type);
             }
 
-            return base.VisitMethodCall(methodCallExpression);
+            return base.VisitMethodCall(node);
         }
 
-        protected override Expression VisitBinary(BinaryExpression binaryExpression)
+        protected override Expression VisitBinary(BinaryExpression node)
         {
-            switch (binaryExpression)
+            switch (node)
             {
                 case { NodeType: ExpressionType.Assign }
-                    when binaryExpression.Left.Type == typeof(MaterializationContext):
+                    when node.Left.Type == typeof(MaterializationContext):
                 {
-                    var newExpression = (NewExpression)binaryExpression.Right;
+                    var newExpression = (NewExpression)node.Right;
 
-                    return binaryExpression.Update(
-                        binaryExpression.Left, binaryExpression.Conversion,
+                    return node.Update(
+                        node.Left, node.Conversion,
                         newExpression.Update([Constant(ValueBuffer.Empty), .. newExpression.Arguments.Skip(1)]));
                 }
 
                 default:
-                    return base.VisitBinary(binaryExpression);
+                    return base.VisitBinary(node);
             }
         }
 
@@ -868,14 +868,14 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     breakLabel));
         }
 
-        protected override SwitchCase VisitSwitchCase(SwitchCase switchCase)
-            => switchCase switch
+        protected override SwitchCase VisitSwitchCase(SwitchCase node)
+            => node switch
             {
                 {
                     Body: BlockExpression { Expressions.Count: > 0 } body,
                     TestValues: [ConstantExpression { Value: ITypeBase structuralType }]
-                } => switchCase.Update(switchCase.TestValues, RewriteStructuralTypeCase(body, structuralType)),
-                _ => base.VisitSwitchCase(switchCase)
+                } => node.Update(node.TestValues, RewriteStructuralTypeCase(body, structuralType)),
+                _ => base.VisitSwitchCase(node)
             };
 
         private BlockExpression RewriteStructuralTypeCase(BlockExpression body, ITypeBase structuralType)
@@ -1471,11 +1471,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             => ((SelectExpression)projectionBindingExpression.QueryExpression).Projection[GetProjectionIndex(projectionBindingExpression)];
 
         private int GetProjectionIndex(ProjectionBindingExpression projectionBindingExpression)
-            => projectionBindingExpression.ProjectionMember != null
-                ? ((SelectExpression)projectionBindingExpression.QueryExpression)
-                .GetMappedProjection(projectionBindingExpression.ProjectionMember).GetConstantValue<int>()
-                : (projectionBindingExpression.Index
-                    ?? throw new InvalidOperationException(CoreStrings.TranslationFailed(projectionBindingExpression.Print())));
+            => projectionBindingExpression.ProjectionMember != null ? ((SelectExpression)projectionBindingExpression.QueryExpression) .GetMappedProjection(projectionBindingExpression.ProjectionMember).GetConstantValue<int>() : (projectionBindingExpression.Index ?? throw new InvalidOperationException(CoreStrings.TranslationFailed(projectionBindingExpression.Print())));
 
         private NewExpression NewJsonReaderManager()
             => New(
@@ -1729,22 +1725,22 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             public BlockExpression Rewrite(BlockExpression blockExpression)
                 => (BlockExpression)Visit(blockExpression);
 
-            protected override Expression VisitBinary(BinaryExpression binaryExpression)
-                => binaryExpression.NodeType == ExpressionType.Assign
-                    && binaryExpression.Left is ParameterExpression entityTypeVariable
+            protected override Expression VisitBinary(BinaryExpression node)
+                => node.NodeType == ExpressionType.Assign
+                    && node.Left is ParameterExpression entityTypeVariable
                     && entityTypeVariable.Type.IsAssignableTo(typeof(ITypeBase))
-                        ? binaryExpression.Update(binaryExpression.Left, null, Constant(structuralType, entityTypeVariable.Type))
-                        : base.VisitBinary(binaryExpression);
+                        ? node.Update(node.Left, null, Constant(structuralType, entityTypeVariable.Type))
+                        : base.VisitBinary(node);
 
-            protected override SwitchCase VisitSwitchCase(SwitchCase switchCase)
-                => switchCase switch
+            protected override SwitchCase VisitSwitchCase(SwitchCase node)
+                => node switch
                 {
                     {
                         Body: BlockExpression { Expressions.Count: > 0 } body,
                         TestValues: [ConstantExpression { Value: ITypeBase testValue }]
                     } => testValue == structuralType
-                        ? switchCase.Update(
-                            switchCase.TestValues, body.Update(
+                        ? node.Update(
+                            node.TestValues, body.Update(
                                 body.Variables, [
                                     // if (ValueBuffer.TryReadValue(discriminatorProperty.ClrType, ValueBuffer.Empty, discriminatorProperty.GetIndex(), discriminatorProperty) != structuralType.GetDiscriminatorValue())
                                     IfThen(
@@ -1773,7 +1769,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                 ]))
                         : throw new UnreachableException(
                             "There should only be 1 case for the specified structural type, since there is only 1 possible discriminator value."),
-                    _ => base.VisitSwitchCase(switchCase)
+                    _ => base.VisitSwitchCase(node)
                 };
         }
 
@@ -1794,18 +1790,18 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 return _valueBufferTryReadValueMethods;
             }
 
-            protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+            protected override Expression VisitMethodCall(MethodCallExpression node)
             {
-                if (IsValueBufferTryReadValueMethodCall(methodCallExpression, out var property)
+                if (IsValueBufferTryReadValueMethodCall(node, out var property)
                     && _properties.Contains(property))
                 {
-                    _valueBufferTryReadValueMethods.Add(methodCallExpression);
+                    _valueBufferTryReadValueMethods.Add(node);
                     _properties.Remove(property);
 
-                    return methodCallExpression;
+                    return node;
                 }
 
-                return base.VisitMethodCall(methodCallExpression);
+                return base.VisitMethodCall(node);
             }
         }
 
@@ -1872,11 +1868,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 return base.VisitBinary(node);
             }
 
-            protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
-                => IsValueBufferTryReadValueMethodCall(methodCallExpression, out var property)
+            protected override Expression VisitMethodCall(MethodCallExpression node)
+                => IsValueBufferTryReadValueMethodCall(node, out var property)
                     && mappedProperties.TryGetValue(property, out var parameter)
-                        ? ConvertIfNotMatch(parameter, methodCallExpression.Type)
-                        : base.VisitMethodCall(methodCallExpression);
+                        ? ConvertIfNotMatch(parameter, node.Type)
+                        : base.VisitMethodCall(node);
         }
     }
 }

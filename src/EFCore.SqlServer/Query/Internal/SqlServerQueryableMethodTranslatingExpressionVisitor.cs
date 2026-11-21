@@ -76,9 +76,9 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+    protected override Expression VisitMethodCall(MethodCallExpression node)
     {
-        var method = methodCallExpression.Method;
+        var method = node.Method;
 
         // A temporal operator normally executes while the query is being built, returning a
         // temporal query root. Inside EF.CompileQuery/CompileAsyncQuery it is never executed -- the
@@ -94,12 +94,12 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         }
 
         if (method.DeclaringType == typeof(SqlServerQueryableExtensions)
-            && Visit(methodCallExpression.Arguments[0]) is ShapedQueryExpression source)
+            && Visit(node.Arguments[0]) is ShapedQueryExpression source)
         {
             switch (method.Name)
             {
                 case nameof(SqlServerQueryableExtensions.VectorSearch)
-                    when methodCallExpression.Arguments is
+                    when node.Arguments is
                     [
                         _, // source, translated above
                         UnaryExpression { NodeType: ExpressionType.Quote, Operand: LambdaExpression vectorPropertySelector },
@@ -154,7 +154,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                     select.SetTables([vectorSearchFunction]);
 #pragma warning restore EF1001 // Internal EF Core API usage.
 
-                    var resultType = methodCallExpression.Method.ReturnType.GetSequenceType();
+                    var resultType = node.Method.ReturnType.GetSequenceType();
                     var entityProjection = select.GetProjection(projectionBinding);
                     var valueProjectionMember = new ProjectionMember().Append(resultType.GetProperty(nameof(VectorSearchResult<>.Value))!);
                     var distanceProjectionMember =
@@ -198,12 +198,12 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                         ShaperExpression: StructuralTypeShaperExpression
                     }:
                 {
-                    return TranslateFullTextTableFunction(methodCallExpression, source, select, table);
+                    return TranslateFullTextTableFunction(node, source, select, table);
                 }
             }
         }
 
-        return base.VisitMethodCall(methodCallExpression);
+        return base.VisitMethodCall(node);
     }
 
     private Expression TranslateFullTextTableFunction(
@@ -361,9 +361,9 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitExtension(Expression extensionExpression)
+    protected override Expression VisitExtension(Expression node)
     {
-        if (extensionExpression is TemporalQueryRootExpression queryRootExpression)
+        if (node is TemporalQueryRootExpression queryRootExpression)
         {
             var selectExpression = CreateSelect(queryRootExpression.EntityType);
             Func<TableExpression, TableExpressionBase> annotationApplyingFunc = queryRootExpression switch
@@ -422,7 +422,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                     false));
         }
 
-        return base.VisitExtension(extensionExpression);
+        return base.VisitExtension(node);
     }
 
     /// <summary>
@@ -663,11 +663,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override string GetJsonElementColumnName(TableExpressionBase tableExpressionBase, string jsonPropertyName)
-        => tableExpressionBase is SqlServerOpenJsonExpression { ColumnInfos: { } columnInfos }
-            && columnInfos.FirstOrDefault(c => c.Path is [{ PropertyName: var propertyName }] && propertyName == jsonPropertyName) is
-                { Name: { } columnName }
-                ? columnName
-                : jsonPropertyName;
+        => tableExpressionBase is SqlServerOpenJsonExpression { ColumnInfos: { } columnInfos } && columnInfos.FirstOrDefault(c => c.Path is [{ PropertyName: var propertyName }] && propertyName == jsonPropertyName) is { Name: { } columnName } ? columnName : jsonPropertyName;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -934,7 +930,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
     /// </summary>
     protected override bool IsValidSelectExpressionForExecuteUpdate(
         SelectExpression selectExpression,
-        TableExpressionBase table,
+        TableExpressionBase targetTable,
         [NotNullWhen(true)] out TableExpression? tableExpression)
     {
         if (selectExpression is
@@ -946,12 +942,12 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                 Orderings: []
             })
         {
-            if (selectExpression.Tables.Count > 1 && table is JoinExpressionBase joinExpressionBase)
+            if (selectExpression.Tables.Count > 1 && targetTable is JoinExpressionBase joinExpressionBase)
             {
-                table = joinExpressionBase.Table;
+                targetTable = joinExpressionBase.Table;
             }
 
-            if (table is TableExpression te)
+            if (targetTable is TableExpression te)
             {
                 tableExpression = te;
                 return true;
@@ -1167,10 +1163,10 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
     private sealed class TemporalAnnotationApplyingExpressionVisitor(Func<TableExpression, TableExpressionBase> annotationApplyingFunc)
         : ExpressionVisitor
     {
-        [return: NotNullIfNotNull(nameof(expression))]
-        public override Expression? Visit(Expression? expression)
-            => expression is TableExpression tableExpression
+        [return: NotNullIfNotNull(nameof(node))]
+        public override Expression? Visit(Expression? node)
+            => node is TableExpression tableExpression
                 ? annotationApplyingFunc(tableExpression)
-                : base.Visit(expression);
+                : base.Visit(node);
     }
 }

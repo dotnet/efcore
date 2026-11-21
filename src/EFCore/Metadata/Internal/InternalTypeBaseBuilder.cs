@@ -427,7 +427,7 @@ public abstract class InternalTypeBaseBuilder :
             propertyNames,
             isRequired,
             "",
-            checkTypes: checkTypes).Item2;
+            checkTypes: checkTypes).Properties;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -447,7 +447,7 @@ public abstract class InternalTypeBaseBuilder :
             principalProperties.Select(p => p.Name),
             isRequired,
             baseName,
-            checkTypes: checkTypes).Item2;
+            checkTypes: checkTypes).Properties;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -455,7 +455,7 @@ public abstract class InternalTypeBaseBuilder :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual (bool, IReadOnlyList<Property>?) TryCreateUniqueProperties(
+    public virtual (bool CanReuniquify, IReadOnlyList<Property>? Properties) TryCreateUniqueProperties(
         int propertyCount,
         IReadOnlyList<Property>? currentProperties,
         IEnumerable<Type> principalPropertyTypes,
@@ -1326,18 +1326,7 @@ public abstract class InternalTypeBaseBuilder :
         bool checkClrProperty = false)
     {
         var existingProperty = Metadata.FindProperty(propertyName);
-        return existingProperty != null
-            ? (IsCompatible(memberInfo, existingProperty)
-                && (propertyType == null || propertyType == existingProperty.ClrType))
-            || ((memberInfo == null
-                    || (memberInfo is PropertyInfo propertyInfo && propertyInfo.IsIndexerProperty()))
-                && (existingProperty.GetTypeConfigurationSource() is not { } existingTypeConfigurationSource
-                    || typeConfigurationSource.Overrides(existingTypeConfigurationSource)))
-            || configurationSource.Overrides(existingProperty.GetConfigurationSource())
-            : configurationSource.HasValue
-            && CanAddProperty(
-                propertyType ?? memberInfo?.GetMemberType(),
-                propertyName, configurationSource.Value, checkClrProperty: checkClrProperty);
+        return existingProperty != null ? (IsCompatible(memberInfo, existingProperty) && (propertyType == null || propertyType == existingProperty.ClrType)) || ((memberInfo == null || (memberInfo is PropertyInfo propertyInfo && propertyInfo.IsIndexerProperty())) && (existingProperty.GetTypeConfigurationSource() is not { } existingTypeConfigurationSource || typeConfigurationSource.Overrides(existingTypeConfigurationSource))) || configurationSource.Overrides(existingProperty.GetConfigurationSource()) : configurationSource.HasValue && CanAddProperty( propertyType ?? memberInfo?.GetMemberType(), propertyName, configurationSource.Value, checkClrProperty: checkClrProperty);
     }
 
     /// <summary>
@@ -1669,17 +1658,7 @@ public abstract class InternalTypeBaseBuilder :
         propertyType ??= memberInfo?.GetMemberType();
         var existingComplexProperty = Metadata.FindComplexProperty(propertyName);
         var existingComplexType = existingComplexProperty?.ComplexType;
-        return existingComplexProperty != null
-            ? (IsCompatible(memberInfo, existingComplexProperty)
-                && (propertyType == null
-                    || existingComplexProperty.ClrType == propertyType)
-                && (complexType == null
-                    || existingComplexType!.ClrType == complexType)
-                && (collection == null
-                    || collection.Value == existingComplexProperty.IsCollection))
-            || configurationSource.Overrides(existingComplexProperty.GetConfigurationSource())
-            : configurationSource.HasValue
-            && CanAddComplexProperty(propertyName, propertyType, complexType, collection, configurationSource.Value);
+        return existingComplexProperty != null ? (IsCompatible(memberInfo, existingComplexProperty) && (propertyType == null || existingComplexProperty.ClrType == propertyType) && (complexType == null || existingComplexType!.ClrType == complexType) && (collection == null || collection.Value == existingComplexProperty.IsCollection)) || configurationSource.Overrides(existingComplexProperty.GetConfigurationSource()) : configurationSource.HasValue && CanAddComplexProperty(propertyName, propertyType, complexType, collection, configurationSource.Value);
     }
 
     /// <summary>
@@ -2746,8 +2725,8 @@ public abstract class InternalTypeBaseBuilder :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    bool IConventionTypeBaseBuilder.IsIgnored(string name, bool fromDataAnnotation)
-        => IsIgnored(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+    bool IConventionTypeBaseBuilder.IsIgnored(string memberName, bool fromDataAnnotation)
+        => IsIgnored(memberName, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2766,8 +2745,8 @@ public abstract class InternalTypeBaseBuilder :
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    bool IConventionTypeBaseBuilder.CanIgnore(string name, bool fromDataAnnotation)
-        => CanIgnore(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+    bool IConventionTypeBaseBuilder.CanIgnore(string memberName, bool fromDataAnnotation)
+        => CanIgnore(memberName, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

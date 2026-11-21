@@ -70,17 +70,7 @@ public struct ValueAssociateType : IEquatable<ValueAssociateType>
 
     [return: NotNullIfNotNull(nameof(associate))]
     public static ValueAssociateType? FromAssociateType(AssociateType? associate)
-        => associate is null ? null : new()
-        {
-            Id = associate.Id,
-            Name = associate.Name,
-            Int = associate.Int,
-            String = associate.String,
-
-            RequiredNested = ValueNestedType.FromNestedType(associate.RequiredNestedAssociate).Value,
-            OptionalNested = ValueNestedType.FromNestedType(associate.OptionalNestedAssociate),
-            NestedCollection = associate.NestedCollection.Select((n) => n.DeepClone()).ToList()
-        };
+        => associate is null ? null : new() { Id = associate.Id, Name = associate.Name, Int = associate.Int, String = associate.String, RequiredNested = ValueNestedType.FromNestedType(associate.RequiredNestedAssociate).Value, OptionalNested = ValueNestedType.FromNestedType(associate.OptionalNestedAssociate), NestedCollection = associate.NestedCollection.Select((n) => n.DeepClone()).ToList() };
 
     public override string ToString()
         => Name;
@@ -109,13 +99,7 @@ public struct ValueNestedType : IEquatable<ValueNestedType>
 
     [return: NotNullIfNotNull(nameof(nestedType))]
     public static ValueNestedType? FromNestedType(NestedAssociateType? nestedType)
-        => nestedType is null ? null : new()
-        {
-            Id = nestedType.Id,
-            Name = nestedType.Name,
-            Int = nestedType.Int,
-            String = nestedType.String
-        };
+        => nestedType is null ? null : new() { Id = nestedType.Id, Name = nestedType.Name, Int = nestedType.Int, String = nestedType.String };
 
     public override string ToString()
         => Name;

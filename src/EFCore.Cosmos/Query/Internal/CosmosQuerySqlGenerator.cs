@@ -62,8 +62,8 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource, IMode
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitExtension(Expression expression)
-        => expression switch
+    protected override Expression VisitExtension(Expression node)
+        => node switch
         {
             ShapedQueryExpression e => e.UpdateQueryExpression(Visit(e.QueryExpression)),
             ArrayConstantExpression e => VisitArrayConstant(e),
@@ -96,7 +96,7 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource, IMode
             StructuralTypeProjectionExpression e => VisitStructuralTypeProjection(e),
 
             _ => throw new InvalidOperationException(
-                CosmosStrings.UnhandledExpressionInVisitor(expression, expression.GetType(), nameof(CosmosQuerySqlGenerator))),
+                CosmosStrings.UnhandledExpressionInVisitor(node, node.GetType(), nameof(CosmosQuerySqlGenerator))),
         };
 
     /// <summary>

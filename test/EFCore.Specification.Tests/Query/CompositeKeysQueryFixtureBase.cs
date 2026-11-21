@@ -13,14 +13,14 @@ public abstract class CompositeKeysQueryFixtureBase : QueryFixtureBase<Composite
     public override ISetSource GetExpectedData()
         => CompositeKeysDefaultData.Instance;
 
-    public virtual Dictionary<(Type, string), Func<object, object?>> GetShadowPropertyMappings()
+    public virtual Dictionary<(Type EntityType, string PropertyName), Func<object, object?>> GetShadowPropertyMappings()
     {
         var l1s = GetExpectedData().Set<CompositeOne>().ToList();
         var l2s = GetExpectedData().Set<CompositeTwo>().ToList();
         var l3s = GetExpectedData().Set<CompositeThree>().ToList();
         var l4s = GetExpectedData().Set<CompositeFour>().ToList();
 
-        return new Dictionary<(Type, string), Func<object, object?>>
+        return new Dictionary<(Type EntityType, string PropertyName), Func<object, object?>>
         {
             {
                 (typeof(CompositeOne), "OneToOne_Optional_Self1Id1"),

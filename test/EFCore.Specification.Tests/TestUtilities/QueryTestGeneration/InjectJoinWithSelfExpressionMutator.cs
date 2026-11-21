@@ -49,11 +49,7 @@ public class InjectJoinWithSelfExpressionMutator(DbContext context) : Expression
         public List<Expression> FoundExpressions { get; } = [];
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
-            => node.Method.Name is nameof(Queryable.ThenBy)
-                or nameof(Queryable.ThenByDescending)
-                or nameof(EntityFrameworkQueryableExtensions.ThenInclude)
-                ? node
-                : base.VisitMethodCall(node);
+            => node.Method.Name is nameof(Queryable.ThenBy) or nameof(Queryable.ThenByDescending) or nameof(EntityFrameworkQueryableExtensions.ThenInclude) ? node : base.VisitMethodCall(node);
 
         [return: NotNullIfNotNull(nameof(node))]
         public override Expression? Visit(Expression? node)

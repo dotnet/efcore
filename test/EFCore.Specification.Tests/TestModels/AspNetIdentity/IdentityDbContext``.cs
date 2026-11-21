@@ -28,12 +28,12 @@ public abstract class
     public virtual DbSet<TRole> Roles { get; set; } = null!;
     public virtual DbSet<TRoleClaim> RoleClaims { get; set; } = null!;
 
-    protected override void OnModelCreating(ModelBuilder builder)
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        base.OnModelCreating(builder);
-        builder.Entity<TUser>(b => b.HasMany<TUserRole>().WithOne().HasForeignKey(ur => ur.UserId).IsRequired());
+        base.OnModelCreating(modelBuilder);
+        modelBuilder.Entity<TUser>(b => b.HasMany<TUserRole>().WithOne().HasForeignKey(ur => ur.UserId).IsRequired());
 
-        builder.Entity<TRole>(b =>
+        modelBuilder.Entity<TRole>(b =>
         {
             b.HasKey(r => r.Id);
             b.HasIndex(r => r.NormalizedName).IsUnique();
@@ -46,8 +46,8 @@ public abstract class
             b.HasMany<TRoleClaim>().WithOne().HasForeignKey(rc => rc.RoleId).IsRequired();
         });
 
-        builder.Entity<TRoleClaim>(b => b.HasKey(rc => rc.Id));
+        modelBuilder.Entity<TRoleClaim>(b => b.HasKey(rc => rc.Id));
 
-        builder.Entity<TUserRole>(b => b.HasKey(r => new { r.UserId, r.RoleId }));
+        modelBuilder.Entity<TUserRole>(b => b.HasKey(r => new { r.UserId, r.RoleId }));
     }
 }

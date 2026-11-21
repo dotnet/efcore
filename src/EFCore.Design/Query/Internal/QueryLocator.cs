@@ -94,10 +94,10 @@ public class QueryLocator : CSharpSyntaxWalker
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override void VisitInvocationExpression(InvocationExpressionSyntax invocation)
+    public override void VisitInvocationExpression(InvocationExpressionSyntax node)
     {
         // TODO: Support non-extension invocation syntax: var blogs = ToList(ctx.Blogs);
-        if (invocation.Expression is MemberAccessExpressionSyntax
+        if (node.Expression is MemberAccessExpressionSyntax
             {
                 Name: IdentifierNameSyntax { Identifier.Text: var identifier },
                 Expression: var innerExpression
@@ -178,7 +178,7 @@ public class QueryLocator : CSharpSyntaxWalker
                     or nameof(EntityFrameworkQueryableExtensions.ExecuteDeleteAsync)
                     or nameof(EntityFrameworkQueryableExtensions.ExecuteUpdateAsync)
                     when IsOnEfQueryableExtensions():
-                    if (ProcessQueryCandidate(invocation))
+                    if (ProcessQueryCandidate(node))
                     {
                         return;
                     }
@@ -187,7 +187,7 @@ public class QueryLocator : CSharpSyntaxWalker
             }
         }
 
-        base.VisitInvocationExpression(invocation);
+        base.VisitInvocationExpression(node);
 
         bool IsOnEnumerable()
             => IsOnTypeSymbol(_symbols.Enumerable);
@@ -202,7 +202,7 @@ public class QueryLocator : CSharpSyntaxWalker
             => IsOnTypeSymbol(_symbols.EfQueryableExtensions);
 
         bool IsOnTypeSymbol(ITypeSymbol typeSymbol)
-            => _semanticModel.GetSymbolInfo(invocation, _cancellationToken).Symbol is IMethodSymbol methodSymbol
+            => _semanticModel.GetSymbolInfo(node, _cancellationToken).Symbol is IMethodSymbol methodSymbol
                 && methodSymbol.ContainingType.OriginalDefinition.Equals(typeSymbol, SymbolEqualityComparer.Default);
     }
 
@@ -212,7 +212,7 @@ public class QueryLocator : CSharpSyntaxWalker
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override void VisitForEachStatement(ForEachStatementSyntax forEach)
+    public override void VisitForEachStatement(ForEachStatementSyntax node)
     {
         // Note: a LINQ queryable can't be placed directly inside await foreach, since IQueryable does not extend
         // IAsyncEnumerable. So users need to add our AsAsyncEnumerable, which is detected above as a normal invocation.
@@ -220,14 +220,14 @@ public class QueryLocator : CSharpSyntaxWalker
         // C# interceptors can (currently) intercept only method calls, not property accesses; this means that we can't
         // TODO: Support DbSet() method call directly inside foreach/await foreach
         // TODO: Warn for DbSet property access directly inside foreach (can't be intercepted so not supported)
-        if (forEach.Expression is InvocationExpressionSyntax invocation
+        if (node.Expression is InvocationExpressionSyntax invocation
             && IsQueryable(invocation)
             && ProcessQueryCandidate(invocation))
         {
             return;
         }
 
-        base.VisitForEachStatement(forEach);
+        base.VisitForEachStatement(node);
     }
 
     private bool ProcessQueryCandidate(InvocationExpressionSyntax query)

@@ -144,11 +144,7 @@ public abstract class TrackGraphTestBase
             + EntryString(node.Entry);
 
     private static string EntryString(EntityEntry? entry)
-        => entry == null
-            ? "<None>"
-            : entry.Metadata.DisplayName()
-            + ":"
-            + entry.Property(entry.Metadata.FindPrimaryKey()!.Properties[0].Name).CurrentValue;
+        => entry == null ? "<None>" : entry.Metadata.DisplayName() + ":" + entry.Property(entry.Metadata.FindPrimaryKey()!.Properties[0].Name).CurrentValue;
 
     [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
     public void Can_attach_nullable_PK_parent_with_child_collection(bool useAttach, bool setKeys)
@@ -832,15 +828,7 @@ public abstract class TrackGraphTestBase
         else
         {
             Assert.Equal(
-                trackNewDependents
-                    ?
-                    [
-                        "<None> -----> Category:1",
-                        "Category:1 ---Products--> Product:1",
-                        "Category:1 ---Products--> Product:2",
-                        "Category:1 ---Products--> Product:3"
-                    ]
-                    : new List<string> { "<None> -----> Category:1" },
+                trackNewDependents ? [ "<None> -----> Category:1", "Category:1 ---Products--> Product:1", "Category:1 ---Products--> Product:2", "Category:1 ---Products--> Product:3" ] : new List<string> { "<None> -----> Category:1" },
                 TrackGraph());
 
             if (trackNewDependents || delayCascade)

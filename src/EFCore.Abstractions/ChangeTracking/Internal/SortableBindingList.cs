@@ -131,20 +131,20 @@ public class SortableBindingList<[DynamicallyAccessedMembers(DynamicallyAccessed
             _comparer = (IComparer)property.GetValue(null, null)!;
         }
 
-        public override int Compare(T? left, T? right)
+        public override int Compare(T? x, T? y)
         {
-            if (left is null)
+            if (x is null)
             {
-                return right is null ? 0 : -1;
+                return y is null ? 0 : -1;
             }
 
-            if (right is null)
+            if (y is null)
             {
                 return 1;
             }
 
-            var leftValue = _prop.GetValue(left);
-            var rightValue = _prop.GetValue(right);
+            var leftValue = _prop.GetValue(x);
+            var rightValue = _prop.GetValue(y);
 
             return _direction == ListSortDirection.Ascending
                 ? _comparer.Compare(leftValue, rightValue)

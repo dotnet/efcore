@@ -22,8 +22,8 @@ public class DbContextActivatorTest
 
     private class TestContext : DbContext
     {
-        protected override void OnConfiguring(DbContextOptionsBuilder options)
-            => options
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder
                 .EnableServiceProviderCaching(false)
                 .UseInMemoryDatabase(nameof(DbContextActivatorTest));
     }
@@ -39,8 +39,8 @@ public class DbContextActivatorTest
         public ThrowingTestContext()
             => throw new Exception("Bang!");
 
-        protected override void OnConfiguring(DbContextOptionsBuilder options)
-            => options
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder
                 .EnableServiceProviderCaching(false)
                 .UseInMemoryDatabase(nameof(DbContextActivatorTest));
     }
@@ -58,8 +58,8 @@ public class DbContextActivatorTest
     private class ParameterTestContext(string foo) : DbContext
 #pragma warning restore CS9113
     {
-        protected override void OnConfiguring(DbContextOptionsBuilder options)
-            => options
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder
                 .EnableServiceProviderCaching(false)
                 .UseInMemoryDatabase(nameof(DbContextActivatorTest));
     }

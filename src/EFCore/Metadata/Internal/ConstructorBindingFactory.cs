@@ -252,10 +252,7 @@ public class ConstructorBindingFactory : IConstructorBindingFactory
         Func<IParameterBindingFactory?, T, Type, string, ParameterBinding?> bind,
         ParameterInfo p)
         where T : IReadOnlyTypeBase
-        => string.IsNullOrEmpty(p.Name)
-            ? null
-            : bindToProperty(_propertyFactory, entityType, p.ParameterType, p.Name)
-            ?? bind(_factories.FindFactory(p.ParameterType, p.Name), entityType, p.ParameterType, p.Name);
+        => string.IsNullOrEmpty(p.Name) ? null : bindToProperty(_propertyFactory, entityType, p.ParameterType, p.Name) ?? bind(_factories.FindFactory(p.ParameterType, p.Name), entityType, p.ParameterType, p.Name);
 
     private static string FormatConstructorString<T>(T entityType, InstantiationBinding binding)
         where T : IReadOnlyTypeBase

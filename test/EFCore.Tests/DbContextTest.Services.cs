@@ -115,9 +115,9 @@ namespace Microsoft.EntityFrameworkCore
             public void Dispose()
                 => _disposed = true;
 
-            private class MyListLogger(List<(LogLevel, EventId, string)> logMessage) : ILogger
+            private class MyListLogger(List<(LogLevel Level, EventId EventId, string Message)> logMessage) : ILogger
             {
-                private List<(LogLevel, EventId, string)> LogMessages { get; } = logMessage;
+                private List<(LogLevel Level, EventId EventId, string Message)> LogMessages { get; } = logMessage;
 
                 public void Log<TState>(
                     LogLevel logLevel,

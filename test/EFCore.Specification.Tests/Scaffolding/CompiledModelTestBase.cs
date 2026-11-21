@@ -2092,7 +2092,7 @@ namespace TestNamespace
             skipValidation,
             testName);
 
-    protected virtual async Task<(TContext?, IModel?)> Test<TContext>(
+    protected virtual async Task<(TContext? Context, IModel? Model)> Test<TContext>(
         Action<ModelBuilder>? onModelCreating = null,
         Action<IModel>? assertModel = null,
         Func<TContext, Task>? useContext = null,

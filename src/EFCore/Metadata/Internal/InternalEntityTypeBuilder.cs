@@ -414,7 +414,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static (InternalKeyBuilder, ConfigurationSource?) DetachKey(Key keyToDetach)
+    public static (InternalKeyBuilder KeyBuilder, ConfigurationSource? ConfigurationSource) DetachKey(Key keyToDetach)
     {
         var entityTypeBuilder = keyToDetach.DeclaringEntityType.Builder;
         var keyBuilder = keyToDetach.Builder;
@@ -761,11 +761,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     public virtual bool CanHaveServiceProperty(MemberInfo memberInfo, ConfigurationSource? configurationSource)
     {
         var existingProperty = Metadata.FindServiceProperty(memberInfo);
-        return existingProperty != null
-            ? existingProperty.DeclaringType == Metadata
-            || configurationSource.Overrides(existingProperty.GetConfigurationSource())
-            : configurationSource.HasValue
-            && CanAddServiceProperty(memberInfo, configurationSource.Value);
+        return existingProperty != null ? existingProperty.DeclaringType == Metadata || configurationSource.Overrides(existingProperty.GetConfigurationSource()) : configurationSource.HasValue && CanAddServiceProperty(memberInfo, configurationSource.Value);
     }
 
     private bool CanAddServiceProperty(MemberInfo memberInfo, ConfigurationSource configurationSource)
@@ -863,12 +859,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         ConfigurationSource? configurationSource)
     {
         var existingNavigation = Metadata.FindNavigation(navigationName);
-        return existingNavigation != null
-            ? type == null
-            || existingNavigation.ClrType == type
-            || configurationSource.Overrides(existingNavigation.GetConfigurationSource())
-            : configurationSource.HasValue
-            && CanAddNavigation(navigationName, type, configurationSource.Value);
+        return existingNavigation != null ? type == null || existingNavigation.ClrType == type || configurationSource.Overrides(existingNavigation.GetConfigurationSource()) : configurationSource.HasValue && CanAddNavigation(navigationName, type, configurationSource.Value);
     }
 
     /// <summary>
@@ -905,12 +896,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     public virtual bool CanHaveSkipNavigation(string skipNavigationName, Type? type, ConfigurationSource? configurationSource)
     {
         var existingNavigation = Metadata.FindSkipNavigation(skipNavigationName);
-        return existingNavigation != null
-            ? type == null
-            || existingNavigation.ClrType == type
-            || configurationSource.Overrides(existingNavigation.GetConfigurationSource())
-            : configurationSource.HasValue
-            && CanAddSkipNavigation(skipNavigationName, type, configurationSource.Value);
+        return existingNavigation != null ? type == null || existingNavigation.ClrType == type || configurationSource.Overrides(existingNavigation.GetConfigurationSource()) : configurationSource.HasValue && CanAddSkipNavigation(skipNavigationName, type, configurationSource.Value);
     }
 
     private bool CanAddSkipNavigation(
@@ -2031,7 +2017,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
             detachedKeys ??= [];
 
             var detachedKey = DetachKey(keyToDetach);
-            if (detachedKey.Item1.Metadata.GetConfigurationSource().Overrides(ConfigurationSource.Explicit))
+            if (detachedKey.KeyBuilder.Metadata.GetConfigurationSource().Overrides(ConfigurationSource.Explicit))
             {
                 detachedKeys.Add(detachedKey);
             }
@@ -3978,7 +3964,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
             {
                 var principalKeyProperties = principalBaseEntityTypeBuilder.TryCreateUniqueProperties(
                     dependentProperties.Count, null, dependentProperties.Select(p => p.ClrType),
-                    Enumerable.Repeat("", dependentProperties.Count), isRequired: true, baseName: "TempId").Item2;
+                    Enumerable.Repeat("", dependentProperties.Count), isRequired: true, baseName: "TempId").Properties;
 
                 if (principalKeyProperties == null)
                 {
@@ -4001,7 +3987,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
             if (principalKey == null)
             {
                 var principalKeyProperties = principalBaseEntityTypeBuilder.TryCreateUniqueProperties(
-                    1, null, [typeof(int)], ["TempId"], isRequired: true, baseName: "").Item2;
+                    1, null, [typeof(int)], ["TempId"], isRequired: true, baseName: "").Properties;
 
                 if (principalKeyProperties == null)
                 {
@@ -4346,7 +4332,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
                 foreignKey.DependentToPrincipal?.Name
                 ?? foreignKey.ReferencingSkipNavigations?.FirstOrDefault()?.Inverse?.Name
                 ?? foreignKey.PrincipalEntityType.ShortName())
-            .Item1;
+            .CanReuniquify;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4459,11 +4445,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual DiscriminatorBuilder? HasDiscriminator(MemberInfo memberInfo, ConfigurationSource configurationSource)
-        => CanSetDiscriminator(
-            Check.NotNull(memberInfo).GetSimpleMemberName(), memberInfo.GetMemberType(), configurationSource)
-            ? DiscriminatorBuilder(
-                GetOrCreateDiscriminatorProperty(type: null, name: null, memberInfo, configurationSource))
-            : null;
+        => CanSetDiscriminator( Check.NotNull(memberInfo).GetSimpleMemberName(), memberInfo.GetMemberType(), configurationSource) ? DiscriminatorBuilder( GetOrCreateDiscriminatorProperty(type: null, name: null, memberInfo, configurationSource)) : null;
 
     private DiscriminatorBuilder? DiscriminatorBuilder(InternalPropertyBuilder? discriminatorPropertyBuilder)
         => discriminatorPropertyBuilder == null ? null : new DiscriminatorBuilder(Metadata);
@@ -4672,8 +4654,8 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    IConventionEntityTypeBuilder? IConventionEntityTypeBuilder.Ignore(string name, bool fromDataAnnotation)
-        => Ignore(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+    IConventionEntityTypeBuilder? IConventionEntityTypeBuilder.Ignore(string memberName, bool fromDataAnnotation)
+        => Ignore(memberName, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -5142,10 +5124,10 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     IConventionForeignKeyBuilder? IConventionEntityTypeBuilder.HasOwnership(
         Type targetEntityType,
         string navigationName,
-        string? inversePropertyName,
+        string? inverseNavigationName,
         bool fromDataAnnotation)
         => HasOwnership(
-            targetEntityType, navigationName, inversePropertyName,
+            targetEntityType, navigationName, inverseNavigationName,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
@@ -5183,10 +5165,10 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     IConventionForeignKeyBuilder? IConventionEntityTypeBuilder.HasOwnership(
         Type targetEntityType,
         MemberInfo navigation,
-        MemberInfo? inverseProperty,
+        MemberInfo? inverseNavigation,
         bool fromDataAnnotation)
         => HasOwnership(
-            targetEntityType, navigation, inverseProperty,
+            targetEntityType, navigation, inverseNavigation,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>

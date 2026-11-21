@@ -218,11 +218,11 @@ public partial class DbContextTest
         {
         }
 
-        public void PropertyChanged(IInternalEntry entry, IPropertyBase property, bool setModifed)
+        public void PropertyChanged(IInternalEntry entry, IPropertyBase propertyBase, bool setModified)
         {
         }
 
-        public void PropertyChanging(IInternalEntry entry, IPropertyBase property)
+        public void PropertyChanging(IInternalEntry entry, IPropertyBase propertyBase)
         {
         }
 
@@ -1434,8 +1434,8 @@ public partial class DbContextTest
         public DbSet<TestClass> Classes { get; set; } = null!;
         public DbSet<Test> Tests { get; set; } = null!;
 
-        protected internal override void OnConfiguring(DbContextOptionsBuilder options)
-            => options
+        protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder
                 .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
                 .UseInMemoryDatabase(nameof(NullShadowKeyContext));
 

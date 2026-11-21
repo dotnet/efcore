@@ -112,9 +112,9 @@ public class SqliteSqlTranslatingExpressionVisitor(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitUnary(UnaryExpression unaryExpression)
+    protected override Expression VisitUnary(UnaryExpression node)
     {
-        var translation = base.VisitUnary(unaryExpression);
+        var translation = base.VisitUnary(node);
 
         return translation is SqlUnaryExpression { OperatorType: ExpressionType.Negate } sqlUnary
             ? GetProviderType(sqlUnary.Operand) switch
@@ -133,9 +133,9 @@ public class SqliteSqlTranslatingExpressionVisitor(
                 _ => translation
             }
             : translation == QueryCompilationContext.NotTranslatedExpression
-            && unaryExpression.NodeType == ExpressionType.ArrayLength
-            && unaryExpression.Operand.Type == typeof(byte[])
-                ? Visit(unaryExpression.Operand) is SqlExpression sqlExpression
+            && node.NodeType == ExpressionType.ArrayLength
+            && node.Operand.Type == typeof(byte[])
+                ? Visit(node.Operand) is SqlExpression sqlExpression
                     ? Dependencies.SqlExpressionFactory.Function(
                         "length",
                         [sqlExpression],
@@ -152,9 +152,9 @@ public class SqliteSqlTranslatingExpressionVisitor(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitBinary(BinaryExpression binaryExpression)
+    protected override Expression VisitBinary(BinaryExpression node)
     {
-        if (base.VisitBinary(binaryExpression) is not SqlExpression translation)
+        if (base.VisitBinary(node) is not SqlExpression translation)
         {
             return QueryCompilationContext.NotTranslatedExpression;
         }
@@ -199,18 +199,18 @@ public class SqliteSqlTranslatingExpressionVisitor(
     }
 
     /// <inheritdoc />
-    protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+    protected override Expression VisitMethodCall(MethodCallExpression node)
     {
-        if (base.VisitMethodCall(methodCallExpression) is var translation
+        if (base.VisitMethodCall(node) is var translation
             && translation != QueryCompilationContext.NotTranslatedExpression)
         {
             return translation;
         }
 
-        var method = methodCallExpression.Method;
+        var method = node.Method;
         var declaringType = method.DeclaringType;
-        var @object = methodCallExpression.Object;
-        var arguments = methodCallExpression.Arguments;
+        var @object = node.Object;
+        var arguments = node.Arguments;
 
         switch (method.Name)
         {
@@ -219,13 +219,13 @@ public class SqliteSqlTranslatingExpressionVisitor(
             // https://learn.microsoft.com/dotnet/api/system.string.endswith#system-string-endswith(system-string)
             // https://learn.microsoft.com/dotnet/api/system.string.endswith#system-string-endswith(system-char)
             case nameof(string.StartsWith) or nameof(string.EndsWith)
-                when methodCallExpression.Object is not null
+                when node.Object is not null
                 && declaringType == typeof(string)
                 && arguments is [Expression value]
                 && (value.Type == typeof(string) || value.Type == typeof(char)):
             {
                 return TranslateStartsEndsWith(
-                    methodCallExpression.Object,
+                    node.Object,
                     value,
                     method.Name is nameof(string.StartsWith));
             }

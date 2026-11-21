@@ -46,10 +46,7 @@ public class SqliteQueryStringFactory : IRelationalQueryStringFactory
                 .Append(parameter.ParameterName)
                 .Append(' ')
                 .AppendLine(
-                    value == null || value == DBNull.Value
-                        ? "NULL"
-                        : _typeMapper.FindMapping(value.GetType())?.GenerateSqlLiteral(value)
-                        ?? value.ToString());
+                    value == null || value == DBNull.Value ? "NULL" : _typeMapper.FindMapping(value.GetType())?.GenerateSqlLiteral(value) ?? value.ToString());
         }
 
         return builder

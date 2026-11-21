@@ -22,15 +22,7 @@ public static class SqliteEntityTypeExtensions
     /// <param name="entityType">The entity type.</param>
     /// <returns><see langword="true" /> if the SQL RETURNING clause is used to save changes to the table.</returns>
     public static bool IsSqlReturningClauseUsed(this IReadOnlyEntityType entityType)
-        => entityType.FindAnnotation(SqliteAnnotationNames.UseSqlReturningClause) is { Value: bool useSqlOutputClause }
-            ? useSqlOutputClause
-            : entityType.FindOwnership() is { } ownership
-            && StoreObjectIdentifier.Create(entityType, StoreObjectType.Table) is { } tableIdentifier
-            && ownership.FindSharedObjectRootForeignKey(tableIdentifier) is { } rootForeignKey
-                ? rootForeignKey.PrincipalEntityType.IsSqlReturningClauseUsed()
-                : entityType.BaseType is null
-                || entityType.GetMappingStrategy() != RelationalAnnotationNames.TphMappingStrategy
-                || entityType.GetRootType().IsSqlReturningClauseUsed();
+        => entityType.FindAnnotation(SqliteAnnotationNames.UseSqlReturningClause) is { Value: bool useSqlOutputClause } ? useSqlOutputClause : entityType.FindOwnership() is { } ownership && StoreObjectIdentifier.Create(entityType, StoreObjectType.Table) is { } tableIdentifier && ownership.FindSharedObjectRootForeignKey(tableIdentifier) is { } rootForeignKey ? rootForeignKey.PrincipalEntityType.IsSqlReturningClauseUsed() : entityType.BaseType is null || entityType.GetMappingStrategy() != RelationalAnnotationNames.TphMappingStrategy || entityType.GetRootType().IsSqlReturningClauseUsed();
 
     /// <summary>
     ///     Sets a value indicating whether to use the SQL RETURNING clause when saving changes to the table.
@@ -87,17 +79,7 @@ public static class SqliteEntityTypeExtensions
     /// <param name="storeObject">The identifier of the table-like store object.</param>
     /// <returns><see langword="true" /> if the SQL RETURNING clause is used to save changes to the table.</returns>
     public static bool IsSqlReturningClauseUsed(this IReadOnlyEntityType entityType, in StoreObjectIdentifier storeObject)
-        => entityType.FindMappingFragment(storeObject) is { } overrides
-            && overrides.FindAnnotation(SqliteAnnotationNames.UseSqlReturningClause) is { Value: bool useSqlOutputClause }
-                ? useSqlOutputClause
-                : StoreObjectIdentifier.Create(entityType, storeObject.StoreObjectType) == storeObject
-                    ? entityType.IsSqlReturningClauseUsed()
-                    : entityType.FindOwnership() is { } ownership
-                    && ownership.FindSharedObjectRootForeignKey(storeObject) is { } rootForeignKey
-                        ? rootForeignKey.PrincipalEntityType.IsSqlReturningClauseUsed(storeObject)
-                        : entityType.BaseType is null
-                        || entityType.GetMappingStrategy() != RelationalAnnotationNames.TphMappingStrategy
-                        || entityType.GetRootType().IsSqlReturningClauseUsed(storeObject);
+        => entityType.FindMappingFragment(storeObject) is { } overrides && overrides.FindAnnotation(SqliteAnnotationNames.UseSqlReturningClause) is { Value: bool useSqlOutputClause } ? useSqlOutputClause : StoreObjectIdentifier.Create(entityType, storeObject.StoreObjectType) == storeObject ? entityType.IsSqlReturningClauseUsed() : entityType.FindOwnership() is { } ownership && ownership.FindSharedObjectRootForeignKey(storeObject) is { } rootForeignKey ? rootForeignKey.PrincipalEntityType.IsSqlReturningClauseUsed(storeObject) : entityType.BaseType is null || entityType.GetMappingStrategy() != RelationalAnnotationNames.TphMappingStrategy || entityType.GetRootType().IsSqlReturningClauseUsed(storeObject);
 
     /// <summary>
     ///     Sets a value indicating whether to use the SQL RETURNING clause when saving changes to the table.

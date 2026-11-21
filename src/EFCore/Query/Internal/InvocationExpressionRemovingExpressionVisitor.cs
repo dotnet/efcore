@@ -19,13 +19,13 @@ public class InvocationExpressionRemovingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitInvocation(InvocationExpression invocationExpression)
+    protected override Expression VisitInvocation(InvocationExpression node)
     {
-        var invokedExpression = StripTrivialConversions(invocationExpression.Expression);
+        var invokedExpression = StripTrivialConversions(node.Expression);
 
         return invokedExpression is LambdaExpression lambdaExpression
-            ? Visit(InlineLambdaExpression(lambdaExpression, invocationExpression.Arguments))
-            : base.VisitInvocation(invocationExpression);
+            ? Visit(InlineLambdaExpression(lambdaExpression, node.Arguments))
+            : base.VisitInvocation(node);
     }
 
     private static Expression StripTrivialConversions(Expression expression)

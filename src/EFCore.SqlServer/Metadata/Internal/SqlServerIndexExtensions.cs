@@ -74,39 +74,7 @@ public static class SqlServerIndexExtensions
                 : false;
         }
 
-        return index.GetFillFactor() != duplicateIndex.GetFillFactor()
-            ? shouldThrow
-                ? throw new InvalidOperationException(
-                    SqlServerStrings.DuplicateIndexFillFactorMismatch(
-                        index.DisplayName(),
-                        index.DeclaringEntityType.DisplayName(),
-                        duplicateIndex.DisplayName(),
-                        duplicateIndex.DeclaringEntityType.DisplayName(),
-                        index.DeclaringEntityType.GetSchemaQualifiedTableName(),
-                        index.GetDatabaseName(storeObject)))
-                : false
-            : index.GetSortInTempDb() != duplicateIndex.GetSortInTempDb()
-                ? shouldThrow
-                    ? throw new InvalidOperationException(
-                        SqlServerStrings.DuplicateIndexSortInTempDbMismatch(
-                            index.DisplayName(),
-                            index.DeclaringEntityType.DisplayName(),
-                            duplicateIndex.DisplayName(),
-                            duplicateIndex.DeclaringEntityType.DisplayName(),
-                            index.DeclaringEntityType.GetSchemaQualifiedTableName(),
-                            index.GetDatabaseName(storeObject)))
-                    : false
-                : index.GetDataCompression() == duplicateIndex.GetDataCompression()
-                || (shouldThrow
-                    ? throw new InvalidOperationException(
-                        SqlServerStrings.DuplicateIndexDataCompressionMismatch(
-                            index.DisplayName(),
-                            index.DeclaringEntityType.DisplayName(),
-                            duplicateIndex.DisplayName(),
-                            duplicateIndex.DeclaringEntityType.DisplayName(),
-                            index.DeclaringEntityType.GetSchemaQualifiedTableName(),
-                            index.GetDatabaseName(storeObject)))
-                    : false);
+        return index.GetFillFactor() != duplicateIndex.GetFillFactor() ? shouldThrow ? throw new InvalidOperationException( SqlServerStrings.DuplicateIndexFillFactorMismatch( index.DisplayName(), index.DeclaringEntityType.DisplayName(), duplicateIndex.DisplayName(), duplicateIndex.DeclaringEntityType.DisplayName(), index.DeclaringEntityType.GetSchemaQualifiedTableName(), index.GetDatabaseName(storeObject))) : false : index.GetSortInTempDb() != duplicateIndex.GetSortInTempDb() ? shouldThrow ? throw new InvalidOperationException( SqlServerStrings.DuplicateIndexSortInTempDbMismatch( index.DisplayName(), index.DeclaringEntityType.DisplayName(), duplicateIndex.DisplayName(), duplicateIndex.DeclaringEntityType.DisplayName(), index.DeclaringEntityType.GetSchemaQualifiedTableName(), index.GetDatabaseName(storeObject))) : false : index.GetDataCompression() == duplicateIndex.GetDataCompression() || (shouldThrow ? throw new InvalidOperationException( SqlServerStrings.DuplicateIndexDataCompressionMismatch( index.DisplayName(), index.DeclaringEntityType.DisplayName(), duplicateIndex.DisplayName(), duplicateIndex.DeclaringEntityType.DisplayName(), index.DeclaringEntityType.GetSchemaQualifiedTableName(), index.GetDatabaseName(storeObject))) : false);
 
         static bool SameColumnNames(IReadOnlyIndex index, IReadOnlyIndex duplicateIndex, StoreObjectIdentifier storeObject)
 #pragma warning disable EF1001 // Internal EF Core API usage.
@@ -119,14 +87,20 @@ public static class SqlServerIndexExtensions
     }
 
     private static string FormatInclude(IReadOnlyIndex index, StoreObjectIdentifier storeObject)
-        => index.GetIncludeProperties() == null
-            ? "{}"
-            : "{'"
+    {
+        var includeProperties = index.GetIncludeProperties();
+        if (includeProperties == null)
+        {
+            return "{}";
+        }
+
+        return "{'"
             + string.Join(
                 "', '",
 #pragma warning disable EF1001 // Internal EF Core API usage.
-                index.GetIncludeProperties()!.Select(p
+                includeProperties.Select(p
                     => RelationalModel.FindPropertyByPath(index.DeclaringEntityType, p)?.GetColumnName(storeObject)))
 #pragma warning restore EF1001 // Internal EF Core API usage.
             + "'}";
+    }
 }

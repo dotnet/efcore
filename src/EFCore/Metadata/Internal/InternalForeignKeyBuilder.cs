@@ -354,17 +354,7 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
             builder = batch.Run(builder);
         }
 
-        return builder != null
-            && ((navigationToPrincipal != null
-                    && builder.Metadata.DependentToPrincipal?.Name != navigationToPrincipal.Value.Name)
-                || (navigationToDependent != null
-                    && builder.Metadata.PrincipalToDependent?.Name != navigationToDependent.Value.Name))
-            && ((navigationToDependent != null
-                    && builder.Metadata.DependentToPrincipal?.Name != navigationToDependent.Value.Name)
-                || (navigationToPrincipal != null
-                    && builder.Metadata.PrincipalToDependent?.Name != navigationToPrincipal.Value.Name))
-                ? null
-                : builder;
+        return builder != null && ((navigationToPrincipal != null && builder.Metadata.DependentToPrincipal?.Name != navigationToPrincipal.Value.Name) || (navigationToDependent != null && builder.Metadata.PrincipalToDependent?.Name != navigationToDependent.Value.Name)) && ((navigationToDependent != null && builder.Metadata.DependentToPrincipal?.Name != navigationToDependent.Value.Name) || (navigationToPrincipal != null && builder.Metadata.PrincipalToDependent?.Name != navigationToPrincipal.Value.Name)) ? null : builder;
     }
 
     /// <summary>
@@ -690,14 +680,7 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
     }
 
     private bool CanRemoveNavigation(bool pointsToPrincipal, ConfigurationSource? configurationSource, bool overrideSameSource = true)
-        => pointsToPrincipal
-            ? Metadata.DependentToPrincipal == null
-            || (configurationSource.Overrides(Metadata.GetDependentToPrincipalConfigurationSource())
-                && (overrideSameSource || configurationSource != Metadata.GetDependentToPrincipalConfigurationSource()))
-            : Metadata.PrincipalToDependent == null
-            || (!Metadata.IsOwnership
-                && configurationSource.Overrides(Metadata.GetPrincipalToDependentConfigurationSource())
-                && (overrideSameSource || configurationSource != Metadata.GetPrincipalToDependentConfigurationSource()));
+        => pointsToPrincipal ? Metadata.DependentToPrincipal == null || (configurationSource.Overrides(Metadata.GetDependentToPrincipalConfigurationSource()) && (overrideSameSource || configurationSource != Metadata.GetDependentToPrincipalConfigurationSource())) : Metadata.PrincipalToDependent == null || (!Metadata.IsOwnership && configurationSource.Overrides(Metadata.GetPrincipalToDependentConfigurationSource()) && (overrideSameSource || configurationSource != Metadata.GetPrincipalToDependentConfigurationSource()));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1731,16 +1714,7 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
             return builder;
         }
 
-        return !CanSetForeignKey(
-            properties, dependentEntityType, configurationSource, out var resetPrincipalKey)
-            ? null
-            : ReplaceForeignKey(
-                configurationSource,
-                dependentEntityTypeBuilder: dependentEntityType.Builder,
-                dependentProperties: properties,
-                principalProperties: resetPrincipalKey ? [] : null,
-                principalEndConfigurationSource: configurationSource,
-                removeCurrent: !Property.AreCompatible(properties, Metadata.DeclaringEntityType));
+        return !CanSetForeignKey( properties, dependentEntityType, configurationSource, out var resetPrincipalKey) ? null : ReplaceForeignKey( configurationSource, dependentEntityTypeBuilder: dependentEntityType.Builder, dependentProperties: properties, principalProperties: resetPrincipalKey ? [] : null, principalEndConfigurationSource: configurationSource, removeCurrent: !Property.AreCompatible(properties, Metadata.DeclaringEntityType));
     }
 
     /// <summary>
@@ -2064,28 +2038,12 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
 
         if (navigationToPrincipal == null)
         {
-            navigationToPrincipal = oldRelationshipInverted
-                ? Metadata.GetPrincipalToDependentConfigurationSource()?.Overrides(configurationSource)
-                ?? false
-                    ? Metadata.PrincipalToDependent.CreateMemberIdentity()
-                    : navigationToPrincipal
-                : Metadata.GetDependentToPrincipalConfigurationSource()?.Overrides(configurationSource)
-                ?? false
-                    ? Metadata.DependentToPrincipal.CreateMemberIdentity()
-                    : navigationToPrincipal;
+            navigationToPrincipal = oldRelationshipInverted ? Metadata.GetPrincipalToDependentConfigurationSource()?.Overrides(configurationSource) ?? false ? Metadata.PrincipalToDependent.CreateMemberIdentity() : navigationToPrincipal : Metadata.GetDependentToPrincipalConfigurationSource()?.Overrides(configurationSource) ?? false ? Metadata.DependentToPrincipal.CreateMemberIdentity() : navigationToPrincipal;
         }
 
         if (navigationToDependent == null)
         {
-            navigationToDependent = oldRelationshipInverted
-                ? Metadata.GetDependentToPrincipalConfigurationSource()?.Overrides(configurationSource)
-                ?? false
-                    ? Metadata.DependentToPrincipal.CreateMemberIdentity()
-                    : navigationToDependent
-                : Metadata.GetPrincipalToDependentConfigurationSource()?.Overrides(configurationSource)
-                ?? false
-                    ? Metadata.PrincipalToDependent.CreateMemberIdentity()
-                    : navigationToDependent;
+            navigationToDependent = oldRelationshipInverted ? Metadata.GetDependentToPrincipalConfigurationSource()?.Overrides(configurationSource) ?? false ? Metadata.DependentToPrincipal.CreateMemberIdentity() : navigationToDependent : Metadata.GetPrincipalToDependentConfigurationSource()?.Overrides(configurationSource) ?? false ? Metadata.PrincipalToDependent.CreateMemberIdentity() : navigationToDependent;
         }
 
         dependentProperties ??= ((Metadata.GetPropertiesConfigurationSource()?.Overrides(configurationSource) ?? false)
@@ -2127,13 +2085,7 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
             ? Metadata.DeleteBehavior
             : null);
 
-        principalEndConfigurationSource ??= (principalEntityTypeBuilder.Metadata != dependentEntityTypeBuilder.Metadata
-            && ((principalProperties?.Count > 0)
-                || (dependentProperties?.Count > 0)
-                || (navigationToDependent != null && isUnique == false)
-                || isOwnership == true)
-                ? configurationSource
-                : null);
+        principalEndConfigurationSource ??= (principalEntityTypeBuilder.Metadata != dependentEntityTypeBuilder.Metadata && ((principalProperties?.Count > 0) || (dependentProperties?.Count > 0) || (navigationToDependent != null && isUnique == false) || isOwnership == true) ? configurationSource : null);
         principalEndConfigurationSource = principalEndConfigurationSource.Max(Metadata.GetPrincipalEndConfigurationSource());
 
         return ReplaceForeignKey(
@@ -3606,20 +3558,9 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
         }
 
         IReadOnlyList<Property> dependentProperties;
-        var principalProperties = Metadata.GetPrincipalKeyConfigurationSource()?.Overrides(configurationSource) != true
-            ? []
-            : principalEntityTypeBuilder.GetActualProperties(Metadata.PrincipalKey.Properties, configurationSource)
-            ?? [];
+        var principalProperties = Metadata.GetPrincipalKeyConfigurationSource()?.Overrides(configurationSource) != true ? [] : principalEntityTypeBuilder.GetActualProperties(Metadata.PrincipalKey.Properties, configurationSource) ?? [];
 
-        dependentProperties = (principalProperties.Count == 0
-                && Metadata.GetPropertiesConfigurationSource()?.Overrides(ConfigurationSource.Explicit) != true)
-            || Metadata.GetPropertiesConfigurationSource()?.Overrides(configurationSource) != true
-                ? []
-                : dependentEntityTypeBuilder.GetActualProperties(
-                    Metadata.Properties,
-                    configurationSource,
-                    principalProperties.Count != 0 ? principalProperties : Metadata.PrincipalKey.Properties)
-                ?? [];
+        dependentProperties = (principalProperties.Count == 0 && Metadata.GetPropertiesConfigurationSource()?.Overrides(ConfigurationSource.Explicit) != true) || Metadata.GetPropertiesConfigurationSource()?.Overrides(configurationSource) != true ? [] : dependentEntityTypeBuilder.GetActualProperties( Metadata.Properties, configurationSource, principalProperties.Count != 0 ? principalProperties : Metadata.PrincipalKey.Properties) ?? [];
 
         if (dependentProperties.Count != 0)
         {
@@ -4036,10 +3977,10 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
     /// <inheritdoc />
     [DebuggerStepThrough]
     IConventionForeignKeyBuilder? IConventionForeignKeyBuilder.HasForeignKey(
-        IReadOnlyList<string>? properties,
+        IReadOnlyList<string>? propertyNames,
         bool fromDataAnnotation)
         => HasForeignKey(
-            properties,
+            propertyNames,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <inheritdoc />
@@ -4054,10 +3995,10 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
     /// <inheritdoc />
     [DebuggerStepThrough]
     bool IConventionForeignKeyBuilder.CanSetForeignKey(
-        IReadOnlyList<string>? properties,
+        IReadOnlyList<string>? propertyNames,
         bool fromDataAnnotation)
         => CanSetForeignKey(
-            properties,
+            propertyNames,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <inheritdoc />
@@ -4070,10 +4011,10 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
     /// <inheritdoc />
     [DebuggerStepThrough]
     IConventionForeignKeyBuilder? IConventionForeignKeyBuilder.HasPrincipalKey(
-        IReadOnlyList<string>? properties,
+        IReadOnlyList<string>? propertyNames,
         bool fromDataAnnotation)
         => HasPrincipalKey(
-            properties,
+            propertyNames,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <inheritdoc />
@@ -4088,10 +4029,10 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
     /// <inheritdoc />
     [DebuggerStepThrough]
     bool IConventionForeignKeyBuilder.CanSetPrincipalKey(
-        IReadOnlyList<string>? properties,
+        IReadOnlyList<string>? propertyNames,
         bool fromDataAnnotation)
         => CanSetPrincipalKey(
-            properties,
+            propertyNames,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <inheritdoc />

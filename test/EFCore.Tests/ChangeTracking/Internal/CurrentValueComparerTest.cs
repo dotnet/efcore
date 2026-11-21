@@ -453,8 +453,8 @@ public class CurrentValueComparerTest
 
         public int Value { get; set; }
 
-        public int CompareTo(object? other)
-            => Value - ((ComparableIntStruct)other!).Value;
+        public int CompareTo(object? obj)
+            => Value - ((ComparableIntStruct)obj!).Value;
     }
 
     private struct ComparableBytesStruct : IComparable
@@ -484,15 +484,15 @@ public class CurrentValueComparerTest
             return code.ToHashCode();
         }
 
-        public int CompareTo(object? other)
+        public int CompareTo(object? obj)
         {
-            var result = Value.Length - ((ComparableBytesStruct)other!).Value.Length;
+            var result = Value.Length - ((ComparableBytesStruct)obj!).Value.Length;
             if (result != 0)
             {
                 return result;
             }
 
-            return StructuralComparisons.StructuralComparer.Compare(Value, ((ComparableBytesStruct)other).Value);
+            return StructuralComparisons.StructuralComparer.Compare(Value, ((ComparableBytesStruct)obj).Value);
         }
     }
 
@@ -627,8 +627,8 @@ public class CurrentValueComparerTest
         public override int GetHashCode()
             => Value;
 
-        public int CompareTo(object? other)
-            => Value - ((ComparableIntClass)other!).Value;
+        public int CompareTo(object? obj)
+            => Value - ((ComparableIntClass)obj!).Value;
     }
 
     private class GenericComparableIntClass : IComparable<GenericComparableIntClass>

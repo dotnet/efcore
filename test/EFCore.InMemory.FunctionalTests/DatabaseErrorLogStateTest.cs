@@ -149,7 +149,7 @@ public class DatabaseErrorLogStateTest
         {
         }
 
-        public ILogger CreateLogger(string name)
+        public ILogger CreateLogger(string categoryName)
             => Logger;
 
         public void Dispose()

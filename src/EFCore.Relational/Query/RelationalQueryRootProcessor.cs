@@ -41,19 +41,19 @@ public class RelationalQueryRootProcessor : QueryRootProcessor
         => true;
 
     /// <inheritdoc />
-    protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+    protected override Expression VisitMethodCall(MethodCallExpression node)
     {
         // Create query root node for table-valued functions
-        if (_model.FindDbFunction(methodCallExpression.Method) is { IsScalar: false, StoreFunction: var storeFunction })
+        if (_model.FindDbFunction(node.Method) is { IsScalar: false, StoreFunction: var storeFunction })
         {
             // See issue #19970
             return new TableValuedFunctionQueryRootExpression(
                 (IEntityType)storeFunction.EntityTypeMappings.Single().TypeBase,
                 storeFunction,
-                methodCallExpression.Arguments);
+                node.Arguments);
         }
 
-        return base.VisitMethodCall(methodCallExpression);
+        return base.VisitMethodCall(node);
     }
 
     /// <inheritdoc />

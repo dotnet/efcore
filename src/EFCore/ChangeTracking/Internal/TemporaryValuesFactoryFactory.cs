@@ -30,7 +30,7 @@ public class TemporaryValuesFactoryFactory : SidecarValuesFactoryFactory
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override Expression CreateSnapshotExpression(
-        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type? entityType,
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type? clrType,
         Expression? parameter,
         Type[] types,
         IList<IPropertyBase?> propertyBases)

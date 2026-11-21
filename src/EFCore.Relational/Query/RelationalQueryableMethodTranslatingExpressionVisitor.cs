@@ -111,9 +111,9 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     }
 
     /// <inheritdoc />
-    protected override Expression VisitExtension(Expression extensionExpression)
+    protected override Expression VisitExtension(Expression node)
     {
-        switch (extensionExpression)
+        switch (node)
         {
             case FromSqlQueryRootExpression fromSqlQueryRootExpression:
             {
@@ -267,24 +267,24 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             }
 
             case JsonQueryExpression jsonQueryExpression:
-                return TransformJsonQueryToTable(jsonQueryExpression) ?? base.VisitExtension(extensionExpression);
+                return TransformJsonQueryToTable(jsonQueryExpression) ?? base.VisitExtension(node);
 
             default:
-                return base.VisitExtension(extensionExpression);
+                return base.VisitExtension(node);
         }
     }
 
     /// <inheritdoc />
-    protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+    protected override Expression VisitMethodCall(MethodCallExpression node)
     {
         // Operators are translated after their source has been visited, so this needs restoring rather than just clearing: by the time
         // the query's last operator is translated, the ones nested inside it have already had their turn.
         var parentIsRootOperator = _isRootOperator;
-        _isRootOperator = ReferenceEquals(methodCallExpression, _rootExpression);
+        _isRootOperator = ReferenceEquals(node, _rootExpression);
 
         try
         {
-            return VisitMethodCallCore(methodCallExpression);
+            return VisitMethodCallCore(node);
         }
         finally
         {
@@ -610,9 +610,9 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         => TranslateAggregateWithSelector(source, selector, QueryableMethods.GetAverageWithoutSelector, resultType);
 
     /// <inheritdoc />
-    protected override ShapedQueryExpression TranslateCast(ShapedQueryExpression source, Type resultType)
-        => source.ShaperExpression.Type != resultType
-            ? source.UpdateShaperExpression(Expression.Convert(source.ShaperExpression, resultType))
+    protected override ShapedQueryExpression TranslateCast(ShapedQueryExpression source, Type castType)
+        => source.ShaperExpression.Type != castType
+            ? source.UpdateShaperExpression(Expression.Convert(source.ShaperExpression, castType))
             : source;
 
     /// <inheritdoc />
@@ -1518,13 +1518,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         // Note that some providers propagate NULL arguments (SQLite, MySQL), while others only return NULL if all arguments evaluate to
         // NULL (SQL Server, PostgreSQL). If the argument is a nullable value type, don't translate to GREATEST() if it propagates NULLs,
         // to match the .NET behavior.
-        return TryExtractBareInlineCollectionValues(source, out var values)
-            && _sqlTranslator.GenerateGreatest(values, resultType.UnwrapNullableType()) is SqlFunctionExpression greatestExpression
-            && (Nullable.GetUnderlyingType(resultType) is null
-                || greatestExpression.ArgumentsPropagateNullability?.All(a => !a) == true)
-                ? source.Update(new SelectExpression(greatestExpression, _sqlAliasManager), source.ShaperExpression)
-                : TranslateAggregateWithSelector(
-                    source, selector, t => QueryableMethods.MaxWithoutSelector.MakeGenericMethod(t), resultType);
+        return TryExtractBareInlineCollectionValues(source, out var values) && _sqlTranslator.GenerateGreatest(values, resultType.UnwrapNullableType()) is SqlFunctionExpression greatestExpression && (Nullable.GetUnderlyingType(resultType) is null || greatestExpression.ArgumentsPropagateNullability?.All(a => !a) == true) ? source.Update(new SelectExpression(greatestExpression, _sqlAliasManager), source.ShaperExpression) : TranslateAggregateWithSelector( source, selector, t => QueryableMethods.MaxWithoutSelector.MakeGenericMethod(t), resultType);
     }
 
     /// <inheritdoc />
@@ -1534,13 +1528,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         selectExpression.IsDistinct = false;
 
         // See comments above in TranslateMax()
-        return TryExtractBareInlineCollectionValues(source, out var values)
-            && _sqlTranslator.GenerateLeast(values, resultType.UnwrapNullableType()) is SqlFunctionExpression leastExpression
-            && (Nullable.GetUnderlyingType(resultType) is null
-                || leastExpression.ArgumentsPropagateNullability?.All(a => !a) == true)
-                ? source.Update(new SelectExpression(leastExpression, _sqlAliasManager), source.ShaperExpression)
-                : TranslateAggregateWithSelector(
-                    source, selector, t => QueryableMethods.MinWithoutSelector.MakeGenericMethod(t), resultType);
+        return TryExtractBareInlineCollectionValues(source, out var values) && _sqlTranslator.GenerateLeast(values, resultType.UnwrapNullableType()) is SqlFunctionExpression leastExpression && (Nullable.GetUnderlyingType(resultType) is null || leastExpression.ArgumentsPropagateNullability?.All(a => !a) == true) ? source.Update(new SelectExpression(leastExpression, _sqlAliasManager), source.ShaperExpression) : TranslateAggregateWithSelector( source, selector, t => QueryableMethods.MinWithoutSelector.MakeGenericMethod(t), resultType);
     }
 
     /// <inheritdoc />
@@ -1765,62 +1753,62 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             return Visit(projection);
         }
 
-        [return: NotNullIfNotNull(nameof(expression))]
-        public override Expression? Visit(Expression? expression)
+        [return: NotNullIfNotNull(nameof(node))]
+        public override Expression? Visit(Expression? node)
         {
-            if (expression is null || _unsupported)
+            if (node is null || _unsupported)
             {
-                return expression;
+                return node;
             }
 
             // g.Key was replaced by the grouping's key selector when the lambda body was remapped; the materialized grouping exposes
             // the same value as its key.
-            if (ReferenceEquals(expression, groupByShaper.KeySelector))
+            if (ReferenceEquals(node, groupByShaper.KeySelector))
             {
                 return _groupingParameter is null
-                    ? expression
+                    ? node
                     : Expression.MakeMemberAccess(
                         _groupingParameter, _groupingParameter.Type.GetProperty(nameof(IGrouping<object, object>.Key))!);
             }
 
             if (_elements is null)
             {
-                if (TryMatchElements(expression, out var elementSelector, out var enumerationMethods))
+                if (TryMatchElements(node, out var elementSelector, out var enumerationMethods))
                 {
-                    _elements = expression;
+                    _elements = node;
                     ElementSelector = elementSelector;
                     _enumerationMethods = enumerationMethods;
 
-                    return _groupingParameter is null ? expression : RewriteElements();
+                    return _groupingParameter is null ? node : RewriteElements();
                 }
             }
-            else if (ReferenceEquals(expression, _elements))
+            else if (ReferenceEquals(node, _elements))
             {
-                return _groupingParameter is null ? expression : RewriteElements();
+                return _groupingParameter is null ? node : RewriteElements();
             }
 
             if (useWindowFunctionAggregates)
             {
                 // The same aggregate projected more than once is carried by a single window value.
-                var aggregateIndex = _aggregates.FindIndex(a => ExpressionEqualityComparer.Instance.Equals(a, expression));
+                var aggregateIndex = _aggregates.FindIndex(a => ExpressionEqualityComparer.Instance.Equals(a, node));
                 if (aggregateIndex >= 0)
                 {
-                    return _groupingParameter is null ? expression : RewriteAggregate(aggregateIndex);
+                    return _groupingParameter is null ? node : RewriteAggregate(aggregateIndex);
                 }
 
                 // A conversion around the aggregate is part of it, and gets translated with it: on the server it can be a CAST with
                 // semantics of its own (a decimal cast rounds), which moving it to the client would lose. If it translates to a CAST
                 // around the function, the aggregate can't carry a window and the projection keeps the GROUP BY translation; a conversion
                 // the server doesn't need, such as to a nullable type, translates to nothing and the aggregate is windowed as usual.
-                if (_groupingParameter is null && IsAggregateOverGrouping(RemoveConversions(expression)))
+                if (_groupingParameter is null && IsAggregateOverGrouping(RemoveConversions(node)))
                 {
-                    _aggregates.Add(expression);
+                    _aggregates.Add(node);
 
-                    return expression;
+                    return node;
                 }
             }
 
-            switch (expression)
+            switch (node)
             {
                 // Assembling the key and the elements into a result is all the client selector is allowed to do. Anything computed -
                 // g.Key.ToUpper(), EF.Functions.DateDiffDay(g.Key, ...), string.Join over the elements - has a server translation which
@@ -1830,7 +1818,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                 case NewArrayExpression:
                 case ConstantExpression:
                 case ParameterExpression:
-                    return base.Visit(expression);
+                    return base.Visit(node);
 
                 // A conversion is computed too, unless it leaves the value as it is: (decimal)g.Key over a double key is a CAST on the
                 // server, which rounds to the mapped scale, and (int)g.Key over a long key is a CAST which fails on overflow rather than
@@ -1838,11 +1826,11 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                 // up its hierarchy are the same in either place.
                 case UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } convert
                     when IsValuePreservingConversion(convert):
-                    return base.Visit(expression);
+                    return base.Visit(node);
 
                 default:
                     _unsupported = true;
-                    return expression;
+                    return node;
             }
         }
 
@@ -2034,27 +2022,27 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         {
             public bool Unsupported { get; private set; }
 
-            [return: NotNullIfNotNull(nameof(expression))]
-            public override Expression? Visit(Expression? expression)
+            [return: NotNullIfNotNull(nameof(node))]
+            public override Expression? Visit(Expression? node)
             {
-                if (expression is null || Unsupported)
+                if (node is null || Unsupported)
                 {
-                    return expression;
+                    return node;
                 }
 
-                if (expression is GroupByShaperExpression
-                    || ReferenceEquals(expression, groupByShaper.KeySelector)
+                if (node is GroupByShaperExpression
+                    || ReferenceEquals(node, groupByShaper.KeySelector)
                     // A collection (navigation, subquery, ...) would be translated as a correlated collection over the element; once the
                     // GROUP BY is dropped, that correlation would be to the grouping rather than to the element.
-                    || (expression.Type != typeof(string)
-                        && expression.Type != typeof(byte[])
-                        && expression.Type.TryGetSequenceType() is not null))
+                    || (node.Type != typeof(string)
+                        && node.Type != typeof(byte[])
+                        && node.Type.TryGetSequenceType() is not null))
                 {
                     Unsupported = true;
-                    return expression;
+                    return node;
                 }
 
-                return base.Visit(expression);
+                return base.Visit(node);
             }
         }
     }
@@ -2149,29 +2137,29 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             }
         }
 
-        [return: NotNullIfNotNull(nameof(expression))]
-        public override Expression? Visit(Expression? expression)
+        [return: NotNullIfNotNull(nameof(node))]
+        public override Expression? Visit(Expression? node)
         {
-            switch (expression)
+            switch (node)
             {
                 case null:
-                    return expression;
+                    return node;
 
                 case SqlExpression or QueryParameterExpression:
-                    return expression;
+                    return node;
 
                 // A query root's children, e.g. the values of an inline collection, can use the grouping.
                 case QueryRootExpression:
-                    return _unsupported ? expression : base.Visit(expression);
+                    return _unsupported ? node : base.Visit(node);
 
                 // Any other use of the grouping, such as an aggregate, or an unknown node that could contain one.
                 case GroupByShaperExpression:
                 case { NodeType: ExpressionType.Extension }:
                     _unsupported = true;
-                    return expression;
+                    return node;
 
                 default:
-                    return _unsupported ? expression : base.Visit(expression);
+                    return _unsupported ? node : base.Visit(node);
             }
         }
 
@@ -2378,15 +2366,15 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     {
         public bool Found { get; private set; }
 
-        [return: NotNullIfNotNull(nameof(expression))]
-        public override Expression? Visit(Expression? expression)
+        [return: NotNullIfNotNull(nameof(node))]
+        public override Expression? Visit(Expression? node)
         {
-            if (expression is not null && predicate(expression))
+            if (node is not null && predicate(node))
             {
                 Found = true;
             }
 
-            return Found ? expression : base.Visit(expression);
+            return Found ? node : base.Visit(node);
         }
     }
 
@@ -2415,21 +2403,21 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             return visitor._columns.Any(c => !visitor._tableAliases.Contains(c.TableAlias));
         }
 
-        [return: NotNullIfNotNull(nameof(expression))]
-        public override Expression? Visit(Expression? expression)
+        [return: NotNullIfNotNull(nameof(node))]
+        public override Expression? Visit(Expression? node)
         {
-            switch (expression)
+            switch (node)
             {
                 case ColumnExpression columnExpression:
                     _columns.Add(columnExpression);
-                    return expression;
+                    return node;
 
                 case TableExpressionBase { Alias: { } alias }:
                     _tableAliases.Add(alias);
                     break;
             }
 
-            return base.Visit(expression);
+            return base.Visit(node);
         }
     }
 
@@ -2440,7 +2428,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         private bool _defaultIfEmpty;
         private bool _canLiftDefaultIfEmpty;
 
-        public (LambdaExpression, bool, bool) IsCorrelated(LambdaExpression lambdaExpression)
+        public (LambdaExpression Lambda, bool Correlated, bool DefaultIfEmpty) IsCorrelated(LambdaExpression lambdaExpression)
         {
             Check.DebugAssert(
                 lambdaExpression.Parameters.Count == 1, "Multi-parameter lambda passed to CorrelationFindingExpressionVisitor");
@@ -2455,30 +2443,30 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             return (Expression.Lambda(result, _outerParameter), _correlated, _defaultIfEmpty);
         }
 
-        protected override Expression VisitParameter(ParameterExpression parameterExpression)
+        protected override Expression VisitParameter(ParameterExpression node)
         {
-            if (parameterExpression == _outerParameter)
+            if (node == _outerParameter)
             {
                 _correlated = true;
             }
 
-            return base.VisitParameter(parameterExpression);
+            return base.VisitParameter(node);
         }
 
-        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        protected override Expression VisitMethodCall(MethodCallExpression node)
         {
             if (_canLiftDefaultIfEmpty
-                && methodCallExpression.Method.IsGenericMethod
-                && methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.DefaultIfEmptyWithoutArgument)
+                && node.Method.IsGenericMethod
+                && node.Method.GetGenericMethodDefinition() == QueryableMethods.DefaultIfEmptyWithoutArgument)
             {
                 _defaultIfEmpty = true;
 
                 return Expression.Call(
-                    _fakeDefaultIfEmptyMethodInfo.Value.MakeGenericMethod(methodCallExpression.Method.GetGenericArguments()[0]),
-                    Visit(methodCallExpression.Arguments[0]));
+                    _fakeDefaultIfEmptyMethodInfo.Value.MakeGenericMethod(node.Method.GetGenericArguments()[0]),
+                    Visit(node.Arguments[0]));
             }
 
-            if (!SupportsLiftingDefaultIfEmpty(methodCallExpression.Method))
+            if (!SupportsLiftingDefaultIfEmpty(node.Method))
             {
                 // Set state to indicate that any DefaultIfEmpty encountered below this operator cannot be lifted out, since
                 // doing so would change meaning.
@@ -2489,9 +2477,9 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                 _canLiftDefaultIfEmpty = false;
             }
 
-            if (methodCallExpression.Arguments.Count == 0)
+            if (node.Arguments.Count == 0)
             {
-                return base.VisitMethodCall(methodCallExpression);
+                return base.VisitMethodCall(node);
             }
 
             // We need to visit the method call as usual, but the first argument - the source (other operators we're composed over) -
@@ -2499,9 +2487,9 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             // operator chain, and not some DIE embedded in e.g. the lambda argument of a Where clause. So we visit the source first,
             // and then set _canLiftDefaultIfEmpty to false to avoid lifting any DIEs encountered there (see e.g. #33343).
             // Note: we assume that the first argument is the source.
-            var newObject = Visit(methodCallExpression.Object);
+            var newObject = Visit(node.Object);
 
-            var arguments = methodCallExpression.Arguments;
+            var arguments = node.Arguments;
             Expression[]? newArguments = null;
 
             var newSource = Visit(arguments[0]);
@@ -2538,7 +2526,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
             _canLiftDefaultIfEmpty = previousCanLiftDefaultIfEmpty;
 
-            return methodCallExpression.Update(newObject, newArguments ?? (IEnumerable<Expression>)arguments);
+            return node.Update(newObject, newArguments ?? (IEnumerable<Expression>)arguments);
 
             static bool SupportsLiftingDefaultIfEmpty(MethodInfo methodInfo)
                 => methodInfo.IsGenericMethod
@@ -2942,24 +2930,24 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             }
         }
 
-        protected override Expression VisitMember(MemberExpression memberExpression)
+        protected override Expression VisitMember(MemberExpression node)
         {
-            var innerExpression = Visit(memberExpression.Expression);
+            var innerExpression = Visit(node.Expression);
 
-            return TryExpand(innerExpression, MemberIdentity.Create(memberExpression.Member))
-                ?? TryBindPropertyAccess(innerExpression, memberExpression.Member.Name)
-                ?? memberExpression.Update(innerExpression);
+            return TryExpand(innerExpression, MemberIdentity.Create(node.Member))
+                ?? TryBindPropertyAccess(innerExpression, node.Member.Name)
+                ?? node.Update(innerExpression);
         }
 
-        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var navigationName))
+            if (node.TryGetEFPropertyArguments(out var source, out var navigationName))
             {
                 source = Visit(source);
 
                 return TryExpand(source, MemberIdentity.Create(navigationName))
                     ?? TryBindPropertyAccess(source, navigationName)
-                    ?? methodCallExpression.Update(null!, [source, methodCallExpression.Arguments[1]]);
+                    ?? node.Update(null!, [source, node.Arguments[1]]);
             }
 
             // The following is a hack.
@@ -2969,11 +2957,11 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             // Here, we pattern match the resulting Select(s => s.Int).ElementAt(0) over JsonQueryExpression to properly identify the
             // indexing operation and translate it.
             // Note that this happens for both owned and complex JSON-mapped types.
-            if (methodCallExpression.Method.IsGenericMethod
-                && (methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.ElementAt
-                    || methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.ElementAtOrDefault))
+            if (node.Method.IsGenericMethod
+                && (node.Method.GetGenericMethodDefinition() == QueryableMethods.ElementAt
+                    || node.Method.GetGenericMethodDefinition() == QueryableMethods.ElementAtOrDefault))
             {
-                source = methodCallExpression.Arguments[0];
+                source = node.Arguments[0];
                 var selectMethodCallExpression = default(MethodCallExpression);
 
                 if (source is MethodCallExpression { Method.IsGenericMethod: true } sourceMethodCall
@@ -3004,7 +2992,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
                 if (source is JsonQueryExpression jsonQueryExpression)
                 {
-                    var collectionIndexExpression = queryableTranslator._sqlTranslator.Translate(methodCallExpression.Arguments[1]);
+                    var collectionIndexExpression = queryableTranslator._sqlTranslator.Translate(node.Arguments[1]);
                     if (collectionIndexExpression == null)
                     {
                         // before we return from failed translation
@@ -3015,7 +3003,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                             source,
                             asQueryableMethodCallExpression,
                             selectMethodCallExpression,
-                            methodCallExpression);
+                            node);
                     }
 
                     var newJsonQuery = jsonQueryExpression.BindCollectionElement(collectionIndexExpression);
@@ -3039,7 +3027,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                             source,
                             asQueryableMethodCallExpression,
                             selectMethodCallExpression,
-                            methodCallExpression);
+                            node);
                     }
 
                     var replaced = ReplacingExpressionVisitor.Replace(selectorLambda.Parameters[0], entityShaper, selectorLambda.Body);
@@ -3051,11 +3039,11 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                             source,
                             asQueryableMethodCallExpression,
                             selectMethodCallExpression,
-                            methodCallExpression);
+                            node);
                 }
             }
 
-            return base.VisitMethodCall(methodCallExpression);
+            return base.VisitMethodCall(node);
 
             static Expression PrepareFailedTranslationResult(
                 Expression source,
@@ -3148,10 +3136,10 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             }
         }
 
-        protected override Expression VisitExtension(Expression extensionExpression)
-            => extensionExpression is StructuralTypeShaperExpression or ShapedQueryExpression or GroupByShaperExpression
-                ? extensionExpression
-                : base.VisitExtension(extensionExpression);
+        protected override Expression VisitExtension(Expression node)
+            => node is StructuralTypeShaperExpression or ShapedQueryExpression or GroupByShaperExpression
+                ? node
+                : base.VisitExtension(node);
 
         private Expression? TryExpand(Expression? source, MemberIdentity member)
         {
@@ -3400,10 +3388,10 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
         private sealed class AnnotationApplyingExpressionVisitor(IReadOnlyList<IAnnotation> annotations) : ExpressionVisitor
         {
-            [return: NotNullIfNotNull(nameof(expression))]
-            public override Expression? Visit(Expression? expression)
+            [return: NotNullIfNotNull(nameof(node))]
+            public override Expression? Visit(Expression? node)
             {
-                if (expression is TableExpression te)
+                if (node is TableExpression te)
                 {
                     TableExpressionBase ownedTable = te;
                     foreach (var annotation in annotations)
@@ -3414,7 +3402,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                     return ownedTable;
                 }
 
-                return base.Visit(expression);
+                return base.Visit(node);
             }
         }
 

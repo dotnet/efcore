@@ -81,15 +81,7 @@ public class InternalSkipNavigationBuilder :
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual bool CanSetForeignKey(ForeignKey? foreignKey, ConfigurationSource? configurationSource)
-        => !configurationSource.Overrides(Metadata.GetForeignKeyConfigurationSource())
-            ? Equals(Metadata.ForeignKey, foreignKey)
-            : foreignKey == null
-            || (Metadata.DeclaringEntityType
-                == (Metadata.IsOnDependent ? foreignKey.DeclaringEntityType : foreignKey.PrincipalEntityType)
-                && (Metadata.Inverse?.JoinEntityType == null
-                    || Metadata.Inverse.JoinEntityType
-                    == (Metadata.IsOnDependent ? foreignKey.PrincipalEntityType : foreignKey.DeclaringEntityType)
-                    || Metadata.Inverse.Builder.CanSetForeignKey(null, configurationSource)));
+        => !configurationSource.Overrides(Metadata.GetForeignKeyConfigurationSource()) ? Equals(Metadata.ForeignKey, foreignKey) : foreignKey == null || (Metadata.DeclaringEntityType == (Metadata.IsOnDependent ? foreignKey.DeclaringEntityType : foreignKey.PrincipalEntityType) && (Metadata.Inverse?.JoinEntityType == null || Metadata.Inverse.JoinEntityType == (Metadata.IsOnDependent ? foreignKey.PrincipalEntityType : foreignKey.DeclaringEntityType) || Metadata.Inverse.Builder.CanSetForeignKey(null, configurationSource)));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -132,16 +124,7 @@ public class InternalSkipNavigationBuilder :
     public virtual bool CanSetInverse(
         SkipNavigation? inverse,
         ConfigurationSource? configurationSource)
-        => !configurationSource.Overrides(Metadata.GetInverseConfigurationSource())
-            || (inverse != null
-                && !configurationSource.Overrides(inverse.GetInverseConfigurationSource()))
-                ? Equals(Metadata.Inverse, inverse)
-                : inverse == null
-                || (Metadata.TargetEntityType == inverse.DeclaringEntityType
-                    && Metadata.DeclaringEntityType == inverse.TargetEntityType
-                    && (Metadata.JoinEntityType == null
-                        || inverse.JoinEntityType == null
-                        || Metadata.JoinEntityType == inverse.JoinEntityType));
+        => !configurationSource.Overrides(Metadata.GetInverseConfigurationSource()) || (inverse != null && !configurationSource.Overrides(inverse.GetInverseConfigurationSource())) ? Equals(Metadata.Inverse, inverse) : inverse == null || (Metadata.TargetEntityType == inverse.DeclaringEntityType && Metadata.DeclaringEntityType == inverse.TargetEntityType && (Metadata.JoinEntityType == null || inverse.JoinEntityType == null || Metadata.JoinEntityType == inverse.JoinEntityType));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

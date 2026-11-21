@@ -22,9 +22,9 @@ public class SqlExpressionSimplifyingExpressionVisitor(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitExtension(Expression extensionExpression)
+    protected override Expression VisitExtension(Expression node)
     {
-        switch (extensionExpression)
+        switch (node)
         {
             case ShapedQueryExpression shapedQueryExpression:
             {
@@ -95,7 +95,7 @@ public class SqlExpressionSimplifyingExpressionVisitor(
             }
 
             default:
-                return base.VisitExtension(extensionExpression);
+                return base.VisitExtension(node);
         }
 
         static SqlExpression ConvertProjectedConstant(SqlExpression expression)

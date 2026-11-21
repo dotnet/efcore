@@ -50,7 +50,7 @@ public class RelationalModel : Annotatable, IRelationalModel
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Dictionary<(string, string?), Table> Tables { get; } = [];
+    public virtual Dictionary<(string Name, string? Schema), Table> Tables { get; } = [];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -58,7 +58,7 @@ public class RelationalModel : Annotatable, IRelationalModel
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Dictionary<(string, string?), View> Views { get; } = [];
+    public virtual Dictionary<(string Name, string? Schema), View> Views { get; } = [];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -74,7 +74,7 @@ public class RelationalModel : Annotatable, IRelationalModel
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Dictionary<(string, string?, IReadOnlyList<string>), StoreFunction> Functions { get; }
+    public virtual Dictionary<(string Name, string? Schema, IReadOnlyList<string> Parameters), StoreFunction> Functions { get; }
         = [with(NamedListComparer.Instance)];
 
     /// <summary>
@@ -83,7 +83,7 @@ public class RelationalModel : Annotatable, IRelationalModel
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Dictionary<(string, string?), StoreStoredProcedure> StoredProcedures { get; }
+    public virtual Dictionary<(string Name, string? Schema), StoreStoredProcedure> StoredProcedures { get; }
         = [];
 
     /// <inheritdoc />

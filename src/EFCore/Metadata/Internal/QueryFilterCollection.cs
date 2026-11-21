@@ -46,10 +46,7 @@ public sealed class QueryFilterCollection : IReadOnlyCollection<IQueryFilter>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public int Count
-        => HasAnonymousFilter
-            ? 1
-            : _filters?.Count
-            ?? 0;
+        => HasAnonymousFilter ? 1 : _filters?.Count ?? 0;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -58,10 +55,7 @@ public sealed class QueryFilterCollection : IReadOnlyCollection<IQueryFilter>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public IEnumerator<IQueryFilter> GetEnumerator()
-        => HasAnonymousFilter
-            ? new AnonymousFilterEnumerator(_anonymousFilter)
-            : _filters?.Values.GetEnumerator()
-            ?? Enumerable.Empty<IQueryFilter>().GetEnumerator();
+        => HasAnonymousFilter ? new AnonymousFilterEnumerator(_anonymousFilter) : _filters?.Values.GetEnumerator() ?? Enumerable.Empty<IQueryFilter>().GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator()
         => GetEnumerator();

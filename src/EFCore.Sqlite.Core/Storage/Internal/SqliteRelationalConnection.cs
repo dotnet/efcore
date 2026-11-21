@@ -143,12 +143,12 @@ public class SqliteRelationalConnection : RelationalConnection, ISqliteRelationa
             sqliteConnection.CreateAggregate(
                 name: "ef_avg",
                 seed: (0m, 0ul),
-                static ((decimal sum, ulong count) acc, decimal? value) => value is null
+                static ((decimal Sum, ulong Count) acc, decimal? value) => value is null
                     ? acc
-                    : (acc.sum + value.Value, acc.count + 1),
-                static ((decimal sum, ulong count) acc) => acc.count == 0
+                    : (acc.Sum + value.Value, acc.Count + 1),
+                static ((decimal Sum, ulong Count) acc) => acc.Count == 0
                     ? default(decimal?)
-                    : acc.sum / acc.count,
+                    : acc.Sum / acc.Count,
                 isDeterministic: true);
 
             sqliteConnection.CreateAggregate(

@@ -899,9 +899,9 @@ public sealed class SelectExpression : Expression, IPrintableExpression
         Dictionary<ProjectionMember, ProjectionMember> projectionMemberMappings)
         : ExpressionVisitor
     {
-        protected override Expression VisitExtension(Expression expression)
+        protected override Expression VisitExtension(Expression node)
         {
-            if (expression is ProjectionBindingExpression projectionBindingExpression)
+            if (node is ProjectionBindingExpression projectionBindingExpression)
             {
                 Check.DebugAssert(
                     projectionBindingExpression.ProjectionMember is not null,
@@ -913,7 +913,7 @@ public sealed class SelectExpression : Expression, IPrintableExpression
                     projectionBindingExpression.Type);
             }
 
-            return base.VisitExtension(expression);
+            return base.VisitExtension(node);
         }
     }
 }

@@ -105,21 +105,21 @@ public class InjectWhereExpressionMutator(DbContext context) : ExpressionMutator
 
         public List<Expression> FoundExpressions { get; } = [];
 
-        [return: NotNullIfNotNull(nameof(expression))]
-        public override Expression? Visit(Expression? expression)
+        [return: NotNullIfNotNull(nameof(node))]
+        public override Expression? Visit(Expression? node)
         {
-            if (expression is MethodCallExpression { Method.Name: "ThenInclude" or "ThenBy" or "ThenByDescending" or "Skip" or "Take" })
+            if (node is MethodCallExpression { Method.Name: "ThenInclude" or "ThenBy" or "ThenByDescending" or "Skip" or "Take" })
             {
-                return expression;
+                return node;
             }
 
-            if (expression != null
-                && IsQueryableResult(expression))
+            if (node != null
+                && IsQueryableResult(node))
             {
-                FoundExpressions.Add(expression);
+                FoundExpressions.Add(node);
             }
 
-            return base.Visit(expression);
+            return base.Visit(node);
         }
     }
 }

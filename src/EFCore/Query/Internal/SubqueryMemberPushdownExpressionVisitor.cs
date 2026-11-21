@@ -56,23 +56,23 @@ public class SubqueryMemberPushdownExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitMember(MemberExpression memberExpression)
+    protected override Expression VisitMember(MemberExpression node)
     {
-        var innerExpression = Visit(memberExpression.Expression);
+        var innerExpression = Visit(node.Expression);
         return innerExpression is MethodCallExpression { Method.IsGenericMethod: true } methodCallExpression
             && SupportedMethods.Contains(methodCallExpression.Method.GetGenericMethodDefinition())
                 ? PushdownMember(
                     methodCallExpression,
                     (target, nullable) =>
                     {
-                        var memberAccessExpression = Expression.MakeMemberAccess(target, memberExpression.Member);
+                        var memberAccessExpression = Expression.MakeMemberAccess(target, node.Member);
 
                         return nullable && !memberAccessExpression.Type.IsNullableType()
                             ? Expression.Convert(memberAccessExpression, memberAccessExpression.Type.MakeNullable())
                             : memberAccessExpression;
                     },
-                    memberExpression.Type)
-                : memberExpression.Update(innerExpression);
+                    node.Type)
+                : node.Update(innerExpression);
     }
 
     /// <summary>
@@ -81,9 +81,9 @@ public class SubqueryMemberPushdownExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+    protected override Expression VisitMethodCall(MethodCallExpression node)
     {
-        if (methodCallExpression.TryGetEFPropertyArguments(out var source, out _))
+        if (node.TryGetEFPropertyArguments(out var source, out _))
         {
             source = Visit(source);
 
@@ -94,7 +94,7 @@ public class SubqueryMemberPushdownExpressionVisitor : ExpressionVisitor
                     innerMethodCall,
                     (target, nullable) =>
                     {
-                        var propertyType = methodCallExpression.Type;
+                        var propertyType = node.Type;
                         if (nullable && !propertyType.IsNullableType())
                         {
                             propertyType = propertyType.MakeNullable();
@@ -103,13 +103,13 @@ public class SubqueryMemberPushdownExpressionVisitor : ExpressionVisitor
                         return Expression.Call(
                             EF.PropertyMethod.MakeGenericMethod(propertyType),
                             target,
-                            methodCallExpression.Arguments[1]);
+                            node.Arguments[1]);
                     },
-                    methodCallExpression.Type);
+                    node.Type);
             }
         }
 
-        if (methodCallExpression.TryGetIndexerArguments(_model, out source, out _))
+        if (node.TryGetIndexerArguments(_model, out source, out _))
         {
             source = Visit(source);
 
@@ -122,20 +122,20 @@ public class SubqueryMemberPushdownExpressionVisitor : ExpressionVisitor
                     {
                         var indexerExpression = Expression.Call(
                             target,
-                            methodCallExpression.Method, methodCallExpression.Arguments[0]);
+                            node.Method, node.Arguments[0]);
 
                         return nullable && !indexerExpression.Type.IsNullableType()
                             ? Expression.Convert(indexerExpression, indexerExpression.Type.MakeNullable())
                             : indexerExpression;
                     },
-                    methodCallExpression.Type);
+                    node.Type);
             }
         }
 
         // Avoid pushing down a collection navigation which is followed by AsQueryable
-        if (methodCallExpression.Method.IsGenericMethod
-            && methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.AsQueryable
-            && methodCallExpression.Arguments[0] is MemberExpression memberExpression)
+        if (node.Method.IsGenericMethod
+            && node.Method.GetGenericMethodDefinition() == QueryableMethods.AsQueryable
+            && node.Arguments[0] is MemberExpression memberExpression)
         {
             var updatedMemberExpression = memberExpression.Update(Visit(memberExpression.Expression));
 
@@ -144,7 +144,7 @@ public class SubqueryMemberPushdownExpressionVisitor : ExpressionVisitor
                 updatedMemberExpression);
         }
 
-        return base.VisitMethodCall(methodCallExpression);
+        return base.VisitMethodCall(node);
     }
 
     private Expression PushdownMember(

@@ -27,16 +27,16 @@ public abstract class
         private readonly MethodInfo _asSplitQueryMethod
             = typeof(RelationalQueryableExtensions).GetMethod(nameof(RelationalQueryableExtensions.AsSplitQuery))!;
 
-        protected override Expression VisitExtension(Expression extensionExpression)
+        protected override Expression VisitExtension(Expression node)
         {
-            if (extensionExpression is EntityQueryRootExpression rootExpression)
+            if (node is EntityQueryRootExpression rootExpression)
             {
                 var splitMethod = _asSplitQueryMethod.MakeGenericMethod(rootExpression.EntityType.ClrType);
 
                 return Expression.Call(splitMethod, rootExpression);
             }
 
-            return base.VisitExtension(extensionExpression);
+            return base.VisitExtension(node);
         }
     }
 }

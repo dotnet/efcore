@@ -18,8 +18,8 @@ internal class AbrahamicContext : DbContext
     public void ClearSql()
         => _loggerFactory.Clear();
 
-    protected override void OnConfiguring(DbContextOptionsBuilder options)
-        => options
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        => optionsBuilder
             .UseSqlServer(
                 SqlServerTestStore.CreateConnectionString("HierarchyIdTests"),
                 x => x.UseHierarchyId())

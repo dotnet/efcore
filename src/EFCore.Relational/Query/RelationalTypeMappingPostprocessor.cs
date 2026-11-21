@@ -84,9 +84,9 @@ public class RelationalTypeMappingPostprocessor(
     }
 
     /// <inheritdoc />
-    protected override Expression VisitExtension(Expression expression)
+    protected override Expression VisitExtension(Expression node)
     {
-        switch (expression)
+        switch (node)
         {
             case ColumnExpression { TypeMapping: null } columnExpression
                 when TryGetInferredTypeMapping(columnExpression.TableAlias, columnExpression.Name, out var typeMapping):
@@ -95,7 +95,7 @@ public class RelationalTypeMappingPostprocessor(
             case SelectExpression selectExpression:
                 var parentSelectExpression = _currentSelectExpression;
                 _currentSelectExpression = selectExpression;
-                var visited = base.VisitExtension(expression);
+                var visited = base.VisitExtension(node);
                 _currentSelectExpression = parentSelectExpression;
                 return visited;
 
@@ -114,7 +114,7 @@ public class RelationalTypeMappingPostprocessor(
                 return shapedQueryExpression.UpdateQueryExpression(Visit(shapedQueryExpression.QueryExpression));
 
             default:
-                return base.VisitExtension(expression);
+                return base.VisitExtension(node);
         }
     }
 
@@ -125,10 +125,7 @@ public class RelationalTypeMappingPostprocessor(
     /// <param name="valuesExpression">The <see cref="ValuesExpression" /> to apply the mappings to.</param>
     protected virtual ValuesExpression ApplyTypeMappingsOnValuesExpression(ValuesExpression valuesExpression)
     {
-        var inferredTypeMappings = TryGetInferredTypeMapping(
-            valuesExpression.Alias, RelationalQueryableMethodTranslatingExpressionVisitor.ValuesValueColumnName, out var typeMapping)
-            ? [null, typeMapping]
-            : new RelationalTypeMapping?[] { null, null };
+        var inferredTypeMappings = TryGetInferredTypeMapping( valuesExpression.Alias, RelationalQueryableMethodTranslatingExpressionVisitor.ValuesValueColumnName, out var typeMapping) ? [null, typeMapping] : new RelationalTypeMapping?[] { null, null };
 
         Check.DebugAssert(
             valuesExpression.ColumnNames[0] == RelationalQueryableMethodTranslatingExpressionVisitor.ValuesOrderingColumnName,
@@ -245,7 +242,7 @@ public class RelationalTypeMappingPostprocessor(
         private string? _currentSelectTableAlias;
         private ProjectionExpression? _currentProjectionExpression;
 
-        public IReadOnlyDictionary<(string, string), RelationalTypeMapping?> Scan(Expression expression)
+        public IReadOnlyDictionary<(string TableAlias, string ColumnName), RelationalTypeMapping?> Scan(Expression expression)
         {
             _inferredColumns.Clear();
             _tableAliasMap.Clear();

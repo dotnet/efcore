@@ -36,7 +36,7 @@ public static class ColumnAccessorsFactory
             CreateCurrentValueGetter<TColumn>(column),
             CreateOriginalValueGetter<TColumn>(column));
 
-    private static Func<IReadOnlyModificationCommand, (TColumn?, bool)> CreateCurrentValueGetter<TColumn>(IColumn column)
+    private static Func<IReadOnlyModificationCommand, (TColumn? Value, bool Found)> CreateCurrentValueGetter<TColumn>(IColumn column)
         => c =>
         {
             if (c.Entries.Count > 0)
@@ -78,7 +78,7 @@ public static class ColumnAccessorsFactory
                     : ((TColumn)modification.Value!, true);
         };
 
-    private static Func<IReadOnlyModificationCommand, (TColumn, bool)> CreateOriginalValueGetter<TColumn>(IColumn column)
+    private static Func<IReadOnlyModificationCommand, (TColumn Value, bool Found)> CreateOriginalValueGetter<TColumn>(IColumn column)
         => c =>
         {
             if (c.Entries.Count > 0)

@@ -61,9 +61,9 @@ public class SqlServerSqlTranslatingExpressionVisitor(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitMember(MemberExpression memberExpression)
+    protected override Expression VisitMember(MemberExpression node)
     {
-        switch (memberExpression)
+        switch (node)
         {
             // Translate DateTimeOffset.Offset.TotalMinutes to DATEPART(tz, <dateTimeOffset>), which returns the offset
             // in whole minutes. We cannot translate DateTimeOffset.Offset alone since DATEPART(tz) returns an int (minutes),
@@ -99,7 +99,7 @@ public class SqlServerSqlTranslatingExpressionVisitor(
             }
 
             default:
-                return base.VisitMember(memberExpression);
+                return base.VisitMember(node);
         }
     }
 
@@ -109,9 +109,9 @@ public class SqlServerSqlTranslatingExpressionVisitor(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitNew(NewExpression newExpression)
+    protected override Expression VisitNew(NewExpression node)
     {
-        if (base.VisitNew(newExpression) is var translation
+        if (base.VisitNew(node) is var translation
             && translation != QueryCompilationContext.NotTranslatedExpression)
         {
             return translation;
@@ -119,7 +119,7 @@ public class SqlServerSqlTranslatingExpressionVisitor(
 
         // Translate new DateTimeOffset(DateTime) and new DateTimeOffset(DateTime, TimeSpan) to
         // TODATETIMEOFFSET(datetime, offset).
-        switch (newExpression)
+        switch (node)
         {
             case { Constructor.DeclaringType: var type, Arguments: [var dateTimeArg, var offsetArg] }
                 when type == typeof(DateTimeOffset)
@@ -171,9 +171,9 @@ public class SqlServerSqlTranslatingExpressionVisitor(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitBinary(BinaryExpression binaryExpression)
+    protected override Expression VisitBinary(BinaryExpression node)
     {
-        var translation = base.VisitBinary(binaryExpression);
+        var translation = base.VisitBinary(node);
 
         if (translation is SqlBinaryExpression translatedBinary
             && ArithmeticOperatorTypes.Contains(translatedBinary.OperatorType))
@@ -194,12 +194,12 @@ public class SqlServerSqlTranslatingExpressionVisitor(
         }
 
         return translation == QueryCompilationContext.NotTranslatedExpression
-            && binaryExpression.NodeType == ExpressionType.ArrayIndex
-            && binaryExpression.Left.Type == typeof(byte[])
+            && node.NodeType == ExpressionType.ArrayIndex
+            && node.Left.Type == typeof(byte[])
                 ? TranslateByteArrayElementAccess(
-                    binaryExpression.Left,
-                    binaryExpression.Right,
-                    binaryExpression.Type)
+                    node.Left,
+                    node.Right,
+                    node.Type)
                 : translation;
     }
 
@@ -209,18 +209,18 @@ public class SqlServerSqlTranslatingExpressionVisitor(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitUnary(UnaryExpression unaryExpression)
+    protected override Expression VisitUnary(UnaryExpression node)
     {
-        if (base.VisitUnary(unaryExpression) is var translation
+        if (base.VisitUnary(node) is var translation
             && translation != QueryCompilationContext.NotTranslatedExpression)
         {
             return translation;
         }
 
-        if (unaryExpression.NodeType == ExpressionType.ArrayLength
-            && unaryExpression.Operand.Type == typeof(byte[]))
+        if (node.NodeType == ExpressionType.ArrayLength
+            && node.Operand.Type == typeof(byte[]))
         {
-            if (base.Visit(unaryExpression.Operand) is not SqlExpression sqlExpression)
+            if (base.Visit(node.Operand) is not SqlExpression sqlExpression)
             {
                 return QueryCompilationContext.NotTranslatedExpression;
             }
@@ -247,18 +247,18 @@ public class SqlServerSqlTranslatingExpressionVisitor(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+    protected override Expression VisitMethodCall(MethodCallExpression node)
     {
-        if (base.VisitMethodCall(methodCallExpression) is var translation
+        if (base.VisitMethodCall(node) is var translation
             && translation != QueryCompilationContext.NotTranslatedExpression)
         {
             return translation;
         }
 
-        var method = methodCallExpression.Method;
+        var method = node.Method;
         var declaringType = method.DeclaringType;
-        var @object = methodCallExpression.Object;
-        var arguments = methodCallExpression.Arguments;
+        var @object = node.Object;
+        var arguments = node.Arguments;
 
         switch (method.Name)
         {
@@ -269,7 +269,7 @@ public class SqlServerSqlTranslatingExpressionVisitor(
                 && arguments is [Expression source, Expression index]
                 && source.Type == typeof(byte[])
                 && index.Type == typeof(int):
-                return TranslateByteArrayElementAccess(source, index, methodCallExpression.Type);
+                return TranslateByteArrayElementAccess(source, index, node.Type);
 
             // https://learn.microsoft.com/dotnet/api/system.string.startswith#system-string-startswith(system-string)
             // https://learn.microsoft.com/dotnet/api/system.string.startswith#system-string-startswith(system-char)

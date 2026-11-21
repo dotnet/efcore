@@ -320,9 +320,9 @@ FROM (
             (await Assert.ThrowsAsync<InvalidOperationException>(()
                 => base.SelectMany_correlated_with_Select_value_type_and_DefaultIfEmpty_in_selector(async))).Message);
 
-    public override async Task Concat_string_int(bool async)
+    public override async Task Concat_string_int(bool isAsync)
     {
-        await base.Concat_string_int(async);
+        await base.Concat_string_int(isAsync);
 
         AssertSql(
             """
@@ -331,9 +331,9 @@ FROM "Orders" AS "o"
 """);
     }
 
-    public override async Task Concat_int_string(bool async)
+    public override async Task Concat_int_string(bool isAsync)
     {
-        await base.Concat_int_string(async);
+        await base.Concat_int_string(isAsync);
 
         AssertSql(
             """
@@ -342,9 +342,9 @@ FROM "Orders" AS "o"
 """);
     }
 
-    public override async Task Concat_parameter_string_int(bool async)
+    public override async Task Concat_parameter_string_int(bool isAsync)
     {
-        await base.Concat_parameter_string_int(async);
+        await base.Concat_parameter_string_int(isAsync);
 
         AssertSql(
             """
@@ -355,9 +355,9 @@ FROM "Orders" AS "o"
 """);
     }
 
-    public override async Task Concat_constant_string_int(bool async)
+    public override async Task Concat_constant_string_int(bool isAsync)
     {
-        await base.Concat_constant_string_int(async);
+        await base.Concat_constant_string_int(isAsync);
 
         AssertSql(
             """

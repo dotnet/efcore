@@ -22,11 +22,7 @@ public static class RelationalIndexExtensions
     /// <param name="index">The index.</param>
     /// <returns>The name of the index in the database.</returns>
     public static string? GetDatabaseName(this IReadOnlyIndex index)
-        => index.DeclaringEntityType.GetTableName() == null
-            ? null
-            : (string?)index[RelationalAnnotationNames.Name]
-            ?? index.Name
-            ?? index.GetDefaultDatabaseName();
+        => index.DeclaringEntityType.GetTableName() == null ? null : (string?)index[RelationalAnnotationNames.Name] ?? index.Name ?? index.GetDefaultDatabaseName();
 
     /// <summary>
     ///     Returns the name of the index in the database.

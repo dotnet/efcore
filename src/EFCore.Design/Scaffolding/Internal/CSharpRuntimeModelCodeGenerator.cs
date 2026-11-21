@@ -1943,10 +1943,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
     private static Type? GetValueConverterType(IProperty property)
     {
         var annotation = property.FindAnnotation(CoreAnnotationNames.ValueConverterType);
-        return annotation != null
-            ? (Type?)annotation.Value
-            : ((Property)property).GetConversion(throwOnProviderClrTypeConflict: false, throwOnValueConverterConflict: false)
-            .ValueConverterType;
+        return annotation != null ? (Type?)annotation.Value : ((Property)property).GetConversion(throwOnProviderClrTypeConflict: false, throwOnValueConverterConflict: false) .ValueConverterType;
     }
 
     private void GeneratePropertyBaseParameters(

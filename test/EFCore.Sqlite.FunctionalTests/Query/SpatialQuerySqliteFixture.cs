@@ -46,10 +46,6 @@ public class SpatialQuerySqliteFixture : SpatialQueryRelationalFixture
         RelationalTypeMappingSourceDependencies relationalDependencies) : SqliteTypeMappingSource(dependencies, relationalDependencies)
     {
         protected override RelationalTypeMapping? FindMapping(in RelationalTypeMappingInfo mappingInfo)
-            => mappingInfo.ClrType == typeof(GeoPoint)
-                ? ((RelationalTypeMapping)base.FindMapping(typeof(Point))!
-                    .WithComposedConverter(new GeoPointConverter()))
-                .WithStoreTypeAndSize("geometry", null)
-                : base.FindMapping(mappingInfo);
+            => mappingInfo.ClrType == typeof(GeoPoint) ? ((RelationalTypeMapping)base.FindMapping(typeof(Point))! .WithComposedConverter(new GeoPointConverter())) .WithStoreTypeAndSize("geometry", null) : base.FindMapping(mappingInfo);
     }
 }

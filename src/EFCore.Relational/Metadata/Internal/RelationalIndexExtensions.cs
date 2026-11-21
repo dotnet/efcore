@@ -80,44 +80,7 @@ public static class RelationalIndexExtensions
                 : false;
         }
 
-        return index.IsUnique != duplicateIndex.IsUnique
-            ? shouldThrow
-                ? throw new InvalidOperationException(
-                    RelationalStrings.DuplicateIndexUniquenessMismatch(
-                        index.DisplayName(),
-                        index.DeclaringEntityType.DisplayName(),
-                        duplicateIndex.DisplayName(),
-                        duplicateIndex.DeclaringEntityType.DisplayName(),
-                        index.DeclaringEntityType.GetSchemaQualifiedTableName(),
-                        index.GetDatabaseName(storeObject)))
-                : false
-            : (index.IsDescending is null) != (duplicateIndex.IsDescending is null)
-            || (index.IsDescending is not null
-                && duplicateIndex.IsDescending is not null
-                && !index.IsDescending.SequenceEqual(duplicateIndex.IsDescending))
-                ? shouldThrow
-                    ? throw new InvalidOperationException(
-                        RelationalStrings.DuplicateIndexSortOrdersMismatch(
-                            index.DisplayName(),
-                            index.DeclaringEntityType.DisplayName(),
-                            duplicateIndex.DisplayName(),
-                            duplicateIndex.DeclaringEntityType.DisplayName(),
-                            index.DeclaringEntityType.GetSchemaQualifiedTableName(),
-                            index.GetDatabaseName(storeObject)))
-                    : false
-                : index.GetFilter(storeObject) == duplicateIndex.GetFilter(storeObject)
-                || (shouldThrow
-                    ? throw new InvalidOperationException(
-                        RelationalStrings.DuplicateIndexFiltersMismatch(
-                            index.DisplayName(),
-                            index.DeclaringEntityType.DisplayName(),
-                            duplicateIndex.DisplayName(),
-                            duplicateIndex.DeclaringEntityType.DisplayName(),
-                            index.DeclaringEntityType.GetSchemaQualifiedTableName(),
-                            index.GetDatabaseName(storeObject),
-                            index.GetFilter(),
-                            duplicateIndex.GetFilter()))
-                    : false);
+        return index.IsUnique != duplicateIndex.IsUnique ? shouldThrow ? throw new InvalidOperationException( RelationalStrings.DuplicateIndexUniquenessMismatch( index.DisplayName(), index.DeclaringEntityType.DisplayName(), duplicateIndex.DisplayName(), duplicateIndex.DeclaringEntityType.DisplayName(), index.DeclaringEntityType.GetSchemaQualifiedTableName(), index.GetDatabaseName(storeObject))) : false : (index.IsDescending is null) != (duplicateIndex.IsDescending is null) || (index.IsDescending is not null && duplicateIndex.IsDescending is not null && !index.IsDescending.SequenceEqual(duplicateIndex.IsDescending)) ? shouldThrow ? throw new InvalidOperationException( RelationalStrings.DuplicateIndexSortOrdersMismatch( index.DisplayName(), index.DeclaringEntityType.DisplayName(), duplicateIndex.DisplayName(), duplicateIndex.DeclaringEntityType.DisplayName(), index.DeclaringEntityType.GetSchemaQualifiedTableName(), index.GetDatabaseName(storeObject))) : false : index.GetFilter(storeObject) == duplicateIndex.GetFilter(storeObject) || (shouldThrow ? throw new InvalidOperationException( RelationalStrings.DuplicateIndexFiltersMismatch( index.DisplayName(), index.DeclaringEntityType.DisplayName(), duplicateIndex.DisplayName(), duplicateIndex.DeclaringEntityType.DisplayName(), index.DeclaringEntityType.GetSchemaQualifiedTableName(), index.GetDatabaseName(storeObject), index.GetFilter(), duplicateIndex.GetFilter())) : false);
     }
 
     private static string FormatColumnNames(IEnumerable<string> columnNames)

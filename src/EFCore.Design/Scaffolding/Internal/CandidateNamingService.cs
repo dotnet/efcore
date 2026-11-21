@@ -59,10 +59,7 @@ public class CandidateNamingService : ICandidateNamingService
             foreignKey.PrincipalEntityType.GetReferencingForeignKeys()
                 .Where(fk => foreignKey.DeclaringEntityType == fk.DeclaringEntityType);
 
-        return allForeignKeysBetweenDependentAndPrincipal?.Count() > 1
-            ? foreignKey.DeclaringEntityType.ShortName()
-            + dependentEndNavigationPropertyName
-            : foreignKey.DeclaringEntityType.ShortName();
+        return allForeignKeysBetweenDependentAndPrincipal?.Count() > 1 ? foreignKey.DeclaringEntityType.ShortName() + dependentEndNavigationPropertyName : foreignKey.DeclaringEntityType.ShortName();
     }
 
     /// <summary>
@@ -71,12 +68,12 @@ public class CandidateNamingService : ICandidateNamingService
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual string GenerateCandidateIdentifier(string originalIdentifier)
+    public virtual string GenerateCandidateIdentifier(string databaseName)
     {
         var candidateStringBuilder = new StringBuilder();
         var previousLetterCharInWordIsLowerCase = false;
         var isFirstCharacterInWord = true;
-        foreach (var c in originalIdentifier)
+        foreach (var c in databaseName)
         {
             var isNotLetterOrDigit = !char.IsLetterOrDigit(c);
             if (isNotLetterOrDigit

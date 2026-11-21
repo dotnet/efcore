@@ -3687,9 +3687,9 @@ WHERE (c["Title"] = @value)
         AssertSql();
     }
 
-    public override Task Checked_context_with_arithmetic_does_not_fail(bool async)
+    public override Task Checked_context_with_arithmetic_does_not_fail(bool isAsync)
         => Fixture.NoSyncTest(
-            async, async a =>
+            isAsync, async a =>
             {
                 checked
                 {
@@ -3712,11 +3712,11 @@ ORDER BY c["OrderID"]
 """);
             });
 
-    public override Task Checked_context_with_case_to_same_nullable_type_does_not_fail(bool async)
+    public override Task Checked_context_with_case_to_same_nullable_type_does_not_fail(bool isAsync)
         => Fixture.NoSyncTest(
-            async, async a =>
+            isAsync, async a =>
             {
-                await base.Checked_context_with_case_to_same_nullable_type_does_not_fail(async);
+                await base.Checked_context_with_case_to_same_nullable_type_does_not_fail(isAsync);
 
                 AssertSql(
                     """
@@ -3989,9 +3989,9 @@ FROM root c
 """);
             });
 
-    public override Task Concat_int_string(bool async)
+    public override Task Concat_int_string(bool isAsync)
         => Fixture.NoSyncTest(
-            async, async a =>
+            isAsync, async a =>
             {
                 await base.Concat_int_string(a);
 
@@ -4039,9 +4039,9 @@ WHERE false
 """);
             });
 
-    public override Task Concat_constant_string_int(bool async)
+    public override Task Concat_constant_string_int(bool isAsync)
         => Fixture.NoSyncTest(
-            async, async a =>
+            isAsync, async a =>
             {
                 await base.Concat_constant_string_int(a);
 
@@ -4089,9 +4089,9 @@ ORDER BY c["id"]
 """);
             });
 
-    public override Task Concat_string_int(bool async)
+    public override Task Concat_string_int(bool isAsync)
         => Fixture.NoSyncTest(
-            async, async a =>
+            isAsync, async a =>
             {
                 await base.Concat_string_int(a);
 
@@ -4318,9 +4318,9 @@ WHERE ((c["$type"] = "OrderDetail") AND false)
 """);
             });
 
-    public override Task Concat_parameter_string_int(bool async)
+    public override Task Concat_parameter_string_int(bool isAsync)
         => Fixture.NoSyncTest(
-            async, async a =>
+            isAsync, async a =>
             {
                 await base.Concat_parameter_string_int(a);
 

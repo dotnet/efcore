@@ -89,10 +89,10 @@ public class RelationalQueryTranslationPostprocessor : QueryTranslationPostproce
 #if DEBUG
     private sealed class SelectExpressionMutableVerifyingExpressionVisitor : ExpressionVisitor
     {
-        [return: NotNullIfNotNull(nameof(expression))]
-        public override Expression? Visit(Expression? expression)
+        [return: NotNullIfNotNull(nameof(node))]
+        public override Expression? Visit(Expression? node)
         {
-            switch (expression)
+            switch (node)
             {
                 case SelectExpression { IsMutable: true } selectExpression:
                     throw new InvalidDataException(selectExpression.Print());
@@ -103,7 +103,7 @@ public class RelationalQueryTranslationPostprocessor : QueryTranslationPostproce
                     return shapedQueryExpression;
 
                 default:
-                    return base.Visit(expression);
+                    return base.Visit(node);
             }
         }
     }

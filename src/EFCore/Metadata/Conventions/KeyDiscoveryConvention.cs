@@ -282,12 +282,12 @@ public class KeyDiscoveryConvention :
 
     /// <inheritdoc />
     public virtual void ProcessForeignKeyAdded(
-        IConventionForeignKeyBuilder relationshipBuilder,
+        IConventionForeignKeyBuilder foreignKeyBuilder,
         IConventionContext<IConventionForeignKeyBuilder> context)
     {
-        if (relationshipBuilder.Metadata.IsOwnership)
+        if (foreignKeyBuilder.Metadata.IsOwnership)
         {
-            TryConfigurePrimaryKey(relationshipBuilder.Metadata.DeclaringEntityType.Builder);
+            TryConfigurePrimaryKey(foreignKeyBuilder.Metadata.DeclaringEntityType.Builder);
         }
     }
 

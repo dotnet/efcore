@@ -287,8 +287,8 @@ public class InMemoryModelBuilderGenericRelationshipTypeTest : InMemoryModelBuil
         where TRelatedEntity : class
     {
         protected override GenericTestOwnedNavigationBuilder<TNewEntity, TNewRelatedEntity> Wrap<TNewEntity, TNewRelatedEntity>(
-            OwnedNavigationBuilder<TNewEntity, TNewRelatedEntity> ownedNavigationBuilder)
-            => new GenericTypeTestOwnedNavigationBuilder<TNewEntity, TNewRelatedEntity>(ownedNavigationBuilder);
+            OwnedNavigationBuilder<TNewEntity, TNewRelatedEntity> ownershipBuilder)
+            => new GenericTypeTestOwnedNavigationBuilder<TNewEntity, TNewRelatedEntity>(ownershipBuilder);
 
         public override TestReferenceNavigationBuilder<TRelatedEntity, TNewRelatedEntity> HasOne<TNewRelatedEntity>(
             Expression<Func<TRelatedEntity, TNewRelatedEntity?>>? navigationExpression = null)

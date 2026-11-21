@@ -49,10 +49,7 @@ public class Index : ConventionAnnotatable, IMutableIndex, IConventionIndex, IIn
                 }
             }
 
-            if ((property.DeclaringType is EntityType
-                    ? declaringEntityType.FindProperty(property.Name) != property
-                    && declaringEntityType.FindComplexProperty(property.Name) != property
-                    : property.DeclaringType.ContainingEntityType != declaringEntityType)
+            if ((property.DeclaringType is EntityType ? declaringEntityType.FindProperty(property.Name) != property && declaringEntityType.FindComplexProperty(property.Name) != property : property.DeclaringType.ContainingEntityType != declaringEntityType)
                 || !property.IsInModel)
             {
                 throw new InvalidOperationException(

@@ -76,7 +76,7 @@ public class PropertiesSnapshot
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void Add(List<(InternalKeyBuilder, ConfigurationSource?)> keys)
+    public virtual void Add(List<(InternalKeyBuilder KeyBuilder, ConfigurationSource? ConfigurationSource)> keys)
     {
         if (Keys == null)
         {

@@ -286,10 +286,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         IReadOnlyList<SqlExpression> expressions,
         IntTypeMapping intTypeMapping,
         ref int counter)
-        => RelationalQueryableMethodTranslatingExpressionVisitor.ValuesOrderingColumnName.Equals(
-            valuesExpression.ColumnNames[0], StringComparison.Ordinal)
-            ? [_sqlExpressionFactory.Constant(counter++, intTypeMapping), .. expressions]
-            : expressions;
+        => RelationalQueryableMethodTranslatingExpressionVisitor.ValuesOrderingColumnName.Equals( valuesExpression.ColumnNames[0], StringComparison.Ordinal) ? [_sqlExpressionFactory.Constant(counter++, intTypeMapping), .. expressions] : expressions;
 
     /// <summary>
     ///     Visits a <see cref="SelectExpression" />.
@@ -1694,16 +1691,18 @@ public class SqlNullabilityProcessor : ExpressionVisitor
             );
         }
 
-        return result is { } sqlBinaryResult
-            && sqlBinaryResult.OperatorType is ExpressionType.AndAlso or ExpressionType.OrElse
-                ? _sqlExpressionFactory.MakeBinary( // invoke MakeBinary simplifications
-                    sqlBinaryResult.OperatorType,
-                    sqlBinaryResult.Left,
-                    sqlBinaryResult.Right,
-                    sqlBinaryResult.TypeMapping,
-                    sqlBinaryResult
-                )!
-                : result;
+        if (result is { } sqlBinaryResult
+            && sqlBinaryResult.OperatorType is ExpressionType.AndAlso or ExpressionType.OrElse)
+        {
+            return _sqlExpressionFactory.MakeBinary( // invoke MakeBinary simplifications
+                sqlBinaryResult.OperatorType,
+                sqlBinaryResult.Left,
+                sqlBinaryResult.Right,
+                sqlBinaryResult.TypeMapping,
+                sqlBinaryResult)!;
+        }
+
+        return result;
 
         SqlExpression AddNullConcatenationProtection(SqlExpression argument, RelationalTypeMapping typeMapping)
             => argument is SqlConstantExpression or SqlParameterExpression
@@ -1774,13 +1773,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
 
             nullable = coalesceNullable;
 
-            return coalesceArguments.Count == 1
-                ? coalesceArguments[0]
-                : sqlFunctionExpression.Update(
-                    sqlFunctionExpression.Instance,
-                    coalesceArguments,
-                    argumentsPropagateNullability: coalesceArguments.Select(_ => false).ToArray()
-                );
+            return coalesceArguments.Count == 1 ? coalesceArguments[0] : sqlFunctionExpression.Update( sqlFunctionExpression.Instance, coalesceArguments, argumentsPropagateNullability: coalesceArguments.Select(_ => false).ToArray() );
         }
 
         var useNullabilityPropagation = sqlFunctionExpression is { InstancePropagatesNullability: true };
