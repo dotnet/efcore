@@ -3,11 +3,15 @@
 
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal;
+using SQLitePCL;
 
 namespace Microsoft.EntityFrameworkCore.Migrations;
 
 public class MigrationsSqliteTest : MigrationsTestBase<MigrationsSqliteTest.MigrationsSqliteFixture>
 {
+    // Same as SqliteMigrationsSqlGenerator.AlterCheckConstraintMinimumSqliteVersionNumber (which is private)
+    private const int AlterCheckConstraintMinimumSqliteVersionNumber = 3053001;
+
     public MigrationsSqliteTest(MigrationsSqliteFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
     {
@@ -547,41 +551,56 @@ ALTER TABLE "People" ADD "Name" TEXT COLLATE "NOCASE" NULL;
     public override async Task Add_column_with_check_constraint()
     {
         await base.Add_column_with_check_constraint();
+        Fixture.TestSqlLoggerFactory.OutputSql();
 
-        AssertSql(
-            """
+        if (raw.sqlite3_libversion_number() < AlterCheckConstraintMinimumSqliteVersionNumber)
+        {
+            AssertSql(
+                """
 ALTER TABLE "People" ADD "DriverLicense" INTEGER NOT NULL DEFAULT 0;
 """,
-            //
-            """
+                //
+                """
 CREATE TABLE "ef_temp_People" (
     "Id" INTEGER NOT NULL CONSTRAINT "PK_People" PRIMARY KEY AUTOINCREMENT,
     "DriverLicense" INTEGER NOT NULL,
     CONSTRAINT "CK_People_Foo" CHECK ("DriverLicense" > 0)
 );
 """,
-            //
-            """
+                //
+                """
 INSERT INTO "ef_temp_People" ("Id", "DriverLicense")
 SELECT "Id", "DriverLicense"
 FROM "People";
 """,
-            //
-            """
+                //
+                """
 PRAGMA foreign_keys = 0;
 """,
-            //
-            """
+                //
+                """
 DROP TABLE "People";
 """,
-            //
-            """
+                //
+                """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
 """,
-            //
-            """
+                //
+                """
 PRAGMA foreign_keys = 1;
 """);
+        }
+        else
+        {
+            AssertSql(
+                """
+ALTER TABLE "People" ADD "DriverLicense" INTEGER NOT NULL DEFAULT 0;
+""",
+                //
+                """
+ALTER TABLE "People" ADD CONSTRAINT "CK_People_Foo" CHECK ("DriverLicense" > 0);
+""");
+        }
     }
 
     public override async Task Alter_column_make_required()
@@ -1931,108 +1950,144 @@ PRAGMA foreign_keys = 1;
     public override async Task Add_check_constraint_with_name()
     {
         await base.Add_check_constraint_with_name();
+        Fixture.TestSqlLoggerFactory.OutputSql();
 
-        AssertSql(
-            """
+        if (raw.sqlite3_libversion_number() < AlterCheckConstraintMinimumSqliteVersionNumber)
+        {
+            AssertSql(
+                """
 CREATE TABLE "ef_temp_People" (
     "Id" INTEGER NOT NULL CONSTRAINT "PK_People" PRIMARY KEY AUTOINCREMENT,
     "DriverLicense" INTEGER NOT NULL,
     CONSTRAINT "CK_People_Foo" CHECK ("DriverLicense" > 0)
 );
 """,
-            //
-            """
+                //
+                """
 INSERT INTO "ef_temp_People" ("Id", "DriverLicense")
 SELECT "Id", "DriverLicense"
 FROM "People";
 """,
-            //
-            """
+                //
+                """
 PRAGMA foreign_keys = 0;
 """,
-            //
-            """
+                //
+                """
 DROP TABLE "People";
 """,
-            //
-            """
+                //
+                """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
 """,
-            //
-            """
+                //
+                """
 PRAGMA foreign_keys = 1;
 """);
+        }
+        else
+        {
+            AssertSql(
+                """
+ALTER TABLE "People" ADD CONSTRAINT "CK_People_Foo" CHECK ("DriverLicense" > 0);
+""");
+        }
     }
 
     public override async Task Alter_check_constraint()
     {
         await base.Alter_check_constraint();
+        Fixture.TestSqlLoggerFactory.OutputSql();
 
-        AssertSql(
-            """
+        if (raw.sqlite3_libversion_number() < AlterCheckConstraintMinimumSqliteVersionNumber)
+        {
+            AssertSql(
+                """
 CREATE TABLE "ef_temp_People" (
     "Id" INTEGER NOT NULL CONSTRAINT "PK_People" PRIMARY KEY AUTOINCREMENT,
     "DriverLicense" INTEGER NOT NULL,
     CONSTRAINT "CK_People_Foo" CHECK ("DriverLicense" > 1)
 );
 """,
-            //
-            """
+                //
+                """
 INSERT INTO "ef_temp_People" ("Id", "DriverLicense")
 SELECT "Id", "DriverLicense"
 FROM "People";
 """,
-            //
-            """
+                //
+                """
 PRAGMA foreign_keys = 0;
 """,
-            //
-            """
+                //
+                """
 DROP TABLE "People";
 """,
-            //
-            """
+                //
+                """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
 """,
-            //
-            """
+                //
+                """
 PRAGMA foreign_keys = 1;
 """);
+        }
+        else
+        {
+            AssertSql(
+                """
+ALTER TABLE "People" DROP CONSTRAINT "CK_People_Foo";
+""",
+                //
+                """
+ALTER TABLE "People" ADD CONSTRAINT "CK_People_Foo" CHECK ("DriverLicense" > 1);
+""");
+        }
     }
-
     public override async Task Drop_check_constraint()
     {
         await base.Drop_check_constraint();
+        Fixture.TestSqlLoggerFactory.OutputSql();
 
-        AssertSql(
-            """
+        if (raw.sqlite3_libversion_number() < AlterCheckConstraintMinimumSqliteVersionNumber)
+        {
+            AssertSql(
+                """
 CREATE TABLE "ef_temp_People" (
     "Id" INTEGER NOT NULL CONSTRAINT "PK_People" PRIMARY KEY AUTOINCREMENT,
     "DriverLicense" INTEGER NOT NULL
 );
 """,
-            //
-            """
+                //
+                """
 INSERT INTO "ef_temp_People" ("Id", "DriverLicense")
 SELECT "Id", "DriverLicense"
 FROM "People";
 """,
-            //
-            """
+                //
+                """
 PRAGMA foreign_keys = 0;
 """,
-            //
-            """
+                //
+                """
 DROP TABLE "People";
 """,
-            //
-            """
+                //
+                """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
 """,
-            //
-            """
+                //
+                """
 PRAGMA foreign_keys = 1;
 """);
+        }
+        else
+        {
+            AssertSql(
+                """
+ALTER TABLE "People" DROP CONSTRAINT "CK_People_Foo";
+""");
+        }
     }
 
     [Fact]
