@@ -111,6 +111,47 @@ public class SqliteSqlExpressionFactory : SqlExpressionFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public virtual SqlExpression EfTicks(SqlExpression timeSpan)
+    {
+        // TimeSpan is stored as text, so arithmetic and comparisons are done on its integer ticks; unwrapping
+        // ef_timespan avoids a needless text round-trip in expressions like (a + b).Hours.
+        var longTypeMapping = Dependencies.TypeMappingSource.FindMapping(typeof(long), Dependencies.Model);
+
+        return timeSpan switch
+        {
+            SqlFunctionExpression { Name: "ef_timespan", Arguments: [var ticks] } => ticks,
+            SqlConstantExpression { Value: TimeSpan constant } => Constant(constant.Ticks, longTypeMapping),
+            _ => Function(
+                "ef_ticks",
+                [timeSpan],
+                nullable: true,
+                argumentsPropagateNullability: Statics.TrueArrays[1],
+                typeof(long),
+                longTypeMapping)
+        };
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual SqlExpression EfTimeSpan(SqlExpression ticks, RelationalTypeMapping? typeMapping = null)
+        => Function(
+            "ef_timespan",
+            [ticks],
+            nullable: true,
+            argumentsPropagateNullability: Statics.TrueArrays[1],
+            typeof(TimeSpan),
+            typeMapping ?? Dependencies.TypeMappingSource.FindMapping(typeof(TimeSpan), Dependencies.Model));
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual GlobExpression Glob(SqlExpression match, SqlExpression pattern)
     {
         var inferredTypeMapping = ExpressionExtensions.InferTypeMapping(match, pattern)

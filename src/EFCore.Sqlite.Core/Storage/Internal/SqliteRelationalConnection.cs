@@ -140,6 +140,16 @@ public class SqliteRelationalConnection : RelationalConnection, ISqliteRelationa
                 static (decimal? m) => -m,
                 isDeterministic: true);
 
+            sqliteConnection.CreateFunction(
+                name: "ef_ticks",
+                static (TimeSpan? value) => value?.Ticks,
+                isDeterministic: true);
+
+            sqliteConnection.CreateFunction(
+                name: "ef_timespan",
+                static (long? ticks) => ticks is null ? default(TimeSpan?) : new TimeSpan(ticks.Value),
+                isDeterministic: true);
+
             sqliteConnection.CreateAggregate(
                 name: "ef_avg",
                 seed: (0m, 0ul),

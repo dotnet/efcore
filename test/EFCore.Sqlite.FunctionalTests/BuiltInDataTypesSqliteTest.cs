@@ -849,9 +849,8 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
             Assert.Throws<NotSupportedException>(()
                 => query.Select(g => g.Min(DateTimeOffset? (e) => e.TestDateTimeOffset)).ToList()).Message);
 
-        Assert.Equal(
-            SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Min), typeof(TimeSpan).ShortDisplayName()),
-            Assert.Throws<NotSupportedException>(() => query.Select(g => g.Min(TimeSpan? (e) => e.TestTimeSpan)).ToList()).Message);
+        // Compared by ticks, not as text, where "10.00:00:00" would sort before "2.00:00:00".
+        Assert.Equal(TimeSpan.FromDays(2), query.Select(g => g.Min(e => e.TestTimeSpan)).Single());
 
         Assert.Equal(
             SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Min), typeof(ulong).ShortDisplayName()),
@@ -898,9 +897,7 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
             Assert.Throws<NotSupportedException>(()
                 => query.Select(g => g.Max(DateTimeOffset? (e) => e.TestDateTimeOffset)).ToList()).Message);
 
-        Assert.Equal(
-            SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Max), typeof(TimeSpan).ShortDisplayName()),
-            Assert.Throws<NotSupportedException>(() => query.Select(g => g.Max(TimeSpan? (e) => e.TestTimeSpan)).ToList()).Message);
+        Assert.Equal(TimeSpan.FromDays(10), query.Select(g => g.Max(e => e.TestTimeSpan)).Single());
 
         Assert.Equal(
             SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Max), typeof(ulong).ShortDisplayName()),
@@ -1372,10 +1369,8 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
             .First());
         Assert.Equal(SqliteStrings.OrderByNotSupported("DateTimeOffset"), ex.Message);
 
-        ex = Assert.Throws<NotSupportedException>(() => query
-            .OrderBy(e => e.TestTimeSpan)
-            .First());
-        Assert.Equal(SqliteStrings.OrderByNotSupported("TimeSpan"), ex.Message);
+        Assert.Equal(TimeSpan.FromDays(2), query.OrderBy(e => e.TestTimeSpan).First().TestTimeSpan);
+        Assert.Equal(TimeSpan.FromDays(10), query.OrderByDescending(e => e.TestTimeSpan).First().TestTimeSpan);
 
         ex = Assert.Throws<NotSupportedException>(() => query
             .OrderBy(e => e.TestUnsignedInt64)
@@ -1420,10 +1415,8 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
             .First());
         Assert.Equal(SqliteStrings.OrderByNotSupported("DateTimeOffset"), ex.Message);
 
-        ex = Assert.Throws<NotSupportedException>(() => query
-            .ThenBy(e => e.TestTimeSpan)
-            .First());
-        Assert.Equal(SqliteStrings.OrderByNotSupported("TimeSpan"), ex.Message);
+        Assert.Equal(TimeSpan.FromDays(2), query.ThenBy(e => e.TestTimeSpan).First().TestTimeSpan);
+        Assert.Equal(TimeSpan.FromDays(10), query.ThenByDescending(e => e.TestTimeSpan).First().TestTimeSpan);
 
         ex = Assert.Throws<NotSupportedException>(() => query
             .ThenBy(e => e.TestUnsignedInt64)
