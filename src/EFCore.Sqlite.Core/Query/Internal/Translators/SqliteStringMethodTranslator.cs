@@ -35,7 +35,7 @@ public class SqliteStringMethodTranslator(ISqlExpressionFactory sqlExpressionFac
                 {
                     nameof(string.IndexOf) when arguments is [var arg]
                         => TranslateIndexOf(instance, arg),
-                    nameof(string.IndexOf) when arguments is [var arg, var startIndex]
+                    nameof(string.IndexOf) when arguments is [var arg, var startIndex] && startIndex.Type == typeof(int)
                         => TranslateIndexOfWithStartingPosition(instance, arg, startIndex),
                     nameof(string.Replace) when arguments is [var oldValue, var newValue]
                         => TranslateReplace(instance, oldValue, newValue),
