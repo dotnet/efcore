@@ -4,4 +4,11 @@
 *.sln eol=crlf
 *.sql diff
 
+# The scaffolding templates and their pre-processed output must use LF so that scaffolded code always has LF line endings
+# (line breaks inside the templates become string literals in the generated code).
+src/EFCore.Design/Scaffolding/Internal/CSharpDbContextGenerator.tt eol=lf
+src/EFCore.Design/Scaffolding/Internal/CSharpDbContextGenerator.cs eol=lf
+src/EFCore.Design/Scaffolding/Internal/CSharpEntityTypeGenerator.tt eol=lf
+src/EFCore.Design/Scaffolding/Internal/CSharpEntityTypeGenerator.cs eol=lf
+
 .github/workflows/*.lock.yml linguist-generated=true

@@ -72,7 +72,7 @@ public partial class <#= EntityType.Name #>
     {
         if (!firstProperty)
         {
-            WriteLine("");
+            Write("\n");
         }
 
         if (!string.IsNullOrEmpty(property.GetComment()))
@@ -108,7 +108,7 @@ public partial class <#= EntityType.Name #>
 
     foreach (var navigation in EntityType.GetNavigations())
     {
-        WriteLine("");
+        Write("\n");
 
         if (Options.UseDataAnnotations)
         {
@@ -139,7 +139,7 @@ public partial class <#= EntityType.Name #>
 
     foreach (var skipNavigation in EntityType.GetSkipNavigations())
     {
-        WriteLine("");
+        Write("\n");
 
         if (Options.UseDataAnnotations)
         {
@@ -167,7 +167,7 @@ using <#= ns #>;
 <#
     }
 
-    WriteLine("");
+    Write("\n");
 
     GenerationEnvironment.Append(previousOutput);
 #>

@@ -3,6 +3,7 @@
 
 using System.Numerics;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
@@ -618,6 +619,62 @@ public class CSharpHelperTest
         var result = new CSharpHelper(TypeMappingSource).XmlComment("It's a \"quoted\" <b>bold</b> & 'single-quoted' comment");
 
         Assert.Equal("It's a \"quoted\" &lt;b&gt;bold&lt;/b&gt; &amp; 'single-quoted' comment", result);
+    }
+
+    [Fact]
+    public void Scaffolding_helper_uses_only_LF_for_fragments_and_comments()
+    {
+        var helper = new ScaffoldingCSharpHelper(TypeMappingSource);
+
+        var chain = new MethodCallCodeFragment(_testFuncMethodInfo, "One")
+            .Chain(
+                new MethodCallCodeFragment(
+                    _testFuncMethodInfo,
+                    new NestedClosureCodeFragment(
+                        "x",
+                        [new MethodCallCodeFragment(_testFuncMethodInfo, "Two"), new MethodCallCodeFragment(_testFuncMethodInfo, "Three")])));
+
+        Assert.Equal(
+            "\n    .TestFunc(\"One\")\n    .TestFunc(x =>\n    {\n        x.TestFunc(\"Two\");\n        x.TestFunc(\"Three\");\n    })",
+            helper.Fragment(chain, indent: 1));
+
+        Assert.Equal(
+            "one\n    /// two\n    /// three",
+            helper.XmlComment("one\r\ntwo\nthree", indent: 1));
+    }
+
+    [Fact]
+    public void Fragment_and_XmlComment_use_the_NewLine_of_the_helper()
+    {
+        // Independent of the platform: the default is Environment.NewLine, and an override is honored everywhere.
+        var chain = new MethodCallCodeFragment(_testFuncMethodInfo, "One")
+            .Chain(
+                new MethodCallCodeFragment(
+                    _testFuncMethodInfo,
+                    new NestedClosureCodeFragment(
+                        "x",
+                        [new MethodCallCodeFragment(_testFuncMethodInfo, "Two"), new MethodCallCodeFragment(_testFuncMethodInfo, "Three")])));
+
+        var defaultHelper = new CSharpHelper(TypeMappingSource);
+        var crlfHelper = new CrLfCSharpHelper(TypeMappingSource);
+
+        Assert.Equal(
+            defaultHelper.Fragment(chain, indent: 1),
+            crlfHelper.Fragment(chain, indent: 1).Replace("\r\n", EOL));
+        Assert.Equal(
+            defaultHelper.XmlComment("one\ntwo", indent: 1),
+            crlfHelper.XmlComment("one\ntwo", indent: 1).Replace("\r\n", EOL));
+
+        var crlfFragment = crlfHelper.Fragment(chain, indent: 1);
+        Assert.Equal(6, crlfFragment.Split("\r\n").Length - 1);
+        Assert.DoesNotContain('\n', crlfFragment.Replace("\r\n", ""));
+        Assert.Equal("one\r\n    /// two", crlfHelper.XmlComment("one\ntwo", indent: 1));
+    }
+
+    private sealed class CrLfCSharpHelper(ITypeMappingSource typeMappingSource) : CSharpHelper(typeMappingSource)
+    {
+        protected override string NewLine
+            => "\r\n";
     }
 
     [Fact]

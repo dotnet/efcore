@@ -53,20 +53,20 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             this.Write("namespace ");
             this.Write(this.ToStringHelper.ToStringWithCulture(NamespaceHint));
-            this.Write(";\r\n\r\n");
+            this.Write(";\n\n");
 
     }
 
             this.Write("public partial class ");
             this.Write(this.ToStringHelper.ToStringWithCulture(Options.ContextName));
-            this.Write(" : DbContext\r\n{\r\n");
+            this.Write(" : DbContext\n{\n");
 
     if (!Options.SuppressOnConfiguring)
     {
 
             this.Write("    public ");
             this.Write(this.ToStringHelper.ToStringWithCulture(Options.ContextName));
-            this.Write("()\r\n    {\r\n    }\r\n\r\n");
+            this.Write("()\n    {\n    }\n\n");
 
     }
 
@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             this.Write(this.ToStringHelper.ToStringWithCulture(Options.ContextName));
             this.Write("(DbContextOptions<");
             this.Write(this.ToStringHelper.ToStringWithCulture(Options.ContextName));
-            this.Write("> options)\r\n        : base(options)\r\n    {\r\n    }\r\n\r\n");
+            this.Write("> options)\n        : base(options)\n    {\n    }\n\n");
 
     foreach (var entityType in Model.GetEntityTypes().Where(e => !e.IsSimpleManyToManyJoinEntityType()))
     {
@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             this.Write(this.ToStringHelper.ToStringWithCulture(entityType.Name));
             this.Write("> ");
             this.Write(this.ToStringHelper.ToStringWithCulture(entityType.GetDbSetName()));
-            this.Write(" { get; set; }\r\n\r\n");
+            this.Write(" { get; set; }\n\n");
 
     }
 
@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     {
 
             this.Write("    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)" +
-                    "\r\n");
+                    "\n");
 
     if (!Options.SuppressConnectionStringWarning)
     {
@@ -106,12 +106,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             this.Write("        => optionsBuilder");
             this.Write(this.ToStringHelper.ToStringWithCulture(code.Fragment(useProviderCall, indent: 3)));
-            this.Write(";\r\n\r\n");
+            this.Write(";\n\n");
 
     }
 
 
-            this.Write("    protected override void OnModelCreating(ModelBuilder modelBuilder)\r\n    {\r\n");
+            this.Write("    protected override void OnModelCreating(ModelBuilder modelBuilder)\n    {\n");
 
     var anyConfiguration = false;
 
@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             this.Write("        modelBuilder");
             this.Write(this.ToStringHelper.ToStringWithCulture(code.Fragment(modelFluentApiCalls, indent: 3)));
-            this.Write(";\r\n");
+            this.Write(";\n");
 
         anyConfiguration = true;
     }
@@ -136,14 +136,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         if (anyConfiguration)
         {
-            WriteLine("");
+            Write("\n");
         }
 
         var anyEntityTypeConfiguration = false;
 
             this.Write("        modelBuilder.Entity<");
             this.Write(this.ToStringHelper.ToStringWithCulture(entityType.Name));
-            this.Write(">(entity =>\r\n        {\r\n");
+            this.Write(">(entity =>\n        {\n");
 
         var key = entityType.FindPrimaryKey();
         if (key != null)
@@ -161,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             this.Write(this.ToStringHelper.ToStringWithCulture(code.Lambda(key.Properties, "e")));
             this.Write(")");
             this.Write(this.ToStringHelper.ToStringWithCulture(code.Fragment(keyFluentApiCalls, indent: 4)));
-            this.Write(";\r\n");
+            this.Write(";\n");
 
                 anyEntityTypeConfiguration = true;
             }
@@ -175,12 +175,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             if (anyEntityTypeConfiguration)
             {
-                WriteLine("");
+                Write("\n");
             }
 
             this.Write("            entity");
             this.Write(this.ToStringHelper.ToStringWithCulture(code.Fragment(entityTypeFluentApiCalls, indent: 4)));
-            this.Write(";\r\n");
+            this.Write(";\n");
 
             anyEntityTypeConfiguration = true;
         }
@@ -190,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             if (anyEntityTypeConfiguration)
             {
-                WriteLine("");
+                Write("\n");
             }
 
             var indexFluentApiCalls = index.GetFluentApiCalls(annotationCodeGenerator);
@@ -205,7 +205,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             this.Write(this.ToStringHelper.ToStringWithCulture(code.Literal(index.GetDatabaseName())));
             this.Write(")");
             this.Write(this.ToStringHelper.ToStringWithCulture(code.Fragment(indexFluentApiCalls, indent: 4)));
-            this.Write(";\r\n");
+            this.Write(";\n");
 
             anyEntityTypeConfiguration = true;
         }
@@ -225,14 +225,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             if (anyEntityTypeConfiguration && firstProperty)
             {
-                WriteLine("");
+                Write("\n");
             }
 
             this.Write("            entity.Property(e => e.");
             this.Write(this.ToStringHelper.ToStringWithCulture(property.Name));
             this.Write(")");
             this.Write(this.ToStringHelper.ToStringWithCulture(code.Fragment(propertyFluentApiCalls, indent: 4)));
-            this.Write(";\r\n");
+            this.Write(";\n");
 
             anyEntityTypeConfiguration = true;
             firstProperty = false;
@@ -251,7 +251,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             if (anyEntityTypeConfiguration)
             {
-                WriteLine("");
+                Write("\n");
             }
 
             this.Write("            entity.HasOne(d => d.");
@@ -262,7 +262,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             this.Write(this.ToStringHelper.ToStringWithCulture(foreignKey.PrincipalToDependent != null ? $"p => p.{foreignKey.PrincipalToDependent.Name}" : ""));
             this.Write(")");
             this.Write(this.ToStringHelper.ToStringWithCulture(code.Fragment(foreignKeyFluentApiCalls, indent: 4)));
-            this.Write(";\r\n");
+            this.Write(";\n");
 
             anyEntityTypeConfiguration = true;
         }
@@ -271,7 +271,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             if (anyEntityTypeConfiguration)
             {
-                WriteLine("");
+                Write("\n");
             }
 
             var left = skipNavigation.ForeignKey;
@@ -294,18 +294,18 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             this.Write(this.ToStringHelper.ToStringWithCulture(skipNavigation.Name));
             this.Write(").WithMany(p => p.");
             this.Write(this.ToStringHelper.ToStringWithCulture(skipNavigation.Inverse.Name));
-            this.Write(")\r\n                .UsingEntity<Dictionary<string, object>>(\r\n                   " +
+            this.Write(")\n                .UsingEntity<Dictionary<string, object>>(\n                   " +
                     " ");
             this.Write(this.ToStringHelper.ToStringWithCulture(code.Literal(joinEntityType.Name)));
-            this.Write(",\r\n                    r => r.HasOne<");
+            this.Write(",\n                    r => r.HasOne<");
             this.Write(this.ToStringHelper.ToStringWithCulture(right.PrincipalEntityType.Name));
             this.Write(">().WithMany()");
             this.Write(this.ToStringHelper.ToStringWithCulture(code.Fragment(rightFluentApiCalls, indent: 6)));
-            this.Write(",\r\n                    l => l.HasOne<");
+            this.Write(",\n                    l => l.HasOne<");
             this.Write(this.ToStringHelper.ToStringWithCulture(left.PrincipalEntityType.Name));
             this.Write(">().WithMany()");
             this.Write(this.ToStringHelper.ToStringWithCulture(code.Fragment(leftFluentApiCalls, indent: 6)));
-            this.Write(",\r\n                    j =>\r\n                    {\r\n");
+            this.Write(",\n                    j =>\n                    {\n");
 
             var joinKey = joinEntityType.FindPrimaryKey();
             var joinKeyFluentApiCalls = joinKey.GetFluentApiCalls(annotationCodeGenerator);
@@ -319,7 +319,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             this.Write(this.ToStringHelper.ToStringWithCulture(code.Arguments(joinKey.Properties.Select(e => e.Name))));
             this.Write(")");
             this.Write(this.ToStringHelper.ToStringWithCulture(code.Fragment(joinKeyFluentApiCalls, indent: 7)));
-            this.Write(";\r\n");
+            this.Write(";\n");
 
             var joinEntityTypeFluentApiCalls = joinEntityType.GetFluentApiCalls(annotationCodeGenerator);
             if (joinEntityTypeFluentApiCalls != null)
@@ -328,7 +328,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             this.Write("                        j");
             this.Write(this.ToStringHelper.ToStringWithCulture(code.Fragment(joinEntityTypeFluentApiCalls, indent: 7)));
-            this.Write(";\r\n");
+            this.Write(";\n");
 
             }
 
@@ -346,7 +346,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             this.Write(this.ToStringHelper.ToStringWithCulture(code.Literal(index.GetDatabaseName())));
             this.Write(")");
             this.Write(this.ToStringHelper.ToStringWithCulture(code.Fragment(indexFluentApiCalls, indent: 7)));
-            this.Write(";\r\n");
+            this.Write(";\n");
 
             }
 
@@ -364,16 +364,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             this.Write(this.ToStringHelper.ToStringWithCulture(code.Literal(property.Name)));
             this.Write(")");
             this.Write(this.ToStringHelper.ToStringWithCulture(code.Fragment(propertyFluentApiCalls, indent: 7)));
-            this.Write(";\r\n");
+            this.Write(";\n");
 
             }
 
-            this.Write("                    });\r\n");
+            this.Write("                    });\n");
 
             anyEntityTypeConfiguration = true;
         }
 
-            this.Write("        });\r\n");
+            this.Write("        });\n");
 
         // If any signicant code was generated, append it to the main environment
         if (anyEntityTypeConfiguration)
@@ -399,17 +399,17 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             this.Write(this.ToStringHelper.ToStringWithCulture(needsSchema ? $", {code.Literal(sequence.Schema)}" : ""));
             this.Write(")");
             this.Write(this.ToStringHelper.ToStringWithCulture(code.Fragment(sequenceFluentApiCalls, indent: 3)));
-            this.Write(";\r\n");
+            this.Write(";\n");
 
     }
 
     if (anyConfiguration)
     {
-        WriteLine("");
+        Write("\n");
     }
 
-            this.Write("        OnModelCreatingPartial(modelBuilder);\r\n    }\r\n\r\n    partial void OnModelC" +
-                    "reatingPartial(ModelBuilder modelBuilder);\r\n}\r\n");
+            this.Write("        OnModelCreatingPartial(modelBuilder);\n    }\n\n    partial void OnModelC" +
+                    "reatingPartial(ModelBuilder modelBuilder);\n}\n");
 
     mainEnvironment = GenerationEnvironment;
     GenerationEnvironment = new StringBuilder();
@@ -419,11 +419,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             this.Write("using ");
             this.Write(this.ToStringHelper.ToStringWithCulture(ns));
-            this.Write(";\r\n");
+            this.Write(";\n");
 
     }
 
-    WriteLine("");
+    Write("\n");
 
     GenerationEnvironment.Append(mainEnvironment);
 
@@ -705,7 +705,7 @@ if ((NamespaceHintValueAcquired == false))
                 this.endsWithNewline = false;
             }
             // Check if the current text ends with a newline
-            if (textToAppend.EndsWith(global::System.Environment.NewLine, global::System.StringComparison.CurrentCulture))
+            if (textToAppend.EndsWith("\n", global::System.StringComparison.Ordinal))
             {
                 this.endsWithNewline = true;
             }
@@ -717,7 +717,7 @@ if ((NamespaceHintValueAcquired == false))
                 return;
             }
             // Everywhere there is a newline in the text, add an indent after it
-            textToAppend = textToAppend.Replace(global::System.Environment.NewLine, (global::System.Environment.NewLine + this.currentIndentField));
+            textToAppend = textToAppend.Replace("\n", ("\n" + this.currentIndentField));
             // If the text ends with a newline, then we should strip off the indent added at the very end
             // because the appropriate indent will be added when the next time Write() is called
             if (this.endsWithNewline)
@@ -735,7 +735,7 @@ if ((NamespaceHintValueAcquired == false))
         public void WriteLine(string textToAppend)
         {
             this.Write(textToAppend);
-            this.GenerationEnvironment.AppendLine();
+            this.GenerationEnvironment.Append('\n');
             this.endsWithNewline = true;
         }
         /// <summary>

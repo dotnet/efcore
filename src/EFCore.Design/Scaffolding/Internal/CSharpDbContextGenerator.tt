@@ -112,7 +112,7 @@ public partial class <#= Options.ContextName #> : DbContext
 
         if (anyConfiguration)
         {
-            WriteLine("");
+            Write("\n");
         }
 
         var anyEntityTypeConfiguration = false;
@@ -146,7 +146,7 @@ public partial class <#= Options.ContextName #> : DbContext
 
             if (anyEntityTypeConfiguration)
             {
-                WriteLine("");
+                Write("\n");
             }
 #>
             entity<#= code.Fragment(entityTypeFluentApiCalls, indent: 4) #>;
@@ -159,7 +159,7 @@ public partial class <#= Options.ContextName #> : DbContext
         {
             if (anyEntityTypeConfiguration)
             {
-                WriteLine("");
+                Write("\n");
             }
 
             var indexFluentApiCalls = index.GetFluentApiCalls(annotationCodeGenerator);
@@ -188,7 +188,7 @@ public partial class <#= Options.ContextName #> : DbContext
 
             if (anyEntityTypeConfiguration && firstProperty)
             {
-                WriteLine("");
+                Write("\n");
             }
 #>
             entity.Property(e => e.<#= property.Name #>)<#= code.Fragment(propertyFluentApiCalls, indent: 4) #>;
@@ -210,7 +210,7 @@ public partial class <#= Options.ContextName #> : DbContext
 
             if (anyEntityTypeConfiguration)
             {
-                WriteLine("");
+                Write("\n");
             }
 #>
             entity.HasOne(d => d.<#= foreignKey.DependentToPrincipal.Name #>).<#= foreignKey.IsUnique ? "WithOne" : "WithMany" #>(<#= foreignKey.PrincipalToDependent != null ? $"p => p.{foreignKey.PrincipalToDependent.Name}" : "" #>)<#= code.Fragment(foreignKeyFluentApiCalls, indent: 4) #>;
@@ -222,7 +222,7 @@ public partial class <#= Options.ContextName #> : DbContext
         {
             if (anyEntityTypeConfiguration)
             {
-                WriteLine("");
+                Write("\n");
             }
 
             var left = skipNavigation.ForeignKey;
@@ -322,7 +322,7 @@ public partial class <#= Options.ContextName #> : DbContext
 
     if (anyConfiguration)
     {
-        WriteLine("");
+        Write("\n");
     }
 #>
         OnModelCreatingPartial(modelBuilder);
@@ -341,7 +341,7 @@ using <#= ns #>;
 <#
     }
 
-    WriteLine("");
+    Write("\n");
 
     GenerationEnvironment.Append(mainEnvironment);
 #>

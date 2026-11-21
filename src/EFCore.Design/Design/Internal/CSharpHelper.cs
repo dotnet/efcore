@@ -22,6 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal;
 /// </summary>
 public class CSharpHelper : ICSharpHelper
 {
+    private const int IndentSize = 4;
+
     private readonly ITypeMappingSource _typeMappingSource;
     private readonly Project _project;
     private readonly RuntimeModelLinqToCSharpSyntaxTranslator _translator;
@@ -44,6 +46,17 @@ public class CSharpHelper : ICSharpHelper
         var syntaxGenerator = SyntaxGenerator.GetGenerator(workspace, LanguageNames.CSharp);
         _translator = new RuntimeModelLinqToCSharpSyntaxTranslator(syntaxGenerator);
     }
+
+    /// <summary>
+    ///     The line terminator used by <see cref="Fragment(IMethodCallCodeFragment?, int)" />,
+    ///     <see cref="Fragment(NestedClosureCodeFragment, int)" /> and <see cref="XmlComment" />.
+    ///     Defaults to <see cref="Environment.NewLine" />.
+    /// </summary>
+    /// <remarks>
+    ///     This does not affect the vertical collection literals, which are built with <see cref="IndentedStringBuilder" />.
+    /// </remarks>
+    protected virtual string NewLine
+        => Environment.NewLine;
 
     private static readonly IReadOnlyCollection<string> Keywords =
     [
@@ -1367,7 +1380,7 @@ public class CSharpHelper : ICSharpHelper
             return string.Empty;
         }
 
-        var builder = new IndentedStringBuilder();
+        var builder = new StringBuilder();
 
         if (fragment.ChainedCall is null)
         {
@@ -1375,15 +1388,12 @@ public class CSharpHelper : ICSharpHelper
         }
         else
         {
-            for (var i = 0; i < indent; i++)
-            {
-                builder.IncrementIndent();
-            }
+            var indentString = new string(' ', indent * IndentSize);
 
             var current = fragment;
             do
             {
-                builder.AppendLine();
+                builder.Append(NewLine).Append(indentString);
                 AppendMethodCall(current);
 
                 current = current.ChainedCall;
@@ -1449,26 +1459,23 @@ public class CSharpHelper : ICSharpHelper
             return fragment.Parameter + " => " + fragment.Parameter + Fragment(fragment.MethodCalls[0], indent);
         }
 
-        var builder = new IndentedStringBuilder();
-        builder.AppendLine(fragment.Parameter + " =>");
-        for (var i = 0; i < indent - 1; i++)
+        var outerIndent = new string(' ', Math.Max(indent - 1, 0) * IndentSize);
+        var innerIndent = outerIndent + new string(' ', IndentSize);
+
+        var builder = new StringBuilder();
+        builder.Append(fragment.Parameter).Append(" =>").Append(NewLine);
+        builder.Append(outerIndent).Append('{').Append(NewLine);
+        foreach (var methodCall in fragment.MethodCalls)
         {
-            builder.IncrementIndent();
+            builder
+                .Append(innerIndent)
+                .Append(fragment.Parameter)
+                .Append(Fragment(methodCall, indent + 1))
+                .Append(';')
+                .Append(NewLine);
         }
 
-        builder.AppendLine("{");
-        using (builder.Indent())
-        {
-            foreach (var methodCall in fragment.MethodCalls)
-            {
-                builder
-                    .Append(fragment.Parameter)
-                    .Append(Fragment(methodCall, indent + 1));
-                builder.AppendLine(";");
-            }
-        }
-
-        builder.Append("}");
+        builder.Append(outerIndent).Append('}');
 
         return builder.ToString();
     }
@@ -1563,8 +1570,8 @@ public class CSharpHelper : ICSharpHelper
             if (!first)
             {
                 builder
-                    .AppendLine()
-                    .Append(' ', indent * 4)
+                    .Append(NewLine)
+                    .Append(' ', indent * IndentSize)
                     .Append("/// ");
             }
             else

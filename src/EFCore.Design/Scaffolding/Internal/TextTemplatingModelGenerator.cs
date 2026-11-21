@@ -87,7 +87,8 @@ public class TextTemplatingModelGenerator : TemplatedModelGenerator
                 CoreStrings.ArgumentPropertyNull(nameof(options.ConnectionString), nameof(options)), nameof(options));
         }
 
-        var host = new TextTemplatingEngineHost(_serviceProvider)
+        // Scaffolded code always uses LF line endings, regardless of platform.
+        var host = new TextTemplatingEngineHost(new LfCSharpHelperServiceProvider(_serviceProvider))
         {
             Session =
             {
