@@ -648,6 +648,66 @@ GROUP BY [r].[Id]
         }
     }
 
+    public override async Task Select_associate_collection_on_GroupBy_First(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_associate_collection_on_GroupBy_First(queryTrackingBehavior);
+
+        AssertSql(
+            """
+SELECT [r5].[Id], [r5].[Name], [r5].[c], [r5].[c0], [r5].[c1]
+FROM (
+    SELECT [r0].[Key]
+    FROM (
+        SELECT [r].[Id] % 2 AS [Key]
+        FROM [RootEntity] AS [r]
+    ) AS [r0]
+    GROUP BY [r0].[Key]
+) AS [r3]
+LEFT JOIN (
+    SELECT [r4].[Id], [r4].[Name], [r4].[c] AS [c], [r4].[c0] AS [c0], [r4].[c1] AS [c1], [r4].[Key]
+    FROM (
+        SELECT [r1].[Id], [r1].[Name], [r1].[c] AS [c], [r1].[c0] AS [c0], [r1].[c1] AS [c1], [r1].[Key], ROW_NUMBER() OVER(PARTITION BY [r1].[Key] ORDER BY [r1].[Id]) AS [row]
+        FROM (
+            SELECT [r2].[Id], [r2].[Name], [r2].[AssociateCollection] AS [c], [r2].[OptionalAssociate] AS [c0], [r2].[RequiredAssociate] AS [c1], [r2].[Id] % 2 AS [Key]
+            FROM [RootEntity] AS [r2]
+        ) AS [r1]
+        WHERE [r1].[Id] > 0
+    ) AS [r4]
+    WHERE [r4].[row] <= 1
+) AS [r5] ON [r3].[Key] = [r5].[Key] OR ([r3].[Key] IS NULL AND [r5].[Key] IS NULL)
+""");
+    }
+
+    public override async Task Select_associate_collection_Count_on_GroupBy_First()
+    {
+        await base.Select_associate_collection_Count_on_GroupBy_First();
+
+        AssertSql(
+            """
+SELECT [r5].[Id], [r5].[Name], [r5].[c], [r5].[c0], [r5].[c1]
+FROM (
+    SELECT [r0].[Key]
+    FROM (
+        SELECT [r].[Id] % 2 AS [Key]
+        FROM [RootEntity] AS [r]
+    ) AS [r0]
+    GROUP BY [r0].[Key]
+) AS [r3]
+LEFT JOIN (
+    SELECT [r4].[Id], [r4].[Name], [r4].[c] AS [c], [r4].[c0] AS [c0], [r4].[c1] AS [c1], [r4].[Key]
+    FROM (
+        SELECT [r1].[Id], [r1].[Name], [r1].[c] AS [c], [r1].[c0] AS [c0], [r1].[c1] AS [c1], [r1].[Key], ROW_NUMBER() OVER(PARTITION BY [r1].[Key] ORDER BY [r1].[Id]) AS [row]
+        FROM (
+            SELECT [r2].[Id], [r2].[Name], [r2].[AssociateCollection] AS [c], [r2].[OptionalAssociate] AS [c0], [r2].[RequiredAssociate] AS [c1], [r2].[Id] % 2 AS [Key]
+            FROM [RootEntity] AS [r2]
+        ) AS [r1]
+        WHERE [r1].[Id] > 0
+    ) AS [r4]
+    WHERE [r4].[row] <= 1
+) AS [r5] ON [r3].[Key] = [r5].[Key] OR ([r3].[Key] IS NULL AND [r5].[Key] IS NULL)
+""");
+    }
+
     #endregion Subquery
 
     #region Value types

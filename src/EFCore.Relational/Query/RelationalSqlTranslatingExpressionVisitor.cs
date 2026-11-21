@@ -1267,6 +1267,18 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
 
         if (complexProperty is not null)
         {
+            if (complexProperty.IsCollection && typeReference.Subquery is not null)
+            {
+                // A complex collection can't be bound over a single-result subquery, fail translation
+                // so that a projection of the collection can still be evaluated on the client.
+                AddTranslationErrorDetails(
+                    CoreStrings.QueryUnableToTranslateMember(member.Name, typeReference.StructuralType.DisplayName()));
+
+                expression = null;
+                property = null;
+                return false;
+            }
+
             expression = BindComplexProperty(typeReference, complexProperty);
             property = complexProperty;
             return true;
@@ -1423,10 +1435,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
 
             case { Subquery: { } subquery }:
             {
-                if (complexProperty.IsCollection)
-                {
-                    throw new InvalidOperationException("Complex collection binding over a subquery"); // TODO: #36296
-                }
+                Check.DebugAssert(!complexProperty.IsCollection, "Complex collections over a subquery are rejected in TryBindMember");
 
                 // Bind the complex property inside a copy of the single-result subquery, and make that copy project the complex type.
                 // Its properties are then bound as scalar subqueries (see BindProperty), and nested complex properties come back here.
