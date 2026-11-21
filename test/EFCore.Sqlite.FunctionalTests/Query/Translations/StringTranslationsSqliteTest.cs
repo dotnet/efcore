@@ -124,6 +124,42 @@ FROM "BasicTypesEntities" AS "b"
 
     #region IndexOf
 
+    [Theory]
+    [InlineData(StringComparison.CurrentCulture)]
+    [InlineData(StringComparison.CurrentCultureIgnoreCase)]
+    [InlineData(StringComparison.InvariantCulture)]
+    [InlineData(StringComparison.InvariantCultureIgnoreCase)]
+    [InlineData(StringComparison.Ordinal)]
+    [InlineData(StringComparison.OrdinalIgnoreCase)]
+    public virtual async Task IndexOf_with_StringComparison(StringComparison comparison)
+    {
+        await AssertTranslationFailed(
+            () => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.IndexOf("Sea", comparison) == 0)));
+
+        await AssertTranslationFailed(
+            () => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.IndexOf("Sea", EF.Constant(comparison)) == 0)));
+
+        AssertSql();
+    }
+
+    [Theory]
+    [InlineData(StringComparison.CurrentCulture)]
+    [InlineData(StringComparison.CurrentCultureIgnoreCase)]
+    [InlineData(StringComparison.InvariantCulture)]
+    [InlineData(StringComparison.InvariantCultureIgnoreCase)]
+    [InlineData(StringComparison.Ordinal)]
+    [InlineData(StringComparison.OrdinalIgnoreCase)]
+    public virtual async Task IndexOf_Char_with_StringComparison(StringComparison comparison)
+    {
+        await AssertTranslationFailed(
+            () => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.IndexOf('S', comparison) == 0)));
+
+        await AssertTranslationFailed(
+            () => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.IndexOf('S', EF.Constant(comparison)) == 0)));
+
+        AssertSql();
+    }
+
     public override async Task IndexOf()
     {
         await base.IndexOf();
