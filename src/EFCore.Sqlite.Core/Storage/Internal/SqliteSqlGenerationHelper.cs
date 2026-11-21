@@ -39,6 +39,15 @@ public class SqliteSqlGenerationHelper : RelationalSqlGenerationHelper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public override string? AffectedRowsCountStatement
+        => "SELECT changes()";
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public override string DelimitIdentifier(string name, string? schema)
         => base.DelimitIdentifier(name);
 
