@@ -650,6 +650,136 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
             elementSorter: e => e.Key);
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_through_navigation_with_distinct_count(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.EmployeeID)
+                .Select(g => new
+                {
+                    g.Key,
+                    Region = g.Max(o => o.Customer!.Region),
+                    Londons = g.Count(o => o.Customer!.City == "London"),
+                    Customers = g.Select(o => o.CustomerID).Distinct().Count()
+                }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_through_navigation_with_select_then_aggregate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OrderDetail>()
+                .GroupBy(od => od.OrderID)
+                .Select(g => new
+                {
+                    g.Key,
+                    MaxStock = g.Max(od => od.Product!.UnitsInStock),
+                    Stock = g.Select(od => (int?)od.Product!.UnitsInStock).Sum()
+                }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_through_navigation_with_where_then_count(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.EmployeeID)
+                .Select(g => new
+                {
+                    g.Key,
+                    Region = g.Max(o => o.Customer!.Region),
+                    Londons = g.Where(o => o.Customer!.City == "London").Count()
+                }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_through_navigation_with_predicate_after_select(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.EmployeeID)
+                .Select(g => new
+                {
+                    g.Key,
+                    Region = g.Max(o => o.Customer!.Region),
+                    Londons = g.Select(o => o.Customer!.City).Count(c => c == "London")
+                }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_through_navigation_with_distinct_count_over_navigation_value(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.EmployeeID)
+                .Select(g => new
+                {
+                    g.Key,
+                    Region = g.Max(o => o.Customer!.Region),
+                    Regions = g.Select(o => EF.Property<string?>(o.Customer!, nameof(Customer.Region))).Distinct().Count()
+                }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_through_navigation_with_distinct_count_over_navigation_entity(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.EmployeeID)
+                .Select(g => new
+                {
+                    g.Key,
+                    Region = g.Max(o => o.Customer!.Region),
+                    Customers = g.Select(o => o.Customer).Distinct().Count(),
+                    CustomersByName = g.Select(o => EF.Property<Customer>(o, nameof(Order.Customer))).Distinct().Count()
+                }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_through_navigation_with_where_over_key_then_count(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OrderDetail>()
+                .GroupBy(od => od.Quantity)
+                .Select(g => new
+                {
+                    g.Key,
+                    MaxStock = g.Max(od => od.Product.UnitsInStock),
+                    Covered = g.Where(od => od.Product.UnitsInStock >= g.Key).Count(),
+                    Short = g.Count(od => od.Product.UnitsInStock < g.Key)
+                }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_through_navigation_with_select_then_count(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.EmployeeID)
+                .Select(g => new
+                {
+                    g.Key,
+                    Region = g.Max(o => o.Customer!.Region),
+                    Regions = g.Select(o => o.Customer!.Region).Count(),
+                    LongRegions = g.Select(o => o.Customer!.Region).LongCount()
+                }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_through_navigation_with_nested_aggregate_in_where(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.EmployeeID)
+                .Select(g => new
+                {
+                    g.Key,
+                    Region = g.Max(o => o.Customer!.Region),
+                    LatestCity = g.Where(o => o.OrderID == g.Max(x => x.OrderID)).Select(o => o.Customer!.City).Max()
+                }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_with_aggregate_containing_complex_where(bool async)
         => AssertQuery(
             async,

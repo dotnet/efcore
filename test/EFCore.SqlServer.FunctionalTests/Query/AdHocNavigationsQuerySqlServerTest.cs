@@ -687,6 +687,29 @@ ORDER BY [p].[PersonId]
 """);
     }
 
+    public override async Task GroupBy_distinct_count_over_navigation_through_cast_beside_navigation_aggregate(bool async)
+    {
+        await base.GroupBy_distinct_count_over_navigation_through_cast_beside_navigation_aggregate(async);
+
+        AssertSql(
+            """
+SELECT [i].[GroupId] AS [Key], (
+    SELECT MAX([o].[Name])
+    FROM [Items] AS [i0]
+    INNER JOIN [Owner39648] AS [o] ON [i0].[OwnerId] = [o].[Id]
+    WHERE [i].[GroupId] = [i0].[GroupId]) AS [Owner], (
+    SELECT COUNT(*)
+    FROM (
+        SELECT DISTINCT [t].[Label]
+        FROM [Items] AS [i1]
+        LEFT JOIN [Tag39648] AS [t] ON [i1].[TagId] = [t].[Id]
+        WHERE [i].[GroupId] = [i1].[GroupId]
+    ) AS [s]) AS [Labels]
+FROM [Items] AS [i]
+GROUP BY [i].[GroupId]
+""");
+    }
+
     [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
