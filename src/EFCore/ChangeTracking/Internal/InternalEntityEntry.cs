@@ -274,7 +274,17 @@ public sealed partial class InternalEntityEntry : InternalEntryBase, IUpdateEntr
 
         if (EntityState == EntityState.Detached)
         {
-            StateManager.StartTracking(this);
+            try
+            {
+                StateManager.StartTracking(this);
+            }
+            catch
+            {
+                // Tracking failed, for example because of a key conflict, so the entry stays detached.
+                StateManager.CancelChangingState(this, newState);
+
+                throw;
+            }
         }
     }
 

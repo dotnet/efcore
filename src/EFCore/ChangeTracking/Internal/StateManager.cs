@@ -140,6 +140,23 @@ public class StateManager : IStateManager
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///
+    ///     Reverses the reference map changes made by <see cref="ChangingState" /> when starting to track a detached
+    ///     entry fails, for example because of a key conflict. It must only be called for an entry that is still
+    ///     <see cref="EntityState.Detached" />.
+    /// </summary>
+    public virtual void CancelChangingState(InternalEntityEntry entry, EntityState newState)
+    {
+        Check.DebugAssert(entry.EntityState == EntityState.Detached, "Entry must still be detached");
+
+        _entityReferenceMap.MoveToDetached(entry, newState);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual IValueGenerationManager ValueGenerationManager { get; }
 
@@ -576,14 +593,42 @@ public class StateManager : IStateManager
         Check.DebugAssert(existingEntry == null || existingEntry == entry, "Duplicate InternalEntityEntry");
 #endif
 
-        foreach (var key in entityType.GetKeys())
+        var registeredKeyCount = 0;
+        try
         {
-            GetOrCreateIdentityMap(key).Add(entry);
-        }
+            foreach (var key in entityType.GetKeys())
+            {
+                GetOrCreateIdentityMap(key).Add(entry);
+                registeredKeyCount++;
+            }
 
-        if (_internalEntityEntrySubscriber.SnapshotAndSubscribe(entry))
+            if (_internalEntityEntrySubscriber.SnapshotAndSubscribe(entry))
+            {
+                _needsUnsubscribe = true;
+            }
+        }
+        catch
         {
-            _needsUnsubscribe = true;
+            // Adding to an identity map throws when there is a key conflict. Don't leave the entry registered
+            // in the maps for the keys that did not conflict, since it is not going to be tracked.
+            // The map that threw did not register the entry, so only the ones before it are undone.
+            foreach (var key in entityType.GetKeys().Take(registeredKeyCount))
+            {
+                var identityMap = FindIdentityMap(key);
+                if (identityMap == null)
+                {
+                    continue;
+                }
+
+                identityMap.Remove(entry);
+
+                if (!key.IsPrimaryKey())
+                {
+                    RestoreDisplacedDeletedEntry(key, identityMap, entry);
+                }
+            }
+
+            throw;
         }
 
         if (!_hasServiceProperties && entry.EntityType.HasServiceProperties())
@@ -1015,7 +1060,60 @@ public class StateManager : IStateManager
         }
 
         identityMap.RemoveUsingRelationshipSnapshot(entry);
-        identityMap.Add(entry);
+
+        try
+        {
+            identityMap.Add(entry);
+        }
+        catch
+        {
+            // The new key value can't be used, for example because of a key conflict. The relationship snapshot
+            // still has the old key value, which stays pending until it is fixed, so keep the entry registered
+            // with it rather than leaving it in the context without being registered under any key.
+            identityMap.AddUsingRelationshipSnapshot(entry);
+
+            throw;
+        }
+    }
+
+    // Adding an entry to the map of an alternate key replaces a Deleted entry with the same key value, since the new entry is the
+    // one to be found while the old one waits to be deleted. That entry has to go back when the new entry doesn't get tracked.
+    // This is only called when tracking has failed, so searching for the entry is fine.
+    private void RestoreDisplacedDeletedEntry(IKey key, IIdentityMap identityMap, InternalEntityEntry failedEntry)
+    {
+        foreach (var deletedEntry in GetEntriesForState(deleted: true).ToList())
+        {
+            if (deletedEntry != failedEntry
+                && key.DeclaringEntityType.IsAssignableFrom(deletedEntry.EntityType)
+                && key.Properties.All(p => p.GetKeyValueComparer().Equals(deletedEntry[p], failedEntry[p]))
+                && identityMap.TryGetEntry(deletedEntry) == null)
+            {
+                identityMap.Add(deletedEntry);
+            }
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void CancelIdentityMapUpdate(InternalEntityEntry entry, IKey key)
+    {
+        if (entry.EntityState == EntityState.Detached)
+        {
+            return;
+        }
+
+        var identityMap = FindIdentityMap(key);
+        if (identityMap == null)
+        {
+            return;
+        }
+
+        identityMap.Remove(entry);
+        identityMap.AddUsingRelationshipSnapshot(entry);
     }
 
     /// <summary>

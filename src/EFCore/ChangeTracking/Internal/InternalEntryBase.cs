@@ -264,6 +264,13 @@ public abstract partial class InternalEntryBase : IInternalEntry
             }
         }
 
+        // Marking a detached entry as Modified snapshots the original values. If tracking then fails, the entry
+        // stays detached and must not keep them, since its values can still change before it is tracked again.
+        var clearOriginalValuesOnFailure = oldState == EntityState.Detached
+            && newState == EntityState.Modified
+            && modifyProperties
+            && _originalValues.IsEmpty;
+
         // The entity state can be Modified even if some properties are not modified so always
         // set all properties to modified if the entity state is explicitly set to Modified.
         if (newState == EntityState.Modified
@@ -331,7 +338,20 @@ public abstract partial class InternalEntryBase : IInternalEntry
 
         EntityState = oldState;
 
-        OnStateChanging(newState);
+        try
+        {
+            OnStateChanging(newState);
+        }
+        catch
+        {
+            if (clearOriginalValuesOnFailure)
+            {
+                _originalValues.Clear();
+                _stateData.FlagAllProperties(StructuralType.PropertyCount, PropertyFlag.Modified, flagged: false);
+            }
+
+            throw;
+        }
 
         if (newState == EntityState.Unchanged
             && EntityState == EntityState.Modified)
