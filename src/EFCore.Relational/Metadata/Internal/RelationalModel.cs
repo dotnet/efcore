@@ -1806,9 +1806,9 @@ public class RelationalModel : Annotatable, IRelationalModel
             var containerName = propertyBase switch
             {
                 IProperty { DeclaringType: IComplexType complexType } when complexType.IsMappedToJson()
-                    => complexType.GetContainerColumnName(),
+                    => complexType.GetContainerColumnName(StoreObjectIdentifier.Table(table.Name, table.Schema)),
                 IComplexProperty { ComplexType: var complexType } when complexType.IsMappedToJson()
-                    => complexType.GetContainerColumnName(),
+                    => complexType.GetContainerColumnName(StoreObjectIdentifier.Table(table.Name, table.Schema)),
                 _ => null
             };
 

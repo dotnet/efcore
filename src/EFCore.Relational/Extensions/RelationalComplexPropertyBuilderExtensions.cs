@@ -17,6 +17,12 @@ public static class RelationalComplexPropertyBuilderExtensions
     /// <param name="complexPropertyBuilder">The builder for the complex property being configured.</param>
     /// <param name="jsonColumnName">The name of the JSON column. If not specified, the complex property name is used.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    /// <remarks>
+    ///     If the complex property is declared on an owned type that shares a table or view with its owner and the column name
+    ///     is not specified, the name is prefixed in that table or view with the names of the ownership navigations.
+    ///     For example, a complex property <c>Location</c> on the owned <c>Order.ShippingAddress</c> is mapped to the
+    ///     <c>ShippingAddress_Location</c> column.
+    /// </remarks>
     public static ComplexPropertyBuilder ToJson(
         this ComplexPropertyBuilder complexPropertyBuilder,
         string? jsonColumnName = null)
@@ -25,7 +31,8 @@ public static class RelationalComplexPropertyBuilderExtensions
 
         var complexProperty = complexPropertyBuilder.Metadata;
 
-        complexProperty.ComplexType.SetContainerColumnName(jsonColumnName ?? complexProperty.Name);
+        // An empty name stands for the default one, see GetContainerColumnName
+        complexProperty.ComplexType.SetContainerColumnName(jsonColumnName ?? string.Empty);
 
         return complexPropertyBuilder;
     }
@@ -36,6 +43,12 @@ public static class RelationalComplexPropertyBuilderExtensions
     /// <param name="complexPropertyBuilder">The builder for the complex property being configured.</param>
     /// <param name="jsonColumnName">The name of the JSON column. If not specified, the complex property name is used.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    /// <remarks>
+    ///     If the complex property is declared on an owned type that shares a table or view with its owner and the column name
+    ///     is not specified, the name is prefixed in that table or view with the names of the ownership navigations.
+    ///     For example, a complex property <c>Location</c> on the owned <c>Order.ShippingAddress</c> is mapped to the
+    ///     <c>ShippingAddress_Location</c> column.
+    /// </remarks>
     public static ComplexPropertyBuilder<TComplex> ToJson<TComplex>(
         this ComplexPropertyBuilder<TComplex> complexPropertyBuilder,
         string? jsonColumnName = null)

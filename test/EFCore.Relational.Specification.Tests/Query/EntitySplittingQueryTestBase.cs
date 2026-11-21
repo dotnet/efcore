@@ -2191,6 +2191,106 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase, ICl
         }
     }
 
+    [Fact]
+    public virtual async Task Owned_reference_entity_splitting()
+    {
+        await InitializeContextFactoryAsync(mb => mb.Entity<OwnerOfSplit>(b =>
+        {
+            b.Property(e => e.Id).ValueGeneratedNever();
+            b.OwnsOne(
+                e => e.Owned, ob =>
+                {
+                    ob.SplitToTable("SplitOwnedDescription", t => t.Property(o => o.Description));
+                    ob.ComplexProperty(o => o.Address);
+                });
+        }));
+
+        using (var context = CreateContext())
+        {
+            context.AddRange(
+                new OwnerOfSplit
+                {
+                    Id = 1,
+                    Owned = new SplitOwned
+                    {
+                        Name = "Owned1",
+                        Description = "Description1",
+                        Address = new SplitOwnedAddress
+                        {
+                            Street = "1 Main St",
+                            City = "Sydney",
+                            Country = new SplitOwnedCountry { Name = "Australia", Code = "AU" }
+                        }
+                    }
+                },
+                new OwnerOfSplit
+                {
+                    Id = 2,
+                    Owned = new SplitOwned
+                    {
+                        Name = "Owned2",
+                        Description = "Description2",
+                        Address = new SplitOwnedAddress
+                        {
+                            Street = "2 Hauptstrasse",
+                            City = "Berlin",
+                            Country = new SplitOwnedCountry { Name = "Germany", Code = "DE" }
+                        }
+                    }
+                });
+
+            await context.SaveChangesAsync();
+        }
+
+        TestSqlLoggerFactory.Clear();
+
+        using (var context = CreateContext())
+        {
+            var owners = await context.Set<OwnerOfSplit>().OrderBy(e => e.Id).ToListAsync();
+
+            Assert.Collection(
+                owners,
+                o =>
+                {
+                    Assert.Equal("Description1", o.Owned.Description);
+                    Assert.Equal("Sydney", o.Owned.Address.City);
+                    Assert.Equal("AU", o.Owned.Address.Country.Code);
+                },
+                o =>
+                {
+                    Assert.Equal("Description2", o.Owned.Description);
+                    Assert.Equal("Berlin", o.Owned.Address.City);
+                    Assert.Equal("DE", o.Owned.Address.Country.Code);
+                });
+        }
+    }
+
+    protected class OwnerOfSplit
+    {
+        public int Id { get; set; }
+        public SplitOwned Owned { get; set; } = null!;
+    }
+
+    protected class SplitOwned
+    {
+        public string Name { get; set; } = null!;
+        public string Description { get; set; } = null!;
+        public SplitOwnedAddress Address { get; set; } = null!;
+    }
+
+    protected class SplitOwnedAddress
+    {
+        public string Street { get; set; } = null!;
+        public string City { get; set; } = null!;
+        public SplitOwnedCountry Country { get; set; } = null!;
+    }
+
+    protected class SplitOwnedCountry
+    {
+        public string Name { get; set; } = null!;
+        public string Code { get; set; } = null!;
+    }
+
     #region TestHelpers
 
     protected string NormalizeDelimitersInRawString(string sql)

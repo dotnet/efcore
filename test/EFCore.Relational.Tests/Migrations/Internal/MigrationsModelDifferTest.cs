@@ -12219,6 +12219,55 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             });
 
     [Fact]
+    public void Add_complex_property_on_owned_type()
+        => Execute(
+            common => common.Entity(
+                "Owner", b =>
+                {
+                    b.Property<int>("Id");
+                    b.OwnsOne("Owned", "Owned", o => o.Property<string>("Name"));
+                }),
+            _ => { },
+            target => target.Entity("Owner").OwnsOne(
+                "Owned", "Owned", o => o.ComplexProperty<Address>(
+                    "Shipping", c =>
+                    {
+                        c.IsRequired();
+                        c.Ignore(a => a.AddressLine2);
+                    })),
+            upOperations =>
+            {
+                var operation = Assert.IsType<AddColumnOperation>(Assert.Single(upOperations));
+                Assert.Equal("Owner", operation.Table);
+                Assert.Equal("Owned_Shipping_AddressLine1", operation.Name);
+            },
+            downOperations =>
+            {
+                var operation = Assert.IsType<DropColumnOperation>(Assert.Single(downOperations));
+                Assert.Equal("Owner", operation.Table);
+                Assert.Equal("Owned_Shipping_AddressLine1", operation.Name);
+            });
+
+    [Fact]
+    public void Convert_nested_owned_type_to_complex_property_on_owned_type()
+        => Execute(
+            common => common.Entity("Owner").Property<int>("Id"),
+            source => source.Entity("Owner").OwnsOne(
+                "Owned", "Owned", o =>
+                {
+                    o.Property<string>("Name");
+                    o.OwnsOne("Address", "Shipping", n => n.Property<string>("AddressLine1"));
+                }),
+            target => target.Entity("Owner").OwnsOne(
+                "Owned", "Owned", o =>
+                {
+                    o.Property<string>("Name");
+                    o.ComplexProperty<Address>("Shipping", c => c.Ignore(a => a.AddressLine2));
+                }),
+            Assert.Empty,
+            Assert.Empty);
+
+    [Fact]
     public void Add_ownership()
         => Execute(
             common => { },

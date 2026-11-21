@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -116,6 +117,607 @@ public class OwnedNavigationBuilder<
             DependentEntityType.Builder.PrimitiveCollection(
                 Check.NotNull(propertyExpression).GetMemberAccess(),
                 ConfigurationSource.Explicit)!.Metadata));
+
+    /// <summary>
+    ///     Configures a complex property of the owned entity type.
+    ///     If no property with the given name exists, then a new property will be added.
+    /// </summary>
+    /// <remarks>
+    ///     When adding a new property with this overload the property name must match the
+    ///     name of a CLR property or field on the complex type. This overload cannot be used to
+    ///     add a new shadow state complex property.
+    /// </remarks>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <param name="buildAction">An action that performs configuration of the property.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public new virtual OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ComplexProperty(
+        string propertyName,
+        Action<ComplexPropertyBuilder> buildAction)
+        => (OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>)base.ComplexProperty(propertyName, buildAction);
+
+    /// <summary>
+    ///     Configures a complex property of the owned entity type.
+    ///     If no property with the given name exists, then a new property will be added.
+    /// </summary>
+    /// <remarks>
+    ///     When adding a new property, if a property with the same name exists in the complex class
+    ///     then it will be added to the model. If no property exists in the complex class, then
+    ///     a new shadow state complex property will be added. A shadow state property is one that does not have a
+    ///     corresponding property in the complex class. The current value for the property is stored in
+    ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the complex class.
+    /// </remarks>
+    /// <typeparam name="TProperty">The type of the property to be configured.</typeparam>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <param name="buildAction">An action that performs configuration of the property.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public new virtual OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ComplexProperty
+        <[DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] TProperty>(
+        string propertyName,
+        Action<ComplexPropertyBuilder<TProperty>> buildAction)
+        where TProperty : notnull
+        => (OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>)base.ComplexProperty(propertyName, buildAction);
+
+    /// <summary>
+    ///     Configures a complex property of the owned entity type.
+    ///     If no property with the given name exists, then a new property will be added.
+    /// </summary>
+    /// <remarks>
+    ///     When adding a new property, if a property with the same name exists in the complex class
+    ///     then it will be added to the model. If no property exists in the complex class, then
+    ///     a new shadow state complex property will be added. A shadow state property is one that does not have a
+    ///     corresponding property in the complex class. The current value for the property is stored in
+    ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the complex class.
+    /// </remarks>
+    /// <typeparam name="TProperty">The type of the property to be configured.</typeparam>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <param name="complexTypeName">The name of the complex type.</param>
+    /// <param name="buildAction">An action that performs configuration of the property.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public new virtual OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ComplexProperty
+        <[DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] TProperty>(
+        string propertyName,
+        string complexTypeName,
+        Action<ComplexPropertyBuilder<TProperty>> buildAction)
+        where TProperty : notnull
+        => (OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>)base.ComplexProperty(propertyName, complexTypeName, buildAction);
+
+    /// <summary>
+    ///     Configures a complex property of the owned entity type.
+    ///     If no property with the given name exists, then a new property will be added.
+    /// </summary>
+    /// <remarks>
+    ///     When adding a new complex property, if a property with the same name exists in the complex class
+    ///     then it will be added to the model. If no property exists in the complex class, then
+    ///     a new shadow state complex property will be added. A shadow state property is one that does not have a
+    ///     corresponding property in the complex class. The current value for the property is stored in
+    ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the complex class.
+    /// </remarks>
+    /// <param name="propertyType">The type of the property to be configured.</param>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <param name="buildAction">An action that performs configuration of the property.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public new virtual OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ComplexProperty(
+        [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType,
+        string propertyName,
+        Action<ComplexPropertyBuilder> buildAction)
+        => (OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>)base.ComplexProperty(propertyType, propertyName, buildAction);
+
+    /// <summary>
+    ///     Configures a complex property of the owned entity type.
+    ///     If no property with the given name exists, then a new property will be added.
+    /// </summary>
+    /// <remarks>
+    ///     When adding a new complex property, if a property with the same name exists in the complex class
+    ///     then it will be added to the model. If no property exists in the complex class, then
+    ///     a new shadow state complex property will be added. A shadow state property is one that does not have a
+    ///     corresponding property in the complex class. The current value for the property is stored in
+    ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the complex class.
+    /// </remarks>
+    /// <param name="propertyType">The type of the property to be configured.</param>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <param name="complexTypeName">The name of the complex type.</param>
+    /// <param name="buildAction">An action that performs configuration of the property.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public new virtual OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ComplexProperty(
+        [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType,
+        string propertyName,
+        string complexTypeName,
+        Action<ComplexPropertyBuilder> buildAction)
+        => (OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>)
+            base.ComplexProperty(propertyType, propertyName, complexTypeName, buildAction);
+
+    /// <summary>
+    ///     Returns an object that can be used to configure a complex property of the owned entity type.
+    ///     If the specified property is not already part of the model, it will be added.
+    /// </summary>
+    /// <param name="propertyExpression">
+    ///     A lambda expression representing the property to be configured (
+    ///     <c>blog => blog.Url</c>).
+    /// </param>
+    /// <returns>An object that can be used to configure the complex property.</returns>
+    public virtual ComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
+        Expression<Func<TDependentEntity, TProperty?>> propertyExpression)
+        where TProperty : notnull
+    {
+        Check.NotNull(propertyExpression);
+
+        var memberChain = propertyExpression.GetMemberAccessChain(nameof(propertyExpression));
+        var (innerBuilder, leafMember) = DependentEntityType.Builder.ResolveComplexChain(memberChain);
+        return new ComplexPropertyBuilder<TProperty>(
+            innerBuilder.ComplexProperty(
+                leafMember, complexTypeName: null, collection: false, ConfigurationSource.Explicit)!.Metadata);
+    }
+
+    /// <summary>
+    ///     Returns an object that can be used to configure a complex property of the owned entity type.
+    ///     If the specified property is not already part of the model, it will be added.
+    /// </summary>
+    /// <param name="propertyExpression">
+    ///     A lambda expression representing the property to be configured (
+    ///     <c>blog => blog.Url</c>).
+    /// </param>
+    /// <param name="complexTypeName">The name of the complex type.</param>
+    /// <returns>An object that can be used to configure the complex property.</returns>
+    public virtual ComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
+        Expression<Func<TDependentEntity, TProperty?>> propertyExpression,
+        string complexTypeName)
+        where TProperty : notnull
+    {
+        Check.NotNull(propertyExpression);
+        Check.NotEmpty(complexTypeName);
+
+        var memberChain = propertyExpression.GetMemberAccessChain(nameof(propertyExpression));
+        var (innerBuilder, leafMember) = DependentEntityType.Builder.ResolveComplexChain(memberChain);
+        return new ComplexPropertyBuilder<TProperty>(
+            innerBuilder.ComplexProperty(
+                leafMember, complexTypeName, collection: false, ConfigurationSource.Explicit)!.Metadata);
+    }
+
+    /// <summary>
+    ///     Configures a complex property of the owned entity type.
+    ///     If the specified property is not already part of the model, it will be added.
+    /// </summary>
+    /// <param name="propertyExpression">
+    ///     A lambda expression representing the property to be configured (
+    ///     <c>blog => blog.Url</c>).
+    /// </param>
+    /// <param name="buildAction">An action that performs configuration of the property.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public virtual OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ComplexProperty<TProperty>(
+        Expression<Func<TDependentEntity, TProperty?>> propertyExpression,
+        Action<ComplexPropertyBuilder<TProperty>> buildAction)
+        where TProperty : notnull
+    {
+        Check.NotNull(buildAction);
+
+        buildAction(ComplexProperty(propertyExpression));
+
+        return this;
+    }
+
+    /// <summary>
+    ///     Configures a complex property of the owned entity type.
+    ///     If the specified property is not already part of the model, it will be added.
+    /// </summary>
+    /// <param name="propertyExpression">
+    ///     A lambda expression representing the property to be configured (
+    ///     <c>blog => blog.Url</c>).
+    /// </param>
+    /// <param name="complexTypeName">The name of the complex type.</param>
+    /// <param name="buildAction">An action that performs configuration of the property.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public virtual OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ComplexProperty<TProperty>(
+        Expression<Func<TDependentEntity, TProperty?>> propertyExpression,
+        string complexTypeName,
+        Action<ComplexPropertyBuilder<TProperty>> buildAction)
+        where TProperty : notnull
+    {
+        Check.NotNull(buildAction);
+
+        buildAction(ComplexProperty(propertyExpression, complexTypeName));
+
+        return this;
+    }
+
+    /// <summary>
+    ///     Returns an object that can be used to configure a complex property of the owned entity type.
+    ///     If the specified property is not already part of the model, it will be added.
+    /// </summary>
+    /// <param name="propertyExpression">
+    ///     A lambda expression representing the property to be configured (
+    ///     <c>blog => blog.Url</c>).
+    /// </param>
+    /// <returns>An object that can be used to configure the complex property.</returns>
+    public virtual ComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
+        Expression<Func<TDependentEntity, TProperty?>> propertyExpression)
+        where TProperty : struct
+    {
+        Check.NotNull(propertyExpression);
+
+        var memberChain = propertyExpression.GetMemberAccessChain(nameof(propertyExpression));
+        var (innerBuilder, leafMember) = DependentEntityType.Builder.ResolveComplexChain(memberChain);
+        return new ComplexPropertyBuilder<TProperty>(
+            innerBuilder.ComplexProperty(
+                leafMember, complexTypeName: null, collection: false, ConfigurationSource.Explicit)!.Metadata);
+    }
+
+    /// <summary>
+    ///     Returns an object that can be used to configure a complex property of the owned entity type.
+    ///     If the specified property is not already part of the model, it will be added.
+    /// </summary>
+    /// <param name="propertyExpression">
+    ///     A lambda expression representing the property to be configured (
+    ///     <c>blog => blog.Url</c>).
+    /// </param>
+    /// <param name="complexTypeName">The name of the complex type.</param>
+    /// <returns>An object that can be used to configure the complex property.</returns>
+    public virtual ComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
+        Expression<Func<TDependentEntity, TProperty?>> propertyExpression,
+        string complexTypeName)
+        where TProperty : struct
+    {
+        Check.NotNull(propertyExpression);
+        Check.NotEmpty(complexTypeName);
+
+        var memberChain = propertyExpression.GetMemberAccessChain(nameof(propertyExpression));
+        var (innerBuilder, leafMember) = DependentEntityType.Builder.ResolveComplexChain(memberChain);
+        return new ComplexPropertyBuilder<TProperty>(
+            innerBuilder.ComplexProperty(
+                leafMember, complexTypeName, collection: false, ConfigurationSource.Explicit)!.Metadata);
+    }
+
+    /// <summary>
+    ///     Configures a complex property of the owned entity type.
+    ///     If the specified property is not already part of the model, it will be added.
+    /// </summary>
+    /// <param name="propertyExpression">
+    ///     A lambda expression representing the property to be configured (
+    ///     <c>blog => blog.Url</c>).
+    /// </param>
+    /// <param name="buildAction">An action that performs configuration of the property.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public virtual OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ComplexProperty<TProperty>(
+        Expression<Func<TDependentEntity, TProperty?>> propertyExpression,
+        Action<ComplexPropertyBuilder<TProperty>> buildAction)
+        where TProperty : struct
+    {
+        Check.NotNull(buildAction);
+
+        buildAction(ComplexProperty(propertyExpression));
+
+        return this;
+    }
+
+    /// <summary>
+    ///     Configures a complex property of the owned entity type.
+    ///     If the specified property is not already part of the model, it will be added.
+    /// </summary>
+    /// <param name="propertyExpression">
+    ///     A lambda expression representing the property to be configured (
+    ///     <c>blog => blog.Url</c>).
+    /// </param>
+    /// <param name="complexTypeName">The name of the complex type.</param>
+    /// <param name="buildAction">An action that performs configuration of the property.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public virtual OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ComplexProperty<TProperty>(
+        Expression<Func<TDependentEntity, TProperty?>> propertyExpression,
+        string complexTypeName,
+        Action<ComplexPropertyBuilder<TProperty>> buildAction)
+        where TProperty : struct
+    {
+        Check.NotNull(buildAction);
+
+        buildAction(ComplexProperty(propertyExpression, complexTypeName));
+
+        return this;
+    }
+
+    /// <summary>
+    ///     Configures a complex collection of the owned entity type.
+    ///     If no property with the given name exists, then a new property will be added.
+    /// </summary>
+    /// <remarks>
+    ///     When adding a new property with this overload the property name must match the
+    ///     name of a CLR property or field on the complex type. This overload cannot be used to
+    ///     add a new shadow state complex property.
+    /// </remarks>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <param name="buildAction">An action that performs configuration of the property.</param>
+    /// <returns>An object that can be used to configure the property.</returns>
+    public new virtual OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ComplexCollection(
+        string propertyName,
+        Action<ComplexCollectionBuilder> buildAction)
+        => (OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>)base.ComplexCollection(propertyName, buildAction);
+
+    /// <summary>
+    ///     Configures a complex collection of the owned entity type.
+    ///     If no property with the given name exists, then a new property will be added.
+    /// </summary>
+    /// <remarks>
+    ///     When adding a new property, if a property with the same name exists in the complex class
+    ///     then it will be added to the model. If no property exists in the complex class, then
+    ///     a new shadow state complex property will be added. A shadow state property is one that does not have a
+    ///     corresponding property in the complex class. The current value for the property is stored in
+    ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the complex class.
+    /// </remarks>
+    /// <typeparam name="TProperty">The type of the property to be configured.</typeparam>
+    /// <typeparam name="TElement">The element type.</typeparam>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <param name="buildAction">An action that performs configuration of the property.</param>
+    /// <returns>An object that can be used to configure the property.</returns>
+    public new virtual OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ComplexCollection
+        <[DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] TProperty, TElement>(
+        string propertyName,
+        Action<ComplexCollectionBuilder<TElement>> buildAction)
+        where TProperty : IEnumerable<TElement>
+        where TElement : notnull
+        => (OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>)base.ComplexCollection<TProperty, TElement>(propertyName, buildAction);
+
+    /// <summary>
+    ///     Configures a complex collection of the owned entity type.
+    ///     If no property with the given name exists, then a new property will be added.
+    /// </summary>
+    /// <remarks>
+    ///     When adding a new property, if a property with the same name exists in the complex class
+    ///     then it will be added to the model. If no property exists in the complex class, then
+    ///     a new shadow state complex property will be added. A shadow state property is one that does not have a
+    ///     corresponding property in the complex class. The current value for the property is stored in
+    ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the complex class.
+    /// </remarks>
+    /// <typeparam name="TProperty">The type of the property to be configured.</typeparam>
+    /// <typeparam name="TElement">The element type.</typeparam>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <param name="complexTypeName">The name of the complex type.</param>
+    /// <param name="buildAction">An action that performs configuration of the property.</param>
+    /// <returns>An object that can be used to configure the property.</returns>
+    public new virtual OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ComplexCollection
+        <[DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] TProperty, TElement>(
+        string propertyName,
+        string complexTypeName,
+        Action<ComplexCollectionBuilder<TElement>> buildAction)
+        where TProperty : IEnumerable<TElement>
+        where TElement : notnull
+        => (OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>)
+            base.ComplexCollection<TProperty, TElement>(propertyName, complexTypeName, buildAction);
+
+    /// <summary>
+    ///     Configures a complex collection of the owned entity type.
+    ///     If no property with the given name exists, then a new property will be added.
+    /// </summary>
+    /// <remarks>
+    ///     When adding a new complex property, if a property with the same name exists in the complex class
+    ///     then it will be added to the model. If no property exists in the complex class, then
+    ///     a new shadow state complex property will be added. A shadow state property is one that does not have a
+    ///     corresponding property in the complex class. The current value for the property is stored in
+    ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the complex class.
+    /// </remarks>
+    /// <param name="propertyType">The type of the property to be configured.</param>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <param name="buildAction">An action that performs configuration of the property.</param>
+    /// <returns>An object that can be used to configure the property.</returns>
+    public new virtual OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ComplexCollection(
+        [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType,
+        string propertyName,
+        Action<ComplexCollectionBuilder> buildAction)
+        => (OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>)base.ComplexCollection(propertyType, propertyName, buildAction);
+
+    /// <summary>
+    ///     Configures a complex collection of the owned entity type.
+    ///     If no property with the given name exists, then a new property will be added.
+    /// </summary>
+    /// <remarks>
+    ///     When adding a new complex property, if a property with the same name exists in the complex class
+    ///     then it will be added to the model. If no property exists in the complex class, then
+    ///     a new shadow state complex property will be added. A shadow state property is one that does not have a
+    ///     corresponding property in the complex class. The current value for the property is stored in
+    ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the complex class.
+    /// </remarks>
+    /// <param name="propertyType">The type of the property to be configured.</param>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <param name="complexTypeName">The name of the complex type.</param>
+    /// <param name="buildAction">An action that performs configuration of the property.</param>
+    /// <returns>An object that can be used to configure the property.</returns>
+    public new virtual OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ComplexCollection(
+        [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType,
+        string propertyName,
+        string complexTypeName,
+        Action<ComplexCollectionBuilder> buildAction)
+        => (OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>)
+            base.ComplexCollection(propertyType, propertyName, complexTypeName, buildAction);
+
+    /// <summary>
+    ///     Returns an object that can be used to configure a complex collection property of the owned entity type.
+    ///     If the specified property is not already part of the model, it will be added.
+    /// </summary>
+    /// <typeparam name="TElement">The element type.</typeparam>
+    /// <param name="propertyExpression">
+    ///     A lambda expression representing the property to be configured (
+    ///     <c>blog => blog.Url</c>).
+    /// </param>
+    /// <returns>An object that can be used to configure the complex collection property.</returns>
+    public virtual ComplexCollectionBuilder<TElement> ComplexCollection<TElement>(
+        Expression<Func<TDependentEntity, IEnumerable<TElement?>?>> propertyExpression)
+        where TElement : notnull
+    {
+        Check.NotNull(propertyExpression);
+
+        var memberChain = propertyExpression.GetMemberAccessChain(nameof(propertyExpression));
+        var (innerBuilder, leafMember) = DependentEntityType.Builder.ResolveComplexChain(memberChain);
+        return new ComplexCollectionBuilder<TElement>(
+            innerBuilder.ComplexProperty(
+                leafMember, complexTypeName: null, collection: true, ConfigurationSource.Explicit)!.Metadata);
+    }
+
+    /// <summary>
+    ///     Returns an object that can be used to configure a complex collection property of the owned entity type.
+    ///     If the specified property is not already part of the model, it will be added.
+    /// </summary>
+    /// <typeparam name="TElement">The element type.</typeparam>
+    /// <param name="propertyExpression">
+    ///     A lambda expression representing the property to be configured (
+    ///     <c>blog => blog.Url</c>).
+    /// </param>
+    /// <param name="complexTypeName">The name of the complex type.</param>
+    /// <returns>An object that can be used to configure the complex collection property.</returns>
+    public virtual ComplexCollectionBuilder<TElement> ComplexCollection<TElement>(
+        Expression<Func<TDependentEntity, IEnumerable<TElement?>?>> propertyExpression,
+        string complexTypeName)
+        where TElement : notnull
+    {
+        Check.NotNull(propertyExpression);
+        Check.NotEmpty(complexTypeName);
+
+        var memberChain = propertyExpression.GetMemberAccessChain(nameof(propertyExpression));
+        var (innerBuilder, leafMember) = DependentEntityType.Builder.ResolveComplexChain(memberChain);
+        return new ComplexCollectionBuilder<TElement>(
+            innerBuilder.ComplexProperty(
+                leafMember, complexTypeName, collection: true, ConfigurationSource.Explicit)!.Metadata);
+    }
+
+    /// <summary>
+    ///     Configures a complex collection property of the owned entity type.
+    ///     If the specified property is not already part of the model, it will be added.
+    /// </summary>
+    /// <typeparam name="TElement">The element type.</typeparam>
+    /// <param name="propertyExpression">
+    ///     A lambda expression representing the property to be configured (
+    ///     <c>blog => blog.Url</c>).
+    /// </param>
+    /// <param name="buildAction">An action that performs configuration of the property.</param>
+    /// <returns>An object that can be used to configure the complex collection property.</returns>
+    public virtual OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ComplexCollection<TElement>(
+        Expression<Func<TDependentEntity, IEnumerable<TElement?>?>> propertyExpression,
+        Action<ComplexCollectionBuilder<TElement>> buildAction)
+        where TElement : notnull
+    {
+        Check.NotNull(buildAction);
+
+        buildAction(ComplexCollection(propertyExpression));
+
+        return this;
+    }
+
+    /// <summary>
+    ///     Configures a complex collection property of the owned entity type.
+    ///     If the specified property is not already part of the model, it will be added.
+    /// </summary>
+    /// <param name="propertyExpression">
+    ///     A lambda expression representing the property to be configured (
+    ///     <c>blog => blog.Url</c>).
+    /// </param>
+    /// <typeparam name="TElement">The element type.</typeparam>
+    /// <param name="complexTypeName">The name of the complex type.</param>
+    /// <param name="buildAction">An action that performs configuration of the property.</param>
+    /// <returns>An object that can be used to configure the complex collection property.</returns>
+    public virtual OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ComplexCollection<TElement>(
+        Expression<Func<TDependentEntity, IEnumerable<TElement?>?>> propertyExpression,
+        string complexTypeName,
+        Action<ComplexCollectionBuilder<TElement>> buildAction)
+        where TElement : notnull
+    {
+        Check.NotNull(buildAction);
+
+        buildAction(ComplexCollection(propertyExpression, complexTypeName));
+
+        return this;
+    }
+
+    /// <summary>
+    ///     Returns an object that can be used to configure a complex collection property of the owned entity type.
+    ///     If the specified property is not already part of the model, it will be added.
+    /// </summary>
+    /// <typeparam name="TElement">The element type.</typeparam>
+    /// <param name="propertyExpression">
+    ///     A lambda expression representing the property to be configured (
+    ///     <c>blog => blog.Url</c>).
+    /// </param>
+    /// <returns>An object that can be used to configure the complex collection property.</returns>
+    public virtual ComplexCollectionBuilder<TElement> ComplexCollection<TElement>(
+        Expression<Func<TDependentEntity, IEnumerable<TElement?>?>> propertyExpression)
+        where TElement : struct
+    {
+        Check.NotNull(propertyExpression);
+
+        var memberChain = propertyExpression.GetMemberAccessChain(nameof(propertyExpression));
+        var (innerBuilder, leafMember) = DependentEntityType.Builder.ResolveComplexChain(memberChain);
+        return new ComplexCollectionBuilder<TElement>(
+            innerBuilder.ComplexProperty(
+                leafMember, complexTypeName: null, collection: true, ConfigurationSource.Explicit)!.Metadata);
+    }
+
+    /// <summary>
+    ///     Returns an object that can be used to configure a complex collection property of the owned entity type.
+    ///     If the specified property is not already part of the model, it will be added.
+    /// </summary>
+    /// <typeparam name="TElement">The element type.</typeparam>
+    /// <param name="propertyExpression">
+    ///     A lambda expression representing the property to be configured (
+    ///     <c>blog => blog.Url</c>).
+    /// </param>
+    /// <param name="complexTypeName">The name of the complex type.</param>
+    /// <returns>An object that can be used to configure the complex collection property.</returns>
+    public virtual ComplexCollectionBuilder<TElement> ComplexCollection<TElement>(
+        Expression<Func<TDependentEntity, IEnumerable<TElement?>?>> propertyExpression,
+        string complexTypeName)
+        where TElement : struct
+    {
+        Check.NotNull(propertyExpression);
+        Check.NotEmpty(complexTypeName);
+
+        var memberChain = propertyExpression.GetMemberAccessChain(nameof(propertyExpression));
+        var (innerBuilder, leafMember) = DependentEntityType.Builder.ResolveComplexChain(memberChain);
+        return new ComplexCollectionBuilder<TElement>(
+            innerBuilder.ComplexProperty(
+                leafMember, complexTypeName, collection: true, ConfigurationSource.Explicit)!.Metadata);
+    }
+
+    /// <summary>
+    ///     Configures a complex collection property of the owned entity type.
+    ///     If the specified property is not already part of the model, it will be added.
+    /// </summary>
+    /// <typeparam name="TElement">The element type.</typeparam>
+    /// <param name="propertyExpression">
+    ///     A lambda expression representing the property to be configured (
+    ///     <c>blog => blog.Url</c>).
+    /// </param>
+    /// <param name="buildAction">An action that performs configuration of the property.</param>
+    /// <returns>An object that can be used to configure the complex collection property.</returns>
+    public virtual OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ComplexCollection<TElement>(
+        Expression<Func<TDependentEntity, IEnumerable<TElement?>?>> propertyExpression,
+        Action<ComplexCollectionBuilder<TElement>> buildAction)
+        where TElement : struct
+    {
+        Check.NotNull(buildAction);
+
+        buildAction(ComplexCollection(propertyExpression));
+
+        return this;
+    }
+
+    /// <summary>
+    ///     Configures a complex collection property of the owned entity type.
+    ///     If the specified property is not already part of the model, it will be added.
+    /// </summary>
+    /// <param name="propertyExpression">
+    ///     A lambda expression representing the property to be configured (
+    ///     <c>blog => blog.Url</c>).
+    /// </param>
+    /// <typeparam name="TElement">The element type.</typeparam>
+    /// <param name="complexTypeName">The name of the complex type.</param>
+    /// <param name="buildAction">An action that performs configuration of the property.</param>
+    /// <returns>An object that can be used to configure the complex collection property.</returns>
+    public virtual OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ComplexCollection<TElement>(
+        Expression<Func<TDependentEntity, IEnumerable<TElement?>?>> propertyExpression,
+        string complexTypeName,
+        Action<ComplexCollectionBuilder<TElement>> buildAction)
+        where TElement : struct
+    {
+        Check.NotNull(buildAction);
+
+        buildAction(ComplexCollection(propertyExpression, complexTypeName));
+
+        return this;
+    }
 
     /// <summary>
     ///     Returns an object that can be used to configure an existing navigation property

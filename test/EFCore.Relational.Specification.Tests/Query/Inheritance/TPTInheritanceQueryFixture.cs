@@ -38,6 +38,11 @@ public abstract class TPTInheritanceQueryFixture : InheritanceQueryRelationalFix
         modelBuilder.Entity<Lilt>().Property(e => e.SugarGrams).HasColumnName("SugarGrams");
         modelBuilder.Entity<Tea>().Property(e => e.CaffeineGrams).HasColumnName("CaffeineGrams");
 
+        if (EnableComplexTypes)
+        {
+            modelBuilder.Entity<Manufacturer>().UseTptMappingStrategy();
+        }
+
         // Keyless entities are mapped to TPH so ignoring them
         modelBuilder.Ignore<AnimalQuery>();
         modelBuilder.Ignore<BirdQuery>();

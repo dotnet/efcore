@@ -14,7 +14,7 @@ public class InheritanceContext(DbContextOptions options) : PoolableDbContext(op
     public DbSet<Tea> Tea { get; set; } = null!;
     public DbSet<Plant> Plants { get; set; } = null!;
 
-    public static Task SeedAsync(InheritanceContext context, bool useGeneratedKeys)
+    public static Task SeedAsync(InheritanceContext context, bool useGeneratedKeys, bool enableComplexTypes)
     {
         var animals = InheritanceData.CreateAnimals(useGeneratedKeys);
         var countries = InheritanceData.CreateCountries();
@@ -27,6 +27,12 @@ public class InheritanceContext(DbContextOptions options) : PoolableDbContext(op
         context.Countries.AddRange(countries);
         context.Drinks.AddRange(drinks);
         context.Plants.AddRange(plants);
+
+        // The manufacturers are only mapped when complex types are enabled, since their owned types contain complex properties
+        if (enableComplexTypes)
+        {
+            context.AddRange(InheritanceData.CreateManufacturers());
+        }
 
         return context.SaveChangesAsync();
     }
