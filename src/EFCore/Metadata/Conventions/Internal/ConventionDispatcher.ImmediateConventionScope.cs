@@ -434,17 +434,17 @@ public partial class ConventionDispatcher
         }
 
         public override IConventionAnnotation? OnComplexTypeAnnotationChanged(
-            IConventionComplexTypeBuilder complexTypeBuilder,
+            IConventionComplexTypeBuilder propertyBuilder,
             string name,
             IConventionAnnotation? annotation,
             IConventionAnnotation? oldAnnotation)
         {
-            if (!complexTypeBuilder.Metadata.IsInModel)
+            if (!propertyBuilder.Metadata.IsInModel)
             {
                 return null;
             }
 #if DEBUG
-            var initialValue = complexTypeBuilder.Metadata[name];
+            var initialValue = propertyBuilder.Metadata[name];
 #endif
             using (dispatcher.DelayConventions())
             {
@@ -452,21 +452,21 @@ public partial class ConventionDispatcher
                 foreach (var complexTypeConvention in conventionSet.ComplexTypeAnnotationChangedConventions)
                 {
                     complexTypeConvention.ProcessComplexTypeAnnotationChanged(
-                        complexTypeBuilder, name, annotation, oldAnnotation, _annotationConventionContext);
+                        propertyBuilder, name, annotation, oldAnnotation, _annotationConventionContext);
                     if (_annotationConventionContext.ShouldStopProcessing())
                     {
                         return _annotationConventionContext.Result;
                     }
 #if DEBUG
                     Check.DebugAssert(
-                        complexTypeBuilder.Metadata.IsInModel
-                        && initialValue == complexTypeBuilder.Metadata[name],
+                        propertyBuilder.Metadata.IsInModel
+                        && initialValue == propertyBuilder.Metadata[name],
                         $"Convention {complexTypeConvention.GetType().Name} changed value without terminating");
 #endif
                 }
             }
 
-            return !complexTypeBuilder.Metadata.IsInModel ? null : annotation;
+            return !propertyBuilder.Metadata.IsInModel ? null : annotation;
         }
 
         public override IConventionComplexPropertyBuilder? OnComplexPropertyAdded(

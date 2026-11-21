@@ -77,17 +77,7 @@ public static class SqlitePropertyExtensions
 
         var table = storeObject;
         var sharedProperty = property.FindSharedStoreObjectRootProperty(storeObject);
-        return sharedProperty != null
-            ? sharedProperty.GetValueGenerationStrategy(storeObject, typeMappingSource) == SqliteValueGenerationStrategy.Autoincrement
-            && storeObject.StoreObjectType == StoreObjectType.Table
-            && !property.GetContainingForeignKeys().Any(fk =>
-                !fk.IsBaseLinking()
-                || (StoreObjectIdentifier.Create(fk.PrincipalEntityType, StoreObjectType.Table)
-                        is { } principal
-                    && fk.GetConstraintName(table, principal) != null))
-                ? SqliteValueGenerationStrategy.Autoincrement
-                : SqliteValueGenerationStrategy.None
-            : GetDefaultValueGenerationStrategy(property, storeObject, typeMappingSource);
+        return sharedProperty != null ? sharedProperty.GetValueGenerationStrategy(storeObject, typeMappingSource) == SqliteValueGenerationStrategy.Autoincrement && storeObject.StoreObjectType == StoreObjectType.Table && !property.GetContainingForeignKeys().Any(fk => !fk.IsBaseLinking() || (StoreObjectIdentifier.Create(fk.PrincipalEntityType, StoreObjectType.Table) is { } principal && fk.GetConstraintName(table, principal) != null)) ? SqliteValueGenerationStrategy.Autoincrement : SqliteValueGenerationStrategy.None : GetDefaultValueGenerationStrategy(property, storeObject, typeMappingSource);
     }
 
     private static SqliteValueGenerationStrategy GetDefaultValueGenerationStrategy(

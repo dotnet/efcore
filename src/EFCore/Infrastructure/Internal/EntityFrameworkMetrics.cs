@@ -111,11 +111,11 @@ public sealed class EntityFrameworkMetrics
             unit: "{savechanges}");
         _compiledQueryCacheHitsCounter = meter.CreateObservableCounter(
             CompiledQueryCacheHitsInstrumentName,
-            () => (long)EntityFrameworkMetricsData.GetCompiledQueryCacheHitRate().hits,
+            () => (long)EntityFrameworkMetricsData.GetCompiledQueryCacheHitRate().Hits,
             unit: "{hits}");
         _compiledQueryCacheMissesCounter = meter.CreateObservableCounter(
             CompiledQueryCacheMissesInstrumentName,
-            () => (long)EntityFrameworkMetricsData.GetCompiledQueryCacheHitRate().misses,
+            () => (long)EntityFrameworkMetricsData.GetCompiledQueryCacheHitRate().Misses,
             unit: "{misses}");
         _executionStrategyOperationFailuresCounter = meter.CreateObservableCounter(
             ExecutionStrategyFailuresInstrumentName,

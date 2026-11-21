@@ -386,10 +386,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         {
             public override Type Type { get; } = typeof(int);
 
-            public override bool Equals(object? left, object? right)
+            public override bool Equals(object? x, object? y)
                 => throw new NotImplementedException();
 
-            public override int GetHashCode(object? instance)
+            public override int GetHashCode(object? obj)
                 => throw new NotImplementedException();
 
             public override object Snapshot(object? instance)

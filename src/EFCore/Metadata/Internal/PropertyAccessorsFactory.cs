@@ -338,14 +338,7 @@ public class PropertyAccessorsFactory
             memberAccess = instanceExpression.MakeMemberAccess(memberInfo);
         }
 
-        return !addNullCheck
-            || (instanceExpression.Type.IsValueType
-                && !instanceExpression.Type.IsNullableValueType())
-                ? memberAccess
-                : Expression.Condition(
-                    Expression.Equal(instanceExpression, Expression.Constant(null)),
-                    Expression.Default(memberInfo.GetMemberType()),
-                    memberAccess);
+        return !addNullCheck || (instanceExpression.Type.IsValueType && !instanceExpression.Type.IsNullableValueType()) ? memberAccess : Expression.Condition( Expression.Equal(instanceExpression, Expression.Constant(null)), Expression.Default(memberInfo.GetMemberType()), memberAccess);
     }
 
     private static readonly MethodInfo ComplexCollectionNotInitializedMethod

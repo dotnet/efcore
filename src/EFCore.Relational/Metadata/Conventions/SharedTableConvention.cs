@@ -47,12 +47,12 @@ public class SharedTableConvention : IModelFinalizingConvention
         TryUniquifyTableNames(modelBuilder.Metadata, tables, maxLength);
 
         var columns = new Dictionary<string, IConventionProperty>();
-        var keys = new Dictionary<string, (IConventionKey, StoreObjectIdentifier)>();
-        var foreignKeys = new Dictionary<string, (IConventionForeignKey, StoreObjectIdentifier)>();
-        var indexes = new Dictionary<string, (IConventionIndex, StoreObjectIdentifier)>();
-        var checkConstraints = new Dictionary<(string, string?), (IConventionCheckConstraint, StoreObjectIdentifier)>();
-        var defaultConstraints = new Dictionary<(string, string?), (IConventionProperty, StoreObjectIdentifier)>();
-        var triggers = new Dictionary<string, (IConventionTrigger, StoreObjectIdentifier)>();
+        var keys = new Dictionary<string, (IConventionKey Key, StoreObjectIdentifier StoreObject)>();
+        var foreignKeys = new Dictionary<string, (IConventionForeignKey ForeignKey, StoreObjectIdentifier StoreObject)>();
+        var indexes = new Dictionary<string, (IConventionIndex Index, StoreObjectIdentifier StoreObject)>();
+        var checkConstraints = new Dictionary<(string Name, string? Schema), (IConventionCheckConstraint Constraint, StoreObjectIdentifier StoreObject)>();
+        var defaultConstraints = new Dictionary<(string Name, string? Schema), (IConventionProperty Property, StoreObjectIdentifier StoreObject)>();
+        var triggers = new Dictionary<string, (IConventionTrigger Trigger, StoreObjectIdentifier StoreObject)>();
         foreach (var schemaGroup in tables.GroupBy(t => t.Key.Schema).OrderBy(g => g.Key))
         {
             if (!KeysUniqueAcrossSchemas)
@@ -382,7 +382,7 @@ public class SharedTableConvention : IModelFinalizingConvention
 
     private void UniquifyKeyNames(
         IConventionEntityType entityType,
-        Dictionary<string, (IConventionKey, StoreObjectIdentifier)> keys,
+        Dictionary<string, (IConventionKey Key, StoreObjectIdentifier StoreObject)> keys,
         in StoreObjectIdentifier storeObject,
         int maxLength)
     {
@@ -441,7 +441,7 @@ public class SharedTableConvention : IModelFinalizingConvention
     private static string? TryUniquify(
         IConventionKey key,
         string keyName,
-        Dictionary<string, (IConventionKey, StoreObjectIdentifier)> keys,
+        Dictionary<string, (IConventionKey Key, StoreObjectIdentifier StoreObject)> keys,
         int maxLength)
     {
         if (key.Builder.CanSetName(null))
@@ -456,7 +456,7 @@ public class SharedTableConvention : IModelFinalizingConvention
 
     private void UniquifyIndexNames(
         IConventionEntityType entityType,
-        Dictionary<string, (IConventionIndex, StoreObjectIdentifier)> indexes,
+        Dictionary<string, (IConventionIndex Index, StoreObjectIdentifier StoreObject)> indexes,
         in StoreObjectIdentifier storeObject,
         int maxLength)
     {
@@ -513,7 +513,7 @@ public class SharedTableConvention : IModelFinalizingConvention
     private static string? TryUniquify(
         IConventionIndex index,
         string indexName,
-        Dictionary<string, (IConventionIndex, StoreObjectIdentifier)> indexes,
+        Dictionary<string, (IConventionIndex Index, StoreObjectIdentifier StoreObject)> indexes,
         int maxLength)
     {
         if (index.Builder.CanSetDatabaseName(null))
@@ -528,7 +528,7 @@ public class SharedTableConvention : IModelFinalizingConvention
 
     private void UniquifyForeignKeyNames(
         IConventionEntityType entityType,
-        Dictionary<string, (IConventionForeignKey, StoreObjectIdentifier)> foreignKeys,
+        Dictionary<string, (IConventionForeignKey ForeignKey, StoreObjectIdentifier StoreObject)> foreignKeys,
         in StoreObjectIdentifier storeObject,
         int maxLength)
     {
@@ -606,7 +606,7 @@ public class SharedTableConvention : IModelFinalizingConvention
     private static string? TryUniquify(
         IConventionForeignKey foreignKey,
         string foreignKeyName,
-        Dictionary<string, (IConventionForeignKey, StoreObjectIdentifier)> foreignKeys,
+        Dictionary<string, (IConventionForeignKey ForeignKey, StoreObjectIdentifier StoreObject)> foreignKeys,
         int maxLength)
     {
         if (foreignKey.Builder.CanSetConstraintName(null))
@@ -621,7 +621,7 @@ public class SharedTableConvention : IModelFinalizingConvention
 
     private void UniquifyCheckConstraintNames(
         IConventionEntityType entityType,
-        Dictionary<(string, string?), (IConventionCheckConstraint, StoreObjectIdentifier)> checkConstraints,
+        Dictionary<(string Name, string? Schema), (IConventionCheckConstraint Constraint, StoreObjectIdentifier StoreObject)> checkConstraints,
         in StoreObjectIdentifier storeObject,
         int maxLength)
     {
@@ -679,7 +679,7 @@ public class SharedTableConvention : IModelFinalizingConvention
         IConventionCheckConstraint checkConstraint,
         string checkConstraintName,
         string? schema,
-        Dictionary<(string, string?), (IConventionCheckConstraint, StoreObjectIdentifier)> checkConstraints,
+        Dictionary<(string Name, string? Schema), (IConventionCheckConstraint Constraint, StoreObjectIdentifier StoreObject)> checkConstraints,
         int maxLength)
     {
         if (checkConstraint.Builder.CanSetName(null))
@@ -694,7 +694,7 @@ public class SharedTableConvention : IModelFinalizingConvention
 
     private void UniquifyDefaultConstraintNames(
         IConventionEntityType entityType,
-        Dictionary<(string, string?), (IConventionProperty, StoreObjectIdentifier)> defaultConstraints,
+        Dictionary<(string Name, string? Schema), (IConventionProperty Property, StoreObjectIdentifier StoreObject)> defaultConstraints,
         in StoreObjectIdentifier storeObject,
         int maxLength)
     {
@@ -762,7 +762,7 @@ public class SharedTableConvention : IModelFinalizingConvention
         IConventionProperty property,
         string constraintName,
         string? schema,
-        Dictionary<(string, string?), (IConventionProperty, StoreObjectIdentifier)> defaultConstraints,
+        Dictionary<(string Name, string? Schema), (IConventionProperty Property, StoreObjectIdentifier StoreObject)> defaultConstraints,
         in StoreObjectIdentifier storeObject,
         int maxLength)
     {
@@ -795,7 +795,7 @@ public class SharedTableConvention : IModelFinalizingConvention
 
     private void UniquifyTriggerNames(
         IConventionEntityType entityType,
-        Dictionary<string, (IConventionTrigger, StoreObjectIdentifier)> triggers,
+        Dictionary<string, (IConventionTrigger Trigger, StoreObjectIdentifier StoreObject)> triggers,
         in StoreObjectIdentifier storeObject,
         int maxLength)
     {
@@ -852,7 +852,7 @@ public class SharedTableConvention : IModelFinalizingConvention
     private static string? TryUniquify(
         IConventionTrigger trigger,
         string triggerName,
-        Dictionary<string, (IConventionTrigger, StoreObjectIdentifier)> triggers,
+        Dictionary<string, (IConventionTrigger Trigger, StoreObjectIdentifier StoreObject)> triggers,
         int maxLength)
     {
         if (trigger.Builder.CanSetDatabaseName(null))

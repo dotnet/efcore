@@ -20,16 +20,7 @@ public static class CosmosNumberProjectionTypeMapping
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static CosmosTypeMapping CreateFromType(Type type)
-        => type == typeof(int) ? CosmosNumberProjectionTypeMapping<int>.Default
-            : type == typeof(long) ? CosmosNumberProjectionTypeMapping<long>.Default
-            : type == typeof(short) ? CosmosNumberProjectionTypeMapping<short>.Default
-            : type == typeof(sbyte) ? CosmosNumberProjectionTypeMapping<sbyte>.Default
-            : type == typeof(float) ? CosmosNumberProjectionTypeMapping<float>.Default
-            : type == typeof(uint) ? CosmosNumberProjectionTypeMapping<uint>.Default
-            : type == typeof(ulong) ? CosmosNumberProjectionTypeMapping<ulong>.Default
-            : type == typeof(ushort) ? CosmosNumberProjectionTypeMapping<ushort>.Default
-            : type == typeof(byte) ? CosmosNumberProjectionTypeMapping<byte>.Default
-            : throw new InvalidOperationException($"Unsupported numeric type mapping: '{type}'.");
+        => type == typeof(int) ? CosmosNumberProjectionTypeMapping<int>.Default : type == typeof(long) ? CosmosNumberProjectionTypeMapping<long>.Default : type == typeof(short) ? CosmosNumberProjectionTypeMapping<short>.Default : type == typeof(sbyte) ? CosmosNumberProjectionTypeMapping<sbyte>.Default : type == typeof(float) ? CosmosNumberProjectionTypeMapping<float>.Default : type == typeof(uint) ? CosmosNumberProjectionTypeMapping<uint>.Default : type == typeof(ulong) ? CosmosNumberProjectionTypeMapping<ulong>.Default : type == typeof(ushort) ? CosmosNumberProjectionTypeMapping<ushort>.Default : type == typeof(byte) ? CosmosNumberProjectionTypeMapping<byte>.Default : throw new InvalidOperationException($"Unsupported numeric type mapping: '{type}'.");
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

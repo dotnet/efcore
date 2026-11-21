@@ -19,7 +19,7 @@ public readonly struct QueryableJsonProjectionInfo
     /// </summary>
     public QueryableJsonProjectionInfo(
         Dictionary<IPropertyBase, int> propertyIndexMap,
-        List<(JsonProjectionInfo, INavigation)> childrenProjectionInfo)
+        List<(JsonProjectionInfo JsonProjectionInfo, INavigation Navigation)> childrenProjectionInfo)
     {
         PropertyIndexMap = propertyIndexMap;
         ChildrenProjectionInfo = childrenProjectionInfo;

@@ -455,11 +455,11 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
     /// <inheritdoc />
     protected override void ProcessComplexPropertyAnnotations(
         Dictionary<string, object?> annotations,
-        IComplexProperty complexProperty,
-        RuntimeComplexProperty runtimeComplexProperty,
+        IComplexProperty property,
+        RuntimeComplexProperty runtimeProperty,
         bool runtime)
     {
-        base.ProcessComplexPropertyAnnotations(annotations, complexProperty, runtimeComplexProperty, runtime);
+        base.ProcessComplexPropertyAnnotations(annotations, property, runtimeProperty, runtime);
 
         if (runtime)
         {

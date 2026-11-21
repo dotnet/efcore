@@ -112,15 +112,15 @@ public class JsonReaderDataTest
                 : throw new ArgumentOutOfRangeException(nameof(maxBytesPerRead));
         }
 
-        public override int Read(Span<byte> destination)
+        public override int Read(Span<byte> buffer)
         {
             if (_position >= _buffer.Length)
             {
                 return 0;
             }
 
-            var bytesToRead = Math.Min(destination.Length, Math.Min(_maxBytesPerRead, _buffer.Length - _position));
-            _buffer.Span.Slice(_position, bytesToRead).CopyTo(destination);
+            var bytesToRead = Math.Min(buffer.Length, Math.Min(_maxBytesPerRead, _buffer.Length - _position));
+            _buffer.Span.Slice(_position, bytesToRead).CopyTo(buffer);
             _position += bytesToRead;
             return bytesToRead;
         }

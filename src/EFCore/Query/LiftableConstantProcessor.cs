@@ -234,26 +234,26 @@ public class LiftableConstantProcessor : ExpressionVisitor, ILiftableConstantPro
         return variableParameter;
     }
 
-    protected override Expression VisitBinary(BinaryExpression binaryExpression)
+    protected override Expression VisitBinary(BinaryExpression node)
     {
-        var left = Visit(binaryExpression.Left);
-        var right = Visit(binaryExpression.Right);
-        var conversion = (LambdaExpression?)Visit(binaryExpression.Conversion);
+        var left = Visit(node.Left);
+        var right = Visit(node.Right);
+        var conversion = (LambdaExpression?)Visit(node.Conversion);
 
-        return binaryExpression.NodeType is ExpressionType.Assign
+        return node.NodeType is ExpressionType.Assign
             && left is MemberExpression { Member: FieldInfo { IsInitOnly: true } } initFieldMember
                 ? initFieldMember.Assign(right)
-                : binaryExpression.Update(left, conversion, right);
+                : node.Update(left, conversion, right);
     }
 
 #if DEBUG
     // TODO: issue #33482 - we should properly deal with NTS types rather than disabling them here
     // especially using such a crude method
     [EntityFrameworkInternal]
-    protected override Expression VisitMember(MemberExpression memberExpression)
-        => memberExpression is { Expression: ConstantExpression, Type.Name: "SqlServerBytesReader" or "GaiaGeoReader" }
-            ? memberExpression
-            : base.VisitMember(memberExpression);
+    protected override Expression VisitMember(MemberExpression node)
+        => node is { Expression: ConstantExpression, Type.Name: "SqlServerBytesReader" or "GaiaGeoReader" }
+            ? node
+            : base.VisitMember(node);
 
     // issue #34760 - disabling the liftable constant verification because we sometimes are forced to
     // use them (when type mapping has custom converter but we can't reliably get the correct type mapping

@@ -18,26 +18,26 @@ public class TemporalPointInTimeQueryRewriter(DateTime pointInTime, List<Type> t
     // TODO: need model instead
     private readonly List<Type> _temporalEntityTypes = temporalEntityTypes;
 
-    protected override Expression VisitExtension(Expression extensionExpression)
-        => extensionExpression is EntityQueryRootExpression queryRootExpression
+    protected override Expression VisitExtension(Expression node)
+        => node is EntityQueryRootExpression queryRootExpression
             && queryRootExpression.EntityType.GetRootType().IsTemporal()
                 ? new TemporalAsOfQueryRootExpression(
                     queryRootExpression.QueryProvider!,
                     queryRootExpression.EntityType,
                     _pointInTime)
-                : base.VisitExtension(extensionExpression);
+                : base.VisitExtension(node);
 
-    protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+    protected override Expression VisitMethodCall(MethodCallExpression node)
     {
         // TODO: issue #25236 - also match named sets
         // in case we want to reuse this on queries that are not using AssertQuery infra
-        if (methodCallExpression.Method.IsGenericMethod
-            && methodCallExpression.Method.GetGenericMethodDefinition() == _setMethodInfo)
+        if (node.Method.IsGenericMethod
+            && node.Method.GetGenericMethodDefinition() == _setMethodInfo)
         {
-            var entityType = methodCallExpression.Method.GetGenericArguments()[0];
+            var entityType = node.Method.GetGenericArguments()[0];
             if (_temporalEntityTypes.Contains(entityType))
             {
-                var method = _asOfMethodInfo.MakeGenericMethod(methodCallExpression.Method.GetGenericArguments()[0]);
+                var method = _asOfMethodInfo.MakeGenericMethod(node.Method.GetGenericArguments()[0]);
 
                 // temporal methods are defined on DBSet so we need to hard cast here.
                 // This rewrite is only done for actual queries (and not expected), so the cast is safe to do
@@ -46,12 +46,12 @@ public class TemporalPointInTimeQueryRewriter(DateTime pointInTime, List<Type> t
                 return Expression.Call(
                     method,
                     Expression.Convert(
-                        methodCallExpression,
+                        node,
                         dbSetType),
                     Expression.Constant(_pointInTime));
             }
         }
 
-        return base.VisitMethodCall(methodCallExpression);
+        return base.VisitMethodCall(node);
     }
 }

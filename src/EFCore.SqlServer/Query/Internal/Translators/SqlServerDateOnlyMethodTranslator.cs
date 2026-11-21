@@ -105,22 +105,6 @@ public class SqlServerDateOnlyMethodTranslator(ISqlExpressionFactory sqlExpressi
             return sqlExpressionFactory.Constant(constant, typeof(int));
         }
 
-        return datepart == "fraction"
-            ? sqlExpressionFactory.Divide(
-                sqlExpressionFactory.Function(
-                    "DATEPART",
-                    [sqlExpressionFactory.Fragment("nanosecond"), argument],
-                    nullable: true,
-                    argumentsPropagateNullability: [true, true],
-                    typeof(int)
-                ),
-                sqlExpressionFactory.Constant(100, typeof(int))
-            )
-            : sqlExpressionFactory.Function(
-                "DATEPART",
-                [sqlExpressionFactory.Fragment(datepart), argument],
-                nullable: true,
-                argumentsPropagateNullability: [true, true],
-                typeof(int));
+        return datepart == "fraction" ? sqlExpressionFactory.Divide( sqlExpressionFactory.Function( "DATEPART", [sqlExpressionFactory.Fragment("nanosecond"), argument], nullable: true, argumentsPropagateNullability: [true, true], typeof(int) ), sqlExpressionFactory.Constant(100, typeof(int)) ) : sqlExpressionFactory.Function( "DATEPART", [sqlExpressionFactory.Fragment(datepart), argument], nullable: true, argumentsPropagateNullability: [true, true], typeof(int));
     }
 }

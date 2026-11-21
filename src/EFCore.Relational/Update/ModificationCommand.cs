@@ -190,13 +190,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
             _mainEntryAdded = true;
             _entries.Insert(0, entry);
 
-            _entityState = entry.SharedIdentityEntry == null
-                ? entry.EntityState
-                : entry.SharedIdentityEntry.EntityType == entry.EntityType
-                || entry.SharedIdentityEntry.EntityType.GetTableMappings()
-                    .Any(m => m.Table.Name == TableName && m.Table.Schema == Schema)
-                    ? EntityState.Modified
-                    : entry.EntityState;
+            _entityState = entry.SharedIdentityEntry == null ? entry.EntityState : entry.SharedIdentityEntry.EntityType == entry.EntityType || entry.SharedIdentityEntry.EntityType.GetTableMappings() .Any(m => m.Table.Name == TableName && m.Table.Schema == Schema) ? EntityState.Modified : entry.EntityState;
 
             // An optional entity-splitting fragment's row may not exist yet. If every non-key value mapped to it was
             // null when the entity was loaded, assume the row is absent and insert it rather than updating it.

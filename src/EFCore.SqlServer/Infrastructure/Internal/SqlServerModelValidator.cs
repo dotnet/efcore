@@ -940,21 +940,21 @@ public class SqlServerModelValidator(
     /// <inheritdoc />
     protected override void ThrowPropertyNotMappedException(
         string propertyType,
-        ITypeBase typeBase,
+        ITypeBase structuralType,
         IProperty unmappedProperty)
     {
         if (unmappedProperty.ClrType.FullName is "Microsoft.EntityFrameworkCore.HierarchyId"
                 or "Microsoft.SqlServer.Types.SqlHierarchyId"
-            || typeBase.ClrType.FullName is "Microsoft.EntityFrameworkCore.HierarchyId"
+            || structuralType.ClrType.FullName is "Microsoft.EntityFrameworkCore.HierarchyId"
                 or "Microsoft.SqlServer.Types.SqlHierarchyId")
         {
             throw new InvalidOperationException(
                 SqlServerStrings.PropertyNotMappedHierarchyId(
                     propertyType,
-                    typeBase.DisplayName(),
+                    structuralType.DisplayName(),
                     unmappedProperty.Name));
         }
 
-        base.ThrowPropertyNotMappedException(propertyType, typeBase, unmappedProperty);
+        base.ThrowPropertyNotMappedException(propertyType, structuralType, unmappedProperty);
     }
 }

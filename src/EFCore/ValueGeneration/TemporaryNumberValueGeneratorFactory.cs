@@ -23,9 +23,9 @@ public class TemporaryNumberValueGeneratorFactory : ValueGeneratorFactory
     ///     Creates a new value generator.
     /// </summary>
     /// <param name="property">The property to create the value generator for.</param>
-    /// <param name="entityType">The type for which the value generator will be used.</param>
+    /// <param name="typeBase">The type for which the value generator will be used.</param>
     /// <returns>The newly created value generator.</returns>
-    public override ValueGenerator Create(IProperty property, ITypeBase entityType)
+    public override ValueGenerator Create(IProperty property, ITypeBase typeBase)
     {
         var typeMapping = property.GetTypeMapping();
         var type = typeMapping.ClrType.UnwrapEnumType();

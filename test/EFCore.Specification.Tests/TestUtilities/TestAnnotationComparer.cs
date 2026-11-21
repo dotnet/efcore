@@ -26,12 +26,7 @@ public class TestAnnotationComparer : IEqualityComparer<IAnnotation>, IComparer<
 
     public bool Equals(IAnnotation? x, IAnnotation? y)
     {
-        return x == null
-            ? y == null
-            : y != null
-            && x.Name == y.Name
-            && (x.Name == CoreAnnotationNames.ValueGeneratorFactory
-                || CompareAnnotations());
+        return x == null ? y == null : y != null && x.Name == y.Name && (x.Name == CoreAnnotationNames.ValueGeneratorFactory || CompareAnnotations());
 
         bool CompareAnnotations()
         {

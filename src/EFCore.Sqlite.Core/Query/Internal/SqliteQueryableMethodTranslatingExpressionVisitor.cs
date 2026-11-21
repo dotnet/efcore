@@ -619,11 +619,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override string GetJsonElementColumnName(TableExpressionBase tableExpressionBase, string jsonPropertyName)
-        => tableExpressionBase is SelectExpression subquery
-            && subquery.Projection.FirstOrDefault(p => p.Expression is JsonScalarExpression { Path: [{ PropertyName: var propertyName }] }
-                && propertyName == jsonPropertyName) is { } projection
-                ? projection.Alias
-                : jsonPropertyName;
+        => tableExpressionBase is SelectExpression subquery && subquery.Projection.FirstOrDefault(p => p.Expression is JsonScalarExpression { Path: [{ PropertyName: var propertyName }] } && propertyName == jsonPropertyName) is { } projection ? projection.Alias : jsonPropertyName;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

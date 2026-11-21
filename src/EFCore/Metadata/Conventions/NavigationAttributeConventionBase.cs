@@ -208,8 +208,8 @@ public abstract class NavigationAttributeConventionBase<TAttribute>
         return navigations;
     }
 
-    private static void Sort(List<(PropertyInfo, Type)> navigations)
-        => navigations.Sort((x, y) => StringComparer.Ordinal.Compare(x.Item1.Name, y.Item1.Name));
+    private static void Sort(List<(PropertyInfo Property, Type Type)> navigations)
+        => navigations.Sort((x, y) => StringComparer.Ordinal.Compare(x.Property.Name, y.Property.Name));
 
     /// <summary>
     ///     Called after a navigation is added to the entity type.

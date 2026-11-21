@@ -972,15 +972,7 @@ public class RelationshipDiscoveryConvention :
             var removed = true;
             if (existingNavigation.ForeignKey.IsOwnership)
             {
-                removed = existingNavigation.IsOnDependent
-                    ? existingNavigation.ForeignKey.Builder.HasNavigation((string?)null, existingNavigation.IsOnDependent)
-                    != null
-                    : IsImplicitlyCreatedUnusedType(existingNavigation.TargetEntityType)
-                        ? declaringEntityType.Builder.ModelBuilder.HasNoEntityType(existingNavigation.TargetEntityType)
-                        != null
-                        : existingNavigation.ForeignKey.DeclaringEntityType.Builder
-                            .HasNoRelationship(existingNavigation.ForeignKey)
-                        != null;
+                removed = existingNavigation.IsOnDependent ? existingNavigation.ForeignKey.Builder.HasNavigation((string?)null, existingNavigation.IsOnDependent) != null : IsImplicitlyCreatedUnusedType(existingNavigation.TargetEntityType) ? declaringEntityType.Builder.ModelBuilder.HasNoEntityType(existingNavigation.TargetEntityType) != null : existingNavigation.ForeignKey.DeclaringEntityType.Builder .HasNoRelationship(existingNavigation.ForeignKey) != null;
             }
             else if (existingNavigation.ForeignKey.DeclaringEntityType.Builder
                          .HasNoRelationship(existingNavigation.ForeignKey)

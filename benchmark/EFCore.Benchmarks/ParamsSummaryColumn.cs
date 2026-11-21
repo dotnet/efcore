@@ -16,11 +16,11 @@ public class ParamsSummaryColumn : IColumn
 
     public string ColumnName { get; } = "Params";
 
-    public bool IsDefault(Summary summary, BenchmarkCase benchmark)
+    public bool IsDefault(Summary summary, BenchmarkCase benchmarkCase)
         => false;
 
-    public string GetValue(Summary summary, BenchmarkCase benchmark)
-        => benchmark.Parameters.DisplayInfo;
+    public string GetValue(Summary summary, BenchmarkCase benchmarkCase)
+        => benchmarkCase.Parameters.DisplayInfo;
 
     public bool IsAvailable(Summary summary)
         => true;
@@ -43,8 +43,8 @@ public class ParamsSummaryColumn : IColumn
     public UnitType UnitType
         => UnitType.Dimensionless;
 
-    public string GetValue(Summary summary, BenchmarkCase benchmark, SummaryStyle style)
-        => GetValue(summary, benchmark);
+    public string GetValue(Summary summary, BenchmarkCase benchmarkCase, SummaryStyle style)
+        => GetValue(summary, benchmarkCase);
 
     public string Legend
         => "Summary of all parameter values";

@@ -27,32 +27,7 @@ public static class RelationalKeyExtensions
     {
         var columnNames = key.Properties.GetColumnNames(storeObject);
         var duplicateColumnNames = duplicateKey.Properties.GetColumnNames(storeObject);
-        return columnNames == null
-            || duplicateColumnNames == null
-                ? shouldThrow
-                    ? throw new InvalidOperationException(
-                        RelationalStrings.DuplicateKeyTableMismatch(
-                            key.Properties.Format(),
-                            key.DeclaringEntityType.DisplayName(),
-                            duplicateKey.Properties.Format(),
-                            duplicateKey.DeclaringEntityType.DisplayName(),
-                            key.GetName(storeObject),
-                            key.DeclaringEntityType.GetSchemaQualifiedTableName(),
-                            duplicateKey.DeclaringEntityType.GetSchemaQualifiedTableName()))
-                    : false
-                : columnNames.SequenceEqual(duplicateColumnNames)
-                || (shouldThrow
-                    ? throw new InvalidOperationException(
-                        RelationalStrings.DuplicateKeyColumnMismatch(
-                            key.Properties.Format(),
-                            key.DeclaringEntityType.DisplayName(),
-                            duplicateKey.Properties.Format(),
-                            duplicateKey.DeclaringEntityType.DisplayName(),
-                            key.DeclaringEntityType.GetSchemaQualifiedTableName(),
-                            key.GetName(storeObject),
-                            key.Properties.FormatColumns(storeObject),
-                            duplicateKey.Properties.FormatColumns(storeObject)))
-                    : false);
+        return columnNames == null || duplicateColumnNames == null ? shouldThrow ? throw new InvalidOperationException( RelationalStrings.DuplicateKeyTableMismatch( key.Properties.Format(), key.DeclaringEntityType.DisplayName(), duplicateKey.Properties.Format(), duplicateKey.DeclaringEntityType.DisplayName(), key.GetName(storeObject), key.DeclaringEntityType.GetSchemaQualifiedTableName(), duplicateKey.DeclaringEntityType.GetSchemaQualifiedTableName())) : false : columnNames.SequenceEqual(duplicateColumnNames) || (shouldThrow ? throw new InvalidOperationException( RelationalStrings.DuplicateKeyColumnMismatch( key.Properties.Format(), key.DeclaringEntityType.DisplayName(), duplicateKey.Properties.Format(), duplicateKey.DeclaringEntityType.DisplayName(), key.DeclaringEntityType.GetSchemaQualifiedTableName(), key.GetName(storeObject), key.Properties.FormatColumns(storeObject), duplicateKey.Properties.FormatColumns(storeObject))) : false);
     }
 
     /// <summary>

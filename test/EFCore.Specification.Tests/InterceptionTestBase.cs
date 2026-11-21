@@ -43,7 +43,7 @@ public abstract class InterceptionTestBase(InterceptionTestBase.InterceptionFixt
         }
     }
 
-    protected async Task<(DbContext, TInterceptor)> CreateContextAsync<TInterceptor>(bool inject = false)
+    protected async Task<(DbContext Context, TInterceptor Interceptor)> CreateContextAsync<TInterceptor>(bool inject = false)
         where TInterceptor : class, IInterceptor, new()
     {
         var interceptor = new TInterceptor();
@@ -128,11 +128,11 @@ public abstract class InterceptionTestBase(InterceptionTestBase.InterceptionFixt
             }
         }
 
-        public void OnNext(DiagnosticListener listener)
+        public void OnNext(DiagnosticListener value)
         {
-            if (listener?.Name == DbLoggerCategory.Name)
+            if (value?.Name == DbLoggerCategory.Name)
             {
-                listener.Subscribe(this);
+                value.Subscribe(this);
             }
         }
 

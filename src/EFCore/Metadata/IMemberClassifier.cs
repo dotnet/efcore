@@ -104,11 +104,7 @@ public interface IMemberClassifier
         var annotationName = useAttributes
             ? CoreAnnotationNames.InverseNavigations
             : CoreAnnotationNames.InverseNavigationsNoAttribute;
-        return entityType.Model.FindAnnotation(annotationName)?.Value
-                is not Dictionary<Type, SortedSet<Type>> inverseCandidatesLookup
-            || !inverseCandidatesLookup.TryGetValue(entityType.ClrType, out var inverseCandidates)
-            ? Type.EmptyTypes
-            : inverseCandidates;
+        return entityType.Model.FindAnnotation(annotationName)?.Value is not Dictionary<Type, SortedSet<Type>> inverseCandidatesLookup || !inverseCandidatesLookup.TryGetValue(entityType.ClrType, out var inverseCandidates) ? Type.EmptyTypes : inverseCandidates;
     }
 
     /// <summary>

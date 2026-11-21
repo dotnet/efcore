@@ -20,25 +20,25 @@ public class SqliteQuerySqlGenerator(QuerySqlGeneratorDependencies dependencies)
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitExtension(Expression extensionExpression)
+    protected override Expression VisitExtension(Expression node)
     {
-        switch (extensionExpression)
+        switch (node)
         {
             case GlobExpression globExpression:
                 GenerateGlob(globExpression);
-                return extensionExpression;
+                return node;
 
             case RegexpExpression regexpExpression:
                 GenerateRegexp(regexpExpression);
-                return extensionExpression;
+                return node;
 
             case JsonEachExpression jsonEachExpression:
                 GenerateJsonEach(jsonEachExpression);
-                return extensionExpression;
+                return node;
 
             case SqliteAggregateFunctionExpression aggregateFunctionExpression:
                 GenerateAggregateFunction(aggregateFunctionExpression);
-                return extensionExpression;
+                return node;
 
             case MergeColumnReferenceExpression mergeColumnReference:
                 if (mergeColumnReference.FromExcluded)
@@ -47,10 +47,10 @@ public class SqliteQuerySqlGenerator(QuerySqlGeneratorDependencies dependencies)
                 }
 
                 Sql.Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(mergeColumnReference.ColumnName));
-                return extensionExpression;
+                return node;
 
             default:
-                return base.VisitExtension(extensionExpression);
+                return base.VisitExtension(node);
         }
     }
 

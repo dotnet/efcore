@@ -59,18 +59,7 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
         // Otherwise fall back to INSERT ... OUTPUT INTO @inserted; SELECT ... FROM @inserted.
         var table = StoreObjectIdentifier.Table(command.TableName, command.Schema);
 
-        return command.ColumnModifications.All(o =>
-            !o.IsKey
-            || !o.IsRead
-            || o.Property?.GetValueGenerationStrategy(table) == SqlServerValueGenerationStrategy.IdentityColumn)
-            ? AppendInsertAndSelectOperation(commandStringBuilder, command, commandPosition, out requiresTransaction)
-            : AppendInsertSingleRowWithOutputInto(
-                commandStringBuilder,
-                command,
-                command.ColumnModifications.Where(o => o.IsKey).ToList(),
-                command.ColumnModifications.Where(o => o.IsRead).ToList(),
-                commandPosition,
-                out requiresTransaction);
+        return command.ColumnModifications.All(o => !o.IsKey || !o.IsRead || o.Property?.GetValueGenerationStrategy(table) == SqlServerValueGenerationStrategy.IdentityColumn) ? AppendInsertAndSelectOperation(commandStringBuilder, command, commandPosition, out requiresTransaction) : AppendInsertSingleRowWithOutputInto( commandStringBuilder, command, command.ColumnModifications.Where(o => o.IsKey).ToList(), command.ColumnModifications.Where(o => o.IsRead).ToList(), commandPosition, out requiresTransaction);
     }
 
     /// <summary>
@@ -755,11 +744,7 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
     {
         var typeName = property.GetColumnType();
 
-        return property.ClrType == typeof(byte[])
-            && (typeName.Equals("rowversion", StringComparison.OrdinalIgnoreCase)
-                || typeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase))
-                ? property.IsNullable ? "varbinary(8)" : "binary(8)"
-                : typeName;
+        return property.ClrType == typeof(byte[]) && (typeName.Equals("rowversion", StringComparison.OrdinalIgnoreCase) || typeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase)) ? property.IsNullable ? "varbinary(8)" : "binary(8)" : typeName;
     }
 
     /// <summary>

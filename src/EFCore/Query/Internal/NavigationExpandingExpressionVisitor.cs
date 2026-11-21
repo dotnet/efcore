@@ -196,9 +196,9 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitExtension(Expression extensionExpression)
+    protected override Expression VisitExtension(Expression node)
     {
-        switch (extensionExpression)
+        switch (node)
         {
             case EntityQueryRootExpression entityQueryRootExpression:
                 var entityType = entityQueryRootExpression.EntityType;
@@ -254,10 +254,10 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             case NavigationExpansionExpression:
             case OwnedNavigationReference:
             case ComplexPropertyReference:
-                return extensionExpression;
+                return node;
 
             default:
-                return base.VisitExtension(extensionExpression);
+                return base.VisitExtension(node);
         }
     }
 
@@ -267,25 +267,25 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitMember(MemberExpression memberExpression)
+    protected override Expression VisitMember(MemberExpression node)
     {
-        var innerExpression = Visit(memberExpression.Expression);
+        var innerExpression = Visit(node.Expression);
 
         // Handler access of a complex collection property over a complex non-collection property
-        if (memberExpression.Expression is ComplexPropertyReference
+        if (node.Expression is ComplexPropertyReference
             {
                 Property: { IsCollection: false } complexProperty
             } complexPropertyReference
-            && complexProperty.ComplexType.FindComplexProperty(memberExpression.Member) is { } nestedComplexProperty)
+            && complexProperty.ComplexType.FindComplexProperty(node.Member) is { } nestedComplexProperty)
         {
-            return new ComplexPropertyReference(complexPropertyReference, nestedComplexProperty, memberExpression);
+            return new ComplexPropertyReference(complexPropertyReference, nestedComplexProperty, node);
         }
 
         // Convert ICollection<T>.Count to Count<T>()
-        if (memberExpression.Expression != null
+        if (node.Expression != null
             && innerExpression != null
-            && memberExpression.Member.Name == nameof(ICollection<>.Count)
-            && memberExpression.Expression.Type.GetInterfaces().Append(memberExpression.Expression.Type)
+            && node.Member.Name == nameof(ICollection<>.Count)
+            && node.Expression.Type.GetInterfaces().Append(node.Expression.Type)
                 .Any(e => e.IsGenericType
                     && e.GetGenericTypeDefinition() is var genericTypeDefinition
                     && (genericTypeDefinition == typeof(ICollection<>)
@@ -302,7 +302,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             }
         }
 
-        var updatedExpression = (Expression)memberExpression.Update(innerExpression);
+        var updatedExpression = (Expression)node.Update(innerExpression);
         if (innerExpression is NavigationExpansionExpression navigationExpansionExpression
             && navigationExpansionExpression.CardinalityReducingGenericMethodInfo != null)
         {
@@ -327,14 +327,14 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+    protected override Expression VisitMethodCall(MethodCallExpression node)
     {
-        var method = methodCallExpression.Method;
+        var method = node.Method;
         if (method.DeclaringType == typeof(Queryable) || method.DeclaringType == typeof(EntityFrameworkQueryableExtensions))
         {
             var genericMethod = method.IsGenericMethod ? method.GetGenericMethodDefinition() : null;
             // First argument is source
-            var firstArgument = Visit(methodCallExpression.Arguments[0]);
+            var firstArgument = Visit(node.Arguments[0]);
             if (firstArgument is NavigationExpansionExpression source)
             {
                 if (source.PendingOrderings.Any()
@@ -372,7 +372,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                         return ProcessAllAnyCountLongCount(
                             source,
                             genericMethod,
-                            methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
+                            node.Arguments[1].UnwrapLambdaFromQuote());
 
                     case nameof(Queryable.Average)
                         when QueryableMethods.IsAverageWithoutSelector(method):
@@ -398,7 +398,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                         return ProcessAverageMaxMinSum(
                             source,
                             genericMethod ?? method,
-                            methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
+                            node.Arguments[1].UnwrapLambdaFromQuote());
 
                     case nameof(Queryable.Distinct)
                         when genericMethod == QueryableMethods.Distinct:
@@ -411,13 +411,13 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                         return ProcessSkipTake(
                             source,
                             genericMethod,
-                            methodCallExpression.Arguments[1]);
+                            node.Arguments[1]);
 
                     case nameof(Queryable.Contains)
                         when genericMethod == QueryableMethods.Contains:
                         return ProcessContains(
                             source,
-                            methodCallExpression.Arguments[1]);
+                            node.Arguments[1]);
 
                     case nameof(Queryable.First)
                         when genericMethod == QueryableMethods.FirstWithoutPredicate:
@@ -435,7 +435,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                             source,
                             genericMethod,
                             predicate: null,
-                            methodCallExpression.Type);
+                            node.Type);
 
                     case nameof(Queryable.First)
                         when genericMethod == QueryableMethods.FirstWithPredicate:
@@ -452,8 +452,8 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                         return ProcessFirstSingleLastOrDefault(
                             source,
                             genericMethod,
-                            methodCallExpression.Arguments[1].UnwrapLambdaFromQuote(),
-                            methodCallExpression.Type);
+                            node.Arguments[1].UnwrapLambdaFromQuote(),
+                            node.Type);
 
                     case nameof(Queryable.ElementAt)
                         when genericMethod == QueryableMethods.ElementAt:
@@ -462,22 +462,22 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                         return ProcessElementAt(
                             source,
                             genericMethod,
-                            methodCallExpression.Arguments[1],
-                            methodCallExpression.Type);
+                            node.Arguments[1],
+                            node.Type);
 
                     case nameof(Queryable.Join)
                         when genericMethod == QueryableMethods.Join:
                     {
-                        var secondArgument = Visit(methodCallExpression.Arguments[1]);
+                        var secondArgument = Visit(node.Arguments[1]);
                         secondArgument = UnwrapCollectionMaterialization(secondArgument);
                         if (secondArgument is NavigationExpansionExpression innerSource)
                         {
                             return ProcessJoin(
                                 source,
                                 innerSource,
-                                methodCallExpression.Arguments[2].UnwrapLambdaFromQuote(),
-                                methodCallExpression.Arguments[3].UnwrapLambdaFromQuote(),
-                                methodCallExpression.Arguments[4].UnwrapLambdaFromQuote(),
+                                node.Arguments[2].UnwrapLambdaFromQuote(),
+                                node.Arguments[3].UnwrapLambdaFromQuote(),
+                                node.Arguments[4].UnwrapLambdaFromQuote(),
                                 QueryableMethods.Join);
                         }
 
@@ -487,16 +487,16 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                     case nameof(Queryable.LeftJoin)
                         when genericMethod == QueryableMethods.LeftJoin:
                     {
-                        var secondArgument = Visit(methodCallExpression.Arguments[1]);
+                        var secondArgument = Visit(node.Arguments[1]);
                         secondArgument = UnwrapCollectionMaterialization(secondArgument);
                         if (secondArgument is NavigationExpansionExpression innerSource)
                         {
                             return ProcessJoin(
                                 source,
                                 innerSource,
-                                methodCallExpression.Arguments[2].UnwrapLambdaFromQuote(),
-                                methodCallExpression.Arguments[3].UnwrapLambdaFromQuote(),
-                                methodCallExpression.Arguments[4].UnwrapLambdaFromQuote(),
+                                node.Arguments[2].UnwrapLambdaFromQuote(),
+                                node.Arguments[3].UnwrapLambdaFromQuote(),
+                                node.Arguments[4].UnwrapLambdaFromQuote(),
                                 QueryableMethods.LeftJoin);
                         }
 
@@ -506,16 +506,16 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                     case nameof(Queryable.RightJoin)
                         when genericMethod == QueryableMethods.RightJoin:
                     {
-                        var secondArgument = Visit(methodCallExpression.Arguments[1]);
+                        var secondArgument = Visit(node.Arguments[1]);
                         secondArgument = UnwrapCollectionMaterialization(secondArgument);
                         if (secondArgument is NavigationExpansionExpression innerSource)
                         {
                             return ProcessJoin(
                                 source,
                                 innerSource,
-                                methodCallExpression.Arguments[2].UnwrapLambdaFromQuote(),
-                                methodCallExpression.Arguments[3].UnwrapLambdaFromQuote(),
-                                methodCallExpression.Arguments[4].UnwrapLambdaFromQuote(),
+                                node.Arguments[2].UnwrapLambdaFromQuote(),
+                                node.Arguments[3].UnwrapLambdaFromQuote(),
+                                node.Arguments[4].UnwrapLambdaFromQuote(),
                                 QueryableMethods.RightJoin);
                         }
 
@@ -524,18 +524,18 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
 
                     case nameof(Queryable.FullJoin)
                         when genericMethod == QueryableMethods.FullJoin
-                        && methodCallExpression.Arguments[5] is ConstantExpression { Value: null }:
+                        && node.Arguments[5] is ConstantExpression { Value: null }:
                     {
-                        var secondArgument = Visit(methodCallExpression.Arguments[1]);
+                        var secondArgument = Visit(node.Arguments[1]);
                         secondArgument = UnwrapCollectionMaterialization(secondArgument);
                         if (secondArgument is NavigationExpansionExpression innerSource)
                         {
                             return ProcessJoin(
                                 source,
                                 innerSource,
-                                methodCallExpression.Arguments[2].UnwrapLambdaFromQuote(),
-                                methodCallExpression.Arguments[3].UnwrapLambdaFromQuote(),
-                                methodCallExpression.Arguments[4].UnwrapLambdaFromQuote(),
+                                node.Arguments[2].UnwrapLambdaFromQuote(),
+                                node.Arguments[3].UnwrapLambdaFromQuote(),
+                                node.Arguments[4].UnwrapLambdaFromQuote(),
                                 QueryableMethods.FullJoin);
                         }
 
@@ -546,15 +546,15 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                         when genericMethod == QueryableMethods.SelectManyWithoutCollectionSelector:
                         return ProcessSelectMany(
                             source,
-                            methodCallExpression.Arguments[1].UnwrapLambdaFromQuote(),
+                            node.Arguments[1].UnwrapLambdaFromQuote(),
                             null);
 
                     case nameof(Queryable.SelectMany)
                         when genericMethod == QueryableMethods.SelectManyWithCollectionSelector:
                         return ProcessSelectMany(
                             source,
-                            methodCallExpression.Arguments[1].UnwrapLambdaFromQuote(),
-                            methodCallExpression.Arguments[2].UnwrapLambdaFromQuote());
+                            node.Arguments[1].UnwrapLambdaFromQuote(),
+                            node.Arguments[2].UnwrapLambdaFromQuote());
 
                     case nameof(Queryable.Concat)
                         when genericMethod == QueryableMethods.Concat:
@@ -565,7 +565,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                     case nameof(Queryable.Union)
                         when genericMethod == QueryableMethods.Union:
                     {
-                        var secondArgument = Visit(methodCallExpression.Arguments[1]);
+                        var secondArgument = Visit(node.Arguments[1]);
                         secondArgument = UnwrapCollectionMaterialization(secondArgument);
                         if (secondArgument is NavigationExpansionExpression innerSource)
                         {
@@ -582,37 +582,37 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                         return ProcessCastOfType(
                             source,
                             genericMethod,
-                            methodCallExpression.Type.GetSequenceType());
+                            node.Type.GetSequenceType());
 
                     case nameof(EntityFrameworkQueryableExtensions.Include):
                         return ProcessInclude(
                             source,
-                            methodCallExpression.Arguments[1],
+                            node.Arguments[1],
                             thenInclude: false,
                             setLoaded: true);
 
                     case nameof(EntityFrameworkQueryableExtensions.ThenInclude):
                         return ProcessInclude(
                             source,
-                            methodCallExpression.Arguments[1],
+                            node.Arguments[1],
                             thenInclude: true,
                             setLoaded: true);
 
                     case nameof(EntityFrameworkQueryableExtensions.NotQuiteInclude):
                         return ProcessInclude(
                             source,
-                            methodCallExpression.Arguments[1],
+                            node.Arguments[1],
                             thenInclude: false,
                             setLoaded: false);
 
                     // Nothing to do (no arguments), the generic unknown method logic handles the source.
                     case nameof(EntityFrameworkQueryableExtensions.ExecuteDelete)
                         when genericMethod == EntityFrameworkQueryableExtensions.ExecuteDeleteMethodInfo:
-                        return ProcessUnknownMethod(methodCallExpression);
+                        return ProcessUnknownMethod(node);
 
                     case nameof(EntityFrameworkQueryableExtensions.ExecuteUpdate)
                         when genericMethod == EntityFrameworkQueryableExtensions.ExecuteUpdateMethodInfo:
-                        return ProcessExecuteUpdate(source, genericMethod, methodCallExpression.Arguments[1]);
+                        return ProcessExecuteUpdate(source, genericMethod, node.Arguments[1]);
 
                     // The source (arg 0) is expanded; the remaining arguments are [NotParameterized] data/selectors handled later
                     // during translation.
@@ -620,13 +620,13 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                         when genericMethod == EntityFrameworkQueryableExtensions.ExecuteMergeMethodInfo:
                     case nameof(EntityFrameworkQueryableExtensions.ExecuteMergeReturning)
                         when genericMethod == EntityFrameworkQueryableExtensions.ExecuteMergeReturningMethodInfo:
-                        return ProcessUnknownMethod(methodCallExpression);
+                        return ProcessUnknownMethod(node);
 
                     case nameof(Queryable.GroupBy)
                         when genericMethod == QueryableMethods.GroupByWithKeySelector:
                         return ProcessGroupBy(
                             source,
-                            methodCallExpression.Arguments[1].UnwrapLambdaFromQuote(),
+                            node.Arguments[1].UnwrapLambdaFromQuote(),
                             null,
                             null);
 
@@ -634,25 +634,25 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                         when genericMethod == QueryableMethods.GroupByWithKeyElementSelector:
                         return ProcessGroupBy(
                             source,
-                            methodCallExpression.Arguments[1].UnwrapLambdaFromQuote(),
-                            methodCallExpression.Arguments[2].UnwrapLambdaFromQuote(),
+                            node.Arguments[1].UnwrapLambdaFromQuote(),
+                            node.Arguments[2].UnwrapLambdaFromQuote(),
                             null);
 
                     case nameof(Queryable.GroupBy)
                         when genericMethod == QueryableMethods.GroupByWithKeyElementResultSelector:
                         return ProcessGroupBy(
                             source,
-                            methodCallExpression.Arguments[1].UnwrapLambdaFromQuote(),
-                            methodCallExpression.Arguments[2].UnwrapLambdaFromQuote(),
-                            methodCallExpression.Arguments[3].UnwrapLambdaFromQuote());
+                            node.Arguments[1].UnwrapLambdaFromQuote(),
+                            node.Arguments[2].UnwrapLambdaFromQuote(),
+                            node.Arguments[3].UnwrapLambdaFromQuote());
 
                     case nameof(Queryable.GroupBy)
                         when genericMethod == QueryableMethods.GroupByWithKeyResultSelector:
                         return ProcessGroupBy(
                             source,
-                            methodCallExpression.Arguments[1].UnwrapLambdaFromQuote(),
+                            node.Arguments[1].UnwrapLambdaFromQuote(),
                             null,
-                            methodCallExpression.Arguments[2].UnwrapLambdaFromQuote());
+                            node.Arguments[2].UnwrapLambdaFromQuote());
 
                     case nameof(Queryable.OrderBy)
                         when genericMethod == QueryableMethods.OrderBy:
@@ -661,7 +661,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                         return ProcessOrderByThenBy(
                             source,
                             genericMethod,
-                            methodCallExpression.Arguments[1].UnwrapLambdaFromQuote(),
+                            node.Arguments[1].UnwrapLambdaFromQuote(),
                             thenBy: false);
 
                     case nameof(Queryable.ThenBy)
@@ -671,7 +671,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                         return ProcessOrderByThenBy(
                             source,
                             genericMethod,
-                            methodCallExpression.Arguments[1].UnwrapLambdaFromQuote(),
+                            node.Arguments[1].UnwrapLambdaFromQuote(),
                             thenBy: true);
 
                     case nameof(Queryable.Reverse)
@@ -683,13 +683,13 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                         return LiftSingleResultSubqueries(
                             ProcessSelect(
                                 source,
-                                methodCallExpression.Arguments[1].UnwrapLambdaFromQuote()));
+                                node.Arguments[1].UnwrapLambdaFromQuote()));
 
                     case nameof(Queryable.Where)
                         when genericMethod == QueryableMethods.Where:
                         return ProcessWhere(
                             source,
-                            methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
+                            node.Arguments[1].UnwrapLambdaFromQuote());
 
                     case nameof(Queryable.DefaultIfEmpty)
                         when genericMethod == QueryableMethods.DefaultIfEmptyWithoutArgument:
@@ -709,7 +709,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                         // IEqualityComparer overloads of Distinct, Contains, Join, Except, Intersect, Union, OrderBy, ThenBy, OrderByDescending, ThenByDescending, GroupBy
                         throw new InvalidOperationException(
                             CoreStrings.TranslationFailed(
-                                _reducingExpressionVisitor.Visit(methodCallExpression).Print()));
+                                _reducingExpressionVisitor.Visit(node).Print()));
                 }
             }
 
@@ -743,7 +743,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                         return ProcessAllAnyCountLongCount(
                             groupBySource,
                             genericMethod,
-                            methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
+                            node.Arguments[1].UnwrapLambdaFromQuote());
 
                     // case nameof(Queryable.Average)
                     //     when QueryableMethods.IsAverageWithoutSelector(method):
@@ -778,7 +778,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                         return ProcessOrderByThenBy(
                             groupBySource,
                             genericMethod,
-                            methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
+                            node.Arguments[1].UnwrapLambdaFromQuote());
 
                     case nameof(Queryable.ThenBy)
                         when genericMethod == QueryableMethods.ThenBy:
@@ -787,18 +787,18 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                         return ProcessOrderByThenBy(
                             groupBySource,
                             genericMethod,
-                            methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
+                            node.Arguments[1].UnwrapLambdaFromQuote());
 
                     case nameof(Queryable.Select)
                         when genericMethod == QueryableMethods.Select:
                         var result = ProcessSelect(
                             groupBySource,
-                            methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
+                            node.Arguments[1].UnwrapLambdaFromQuote());
                         if (result == null)
                         {
                             throw new InvalidOperationException(
                                 CoreStrings.TranslationFailedWithDetails(
-                                    _reducingExpressionVisitor.Visit(methodCallExpression).Print(),
+                                    _reducingExpressionVisitor.Visit(node).Print(),
                                     CoreStrings.QuerySelectContainsGrouping));
                         }
 
@@ -811,13 +811,13 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                         return ProcessSkipTake(
                             groupBySource,
                             genericMethod,
-                            methodCallExpression.Arguments[1]);
+                            node.Arguments[1]);
 
                     case nameof(Queryable.Where)
                         when genericMethod == QueryableMethods.Where:
                         return ProcessWhere(
                             groupBySource,
-                            methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
+                            node.Arguments[1].UnwrapLambdaFromQuote());
 
                     default:
                         // Average/Max/Min/Sum
@@ -834,7 +834,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                         // DefaultIfEmpty
                         throw new InvalidOperationException(
                             CoreStrings.TranslationFailed(
-                                _reducingExpressionVisitor.Visit(methodCallExpression).Print()));
+                                _reducingExpressionVisitor.Visit(node).Print()));
                 }
             }
 
@@ -856,12 +856,12 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             {
                 // firstArgument was not an queryable
                 var visitedArguments = new[] { firstArgument }
-                    .Concat(methodCallExpression.Arguments.Skip(1).Select(e => Visit(e)));
+                    .Concat(node.Arguments.Skip(1).Select(e => Visit(e)));
 
                 return ConvertToEnumerable(method, visitedArguments);
             }
 
-            return ProcessUnknownMethod(methodCallExpression);
+            return ProcessUnknownMethod(node);
         }
 
         // Remove MaterializeCollectionNavigationExpression when applying ToList/ToArray
@@ -869,27 +869,27 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             && (method.GetGenericMethodDefinition() == EnumerableMethods.ToList
                 || method.GetGenericMethodDefinition() == EnumerableMethods.ToArray))
         {
-            return methodCallExpression.Update(
-                null, [UnwrapCollectionMaterialization(Visit(methodCallExpression.Arguments[0]))]);
+            return node.Update(
+                null, [UnwrapCollectionMaterialization(Visit(node.Arguments[0]))]);
         }
 
         // HACK: Nav expansion isn't properly extensible for new queryable operators; so we need to do the following to support
         // SQL Server TVFs. Should be fixed by fully removing nav expansion (#32957).
-        if (methodCallExpression is
+        if (node is
             {
                 Method.Name: "FreeTextTable" or "ContainsTable" or "VectorSearch",
                 Method.DeclaringType.Name: "SqlServerQueryableExtensions",
                 Method.DeclaringType.Namespace: "Microsoft.EntityFrameworkCore"
             })
         {
-            var visited = ProcessUnknownMethod(methodCallExpression);
-            var currentTree = new NavigationTreeExpression(Expression.Default(methodCallExpression.Method.ReturnType.GetSequenceType()));
-            var parameterName = GetParameterName(methodCallExpression.Method.Name[0].ToString().ToLowerInvariant());
+            var visited = ProcessUnknownMethod(node);
+            var currentTree = new NavigationTreeExpression(Expression.Default(node.Method.ReturnType.GetSequenceType()));
+            var parameterName = GetParameterName(node.Method.Name[0].ToString().ToLowerInvariant());
 
             return new NavigationExpansionExpression(visited, currentTree, currentTree, parameterName);
         }
 
-        return ProcessUnknownMethod(methodCallExpression);
+        return ProcessUnknownMethod(node);
     }
 
     /// <summary>
@@ -898,12 +898,12 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitUnary(UnaryExpression unaryExpression)
+    protected override Expression VisitUnary(UnaryExpression node)
     {
-        var operand = Visit(unaryExpression.Operand);
+        var operand = Visit(node.Operand);
         // Convert Array.Length to Count()
-        if (unaryExpression.Operand.Type.IsArray
-            && unaryExpression.NodeType == ExpressionType.ArrayLength)
+        if (node.Operand.Type.IsArray
+            && node.NodeType == ExpressionType.ArrayLength)
         {
             var innerQueryable = UnwrapCollectionMaterialization(operand);
             // Only if inner is queryable as array properties could also have Length access
@@ -913,7 +913,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             }
         }
 
-        return unaryExpression.Update(operand);
+        return node.Update(operand);
     }
 
     private Expression ProcessAllAnyCountLongCount(
@@ -1303,7 +1303,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
 
         throw new InvalidOperationException(CoreStrings.IncludeOnNonEntity(expression.Print()));
 
-        static (Expression result, LambdaExpression? filterExpression) ExtractIncludeFilter(
+        static (Expression Result, LambdaExpression? FilterExpression) ExtractIncludeFilter(
             Expression currentExpression,
             Expression includeExpression)
         {
@@ -1948,39 +1948,39 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     {
         public bool Found { get; private set; }
 
-        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        protected override Expression VisitMethodCall(MethodCallExpression node)
         {
             if (includeNavigationValues
-                && methodCallExpression.TryGetEFPropertyArguments(out var source, out var propertyName)
+                && node.TryGetEFPropertyArguments(out var source, out var propertyName)
                 && source.UnwrapTypeConversion(out _) is NavigationTreeExpression { Value: EntityReference entityReference }
                 && entityReference.EntityType.FindNavigation(propertyName) is { IsCollection: false })
             {
                 Found = true;
-                return methodCallExpression;
+                return node;
             }
 
-            return base.VisitMethodCall(methodCallExpression);
+            return base.VisitMethodCall(node);
         }
 
-        protected override Expression VisitUnary(UnaryExpression unaryExpression)
+        protected override Expression VisitUnary(UnaryExpression node)
         {
             // A navigation reached through a cast (((Derived)e).Navigation) may be declared on a derived type, which
             // isn't resolved here, so an entity cast conservatively counts as a navigation too.
             if (includeNavigationValues
-                && unaryExpression.NodeType is ExpressionType.Convert or ExpressionType.ConvertChecked or ExpressionType.TypeAs
-                && unaryExpression.Operand is NavigationTreeExpression { Value: EntityReference })
+                && node.NodeType is ExpressionType.Convert or ExpressionType.ConvertChecked or ExpressionType.TypeAs
+                && node.Operand is NavigationTreeExpression { Value: EntityReference })
             {
                 Found = true;
-                return unaryExpression;
+                return node;
             }
 
-            return base.VisitUnary(unaryExpression);
+            return base.VisitUnary(node);
         }
 
-        protected override Expression VisitMember(MemberExpression memberExpression)
+        protected override Expression VisitMember(MemberExpression node)
         {
             var chain = new List<MemberInfo>();
-            var current = (Expression?)memberExpression;
+            var current = (Expression?)node;
             while (current is MemberExpression member)
             {
                 chain.Insert(0, member.Member);
@@ -2005,11 +2005,11 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
 
                 if (Found)
                 {
-                    return memberExpression;
+                    return node;
                 }
             }
 
-            return base.VisitMember(memberExpression);
+            return base.VisitMember(node);
         }
     }
 
@@ -2127,26 +2127,26 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         public List<GroupingAggregateCall> Aggregates { get; } = [];
         public bool HasUnsupportedUsage { get; private set; }
 
-        [return: NotNullIfNotNull(nameof(expression))]
-        public override Expression? Visit(Expression? expression)
+        [return: NotNullIfNotNull(nameof(node))]
+        public override Expression? Visit(Expression? node)
         {
-            if (expression == groupingParameter)
+            if (node == groupingParameter)
             {
                 HasUnsupportedUsage = true;
             }
 
-            return base.Visit(expression);
+            return base.Visit(node);
         }
 
-        protected override Expression VisitMember(MemberExpression memberExpression)
-            => memberExpression.Expression == groupingParameter
-                && memberExpression.Member.Name == nameof(IGrouping<object, object>.Key)
-                    ? memberExpression
-                    : base.VisitMember(memberExpression);
+        protected override Expression VisitMember(MemberExpression node)
+            => node.Expression == groupingParameter
+                && node.Member.Name == nameof(IGrouping<object, object>.Key)
+                    ? node
+                    : base.VisitMember(node);
 
-        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            if (TryMatchAggregate(methodCallExpression, out var aggregate))
+            if (TryMatchAggregate(node, out var aggregate))
             {
                 // An aggregate over the grouping nested in another one's lambda (g.Where(o => o.Id == g.Max(x => x.Id)))
                 // would be swapped out of the result selector together with the outer aggregate and keep the old
@@ -2154,7 +2154,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                 if (_elementLambdaDepth > 0)
                 {
                     HasUnsupportedUsage = true;
-                    return methodCallExpression;
+                    return node;
                 }
 
                 Aggregates.Add(aggregate);
@@ -2169,10 +2169,10 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
 
                 _elementLambdaDepth--;
 
-                return methodCallExpression;
+                return node;
             }
 
-            return base.VisitMethodCall(methodCallExpression);
+            return base.VisitMethodCall(node);
         }
 
         private bool TryMatchAggregate(
@@ -2301,18 +2301,18 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         Dictionary<Expression, Expression> aggregateReplacements)
         : ExpressionVisitor
     {
-        [return: NotNullIfNotNull(nameof(expression))]
-        public override Expression? Visit(Expression? expression)
-            => expression != null && aggregateReplacements.TryGetValue(expression, out var replacement)
+        [return: NotNullIfNotNull(nameof(node))]
+        public override Expression? Visit(Expression? node)
+            => node != null && aggregateReplacements.TryGetValue(node, out var replacement)
                 ? replacement
-                : base.Visit(expression);
+                : base.Visit(node);
 
-        protected override Expression VisitMember(MemberExpression memberExpression)
-            => memberExpression.Expression == originalParameter
-                && memberExpression.Member.Name == nameof(IGrouping<object, object>.Key)
+        protected override Expression VisitMember(MemberExpression node)
+            => node.Expression == originalParameter
+                && node.Member.Name == nameof(IGrouping<object, object>.Key)
                     ? Expression.MakeMemberAccess(
                         newParameter, newParameter.Type.GetProperty(nameof(IGrouping<object, object>.Key))!)
-                    : base.VisitMember(memberExpression);
+                    : base.VisitMember(node);
     }
 
     private GroupByNavigationExpansionExpression ProcessSkipTake(
@@ -2430,7 +2430,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                     : currentGenericMethod;
     }
 
-    private (LambdaExpression, LambdaExpression) ProcessJoinConditions(
+    private (LambdaExpression OuterKeySelector, LambdaExpression InnerKeySelector) ProcessJoinConditions(
         NavigationExpansionExpression outerSource,
         NavigationExpansionExpression innerSource,
         LambdaExpression outerKeySelector,
@@ -2480,16 +2480,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     }
 
     private IReadOnlyCollection<IQueryFilter> GetApplicableQueryFilters(IEntityType entityType)
-        => _queryCompilationContext.IgnoreQueryFilters
-            ? []
-            : _queryCompilationContext.IgnoredQueryFilters == null
-                ? entityType.GetDeclaredQueryFilters()
-                :
-                [
-                    .. entityType.GetDeclaredQueryFilters()
-                        .Where(filter => filter != null
-                            && (filter.IsAnonymous || !_queryCompilationContext.IgnoredQueryFilters.Contains(filter.Key)))
-                ];
+        => _queryCompilationContext.IgnoreQueryFilters ? [] : _queryCompilationContext.IgnoredQueryFilters == null ? entityType.GetDeclaredQueryFilters() : [ .. entityType.GetDeclaredQueryFilters() .Where(filter => filter != null && (filter.IsAnonymous || !_queryCompilationContext.IgnoredQueryFilters.Contains(filter.Key))) ];
 
     private Expression ApplyQueryFilter(IEntityType entityType, NavigationExpansionExpression navigationExpansionExpression)
     {

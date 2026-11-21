@@ -702,9 +702,9 @@ FROM [Customers] AS [c]
 """);
     }
 
-    public override async Task Select_conditional_drops_false(bool isAsync)
+    public override async Task Select_conditional_drops_false(bool async)
     {
-        await base.Select_conditional_drops_false(isAsync);
+        await base.Select_conditional_drops_false(async);
 
         AssertSql(
             """
@@ -716,9 +716,9 @@ FROM [Orders] AS [o]
 """);
     }
 
-    public override async Task Select_conditional_terminates_at_true(bool isAsync)
+    public override async Task Select_conditional_terminates_at_true(bool async)
     {
-        await base.Select_conditional_terminates_at_true(isAsync);
+        await base.Select_conditional_terminates_at_true(async);
 
         AssertSql(
             """
@@ -730,9 +730,9 @@ FROM [Orders] AS [o]
 """);
     }
 
-    public override async Task Select_conditional_flatten_nested_results(bool isAsync)
+    public override async Task Select_conditional_flatten_nested_results(bool async)
     {
-        await base.Select_conditional_flatten_nested_results(isAsync);
+        await base.Select_conditional_flatten_nested_results(async);
 
         AssertSql(
             """
@@ -744,9 +744,9 @@ FROM [Orders] AS [o]
 """);
     }
 
-    public override async Task Select_conditional_flatten_nested_tests(bool isAsync)
+    public override async Task Select_conditional_flatten_nested_tests(bool async)
     {
-        await base.Select_conditional_flatten_nested_tests(isAsync);
+        await base.Select_conditional_flatten_nested_tests(async);
 
         AssertSql(
             """

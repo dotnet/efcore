@@ -13,7 +13,7 @@ public abstract class GearsOfWarQueryFixtureBase : QueryFixtureBase<GearsOfWarCo
     public override ISetSource GetExpectedData()
         => GearsOfWarData.Instance;
 
-    public virtual Dictionary<(Type, string), Func<object, object?>> GetShadowPropertyMappings()
+    public virtual Dictionary<(Type EntityType, string PropertyName), Func<object, object?>> GetShadowPropertyMappings()
         => new()
         {
             {

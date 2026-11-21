@@ -153,7 +153,7 @@ public sealed class ApiModel
             }
             : null;
 
-    private static (ISet<ApiMember>? added, ISet<ApiMember>? removed, ISet<ApiMember>? shared) PartitionMembers(
+    private static (ISet<ApiMember>? Added, ISet<ApiMember>? Removed, ISet<ApiMember>? Shared) PartitionMembers(
         ISet<ApiMember>? currentMembers,
         ISet<ApiMember>? baselineMembers,
         bool includeSharedMembers)

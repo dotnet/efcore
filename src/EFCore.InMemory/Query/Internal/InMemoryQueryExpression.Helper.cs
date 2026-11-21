@@ -59,9 +59,9 @@ public partial class InMemoryQueryExpression
         Dictionary<ProjectionMember, ProjectionMember> projectionMemberMappings)
         : ExpressionVisitor
     {
-        protected override Expression VisitExtension(Expression expression)
+        protected override Expression VisitExtension(Expression node)
         {
-            if (expression is ProjectionBindingExpression projectionBindingExpression)
+            if (node is ProjectionBindingExpression projectionBindingExpression)
             {
                 Check.DebugAssert(
                     projectionBindingExpression.ProjectionMember is not null,
@@ -73,7 +73,7 @@ public partial class InMemoryQueryExpression
                     projectionBindingExpression.Type);
             }
 
-            return base.VisitExtension(expression);
+            return base.VisitExtension(node);
         }
     }
 
@@ -82,10 +82,10 @@ public partial class InMemoryQueryExpression
         Dictionary<ProjectionMember, int> projectionMemberMappings)
         : ExpressionVisitor
     {
-        [return: NotNullIfNotNull(nameof(expression))]
-        public override Expression? Visit(Expression? expression)
+        [return: NotNullIfNotNull(nameof(node))]
+        public override Expression? Visit(Expression? node)
         {
-            if (expression is ProjectionBindingExpression projectionBindingExpression)
+            if (node is ProjectionBindingExpression projectionBindingExpression)
             {
                 Check.DebugAssert(
                     projectionBindingExpression.ProjectionMember != null,
@@ -97,7 +97,7 @@ public partial class InMemoryQueryExpression
                     projectionBindingExpression.Type);
             }
 
-            return base.Visit(expression);
+            return base.Visit(node);
         }
     }
 
@@ -107,10 +107,10 @@ public partial class InMemoryQueryExpression
         int[] indexMap)
         : ExpressionVisitor
     {
-        [return: NotNullIfNotNull(nameof(expression))]
-        public override Expression? Visit(Expression? expression)
+        [return: NotNullIfNotNull(nameof(node))]
+        public override Expression? Visit(Expression? node)
         {
-            if (expression is ProjectionBindingExpression projectionBindingExpression
+            if (node is ProjectionBindingExpression projectionBindingExpression
                 && ReferenceEquals(projectionBindingExpression.QueryExpression, oldExpression))
             {
                 Check.DebugAssert(
@@ -123,38 +123,38 @@ public partial class InMemoryQueryExpression
                     projectionBindingExpression.Type);
             }
 
-            return base.Visit(expression);
+            return base.Visit(node);
         }
     }
 
     private sealed class EntityShaperNullableMarkingExpressionVisitor : ExpressionVisitor
     {
-        protected override Expression VisitExtension(Expression extensionExpression)
-            => extensionExpression is StructuralTypeShaperExpression shaper
+        protected override Expression VisitExtension(Expression node)
+            => node is StructuralTypeShaperExpression shaper
                 ? shaper.MakeNullable()
-                : base.VisitExtension(extensionExpression);
+                : base.VisitExtension(node);
     }
 
     private sealed class QueryExpressionReplacingExpressionVisitor(Expression oldQuery, Expression newQuery) : ExpressionVisitor
     {
-        [return: NotNullIfNotNull(nameof(expression))]
-        public override Expression? Visit(Expression? expression)
-            => expression is ProjectionBindingExpression projectionBindingExpression
+        [return: NotNullIfNotNull(nameof(node))]
+        public override Expression? Visit(Expression? node)
+            => node is ProjectionBindingExpression projectionBindingExpression
                 && ReferenceEquals(projectionBindingExpression.QueryExpression, oldQuery)
                     ? projectionBindingExpression.ProjectionMember != null
                         ? new ProjectionBindingExpression(
                             newQuery, projectionBindingExpression.ProjectionMember!, projectionBindingExpression.Type)
                         : new ProjectionBindingExpression(
                             newQuery, projectionBindingExpression.Index!.Value, projectionBindingExpression.Type)
-                    : base.Visit(expression);
+                    : base.Visit(node);
     }
 
     private sealed class CloningExpressionVisitor : ExpressionVisitor
     {
-        [return: NotNullIfNotNull(nameof(expression))]
-        public override Expression? Visit(Expression? expression)
+        [return: NotNullIfNotNull(nameof(node))]
+        public override Expression? Visit(Expression? node)
         {
-            if (expression is InMemoryQueryExpression inMemoryQueryExpression)
+            if (node is InMemoryQueryExpression inMemoryQueryExpression)
             {
                 var clonedInMemoryQueryExpression = new InMemoryQueryExpression(
                     inMemoryQueryExpression.ServerQueryExpression, inMemoryQueryExpression._valueBufferParameter)
@@ -176,9 +176,9 @@ public partial class InMemoryQueryExpression
                 return clonedInMemoryQueryExpression;
             }
 
-            return expression is EntityProjectionExpression entityProjectionExpression
+            return node is EntityProjectionExpression entityProjectionExpression
                 ? entityProjectionExpression.Clone()
-                : base.Visit(expression);
+                : base.Visit(node);
         }
     }
 }

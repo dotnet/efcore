@@ -548,11 +548,7 @@ public class InternalComplexTypeBuilder : InternalTypeBaseBuilder, IConventionCo
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual ComplexTypeDiscriminatorBuilder? HasDiscriminator(MemberInfo memberInfo, ConfigurationSource configurationSource)
-        => CanSetDiscriminator(
-            Check.NotNull(memberInfo).GetSimpleMemberName(), memberInfo.GetMemberType(), configurationSource)
-            ? DiscriminatorBuilder(
-                GetOrCreateDiscriminatorProperty(type: null, name: null, memberInfo, configurationSource))
-            : null;
+        => CanSetDiscriminator( Check.NotNull(memberInfo).GetSimpleMemberName(), memberInfo.GetMemberType(), configurationSource) ? DiscriminatorBuilder( GetOrCreateDiscriminatorProperty(type: null, name: null, memberInfo, configurationSource)) : null;
 
     private ComplexTypeDiscriminatorBuilder? DiscriminatorBuilder(InternalPropertyBuilder? discriminatorPropertyBuilder)
         => discriminatorPropertyBuilder == null ? null : new ComplexTypeDiscriminatorBuilder(Metadata);
@@ -652,8 +648,8 @@ public class InternalComplexTypeBuilder : InternalTypeBaseBuilder, IConventionCo
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    IConventionComplexTypeBuilder? IConventionComplexTypeBuilder.Ignore(string name, bool fromDataAnnotation)
-        => Ignore(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+    IConventionComplexTypeBuilder? IConventionComplexTypeBuilder.Ignore(string memberName, bool fromDataAnnotation)
+        => Ignore(memberName, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

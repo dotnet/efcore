@@ -1560,7 +1560,7 @@ public abstract partial class ModelBuilderTest
 
         private class CustomValueGeneratorFactory : ValueGeneratorFactory
         {
-            public override ValueGenerator Create(IProperty property, ITypeBase entityType)
+            public override ValueGenerator Create(IProperty property, ITypeBase typeBase)
                 => new CustomValueGenerator();
         }
 
@@ -2479,6 +2479,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(2, model.FindEntityType(typeof(Entityss))!.GetNavigations().Count());
         }
 
+#pragma warning disable SA1317 // Exercise model discovery with non-Latin identifiers.
         protected class Entityß
         {
             public int Id { get; set; }
@@ -2490,6 +2491,7 @@ public abstract partial class ModelBuilderTest
             public Entityß? Navigationß { get; set; }
             public Entityß? Navigationss { get; set; }
         }
+#pragma warning restore SA1317
 
         [Fact]
         public virtual void Can_add_shared_type_entity_type()

@@ -267,9 +267,9 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture)
         public DbSet<PremiumCustomer> PremiumCustomers
             => Set<PremiumCustomer>();
 
-        protected override void OnModelCreating(ModelBuilder builder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            builder.Entity<Customer>(b =>
+            modelBuilder.Entity<Customer>(b =>
             {
                 b.HasKey(c => c.Id);
                 b.Property(c => c.ETag).IsETagConcurrency();
@@ -277,7 +277,7 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture)
                 b.HasPartitionKey(c => c.Id);
             });
 
-            builder.Entity<PremiumCustomer>().HasBaseType<Customer>();
+            modelBuilder.Entity<PremiumCustomer>().HasBaseType<Customer>();
         }
     }
 

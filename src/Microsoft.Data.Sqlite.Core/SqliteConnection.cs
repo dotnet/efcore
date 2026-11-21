@@ -31,14 +31,14 @@ public partial class SqliteConnection : DbConnection
 
     private readonly List<WeakReference<SqliteCommand>> _commands = [];
 
-    private Dictionary<string, (object? state, strdelegate_collation? collation)>? _collations;
+    private Dictionary<string, (object? State, strdelegate_collation? Collation)>? _collations;
 
-    private Dictionary<(string name, int arity), (int flags, object? state, delegate_function_scalar? func)>? _functions;
+    private Dictionary<(string Name, int Arity), (int Flags, object? State, delegate_function_scalar? Func)>? _functions;
 
-    private Dictionary<(string name, int arity), (int flags, object? state, delegate_function_aggregate_step? func_step,
-        delegate_function_aggregate_final? func_final)>? _aggregates;
+    private Dictionary<(string Name, int Arity), (int Flags, object? State, delegate_function_aggregate_step? FuncStep,
+        delegate_function_aggregate_final? FuncFinal)>? _aggregates;
 
-    private HashSet<(string file, string? proc)>? _extensions;
+    private HashSet<(string File, string? Proc)>? _extensions;
 
     private string _connectionString;
     private ConnectionState _state;
@@ -313,7 +313,7 @@ public partial class SqliteConnection : DbConnection
             {
                 foreach (var item in _collations)
                 {
-                    rc = sqlite3_create_collation(Handle, item.Key, item.Value.state, item.Value.collation);
+                    rc = sqlite3_create_collation(Handle, item.Key, item.Value.State, item.Value.Collation);
                     SqliteException.ThrowExceptionForRC(rc, Handle);
                 }
             }
@@ -323,7 +323,7 @@ public partial class SqliteConnection : DbConnection
                 foreach (var item in _functions)
                 {
                     rc = sqlite3_create_function(
-                        Handle, item.Key.name, item.Key.arity, item.Value.flags, item.Value.state, item.Value.func);
+                        Handle, item.Key.Name, item.Key.Arity, item.Value.Flags, item.Value.State, item.Value.Func);
                     SqliteException.ThrowExceptionForRC(rc, Handle);
                 }
             }
@@ -334,12 +334,12 @@ public partial class SqliteConnection : DbConnection
                 {
                     rc = sqlite3_create_function(
                         Handle,
-                        item.Key.name,
-                        item.Key.arity,
-                        item.Value.flags,
-                        item.Value.state,
-                        item.Value.func_step,
-                        item.Value.func_final);
+                        item.Key.Name,
+                        item.Key.Arity,
+                        item.Value.Flags,
+                        item.Value.State,
+                        item.Value.FuncStep,
+                        item.Value.FuncFinal);
                     SqliteException.ThrowExceptionForRC(rc, Handle);
                 }
             }
@@ -1018,54 +1018,54 @@ public partial class SqliteConnection : DbConnection
                           AND p.hidden IN (0, 2, 3)
                       """
                     : useTableList
-                    ? """
-                      SELECT m.name, p.name, p.type, p.[notnull], p.dflt_value, p.cid, p.pk, m.wr,
-                          EXISTS (SELECT 1 FROM pragma_index_list(m.name, $schema) i WHERE i.origin = 'pk')
-                      FROM pragma_table_list m
-                      JOIN pragma_table_info(m.name, $schema) p ON true
-                      WHERE m.schema = $schema AND m.type = 'table'
-                          AND m.name NOT LIKE 'sqlite\_%' ESCAPE '\'
-                      """
-                    : useTableXInfo
-                    ? $"""
-                      SELECT m.name, p.name, p.type, p.[notnull], p.dflt_value, p.cid, p.pk,
-                          CASE WHEN m.sql LIKE '%WITHOUT ROWID%' THEN 1 ELSE 0 END,
-                          EXISTS (SELECT 1 FROM pragma_index_list(m.name, $schema) i WHERE i.origin = 'pk')
-                      FROM {QuoteIdentifier(databaseName)}.sqlite_master m
-                      JOIN pragma_table_xinfo(m.name, $schema) p ON true
-                      WHERE m.type = 'table'
-                          AND m.name NOT LIKE 'sqlite\_%' ESCAPE '\'
-                          AND m.sql NOT LIKE 'CREATE VIRTUAL%'
-                          AND p.hidden IN (0, 2, 3)
-                      """
-                    : $"""
-                      SELECT m.name, p.name, p.type, p.[notnull], p.dflt_value, p.cid, p.pk,
-                          CASE WHEN m.sql LIKE '%WITHOUT ROWID%' THEN 1 ELSE 0 END,
-                          EXISTS (SELECT 1 FROM pragma_index_list(m.name, $schema) i WHERE i.origin = 'pk')
-                      FROM {QuoteIdentifier(databaseName)}.sqlite_master m
-                      JOIN pragma_table_info(m.name, $schema) p ON true
-                      WHERE m.type = 'table'
-                          AND m.name NOT LIKE 'sqlite\_%' ESCAPE '\'
-                          AND m.sql NOT LIKE 'CREATE VIRTUAL%'
-                      """;
+                        ? """
+                          SELECT m.name, p.name, p.type, p.[notnull], p.dflt_value, p.cid, p.pk, m.wr,
+                              EXISTS (SELECT 1 FROM pragma_index_list(m.name, $schema) i WHERE i.origin = 'pk')
+                          FROM pragma_table_list m
+                          JOIN pragma_table_info(m.name, $schema) p ON true
+                          WHERE m.schema = $schema AND m.type = 'table'
+                              AND m.name NOT LIKE 'sqlite\_%' ESCAPE '\'
+                          """
+                        : useTableXInfo
+                            ? $"""
+                              SELECT m.name, p.name, p.type, p.[notnull], p.dflt_value, p.cid, p.pk,
+                                  CASE WHEN m.sql LIKE '%WITHOUT ROWID%' THEN 1 ELSE 0 END,
+                                  EXISTS (SELECT 1 FROM pragma_index_list(m.name, $schema) i WHERE i.origin = 'pk')
+                              FROM {QuoteIdentifier(databaseName)}.sqlite_master m
+                              JOIN pragma_table_xinfo(m.name, $schema) p ON true
+                              WHERE m.type = 'table'
+                                  AND m.name NOT LIKE 'sqlite\_%' ESCAPE '\'
+                                  AND m.sql NOT LIKE 'CREATE VIRTUAL%'
+                                  AND p.hidden IN (0, 2, 3)
+                              """
+                            : $"""
+                              SELECT m.name, p.name, p.type, p.[notnull], p.dflt_value, p.cid, p.pk,
+                                  CASE WHEN m.sql LIKE '%WITHOUT ROWID%' THEN 1 ELSE 0 END,
+                                  EXISTS (SELECT 1 FROM pragma_index_list(m.name, $schema) i WHERE i.origin = 'pk')
+                              FROM {QuoteIdentifier(databaseName)}.sqlite_master m
+                              JOIN pragma_table_info(m.name, $schema) p ON true
+                              WHERE m.type = 'table'
+                                  AND m.name NOT LIKE 'sqlite\_%' ESCAPE '\'
+                                  AND m.sql NOT LIKE 'CREATE VIRTUAL%'
+                              """;
                 command.Parameters.AddWithValue("$schema", databaseName);
 
                 using (var reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
+                        var isNotNull = reader.GetInt64(3) != 0
+                            || (reader.GetInt64(6) != 0
+                                && reader.GetInt64(7) == 0
+                                && reader.GetInt64(8) == 0
+                                && string.Equals(reader.GetString(2), "INTEGER", StringComparison.OrdinalIgnoreCase));
+
                         dataTable.Rows.Add(
                             databaseName,
                             reader.GetString(0),
                             reader.GetString(1),
                             reader.IsDBNull(2) ? DBNull.Value : reader.GetString(2),
-                            reader.GetInt64(3) != 0
-                            || (reader.GetInt64(6) != 0
-                                && reader.GetInt64(7) == 0
-                                && reader.GetInt64(8) == 0
-                                && string.Equals(reader.GetString(2), "INTEGER", StringComparison.OrdinalIgnoreCase))
-                                ? "NO"
-                                : "YES",
+                            isNotNull ? "NO" : "YES",
                             reader.IsDBNull(4) ? DBNull.Value : reader.GetString(4),
                             reader.GetInt64(5));
                     }
@@ -1418,18 +1418,18 @@ public partial class SqliteConnection : DbConnection
         public Exception? Exception { get; set; }
     }
 
-    private sealed class FunctionsKeyComparer : IEqualityComparer<(string name, int arity)>
+    private sealed class FunctionsKeyComparer : IEqualityComparer<(string Name, int Arity)>
     {
         public static readonly FunctionsKeyComparer Instance = new();
 
-        public bool Equals((string name, int arity) x, (string name, int arity) y)
-            => StringComparer.OrdinalIgnoreCase.Equals(x.name, y.name)
-                && x.arity == y.arity;
+        public bool Equals((string Name, int Arity) x, (string Name, int Arity) y)
+            => StringComparer.OrdinalIgnoreCase.Equals(x.Name, y.Name)
+                && x.Arity == y.Arity;
 
-        public int GetHashCode((string name, int arity) obj)
+        public int GetHashCode((string Name, int Arity) obj)
         {
-            var nameHashCode = StringComparer.OrdinalIgnoreCase.GetHashCode(obj.name);
-            var arityHashCode = obj.arity.GetHashCode();
+            var nameHashCode = StringComparer.OrdinalIgnoreCase.GetHashCode(obj.Name);
+            var arityHashCode = obj.Arity.GetHashCode();
 
             return ((int)(((uint)nameHashCode << 5) | ((uint)nameHashCode >> 27)) + nameHashCode) ^ arityHashCode;
         }

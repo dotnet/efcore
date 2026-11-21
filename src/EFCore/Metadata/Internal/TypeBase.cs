@@ -1453,11 +1453,11 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual ConfigurationSource? FindIgnoredConfigurationSource(string name)
+    public virtual ConfigurationSource? FindIgnoredConfigurationSource(string memberName)
     {
-        var ignoredSource = FindDeclaredIgnoredConfigurationSource(name);
+        var ignoredSource = FindDeclaredIgnoredConfigurationSource(memberName);
 
-        return BaseType == null ? ignoredSource : BaseType.FindIgnoredConfigurationSource(name).Max(ignoredSource);
+        return BaseType == null ? ignoredSource : BaseType.FindIgnoredConfigurationSource(memberName).Max(ignoredSource);
     }
 
     /// <summary>
@@ -1466,8 +1466,8 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool IsIgnored(string name)
-        => FindIgnoredConfigurationSource(name) != null;
+    public virtual bool IsIgnored(string memberName)
+        => FindIgnoredConfigurationSource(memberName) != null;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1475,12 +1475,12 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual string? RemoveIgnored(string name)
+    public virtual string? RemoveIgnored(string memberName)
     {
-        Check.NotNull(name);
+        Check.NotNull(memberName);
         EnsureMutable();
 
-        return _ignoredMembers.Remove(name) ? name : null;
+        return _ignoredMembers.Remove(memberName) ? memberName : null;
     }
 
     /// <summary>
@@ -1885,8 +1885,8 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    string? IMutableTypeBase.AddIgnored(string name)
-        => AddIgnored(name, ConfigurationSource.Explicit);
+    string? IMutableTypeBase.AddIgnored(string memberName)
+        => AddIgnored(memberName, ConfigurationSource.Explicit);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1895,8 +1895,8 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    string? IConventionTypeBase.AddIgnored(string name, bool fromDataAnnotation)
-        => AddIgnored(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+    string? IConventionTypeBase.AddIgnored(string memberName, bool fromDataAnnotation)
+        => AddIgnored(memberName, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2383,11 +2383,11 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     IMutableComplexProperty IMutableTypeBase.AddComplexProperty(
         string name,
         Type propertyType,
-        Type targetType,
+        Type complexType,
         string? complexTypeName,
         bool collection)
         => AddComplexProperty(
-            name, propertyType, memberInfo: null, complexTypeName, targetType, collection,
+            name, propertyType, memberInfo: null, complexTypeName, complexType, collection,
             ConfigurationSource.Explicit)!;
 
     /// <summary>
@@ -2400,12 +2400,12 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     IConventionComplexProperty? IConventionTypeBase.AddComplexProperty(
         string name,
         Type propertyType,
-        Type targetType,
+        Type complexType,
         string? complexTypeName,
         bool collection,
         bool fromDataAnnotation)
         => AddComplexProperty(
-            name, propertyType, memberInfo: null, complexTypeName, targetType, collection,
+            name, propertyType, memberInfo: null, complexTypeName, complexType, collection,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)!;
 
     /// <summary>
@@ -2419,10 +2419,10 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
         string name,
         Type propertyType,
         MemberInfo memberInfo,
-        Type targetType,
+        Type complexType,
         string? complexTypeName,
         bool collection)
-        => AddComplexProperty(name, propertyType, memberInfo, complexTypeName, targetType, collection, ConfigurationSource.Explicit)!;
+        => AddComplexProperty(name, propertyType, memberInfo, complexTypeName, complexType, collection, ConfigurationSource.Explicit)!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2435,12 +2435,12 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
         string name,
         Type propertyType,
         MemberInfo memberInfo,
-        Type targetType,
+        Type complexType,
         string? complexTypeName,
         bool collection,
         bool fromDataAnnotation)
         => AddComplexProperty(
-            name, propertyType, memberInfo, complexTypeName, targetType, collection,
+            name, propertyType, memberInfo, complexTypeName, complexType, collection,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)!;
 
     /// <summary>

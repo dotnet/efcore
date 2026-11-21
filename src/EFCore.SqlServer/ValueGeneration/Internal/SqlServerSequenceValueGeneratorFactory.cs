@@ -34,58 +34,58 @@ public class SqlServerSequenceValueGeneratorFactory : ISqlServerSequenceValueGen
     /// </summary>
     public virtual ValueGenerator? TryCreate(
         IProperty property,
-        Type type,
+        Type clrType,
         SqlServerSequenceValueGeneratorState generatorState,
         ISqlServerConnection connection,
         IRawSqlCommandBuilder rawSqlCommandBuilder,
         IRelationalCommandDiagnosticsLogger commandLogger)
     {
-        if (type == typeof(long))
+        if (clrType == typeof(long))
         {
             return new SqlServerSequenceHiLoValueGenerator<long>(
                 rawSqlCommandBuilder, _sqlGenerator, generatorState, connection, commandLogger);
         }
 
-        if (type == typeof(int))
+        if (clrType == typeof(int))
         {
             return new SqlServerSequenceHiLoValueGenerator<int>(
                 rawSqlCommandBuilder, _sqlGenerator, generatorState, connection, commandLogger);
         }
 
-        if (type == typeof(decimal))
+        if (clrType == typeof(decimal))
         {
             return new SqlServerSequenceHiLoValueGenerator<decimal>(
                 rawSqlCommandBuilder, _sqlGenerator, generatorState, connection, commandLogger);
         }
 
-        if (type == typeof(short))
+        if (clrType == typeof(short))
         {
             return new SqlServerSequenceHiLoValueGenerator<short>(
                 rawSqlCommandBuilder, _sqlGenerator, generatorState, connection, commandLogger);
         }
 
-        if (type == typeof(byte))
+        if (clrType == typeof(byte))
         {
             return new SqlServerSequenceHiLoValueGenerator<byte>(
                 rawSqlCommandBuilder, _sqlGenerator, generatorState, connection, commandLogger);
         }
 
-        if (type == typeof(char))
+        if (clrType == typeof(char))
         {
             return new SqlServerSequenceHiLoValueGenerator<char>(
                 rawSqlCommandBuilder, _sqlGenerator, generatorState, connection, commandLogger);
         }
 
-        return type == typeof(ulong)
+        return clrType == typeof(ulong)
             ? new SqlServerSequenceHiLoValueGenerator<ulong>(
                 rawSqlCommandBuilder, _sqlGenerator, generatorState, connection, commandLogger)
-            : type == typeof(uint)
+            : clrType == typeof(uint)
                 ? new SqlServerSequenceHiLoValueGenerator<uint>(
                     rawSqlCommandBuilder, _sqlGenerator, generatorState, connection, commandLogger)
-                : type == typeof(ushort)
+                : clrType == typeof(ushort)
                     ? new SqlServerSequenceHiLoValueGenerator<ushort>(
                         rawSqlCommandBuilder, _sqlGenerator, generatorState, connection, commandLogger)
-                    : type == typeof(sbyte)
+                    : clrType == typeof(sbyte)
                         ? new SqlServerSequenceHiLoValueGenerator<sbyte>(
                             rawSqlCommandBuilder, _sqlGenerator, generatorState, connection, commandLogger)
                         : (ValueGenerator?)null;

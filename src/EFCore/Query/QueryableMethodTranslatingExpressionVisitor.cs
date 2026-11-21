@@ -94,22 +94,22 @@ public abstract class QueryableMethodTranslatingExpressionVisitor(
     protected virtual QueryCompilationContext QueryCompilationContext { get; } = queryCompilationContext;
 
     /// <inheritdoc />
-    protected override Expression VisitExtension(Expression extensionExpression)
+    protected override Expression VisitExtension(Expression node)
     {
-        switch (extensionExpression)
+        switch (node)
         {
             case InlineQueryRootExpression inlineQueryRootExpression:
-                return TranslateInlineQueryRoot(inlineQueryRootExpression) ?? base.VisitExtension(extensionExpression);
+                return TranslateInlineQueryRoot(inlineQueryRootExpression) ?? base.VisitExtension(node);
 
             case ParameterQueryRootExpression parameterQueryRootExpression:
-                return TranslateParameterQueryRoot(parameterQueryRootExpression) ?? base.VisitExtension(extensionExpression);
+                return TranslateParameterQueryRoot(parameterQueryRootExpression) ?? base.VisitExtension(node);
 
             case QueryRootExpression queryRootExpression:
                 // This requires exact type match on query root to avoid processing query roots derived from EntityQueryRootExpression, e.g.
                 // SQL Server TemporalQueryRootExpression.
                 if (queryRootExpression.GetType() == typeof(EntityQueryRootExpression))
                 {
-                    var shapedQuery = CreateShapedQueryExpression(((EntityQueryRootExpression)extensionExpression).EntityType);
+                    var shapedQuery = CreateShapedQueryExpression(((EntityQueryRootExpression)node).EntityType);
                     if (shapedQuery is not null)
                     {
                         return shapedQuery;
@@ -120,18 +120,18 @@ public abstract class QueryableMethodTranslatingExpressionVisitor(
                 return QueryCompilationContext.NotTranslatedExpression;
 
             default:
-                return base.VisitExtension(extensionExpression);
+                return base.VisitExtension(node);
         }
     }
 
     /// <inheritdoc />
-    protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+    protected override Expression VisitMethodCall(MethodCallExpression node)
     {
-        var method = methodCallExpression.Method;
+        var method = node.Method;
 
         if (method.DeclaringType == typeof(EntityFrameworkQueryableExtensions))
         {
-            var source = Visit(methodCallExpression.Arguments[0]);
+            var source = Visit(node.Arguments[0]);
             if (source is ShapedQueryExpression shapedQueryExpression)
             {
                 var genericMethod = method.IsGenericMethod ? method.GetGenericMethodDefinition() : null;
@@ -147,7 +147,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor(
                         catch (Exception innerException)
                         {
                             throw new InvalidOperationException(
-                                CoreStrings.NonQueryTranslationFailed(methodCallExpression.Print()),
+                                CoreStrings.NonQueryTranslationFailed(node.Print()),
                                 innerException);
                         }
                     }
@@ -156,12 +156,12 @@ public abstract class QueryableMethodTranslatingExpressionVisitor(
                         when genericMethod == EntityFrameworkQueryableExtensions.ExecuteUpdateMethodInfo:
                         NewArrayExpression newArray;
                         {
-                            newArray = methodCallExpression.Arguments[1] switch
+                            newArray = node.Arguments[1] switch
                             {
                                 NewArrayExpression n => n,
                                 ConstantExpression { Value: Array { Length: 0 } }
                                     => throw new InvalidOperationException(
-                                        CoreStrings.NonQueryTranslationFailed(methodCallExpression.Print()),
+                                        CoreStrings.NonQueryTranslationFailed(node.Print()),
                                         new InvalidOperationException(CoreStrings.NoSetPropertyInvocation)),
                                 _ => throw new UnreachableException("ExecuteUpdate with incorrect setters")
                             };
@@ -192,7 +192,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor(
                             catch (Exception innerException)
                             {
                                 throw new InvalidOperationException(
-                                    CoreStrings.NonQueryTranslationFailed(methodCallExpression.Print()),
+                                    CoreStrings.NonQueryTranslationFailed(node.Print()),
                                     innerException);
                             }
                         }
@@ -204,16 +204,16 @@ public abstract class QueryableMethodTranslatingExpressionVisitor(
                         {
                             return TranslateExecuteMerge(
                                 shapedQueryExpression,
-                                UnwrapMergeSource(methodCallExpression.Arguments[1]),
-                                DecodeMergeMatches(methodCallExpression.Arguments[2]),
-                                DecodeMergeSetters(methodCallExpression.Arguments[3]),
-                                DecodeMergeSetters(methodCallExpression.Arguments[4]),
+                                UnwrapMergeSource(node.Arguments[1]),
+                                DecodeMergeMatches(node.Arguments[2]),
+                                DecodeMergeSetters(node.Arguments[3]),
+                                DecodeMergeSetters(node.Arguments[4]),
                                 returningSelector: null);
                         }
                         catch (Exception innerException)
                         {
                             throw new InvalidOperationException(
-                                CoreStrings.NonQueryTranslationFailed(methodCallExpression.Print()),
+                                CoreStrings.NonQueryTranslationFailed(node.Print()),
                                 innerException);
                         }
                     }
@@ -221,7 +221,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor(
                     case nameof(EntityFrameworkQueryableExtensions.ExecuteMergeReturning)
                         when genericMethod == EntityFrameworkQueryableExtensions.ExecuteMergeReturningMethodInfo:
                     {
-                        var returningArgument = methodCallExpression.Arguments[5];
+                        var returningArgument = node.Arguments[5];
                         var returningSelector = returningArgument is UnaryExpression { NodeType: ExpressionType.Quote, Operand: var operand }
                             ? (LambdaExpression)operand
                             : (LambdaExpression)returningArgument;
@@ -229,16 +229,16 @@ public abstract class QueryableMethodTranslatingExpressionVisitor(
                         {
                             return TranslateExecuteMerge(
                                 shapedQueryExpression,
-                                UnwrapMergeSource(methodCallExpression.Arguments[1]),
-                                DecodeMergeMatches(methodCallExpression.Arguments[2]),
-                                DecodeMergeSetters(methodCallExpression.Arguments[3]),
-                                DecodeMergeSetters(methodCallExpression.Arguments[4]),
+                                UnwrapMergeSource(node.Arguments[1]),
+                                DecodeMergeMatches(node.Arguments[2]),
+                                DecodeMergeSetters(node.Arguments[3]),
+                                DecodeMergeSetters(node.Arguments[4]),
                                 returningSelector);
                         }
                         catch (Exception innerException)
                         {
                             throw new InvalidOperationException(
-                                CoreStrings.NonQueryTranslationFailed(methodCallExpression.Print()),
+                                CoreStrings.NonQueryTranslationFailed(node.Print()),
                                 innerException);
                         }
                     }
@@ -248,7 +248,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor(
 
         if (method.DeclaringType == typeof(Queryable))
         {
-            var source = Visit(methodCallExpression.Arguments[0]);
+            var source = Visit(node.Arguments[0]);
             if (source is ShapedQueryExpression shapedQueryExpression)
             {
                 var genericMethod = method.IsGenericMethod ? method.GetGenericMethodDefinition() : null;
@@ -276,13 +276,13 @@ public abstract class QueryableMethodTranslatingExpressionVisitor(
                     case nameof(Queryable.Average)
                         when QueryableMethods.IsAverageWithoutSelector(method):
                         shapedQueryExpression = shapedQueryExpression.UpdateResultCardinality(ResultCardinality.Single);
-                        return CheckTranslated(TranslateAverage(shapedQueryExpression, null, methodCallExpression.Type));
+                        return CheckTranslated(TranslateAverage(shapedQueryExpression, null, node.Type));
 
                     case nameof(Queryable.Average)
                         when QueryableMethods.IsAverageWithSelector(method):
                         shapedQueryExpression = shapedQueryExpression.UpdateResultCardinality(ResultCardinality.Single);
                         return CheckTranslated(
-                            TranslateAverage(shapedQueryExpression, GetLambdaExpressionFromArgument(1), methodCallExpression.Type));
+                            TranslateAverage(shapedQueryExpression, GetLambdaExpressionFromArgument(1), node.Type));
 
                     case nameof(Queryable.Cast)
                         when genericMethod == QueryableMethods.Cast:
@@ -291,7 +291,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor(
                     case nameof(Queryable.Concat)
                         when genericMethod == QueryableMethods.Concat:
                     {
-                        var source2 = Visit(methodCallExpression.Arguments[1]);
+                        var source2 = Visit(node.Arguments[1]);
                         if (source2 is ShapedQueryExpression innerShapedQueryExpression)
                         {
                             return CheckTranslated(TranslateConcat(shapedQueryExpression, innerShapedQueryExpression));
@@ -303,7 +303,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor(
                     case nameof(Queryable.Contains)
                         when genericMethod == QueryableMethods.Contains:
                         shapedQueryExpression = shapedQueryExpression.UpdateResultCardinality(ResultCardinality.Single);
-                        return CheckTranslated(TranslateContains(shapedQueryExpression, methodCallExpression.Arguments[1]));
+                        return CheckTranslated(TranslateContains(shapedQueryExpression, node.Arguments[1]));
 
                     case nameof(Queryable.Count)
                         when genericMethod == QueryableMethods.CountWithoutPredicate:
@@ -321,7 +321,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor(
 
                     case nameof(Queryable.DefaultIfEmpty)
                         when genericMethod == QueryableMethods.DefaultIfEmptyWithArgument:
-                        return CheckTranslated(TranslateDefaultIfEmpty(shapedQueryExpression, methodCallExpression.Arguments[1]));
+                        return CheckTranslated(TranslateDefaultIfEmpty(shapedQueryExpression, node.Arguments[1]));
 
                     case nameof(Queryable.Distinct)
                         when genericMethod == QueryableMethods.Distinct:
@@ -331,18 +331,18 @@ public abstract class QueryableMethodTranslatingExpressionVisitor(
                         when genericMethod == QueryableMethods.ElementAt:
                         shapedQueryExpression = shapedQueryExpression.UpdateResultCardinality(ResultCardinality.Single);
                         return CheckTranslated(
-                            TranslateElementAtOrDefault(shapedQueryExpression, methodCallExpression.Arguments[1], false));
+                            TranslateElementAtOrDefault(shapedQueryExpression, node.Arguments[1], false));
 
                     case nameof(Queryable.ElementAtOrDefault)
                         when genericMethod == QueryableMethods.ElementAtOrDefault:
                         shapedQueryExpression = shapedQueryExpression.UpdateResultCardinality(ResultCardinality.SingleOrDefault);
                         return CheckTranslated(
-                            TranslateElementAtOrDefault(shapedQueryExpression, methodCallExpression.Arguments[1], true));
+                            TranslateElementAtOrDefault(shapedQueryExpression, node.Arguments[1], true));
 
                     case nameof(Queryable.Except)
                         when genericMethod == QueryableMethods.Except:
                     {
-                        var source2 = Visit(methodCallExpression.Arguments[1]);
+                        var source2 = Visit(node.Arguments[1]);
                         if (source2 is ShapedQueryExpression innerShapedQueryExpression)
                         {
                             return CheckTranslated(TranslateExcept(shapedQueryExpression, innerShapedQueryExpression));
@@ -354,26 +354,26 @@ public abstract class QueryableMethodTranslatingExpressionVisitor(
                     case nameof(Queryable.First)
                         when genericMethod == QueryableMethods.FirstWithoutPredicate:
                         shapedQueryExpression = shapedQueryExpression.UpdateResultCardinality(ResultCardinality.Single);
-                        return CheckTranslated(TranslateFirstOrDefault(shapedQueryExpression, null, methodCallExpression.Type, false));
+                        return CheckTranslated(TranslateFirstOrDefault(shapedQueryExpression, null, node.Type, false));
 
                     case nameof(Queryable.First)
                         when genericMethod == QueryableMethods.FirstWithPredicate:
                         shapedQueryExpression = shapedQueryExpression.UpdateResultCardinality(ResultCardinality.Single);
                         return CheckTranslated(
                             TranslateFirstOrDefault(
-                                shapedQueryExpression, GetLambdaExpressionFromArgument(1), methodCallExpression.Type, false));
+                                shapedQueryExpression, GetLambdaExpressionFromArgument(1), node.Type, false));
 
                     case nameof(Queryable.FirstOrDefault)
                         when genericMethod == QueryableMethods.FirstOrDefaultWithoutPredicate:
                         shapedQueryExpression = shapedQueryExpression.UpdateResultCardinality(ResultCardinality.SingleOrDefault);
-                        return CheckTranslated(TranslateFirstOrDefault(shapedQueryExpression, null, methodCallExpression.Type, true));
+                        return CheckTranslated(TranslateFirstOrDefault(shapedQueryExpression, null, node.Type, true));
 
                     case nameof(Queryable.FirstOrDefault)
                         when genericMethod == QueryableMethods.FirstOrDefaultWithPredicate:
                         shapedQueryExpression = shapedQueryExpression.UpdateResultCardinality(ResultCardinality.SingleOrDefault);
                         return CheckTranslated(
                             TranslateFirstOrDefault(
-                                shapedQueryExpression, GetLambdaExpressionFromArgument(1), methodCallExpression.Type, true));
+                                shapedQueryExpression, GetLambdaExpressionFromArgument(1), node.Type, true));
 
                     case nameof(Queryable.GroupBy)
                         when genericMethod == QueryableMethods.GroupByWithKeySelector:
@@ -401,7 +401,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor(
                     case nameof(Queryable.GroupJoin)
                         when genericMethod == QueryableMethods.GroupJoin:
                     {
-                        if (Visit(methodCallExpression.Arguments[1]) is ShapedQueryExpression innerShapedQueryExpression)
+                        if (Visit(node.Arguments[1]) is ShapedQueryExpression innerShapedQueryExpression)
                         {
                             return CheckTranslated(
                                 TranslateGroupJoin(
@@ -418,7 +418,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor(
                     case nameof(Queryable.Intersect)
                         when genericMethod == QueryableMethods.Intersect:
                     {
-                        if (Visit(methodCallExpression.Arguments[1]) is ShapedQueryExpression innerShapedQueryExpression)
+                        if (Visit(node.Arguments[1]) is ShapedQueryExpression innerShapedQueryExpression)
                         {
                             return CheckTranslated(TranslateIntersect(shapedQueryExpression, innerShapedQueryExpression));
                         }
@@ -429,7 +429,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor(
                     case nameof(Queryable.Join)
                         when genericMethod == QueryableMethods.Join:
                     {
-                        if (Visit(methodCallExpression.Arguments[1]) is ShapedQueryExpression innerShapedQueryExpression)
+                        if (Visit(node.Arguments[1]) is ShapedQueryExpression innerShapedQueryExpression)
                         {
                             return CheckTranslated(
                                 TranslateJoin(
@@ -443,7 +443,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor(
                     case nameof(Queryable.LeftJoin)
                         when genericMethod == QueryableMethods.LeftJoin:
                     {
-                        if (Visit(methodCallExpression.Arguments[1]) is ShapedQueryExpression innerShapedQueryExpression)
+                        if (Visit(node.Arguments[1]) is ShapedQueryExpression innerShapedQueryExpression)
                         {
                             return CheckTranslated(
                                 TranslateLeftJoin(
@@ -457,7 +457,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor(
                     case nameof(Queryable.RightJoin)
                         when genericMethod == QueryableMethods.RightJoin:
                     {
-                        if (Visit(methodCallExpression.Arguments[1]) is ShapedQueryExpression innerShapedQueryExpression)
+                        if (Visit(node.Arguments[1]) is ShapedQueryExpression innerShapedQueryExpression)
                         {
                             return CheckTranslated(
                                 TranslateRightJoin(
@@ -470,9 +470,9 @@ public abstract class QueryableMethodTranslatingExpressionVisitor(
 
                     case nameof(Queryable.FullJoin)
                         when genericMethod == QueryableMethods.FullJoin
-                        && methodCallExpression.Arguments[5] is ConstantExpression { Value: null }:
+                        && node.Arguments[5] is ConstantExpression { Value: null }:
                     {
-                        if (Visit(methodCallExpression.Arguments[1]) is ShapedQueryExpression innerShapedQueryExpression)
+                        if (Visit(node.Arguments[1]) is ShapedQueryExpression innerShapedQueryExpression)
                         {
                             return CheckTranslated(
                                 TranslateFullJoin(
@@ -486,26 +486,26 @@ public abstract class QueryableMethodTranslatingExpressionVisitor(
                     case nameof(Queryable.Last)
                         when genericMethod == QueryableMethods.LastWithoutPredicate:
                         shapedQueryExpression = shapedQueryExpression.UpdateResultCardinality(ResultCardinality.Single);
-                        return CheckTranslated(TranslateLastOrDefault(shapedQueryExpression, null, methodCallExpression.Type, false));
+                        return CheckTranslated(TranslateLastOrDefault(shapedQueryExpression, null, node.Type, false));
 
                     case nameof(Queryable.Last)
                         when genericMethod == QueryableMethods.LastWithPredicate:
                         shapedQueryExpression = shapedQueryExpression.UpdateResultCardinality(ResultCardinality.Single);
                         return CheckTranslated(
                             TranslateLastOrDefault(
-                                shapedQueryExpression, GetLambdaExpressionFromArgument(1), methodCallExpression.Type, false));
+                                shapedQueryExpression, GetLambdaExpressionFromArgument(1), node.Type, false));
 
                     case nameof(Queryable.LastOrDefault)
                         when genericMethod == QueryableMethods.LastOrDefaultWithoutPredicate:
                         shapedQueryExpression = shapedQueryExpression.UpdateResultCardinality(ResultCardinality.SingleOrDefault);
-                        return CheckTranslated(TranslateLastOrDefault(shapedQueryExpression, null, methodCallExpression.Type, true));
+                        return CheckTranslated(TranslateLastOrDefault(shapedQueryExpression, null, node.Type, true));
 
                     case nameof(Queryable.LastOrDefault)
                         when genericMethod == QueryableMethods.LastOrDefaultWithPredicate:
                         shapedQueryExpression = shapedQueryExpression.UpdateResultCardinality(ResultCardinality.SingleOrDefault);
                         return CheckTranslated(
                             TranslateLastOrDefault(
-                                shapedQueryExpression, GetLambdaExpressionFromArgument(1), methodCallExpression.Type, true));
+                                shapedQueryExpression, GetLambdaExpressionFromArgument(1), node.Type, true));
 
                     case nameof(Queryable.LongCount)
                         when genericMethod == QueryableMethods.LongCountWithoutPredicate:
@@ -520,24 +520,24 @@ public abstract class QueryableMethodTranslatingExpressionVisitor(
                     case nameof(Queryable.Max)
                         when genericMethod == QueryableMethods.MaxWithoutSelector:
                         shapedQueryExpression = shapedQueryExpression.UpdateResultCardinality(ResultCardinality.Single);
-                        return CheckTranslated(TranslateMax(shapedQueryExpression, null, methodCallExpression.Type));
+                        return CheckTranslated(TranslateMax(shapedQueryExpression, null, node.Type));
 
                     case nameof(Queryable.Max)
                         when genericMethod == QueryableMethods.MaxWithSelector:
                         shapedQueryExpression = shapedQueryExpression.UpdateResultCardinality(ResultCardinality.Single);
                         return CheckTranslated(
-                            TranslateMax(shapedQueryExpression, GetLambdaExpressionFromArgument(1), methodCallExpression.Type));
+                            TranslateMax(shapedQueryExpression, GetLambdaExpressionFromArgument(1), node.Type));
 
                     case nameof(Queryable.Min)
                         when genericMethod == QueryableMethods.MinWithoutSelector:
                         shapedQueryExpression = shapedQueryExpression.UpdateResultCardinality(ResultCardinality.Single);
-                        return CheckTranslated(TranslateMin(shapedQueryExpression, null, methodCallExpression.Type));
+                        return CheckTranslated(TranslateMin(shapedQueryExpression, null, node.Type));
 
                     case nameof(Queryable.Min)
                         when genericMethod == QueryableMethods.MinWithSelector:
                         shapedQueryExpression = shapedQueryExpression.UpdateResultCardinality(ResultCardinality.Single);
                         return CheckTranslated(
-                            TranslateMin(shapedQueryExpression, GetLambdaExpressionFromArgument(1), methodCallExpression.Type));
+                            TranslateMin(shapedQueryExpression, GetLambdaExpressionFromArgument(1), node.Type));
 
                     case nameof(Queryable.OfType)
                         when genericMethod == QueryableMethods.OfType:
@@ -572,30 +572,30 @@ public abstract class QueryableMethodTranslatingExpressionVisitor(
                     case nameof(Queryable.Single)
                         when genericMethod == QueryableMethods.SingleWithoutPredicate:
                         shapedQueryExpression = shapedQueryExpression.UpdateResultCardinality(ResultCardinality.Single);
-                        return CheckTranslated(TranslateSingleOrDefault(shapedQueryExpression, null, methodCallExpression.Type, false));
+                        return CheckTranslated(TranslateSingleOrDefault(shapedQueryExpression, null, node.Type, false));
 
                     case nameof(Queryable.Single)
                         when genericMethod == QueryableMethods.SingleWithPredicate:
                         shapedQueryExpression = shapedQueryExpression.UpdateResultCardinality(ResultCardinality.Single);
                         return CheckTranslated(
                             TranslateSingleOrDefault(
-                                shapedQueryExpression, GetLambdaExpressionFromArgument(1), methodCallExpression.Type, false));
+                                shapedQueryExpression, GetLambdaExpressionFromArgument(1), node.Type, false));
 
                     case nameof(Queryable.SingleOrDefault)
                         when genericMethod == QueryableMethods.SingleOrDefaultWithoutPredicate:
                         shapedQueryExpression = shapedQueryExpression.UpdateResultCardinality(ResultCardinality.SingleOrDefault);
-                        return CheckTranslated(TranslateSingleOrDefault(shapedQueryExpression, null, methodCallExpression.Type, true));
+                        return CheckTranslated(TranslateSingleOrDefault(shapedQueryExpression, null, node.Type, true));
 
                     case nameof(Queryable.SingleOrDefault)
                         when genericMethod == QueryableMethods.SingleOrDefaultWithPredicate:
                         shapedQueryExpression = shapedQueryExpression.UpdateResultCardinality(ResultCardinality.SingleOrDefault);
                         return CheckTranslated(
                             TranslateSingleOrDefault(
-                                shapedQueryExpression, GetLambdaExpressionFromArgument(1), methodCallExpression.Type, true));
+                                shapedQueryExpression, GetLambdaExpressionFromArgument(1), node.Type, true));
 
                     case nameof(Queryable.Skip)
                         when genericMethod == QueryableMethods.Skip:
-                        return CheckTranslated(TranslateSkip(shapedQueryExpression, methodCallExpression.Arguments[1]));
+                        return CheckTranslated(TranslateSkip(shapedQueryExpression, node.Arguments[1]));
 
                     case nameof(Queryable.SkipWhile)
                         when genericMethod == QueryableMethods.SkipWhile:
@@ -604,17 +604,17 @@ public abstract class QueryableMethodTranslatingExpressionVisitor(
                     case nameof(Queryable.Sum)
                         when QueryableMethods.IsSumWithoutSelector(method):
                         shapedQueryExpression = shapedQueryExpression.UpdateResultCardinality(ResultCardinality.Single);
-                        return CheckTranslated(TranslateSum(shapedQueryExpression, null, methodCallExpression.Type));
+                        return CheckTranslated(TranslateSum(shapedQueryExpression, null, node.Type));
 
                     case nameof(Queryable.Sum)
                         when QueryableMethods.IsSumWithSelector(method):
                         shapedQueryExpression = shapedQueryExpression.UpdateResultCardinality(ResultCardinality.Single);
                         return CheckTranslated(
-                            TranslateSum(shapedQueryExpression, GetLambdaExpressionFromArgument(1), methodCallExpression.Type));
+                            TranslateSum(shapedQueryExpression, GetLambdaExpressionFromArgument(1), node.Type));
 
                     case nameof(Queryable.Take)
                         when genericMethod == QueryableMethods.Take:
-                        return CheckTranslated(TranslateTake(shapedQueryExpression, methodCallExpression.Arguments[1]));
+                        return CheckTranslated(TranslateTake(shapedQueryExpression, node.Arguments[1]));
 
                     case nameof(Queryable.TakeWhile)
                         when genericMethod == QueryableMethods.TakeWhile:
@@ -631,7 +631,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor(
                     case nameof(Queryable.Union)
                         when genericMethod == QueryableMethods.Union:
                     {
-                        if (Visit(methodCallExpression.Arguments[1]) is ShapedQueryExpression innerShapedQueryExpression)
+                        if (Visit(node.Arguments[1]) is ShapedQueryExpression innerShapedQueryExpression)
                         {
                             return CheckTranslated(TranslateUnion(shapedQueryExpression, innerShapedQueryExpression));
                         }
@@ -645,7 +645,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor(
 
                         [DebuggerStepThrough]
                         LambdaExpression GetLambdaExpressionFromArgument(int argumentIndex)
-                            => methodCallExpression.Arguments[argumentIndex].UnwrapLambdaFromQuote();
+                            => node.Arguments[argumentIndex].UnwrapLambdaFromQuote();
 
                         [DebuggerStepThrough]
                         Expression CheckTranslated(ShapedQueryExpression? translated)
@@ -655,7 +655,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor(
                                 return translated;
                             }
 
-                            _untranslatedExpression ??= methodCallExpression;
+                            _untranslatedExpression ??= node;
 
                             return QueryCompilationContext.NotTranslatedExpression;
                         }
@@ -671,38 +671,38 @@ public abstract class QueryableMethodTranslatingExpressionVisitor(
 
         // Identify property access, i.e. primitive collection property (context.Blogs.Where(b => b.Tags.Contains(...))),
         // complex collection property...
-        return IsMemberAccess(methodCallExpression, QueryCompilationContext.Model, out var propertyAccessSource, out var propertyName)
+        return IsMemberAccess(node, QueryCompilationContext.Model, out var propertyAccessSource, out var propertyName)
             && TranslateMemberAccess(propertyAccessSource, propertyName) is { } translation
                 ? translation
                 : _subquery
                     ? QueryCompilationContext.NotTranslatedExpression
                     : TranslationErrorDetails is null
-                        ? throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()))
+                        ? throw new InvalidOperationException(CoreStrings.TranslationFailed(node.Print()))
                         : throw new InvalidOperationException(
-                            CoreStrings.TranslationFailedWithDetails(methodCallExpression.Print(), TranslationErrorDetails));
+                            CoreStrings.TranslationFailedWithDetails(node.Print(), TranslationErrorDetails));
     }
 
     /// <inheritdoc />
-    protected override Expression VisitMember(MemberExpression memberExpression)
+    protected override Expression VisitMember(MemberExpression node)
         =>
             // Identify property access, i.e. primitive collection property (context.Blogs.Where(b => b.Tags.Contains(...))),
             // complex collection property...
-            IsMemberAccess(memberExpression, QueryCompilationContext.Model, out var propertyAccessSource, out var propertyName)
+            IsMemberAccess(node, QueryCompilationContext.Model, out var propertyAccessSource, out var propertyName)
             && TranslateMemberAccess(propertyAccessSource, propertyName) is { } translation
                 ? translation
                 : _subquery
                     ? QueryCompilationContext.NotTranslatedExpression
                     : TranslationErrorDetails is null
-                        ? throw new InvalidOperationException(CoreStrings.TranslationFailed(memberExpression.Print()))
+                        ? throw new InvalidOperationException(CoreStrings.TranslationFailed(node.Print()))
                         : throw new InvalidOperationException(
-                            CoreStrings.TranslationFailedWithDetails(memberExpression.Print(), TranslationErrorDetails));
+                            CoreStrings.TranslationFailedWithDetails(node.Print(), TranslationErrorDetails));
 
     private sealed class EntityShaperNullableMarkingExpressionVisitor : ExpressionVisitor
     {
-        protected override Expression VisitExtension(Expression extensionExpression)
-            => extensionExpression is StructuralTypeShaperExpression shaper
+        protected override Expression VisitExtension(Expression node)
+            => node is StructuralTypeShaperExpression shaper
                 ? shaper.MakeNullable()
-                : base.VisitExtension(extensionExpression);
+                : base.VisitExtension(node);
     }
 
     /// <summary>

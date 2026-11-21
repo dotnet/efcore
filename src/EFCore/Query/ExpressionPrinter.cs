@@ -220,10 +220,10 @@ public class ExpressionPrinter : ExpressionVisitor
     }
 
     /// <inheritdoc />
-    [return: NotNullIfNotNull(nameof(expression))]
-    public override Expression? Visit(Expression? expression)
+    [return: NotNullIfNotNull(nameof(node))]
+    public override Expression? Visit(Expression? node)
     {
-        if (expression == null)
+        if (node == null)
         {
             return null;
         }
@@ -231,10 +231,10 @@ public class ExpressionPrinter : ExpressionVisitor
         if (CharacterLimit != null
             && _stringBuilder.Length > CharacterLimit.Value)
         {
-            return expression;
+            return node;
         }
 
-        switch (expression.NodeType)
+        switch (node.NodeType)
         {
             case ExpressionType.AndAlso:
             case ExpressionType.ArrayIndex:
@@ -257,56 +257,56 @@ public class ExpressionPrinter : ExpressionVisitor
             case ExpressionType.ExclusiveOr:
             case ExpressionType.LeftShift:
             case ExpressionType.RightShift:
-                VisitBinary((BinaryExpression)expression);
+                VisitBinary((BinaryExpression)node);
                 break;
 
             case ExpressionType.Block:
-                VisitBlock((BlockExpression)expression);
+                VisitBlock((BlockExpression)node);
                 break;
 
             case ExpressionType.Conditional:
-                VisitConditional((ConditionalExpression)expression);
+                VisitConditional((ConditionalExpression)node);
                 break;
 
             case ExpressionType.Constant:
-                VisitConstant((ConstantExpression)expression);
+                VisitConstant((ConstantExpression)node);
                 break;
 
             case ExpressionType.Lambda:
-                base.Visit(expression);
+                base.Visit(node);
                 break;
 
             case ExpressionType.Goto:
-                VisitGoto((GotoExpression)expression);
+                VisitGoto((GotoExpression)node);
                 break;
 
             case ExpressionType.Label:
-                VisitLabel((LabelExpression)expression);
+                VisitLabel((LabelExpression)node);
                 break;
 
             case ExpressionType.MemberAccess:
-                VisitMember((MemberExpression)expression);
+                VisitMember((MemberExpression)node);
                 break;
 
             case ExpressionType.MemberInit:
-                VisitMemberInit((MemberInitExpression)expression);
+                VisitMemberInit((MemberInitExpression)node);
                 break;
 
             case ExpressionType.Call:
-                VisitMethodCall((MethodCallExpression)expression);
+                VisitMethodCall((MethodCallExpression)node);
                 break;
 
             case ExpressionType.New:
-                VisitNew((NewExpression)expression);
+                VisitNew((NewExpression)node);
                 break;
 
             case ExpressionType.NewArrayInit:
             case ExpressionType.NewArrayBounds:
-                VisitNewArray((NewArrayExpression)expression);
+                VisitNewArray((NewArrayExpression)node);
                 break;
 
             case ExpressionType.Parameter:
-                VisitParameter((ParameterExpression)expression);
+                VisitParameter((ParameterExpression)node);
                 break;
 
             case ExpressionType.Convert:
@@ -314,88 +314,88 @@ public class ExpressionPrinter : ExpressionVisitor
             case ExpressionType.Not:
             case ExpressionType.TypeAs:
             case ExpressionType.Quote:
-                VisitUnary((UnaryExpression)expression);
+                VisitUnary((UnaryExpression)node);
                 break;
 
             case ExpressionType.Default:
-                VisitDefault((DefaultExpression)expression);
+                VisitDefault((DefaultExpression)node);
                 break;
 
             case ExpressionType.Try:
-                VisitTry((TryExpression)expression);
+                VisitTry((TryExpression)node);
                 break;
 
             case ExpressionType.Index:
-                VisitIndex((IndexExpression)expression);
+                VisitIndex((IndexExpression)node);
                 break;
 
             case ExpressionType.TypeIs:
-                VisitTypeBinary((TypeBinaryExpression)expression);
+                VisitTypeBinary((TypeBinaryExpression)node);
                 break;
 
             case ExpressionType.Switch:
-                VisitSwitch((SwitchExpression)expression);
+                VisitSwitch((SwitchExpression)node);
                 break;
 
             case ExpressionType.Invoke:
-                VisitInvocation((InvocationExpression)expression);
+                VisitInvocation((InvocationExpression)node);
                 break;
 
             case ExpressionType.Loop:
-                VisitLoop((LoopExpression)expression);
+                VisitLoop((LoopExpression)node);
                 break;
 
             case ExpressionType.Extension:
-                VisitExtension(expression);
+                VisitExtension(node);
                 break;
 
             default:
-                UnhandledExpressionType(expression);
+                UnhandledExpressionType(node);
                 break;
         }
 
-        return expression;
+        return node;
     }
 
     /// <inheritdoc />
-    protected override Expression VisitBinary(BinaryExpression binaryExpression)
+    protected override Expression VisitBinary(BinaryExpression node)
     {
-        Visit(binaryExpression.Left);
+        Visit(node.Left);
 
-        if (binaryExpression.NodeType == ExpressionType.ArrayIndex)
+        if (node.NodeType == ExpressionType.ArrayIndex)
         {
             _stringBuilder.Append("[");
 
-            Visit(binaryExpression.Right);
+            Visit(node.Right);
 
             _stringBuilder.Append("]");
         }
         else
         {
-            if (!_binaryOperandMap.TryGetValue(binaryExpression.NodeType, out var operand))
+            if (!_binaryOperandMap.TryGetValue(node.NodeType, out var operand))
             {
-                UnhandledExpressionType(binaryExpression);
+                UnhandledExpressionType(node);
             }
             else
             {
                 _stringBuilder.Append(operand);
             }
 
-            Visit(binaryExpression.Right);
+            Visit(node.Right);
         }
 
-        return binaryExpression;
+        return node;
     }
 
     /// <inheritdoc />
-    protected override Expression VisitBlock(BlockExpression blockExpression)
+    protected override Expression VisitBlock(BlockExpression node)
     {
         AppendLine();
         AppendLine("{");
 
         using (_stringBuilder.Indent())
         {
-            foreach (var variable in blockExpression.Variables)
+            foreach (var variable in node.Variables)
             {
                 if (!_parametersInScope.ContainsKey(variable))
                 {
@@ -407,9 +407,9 @@ public class ExpressionPrinter : ExpressionVisitor
                 }
             }
 
-            var expressions = blockExpression.Expressions.Count > 0
-                ? blockExpression.Expressions.Take(blockExpression.Expressions.Count - 1)
-                : blockExpression.Expressions;
+            var expressions = node.Expressions.Count > 0
+                ? node.Expressions.Take(node.Expressions.Count - 1)
+                : node.Expressions;
 
             foreach (var expression in expressions)
             {
@@ -421,18 +421,18 @@ public class ExpressionPrinter : ExpressionVisitor
                 }
             }
 
-            if (blockExpression.Expressions.Count > 0)
+            if (node.Expressions.Count > 0)
             {
-                if (blockExpression.Result.Type != typeof(void))
+                if (node.Result.Type != typeof(void))
                 {
                     Append("return ");
                 }
 
-                if (blockExpression.Result is not DefaultExpression)
+                if (node.Result is not DefaultExpression)
                 {
-                    Visit(blockExpression.Result);
+                    Visit(node.Result);
 
-                    if (blockExpression.Result is not (BlockExpression or LoopExpression or SwitchExpression))
+                    if (node.Result is not (BlockExpression or LoopExpression or SwitchExpression))
                     {
                         AppendLine(";");
                     }
@@ -442,29 +442,29 @@ public class ExpressionPrinter : ExpressionVisitor
 
         Append("}");
 
-        return blockExpression;
+        return node;
     }
 
     /// <inheritdoc />
-    protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
+    protected override Expression VisitConditional(ConditionalExpression node)
     {
-        Visit(conditionalExpression.Test);
+        Visit(node.Test);
 
         _stringBuilder.Append(" ? ");
 
-        Visit(conditionalExpression.IfTrue);
+        Visit(node.IfTrue);
 
         _stringBuilder.Append(" : ");
 
-        Visit(conditionalExpression.IfFalse);
+        Visit(node.IfFalse);
 
-        return conditionalExpression;
+        return node;
     }
 
     /// <inheritdoc />
-    protected override Expression VisitConstant(ConstantExpression constantExpression)
+    protected override Expression VisitConstant(ConstantExpression node)
     {
-        switch (constantExpression.Value)
+        switch (node.Value)
         {
             case IPrintableExpression printable:
                 printable.Print(this);
@@ -477,11 +477,11 @@ public class ExpressionPrinter : ExpressionVisitor
                 break;
 
             default:
-                PrintValue(constantExpression.Value);
+                PrintValue(node.Value);
                 break;
         }
 
-        return constantExpression;
+        return node;
 
         void PrintValue(object? value)
         {
@@ -524,20 +524,20 @@ public class ExpressionPrinter : ExpressionVisitor
     }
 
     /// <inheritdoc />
-    protected override Expression VisitGoto(GotoExpression gotoExpression)
+    protected override Expression VisitGoto(GotoExpression node)
     {
-        Append("Goto(" + gotoExpression.Kind.ToString().ToLower() + " ");
+        Append("Goto(" + node.Kind.ToString().ToLower() + " ");
 
-        if (gotoExpression.Kind == GotoExpressionKind.Break)
+        if (node.Kind == GotoExpressionKind.Break)
         {
-            Append(gotoExpression.Target.Name!);
+            Append(node.Target.Name!);
         }
         else
         {
-            AppendLine("(" + gotoExpression.Target.Type.ShortDisplayName() + ")" + gotoExpression.Target + " {");
+            AppendLine("(" + node.Target.Type.ShortDisplayName() + ")" + node.Target + " {");
             using (_stringBuilder.Indent())
             {
-                Visit(gotoExpression.Value);
+                Visit(node.Value);
             }
 
             _stringBuilder.Append("}");
@@ -545,26 +545,26 @@ public class ExpressionPrinter : ExpressionVisitor
 
         AppendLine(")");
 
-        return gotoExpression;
+        return node;
     }
 
     /// <inheritdoc />
-    protected override Expression VisitLabel(LabelExpression labelExpression)
+    protected override Expression VisitLabel(LabelExpression node)
     {
-        _stringBuilder.Append(labelExpression.Target.ToString());
+        _stringBuilder.Append(node.Target.ToString());
 
-        return labelExpression;
+        return node;
     }
 
     /// <inheritdoc />
-    protected override Expression VisitLambda<T>(Expression<T> lambdaExpression)
+    protected override Expression VisitLambda<T>(Expression<T> node)
     {
-        if (lambdaExpression.Parameters.Count != 1)
+        if (node.Parameters.Count != 1)
         {
             _stringBuilder.Append("(");
         }
 
-        foreach (var parameter in lambdaExpression.Parameters)
+        foreach (var parameter in node.Parameters)
         {
             var parameterName = parameter.Name;
 
@@ -572,75 +572,75 @@ public class ExpressionPrinter : ExpressionVisitor
 
             Visit(parameter);
 
-            if (parameter != lambdaExpression.Parameters.Last())
+            if (parameter != node.Parameters.Last())
             {
                 _stringBuilder.Append(", ");
             }
         }
 
-        if (lambdaExpression.Parameters.Count != 1)
+        if (node.Parameters.Count != 1)
         {
             _stringBuilder.Append(")");
         }
 
         _stringBuilder.Append(" => ");
 
-        Visit(lambdaExpression.Body);
+        Visit(node.Body);
 
-        foreach (var parameter in lambdaExpression.Parameters)
+        foreach (var parameter in node.Parameters)
         {
             // however we don't remove nameless parameters so that they are unique globally, not just within the scope
             _parametersInScope.Remove(parameter);
         }
 
-        return lambdaExpression;
+        return node;
     }
 
     /// <inheritdoc />
-    protected override Expression VisitMember(MemberExpression memberExpression)
+    protected override Expression VisitMember(MemberExpression node)
     {
-        if (memberExpression.Expression != null)
+        if (node.Expression != null)
         {
-            if (memberExpression.Expression.NodeType == ExpressionType.Convert
-                || memberExpression.Expression is BinaryExpression)
+            if (node.Expression.NodeType == ExpressionType.Convert
+                || node.Expression is BinaryExpression)
             {
                 _stringBuilder.Append("(");
-                Visit(memberExpression.Expression);
+                Visit(node.Expression);
                 _stringBuilder.Append(")");
             }
             else
             {
-                Visit(memberExpression.Expression);
+                Visit(node.Expression);
             }
         }
         else
         {
             // ReSharper disable once PossibleNullReferenceException
-            _stringBuilder.Append(memberExpression.Member.DeclaringType?.Name ?? "MethodWithoutDeclaringType");
+            _stringBuilder.Append(node.Member.DeclaringType?.Name ?? "MethodWithoutDeclaringType");
         }
 
-        _stringBuilder.Append("." + memberExpression.Member.Name);
+        _stringBuilder.Append("." + node.Member.Name);
 
-        return memberExpression;
+        return node;
     }
 
     /// <inheritdoc />
-    protected override Expression VisitMemberInit(MemberInitExpression memberInitExpression)
+    protected override Expression VisitMemberInit(MemberInitExpression node)
     {
-        _stringBuilder.Append("new " + memberInitExpression.Type.ShortDisplayName());
+        _stringBuilder.Append("new " + node.Type.ShortDisplayName());
 
-        var appendAction = memberInitExpression.Bindings.Count > 1 ? (Func<string, ExpressionVisitor>)AppendLine : Append;
+        var appendAction = node.Bindings.Count > 1 ? (Func<string, ExpressionVisitor>)AppendLine : Append;
         appendAction("{ ");
         using (_stringBuilder.Indent())
         {
-            for (var i = 0; i < memberInitExpression.Bindings.Count; i++)
+            for (var i = 0; i < node.Bindings.Count; i++)
             {
-                var binding = memberInitExpression.Bindings[i];
+                var binding = node.Bindings[i];
                 if (binding is MemberAssignment assignment)
                 {
                     _stringBuilder.Append(assignment.Member.Name + " = ");
                     Visit(assignment.Expression);
-                    appendAction(i == memberInitExpression.Bindings.Count - 1 ? " " : ", ");
+                    appendAction(i == node.Bindings.Count - 1 ? " " : ", ");
                 }
                 else
                 {
@@ -651,35 +651,35 @@ public class ExpressionPrinter : ExpressionVisitor
 
         AppendLine("}");
 
-        return memberInitExpression;
+        return node;
     }
 
     /// <inheritdoc />
-    protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+    protected override Expression VisitMethodCall(MethodCallExpression node)
     {
-        if (methodCallExpression.Object != null)
+        if (node.Object != null)
         {
-            switch (methodCallExpression.Object)
+            switch (node.Object)
             {
                 case BinaryExpression:
                 case UnaryExpression:
                     _stringBuilder.Append("(");
-                    Visit(methodCallExpression.Object);
+                    Visit(node.Object);
                     _stringBuilder.Append(")");
                     break;
                 default:
-                    Visit(methodCallExpression.Object);
+                    Visit(node.Object);
                     break;
             }
 
             _stringBuilder.Append(".");
         }
 
-        var methodArguments = methodCallExpression.Arguments.ToList();
-        var method = methodCallExpression.Method;
+        var methodArguments = node.Arguments.ToList();
+        var method = node.Method;
 
         var extensionMethod = !Verbose
-            && methodCallExpression.Arguments.Count > 0
+            && node.Arguments.Count > 0
             && method.IsDefined(typeof(ExtensionAttribute), inherit: false);
 
         if (extensionMethod)
@@ -761,7 +761,7 @@ public class ExpressionPrinter : ExpressionVisitor
             _stringBuilder.DecrementIndent();
         }
 
-        return methodCallExpression;
+        return node;
 
         static void PrintGenericArguments(MethodInfo method, IndentedStringBuilder stringBuilder)
         {
@@ -786,17 +786,17 @@ public class ExpressionPrinter : ExpressionVisitor
     }
 
     /// <inheritdoc />
-    protected override Expression VisitNew(NewExpression newExpression)
+    protected override Expression VisitNew(NewExpression node)
     {
         _stringBuilder.Append("new ");
 
-        var isComplex = newExpression.Arguments.Count > 1;
+        var isComplex = node.Arguments.Count > 1;
         var appendAction = isComplex ? (Func<string, ExpressionVisitor>)AppendLine : Append;
 
-        var isAnonymousType = newExpression.Type.IsAnonymousType();
+        var isAnonymousType = node.Type.IsAnonymousType();
         if (!isAnonymousType)
         {
-            _stringBuilder.Append(newExpression.Type.ShortDisplayName());
+            _stringBuilder.Append(node.Type.ShortDisplayName());
             appendAction("(");
         }
         else
@@ -810,15 +810,15 @@ public class ExpressionPrinter : ExpressionVisitor
             indent = _stringBuilder.Indent();
         }
 
-        for (var i = 0; i < newExpression.Arguments.Count; i++)
+        for (var i = 0; i < node.Arguments.Count; i++)
         {
-            if (newExpression.Members != null)
+            if (node.Members != null)
             {
-                Append(newExpression.Members[i].Name + " = ");
+                Append(node.Members[i].Name + " = ");
             }
 
-            Visit(newExpression.Arguments[i]);
-            appendAction(i == newExpression.Arguments.Count - 1 ? "" : ", ");
+            Visit(node.Arguments[i]);
+            appendAction(i == node.Arguments.Count - 1 ? "" : ", ");
         }
 
         if (isComplex)
@@ -828,25 +828,25 @@ public class ExpressionPrinter : ExpressionVisitor
 
         _stringBuilder.Append(!isAnonymousType ? ")" : " }");
 
-        return newExpression;
+        return node;
     }
 
     /// <inheritdoc />
-    protected override Expression VisitNewArray(NewArrayExpression newArrayExpression)
+    protected override Expression VisitNewArray(NewArrayExpression node)
     {
-        if (newArrayExpression.NodeType == ExpressionType.NewArrayBounds)
+        if (node.NodeType == ExpressionType.NewArrayBounds)
         {
-            Append("new " + newArrayExpression.Type.GetElementType()!.ShortDisplayName() + "[");
-            VisitArguments(newArrayExpression.Expressions, s => Append(s));
+            Append("new " + node.Type.GetElementType()!.ShortDisplayName() + "[");
+            VisitArguments(node.Expressions, s => Append(s));
             Append("]");
 
-            return newArrayExpression;
+            return node;
         }
 
-        var isComplex = newArrayExpression.Expressions.Count > 1;
+        var isComplex = node.Expressions.Count > 1;
         var appendAction = isComplex ? s => AppendLine(s) : (Action<string>)(s => Append(s));
 
-        appendAction("new " + newArrayExpression.Type.GetElementType()!.ShortDisplayName() + "[]");
+        appendAction("new " + node.Type.GetElementType()!.ShortDisplayName() + "[]");
         appendAction("{ ");
 
         IDisposable? indent = null;
@@ -855,7 +855,7 @@ public class ExpressionPrinter : ExpressionVisitor
             indent = _stringBuilder.Indent();
         }
 
-        VisitArguments(newArrayExpression.Expressions, appendAction, lastSeparator: " ");
+        VisitArguments(node.Expressions, appendAction, lastSeparator: " ");
 
         if (isComplex)
         {
@@ -864,23 +864,23 @@ public class ExpressionPrinter : ExpressionVisitor
 
         Append("}");
 
-        return newArrayExpression;
+        return node;
     }
 
     /// <inheritdoc />
-    protected override Expression VisitParameter(ParameterExpression parameterExpression)
+    protected override Expression VisitParameter(ParameterExpression node)
     {
-        if (_parametersInScope.TryGetValue(parameterExpression, out var parameterName))
+        if (_parametersInScope.TryGetValue(node, out var parameterName))
         {
             if (parameterName == null)
             {
-                if (!_namelessParameters.Contains(parameterExpression))
+                if (!_namelessParameters.Contains(node))
                 {
-                    _namelessParameters.Add(parameterExpression);
+                    _namelessParameters.Add(node);
                 }
 
                 Append("namelessParameter{");
-                Append(_namelessParameters.IndexOf(parameterExpression).ToString());
+                Append(_namelessParameters.IndexOf(node).ToString());
                 Append("}");
             }
             else if (parameterName.Contains('.'))
@@ -899,139 +899,139 @@ public class ExpressionPrinter : ExpressionVisitor
             if (Verbose)
             {
                 Append("(Unhandled parameter: ");
-                Append(parameterExpression.Name ?? "NoNameParameter");
+                Append(node.Name ?? "NoNameParameter");
                 Append(")");
             }
             else
             {
-                Append(parameterExpression.Name ?? "NoNameParameter");
+                Append(node.Name ?? "NoNameParameter");
             }
         }
 
         if (Verbose)
         {
             var parameterIndex = _encounteredParameters.Count;
-            if (_encounteredParameters.Contains(parameterExpression))
+            if (_encounteredParameters.Contains(node))
             {
-                parameterIndex = _encounteredParameters.IndexOf(parameterExpression);
+                parameterIndex = _encounteredParameters.IndexOf(node);
             }
             else
             {
-                _encounteredParameters.Add(parameterExpression);
+                _encounteredParameters.Add(node);
             }
 
             _stringBuilder.Append("{" + parameterIndex + "}");
         }
 
-        return parameterExpression;
+        return node;
     }
 
     /// <inheritdoc />
-    protected override Expression VisitUnary(UnaryExpression unaryExpression)
+    protected override Expression VisitUnary(UnaryExpression node)
     {
         // ReSharper disable once SwitchStatementMissingSomeCases
-        switch (unaryExpression.NodeType)
+        switch (node.NodeType)
         {
             case ExpressionType.Convert:
-                _stringBuilder.Append("(" + unaryExpression.Type.ShortDisplayName() + ")");
+                _stringBuilder.Append("(" + node.Type.ShortDisplayName() + ")");
 
-                if (unaryExpression.Operand is BinaryExpression)
+                if (node.Operand is BinaryExpression)
                 {
                     _stringBuilder.Append("(");
-                    Visit(unaryExpression.Operand);
+                    Visit(node.Operand);
                     _stringBuilder.Append(")");
                 }
                 else
                 {
-                    Visit(unaryExpression.Operand);
+                    Visit(node.Operand);
                 }
 
                 break;
 
             case ExpressionType.Throw:
                 _stringBuilder.Append("throw ");
-                Visit(unaryExpression.Operand);
+                Visit(node.Operand);
                 break;
 
             case ExpressionType.Not:
                 _stringBuilder.Append("!(");
-                Visit(unaryExpression.Operand);
+                Visit(node.Operand);
                 _stringBuilder.Append(")");
                 break;
 
             case ExpressionType.TypeAs:
                 _stringBuilder.Append("(");
-                Visit(unaryExpression.Operand);
-                _stringBuilder.Append(" as " + unaryExpression.Type.ShortDisplayName() + ")");
+                Visit(node.Operand);
+                _stringBuilder.Append(" as " + node.Type.ShortDisplayName() + ")");
                 break;
 
             case ExpressionType.Quote:
-                Visit(unaryExpression.Operand);
+                Visit(node.Operand);
                 break;
 
             default:
-                UnhandledExpressionType(unaryExpression);
+                UnhandledExpressionType(node);
                 break;
         }
 
-        return unaryExpression;
+        return node;
     }
 
     /// <inheritdoc />
-    protected override Expression VisitDefault(DefaultExpression defaultExpression)
+    protected override Expression VisitDefault(DefaultExpression node)
     {
-        _stringBuilder.Append("default(" + defaultExpression.Type.ShortDisplayName() + ")");
+        _stringBuilder.Append("default(" + node.Type.ShortDisplayName() + ")");
 
-        return defaultExpression;
+        return node;
     }
 
     /// <inheritdoc />
-    protected override Expression VisitTry(TryExpression tryExpression)
+    protected override Expression VisitTry(TryExpression node)
     {
         _stringBuilder.Append("try { ");
-        Visit(tryExpression.Body);
+        Visit(node.Body);
         _stringBuilder.Append(" } ");
 
-        foreach (var handler in tryExpression.Handlers)
+        foreach (var handler in node.Handlers)
         {
             _stringBuilder.Append("catch (" + handler.Test.Name + ") { ... } ");
         }
 
-        return tryExpression;
+        return node;
     }
 
     /// <inheritdoc />
-    protected override Expression VisitIndex(IndexExpression indexExpression)
+    protected override Expression VisitIndex(IndexExpression node)
     {
-        Visit(indexExpression.Object);
+        Visit(node.Object);
         _stringBuilder.Append("[");
         VisitArguments(
-            indexExpression.Arguments, s => _stringBuilder.Append(s));
+            node.Arguments, s => _stringBuilder.Append(s));
         _stringBuilder.Append("]");
 
-        return indexExpression;
+        return node;
     }
 
     /// <inheritdoc />
-    protected override Expression VisitTypeBinary(TypeBinaryExpression typeBinaryExpression)
+    protected override Expression VisitTypeBinary(TypeBinaryExpression node)
     {
         _stringBuilder.Append("(");
-        Visit(typeBinaryExpression.Expression);
-        _stringBuilder.Append(" is " + typeBinaryExpression.TypeOperand.ShortDisplayName() + ")");
+        Visit(node.Expression);
+        _stringBuilder.Append(" is " + node.TypeOperand.ShortDisplayName() + ")");
 
-        return typeBinaryExpression;
+        return node;
     }
 
     /// <inheritdoc />
-    protected override Expression VisitSwitch(SwitchExpression switchExpression)
+    protected override Expression VisitSwitch(SwitchExpression node)
     {
         _stringBuilder.Append("switch (");
-        Visit(switchExpression.SwitchValue);
+        Visit(node.SwitchValue);
         _stringBuilder.AppendLine(")");
         _stringBuilder.AppendLine("{");
         _stringBuilder.IncrementIndent();
 
-        foreach (var @case in switchExpression.Cases)
+        foreach (var @case in node.Cases)
         {
             foreach (var testValue in @case.TestValues)
             {
@@ -1048,12 +1048,12 @@ public class ExpressionPrinter : ExpressionVisitor
             _stringBuilder.AppendLine();
         }
 
-        if (switchExpression.DefaultBody != null)
+        if (node.DefaultBody != null)
         {
             _stringBuilder.AppendLine("default: ");
             using (_stringBuilder.Indent())
             {
-                Visit(switchExpression.DefaultBody);
+                Visit(node.DefaultBody);
             }
 
             _stringBuilder.AppendLine();
@@ -1062,16 +1062,16 @@ public class ExpressionPrinter : ExpressionVisitor
         _stringBuilder.DecrementIndent();
         _stringBuilder.AppendLine("}");
 
-        return switchExpression;
+        return node;
     }
 
     /// <inheritdoc />
-    protected override Expression VisitInvocation(InvocationExpression invocationExpression)
+    protected override Expression VisitInvocation(InvocationExpression node)
     {
         _stringBuilder.Append("Invoke(");
-        Visit(invocationExpression.Expression);
+        Visit(node.Expression);
 
-        foreach (var argument in invocationExpression.Arguments)
+        foreach (var argument in node.Arguments)
         {
             _stringBuilder.Append(", ");
             Visit(argument);
@@ -1079,38 +1079,38 @@ public class ExpressionPrinter : ExpressionVisitor
 
         _stringBuilder.Append(")");
 
-        return invocationExpression;
+        return node;
     }
 
     /// <inheritdoc />
-    protected override Expression VisitLoop(LoopExpression loopExpression)
+    protected override Expression VisitLoop(LoopExpression node)
     {
-        _stringBuilder.AppendLine($"Loop(Break: {loopExpression.BreakLabel?.Name} Continue: {loopExpression.ContinueLabel?.Name})");
+        _stringBuilder.AppendLine($"Loop(Break: {node.BreakLabel?.Name} Continue: {node.ContinueLabel?.Name})");
         _stringBuilder.AppendLine("{");
 
         using (_stringBuilder.Indent())
         {
-            Visit(loopExpression.Body);
+            Visit(node.Body);
         }
 
         _stringBuilder.AppendLine("}");
 
-        return loopExpression;
+        return node;
     }
 
     /// <inheritdoc />
-    protected override Expression VisitExtension(Expression extensionExpression)
+    protected override Expression VisitExtension(Expression node)
     {
-        if (extensionExpression is IPrintableExpression printable)
+        if (node is IPrintableExpression printable)
         {
             printable.Print(this);
         }
         else
         {
-            UnhandledExpressionType(extensionExpression);
+            UnhandledExpressionType(node);
         }
 
-        return extensionExpression;
+        return node;
     }
 
     private void VisitArguments(

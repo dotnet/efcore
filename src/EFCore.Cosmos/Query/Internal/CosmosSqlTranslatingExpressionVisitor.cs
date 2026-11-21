@@ -151,13 +151,13 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitBinary(BinaryExpression binaryExpression)
+    protected override Expression VisitBinary(BinaryExpression node)
     {
-        switch (binaryExpression.NodeType)
+        switch (node.NodeType)
         {
             case ExpressionType.Coalesce:
-                var ifTrue = binaryExpression.Left;
-                var ifFalse = binaryExpression.Right;
+                var ifTrue = node.Left;
+                var ifFalse = node.Right;
                 if (ifTrue.Type != ifFalse.Type)
                 {
                     ifFalse = Expression.Convert(ifFalse, ifTrue.Type);
@@ -170,24 +170,24 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
                         ifFalse));
 
             case ExpressionType.Equal:
-            case ExpressionType.NotEqual when binaryExpression.Left.Type == typeof(Type):
-                if (IsGetTypeMethodCall(binaryExpression.Left, out var structuralTypeReference1)
-                    && IsTypeConstant(binaryExpression.Right, out var type1))
+            case ExpressionType.NotEqual when node.Left.Type == typeof(Type):
+                if (IsGetTypeMethodCall(node.Left, out var structuralTypeReference1)
+                    && IsTypeConstant(node.Right, out var type1))
                 {
-                    return ProcessGetType(structuralTypeReference1!, type1!, binaryExpression.NodeType == ExpressionType.Equal);
+                    return ProcessGetType(structuralTypeReference1!, type1!, node.NodeType == ExpressionType.Equal);
                 }
 
-                if (IsGetTypeMethodCall(binaryExpression.Right, out var structuralTypeReference2)
-                    && IsTypeConstant(binaryExpression.Left, out var type2))
+                if (IsGetTypeMethodCall(node.Right, out var structuralTypeReference2)
+                    && IsTypeConstant(node.Left, out var type2))
                 {
-                    return ProcessGetType(structuralTypeReference2!, type2!, binaryExpression.NodeType == ExpressionType.Equal);
+                    return ProcessGetType(structuralTypeReference2!, type2!, node.NodeType == ExpressionType.Equal);
                 }
 
                 break;
         }
 
-        var left = TryRemoveImplicitConvert(binaryExpression.Left);
-        var right = TryRemoveImplicitConvert(binaryExpression.Right);
+        var left = TryRemoveImplicitConvert(node.Left);
+        var right = TryRemoveImplicitConvert(node.Right);
 
         // Remove convert-to-object nodes if both sides have them, or if the other side is null constant
         var isLeftConvertToObject = TryUnwrapConvertToObject(left, out var leftOperand);
@@ -209,35 +209,27 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
         var visitedLeft = Visit(left);
         var visitedRight = Visit(right);
 
-        switch (binaryExpression)
+        switch (node)
         {
             // Visited expression could be null, We need to pass MemberInitExpression
             case { NodeType: ExpressionType.Equal or ExpressionType.NotEqual }
                 when TryRewriteStructuralTypeEquality(
-                    binaryExpression.NodeType,
+                    node.NodeType,
                     visitedLeft == QueryCompilationContext.NotTranslatedExpression ? left : visitedLeft,
                     visitedRight == QueryCompilationContext.NotTranslatedExpression ? right : visitedRight,
                     equalsMethod: false,
                     out var result):
                 return result;
             default:
-                var uncheckedNodeTypeVariant = binaryExpression.NodeType switch
+                var uncheckedNodeTypeVariant = node.NodeType switch
                 {
                     ExpressionType.AddChecked => ExpressionType.Add,
                     ExpressionType.SubtractChecked => ExpressionType.Subtract,
                     ExpressionType.MultiplyChecked => ExpressionType.Multiply,
-                    _ => binaryExpression.NodeType
+                    _ => node.NodeType
                 };
 
-                return TranslationFailed(binaryExpression.Left, visitedLeft, out var sqlLeft)
-                    || TranslationFailed(binaryExpression.Right, visitedRight, out var sqlRight)
-                        ? QueryCompilationContext.NotTranslatedExpression
-                        : sqlExpressionFactory.MakeBinary(
-                            uncheckedNodeTypeVariant,
-                            sqlLeft!,
-                            sqlRight!,
-                            typeMapping: null)
-                        ?? QueryCompilationContext.NotTranslatedExpression;
+                return TranslationFailed(node.Left, visitedLeft, out var sqlLeft) || TranslationFailed(node.Right, visitedRight, out var sqlRight) ? QueryCompilationContext.NotTranslatedExpression : sqlExpressionFactory.MakeBinary( uncheckedNodeTypeVariant, sqlLeft!, sqlRight!, typeMapping: null) ?? QueryCompilationContext.NotTranslatedExpression;
         }
 
         Expression ProcessGetType(StructuralTypeReferenceExpression typeReference, Type comparisonType, bool match)
@@ -337,15 +329,15 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
+    protected override Expression VisitConditional(ConditionalExpression node)
     {
-        var test = Visit(conditionalExpression.Test);
-        var ifTrue = Visit(conditionalExpression.IfTrue);
-        var ifFalse = Visit(conditionalExpression.IfFalse);
+        var test = Visit(node.Test);
+        var ifTrue = Visit(node.IfTrue);
+        var ifFalse = Visit(node.IfFalse);
 
-        return TranslationFailed(conditionalExpression.Test, test, out var sqlTest)
-            || TranslationFailed(conditionalExpression.IfTrue, ifTrue, out var sqlIfTrue)
-            || TranslationFailed(conditionalExpression.IfFalse, ifFalse, out var sqlIfFalse)
+        return TranslationFailed(node.Test, test, out var sqlTest)
+            || TranslationFailed(node.IfTrue, ifTrue, out var sqlIfTrue)
+            || TranslationFailed(node.IfFalse, ifFalse, out var sqlIfFalse)
                 ? QueryCompilationContext.NotTranslatedExpression
                 : sqlExpressionFactory.Condition(sqlTest!, sqlIfTrue!, sqlIfFalse!);
     }
@@ -356,8 +348,8 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitConstant(ConstantExpression constantExpression)
-        => new SqlConstantExpression(constantExpression.Value, constantExpression.Type, typeMapping: null);
+    protected override Expression VisitConstant(ConstantExpression node)
+        => new SqlConstantExpression(node.Value, node.Type, typeMapping: null);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -365,16 +357,16 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitExtension(Expression extensionExpression)
+    protected override Expression VisitExtension(Expression node)
     {
-        switch (extensionExpression)
+        switch (node)
         {
             case ObjectAccessExpression:
             case ObjectArrayAccessExpression:
             case StructuralTypeProjectionExpression:
             case StructuralTypeReferenceExpression:
             case SqlExpression:
-                return extensionExpression;
+                return node;
 
             case QueryParameterExpression queryParameter:
                 return new SqlParameterExpression(
@@ -403,10 +395,7 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
             //     : QueryCompilationContext.NotTranslatedExpression;
 
             case ProjectionBindingExpression projectionBindingExpression:
-                return projectionBindingExpression.ProjectionMember != null
-                    ? ((SelectExpression)projectionBindingExpression.QueryExpression)
-                    .GetMappedProjection(projectionBindingExpression.ProjectionMember)
-                    : QueryCompilationContext.NotTranslatedExpression;
+                return projectionBindingExpression.ProjectionMember != null ? ((SelectExpression)projectionBindingExpression.QueryExpression) .GetMappedProjection(projectionBindingExpression.ProjectionMember) : QueryCompilationContext.NotTranslatedExpression;
 
             // This case is for a subquery embedded in a lambda, returning a scalar, e.g. Where(b => b.Posts.Count() > 0).
             // For most cases, generate a scalar subquery (WHERE (SELECT COUNT(*) FROM Posts) > 0).
@@ -497,7 +486,7 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitInvocation(InvocationExpression invocationExpression)
+    protected override Expression VisitInvocation(InvocationExpression node)
         => QueryCompilationContext.NotTranslatedExpression;
 
     /// <summary>
@@ -506,8 +495,8 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitLambda<T>(Expression<T> lambdaExpression)
-        => throw new InvalidOperationException(CoreStrings.TranslationFailed(lambdaExpression.Print()));
+    protected override Expression VisitLambda<T>(Expression<T> node)
+        => throw new InvalidOperationException(CoreStrings.TranslationFailed(node.Print()));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -515,7 +504,7 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitListInit(ListInitExpression listInitExpression)
+    protected override Expression VisitListInit(ListInitExpression node)
         => QueryCompilationContext.NotTranslatedExpression;
 
     /// <summary>
@@ -524,13 +513,13 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitMember(MemberExpression memberExpression)
+    protected override Expression VisitMember(MemberExpression node)
     {
-        var member = memberExpression.Member;
-        var inner = Visit(memberExpression.Expression);
+        var member = node.Member;
+        var inner = Visit(node.Expression);
 
         // Try binding the member to a property on the structural type
-        if (TryBindMember(inner, MemberIdentity.Create(memberExpression.Member), out var expression, out _))
+        if (TryBindMember(inner, MemberIdentity.Create(node.Member), out var expression, out _))
         {
             return expression;
         }
@@ -551,16 +540,16 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
                 case nameof(Nullable<>.HasValue)
                     when inner is StructuralTypeReferenceExpression
                     && TryRewriteStructuralTypeEquality(
-                        ExpressionType.NotEqual, inner, new SqlConstantExpression(null, memberExpression.Expression!.Type, null),
+                        ExpressionType.NotEqual, inner, new SqlConstantExpression(null, node.Expression!.Type, null),
                         equalsMethod: false, out var result):
                     return result;
             }
         }
 
-        return (TranslationFailed(memberExpression.Expression, inner, out var sqlInnerExpression)
+        return (TranslationFailed(node.Expression, inner, out var sqlInnerExpression)
                 ? QueryCompilationContext.NotTranslatedExpression
                 : memberTranslatorProvider.Translate(
-                    sqlInnerExpression, memberExpression.Member, memberExpression.Type, queryCompilationContext.Logger))
+                    sqlInnerExpression, node.Member, node.Type, queryCompilationContext.Logger))
             ?? QueryCompilationContext.NotTranslatedExpression;
     }
 
@@ -570,8 +559,8 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitMemberInit(MemberInitExpression memberInitExpression)
-        => TryEvaluateToConstant(memberInitExpression, out var sqlConstantExpression)
+    protected override Expression VisitMemberInit(MemberInitExpression node)
+        => TryEvaluateToConstant(node, out var sqlConstantExpression)
             ? sqlConstantExpression
             : QueryCompilationContext.NotTranslatedExpression;
 
@@ -581,9 +570,9 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+    protected override Expression VisitMethodCall(MethodCallExpression node)
     {
-        if (IsMemberAccess(methodCallExpression, _model, out var source, out var memberIdentity))
+        if (IsMemberAccess(node, _model, out var source, out var memberIdentity))
         {
             return TryBindMember(Visit(source), memberIdentity, out var result, out _)
                 ? result
@@ -592,9 +581,9 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
 
         SqlExpression? sqlObject = null;
         SqlExpression[] arguments;
-        var method = methodCallExpression.Method;
+        var method = node.Method;
 
-        switch (methodCallExpression)
+        switch (node)
         {
             case
             {
@@ -603,13 +592,13 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
                 Arguments.Count: 1
             }:
             {
-                var left = Visit(methodCallExpression.Object);
-                var right = Visit(RemoveObjectConvert(methodCallExpression.Arguments[0]));
+                var left = Visit(node.Object);
+                var right = Visit(RemoveObjectConvert(node.Arguments[0]));
 
                 if (TryRewriteStructuralTypeEquality(
                         ExpressionType.Equal,
-                        left == QueryCompilationContext.NotTranslatedExpression ? methodCallExpression.Object : left,
-                        right == QueryCompilationContext.NotTranslatedExpression ? methodCallExpression.Arguments[0] : right,
+                        left == QueryCompilationContext.NotTranslatedExpression ? node.Object : left,
+                        right == QueryCompilationContext.NotTranslatedExpression ? node.Arguments[0] : right,
                         equalsMethod: true,
                         out var result))
                 {
@@ -637,13 +626,13 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
                 Arguments.Count: 2
             }:
             {
-                var left = Visit(RemoveObjectConvert(methodCallExpression.Arguments[0]));
-                var right = Visit(RemoveObjectConvert(methodCallExpression.Arguments[1]));
+                var left = Visit(RemoveObjectConvert(node.Arguments[0]));
+                var right = Visit(RemoveObjectConvert(node.Arguments[1]));
 
                 if (TryRewriteStructuralTypeEquality(
                         ExpressionType.Equal,
-                        left == QueryCompilationContext.NotTranslatedExpression ? methodCallExpression.Arguments[0] : left,
-                        right == QueryCompilationContext.NotTranslatedExpression ? methodCallExpression.Arguments[1] : right,
+                        left == QueryCompilationContext.NotTranslatedExpression ? node.Arguments[0] : left,
+                        right == QueryCompilationContext.NotTranslatedExpression ? node.Arguments[1] : right,
                         equalsMethod: true,
                         out var result))
                 {
@@ -665,32 +654,32 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
 
             case { Method: { Name: nameof(Enumerable.Contains), IsGenericMethod: true } }
                 when method.GetGenericMethodDefinition().Equals(EnumerableMethods.Contains):
-                return TranslateContains(methodCallExpression.Arguments[1], methodCallExpression.Arguments[0]);
+                return TranslateContains(node.Arguments[1], node.Arguments[0]);
 
             case { Arguments: [var argument] } when method.IsContainsMethod():
-                return TranslateContains(argument, methodCallExpression.Object!);
+                return TranslateContains(argument, node.Object!);
 
             // For queryable methods, either we translate the whole aggregate or we go to subquery mode
             case { Method.IsStatic: true, Arguments.Count: > 0 }
                 when method.DeclaringType == typeof(Queryable)
                 || method.DeclaringType == typeof(EntityFrameworkQueryableExtensions)
                 || method.DeclaringType == typeof(CosmosQueryableExtensions):
-                return TranslateAsSubquery(methodCallExpression);
+                return TranslateAsSubquery(node);
 
             default:
             {
-                if (TranslationFailed(methodCallExpression.Object, Visit(methodCallExpression.Object), out sqlObject))
+                if (TranslationFailed(node.Object, Visit(node.Object), out sqlObject))
                 {
                     return QueryCompilationContext.NotTranslatedExpression;
                 }
 
-                arguments = new SqlExpression[methodCallExpression.Arguments.Count];
+                arguments = new SqlExpression[node.Arguments.Count];
                 for (var i = 0; i < arguments.Length; i++)
                 {
-                    var argument = RemoveObjectConvert(methodCallExpression.Arguments[i]);
+                    var argument = RemoveObjectConvert(node.Arguments[i]);
                     if (TranslationFailed(argument, Visit(argument), out var sqlArgument))
                     {
-                        return TranslateAsSubquery(methodCallExpression);
+                        return TranslateAsSubquery(node);
                     }
 
                     arguments[i] = sqlArgument!;
@@ -701,20 +690,20 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
         }
 
         Expression? translation = methodCallTranslatorProvider.Translate(
-            _model, sqlObject, methodCallExpression.Method, arguments, queryCompilationContext.Logger);
+            _model, sqlObject, node.Method, arguments, queryCompilationContext.Logger);
         if (translation is not null)
         {
             return translation;
         }
 
-        translation = TranslateAsSubquery(methodCallExpression);
+        translation = TranslateAsSubquery(node);
         if (translation != QueryCompilationContext.NotTranslatedExpression)
         {
             return translation;
         }
 
-        if (methodCallExpression.Method == StringEqualsWithStringComparison
-            || methodCallExpression.Method == StringEqualsWithStringComparisonStatic)
+        if (node.Method == StringEqualsWithStringComparison
+            || node.Method == StringEqualsWithStringComparisonStatic)
         {
             AddTranslationErrorDetails(CoreStrings.QueryUnableToTranslateStringEqualsWithStringComparison);
         }
@@ -722,8 +711,8 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
         {
             AddTranslationErrorDetails(
                 CoreStrings.QueryUnableToTranslateMethod(
-                    methodCallExpression.Method.DeclaringType?.DisplayName(),
-                    methodCallExpression.Method.Name));
+                    node.Method.DeclaringType?.DisplayName(),
+                    node.Method.Name));
         }
 
         return QueryCompilationContext.NotTranslatedExpression;
@@ -812,8 +801,8 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitNew(NewExpression newExpression)
-        => TryEvaluateToConstant(newExpression, out var sqlConstantExpression)
+    protected override Expression VisitNew(NewExpression node)
+        => TryEvaluateToConstant(node, out var sqlConstantExpression)
             ? sqlConstantExpression
             : QueryCompilationContext.NotTranslatedExpression;
 
@@ -823,9 +812,9 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitNewArray(NewArrayExpression newArrayExpression)
+    protected override Expression VisitNewArray(NewArrayExpression node)
     {
-        var expressions = newArrayExpression.Expressions;
+        var expressions = node.Expressions;
         var translatedItems = new SqlExpression[expressions.Count];
 
         for (var i = 0; i < expressions.Count; i++)
@@ -838,8 +827,8 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
             translatedItems[i] = translatedItem;
         }
 
-        var arrayTypeMapping = typeMappingSource.FindMapping(newArrayExpression.Type);
-        var elementClrType = newArrayExpression.Type.GetElementType()!;
+        var arrayTypeMapping = typeMappingSource.FindMapping(node.Type);
+        var elementClrType = node.Type.GetElementType()!;
         var inlineArray = new ArrayConstantExpression(elementClrType, translatedItems, arrayTypeMapping);
 
         return inlineArray;
@@ -851,7 +840,7 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitParameter(ParameterExpression parameterExpression)
+    protected override Expression VisitParameter(ParameterExpression node)
         => QueryCompilationContext.NotTranslatedExpression;
 
     /// <summary>
@@ -860,22 +849,22 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitUnary(UnaryExpression unaryExpression)
+    protected override Expression VisitUnary(UnaryExpression node)
     {
-        var operand = Visit(unaryExpression.Operand);
+        var operand = Visit(node.Operand);
 
         if (operand is StructuralTypeReferenceExpression structuralTypeReferenceExpression
-            && unaryExpression.NodeType is ExpressionType.Convert or ExpressionType.ConvertChecked or ExpressionType.TypeAs)
+            && node.NodeType is ExpressionType.Convert or ExpressionType.ConvertChecked or ExpressionType.TypeAs)
         {
-            return structuralTypeReferenceExpression.Convert(unaryExpression.Type);
+            return structuralTypeReferenceExpression.Convert(node.Type);
         }
 
-        if (TranslationFailed(unaryExpression.Operand, operand, out var sqlOperand))
+        if (TranslationFailed(node.Operand, operand, out var sqlOperand))
         {
             return QueryCompilationContext.NotTranslatedExpression;
         }
 
-        switch (unaryExpression.NodeType)
+        switch (node.NodeType)
         {
             case ExpressionType.Not when operand is SqlConstantExpression { Value: bool boolValue }:
                 return sqlExpressionFactory.Constant(!boolValue);
@@ -891,24 +880,24 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
             case ExpressionType.TypeAs:
                 // Object convert needs to be converted to explicit cast when mismatching types
                 if ((operand.Type.IsInterface
-                        && unaryExpression.Type.GetInterfaces().Any(e => e == operand.Type))
+                        && node.Type.GetInterfaces().Any(e => e == operand.Type))
                     // We strip out implicit conversions, e.g. float[] -> ReadOnlyMemory<float> (for vector search)
-                    || (unaryExpression.Method is { IsSpecialName: true, Name: "op_Implicit" }
-                        && IsReadOnlyMemory(unaryExpression.Type.UnwrapNullableType()))
-                    || unaryExpression.Type.UnwrapNullableType() == operand.Type.UnwrapNullableType()
-                    || unaryExpression.Type.UnwrapNullableType() == typeof(Enum))
+                    || (node.Method is { IsSpecialName: true, Name: "op_Implicit" }
+                        && IsReadOnlyMemory(node.Type.UnwrapNullableType()))
+                    || node.Type.UnwrapNullableType() == operand.Type.UnwrapNullableType()
+                    || node.Type.UnwrapNullableType() == typeof(Enum))
                 {
                     return sqlOperand!;
                 }
 
                 // Introduce explicit cast only if the target type is mapped else we need to client eval
-                if (unaryExpression.Type == typeof(object)
-                    || typeMappingSource.FindMapping(unaryExpression.Type, queryCompilationContext.Model) != null)
+                if (node.Type == typeof(object)
+                    || typeMappingSource.FindMapping(node.Type, queryCompilationContext.Model) != null)
                 {
                     sqlOperand = sqlExpressionFactory.ApplyDefaultTypeMapping(sqlOperand);
                     return sqlOperand?.TypeMapping is null
                         ? QueryCompilationContext.NotTranslatedExpression
-                        : sqlExpressionFactory.Convert(sqlOperand!, unaryExpression.Type);
+                        : sqlExpressionFactory.Convert(sqlOperand!, node.Type);
                 }
 
                 break;
@@ -925,11 +914,11 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
     }
 
     /// <inheritdoc />
-    protected override Expression VisitTypeBinary(TypeBinaryExpression typeBinaryExpression)
+    protected override Expression VisitTypeBinary(TypeBinaryExpression node)
     {
-        var innerExpression = Visit(typeBinaryExpression.Expression);
+        var innerExpression = Visit(node.Expression);
 
-        if (typeBinaryExpression.NodeType != ExpressionType.TypeIs
+        if (node.NodeType != ExpressionType.TypeIs
             || innerExpression is not StructuralTypeReferenceExpression typeReference)
         {
             return QueryCompilationContext.NotTranslatedExpression;
@@ -937,15 +926,15 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
 
         if (typeReference.StructuralType is not IEntityType entityType)
         {
-            return sqlExpressionFactory.Constant(typeReference.StructuralType.ClrType == typeBinaryExpression.TypeOperand);
+            return sqlExpressionFactory.Constant(typeReference.StructuralType.ClrType == node.TypeOperand);
         }
 
-        if (entityType.GetAllBaseTypesInclusive().Any(et => et.ClrType == typeBinaryExpression.TypeOperand))
+        if (entityType.GetAllBaseTypesInclusive().Any(et => et.ClrType == node.TypeOperand))
         {
             return sqlExpressionFactory.Constant(true);
         }
 
-        var derivedType = entityType.GetDerivedTypes().SingleOrDefault(et => et.ClrType == typeBinaryExpression.TypeOperand);
+        var derivedType = entityType.GetDerivedTypes().SingleOrDefault(et => et.ClrType == node.TypeOperand);
         if (derivedType != null
             && TryBindMember(
                 typeReference,
@@ -1197,9 +1186,9 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
 
     private sealed class SqlTypeMappingVerifyingExpressionVisitor : ExpressionVisitor
     {
-        protected override Expression VisitExtension(Expression extensionExpression)
-            => extensionExpression is SqlExpression { TypeMapping: null } sqlExpression
+        protected override Expression VisitExtension(Expression node)
+            => node is SqlExpression { TypeMapping: null } sqlExpression
                 ? throw new InvalidOperationException(CosmosStrings.NullTypeMappingInSqlTree(sqlExpression.Print()))
-                : base.VisitExtension(extensionExpression);
+                : base.VisitExtension(node);
     }
 }

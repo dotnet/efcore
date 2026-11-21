@@ -314,13 +314,13 @@ public class CustomTypesIdentityContext(DbContextOptions options)
         CustomUserRoleString,
         CustomUserLoginString, CustomRoleClaimString, CustomUserTokenString>(options)
 {
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    protected override void OnModelCreating(ModelBuilder builder)
     {
-        base.OnModelCreating(modelBuilder);
+        base.OnModelCreating(builder);
 
-        modelBuilder.HasDefaultSchema("notdbo");
+        builder.HasDefaultSchema("notdbo");
 
-        modelBuilder.Entity<CustomUserString>(b =>
+        builder.Entity<CustomUserString>(b =>
         {
             b.HasMany(e => e.Roles)
                 .WithMany(e => e.Users)
@@ -338,27 +338,27 @@ public class CustomTypesIdentityContext(DbContextOptions options)
             b.Property(u => u.NormalizedEmail).HasMaxLength(128);
         });
 
-        modelBuilder.Entity<CustomRoleString>(b =>
+        builder.Entity<CustomRoleString>(b =>
         {
             b.HasMany(e => e.UserRoles).WithOne(e => e.Role).HasForeignKey(ur => ur.RoleId).IsRequired();
             b.HasMany(e => e.RoleClaims).WithOne(e => e.Role).HasForeignKey(rc => rc.RoleId).IsRequired();
             b.ToTable("MyRoles");
         });
 
-        modelBuilder.Entity<CustomUserClaimString>(b => b.ToTable("MyUserClaims"));
+        builder.Entity<CustomUserClaimString>(b => b.ToTable("MyUserClaims"));
 
-        modelBuilder.Entity<CustomUserLoginString>(b => b.ToTable("MyUserLogins"));
+        builder.Entity<CustomUserLoginString>(b => b.ToTable("MyUserLogins"));
 
-        modelBuilder.Entity<CustomUserTokenString>(b =>
+        builder.Entity<CustomUserTokenString>(b =>
         {
             b.Property(t => t.LoginProvider).HasMaxLength(128);
             b.Property(t => t.Name).HasMaxLength(128);
             b.ToTable("MyUserTokens");
         });
 
-        modelBuilder.Entity<CustomRoleClaimString>(b => b.ToTable("MyRoleClaims"));
+        builder.Entity<CustomRoleClaimString>(b => b.ToTable("MyRoleClaims"));
 
-        modelBuilder.Entity<CustomUserRoleString>(b => b.ToTable("MyUserRoles"));
+        builder.Entity<CustomUserRoleString>(b => b.ToTable("MyUserRoles"));
     }
 }
 

@@ -44,19 +44,19 @@ public class OperatorsProceduralSqlServerTest : OperatorsProceduralQueryTestBase
 
     protected class SqlServerExpectedQueryRewritingVisitor : ExpectedQueryRewritingVisitor
     {
-        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            if (methodCallExpression.Method == AtTimeZoneDateTimeOffsetMethodInfo
-                && methodCallExpression.Arguments[2] is ConstantExpression { Value: "UTC" })
+            if (node.Method == AtTimeZoneDateTimeOffsetMethodInfo
+                && node.Arguments[2] is ConstantExpression { Value: "UTC" })
             {
-                var inner = Visit(methodCallExpression.Arguments[1]);
+                var inner = Visit(node.Arguments[1]);
 
                 return Expression.Convert(
                     Expression.Property(inner, nameof(DateTimeOffset.UtcDateTime)),
                     typeof(DateTimeOffset));
             }
 
-            return base.VisitMethodCall(methodCallExpression);
+            return base.VisitMethodCall(node);
         }
     }
 }

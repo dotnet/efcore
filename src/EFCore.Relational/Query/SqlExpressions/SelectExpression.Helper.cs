@@ -10,10 +10,10 @@ public sealed partial class SelectExpression
 {
     private sealed class EntityShaperNullableMarkingExpressionVisitor : ExpressionVisitor
     {
-        protected override Expression VisitExtension(Expression extensionExpression)
-            => extensionExpression is StructuralTypeShaperExpression shaper
+        protected override Expression VisitExtension(Expression node)
+            => node is StructuralTypeShaperExpression shaper
                 ? shaper.MakeNullable()
-                : base.VisitExtension(extensionExpression);
+                : base.VisitExtension(node);
     }
 
     private sealed class SelectExpressionCorrelationFindingExpressionVisitor(SelectExpression outerSelectExpression) : ExpressionVisitor
@@ -29,23 +29,23 @@ public sealed partial class SelectExpression
             return _containsOuterReference;
         }
 
-        [return: NotNullIfNotNull(nameof(expression))]
-        public override Expression? Visit(Expression? expression)
+        [return: NotNullIfNotNull(nameof(node))]
+        public override Expression? Visit(Expression? node)
         {
             if (_containsOuterReference)
             {
-                return expression;
+                return node;
             }
 
-            if (expression is ColumnExpression columnExpression
+            if (node is ColumnExpression columnExpression
                 && outerSelectExpression.ContainsReferencedTable(columnExpression))
             {
                 _containsOuterReference = true;
 
-                return expression;
+                return node;
             }
 
-            return base.Visit(expression);
+            return base.Visit(node);
         }
     }
 
@@ -86,9 +86,9 @@ public sealed partial class SelectExpression
         public IReadOnlyDictionary<Expression, Expression> RebuiltNodes
             => _tracker.Nodes;
 
-        protected override Expression VisitExtension(Expression expression)
+        protected override Expression VisitExtension(Expression node)
         {
-            if (expression is ProjectionBindingExpression projectionBindingExpression)
+            if (node is ProjectionBindingExpression projectionBindingExpression)
             {
                 Check.DebugAssert(
                     projectionBindingExpression.ProjectionMember is not null,
@@ -100,7 +100,7 @@ public sealed partial class SelectExpression
                     projectionBindingExpression.Type);
             }
 
-            return base.VisitExtension(expression);
+            return base.VisitExtension(node);
         }
 
         protected override Expression VisitNew(NewExpression node)
@@ -330,10 +330,10 @@ public sealed partial class SelectExpression
         Dictionary<ProjectionMember, int> projectionMemberMappings)
         : ExpressionVisitor
     {
-        [return: NotNullIfNotNull(nameof(expression))]
-        public override Expression? Visit(Expression? expression)
+        [return: NotNullIfNotNull(nameof(node))]
+        public override Expression? Visit(Expression? node)
         {
-            if (expression is ProjectionBindingExpression projectionBindingExpression)
+            if (node is ProjectionBindingExpression projectionBindingExpression)
             {
                 Check.DebugAssert(
                     projectionBindingExpression.ProjectionMember != null,
@@ -345,7 +345,7 @@ public sealed partial class SelectExpression
                     projectionBindingExpression.Type);
             }
 
-            return base.Visit(expression);
+            return base.Visit(node);
         }
     }
 
@@ -355,10 +355,10 @@ public sealed partial class SelectExpression
         int[] indexMap)
         : ExpressionVisitor
     {
-        [return: NotNullIfNotNull(nameof(expression))]
-        public override Expression? Visit(Expression? expression)
+        [return: NotNullIfNotNull(nameof(node))]
+        public override Expression? Visit(Expression? node)
         {
-            if (expression is ProjectionBindingExpression projectionBindingExpression
+            if (node is ProjectionBindingExpression projectionBindingExpression
                 && ReferenceEquals(projectionBindingExpression.QueryExpression, oldSelectExpression))
             {
                 Check.DebugAssert(
@@ -371,7 +371,7 @@ public sealed partial class SelectExpression
                     projectionBindingExpression.Type);
             }
 
-            return base.Visit(expression);
+            return base.Visit(node);
         }
     }
 
@@ -403,10 +403,10 @@ public sealed partial class SelectExpression
             return result;
         }
 
-        [return: NotNullIfNotNull(nameof(expression))]
-        public override Expression? Visit(Expression? expression)
+        [return: NotNullIfNotNull(nameof(node))]
+        public override Expression? Visit(Expression? node)
         {
-            switch (expression)
+            switch (node)
             {
                 case SqlExpression sqlExpression
                     when mappings.TryGetValue(sqlExpression, out var outer):
@@ -432,7 +432,7 @@ public sealed partial class SelectExpression
                     return outerColumn1;
 
                 default:
-                    return base.Visit(expression);
+                    return base.Visit(node);
             }
         }
 
@@ -440,10 +440,10 @@ public sealed partial class SelectExpression
         {
             private bool _doesNotContainLocalTerms = true;
 
-            [return: NotNullIfNotNull(nameof(expression))]
-            public override Expression? Visit(Expression? expression)
+            [return: NotNullIfNotNull(nameof(node))]
+            public override Expression? Visit(Expression? node)
             {
-                if (expression is SqlExpression sqlExpression and not SqlFragmentExpression)
+                if (node is SqlExpression sqlExpression and not SqlFragmentExpression)
                 {
                     if (correlatedTerms.Contains(sqlExpression)
                         || sqlExpression is SqlConstantExpression or SqlParameterExpression)
@@ -454,7 +454,7 @@ public sealed partial class SelectExpression
 
                     var parentDoesNotContainLocalTerms = _doesNotContainLocalTerms;
                     _doesNotContainLocalTerms = sqlExpression is not ColumnExpression;
-                    base.Visit(expression);
+                    base.Visit(node);
                     if (_doesNotContainLocalTerms)
                     {
                         correlatedTerms.Add(sqlExpression);
@@ -462,10 +462,10 @@ public sealed partial class SelectExpression
 
                     _doesNotContainLocalTerms = _doesNotContainLocalTerms && parentDoesNotContainLocalTerms;
 
-                    return expression;
+                    return node;
                 }
 
-                return base.Visit(expression);
+                return base.Visit(node);
             }
         }
     }
@@ -513,9 +513,9 @@ public sealed partial class SelectExpression
 
     private sealed class ClientProjectionRemappingExpressionVisitor(List<object> clientProjectionIndexMap) : ExpressionVisitor
     {
-        protected override Expression VisitExtension(Expression expression)
+        protected override Expression VisitExtension(Expression node)
         {
-            switch (expression)
+            switch (node)
             {
                 case ProjectionBindingExpression projectionBindingExpression:
                 {
@@ -578,7 +578,7 @@ public sealed partial class SelectExpression
                         relationalGroupByResultExpression.ResultSelector);
 
                 default:
-                    return base.VisitExtension(expression);
+                    return base.VisitExtension(node);
             }
         }
     }
@@ -591,10 +591,10 @@ public sealed partial class SelectExpression
     {
         private readonly Dictionary<string, string> _tableAliasMap = [];
 
-        [return: NotNullIfNotNull(nameof(expression))]
-        public override Expression? Visit(Expression? expression)
+        [return: NotNullIfNotNull(nameof(node))]
+        public override Expression? Visit(Expression? node)
         {
-            switch (expression)
+            switch (node)
             {
                 case ShapedQueryExpression shapedQuery:
                     return shapedQuery.UpdateQueryExpression(Visit(shapedQuery.QueryExpression));
@@ -618,18 +618,18 @@ public sealed partial class SelectExpression
                         column.Name, newTableAlias, column.Column, column.Type, column.TypeMapping, column.IsNullable);
 
                 default:
-                    return base.Visit(expression);
+                    return base.Visit(node);
             }
         }
     }
 
     private sealed class TpcTableExpressionRemovingExpressionVisitor(SqlAliasManager sqlAliasManager) : ExpressionVisitor
     {
-        protected override Expression VisitExtension(Expression expression)
+        protected override Expression VisitExtension(Expression node)
         {
-            if (expression is not SelectExpression selectExpression)
+            if (node is not SelectExpression selectExpression)
             {
-                return base.VisitExtension(expression);
+                return base.VisitExtension(node);
             }
 
             // If selectExpression doesn't have any other component and only TPC tables then we can lift it

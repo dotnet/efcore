@@ -162,7 +162,7 @@ public sealed class EntityFrameworkEventSource : EventSource
             _compiledQueryCacheHitRateCounter ??= new PollingCounter(
                 "compiled-query-cache-hit-rate",
                 this,
-                () => EntityFrameworkMetricsData.GetCompiledQueryCacheHitRateEventSource().hitRate)
+                () => EntityFrameworkMetricsData.GetCompiledQueryCacheHitRateEventSource().HitRate)
             {
                 DisplayName = "Query Cache Hit Rate",
                 DisplayUnits = "%"

@@ -158,28 +158,28 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     }
 
     /// <inheritdoc />
-    protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+    protected override Expression VisitMethodCall(MethodCallExpression node)
     {
-        var method = methodCallExpression.Method;
+        var method = node.Method;
 
-        if (methodCallExpression.Method.DeclaringType == typeof(CosmosQueryableExtensions)
-            && methodCallExpression.Method.Name == nameof(CosmosQueryableExtensions.WithPartitionKey))
+        if (node.Method.DeclaringType == typeof(CosmosQueryableExtensions)
+            && node.Method.Name == nameof(CosmosQueryableExtensions.WithPartitionKey))
         {
             if (_queryCompilationContext.PartitionKeyPropertyValues.Count > 0)
             {
                 throw new InvalidOperationException(CosmosStrings.WithPartitionKeyAlreadyCalled);
             }
 
-            if (methodCallExpression.Arguments[0] is not EntityQueryRootExpression)
+            if (node.Arguments[0] is not EntityQueryRootExpression)
             {
                 throw new InvalidOperationException(CosmosStrings.WithPartitionKeyBadNode);
             }
 
-            var innerQueryable = Visit(methodCallExpression.Arguments[0]);
+            var innerQueryable = Visit(node.Arguments[0]);
 
-            for (var i = 1; i < methodCallExpression.Arguments.Count; i++)
+            for (var i = 1; i < node.Arguments.Count; i++)
             {
-                var value = _sqlTranslator.Translate(methodCallExpression.Arguments[i], applyDefaultTypeMapping: false);
+                var value = _sqlTranslator.Translate(node.Arguments[i], applyDefaultTypeMapping: false);
                 if (value is not SqlConstantExpression and not SqlParameterExpression)
                 {
                     throw new InvalidOperationException(CosmosStrings.WithPartitionKeyNotConstantOrParameter);
@@ -193,7 +193,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
 
         if (method.DeclaringType == typeof(Queryable) && method.IsGenericMethod)
         {
-            switch (methodCallExpression.Method.Name)
+            switch (node.Method.Name)
             {
                 // The following is a bad hack to account for https://github.com/dotnet/efcore/issues/32957#issuecomment-2165864086.
                 // Basically for the query form Where(b => b.Posts.GetElementAt(0).Id == 1), nav expansion moves the property access
@@ -201,7 +201,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                 // over a bare array in Cosmos doesn't get translated to a simple indexer as it should (b["Posts"][0].Id), since the
                 // reordering messes things up.
                 case nameof(Queryable.ElementAt) or nameof(Queryable.ElementAtOrDefault)
-                    when methodCallExpression.Arguments[0] is MethodCallExpression
+                    when node.Arguments[0] is MethodCallExpression
                     {
                         Method: { Name: "Select", IsGenericMethod: true }
                     } innerMethodCall
@@ -215,7 +215,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                         && boundMember is IAccessExpression { PropertyName: { } boundPropertyName }
                         && Visit(innerMethodCall.Arguments[0]) is ShapedQueryExpression innerSource
                         && TranslateElementAtOrDefault(
-                            innerSource, methodCallExpression.Arguments[1], returnDefault) is { } elementAtTranslation)
+                            innerSource, node.Arguments[1], returnDefault) is { } elementAtTranslation)
                     {
 #pragma warning disable EF1001 // Internal EF Core API usage.
                         var translation = _sqlTranslator.Translate(
@@ -240,13 +240,13 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             }
         }
 
-        return base.VisitMethodCall(methodCallExpression);
+        return base.VisitMethodCall(node);
     }
 
     /// <inheritdoc />
-    protected override Expression VisitExtension(Expression extensionExpression)
+    protected override Expression VisitExtension(Expression node)
     {
-        switch (extensionExpression)
+        switch (node)
         {
             case EntityQueryRootExpression when _subquery:
                 AddTranslationErrorDetails(CosmosStrings.NonCorrelatedSubqueriesNotSupported);
@@ -262,7 +262,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                 return CreateShapedQueryExpression(entityType, selectExpression) ?? QueryCompilationContext.NotTranslatedExpression;
 
             default:
-                return base.VisitExtension(extensionExpression);
+                return base.VisitExtension(node);
         }
     }
 
@@ -490,10 +490,10 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override ShapedQueryExpression TranslateCast(ShapedQueryExpression source, Type resultType)
-        => source.ShaperExpression.Type == resultType
+    protected override ShapedQueryExpression TranslateCast(ShapedQueryExpression source, Type castType)
+        => source.ShaperExpression.Type == castType
             ? source
-            : source.UpdateShaperExpression(Expression.Convert(source.ShaperExpression, resultType));
+            : source.UpdateShaperExpression(Expression.Convert(source.ShaperExpression, castType));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

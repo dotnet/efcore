@@ -523,10 +523,7 @@ public static class SqlServerPropertyExtensions
     /// <param name="property">The property.</param>
     /// <returns>The identity increment.</returns>
     public static int? GetIdentityIncrement(this IReadOnlyProperty property)
-        => (property is RuntimeProperty)
-            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
-            : (int?)property[SqlServerAnnotationNames.IdentityIncrement]
-            ?? property.DeclaringType.Model.GetIdentityIncrement();
+        => (property is RuntimeProperty) ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData) : (int?)property[SqlServerAnnotationNames.IdentityIncrement] ?? property.DeclaringType.Model.GetIdentityIncrement();
 
     /// <summary>
     ///     Returns the identity increment.
@@ -737,16 +734,7 @@ public static class SqlServerPropertyExtensions
         var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
         if (sharedTableRootProperty != null)
         {
-            return sharedTableRootProperty.GetValueGenerationStrategy(storeObject, typeMappingSource)
-                == SqlServerValueGenerationStrategy.IdentityColumn
-                && table.StoreObjectType == StoreObjectType.Table
-                && !property.GetContainingForeignKeys().Any(fk =>
-                    !fk.IsBaseLinking()
-                    || (StoreObjectIdentifier.Create(fk.PrincipalEntityType, StoreObjectType.Table)
-                            is { } principal
-                        && fk.GetConstraintName(table, principal) != null))
-                    ? SqlServerValueGenerationStrategy.IdentityColumn
-                    : SqlServerValueGenerationStrategy.None;
+            return sharedTableRootProperty.GetValueGenerationStrategy(storeObject, typeMappingSource) == SqlServerValueGenerationStrategy.IdentityColumn && table.StoreObjectType == StoreObjectType.Table && !property.GetContainingForeignKeys().Any(fk => !fk.IsBaseLinking() || (StoreObjectIdentifier.Create(fk.PrincipalEntityType, StoreObjectType.Table) is { } principal && fk.GetConstraintName(table, principal) != null)) ? SqlServerValueGenerationStrategy.IdentityColumn : SqlServerValueGenerationStrategy.None;
         }
 
         if (property.ValueGenerated != ValueGenerated.OnAdd

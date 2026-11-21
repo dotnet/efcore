@@ -2072,9 +2072,9 @@ FROM root c
 """);
             });
 
-    public override Task Select_over_10_nested_ternary_condition(bool async)
+    public override Task Select_over_10_nested_ternary_condition(bool isAsync)
         => Fixture.NoSyncTest(
-            async, async a =>
+            isAsync, async a =>
             {
                 await base.Select_over_10_nested_ternary_condition(a);
                 AssertSql(

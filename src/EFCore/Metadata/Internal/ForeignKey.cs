@@ -1178,27 +1178,7 @@ public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConvention
         Check.NotNull(principalEntityType);
         Check.NotNull(dependentEntityType);
 
-        return !ArePropertyCountsEqual(principalProperties, dependentProperties)
-            ? shouldThrow
-                ? throw new InvalidOperationException(
-                    CoreStrings.ForeignKeyCountMismatch(
-                        dependentProperties.Format(),
-                        dependentEntityType.DisplayName(),
-                        principalProperties.Format(),
-                        principalEntityType.DisplayName()))
-                : false
-            : ArePropertyTypesCompatible(principalProperties, dependentProperties)
-            || (principalEntityType.Model is Model model
-                && ReferenceEquals(model, dependentEntityType.Model)
-                && model.IsInModelSnapshot)
-            || (shouldThrow
-                ? throw new InvalidOperationException(
-                    CoreStrings.ForeignKeyTypeMismatch(
-                        dependentProperties.Format(includeTypes: true),
-                        dependentEntityType.DisplayName(),
-                        principalProperties.Format(includeTypes: true),
-                        principalEntityType.DisplayName()))
-                : false);
+        return !ArePropertyCountsEqual(principalProperties, dependentProperties) ? shouldThrow ? throw new InvalidOperationException( CoreStrings.ForeignKeyCountMismatch( dependentProperties.Format(), dependentEntityType.DisplayName(), principalProperties.Format(), principalEntityType.DisplayName())) : false : ArePropertyTypesCompatible(principalProperties, dependentProperties) || (principalEntityType.Model is Model model && ReferenceEquals(model, dependentEntityType.Model) && model.IsInModelSnapshot) || (shouldThrow ? throw new InvalidOperationException( CoreStrings.ForeignKeyTypeMismatch( dependentProperties.Format(includeTypes: true), dependentEntityType.DisplayName(), principalProperties.Format(includeTypes: true), principalEntityType.DisplayName())) : false);
     }
 
     private static bool ArePropertyCountsEqual(

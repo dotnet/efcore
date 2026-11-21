@@ -1472,14 +1472,14 @@ public partial class TestDbContext : DbContext
         private class TestModelAnnotationProvider(RelationalAnnotationProviderDependencies dependencies)
             : SqlServerAnnotationProvider(dependencies)
         {
-            public override IEnumerable<IAnnotation> For(IRelationalModel database, bool designTime)
+            public override IEnumerable<IAnnotation> For(IRelationalModel model, bool designTime)
             {
-                foreach (var annotation in base.For(database, designTime))
+                foreach (var annotation in base.For(model, designTime))
                 {
                     yield return annotation;
                 }
 
-                if (database["Test:TestModelAnnotation"] is string annotationValue)
+                if (model["Test:TestModelAnnotation"] is string annotationValue)
                 {
                     yield return new Annotation("Test:TestModelAnnotation", annotationValue);
                 }

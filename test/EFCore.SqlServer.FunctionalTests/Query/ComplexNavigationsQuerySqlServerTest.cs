@@ -3518,9 +3518,9 @@ FROM (
 """);
     }
 
-    public override async Task Include_with_all_method_include_gets_ignored(bool isAsnc)
+    public override async Task Include_with_all_method_include_gets_ignored(bool async)
     {
-        await base.Include_with_all_method_include_gets_ignored(isAsnc);
+        await base.Include_with_all_method_include_gets_ignored(async);
 
         AssertSql(
             """

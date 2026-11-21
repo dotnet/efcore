@@ -213,11 +213,11 @@ WHERE [s].[ParentId] = @p
 
     public override async Task Lazy_load_collection_already_loaded(
         EntityState state,
-        CascadeTiming cascadeDeleteTiming,
+        CascadeTiming deleteOrphansTiming,
         QueryTrackingBehavior queryTrackingBehavior,
         bool async)
     {
-        await base.Lazy_load_collection_already_loaded(state, cascadeDeleteTiming, queryTrackingBehavior, async);
+        await base.Lazy_load_collection_already_loaded(state, deleteOrphansTiming, queryTrackingBehavior, async);
 
         AssertSql();
     }
@@ -244,11 +244,11 @@ WHERE [s].[ParentId] = @p
 
     public override async Task Lazy_load_one_to_one_reference_to_dependent_already_loaded(
         EntityState state,
-        CascadeTiming cascadeDeleteTiming,
+        CascadeTiming deleteOrphansTiming,
         QueryTrackingBehavior queryTrackingBehavior,
         bool async)
     {
-        await base.Lazy_load_one_to_one_reference_to_dependent_already_loaded(state, cascadeDeleteTiming, queryTrackingBehavior, async);
+        await base.Lazy_load_one_to_one_reference_to_dependent_already_loaded(state, deleteOrphansTiming, queryTrackingBehavior, async);
 
         AssertSql();
     }
@@ -845,9 +845,9 @@ WHERE [s].[ParentId] = @p
 """);
     }
 
-    public override async Task Load_collection_already_loaded(EntityState state, bool async, CascadeTiming cascadeDeleteTiming)
+    public override async Task Load_collection_already_loaded(EntityState state, bool async, CascadeTiming deleteOrphansTiming)
     {
-        await base.Load_collection_already_loaded(state, async, cascadeDeleteTiming);
+        await base.Load_collection_already_loaded(state, async, deleteOrphansTiming);
 
         AssertSql();
     }
@@ -862,9 +862,9 @@ WHERE [s].[ParentId] = @p
     public override async Task Load_one_to_one_reference_to_principal_already_loaded(
         EntityState state,
         bool async,
-        CascadeTiming cascadeDeleteTiming)
+        CascadeTiming deleteOrphansTiming)
     {
-        await base.Load_one_to_one_reference_to_principal_already_loaded(state, async, cascadeDeleteTiming);
+        await base.Load_one_to_one_reference_to_principal_already_loaded(state, async, deleteOrphansTiming);
 
         AssertSql();
     }
@@ -872,9 +872,9 @@ WHERE [s].[ParentId] = @p
     public override async Task Load_one_to_one_reference_to_dependent_already_loaded(
         EntityState state,
         bool async,
-        CascadeTiming cascadeDeleteTiming)
+        CascadeTiming deleteOrphansTiming)
     {
-        await base.Load_one_to_one_reference_to_dependent_already_loaded(state, async, cascadeDeleteTiming);
+        await base.Load_one_to_one_reference_to_dependent_already_loaded(state, async, deleteOrphansTiming);
 
         AssertSql();
     }
@@ -896,9 +896,9 @@ WHERE [s].[ParentId] = @p
     public override async Task Load_collection_using_Query_already_loaded(
         EntityState state,
         bool async,
-        CascadeTiming cascadeDeleteTiming)
+        CascadeTiming deleteOrphansTiming)
     {
-        await base.Load_collection_using_Query_already_loaded(state, async, cascadeDeleteTiming);
+        await base.Load_collection_using_Query_already_loaded(state, async, deleteOrphansTiming);
 
         AssertSql(
             """
@@ -945,9 +945,9 @@ WHERE [p].[Id] = @p
     public override async Task Load_one_to_one_reference_to_dependent_using_Query_already_loaded(
         EntityState state,
         bool async,
-        CascadeTiming cascadeDeleteTiming)
+        CascadeTiming deleteOrphansTiming)
     {
-        await base.Load_one_to_one_reference_to_dependent_using_Query_already_loaded(state, async, cascadeDeleteTiming);
+        await base.Load_one_to_one_reference_to_dependent_using_Query_already_loaded(state, async, deleteOrphansTiming);
 
         AssertSql(
             """
@@ -1213,9 +1213,9 @@ WHERE [s].[ParentId] = @p
 """);
     }
 
-    public override async Task Load_collection_already_loaded_untyped(EntityState state, bool async, CascadeTiming cascadeDeleteTiming)
+    public override async Task Load_collection_already_loaded_untyped(EntityState state, bool async, CascadeTiming deleteOrphansTiming)
     {
-        await base.Load_collection_already_loaded_untyped(state, async, cascadeDeleteTiming);
+        await base.Load_collection_already_loaded_untyped(state, async, deleteOrphansTiming);
 
         AssertSql();
     }
@@ -1237,9 +1237,9 @@ WHERE [s].[ParentId] = @p
     public override async Task Load_one_to_one_reference_to_dependent_already_loaded_untyped(
         EntityState state,
         bool async,
-        CascadeTiming cascadeDeleteTiming)
+        CascadeTiming deleteOrphansTiming)
     {
-        await base.Load_one_to_one_reference_to_dependent_already_loaded_untyped(state, async, cascadeDeleteTiming);
+        await base.Load_one_to_one_reference_to_dependent_already_loaded_untyped(state, async, deleteOrphansTiming);
 
         AssertSql();
     }
@@ -1247,9 +1247,9 @@ WHERE [s].[ParentId] = @p
     public override async Task Load_collection_using_Query_already_loaded_untyped(
         EntityState state,
         bool async,
-        CascadeTiming cascadeDeleteTiming)
+        CascadeTiming deleteOrphansTiming)
     {
-        await base.Load_collection_using_Query_already_loaded_untyped(state, async, cascadeDeleteTiming);
+        await base.Load_collection_using_Query_already_loaded_untyped(state, async, deleteOrphansTiming);
 
         AssertSql(
             """
@@ -1296,9 +1296,9 @@ WHERE [p].[Id] = @p
     public override async Task Load_one_to_one_reference_to_dependent_using_Query_already_loaded_untyped(
         EntityState state,
         bool async,
-        CascadeTiming cascadeDeleteTiming)
+        CascadeTiming deleteOrphansTiming)
     {
-        await base.Load_one_to_one_reference_to_dependent_using_Query_already_loaded_untyped(state, async, cascadeDeleteTiming);
+        await base.Load_one_to_one_reference_to_dependent_using_Query_already_loaded_untyped(state, async, deleteOrphansTiming);
 
         AssertSql(
             """

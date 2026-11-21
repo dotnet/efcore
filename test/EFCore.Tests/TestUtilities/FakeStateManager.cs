@@ -66,7 +66,7 @@ public class FakeStateManager : IStateManager
         bool modified = false,
         bool deleted = false,
         bool unchanged = false,
-        bool countSharedIdentity = false)
+        bool returnSharedIdentity = false)
         => throw new NotImplementedException();
 
     public int ChangedCount { get; set; }
@@ -206,13 +206,13 @@ public class FakeStateManager : IStateManager
     public void AbortAttachGraph()
         => throw new NotImplementedException();
 
-    public InternalEntityEntry FindPrincipal(InternalEntityEntry entityEntry, IForeignKey foreignKey)
+    public InternalEntityEntry FindPrincipal(InternalEntityEntry dependentEntry, IForeignKey foreignKey)
         => throw new NotImplementedException();
 
-    public InternalEntityEntry FindPrincipalUsingPreStoreGeneratedValues(InternalEntityEntry entityEntry, IForeignKey foreignKey)
+    public InternalEntityEntry FindPrincipalUsingPreStoreGeneratedValues(InternalEntityEntry dependentEntry, IForeignKey foreignKey)
         => throw new NotImplementedException();
 
-    public InternalEntityEntry FindPrincipalUsingRelationshipSnapshot(InternalEntityEntry entityEntry, IForeignKey foreignKey)
+    public InternalEntityEntry FindPrincipalUsingRelationshipSnapshot(InternalEntityEntry dependentEntry, IForeignKey foreignKey)
         => throw new NotImplementedException();
 
     public DbContext Context

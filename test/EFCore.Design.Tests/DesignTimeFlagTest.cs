@@ -52,11 +52,11 @@ public class DesignTimeFlagTest
 
     private class TestContext : DbContext
     {
-        protected override void OnConfiguring(DbContextOptionsBuilder options)
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             Assert.True(EF.IsDesignTime);
 
-            options
+            optionsBuilder
                 .EnableServiceProviderCaching(false)
                 .UseInMemoryDatabase(nameof(DbContextActivatorTest));
         }

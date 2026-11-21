@@ -20,9 +20,9 @@ public class NullCheckRemovingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitBinary(BinaryExpression binaryExpression)
+    protected override Expression VisitBinary(BinaryExpression node)
     {
-        var visitedExpression = base.VisitBinary(binaryExpression);
+        var visitedExpression = base.VisitBinary(node);
 
         return TryOptimizeConditionalEquality(visitedExpression)
             ?? ProcessNullCheck(visitedExpression)
@@ -35,9 +35,9 @@ public class NullCheckRemovingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
+    protected override Expression VisitConditional(ConditionalExpression node)
     {
-        var test = Visit(conditionalExpression.Test);
+        var test = Visit(node.Test);
 
         if (test is BinaryExpression { NodeType: ExpressionType.Equal or ExpressionType.NotEqual } binaryTest)
         {
@@ -46,17 +46,17 @@ public class NullCheckRemovingExpressionVisitor : ExpressionVisitor
 
             if ((isLeftNullConstant == isRightNullConstant)
                 || (binaryTest.NodeType == ExpressionType.Equal
-                    && conditionalExpression.IfTrue is not ConstantExpression { Value: null })
+                    && node.IfTrue is not ConstantExpression { Value: null })
                 || (binaryTest.NodeType == ExpressionType.NotEqual
-                    && conditionalExpression.IfFalse is not ConstantExpression { Value: null }))
+                    && node.IfFalse is not ConstantExpression { Value: null }))
             {
-                return conditionalExpression;
+                return node;
             }
 
             var caller = isLeftNullConstant ? binaryTest.Right : binaryTest.Left;
             var accessOperation = binaryTest.NodeType == ExpressionType.Equal
-                ? conditionalExpression.IfFalse
-                : conditionalExpression.IfTrue;
+                ? node.IfFalse
+                : node.IfTrue;
 
             if (accessOperation is UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } outerUnary
                 && accessOperation.Type.IsNullableType()
@@ -74,7 +74,7 @@ public class NullCheckRemovingExpressionVisitor : ExpressionVisitor
             }
         }
 
-        return base.VisitConditional(conditionalExpression);
+        return base.VisitConditional(node);
     }
 
     private static BinaryExpression? TryOptimizeConditionalEquality(Expression expression)
@@ -169,34 +169,34 @@ public class NullCheckRemovingExpressionVisitor : ExpressionVisitor
             return _nullSafeAccesses.Contains(result);
         }
 
-        [return: NotNullIfNotNull(nameof(expression))]
-        public override Expression? Visit(Expression? expression)
-            => expression == null || _nullSafeAccesses.Contains(expression)
-                ? expression
-                : base.Visit(expression);
+        [return: NotNullIfNotNull(nameof(node))]
+        public override Expression? Visit(Expression? node)
+            => node == null || _nullSafeAccesses.Contains(node)
+                ? node
+                : base.Visit(node);
 
-        protected override Expression VisitMember(MemberExpression memberExpression)
+        protected override Expression VisitMember(MemberExpression node)
         {
-            var innerExpression = Visit(memberExpression.Expression);
+            var innerExpression = Visit(node.Expression);
             if (innerExpression != null
                 && _nullSafeAccesses.Contains(innerExpression))
             {
-                _nullSafeAccesses.Add(memberExpression);
+                _nullSafeAccesses.Add(node);
             }
 
-            return memberExpression;
+            return node;
         }
 
-        protected override Expression VisitUnary(UnaryExpression unaryExpression)
+        protected override Expression VisitUnary(UnaryExpression node)
         {
-            var operand = Visit(unaryExpression.Operand);
-            if (unaryExpression.NodeType is ExpressionType.Convert or ExpressionType.ConvertChecked
+            var operand = Visit(node.Operand);
+            if (node.NodeType is ExpressionType.Convert or ExpressionType.ConvertChecked
                 && _nullSafeAccesses.Contains(operand))
             {
-                _nullSafeAccesses.Add(unaryExpression);
+                _nullSafeAccesses.Add(node);
             }
 
-            return unaryExpression;
+            return node;
         }
     }
 }

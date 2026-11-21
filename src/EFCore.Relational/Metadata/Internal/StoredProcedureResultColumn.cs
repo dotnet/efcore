@@ -159,10 +159,7 @@ public class StoredProcedureResultColumn :
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual ConfigurationSource? GetNameConfigurationSource()
-        => ForRowsAffected
-            ? _nameConfigurationSource
-            : ((IConventionProperty)GetProperty()!)
-            .GetColumnNameConfigurationSource(((IReadOnlyStoredProcedure)StoredProcedure).GetStoreIdentifier()!.Value);
+        => ForRowsAffected ? _nameConfigurationSource : ((IConventionProperty)GetProperty()!) .GetColumnNameConfigurationSource(((IReadOnlyStoredProcedure)StoredProcedure).GetStoreIdentifier()!.Value);
 
     private IMutableProperty GetProperty()
         => StoredProcedure.EntityType.FindProperty(PropertyName!)
