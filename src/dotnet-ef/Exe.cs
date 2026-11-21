@@ -14,25 +14,16 @@ internal static class Exe
         string? workingDirectory = null,
         Action<string?>? handleOutput = null,
         Action<string?>? handleError = null,
-        Action<string>? processCommandLine = null)
+        Action<string>? processCommandLine = null,
+        Encoding? outputEncoding = null)
     {
         var arguments = ToArguments(args);
 
         processCommandLine ??= Reporter.WriteVerbose;
         processCommandLine(executable + " " + arguments);
 
-        var startInfo = new ProcessStartInfo
-        {
-            FileName = executable,
-            Arguments = arguments,
-            UseShellExecute = false,
-            RedirectStandardOutput = handleOutput != null,
-            RedirectStandardError = handleError != null
-        };
-        if (workingDirectory != null)
-        {
-            startInfo.WorkingDirectory = workingDirectory;
-        }
+        var startInfo = CreateStartInfo(
+            executable, arguments, workingDirectory, handleOutput != null, handleError != null, outputEncoding);
 
         var process = new Process { StartInfo = startInfo };
 
@@ -61,6 +52,45 @@ internal static class Exe
         process.WaitForExit();
 
         return process.ExitCode;
+    }
+
+    // 'outputEncoding' is how the redirected streams are decoded; null keeps the platform default.
+    internal static ProcessStartInfo CreateStartInfo(
+        string executable,
+        string arguments,
+        string? workingDirectory,
+        bool redirectOutput,
+        bool redirectError,
+        Encoding? outputEncoding)
+    {
+        var startInfo = new ProcessStartInfo
+        {
+            FileName = executable,
+            Arguments = arguments,
+            UseShellExecute = false,
+            RedirectStandardOutput = redirectOutput,
+            RedirectStandardError = redirectError
+        };
+
+        if (workingDirectory != null)
+        {
+            startInfo.WorkingDirectory = workingDirectory;
+        }
+
+        if (outputEncoding != null)
+        {
+            if (redirectOutput)
+            {
+                startInfo.StandardOutputEncoding = outputEncoding;
+            }
+
+            if (redirectError)
+            {
+                startInfo.StandardErrorEncoding = outputEncoding;
+            }
+        }
+
+        return startInfo;
     }
 
     public static string ToArguments(IReadOnlyList<string> args)
