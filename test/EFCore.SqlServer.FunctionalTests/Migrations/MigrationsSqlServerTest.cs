@@ -3434,6 +3434,29 @@ CREATE JSON INDEX [IX_JsonIndexEntities_Items_Value_Items_Other] ON [JsonIndexEn
     #region Full-text search
 
     [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFullTextSearchSupported))]
+    public virtual async Task Full_text_index_with_unchanged_languages_is_not_recreated()
+    {
+        await Test(
+            builder => builder.Entity(
+                "FullTextEntities", e =>
+                {
+                    e.Property<int>("Id");
+                    e.Property<string>("Title").HasMaxLength(450).HasColumnName("Headline");
+                    e.Property<string>("Body").HasMaxLength(450);
+                    e.HasKey("Id").HasName("PK_FullTextEntities");
+                    e.HasFullTextIndex("Title", "Body")
+                        .UseKeyIndex("PK_FullTextEntities")
+                        .UseLanguage("Title", "English")
+                        .UseLanguage("Body", "French");
+                }),
+            _ => { },
+            _ => { },
+            asserter: null);
+
+        AssertSql();
+    }
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFullTextSearchSupported))]
     public virtual async Task Create_full_text_index()
     {
         await Test(

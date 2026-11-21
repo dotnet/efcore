@@ -2541,6 +2541,11 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         static bool AnnotationValuesEqual(IAnnotation left, IAnnotation right)
             => left.Value is string leftString && right.Value is string rightString
                 ? MultilineEquals(leftString, rightString)
+                : left.Value is IReadOnlyDictionary<string, string> leftDictionary
+                && right.Value is IReadOnlyDictionary<string, string> rightDictionary
+                    ? leftDictionary.Count == rightDictionary.Count
+                    && leftDictionary.OrderBy(e => e.Key, StringComparer.Ordinal)
+                        .SequenceEqual(rightDictionary.OrderBy(e => e.Key, StringComparer.Ordinal))
                 : StructuralComparisons.StructuralEqualityComparer.Equals(left.Value, right.Value);
     }
 
