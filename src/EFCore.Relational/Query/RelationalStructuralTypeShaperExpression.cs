@@ -177,6 +177,10 @@ public class RelationalStructuralTypeShaperExpression : StructuralTypeShaperExpr
             // see issue #33547 for more details
             newValueBufferExpression = structuralTypeProjectionExpression.MakeNullable();
         }
+        else if (StructuralType is IComplexType && ValueBufferExpression is JsonQueryExpression jsonQueryExpression)
+        {
+            newValueBufferExpression = jsonQueryExpression.MakeNullable();
+        }
 
         // Marking nullable requires re-computation of Discriminator condition
         return new RelationalStructuralTypeShaperExpression(
