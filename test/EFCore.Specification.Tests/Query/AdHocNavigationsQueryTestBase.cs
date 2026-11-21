@@ -14,6 +14,96 @@ public abstract class AdHocNavigationsQueryTestBase(NonSharedFixture fixture)
     protected override string NonSharedStoreName
         => "AdHocNavigationsQueryTests";
 
+    #region 38565
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual async Task Where_over_projection_with_conjunctive_null_checks(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context38565>(seed: async context =>
+        {
+            context.AddRange(
+                new Context38565.Parent { Id = 1, ChildId = 1 },
+                new Context38565.Parent { Id = 2 },
+                new Context38565.Parent { Id = 3, ChildId = 2 },
+                new Context38565.Parent { Id = 4, ChildId = 3 },
+                new Context38565.Child { Id = 1, GrandChildId = 1 },
+                new Context38565.Child { Id = 2 },
+                new Context38565.Child { Id = 3, GrandChildId = 99 },
+                new Context38565.GrandChild { Id = 1 });
+            await context.SaveChangesAsync();
+        });
+
+        using var context = contextFactory.CreateDbContext();
+        var query = from parent in context.Parents
+                    join child in context.Children on parent.ChildId equals child.Id into children
+                    from child in children.DefaultIfEmpty()
+                    join grandChild in context.GrandChildren on child.GrandChildId equals grandChild.Id into grandChildren
+                    from grandChild in grandChildren.DefaultIfEmpty()
+                    select new
+                    {
+                        parent.Id,
+                        Child = child != null && grandChild != null ? new { child.GrandChildId } : null
+                    };
+
+        var filtered = query.Where(x => x.Child!.GrandChildId != null);
+        var result = async ? await filtered.ToListAsync() : filtered.ToList();
+        Assert.Equal(1, Assert.Single(result).Id);
+        Assert.Equal(1, result[0].Child!.GrandChildId);
+
+        var inverseQuery = from parent in context.Parents
+                           join child in context.Children on parent.ChildId equals child.Id into children
+                           from child in children.DefaultIfEmpty()
+                           join grandChild in context.GrandChildren on child.GrandChildId equals grandChild.Id into grandChildren
+                           from grandChild in grandChildren.DefaultIfEmpty()
+                           select new
+                           {
+                               parent.Id,
+                               Child = child == null || grandChild == null
+                                   ? null
+                                   : new Context38565.Child { GrandChildId = child.GrandChildId }
+                           };
+
+        var inverseFiltered = inverseQuery.Where(x => x.Child!.GrandChildId != null);
+        var inverseResult = async ? await inverseFiltered.ToListAsync() : inverseFiltered.ToList();
+        Assert.Equal(1, Assert.Single(inverseResult).Id);
+        Assert.Equal(1, inverseResult[0].Child!.GrandChildId);
+    }
+
+    protected class Context38565(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Parent> Parents => Set<Parent>();
+        public DbSet<Child> Children => Set<Child>();
+        public DbSet<GrandChild> GrandChildren => Set<GrandChild>();
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Parent>().Property(e => e.Id).ValueGeneratedNever();
+            modelBuilder.Entity<Child>().Property(e => e.Id).ValueGeneratedNever();
+            modelBuilder.Entity<GrandChild>().Property(e => e.Id).ValueGeneratedNever();
+        }
+
+        public class Parent
+        {
+            public int Id { get; set; }
+            public int? ChildId { get; set; }
+        }
+
+        public class Child
+        {
+            public int Id { get; set; }
+            public int? GrandChildId { get; set; }
+        }
+
+        public class GrandChild
+        {
+            public int Id { get; set; }
+        }
+    }
+
+    #endregion 38565
+
     #region 3409
 
     [Fact]
