@@ -1161,6 +1161,20 @@ WHERE [c].[City] = N'Seattle'
 """);
     }
 
+    public override async Task Update_Where_select_dto_with_entity_set_from_dto_member(bool async)
+    {
+        await base.Update_Where_select_dto_with_entity_set_from_dto_member(async);
+
+        AssertExecuteUpdateSql(
+            """
+SET NOCOUNT OFF;
+UPDATE [c]
+SET [c].[ContactName] = [c].[City]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'F%'
+""");
+    }
+
     public override async Task Update_Where_SelectMany_set_null(bool async)
     {
         await base.Update_Where_SelectMany_set_null(async);

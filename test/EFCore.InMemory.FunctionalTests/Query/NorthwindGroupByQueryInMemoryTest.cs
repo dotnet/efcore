@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
+using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -171,4 +172,10 @@ public class NorthwindGroupByQueryInMemoryTest(NorthwindQueryInMemoryFixture<Noo
 
     public override Task SelectMany_correlated_GroupBy_Select_First_ordered(bool async)
         => Assert.ThrowsAsync<NotImplementedException>(() => base.SelectMany_correlated_GroupBy_Select_First_ordered(async));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_SelectMany(bool async)
+        => AssertTranslationFailed(() => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().GroupBy(c => c.City).SelectMany(g => g)));
 }

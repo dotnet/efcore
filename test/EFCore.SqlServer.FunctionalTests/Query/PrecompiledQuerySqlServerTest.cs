@@ -708,6 +708,25 @@ WHERE [b0].[row] <= 1
 """);
     }
 
+    public override async Task GroupBy_SelectMany_OrderBy_Skip_Take_Select()
+    {
+        await base.GroupBy_SelectMany_OrderBy_Skip_Take_Select();
+
+        AssertSql(
+            """
+@skip='1'
+@take='1'
+
+SELECT [s].[Title]
+FROM (
+    SELECT [p].[Title], ROW_NUMBER() OVER(PARTITION BY [b].[Id] ORDER BY [p].[Id]) AS [row]
+    FROM [Posts] AS [p]
+    LEFT JOIN [Blogs] AS [b] ON [p].[BlogId] = [b].[Id]
+) AS [s]
+WHERE [s].[row] > @skip AND ([s].[row] - @skip <= @take OR [s].[row] <= @take)
+""");
+    }
+
     #endregion Regular operators
 
     #region Terminating operators

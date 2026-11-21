@@ -887,4 +887,120 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture>(TFixture fix
                 .Concat(ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("B")).Distinct())
                 .Concat(ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A")))
                 .Select(x => x.City));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Distinct_anonymous_member_navigation(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .Select(o => new { o })
+                .Distinct()
+                .Select(x => new { x.o.OrderID, x.o.Customer!.City }),
+            elementSorter: e => e.OrderID);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Union_anonymous_member_navigation(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().Where(o => o.OrderID < 10260).Select(o => new { o })
+                .Union(ss.Set<Order>().Where(o => o.OrderID > 11070).Select(o => new { o }))
+                .Select(x => new { x.o.OrderID, x.o.Customer!.City }),
+            elementSorter: e => e.OrderID);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Except_anonymous_member_navigation(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().Where(o => o.OrderID < 10260).Select(o => new { o })
+                .Except(ss.Set<Order>().Where(o => o.OrderID < 10255).Select(o => new { o }))
+                .Select(x => new { x.o.OrderID, x.o.Customer!.City }),
+            elementSorter: e => e.OrderID);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Join_anonymous_member_navigation(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A"))
+                .Join(
+                    ss.Set<Order>().Select(o => new { o }).Distinct(),
+                    c => c.CustomerID,
+                    x => x.o.CustomerID,
+                    (c, x) => new { c.ContactName, x })
+                .Select(y => new { y.ContactName, y.x.o.OrderID, y.x.o.Customer!.City }),
+            elementSorter: e => e.OrderID);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task SelectMany_anonymous_member_navigation(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A"))
+                .SelectMany(c => c.Orders.Select(o => new { o }))
+                .Select(x => new { x.o.OrderID, x.o.Customer!.City, Count = x.o.OrderDetails.Count() }),
+            elementSorter: e => e.OrderID);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Union_dto_member_navigation(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().Where(o => o.OrderID < 10260).Select(o => new OrderHolder { Order = o })
+                .Union(ss.Set<Order>().Where(o => o.OrderID > 11070).Select(o => new OrderHolder { Order = o }))
+                .Select(x => new { x.Order.OrderID, x.Order.Customer!.City }),
+            elementSorter: e => e.OrderID);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Concat_optional_entity_in_second_operand_required_navigation(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OrderDetail>().Where(od => od.OrderID < 10250).Select(od => new { od })
+                .Concat(
+                    from o in ss.Set<Order>().Where(o => o.OrderID < 10252)
+                    join od in ss.Set<OrderDetail>().Where(od => od.Quantity > 1000) on o.OrderID equals od.OrderID into ods
+                    from od in ods.DefaultIfEmpty()
+                    select new { od })
+                .Select(x => x.od == null ? -1 : x.od.Order.OrderID));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Concat_optional_entity_in_second_operand_required_navigation_entity(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OrderDetail>().Where(od => od.OrderID < 10250)
+                .Concat(
+                    from o in ss.Set<Order>().Where(o => o.OrderID < 10252)
+                    join od in ss.Set<OrderDetail>().Where(od => od.Quantity > 1000) on o.OrderID equals od.OrderID into ods
+                    from od in ods.DefaultIfEmpty()
+                    select od)
+                .Select(od => od == null ? -1 : od.Order.OrderID));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Union_dto_with_members_in_different_order(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().Where(o => o.OrderID < 10250).Select(o => new OrderHolder { Order = o, Key = o.CustomerID })
+                .Union(ss.Set<Order>().Where(o => o.OrderID > 11075).Select(o => new OrderHolder { Key = o.CustomerID, Order = o }))
+                .Select(x => x.Key),
+            elementSorter: e => e);
+
+    // A DTO operand's includes are compared with the other operand's, as an anonymous type's are, rather than dropped.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Include_Union_dto_only_on_one_side_throws(bool async)
+    {
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() => AssertQuery(
+            async,
+            ss => ss.Set<Order>().Where(o => o.OrderID < 10260).Include(o => o.Customer).Select(o => new OrderHolder { Order = o })
+                .Union(ss.Set<Order>().Where(o => o.OrderID > 11070).Select(o => new OrderHolder { Order = o }))))).Message;
+
+        Assert.Equal(CoreStrings.SetOperationWithDifferentIncludesInOperands, message);
+    }
+
+    protected class OrderHolder
+    {
+        public Order Order { get; set; } = null!;
+        public string? Key { get; set; }
+
+        public override bool Equals(object? obj)
+            => obj is OrderHolder other && other.Order.OrderID == Order.OrderID && other.Key == Key;
+
+        public override int GetHashCode()
+            => HashCode.Combine(Order.OrderID, Key);
+    }
 }

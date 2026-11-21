@@ -598,6 +598,12 @@ public partial class NavigationExpandingExpressionVisitor
                         }
                     }
 
+                    if (navigationTreeExpression.Value is MemberInitExpression memberInitExpression
+                        && ReconstructMemberInit(navigationTreeExpression, memberInitExpression, out var memberInitReplacement))
+                    {
+                        return memberInitReplacement;
+                    }
+
                     break;
 
                 case OwnedNavigationReference ownedNavigationReference:
@@ -642,14 +648,16 @@ public partial class NavigationExpandingExpressionVisitor
                             var argument = newExpression.Arguments[i];
                             var newRoot = Expression.MakeMemberAccess(navigationTreeExpression, newExpression.Members[i]);
 
-                            return argument is EntityReference entityReference
-                                ? ExpandInclude(newRoot, entityReference)
-                                : argument is NewExpression innerNewExpression
-                                && ReconstructAnonymousType(newRoot, innerNewExpression, out var replacement)
-                                    ? replacement
-                                    : newRoot;
+                            return ReconstructMember(newRoot, argument);
                         }
                     }
+                }
+
+                if (memberExpression.Expression is NavigationTreeExpression { Value: MemberInitExpression memberInitExpression } memberInitTree
+                    && memberInitExpression.Bindings.OfType<MemberAssignment>().FirstOrDefault(b => b.Member == memberExpression.Member) is
+                        { } binding)
+                {
+                    return ReconstructMember(Expression.MakeMemberAccess(memberInitTree, binding.Member), binding.Expression);
                 }
             }
 
@@ -750,6 +758,12 @@ public partial class NavigationExpandingExpressionVisitor
                         arguments[i] = newRoot;
                     }
                 }
+                else if (argument is MemberInitExpression innerMemberInitExpression
+                         && ReconstructMemberInit(newRoot, innerMemberInitExpression, out var memberInitReplacement))
+                {
+                    changed = true;
+                    arguments[i] = memberInitReplacement;
+                }
                 else
                 {
                     arguments[i] = newRoot;
@@ -762,6 +776,55 @@ public partial class NavigationExpandingExpressionVisitor
             }
 
             return changed;
+        }
+
+        private Expression ReconstructMember(Expression currentRoot, Expression snapshot)
+            => snapshot switch
+            {
+                EntityReference entityReference => ExpandInclude(currentRoot, entityReference),
+                NewExpression newExpression when ReconstructAnonymousType(currentRoot, newExpression, out var replacement)
+                    => replacement,
+                MemberInitExpression memberInitExpression
+                    when ReconstructMemberInit(currentRoot, memberInitExpression, out var replacement) => replacement,
+                _ => currentRoot
+            };
+
+        // The counterpart of ReconstructAnonymousType for a type initialized through its members, e.g. new Dto { Order = o }, which
+        // re-initializes the members from the current root so that the includes of the entities among them are applied. Only done when
+        // there are includes, and only for a parameterless constructor, since constructor arguments can't be read back.
+        private bool ReconstructMemberInit(
+            Expression currentRoot,
+            MemberInitExpression memberInitExpression,
+            [NotNullWhen(true)] out Expression? replacement)
+        {
+            replacement = null;
+            if (memberInitExpression.NewExpression.Arguments.Count > 0
+                || !ContainsIncludes(memberInitExpression))
+            {
+                return false;
+            }
+
+            var bindings = new MemberBinding[memberInitExpression.Bindings.Count];
+            for (var i = 0; i < bindings.Length; i++)
+            {
+                var binding = (MemberAssignment)memberInitExpression.Bindings[i];
+                bindings[i] = binding.Update(
+                    ReconstructMember(Expression.MakeMemberAccess(currentRoot, binding.Member), binding.Expression));
+            }
+
+            replacement = memberInitExpression.Update(memberInitExpression.NewExpression, bindings);
+
+            return true;
+
+            static bool ContainsIncludes(Expression expression)
+                => expression switch
+                {
+                    EntityReference entityReference => entityReference.IncludePaths.Count > 0,
+                    NewExpression newExpression => newExpression.Arguments.Any(ContainsIncludes),
+                    MemberInitExpression memberInit => memberInit.Bindings.OfType<MemberAssignment>()
+                        .Any(b => ContainsIncludes(b.Expression)),
+                    _ => false
+                };
         }
 
         private Expression ExpandInclude(Expression root, EntityReference entityReference)
