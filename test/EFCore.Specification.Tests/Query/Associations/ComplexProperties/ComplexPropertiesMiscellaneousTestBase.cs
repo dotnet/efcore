@@ -24,4 +24,15 @@ public abstract class ComplexPropertiesMiscellaneousTestBase<TFixture>(TFixture 
         => AssertQuery(ss => ss.Set<ValueRootEntity>().Where(e => e.OptionalAssociate.HasValue));
 
     #endregion Value types
+
+    #region Subquery
+
+    [Fact]
+    public virtual Task Where_on_associate_scalar_property_on_GroupBy_First()
+        => AssertQuery(ss => ss.Set<RootEntity>()
+            .GroupBy(e => e.Id % 2)
+            .Select(g => g.OrderBy(e => e.Id).First(e => e.Id > 0))
+            .Where(e => e.RequiredAssociate.Int == 8));
+
+    #endregion Subquery
 }

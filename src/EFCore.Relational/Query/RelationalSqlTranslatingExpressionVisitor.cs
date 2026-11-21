@@ -1362,12 +1362,19 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
 
             case { Subquery: { } subquery }:
             {
-                var entityShaper = (StructuralTypeShaperExpression)subquery.ShaperExpression;
+                var shaper = (StructuralTypeShaperExpression)subquery.ShaperExpression;
                 var subSelectExpression = ((SelectExpression)subquery.QueryExpression).Clone();
 
-                var projectionBindingExpression = (ProjectionBindingExpression)entityShaper.ValueBufferExpression;
-                var projection = (StructuralTypeProjectionExpression)subSelectExpression.GetProjection(projectionBindingExpression);
-                var innerProjection = projection.BindProperty(property);
+                var projectionBindingExpression = (ProjectionBindingExpression)shaper.ValueBufferExpression;
+                var innerProjection = subSelectExpression.GetProjection(projectionBindingExpression) switch
+                {
+                    StructuralTypeProjectionExpression projection => projection.BindProperty(property),
+
+                    // A JSON complex type bound over a subquery (see BindComplexProperty)
+                    JsonQueryExpression jsonQuery => jsonQuery.BindProperty(property),
+
+                    _ => throw new UnreachableException()
+                };
                 subSelectExpression.ReplaceProjection([innerProjection]);
                 subSelectExpression.ApplyProjection();
 
@@ -1414,8 +1421,46 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                         throw new UnreachableException();
                 }
 
-            case { Subquery: not null }:
-                throw new InvalidOperationException("Complex property binding over a subquery"); // TODO: #36296
+            case { Subquery: { } subquery }:
+            {
+                if (complexProperty.IsCollection)
+                {
+                    throw new InvalidOperationException("Complex collection binding over a subquery"); // TODO: #36296
+                }
+
+                // Bind the complex property inside a copy of the single-result subquery, and make that copy project the complex type.
+                // Its properties are then bound as scalar subqueries (see BindProperty), and nested complex properties come back here.
+                var shaper = (StructuralTypeShaperExpression)subquery.ShaperExpression;
+                var subSelectExpression = ((SelectExpression)subquery.QueryExpression).Clone();
+
+                var projectionBindingExpression = (ProjectionBindingExpression)shaper.ValueBufferExpression;
+                var (complexProjection, isNullable) = subSelectExpression.GetProjection(projectionBindingExpression) switch
+                {
+                    StructuralTypeProjectionExpression projection
+                        => projection.BindComplexProperty(complexProperty) is StructuralTypeShaperExpression complexShaper
+                            ? (complexShaper.ValueBufferExpression, complexShaper.IsNullable)
+                            : throw new UnreachableException(),
+
+                    JsonQueryExpression jsonQuery
+                        => jsonQuery.BindStructuralProperty(complexProperty) is var nestedJsonQuery
+                            ? (nestedJsonQuery, nestedJsonQuery.IsNullable)
+                            : throw new UnreachableException(),
+
+                    _ => throw new UnreachableException()
+                };
+
+                var projectionMember = new ProjectionMember();
+                subSelectExpression.ReplaceProjection(new Dictionary<ProjectionMember, Expression> { [projectionMember] = complexProjection });
+
+                subquery = subquery.Update(
+                    subSelectExpression,
+                    new RelationalStructuralTypeShaperExpression(
+                        complexProperty.ComplexType,
+                        new ProjectionBindingExpression(subSelectExpression, projectionMember, typeof(ValueBuffer)),
+                        shaper.IsNullable || isNullable));
+
+                return new StructuralTypeReferenceExpression(subquery);
+            }
 
             default:
                 throw new UnreachableException();

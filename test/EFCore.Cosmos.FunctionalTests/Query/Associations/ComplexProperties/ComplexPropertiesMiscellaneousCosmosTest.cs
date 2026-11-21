@@ -89,6 +89,13 @@ WHERE (c["OptionalAssociate"] != null)
 
     #endregion Value types
 
+    #region Subquery
+
+    public override Task Where_on_associate_scalar_property_on_GroupBy_First()
+        => AssertTranslationFailed(base.Where_on_associate_scalar_property_on_GroupBy_First);
+
+    #endregion Subquery
+
     [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

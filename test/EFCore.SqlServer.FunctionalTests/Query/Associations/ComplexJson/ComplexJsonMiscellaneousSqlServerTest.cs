@@ -281,6 +281,86 @@ WHERE CAST(JSON_VALUE([r1].[c1], '$.Int') AS int) <> 8 OR CAST(JSON_VALUE([r1].[
 
     #endregion Left join
 
+    #region Subquery
+
+    public override async Task Where_on_associate_scalar_property_on_GroupBy_First()
+    {
+        await base.Where_on_associate_scalar_property_on_GroupBy_First();
+
+        if (Fixture.UsingJsonType)
+        {
+            AssertSql(
+                """
+SELECT [r7].[Id], [r7].[Name], [r7].[c], [r7].[c0], [r7].[c1]
+FROM (
+    SELECT [r0].[Key]
+    FROM (
+        SELECT [r].[Id] % 2 AS [Key]
+        FROM [RootEntity] AS [r]
+    ) AS [r0]
+    GROUP BY [r0].[Key]
+    HAVING (
+        SELECT TOP(1) JSON_VALUE([r3].[c1], '$.Int' RETURNING int)
+        FROM (
+            SELECT [r4].[Id], [r4].[RequiredAssociate] AS [c1], [r4].[Id] % 2 AS [Key]
+            FROM [RootEntity] AS [r4]
+        ) AS [r3]
+        WHERE ([r0].[Key] = [r3].[Key] OR ([r0].[Key] IS NULL AND [r3].[Key] IS NULL)) AND [r3].[Id] > 0
+        ORDER BY [r3].[Id]) = 8
+) AS [r5]
+LEFT JOIN (
+    SELECT [r6].[Id], [r6].[Name], [r6].[c] AS [c], [r6].[c0] AS [c0], [r6].[c1] AS [c1], [r6].[Key]
+    FROM (
+        SELECT [r1].[Id], [r1].[Name], [r1].[c] AS [c], [r1].[c0] AS [c0], [r1].[c1] AS [c1], [r1].[Key], ROW_NUMBER() OVER(PARTITION BY [r1].[Key] ORDER BY [r1].[Id]) AS [row]
+        FROM (
+            SELECT [r2].[Id], [r2].[Name], [r2].[AssociateCollection] AS [c], [r2].[OptionalAssociate] AS [c0], [r2].[RequiredAssociate] AS [c1], [r2].[Id] % 2 AS [Key]
+            FROM [RootEntity] AS [r2]
+        ) AS [r1]
+        WHERE [r1].[Id] > 0
+    ) AS [r6]
+    WHERE [r6].[row] <= 1
+) AS [r7] ON [r5].[Key] = [r7].[Key] OR ([r5].[Key] IS NULL AND [r7].[Key] IS NULL)
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+SELECT [r7].[Id], [r7].[Name], [r7].[c], [r7].[c0], [r7].[c1]
+FROM (
+    SELECT [r0].[Key]
+    FROM (
+        SELECT [r].[Id] % 2 AS [Key]
+        FROM [RootEntity] AS [r]
+    ) AS [r0]
+    GROUP BY [r0].[Key]
+    HAVING (
+        SELECT TOP(1) CAST(JSON_VALUE([r3].[c1], '$.Int') AS int)
+        FROM (
+            SELECT [r4].[Id], [r4].[RequiredAssociate] AS [c1], [r4].[Id] % 2 AS [Key]
+            FROM [RootEntity] AS [r4]
+        ) AS [r3]
+        WHERE ([r0].[Key] = [r3].[Key] OR ([r0].[Key] IS NULL AND [r3].[Key] IS NULL)) AND [r3].[Id] > 0
+        ORDER BY [r3].[Id]) = 8
+) AS [r5]
+LEFT JOIN (
+    SELECT [r6].[Id], [r6].[Name], [r6].[c] AS [c], [r6].[c0] AS [c0], [r6].[c1] AS [c1], [r6].[Key]
+    FROM (
+        SELECT [r1].[Id], [r1].[Name], [r1].[c] AS [c], [r1].[c0] AS [c0], [r1].[c1] AS [c1], [r1].[Key], ROW_NUMBER() OVER(PARTITION BY [r1].[Key] ORDER BY [r1].[Id]) AS [row]
+        FROM (
+            SELECT [r2].[Id], [r2].[Name], [r2].[AssociateCollection] AS [c], [r2].[OptionalAssociate] AS [c0], [r2].[RequiredAssociate] AS [c1], [r2].[Id] % 2 AS [Key]
+            FROM [RootEntity] AS [r2]
+        ) AS [r1]
+        WHERE [r1].[Id] > 0
+    ) AS [r6]
+    WHERE [r6].[row] <= 1
+) AS [r7] ON [r5].[Key] = [r7].[Key] OR ([r5].[Key] IS NULL AND [r7].[Key] IS NULL)
+""");
+        }
+    }
+
+    #endregion Subquery
+
     [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
