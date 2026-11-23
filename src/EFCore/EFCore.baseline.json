@@ -20068,6 +20068,9 @@
           "Member": "static System.Reflection.MethodInfo AnyWithPredicate { get; }"
         },
         {
+          "Member": "static System.Reflection.MethodInfo Append { get; }"
+        },
+        {
           "Member": "static System.Reflection.MethodInfo AsQueryable { get; }"
         },
         {
@@ -20201,6 +20204,9 @@
         },
         {
           "Member": "static System.Reflection.MethodInfo OrderDescending { get; }"
+        },
+        {
+          "Member": "static System.Reflection.MethodInfo Prepend { get; }"
         },
         {
           "Member": "static System.Reflection.MethodInfo Reverse { get; }"

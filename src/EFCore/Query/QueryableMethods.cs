@@ -34,6 +34,11 @@ public static class QueryableMethods
     /// </summary>
     public static MethodInfo AnyWithPredicate { get; }
 
+    /// <summary>
+    ///     The <see cref="MethodInfo" /> for <see cref="Queryable.Append{TSource}" />
+    /// </summary>
+    public static MethodInfo Append { get; }
+
     //public static MethodInfo AsQueryableNonGeneric { get; }
 
     /// <summary>
@@ -313,6 +318,11 @@ public static class QueryableMethods
     public static MethodInfo MinBy { get; }
 
     /// <summary>
+    ///     The <see cref="MethodInfo" /> for <see cref="Queryable.Prepend{TSource}" />
+    /// </summary>
+    public static MethodInfo Prepend { get; }
+
+    /// <summary>
     ///     The <see cref="MethodInfo" /> for <see cref="Queryable.Reverse{TSource}" />
     /// </summary>
     public static MethodInfo Reverse { get; }
@@ -536,6 +546,10 @@ public static class QueryableMethods
                 typeof(IQueryable<>).MakeGenericType(types[0]),
                 typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(types[0], typeof(bool)))
             ]);
+
+        Append = GetMethod(
+            nameof(Queryable.Append), 1,
+            types => [typeof(IQueryable<>).MakeGenericType(types[0]), types[0]]);
 
         AsQueryable = GetMethod(
             nameof(Queryable.AsQueryable), 1,
@@ -810,6 +824,10 @@ public static class QueryableMethods
                 typeof(IQueryable<>).MakeGenericType(types[0]),
                 typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(types[0], types[1])),
             ]);
+
+        Prepend = GetMethod(
+            nameof(Queryable.Prepend), 1,
+            types => [typeof(IQueryable<>).MakeGenericType(types[0]), types[0]]);
 
         Reverse = GetMethod(nameof(Queryable.Reverse), 1, types => [typeof(IQueryable<>).MakeGenericType(types[0])]);
 
