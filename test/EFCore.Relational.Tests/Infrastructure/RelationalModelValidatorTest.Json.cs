@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 public partial class RelationalModelValidatorTest
@@ -168,6 +170,29 @@ public partial class RelationalModelValidatorTest
             RelationalStrings.JsonEntityMappedToDifferentColumnThanOwner(
                 nameof(ValidatorJsonOwnedBranch), nameof(ValidatorJsonOwnedRoot.NestedReference),
                 nameof(ValidatorJsonOwnedRoot), nameof(ValidatorJsonEntityBasic.OwnedReference)),
+            modelBuilder);
+    }
+
+    [Fact] // #32513
+    public void Throw_when_json_collection_is_the_owner_of_json_collection_with_different_column_name()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorJsonEntityBasic>(b =>
+        {
+            b.OwnsMany(
+                x => x.OwnedCollection, bb =>
+                {
+                    bb.ToJson();
+                    bb.Ignore(x => x.NestedReference);
+                    bb.OwnsMany(x => x.NestedCollection).ToJson();
+                });
+            b.Ignore(x => x.OwnedReference);
+        });
+
+        VerifyError(
+            RelationalStrings.JsonEntityMappedToDifferentColumnThanOwner(
+                nameof(ValidatorJsonOwnedBranch), nameof(ValidatorJsonOwnedRoot.NestedCollection),
+                nameof(ValidatorJsonOwnedRoot), nameof(ValidatorJsonEntityBasic.OwnedCollection)),
             modelBuilder);
     }
 
@@ -764,6 +789,541 @@ public partial class RelationalModelValidatorTest
     }
 
     [Fact]
+    public void Throws_when_nested_complex_property_in_json_complex_type_is_mapped_to_json_column()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorJsonEntityBasic>(b =>
+        {
+            b.Ignore(x => x.OwnedCollection);
+            b.ComplexProperty(
+                x => x.OwnedReference, cb =>
+                {
+                    cb.ToJson("json_data");
+                    cb.ComplexProperty(x => x.NestedReference, nb => nb.ToJson("nested_json_data"));
+                    cb.Ignore(x => x.NestedCollection);
+                });
+        });
+
+        VerifyError(
+            RelationalStrings.NestedComplexPropertyJsonColumn(
+                "ValidatorJsonEntityBasic.OwnedReference#ValidatorJsonOwnedRoot.NestedReference",
+                "nested_json_data",
+                "ValidatorJsonEntityBasic.OwnedReference#ValidatorJsonOwnedRoot",
+                "json_data"),
+            modelBuilder);
+    }
+
+    [Fact]
+    public void Throws_when_complex_property_in_json_owned_entity_is_mapped_to_json_column()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorJsonEntityBasic>(b =>
+        {
+            b.Ignore(x => x.OwnedCollection);
+            b.OwnsOne(
+                x => x.OwnedReference, bb =>
+                {
+                    bb.ToJson("json_data");
+                    bb.ComplexProperty(x => x.NestedReference, nb => nb.ToJson("nested_json_data"));
+                    bb.Ignore(x => x.NestedCollection);
+                });
+        });
+
+        VerifyError(
+            RelationalStrings.NestedComplexPropertyJsonColumn(
+                "ValidatorJsonOwnedRoot.NestedReference",
+                "nested_json_data",
+                "ValidatorJsonOwnedRoot",
+                "json_data"),
+            modelBuilder);
+    }
+
+    [Fact]
+    public void Throws_when_complex_property_on_json_owned_collection()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorJsonEntityOwnedWithComplex>(b =>
+        {
+            b.Ignore(x => x.OwnedReference);
+            b.OwnsMany(
+                x => x.OwnedCollection, bb =>
+                {
+                    bb.ToJson();
+                    bb.ComplexProperty(x => x.Complex);
+                    bb.Ignore(x => x.NestedReference);
+                    bb.Ignore(x => x.NestedCollection);
+                });
+        });
+
+        VerifyError(
+            RelationalStrings.ComplexPropertyInJsonOwnedCollection(
+                "ValidatorJsonOwnedWithComplex.Complex", "ValidatorJsonOwnedWithComplex"),
+            modelBuilder);
+    }
+
+    [Fact]
+    public void Throws_when_complex_property_on_owned_reference_in_json_owned_collection()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorJsonEntityOwnedWithComplex>(b =>
+        {
+            b.Ignore(x => x.OwnedReference);
+            b.OwnsMany(
+                x => x.OwnedCollection, bb =>
+                {
+                    bb.ToJson();
+                    bb.Ignore(x => x.Complex);
+                    bb.OwnsOne(x => x.NestedReference, nb => nb.ComplexProperty(x => x.Complex));
+                    bb.Ignore(x => x.NestedCollection);
+                });
+        });
+
+        VerifyError(
+            RelationalStrings.ComplexPropertyInJsonOwnedCollection(
+                "ValidatorJsonOwnedWithComplexLeaf.Complex", "ValidatorJsonOwnedWithComplexLeaf"),
+            modelBuilder);
+    }
+
+    [Fact]
+    public void Throws_when_complex_property_on_owned_collection_in_json_owned_reference()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorJsonEntityOwnedWithComplex>(b =>
+        {
+            b.Ignore(x => x.OwnedCollection);
+            b.OwnsOne(
+                x => x.OwnedReference, bb =>
+                {
+                    bb.ToJson();
+                    bb.Ignore(x => x.Complex);
+                    bb.Ignore(x => x.NestedReference);
+                    bb.OwnsMany(x => x.NestedCollection, nb => nb.ComplexProperty(x => x.Complex));
+                });
+        });
+
+        VerifyError(
+            RelationalStrings.ComplexPropertyInJsonOwnedCollection(
+                "ValidatorJsonOwnedWithComplexLeaf.Complex", "ValidatorJsonOwnedWithComplexLeaf"),
+            modelBuilder);
+    }
+
+    [Fact]
+    public void Passes_for_complex_properties_on_json_owned_references()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorJsonEntityOwnedWithComplex>(b =>
+        {
+            b.Ignore(x => x.OwnedCollection);
+            b.OwnsOne(
+                x => x.OwnedReference, bb =>
+                {
+                    bb.ToJson();
+                    bb.ComplexProperty(x => x.Complex);
+                    bb.OwnsOne(x => x.NestedReference, nb => nb.ComplexProperty(x => x.Complex));
+                    bb.Ignore(x => x.NestedCollection);
+                });
+        });
+
+        Validate(modelBuilder);
+    }
+
+    [Fact]
+    public void Json_complex_properties_on_same_owned_type_under_two_navigations_throws()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorJsonEntityOwnerBase>().OwnsOne(
+            x => x.Owned, bb =>
+            {
+                bb.ComplexProperty(x => x.Complex, cb => cb.ToJson("json_data"));
+                bb.Ignore(x => x.NestedReference);
+                bb.Ignore(x => x.NestedCollection);
+            });
+
+        // The default names are prefixed with the navigations, so they only collide when named explicitly
+        modelBuilder.Entity<ValidatorJsonEntityOwnerDerived>().OwnsOne(
+            x => x.DerivedOwned, bb =>
+            {
+                bb.ComplexProperty(x => x.Complex, cb => cb.ToJson("json_data"));
+                bb.Ignore(x => x.NestedReference);
+                bb.Ignore(x => x.NestedCollection);
+            });
+
+        VerifyError(
+            RelationalStrings.ComplexPropertiesSharedJsonColumn(
+                "ValidatorJsonEntityOwnerBase.Owned#ValidatorJsonOwnedWithComplex.Complex",
+                "ValidatorJsonEntityOwnerDerived.DerivedOwned#ValidatorJsonOwnedWithComplex.Complex",
+                "json_data",
+                nameof(ValidatorJsonEntityOwnerBase)),
+            modelBuilder);
+    }
+
+    [Fact]
+    public void Throws_when_complex_properties_on_base_and_derived_types_are_mapped_to_same_json_column()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorJsonEntityInheritanceBase>(
+            b => b.ComplexProperty(x => x.ReferenceOnBase, cb => cb.ToJson("json_data")));
+        modelBuilder.Entity<ValidatorJsonEntityInheritanceDerived>(b =>
+        {
+            b.ComplexProperty(x => x.ReferenceOnDerived, cb => cb.ToJson("json_data"));
+            b.Ignore(x => x.CollectionOnDerived);
+        });
+
+        VerifyError(
+            RelationalStrings.ComplexPropertiesSharedJsonColumn(
+                "ValidatorJsonEntityInheritanceBase.ReferenceOnBase",
+                "ValidatorJsonEntityInheritanceDerived.ReferenceOnDerived",
+                "json_data",
+                nameof(ValidatorJsonEntityInheritanceBase)),
+            modelBuilder);
+    }
+
+    [Fact]
+    public void Passes_for_complex_properties_on_sibling_types_mapped_to_same_json_column()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorJsonEntityInheritanceBase>().Ignore(x => x.ReferenceOnBase);
+        modelBuilder.Entity<ValidatorJsonEntityInheritanceDerived>(b =>
+        {
+            b.ComplexProperty(x => x.ReferenceOnDerived, cb => cb.ToJson("json_data"));
+            b.Ignore(x => x.CollectionOnDerived);
+        });
+        modelBuilder.Entity<ValidatorJsonEntityInheritanceSibling>(
+            b => b.ComplexProperty(x => x.ReferenceOnSibling, cb => cb.ToJson("json_data")));
+
+        Validate(modelBuilder);
+    }
+
+    [Fact]
+    public void Throws_when_complex_collection_and_complex_property_on_sibling_types_are_mapped_to_same_json_column()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorJsonEntityInheritanceBase>().Ignore(x => x.ReferenceOnBase);
+        modelBuilder.Entity<ValidatorJsonEntityInheritanceDerived>(b =>
+        {
+            b.Ignore(x => x.ReferenceOnDerived);
+            b.ComplexCollection(x => x.CollectionOnDerived, cb => cb.ToJson("json_data"));
+        });
+        modelBuilder.Entity<ValidatorJsonEntityInheritanceSibling>(
+            b => b.ComplexProperty(x => x.ReferenceOnSibling, cb => cb.ToJson("json_data")));
+
+        VerifyError(
+            RelationalStrings.ComplexCollectionSharedJsonColumn(
+                "ValidatorJsonEntityInheritanceDerived.CollectionOnDerived",
+                "ValidatorJsonEntityInheritanceSibling.ReferenceOnSibling",
+                "json_data",
+                nameof(ValidatorJsonEntityInheritanceBase)),
+            modelBuilder);
+    }
+
+    [Fact]
+    public void Throws_when_complex_properties_on_principal_and_dependent_sharing_table_are_mapped_to_same_json_column()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorJsonTableSplittingPrincipal>(b =>
+        {
+            b.ToTable("Shared");
+            b.HasOne(x => x.Dependent).WithOne().HasForeignKey<ValidatorJsonTableSplittingDependent>(x => x.Id);
+            b.ComplexProperty(x => x.Data, cb => cb.ToJson("json_data"));
+        });
+        modelBuilder.Entity<ValidatorJsonTableSplittingDependent>(b =>
+        {
+            b.ToTable("Shared");
+            b.ComplexProperty(x => x.Data, cb => cb.ToJson("json_data"));
+        });
+
+        VerifyError(
+            RelationalStrings.ComplexPropertiesSharedJsonColumn(
+                "ValidatorJsonTableSplittingDependent.Data",
+                "ValidatorJsonTableSplittingPrincipal.Data",
+                "json_data",
+                "Shared"),
+            modelBuilder);
+    }
+
+    [Fact]
+    public void Does_not_warn_for_optional_dependent_identified_by_required_json_complex_property()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorJsonTableSplittingPrincipal>(b =>
+        {
+            b.ToTable("Shared");
+            b.HasOne(x => x.Dependent).WithOne().HasForeignKey<ValidatorJsonTableSplittingDependent>(x => x.Id);
+            b.ComplexProperty(x => x.Data, cb => cb.ToJson("principal_data"));
+        });
+        modelBuilder.Entity<ValidatorJsonTableSplittingDependent>(b =>
+        {
+            b.ToTable("Shared");
+            b.ComplexProperty(x => x.Data, cb => cb.ToJson("dependent_data"));
+        });
+
+        var definition =
+            RelationalResources.LogOptionalDependentWithoutIdentifyingProperty(new TestLogger<TestRelationalLoggingDefinitions>());
+        VerifyLogDoesNotContain(definition.GenerateMessage(nameof(ValidatorJsonTableSplittingDependent)), modelBuilder);
+    }
+
+    [Fact]
+    public void Does_not_warn_for_optional_dependent_identified_by_required_json_complex_collection()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorJsonTableSplittingPrincipal>(b =>
+        {
+            b.ToTable("Shared");
+            b.Ignore(x => x.Dependent);
+            b.HasOne<ValidatorJsonTableSplittingCollectionDependent>().WithOne()
+                .HasForeignKey<ValidatorJsonTableSplittingCollectionDependent>(x => x.Id);
+            b.ComplexProperty(x => x.Data, cb => cb.ToJson("principal_data"));
+        });
+        modelBuilder.Entity<ValidatorJsonTableSplittingCollectionDependent>(b =>
+        {
+            b.ToTable("Shared");
+            b.ComplexCollection(x => x.Data, cb => cb.ToJson("dependent_data"));
+        });
+
+        var definition =
+            RelationalResources.LogOptionalDependentWithoutIdentifyingProperty(new TestLogger<TestRelationalLoggingDefinitions>());
+        VerifyLogDoesNotContain(definition.GenerateMessage(nameof(ValidatorJsonTableSplittingCollectionDependent)), modelBuilder);
+    }
+
+    [Fact]
+    public void Throws_when_complex_properties_on_sibling_type_and_dependent_of_other_sibling_are_mapped_to_same_json_column()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorJsonEntityInheritanceBase>().Ignore(x => x.ReferenceOnBase);
+        modelBuilder.Entity<ValidatorJsonEntityInheritanceDerived>(b =>
+        {
+            b.Ignore(x => x.ReferenceOnDerived);
+            b.Ignore(x => x.CollectionOnDerived);
+            b.HasOne<ValidatorJsonTableSplittingDependent>().WithOne().HasForeignKey<ValidatorJsonTableSplittingDependent>(x => x.Id);
+        });
+        modelBuilder.Entity<ValidatorJsonEntityInheritanceSibling>(
+            b => b.ComplexProperty(x => x.ReferenceOnSibling, cb => cb.ToJson("json_data")));
+        modelBuilder.Entity<ValidatorJsonTableSplittingDependent>(b =>
+        {
+            b.ToTable(nameof(ValidatorJsonEntityInheritanceBase));
+            b.ComplexProperty(x => x.Data, cb => cb.ToJson("json_data"));
+        });
+
+        // Querying the dependent doesn't filter by the principal's discriminator, so it would read the sibling's JSON
+        VerifyError(
+            RelationalStrings.ComplexPropertiesSharedJsonColumn(
+                "ValidatorJsonEntityInheritanceSibling.ReferenceOnSibling",
+                "ValidatorJsonTableSplittingDependent.Data",
+                "json_data",
+                nameof(ValidatorJsonEntityInheritanceBase)),
+            modelBuilder);
+    }
+
+    [Fact]
+    public void Throws_when_complex_properties_on_derived_type_and_dependent_of_base_type_are_mapped_to_same_json_column()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorJsonEntityInheritanceBase>(b =>
+        {
+            b.Ignore(x => x.ReferenceOnBase);
+            b.HasOne<ValidatorJsonTableSplittingDependent>().WithOne().HasForeignKey<ValidatorJsonTableSplittingDependent>(x => x.Id);
+        });
+        modelBuilder.Entity<ValidatorJsonEntityInheritanceDerived>(b =>
+        {
+            b.Ignore(x => x.ReferenceOnDerived);
+            b.Ignore(x => x.CollectionOnDerived);
+        });
+        modelBuilder.Entity<ValidatorJsonEntityInheritanceSibling>(
+            b => b.ComplexProperty(x => x.ReferenceOnSibling, cb => cb.ToJson("json_data")));
+        modelBuilder.Entity<ValidatorJsonTableSplittingDependent>(b =>
+        {
+            b.ToTable(nameof(ValidatorJsonEntityInheritanceBase));
+            b.ComplexProperty(x => x.Data, cb => cb.ToJson("json_data"));
+        });
+
+        VerifyError(
+            RelationalStrings.ComplexPropertiesSharedJsonColumn(
+                "ValidatorJsonEntityInheritanceSibling.ReferenceOnSibling",
+                "ValidatorJsonTableSplittingDependent.Data",
+                "json_data",
+                nameof(ValidatorJsonEntityInheritanceBase)),
+            modelBuilder);
+    }
+
+    [Fact]
+    public void Throws_when_complex_properties_on_derived_principal_and_dependent_sharing_table_are_mapped_to_same_json_column()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorJsonEntityInheritanceBase>().Ignore(x => x.ReferenceOnBase);
+        modelBuilder.Entity<ValidatorJsonEntityInheritanceDerived>(b =>
+        {
+            b.ComplexProperty(x => x.ReferenceOnDerived, cb => cb.ToJson("json_data"));
+            b.Ignore(x => x.CollectionOnDerived);
+            b.HasOne<ValidatorJsonTableSplittingDependent>().WithOne().HasForeignKey<ValidatorJsonTableSplittingDependent>(x => x.Id);
+        });
+        modelBuilder.Entity<ValidatorJsonEntityInheritanceSibling>().Ignore(x => x.ReferenceOnSibling);
+        modelBuilder.Entity<ValidatorJsonTableSplittingDependent>(b =>
+        {
+            b.ToTable(nameof(ValidatorJsonEntityInheritanceBase));
+            b.ComplexProperty(x => x.Data, cb => cb.ToJson("json_data"));
+        });
+
+        VerifyError(
+            RelationalStrings.ComplexPropertiesSharedJsonColumn(
+                "ValidatorJsonEntityInheritanceDerived.ReferenceOnDerived",
+                "ValidatorJsonTableSplittingDependent.Data",
+                "json_data",
+                nameof(ValidatorJsonEntityInheritanceBase)),
+            modelBuilder);
+    }
+
+    [Fact]
+    public void Passes_for_complex_properties_on_sibling_dependent_types_mapped_to_same_json_column()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorJsonTableSplittingPrincipal>(b =>
+        {
+            b.ToTable("Shared");
+            b.HasOne(x => x.Dependent).WithOne().HasForeignKey<ValidatorJsonTableSplittingDependent>(x => x.Id);
+            b.ComplexProperty(x => x.Data, cb => cb.ToJson("principal_data"));
+        });
+        modelBuilder.Entity<ValidatorJsonTableSplittingDependent>(b =>
+        {
+            b.ToTable("Shared");
+            b.ComplexProperty(x => x.Data, cb => cb.ToJson("dependent_data"));
+        });
+        modelBuilder.Entity<ValidatorJsonTableSplittingDependentA>(b => b.ComplexProperty(x => x.Extra, cb => cb.ToJson("extra")));
+        modelBuilder.Entity<ValidatorJsonTableSplittingDependentB>(b => b.ComplexProperty(x => x.Extra, cb => cb.ToJson("extra")));
+
+        Validate(modelBuilder);
+    }
+
+    [Fact]
+    public void Throws_when_owned_entity_and_complex_property_on_base_and_derived_types_are_mapped_to_same_json_column()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorJsonEntityInheritanceBase>(
+            b => b.OwnsOne(x => x.ReferenceOnBase, ob => ob.ToJson("json_data")));
+        modelBuilder.Entity<ValidatorJsonEntityInheritanceDerived>(b =>
+        {
+            b.ComplexProperty(x => x.ReferenceOnDerived, cb => cb.ToJson("json_data"));
+            b.Ignore(x => x.CollectionOnDerived);
+        });
+
+        VerifyError(
+            RelationalStrings.JsonEntityMultipleRootsMappedToTheSameJsonColumn(
+                "json_data", nameof(ValidatorJsonEntityInheritanceBase)),
+            modelBuilder);
+    }
+
+    [Fact]
+    public void Throws_when_owned_entity_and_complex_property_on_sibling_types_are_mapped_to_same_json_column()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorJsonEntityInheritanceBase>().Ignore(x => x.ReferenceOnBase);
+        modelBuilder.Entity<ValidatorJsonEntityInheritanceDerived>(b =>
+        {
+            b.OwnsOne(x => x.ReferenceOnDerived, ob => ob.ToJson("json_data"));
+            b.Ignore(x => x.CollectionOnDerived);
+        });
+        modelBuilder.Entity<ValidatorJsonEntityInheritanceSibling>(
+            b => b.ComplexProperty(x => x.ReferenceOnSibling, cb => cb.ToJson("json_data")));
+
+        VerifyError(
+            RelationalStrings.JsonEntityMultipleRootsMappedToTheSameJsonColumn(
+                "json_data", nameof(ValidatorJsonEntityInheritanceBase)),
+            modelBuilder);
+    }
+
+    [Fact]
+    public void Throws_when_owned_entities_on_sibling_types_are_mapped_to_same_json_column()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorJsonEntityInheritanceBase>().Ignore(x => x.ReferenceOnBase);
+        modelBuilder.Entity<ValidatorJsonEntityInheritanceDerived>(b =>
+        {
+            b.OwnsOne(x => x.ReferenceOnDerived, ob => ob.ToJson("json_data"));
+            b.Ignore(x => x.CollectionOnDerived);
+        });
+        modelBuilder.Entity<ValidatorJsonEntityInheritanceSibling>(
+            b => b.OwnsOne(x => x.ReferenceOnSibling, ob => ob.ToJson("json_data")));
+
+        VerifyError(
+            RelationalStrings.JsonEntityMultipleRootsMappedToTheSameJsonColumn(
+                "json_data", nameof(ValidatorJsonEntityInheritanceBase)),
+            modelBuilder);
+    }
+
+    [Fact]
+    public void Passes_for_complex_properties_on_base_and_derived_types_mapped_to_same_json_column_with_TPT()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorJsonEntityInheritanceBase>(b =>
+        {
+            b.UseTptMappingStrategy();
+            b.ComplexProperty(x => x.ReferenceOnBase, cb => cb.ToJson("json_data"));
+        });
+        modelBuilder.Entity<ValidatorJsonEntityInheritanceDerived>(b =>
+        {
+            b.ComplexProperty(x => x.ReferenceOnDerived, cb => cb.ToJson("json_data"));
+            b.Ignore(x => x.CollectionOnDerived);
+        });
+
+        Validate(modelBuilder);
+    }
+
+    [Fact]
+    public void Throws_when_complex_properties_on_base_and_derived_types_are_mapped_to_same_json_column_with_TPC()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorJsonEntityInheritanceBase>(b =>
+        {
+            b.UseTpcMappingStrategy();
+            b.ComplexProperty(x => x.ReferenceOnBase, cb => cb.ToJson("json_data"));
+        });
+        modelBuilder.Entity<ValidatorJsonEntityInheritanceDerived>(b =>
+        {
+            b.ComplexProperty(x => x.ReferenceOnDerived, cb => cb.ToJson("json_data"));
+            b.Ignore(x => x.CollectionOnDerived);
+        });
+
+        VerifyError(
+            RelationalStrings.ComplexPropertiesSharedJsonColumn(
+                "ValidatorJsonEntityInheritanceBase.ReferenceOnBase",
+                "ValidatorJsonEntityInheritanceDerived.ReferenceOnDerived",
+                "json_data",
+                nameof(ValidatorJsonEntityInheritanceDerived)),
+            modelBuilder);
+    }
+
+    [Fact]
+    public void Passes_for_json_complex_property_on_base_type_with_owned_json_entity_in_same_table()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorJsonEntityInheritanceBase>(
+            b => b.ComplexProperty(x => x.ReferenceOnBase, cb => cb.ToJson("complex_json")));
+        modelBuilder.Entity<ValidatorJsonEntityInheritanceDerived>(b =>
+        {
+            b.OwnsOne(x => x.ReferenceOnDerived, ob => ob.ToJson("owned_json"));
+            b.Ignore(x => x.CollectionOnDerived);
+        });
+
+        Validate(modelBuilder);
+    }
+
+    [Fact]
+    public void Passes_for_complex_properties_on_sibling_types_mapped_to_same_json_column_with_owned_json_entity_in_same_table()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorJsonEntityInheritanceBase>(
+            b => b.OwnsOne(x => x.ReferenceOnBase, ob => ob.ToJson("owned_json")));
+        modelBuilder.Entity<ValidatorJsonEntityInheritanceDerived>(b =>
+        {
+            b.ComplexProperty(x => x.ReferenceOnDerived, cb => cb.ToJson("json_data"));
+            b.Ignore(x => x.CollectionOnDerived);
+        });
+        modelBuilder.Entity<ValidatorJsonEntityInheritanceSibling>(
+            b => b.ComplexProperty(x => x.ReferenceOnSibling, cb => cb.ToJson("json_data")));
+
+        Validate(modelBuilder);
+    }
+
+    [Fact]
     public void Throws_when_owned_entity_property_has_both_column_name_and_json_property_name()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -855,6 +1415,40 @@ public partial class RelationalModelValidatorTest
         public List<ValidatorJsonOwnedBranch> CollectionOnDerived { get; set; } = null!;
     }
 
+    protected class ValidatorJsonEntityInheritanceSibling : ValidatorJsonEntityInheritanceBase
+    {
+        public ValidatorJsonOwnedBranch ReferenceOnSibling { get; set; } = null!;
+    }
+
+    protected class ValidatorJsonTableSplittingPrincipal
+    {
+        public int Id { get; set; }
+        public ValidatorJsonOwnedBranch Data { get; set; } = null!;
+        public ValidatorJsonTableSplittingDependent? Dependent { get; set; }
+    }
+
+    protected class ValidatorJsonTableSplittingDependent
+    {
+        public int Id { get; set; }
+        public ValidatorJsonOwnedBranch Data { get; set; } = null!;
+    }
+
+    protected class ValidatorJsonTableSplittingCollectionDependent
+    {
+        public int Id { get; set; }
+        public List<ValidatorJsonOwnedBranch> Data { get; set; } = null!;
+    }
+
+    protected class ValidatorJsonTableSplittingDependentA : ValidatorJsonTableSplittingDependent
+    {
+        public ValidatorJsonOwnedBranch Extra { get; set; } = null!;
+    }
+
+    protected class ValidatorJsonTableSplittingDependentB : ValidatorJsonTableSplittingDependent
+    {
+        public ValidatorJsonOwnedBranch Extra { get; set; } = null!;
+    }
+
     protected class ValidatorJsonOwnedRoot
     {
         public string Name { get; set; } = null!;
@@ -867,6 +1461,38 @@ public partial class RelationalModelValidatorTest
     protected class ValidatorJsonOwnedBranch
     {
         public double Number { get; set; }
+    }
+
+    protected class ValidatorJsonEntityOwnedWithComplex
+    {
+        public int Id { get; set; }
+        public ValidatorJsonOwnedWithComplex OwnedReference { get; set; } = null!;
+        public List<ValidatorJsonOwnedWithComplex> OwnedCollection { get; set; } = null!;
+    }
+
+    protected class ValidatorJsonOwnedWithComplex
+    {
+        public string Name { get; set; } = null!;
+        public ValidatorJsonOwnedBranch Complex { get; set; } = null!;
+        public ValidatorJsonOwnedWithComplexLeaf NestedReference { get; set; } = null!;
+        public List<ValidatorJsonOwnedWithComplexLeaf> NestedCollection { get; set; } = null!;
+    }
+
+    protected class ValidatorJsonEntityOwnerBase
+    {
+        public int Id { get; set; }
+        public ValidatorJsonOwnedWithComplex Owned { get; set; } = null!;
+    }
+
+    protected class ValidatorJsonEntityOwnerDerived : ValidatorJsonEntityOwnerBase
+    {
+        public ValidatorJsonOwnedWithComplex DerivedOwned { get; set; } = null!;
+    }
+
+    protected class ValidatorJsonOwnedWithComplexLeaf
+    {
+        public string Name { get; set; } = null!;
+        public ValidatorJsonOwnedBranch Complex { get; set; } = null!;
     }
 
     protected class ValidatorJsonEntityExplicitOrdinal

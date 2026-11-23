@@ -67,17 +67,44 @@ public class SqlServerQueryStringFactoryTest
         Assert.EndsWith("SELECT * FROM @data WHERE [Region] = @region", result);
     }
 
+    [Theory]
+    [InlineData("datetime2(3)", "DECLARE @p0 datetime2(3) = '2020-01-02T03:04:05.123';")]
+    [InlineData("datetimeoffset(3)", "DECLARE @p0 datetimeoffset(3) = '2020-01-02T03:04:05.123+00:00';")]
+    [InlineData("time(3)", "DECLARE @p0 time(3) = '03:04:05.123';")]
+    public void Renders_DECLARE_with_fractional_seconds_precision_from_type_mapping(string storeType, string expected)
+    {
+        var typeMappingSource = CreateTypeMappingSource();
+        var factory = new SqlServerQueryStringFactory(typeMappingSource);
+        var dateTime = new DateTime(2020, 1, 2, 3, 4, 5, 123, DateTimeKind.Unspecified).AddTicks(4567);
+        object value = storeType switch
+        {
+            "datetimeoffset(3)" => new DateTimeOffset(dateTime, TimeSpan.Zero),
+            "time(3)" => dateTime.TimeOfDay,
+            _ => dateTime
+        };
+
+        using var command = new SqlCommand("SELECT @p0");
+        command.Parameters.Add(
+            typeMappingSource.FindMapping(value.GetType(), storeType)!.CreateParameter(command, "@p0", value));
+
+        var result = factory.Create(command);
+
+        Assert.Contains(expected, result);
+    }
+
     private static SqlServerQueryStringFactory CreateFactory()
+        => new(CreateTypeMappingSource());
+
+    private static SqlServerTypeMappingSource CreateTypeMappingSource()
     {
         var optionsBuilder = new DbContextOptionsBuilder();
         optionsBuilder.UseSqlServer();
         var singletonOptions = new SqlServerSingletonOptions();
         singletonOptions.Initialize(optionsBuilder.Options);
 
-        return new SqlServerQueryStringFactory(
-            new SqlServerTypeMappingSource(
-                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
-                singletonOptions));
+        return new SqlServerTypeMappingSource(
+            TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
+            singletonOptions);
     }
 }

@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
 /// </remarks>
-public interface IColumnMappingBase : IAnnotatable
+public interface IColumnMappingBase : IAnnotatable, IComparable<IColumnMappingBase>
 {
     /// <summary>
     ///     Gets the mapped property.
@@ -30,4 +30,10 @@ public interface IColumnMappingBase : IAnnotatable
     ///     Gets the containing table mapping.
     /// </summary>
     ITableMappingBase TableMapping { get; }
+
+    /// <summary>
+    ///     Compares the current instance with another object of the same type.
+    /// </summary>
+    int IComparable<IColumnMappingBase>.CompareTo(IColumnMappingBase? other)
+        => other is null ? 1 : 0;
 }

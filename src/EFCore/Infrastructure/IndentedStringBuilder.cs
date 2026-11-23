@@ -157,7 +157,7 @@ public class IndentedStringBuilder
     {
         DoIndent();
 
-        _stringBuilder.Append(value);
+        _stringBuilder.Append(value).AppendLine();
 
         _indentPending = true;
 

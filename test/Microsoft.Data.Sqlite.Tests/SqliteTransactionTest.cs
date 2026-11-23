@@ -432,4 +432,62 @@ public class SqliteTransactionTest
 
     private static void CreateTestTable(SqliteConnection connection)
         => connection.ExecuteNonQuery("CREATE TABLE TestTable (TestColumn INTEGER)");
+
+    [Fact]
+    public void Handle_can_be_disposed_with_an_open_transaction()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        using var transaction = connection.BeginTransaction();
+
+        // SQLite rolls the open transaction back inside sqlite3_close_v2 and fires the rollback
+        // hook while the handle is being released. Clearing the hook through that same handle threw
+        // out of the native callback, which is fatal wherever the close happens to run.
+        connection.Handle!.Dispose();
+
+        Assert.True(transaction.ExternalRollback);
+    }
+
+    [Fact]
+    public void Rollback_works_when_the_handle_is_already_closed()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        var transaction = connection.BeginTransaction();
+
+        // Clearing the hook first means closing the handle does not run RollbackExternal, so
+        // ExternalRollback stays false and RollbackInternal is the one that reaches for the handle.
+        sqlite3_rollback_hook(connection.Handle, null, null);
+        connection.Handle!.Dispose();
+
+        Assert.False(transaction.ExternalRollback);
+
+        transaction.Rollback();
+    }
+
+    [Fact]
+    public Task BeginTransaction_fails_immediately_when_read_snapshot_is_stale()
+        => TempDatabase.WithStaleReadSnapshot(
+            connection =>
+            {
+                var ex = Assert.Throws<SqliteException>(() => connection.BeginTransaction());
+
+                Assert.Equal(SQLITE_BUSY, ex.SqliteErrorCode);
+                Assert.Equal(SQLITE_BUSY_SNAPSHOT, ex.SqliteExtendedErrorCode);
+                return Task.CompletedTask;
+            });
+
+    // The snapshot is held by the transaction, so disposing the reader doesn't help.
+    [Fact]
+    public Task Write_in_deferred_transaction_fails_immediately_when_read_snapshot_is_stale()
+        => TempDatabase.WithStaleReadSnapshot(
+            connection =>
+            {
+                var ex = Assert.Throws<SqliteException>(() => connection.ExecuteNonQuery("INSERT INTO Data VALUES (4)"));
+
+                Assert.Equal(SQLITE_BUSY_SNAPSHOT, ex.SqliteExtendedErrorCode);
+                return Task.CompletedTask;
+            },
+            deferred: true,
+            disposeReaderFirst: true);
 }

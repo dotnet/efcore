@@ -2220,7 +2220,7 @@ WHERE [f].[Taste] = CAST(1 AS tinyint)
 
         AssertSql(
             """
-SELECT CAST([f].[Taste] AS tinyint) AS [Bar]
+SELECT [f].[Taste] AS [Bar]
 FROM [Foods] AS [f]
 """);
     }
@@ -2675,13 +2675,13 @@ ORDER BY [d].[Id]
 
         AssertSql(
             """
-SELECT CAST([u].[Role] AS nvarchar(max))
+SELECT [u].[Role]
 FROM [Users] AS [u]
 ORDER BY [u].[Id]
 """,
             //
             """
-SELECT CAST([u].[NullableRole] AS nvarchar(max))
+SELECT [u].[NullableRole]
 FROM [Users] AS [u]
 WHERE [u].[NullableRole] IS NOT NULL
 ORDER BY [u].[Id]
@@ -2694,18 +2694,137 @@ ORDER BY [u].[Id]
 """,
             //
             """
-SELECT CAST([u].[Role] AS nvarchar(max))
+SELECT [u].[Role]
 FROM [Users] AS [u]
 ORDER BY [u].[Id]
 """,
             //
             """
-SELECT CAST([u].[Role] AS nvarchar(max))
+SELECT [u].[Role]
 FROM [Users] AS [u]
 WHERE [u].[Role] = N'Admin'
 ORDER BY [u].[Id]
+""",
+            //
+            """
+SELECT [u].[Role]
+FROM [Users] AS [u]
+WHERE [u].[Role] LIKE N'%Adm%'
+ORDER BY [u].[Id]
 """);
     }
+
+    #region 33733
+
+    [Fact]
+    public virtual async Task Concat_on_bounded_string_converted_enum_does_not_truncate()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context33733>(
+            seed: async context =>
+            {
+                context.Users.Add(new Context33733.User { Role = Context33733.Role.Admin });
+                await context.SaveChangesAsync();
+            });
+        using var context = contextFactory.CreateDbContext();
+        ClearLog();
+
+        // The bounded nvarchar(20) input must be widened to nvarchar(max), otherwise the concatenation is truncated to 4,000 characters.
+        var suffix = new string('x', 3998);
+        var result = await context.Users.Select(u => u.Role.ToString() + suffix).SingleAsync();
+
+        Assert.Equal(4003, result.Length);
+        Assert.Contains("CAST([u].[Role] AS nvarchar(max))", TestSqlLoggerFactory.SqlStatements.Single());
+    }
+
+    [Fact]
+    public virtual async Task String_join_on_bounded_string_converted_enum()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context33733>(
+            seed: async context =>
+            {
+                context.Users.AddRange(Enumerable.Range(0, 1000).Select(_ => new Context33733.User { Role = Context33733.Role.Admin }));
+                await context.SaveChangesAsync();
+            });
+        using var context = contextFactory.CreateDbContext();
+        ClearLog();
+
+        // STRING_AGG over a bounded nvarchar(20) input fails with error 9829 once the result exceeds 8,000 bytes.
+        var result = await context.Users
+            .GroupBy(u => u.Group)
+            .Select(g => string.Join("|", g.Select(u => u.Role.ToString())))
+            .SingleAsync();
+
+        Assert.Equal(1000 * 5 + 999, result.Length);
+        Assert.Contains("STRING_AGG(CAST([u].[Role] AS nvarchar(max)), N'|')", TestSqlLoggerFactory.SqlStatements.Single());
+    }
+
+    [Theory]
+    [InlineData(nameof(Context33733.User.Role), 5000)]
+    [InlineData(nameof(Context33733.User.NCharRole), 5015)] // nchar(20) is padded with spaces, which survives the widening CAST
+    [InlineData(nameof(Context33733.User.UppercaseRole), 5000)]
+    public virtual async Task Replace_on_bounded_string_converted_enum_with_long_replacement(string propertyName, int expectedLength)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context33733>(
+            seed: async context =>
+            {
+                context.Users.Add(
+                    new Context33733.User
+                    {
+                        Role = Context33733.Role.Admin,
+                        NCharRole = Context33733.Role.Admin,
+                        UppercaseRole = Context33733.Role.Admin
+                    });
+                await context.SaveChangesAsync();
+            });
+        using var context = contextFactory.CreateDbContext();
+        ClearLog();
+
+        // The result exceeds 4,000 characters, which a bounded nvarchar/nchar REPLACE would silently truncate.
+        var replacement = new string('x', 5000);
+        var result = propertyName switch
+        {
+            nameof(Context33733.User.Role)
+                => await context.Users.Select(u => u.Role.ToString().Replace("Admin", replacement)).SingleAsync(),
+            nameof(Context33733.User.NCharRole)
+                => await context.Users.Select(u => u.NCharRole.ToString().Replace("Admin", replacement)).SingleAsync(),
+            _ => await context.Users.Select(u => u.UppercaseRole.ToString().Replace("Admin", replacement)).SingleAsync()
+        };
+
+        Assert.Equal(expectedLength, result.Length);
+        Assert.Contains($"REPLACE(CAST([u].[{propertyName}] AS nvarchar(max))", TestSqlLoggerFactory.SqlStatements.Single());
+    }
+
+    protected class Context33733(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<User> Users { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<User>(b =>
+            {
+                b.Property(u => u.Role).HasConversion<string>().HasColumnType("nvarchar(20)");
+                b.Property(u => u.NCharRole).HasConversion<string>().HasColumnType("nchar(20)");
+                b.Property(u => u.UppercaseRole).HasConversion<string>().HasColumnType("NVARCHAR(20)");
+            });
+        }
+
+        public class User
+        {
+            public int Id { get; set; }
+            public int Group { get; set; }
+            public Role Role { get; set; }
+            public Role NCharRole { get; set; }
+            public Role UppercaseRole { get; set; }
+        }
+
+        public enum Role
+        {
+            User,
+            Admin
+        }
+    }
+
+    #endregion
 
     public override async Task Like_on_value_converted_string_column_does_not_produce_cast(bool async)
     {
@@ -3019,7 +3138,7 @@ ORDER BY [s].[PickupStatusId]
 SELECT [s].[PickupStatusId], [r0].[pickupStatusId], [r0].[Total], [r0].[marker]
 FROM [Statuses] AS [s]
 LEFT JOIN (
-    SELECT [r].[PickupStatusId] AS [pickupStatusId], COALESCE(SUM(CAST([r].[PickupStatusId] AS decimal(18,2))), 0.0) AS [Total], 1 AS [marker]
+    SELECT [r].[PickupStatusId] AS [pickupStatusId], ISNULL(SUM(CAST([r].[PickupStatusId] AS decimal(18,2))), 0.0) AS [Total], 1 AS [marker]
     FROM [Requests] AS [r]
     GROUP BY [r].[PickupStatusId]
 ) AS [r0] ON [s].[PickupStatusId] = [r0].[pickupStatusId]
@@ -3351,14 +3470,221 @@ ORDER BY [s].[PickupStatusId]
 
         AssertSql(
             """
-SELECT [s].[PickupStatusId], [r0].[pickupStatusId], [r0].[Count]
+SELECT [s].[PickupStatusId], [r0].[pickupStatusId], [r0].[Count], [r0].[marker]
 FROM (
-    SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count]
+    SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
     FROM [Requests] AS [r]
     GROUP BY [r].[PickupStatusId]
 ) AS [r0]
 RIGHT JOIN [Statuses] AS [s] ON [r0].[pickupStatusId] = [s].[PickupStatusId]
 ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task RightJoin_whole_object_outer_nullable_MemberInit_dto()
+    {
+        await base.RightJoin_whole_object_outer_nullable_MemberInit_dto();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[PickupStatusId], [r0].[Count], [r0].[marker]
+FROM (
+    SELECT [r].[PickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0]
+RIGHT JOIN [Statuses] AS [s] ON [r0].[PickupStatusId] = [s].[PickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task RightJoin_whole_object_outer_nullable_Distinct_outer()
+    {
+        await base.RightJoin_whole_object_outer_nullable_Distinct_outer();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[PickupStatusId], [r0].[Count], [r0].[marker]
+FROM (
+    SELECT DISTINCT [r].[PickupStatusId], 1 AS [Count], 1 AS [marker]
+    FROM [Requests] AS [r]
+) AS [r0]
+RIGHT JOIN [Statuses] AS [s] ON [r0].[PickupStatusId] = [s].[PickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task RightJoin_whole_object_outer_nullable_Take_outer()
+    {
+        await base.RightJoin_whole_object_outer_nullable_Take_outer();
+
+        AssertSql(
+            """
+@p='10'
+
+SELECT [s].[PickupStatusId], [r0].[pickupStatusId], [r0].[Count], [r0].[marker]
+FROM (
+    SELECT TOP(@p) [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+    ORDER BY [r].[PickupStatusId]
+) AS [r0]
+RIGHT JOIN [Statuses] AS [s] ON [r0].[pickupStatusId] = [s].[PickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task RightJoin_whole_object_outer_nullable_then_LeftJoin()
+    {
+        await base.RightJoin_whole_object_outer_nullable_then_LeftJoin();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[pickupStatusId], [r0].[Count], [r0].[marker], [s0].[Name]
+FROM (
+    SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0]
+RIGHT JOIN [Statuses] AS [s] ON [r0].[pickupStatusId] = [s].[PickupStatusId]
+LEFT JOIN [Statuses] AS [s0] ON [s].[PickupStatusId] = [s0].[PickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task RightJoin_whole_object_outer_nullable_client_projection_outer()
+    {
+        await base.RightJoin_whole_object_outer_nullable_client_projection_outer();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[PickupStatusId], [r0].[marker]
+FROM (
+    SELECT DISTINCT [r].[PickupStatusId], 1 AS [marker]
+    FROM [Requests] AS [r]
+) AS [r0]
+RIGHT JOIN [Statuses] AS [s] ON [r0].[PickupStatusId] = [s].[PickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task RightJoin_whole_object_outer_nullable_client_projection_both_sides()
+    {
+        await base.RightJoin_whole_object_outer_nullable_client_projection_both_sides();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[PickupStatusId], [r0].[marker]
+FROM (
+    SELECT DISTINCT [r].[PickupStatusId], 1 AS [marker]
+    FROM [Requests] AS [r]
+) AS [r0]
+RIGHT JOIN [Statuses] AS [s] ON [r0].[PickupStatusId] = [s].[PickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task RightJoin_whole_object_outer_nullable_mapping_outer_client_projection_inner()
+    {
+        await base.RightJoin_whole_object_outer_nullable_mapping_outer_client_projection_inner();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[pickupStatusId], [r0].[Count], [r0].[marker]
+FROM (
+    SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0]
+RIGHT JOIN [Statuses] AS [s] ON [r0].[pickupStatusId] = [s].[PickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task FullJoin_whole_object_both_sides_nullable()
+    {
+        await base.FullJoin_whole_object_both_sides_nullable();
+
+        AssertSql(
+            """
+SELECT [r0].[pickupStatusId], [r0].[Count], [r0].[marker], [s0].[PickupStatusId], [s0].[Name], [s0].[marker]
+FROM (
+    SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0]
+FULL JOIN (
+    SELECT DISTINCT [s].[PickupStatusId], [s].[Name], 1 AS [marker]
+    FROM [Statuses] AS [s]
+    WHERE [s].[PickupStatusId] <> 1
+) AS [s0] ON [r0].[pickupStatusId] = [s0].[PickupStatusId]
+""");
+    }
+
+    public override async Task RightJoin_whole_object_outer_nullable_Where_over_plain_Select_outer()
+    {
+        await base.RightJoin_whole_object_outer_nullable_Where_over_plain_Select_outer();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[PickupStatusId], 1 AS [Count]
+FROM (
+    SELECT [r].[PickupStatusId]
+    FROM [Requests] AS [r]
+    WHERE [r].[PickupStatusId] > 0
+) AS [r0]
+RIGHT JOIN [Statuses] AS [s] ON [r0].[PickupStatusId] = [s].[PickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task RightJoin_whole_object_outer_nullable_Take_over_plain_Select_outer()
+    {
+        await base.RightJoin_whole_object_outer_nullable_Take_over_plain_Select_outer();
+
+        AssertSql(
+            """
+@p='10'
+
+SELECT [s].[PickupStatusId], [r0].[PickupStatusId], 1 AS [Count]
+FROM (
+    SELECT TOP(@p) [r].[PickupStatusId]
+    FROM [Requests] AS [r]
+    ORDER BY [r].[PickupStatusId]
+) AS [r0]
+RIGHT JOIN [Statuses] AS [s] ON [r0].[PickupStatusId] = [s].[PickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task RightJoin_whole_object_outer_nullable_plain_outer_no_pushdown()
+    {
+        await base.RightJoin_whole_object_outer_nullable_plain_outer_no_pushdown();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r].[PickupStatusId], 1 AS [Count]
+FROM [Requests] AS [r]
+RIGHT JOIN [Statuses] AS [s] ON [r].[PickupStatusId] = [s].[PickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task RightJoin_whole_object_outer_nullable_outer_is_join_result()
+    {
+        await base.RightJoin_whole_object_outer_nullable_outer_is_join_result();
+
+        AssertSql(
+            """
+SELECT [r1].[Id], [s].[PickupStatusId], [r0].[pickupStatusId], [r0].[Count], [r0].[marker]
+FROM (
+    SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0]
+RIGHT JOIN [Statuses] AS [s] ON [r0].[pickupStatusId] = [s].[PickupStatusId]
+RIGHT JOIN [Requests] AS [r1] ON [s].[PickupStatusId] = [r1].[Id] + 10
+ORDER BY [r1].[Id]
 """);
     }
 
@@ -3368,31 +3694,18 @@ ORDER BY [s].[PickupStatusId]
 
         AssertSql(
             """
-SELECT [s1].[PickupStatusId], [s3].[pickupStatusId], [s3].[Count], [s3].[marker], [s3].[c]
+SELECT [s0].[PickupStatusId] AS [key], [s0].[pickupStatusId0] AS [pickupStatusId], [s0].[Count], [s0].[marker]
 FROM (
-    SELECT [s].[PickupStatusId]
+    SELECT [s].[PickupStatusId], [r0].[pickupStatusId] AS [pickupStatusId0], [r0].[Count], [r0].[marker], ROW_NUMBER() OVER(PARTITION BY [s].[PickupStatusId] ORDER BY [s].[PickupStatusId], [r0].[pickupStatusId]) AS [row]
     FROM [Statuses] AS [s]
     LEFT JOIN (
-        SELECT [r].[PickupStatusId] AS [pickupStatusId]
+        SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
         FROM [Requests] AS [r]
         GROUP BY [r].[PickupStatusId]
     ) AS [r0] ON [s].[PickupStatusId] = [r0].[pickupStatusId]
-    GROUP BY [s].[PickupStatusId]
-) AS [s1]
-LEFT JOIN (
-    SELECT [s2].[pickupStatusId], [s2].[Count], [s2].[marker], [s2].[c], [s2].[PickupStatusId0]
-    FROM (
-        SELECT [r1].[pickupStatusId], [r1].[Count], [r1].[marker], 1 AS [c], [s0].[PickupStatusId] AS [PickupStatusId0], ROW_NUMBER() OVER(PARTITION BY [s0].[PickupStatusId] ORDER BY [s0].[PickupStatusId], [r1].[pickupStatusId]) AS [row]
-        FROM [Statuses] AS [s0]
-        LEFT JOIN (
-            SELECT [r2].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
-            FROM [Requests] AS [r2]
-            GROUP BY [r2].[PickupStatusId]
-        ) AS [r1] ON [s0].[PickupStatusId] = [r1].[pickupStatusId]
-    ) AS [s2]
-    WHERE [s2].[row] <= 1
-) AS [s3] ON [s1].[PickupStatusId] = [s3].[PickupStatusId0]
-ORDER BY [s1].[PickupStatusId]
+) AS [s0]
+WHERE [s0].[row] <= 1
+ORDER BY [s0].[PickupStatusId]
 """);
     }
 
@@ -3404,31 +3717,18 @@ ORDER BY [s1].[PickupStatusId]
         // client-side-only nesting, so it changes no SQL. This test exists to exercise the nested-node rekey path.
         AssertSql(
             """
-SELECT [s1].[PickupStatusId], [s3].[pickupStatusId], [s3].[Count], [s3].[marker], [s3].[c]
+SELECT [s0].[PickupStatusId] AS [key], [s0].[pickupStatusId0] AS [pickupStatusId], [s0].[Count], [s0].[marker]
 FROM (
-    SELECT [s].[PickupStatusId]
+    SELECT [s].[PickupStatusId], [r0].[pickupStatusId] AS [pickupStatusId0], [r0].[Count], [r0].[marker], ROW_NUMBER() OVER(PARTITION BY [s].[PickupStatusId] ORDER BY [s].[PickupStatusId], [r0].[pickupStatusId]) AS [row]
     FROM [Statuses] AS [s]
     LEFT JOIN (
-        SELECT [r].[PickupStatusId] AS [pickupStatusId]
+        SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
         FROM [Requests] AS [r]
         GROUP BY [r].[PickupStatusId]
     ) AS [r0] ON [s].[PickupStatusId] = [r0].[pickupStatusId]
-    GROUP BY [s].[PickupStatusId]
-) AS [s1]
-LEFT JOIN (
-    SELECT [s2].[pickupStatusId], [s2].[Count], [s2].[marker], [s2].[c], [s2].[PickupStatusId0]
-    FROM (
-        SELECT [r1].[pickupStatusId], [r1].[Count], [r1].[marker], 1 AS [c], [s0].[PickupStatusId] AS [PickupStatusId0], ROW_NUMBER() OVER(PARTITION BY [s0].[PickupStatusId] ORDER BY [s0].[PickupStatusId], [r1].[pickupStatusId]) AS [row]
-        FROM [Statuses] AS [s0]
-        LEFT JOIN (
-            SELECT [r2].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
-            FROM [Requests] AS [r2]
-            GROUP BY [r2].[PickupStatusId]
-        ) AS [r1] ON [s0].[PickupStatusId] = [r1].[pickupStatusId]
-    ) AS [s2]
-    WHERE [s2].[row] <= 1
-) AS [s3] ON [s1].[PickupStatusId] = [s3].[PickupStatusId0]
-ORDER BY [s1].[PickupStatusId]
+) AS [s0]
+WHERE [s0].[row] <= 1
+ORDER BY [s0].[PickupStatusId]
 """);
     }
 
@@ -3438,31 +3738,18 @@ ORDER BY [s1].[PickupStatusId]
 
         AssertSql(
             """
-SELECT [s1].[PickupStatusId], [s3].[PickupStatusId], [s3].[Count], [s3].[marker], [s3].[c]
+SELECT [s0].[PickupStatusId] AS [key], [s0].[PickupStatusId0] AS [PickupStatusId], [s0].[Count], [s0].[marker]
 FROM (
-    SELECT [s].[PickupStatusId]
+    SELECT [s].[PickupStatusId], [r0].[PickupStatusId] AS [PickupStatusId0], [r0].[Count], [r0].[marker], ROW_NUMBER() OVER(PARTITION BY [s].[PickupStatusId] ORDER BY [s].[PickupStatusId], [r0].[PickupStatusId]) AS [row]
     FROM [Statuses] AS [s]
     LEFT JOIN (
-        SELECT [r].[PickupStatusId]
+        SELECT [r].[PickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
         FROM [Requests] AS [r]
         GROUP BY [r].[PickupStatusId]
     ) AS [r0] ON [s].[PickupStatusId] = [r0].[PickupStatusId]
-    GROUP BY [s].[PickupStatusId]
-) AS [s1]
-LEFT JOIN (
-    SELECT [s2].[PickupStatusId], [s2].[Count], [s2].[marker], [s2].[c], [s2].[PickupStatusId0]
-    FROM (
-        SELECT [r1].[PickupStatusId], [r1].[Count], [r1].[marker], 1 AS [c], [s0].[PickupStatusId] AS [PickupStatusId0], ROW_NUMBER() OVER(PARTITION BY [s0].[PickupStatusId] ORDER BY [s0].[PickupStatusId], [r1].[PickupStatusId]) AS [row]
-        FROM [Statuses] AS [s0]
-        LEFT JOIN (
-            SELECT [r2].[PickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
-            FROM [Requests] AS [r2]
-            GROUP BY [r2].[PickupStatusId]
-        ) AS [r1] ON [s0].[PickupStatusId] = [r1].[PickupStatusId]
-    ) AS [s2]
-    WHERE [s2].[row] <= 1
-) AS [s3] ON [s1].[PickupStatusId] = [s3].[PickupStatusId0]
-ORDER BY [s1].[PickupStatusId]
+) AS [s0]
+WHERE [s0].[row] <= 1
+ORDER BY [s0].[PickupStatusId]
 """);
     }
 
@@ -3472,31 +3759,18 @@ ORDER BY [s1].[PickupStatusId]
 
         AssertSql(
             """
-SELECT [s1].[PickupStatusId], [s3].[PickupStatusId], [s3].[Count], [s3].[marker], [s3].[c]
+SELECT [s0].[PickupStatusId] AS [key], [s0].[PickupStatusId0] AS [PickupStatusId], [s0].[Count], [s0].[marker]
 FROM (
-    SELECT [s].[PickupStatusId]
+    SELECT [s].[PickupStatusId], [r0].[PickupStatusId] AS [PickupStatusId0], [r0].[Count], [r0].[marker], ROW_NUMBER() OVER(PARTITION BY [s].[PickupStatusId] ORDER BY [s].[PickupStatusId], [r0].[PickupStatusId]) AS [row]
     FROM [Statuses] AS [s]
     LEFT JOIN (
-        SELECT [r].[PickupStatusId]
+        SELECT [r].[PickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
         FROM [Requests] AS [r]
         GROUP BY [r].[PickupStatusId]
     ) AS [r0] ON [s].[PickupStatusId] = [r0].[PickupStatusId]
-    GROUP BY [s].[PickupStatusId]
-) AS [s1]
-LEFT JOIN (
-    SELECT [s2].[PickupStatusId], [s2].[Count], [s2].[marker], [s2].[c], [s2].[PickupStatusId0]
-    FROM (
-        SELECT [r1].[PickupStatusId], [r1].[Count], [r1].[marker], 1 AS [c], [s0].[PickupStatusId] AS [PickupStatusId0], ROW_NUMBER() OVER(PARTITION BY [s0].[PickupStatusId] ORDER BY [s0].[PickupStatusId], [r1].[PickupStatusId]) AS [row]
-        FROM [Statuses] AS [s0]
-        LEFT JOIN (
-            SELECT [r2].[PickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
-            FROM [Requests] AS [r2]
-            GROUP BY [r2].[PickupStatusId]
-        ) AS [r1] ON [s0].[PickupStatusId] = [r1].[PickupStatusId]
-    ) AS [s2]
-    WHERE [s2].[row] <= 1
-) AS [s3] ON [s1].[PickupStatusId] = [s3].[PickupStatusId0]
-ORDER BY [s1].[PickupStatusId]
+) AS [s0]
+WHERE [s0].[row] <= 1
+ORDER BY [s0].[PickupStatusId]
 """);
     }
 
@@ -3595,6 +3869,857 @@ FROM (
 ) AS [s0]
 ORDER BY [s0].[PickupStatusId]
 """);
+    }
+
+    #endregion
+
+    #region 33663
+
+    public override async Task GroupBy_nullable_foreign_key_in_anonymous_key(bool async)
+    {
+        await base.GroupBy_nullable_foreign_key_in_anonymous_key(async);
+
+        AssertSql(
+            """
+SELECT [c].[CountryId], [c].[Id]
+FROM [Companies] AS [c]
+ORDER BY [c].[CountryId]
+""",
+            //
+            """
+SELECT [c].[CountryId], [c].[Id]
+FROM [Companies] AS [c]
+ORDER BY [c].[CountryId], [c].[Id]
+""",
+            //
+            """
+SELECT [c].[CountryId], DENSE_RANK() OVER(ORDER BY [c].[CountryId]), [c].[Id]
+FROM [Companies] AS [c]
+ORDER BY [c].[CountryId]
+""",
+            //
+            """
+SELECT [c].[CountryId], [c].[Id], DENSE_RANK() OVER(ORDER BY [c].[CountryId], [c].[Id])
+FROM [Companies] AS [c]
+ORDER BY [c].[CountryId], [c].[Id]
+""");
+    }
+
+    #endregion
+
+    #region 39241
+
+    public override async Task GroupBy_elements_with_keys_differing_only_in_case(bool async)
+    {
+        await base.GroupBy_elements_with_keys_differing_only_in_case(async);
+
+        AssertSql(
+            """
+SELECT [e].[DepartmentName], DENSE_RANK() OVER(ORDER BY [e].[DepartmentName]), [e].[Name]
+FROM [Employees] AS [e]
+ORDER BY [e].[DepartmentName]
+""");
+    }
+
+    #endregion
+
+    #region 31388
+
+    public override async Task Keyless_entity_final_GroupBy_with_ToDictionary(bool async)
+    {
+        await base.Keyless_entity_final_GroupBy_with_ToDictionary(async);
+
+        AssertSql(
+            """
+SELECT [s].[Region], [s].[Product], [s].[Amount], [s].[Category]
+FROM [Sales] AS [s]
+WHERE [s].[Amount] > 0
+ORDER BY [s].[Region], [s].[Product]
+""");
+    }
+
+    public override async Task Keyless_entity_final_GroupBy_with_elements(bool async)
+    {
+        await base.Keyless_entity_final_GroupBy_with_elements(async);
+
+        AssertSql(
+            """
+SELECT [s].[Region], [s].[Amount], [s].[Category], [s].[Product]
+FROM [Sales] AS [s]
+ORDER BY [s].[Region]
+""");
+    }
+
+    public override async Task Keyless_entity_final_GroupBy_with_null_key(bool async)
+    {
+        await base.Keyless_entity_final_GroupBy_with_null_key(async);
+
+        AssertSql(
+            """
+SELECT [s].[Category], [s].[Amount], [s].[Product], [s].[Region]
+FROM [Sales] AS [s]
+ORDER BY [s].[Category]
+""");
+    }
+
+    public override async Task Keyless_entity_final_GroupBy_with_computed_key(bool async)
+    {
+        await base.Keyless_entity_final_GroupBy_with_computed_key(async);
+
+        AssertSql(
+            """
+SELECT [s0].[Key], [s0].[Amount], [s0].[Category], [s0].[Product], [s0].[Region]
+FROM (
+    SELECT [s].[Amount], [s].[Category], [s].[Product], [s].[Region], [s].[Amount] % 2 AS [Key]
+    FROM [Sales] AS [s]
+) AS [s0]
+ORDER BY [s0].[Key]
+""");
+    }
+
+    #endregion
+
+    #region 33494
+
+    public override async Task Final_GroupBy_over_set_operation(bool async)
+    {
+        await base.Final_GroupBy_over_set_operation(async);
+
+        AssertSql(
+            """
+SELECT [u].[Name], [u].[Id]
+FROM (
+    SELECT [m].[Id], [m].[Name]
+    FROM [Managers] AS [m]
+    WHERE [m].[Name] <> N'Cheng'
+    UNION ALL
+    SELECT [m0].[Id], [m0].[Name]
+    FROM [Managers] AS [m0]
+    WHERE [m0].[Name] = N'Cheng'
+) AS [u]
+ORDER BY [u].[Name]
+""");
+    }
+
+    public override async Task Final_GroupBy_over_Except_with_collection(bool async)
+    {
+        await base.Final_GroupBy_over_Except_with_collection(async);
+
+        AssertSql(
+            """
+SELECT [e1].[Name], [e1].[c], [e0].[Id]
+FROM (
+    SELECT [e].[Name], COUNT(*) AS [c]
+    FROM (
+        SELECT [m].[Id], [m].[Name]
+        FROM [Companies] AS [c]
+        INNER JOIN [Managers] AS [m] ON [c].[ManagerId] = [m].[Id]
+        EXCEPT
+        SELECT [m0].[Id], [m0].[Name]
+        FROM [Managers] AS [m0]
+        WHERE [m0].[Name] = N'Cheng'
+    ) AS [e]
+    GROUP BY [e].[Name]
+) AS [e1]
+LEFT JOIN (
+    SELECT [m1].[Id], [m1].[Name]
+    FROM [Companies] AS [c0]
+    INNER JOIN [Managers] AS [m1] ON [c0].[ManagerId] = [m1].[Id]
+    EXCEPT
+    SELECT [m2].[Id], [m2].[Name]
+    FROM [Managers] AS [m2]
+    WHERE [m2].[Name] = N'Cheng'
+) AS [e0] ON [e1].[Name] = [e0].[Name]
+ORDER BY [e1].[Name]
+""");
+    }
+
+    public override async Task Final_GroupBy_over_Concat_with_collection_throws(bool async)
+    {
+        await base.Final_GroupBy_over_Concat_with_collection_throws(async);
+
+        AssertSql();
+    }
+
+    #endregion
+
+    #region 39366
+
+    public override async Task GroupBy_value_converted_reference_type_key_with_elements_and_aggregate(bool async)
+    {
+        await base.GroupBy_value_converted_reference_type_key_with_elements_and_aggregate(async);
+
+        AssertSql(
+            """
+SELECT [p1].[Tag], [p0].[Id], [p1].[c]
+FROM (
+    SELECT [p].[Tag], COUNT(*) AS [c]
+    FROM [Posts] AS [p]
+    GROUP BY [p].[Tag]
+) AS [p1]
+LEFT JOIN [Posts] AS [p0] ON [p1].[Tag] = [p0].[Tag]
+ORDER BY [p1].[Tag]
+""");
+    }
+
+    public override async Task Union_value_converted_reference_type_with_collection(bool async)
+    {
+        await base.Union_value_converted_reference_type_with_collection(async);
+
+        AssertSql(
+            """
+SELECT [u].[Tag], [p1].[Id]
+FROM (
+    SELECT [p].[Tag]
+    FROM [Posts] AS [p]
+    WHERE [p].[Id] < 3
+    UNION
+    SELECT [p0].[Tag]
+    FROM [Posts] AS [p0]
+    WHERE [p0].[Id] > 1
+) AS [u]
+LEFT JOIN [Posts] AS [p1] ON [u].[Tag] = [p1].[Tag]
+ORDER BY [u].[Tag]
+""");
+    }
+
+    public override async Task Union_entity_with_value_converted_key_with_collection(bool async)
+    {
+        await base.Union_entity_with_value_converted_key_with_collection(async);
+
+        AssertSql(
+            """
+SELECT [u].[Name], [u].[Id], [p].[Id]
+FROM (
+    SELECT [b].[Id], [b].[Name]
+    FROM [Blogs] AS [b]
+    WHERE [b].[Name] = N'efcore'
+    UNION
+    SELECT [b0].[Id], [b0].[Name]
+    FROM [Blogs] AS [b0]
+    WHERE [b0].[Name] = N'linq'
+) AS [u]
+LEFT JOIN [Post] AS [p] ON [u].[Id] = [p].[BlogId]
+ORDER BY [u].[Id]
+""");
+    }
+
+    public override async Task Union_entity_with_value_converted_key_with_split_collection(bool async)
+    {
+        await base.Union_entity_with_value_converted_key_with_split_collection(async);
+
+        AssertSql(
+            """
+SELECT [u].[Name], [u].[Id]
+FROM (
+    SELECT [b].[Id], [b].[Name]
+    FROM [Blogs] AS [b]
+    WHERE [b].[Name] = N'efcore'
+    UNION
+    SELECT [b0].[Id], [b0].[Name]
+    FROM [Blogs] AS [b0]
+    WHERE [b0].[Name] = N'linq'
+) AS [u]
+ORDER BY [u].[Id]
+""",
+            //
+            """
+SELECT [p1].[Id], [u].[Id]
+FROM (
+    SELECT [b].[Id], [b].[Name]
+    FROM [Blogs] AS [b]
+    WHERE [b].[Name] = N'efcore'
+    UNION
+    SELECT [b0].[Id], [b0].[Name]
+    FROM [Blogs] AS [b0]
+    WHERE [b0].[Name] = N'linq'
+) AS [u]
+INNER JOIN [Post] AS [p1] ON [u].[Id] = [p1].[BlogId]
+ORDER BY [u].[Id]
+""");
+    }
+
+    public override async Task Distinct_value_converted_reference_type_with_collection(bool async)
+    {
+        await base.Distinct_value_converted_reference_type_with_collection(async);
+
+        AssertSql(
+            """
+SELECT [p0].[Tag], [p1].[Id]
+FROM (
+    SELECT DISTINCT [p].[Tag]
+    FROM [Posts] AS [p]
+) AS [p0]
+LEFT JOIN [Posts] AS [p1] ON [p0].[Tag] = [p1].[Tag]
+ORDER BY [p0].[Tag]
+""");
+    }
+
+    public override async Task Distinct_value_converted_string_with_nondeterministic_write_with_collection(bool async)
+    {
+        await base.Distinct_value_converted_string_with_nondeterministic_write_with_collection(async);
+
+        AssertSql(
+            """
+SELECT [p0].[Tag], [p1].[Id]
+FROM (
+    SELECT DISTINCT [p].[Tag]
+    FROM [Posts] AS [p]
+) AS [p0]
+LEFT JOIN [Posts] AS [p1] ON [p0].[Tag] = [p1].[Tag]
+ORDER BY [p0].[Tag]
+""");
+    }
+
+    public override async Task Final_GroupBy_value_converted_key_read_as_same_value_from_different_database_values(bool async)
+    {
+        await base.Final_GroupBy_value_converted_key_read_as_same_value_from_different_database_values(async);
+
+        AssertSql(
+            """
+SELECT [i].[Number], [i].[Id]
+FROM [Items] AS [i]
+ORDER BY [i].[Number]
+""");
+    }
+
+    public override async Task Distinct_complex_type_with_value_converted_reference_type_with_collection(bool async)
+    {
+        await base.Distinct_complex_type_with_value_converted_reference_type_with_collection(async);
+
+        AssertSql(
+            """
+SELECT [p0].[Details_Rating], [p0].[Details_Tag], [p1].[Id]
+FROM (
+    SELECT DISTINCT [p].[Details_Rating], [p].[Details_Tag]
+    FROM [Posts] AS [p]
+) AS [p0]
+LEFT JOIN [Posts] AS [p1] ON [p0].[Details_Tag] = [p1].[Details_Tag]
+ORDER BY [p0].[Details_Rating], [p0].[Details_Tag]
+""");
+    }
+
+    public override async Task Distinct_complex_type_with_value_converted_reference_type_with_split_collection(bool async)
+    {
+        await base.Distinct_complex_type_with_value_converted_reference_type_with_split_collection(async);
+
+        AssertSql(
+            """
+SELECT [p0].[Details_Rating], [p0].[Details_Tag]
+FROM (
+    SELECT DISTINCT [p].[Details_Rating], [p].[Details_Tag]
+    FROM [Posts] AS [p]
+) AS [p0]
+ORDER BY [p0].[Details_Rating], [p0].[Details_Tag]
+""",
+            //
+            """
+SELECT [p3].[Id], [p0].[Details_Rating], [p0].[Details_Tag]
+FROM (
+    SELECT DISTINCT [p].[Details_Rating], [p].[Details_Tag]
+    FROM [Posts] AS [p]
+) AS [p0]
+INNER JOIN [Posts] AS [p3] ON [p0].[Details_Tag] = [p3].[Details_Tag]
+ORDER BY [p0].[Details_Rating], [p0].[Details_Tag]
+""");
+    }
+
+    public override async Task Distinct_value_converted_object_with_collection(bool async)
+    {
+        await base.Distinct_value_converted_object_with_collection(async);
+
+        AssertSql(
+            """
+SELECT [p0].[Tag], [p1].[Id]
+FROM (
+    SELECT DISTINCT [p].[Tag]
+    FROM [Posts] AS [p]
+) AS [p0]
+LEFT JOIN [Posts] AS [p1] ON [p0].[Tag] = [p1].[Tag]
+ORDER BY [p0].[Tag]
+""");
+    }
+
+    public override async Task Distinct_primitive_collection_with_collection(bool async)
+    {
+        await base.Distinct_primitive_collection_with_collection(async);
+
+        AssertSql(
+            """
+SELECT [p0].[Tags], [p1].[Id]
+FROM (
+    SELECT DISTINCT [p].[Tags]
+    FROM [Posts] AS [p]
+) AS [p0]
+LEFT JOIN [Posts] AS [p1] ON [p0].[Tags] = [p1].[Tags]
+ORDER BY [p0].[Tags]
+""");
+    }
+
+    #endregion
+
+    #region 30233
+
+    public override async Task Sum_over_property_with_value_converter_that_converts_nulls(bool async)
+    {
+        await base.Sum_over_property_with_value_converter_that_converts_nulls(async);
+
+        AssertSql(
+            """
+SELECT [e].[Group] AS [Key], COALESCE(SUM([e].[LongValue]), CAST(0 AS bigint)) AS [SumLong], COALESCE(SUM([e].[DecimalValue]), 0.0) AS [SumDecimal]
+FROM [Entity] AS [e]
+GROUP BY [e].[Group]
+ORDER BY [e].[Group]
+""");
+    }
+
+    #endregion
+
+    #region 29240
+
+    public override async Task GroupBy_nullable_key_Select_First_ordered_by_date(bool async)
+    {
+        await base.GroupBy_nullable_key_Select_First_ordered_by_date(async);
+
+        AssertSql(
+            """
+SELECT [c0].[Id], [c0].[CreationDateTime], [c0].[GroupId]
+FROM (
+    SELECT [c].[Id], [c].[CreationDateTime], [c].[GroupId], ROW_NUMBER() OVER(PARTITION BY [c].[GroupId] ORDER BY [c].[CreationDateTime] DESC) AS [row]
+    FROM [Categories] AS [c]
+) AS [c0]
+WHERE [c0].[row] <= 1
+""");
+    }
+
+    public override async Task GroupBy_nullable_key_Select_First_ordered_with_owned_types(bool async)
+    {
+        await base.GroupBy_nullable_key_Select_First_ordered_with_owned_types(async);
+
+        AssertSql(
+            """
+SELECT [p0].[Id], [p0].[GroupId], [p0].[Rank], [p0].[c], [p0].[Details_Description]
+FROM (
+    SELECT [p].[Id], [p].[GroupId], [p].[Rank], [p].[Tags] AS [c], ROW_NUMBER() OVER(PARTITION BY [p].[GroupId] ORDER BY [p].[Rank] DESC) AS [row], [p].[Details_Description]
+    FROM [Products] AS [p]
+) AS [p0]
+WHERE [p0].[row] <= 1
+""");
+    }
+
+    public override async Task GroupBy_Select_First_ordered_with_owned_types_then_DefaultIfEmpty(bool async)
+    {
+        await base.GroupBy_Select_First_ordered_with_owned_types_then_DefaultIfEmpty(async);
+
+        AssertSql(
+            """
+SELECT [p3].[Id], [p3].[GroupId], [p3].[Rank], [p3].[c], [p3].[Details_Description]
+FROM (
+    SELECT 1 AS empty
+) AS [e]
+LEFT JOIN (
+    SELECT [p].[GroupId]
+    FROM [Products] AS [p]
+    WHERE [p].[Rank] > 1
+    GROUP BY [p].[GroupId]
+) AS [p1] ON 1 = 1
+LEFT JOIN (
+    SELECT [p2].[Id], [p2].[GroupId], [p2].[Rank], [p2].[c] AS [c], [p2].[Details_Description]
+    FROM (
+        SELECT [p0].[Id], [p0].[GroupId], [p0].[Rank], [p0].[Tags] AS [c], [p0].[Details_Description], ROW_NUMBER() OVER(PARTITION BY [p0].[GroupId] ORDER BY [p0].[Rank] DESC) AS [row]
+        FROM [Products] AS [p0]
+        WHERE [p0].[Rank] > 1
+    ) AS [p2]
+    WHERE [p2].[row] <= 1
+) AS [p3] ON [p1].[GroupId] = [p3].[GroupId] OR ([p1].[GroupId] IS NULL AND [p3].[GroupId] IS NULL)
+""");
+    }
+
+    #endregion
+
+    #region 33061
+
+    public override async Task Select_concat_on_string()
+    {
+        await base.Select_concat_on_string();
+
+        AssertSql(
+            """
+SELECT [c].[CityName]
+FROM [Cities] AS [c]
+ORDER BY [c].[CityId]
+""",
+            //
+            """
+SELECT [c].[CityName]
+FROM [Cities] AS [c]
+ORDER BY [c].[CityId]
+""");
+    }
+
+    #endregion
+
+    #region 33061
+
+    public override async Task Primitive_collection_hashset_parameter_is_client_eval(bool async)
+    {
+        await base.Primitive_collection_hashset_parameter_is_client_eval(async);
+
+        AssertSql(
+            """
+SELECT [e].[Id]
+FROM [Entities] AS [e]
+""",
+            //
+            """
+SELECT [e].[Id]
+FROM [Entities] AS [e]
+""");
+    }
+
+    public override async Task Count_over_collection_of_nested_projection_with_conditional_null(bool async)
+    {
+        await base.Count_over_collection_of_nested_projection_with_conditional_null(async);
+
+        AssertSql(
+            """
+SELECT CASE
+    WHEN [e0].[ID] IS NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, [e].[ID], [t].[ID]
+FROM [Entities] AS [e]
+LEFT JOIN [EntityType] AS [e0] ON [e].[TypeID] = [e0].[ID]
+LEFT JOIN [Tag] AS [t] ON [e0].[ID] = [t].[EntityTypeID]
+ORDER BY [e].[ID]
+""");
+    }
+
+    public override async Task Count_over_collection_of_nested_projection_with_conditional_null_on_false_side(bool async)
+    {
+        await base.Count_over_collection_of_nested_projection_with_conditional_null_on_false_side(async);
+
+        AssertSql(
+            """
+SELECT CASE
+    WHEN [e0].[ID] IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, [e].[ID], [t].[ID]
+FROM [Entities] AS [e]
+LEFT JOIN [EntityType] AS [e0] ON [e].[TypeID] = [e0].[ID]
+LEFT JOIN [Tag] AS [t] ON [e0].[ID] = [t].[EntityTypeID]
+ORDER BY [e].[ID]
+""");
+    }
+
+    #endregion
+
+    #region 26940
+
+    [Fact]
+    public async Task Count_with_not_null_predicate_over_large_object_column_type_in_any_case()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context26940>(seed: c => c.SeedAsync());
+
+        using var context = contextFactory.CreateDbContext();
+        var result = context.Entities
+            .GroupBy(e => e.GroupKey)
+            .Select(g => new
+            {
+                Text = g.Count(e => e.Text != null),
+                Ntext = g.LongCount(e => e.Ntext != null),
+                Image = g.Count(e => e.Image != null)
+            })
+            .Single();
+
+        Assert.Equal(1, result.Text);
+        Assert.Equal(1, result.Ntext);
+        Assert.Equal(1, result.Image);
+
+        AssertSql(
+            """
+SELECT TOP(2) COUNT(CASE
+    WHEN [e].[Text] IS NOT NULL THEN 1
+END) AS [Text], COUNT_BIG(CASE
+    WHEN [e].[Ntext] IS NOT NULL THEN 1
+END) AS [Ntext], COUNT(CASE
+    WHEN [e].[Image] IS NOT NULL THEN 1
+END) AS [Image]
+FROM [Entities] AS [e]
+GROUP BY [e].[GroupKey]
+""");
+    }
+
+    protected class Context26940(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Entity26940> Entities { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Entity26940>(
+                b =>
+                {
+                    b.Property(e => e.Text).HasColumnType("Text");
+                    b.Property(e => e.Ntext).HasColumnType("NTEXT");
+                    b.Property(e => e.Image).HasColumnType("[image]");
+                });
+
+        public Task SeedAsync()
+        {
+            AddRange(
+                new Entity26940 { GroupKey = 1, Text = "A", Ntext = "B", Image = [1] },
+                new Entity26940 { GroupKey = 1 });
+
+            return SaveChangesAsync();
+        }
+    }
+
+    protected class Entity26940
+    {
+        public int Id { get; set; }
+        public int GroupKey { get; set; }
+        public string? Text { get; set; }
+        public string? Ntext { get; set; }
+        public byte[]? Image { get; set; }
+    }
+
+    #endregion
+
+    #region 35436
+
+    [Fact]
+    public virtual async Task DateTime_Ticks_matches_client_for_all_store_types()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context35436>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var expected = context.Dates.AsNoTracking().OrderBy(d => d.Id).ToList()
+            .Select(d => new
+            {
+                d.Id,
+                DateTime2_7 = d.DateTime2_7.Ticks,
+                DateTime2_3 = d.DateTime2_3.Ticks,
+                DateTime2_0 = d.DateTime2_0.Ticks,
+                DateTime = d.DateTime.Ticks,
+                SmallDateTime = d.SmallDateTime.Ticks,
+                Date = d.Date.Ticks
+            })
+            .ToList();
+
+        ClearLog();
+
+        var actual = await context.Dates.OrderBy(d => d.Id)
+            .Select(d => new
+            {
+                d.Id,
+                DateTime2_7 = d.DateTime2_7.Ticks,
+                DateTime2_3 = d.DateTime2_3.Ticks,
+                DateTime2_0 = d.DateTime2_0.Ticks,
+                DateTime = d.DateTime.Ticks,
+                SmallDateTime = d.SmallDateTime.Ticks,
+                Date = d.Date.Ticks
+            })
+            .ToListAsync();
+
+        Assert.Equal(expected, actual);
+
+        AssertSql(
+            """
+SELECT [d].[Id], CAST(DATEDIFF(day, '0001-01-01T00:00:00.0000000', [d].[DateTime2_7]) AS bigint) * CAST(864000000000 AS bigint) + CAST(DATEDIFF(second, CONVERT(date, [d].[DateTime2_7]), [d].[DateTime2_7]) AS bigint) * CAST(10000000 AS bigint) + CAST(DATEPART(nanosecond, [d].[DateTime2_7]) / 100 AS bigint) AS [DateTime2_7], CAST(DATEDIFF(day, '0001-01-01T00:00:00.0000000', [d].[DateTime2_3]) AS bigint) * CAST(864000000000 AS bigint) + CAST(DATEDIFF(second, CONVERT(date, [d].[DateTime2_3]), [d].[DateTime2_3]) AS bigint) * CAST(10000000 AS bigint) + CAST(DATEPART(nanosecond, [d].[DateTime2_3]) / 100 AS bigint) AS [DateTime2_3], CAST(DATEDIFF(day, '0001-01-01T00:00:00.0000000', [d].[DateTime2_0]) AS bigint) * CAST(864000000000 AS bigint) + CAST(DATEDIFF(second, CONVERT(date, [d].[DateTime2_0]), [d].[DateTime2_0]) AS bigint) * CAST(10000000 AS bigint) + CAST(DATEPART(nanosecond, [d].[DateTime2_0]) / 100 AS bigint) AS [DateTime2_0], CAST(DATEDIFF(day, '0001-01-01T00:00:00.0000000', [d].[DateTime]) AS bigint) * CAST(864000000000 AS bigint) + CAST(DATEDIFF(second, CONVERT(date, [d].[DateTime]), [d].[DateTime]) AS bigint) * CAST(10000000 AS bigint) + CAST(((DATEPART(nanosecond, [d].[DateTime]) + 500000) / 1000000) * 10000 AS bigint) AS [DateTime], CAST(DATEDIFF(day, '0001-01-01T00:00:00.0000000', [d].[SmallDateTime]) AS bigint) * CAST(864000000000 AS bigint) + CAST(DATEDIFF(second, CONVERT(date, [d].[SmallDateTime]), [d].[SmallDateTime]) AS bigint) * CAST(10000000 AS bigint) AS [SmallDateTime], CAST(DATEDIFF(day, '0001-01-01T00:00:00.0000000', [d].[Date]) AS bigint) * CAST(864000000000 AS bigint) AS [Date]
+FROM [Dates] AS [d]
+ORDER BY [d].[Id]
+""");
+    }
+
+    [Fact]
+    public virtual async Task DateTime_Ticks_on_parameter()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context35436>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+        var dateTime = new DateTime(1998, 5, 4, 15, 30, 10, 123, 456).AddTicks(4);
+
+        var ids = await context.Dates
+            .Where(d => EF.Parameter(dateTime).Ticks == d.DateTime2_7.Ticks)
+            .Select(d => d.Id)
+            .ToListAsync();
+
+        Assert.Equal([3], ids);
+
+        AssertSql(
+            """
+@dateTime='1998-05-04T15:30:10.1234564'
+
+SELECT [d].[Id]
+FROM [Dates] AS [d]
+WHERE CAST(DATEDIFF(day, '0001-01-01T00:00:00.0000000', @dateTime) AS bigint) * CAST(864000000000 AS bigint) + CAST(DATEDIFF(second, CONVERT(date, @dateTime), @dateTime) AS bigint) * CAST(10000000 AS bigint) + CAST(DATEPART(nanosecond, @dateTime) / 100 AS bigint) = CAST(DATEDIFF(day, '0001-01-01T00:00:00.0000000', [d].[DateTime2_7]) AS bigint) * CAST(864000000000 AS bigint) + CAST(DATEDIFF(second, CONVERT(date, [d].[DateTime2_7]), [d].[DateTime2_7]) AS bigint) * CAST(10000000 AS bigint) + CAST(DATEPART(nanosecond, [d].[DateTime2_7]) / 100 AS bigint)
+""");
+    }
+
+    [Fact]
+    public virtual async Task DateTime_Ticks_on_nullable_column()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context35436>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var expected = context.Dates.AsNoTracking().OrderBy(d => d.Id).ToList()
+            .Select(d => d.Nullable.HasValue ? d.Nullable.Value.Ticks : (long?)null)
+            .ToList();
+
+        var ticks = expected[2];
+
+        ClearLog();
+
+        var actual = await context.Dates.OrderBy(d => d.Id)
+            .Select(d => d.Nullable.HasValue ? d.Nullable.Value.Ticks : (long?)null)
+            .ToListAsync();
+        var filtered = await context.Dates
+            .Where(d => d.Nullable!.Value.Ticks == ticks)
+            .Select(d => d.Id)
+            .ToListAsync();
+
+        Assert.Equal(expected, actual);
+        Assert.Equal([3], filtered);
+
+        AssertSql(
+            """
+SELECT CAST(DATEDIFF(day, '0001-01-01T00:00:00.0000000', [d].[Nullable]) AS bigint) * CAST(864000000000 AS bigint) + CAST(DATEDIFF(second, CONVERT(date, [d].[Nullable]), [d].[Nullable]) AS bigint) * CAST(10000000 AS bigint) + CAST(DATEPART(nanosecond, [d].[Nullable]) / 100 AS bigint)
+FROM [Dates] AS [d]
+ORDER BY [d].[Id]
+""",
+            //
+            """
+@ticks='630298926101234564' (Nullable = true)
+
+SELECT [d].[Id]
+FROM [Dates] AS [d]
+WHERE CAST(DATEDIFF(day, '0001-01-01T00:00:00.0000000', [d].[Nullable]) AS bigint) * CAST(864000000000 AS bigint) + CAST(DATEDIFF(second, CONVERT(date, [d].[Nullable]), [d].[Nullable]) AS bigint) * CAST(10000000 AS bigint) + CAST(DATEPART(nanosecond, [d].[Nullable]) / 100 AS bigint) = @ticks
+""");
+    }
+
+    [Fact]
+    public virtual async Task DateTime_Ticks_on_datetime_matches_client_for_every_millisecond()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context35436>(seed: c => c.SeedEveryMillisecondAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var expected = context.Dates.AsNoTracking().OrderBy(d => d.Id).ToList()
+            .Select(d => d.DateTime.Ticks)
+            .ToList();
+        var actual = await context.Dates.OrderBy(d => d.Id).Select(d => d.DateTime.Ticks).ToListAsync();
+
+        Assert.Equal(1000, actual.Count);
+        Assert.Equal(expected, actual);
+    }
+
+    [Fact]
+    public virtual async Task DateTime_Ticks_is_not_translated_over_a_complex_expression()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context35436>();
+        using var context = contextFactory.CreateDbContext();
+
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+            () => context.Dates.Where(d => d.DateTime2_7.AddDays(1).Ticks > 0).ToListAsync())).Message;
+
+        Assert.Equal(
+            CoreStrings.TranslationFailed(
+                @"DbSet<Dates35436>()    .Where(d => d.DateTime2_7.AddDays(1).Ticks > 0)"),
+            message.Replace("\r", "").Replace("\n", ""));
+    }
+
+    protected class Context35436(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Dates35436> Dates { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Dates35436>(
+                b =>
+                {
+                    b.Property(e => e.Id).ValueGeneratedNever();
+                    b.Property(e => e.DateTime2_7).HasColumnType("datetime2(7)");
+                    b.Property(e => e.DateTime2_3).HasColumnType("datetime2(3)");
+                    b.Property(e => e.DateTime2_0).HasColumnType("datetime2(0)");
+                    b.Property(e => e.DateTime).HasColumnType("datetime");
+                    b.Property(e => e.SmallDateTime).HasColumnType("smalldatetime");
+                    b.Property(e => e.Date).HasColumnType("date");
+                });
+
+        public Task SeedAsync()
+        {
+            AddRange(
+                new Dates35436
+                {
+                    Id = 1,
+                    DateTime2_7 = DateTime.MinValue,
+                    DateTime2_3 = DateTime.MinValue,
+                    DateTime2_0 = DateTime.MinValue,
+                    DateTime = new DateTime(1753, 1, 1),
+                    SmallDateTime = new DateTime(1900, 1, 1),
+                    Date = DateTime.MinValue,
+                    Nullable = null
+                },
+                new Dates35436
+                {
+                    Id = 2,
+                    DateTime2_7 = DateTime.MaxValue,
+                    DateTime2_3 = new DateTime(9999, 12, 31, 23, 59, 59, 999),
+                    DateTime2_0 = new DateTime(9999, 12, 31, 23, 59, 59),
+                    DateTime = new DateTime(9999, 12, 31, 23, 59, 59, 997),
+                    SmallDateTime = new DateTime(2079, 6, 6, 23, 59, 0),
+                    Date = new DateTime(9999, 12, 31),
+                    Nullable = DateTime.MaxValue
+                },
+                new Dates35436
+                {
+                    Id = 3,
+                    DateTime2_7 = new DateTime(1998, 5, 4, 15, 30, 10, 123, 456).AddTicks(4),
+                    DateTime2_3 = new DateTime(1998, 5, 4, 15, 30, 10, 123),
+                    DateTime2_0 = new DateTime(1998, 5, 4, 15, 30, 10),
+                    // datetime stores 1/300 s: .007 is stored as 2/300 s, which SQL Server reports as 6666666 ns
+                    DateTime = new DateTime(1998, 5, 4, 15, 30, 10, 7),
+                    SmallDateTime = new DateTime(1998, 5, 4, 15, 30, 0),
+                    Date = new DateTime(1998, 5, 4),
+                    Nullable = new DateTime(1998, 5, 4, 15, 30, 10, 123, 456).AddTicks(4)
+                },
+                new Dates35436
+                {
+                    Id = 4,
+                    DateTime2_7 = new DateTime(2000, 1, 1, 23, 59, 59).AddTicks(1),
+                    DateTime2_3 = new DateTime(2000, 1, 1, 0, 0, 0, 1),
+                    DateTime2_0 = new DateTime(2000, 1, 1, 23, 59, 59),
+                    DateTime = new DateTime(2000, 1, 1, 23, 59, 59, 3),
+                    SmallDateTime = new DateTime(2000, 1, 1, 23, 59, 0),
+                    Date = new DateTime(2000, 1, 1)
+                });
+
+            return SaveChangesAsync();
+        }
+
+        // Every millisecond of the last second of a day, including those that datetime rounds to the next day.
+        public Task SeedEveryMillisecondAsync()
+        {
+            for (var i = 0; i < 1000; i++)
+            {
+                Add(
+                    new Dates35436
+                    {
+                        Id = i + 1,
+                        DateTime = new DateTime(2000, 1, 1, 23, 59, 59).AddMilliseconds(i),
+                        SmallDateTime = new DateTime(2000, 1, 1)
+                    });
+            }
+
+            return SaveChangesAsync();
+        }
+    }
+
+    protected class Dates35436
+    {
+        public int Id { get; set; }
+        public DateTime DateTime2_7 { get; set; }
+        public DateTime DateTime2_3 { get; set; }
+        public DateTime DateTime2_0 { get; set; }
+        public DateTime DateTime { get; set; }
+        public DateTime SmallDateTime { get; set; }
+        public DateTime Date { get; set; }
+        public DateTime? Nullable { get; set; }
     }
 
     #endregion

@@ -53,7 +53,7 @@
   <ItemGroup>
     <None Include="lib\**\*">
       <Pack>True</Pack>
-      <PackagePath>lib</PackagePath>
+      <PackagePath>lib\$(DefaultNetCoreTargetFramework)</PackagePath>
     </None>
   </ItemGroup>
 

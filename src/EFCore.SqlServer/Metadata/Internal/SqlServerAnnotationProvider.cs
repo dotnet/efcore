@@ -273,7 +273,7 @@ public class SqlServerAnnotationProvider(RelationalAnnotationProviderDependencie
                     var propertyBase = RelationalModel.FindPropertyBaseByPath(modelIndex.DeclaringEntityType, p)!;
                     return propertyBase is IReadOnlyProperty property
                         ? property.GetColumnName(storeObjectIdentifier)
-                        : ((IReadOnlyComplexProperty)propertyBase).ComplexType.GetContainerColumnName();
+                        : ((IReadOnlyComplexProperty)propertyBase).ComplexType.GetContainerColumnName(storeObjectIdentifier);
                 })
                 .ToArray();
 #pragma warning restore EF1001 // Internal EF Core API usage.

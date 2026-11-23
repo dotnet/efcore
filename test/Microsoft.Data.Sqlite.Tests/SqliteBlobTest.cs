@@ -340,6 +340,25 @@ public class SqliteBlobTest : IDisposable
     }
 
     [Fact]
+    public void Write_span_throws_when_disposed()
+    {
+        var stream = CreateStream();
+        stream.Dispose();
+
+        Assert.Throws<ObjectDisposedException>(() => stream.Write(new ReadOnlySpan<byte>([3])));
+        Assert.Throws<ObjectDisposedException>(() => stream.Write(ReadOnlySpan<byte>.Empty));
+    }
+
+    [Fact]
+    public void Read_span_throws_when_disposed()
+    {
+        var stream = CreateStream();
+        stream.Dispose();
+
+        Assert.Throws<ObjectDisposedException>(() => stream.Read(new byte[1].AsSpan()));
+    }
+
+    [Fact]
     public void Empty_works()
     {
         using var connection = new SqliteConnection("Data Source=:memory:");

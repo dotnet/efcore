@@ -7,8 +7,7 @@ internal class TempDirectory : IDisposable
 {
     public TempDirectory()
     {
-        Path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), System.IO.Path.GetRandomFileName());
-        Directory.CreateDirectory(Path);
+        Path = Directory.CreateTempSubdirectory().FullName;
     }
 
     public string Path { get; }

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
 
@@ -537,6 +538,20 @@ public class RelationalCommand : IRelationalCommand
         var readerOpen = false;
         DbDataReader reader;
         var stopwatch = SharedStopwatch.StartNew();
+        RelationalCommandErrorReporter? commandErrorReporter = logger == null
+            ? null
+            : new RelationalCommandErrorReporter(
+                connection,
+                command,
+                LogCommandText,
+                context,
+                commandId,
+                connection.ConnectionId,
+                logger,
+                Dependencies.ExceptionDetector,
+                startTime,
+                stopwatch,
+                parameterObject.CommandSource);
 
         try
         {
@@ -575,51 +590,28 @@ public class RelationalCommand : IRelationalCommand
         }
         catch (Exception exception)
         {
-            if (Dependencies.ExceptionDetector.IsCancellation(exception))
-            {
-                logger?.CommandCanceled(
-                    connection,
-                    command,
-                    LogCommandText,
-                    context,
-                    DbCommandMethod.ExecuteReader,
-                    commandId,
-                    connection.ConnectionId,
-                    startTime,
-                    stopwatch.Elapsed,
-                    parameterObject.CommandSource);
-            }
-            else
-            {
-                logger?.CommandError(
-                    connection,
-                    command,
-                    LogCommandText,
-                    context,
-                    DbCommandMethod.ExecuteReader,
-                    commandId,
-                    connection.ConnectionId,
-                    exception,
-                    startTime,
-                    stopwatch.Elapsed,
-                    parameterObject.CommandSource);
-            }
+            commandErrorReporter?.Report(exception);
 
             CleanupCommand(command, connection);
 
             throw;
         }
 
+        var readerErrorReporter = RelationalCommandErrorReporter.IsEnabled(logger)
+            ? commandErrorReporter
+            : null;
+
         try
         {
             if (readerColumns != null)
             {
-                reader = new BufferedDataReader(reader, detailedErrorsEnabled).Initialize(readerColumns);
+                reader = new BufferedDataReader(reader, detailedErrorsEnabled, readerErrorReporter).Initialize(readerColumns);
             }
 
             _relationalReader ??= CreateRelationalDataReader();
 
             _relationalReader.Initialize(parameterObject.Connection, command, reader, commandId, logger);
+            _relationalReader.ConfigureCommandErrorReporter(readerErrorReporter);
 
             readerOpen = true;
 
@@ -667,6 +659,20 @@ public class RelationalCommand : IRelationalCommand
         var readerOpen = false;
         DbDataReader reader;
         var stopwatch = SharedStopwatch.StartNew();
+        RelationalCommandErrorReporter? commandErrorReporter = logger == null
+            ? null
+            : new RelationalCommandErrorReporter(
+                connection,
+                command,
+                LogCommandText,
+                context,
+                commandId,
+                connection.ConnectionId,
+                logger,
+                Dependencies.ExceptionDetector,
+                startTime,
+                stopwatch,
+                parameterObject.CommandSource);
 
         try
         {
@@ -709,41 +715,9 @@ public class RelationalCommand : IRelationalCommand
         }
         catch (Exception exception)
         {
-            if (logger != null)
+            if (commandErrorReporter != null)
             {
-                if (Dependencies.ExceptionDetector.IsCancellation(exception, cancellationToken))
-                {
-                    await logger.CommandCanceledAsync(
-                            connection,
-                            command,
-                            LogCommandText,
-                            context,
-                            DbCommandMethod.ExecuteReader,
-                            commandId,
-                            connection.ConnectionId,
-                            startTime,
-                            stopwatch.Elapsed,
-                            parameterObject.CommandSource,
-                            cancellationToken)
-                        .ConfigureAwait(false);
-                }
-                else
-                {
-                    await logger.CommandErrorAsync(
-                            connection,
-                            command,
-                            LogCommandText,
-                            context,
-                            DbCommandMethod.ExecuteReader,
-                            commandId,
-                            connection.ConnectionId,
-                            exception,
-                            startTime,
-                            stopwatch.Elapsed,
-                            parameterObject.CommandSource,
-                            cancellationToken)
-                        .ConfigureAwait(false);
-                }
+                await commandErrorReporter.Value.ReportAsync(exception, cancellationToken).ConfigureAwait(false);
             }
 
             await CleanupCommandAsync(command, connection).ConfigureAwait(false);
@@ -751,17 +725,23 @@ public class RelationalCommand : IRelationalCommand
             throw;
         }
 
+        var readerErrorReporter = RelationalCommandErrorReporter.IsEnabled(logger)
+            ? commandErrorReporter
+            : null;
+
         try
         {
             if (readerColumns != null)
             {
-                reader = await new BufferedDataReader(reader, detailedErrorsEnabled).InitializeAsync(readerColumns, cancellationToken)
+                reader = await new BufferedDataReader(reader, detailedErrorsEnabled, readerErrorReporter)
+                    .InitializeAsync(readerColumns, cancellationToken)
                     .ConfigureAwait(false);
             }
 
             _relationalReader ??= CreateRelationalDataReader();
 
             _relationalReader.Initialize(parameterObject.Connection, command, reader, commandId, logger);
+            _relationalReader.ConfigureCommandErrorReporter(readerErrorReporter);
 
             readerOpen = true;
 

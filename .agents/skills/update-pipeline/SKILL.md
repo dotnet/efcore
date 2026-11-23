@@ -10,20 +10,20 @@ Converts tracked entity changes into database INSERT/UPDATE/DELETE commands duri
 
 ## Flow
 
-`SaveChanges()` → `DetectChanges()` → `IDatabase.SaveChanges()`
-  → `UpdateAdapter` creates `IUpdateEntry` list
-  → `CommandBatchPreparer.BatchCommands()`
+`SaveChanges()` → `DetectChanges()` → `IDatabase.SaveChanges()` → `UpdateAdapter` creates `IUpdateEntry` list → `CommandBatchPreparer.BatchCommands()`
     → `ModificationCommand` per table row, composed of `ColumnModification` per column
-      → `SharedTableEntryMap` is used to track entries mapped to the same row
+    → `SharedTableEntryMap` is used to track entries mapped to the same row
     → Topological sort via Multigraph (FK dependency ordering)
     → Groups into `ModificationCommandBatch` (respects max batch size)
-  → `UpdateSqlGenerator` generates SQL per batch
-  → `BatchExecutor` executes all batches in a transaction
-  → `StateManager.AcceptAllChanges()`
+    → `UpdateSqlGenerator` generates SQL per batch → `BatchExecutor` executes all batches in a transaction → `StateManager.AcceptAllChanges()`
 
 ## Concurrency
 
 Concurrency tokens → WHERE conditions on UPDATE/DELETE. `AffectedCountModificationCommandBatch` checks affected rows. Throws `DbUpdateConcurrencyException` on mismatch.
+
+## Shared-Row Value Access
+
+Command state describes the row operation, not every entry: an Added replacement with a Deleted `SharedIdentityEntry` can participate in a Modified command. Original-value access must use the original value from the deleted shared entry, preserving the previous FK for dependency ordering.
 
 ## Validation
 

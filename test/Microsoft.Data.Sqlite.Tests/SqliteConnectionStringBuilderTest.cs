@@ -65,12 +65,33 @@ public class SqliteConnectionStringBuilderTest
         Assert.Equal(1, builder.DefaultTimeout);
     }
 
+    [Theory, InlineData("Default Timeout"), InlineData("Command Timeout")]
+    public void Ctor_throws_when_DefaultTimeout_is_negative(string keyword)
+        => Assert.Throws<ArgumentOutOfRangeException>(() => new SqliteConnectionStringBuilder($"{keyword}=-1"));
+
+    [Fact]
+    public void DefaultTimeout_throws_when_negative()
+    {
+        var builder = new SqliteConnectionStringBuilder();
+
+        Assert.Throws<ArgumentOutOfRangeException>(() => builder.DefaultTimeout = -1);
+        Assert.Equal(30, builder.DefaultTimeout);
+    }
+
     [Fact]
     public void Ctor_parses_Vfs()
     {
         var builder = new SqliteConnectionStringBuilder("Vfs=win32-longpath");
 
         Assert.Equal("win32-longpath", builder.Vfs);
+    }
+
+    [Fact]
+    public void Ctor_parses_Synchronous()
+    {
+        var builder = new SqliteConnectionStringBuilder("Synchronous=Normal");
+
+        Assert.Equal(SqliteSynchronousMode.Normal, builder.Synchronous);
     }
 
     [Fact]
@@ -126,6 +147,17 @@ public class SqliteConnectionStringBuilderTest
     }
 
     [Fact]
+    public void Synchronous_works()
+    {
+        var builder = new SqliteConnectionStringBuilder
+        {
+            Synchronous = SqliteSynchronousMode.Full
+        };
+
+        Assert.Equal(SqliteSynchronousMode.Full, builder.Synchronous);
+    }
+
+    [Fact]
     public void Mode_defaults_to_ReadWriteCreate()
         => Assert.Equal(SqliteOpenMode.ReadWriteCreate, new SqliteConnectionStringBuilder().Mode);
 
@@ -142,12 +174,16 @@ public class SqliteConnectionStringBuilderTest
         => Assert.Equal(30, new SqliteConnectionStringBuilder().DefaultTimeout);
 
     [Fact]
+    public void Synchronous_defaults_to_null()
+        => Assert.Null(new SqliteConnectionStringBuilder().Synchronous);
+
+    [Fact]
     public void Keys_works()
     {
         var keys = (ICollection<string>)new SqliteConnectionStringBuilder().Keys;
 
         Assert.True(keys.IsReadOnly);
-        Assert.Equal(9, keys.Count);
+        Assert.Equal(10, keys.Count);
         Assert.Contains("Data Source", keys);
         Assert.Contains("Mode", keys);
         Assert.Contains("Cache", keys);
@@ -157,6 +193,7 @@ public class SqliteConnectionStringBuilderTest
         Assert.Contains("Default Timeout", keys);
         Assert.Contains("Pooling", keys);
         Assert.Contains("Vfs", keys);
+        Assert.Contains("Synchronous", keys);
     }
 
     [Fact]
@@ -165,7 +202,7 @@ public class SqliteConnectionStringBuilderTest
         var values = (ICollection<object>)new SqliteConnectionStringBuilder().Values;
 
         Assert.True(values.IsReadOnly);
-        Assert.Equal(9, values.Count);
+        Assert.Equal(10, values.Count);
     }
 
     [Fact]
@@ -212,13 +249,18 @@ public class SqliteConnectionStringBuilderTest
         Assert.Equal(SqliteCacheMode.Shared, builder["Cache"]);
     }
 
-    [Theory, InlineData(42), InlineData("Unknown"), InlineData((SqliteCacheMode)42), InlineData(SqliteOpenMode.ReadOnly)]
+    [Theory, InlineData(42), InlineData("Unknown"), InlineData((SqliteCacheMode)42), InlineData(SqliteOpenMode.ReadOnly),
+     InlineData("42"), InlineData("Private, Shared")]
     public void Item_throws_when_cannot_convert_to_enum_on_set(object value)
     {
         var builder = new SqliteConnectionStringBuilder();
 
         Assert.ThrowsAny<ArgumentException>(() => builder["Cache"] = value);
     }
+
+    [Theory, InlineData("Mode=42"), InlineData("Cache=42"), InlineData("Synchronous=7")]
+    public void Ctor_throws_when_connection_string_has_undefined_enum_value(string connectionString)
+        => Assert.Throws<ArgumentOutOfRangeException>(() => new SqliteConnectionStringBuilder(connectionString));
 
     [Theory, InlineData(1, true), InlineData("True", true), InlineData(0, false), InlineData("False", false), InlineData(null, null),
      InlineData("", null)]
@@ -241,7 +283,7 @@ public class SqliteConnectionStringBuilderTest
     public void Clear_resets_everything()
     {
         var builder = new SqliteConnectionStringBuilder(
-            "Data Source=test.db;Mode=Memory;Cache=Shared;Password=test;Foreign Keys=True;Recursive Triggers=True;Default Timeout=1");
+            "Data Source=test.db;Mode=Memory;Cache=Shared;Password=test;Foreign Keys=True;Recursive Triggers=True;Default Timeout=1;Synchronous=Full");
 
         builder.Clear();
 
@@ -252,6 +294,7 @@ public class SqliteConnectionStringBuilderTest
         Assert.Null(builder.ForeignKeys);
         Assert.False(builder.RecursiveTriggers);
         Assert.Equal(30, builder.DefaultTimeout);
+        Assert.Null(builder.Synchronous);
     }
 
     [Fact]
@@ -324,11 +367,12 @@ public class SqliteConnectionStringBuilderTest
             Password = "test",
             ForeignKeys = true,
             RecursiveTriggers = true,
-            DefaultTimeout = 1
+            DefaultTimeout = 1,
+            Synchronous = SqliteSynchronousMode.Full
         };
 
         Assert.Equal(
-            "Data Source=test.db;Mode=Memory;Cache=Shared;Password=test;Foreign Keys=True;Recursive Triggers=True;Default Timeout=1",
+            "Data Source=test.db;Mode=Memory;Cache=Shared;Password=test;Foreign Keys=True;Recursive Triggers=True;Default Timeout=1;Synchronous=Full",
             builder.ToString());
     }
 

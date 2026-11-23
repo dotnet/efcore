@@ -9,7 +9,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class StoredProcedureMapping : TableMappingBase<IStoredProcedureResultColumnMapping>, IStoredProcedureMapping
+public class StoredProcedureMapping : TableMappingBase<IStoredProcedureResultColumnMapping>, IStoredProcedureMapping,
+    IComparable<StoredProcedureMapping>
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -43,6 +44,10 @@ public class StoredProcedureMapping : TableMappingBase<IStoredProcedureResultCol
     /// <inheritdoc />
     public virtual ITableMapping? TableMapping { get; }
 
+    /// <inheritdoc />
+    public int CompareTo(StoredProcedureMapping? other)
+        => CompareTo((ITableMappingBase?)other);
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -60,13 +65,13 @@ public class StoredProcedureMapping : TableMappingBase<IStoredProcedureResultCol
     /// </summary>
     public virtual bool AddParameterMapping(IStoredProcedureParameterMapping parameterMapping)
     {
-        if (ParameterMappings.IndexOf(parameterMapping, ColumnMappingBaseComparer.Instance) != -1)
+        if (ParameterMappings.IndexOf(parameterMapping) != -1)
         {
             return false;
         }
 
         ParameterMappings.Add(parameterMapping);
-        ParameterMappings.Sort(ColumnMappingBaseComparer.Instance);
+        ParameterMappings.Sort();
 
         return true;
     }
@@ -103,5 +108,46 @@ public class StoredProcedureMapping : TableMappingBase<IStoredProcedureResultCol
     {
         [DebuggerStepThrough]
         get => ParameterMappings;
+    }
+
+    /// <inheritdoc />
+    protected override int CompareTableDetails(ITableMappingBase other)
+    {
+        if (other is IFunctionMapping)
+        {
+            return -1;
+        }
+
+        if (other is not IStoredProcedureMapping otherSprocMapping)
+        {
+            return 1;
+        }
+
+        var xSproc = StoreStoredProcedure;
+        var ySproc = otherSprocMapping.StoreStoredProcedure;
+        var result = xSproc.Parameters.Count.CompareTo(ySproc.Parameters.Count);
+        if (result != 0)
+        {
+            return result;
+        }
+
+        for (var i = 0; i < xSproc.Parameters.Count; i++)
+        {
+            var xp = xSproc.Parameters[i];
+            var yp = ySproc.Parameters[i];
+            result = StringComparer.Ordinal.Compare(xp.StoreType, yp.StoreType);
+            if (result != 0)
+            {
+                return result;
+            }
+
+            result = StringComparer.Ordinal.Compare(xp.Name, yp.Name);
+            if (result != 0)
+            {
+                return result;
+            }
+        }
+
+        return 0;
     }
 }

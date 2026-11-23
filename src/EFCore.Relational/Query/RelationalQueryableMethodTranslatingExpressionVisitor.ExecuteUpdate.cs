@@ -314,10 +314,26 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                     }
             }
 
-            if (targetProperty.DeclaringType is IEntityType entityType && entityType.IsMappedToJson())
+            // Includes members of complex types declared on owned entity types mapped to JSON
+            if (targetProperty.DeclaringType.ContainingEntityType is var entityType
+                && entityType.IsMappedToJson())
             {
                 throw new InvalidOperationException(
                     RelationalStrings.ExecuteOperationOnOwnedJsonIsNotSupported("ExecuteUpdate", entityType.DisplayName()));
+            }
+
+            // A row for an optional entity-splitting fragment isn't guaranteed to exist, so an UPDATE targeting it may silently
+            // affect no rows. ExecuteUpdate bypasses the change tracker, so it can't fall back to inserting the row like
+            // SaveChanges does; throw instead of generating an update that may do nothing.
+            if (targetProperty is IProperty targetScalarProperty
+                && targetScalarProperty.GetTableColumnMappings()
+                    .FirstOrDefault(m => m.TableMapping.IsSplitFragmentOptional) is { } optionalFragmentMapping)
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.ExecuteUpdateOnOptionalEntitySplittingFragment(
+                        targetProperty.DeclaringType.DisplayName(),
+                        targetProperty.Name,
+                        optionalFragmentMapping.TableMapping.Table.SchemaQualifiedName));
             }
 
             // Hack: when returning a StructuralTypeShaperExpression, _sqlTranslator returns it wrapped by a
@@ -465,13 +481,9 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                             // Find the container column in the relational model to get its type mapping
                             // Note that we assume exactly one column with the given name mapped to the entity (despite entity splitting).
                             // See #28520 about improving this.
-                            var containerColumnName = complexType.GetContainerColumnName();
-                            if (containerColumnName != null)
-                            {
-                                targetColumnModel = complexType.GetTableMappings()
-                                    .Select(m => m.Table.FindColumn(containerColumnName))
-                                    .SingleOrDefault(c => c is not null);
-                            }
+                            targetColumnModel = complexType.GetTableMappings()
+                                .Select(m => m.Table.FindColumn(complexProperty))
+                                .SingleOrDefault(c => c is not null);
 
                             break;
                         }

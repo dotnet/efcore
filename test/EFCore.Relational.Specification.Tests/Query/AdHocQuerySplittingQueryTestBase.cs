@@ -620,4 +620,209 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
     }
 
     #endregion
+
+    #region 38700
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Split_query_with_inline_collection_Max_over_related_columns(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context38700>(
+            seed: c => c.SeedAsync(),
+            onConfiguring: Configure38700);
+
+        using var context = contextFactory.CreateDbContext();
+
+        // Same shape as #38700 comment (jk-aau): Max over an inline array of related DateTimes,
+        // combined with AsSplitQuery + Skip/Take. On providers without GREATEST (e.g. SQL Server
+        // compat < 160), this becomes VALUES + MAX and hits the PruneValues column-registration bug.
+        var query = context.Parents
+            .OrderBy(p => p.Id)
+            .Select(p => new
+            {
+                p.Id,
+                Children = p.Children.Select(c => c.Id).ToList(),
+                LatestModified = new[]
+                {
+                    p.ModifiedAt,
+                    p.Address!.ModifiedAt,
+                    p.Children.Max(c => c.ModifiedAt)
+                }.Max()
+            })
+            .AsSplitQuery()
+            .Skip(0)
+            .Take(50);
+
+        var results = async
+            ? await query.ToListAsync()
+            : query.ToList();
+
+        Assert.Single(results);
+        Assert.Single(results[0].Children);
+        Assert.Equal(new DateTime(2024, 3, 1), results[0].LatestModified);
+    }
+
+    protected virtual void Configure38700(DbContextOptionsBuilder optionsBuilder)
+        => SetQuerySplittingBehavior(optionsBuilder, QuerySplittingBehavior.SplitQuery);
+
+    protected class Context38700(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Parent38700> Parents
+            => Set<Parent38700>();
+
+        public Task SeedAsync()
+        {
+            Parents.Add(
+                new Parent38700
+                {
+                    ModifiedAt = new DateTime(2024, 1, 1),
+                    Address = new Address38700 { ModifiedAt = new DateTime(2024, 2, 1) },
+                    Children = [new Child38700 { ModifiedAt = new DateTime(2024, 3, 1) }]
+                });
+
+            return SaveChangesAsync();
+        }
+
+        public class Parent38700
+        {
+            public int Id { get; set; }
+            public DateTime ModifiedAt { get; set; }
+            public Address38700? Address { get; set; }
+            public List<Child38700> Children { get; set; } = [];
+        }
+
+        public class Address38700
+        {
+            public int Id { get; set; }
+            public int ParentId { get; set; }
+            public DateTime ModifiedAt { get; set; }
+        }
+
+        public class Child38700
+        {
+            public int Id { get; set; }
+            public int ParentId { get; set; }
+            public DateTime ModifiedAt { get; set; }
+        }
+    }
+
+    #endregion
+
+    #region 39206
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Split_query_paging_with_non_unique_ordering_and_reference_navigation_in_projection(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context39206>(
+            seed: c => c.SeedAsync(),
+            onConfiguring: o => SetQuerySplittingBehavior(o, QuerySplittingBehavior.SplitQuery));
+
+        using var context = contextFactory.CreateDbContext();
+
+        // All parents have the same Name, so the page is only deterministic if the key is part of the
+        // ordering in the subquery that applies Skip/Take (the reference navigation forces that subquery).
+        var query = context.Parents
+            .Select(p => new
+            {
+                p.Id,
+                p.Name,
+                LocationName = p.Location.Name,
+                ChildIds = p.Children.Select(c => c.Id).ToList()
+            })
+            .OrderBy(x => x.Name)
+            .Skip(1)
+            .Take(2);
+
+        var results = async
+            ? await query.ToListAsync()
+            : query.ToList();
+
+        Assert.Equal(2, results.Count);
+        foreach (var result in results)
+        {
+            Assert.Equal(Context39206.ExpectedChildIds(result.Id), result.ChildIds.Order());
+        }
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Split_query_paging_with_non_unique_ordering_and_reference_include(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context39206>(
+            seed: c => c.SeedAsync(),
+            onConfiguring: o => SetQuerySplittingBehavior(o, QuerySplittingBehavior.SplitQuery));
+
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Parents
+            .Include(p => p.Location)
+            .Include(p => p.Children)
+            .OrderBy(p => p.Name)
+            .Skip(1)
+            .Take(2);
+
+        var results = async
+            ? await query.ToListAsync()
+            : query.ToList();
+
+        Assert.Equal(2, results.Count);
+        foreach (var result in results)
+        {
+            Assert.NotNull(result.Location);
+            Assert.Equal(Context39206.ExpectedChildIds(result.Id), result.Children.Select(c => c.Id).Order());
+        }
+    }
+
+    protected class Context39206(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Parent39206> Parents
+            => Set<Parent39206>();
+
+        public static IEnumerable<int> ExpectedChildIds(int parentId)
+            => [parentId * 10 + 1, parentId * 10 + 2];
+
+        public Task SeedAsync()
+        {
+            for (var i = 1; i <= 4; i++)
+            {
+                Parents.Add(
+                    new Parent39206
+                    {
+                        Id = i,
+                        Name = "Same",
+                        Location = new Location39206 { Id = i, Name = "Location " + i },
+                        Children = ExpectedChildIds(i).Select(id => new Child39206 { Id = id }).ToList()
+                    });
+            }
+
+            return SaveChangesAsync();
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Parent39206>().Property(p => p.Id).ValueGeneratedNever();
+            modelBuilder.Entity<Location39206>().Property(l => l.Id).ValueGeneratedNever();
+            modelBuilder.Entity<Child39206>().Property(c => c.Id).ValueGeneratedNever();
+        }
+
+        public class Parent39206
+        {
+            public int Id { get; set; }
+            public string Name { get; set; } = null!;
+            public int LocationId { get; set; }
+            public Location39206 Location { get; set; } = null!;
+            public List<Child39206> Children { get; set; } = [];
+        }
+
+        public class Location39206
+        {
+            public int Id { get; set; }
+            public string Name { get; set; } = null!;
+        }
+
+        public class Child39206
+        {
+            public int Id { get; set; }
+        }
+    }
+
+    #endregion
 }

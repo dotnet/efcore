@@ -56,7 +56,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor
                 var propertyGetter = property.GetGetter();
                 foreach (var value in values)
                 {
-                    propertyValueList.Add(propertyGetter.GetClrValue(value));
+                    propertyValueList.Add(value is null ? null : propertyGetter.GetClrValueUsingContainingEntity(value));
                 }
 
                 rewrittenSource = Expression.Constant(propertyValueList);
@@ -85,7 +85,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor
             Expression.Call(
                 EnumerableMethods.Contains.MakeGenericMethod(property.ClrType.MakeNullable()),
                 rewrittenSource,
-                CreatePropertyAccessExpression(item, property)));
+                CreateKeyPropertyAccessExpression(item, property)));
 
         return true;
     }
@@ -178,8 +178,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor
                     {
                         Expression? condition = null;
                         // Optional dependent sharing table
-                        var requiredNonPkProperties = nullComparedEntityType.GetProperties().Where(p => !p.IsNullable && !p.IsPrimaryKey())
-                            .ToList();
+                        var requiredNonPkProperties = nullComparedEntityType.GetRequiredNonPkProperties();
                         if (requiredNonPkProperties.Count > 0)
                         {
                             condition = requiredNonPkProperties.Select(p => Infrastructure.ExpressionExtensions.CreateEqualsExpression(
@@ -192,7 +191,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor
                         var allNonPrincipalSharedNonPkProperties = nullComparedEntityType.GetNonPrincipalSharedNonPkProperties(table);
                         // We don't need condition for nullable property if there exist at least one required property which is non shared.
                         if (allNonPrincipalSharedNonPkProperties.Count != 0
-                            && allNonPrincipalSharedNonPkProperties.All(p => p.IsNullable))
+                            && allNonPrincipalSharedNonPkProperties.All(p => p.IsNullable()))
                         {
                             // if we don't have any required properties to properly check the nullability,
                             // we rely on optional ones (somewhat unreliably)
@@ -225,7 +224,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor
 
                 result = (SqlExpression)Visit(
                     nullComparedEntityTypePrimaryKeyProperties.Select(p => Infrastructure.ExpressionExtensions.CreateEqualsExpression(
-                            CreatePropertyAccessExpression(nonNullEntityReference, p),
+                            CreateKeyPropertyAccessExpression(nonNullEntityReference, p),
                             Expression.Constant(null, p.ClrType.MakeNullable()),
                             nodeType != ExpressionType.Equal))
                         .Aggregate((l, r) => nodeType == ExpressionType.Equal ? Expression.OrElse(l, r) : Expression.AndAlso(l, r)));
@@ -276,8 +275,8 @@ public partial class RelationalSqlTranslatingExpressionVisitor
 
             result = (SqlExpression)Visit(
                 primaryKeyProperties.Select(p => Infrastructure.ExpressionExtensions.CreateEqualsExpression(
-                        CreatePropertyAccessExpression(left, p),
-                        CreatePropertyAccessExpression(right, p),
+                        CreateKeyPropertyAccessExpression(left, p),
+                        CreateKeyPropertyAccessExpression(right, p),
                         nodeType != ExpressionType.Equal))
                     .Aggregate((l, r) => nodeType == ExpressionType.Equal
                         ? Expression.AndAlso(l, r)
@@ -658,15 +657,41 @@ public partial class RelationalSqlTranslatingExpressionVisitor
         }
     }
 
-    private Expression CreateComplexPropertyAccessExpression(Expression target, IComplexProperty complexProperty)
+    // Key properties can be declared on complex types, so access them through the complex property chain
+    private Expression CreateKeyPropertyAccessExpression(Expression target, IProperty property)
+        => CreatePropertyAccessExpression(
+            property.DeclaringType is IComplexType complexType ? CreateComplexTypeAccessExpression(target, complexType) : target,
+            property);
+
+    private static Expression CreateComplexTypeAccessExpression(Expression target, IComplexType complexType)
+    {
+        var declaringTarget = complexType.ComplexProperty.DeclaringType is IComplexType declaringComplexType
+            ? CreateComplexTypeAccessExpression(target, declaringComplexType)
+            : target;
+
+        // A query-side target stays an EF.Property chain at every level, to be bound when the access is visited
+        return target is StructuralTypeReferenceExpression
+            ? declaringTarget.CreateEFPropertyExpression(complexType.ComplexProperty)
+            : CreateComplexPropertyAccessExpression(declaringTarget, complexType.ComplexProperty);
+    }
+
+    private static Expression CreateComplexPropertyAccessExpression(Expression target, IComplexProperty complexProperty)
         => target switch
         {
             SqlConstantExpression constant => Expression.Constant(
                 constant.Value is null ? null : complexProperty.GetGetter().GetClrValue(constant.Value),
                 complexProperty.ClrType.MakeNullable()),
 
+            ConstantExpression constant => Expression.Constant(
+                constant.Value is null ? null : complexProperty.GetGetter().GetClrValue(constant.Value),
+                complexProperty.ClrType.MakeNullable()),
+
             SqlParameterExpression sqlParameterExpression
-                => new ParameterBasedComplexPropertyChainExpression(sqlParameterExpression, complexProperty),
+                => new ParameterBasedComplexPropertyChainExpression(sqlParameterExpression, [complexProperty]),
+
+            ParameterBasedComplexPropertyChainExpression chainExpression
+                => new ParameterBasedComplexPropertyChainExpression(
+                    chainExpression.ParameterExpression, [.. chainExpression.ComplexPropertyChain, complexProperty]),
 
             MemberInitExpression memberInitExpression
                 when memberInitExpression.Bindings.SingleOrDefault(mb => mb.Member.Name == complexProperty.Name) is MemberAssignment
@@ -732,15 +757,17 @@ public partial class RelationalSqlTranslatingExpressionVisitor
         }
 
         var getter = property.GetGetter();
-        return baseListParameter.Select(e => e != null ? (TProperty?)getter.GetClrValue(e) : (TProperty?)(object?)null).ToList();
+        return baseListParameter
+            .Select(e => (TProperty?)(e != null ? getter.GetClrValueUsingContainingEntity(e) : null))
+            .ToList();
     }
 
     private sealed class ParameterBasedComplexPropertyChainExpression(
         SqlParameterExpression parameterExpression,
-        IComplexProperty firstComplexProperty)
+        List<IComplexProperty> complexPropertyChain)
         : Expression
     {
         public SqlParameterExpression ParameterExpression { get; } = parameterExpression;
-        public List<IComplexProperty> ComplexPropertyChain { get; } = [firstComplexProperty];
+        public List<IComplexProperty> ComplexPropertyChain { get; } = complexPropertyChain;
     }
 }

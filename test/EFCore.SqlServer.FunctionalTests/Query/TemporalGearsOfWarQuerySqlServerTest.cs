@@ -384,6 +384,115 @@ WHERE [g0].[Discriminator] = N'Officer'
         AssertSql();
     }
 
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Compiled_query_TemporalAsOf_with_parameter_reports_guided_error(bool async)
+    {
+        using var ctx = CreateContext();
+        var date = new DateTime(2015, 1, 1);
+
+        var message = async
+            ? (await Assert.ThrowsAsync<InvalidOperationException>(
+                async () => await EF.CompileAsyncQuery(
+                    (GearsOfWarContext c, DateTime d) => c.Cities.TemporalAsOf(d).Select(x => x.Name))(ctx, date).ToListAsync())).Message
+            : Assert.Throws<InvalidOperationException>(
+                () => EF.CompileQuery(
+                    (GearsOfWarContext c, DateTime d) => c.Cities.TemporalAsOf(d).Select(x => x.Name))(ctx, date).ToList()).Message;
+
+        Assert.Equal(
+            SqlServerStrings.TemporalOperatorRequiresConstantArgumentInCompiledQuery(nameof(SqlServerDbSetExtensions.TemporalAsOf)),
+            message);
+
+        AssertSql();
+    }
+
+    public static readonly IEnumerable<object[]> TemporalRangeOperatorData =
+    [
+        [nameof(SqlServerDbSetExtensions.TemporalFromTo), false],
+        [nameof(SqlServerDbSetExtensions.TemporalFromTo), true],
+        [nameof(SqlServerDbSetExtensions.TemporalBetween), false],
+        [nameof(SqlServerDbSetExtensions.TemporalBetween), true],
+        [nameof(SqlServerDbSetExtensions.TemporalContainedIn), false],
+        [nameof(SqlServerDbSetExtensions.TemporalContainedIn), true],
+    ];
+
+    [Theory, MemberData(nameof(TemporalRangeOperatorData))]
+    public virtual async Task Compiled_query_temporal_range_operator_with_parameters_reports_guided_error(string operatorName, bool async)
+    {
+        using var ctx = CreateContext();
+        var from = new DateTime(2015, 1, 1);
+        var to = new DateTime(2018, 1, 1);
+
+        Expression<Func<GearsOfWarContext, DateTime, DateTime, IQueryable<string>>> query = operatorName switch
+        {
+            nameof(SqlServerDbSetExtensions.TemporalFromTo) => (c, f, t) => c.Cities.TemporalFromTo(f, t).Select(x => x.Name),
+            nameof(SqlServerDbSetExtensions.TemporalBetween) => (c, f, t) => c.Cities.TemporalBetween(f, t).Select(x => x.Name),
+            nameof(SqlServerDbSetExtensions.TemporalContainedIn) => (c, f, t) => c.Cities.TemporalContainedIn(f, t).Select(x => x.Name),
+            _ => throw new ArgumentOutOfRangeException(nameof(operatorName)),
+        };
+
+        var message = async
+            ? (await Assert.ThrowsAsync<InvalidOperationException>(
+                async () => await EF.CompileAsyncQuery(query)(ctx, from, to).ToListAsync())).Message
+            : Assert.Throws<InvalidOperationException>(() => EF.CompileQuery(query)(ctx, from, to).ToList()).Message;
+
+        Assert.Equal(SqlServerStrings.TemporalOperatorRequiresConstantArgumentInCompiledQuery(operatorName), message);
+
+        AssertSql();
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Compiled_query_TemporalAsOf_with_constant(bool async)
+    {
+        using var ctx = CreateContext();
+
+        _ = async
+            ? await EF.CompileAsyncQuery(
+                (GearsOfWarContext c) => c.Cities.TemporalAsOf(new DateTime(2015, 1, 1)).Select(x => x.Name))(ctx).ToListAsync()
+            : EF.CompileQuery(
+                (GearsOfWarContext c) => c.Cities.TemporalAsOf(new DateTime(2015, 1, 1)).Select(x => x.Name))(ctx).ToList();
+
+        AssertSql(
+            """
+SELECT [c].[Name]
+FROM [Cities] FOR SYSTEM_TIME AS OF '2015-01-01T00:00:00.0000000' AS [c]
+""");
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Compiled_query_TemporalAsOf_with_captured_variable(bool async)
+    {
+        using var ctx = CreateContext();
+        var date = new DateTime(2015, 1, 1);
+
+        _ = async
+            ? await EF.CompileAsyncQuery(
+                (GearsOfWarContext c) => c.Cities.TemporalAsOf(date).Select(x => x.Name))(ctx).ToListAsync()
+            : EF.CompileQuery(
+                (GearsOfWarContext c) => c.Cities.TemporalAsOf(date).Select(x => x.Name))(ctx).ToList();
+
+        AssertSql(
+            """
+SELECT [c].[Name]
+FROM [Cities] FOR SYSTEM_TIME AS OF '2015-01-01T00:00:00.0000000' AS [c]
+""");
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Compiled_query_TemporalAll(bool async)
+    {
+        using var ctx = CreateContext();
+
+        _ = async
+            ? await EF.CompileAsyncQuery((GearsOfWarContext c) => c.Cities.TemporalAll().Select(x => x.Name))(ctx).ToListAsync()
+            : EF.CompileQuery((GearsOfWarContext c) => c.Cities.TemporalAll().Select(x => x.Name))(ctx).ToList();
+
+        AssertSql(
+            """
+SELECT [c].[Name]
+FROM [Cities] FOR SYSTEM_TIME ALL AS [c]
+""");
+    }
+
     public override async Task Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_inheritance_and_coalesce_result(bool async)
     {
         await base.Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_inheritance_and_coalesce_result(async);
@@ -2877,6 +2986,17 @@ ORDER BY [g].[Nickname], [g].[SquadId], [w0].[Name]
 """);
     }
 
+    public override async Task New_Date_Expressions_in_projection(bool async)
+    {
+        await base.New_Date_Expressions_in_projection(async);
+
+        AssertSql(
+            """
+SELECT [m].[Date], CAST('08:00:00' AS time), CAST('2020-01-02' AS date), [m].[Time], CAST('2020-01-02T08:00:00.0000000' AS datetime2)
+FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
+""");
+    }
+
     public override async Task GetValueOrDefault_in_projection(bool async)
     {
         await base.GetValueOrDefault_in_projection(async);
@@ -3431,7 +3551,7 @@ ORDER BY [g].[Nickname]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([m].[Rating]), 0.0E0)
+SELECT ISNULL(SUM([m].[Rating]), 0.0E0)
 FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
 GROUP BY [m].[CodeName]
 """);
@@ -4179,71 +4299,6 @@ SELECT CASE
     ELSE CAST(0 AS bit)
 END AS [IsEradicated]
 FROM [Factions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [f]
-""");
-    }
-
-    public override async Task ToString_enum_property_projection(bool async)
-    {
-        await base.ToString_enum_property_projection(async);
-
-        AssertSql(
-            """
-SELECT CASE [g].[Rank]
-    WHEN 0 THEN N'None'
-    WHEN 1 THEN N'Private'
-    WHEN 2 THEN N'Corporal'
-    WHEN 4 THEN N'Sergeant'
-    WHEN 8 THEN N'Lieutenant'
-    WHEN 16 THEN N'Captain'
-    WHEN 32 THEN N'Major'
-    WHEN 64 THEN N'Colonel'
-    WHEN 128 THEN N'General'
-    ELSE CAST([g].[Rank] AS nvarchar(max))
-END
-FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
-""");
-    }
-
-    public override async Task ToString_nullable_enum_property_projection(bool async)
-    {
-        await base.ToString_nullable_enum_property_projection(async);
-
-        AssertSql(
-            """
-SELECT CASE [w].[AmmunitionType]
-    WHEN 1 THEN N'Cartridge'
-    WHEN 2 THEN N'Shell'
-    ELSE ISNULL(CAST([w].[AmmunitionType] AS nvarchar(max)), N'')
-END
-FROM [Weapons] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [w]
-""");
-    }
-
-    public override async Task ToString_enum_contains(bool async)
-    {
-        await base.ToString_enum_contains(async);
-
-        AssertSql(
-            """
-SELECT [m].[CodeName]
-FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
-WHERE [m].[Difficulty] LIKE N'%Med%'
-""");
-    }
-
-    public override async Task ToString_nullable_enum_contains(bool async)
-    {
-        await base.ToString_nullable_enum_contains(async);
-
-        AssertSql(
-            """
-SELECT [w].[Name]
-FROM [Weapons] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [w]
-WHERE CASE [w].[AmmunitionType]
-    WHEN 1 THEN N'Cartridge'
-    WHEN 2 THEN N'Shell'
-    ELSE ISNULL(CAST([w].[AmmunitionType] AS nvarchar(max)), N'')
-END LIKE N'%Cart%'
 """);
     }
 
@@ -6352,16 +6407,16 @@ FROM [Factions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [f]
 
         AssertSql(
             """
-SELECT ISNULL((
-    SELECT TOP(1) [w].[Id]
-    FROM [Weapons] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [w]
-    WHERE [g].[FullName] = [w].[OwnerFullName]
-    ORDER BY [w].[Id]), (
-    SELECT TOP(1) [w0].[Id]
-    FROM [Weapons] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [w0]
-    WHERE [g].[FullName] = [w0].[OwnerFullName]
-    ORDER BY [w0].[Id]))
+SELECT [w1].[Id]
 FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
+LEFT JOIN (
+    SELECT [w0].[Id], [w0].[OwnerFullName]
+    FROM (
+        SELECT [w].[Id], [w].[OwnerFullName], ROW_NUMBER() OVER(PARTITION BY [w].[OwnerFullName] ORDER BY [w].[Id]) AS [row]
+        FROM [Weapons] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [w]
+    ) AS [w0]
+    WHERE [w0].[row] <= 1
+) AS [w1] ON [g].[FullName] = [w1].[OwnerFullName]
 """);
     }
 
@@ -8117,7 +8172,7 @@ WHERE [m].[Rating] IS NULL
 
         AssertSql(
             """
-SELECT COALESCE(SUM([m].[Rating]), 0.0E0)
+SELECT ISNULL(SUM([m].[Rating]), 0.0E0)
 FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
 WHERE [m].[CodeName] = N'Operation Foobar'
 """);

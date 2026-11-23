@@ -1028,6 +1028,62 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
     }
 
     [Theory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
+    public virtual async Task Intercept_query_read_failure(bool async, bool inject)
+    {
+        var (context, interceptor) = await CreateContextAsync<ReadFailureCommandInterceptor>(inject);
+        using (context)
+        {
+            var exception = async
+                ? await Assert.ThrowsAsync<InvalidOperationException>(() => context.Set<Singularity>().ToListAsync())
+                : Assert.Throws<InvalidOperationException>(() => context.Set<Singularity>().ToList());
+
+            Assert.Same(interceptor.Exception, exception);
+            Assert.True(interceptor.ExecutedCalled);
+            Assert.True(interceptor.FailedCalled);
+            Assert.Equal(1, interceptor.FailureCount);
+        }
+    }
+
+    [Theory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
+    public virtual async Task Intercept_query_read_cancellation(bool async, bool inject)
+    {
+        var (context, interceptor) = await CreateContextAsync<ReadFailureCommandInterceptor>(inject);
+        using (context)
+        {
+            var cancellationException = new OperationCanceledException("Read canceled.");
+            interceptor.FailureException = cancellationException;
+
+            var exception = async
+                ? await Assert.ThrowsAnyAsync<OperationCanceledException>(() => context.Set<Singularity>().ToListAsync())
+                : Assert.ThrowsAny<OperationCanceledException>(() => context.Set<Singularity>().ToList());
+
+            Assert.Same(cancellationException, exception);
+            Assert.True(interceptor.CanceledCalled);
+            Assert.False(interceptor.FailedCalled);
+            Assert.Equal(0, interceptor.FailureCount);
+        }
+    }
+
+    [Theory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
+    public virtual async Task Intercept_query_materialization_failure_does_not_call_command_failed(bool async, bool inject)
+    {
+        var (context, interceptor) = await CreateContextAsync<ReadFailureCommandInterceptor>(inject);
+        using (context)
+        {
+            interceptor.FailureOnRead = false;
+
+            var exception = async
+                ? await Assert.ThrowsAsync<InvalidOperationException>(() => context.Set<Singularity>().ToListAsync())
+                : Assert.Throws<InvalidOperationException>(() => context.Set<Singularity>().ToList());
+
+            Assert.Same(interceptor.FailureException, exception);
+            Assert.True(interceptor.ExecutedCalled);
+            Assert.False(interceptor.FailedCalled);
+            Assert.Equal(0, interceptor.FailureCount);
+        }
+    }
+
+    [Theory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public virtual async Task Intercept_scalar_that_throws(bool async, bool inject)
     {
         var (context, interceptor) = await CreateContextAsync<PassiveScalarCommandInterceptor>(inject);
@@ -1181,6 +1237,53 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
             InterceptionResult<int> result,
             CancellationToken cancellationToken = default)
             => throw new Exception("Bang!");
+    }
+
+    private sealed class ReadFailureCommandInterceptor() : CommandInterceptorBase(DbCommandMethod.ExecuteReader)
+    {
+        public Exception FailureException { get; set; } = new InvalidOperationException("Read failed.");
+
+        public bool FailureOnRead { get; set; } = true;
+
+        public int FailureCount { get; private set; }
+
+        public override DbDataReader ReaderExecuted(
+            DbCommand command,
+            CommandExecutedEventData eventData,
+            DbDataReader result)
+        {
+            base.ReaderExecuted(command, eventData, result);
+            result.Dispose();
+
+            return new ReadFailureDbDataReader(FailureException, FailureOnRead);
+        }
+
+        public override async ValueTask<DbDataReader> ReaderExecutedAsync(
+            DbCommand command,
+            CommandExecutedEventData eventData,
+            DbDataReader result,
+            CancellationToken cancellationToken = default)
+        {
+            await base.ReaderExecutedAsync(command, eventData, result, cancellationToken);
+            await result.DisposeAsync().ConfigureAwait(false);
+
+            return new ReadFailureDbDataReader(FailureException, FailureOnRead);
+        }
+
+        public override void CommandFailed(DbCommand command, CommandErrorEventData eventData)
+        {
+            FailureCount++;
+            base.CommandFailed(command, eventData);
+        }
+
+        public override Task CommandFailedAsync(
+            DbCommand command,
+            CommandErrorEventData eventData,
+            CancellationToken cancellationToken = default)
+        {
+            FailureCount++;
+            return base.CommandFailedAsync(command, eventData, cancellationToken);
+        }
     }
 
     [Theory, InlineData(false), InlineData(true)]
@@ -1496,7 +1599,7 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
             => _command.ExecuteReader();
     }
 
-    private class FakeDbDataReader : DbDataReader
+    protected class FakeDbDataReader : DbDataReader
     {
         private int _index;
 
@@ -1586,6 +1689,38 @@ public abstract class CommandInterceptionTestBase(InterceptionTestBase.Intercept
 
         public override IEnumerator GetEnumerator()
             => throw new NotImplementedException();
+    }
+
+    private sealed class ReadFailureDbDataReader(Exception exception, bool failureOnRead) : FakeDbDataReader
+    {
+        private int _readCount;
+
+        public override bool Read()
+            => !failureOnRead || _readCount++ == 0
+                ? base.Read()
+                : throw exception;
+
+        public override Task<bool> ReadAsync(CancellationToken cancellationToken)
+        {
+            try
+            {
+                return Task.FromResult(Read());
+            }
+            catch (Exception readException)
+            {
+                return Task.FromException<bool>(readException);
+            }
+        }
+
+        public override int GetInt32(int ordinal)
+            => failureOnRead
+                ? base.GetInt32(ordinal)
+                : throw exception;
+
+        public override object GetValue(int ordinal)
+            => failureOnRead
+                ? base.GetValue(ordinal)
+                : throw exception;
     }
 
     protected static void AssertNormalOutcome(

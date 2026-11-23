@@ -23,9 +23,6 @@ public class SqlServerQuerySqlGenerator(
     ISqlServerSingletonOptions sqlServerSingletonOptions)
     : QuerySqlGenerator(dependencies)
 {
-    private static readonly bool UseOldBehavior38615 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue38615", out var enabled) && enabled;
-
     private readonly IRelationalTypeMappingSource _typeMappingSource = typeMappingSource;
     private readonly ISqlGenerationHelper _sqlGenerationHelper = dependencies.SqlGenerationHelper;
     private readonly ISqlServerSingletonOptions _sqlServerSingletonOptions = sqlServerSingletonOptions;
@@ -659,22 +656,16 @@ public class SqlServerQuerySqlGenerator(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected virtual Expression VisitSqlServerAggregateFunction(SqlServerAggregateFunctionExpression aggregateFunctionExpression)
+    protected override void GenerateAggregateFunctionOrderings(
+        AggregateFunctionExpression aggregateFunctionExpression,
+        bool insideArgumentList)
     {
-        Sql.Append(aggregateFunctionExpression.Name);
-
-        Sql.Append("(");
-        GenerateList(aggregateFunctionExpression.Arguments, e => Visit(e));
-        Sql.Append(")");
-
-        if (aggregateFunctionExpression.Orderings.Count > 0)
+        if (!insideArgumentList)
         {
             Sql.Append(" WITHIN GROUP (ORDER BY ");
             GenerateList(aggregateFunctionExpression.Orderings, e => Visit(e));
             Sql.Append(")");
         }
-
-        return aggregateFunctionExpression;
     }
 
     /// <summary>
@@ -751,9 +742,6 @@ public class SqlServerQuerySqlGenerator(
 
                 return tableExpression;
             }
-
-            case SqlServerAggregateFunctionExpression aggregateFunctionExpression:
-                return VisitSqlServerAggregateFunction(aggregateFunctionExpression);
 
             case SqlServerOpenJsonExpression openJsonExpression:
                 return VisitOpenJsonExpression(openJsonExpression);
@@ -968,8 +956,7 @@ public class SqlServerQuerySqlGenerator(
                 // OPENJSON() WITH clause AS JSON option requires nvarchar(max) on platforms that don't support the json data
                 // type in OPENJSON (i.e. Azure SQL). SQL Server 2025 (17.x) added native support for json in OPENJSON WITH.
                 // See: https://learn.microsoft.com/sql/t-sql/data-types/json-data-type#limitations
-                if (!UseOldBehavior38615
-                    && columnInfo.AsJson
+                if (columnInfo.AsJson
                     && columnInfo.TypeMapping.StoreType == "json"
                     && (_sqlServerSingletonOptions.EngineType != SqlServerEngineType.SqlServer
                         || _sqlServerSingletonOptions.SqlServerCompatibilityLevel < 170))

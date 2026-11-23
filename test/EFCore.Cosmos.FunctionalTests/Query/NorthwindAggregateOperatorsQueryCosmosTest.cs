@@ -1184,6 +1184,20 @@ WHERE ((c["$type"] = "Product") AND (c["ProductID"] < 40))
 """);
             });
 
+    public override Task Min_over_constant_DateTime(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Min_over_constant_DateTime(a);
+
+                AssertSql(
+                    """
+SELECT VALUE MIN("0001-01-01T00:00:00.0000000")
+FROM root c
+WHERE (c["$type"] = "Order")
+""");
+            });
+
     public override async Task Min_over_subquery(bool async)
     {
         // Aggregates. Issue #16146.
@@ -1247,6 +1261,20 @@ WHERE (c["$type"] = "Order")
 SELECT VALUE MAX(((c["UnitPrice"] != null) ? c["UnitPrice"] : 0))
 FROM root c
 WHERE ((c["$type"] = "Product") AND (c["ProductID"] < 40))
+""");
+            });
+
+    public override Task Max_over_constant_DateTime(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Max_over_constant_DateTime(a);
+
+                AssertSql(
+                    """
+SELECT VALUE MAX("9999-12-31T23:59:59.9999999")
+FROM root c
+WHERE (c["$type"] = "Order")
 """);
             });
 
@@ -2319,6 +2347,42 @@ OFFSET 0 LIMIT 1
 
         AssertSql();
     }
+
+    public override async Task Contains_on_inline_collection_with_nullable_subquery_value(bool async)
+    {
+        // Aggregates. Issue #16146.
+        await AssertTranslationFailed(() => base.Contains_on_inline_collection_with_nullable_subquery_value(async));
+
+        AssertSql();
+    }
+
+    public override async Task Contains_on_inline_collection_with_single_nullable_subquery_value_and_null(bool async)
+    {
+        // Aggregates. Issue #16146.
+        await AssertTranslationFailed(() => base.Contains_on_inline_collection_with_single_nullable_subquery_value_and_null(async));
+
+        AssertSql();
+    }
+
+    [Theory(Skip = "Nested IN expressions are generated without parentheses (a = 5 IN (...) IN (...)), which Cosmos rejects")]
+    public override Task Contains_on_nested_inline_collections_with_null(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Contains_on_nested_inline_collections_with_null(a);
+
+                AssertSql();
+            });
+
+    [Theory(Skip = "Nested IN expressions are generated without parentheses (a = 5 IN (...) IN (...)), which Cosmos rejects")]
+    public override Task Contains_on_nested_inline_collections_with_null_in_projection(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Contains_on_nested_inline_collections_with_null_in_projection(a);
+
+                AssertSql();
+            });
 
     public override async Task OfType_Select(bool async)
     {

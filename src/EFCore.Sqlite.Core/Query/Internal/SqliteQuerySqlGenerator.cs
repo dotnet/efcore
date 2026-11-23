@@ -40,8 +40,129 @@ public class SqliteQuerySqlGenerator(QuerySqlGeneratorDependencies dependencies)
                 GenerateAggregateFunction(aggregateFunctionExpression);
                 return extensionExpression;
 
+            case MergeColumnReferenceExpression mergeColumnReference:
+                if (mergeColumnReference.FromExcluded)
+                {
+                    Sql.Append("excluded.");
+                }
+
+                Sql.Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(mergeColumnReference.ColumnName));
+                return extensionExpression;
+
             default:
                 return base.VisitExtension(extensionExpression);
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override void VisitMerge(MergeExpression mergeExpression)
+    {
+        var helper = Dependencies.SqlGenerationHelper;
+
+        Sql.Append("INSERT INTO ")
+            .Append(helper.DelimitIdentifier(mergeExpression.Table.Name, mergeExpression.Table.Schema));
+
+        // A target table named "excluded" would shadow the excluded pseudo-row in DO UPDATE, so give it another name.
+        if (string.Equals(mergeExpression.Table.Name, "excluded", StringComparison.OrdinalIgnoreCase))
+        {
+            var alias = mergeExpression.Table.Alias is { } tableAlias
+                && !string.Equals(tableAlias, "excluded", StringComparison.OrdinalIgnoreCase)
+                    ? tableAlias
+                    : "t";
+            Sql.Append(AliasSeparator).Append(helper.DelimitIdentifier(alias));
+        }
+
+        Sql.Append(" (");
+        AppendDelimitedColumns(mergeExpression.InsertColumns);
+        Sql.AppendLine(")");
+
+        if (mergeExpression.SourceRows.Count == 0)
+        {
+            // SQL VALUES doesn't allow an empty set. With no source rows there is nothing to merge, so emit an
+            // INSERT ... SELECT ... WHERE 0 that inserts (and returns) nothing, leaving the affected-row count at 0.
+            Sql.Append("SELECT ");
+            for (var i = 0; i < mergeExpression.InsertColumns.Count; i++)
+            {
+                if (i > 0)
+                {
+                    Sql.Append(", ");
+                }
+
+                Sql.Append("NULL");
+            }
+
+            Sql.Append(" WHERE 0");
+        }
+        else
+        {
+            Sql.Append("VALUES ");
+            for (var r = 0; r < mergeExpression.SourceRows.Count; r++)
+            {
+                if (r > 0)
+                {
+                    Sql.Append(",").AppendLine();
+                }
+
+                Visit(mergeExpression.SourceRows[r]);
+            }
+
+            Sql.AppendLine().Append("ON CONFLICT (");
+            AppendDelimitedColumns(mergeExpression.ConflictColumns);
+            Sql.Append(")");
+
+            if (mergeExpression.UpdateSetters is null)
+            {
+                Sql.Append(" DO NOTHING");
+            }
+            else
+            {
+                Sql.AppendLine(" DO UPDATE SET");
+                for (var i = 0; i < mergeExpression.UpdateSetters.Count; i++)
+                {
+                    if (i > 0)
+                    {
+                        Sql.Append(",").AppendLine();
+                    }
+
+                    var setter = mergeExpression.UpdateSetters[i];
+                    Sql.Append(helper.DelimitIdentifier(setter.ColumnName)).Append(" = ");
+                    Visit(setter.Value);
+                }
+            }
+        }
+
+        if (mergeExpression.Returning is not null)
+        {
+            Sql.AppendLine().Append("RETURNING ");
+            for (var i = 0; i < mergeExpression.Returning.Count; i++)
+            {
+                if (i > 0)
+                {
+                    Sql.Append(", ");
+                }
+
+                Visit(mergeExpression.Returning[i].Expression);
+            }
+        }
+
+        Sql.Append(helper.StatementTerminator);
+
+        void AppendDelimitedColumns(IReadOnlyList<string> columns)
+        {
+            for (var i = 0; i < columns.Count; i++)
+            {
+                if (i > 0)
+                {
+                    Sql.Append(", ");
+                }
+
+                Sql.Append(helper.DelimitIdentifier(columns[i]));
+            }
         }
     }
 
@@ -334,14 +455,18 @@ public class SqliteQuerySqlGenerator(QuerySqlGeneratorDependencies dependencies)
 
                     Sql.Append(" ->> ");
 
+                    var delimitedPropertyName = Dependencies.SqlGenerationHelper.DelimitJsonPathElement(propertyName);
+
                     // No need to start a $. JSONPATH string if we're the last segment or the next segment isn't a constant
                     if (isLast || path[i + 1] is { ArrayIndex: not null and not SqlConstantExpression })
                     {
-                        Sql.Append("'").Append(Dependencies.SqlGenerationHelper.DelimitJsonPathElement(propertyName)).Append("'");
+                        // A plain label is matched literally by SQLite, so a name that had to be quoted needs a full JSONPATH;
+                        // otherwise the quotes become part of the key being looked up.
+                        Sql.Append(delimitedPropertyName == propertyName ? "'" : "'$.").Append(delimitedPropertyName).Append("'");
                         continue;
                     }
 
-                    Sql.Append("'$.").Append(Dependencies.SqlGenerationHelper.DelimitJsonPathElement(propertyName));
+                    Sql.Append("'$.").Append(delimitedPropertyName);
                     inJsonpathString = true;
                     continue;
 

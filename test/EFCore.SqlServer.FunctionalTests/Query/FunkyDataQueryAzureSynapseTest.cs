@@ -273,6 +273,88 @@ FROM [FunkyCustomers] AS [f]
 """);
     }
 
+    public override async Task String_starts_with_on_argument_with_wildcard_char_constant(bool async)
+    {
+        await base.String_starts_with_on_argument_with_wildcard_char_constant(async);
+
+        AssertSql(
+            """
+SELECT [f].[FirstName]
+FROM [FunkyCustomers] AS [f]
+WHERE [f].[FirstName] IS NOT NULL AND LEFT([f].[FirstName], LEN(N'%')) = N'%'
+""",
+            //
+            """
+SELECT [f].[FirstName]
+FROM [FunkyCustomers] AS [f]
+WHERE [f].[FirstName] IS NOT NULL AND LEFT([f].[FirstName], LEN(N'_')) = N'_'
+""",
+            //
+            """
+SELECT [f].[FirstName]
+FROM [FunkyCustomers] AS [f]
+WHERE [f].[FirstName] IS NOT NULL AND LEFT([f].[FirstName], LEN(N'[')) = N'['
+""",
+            //
+            """
+SELECT [f].[FirstName]
+FROM [FunkyCustomers] AS [f]
+WHERE [f].[FirstName] LIKE N'B%'
+""",
+            //
+            """
+SELECT [f].[FirstName]
+FROM [FunkyCustomers] AS [f]
+WHERE [f].[FirstName] IS NULL OR LEFT([f].[FirstName], LEN(N'_')) <> N'_'
+""");
+    }
+
+    public override async Task String_starts_with_on_argument_with_wildcard_char_parameter(bool async)
+    {
+        await base.String_starts_with_on_argument_with_wildcard_char_parameter(async);
+
+        AssertSql(
+            """
+@prm1='%' (Size = -1) (DbType = String)
+
+SELECT [f].[FirstName]
+FROM [FunkyCustomers] AS [f]
+WHERE [f].[FirstName] IS NOT NULL AND LEFT([f].[FirstName], LEN(@prm1)) = @prm1
+""",
+            //
+            """
+@prm2='_' (Size = -1) (DbType = String)
+
+SELECT [f].[FirstName]
+FROM [FunkyCustomers] AS [f]
+WHERE [f].[FirstName] IS NOT NULL AND LEFT([f].[FirstName], LEN(@prm2)) = @prm2
+""",
+            //
+            """
+@prm3='[' (Size = -1) (DbType = String)
+
+SELECT [f].[FirstName]
+FROM [FunkyCustomers] AS [f]
+WHERE [f].[FirstName] IS NOT NULL AND LEFT([f].[FirstName], LEN(@prm3)) = @prm3
+""",
+            //
+            """
+@prm4='B' (Size = -1) (DbType = String)
+
+SELECT [f].[FirstName]
+FROM [FunkyCustomers] AS [f]
+WHERE [f].[FirstName] IS NOT NULL AND LEFT([f].[FirstName], LEN(@prm4)) = @prm4
+""",
+            //
+            """
+@prm5='_' (Size = -1) (DbType = String)
+
+SELECT [f].[FirstName]
+FROM [FunkyCustomers] AS [f]
+WHERE [f].[FirstName] IS NULL OR LEFT([f].[FirstName], LEN(@prm5)) <> @prm5
+""");
+    }
+
     public override async Task String_starts_with_on_argument_with_bracket(bool async)
     {
         await base.String_starts_with_on_argument_with_bracket(async);

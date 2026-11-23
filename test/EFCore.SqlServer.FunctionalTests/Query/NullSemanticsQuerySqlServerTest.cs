@@ -2710,6 +2710,86 @@ INNER JOIN [Entities2] AS [e0] ON [e].[NullableIntA] = [e0].[NullableIntB]
 """);
     }
 
+    public override async Task Join_uses_database_semantics_with_filtered_inner(bool async)
+    {
+        await base.Join_uses_database_semantics_with_filtered_inner(async);
+
+        AssertSql(
+            """
+SELECT [e].[Id] AS [Id1], [e1].[Id] AS [Id2], [e].[NullableIntA], [e1].[NullableIntB]
+FROM [Entities1] AS [e]
+INNER JOIN (
+    SELECT [e0].[Id], [e0].[NullableIntB]
+    FROM [Entities2] AS [e0]
+    WHERE [e0].[BoolA] = CAST(1 AS bit)
+) AS [e1] ON [e].[NullableIntA] = [e1].[NullableIntB]
+""");
+    }
+
+    public override async Task Left_join_uses_database_semantics_with_filtered_inner(bool async)
+    {
+        await base.Left_join_uses_database_semantics_with_filtered_inner(async);
+
+        AssertSql(
+            """
+SELECT [e].[Id] AS [Id1], [e1].[Id] AS [Id2], [e].[NullableIntA], [e1].[NullableIntB]
+FROM [Entities1] AS [e]
+LEFT JOIN (
+    SELECT [e0].[Id], [e0].[NullableIntB]
+    FROM [Entities2] AS [e0]
+    WHERE [e0].[BoolA] = CAST(1 AS bit)
+) AS [e1] ON [e].[NullableIntA] = [e1].[NullableIntB]
+""");
+    }
+
+    public override async Task Join_with_filtered_inner_on_non_nullable_computed_key(bool async)
+    {
+        await base.Join_with_filtered_inner_on_non_nullable_computed_key(async);
+
+        AssertSql(
+            """
+SELECT [e].[Id] AS [Id1], [e1].[Id] AS [Id2]
+FROM [Entities1] AS [e]
+INNER JOIN (
+    SELECT [e0].[Id], [e0].[IntB]
+    FROM [Entities2] AS [e0]
+    WHERE [e0].[BoolA] = CAST(1 AS bit)
+) AS [e1] ON [e].[IntA] + 1 = [e1].[IntB] + 1
+""");
+    }
+
+    public override async Task Join_with_filtered_inner_on_non_nullable_function_key(bool async)
+    {
+        await base.Join_with_filtered_inner_on_non_nullable_function_key(async);
+
+        AssertSql(
+            """
+SELECT [e].[Id] AS [Id1], [e1].[Id] AS [Id2]
+FROM [Entities1] AS [e]
+INNER JOIN (
+    SELECT [e0].[Id], [e0].[StringB]
+    FROM [Entities2] AS [e0]
+    WHERE [e0].[BoolA] = CAST(1 AS bit)
+) AS [e1] ON CAST(LEN([e].[StringA]) AS int) = CAST(LEN([e1].[StringB]) AS int)
+""");
+    }
+
+    public override async Task Join_with_filtered_inner_on_nullable_computed_key(bool async)
+    {
+        await base.Join_with_filtered_inner_on_nullable_computed_key(async);
+
+        AssertSql(
+            """
+SELECT [e].[Id] AS [Id1], [e1].[Id] AS [Id2]
+FROM [Entities1] AS [e]
+INNER JOIN (
+    SELECT [e0].[Id], [e0].[NullableIntB]
+    FROM [Entities2] AS [e0]
+    WHERE [e0].[BoolA] = CAST(1 AS bit)
+) AS [e1] ON [e].[NullableIntA] + 1 = [e1].[NullableIntB] + 1
+""");
+    }
+
     public override async Task Join_uses_csharp_semantics_for_anon_objects(bool async)
     {
         await base.Join_uses_csharp_semantics_for_anon_objects(async);
@@ -3098,6 +3178,45 @@ WHERE [e].[StringA] LIKE N'B%'
             """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
+""");
+    }
+
+    public override async Task Correlated_collection_uses_csharp_semantics(bool async)
+    {
+        await base.Correlated_collection_uses_csharp_semantics(async);
+
+        AssertSql(
+            """
+SELECT [e].[Id], [e0].[Id]
+FROM [Entities1] AS [e]
+LEFT JOIN [Entities2] AS [e0] ON [e].[NullableIntA] = [e0].[NullableIntB] OR ([e].[NullableIntA] IS NULL AND [e0].[NullableIntB] IS NULL)
+ORDER BY [e].[Id]
+""");
+    }
+
+    public override async Task Correlated_collection_uses_csharp_semantics_with_composite_correlation(bool async)
+    {
+        await base.Correlated_collection_uses_csharp_semantics_with_composite_correlation(async);
+
+        AssertSql(
+            """
+SELECT [e].[Id], [e0].[Id]
+FROM [Entities1] AS [e]
+LEFT JOIN [Entities2] AS [e0] ON ([e].[NullableIntA] = [e0].[NullableIntB] OR ([e].[NullableIntA] IS NULL AND [e0].[NullableIntB] IS NULL)) AND ([e].[NullableStringA] = [e0].[NullableStringB] OR ([e].[NullableStringA] IS NULL AND [e0].[NullableStringB] IS NULL))
+ORDER BY [e].[Id]
+""");
+    }
+
+    public override void Correlated_collection_using_relational_null_semantics()
+    {
+        base.Correlated_collection_using_relational_null_semantics();
+
+        AssertSql(
+            """
+SELECT [e].[NullableIntA], [e].[Id], [e0].[Id]
+FROM [Entities1] AS [e]
+LEFT JOIN [Entities2] AS [e0] ON [e].[NullableIntA] = [e0].[NullableIntB]
+ORDER BY [e].[Id]
 """);
     }
 
@@ -3822,6 +3941,38 @@ WHERE NOT EXISTS (
 """);
     }
 
+    public override async Task Null_semantics_contains_with_subquery_projecting_nullable_comparison(bool async)
+    {
+        await base.Null_semantics_contains_with_subquery_projecting_nullable_comparison(async);
+
+        AssertSql(
+            """
+SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE CAST(0 AS bit) IN (
+    SELECT CASE
+        WHEN [e0].[NullableIntA] > 1 THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END
+    FROM [Entities2] AS [e0]
+    WHERE [e0].[Id] = [e].[Id]
+)
+""",
+            //
+            """
+SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE [e].[BoolA] IN (
+    SELECT CASE
+        WHEN [e0].[NullableIntA] > 1 THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END
+    FROM [Entities2] AS [e0]
+    WHERE [e0].[Id] = [e].[Id]
+)
+""");
+    }
+
     public override async Task Null_semantics_contains_nullable_item_with_nullable_subquery(bool async)
     {
         await base.Null_semantics_contains_nullable_item_with_nullable_subquery(async);
@@ -4408,6 +4559,56 @@ FROM [Entities1] AS [e]
 """);
     }
 
+    public override async Task Nullable_column_info_propagates_to_else_of_conditional(bool async)
+    {
+        await base.Nullable_column_info_propagates_to_else_of_conditional(async);
+
+        AssertSql(
+            """
+SELECT CASE
+    WHEN [e].[NullableStringA] IS NULL THEN [e].[BoolA]
+    WHEN [e].[NullableStringA] <> [e].[StringA] THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+FROM [Entities1] AS [e]
+""");
+    }
+
+    public override async Task Nullable_column_info_propagates_to_else_of_conditional_in_predicate(bool async)
+    {
+        await base.Nullable_column_info_propagates_to_else_of_conditional_in_predicate(async);
+
+        AssertSql(
+            """
+SELECT [e].[Id], [e].[BoolA], [e].[BoolB], [e].[BoolC], [e].[IntA], [e].[IntB], [e].[IntC], [e].[NullableBoolA], [e].[NullableBoolB], [e].[NullableBoolC], [e].[NullableIntA], [e].[NullableIntB], [e].[NullableIntC], [e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC], [e].[StringA], [e].[StringB], [e].[StringC]
+FROM [Entities1] AS [e]
+WHERE CASE
+    WHEN [e].[NullableIntA] IS NULL THEN CASE
+        WHEN [e].[IntB] = [e].[NullableIntB] THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END
+    WHEN [e].[NullableIntC] = [e].[NullableIntA] THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END = CAST(1 AS bit)
+""");
+    }
+
+    public override async Task Nullable_column_info_propagates_to_later_clauses_of_conditional(bool async)
+    {
+        await base.Nullable_column_info_propagates_to_later_clauses_of_conditional(async);
+
+        AssertSql(
+            """
+SELECT CASE
+    WHEN [e].[NullableIntA] IS NULL THEN 0
+    WHEN [e].[NullableIntB] IS NULL THEN 1
+    WHEN [e].[NullableIntA] = [e].[NullableIntB] THEN 2
+    ELSE 3
+END
+FROM [Entities1] AS [e]
+""");
+    }
+
     public override async Task Nullable_column_info_doesnt_propagate_between_projections(bool async)
     {
         await base.Nullable_column_info_doesnt_propagate_between_projections(async);
@@ -4629,6 +4830,40 @@ SELECT CASE
         WHEN [e].[StringC] = N'Foo' THEN 3
     END IS NOT NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
+END
+FROM [Entities1] AS [e]
+ORDER BY [e].[Id]
+""");
+    }
+
+    public override async Task CaseWhen_negated_nullable_comparison_projection(bool async)
+    {
+        await base.CaseWhen_negated_nullable_comparison_projection(async);
+
+        AssertSql(
+            """
+SELECT CASE
+    WHEN [e].[NullableIntA] <= 1 THEN 1
+    ELSE 0
+END
+FROM [Entities1] AS [e]
+ORDER BY [e].[Id]
+""");
+    }
+
+    public override async Task CaseWhen_negated_nullable_comparison_in_later_clause_projection(bool async)
+    {
+        await base.CaseWhen_negated_nullable_comparison_in_later_clause_projection(async);
+
+        AssertSql(
+            """
+SELECT CASE
+    WHEN [e].[BoolB] = CAST(1 AS bit) THEN 1
+    WHEN CASE
+        WHEN [e].[NullableIntA] <= 1 THEN CAST(0 AS bit)
+        ELSE CAST(1 AS bit)
+    END = CAST(1 AS bit) THEN 2
+    ELSE 3
 END
 FROM [Entities1] AS [e]
 ORDER BY [e].[Id]
@@ -5031,7 +5266,7 @@ WHERE CASE
         WHEN ([e].[NullableStringA] <> [e].[NullableStringB] OR [e].[NullableStringA] IS NULL OR [e].[NullableStringB] IS NULL) AND ([e].[NullableStringA] IS NOT NULL OR [e].[NullableStringB] IS NOT NULL) THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END
-    WHEN ([e].[NullableStringA] <> [e].[NullableStringC] OR [e].[NullableStringA] IS NULL OR [e].[NullableStringC] IS NULL) AND ([e].[NullableStringA] IS NOT NULL OR [e].[NullableStringC] IS NOT NULL) THEN CAST(1 AS bit)
+    WHEN [e].[NullableStringA] <> [e].[NullableStringC] OR [e].[NullableStringC] IS NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END = CAST(1 AS bit)
 """);
@@ -5051,7 +5286,7 @@ WHERE CASE
         WHEN [e].[NullableStringA] = [e].[NullableStringB] OR ([e].[NullableStringA] IS NULL AND [e].[NullableStringB] IS NULL) THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END
-    WHEN ([e].[NullableStringA] <> [e].[NullableStringB] OR [e].[NullableStringA] IS NULL OR [e].[NullableStringB] IS NULL) AND ([e].[NullableStringA] IS NOT NULL OR [e].[NullableStringB] IS NOT NULL) THEN CAST(1 AS bit)
+    WHEN [e].[NullableStringA] <> [e].[NullableStringB] THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END = CAST(1 AS bit)
 """);
@@ -5090,8 +5325,7 @@ WHERE [e].[NullableBoolA] IS NULL OR CASE
         WHEN [e].[NullableBoolB] <> [e].[NullableBoolA] OR [e].[NullableBoolB] IS NULL THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END
-    WHEN [e].[NullableBoolA] <> [e].[NullableBoolB] OR [e].[NullableBoolB] IS NULL THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
+    ELSE [e].[NullableBoolA] ^ [e].[NullableBoolB]
 END = CAST(1 AS bit)
 """);
     }
@@ -5111,10 +5345,10 @@ WHERE CASE
         ELSE CAST(0 AS bit)
     END
     WHEN [e].[NullableBoolC] IS NULL THEN CASE
-        WHEN ([e].[NullableBoolA] <> [e].[NullableBoolC] OR [e].[NullableBoolA] IS NULL OR [e].[NullableBoolC] IS NULL) AND ([e].[NullableBoolA] IS NOT NULL OR [e].[NullableBoolC] IS NOT NULL) THEN CAST(1 AS bit)
+        WHEN [e].[NullableBoolA] <> [e].[NullableBoolC] OR [e].[NullableBoolC] IS NULL THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END
-    WHEN ([e].[NullableBoolC] <> [e].[NullableBoolA] OR [e].[NullableBoolC] IS NULL OR [e].[NullableBoolA] IS NULL) AND ([e].[NullableBoolC] IS NOT NULL OR [e].[NullableBoolA] IS NOT NULL) THEN CAST(1 AS bit)
+    WHEN [e].[NullableBoolC] <> [e].[NullableBoolA] THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END = CAST(1 AS bit)
 """);

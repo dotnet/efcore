@@ -479,6 +479,11 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         // SqlServerPropertyBuilderExtensions.UseIdentityColumn).
         var annotations = GetAnnotations(property);
 
+        if (isInComplexCollection)
+        {
+            annotations.Remove(RelationalAnnotationNames.Collation);
+        }
+
         GetAnnotationCalls(property, annotations, out var chainedCall, out var typeQualifiedCalls);
 
         var receiverName = AppendChainedBuilderHeader(
@@ -1305,6 +1310,11 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
 
                 using (stringBuilder.Indent())
                 {
+                    if (fragment.IsOptional)
+                    {
+                        stringBuilder.AppendLine().Append("t.IsOptional();");
+                    }
+
                     GenerateTriggers("t", entityType, table.Name, table.Schema, stringBuilder);
                     GeneratePropertyOverrides("t", entityType, table, stringBuilder);
                     GenerateEntityTypeMappingFragmentAnnotations("t", fragment, stringBuilder);

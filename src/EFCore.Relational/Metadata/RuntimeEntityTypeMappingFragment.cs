@@ -19,16 +19,25 @@ public class RuntimeEntityTypeMappingFragment : AnnotatableBase, IEntityTypeMapp
     /// <param name="isTableExcludedFromMigrations">
     ///     A value indicating whether the associated table is ignored by Migrations.
     /// </param>
+    /// <param name="isOptional">
+    ///     A value indicating whether a row for this fragment is optional.
+    /// </param>
     public RuntimeEntityTypeMappingFragment(
         RuntimeEntityType entityType,
         in StoreObjectIdentifier storeObject,
-        bool? isTableExcludedFromMigrations)
+        bool? isTableExcludedFromMigrations,
+        bool isOptional = false)
     {
         EntityType = entityType;
         StoreObject = storeObject;
         if (isTableExcludedFromMigrations != null)
         {
             SetAnnotation(RelationalAnnotationNames.IsTableExcludedFromMigrations, isTableExcludedFromMigrations.Value);
+        }
+
+        if (isOptional)
+        {
+            SetAnnotation(RelationalAnnotationNames.EntityTypeMappingFragmentIsOptional, true);
         }
     }
 
@@ -43,6 +52,10 @@ public class RuntimeEntityTypeMappingFragment : AnnotatableBase, IEntityTypeMapp
     /// <inheritdoc />
     public virtual bool? IsTableExcludedFromMigrations
         => (bool?)this[RelationalAnnotationNames.IsTableExcludedFromMigrations];
+
+    /// <inheritdoc />
+    public virtual bool IsOptional
+        => (bool?)this[RelationalAnnotationNames.EntityTypeMappingFragmentIsOptional] ?? false;
 
     /// <inheritdoc />
     public override string ToString()

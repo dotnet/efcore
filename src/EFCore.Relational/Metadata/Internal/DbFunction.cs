@@ -194,7 +194,7 @@ public class DbFunction : ConventionAnnotatable, IMutableDbFunction, IConvention
     /// </summary>
     public static IEnumerable<IDbFunction> GetDbFunctions(IReadOnlyModel model)
         => ((Dictionary<string, IDbFunction>?)model[RelationalAnnotationNames.DbFunctions])
-            ?.OrderBy(t => t.Key).Select(t => t.Value)
+            ?.OrderBy(t => t.Key, StringComparer.Ordinal).Select(t => t.Value)
             ?? [];
 
     /// <summary>

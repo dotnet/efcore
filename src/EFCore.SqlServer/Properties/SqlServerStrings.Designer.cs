@@ -66,6 +66,22 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             => GetString("DateTimeOffsetOffsetRequiresTotalMinutes");
 
         /// <summary>
+        ///     SQL Server does not support deferrable constraints, but the foreign key constraint '{constraint}' on table '{table}' is configured as deferrable.
+        /// </summary>
+        public static string DeferrableConstraintsNotSupported(object? constraint, object? table)
+            => string.Format(
+                GetString("DeferrableConstraintsNotSupported", nameof(constraint), nameof(table)),
+                constraint, table);
+
+        /// <summary>
+        ///     SQL Server does not support deferrable constraints, but the foreign key {foreignKeyProperties} on entity type '{entityType}' has been configured as deferrable.
+        /// </summary>
+        public static string DeferrableForeignKeysNotSupported(object? foreignKeyProperties, object? entityType)
+            => string.Format(
+                GetString("DeferrableForeignKeysNotSupported", nameof(foreignKeyProperties), nameof(entityType)),
+                foreignKeyProperties, entityType);
+
+        /// <summary>
         ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different identity increment values.
         /// </summary>
         public static string DuplicateColumnIdentityIncrementMismatch(object? entityType1, object? property1, object? entityType2, object? property2, object? columnName, object? table)
@@ -446,6 +462,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 periodType, entityType, periodProperty, periodColumn, expectedColumnName);
 
         /// <summary>
+        ///     The temporal operator '{operatorName}' cannot be used in a compiled query with arguments that vary per invocation. Temporal points in time and ranges are written into the SQL as literals, and a compiled query reuses a single SQL string, so the arguments must be constants. Either use constant arguments, or execute the query without EF.CompileQuery or EF.CompileAsyncQuery.
+        /// </summary>
+        public static string TemporalOperatorRequiresConstantArgumentInCompiledQuery(object? operatorName)
+            => string.Format(
+                GetString("TemporalOperatorRequiresConstantArgumentInCompiledQuery", nameof(operatorName)),
+                operatorName);
+
+        /// <summary>
         ///     Only root entity type should be marked as temporal. Entity type: '{entityType}'.
         /// </summary>
         public static string TemporalOnlyOnRoot(object? entityType)
@@ -500,6 +524,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             => string.Format(
                 GetString("TemporalSetOperationOnMismatchedSources", nameof(entityType)),
                 entityType);
+
+        /// <summary>
+        ///     The TimeSpan value '{timeSpan}' is outside the valid range for a SQL Server 'time' literal. Values must be greater than or equal to zero and less than 24 hours.
+        /// </summary>
+        public static string TimeSpanLiteralOutOfRange(object? timeSpan)
+            => string.Format(
+                GetString("TimeSpanLiteralOutOfRange", nameof(timeSpan)),
+                timeSpan);
 
         /// <summary>
         ///     The provided time zone offset '{offset}' is outside the valid range for SQL Server. Time zone offsets must be between -14:00 and +14:00.

@@ -700,6 +700,36 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
             });
 
     [Fact]
+    public virtual Task Edit_two_properties_of_element_moved_within_json_collection_root()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var entity = await context.JsonEntitiesBasic.SingleAsync();
+                var movedElement = entity.OwnedCollectionRoot[1];
+                entity.OwnedCollectionRoot.Reverse();
+                movedElement.Name = "edit";
+                movedElement.Number = 42;
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityBasic>().SingleAsync();
+                Assert.Equal(2, result.OwnedCollectionRoot.Count);
+
+                var edited = Assert.Single(result.OwnedCollectionRoot, x => x.Name == "edit");
+                Assert.Equal(42, edited.Number);
+                Assert.Equal(["e1_c21", "e1_c22"], edited.Names!);
+
+                var other = Assert.Single(result.OwnedCollectionRoot, x => x.Name == "e1_c1");
+                Assert.Equal(11, other.Number);
+                Assert.Equal(["e1_c11", "e1_c12"], other.Names!);
+            });
+
+    [Fact]
     public virtual Task Edit_collection_element_and_reference_at_once()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,

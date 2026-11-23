@@ -4,6 +4,7 @@
 using System.Collections;
 using System.Data;
 using System.Runtime.CompilerServices;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
 
@@ -16,6 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 public class BufferedDataReader : DbDataReader
 {
     private readonly bool _detailedErrorsEnabled;
+    private RelationalCommandErrorReporter? _commandErrorReporter;
 
     private DbDataReader? _underlyingReader;
     private List<BufferedDataRecord> _bufferedDataRecords = [];
@@ -37,6 +39,13 @@ public class BufferedDataReader : DbDataReader
         _detailedErrorsEnabled = detailedErrorsEnabled;
         _currentResultSet = null!;
     }
+
+    internal BufferedDataReader(
+        DbDataReader reader,
+        bool detailedErrorsEnabled,
+        RelationalCommandErrorReporter? commandErrorReporter)
+        : this(reader, detailedErrorsEnabled)
+        => _commandErrorReporter = commandErrorReporter;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -160,6 +169,7 @@ public class BufferedDataReader : DbDataReader
     {
         if (_underlyingReader == null)
         {
+            _commandErrorReporter = null;
             return this;
         }
 
@@ -167,9 +177,10 @@ public class BufferedDataReader : DbDataReader
         {
             do
             {
-                _bufferedDataRecords.Add(new BufferedDataRecord(_detailedErrorsEnabled).Initialize(_underlyingReader, columns));
+                _bufferedDataRecords.Add(
+                    new BufferedDataRecord(_detailedErrorsEnabled).Initialize(_underlyingReader, columns, _commandErrorReporter));
             }
-            while (_underlyingReader.NextResult());
+            while (AdvanceUnderlyingResult());
 
             _recordsAffected = _underlyingReader.RecordsAffected;
             _currentResultSet = _bufferedDataRecords[_currentResultSetNumber];
@@ -178,6 +189,7 @@ public class BufferedDataReader : DbDataReader
         }
         finally
         {
+            _commandErrorReporter = null;
             _underlyingReader.Dispose();
             _underlyingReader = null;
         }
@@ -195,6 +207,7 @@ public class BufferedDataReader : DbDataReader
     {
         if (_underlyingReader == null)
         {
+            _commandErrorReporter = null;
             return this;
         }
 
@@ -203,10 +216,11 @@ public class BufferedDataReader : DbDataReader
             do
             {
                 _bufferedDataRecords.Add(
-                    await new BufferedDataRecord(_detailedErrorsEnabled).InitializeAsync(_underlyingReader, columns, cancellationToken)
+                    await new BufferedDataRecord(_detailedErrorsEnabled)
+                        .InitializeAsync(_underlyingReader, columns, cancellationToken, _commandErrorReporter)
                         .ConfigureAwait(false));
             }
-            while (await _underlyingReader.NextResultAsync(cancellationToken).ConfigureAwait(false));
+            while (await AdvanceUnderlyingResultAsync(cancellationToken).ConfigureAwait(false));
 
             _recordsAffected = _underlyingReader.RecordsAffected;
             _currentResultSet = _bufferedDataRecords[_currentResultSetNumber];
@@ -215,8 +229,39 @@ public class BufferedDataReader : DbDataReader
         }
         finally
         {
+            _commandErrorReporter = null;
             await _underlyingReader.DisposeAsync().ConfigureAwait(false);
             _underlyingReader = null;
+        }
+    }
+
+    private bool AdvanceUnderlyingResult()
+    {
+        try
+        {
+            return _underlyingReader!.NextResult();
+        }
+        catch (Exception exception)
+        {
+            _commandErrorReporter?.Report(exception);
+            throw;
+        }
+    }
+
+    private async Task<bool> AdvanceUnderlyingResultAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            return await _underlyingReader!.NextResultAsync(cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception exception)
+        {
+            if (_commandErrorReporter != null)
+            {
+                await _commandErrorReporter.Value.ReportAsync(exception, cancellationToken).ConfigureAwait(false);
+            }
+
+            throw;
         }
     }
 
@@ -880,7 +925,10 @@ public class BufferedDataReader : DbDataReader
             => Task.FromResult(Read());
 #pragma warning restore IDE0060 // Remove unused parameter
 
-        public BufferedDataRecord Initialize(DbDataReader reader, IReadOnlyList<ReaderColumn?> columns)
+        public BufferedDataRecord Initialize(
+            DbDataReader reader,
+            IReadOnlyList<ReaderColumn?> columns,
+            RelationalCommandErrorReporter? commandErrorReporter)
         {
             _underlyingReader = reader;
             _columns = columns;
@@ -888,8 +936,24 @@ public class BufferedDataReader : DbDataReader
             ReadMetadata();
             InitializeFields();
 
-            while (reader.Read())
+            while (true)
             {
+                bool hasNext;
+                try
+                {
+                    hasNext = reader.Read();
+                }
+                catch (Exception exception)
+                {
+                    commandErrorReporter?.Report(exception);
+                    throw;
+                }
+
+                if (!hasNext)
+                {
+                    break;
+                }
+
                 ReadRow();
             }
 
@@ -908,7 +972,8 @@ public class BufferedDataReader : DbDataReader
         public async Task<BufferedDataRecord> InitializeAsync(
             DbDataReader reader,
             IReadOnlyList<ReaderColumn?> columns,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken,
+            RelationalCommandErrorReporter? commandErrorReporter)
         {
             _underlyingReader = reader;
             _columns = columns;
@@ -916,8 +981,28 @@ public class BufferedDataReader : DbDataReader
             ReadMetadata();
             InitializeFields();
 
-            while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
+            while (true)
             {
+                bool hasNext;
+                try
+                {
+                    hasNext = await reader.ReadAsync(cancellationToken).ConfigureAwait(false);
+                }
+                catch (Exception exception)
+                {
+                    if (commandErrorReporter != null)
+                    {
+                        await commandErrorReporter.Value.ReportAsync(exception, cancellationToken).ConfigureAwait(false);
+                    }
+
+                    throw;
+                }
+
+                if (!hasNext)
+                {
+                    break;
+                }
+
                 ReadRow();
             }
 

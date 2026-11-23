@@ -191,6 +191,25 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
     }
 
     /// <summary>
+    ///     Generates a SQL fragment for a foreign key constraint of an <see cref="AddForeignKeyOperation" />.
+    /// </summary>
+    /// <param name="operation">The operation.</param>
+    /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+    /// <param name="builder">The command builder to use to add the SQL fragment.</param>
+    protected override void ForeignKeyConstraint(
+        AddForeignKeyOperation operation,
+        IModel? model,
+        MigrationCommandListBuilder builder)
+    {
+        if (operation.Deferrability != ConstraintDeferrability.NotDeferrable)
+        {
+            throw new NotSupportedException(SqlServerStrings.DeferrableConstraintsNotSupported(operation.Name, operation.Table));
+        }
+
+        base.ForeignKeyConstraint(operation, model, builder);
+    }
+
+    /// <summary>
     ///     Builds commands for the given <see cref="AddPrimaryKeyOperation" /> by making calls on the given
     ///     <see cref="MigrationCommandListBuilder" />.
     /// </summary>
@@ -321,34 +340,11 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                 || operation is { IsNullable: false, OldColumn.IsNullable: true };
         }
 
+        var hasIndexFilterReference = column?.Table.Indexes
+            .Any(index => index.Filter?.Contains(Dependencies.SqlGenerationHelper.DelimitIdentifier(column.Name)) == true)
+            == true;
         var sparseChanged = ((bool?)operation[SqlServerAnnotationNames.Sparse] ?? false)
             != ((bool?)operation.OldColumn[SqlServerAnnotationNames.Sparse] ?? false);
-        if (narrowed || sparseChanged)
-        {
-            indexesToRebuild = GetIndexesToRebuild(column, operation).ToList();
-            DropIndexes(indexesToRebuild, builder);
-        }
-
-        // Handle change of identity seed value
-        if (IsIdentity(operation) && oldColumnSupported)
-        {
-            Check.DebugAssert(IsIdentity(operation.OldColumn), "Unsupported column change to identity");
-
-            var oldSeed = 1;
-            if (TryParseIdentitySeedIncrement(operation, out var newSeed, out _)
-                && (operation.OldColumn[SqlServerAnnotationNames.Identity] is null
-                    || TryParseIdentitySeedIncrement(operation.OldColumn, out oldSeed, out _))
-                && newSeed != oldSeed)
-            {
-                var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
-                var table = stringTypeMapping.GenerateSqlLiteral(
-                    Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema));
-
-                builder
-                    .Append($"DBCC CHECKIDENT({table}, RESEED, {newSeed})")
-                    .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
-            }
-        }
 
         var newAnnotations = operation.GetAnnotations().Where(a => a.Name != SqlServerAnnotationNames.Identity);
         var oldAnnotations = operation.OldColumn.GetAnnotations().Where(a => a.Name != SqlServerAnnotationNames.Identity);
@@ -370,6 +366,34 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         if (computedColumnIsNoOp)
         {
             alterStatementNeeded = false;
+        }
+
+        var rebuildIndexes = narrowed || sparseChanged || (hasIndexFilterReference && alterStatementNeeded);
+        if (rebuildIndexes)
+        {
+            indexesToRebuild = GetIndexesToRebuild(column, operation).ToList();
+            DropIndexes(indexesToRebuild, builder);
+        }
+
+        // Handle change of identity seed value
+        if (IsIdentity(operation) && oldColumnSupported)
+        {
+            Check.DebugAssert(IsIdentity(operation.OldColumn), "Unsupported column change to identity");
+
+            var oldSeed = 1L;
+            if (TryParseIdentitySeedIncrement(operation, out var newSeed, out _)
+                && (operation.OldColumn[SqlServerAnnotationNames.Identity] is null
+                    || TryParseIdentitySeedIncrement(operation.OldColumn, out oldSeed, out _))
+                && newSeed != oldSeed)
+            {
+                var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
+                var table = stringTypeMapping.GenerateSqlLiteral(
+                    Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema));
+
+                builder
+                    .Append($"DBCC CHECKIDENT({table}, RESEED, {newSeed.ToString(CultureInfo.InvariantCulture)})")
+                    .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+            }
         }
 
         var (oldDefaultValue, oldDefaultValueSql) = (operation.OldColumn.DefaultValue, operation.OldColumn.DefaultValueSql);
@@ -484,7 +508,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             }
         }
 
-        if (narrowed || sparseChanged)
+        if (rebuildIndexes)
         {
             CreateIndexes(indexesToRebuild!, builder);
         }
@@ -1947,9 +1971,8 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         if (constraintName != null && (defaultValue != null || defaultValueSql != null))
         {
             builder
-                .Append(" CONSTRAINT [")
-                .Append(constraintName)
-                .Append("]");
+                .Append(" CONSTRAINT ")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(constraintName));
         }
 
         base.DefaultValue(defaultValue, defaultValueSql, columnType, builder);
@@ -2382,9 +2405,8 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             builder
                 .Append("ALTER TABLE ")
                 .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(tableName, schema))
-                .Append(" DROP CONSTRAINT [")
-                .Append(defaultConstraintName)
-                .Append("]")
+                .Append(" DROP CONSTRAINT ")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(defaultConstraintName))
                 .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
 
             return;
@@ -2455,6 +2477,10 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             }
             else if (index[SqlServerAnnotationNames.Include] is IReadOnlyList<string> includeColumns
                      && includeColumns.Contains(column.Name))
+            {
+                yield return index;
+            }
+            else if (index.Filter?.Contains(Dependencies.SqlGenerationHelper.DelimitIdentifier(column.Name)) == true)
             {
                 yield return index;
             }
@@ -2774,6 +2800,11 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             || (operation[SqlServerAnnotationNames.ValueGenerationStrategy] as SqlServerValueGenerationStrategy?)
             == SqlServerValueGenerationStrategy.IdentityColumn;
 
+    // Named default constraints belong to the current table, so copied history-table operations
+    // must create or look up their own constraints rather than reuse the current table's name.
+    private static void RemoveDefaultConstraintNameAnnotation(ColumnOperation operation)
+        => operation.RemoveAnnotation(RelationalAnnotationNames.DefaultConstraintName);
+
     private static void RemoveIdentityAnnotations(ColumnOperation operation)
     {
         operation.RemoveAnnotation(SqlServerAnnotationNames.Identity);
@@ -2785,12 +2816,13 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         }
     }
 
-    private static bool TryParseIdentitySeedIncrement(ColumnOperation operation, out int seed, out int increment)
+    private static bool TryParseIdentitySeedIncrement(ColumnOperation operation, out long seed, out long increment)
     {
+        // The seed is a long (see UseIdentityColumn), so a bigint identity column can have a seed above the int range
         if (operation[SqlServerAnnotationNames.Identity] is string seedIncrement
             && seedIncrement.Split(",") is [var seedString, var incrementString]
-            && int.TryParse(seedString, out var seedParsed)
-            && int.TryParse(incrementString, out var incrementParsed))
+            && long.TryParse(seedString, NumberStyles.Integer, CultureInfo.InvariantCulture, out var seedParsed)
+            && long.TryParse(incrementString, NumberStyles.Integer, CultureInfo.InvariantCulture, out var incrementParsed))
         {
             (seed, increment) = (seedParsed, incrementParsed);
             return true;
@@ -3321,7 +3353,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
                     // we removed the table, so we no longer need it's temporal information
                     // there will be no more operations involving this table
-                    temporalTableInformationMap.Remove((tableName, schema));
+                    temporalTableInformationMap.Remove((tableName, rawSchema));
 
                     break;
                 }
@@ -3345,7 +3377,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
                     // since table was renamed, update entry in the temporal info map
                     temporalTableInformationMap[(renameTableOperation.NewName!, renameTableOperation.NewSchema)] = temporalInformation;
-                    temporalTableInformationMap.Remove((tableName, schema));
+                    temporalTableInformationMap.Remove((tableName, rawSchema));
 
                     break;
                 }
@@ -3529,6 +3561,8 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                             // identity columns are not allowed inside HistoryTables
                             RemoveIdentityAnnotations(addHistoryTableColumnOperation);
 
+                            RemoveDefaultConstraintNameAnnotation(addHistoryTableColumnOperation);
+
                             operations.Add(addHistoryTableColumnOperation);
                         }
                     }
@@ -3693,6 +3727,9 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                             // identity columns are not allowed inside HistoryTables
                             RemoveIdentityAnnotations(alterHistoryTableColumn);
                             RemoveIdentityAnnotations(alterHistoryTableColumn.OldColumn);
+
+                            RemoveDefaultConstraintNameAnnotation(alterHistoryTableColumn);
+                            RemoveDefaultConstraintNameAnnotation(alterHistoryTableColumn.OldColumn);
 
                             operations.Add(alterHistoryTableColumn);
                         }

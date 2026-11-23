@@ -1,6 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 /// <summary>
@@ -22,6 +24,32 @@ public class EntityTypeConfigurationAttributeConvention : TypeAttributeConventio
     public EntityTypeConfigurationAttributeConvention(ProviderConventionSetBuilderDependencies dependencies)
         : base(dependencies)
     {
+    }
+
+    /// <inheritdoc />
+    public override void ProcessEntityTypeAdded(
+        IConventionEntityTypeBuilder entityTypeBuilder,
+        IConventionContext<IConventionEntityTypeBuilder> context)
+    {
+        var type = entityTypeBuilder.Metadata.ClrType;
+
+        var attributes = type.GetCustomAttributes<EntityTypeConfigurationAttribute>(inherit: false);
+        HashSet<Type>? appliedConfigurationTypes = null;
+        foreach (var attribute in attributes)
+        {
+            if (appliedConfigurationTypes?.Add(attribute.EntityTypeConfigurationType) == false)
+            {
+                continue;
+            }
+
+            appliedConfigurationTypes ??= [attribute.EntityTypeConfigurationType];
+
+            ProcessEntityTypeAdded(entityTypeBuilder, attribute, context);
+            if (((IReadableConventionContext)context).ShouldStopProcessing())
+            {
+                return;
+            }
+        }
     }
 
     /// <summary>

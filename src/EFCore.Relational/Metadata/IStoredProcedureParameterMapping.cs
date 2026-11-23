@@ -8,8 +8,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 /// <summary>
 ///     Represents property mapping to a stored procedure parameter.
 /// </summary>
-public interface IStoredProcedureParameterMapping : IColumnMappingBase
+public interface IStoredProcedureParameterMapping : IColumnMappingBase, IComparable<IStoredProcedureParameterMapping>
 {
+    /// <inheritdoc />
+    int IComparable<IStoredProcedureParameterMapping>.CompareTo(IStoredProcedureParameterMapping? other)
+        => ((IColumnMappingBase)this).CompareTo(other);
+
     /// <summary>
     ///     Gets the target parameter.
     /// </summary>

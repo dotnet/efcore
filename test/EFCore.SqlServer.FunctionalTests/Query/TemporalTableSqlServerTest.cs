@@ -470,6 +470,77 @@ ORDER BY [u].[Id], [o].[MainEntityManyId], [o].[Id]
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Temporal_all_in_collection_projection_returns_all_history_rows(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<ContextWithClrPeriodProperties>(
+            seed: async c =>
+            {
+                var customer = new TemporalCustomerWithClrPeriods { Name = "Customer1" };
+                c.Customers.Add(customer);
+                await c.SaveChangesAsync();
+
+                // Versions saved within the same clock tick get a zero-length period, which FOR SYSTEM_TIME filters out.
+                await Task.Delay(100);
+                customer.Name = "Customer2";
+                await c.SaveChangesAsync();
+
+                await Task.Delay(100);
+                customer.Name = "Customer3";
+                await c.SaveChangesAsync();
+            });
+
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Customers.Select(c => new
+        {
+            c.Id,
+            History = context.Customers.TemporalAll()
+                .Where(h => h.Id == c.Id)
+                .OrderBy(h => h.PeriodStart)
+                .Select(h => h.Name)
+                .ToList()
+        });
+        var result = async ? await query.SingleAsync() : query.Single();
+
+        Assert.Equal(["Customer1", "Customer2", "Customer3"], result.History);
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Temporal_all_with_collection_projection_returns_all_history_rows(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<ContextWithClrPeriodProperties>(
+            seed: async c =>
+            {
+                var customer = new TemporalCustomerWithClrPeriods { Name = "Customer1" };
+                c.Customers.Add(customer);
+                await c.SaveChangesAsync();
+
+                // Versions saved within the same clock tick get a zero-length period, which FOR SYSTEM_TIME filters out.
+                await Task.Delay(100);
+                customer.Name = "Customer2";
+                await c.SaveChangesAsync();
+
+                await Task.Delay(100);
+                customer.Name = "Customer3";
+                await c.SaveChangesAsync();
+            });
+
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Customers.TemporalAll()
+            .OrderBy(h => h.PeriodStart)
+            .Select(h => new
+            {
+                h.Name,
+                Current = context.Customers.Where(c => c.Id == h.Id).Select(c => c.Name).ToList()
+            });
+        var result = async ? await query.ToListAsync() : query.ToList();
+
+        Assert.Equal(["Customer1", "Customer2", "Customer3"], result.Select(r => r.Name));
+        Assert.All(result, r => Assert.Equal(["Customer3"], r.Current));
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Temporal_with_CLR_period_properties_configured_via_lambda(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<ContextWithClrPeriodPropertiesLambda>(
@@ -488,6 +559,42 @@ ORDER BY [u].[Id], [o].[MainEntityManyId], [o].[Id]
         Assert.Equal("Customer1", result[0].Name);
         Assert.NotEqual(default, result[0].PeriodStart);
         Assert.NotEqual(default, result[0].PeriodEnd);
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task TemporalAll_after_no_tracking_query_of_same_shape(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<ContextWithClrPeriodProperties>(
+            seed: async c =>
+            {
+                c.Customers.Add(new TemporalCustomerWithClrPeriods { Name = "Customer1" });
+                await c.SaveChangesAsync();
+            });
+
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Customers.AsNoTracking().OrderBy(c => c.Id);
+        var result = async ? await query.ToListAsync() : query.ToList();
+
+        Assert.Equal("Customer1", Assert.Single(result).Name);
+
+        var temporalQuery = context.Customers.TemporalAll().OrderBy(c => c.Id);
+        var temporalResult = async ? await temporalQuery.ToListAsync() : temporalQuery.ToList();
+
+        Assert.Equal("Customer1", Assert.Single(temporalResult).Name);
+
+        AssertSql(
+            """
+SELECT [t].[Id], [t].[Name], [t].[PeriodEnd], [t].[PeriodStart]
+FROM [TemporalCustomerWithClrPeriods] AS [t]
+ORDER BY [t].[Id]
+""",
+            //
+            """
+SELECT [t].[Id], [t].[Name], [t].[PeriodEnd], [t].[PeriodStart]
+FROM [TemporalCustomerWithClrPeriods] FOR SYSTEM_TIME ALL AS [t]
+ORDER BY [t].[Id]
+""");
     }
 
     public class TemporalCustomerWithClrPeriods
@@ -542,6 +649,22 @@ ORDER BY [u].[Id], [o].[MainEntityManyId], [o].[Id]
             """
 SELECT [v].[Name], [v].[Capacity], [v].[FuelTank_Discriminator], [v].[End], [v].[FuelType], [v].[Start], [v].[GrainGeometry]
 FROM [Vehicles] FOR SYSTEM_TIME AS OF '2000-01-01T00:00:00.0000000' AS [v]
+WHERE [v].[Capacity] IS NOT NULL AND [v].[FuelTank_Discriminator] IS NOT NULL
+""");
+    }
+
+    [Theory, InlineData(true), InlineData(false)]
+    public virtual async Task Temporal_all_can_query_shared_derived_hierarchy(bool async)
+    {
+        var contextFactory = await InitializeAsync(OnModelCreating);
+        using var context = contextFactory.CreateDbContext();
+        var query = context.Set<FuelTank>().TemporalAll();
+        var _ = async ? await query.ToListAsync() : query.ToList();
+
+        AssertSql(
+            """
+SELECT [v].[Name], [v].[Capacity], [v].[FuelTank_Discriminator], [v].[End], [v].[FuelType], [v].[Start], [v].[GrainGeometry]
+FROM [Vehicles] FOR SYSTEM_TIME ALL AS [v]
 WHERE [v].[Capacity] IS NOT NULL AND [v].[FuelTank_Discriminator] IS NOT NULL
 """);
     }

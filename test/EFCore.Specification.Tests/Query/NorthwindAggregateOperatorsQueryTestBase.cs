@@ -463,6 +463,12 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
             selector: p => p.UnitPrice ?? 0);
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Min_over_constant_DateTime(bool async)
+        => AssertMin(
+            async,
+            ss => ss.Set<Order>().Select(o => DateTime.MinValue));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Min_over_subquery(bool async)
         => AssertMin(
             async,
@@ -530,6 +536,12 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
             async,
             ss => ss.Set<Product>().Where(p => p.ProductID < 40),
             selector: p => p.UnitPrice ?? 0);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Max_over_constant_DateTime(bool async)
+        => AssertMax(
+            async,
+            ss => ss.Set<Order>().Select(o => DateTime.MaxValue));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Max_over_subquery(bool async)
@@ -1343,6 +1355,50 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
             async,
             ss => ss.Set<OrderDetail>().Where(o => ids.Contains(new { Id1 = o.OrderID, Id2 = o.ProductID })));
     }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_on_inline_collection_with_nullable_subquery_value(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().Select(o => new
+            {
+                o.OrderID,
+                HasTwo = new[] { ss.Set<Order>().Count(o2 => o2.CustomerID == o.CustomerID), 0 }.Contains(2)
+            }),
+            elementSorter: e => e.OrderID);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_on_inline_collection_with_single_nullable_subquery_value_and_null(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().Select(o => new
+            {
+                o.OrderID,
+                IsMax = new[] { ss.Set<Order>().Where(o2 => o2.CustomerID == o.CustomerID).Max(o2 => o2.EmployeeID), null }
+                    .Contains(o.EmployeeID)
+            }),
+            elementSorter: e => e.OrderID);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_on_nested_inline_collections_with_null(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().Where(o => new bool?[] { true, null }.Contains(
+                new bool?[] { true, null }.Contains(
+                    new bool?[] { true, null }.Contains(o.EmployeeID == 5)))));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_on_nested_inline_collections_with_null_in_projection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().Select(o => new
+            {
+                o.OrderID,
+                Nested = new bool?[] { true, null }.Contains(
+                    new bool?[] { true, null }.Contains(
+                        new bool?[] { true, null }.Contains(o.EmployeeID == 5)))
+            }),
+            elementSorter: e => e.OrderID);
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task OfType_Select(bool async)

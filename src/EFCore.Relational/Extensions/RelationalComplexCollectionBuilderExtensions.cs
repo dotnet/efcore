@@ -17,6 +17,12 @@ public static class RelationalComplexCollectionBuilderExtensions
     /// <param name="complexCollectionBuilder">The builder for the complex collection being configured.</param>
     /// <param name="jsonColumnName">The name of the JSON column. If not specified, the complex collection name is used.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    /// <remarks>
+    ///     If the complex collection is declared on an owned type that shares a table or view with its owner and the column name
+    ///     is not specified, the name is prefixed in that table or view with the names of the ownership navigations.
+    ///     For example, a complex collection <c>Locations</c> on the owned <c>Order.ShippingAddress</c> is mapped to the
+    ///     <c>ShippingAddress_Locations</c> column.
+    /// </remarks>
     public static ComplexCollectionBuilder ToJson(
         this ComplexCollectionBuilder complexCollectionBuilder,
         string? jsonColumnName = null)
@@ -24,7 +30,9 @@ public static class RelationalComplexCollectionBuilderExtensions
         Check.NullButNotEmpty(jsonColumnName);
 
         var complexProperty = complexCollectionBuilder.Metadata;
-        complexProperty.ComplexType.SetContainerColumnName(jsonColumnName ?? complexProperty.Name);
+
+        // An empty name stands for the default one, see GetContainerColumnName
+        complexProperty.ComplexType.SetContainerColumnName(jsonColumnName ?? string.Empty);
 
         return complexCollectionBuilder;
     }
@@ -35,6 +43,12 @@ public static class RelationalComplexCollectionBuilderExtensions
     /// <param name="complexCollectionBuilder">The builder for the complex collection being configured.</param>
     /// <param name="jsonColumnName">The name of the JSON column. If not specified, the complex collection name is used.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    /// <remarks>
+    ///     If the complex collection is declared on an owned type that shares a table or view with its owner and the column name
+    ///     is not specified, the name is prefixed in that table or view with the names of the ownership navigations.
+    ///     For example, a complex collection <c>Locations</c> on the owned <c>Order.ShippingAddress</c> is mapped to the
+    ///     <c>ShippingAddress_Locations</c> column.
+    /// </remarks>
     public static ComplexCollectionBuilder<TComplex> ToJson<TComplex>(
         this ComplexCollectionBuilder<TComplex> complexCollectionBuilder,
         string? jsonColumnName = null)

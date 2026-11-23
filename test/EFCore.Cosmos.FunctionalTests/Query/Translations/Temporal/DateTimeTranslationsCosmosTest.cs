@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Xunit.Sdk;
+
 namespace Microsoft.EntityFrameworkCore.Query.Translations.Temporal;
 
 public class DateTimeTranslationsCosmosTest : DateTimeTranslationsTestBase<BasicTypesQueryCosmosFixture>
@@ -26,7 +28,7 @@ public class DateTimeTranslationsCosmosTest : DateTimeTranslationsTestBase<Basic
 
         AssertSql(
             """
-@myDatetime='2015-04-10T00:00:00'
+@myDatetime='2015-04-10T00:00:00.0000000'
 
 SELECT VALUE c
 FROM root c
@@ -59,6 +61,32 @@ WHERE (GetCurrentDateTime() != @myDatetime)
 SELECT VALUE c
 FROM root c
 WHERE (DateTimePart("yyyy", DateTimeAdd("yyyy", 1, c["DateTime"])) = 1999)
+""");
+    }
+
+    public override async Task AddMonths_past_end_of_month_gives_last_day_of_month()
+    {
+        // Cosmos DateTimeAdd doesn't clamp month-end values like .NET AddMonths.
+        await Assert.ThrowsAsync<EqualException>(base.AddMonths_past_end_of_month_gives_last_day_of_month);
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (DateTimeAdd("mm", 1, DateTimeAdd("dd", 27, c["DateTime"])) = "1998-06-30T15:30:10.0000000")
+""");
+    }
+
+    public override async Task AddYears_from_leap_day_gives_last_day_of_February()
+    {
+        // Cosmos DateTimeAdd doesn't clamp leap-day values like .NET AddYears.
+        await Assert.ThrowsAsync<EqualException>(base.AddYears_from_leap_day_gives_last_day_of_February);
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (DateTimeAdd("yyyy", 1, DateTimeAdd("dd", 666, c["DateTime"])) = "2001-02-28T15:30:10.0000000")
 """);
     }
 
@@ -154,6 +182,14 @@ WHERE (DateTimePart("ms", c["DateTime"]) = 123)
 """);
     }
 
+    public override async Task Ticks()
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(base.Ticks);
+
+        AssertSql();
+    }
+
     public override async Task TimeOfDay()
     {
         // Cosmos client evaluation. Issue #17246.
@@ -178,7 +214,7 @@ WHERE (DateTimePart("ms", c["DateTime"]) = 123)
             """
 SELECT VALUE c
 FROM root c
-WHERE (c["DateTime"] = "1998-05-04T15:30:10")
+WHERE (c["DateTime"] = "1998-05-04T15:30:10.0000000")
 """);
     }
 
@@ -188,7 +224,7 @@ WHERE (c["DateTime"] = "1998-05-04T15:30:10")
 
         AssertSql(
             """
-@Parse='1998-05-04T15:30:10'
+@Parse='1998-05-04T15:30:10.0000000'
 
 SELECT VALUE c
 FROM root c
@@ -204,7 +240,7 @@ WHERE (c["DateTime"] = @Parse)
             """
 SELECT VALUE c
 FROM root c
-WHERE (c["DateTime"] = "1998-05-04T15:30:10")
+WHERE (c["DateTime"] = "1998-05-04T15:30:10.0000000")
 """);
     }
 
@@ -214,7 +250,7 @@ WHERE (c["DateTime"] = "1998-05-04T15:30:10")
 
         AssertSql(
             """
-@p='1998-05-04T15:30:10'
+@p='1998-05-04T15:30:10.0000000'
 
 SELECT VALUE c
 FROM root c

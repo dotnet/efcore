@@ -958,7 +958,7 @@ WHERE NOT(ARRAY_CONTAINS(@strings, c["NullableString"]))
 
         AssertSql(
             """
-@dateTimes='["2020-01-10T12:30:00Z","9999-01-01T00:00:00Z"]'
+@dateTimes='["2020-01-10T12:30:00.0000000Z","9999-01-01T00:00:00.0000000Z"]'
 
 SELECT VALUE c
 FROM root c
@@ -1434,7 +1434,7 @@ WHERE (c["Strings"][1] = "10")
             """
 SELECT VALUE c
 FROM root c
-WHERE (c["DateTimes"][1] = "2020-01-10T12:30:00Z")
+WHERE (c["DateTimes"][1] = "2020-01-10T12:30:00.0000000Z")
 """);
     }
 
@@ -1758,6 +1758,67 @@ WHERE (ARRAY(
 SELECT VALUE c
 FROM root c
 WHERE (ARRAY_LENGTH(c["Ints"]) > 0)
+""");
+    }
+
+    public override async Task Column_collection_Array_Exists()
+    {
+        await base.Column_collection_Array_Exists();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE EXISTS (
+    SELECT 1
+    FROM i IN c["Ints"]
+    WHERE (i > 10))
+""");
+    }
+
+    public override async Task Column_collection_Array_Exists_covariant()
+    {
+        await base.Column_collection_Array_Exists_covariant();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE EXISTS (
+    SELECT 1
+    FROM s IN c["Strings"]
+    WHERE (s = "10"))
+""");
+    }
+
+    public override async Task Parameter_collection_Array_Exists_covariant()
+    {
+        await base.Parameter_collection_Array_Exists_covariant();
+
+        AssertSql(
+            """
+@strings='["10","999"]'
+
+SELECT VALUE c
+FROM root c
+WHERE EXISTS (
+    SELECT 1
+    FROM s IN (SELECT VALUE @strings)
+    WHERE (s = c["String"]))
+""");
+    }
+
+    public override async Task Parameter_collection_Array_Exists()
+    {
+        await base.Parameter_collection_Array_Exists();
+
+        AssertSql(
+            """
+@ints='[10,999]'
+
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(@ints, c["Int"])
 """);
     }
 
@@ -2259,7 +2320,7 @@ SELECT VALUE
     "c2" : ARRAY(
         SELECT VALUE d0
         FROM d0 IN c["DateTimes"]
-        WHERE (d0 > "2000-01-01T00:00:00"))
+        WHERE (d0 > "2000-01-01T00:00:00.0000000"))
 }
 FROM root c
 ORDER BY c["Id"]

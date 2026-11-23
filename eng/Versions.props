@@ -3,9 +3,9 @@
   <Import Project="Version.Details.props" />
 
   <PropertyGroup Label="Version settings">
-    <VersionPrefix>11.0.1</VersionPrefix>
-    <PreReleaseVersionLabel>servicing</PreReleaseVersionLabel>
-    <PreReleaseVersionIteration></PreReleaseVersionIteration>
+    <VersionPrefix>12.0.0</VersionPrefix>
+    <PreReleaseVersionLabel>alpha</PreReleaseVersionLabel>
+    <PreReleaseVersionIteration>1</PreReleaseVersionIteration>
     <!-- Allowed values: '', 'prerelease', 'release'. Set to 'release' when stabilizing. -->
     <DotNetFinalVersionKind></DotNetFinalVersionKind>
 
@@ -56,8 +56,7 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Tooling dependencies">
-    <ICSharpCodeDecompilerVersion>10.1.1.8388</ICSharpCodeDecompilerVersion>
-    <SystemCommandLineVersion>2.0.14</SystemCommandLineVersion>
+    <ICSharpCodeDecompilerVersion>11.2.0.10050</ICSharpCodeDecompilerVersion>
+    <SystemCommandLineVersion>2.0.13</SystemCommandLineVersion>
   </PropertyGroup>
-
 </Project>

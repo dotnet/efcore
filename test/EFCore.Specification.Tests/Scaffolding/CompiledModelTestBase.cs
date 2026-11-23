@@ -1400,9 +1400,10 @@ namespace TestNamespace
         Assert.Equal(typeof(byte?), dependentIdProperty.ClrType);
         Assert.Empty(dependentComplexType.GetComplexProperties());
 
+        // Provider tests can add entity types of their own
         Assert.Equal(
             [principalBase, principalDerived],
-            model.GetEntityTypes());
+            model.GetEntityTypes().Where(e => e.ClrType.DeclaringType == typeof(CompiledModelTestBase)));
     }
 
     protected virtual int ExpectedComplexTypeProperties

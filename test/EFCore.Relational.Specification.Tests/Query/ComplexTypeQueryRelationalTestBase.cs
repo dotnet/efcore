@@ -365,6 +365,222 @@ public abstract class ComplexTypeQueryRelationalTestBase<TFixture>(TFixture fixt
 
     #endregion 38928
 
+    #region SiblingJsonColumn
+
+    [Fact]
+    public virtual async Task Json_complex_properties_on_sibling_types_mapped_to_same_column()
+    {
+        var contextFactory = await InitializeNonSharedTest<ContextSiblingJsonColumn>(
+            seed: context =>
+            {
+                context.AddRange(
+                    new ContextSiblingJsonColumn.Dog
+                    {
+                        Name = "Rex", Details = new ContextSiblingJsonColumn.DogDetails { Breed = "Collie", Trained = true }
+                    },
+                    new ContextSiblingJsonColumn.Cat { Name = "Tom", Details = new ContextSiblingJsonColumn.CatDetails { Lives = 9 } });
+
+                return context.SaveChangesAsync();
+            });
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var cat = await context.Set<ContextSiblingJsonColumn.Cat>().SingleAsync();
+            cat.Details.Lives = 8;
+
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var animals = await context.Set<ContextSiblingJsonColumn.Animal>().OrderBy(a => a.Name).ToListAsync();
+
+            var dog = Assert.IsType<ContextSiblingJsonColumn.Dog>(animals[0]);
+            Assert.Equal("Collie", dog.Details.Breed);
+            Assert.True(dog.Details.Trained);
+            Assert.Equal(8, Assert.IsType<ContextSiblingJsonColumn.Cat>(animals[1]).Details.Lives);
+
+            Assert.Equal(
+                "Rex",
+                (await context.Set<ContextSiblingJsonColumn.Dog>().SingleAsync(d => d.Details.Breed == "Collie")).Name);
+        }
+    }
+
+    private class ContextSiblingJsonColumn(DbContextOptions options) : DbContext(options)
+    {
+        public abstract class Animal
+        {
+            public int Id { get; set; }
+            public required string Name { get; set; }
+        }
+
+        public class Dog : Animal
+        {
+            public required DogDetails Details { get; set; }
+        }
+
+        public class Cat : Animal
+        {
+            public required CatDetails Details { get; set; }
+        }
+
+        public class DogDetails
+        {
+            public required string Breed { get; set; }
+            public bool Trained { get; set; }
+        }
+
+        public class CatDetails
+        {
+            public int Lives { get; set; }
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Animal>();
+            modelBuilder.Entity<Dog>().ComplexProperty(d => d.Details, b => b.ToJson("Details"));
+            modelBuilder.Entity<Cat>().ComplexProperty(c => c.Details, b => b.ToJson("Details"));
+        }
+    }
+
+    [Fact]
+    public virtual async Task Json_complex_properties_on_base_and_derived_types_mapped_to_same_column_with_TPT()
+    {
+        var contextFactory = await InitializeNonSharedTest<ContextTptJsonColumn>(
+            seed: context =>
+            {
+                context.Add(
+                    new ContextTptJsonColumn.Dog
+                    {
+                        Name = "Rex",
+                        Details = new ContextTptJsonColumn.AnimalDetails { Weight = 30 },
+                        DogDetails = new ContextTptJsonColumn.DogDetails { Breed = "Collie" }
+                    });
+
+                return context.SaveChangesAsync();
+            });
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var dog = await context.Set<ContextTptJsonColumn.Dog>().SingleAsync();
+            dog.Details.Weight = 31;
+            dog.DogDetails.Breed = "Border Collie";
+
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var dog = await context.Set<ContextTptJsonColumn.Dog>().SingleAsync();
+
+            Assert.Equal(31, dog.Details.Weight);
+            Assert.Equal("Border Collie", dog.DogDetails.Breed);
+        }
+    }
+
+    private class ContextTptJsonColumn(DbContextOptions options) : DbContext(options)
+    {
+        public class Animal
+        {
+            public int Id { get; set; }
+            public required string Name { get; set; }
+            public required AnimalDetails Details { get; set; }
+        }
+
+        public class Dog : Animal
+        {
+            public required DogDetails DogDetails { get; set; }
+        }
+
+        public class AnimalDetails
+        {
+            public int Weight { get; set; }
+        }
+
+        public class DogDetails
+        {
+            public required string Breed { get; set; }
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Animal>(b =>
+            {
+                b.UseTptMappingStrategy();
+                b.ComplexProperty(a => a.Details, cb => cb.ToJson("Details"));
+            });
+            modelBuilder.Entity<Dog>().ComplexProperty(d => d.DogDetails, cb => cb.ToJson("Details"));
+        }
+    }
+
+    #endregion SiblingJsonColumn
+
+    #region Key on complex property
+
+    [Fact]
+    public virtual async Task Distinct_over_entity_with_key_on_complex_property()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context31246>(seed: SeedPeopleAsync);
+        await using var context = contextFactory.CreateDbContext();
+
+        var people = await context.Set<Context31246.Person>().Distinct().OrderBy(p => p.Id.Id).ToListAsync();
+
+        Assert.Equal([1, 2], people.Select(p => p.Id.Id));
+    }
+
+    [Fact]
+    public virtual async Task Union_over_entity_with_key_on_complex_property()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context31246>(seed: SeedPeopleAsync);
+        await using var context = contextFactory.CreateDbContext();
+
+        var people = await context.Set<Context31246.Person>().Where(p => p.Address.City == "Seattle")
+            .Union(context.Set<Context31246.Person>().Where(p => p.Address.City == "Redmond"))
+            .OrderBy(p => p.Id.Id)
+            .ToListAsync();
+
+        Assert.Equal([1, 2], people.Select(p => p.Id.Id));
+    }
+
+    [Fact]
+    public virtual async Task Entity_with_key_on_complex_property_equals_parameter()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context31246>(seed: SeedPeopleAsync);
+        await using var context = contextFactory.CreateDbContext();
+        var person = CreatePerson(2, "Redmond", "98052");
+
+        var found = await context.Set<Context31246.Person>().SingleAsync(p => p == person);
+
+        Assert.Equal("Redmond", found.Address.City);
+    }
+
+    [Fact]
+    public virtual async Task Entity_with_key_on_complex_property_in_local_collection()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context31246>(seed: SeedPeopleAsync);
+        await using var context = contextFactory.CreateDbContext();
+        var people = new[] { CreatePerson(2, "Redmond", "98052") };
+
+        var found = await context.Set<Context31246.Person>().SingleAsync(p => people.Contains(p));
+
+        Assert.Equal("Redmond", found.Address.City);
+    }
+
+    private static Task SeedPeopleAsync(Context31246 context)
+    {
+        context.AddRange(CreatePerson(1, "Seattle", "98101"), CreatePerson(2, "Redmond", "98052"));
+
+        return context.SaveChangesAsync();
+    }
+
+    private static Context31246.Person CreatePerson(int id, string city, string postalCode)
+        => new()
+        {
+            Id = new Context31246.StronglyTypedId(id), Address = new Context31246.Address { City = city, PostalCode = postalCode }
+        };
+
+    #endregion Key on complex property
+
     protected TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;
 

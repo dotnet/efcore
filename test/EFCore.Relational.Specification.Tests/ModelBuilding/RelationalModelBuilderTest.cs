@@ -4,6 +4,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
+using System.Text.Json.Serialization;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
@@ -88,6 +89,72 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             Assert.Equal("id", customerId.GetColumnName(StoreObjectIdentifier.Table("OrderDetails", "sch")));
             Assert.Same(customerId.GetOverrides().Single(), customerId.FindOverrides(StoreObjectIdentifier.Table("OrderDetails", "sch")));
             Assert.Null(customerId.GetColumnName(StoreObjectIdentifier.Table("Order")));
+        }
+
+        [Fact]
+        public virtual void Can_use_optional_table_splitting()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.HasDefaultSchema("dbo");
+
+            modelBuilder.Entity<Order>().SplitToTable(
+                "OrderDetails", s =>
+                {
+                    s.IsOptional();
+                    s.Property(o => o.CustomerId);
+                });
+            modelBuilder.Ignore<Customer>();
+            modelBuilder.Ignore<Product>();
+
+            var model = modelBuilder.FinalizeModel();
+
+            var entity = model.FindEntityType(typeof(Order))!;
+            var fragment = entity.FindMappingFragment(StoreObjectIdentifier.Table("OrderDetails", "dbo"))!;
+
+            Assert.True(fragment.IsOptional);
+        }
+
+        [Fact]
+        public virtual void Can_revert_optional_table_splitting()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.HasDefaultSchema("dbo");
+
+            modelBuilder.Entity<Order>().SplitToTable(
+                "OrderDetails", s =>
+                {
+                    s.IsOptional();
+                    s.IsOptional(false);
+                    s.Property(o => o.CustomerId);
+                });
+            modelBuilder.Ignore<Customer>();
+            modelBuilder.Ignore<Product>();
+
+            var model = modelBuilder.FinalizeModel();
+
+            var entity = model.FindEntityType(typeof(Order))!;
+            var fragment = entity.FindMappingFragment(StoreObjectIdentifier.Table("OrderDetails", "dbo"))!;
+
+            Assert.False(fragment.IsOptional);
+        }
+
+        [Fact]
+        public virtual void Table_splitting_fragment_is_not_optional_by_default()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.HasDefaultSchema("dbo");
+
+            modelBuilder.Entity<Order>().SplitToTable(
+                "OrderDetails", s => s.Property(o => o.CustomerId));
+            modelBuilder.Ignore<Customer>();
+            modelBuilder.Ignore<Product>();
+
+            var model = modelBuilder.FinalizeModel();
+
+            var entity = model.FindEntityType(typeof(Order))!;
+            var fragment = entity.FindMappingFragment(StoreObjectIdentifier.Table("OrderDetails", "dbo"))!;
+
+            Assert.False(fragment.IsOptional);
         }
 
         [Fact]
@@ -772,6 +839,147 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             Assert.True(complexType.IsMappedToJson());
             Assert.Equal("customer_data", complexType.GetContainerColumnName());
             Assert.Equal("jsonb", complexType.GetContainerColumnType());
+        }
+
+        [Fact]
+        public virtual void Convention_complex_type_builder_can_configure_json_mapping()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var complexProperty = modelBuilder.Entity<JsonEntityWithJsonPropertyNames>()
+                .ComplexProperty(e => e.Details).Metadata;
+            var complexTypeBuilder = ((IConventionComplexType)complexProperty.ComplexType).Builder;
+
+            Assert.True(complexTypeBuilder.CanSetContainerColumnName("details", fromDataAnnotation: true));
+            Assert.Same(complexTypeBuilder, complexTypeBuilder.HasContainerColumnName("details", fromDataAnnotation: true));
+            Assert.False(complexTypeBuilder.CanSetContainerColumnName("other", fromDataAnnotation: false));
+            Assert.Null(complexTypeBuilder.HasContainerColumnName("other", fromDataAnnotation: false));
+            Assert.True(complexTypeBuilder.CanSetContainerColumnType("jsonb", fromDataAnnotation: true));
+            Assert.Same(complexTypeBuilder, complexTypeBuilder.HasContainerColumnType("jsonb", fromDataAnnotation: true));
+            Assert.False(complexTypeBuilder.CanSetContainerColumnType("text", fromDataAnnotation: false));
+            Assert.Null(complexTypeBuilder.HasContainerColumnType("text", fromDataAnnotation: false));
+            Assert.True(complexTypeBuilder.CanSetJsonPropertyName(null, fromDataAnnotation: true));
+            Assert.Same(complexTypeBuilder, complexTypeBuilder.HasJsonPropertyName(null, fromDataAnnotation: true));
+
+            var propertyBuilder = ((IConventionProperty)complexProperty.ComplexType.FindProperty(nameof(JsonComplexWithJsonPropertyNames.Title))!)
+                .Builder;
+            Assert.True(propertyBuilder.CanSetJsonPropertyName("title", fromDataAnnotation: true));
+            Assert.Same(propertyBuilder, propertyBuilder.HasJsonPropertyName("title", fromDataAnnotation: true));
+            Assert.False(propertyBuilder.CanSetJsonPropertyName("other", fromDataAnnotation: false));
+            Assert.Null(propertyBuilder.HasJsonPropertyName("other", fromDataAnnotation: false));
+
+            var model = modelBuilder.FinalizeModel();
+            var complexType = model.FindEntityType(typeof(JsonEntityWithJsonPropertyNames))!
+                .FindComplexProperty(nameof(JsonEntityWithJsonPropertyNames.Details))!.ComplexType;
+
+            Assert.Equal("details", complexType.GetContainerColumnName());
+            Assert.Equal("jsonb", complexType.GetContainerColumnType());
+            Assert.Equal("title", complexType.FindProperty(nameof(JsonComplexWithJsonPropertyNames.Title))!.GetJsonPropertyName());
+        }
+
+        [Fact]
+        public virtual void Convention_entity_type_builder_can_configure_container_column()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var entityType = modelBuilder.Entity<JsonEntityWithJsonPropertyNames>()
+                .OwnsOne(e => e.Details).Metadata.DeclaringEntityType;
+            var entityTypeBuilder = ((IConventionEntityType)entityType).Builder;
+
+            Assert.True(entityTypeBuilder.CanSetContainerColumnName("details", fromDataAnnotation: true));
+            Assert.Same(entityTypeBuilder, entityTypeBuilder.HasContainerColumnName("details", fromDataAnnotation: true));
+            Assert.False(entityTypeBuilder.CanSetContainerColumnName("other", fromDataAnnotation: false));
+            Assert.Null(entityTypeBuilder.HasContainerColumnName("other", fromDataAnnotation: false));
+            Assert.True(entityTypeBuilder.CanSetContainerColumnType("jsonb", fromDataAnnotation: true));
+            Assert.Same(entityTypeBuilder, entityTypeBuilder.HasContainerColumnType("jsonb", fromDataAnnotation: true));
+            Assert.False(entityTypeBuilder.CanSetContainerColumnType("text", fromDataAnnotation: false));
+            Assert.Null(entityTypeBuilder.HasContainerColumnType("text", fromDataAnnotation: false));
+
+            Assert.Equal("details", entityTypeBuilder.Metadata.GetContainerColumnName());
+            Assert.Equal("jsonb", entityTypeBuilder.Metadata.GetContainerColumnType());
+        }
+
+        [Fact]
+        public virtual void Complex_property_mapped_to_json_uses_JsonPropertyNameAttribute_for_nested_complex_properties()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<JsonEntityWithJsonPropertyNames>()
+                .ComplexProperty(
+                    e => e.Details, b =>
+                    {
+                        b.ToJson("details");
+                        b.ComplexProperty(d => d.Author);
+                        b.ComplexCollection(d => d.Tags);
+                    });
+
+            var model = modelBuilder.FinalizeModel();
+            var detailsProperty = model.FindEntityType(typeof(JsonEntityWithJsonPropertyNames))!.FindComplexProperty(
+                nameof(JsonEntityWithJsonPropertyNames.Details))!;
+            var detailsType = detailsProperty.ComplexType;
+
+            Assert.Equal("details", detailsType.GetContainerColumnName());
+            Assert.Equal("d", detailsProperty.GetJsonPropertyName());
+            Assert.Equal("t", detailsType.FindProperty(nameof(JsonComplexWithJsonPropertyNames.Title))!.GetJsonPropertyName());
+
+            var authorProperty = detailsType.FindComplexProperty(nameof(JsonComplexWithJsonPropertyNames.Author))!;
+            Assert.Equal("a", authorProperty.GetJsonPropertyName());
+            Assert.Equal(
+                "n", authorProperty.ComplexType.FindProperty(nameof(JsonNestedWithJsonPropertyName.Name))!.GetJsonPropertyName());
+
+            var tagsProperty = detailsType.FindComplexProperty(nameof(JsonComplexWithJsonPropertyNames.Tags))!;
+            Assert.True(tagsProperty.IsCollection);
+            Assert.Equal("tg", tagsProperty.GetJsonPropertyName());
+            Assert.Equal(
+                "n", tagsProperty.ComplexType.FindProperty(nameof(JsonNestedWithJsonPropertyName.Name))!.GetJsonPropertyName());
+        }
+
+        [Fact]
+        public virtual void JsonPropertyNameAttribute_on_nested_complex_properties_can_be_overridden()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<JsonEntityWithJsonPropertyNames>()
+                .ComplexProperty(
+                    e => e.Details, b =>
+                    {
+                        b.ToJson("details");
+                        b.ComplexProperty(d => d.Author, ab => ab.HasJsonPropertyName("author"));
+                        b.ComplexCollection(d => d.Tags, tb => tb.HasJsonPropertyName(null));
+                    });
+
+            var model = modelBuilder.FinalizeModel();
+            var detailsType = model.FindEntityType(typeof(JsonEntityWithJsonPropertyNames))!.FindComplexProperty(
+                nameof(JsonEntityWithJsonPropertyNames.Details))!.ComplexType;
+
+            Assert.Equal(
+                "author", detailsType.FindComplexProperty(nameof(JsonComplexWithJsonPropertyNames.Author))!.GetJsonPropertyName());
+            Assert.Equal(
+                nameof(JsonComplexWithJsonPropertyNames.Tags),
+                detailsType.FindComplexProperty(nameof(JsonComplexWithJsonPropertyNames.Tags))!.GetJsonPropertyName());
+        }
+
+        [Fact]
+        public virtual void JsonPropertyNameAttribute_on_complex_properties_is_configured_when_not_mapped_to_json()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<JsonEntityWithJsonPropertyNames>()
+                .ComplexProperty(
+                    e => e.Details, b =>
+                    {
+                        b.ComplexProperty(d => d.Author);
+                        b.Ignore(d => d.Tags);
+                    });
+
+            var model = modelBuilder.FinalizeModel();
+            var detailsProperty = model.FindEntityType(typeof(JsonEntityWithJsonPropertyNames))!.FindComplexProperty(
+                nameof(JsonEntityWithJsonPropertyNames.Details))!;
+            var authorProperty = detailsProperty.ComplexType.FindComplexProperty(nameof(JsonComplexWithJsonPropertyNames.Author))!;
+
+            Assert.False(detailsProperty.ComplexType.IsMappedToJson());
+            Assert.Equal("d", detailsProperty.GetJsonPropertyName());
+            Assert.Equal("d", detailsProperty.ComplexType.FindAnnotation(RelationalAnnotationNames.JsonPropertyName)?.Value);
+            Assert.Equal("a", authorProperty.GetJsonPropertyName());
+            Assert.Equal("a", authorProperty.ComplexType.FindAnnotation(RelationalAnnotationNames.JsonPropertyName)?.Value);
         }
     }
 
@@ -1576,6 +1784,175 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                 owned.GetProperties().Select(p => p.Name).ToArray());
             Assert.Equal(nameof(CustomerDetails.Id), owned.FindPrimaryKey()!.Properties.Single().Name);
         }
+
+        [Fact]
+        public virtual void Json_complex_properties_on_owned_type_sharing_owner_table_are_prefixed_by_default()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<OwnerOfOwnedWithComplex>(b =>
+            {
+                b.ToTable("Owners");
+                b.ToView("OwnersView");
+                b.OwnsOne(
+                    e => e.Owned, ob =>
+                    {
+                        ob.ComplexProperty(o => o.Complex, cb => cb.ToJson());
+                        ob.ComplexCollection(o => o.ComplexCollection, cb => cb.ToJson("Items"));
+                    });
+                b.OwnsMany(
+                    e => e.OwnedCollection, ob =>
+                    {
+                        ob.ComplexProperty(o => o.Complex, cb => cb.ToJson());
+                        ob.ComplexCollection(o => o.ComplexCollection, cb => cb.ToJson());
+                    });
+            });
+
+            var model = modelBuilder.FinalizeModel();
+
+            var owner = model.FindEntityType(typeof(OwnerOfOwnedWithComplex))!;
+            var owned = owner.FindNavigation(nameof(OwnerOfOwnedWithComplex.Owned))!.TargetEntityType;
+            var complex = owned.FindComplexProperty(nameof(OwnedWithComplex.Complex))!;
+            var complexCollection = owned.FindComplexProperty(nameof(OwnedWithComplex.ComplexCollection))!;
+            Assert.Equal(nameof(OwnedWithComplex.Complex), complex.ComplexType.GetContainerColumnName());
+
+            var table = owned.GetTableMappings().Single().Table;
+            Assert.Equal("Owners", table.Name);
+            Assert.Equal("Owned_Complex", table.FindColumn(complex)!.Name);
+            Assert.Equal("Items", table.FindColumn(complexCollection)!.Name);
+
+            var view = owned.GetViewMappings().Single().View;
+            Assert.Equal("OwnersView", view.Name);
+            Assert.Equal("Owned_Complex", view.FindColumn(complex)!.Name);
+            Assert.Equal("Items", view.FindColumn(complexCollection)!.Name);
+
+            // The owned collection is mapped to its own table, so the names aren't prefixed
+            var ownedCollection = owner.FindNavigation(nameof(OwnerOfOwnedWithComplex.OwnedCollection))!.TargetEntityType;
+            var ownedCollectionTable = ownedCollection.GetTableMappings().Single().Table;
+            Assert.Equal(
+                nameof(OwnedWithComplex.Complex),
+                ownedCollectionTable.FindColumn(ownedCollection.FindComplexProperty(nameof(OwnedWithComplex.Complex))!)!.Name);
+            Assert.Equal(
+                nameof(OwnedWithComplex.ComplexCollection),
+                ownedCollectionTable.FindColumn(ownedCollection.FindComplexProperty(nameof(OwnedWithComplex.ComplexCollection))!)!
+                    .Name);
+        }
+
+        [Fact]
+        public virtual void Json_complex_properties_on_owned_type_sharing_owner_table_keep_explicit_name_equal_to_property_name()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<OwnerOfOwnedWithComplex>(b =>
+            {
+                b.ToTable("Owners");
+                b.ToView("OwnersView");
+                b.Ignore(e => e.OwnedCollection);
+                b.OwnsOne(
+                    e => e.Owned, ob =>
+                    {
+                        ob.ComplexProperty(o => o.Complex, cb => cb.ToJson(nameof(OwnedWithComplex.Complex)));
+                        ob.ComplexCollection(
+                            o => o.ComplexCollection, cb =>
+                            {
+                                cb.ToJson();
+                                cb.ToJson(nameof(OwnedWithComplex.ComplexCollection));
+                            });
+                    });
+            });
+
+            var model = modelBuilder.FinalizeModel();
+
+            var owned = model.FindEntityType(typeof(OwnerOfOwnedWithComplex))!
+                .FindNavigation(nameof(OwnerOfOwnedWithComplex.Owned))!.TargetEntityType;
+            var complex = owned.FindComplexProperty(nameof(OwnedWithComplex.Complex))!;
+            var complexCollection = owned.FindComplexProperty(nameof(OwnedWithComplex.ComplexCollection))!;
+
+            var table = owned.GetTableMappings().Single().Table;
+            Assert.Equal(nameof(OwnedWithComplex.Complex), table.FindColumn(complex)!.Name);
+            Assert.Equal(nameof(OwnedWithComplex.ComplexCollection), table.FindColumn(complexCollection)!.Name);
+
+            var view = owned.GetViewMappings().Single().View;
+            Assert.Equal(nameof(OwnedWithComplex.Complex), view.FindColumn(complex)!.Name);
+            Assert.Equal(nameof(OwnedWithComplex.ComplexCollection), view.FindColumn(complexCollection)!.Name);
+        }
+
+        [Fact]
+        public virtual void Json_complex_properties_on_owned_type_keep_container_column_changed_after_ToJson()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<OwnerOfOwnedWithComplex>(b =>
+            {
+                b.Ignore(e => e.OwnedCollection);
+                b.OwnsOne(
+                    e => e.Owned, ob =>
+                    {
+                        ob.ComplexProperty(
+                            o => o.Complex, cb =>
+                            {
+                                cb.ToJson();
+                                cb.Metadata.ComplexType.SetContainerColumnName(null);
+                            });
+                        ob.ComplexCollection(
+                            o => o.ComplexCollection, cb =>
+                            {
+                                cb.ToJson();
+                                cb.Metadata.ComplexType.SetContainerColumnName("Items");
+                            });
+                    });
+            });
+
+            var model = modelBuilder.FinalizeModel();
+
+            var owned = model.FindEntityType(typeof(OwnerOfOwnedWithComplex))!
+                .FindNavigation(nameof(OwnerOfOwnedWithComplex.Owned))!.TargetEntityType;
+            Assert.False(owned.FindComplexProperty(nameof(OwnedWithComplex.Complex))!.ComplexType.IsMappedToJson());
+            Assert.Equal(
+                "Items",
+                owned.GetTableMappings().Single().Table
+                    .FindColumn(owned.FindComplexProperty(nameof(OwnedWithComplex.ComplexCollection))!)!.Name);
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Json_complex_properties_on_owned_type_are_prefixed_by_default_based_on_final_table_mapping(bool sharesOwnerTable)
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<OwnerOfOwnedWithComplex>(b =>
+            {
+                b.ToTable("Owners");
+                b.Ignore(e => e.OwnedCollection);
+                b.OwnsOne(
+                    e => e.Owned, ob =>
+                    {
+                        // Configure the JSON columns while the owned type is mapped to a different table than its final one
+                        if (sharesOwnerTable)
+                        {
+                            ob.ToTable("Owned");
+                        }
+
+                        ob.ComplexProperty(o => o.Complex, cb => cb.ToJson());
+                        ob.ComplexCollection(o => o.ComplexCollection, cb => cb.ToJson());
+                        ob.ToTable(sharesOwnerTable ? "Owners" : "Owned");
+                    });
+            });
+
+            var model = modelBuilder.FinalizeModel();
+
+            var owned = model.FindEntityType(typeof(OwnerOfOwnedWithComplex))!
+                .FindNavigation(nameof(OwnerOfOwnedWithComplex.Owned))!.TargetEntityType;
+            var table = owned.GetTableMappings().Single().Table;
+            var prefix = sharesOwnerTable ? "Owned_" : string.Empty;
+            Assert.Equal(
+                prefix + nameof(OwnedWithComplex.Complex),
+                table.FindColumn(owned.FindComplexProperty(nameof(OwnedWithComplex.Complex))!)!.Name);
+            Assert.Equal(
+                prefix + nameof(OwnedWithComplex.ComplexCollection),
+                table.FindColumn(owned.FindComplexProperty(nameof(OwnedWithComplex.ComplexCollection))!)!.Name);
+        }
     }
 
     protected class JsonEntity
@@ -1639,6 +2016,32 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         public OwnedEntityExtraLevel? OwnedReference2 { get; set; }
         public List<OwnedEntityExtraLevel>? OwnedCollection1 { get; set; }
         public List<OwnedEntityExtraLevel>? OwnedCollection2 { get; set; }
+    }
+
+    protected class JsonEntityWithJsonPropertyNames
+    {
+        public int Id { get; set; }
+
+        [JsonPropertyName("d")]
+        public JsonComplexWithJsonPropertyNames Details { get; set; } = null!;
+    }
+
+    protected class JsonComplexWithJsonPropertyNames
+    {
+        [JsonPropertyName("t")]
+        public string? Title { get; set; }
+
+        [JsonPropertyName("a")]
+        public JsonNestedWithJsonPropertyName Author { get; set; } = null!;
+
+        [JsonPropertyName("tg")]
+        public List<JsonNestedWithJsonPropertyName> Tags { get; set; } = [];
+    }
+
+    protected class JsonNestedWithJsonPropertyName
+    {
+        [JsonPropertyName("n")]
+        public string? Name { get; set; }
     }
 
     public abstract class RelationalModelBuilderFixture : ModelBuilderFixtureBase;
@@ -1827,6 +2230,8 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
         public abstract TestSplitTableBuilder<TEntity> ExcludeFromMigrations(bool excluded = true);
 
+        public abstract TestSplitTableBuilder<TEntity> IsOptional(bool optional = true);
+
         public abstract TestTriggerBuilder HasTrigger(string name);
 
         public abstract TestColumnBuilder<TProperty> Property<TProperty>(string propertyName);
@@ -1858,6 +2263,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
         public override TestSplitTableBuilder<TEntity> ExcludeFromMigrations(bool excluded = true)
             => Wrap(TableBuilder.ExcludeFromMigrations(excluded));
+
+        public override TestSplitTableBuilder<TEntity> IsOptional(bool optional = true)
+            => Wrap(TableBuilder.IsOptional(optional));
 
         public override TestTriggerBuilder HasTrigger(string name)
             => new NonGenericTestTriggerBuilder(TableBuilder.HasTrigger(name));
@@ -1892,6 +2300,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
         public override TestSplitTableBuilder<TEntity> ExcludeFromMigrations(bool excluded = true)
             => Wrap(TableBuilder.ExcludeFromMigrations(excluded));
+
+        public override TestSplitTableBuilder<TEntity> IsOptional(bool optional = true)
+            => Wrap(TableBuilder.IsOptional(optional));
 
         public override TestTriggerBuilder HasTrigger(string name)
             => new NonGenericTestTriggerBuilder(TableBuilder.HasTrigger(name));

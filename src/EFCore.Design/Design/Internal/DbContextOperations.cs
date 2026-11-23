@@ -167,7 +167,8 @@ public class DbContextOperations
         string? suffix,
         bool scaffoldModel,
         bool precompileQueries,
-        bool nativeAot)
+        bool nativeAot,
+        string? langVersion = null)
     {
         var optimizeAllInAssembly = contextTypeName == "*";
         var contexts = optimizeAllInAssembly ? CreateAllContexts() : [CreateContext(contextTypeName)];
@@ -188,6 +189,7 @@ public class DbContextOperations
                     context,
                     optimizeAllInAssembly,
                     nativeAot,
+                    langVersion,
                     generatedFiles,
                     generatedFileNames);
                 contextOptimized = true;
@@ -219,6 +221,7 @@ public class DbContextOperations
         DbContext context,
         bool optimizeAllInAssembly,
         bool nativeAot,
+        string? langVersion,
         List<string> generatedFiles,
         HashSet<string> generatedFileNames)
     {
@@ -232,7 +235,7 @@ public class DbContextOperations
         {
             generatedFiles.AddRange(
                 ScaffoldCompiledModel(
-                    outputDir, modelNamespace, context, suffix, nativeAot, services, generatedFileNames));
+                    outputDir, modelNamespace, context, suffix, nativeAot, langVersion, services, generatedFileNames));
             if (precompileQueries)
             {
                 memberAccessReplacements = ((IRuntimeModel)context.GetService<IDesignTimeModel>().Model).GetUnsafeAccessors();
@@ -258,6 +261,7 @@ public class DbContextOperations
         DbContext context,
         string? suffix,
         bool nativeAot,
+        string? langVersion,
         IServiceProvider services,
         ISet<string> generatedFileNames)
     {
@@ -285,8 +289,9 @@ public class DbContextOperations
 
         var scaffolder = services.GetRequiredService<ICompiledModelScaffolder>();
         var databaseProvider = context.GetService<IDatabaseProvider>();
+        var code = services.GetRequiredService<ICSharpHelper>();
 
-        var finalModelNamespace = modelNamespace ?? GetNamespaceFromOutputPath(outputDir) ?? "";
+        var finalModelNamespace = modelNamespace ?? GetNamespaceFromOutputPath(outputDir, code) ?? "";
 
         var scaffoldedFiles = scaffolder.ScaffoldModel(
             context.GetService<IDesignTimeModel>().Model,
@@ -296,6 +301,7 @@ public class DbContextOperations
                 ContextType = contextType,
                 ModelNamespace = finalModelNamespace,
                 Language = _language,
+                LangVersion = langVersion,
                 UseNullableReferenceTypes = _nullable,
                 Suffix = suffix,
                 ForNativeAot = nativeAot,
@@ -413,9 +419,9 @@ public class DbContextOperations
         return CompiledModelScaffolder.WriteFiles(generatedFiles, outputDir);
     }
 
-    private string? GetNamespaceFromOutputPath(string directoryPath)
+    private string? GetNamespaceFromOutputPath(string directoryPath, ICSharpHelper code)
     {
-        var subNamespace = SubnamespaceFromOutputPath(_projectDir, directoryPath);
+        var subNamespace = SubnamespaceFromOutputPath(_projectDir, directoryPath, code);
         return string.IsNullOrEmpty(subNamespace)
             ? _rootNamespace
             : string.IsNullOrEmpty(_rootNamespace)
@@ -426,7 +432,7 @@ public class DbContextOperations
     // if outputDir is a subfolder of projectDir, then use each subfolder as a sub-namespace
     // --output-dir $(projectFolder)/A/B/C
     // => "namespace $(rootnamespace).A.B.C"
-    private static string? SubnamespaceFromOutputPath(string projectDir, string outputDir)
+    private static string? SubnamespaceFromOutputPath(string projectDir, string outputDir, ICSharpHelper code)
     {
         if (!outputDir.StartsWith(projectDir, StringComparison.Ordinal))
         {
@@ -436,8 +442,7 @@ public class DbContextOperations
         var subPath = outputDir[projectDir.Length..];
 
         return !string.IsNullOrWhiteSpace(subPath)
-            ? string.Join(
-                ".",
+            ? code.Namespace(
                 subPath.Split(
                     [Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar], StringSplitOptions.RemoveEmptyEntries))
             : null;
@@ -648,20 +653,37 @@ public class DbContextOperations
                 return contexts!;
             }
 
-            // Look for DbContext classes registered in the service provider
-            var appServices = _appServicesFactory.Create(_args);
-            foreach (var options in appServices.GetServices<DbContextOptions>())
+            // Look for DbContext classes registered in the service provider.
+            // If every context found so far can be created without the service provider, then the service provider
+            // is only used to look for additional contexts, so failures here must not prevent using the ones we have.
+            var serviceProviderIsOptional = contexts.Count > 0 && contexts.Values.All(f => f != null);
+            IServiceProvider? appServices = null;
+            try
             {
-                var context = options.ContextType;
-                if (contexts.ContainsKey(context))
+                appServices = _appServicesFactory.Create(_args);
+                foreach (var options in appServices.GetServices<DbContextOptions>())
                 {
-                    continue;
+                    var context = options.ContextType;
+                    if (contexts.ContainsKey(context))
+                    {
+                        continue;
+                    }
+
+                    _reporter.WriteVerbose(DesignStrings.FoundDbContext(context.ShortDisplayName()));
+                    contexts.Add(
+                        context,
+                        FindContextFactory(context));
+                }
+            }
+            catch (Exception ex) when (serviceProviderIsOptional)
+            {
+                if (ex is TargetInvocationException)
+                {
+                    ex = ex.InnerException!;
                 }
 
-                _reporter.WriteVerbose(DesignStrings.FoundDbContext(context.ShortDisplayName()));
-                contexts.Add(
-                    context,
-                    FindContextFactory(context));
+                _reporter.WriteVerbose(ex.ToString());
+                _reporter.WriteWarning(DesignStrings.ServiceProviderContextDiscoveryFailed(ex.Message));
             }
 
             if (!string.IsNullOrEmpty(name))
@@ -674,7 +696,7 @@ public class DbContextOperations
                 if (contextPair.Value == null)
                 {
                     var context = contextPair.Key;
-                    contexts[context] = CreateContextFromServiceProvider(appServices, context);
+                    contexts[context] = CreateContextFromServiceProvider(appServices!, context);
                 }
             }
         }

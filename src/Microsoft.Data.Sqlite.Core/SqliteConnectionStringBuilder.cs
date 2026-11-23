@@ -40,6 +40,7 @@ public class SqliteConnectionStringBuilder : DbConnectionStringBuilder
     private const string CommandTimeoutKeyword = "Command Timeout";
     private const string PoolingKeyword = "Pooling";
     private const string VfsKeyword = "Vfs";
+    private const string SynchronousKeyword = "Synchronous";
 
     private enum Keywords
     {
@@ -52,6 +53,7 @@ public class SqliteConnectionStringBuilder : DbConnectionStringBuilder
         DefaultTimeout,
         Pooling,
         Vfs,
+        Synchronous,
     }
 
     private static readonly IReadOnlyList<string> _validKeywords;
@@ -66,10 +68,11 @@ public class SqliteConnectionStringBuilder : DbConnectionStringBuilder
     private int _defaultTimeout = 30;
     private bool _pooling = true;
     private string? _vfs;
+    private SqliteSynchronousMode? _synchronous;
 
     static SqliteConnectionStringBuilder()
     {
-        var validKeywords = new string[9];
+        var validKeywords = new string[10];
         validKeywords[(int)Keywords.DataSource] = DataSourceKeyword;
         validKeywords[(int)Keywords.Mode] = ModeKeyword;
         validKeywords[(int)Keywords.Cache] = CacheKeyword;
@@ -79,9 +82,11 @@ public class SqliteConnectionStringBuilder : DbConnectionStringBuilder
         validKeywords[(int)Keywords.DefaultTimeout] = DefaultTimeoutKeyword;
         validKeywords[(int)Keywords.Pooling] = PoolingKeyword;
         validKeywords[(int)Keywords.Vfs] = VfsKeyword;
+        validKeywords[(int)Keywords.Synchronous] = SynchronousKeyword;
+
         _validKeywords = validKeywords;
 
-        _keywords = new Dictionary<string, Keywords>(12, StringComparer.OrdinalIgnoreCase)
+        _keywords = new Dictionary<string, Keywords>(13, StringComparer.OrdinalIgnoreCase)
         {
             [DataSourceKeyword] = Keywords.DataSource,
             [ModeKeyword] = Keywords.Mode,
@@ -92,6 +97,7 @@ public class SqliteConnectionStringBuilder : DbConnectionStringBuilder
             [DefaultTimeoutKeyword] = Keywords.DefaultTimeout,
             [PoolingKeyword] = Keywords.Pooling,
             [VfsKeyword] = Keywords.Vfs,
+            [SynchronousKeyword] = Keywords.Synchronous,
 
             // aliases
             [FilenameKeyword] = Keywords.DataSource,
@@ -217,7 +223,16 @@ public class SqliteConnectionStringBuilder : DbConnectionStringBuilder
     public int DefaultTimeout
     {
         get => _defaultTimeout;
-        set => base[DefaultTimeoutKeyword] = _defaultTimeout = value;
+        set
+        {
+            if (value < 0)
+            {
+                // NB: Message is provided by the framework
+                throw new ArgumentOutOfRangeException(nameof(value), value, message: null);
+            }
+
+            base[DefaultTimeoutKeyword] = _defaultTimeout = value;
+        }
     }
 
     /// <summary>
@@ -239,6 +254,17 @@ public class SqliteConnectionStringBuilder : DbConnectionStringBuilder
     {
         get => _vfs;
         set => base[VfsKeyword] = _vfs = value;
+    }
+
+    /// <summary>
+    ///     Gets or sets the SQLite synchronous mode used by the connection.
+    ///     When null, no synchronous pragma is sent.
+    /// </summary>
+    /// <value>The SQLite synchronous mode.</value>
+    public SqliteSynchronousMode? Synchronous
+    {
+        get => _synchronous;
+        set => base[SynchronousKeyword] = _synchronous = value;
     }
 
     /// <summary>
@@ -297,6 +323,10 @@ public class SqliteConnectionStringBuilder : DbConnectionStringBuilder
                     Vfs = Convert.ToString(value, CultureInfo.InvariantCulture);
                     return;
 
+                case Keywords.Synchronous:
+                    Synchronous = ConvertToEnum<SqliteSynchronousMode>(value);
+                    return;
+
                 default:
                     Debug.Fail("Unexpected keyword: " + keyword);
                     return;
@@ -307,16 +337,14 @@ public class SqliteConnectionStringBuilder : DbConnectionStringBuilder
     private static TEnum ConvertToEnum<TEnum>(object value)
         where TEnum : struct
     {
-        if (value is string stringValue)
-        {
-            return (TEnum)Enum.Parse(typeof(TEnum), stringValue, ignoreCase: true);
-        }
-
-        var enumValue = value is TEnum
-            ? (TEnum)value
-            : value.GetType().IsEnum
-                ? throw new ArgumentException(Resources.ConvertFailed(value.GetType(), typeof(TEnum)))
-                : (TEnum)Enum.ToObject(typeof(TEnum), value);
+        // Enum.Parse also accepts numeric strings and comma-separated names, so validate its result too
+        var enumValue = value is string stringValue
+            ? (TEnum)Enum.Parse(typeof(TEnum), stringValue, ignoreCase: true)
+            : value is TEnum
+                ? (TEnum)value
+                : value.GetType().IsEnum
+                    ? throw new ArgumentException(Resources.ConvertFailed(value.GetType(), typeof(TEnum)))
+                    : (TEnum)Enum.ToObject(typeof(TEnum), value);
         return !Enum.IsDefined(typeof(TEnum), enumValue)
             ? throw new ArgumentOutOfRangeException(
                 nameof(value),
@@ -430,6 +458,9 @@ public class SqliteConnectionStringBuilder : DbConnectionStringBuilder
             case Keywords.Vfs:
                 return Vfs;
 
+            case Keywords.Synchronous:
+                return Synchronous;
+
             default:
                 Debug.Fail("Unexpected keyword: " + index);
                 return null;
@@ -479,6 +510,10 @@ public class SqliteConnectionStringBuilder : DbConnectionStringBuilder
 
             case Keywords.Vfs:
                 _vfs = null;
+                return;
+
+            case Keywords.Synchronous:
+                _synchronous = null;
                 return;
 
             default:

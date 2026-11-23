@@ -60,14 +60,14 @@ WHERE [c0].[City] = N'London'
         AssertSql(
             """
 SELECT [c].[CustomerID], [c].[City], CASE
-    WHEN [o1].[marker] IS NOT NULL THEN [o1].[OrderID]
+    WHEN [o1].[OrderID] IS NOT NULL THEN [o1].[OrderID]
     ELSE 0
 END AS [LatestOrderID], [o1].[OrderDate] AS [LatestOrderDate]
 FROM [Customers] AS [c]
 LEFT JOIN (
-    SELECT [o0].[OrderID], [o0].[OrderDate], [o0].[marker], [o0].[CustomerID]
+    SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[OrderDate]
     FROM (
-        SELECT [o].[OrderID], [o].[OrderDate], 1 AS [marker], [o].[CustomerID], ROW_NUMBER() OVER(PARTITION BY [o].[CustomerID] ORDER BY [o].[OrderDate] DESC, [o].[OrderID] DESC) AS [row]
+        SELECT [o].[OrderID], [o].[CustomerID], [o].[OrderDate], ROW_NUMBER() OVER(PARTITION BY [o].[CustomerID] ORDER BY [o].[OrderDate] DESC, [o].[OrderID] DESC) AS [row]
         FROM [Orders] AS [o]
     ) AS [o0]
     WHERE [o0].[row] <= 1
@@ -90,14 +90,14 @@ WHERE NOT EXISTS (
     WHERE [c].[CustomerID] = [o].[CustomerID])
 UNION
 SELECT [c0].[CustomerID], [c0].[City], CASE
-    WHEN [o2].[marker] IS NULL THEN 0
+    WHEN [o2].[OrderID] IS NULL THEN 0
     ELSE [o2].[OrderID]
 END AS [LatestOrderID], [o2].[OrderDate] AS [LatestOrderDate]
 FROM [Customers] AS [c0]
 LEFT JOIN (
-    SELECT [o1].[OrderID], [o1].[OrderDate], [o1].[marker], [o1].[CustomerID]
+    SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[OrderDate]
     FROM (
-        SELECT [o0].[OrderID], [o0].[OrderDate], 1 AS [marker], [o0].[CustomerID], ROW_NUMBER() OVER(PARTITION BY [o0].[CustomerID] ORDER BY [o0].[OrderDate] DESC, [o0].[OrderID] DESC) AS [row]
+        SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[OrderDate], ROW_NUMBER() OVER(PARTITION BY [o0].[CustomerID] ORDER BY [o0].[OrderDate] DESC, [o0].[OrderID] DESC) AS [row]
         FROM [Orders] AS [o0]
     ) AS [o1]
     WHERE [o1].[row] <= 1
@@ -1259,7 +1259,7 @@ FROM (
     LEFT JOIN [Customers] AS [c0] ON [o0].[CustomerID] = [c0].[CustomerID]
     WHERE [o0].[OrderID] < 10250
 ) AS [u]
-LEFT JOIN [Orders] AS [o1] ON [u].[CustomerID] = [o1].[CustomerID]
+LEFT JOIN [Orders] AS [o1] ON [u].[CustomerID] = [o1].[CustomerID] OR ([u].[CustomerID] IS NULL AND [o1].[CustomerID] IS NULL)
 ORDER BY [u].[CustomerID], [u].[OrderDate]
 """);
     }
@@ -1619,6 +1619,157 @@ SELECT [c1].[City]
 FROM [Customers] AS [c1]
 WHERE [c1].[CustomerID] LIKE N'A%'
 """);
+    }
+
+    public override async Task Append(bool async)
+    {
+        await base.Append(async);
+
+        AssertSql(
+            """
+@p='ZZZZZ' (Size = 5) (DbType = StringFixedLength)
+
+SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE [c].[City] IN (N'Berlin', N'Madrid')
+UNION ALL
+SELECT [v].[Value] AS [CustomerID]
+FROM (VALUES (@p)) AS [v]([Value])
+""");
+    }
+
+    public override async Task Prepend(bool async)
+    {
+        await base.Prepend(async);
+
+        AssertSql(
+            """
+@p='AAAAA' (Size = 5) (DbType = StringFixedLength)
+
+SELECT [v].[Value]
+FROM (VALUES (@p)) AS [v]([Value])
+UNION ALL
+SELECT [c].[CustomerID] AS [Value]
+FROM [Customers] AS [c]
+WHERE [c].[City] IN (N'Berlin', N'Madrid')
+""");
+    }
+
+    public override async Task Append_and_Prepend_followed_by_OrderBy(bool async)
+    {
+        await base.Append_and_Prepend_followed_by_OrderBy(async);
+
+        AssertSql(
+            """
+@p1='AAAAA' (Size = 5) (DbType = StringFixedLength)
+@p='ZZZZZ' (Size = 5) (DbType = StringFixedLength)
+
+SELECT [u0].[Value]
+FROM (
+    SELECT [v].[Value]
+    FROM (VALUES (@p1)) AS [v]([Value])
+    UNION ALL
+    SELECT [c].[CustomerID]
+    FROM [Customers] AS [c]
+    WHERE [c].[City] IN (N'Berlin', N'Madrid')
+    UNION ALL
+    SELECT [v0].[Value] AS [CustomerID]
+    FROM (VALUES (@p)) AS [v0]([Value])
+) AS [u0]
+ORDER BY [u0].[Value] DESC
+""");
+    }
+
+    public override async Task Append_followed_by_Count(bool async)
+    {
+        await base.Append_followed_by_Count(async);
+
+        AssertSql(
+            """
+@p='ZZZZZ' (Size = 5) (DbType = StringFixedLength)
+
+SELECT COUNT(*)
+FROM (
+    SELECT 1 AS empty
+    FROM [Customers] AS [c]
+    WHERE [c].[City] = N'Berlin'
+    UNION ALL
+    SELECT 1 AS empty
+    FROM (VALUES (@p)) AS [v]([Value])
+) AS [u]
+""");
+    }
+
+    public override async Task Append_on_collection_navigation_in_projection(bool async)
+    {
+        await base.Append_on_collection_navigation_in_projection(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], (
+    SELECT MAX([u].[OrderID])
+    FROM (
+        SELECT [o].[OrderID]
+        FROM [Orders] AS [o]
+        WHERE [c].[CustomerID] = [o].[CustomerID]
+        UNION ALL
+        SELECT [v].[Value] AS [OrderID]
+        FROM (VALUES (CAST(0 AS int))) AS [v]([Value])
+    ) AS [u]) AS [MaxOrderId]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'F%'
+""");
+    }
+
+    public override async Task Append_parameter_on_collection_navigation_in_predicate(bool async)
+    {
+        await base.Append_parameter_on_collection_navigation_in_predicate(async);
+
+        AssertSql(
+            """
+@orderId='10300'
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE (
+    SELECT MAX([u].[OrderID])
+    FROM (
+        SELECT [o].[OrderID]
+        FROM [Orders] AS [o]
+        WHERE [c].[CustomerID] = [o].[CustomerID]
+        UNION ALL
+        SELECT [v].[Value] AS [OrderID]
+        FROM (VALUES (@orderId)) AS [v]([Value])
+    ) AS [u]) = @orderId
+""");
+    }
+
+    public override async Task Prepend_column_on_collection_navigation_in_projection(bool async)
+    {
+        await base.Prepend_column_on_collection_navigation_in_projection(async);
+
+        AssertSql(
+            """
+SELECT [o].[OrderID], (
+    SELECT MAX([u].[Value])
+    FROM (
+        SELECT [v].[Value]
+        FROM (VALUES ([o].[OrderID])) AS [v]([Value])
+        UNION ALL
+        SELECT [o0].[ProductID] AS [Value]
+        FROM [Order Details] AS [o0]
+        WHERE [o].[OrderID] = [o0].[OrderID]
+    ) AS [u]) AS [MaxId]
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] < 10260
+""");
+    }
+
+    public override async Task Append_entity(bool async)
+    {
+        await base.Append_entity(async);
+
+        AssertSql();
     }
 
     public override async Task Client_eval_Union_FirstOrDefault(bool async)

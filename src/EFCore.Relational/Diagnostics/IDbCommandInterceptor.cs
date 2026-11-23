@@ -373,8 +373,13 @@ public interface IDbCommandInterceptor : IInterceptor
         => new(result);
 
     /// <summary>
-    ///     Called when a command was canceled.
+    ///     Called when command execution or result consumption was canceled.
     /// </summary>
+    /// <remarks>
+    ///     This method is called if command execution or a call to <see cref="DbDataReader.Read" />,
+    ///     <see cref="DbDataReader.ReadAsync(CancellationToken)" />, <see cref="DbDataReader.NextResult" />, or
+    ///     <see cref="DbDataReader.NextResultAsync(CancellationToken)" /> is canceled while EF Core consumes the result.
+    /// </remarks>
     /// <param name="command">The command.</param>
     /// <param name="eventData">Contextual information about the command and execution.</param>
     void CommandCanceled(DbCommand command, CommandEndEventData eventData)
@@ -382,8 +387,13 @@ public interface IDbCommandInterceptor : IInterceptor
     }
 
     /// <summary>
-    ///     Called when a command was canceled.
+    ///     Called when command execution or result consumption was canceled.
     /// </summary>
+    /// <remarks>
+    ///     This method is called if command execution or a call to <see cref="DbDataReader.Read" />,
+    ///     <see cref="DbDataReader.ReadAsync(CancellationToken)" />, <see cref="DbDataReader.NextResult" />, or
+    ///     <see cref="DbDataReader.NextResultAsync(CancellationToken)" /> is canceled while EF Core consumes the result.
+    /// </remarks>
     /// <param name="command">The command.</param>
     /// <param name="eventData">Contextual information about the command and execution.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
@@ -393,8 +403,16 @@ public interface IDbCommandInterceptor : IInterceptor
         => Task.CompletedTask;
 
     /// <summary>
-    ///     Called when execution of a command has failed with an exception.
+    ///     Called when command execution or result consumption has failed with an exception.
     /// </summary>
+    /// <remarks>
+    ///     This method is called when the command execution operation fails. It is also called if a non-cancellation exception is
+    ///     thrown by <see cref="DbDataReader.Read" />, <see cref="DbDataReader.ReadAsync(CancellationToken)" />,
+    ///     <see cref="DbDataReader.NextResult" />, or <see cref="DbDataReader.NextResultAsync(CancellationToken)" /> while EF Core
+    ///     consumes the result. Exceptions thrown while EF Core materializes a row are not reported through this method.
+    ///     Cancellations use the corresponding command cancellation callback. Query iteration failures are also logged as
+    ///     <see cref="CoreEventId.QueryIterationFailed" />.
+    /// </remarks>
     /// <param name="command">The command.</param>
     /// <param name="eventData">Contextual information about the command and execution.</param>
     void CommandFailed(DbCommand command, CommandErrorEventData eventData)
@@ -402,8 +420,16 @@ public interface IDbCommandInterceptor : IInterceptor
     }
 
     /// <summary>
-    ///     Called when execution of a command has failed with an exception.
+    ///     Called when command execution or result consumption has failed with an exception.
     /// </summary>
+    /// <remarks>
+    ///     This method is called when the command execution operation fails. It is also called if a non-cancellation exception is
+    ///     thrown by <see cref="DbDataReader.Read" />, <see cref="DbDataReader.ReadAsync(CancellationToken)" />,
+    ///     <see cref="DbDataReader.NextResult" />, or <see cref="DbDataReader.NextResultAsync(CancellationToken)" /> while EF Core
+    ///     consumes the result. Exceptions thrown while EF Core materializes a row are not reported through this method.
+    ///     Cancellations use the corresponding command cancellation callback. Query iteration failures are also logged as
+    ///     <see cref="CoreEventId.QueryIterationFailed" />.
+    /// </remarks>
     /// <param name="command">The command.</param>
     /// <param name="eventData">Contextual information about the command and execution.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>

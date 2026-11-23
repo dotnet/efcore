@@ -30,6 +30,27 @@ public class TimeSpanTranslationsCosmosTest : TimeSpanTranslationsTestBase<Basic
     public override Task Nanoseconds()
         => AssertTranslationFailed(base.Nanoseconds);
 
+    public override Task TotalDays()
+        => AssertTranslationFailed(base.TotalDays);
+
+    public override Task TotalHours()
+        => AssertTranslationFailed(base.TotalHours);
+
+    public override Task TotalMinutes()
+        => AssertTranslationFailed(base.TotalMinutes);
+
+    public override Task TotalSeconds()
+        => AssertTranslationFailed(base.TotalSeconds);
+
+    public override Task TotalMilliseconds()
+        => AssertTranslationFailed(base.TotalMilliseconds);
+
+    public override Task TotalMicroseconds()
+        => AssertTranslationFailed(base.TotalMicroseconds);
+
+    public override Task TotalNanoseconds()
+        => AssertTranslationFailed(base.TotalNanoseconds);
+
     [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

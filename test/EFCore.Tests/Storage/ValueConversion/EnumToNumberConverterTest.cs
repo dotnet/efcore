@@ -124,6 +124,31 @@ public class EnumToNumberConverterTest
         Assert.Equal(default, converter(0));
     }
 
+    private static readonly ValueConverter<Planets, decimal> _unsignedEnumToDecimal
+        = new EnumToNumberConverter<Planets, decimal>();
+
+    [Fact]
+    public void Can_convert_unsigned_enums_to_decimals()
+    {
+        var converter = _unsignedEnumToDecimal.ConvertToProviderExpression.Compile();
+
+        Assert.Equal(1m, converter(Planets.Mercury));
+        Assert.Equal(9223372036854775808m, converter(Planets.Venus));
+        Assert.Equal(18446744073709551615m, converter(Planets.Earth));
+        Assert.Equal(0m, converter(default));
+    }
+
+    [Fact]
+    public void Can_convert_decimals_to_unsigned_enums()
+    {
+        var converter = _unsignedEnumToDecimal.ConvertFromProviderExpression.Compile();
+
+        Assert.Equal(Planets.Mercury, converter(1m));
+        Assert.Equal(Planets.Venus, converter(9223372036854775808m));
+        Assert.Equal(Planets.Earth, converter(18446744073709551615m));
+        Assert.Equal(default, converter(0m));
+    }
+
     private static readonly ValueConverter<Beatles, float> _enumToFloat
         = new EnumToNumberConverter<Beatles, float>();
 
@@ -271,5 +296,12 @@ public class EnumToNumberConverterTest
         Paul = 4,
         George = 1,
         Ringo = -1
+    }
+
+    private enum Planets : ulong
+    {
+        Mercury = 1,
+        Venus = 9223372036854775808,
+        Earth = ulong.MaxValue
     }
 }

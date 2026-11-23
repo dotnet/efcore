@@ -87,6 +87,53 @@ public class ExpressionPrinterTest
             "7 % 42",
             _expressionPrinter.PrintExpression(
                 Expression.MakeBinary(ExpressionType.Modulo, Expression.Constant(7), Expression.Constant(42))));
+        Assert.Equal(
+            "7 << 2",
+            _expressionPrinter.PrintExpression(
+                Expression.MakeBinary(ExpressionType.LeftShift, Expression.Constant(7), Expression.Constant(2))));
+        Assert.Equal(
+            "7 >> 2",
+            _expressionPrinter.PrintExpression(
+                Expression.MakeBinary(ExpressionType.RightShift, Expression.Constant(7), Expression.Constant(2))));
+    }
+
+    [Fact]
+    public void Block_with_repeated_expression_instance_printed_correctly()
+    {
+        var i = Expression.Variable(typeof(int), "i");
+        var increment = Expression.Assign(i, Expression.Add(i, Expression.Constant(1)));
+
+        Assert.Equal(
+            """
+
+            {
+                int i;
+                i = i + 1;
+                i = i + 1;
+                return i;
+            }
+            """,
+            _expressionPrinter.PrintExpression(Expression.Block([i], increment, increment, i)),
+            ignoreLineEndingDifferences: true);
+    }
+
+    [Fact]
+    public void Block_with_result_expression_instance_also_used_earlier_printed_correctly()
+    {
+        var i = Expression.Variable(typeof(int), "i");
+        var increment = Expression.Assign(i, Expression.Add(i, Expression.Constant(1)));
+
+        Assert.Equal(
+            """
+
+            {
+                int i;
+                i = i + 1;
+                return i = i + 1;
+            }
+            """,
+            _expressionPrinter.PrintExpression(Expression.Block([i], increment, increment)),
+            ignoreLineEndingDifferences: true);
     }
 
     [Fact]

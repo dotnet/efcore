@@ -34,33 +34,33 @@ public class SqlExpressionSimplifyingExpressionVisitor(
                 return shapedQueryExpression.Update(newQueryExpression, newShaperExpression);
             }
 
-            case ProjectionExpression projectionExpression:
-            {
-                var expression = (SqlExpression)Visit(projectionExpression.Expression);
-
-                // Preserve the projection's converter semantics when simplification strips a no-op CAST.
-                if (expression.TypeMapping?.Converter != projectionExpression.Expression.TypeMapping?.Converter)
-                {
-                    expression = _sqlExpressionFactory.Convert(
-                        expression, projectionExpression.Expression.Type, projectionExpression.Expression.TypeMapping);
-                }
-
-                return projectionExpression.Update(expression);
-            }
-
             // Strip no-op SQL CASTs: when the Convert's store type matches the operand's store type,
             // the CAST would be a no-op in SQL (e.g. CAST(column AS nvarchar(max)) when column is already nvarchar(max)).
             // This can occur in various situations, e.g. when a C# implicit conversion exists for a value-converted type
             // (see #36247 for more context on why we don't refrain from creating the CAST node during translation).
             // However, CASTs around constants are preserved: they serve to explicitly type the constant in SQL
             // (e.g. CAST(100 AS int)), which is important for some queries.
+            // If the CLR type or type mapping changes though (e.g. an enum column with a string converter becoming a string),
+            // retain them on a wrapper that doesn't affect the generated SQL.
             case SqlUnaryExpression
             {
                 OperatorType: ExpressionType.Convert,
                 Operand: not SqlConstantExpression and { TypeMapping.StoreType: var operandStoreType } operand,
                 TypeMapping.StoreType: var convertStoreType
-            } when convertStoreType == operandStoreType:
-                return Visit(operand);
+            } convertExpression when convertStoreType == operandStoreType:
+            {
+                var visitedOperand = (SqlExpression)Visit(operand);
+
+                return visitedOperand.Type == convertExpression.Type
+                    && Equals(visitedOperand.TypeMapping, convertExpression.TypeMapping)
+                        ? visitedOperand
+                        : new ClrTypeChangeExpression(visitedOperand, convertExpression.Type, convertExpression.TypeMapping);
+            }
+
+            // Some providers render literals of these types as plain strings (e.g. '0001-01-01T00:00:00.0000000'), which the
+            // database returns as text when projected; an explicit CAST makes it return the mapped store type instead.
+            case ProjectionExpression projectionExpression:
+                return projectionExpression.Update(ConvertProjectedConstant((SqlExpression)Visit(projectionExpression.Expression)));
 
             case SqlBinaryExpression sqlBinaryExpression:
                 return SimplifySqlBinary(sqlBinaryExpression);
@@ -97,6 +97,37 @@ public class SqlExpressionSimplifyingExpressionVisitor(
             default:
                 return base.VisitExtension(extensionExpression);
         }
+
+        static SqlExpression ConvertProjectedConstant(SqlExpression expression)
+            => expression switch
+            {
+                SqlConstantExpression { Value: not null } constant when RequiresExplicitConvert(constant.Type)
+                    => new SqlUnaryExpression(ExpressionType.Convert, constant, constant.Type, constant.TypeMapping),
+
+                // The type of a CASE or of MIN/MAX is derived from their operands, so those must carry the type too.
+                CaseExpression caseExpression
+                    => caseExpression.Update(
+                        caseExpression.Operand,
+                        caseExpression.WhenClauses
+                            .Select(c => new CaseWhenClause(c.Test, ConvertProjectedConstant(c.Result)))
+                            .ToList(),
+                        caseExpression.ElseResult is null ? null : ConvertProjectedConstant(caseExpression.ElseResult)),
+
+                SqlFunctionExpression { IsBuiltIn: true, Instance: null, Arguments: [var argument] } function
+                    when string.Equals(function.Name, "MIN", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(function.Name, "MAX", StringComparison.OrdinalIgnoreCase)
+                    => function.Update(instance: null, [ConvertProjectedConstant(argument)]),
+
+                _ => expression
+            };
+
+        static bool RequiresExplicitConvert(Type type)
+            => type == typeof(Guid)
+                || type == typeof(DateTime)
+                || type == typeof(DateOnly)
+                || type == typeof(TimeOnly)
+                || type == typeof(TimeSpan)
+                || type == typeof(DateTimeOffset);
 
         static bool IsCoalesce(SqlExpression sqlExpression)
             => sqlExpression is SqlFunctionExpression { IsBuiltIn: true, Instance: null } sqlFunctionExpression

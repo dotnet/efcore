@@ -1774,7 +1774,8 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             .Append($"{tableVariable}, {additionalParameter ?? ""}{code.Literal(tableMapping.IncludesDerivedTypes)}");
 
         if (tableMapping.IsSharedTablePrincipal.HasValue
-            || tableMapping.IsSplitEntityTypePrincipal.HasValue)
+            || tableMapping.IsSplitEntityTypePrincipal.HasValue
+            || tableMapping.IsSplitFragmentOptional)
         {
             mainBuilder.AppendLine(")")
                 .AppendLine("{").IncrementIndent();
@@ -1788,7 +1789,14 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             if (tableMapping.IsSplitEntityTypePrincipal.HasValue)
             {
                 mainBuilder
-                    .Append("IsSplitEntityTypePrincipal = ").AppendLine(code.Literal(tableMapping.IsSplitEntityTypePrincipal));
+                    .Append("IsSplitEntityTypePrincipal = ").Append(code.Literal(tableMapping.IsSplitEntityTypePrincipal));
+                mainBuilder.AppendLine(tableMapping.IsSplitFragmentOptional ? "," : "");
+            }
+
+            if (tableMapping.IsSplitFragmentOptional)
+            {
+                mainBuilder
+                    .Append("IsSplitFragmentOptional = ").AppendLine(code.Literal(tableMapping.IsSplitFragmentOptional));
             }
 
             mainBuilder.DecrementIndent().AppendLine("};");
@@ -2183,7 +2191,8 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
 
         AppendLiteral(storeObject, mainBuilder, code);
         mainBuilder.AppendLine(",")
-            .Append(code.Literal(fragment.IsTableExcludedFromMigrations)).AppendLine(");").DecrementIndent();
+            .Append(code.Literal(fragment.IsTableExcludedFromMigrations)).AppendLine(",")
+            .Append(code.Literal(fragment.IsOptional)).AppendLine(");").DecrementIndent();
 
         CreateAnnotations(
             fragment,
@@ -2458,6 +2467,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
         else
         {
             parameters.Annotations.Remove(RelationalAnnotationNames.IsForeignKeyExcludedFromMigrations);
+            parameters.Annotations.Remove(RelationalAnnotationNames.Deferrability);
         }
 
         base.Generate(foreignKey, parameters);

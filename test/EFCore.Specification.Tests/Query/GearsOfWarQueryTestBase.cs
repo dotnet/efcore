@@ -77,30 +77,6 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
             ss => ss.Set<LocustHorde>().Select(lh => (lh.Eradicated | lh.CommanderName == "Unknown").ToString()));
 
     [Theory, MemberData(nameof(IsAsyncData))]
-    public virtual Task ToString_enum_property_projection(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Gear>().Select(g => g.Rank.ToString()));
-
-    [Theory, MemberData(nameof(IsAsyncData))]
-    public virtual Task ToString_nullable_enum_property_projection(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Weapon>().Select(w => w.AmmunitionType.ToString()));
-
-    [Theory, MemberData(nameof(IsAsyncData))]
-    public virtual Task ToString_enum_contains(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Mission>().Where(g => g.Difficulty.ToString().Contains("Med")).Select(g => g.CodeName));
-
-    [Theory, MemberData(nameof(IsAsyncData))]
-    public virtual Task ToString_nullable_enum_contains(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Weapon>().Where(w => w.AmmunitionType.ToString()!.Contains("Cart")).Select(g => g.Name));
-
-    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_multiple_one_to_one_and_one_to_many_self_reference(bool async)
         => Assert.ThrowsAsync<InvalidOperationException>(() => AssertQuery(async, ss => ss.Set<Weapon>().Include(w => w.Owner!.Weapons)));
 
@@ -4301,6 +4277,18 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
             ss => ss.Set<Gear>().Select(g => g.LeaderNickname != null ? g.Nickname.Length == 5 : (bool?)null)
                 .OrderBy(e => e.HasValue)
                 .ThenBy(e => e.HasValue).Select(e => e));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task New_Date_Expressions_in_projection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Mission>().Select(m => new
+            {
+                MorningOfMission = new DateTime(m.Date, new TimeOnly(8, 0, 0)),
+                OnSpacificDate = new DateTime(new DateOnly(2020, 1, 2), m.Time),
+                ConstantDateTime = new DateTime(2020, 1, 2, 8, 0, 0),
+                ConstantGuid = Guid.Empty
+            }));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GetValueOrDefault_in_projection(bool async)

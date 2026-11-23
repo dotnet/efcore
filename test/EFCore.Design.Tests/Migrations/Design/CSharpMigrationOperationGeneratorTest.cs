@@ -232,7 +232,8 @@ mb.AddForeignKey(
                 PrincipalTable = "Blog",
                 PrincipalColumns = ["Id"],
                 OnUpdate = ReferentialAction.Restrict,
-                OnDelete = ReferentialAction.Cascade
+                OnDelete = ReferentialAction.Cascade,
+                Deferrability = ConstraintDeferrability.DeferrableInitiallyDeferred
             },
             """
 mb.AddForeignKey(
@@ -244,7 +245,8 @@ mb.AddForeignKey(
     principalTable: "Blog",
     principalColumn: "Id",
     onUpdate: ReferentialAction.Restrict,
-    onDelete: ReferentialAction.Cascade);
+    onDelete: ReferentialAction.Cascade,
+    deferrability: ConstraintDeferrability.DeferrableInitiallyDeferred);
 """,
             o =>
             {
@@ -257,6 +259,7 @@ mb.AddForeignKey(
                 Assert.Equal(new[] { "Id" }, o.PrincipalColumns);
                 Assert.Equal(ReferentialAction.Restrict, o.OnUpdate);
                 Assert.Equal(ReferentialAction.Cascade, o.OnDelete);
+                Assert.Equal(ConstraintDeferrability.DeferrableInitiallyDeferred, o.Deferrability);
             });
 
     [Fact]
@@ -631,6 +634,37 @@ mb.AlterColumn<int>(
                 Assert.Null(o.OldColumn.ComputedColumnSql);
                 Assert.Equal("My Comment", o.OldColumn.Comment);
                 Assert.Equal("Some Collation", o.OldColumn.Collation);
+            });
+
+    [Fact]
+    public void AlterColumnOperation_computed_to_non_computed_preserves_oldStored()
+        => Test(
+            new AlterColumnOperation
+            {
+                Name = "Id",
+                Table = "Post",
+                ClrType = typeof(int),
+                OldColumn =
+                {
+                    ComputedColumnSql = "1",
+                    IsStored = true
+                }
+            },
+            """
+mb.AlterColumn<int>(
+    name: "Id",
+    table: "Post",
+    nullable: false,
+    oldComputedColumnSql: "1",
+    oldStored: true);
+""",
+            o =>
+            {
+                Assert.Equal("Id", o.Name);
+                Assert.Equal("Post", o.Table);
+                Assert.Equal(typeof(int), o.ClrType);
+                Assert.Equal("1", o.OldColumn.ComputedColumnSql);
+                Assert.True(o.OldColumn.IsStored);
             });
 
     [Fact]
@@ -1310,7 +1344,8 @@ mb.CreateTable(
                         PrincipalSchema = "my",
                         PrincipalColumns = ["Id"],
                         OnUpdate = ReferentialAction.SetNull,
-                        OnDelete = ReferentialAction.SetDefault
+                        OnDelete = ReferentialAction.SetDefault,
+                        Deferrability = ConstraintDeferrability.DeferrableInitiallyImmediate
                     }
                 }
             },
@@ -1331,7 +1366,8 @@ mb.CreateTable(
             principalTable: "Blog",
             principalColumn: "Id",
             onUpdate: ReferentialAction.SetNull,
-            onDelete: ReferentialAction.SetDefault);
+            onDelete: ReferentialAction.SetDefault,
+            deferrability: ConstraintDeferrability.DeferrableInitiallyImmediate);
     });
 """,
             o =>
@@ -1348,6 +1384,7 @@ mb.CreateTable(
                 Assert.Equal(new[] { "Id" }, fk.PrincipalColumns);
                 Assert.Equal(ReferentialAction.SetNull, fk.OnUpdate);
                 Assert.Equal(ReferentialAction.SetDefault, fk.OnDelete);
+                Assert.Equal(ConstraintDeferrability.DeferrableInitiallyImmediate, fk.Deferrability);
             });
 
     [Fact]
@@ -3184,6 +3221,7 @@ mb.AlterTable(
             {
                 {
                     "Migration.cs", $$"""
+                    using Microsoft.EntityFrameworkCore;
                     using Microsoft.EntityFrameworkCore.Migrations;
                     using NetTopologySuite.Geometries;
 

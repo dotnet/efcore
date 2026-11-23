@@ -842,6 +842,57 @@ WHERE [b].[TimeSpan] <= @timeSpan
 """);
     }
 
+    public override async Task DateTime_Compare_on_nullable_Value()
+    {
+        await base.DateTime_Compare_on_nullable_Value();
+
+        AssertSql(
+            """
+SELECT [n].[Id], [n].[Bool], [n].[Byte], [n].[ByteArray], [n].[DateOnly], [n].[DateTime], [n].[DateTimeOffset], [n].[Decimal], [n].[Double], [n].[Enum], [n].[FlagsEnum], [n].[Float], [n].[Guid], [n].[Int], [n].[Long], [n].[Short], [n].[String], [n].[TimeOnly], [n].[TimeSpan]
+FROM [NullableBasicTypesEntities] AS [n]
+WHERE [n].[DateTime] IS NOT NULL
+""");
+    }
+
+    public override async Task StringComparer_Compare()
+    {
+        await base.StringComparer_Compare();
+
+        AssertSql();
+    }
+
+    public override async Task Custom_Comparer_Compare()
+    {
+        await base.Custom_Comparer_Compare();
+
+        AssertSql();
+    }
+
+    public override async Task Default_Comparer_Compare()
+    {
+        await base.Default_Comparer_Compare();
+
+        AssertSql();
+    }
+
+    public override async Task Custom_Comparer_Compare_in_final_projection()
+    {
+        await base.Custom_Comparer_Compare_in_final_projection();
+
+        AssertSql(
+            """
+SELECT [b].[Int]
+FROM [BasicTypesEntities] AS [b]
+""");
+    }
+
+    public override async Task Nullable_Compare()
+    {
+        await base.Nullable_Compare();
+
+        AssertSql();
+    }
+
     #endregion Compare
 
     [Fact]

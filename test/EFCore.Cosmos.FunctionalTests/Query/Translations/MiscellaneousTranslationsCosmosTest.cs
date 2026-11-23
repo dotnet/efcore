@@ -194,24 +194,213 @@ WHERE ((RAND() >= 0) AND (RAND() < 1))
 
     public override async Task Int_Compare_to_simple_zero()
     {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(base.Int_Compare_to_simple_zero);
+        await base.Int_Compare_to_simple_zero();
 
-        AssertSql();
+        AssertSql(
+            """
+@orderId='8'
+
+SELECT VALUE c
+FROM root c
+WHERE (IIF((c["Int"] = @orderId), 0, IIF((c["Int"] > @orderId), 1, IIF((c["Int"] < @orderId), -1, null))) = 0)
+""",
+            //
+            """
+@orderId='8'
+
+SELECT VALUE c
+FROM root c
+WHERE (0 != IIF((c["Int"] = @orderId), 0, IIF((c["Int"] > @orderId), 1, IIF((c["Int"] < @orderId), -1, null))))
+""",
+            //
+            """
+@orderId='8'
+
+SELECT VALUE c
+FROM root c
+WHERE (IIF((c["Int"] = @orderId), 0, IIF((c["Int"] > @orderId), 1, IIF((c["Int"] < @orderId), -1, null))) > 0)
+""",
+            //
+            """
+@orderId='8'
+
+SELECT VALUE c
+FROM root c
+WHERE (0 >= IIF((c["Int"] = @orderId), 0, IIF((c["Int"] > @orderId), 1, IIF((c["Int"] < @orderId), -1, null))))
+""",
+            //
+            """
+@orderId='8'
+
+SELECT VALUE c
+FROM root c
+WHERE (0 < IIF((c["Int"] = @orderId), 0, IIF((c["Int"] > @orderId), 1, IIF((c["Int"] < @orderId), -1, null))))
+""",
+            //
+            """
+@orderId='8'
+
+SELECT VALUE c
+FROM root c
+WHERE (IIF((c["Int"] = @orderId), 0, IIF((c["Int"] > @orderId), 1, IIF((c["Int"] < @orderId), -1, null))) <= 0)
+""");
     }
 
     public override async Task DateTime_Compare_to_simple_zero(bool compareTo)
     {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.DateTime_Compare_to_simple_zero(compareTo));
+        await base.DateTime_Compare_to_simple_zero(compareTo);
 
-        AssertSql();
+        AssertSql(
+            """
+@dateTime='1998-05-04T15:30:10.0000000'
+
+SELECT VALUE c
+FROM root c
+WHERE (IIF((c["DateTime"] = @dateTime), 0, IIF((c["DateTime"] > @dateTime), 1, IIF((c["DateTime"] < @dateTime), -1, null))) = 0)
+""",
+            //
+            """
+@dateTime='1998-05-04T15:30:10.0000000'
+
+SELECT VALUE c
+FROM root c
+WHERE (0 != IIF((c["DateTime"] = @dateTime), 0, IIF((c["DateTime"] > @dateTime), 1, IIF((c["DateTime"] < @dateTime), -1, null))))
+""",
+            //
+            """
+@dateTime='1998-05-04T15:30:10.0000000'
+
+SELECT VALUE c
+FROM root c
+WHERE (IIF((c["DateTime"] = @dateTime), 0, IIF((c["DateTime"] > @dateTime), 1, IIF((c["DateTime"] < @dateTime), -1, null))) > 0)
+""",
+            //
+            """
+@dateTime='1998-05-04T15:30:10.0000000'
+
+SELECT VALUE c
+FROM root c
+WHERE (0 >= IIF((c["DateTime"] = @dateTime), 0, IIF((c["DateTime"] > @dateTime), 1, IIF((c["DateTime"] < @dateTime), -1, null))))
+""",
+            //
+            """
+@dateTime='1998-05-04T15:30:10.0000000'
+
+SELECT VALUE c
+FROM root c
+WHERE (0 < IIF((c["DateTime"] = @dateTime), 0, IIF((c["DateTime"] > @dateTime), 1, IIF((c["DateTime"] < @dateTime), -1, null))))
+""",
+            //
+            """
+@dateTime='1998-05-04T15:30:10.0000000'
+
+SELECT VALUE c
+FROM root c
+WHERE (IIF((c["DateTime"] = @dateTime), 0, IIF((c["DateTime"] > @dateTime), 1, IIF((c["DateTime"] < @dateTime), -1, null))) <= 0)
+""");
     }
 
     public override async Task TimeSpan_Compare_to_simple_zero(bool compareTo)
     {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.TimeSpan_Compare_to_simple_zero(compareTo));
+        await base.TimeSpan_Compare_to_simple_zero(compareTo);
+
+        AssertSql(
+            """
+    @timeSpan='01:02:03'
+    
+    SELECT VALUE c
+    FROM root c
+    WHERE (IIF((c["TimeSpan"] = @timeSpan), 0, IIF((c["TimeSpan"] > @timeSpan), 1, IIF((c["TimeSpan"] < @timeSpan), -1, null))) = 0)
+    """,
+            //
+            """
+    @timeSpan='01:02:03'
+    
+    SELECT VALUE c
+    FROM root c
+    WHERE (0 != IIF((c["TimeSpan"] = @timeSpan), 0, IIF((c["TimeSpan"] > @timeSpan), 1, IIF((c["TimeSpan"] < @timeSpan), -1, null))))
+    """,
+            //
+            """
+    @timeSpan='01:02:03'
+    
+    SELECT VALUE c
+    FROM root c
+    WHERE (IIF((c["TimeSpan"] = @timeSpan), 0, IIF((c["TimeSpan"] > @timeSpan), 1, IIF((c["TimeSpan"] < @timeSpan), -1, null))) > 0)
+    """,
+            //
+            """
+    @timeSpan='01:02:03'
+    
+    SELECT VALUE c
+    FROM root c
+    WHERE (0 >= IIF((c["TimeSpan"] = @timeSpan), 0, IIF((c["TimeSpan"] > @timeSpan), 1, IIF((c["TimeSpan"] < @timeSpan), -1, null))))
+    """,
+            //
+            """
+    @timeSpan='01:02:03'
+    
+    SELECT VALUE c
+    FROM root c
+    WHERE (0 < IIF((c["TimeSpan"] = @timeSpan), 0, IIF((c["TimeSpan"] > @timeSpan), 1, IIF((c["TimeSpan"] < @timeSpan), -1, null))))
+    """,
+            //
+            """
+    @timeSpan='01:02:03'
+    
+    SELECT VALUE c
+    FROM root c
+    WHERE (IIF((c["TimeSpan"] = @timeSpan), 0, IIF((c["TimeSpan"] > @timeSpan), 1, IIF((c["TimeSpan"] < @timeSpan), -1, null))) <= 0)
+    """);
+    }
+
+    public override async Task DateTime_Compare_on_nullable_Value()
+    {
+        await base.DateTime_Compare_on_nullable_Value();
+
+        AssertSql(
+            """
+    SELECT VALUE c
+    FROM root c
+    WHERE ((c["DateTime"] != null) AND (IIF((c["DateTime"] = c["DateTime"]), 0, IIF((c["DateTime"] > c["DateTime"]), 1, IIF((c["DateTime"] < c["DateTime"]), -1, null))) = 0))
+    """);
+    }
+
+    public override async Task StringComparer_Compare()
+    {
+        await base.StringComparer_Compare();
+
+        AssertSql();
+    }
+
+    public override async Task Custom_Comparer_Compare()
+    {
+        await base.Custom_Comparer_Compare();
+
+        AssertSql();
+    }
+
+    public override async Task Default_Comparer_Compare()
+    {
+        await base.Default_Comparer_Compare();
+
+        AssertSql();
+    }
+
+    public override async Task Custom_Comparer_Compare_in_final_projection()
+    {
+        await base.Custom_Comparer_Compare_in_final_projection();
+
+        AssertSql(
+            """
+    SELECT VALUE c["Int"]
+    FROM root c
+    """);
+    }
+
+    public override async Task Nullable_Compare()
+    {
+        await base.Nullable_Compare();
 
         AssertSql();
     }

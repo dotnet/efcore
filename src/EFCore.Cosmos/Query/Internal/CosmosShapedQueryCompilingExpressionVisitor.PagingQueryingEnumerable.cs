@@ -72,7 +72,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             => new AsyncEnumerator(this, cancellationToken);
 
         private CosmosSqlQuery GenerateQuery()
-            => _querySqlGeneratorFactory.Create().GetSqlQuery(
+            => _querySqlGeneratorFactory.Create(_cosmosQueryContext.Context.Model).GetSqlQuery(
                 (SelectExpression)new ParameterInliner(
                         _sqlExpressionFactory,
                         _cosmosQueryContext.Parameters)

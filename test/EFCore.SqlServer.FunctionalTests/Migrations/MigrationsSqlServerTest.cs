@@ -1219,6 +1219,63 @@ CREATE INDEX [IX_People_SomeColumn] ON [People] ([SomeColumn]);
     }
 
     [Fact]
+    public override async Task Alter_column_make_not_required_with_unique_index()
+    {
+        await base.Alter_column_make_not_required_with_unique_index();
+
+        AssertSql(
+            """
+DROP INDEX [IX_People_SomeColumn] ON [People];
+""",
+            //
+            """
+DECLARE @var nvarchar(max);
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'SomeColumn';
+IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
+ALTER TABLE [People] ALTER COLUMN [SomeColumn] nvarchar(450) NULL;
+""",
+            //
+            """
+CREATE UNIQUE INDEX [IX_People_SomeColumn] ON [People] ([SomeColumn]) WHERE [SomeColumn] IS NOT NULL;
+""");
+    }
+
+    [Fact]
+    public override async Task Alter_column_make_not_required_while_referenced_in_other_index_filter()
+    {
+        await base.Alter_column_make_not_required_while_referenced_in_other_index_filter();
+
+        AssertSql(
+            """
+DROP INDEX [IX_People_FirstName] ON [People];
+DECLARE @var nvarchar(max);
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'LastName';
+IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
+ALTER TABLE [People] ALTER COLUMN [LastName] nvarchar(max) NULL;
+CREATE INDEX [IX_People_FirstName] ON [People] ([FirstName]) WHERE [LastName] <> '';
+""");
+    }
+
+    [Fact]
+    public override async Task Alter_column_add_comment_while_referenced_in_other_index_filter_does_not_rebuild_index()
+    {
+        await base.Alter_column_add_comment_while_referenced_in_other_index_filter_does_not_rebuild_index();
+
+        AssertSql(
+            """
+DECLARE @defaultSchema AS sysname;
+SET @defaultSchema = SCHEMA_NAME();
+DECLARE @description AS sql_variant;
+SET @description = N'Some comment';
+EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'People', 'COLUMN', N'LastName';
+""");
+    }
+
+    [Fact]
     public override async Task Alter_column_make_required_with_composite_index()
     {
         await base.Alter_column_make_required_with_composite_index();
@@ -1578,15 +1635,16 @@ ALTER TABLE [Entity] ADD [OwnedReference] nvarchar(max) NULL;
     {
         await base.Convert_string_column_to_a_json_column_containing_required_reference();
 
+        var columnType = SqlServerTestEnvironment.IsAzureSql ? "json" : "nvarchar(max)";
         AssertSql(
-            """
+            $$"""
 DECLARE @var nvarchar(max);
 SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
 FROM [sys].[columns] [c]
 WHERE [c].[object_id] = OBJECT_ID(N'[Entity]') AND [c].[name] = N'Name';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [Entity] DROP CONSTRAINT ' + @var + ';');
 UPDATE [Entity] SET [Name] = N'{}' WHERE [Name] IS NULL;
-ALTER TABLE [Entity] ALTER COLUMN [Name] nvarchar(max) NOT NULL;
+ALTER TABLE [Entity] ALTER COLUMN [Name] {{columnType}} NOT NULL;
 ALTER TABLE [Entity] ADD DEFAULT N'{}' FOR [Name];
 """);
     }
@@ -1881,6 +1939,23 @@ ALTER TABLE [People] ALTER COLUMN [IdentityColumn] bigint NOT NULL;
         AssertSql(
             """
 DBCC CHECKIDENT(N'[People]', RESEED, 100);
+""");
+    }
+
+    [Fact]
+    public virtual async Task Alter_column_change_identity_seed_above_int_range()
+    {
+        await Test(
+            builder => builder.Entity("People", e => e.Property<long>("Id").UseIdentityColumn(seed: 10)),
+            builder => builder.Entity("People", e => e.Property<long>("Id").UseIdentityColumn(seed: 3_000_000_000L)),
+            model =>
+            {
+                // DBCC CHECKIDENT RESEED doesn't change the table definition, so the seed can't be checked via scaffolding.
+            });
+
+        AssertSql(
+            """
+DBCC CHECKIDENT(N'[People]', RESEED, 3000000000);
 """);
     }
 
@@ -4196,6 +4271,15 @@ CREATE INDEX [IX_Orders_CustomerId] ON [Orders] ([CustomerId]);
 """);
     }
 
+    public override async Task Add_deferrable_foreign_key()
+    {
+        var exception = await Assert.ThrowsAsync<NotSupportedException>(base.Add_deferrable_foreign_key);
+
+        Assert.Equal(
+            SqlServerStrings.DeferrableConstraintsNotSupported("FK_Orders_Customers_CustomerId", "Orders"),
+            exception.Message);
+    }
+
     public override async Task Add_unique_constraint()
     {
         await base.Add_unique_constraint();
@@ -4497,6 +4581,37 @@ FROM [sys].[columns] [c]
 WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'SeqProp';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [People] DROP COLUMN [SeqProp];
+""",
+            //
+            """
+DROP SEQUENCE [TestSequence];
+""");
+    }
+
+    [Fact]
+    public async Task Drop_sequence_and_alter_dependent_column_make_independent()
+    {
+        await Test(
+            builder => builder.Entity("People", e =>
+            {
+                e.Property<int>("Id");
+                e.Property<int>("SeqColumn");
+            }),
+            builder =>
+            {
+                builder.HasSequence<int>("TestSequence");
+                builder.Entity("People").Property<int>("SeqColumn").HasDefaultValueSql("NEXT VALUE FOR TestSequence");
+            },
+            builder => { },
+            model => Assert.Empty(model.Sequences));
+
+        AssertSql(
+            """
+DECLARE @var nvarchar(max);
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'SeqColumn';
+IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 """,
             //
             """
@@ -4870,12 +4985,42 @@ CREATE TABLE [Contacts] (
     [Name] nvarchar(max) NULL,
     [Number] int NULL,
     [MyComplex_Prop] nvarchar(max) NULL,
-    [MyComplex_MyNestedComplex_Bar] datetime2 NULL,
-    [MyComplex_MyNestedComplex_Foo] int NULL,
-    [MyComplex_Nested_Bar] datetime2 NULL,
     [MyComplex_Nested_Foo] int NULL,
+    [MyComplex_Nested_Bar] datetime2 NULL,
+    [MyComplex_MyNestedComplex_Foo] int NULL,
+    [MyComplex_MyNestedComplex_Bar] datetime2 NULL,
     [NestedCollection] nvarchar(max) NULL,
     CONSTRAINT [PK_Contacts] PRIMARY KEY ([Id])
+);
+""");
+    }
+
+    public override async Task Create_tables_with_complex_properties_on_owned_types()
+    {
+        await base.Create_tables_with_complex_properties_on_owned_types();
+
+        AssertSql(
+            """
+CREATE TABLE [Owner] (
+    [Id] int NOT NULL IDENTITY,
+    [Owned_Name] nvarchar(max) NULL,
+    [Owned_Complex_Value] nvarchar(max) NULL,
+    [Owned_Complex_Date] datetime2 NULL,
+    [Owned_Complex_Nested_Foo] int NULL,
+    [Owned_Complex_Nested_Bar] datetime2 NULL,
+    [NestedCollection] nvarchar(max) NULL,
+    CONSTRAINT [PK_Owner] PRIMARY KEY ([Id])
+);
+""",
+            //
+            """
+CREATE TABLE [OwnedItems] (
+    [OwnerId] int NOT NULL,
+    [Id] int NOT NULL,
+    [Complex_Foo] int NULL,
+    [Complex_Bar] datetime2 NULL,
+    CONSTRAINT [PK_OwnedItems] PRIMARY KEY ([OwnerId], [Id]),
+    CONSTRAINT [FK_OwnedItems_Owner_OwnerId] FOREIGN KEY ([OwnerId]) REFERENCES [Owner] ([Id]) ON DELETE CASCADE
 );
 """);
     }
@@ -4890,10 +5035,10 @@ CREATE TABLE [Suppliers] (
     [Id] int NOT NULL IDENTITY,
     [Number] int NOT NULL,
     [MyComplex_Prop] nvarchar(max) NULL,
-    [MyComplex_MyNestedComplex_Bar] datetime2 NULL,
-    [MyComplex_MyNestedComplex_Foo] int NULL,
-    [MyComplex_Nested_Bar] datetime2 NULL,
     [MyComplex_Nested_Foo] int NULL,
+    [MyComplex_Nested_Bar] datetime2 NULL,
+    [MyComplex_MyNestedComplex_Foo] int NULL,
+    [MyComplex_MyNestedComplex_Bar] datetime2 NULL,
     [NestedCollection] nvarchar(max) NULL,
     CONSTRAINT [PK_Suppliers] PRIMARY KEY ([Id])
 );

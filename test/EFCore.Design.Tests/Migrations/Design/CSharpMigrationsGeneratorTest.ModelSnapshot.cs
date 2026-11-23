@@ -222,6 +222,43 @@ partial class Snapshot : ModelSnapshot
     }
 
     [Fact]
+    public void Optional_entity_splitting_fragment_is_stored_in_snapshot()
+    {
+        var modelBuilder = CreateConventionalModelBuilder();
+        modelBuilder.HasDefaultSchema(null);
+        modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
+        modelBuilder.Entity<SplitEntity>(b =>
+        {
+            b.ToTable("SplitEntities");
+            b.SplitToTable(
+                "SplitEntityDetails", t =>
+                {
+                    t.IsOptional();
+                    t.Property(e => e.Description);
+                });
+        });
+
+        var model = modelBuilder.FinalizeModel(designTime: true);
+
+        var generator = CreateMigrationsGenerator();
+        var code = generator.GenerateSnapshot("RootNamespace", typeof(DbContext), "Snapshot", model);
+
+        Assert.Contains("t.IsOptional();", code);
+
+        var roundTrippedModel = BuildModelFromSnapshotSource(code);
+        var fragment = Assert.Single(
+            roundTrippedModel.FindEntityType(typeof(SplitEntity))!.GetMappingFragments(StoreObjectType.Table));
+        Assert.True(fragment.IsOptional);
+    }
+
+    private class SplitEntity
+    {
+        public int Id { get; set; }
+        public string? Name { get; set; }
+        public string? Description { get; set; }
+    }
+
+    [Fact]
     public void Snapshot_with_migration_id()
     {
         var generator = CreateMigrationsCodeGenerator();
@@ -909,7 +946,7 @@ partial class Snapshot : ModelSnapshot
                     .ValueGeneratedOnAdd()
                     .HasColumnType("int");
 
-                SqlServerPropertyBuilderExtensions.UseHiLo(id);
+                SqlServerPropertyBuilderExtensions.UseHiLo(id, "EntityFrameworkHiLoSequence");
 
                 b.HasKey("Id");
 
@@ -968,6 +1005,31 @@ partial class Snapshot : ModelSnapshot
                     SqlServerValueGenerationStrategy.Sequence,
                     SqlServerPropertyExtensions.GetValueGenerationStrategy(o.GetEntityTypes().Single().GetProperty("Id")));
             });
+
+    [Theory]
+    [InlineData(null, null)]
+    [InlineData("HiLoSequence", null)]
+    [InlineData(null, "HiLoSchema")]
+    [InlineData("HiLoSequence", "HiLoSchema")]
+    public virtual void Model_HiLo_sequence_is_preserved_in_snapshot(string? sequenceName, string? sequenceSchema)
+        => Test(
+            builder =>
+            {
+                builder.HasDefaultSchema(null);
+                builder.UseHiLo(sequenceName, sequenceSchema);
+                builder.Entity("Entity").Property<int>("Id");
+            },
+            $"SqlServerPropertyBuilderExtensions.UseHiLo(id, \"{sequenceName ?? SqlServerModelExtensions.DefaultHiLoSequenceName}\""
+            + (sequenceSchema is null ? ");" : $", \"{sequenceSchema}\");"),
+            o =>
+            {
+                var sequence = Assert.Single(o.GetSequences());
+                Assert.Equal(sequenceName ?? SqlServerModelExtensions.DefaultHiLoSequenceName, sequence.Name);
+                Assert.Equal(sequenceSchema, sequence.Schema);
+                Assert.Equal(10, sequence.IncrementBy);
+                Assert.Same(sequence, o.FindEntityType("Entity")!.FindProperty("Id")!.FindHiLoSequence());
+            },
+            fullSnapshot: false);
 
     [Fact]
     public virtual void Model_default_schema_annotation_is_stored_in_snapshot_as_fluent_api()
@@ -4810,6 +4872,264 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal("json", ownedType1.GetContainerColumnType());
             });
 
+    [Fact]
+    public virtual void Complex_properties_on_owned_types_are_stored_in_snapshot()
+        => Test(
+            builder => builder.Entity<EntityWithOneProperty>(b =>
+            {
+                b.HasKey(e => e.Id).HasName("PK_Custom");
+
+                b.OwnsOne(
+                    eo => eo.EntityWithTwoProperties, eb =>
+                    {
+                        eb.Ignore(e => e.EntityWithOneProperty);
+                        eb.ComplexProperty(
+                            e => e.Coordinates, cb =>
+                            {
+                                cb.Property(c => c.Latitude).HasPrecision(9, 6);
+                                cb.Property(c => c.Longitude).HasPrecision(9, 6);
+                            });
+                        eb.OwnsOne(
+                            e => e.EntityWithStringKey,
+                            sb => sb.ComplexCollection(e => e.Properties, pb => pb.ToJson()));
+                    });
+            }),
+            AddBoilerPlate(
+                GetHeading()
+                + """
+        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty", b =>
+            {
+                var id = b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
+
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(id);
+
+                b.HasKey("Id")
+                    .HasName("PK_Custom");
+
+                b.ToTable("EntityWithOneProperty", "DefaultSchema");
+            });
+
+        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty", b =>
+            {
+                b.OwnsOne("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithTwoProperties", "EntityWithTwoProperties", b1 =>
+                    {
+                        b1.Property<int>("Id")
+                            .HasColumnType("int");
+
+                        b1.Property<int>("AlternateId")
+                            .HasColumnType("int");
+
+                        b1.ComplexProperty(typeof(Dictionary<string, object>), "Coordinates", "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithTwoProperties.Coordinates#Coordinates", b2 =>
+                            {
+                                b2.IsRequired();
+
+                                b2.Property<decimal>("Latitude")
+                                    .HasPrecision(9, 6)
+                                    .HasColumnType("decimal(9,6)");
+
+                                b2.Property<decimal>("Longitude")
+                                    .HasPrecision(9, 6)
+                                    .HasColumnType("decimal(9,6)");
+                            });
+
+                        b1.HasKey("Id");
+
+                        b1.ToTable("EntityWithOneProperty", "DefaultSchema");
+
+                        b1.WithOwner()
+                            .HasForeignKey("Id");
+
+                        b1.OwnsOne("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithStringKey", "EntityWithStringKey", b2 =>
+                            {
+                                b2.Property<int>("EntityWithTwoPropertiesId")
+                                    .HasColumnType("int");
+
+                                b2.Property<string>("Id")
+                                    .HasColumnType("nvarchar(max)");
+
+                                b2.ComplexCollection(typeof(List<Dictionary<string, object>>), "Properties", "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithStringKey.Properties#EntityWithStringProperty", b3 =>
+                                    {
+                                        b3.Property<int>("Id");
+
+                                        b3.Property<string>("Name");
+
+                                        b3
+                                            .ToJson()
+                                            .HasColumnType("nvarchar(max)");
+                                    });
+
+                                b2.HasKey("EntityWithTwoPropertiesId");
+
+                                b2.ToTable("EntityWithOneProperty", "DefaultSchema");
+
+                                b2.WithOwner()
+                                    .HasForeignKey("EntityWithTwoPropertiesId");
+                            });
+
+                        b1.Navigation("EntityWithStringKey");
+                    });
+
+                b.Navigation("EntityWithTwoProperties");
+            });
+""", usingSystem: false, usingCollections: true),
+            o =>
+            {
+                var ownedType = o.FindEntityType(typeof(EntityWithOneProperty))!
+                    .FindNavigation(nameof(EntityWithOneProperty.EntityWithTwoProperties))!.TargetEntityType;
+                var coordinates = ownedType.FindComplexProperty(nameof(EntityWithTwoProperties.Coordinates))!;
+                Assert.False(coordinates.IsCollection);
+                Assert.Equal(6, coordinates.ComplexType.FindProperty(nameof(Coordinates.Latitude))!.GetScale());
+                Assert.Equal(
+                    "EntityWithTwoProperties_Coordinates_Longitude",
+                    coordinates.ComplexType.FindProperty(nameof(Coordinates.Longitude))!
+                        .GetColumnName(StoreObjectIdentifier.Table(nameof(EntityWithOneProperty), "DefaultSchema")));
+
+                var nestedOwnedType = ownedType.FindNavigation(nameof(EntityWithTwoProperties.EntityWithStringKey))!.TargetEntityType;
+                var properties = nestedOwnedType.FindComplexProperty(nameof(EntityWithStringKey.Properties))!;
+                Assert.True(properties.IsCollection);
+                Assert.Equal(
+                    "EntityWithTwoProperties_EntityWithStringKey_Properties",
+                    properties.ComplexType.GetContainerColumnName(StoreObjectIdentifier.Table(nameof(EntityWithOneProperty), "DefaultSchema")));
+            });
+
+    [Fact]
+    public virtual void Explicit_json_column_name_of_complex_property_on_owned_type_is_stored_in_snapshot()
+        => Test(
+            builder => builder.Entity<EntityWithOneProperty>(b => b.OwnsOne(
+                eo => eo.EntityWithTwoProperties, eb =>
+                {
+                    eb.Ignore(e => e.EntityWithOneProperty);
+                    eb.Ignore(e => e.Coordinates);
+                    eb.OwnsOne(
+                        e => e.EntityWithStringKey,
+                        sb => sb.ComplexCollection(e => e.Properties, pb => pb.ToJson(nameof(EntityWithStringKey.Properties))));
+                })),
+            """.ToJson("Properties")""",
+            o =>
+            {
+                var properties = o.FindEntityType(typeof(EntityWithOneProperty))!
+                    .FindNavigation(nameof(EntityWithOneProperty.EntityWithTwoProperties))!.TargetEntityType
+                    .FindNavigation(nameof(EntityWithTwoProperties.EntityWithStringKey))!.TargetEntityType
+                    .FindComplexProperty(nameof(EntityWithStringKey.Properties))!;
+                Assert.Equal(
+                    nameof(EntityWithStringKey.Properties),
+                    properties.ComplexType.GetContainerColumnName(StoreObjectIdentifier.Table(nameof(EntityWithOneProperty), "DefaultSchema")));
+            },
+            fullSnapshot: false);
+
+    [Fact]
+    public virtual void Complex_properties_on_owned_collection_configured_by_attributes_are_stored_in_snapshot()
+        => Test(
+            builder => builder.Entity<EntityWithOwnedItems>(),
+            AddBoilerPlate(
+                GetHeading()
+                + """
+        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOwnedItems", b =>
+            {
+                var id = b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
+
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(id);
+
+                b.HasKey("Id");
+
+                b.ToTable("EntityWithOwnedItems", "DefaultSchema");
+            });
+
+        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOwnedItems", b =>
+            {
+                b.OwnsMany("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+OwnedItem", "Items", b1 =>
+                    {
+                        b1.Property<int>("EntityWithOwnedItemsId")
+                            .HasColumnType("int");
+
+                        var id = b1.Property<int>("Id")
+                            .ValueGeneratedOnAdd()
+                            .HasColumnType("int");
+
+                        SqlServerPropertyBuilderExtensions.UseIdentityColumn(id);
+
+                        b1.Property<string>("Name")
+                            .HasColumnType("nvarchar(max)");
+
+                        b1.ComplexProperty(typeof(Dictionary<string, object>), "Details", "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+OwnedItem.Details#ItemDetails", b2 =>
+                            {
+                                b2.IsRequired();
+
+                                b2.Property<int?>("Code")
+                                    .HasColumnType("int");
+
+                                b2.Property<string>("Type")
+                                    .IsRequired()
+                                    .HasColumnType("nvarchar(max)");
+
+                                b2.ComplexProperty(typeof(Dictionary<string, object>), "Dimensions", "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+OwnedItem.Details#ItemDetails.Dimensions#ItemDimensions", b3 =>
+                                    {
+                                        b3.IsRequired();
+
+                                        b3.Property<decimal>("Height")
+                                            .HasColumnType("decimal(18,2)");
+
+                                        b3.Property<decimal>("Width")
+                                            .HasColumnType("decimal(18,2)");
+                                    });
+                            });
+
+                        b1.HasKey("EntityWithOwnedItemsId", "Id");
+
+                        b1.ToTable("OwnedItem", "DefaultSchema");
+
+                        b1.WithOwner()
+                            .HasForeignKey("EntityWithOwnedItemsId");
+                    });
+
+                b.Navigation("Items");
+            });
+""", usingSystem: false, usingCollections: true),
+            o =>
+            {
+                var ownedType = o.FindEntityType(typeof(EntityWithOwnedItems))!
+                    .FindNavigation(nameof(EntityWithOwnedItems.Items))!.TargetEntityType;
+                var details = ownedType.FindComplexProperty(nameof(OwnedItem.Details))!;
+                Assert.False(details.IsNullable);
+                Assert.Equal(
+                    "Details_Dimensions_Width",
+                    details.ComplexType.FindComplexProperty(nameof(ItemDetails.Dimensions))!.ComplexType
+                        .FindProperty(nameof(ItemDimensions.Width))!
+                        .GetColumnName(StoreObjectIdentifier.Table(nameof(OwnedItem), "DefaultSchema")));
+            });
+
+    private class EntityWithOwnedItems
+    {
+        public int Id { get; set; }
+        public List<OwnedItem> Items { get; set; } = [];
+    }
+
+    [Owned]
+    private class OwnedItem
+    {
+        public string? Name { get; set; }
+        public ItemDetails Details { get; set; } = null!;
+    }
+
+    [ComplexType]
+    private class ItemDetails
+    {
+        public string Type { get; set; } = null!;
+        public int? Code { get; set; }
+        public ItemDimensions Dimensions { get; set; } = null!;
+    }
+
+    [ComplexType]
+    private class ItemDimensions
+    {
+        public decimal Width { get; set; }
+        public decimal Height { get; set; }
+    }
+
     private class Order
     {
         public int Id { get; set; }
@@ -6728,6 +7048,32 @@ partial class Snapshot : ModelSnapshot
             });
 
     [Fact]
+    public virtual void Complex_collection_global_collation_is_ignored_in_snapshot()
+    {
+        var builder = TestHelpers.CreateConventionBuilder(
+            configureConventions: c => c.Properties<string>().UseCollation("case_insensitive"));
+        builder.Entity<SnapshotBlog>(b =>
+        {
+            b.Ignore(e => e.Owner);
+            b.ComplexCollection(e => e.Posts, c => c.ToJson());
+        });
+
+        var model = builder.FinalizeModel(designTime: true);
+        var code = CreateMigrationsGenerator().GenerateSnapshot("RootNamespace", typeof(DbContext), "Snapshot", model);
+        var snapshotModel = BuildModelFromSnapshotSource(code);
+
+        var entityType = snapshotModel.FindEntityType(typeof(SnapshotBlog))!;
+        Assert.Equal("case_insensitive", entityType.FindProperty(nameof(SnapshotBlog.Title))!.GetCollation());
+        var complexType = entityType.FindComplexProperty(nameof(SnapshotBlog.Posts))!.ComplexType;
+        Assert.Null(complexType.FindProperty(nameof(SnapshotPost.Title))!.GetCollation());
+        Assert.Equal(
+            "case_insensitive",
+            model.FindEntityType(typeof(SnapshotBlog))!
+                .FindComplexProperty(nameof(SnapshotBlog.Posts))!.ComplexType
+                .FindProperty(nameof(SnapshotPost.Title))!.GetCollation());
+    }
+
+    [Fact]
     public virtual void Complex_collection_property_annotations_not_supported_by_builder_are_ignored_in_snapshot()
         => Test(
             builder => builder.Entity<EntityWithOneProperty>(b =>
@@ -6751,6 +7097,7 @@ partial class Snapshot : ModelSnapshot
                                     nameProperty.SetMaxLength(100);
                                     nameProperty.SetPrecision(10);
                                     nameProperty.SetScale(2);
+                                    nameProperty.SetCollation("case_insensitive");
                                     nameProperty.IsConcurrencyToken = true;
                                     nameProperty.ValueGenerated = ValueGenerated.OnAdd;
                                 }));
@@ -6815,6 +7162,7 @@ partial class Snapshot : ModelSnapshot
                 // This verifies that the snapshot doesn't contain HasMaxLength which would cause a compile error
                 var nameProperty = propertiesComplexCollection.ComplexType.FindProperty("Name")!;
                 Assert.Null(nameProperty.GetMaxLength());
+                Assert.Null(nameProperty.GetCollation());
             });
 
     #endregion
@@ -7804,7 +8152,7 @@ partial class Snapshot : ModelSnapshot
                         b1.Property<string>("Country");
 
                         b1
-                            .ToJson("Owner")
+                            .ToJson()
                             .HasColumnType("nvarchar(max)");
                     });
 
@@ -7815,7 +8163,7 @@ partial class Snapshot : ModelSnapshot
                         b1.Property<string>("Title");
 
                         b1
-                            .ToJson("Posts")
+                            .ToJson()
                             .HasColumnType("nvarchar(max)");
                     });
 
@@ -7876,7 +8224,7 @@ partial class Snapshot : ModelSnapshot
                         b1.Property<string>("Country");
 
                         b1
-                            .ToJson("Owner")
+                            .ToJson()
                             .HasColumnType("nvarchar(max)");
                     });
 
@@ -7887,7 +8235,7 @@ partial class Snapshot : ModelSnapshot
                         b1.Property<string>("Title");
 
                         b1
-                            .ToJson("Posts")
+                            .ToJson()
                             .HasColumnType("nvarchar(max)");
                     });
 
@@ -7948,7 +8296,7 @@ partial class Snapshot : ModelSnapshot
                         b1.Property<string>("Country");
 
                         b1
-                            .ToJson("Owner")
+                            .ToJson()
                             .HasColumnType("nvarchar(max)");
                     });
 
@@ -7959,7 +8307,7 @@ partial class Snapshot : ModelSnapshot
                         b1.Property<string>("Title");
 
                         b1
-                            .ToJson("Posts")
+                            .ToJson()
                             .HasColumnType("nvarchar(max)");
                     });
 
@@ -8529,6 +8877,70 @@ partial class Snapshot : ModelSnapshot
 """),
             o => Assert.True(
                 o.FindEntityType(typeof(EntityWithTwoProperties))!.GetForeignKeys().First().IsExcludedFromMigrations()));
+
+    [Fact]
+    public virtual void ForeignKey_deferrability_is_stored_in_snapshot()
+        => Test(
+            builder => builder.Entity<EntityWithTwoProperties>()
+                .HasOne(e => e.EntityWithOneProperty)
+                .WithOne(e => e.EntityWithTwoProperties)
+                .HasForeignKey<EntityWithTwoProperties>(e => e.AlternateId)
+                .HasDeferrability(ConstraintDeferrability.DeferrableInitiallyDeferred),
+            AddBoilerPlate(
+                GetHeading()
+                + """
+        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty", b =>
+            {
+                var id = b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
+
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(id);
+
+                b.HasKey("Id");
+
+                b.ToTable("EntityWithOneProperty", "DefaultSchema");
+            });
+
+        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithTwoProperties", b =>
+            {
+                var id = b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
+
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(id);
+
+                b.Property<int>("AlternateId")
+                    .HasColumnType("int");
+
+                b.HasKey("Id");
+
+                b.HasIndex("AlternateId")
+                    .IsUnique();
+
+                b.ToTable("EntityWithTwoProperties", "DefaultSchema");
+            });
+
+        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithTwoProperties", b =>
+            {
+                b.HasOne("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty", "EntityWithOneProperty")
+                    .WithOne("EntityWithTwoProperties")
+                    .HasForeignKey("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithTwoProperties", "AlternateId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired()
+                    .HasDeferrability(ConstraintDeferrability.DeferrableInitiallyDeferred);
+
+                b.Navigation("EntityWithOneProperty");
+            });
+
+        modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty", b =>
+            {
+                b.Navigation("EntityWithTwoProperties");
+            });
+"""),
+            o => Assert.Equal(
+                ConstraintDeferrability.DeferrableInitiallyDeferred,
+                o.FindEntityType(typeof(EntityWithTwoProperties))!.GetForeignKeys().First().GetDeferrability()));
 
     [Fact]
     public virtual void ForeignKey_multiple_annotations_are_stored_in_snapshot()
@@ -9269,7 +9681,7 @@ partial class Snapshot : ModelSnapshot
                         BytesCollection = "[\"AQI=\",\"AwQ=\"]",
                         Character = "9",
                         DateTime = new DateTime(1973, 9, 3, 12, 10, 42, 344, DateTimeKind.Utc),
-                        DateTimeCollection = "[\"2023-09-07T00:00:00\",\"2023-11-14T00:00:00\"]",
+                        DateTimeCollection = "[\"2023-09-07T00:00:00.0000000\",\"2023-11-14T00:00:00.0000000\"]",
                         DateTimeOffset = new DateTimeOffset(new DateTime(1973, 9, 3, 12, 10, 42, 344, DateTimeKind.Unspecified), new TimeSpan(0, 1, 0, 0, 0)),
                         Decimal = 50.0m,
                         Double = 49.0,
@@ -9434,7 +9846,7 @@ partial class Snapshot : ModelSnapshot
                         Assert.Equal("[1,2,3,4]", seed["Int32Collection"]);
                         Assert.Equal("[1.2,3.4]", seed["DoubleCollection"]);
                         Assert.Equal("[\"AB\",\"CD\"]", seed["StringCollection"]);
-                        Assert.Equal("[\"2023-09-07T00:00:00\",\"2023-11-14T00:00:00\"]", seed["DateTimeCollection"]);
+                        Assert.Equal("[\"2023-09-07T00:00:00.0000000\",\"2023-11-14T00:00:00.0000000\"]", seed["DateTimeCollection"]);
                         Assert.Equal("[true,false]", seed["BoolCollection"]);
                         Assert.Equal("[\"AQI=\",\"AwQ=\"]", seed["BytesCollection"]);
                     },

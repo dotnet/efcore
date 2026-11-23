@@ -437,8 +437,8 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     table.Columns,
                     c => Assert.Equal("Id", c.Name),
                     c => Assert.Equal("Name", c.Name),
-                    c => Assert.Equal("ComplexReference_Date", c.Name),
                     c => Assert.Equal("ComplexReference_Value", c.Name),
+                    c => Assert.Equal("ComplexReference_Date", c.Name),
                     c => Assert.Equal("ComplexCollectionJSON", c.Name),
                     c => Assert.Equal("ComplexReferenceJSON", c.Name));
                 Assert.Same(
@@ -1120,6 +1120,89 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
             });
 
     [Fact]
+    public virtual Task Alter_column_make_not_required_with_unique_index()
+        => Test(
+            builder => builder.Entity(
+                "People", e =>
+                {
+                    e.Property<int>("Id");
+                    e.Property<string>("SomeColumn");
+                    e.HasIndex("SomeColumn")
+                        .IsUnique();
+                }),
+            builder => builder.Entity("People").Property<string>("SomeColumn").IsRequired(),
+            builder => builder.Entity("People").Property<string>("SomeColumn").IsRequired(false),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var column = Assert.Single(table.Columns, c => c.Name != "Id");
+                Assert.True(column.IsNullable);
+                var index = Assert.Single(table.Indexes);
+                Assert.True(index.IsUnique);
+                Assert.Same(column, Assert.Single(index.Columns));
+            });
+
+    [Fact]
+    public virtual Task Alter_column_make_not_required_while_referenced_in_other_index_filter()
+        => Test(
+            builder => builder.Entity(
+                "People", e =>
+                {
+                    e.Property<int>("Id");
+                    e.Property<string>("FirstName")
+                        .IsRequired();
+                    e.HasIndex("FirstName")
+                        .HasFilter($"{DelimitIdentifier("LastName")} <> ''");
+                    e.Property<string>("LastName");
+                }),
+            builder => builder.Entity("People").Property<string>("LastName").IsRequired(),
+            builder => builder.Entity("People").Property<string>("LastName").IsRequired(false),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+                var lastNameColumn = Assert.Single(table.Columns, c => c.Name == "LastName");
+                Assert.True(lastNameColumn.IsNullable);
+                Assert.Contains(table.Columns.Single(c => c.Name == "FirstName"), index.Columns);
+                if (AssertIndexFilters)
+                {
+                    Assert.Contains("LastName", index.Filter);
+                }
+            });
+
+    [Fact]
+    public virtual Task Alter_column_add_comment_while_referenced_in_other_index_filter_does_not_rebuild_index()
+        => Test(
+            builder => builder.Entity(
+                "People", e =>
+                {
+                    e.Property<int>("Id");
+                    e.Property<string>("FirstName")
+                        .IsRequired();
+                    e.HasIndex("FirstName")
+                        .HasFilter($"{DelimitIdentifier("LastName")} <> ''");
+                    e.Property<string>("LastName");
+                }),
+            builder => { },
+            builder => builder.Entity("People").Property<string>("LastName").HasComment("Some comment"),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+                var lastNameColumn = Assert.Single(table.Columns, c => c.Name == "LastName");
+                Assert.True(lastNameColumn.IsNullable);
+                Assert.Contains(table.Columns.Single(c => c.Name == "FirstName"), index.Columns);
+                if (AssertIndexFilters)
+                {
+                    Assert.Contains("LastName", index.Filter);
+                }
+                if (AssertComments)
+                {
+                    Assert.Equal("Some comment", lastNameColumn.Comment);
+                }
+            });
+
+    [Fact]
     public virtual Task Alter_column_make_required_with_composite_index()
         => Test(
             builder => builder.Entity(
@@ -1545,13 +1628,15 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
     [Fact]
     public virtual async Task Convert_string_column_to_a_json_column_containing_reference()
     {
+        var columnType = TypeMappingSource.FindMapping(typeof(string))!.StoreType;
+
         await Test(
             builder => builder.Entity(
                 "Entity", e =>
                 {
                     e.Property<int>("Id").ValueGeneratedOnAdd();
                     e.HasKey("Id");
-                    e.Property<string>("Name");
+                    e.Property<string>("Name").HasColumnType(columnType);
                 }),
             builder => builder.Entity(
                 "Entity", e =>
@@ -1562,7 +1647,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     e.OwnsOne(
                         "Owned", "OwnedReference", o =>
                         {
-                            o.ToJson("Name");
+                            o.ToJson("Name").HasColumnType(columnType);
                             o.OwnsOne("Nested", "NestedReference", n => n.Property<int>("Number"));
                             o.OwnsMany("Nested2", "NestedCollection", n => n.Property<int>("Number2"));
                             o.Property<DateTime>("Date");
@@ -1577,7 +1662,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     c => Assert.Equal("Name", c.Name));
             });
 
-        AssertSql();
+            AssertSql();
     }
 
     [Fact]
@@ -1619,13 +1704,15 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
     [Fact]
     public virtual async Task Convert_string_column_to_a_json_column_containing_collection()
     {
+        var columnType = TypeMappingSource.FindMapping(typeof(string))!.StoreType;
+
         await Test(
             builder => builder.Entity(
                 "Entity", e =>
                 {
                     e.Property<int>("Id").ValueGeneratedOnAdd();
                     e.HasKey("Id");
-                    e.Property<string>("Name");
+                    e.Property<string>("Name").HasColumnType(columnType);
                 }),
             builder => builder.Entity(
                 "Entity", e =>
@@ -1639,7 +1726,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                             o.OwnsOne("Nested3", "NestedReference2", n => n.Property<int>("Number3"));
                             o.OwnsMany("Nested4", "NestedCollection2", n => n.Property<int>("Number4"));
                             o.Property<DateTime>("Date2");
-                            o.ToJson("Name");
+                            o.ToJson("Name").HasColumnType(columnType);
                         });
                 }),
             model =>
@@ -1651,7 +1738,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     c => Assert.Equal("Name", c.Name));
             });
 
-        AssertSql();
+            AssertSql();
     }
 
     [Fact]
@@ -2239,6 +2326,35 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
             });
 
     [Fact]
+    public virtual Task Add_deferrable_foreign_key()
+        => Test(
+            builder =>
+            {
+                builder.Entity(
+                    "Customers", e =>
+                    {
+                        e.Property<int>("Id");
+                        e.HasKey("Id");
+                    });
+                builder.Entity(
+                    "Orders", e =>
+                    {
+                        e.Property<int>("Id");
+                        e.Property<int>("CustomerId");
+                    });
+            },
+            builder => { },
+            builder => builder.Entity("Orders").HasOne("Customers").WithMany()
+                .HasForeignKey("CustomerId")
+                .HasDeferrability(ConstraintDeferrability.DeferrableInitiallyDeferred),
+            model =>
+            {
+                var ordersTable = Assert.Single(model.Tables, t => t.Name == "Orders");
+                var foreignKey = Assert.Single(ordersTable.ForeignKeys);
+                Assert.Equal("Customers", foreignKey.PrincipalTable.Name);
+            });
+
+    [Fact]
     public virtual Task Drop_foreign_key()
         => Test(
             builder =>
@@ -2717,12 +2833,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     },
                     c =>
                     {
-                        Assert.Equal("MyComplex_MyNestedComplex_Bar", c.Name);
-                        Assert.True(c.IsNullable);
-                    },
-                    c =>
-                    {
-                        Assert.Equal("MyComplex_MyNestedComplex_Foo", c.Name);
+                        Assert.Equal("MyComplex_Nested_Foo", c.Name);
                         Assert.True(c.IsNullable);
                     },
                     c =>
@@ -2732,7 +2843,12 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     },
                     c =>
                     {
-                        Assert.Equal("MyComplex_Nested_Foo", c.Name);
+                        Assert.Equal("MyComplex_MyNestedComplex_Foo", c.Name);
+                        Assert.True(c.IsNullable);
+                    },
+                    c =>
+                    {
+                        Assert.Equal("MyComplex_MyNestedComplex_Bar", c.Name);
                         Assert.True(c.IsNullable);
                     },
                     c =>
@@ -2774,12 +2890,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     },
                     c =>
                     {
-                        Assert.Equal("MyComplex_MyNestedComplex_Bar", c.Name);
-                        Assert.True(c.IsNullable);
-                    },
-                    c =>
-                    {
-                        Assert.Equal("MyComplex_MyNestedComplex_Foo", c.Name);
+                        Assert.Equal("MyComplex_Nested_Foo", c.Name);
                         Assert.True(c.IsNullable);
                     },
                     c =>
@@ -2789,7 +2900,12 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     },
                     c =>
                     {
-                        Assert.Equal("MyComplex_Nested_Foo", c.Name);
+                        Assert.Equal("MyComplex_MyNestedComplex_Foo", c.Name);
+                        Assert.True(c.IsNullable);
+                    },
+                    c =>
+                    {
+                        Assert.Equal("MyComplex_MyNestedComplex_Bar", c.Name);
                         Assert.True(c.IsNullable);
                     },
                     c =>
@@ -2807,6 +2923,61 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
         public MyNestedComplex Nested { get; set; } = null!;
         public List<MyNestedComplex> NestedCollection { get; set; } = [];
     }
+
+    [Fact]
+    public virtual Task Create_tables_with_complex_properties_on_owned_types()
+        => Test(
+            builder => { },
+            builder => builder.Entity(
+                "Owner", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+                    e.OwnsOne(
+                        "Owned", "Owned", o =>
+                        {
+                            o.Property<string>("Name");
+                            o.ComplexProperty<MyJsonComplex>(
+                                "Complex", c =>
+                                {
+                                    c.ComplexProperty(x => x.Nested);
+                                    c.ComplexCollection(x => x.NestedCollection).ToJson();
+                                });
+                        });
+                    e.OwnsMany(
+                        "OwnedItem", "OwnedCollection", o =>
+                        {
+                            o.ToTable("OwnedItems");
+                            o.Property<int>("Id").ValueGeneratedNever();
+                            o.HasKey("OwnerId", "Id");
+                            o.ComplexProperty<MyNestedComplex>("Complex");
+                        });
+                }),
+            model =>
+            {
+                Assert.Collection(
+                    model.Tables.OrderBy(t => t.Name),
+                    t =>
+                    {
+                        Assert.Equal("OwnedItems", t.Name);
+                        Assert.Equal(["OwnerId", "Id", "Complex_Foo", "Complex_Bar"], t.Columns.Select(c => c.Name));
+                    },
+                    t =>
+                    {
+                        Assert.Equal("Owner", t.Name);
+                        Assert.Equal(
+                            [
+                                "Id",
+                                "Owned_Name",
+                                "Owned_Complex_Value",
+                                "Owned_Complex_Date",
+                                "Owned_Complex_Nested_Foo",
+                                "Owned_Complex_Nested_Bar",
+                                "NestedCollection"
+                            ],
+                            t.Columns.Select(c => c.Name));
+                    });
+            });
 
     public class MyNestedComplex
     {

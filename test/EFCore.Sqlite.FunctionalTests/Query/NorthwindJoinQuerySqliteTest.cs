@@ -112,6 +112,22 @@ INNER JOIN (SELECT @p1 AS "Value") AS "p" ON "e"."EmployeeID" = "p"."Value"
 """);
     }
 
+    public override async Task GroupJoin_aggregate_nested_anonymous_key_selectors(bool async)
+    {
+        // The GroupJoin is translated to a correlated predicate, where nested anonymous type equality isn't supported
+        await AssertTranslationFailed(() => base.GroupJoin_aggregate_nested_anonymous_key_selectors(async));
+
+        AssertSql();
+    }
+
+    public override async Task Join_with_key_selectors_being_nested_anonymous_objects_with_constructed_member(bool async)
+    {
+        // SQLite doesn't translate new DateTimeOffset(...)
+        await AssertTranslationFailed(() => base.Join_with_key_selectors_being_nested_anonymous_objects_with_constructed_member(async));
+
+        AssertSql();
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 }

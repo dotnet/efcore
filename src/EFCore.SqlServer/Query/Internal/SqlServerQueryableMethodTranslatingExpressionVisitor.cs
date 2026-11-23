@@ -80,6 +80,19 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
     {
         var method = methodCallExpression.Method;
 
+        // A temporal operator normally executes while the query is being built, returning a
+        // temporal query root. Inside EF.CompileQuery/CompileAsyncQuery it is never executed -- the
+        // lambda is only an expression tree -- so the call reaches translation intact. It cannot be
+        // honoured here: the point-in-time is emitted into the SQL as a literal
+        // (SqlServerQuerySqlGenerator, GenerateSqlLiteral), and a compiled query caches one SQL
+        // string across invocations, so a value that varies per invocation has nowhere to go.
+        // Report that rather than letting it fall through to a generic "could not be translated".
+        if (method.DeclaringType == typeof(SqlServerDbSetExtensions))
+        {
+            throw new InvalidOperationException(
+                SqlServerStrings.TemporalOperatorRequiresConstantArgumentInCompiledQuery(method.Name));
+        }
+
         if (method.DeclaringType == typeof(SqlServerQueryableExtensions)
             && Visit(methodCallExpression.Arguments[0]) is ShapedQueryExpression source)
         {
@@ -378,14 +391,34 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
             selectExpression = (SelectExpression)new TemporalAnnotationApplyingExpressionVisitor(annotationApplyingFunc)
                 .Visit(selectExpression);
 
+            var projectionBindingExpression = new ProjectionBindingExpression(
+                selectExpression,
+                new ProjectionMember(),
+                typeof(ValueBuffer));
+
+            // A range operation returns every version of a row, so the key alone no longer identifies a row; the period does.
+            if (queryRootExpression is not TemporalAsOfQueryRootExpression)
+            {
+                var temporalEntityType = queryRootExpression.EntityType.GetRootType();
+                var projection = (StructuralTypeProjectionExpression)selectExpression.GetProjection(projectionBindingExpression);
+                foreach (var periodPropertyName in new[]
+                         {
+                             temporalEntityType.GetPeriodStartPropertyName()!, temporalEntityType.GetPeriodEndPropertyName()!
+                         })
+                {
+                    var periodProperty = temporalEntityType.GetProperty(periodPropertyName);
+#pragma warning disable EF1001 // AddToIdentifier() is pubternal
+                    selectExpression.AddToIdentifier(
+                        (ColumnExpression)projection.BindProperty(periodProperty), periodProperty.GetKeyValueComparer());
+#pragma warning restore EF1001
+                }
+            }
+
             return new ShapedQueryExpression(
                 selectExpression,
                 new RelationalStructuralTypeShaperExpression(
                     queryRootExpression.EntityType,
-                    new ProjectionBindingExpression(
-                        selectExpression,
-                        new ProjectionMember(),
-                        typeof(ValueBuffer)),
+                    projectionBindingExpression,
                     false));
         }
 
@@ -573,6 +606,19 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                 });
         }
 
+        // The [key] column of OPENJSON (the index of the element in the array, which orders the elements) is referenced by name next to
+        // the WITH columns, so a JSON property named "key" needs another column name (see GetJsonElementColumnName).
+        if (columnInfos.FindIndex(c => c.Name == "key") is var keyColumnIndex and >= 0)
+        {
+            var columnName = "key";
+            for (var i = 0; columnInfos.Any(c => string.Equals(c.Name, columnName, StringComparison.OrdinalIgnoreCase)); i++)
+            {
+                columnName = "key" + i;
+            }
+
+            columnInfos[keyColumnIndex] = columnInfos[keyColumnIndex] with { Name = columnName };
+        }
+
         var openJsonExpression = new SqlServerOpenJsonExpression(
             tableAlias, jsonQueryExpression.JsonColumn, jsonQueryExpression.Path, columnInfos);
 
@@ -609,6 +655,19 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                     typeof(ValueBuffer)),
                 false));
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override string GetJsonElementColumnName(TableExpressionBase tableExpressionBase, string jsonPropertyName)
+        => tableExpressionBase is SqlServerOpenJsonExpression { ColumnInfos: { } columnInfos }
+            && columnInfos.FirstOrDefault(c => c.Path is [{ PropertyName: var propertyName }] && propertyName == jsonPropertyName) is
+                { Name: { } columnName }
+                ? columnName
+                : jsonPropertyName;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

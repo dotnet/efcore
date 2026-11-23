@@ -66,6 +66,7 @@ public abstract class NonSharedModelBulkUpdatesTestBase(NonSharedFixture fixture
     public class Owner
     {
         public int Id { get; set; }
+
         public string? Title { get; set; }
 
         public OwnedReference? OwnedReference { get; set; }
@@ -164,6 +165,7 @@ public abstract class NonSharedModelBulkUpdatesTestBase(NonSharedFixture fixture
     public class Context30572_Principal
     {
         public int Id { get; set; }
+
         public string? Title { get; set; }
 
         public Context30572_Dependent? Dependent { get; set; }
@@ -174,6 +176,69 @@ public abstract class NonSharedModelBulkUpdatesTestBase(NonSharedFixture fixture
         public int Id { get; set; }
 
         public int Number { get; set; }
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Delete_entity_with_many_to_many_auto_include(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context35523>();
+        await AssertDelete(async, contextFactory.CreateDbContext, ss => ss.Set<Context35523_Left>(), rowsAffectedCount: 0);
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Delete_entity_with_many_to_many_explicit_include(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context35523>();
+        await AssertDelete(
+            async, contextFactory.CreateDbContext,
+            ss => ss.Set<Context35523_Right>().Include(r => r.Lefts),
+            rowsAffectedCount: 0);
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Update_entity_with_many_to_many_auto_include(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context35523>();
+        await AssertUpdate(
+            async, contextFactory.CreateDbContext,
+            ss => ss.Set<Context35523_Left>(),
+            s => s.SetProperty(l => l.Title, "SomeValue"),
+            rowsAffectedCount: 0);
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Update_entity_with_many_to_many_explicit_include(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context35523>();
+        await AssertUpdate(
+            async, contextFactory.CreateDbContext,
+            ss => ss.Set<Context35523_Right>().Include(r => r.Lefts),
+            s => s.SetProperty(r => r.Title, "SomeValue"),
+            rowsAffectedCount: 0);
+    }
+
+    protected class Context35523(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Context35523_Left>().Navigation(o => o.Rights).AutoInclude();
+    }
+
+    public class Context35523_Left
+    {
+        public int Id { get; set; }
+
+        public string? Title { get; set; }
+
+        public List<Context35523_Right> Rights { get; set; } = null!;
+    }
+
+    public class Context35523_Right
+    {
+        public int Id { get; set; }
+
+        public string? Title { get; set; }
+
+        public List<Context35523_Left> Lefts { get; set; } = null!;
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -258,6 +323,7 @@ public abstract class NonSharedModelBulkUpdatesTestBase(NonSharedFixture fixture
     public class Blog
     {
         public int Id { get; set; }
+
         public string? Title { get; set; }
         public int Rating { get; set; }
         public DateTime CreationTimestamp { get; set; }
@@ -271,7 +337,98 @@ public abstract class NonSharedModelBulkUpdatesTestBase(NonSharedFixture fixture
         public virtual Blog? Blog { get; set; }
     }
 
+    [Fact]
+    public virtual async Task ExecuteUpdate_complex_property_of_owned_reference()
+    {
+        var contextFactory = await InitializeNonSharedTest<ContextOwnedComplexProperties>(seed: c => c.SeedAsync());
+
+        using (var context = contextFactory.CreateDbContext())
+        {
+            ClearLog();
+            await context.Owners.Where(e => e.Id == 1)
+                .ExecuteUpdateAsync(s => s.SetProperty(e => e.Owned.Address.City, "Melbourne"));
+        }
+
+        using (var context = contextFactory.CreateDbContext())
+        {
+            Assert.Equal("Melbourne", (await context.Owners.SingleAsync(e => e.Id == 1)).Owned.Address.City);
+        }
+    }
+
+    protected class ContextOwnedComplexProperties(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Owner> Owners { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Owner>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+                b.OwnsOne(e => e.Owned, ob => ob.ComplexProperty(o => o.Address));
+            });
+
+        public Task SeedAsync()
+        {
+            AddRange(
+                new Owner
+                {
+                    Id = 1,
+                    Name = "Owner1",
+                    Owned = CreateOwned("Owned1", "1 Main St", "Sydney", "Australia", "AU")
+                },
+                new Owner
+                {
+                    Id = 2,
+                    Name = "Owner2",
+                    Owned = CreateOwned("Owned2", "2 Hauptstrasse", "Berlin", "Germany", "DE")
+                });
+
+            return SaveChangesAsync();
+        }
+
+        private static Owned CreateOwned(string name, string street, string city, string country, string code)
+            => new()
+            {
+                Name = name,
+                Address = new Address
+                {
+                    Street = street,
+                    City = city,
+                    Country = new Country { Name = country, Code = code }
+                }
+            };
+
+        public class Owner
+        {
+            public int Id { get; set; }
+            public string Name { get; set; } = null!;
+            public Owned Owned { get; set; } = null!;
+        }
+
+        public class Owned
+        {
+            public string Name { get; set; } = null!;
+            public Address Address { get; set; } = null!;
+        }
+
+        public class Address
+        {
+            public string Street { get; set; } = null!;
+            public string City { get; set; } = null!;
+            public Country Country { get; set; } = null!;
+        }
+
+        public class Country
+        {
+            public string Name { get; set; } = null!;
+            public string Code { get; set; } = null!;
+        }
+    }
+
     #region HelperMethods
+
+    protected void ClearLog()
+        => ListLoggerFactory.Clear();
+
 
     public Task AssertDelete<TContext, TResult>(
         bool async,

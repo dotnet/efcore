@@ -122,7 +122,7 @@ internal class RootCommand : CommandBase
         string executable;
         var args = new List<string>();
 
-        var toolsPath = Path.Combine(
+        var toolsPath = Path.Join(
             Path.GetDirectoryName(typeof(Program).Assembly.Location)!,
             "tools");
 
@@ -191,7 +191,7 @@ internal class RootCommand : CommandBase
                 args.Add(startupProject.RuntimeFrameworkVersion);
             }
 
-            args.Add(Path.Combine(toolsPath, "net", "ef.dll"));
+            args.Add(Path.Join(toolsPath, "net", "ef.dll"));
         }
         else if (targetFramework.Identifier == ".NETStandard")
         {

@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections;
 using System.Text;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Storage.Json;
@@ -87,7 +88,81 @@ public class CosmosTypeMapping : CoreTypeMapping
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual SqlParameter CreateParameter(string name, object? value)
-        => new SqlValueParameter(name, ConvertToProviderValue(value));
+    {
+        var normalized = NormalizeValue(value);
+
+        // The reader/writer can only handle values of its own type. Collections of references report 'object' as their
+        // value type, so they are not validated by this check either. Object-backed collections (e.g. a List<object> of
+        // DateTimes) are serialized element by element through the element mapping, so that the elements get the same
+        // representation as stored values. Anything else is left to the SDK serializer, as before.
+        if (normalized is not null
+            && (!JsonValueReaderWriter!.ValueType.IsInstanceOfType(normalized)
+                || (JsonValueReaderWriter.ValueType == typeof(object) && ElementTypeMapping is not null)))
+        {
+            return TryCreateElementwiseParameter(name, normalized) ?? new SqlValueParameter(name, ConvertToProviderValue(value));
+        }
+
+        using var stream = new MemoryStream();
+        using (var writer = new Utf8JsonWriter(stream, CosmosClientWrapper.JsonWriterOptions))
+        {
+            if (normalized is not null || JsonValueReaderWriter!.HandlesNullWrites)
+            {
+                JsonValueReaderWriter!.ToJson(writer, normalized!);
+            }
+            else
+            {
+                writer.WriteNullValue();
+            }
+        }
+
+        return new SqlRawJsonParameter(name, stream.ToArray());
+    }
+
+    private SqlParameter? TryCreateElementwiseParameter(string name, object value)
+    {
+        var elementReaderWriter = ElementTypeMapping?.JsonValueReaderWriter;
+        if (elementReaderWriter is null
+            || value is string
+            || value is not IEnumerable elements)
+        {
+            return null;
+        }
+
+        var elementType = elementReaderWriter.ValueType;
+
+        using var stream = new MemoryStream();
+        using (var writer = new Utf8JsonWriter(stream, CosmosClientWrapper.JsonWriterOptions))
+        {
+            writer.WriteStartArray();
+            foreach (var element in elements)
+            {
+                if (element is null)
+                {
+                    if (elementReaderWriter.HandlesNullWrites)
+                    {
+                        elementReaderWriter.ToJson(writer, null);
+                    }
+                    else
+                    {
+                        writer.WriteNullValue();
+                    }
+                }
+                else if (elementType.IsInstanceOfType(element))
+                {
+                    elementReaderWriter.ToJson(writer, element);
+                }
+                else
+                {
+                    // The element isn't compatible with the element mapping, so serialize just this element as before.
+                    JsonSerializer.Serialize(writer, element, element.GetType());
+                }
+            }
+
+            writer.WriteEndArray();
+        }
+
+        return new SqlRawJsonParameter(name, stream.ToArray());
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

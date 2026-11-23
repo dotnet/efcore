@@ -491,8 +491,11 @@ public class ChangeDetector : IChangeDetector
                         }
                         else
                         {
+                            // An earlier slot keeps its entry when the current element there is null or was added
                             Check.DebugAssert(
-                                originalEntry.Ordinal > i || currentNulls.Contains(originalEntry.Ordinal),
+                                originalEntry.Ordinal > i
+                                || currentNulls.Contains(originalEntry.Ordinal)
+                                || added.Contains(originalEntry.Ordinal),
                                 $"Expected the entry that was previously at {originalEntry.Ordinal} to have been encountered at an ordinal before {i}.");
                             entry.MoveComplexCollectionEntry(complexProperty, originalEntry.Ordinal, i);
 

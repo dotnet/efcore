@@ -134,9 +134,7 @@ public class SqlServerRuntimeModelConvention : RelationalRuntimeModelConvention
             annotations.Remove(SqlServerAnnotationNames.TemporalHistoryTableName);
             annotations.Remove(SqlServerAnnotationNames.TemporalHistoryTableSchema);
             annotations.Remove(SqlServerAnnotationNames.TemporalPeriodEndColumnName);
-            annotations.Remove(SqlServerAnnotationNames.TemporalPeriodEndPropertyName);
             annotations.Remove(SqlServerAnnotationNames.TemporalPeriodStartColumnName);
-            annotations.Remove(SqlServerAnnotationNames.TemporalPeriodStartPropertyName);
         }
     }
 }

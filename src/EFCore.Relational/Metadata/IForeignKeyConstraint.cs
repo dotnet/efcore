@@ -61,6 +61,11 @@ public interface IForeignKeyConstraint : IAnnotatable
     bool IsExcludedFromMigrations { get; }
 
     /// <summary>
+    ///     Gets a value indicating whether checking of the foreign key constraint can be deferred until the end of the transaction.
+    /// </summary>
+    ConstraintDeferrability Deferrability { get; }
+
+    /// <summary>
     ///     <para>
     ///         Creates a human-readable representation of the given metadata.
     ///     </para>

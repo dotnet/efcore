@@ -382,7 +382,7 @@ public static class RelationalTypeBaseExtensions
     {
         var containerColumnName = typeBase.FindAnnotation(RelationalAnnotationNames.ContainerColumnName);
         return containerColumnName != null
-            ? (string?)containerColumnName.Value
+            ? FindDefaultContainerColumnProperty(typeBase, containerColumnName)?.Name ?? (string?)containerColumnName.Value
             : typeBase is IReadOnlyEntityType entityType
                 ? entityType.FindOwnership()?.PrincipalEntityType.GetContainerColumnName()
                 : ((IReadOnlyComplexType)typeBase).ComplexProperty.DeclaringType.GetContainerColumnName();
@@ -397,12 +397,17 @@ public static class RelationalTypeBaseExtensions
     ///     The container column name to which the type is mapped, or <see langword="null" /> if the type is not mapped
     ///     to a container column in the given store object.
     /// </returns>
+    /// <remarks>
+    ///     For a complex type of a complex property declared on an owned type that shares the table or view with its owner,
+    ///     the default container column name is prefixed with the ownership navigation names.
+    /// </remarks>
     public static string? GetContainerColumnName(this IReadOnlyTypeBase typeBase, in StoreObjectIdentifier storeObject)
     {
         var annotation = typeBase.FindAnnotation(RelationalAnnotationNames.ContainerColumnName);
         if (annotation != null)
         {
-            var containerColumnName = (string?)annotation.Value;
+            var defaultContainerColumnProperty = FindDefaultContainerColumnProperty(typeBase, annotation);
+            var containerColumnName = defaultContainerColumnProperty?.Name ?? (string?)annotation.Value;
             if (string.IsNullOrEmpty(containerColumnName))
             {
                 return containerColumnName;
@@ -453,13 +458,36 @@ public static class RelationalTypeBaseExtensions
                 return tableFound ? containerColumnName : null;
             }
 
-            return declaringStoreObject == storeObject ? containerColumnName : null;
+            if (declaringStoreObject != storeObject)
+            {
+                return null;
+            }
+
+            // Like the columns of its properties, the default container column of a complex property on an owned type
+            // sharing a table or view with its owner is prefixed with the ownership navigation names
+            if (defaultContainerColumnProperty?.DeclaringType is IReadOnlyEntityType declaringEntityType
+                && RelationalPropertyExtensions.CreateOwnershipPrefix(declaringEntityType, storeObject, builder: null) is { } prefix)
+            {
+                return Uniquifier.Truncate(
+                    prefix.Append(containerColumnName).ToString(), typeBase.Model.GetMaxIdentifierLength());
+            }
+
+            return containerColumnName;
         }
 
         return typeBase is IReadOnlyEntityType entityType
             ? entityType.FindOwnership()?.PrincipalEntityType.GetContainerColumnName(storeObject)
             : ((IReadOnlyComplexType)typeBase).ComplexProperty.DeclaringType.GetContainerColumnName(storeObject);
     }
+
+    // ToJson() without a column name sets an empty container column name on a complex type,
+    // which stands for the default one: the name of the complex property
+    private static IReadOnlyComplexProperty? FindDefaultContainerColumnProperty(
+        IReadOnlyTypeBase typeBase,
+        IAnnotation containerColumnName)
+        => typeBase is IReadOnlyComplexType complexType && (string?)containerColumnName.Value == string.Empty
+            ? complexType.ComplexProperty
+            : null;
 
     /// <summary>
     ///     Sets the name of the container column to which the type is mapped.

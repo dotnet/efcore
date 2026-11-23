@@ -60,6 +60,26 @@ public class SqlServerDatabaseFacadeExtensionsTest
     }
 
     [Fact]
+    public void Setting_CommandTimeout_to_sub_second_timespan_does_not_disable_timeout()
+    {
+        using var context = new TimeoutContext();
+
+        context.Database.SetCommandTimeout(TimeSpan.FromMilliseconds(400));
+        Assert.Equal(1, context.Database.GetCommandTimeout());
+
+        context.Database.SetCommandTimeout(TimeSpan.FromMilliseconds(500));
+        Assert.Equal(1, context.Database.GetCommandTimeout());
+
+        context.Database.SetCommandTimeout(TimeSpan.Zero);
+        Assert.Equal(0, context.Database.GetCommandTimeout());
+
+        using (context.Database.UseCommandTimeout(TimeSpan.FromMilliseconds(250)))
+        {
+            Assert.Equal(1, context.Database.GetCommandTimeout());
+        }
+    }
+
+    [Fact]
     public void Setting_CommandTimeout_to_negative_value_throws()
     {
         Assert.Throws<InvalidOperationException>(() => new DbContextOptionsBuilder().UseSqlServer(
@@ -76,6 +96,83 @@ public class SqlServerDatabaseFacadeExtensionsTest
         Assert.Throws<ArgumentException>(() => context.Database.SetCommandTimeout(TimeSpan.FromSeconds(-99)));
 
         Assert.Throws<ArgumentException>(() => context.Database.SetCommandTimeout(TimeSpan.FromSeconds(uint.MaxValue)));
+    }
+
+    [Fact]
+    public void UseCommandTimeout_scopes_timeout_and_restores_previous_value_on_dispose()
+    {
+        using var context = new TimeoutContext();
+        Assert.Null(context.Database.GetCommandTimeout());
+
+        using (context.Database.UseCommandTimeout(77))
+        {
+            Assert.Equal(77, context.Database.GetCommandTimeout());
+
+            using (context.Database.UseCommandTimeout(TimeSpan.FromSeconds(88)))
+            {
+                Assert.Equal(88, context.Database.GetCommandTimeout());
+
+                using (context.Database.UseCommandTimeout(null))
+                {
+                    Assert.Null(context.Database.GetCommandTimeout());
+                }
+
+                Assert.Equal(88, context.Database.GetCommandTimeout());
+            }
+
+            Assert.Equal(77, context.Database.GetCommandTimeout());
+        }
+
+        Assert.Null(context.Database.GetCommandTimeout());
+    }
+
+    [Fact]
+    public void UseCommandTimeout_restores_previous_value_when_exception_thrown()
+    {
+        using var context = new TimeoutContext();
+        context.Database.SetCommandTimeout(50);
+
+        Assert.Throws<NotSupportedException>(
+            (Action)(() =>
+            {
+                using (context.Database.UseCommandTimeout(100))
+                {
+                    Assert.Equal(100, context.Database.GetCommandTimeout());
+                    throw new NotSupportedException();
+                }
+            }));
+
+        Assert.Equal(50, context.Database.GetCommandTimeout());
+    }
+
+    [Fact]
+    public void UseCommandTimeout_with_infinite_timespan_sets_to_zero()
+    {
+        using var context = new TimeoutContext();
+        context.Database.SetCommandTimeout(50);
+
+        using (context.Database.UseCommandTimeout(Timeout.InfiniteTimeSpan))
+        {
+            Assert.Equal(0, context.Database.GetCommandTimeout());
+        }
+
+        Assert.Equal(50, context.Database.GetCommandTimeout());
+    }
+
+    [Fact]
+    public void UseCommandTimeout_to_negative_value_throws_and_does_not_change_timeout()
+    {
+        using var context = new TimeoutContext();
+        context.Database.SetCommandTimeout(50);
+
+        Assert.Throws<ArgumentException>(() => context.Database.UseCommandTimeout(-3));
+        Assert.Equal(50, context.Database.GetCommandTimeout());
+
+        Assert.Throws<ArgumentException>(() => context.Database.UseCommandTimeout(TimeSpan.FromSeconds(-3)));
+        Assert.Equal(50, context.Database.GetCommandTimeout());
+
+        Assert.Throws<ArgumentException>(() => context.Database.UseCommandTimeout(TimeSpan.FromSeconds(uint.MaxValue)));
+        Assert.Equal(50, context.Database.GetCommandTimeout());
     }
 
     public class TimeoutContext : DbContext
