@@ -937,6 +937,23 @@ SELECT changes();
     }
 
     [Fact]
+    public virtual void DropForeignKey_ignored_when_table_is_dropped()
+    {
+        Generate(
+            new DropForeignKeyOperation { Table = "Owners", Name = "FK_Owners_Revisions_CurrentRevisionId" },
+            new DropTableOperation { Name = "Revisions" },
+            new DropTableOperation { Name = "Owners" });
+
+        AssertSql(
+            """
+DROP TABLE "Revisions";
+GO
+
+DROP TABLE "Owners";
+""");
+    }
+
+    [Fact]
     public virtual void DropPrimaryKey_throws_when_no_model()
     {
         var ex = Assert.Throws<NotSupportedException>(() => Generate(

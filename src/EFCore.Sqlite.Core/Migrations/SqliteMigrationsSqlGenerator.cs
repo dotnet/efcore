@@ -275,6 +275,14 @@ public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
             {
                 skippedRebuilds.Add(key);
 
+                if (operations.OfType<DropTableOperation>().Any(d => d.Name == key.Table && d.Schema == key.Schema))
+                {
+                    foreach (var operationToReplace in rebuildContext.OperationsToReplace)
+                    {
+                        operations.Remove(operationToReplace);
+                    }
+                }
+
                 continue;
             }
 
