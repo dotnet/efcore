@@ -3780,6 +3780,11 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                     switch (entityProjection)
                     {
+                        // complex types are not tracked by the change tracker, so ordering is irrelevant
+                        case QueryableJsonProjectionInfo or JsonProjectionInfo
+                            when entityShaperExpression.StructuralType is not IEntityType:
+                            return base.VisitExtension(extensionExpression);
+
                         case QueryableJsonProjectionInfo:
                         case JsonProjectionInfo when _insideCollection && !_insideInclude:
                             throw new InvalidOperationException(
@@ -3819,6 +3824,11 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                     switch (collectionProjection)
                     {
+                        // complex collections are not tracked by the change tracker, so ordering is irrelevant
+                        case QueryableJsonProjectionInfo or JsonProjectionInfo
+                            when collectionResultExpression.StructuralProperty is not INavigation:
+                            return base.VisitExtension(extensionExpression);
+
                         case QueryableJsonProjectionInfo:
                         case JsonProjectionInfo when _insideCollection && !_insideInclude:
                             throw new InvalidOperationException(
