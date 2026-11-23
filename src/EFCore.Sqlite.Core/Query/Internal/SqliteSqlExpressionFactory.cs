@@ -111,6 +111,18 @@ public class SqliteSqlExpressionFactory : SqlExpressionFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public static bool IsStoredAsTimeSpan(SqlExpression timeSpan)
+        // ef_ticks() only understands the default text storage; a value converted to a number would be read as days.
+        => (timeSpan.TypeMapping?.Converter?.ProviderClrType ?? timeSpan.TypeMapping?.ClrType ?? timeSpan.Type)
+            .UnwrapNullableType()
+            == typeof(TimeSpan);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual SqlExpression EfTicks(SqlExpression timeSpan)
     {
         // TimeSpan is stored as text, so arithmetic and comparisons are done on its integer ticks; unwrapping

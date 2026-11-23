@@ -32,7 +32,9 @@ public class SqliteTimeSpanMethodTranslator(SqliteSqlExpressionFactory sqlExpres
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        if (instance is null || method.DeclaringType != typeof(TimeSpan))
+        if (instance is null
+            || method.DeclaringType != typeof(TimeSpan)
+            || !SqliteSqlExpressionFactory.IsStoredAsTimeSpan(instance))
         {
             return null;
         }

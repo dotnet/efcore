@@ -244,7 +244,7 @@ WHERE ef_timespan(abs(-ef_ticks("b"."TimeSpan"))) = "b"."TimeSpan"
             """
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
-WHERE (CAST(round(CAST(ef_ticks("b"."TimeSpan") AS REAL) * 2.5) AS INTEGER) / 36000000000) % 24 = 7
+WHERE (CAST(ef_round(CAST(ef_ticks("b"."TimeSpan") AS REAL) * 2.5) AS INTEGER) / 36000000000) % 24 = 7
 """);
     }
 
@@ -257,7 +257,46 @@ WHERE (CAST(round(CAST(ef_ticks("b"."TimeSpan") AS REAL) * 2.5) AS INTEGER) / 36
             """
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
-WHERE (CAST(round(CAST(ef_ticks("b"."TimeSpan") AS REAL) / 2.0) AS INTEGER) / 600000000) % 60 = 32
+WHERE (CAST(ef_round(CAST(ef_ticks("b"."TimeSpan") AS REAL) / 2.0) AS INTEGER) / 600000000) % 60 = 32
+""");
+    }
+
+    [Fact]
+    public virtual async Task Multiply_by_double_rounds_half_to_even()
+    {
+        // .NET rounds the scaled ticks half to even, unlike SQLite's round(): 0.5 and -2.5 ticks become 0 and -2.
+        await AssertQuery(
+            ss => ss.Set<BasicTypesEntity>().Select(b => new
+            {
+                b.Id,
+                Positive = ((b.TimeSpan - b.TimeSpan + TimeSpan.FromTicks(1)) * 0.5).Ticks,
+                Negative = ((b.TimeSpan - b.TimeSpan - TimeSpan.FromTicks(5)) * 0.5).Ticks
+            }),
+            elementSorter: e => e.Id);
+
+        AssertSql(
+            """
+SELECT "b"."Id", CAST(ef_round(CAST((ef_ticks("b"."TimeSpan") - ef_ticks("b"."TimeSpan")) + 1 AS REAL) * 0.5) AS INTEGER) AS "Positive", CAST(ef_round(CAST((ef_ticks("b"."TimeSpan") - ef_ticks("b"."TimeSpan")) - 5 AS REAL) * 0.5) AS INTEGER) AS "Negative"
+FROM "BasicTypesEntities" AS "b"
+""");
+    }
+
+    [Fact]
+    public virtual async Task Divide_by_double_rounds_half_to_even()
+    {
+        await AssertQuery(
+            ss => ss.Set<BasicTypesEntity>().Select(b => new
+            {
+                b.Id,
+                Positive = ((b.TimeSpan - b.TimeSpan + TimeSpan.FromTicks(5)) / 2.0).Ticks,
+                Negative = ((b.TimeSpan - b.TimeSpan - TimeSpan.FromTicks(1)) / 2.0).Ticks
+            }),
+            elementSorter: e => e.Id);
+
+        AssertSql(
+            """
+SELECT "b"."Id", CAST(ef_round(CAST((ef_ticks("b"."TimeSpan") - ef_ticks("b"."TimeSpan")) + 5 AS REAL) / 2.0) AS INTEGER) AS "Positive", CAST(ef_round(CAST((ef_ticks("b"."TimeSpan") - ef_ticks("b"."TimeSpan")) - 1 AS REAL) / 2.0) AS INTEGER) AS "Negative"
+FROM "BasicTypesEntities" AS "b"
 """);
     }
 

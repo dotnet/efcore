@@ -594,11 +594,11 @@ public class SqliteSqlTranslatingExpressionVisitor(
             ? _sqlExpressionFactory.Multiply(_sqlExpressionFactory.Convert(ticks, typeof(double)), factor)
             : _sqlExpressionFactory.Divide(_sqlExpressionFactory.Convert(ticks, typeof(double)), factor);
 
-        // .NET rounds the scaled ticks to the nearest tick.
+        // .NET rounds the scaled ticks to the nearest tick, half to even.
         return SqliteFactory.EfTimeSpan(
             _sqlExpressionFactory.Convert(
                 _sqlExpressionFactory.Function(
-                    "round",
+                    "ef_round",
                     [scaled],
                     nullable: true,
                     argumentsPropagateNullability: Statics.TrueArrays[1],

@@ -26,7 +26,9 @@ public class SqliteTimeSpanMemberTranslator(SqliteSqlExpressionFactory sqlExpres
         Type returnType,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        if (member.DeclaringType != typeof(TimeSpan) || instance is null)
+        if (member.DeclaringType != typeof(TimeSpan)
+            || instance is null
+            || !SqliteSqlExpressionFactory.IsStoredAsTimeSpan(instance))
         {
             return null;
         }
