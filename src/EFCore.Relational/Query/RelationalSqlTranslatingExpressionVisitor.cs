@@ -1895,6 +1895,41 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
         var translation = Dependencies.AggregateMethodCallTranslatorProvider.Translate(
             _model, method, enumerableExpression, scalarArguments, _queryCompilationContext.Logger);
 
+        if (translation != null
+            && method.DeclaringType == typeof(Queryable)
+            && method.Name is nameof(Queryable.Count) or nameof(Queryable.LongCount)
+            && enumerableExpression is { IsDistinct: true, Selector: SqlExpression distinctSelector }
+            && MayBeNull(distinctSelector)
+            && !(TryGetNullCheckedColumn(enumerableExpression.Predicate) is ColumnExpression checkedColumn
+                && checkedColumn.Equals(distinctSelector)))
+        {
+            // COUNT(DISTINCT x) skips NULL, but LINQ's Distinct().Count() counts null as one more distinct value. Add one when
+            // the rows being counted contain a NULL. That is itself a distinct count, so it is 0 or 1 and never NULL.
+            var isNull = _sqlExpressionFactory.IsNull(distinctSelector);
+            var nullCount = Dependencies.AggregateMethodCallTranslatorProvider.Translate(
+                _model,
+                method,
+                new EnumerableExpression(
+                    _sqlExpressionFactory.Case(
+                        [
+                            new CaseWhenClause(
+                                enumerableExpression.Predicate is null
+                                    ? isNull
+                                    : _sqlExpressionFactory.AndAlso(enumerableExpression.Predicate, isNull),
+                                _sqlExpressionFactory.Constant(1))
+                        ],
+                        elseResult: null)) { GroupingOwner = enumerableExpression.GroupingOwner }.SetDistinct(true),
+                scalarArguments,
+                _queryCompilationContext.Logger);
+
+            if (nullCount is null)
+            {
+                return null;
+            }
+
+            translation = _sqlExpressionFactory.Add(translation, nullCount);
+        }
+
         // #27130: SQL evaluates an aggregate in the innermost query whose columns its argument references - or, when it references
         // none (COUNT(*)), in the query it is written in. A grouping from an enclosing query stays in scope inside subqueries, so an
         // aggregate over it isn't necessarily written in the query owning that grouping, and even one that is can name only columns
@@ -1932,6 +1967,27 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                         Right: ColumnExpression column
                     } => column,
                 _ => null
+            };
+
+        // Whether a distinct count's operand can be NULL. Anything not known to be non-nullable is assumed nullable.
+        static bool MayBeNull(SqlExpression expression)
+            => expression switch
+            {
+                ColumnExpression column => column.IsNullable,
+                SqlConstantExpression constant => constant.Value is null,
+                SqlFunctionExpression function
+                    => function.IsNullable
+                    || (function is { Arguments: { } arguments, ArgumentsPropagateNullability: { } propagate }
+                        && arguments.Where((argument, i) => propagate[i] && MayBeNull(argument)).Any()),
+                SqlUnaryExpression { OperatorType: ExpressionType.Convert or ExpressionType.Negate } unary => MayBeNull(unary.Operand),
+                SqlUnaryExpression { OperatorType: ExpressionType.Equal or ExpressionType.NotEqual } => false,
+                SqlBinaryExpression
+                    {
+                        OperatorType: ExpressionType.Add or ExpressionType.Subtract or ExpressionType.Multiply
+                        or ExpressionType.Divide or ExpressionType.Modulo
+                    } binary
+                    => MayBeNull(binary.Left) || MayBeNull(binary.Right),
+                _ => true
             };
     }
 

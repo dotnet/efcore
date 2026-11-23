@@ -302,6 +302,40 @@ GROUP BY "o0"."Key"
         AssertSql();
     }
 
+    public override async Task GroupBy_Property_Select_Distinct_Count_over_nullable_column(bool async)
+    {
+        await base.GroupBy_Property_Select_Distinct_Count_over_nullable_column(async);
+
+        AssertSql(
+            """
+SELECT "c"."Country" AS "Key", COUNT(DISTINCT ("c"."Region")) + COUNT(DISTINCT (CASE
+    WHEN "c"."Region" IS NULL THEN 1
+END)) AS "Count", COUNT(DISTINCT ("c"."Region")) + COUNT(DISTINCT (CASE
+    WHEN "c"."Region" IS NULL THEN 1
+END)) AS "LongCount"
+FROM "Customers" AS "c"
+GROUP BY "c"."Country"
+""");
+    }
+
+    public override async Task GroupBy_Property_Select_Distinct_Count_over_nullable_column_with_predicate(bool async)
+    {
+        await base.GroupBy_Property_Select_Distinct_Count_over_nullable_column_with_predicate(async);
+
+        AssertSql(
+            """
+SELECT "c"."Country" AS "Key", COUNT(DISTINCT (NULLIF("c"."Region", 'WA'))) + COUNT(DISTINCT (CASE
+    WHEN ("c"."Region" <> 'WA' OR "c"."Region" IS NULL) AND "c"."Region" IS NULL THEN 1
+END)) AS "Count", COUNT(DISTINCT (CASE
+    WHEN "c"."City" <> 'London' OR "c"."City" IS NULL THEN "c"."Region"
+END)) + COUNT(DISTINCT (CASE
+    WHEN ("c"."City" <> 'London' OR "c"."City" IS NULL) AND "c"."Region" IS NULL THEN 1
+END)) AS "LongCount"
+FROM "Customers" AS "c"
+GROUP BY "c"."Country"
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

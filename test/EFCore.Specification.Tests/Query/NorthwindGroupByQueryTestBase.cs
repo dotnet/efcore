@@ -2370,6 +2370,34 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
             elementSorter: e => e.Key);
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Property_Select_Distinct_Count_over_nullable_column(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .GroupBy(c => c.Country)
+                .Select(g => new
+                {
+                    g.Key,
+                    Count = g.Select(c => c.Region).Distinct().Count(),
+                    LongCount = g.Select(c => c.Region).Distinct().LongCount()
+                }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Property_Select_Distinct_Count_over_nullable_column_with_predicate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .GroupBy(c => c.Country)
+                .Select(g => new
+                {
+                    g.Key,
+                    Count = g.Select(c => c.Region).Distinct().Count(r => r != "WA"),
+                    LongCount = g.Where(c => c.City != "London").Select(c => c.Region).Distinct().LongCount()
+                }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_Property_Select_Count_with_not_null_and_other_predicate(bool async)
         => AssertQuery(
             async,
