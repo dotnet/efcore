@@ -708,6 +708,38 @@ WHERE [b0].[row] <= 1
 """);
     }
 
+    public override async Task GroupBy_aggregate_over_outer_grouping_in_subquery()
+    {
+        await base.GroupBy_aggregate_over_outer_grouping_in_subquery();
+
+        AssertSql(
+            """
+SELECT [b].[Name] AS [Key], ISNULL((
+    SELECT TOP(1) (
+        SELECT COUNT(*)
+        FROM [Blogs] AS [b1]
+        WHERE [b].[Name] = [b1].[Name] OR ([b].[Name] IS NULL AND [b1].[Name] IS NULL))
+    FROM [Blogs] AS [b0]
+    GROUP BY [b0].[Id]
+    ORDER BY [b0].[Id]), 0) AS [Count]
+FROM [Blogs] AS [b]
+GROUP BY [b].[Name]
+""");
+    }
+
+    public override async Task GroupBy_aggregate_as_element_of_inline_collection_Contains()
+    {
+        await base.GroupBy_aggregate_as_element_of_inline_collection_Contains();
+
+        AssertSql(
+            """
+SELECT [b].[Name]
+FROM [Blogs] AS [b]
+GROUP BY [b].[Name]
+HAVING 1 IN (COUNT(*), -1)
+""");
+    }
+
     #endregion Regular operators
 
     #region Terminating operators

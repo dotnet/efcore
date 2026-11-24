@@ -412,6 +412,25 @@ async Task AssertPage()
     public virtual Task GroupBy_Select_first_grouping_element()
         => Test("""var blogs = await context.Blogs.GroupBy(b => b.Name).Select(g => g.OrderBy(b => b.Id).First()).ToListAsync();""");
 
+    // An aggregate over a grouping translated in a nested query falls back to a subquery over the grouping element (#27130).
+    [Fact]
+    public virtual Task GroupBy_aggregate_over_outer_grouping_in_subquery()
+        => Test(
+            """
+var blogs = await context.Blogs.GroupBy(b => b.Name)
+    .Select(g => new { g.Key, Count = context.Blogs.GroupBy(b => b.Id).OrderBy(g2 => g2.Key).Select(g2 => g.Count()).FirstOrDefault() })
+    .ToListAsync();
+""");
+
+    // An aggregate over a grouping translated for an inline collection is folded back into the grouped query once the
+    // collection becomes an IN list (#27130).
+    [Fact]
+    public virtual Task GroupBy_aggregate_as_element_of_inline_collection_Contains()
+        => Test(
+            """
+var blogs = await context.Blogs.GroupBy(b => b.Name).Where(g => new List<int> { g.Count(), -1 }.Contains(1)).Select(g => g.Key).ToListAsync();
+""");
+
     #endregion Regular operators
 
     #region Terminating operators
