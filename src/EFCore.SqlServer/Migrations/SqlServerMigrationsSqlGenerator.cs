@@ -1495,8 +1495,12 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         AlterDatabaseOperation operation,
         MigrationCommandListBuilder builder)
     {
-        var oldCatalogs = SqlServerFullTextCatalog.GetFullTextCatalogs(operation.OldDatabase).ToDictionary(c => c.Name, c => c);
-        var newCatalogs = SqlServerFullTextCatalog.GetFullTextCatalogs(operation).ToDictionary(c => c.Name, c => c);
+        var oldCatalogs = (((string Name, bool IsDefault, bool IsAccentSensitive)[]?)
+                operation.OldDatabase[SqlServerAnnotationNames.FullTextCatalogs] ?? [])
+            .ToDictionary(c => c.Name);
+        var newCatalogs = (((string Name, bool IsDefault, bool IsAccentSensitive)[]?)
+                operation[SqlServerAnnotationNames.FullTextCatalogs] ?? [])
+            .ToDictionary(c => c.Name);
 
         // Drop removed catalogs
         foreach (var (name, _) in oldCatalogs)

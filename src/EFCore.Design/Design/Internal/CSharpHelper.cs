@@ -1267,7 +1267,7 @@ public class CSharpHelper : ICSharpHelper
 
         if (typeQualified)
         {
-            if (instanceIdentifier is null || fragment.DeclaringType is null || fragment.ChainedCall is not null)
+            if (instanceIdentifier is null || fragment.DeclaringType is null)
             {
                 throw new ArgumentException(DesignStrings.CannotGenerateTypeQualifiedMethodCall);
             }
@@ -1293,7 +1293,8 @@ public class CSharpHelper : ICSharpHelper
                 }
             }
 
-            builder.Append(')');
+            builder.Append(')')
+                .Append(Fragment(fragment.ChainedCall, indent: 1));
 
             return builder.ToString();
         }

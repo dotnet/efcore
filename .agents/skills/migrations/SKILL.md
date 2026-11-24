@@ -12,6 +12,8 @@ user-invocable: false
 
 **Apply migration**: `Migrator.MigrateAsync()` → reads `__EFMigrationsHistory` → per pending: `MigrationsSqlGenerator.Generate(operations)` → `MigrationCommandExecutor` executes
 
+- Provider annotations copied to migration operations must use scaffoldable values, not model metadata objects. Ordered primitive tuple arrays support both C# literals and the structural equality used by `MigrationsModelDiffer`; snapshots recreate the metadata through fluent API calls.
+
 ## Model Snapshot
 
 - Model snapshots use `typeof(Dictionary<string, object>)` (property bag format), not the actual CLR type. When examining the `ClrType` in a snapshot, don't assume it matches the real entity type.

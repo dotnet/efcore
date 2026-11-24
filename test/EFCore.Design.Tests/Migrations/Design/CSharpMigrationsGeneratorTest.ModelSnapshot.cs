@@ -23,6 +23,31 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design;
 public partial class CSharpMigrationsGeneratorTest
 {
     [Fact]
+    public void Snapshot_with_full_text_catalogs()
+        => Test(
+            builder =>
+            {
+                builder.HasFullTextCatalog("Plain");
+                builder.HasFullTextCatalog("Default").IsDefault();
+                builder.HasFullTextCatalog("AccentInsensitive").IsAccentSensitive(false);
+                builder.HasFullTextCatalog("DefaultAccentInsensitive").IsDefault().IsAccentSensitive(false);
+            },
+            """SqlServerModelBuilderExtensions.HasFullTextCatalog(modelBuilder, "Plain");""",
+            model =>
+            {
+                Assert.Equal(4, model.GetFullTextCatalogs().Count());
+                Assert.False(model.FindFullTextCatalog("Plain")!.IsDefault);
+                Assert.True(model.FindFullTextCatalog("Plain")!.IsAccentSensitive);
+                Assert.True(model.FindFullTextCatalog("Default")!.IsDefault);
+                Assert.True(model.FindFullTextCatalog("Default")!.IsAccentSensitive);
+                Assert.False(model.FindFullTextCatalog("AccentInsensitive")!.IsDefault);
+                Assert.False(model.FindFullTextCatalog("AccentInsensitive")!.IsAccentSensitive);
+                Assert.True(model.FindFullTextCatalog("DefaultAccentInsensitive")!.IsDefault);
+                Assert.False(model.FindFullTextCatalog("DefaultAccentInsensitive")!.IsAccentSensitive);
+            },
+            fullSnapshot: false);
+
+    [Fact]
     public void Snapshots_compile()
     {
         var generator = CreateMigrationsCodeGenerator();
