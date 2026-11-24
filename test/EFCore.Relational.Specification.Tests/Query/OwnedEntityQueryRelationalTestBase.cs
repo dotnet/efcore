@@ -2531,7 +2531,7 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
         c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v)),
         c => c.ToList());
 
-    protected class TagCodeReaderWriter : JsonValueReaderWriter<TagCode>
+    protected class TagCodeReaderWriter : JsonValueReaderWriter<string>
     {
         private static readonly ConstructorInfo Constructor = typeof(TagCodeReaderWriter).GetConstructor([])!;
 
@@ -2539,11 +2539,11 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
         public override Expression ConstructorExpression
             => Expression.New(Constructor);
 
-        public override TagCode FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
-            => new(manager.CurrentReader.GetString()!.TrimStart('#'));
+        public override string FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
+            => manager.CurrentReader.GetString()!.TrimStart('#');
 
-        public override void ToJsonTyped(Utf8JsonWriter writer, TagCode value)
-            => writer.WriteStringValue("#" + value.Value);
+        public override void ToJsonTyped(Utf8JsonWriter writer, string value)
+            => writer.WriteStringValue("#" + value);
     }
 
     #endregion
