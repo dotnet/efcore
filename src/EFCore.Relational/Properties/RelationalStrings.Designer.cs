@@ -2200,6 +2200,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("SelectExpressionUpdateNotSupportedWhileMutable");
 
         /// <summary>
+        ///     The primitive collections combined by the set operation have element type mappings that aren't compatible ('{storeType1}' and '{storeType2}'). Use the same element conversion for both collections, or perform the set operation on the elements instead.
+        /// </summary>
+        public static string SetOperationOverCollectionsWithIncompatibleElementMappings(object? storeType1, object? storeType2)
+            => string.Format(
+                GetString("SetOperationOverCollectionsWithIncompatibleElementMappings", nameof(storeType1), nameof(storeType2)),
+                storeType1, storeType2);
+
+        /// <summary>
         ///     Set operations over different entity or complex types are not supported ('{type1}' and '{type2}').
         /// </summary>
         public static string SetOperationOverDifferentStructuralTypes(object? type1, object? type2)

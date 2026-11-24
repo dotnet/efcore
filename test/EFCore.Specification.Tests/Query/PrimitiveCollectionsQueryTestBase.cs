@@ -1483,6 +1483,37 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             elementSorter: e => string.Join(",", e),
             elementAsserter: (e, a) => Assert.Equal(e, a));
 
+    [Fact] // #33258
+    public virtual Task Concat_of_column_collections_then_Select_Contains_with_client_argument()
+        => AssertQuery(
+            ss => ss.Set<PrimitiveCollectionsEntity>().Select(c => c.Ints)
+                .Concat(ss.Set<PrimitiveCollectionsEntity>().Select(c => c.Ints))
+                .Select(x => x.Contains(ClientValue(10))));
+
+    [Fact] // #33258
+    public virtual async Task Concat_of_List_column_collections_then_Contains()
+    {
+        var contextFactory = await InitializeNonSharedTest<TestContext>(
+            onModelCreating: mb => mb.Entity<TestEntityWithList>().Property(e => e.Id).ValueGeneratedNever(),
+            seed: context =>
+            {
+                context.AddRange(
+                    new TestEntityWithList { Id = 1, Ints = [1, 2] },
+                    new TestEntityWithList { Id = 2, Ints = [3, 4] });
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var results = await context.Set<TestEntityWithList>().Select(e => e.Ints)
+            .Concat(context.Set<TestEntityWithList>().Select(e => e.Ints))
+            .Where(x => x.Contains(3))
+            .ToListAsync();
+
+        Assert.Equal(2, results.Count);
+        Assert.All(results, r => Assert.Equal([3, 4], r));
+    }
+
     [Fact]
     public virtual Task Parameter_collection_Concat_column_collection()
     {
@@ -2156,6 +2187,21 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         public int Id { get; set; }
         public int[]? Ints { get; set; }
     }
+
+    protected class TestEntityWithList
+    {
+        public int Id { get; set; }
+        public List<int> Ints { get; set; } = null!;
+    }
+
+    protected class TestEntityWithConvertedInts
+    {
+        public int Id { get; set; }
+        public int[] Ints { get; set; } = null!;
+    }
+
+    private static int ClientValue(int i)
+        => i;
 
     private class IntWrapper(int value)
     {

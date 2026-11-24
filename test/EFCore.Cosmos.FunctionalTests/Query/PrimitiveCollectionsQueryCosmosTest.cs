@@ -1886,6 +1886,22 @@ WHERE ARRAY_CONTAINS(@ints, c["Int"])
         AssertSql();
     }
 
+    public override async Task Concat_of_column_collections_then_Select_Contains_with_client_argument()
+    {
+        // Set operations and DISTINCT over whole documents aren't supported
+        await AssertTranslationFailed(base.Concat_of_column_collections_then_Select_Contains_with_client_argument);
+
+        AssertSql();
+    }
+
+    public override async Task Concat_of_List_column_collections_then_Contains()
+    {
+        // Set operations and DISTINCT over whole documents aren't supported
+        await AssertTranslationFailed(base.Concat_of_List_column_collections_then_Contains);
+
+        AssertSql();
+    }
+
     public override async Task Column_collection_Distinct()
     {
         // TODO: Subquery pushdown, #33968

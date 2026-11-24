@@ -434,7 +434,9 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     /// <param name="sqlExpression">The expression to try to translate as a primitive collection expression.</param>
     /// <param name="property">
     ///     If the primitive collection is a property, contains the <see cref="IProperty" /> for that property. Otherwise, the collection
-    ///     represents a parameter, and this contains <see langword="null" />.
+    ///     represents a parameter, or a collection column projected out of a subquery (for example by a set operation), and this
+    ///     contains <see langword="null" />. In the latter case, <paramref name="sqlExpression" /> is a column with a type mapping that has
+    ///     an <see cref="CoreTypeMapping.ElementTypeMapping" />, unlike for a parameter, whose element type mapping is inferred later.
     /// </param>
     /// <param name="tableAlias">
     ///     Provides an alias to be used for the table returned from translation, which will represent the collection.

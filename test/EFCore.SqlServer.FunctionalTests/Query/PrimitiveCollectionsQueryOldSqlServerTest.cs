@@ -1754,6 +1754,34 @@ ORDER BY [p].[Id]
     public override Task Distinct_of_column_collection_then_Contains()
         => AssertCompatibilityLevelTooLow(() => base.Distinct_of_column_collection_then_Contains());
 
+    public override async Task Concat_of_column_collections_then_Select_Contains_with_client_argument()
+    {
+        // The projection can't be translated at this compatibility level, so it's evaluated on the client
+        await base.Concat_of_column_collections_then_Select_Contains_with_client_argument();
+
+        AssertSql(
+            """
+SELECT [p].[Ints]
+FROM [PrimitiveCollectionsEntity] AS [p]
+UNION ALL
+SELECT [p0].[Ints]
+FROM [PrimitiveCollectionsEntity] AS [p0]
+""");
+    }
+
+    public override Task Concat_of_List_column_collections_then_Contains()
+        => AssertCompatibilityLevelTooLow(() => base.Concat_of_List_column_collections_then_Contains());
+
+    public override Task Concat_of_column_collections_with_same_element_conversion_then_Contains()
+        => AssertCompatibilityLevelTooLow(() => base.Concat_of_column_collections_with_same_element_conversion_then_Contains());
+
+    public override async Task Concat_of_column_collections_with_different_element_conversions_throws()
+    {
+        await base.Concat_of_column_collections_with_different_element_conversions_throws();
+
+        AssertSql();
+    }
+
     public override Task Parameter_collection_Concat_column_collection()
         => AssertCompatibilityLevelTooLow(() => base.Parameter_collection_Concat_column_collection());
 

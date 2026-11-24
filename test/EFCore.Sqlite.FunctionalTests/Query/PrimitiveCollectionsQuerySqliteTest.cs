@@ -2426,6 +2426,75 @@ WHERE 10 IN (
 """);
     }
 
+    public override async Task Concat_of_column_collections_then_Select_Contains_with_client_argument()
+    {
+        await base.Concat_of_column_collections_then_Select_Contains_with_client_argument();
+
+        AssertSql(
+            """
+SELECT 10 IN (
+    SELECT "i"."value"
+    FROM json_each("u"."Ints") AS "i"
+)
+FROM (
+    SELECT "p"."Ints"
+    FROM "PrimitiveCollectionsEntity" AS "p"
+    UNION ALL
+    SELECT "p0"."Ints"
+    FROM "PrimitiveCollectionsEntity" AS "p0"
+) AS "u"
+""");
+    }
+
+    public override async Task Concat_of_List_column_collections_then_Contains()
+    {
+        await base.Concat_of_List_column_collections_then_Contains();
+
+        AssertSql(
+            """
+SELECT "u"."Ints"
+FROM (
+    SELECT "t"."Ints"
+    FROM "TestEntityWithList" AS "t"
+    UNION ALL
+    SELECT "t0"."Ints"
+    FROM "TestEntityWithList" AS "t0"
+) AS "u"
+WHERE 3 IN (
+    SELECT "i"."value"
+    FROM json_each("u"."Ints") AS "i"
+)
+""");
+    }
+
+    public override async Task Concat_of_column_collections_with_same_element_conversion_then_Contains()
+    {
+        await base.Concat_of_column_collections_with_same_element_conversion_then_Contains();
+
+        AssertSql(
+            """
+SELECT "u"."Ints"
+FROM (
+    SELECT "t"."Ints"
+    FROM "TestEntityWithConvertedInts" AS "t"
+    UNION ALL
+    SELECT "t0"."Ints"
+    FROM "TestEntityWithConvertedInts" AS "t0"
+) AS "u"
+WHERE '10' IN (
+    SELECT "i"."value"
+    FROM json_each("u"."Ints") AS "i"
+)
+""");
+    }
+
+    public override async Task Concat_of_column_collections_with_different_element_conversions_throws()
+    {
+        await base.Concat_of_column_collections_with_different_element_conversions_throws();
+
+        AssertSql();
+    }
+
     [Fact]
     public override async Task Parameter_collection_Concat_column_collection()
     {

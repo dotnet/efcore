@@ -173,6 +173,69 @@ WHERE JSON_CONTAINS([p].[Ints], 10) = 1
 """);
     }
 
+    public override async Task Concat_of_column_collections_then_Select_Contains_with_client_argument()
+    {
+        await base.Concat_of_column_collections_then_Select_Contains_with_client_argument();
+
+        AssertSql(
+            """
+SELECT ~CAST(JSON_CONTAINS([u].[Ints], 10) ^ 1 AS bit)
+FROM (
+    SELECT [p].[Ints]
+    FROM [PrimitiveCollectionsEntity] AS [p]
+    UNION ALL
+    SELECT [p0].[Ints]
+    FROM [PrimitiveCollectionsEntity] AS [p0]
+) AS [u]
+""");
+    }
+
+    public override async Task Concat_of_List_column_collections_then_Contains()
+    {
+        await base.Concat_of_List_column_collections_then_Contains();
+
+        AssertSql(
+            """
+SELECT [u].[Ints]
+FROM (
+    SELECT [t].[Ints]
+    FROM [TestEntityWithList] AS [t]
+    UNION ALL
+    SELECT [t0].[Ints]
+    FROM [TestEntityWithList] AS [t0]
+) AS [u]
+WHERE JSON_CONTAINS([u].[Ints], 3) = 1
+""");
+    }
+
+    public override async Task Concat_of_column_collections_with_same_element_conversion_then_Contains()
+    {
+        await base.Concat_of_column_collections_with_same_element_conversion_then_Contains();
+
+        AssertSql(
+            """
+SELECT [u].[Ints]
+FROM (
+    SELECT [t].[Ints]
+    FROM [TestEntityWithConvertedInts] AS [t]
+    UNION ALL
+    SELECT [t0].[Ints]
+    FROM [TestEntityWithConvertedInts] AS [t0]
+) AS [u]
+WHERE N'10' IN (
+    SELECT [i].[value]
+    FROM OPENJSON([u].[Ints]) WITH ([value] nvarchar(64) '$') AS [i]
+)
+""");
+    }
+
+    public override async Task Concat_of_column_collections_with_different_element_conversions_throws()
+    {
+        await base.Concat_of_column_collections_with_different_element_conversions_throws();
+
+        AssertSql();
+    }
+
     public override async Task Inline_collection_with_single_parameter_element_Contains()
     {
         await base.Inline_collection_with_single_parameter_element_Contains();
