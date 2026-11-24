@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
@@ -31,6 +32,12 @@ public class SqliteTimeOnlyMethodTranslator(SqliteSqlExpressionFactory sqlExpres
             return null;
         }
 
+        // Unmapped parameters get their default mapping first, which may carry a converter.
+        if (instance is not null)
+        {
+            instance = sqlExpressionFactory.ApplyDefaultTypeMapping(instance);
+        }
+
         return (instance, method.Name, arguments) switch
         {
             (not null, _, _) when !SqliteSqlExpressionFactory.IsStoredAs(instance, typeof(TimeOnly)) => null,
@@ -39,18 +46,22 @@ public class SqliteTimeOnlyMethodTranslator(SqliteSqlExpressionFactory sqlExpres
             (not null, nameof(TimeOnly.AddMinutes), [var minutes]) => AddTicks(instance, minutes, TimeSpan.TicksPerMinute),
 
             // strftime() only keeps milliseconds, so the conversion is done in .NET to preserve the full precision.
-            (null, nameof(TimeOnly.FromDateTime), [var dateTime])
-                when SqliteSqlExpressionFactory.IsStoredAs(dateTime, typeof(DateTime))
-                => sqlExpressionFactory.ApplyDefaultTypeMapping(
-                    sqlExpressionFactory.Function(
-                        "ef_time",
-                        [dateTime],
-                        nullable: true,
-                        argumentsPropagateNullability: Statics.TrueArrays[1],
-                        method.ReturnType)),
+            (null, nameof(TimeOnly.FromDateTime), [var dateTime]) => FromDateTime(sqlExpressionFactory.ApplyDefaultTypeMapping(dateTime)),
 
             _ => null
         };
+
+        SqlExpression? FromDateTime(SqlExpression dateTime)
+            => SqliteSqlExpressionFactory.IsStoredAs(dateTime, typeof(DateTime))
+                ? sqlExpressionFactory.Function(
+                    "ef_time",
+                    [dateTime],
+                    nullable: true,
+                    argumentsPropagateNullability: Statics.TrueArrays[1],
+                    typeof(TimeOnly),
+                    // The function returns text, whatever the default TimeOnly mapping is.
+                    SqliteTimeOnlyTypeMapping.Default)
+                : null;
 
         SqlExpression AddTicks(SqlExpression time, SqlExpression value, long ticksPerUnit)
         {

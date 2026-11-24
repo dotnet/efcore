@@ -26,9 +26,15 @@ public class SqliteTimeOnlyMemberTranslator(SqliteSqlExpressionFactory sqlExpres
         Type returnType,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        return member.DeclaringType != typeof(TimeOnly)
-            || instance is null
-            || !SqliteSqlExpressionFactory.IsStoredAs(instance, typeof(TimeOnly))
+        if (member.DeclaringType != typeof(TimeOnly) || instance is null)
+        {
+            return null;
+        }
+
+        // Unmapped parameters get their default mapping first, which may carry a converter.
+        instance = sqlExpressionFactory.ApplyDefaultTypeMapping(instance);
+
+        return !SqliteSqlExpressionFactory.IsStoredAs(instance, typeof(TimeOnly))
             ? null
             : member.Name switch
             {
