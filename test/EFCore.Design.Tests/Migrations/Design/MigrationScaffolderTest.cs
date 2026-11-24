@@ -63,7 +63,26 @@ public class MigrationsScaffolderTest
         Assert.Contains($"[Migration(\"{migration.MigrationId}\")]", migration.MetadataCode);
     }
 
+    [Fact]
+    public void ScaffoldMigration_diffs_against_snapshot_finalized_by_migrator()
+    {
+        var scaffolder = CreateMigrationScaffolder<ContextWithTableSnapshot>(out var migrationsAssembly);
+
+        // Migrator.HasPendingModelChanges() and Migrate() finalize the model of the snapshot instance that the context's
+        // IMigrationsAssembly caches, which is the instance the scaffolder reads.
+        ((IMutableModel)migrationsAssembly.ModelSnapshot!.Model).FinalizeModel();
+
+        var migration = scaffolder.ScaffoldMigration("DropBlogs", "WebApplication1");
+
+        Assert.Contains("migrationBuilder.DropTable(", migration.MigrationCode);
+        Assert.Contains("name: \"Blogs\"", migration.MigrationCode);
+    }
+
     private IMigrationsScaffolder CreateMigrationScaffolder<TContext>()
+        where TContext : DbContext, new()
+        => CreateMigrationScaffolder<TContext>(out _);
+
+    private IMigrationsScaffolder CreateMigrationScaffolder<TContext>(out IMigrationsAssembly migrationsAssembly)
         where TContext : DbContext, new()
     {
         var currentContext = new CurrentDbContext(new TContext());
@@ -82,6 +101,7 @@ public class MigrationsScaffolderTest
                 new DbContextOptions<TContext>().WithExtension(new FakeRelationalOptionsExtension()),
                 idGenerator,
                 new FakeDiagnosticsLogger<DbLoggerCategory.Migrations>());
+        migrationsAssembly = migrationAssembly;
         var historyRepository = new MockHistoryRepository();
 
         var services = FakeRelationalTestHelpers.Instance.CreateContextServices();
@@ -154,6 +174,21 @@ public class MigrationsScaffolderTest
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
         }
+    }
+
+    private class ContextWithTableSnapshot : DbContext;
+
+    [DbContext(typeof(ContextWithTableSnapshot))]
+    private class ContextWithTableSnapshotModelSnapshot : ModelSnapshot
+    {
+        protected override void BuildModel(ModelBuilder modelBuilder)
+            => modelBuilder.Entity(
+                "Blog", b =>
+                {
+                    b.Property<int>("Id");
+                    b.HasKey("Id");
+                    b.ToTable("Blogs");
+                });
     }
 
     private class MockHistoryRepository : IHistoryRepository
