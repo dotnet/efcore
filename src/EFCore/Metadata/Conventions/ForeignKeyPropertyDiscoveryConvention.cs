@@ -382,8 +382,8 @@ public class ForeignKeyPropertyDiscoveryConvention :
                 principalEntityType,
                 dependentEntityType,
                 shouldThrow: false)
-                ? dependentPkProperties
-                : null;
+                    ? dependentPkProperties
+                    : null;
     }
 
     private bool TryFindMatchingProperties(
