@@ -8,6 +8,22 @@ public class NonSharedModelBulkUpdatesSqliteTest(NonSharedFixture fixture) : Non
     protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqliteTestStoreFactory.Instance;
 
+    public override async Task Update_JSON_enum_from_equally_mapped_member(bool async)
+    {
+        await base.Update_JSON_enum_from_equally_mapped_member(async);
+
+        AssertSql(
+            """
+UPDATE "JsonEnumItem" AS "j"
+SET "Data" = json_set("j"."Data", '$.Day', "j"."Day")
+""",
+            """
+SELECT "j"."Data" ->> 'Day'
+FROM "JsonEnumItem" AS "j"
+LIMIT 2
+""");
+    }
+
     public override async Task Update_JSON_numeric_null_sentinel(bool async, bool executeUpdate, bool converted)
     {
         await base.Update_JSON_numeric_null_sentinel(async, executeUpdate, converted);

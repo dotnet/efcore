@@ -8,6 +8,23 @@ public class NonSharedModelBulkUpdatesSqlServerTest(NonSharedFixture fixture) : 
     protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
+    public override async Task Update_JSON_enum_from_equally_mapped_member(bool async)
+    {
+        await base.Update_JSON_enum_from_equally_mapped_member(async);
+
+        AssertSql(
+            """
+SET NOCOUNT OFF;
+UPDATE [j]
+SET [j].[Data] = JSON_MODIFY([j].[Data], '$.Day', [j].[Day])
+FROM [JsonEnumItem] AS [j]
+""",
+            """
+SELECT TOP(2) CAST(JSON_VALUE([j].[Data], '$.Day') AS int)
+FROM [JsonEnumItem] AS [j]
+""");
+    }
+
     public override async Task Update_JSON_numeric_null_sentinel(bool async, bool executeUpdate, bool converted)
     {
         await base.Update_JSON_numeric_null_sentinel(async, executeUpdate, converted);

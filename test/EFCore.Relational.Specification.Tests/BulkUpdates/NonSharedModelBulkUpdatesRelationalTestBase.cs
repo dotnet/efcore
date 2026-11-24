@@ -226,6 +226,47 @@ public abstract class NonSharedModelBulkUpdatesRelationalTestBase(NonSharedFixtu
         public int Number { get; set; }
     }
 
+    [Theory, InlineData(false), InlineData(true)]
+    public virtual async Task Update_JSON_enum_from_equally_mapped_member(bool async)
+    {
+        var factory = await InitializeNonSharedTest<PoolableDbContext>(
+            configureConventions: c => c.DefaultTypeMapping<DayOfWeek>()
+                .HasJsonValueReaderWriter<JsonSignedEnumReaderWriter<DayOfWeek>>(),
+            onModelCreating: b =>
+            {
+                var entity = b.Entity<JsonEnumItem>();
+                entity.Property(e => e.Id).ValueGeneratedNever();
+                entity.ComplexProperty(e => e.Data).ToJson();
+            },
+            seed: context =>
+            {
+                context.Add(new JsonEnumItem { Id = 1, Day = DayOfWeek.Friday, Data = new JsonEnumData() });
+                return context.SaveChangesAsync();
+            });
+        await using var context = factory.CreateDbContext();
+        ClearLog();
+        var query = context.Set<JsonEnumItem>();
+        Assert.Equal(
+            1, async
+                ? await query.ExecuteUpdateAsync(s => s.SetProperty(e => e.Data.Day, e => e.Day))
+                : query.ExecuteUpdate(s => s.SetProperty(e => e.Data.Day, e => e.Day)));
+        Assert.Equal(DayOfWeek.Friday, async
+            ? await query.Select(e => e.Data.Day).SingleAsync()
+            : query.Select(e => e.Data.Day).Single());
+    }
+
+    protected class JsonEnumItem
+    {
+        public int Id { get; set; }
+        public DayOfWeek Day { get; set; }
+        public JsonEnumData Data { get; set; } = null!;
+    }
+
+    protected class JsonEnumData
+    {
+        public DayOfWeek Day { get; set; }
+    }
+
     [Theory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public virtual async Task Update_JSON_scalar_with_custom_reader_writer(bool async, bool typeMappingDefault)
     {

@@ -961,6 +961,18 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                 ? sourceConverted.InnerReaderWriter
                 : sourceMapping.JsonValueReaderWriter
             : _typeMappingSource.FindMapping(providerType, storeTypeName: sourceMapping.StoreType)?.JsonValueReaderWriter;
+        if (!jsonSource
+            && targetReader is not null
+            && targetReader.GetType().IsGenericType
+            && targetReader.GetType().GetGenericTypeDefinition() is var readerType
+            && (readerType == typeof(JsonSignedEnumReaderWriter<>)
+                || readerType == typeof(JsonUnsignedEnumReaderWriter<>)))
+        {
+            // Built-in enum readers emit the same numbers as their underlying integral readers.
+            targetReader = _typeMappingSource.FindMapping(
+                Enum.GetUnderlyingType(targetReader.ValueType), storeTypeName: sourceMapping.StoreType)?.JsonValueReaderWriter;
+        }
+
         return targetReader is not null
             && sourceReader is not null
             && ExpressionEqualityComparer.Instance.Equals(targetReader.ConstructorExpression, sourceReader.ConstructorExpression);

@@ -169,6 +169,15 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
             case ExpressionType.LessThanOrEqual:
             case ExpressionType.NotEqual:
             {
+                if (left is SqlConstantExpression && right is not SqlConstantExpression && right.TypeMapping is { } rightMapping)
+                {
+                    left = SetTypeMapping(left, rightMapping);
+                }
+                else if (right is SqlConstantExpression && left is not SqlConstantExpression && left.TypeMapping is { } leftMapping)
+                {
+                    right = SetTypeMapping(right, leftMapping);
+                }
+
                 inferredTypeMapping = ExpressionExtensions.InferTypeMapping(left, right)
                     // We avoid object here since the result does not get typeMapping from outside.
                     ?? (left.Type != typeof(object)
@@ -290,13 +299,16 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
             case { Values: { } values }:
                 SqlExpression[]? newValues = null;
 
-                if (missingTypeMappingInValues)
+                if (missingTypeMappingInValues
+                    || values.Any(v => v is SqlConstantExpression && v.TypeMapping != item.TypeMapping))
                 {
                     newValues = new SqlExpression[values.Count];
 
                     for (var i = 0; i < newValues.Length; i++)
                     {
-                        newValues[i] = ApplyTypeMapping(values[i], item.TypeMapping);
+                        newValues[i] = values[i] is SqlConstantExpression
+                            ? SetTypeMapping(values[i], item.TypeMapping!)
+                            : ApplyTypeMapping(values[i], item.TypeMapping);
                     }
                 }
 

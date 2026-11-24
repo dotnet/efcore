@@ -721,6 +721,21 @@ WHERE ARRAY_CONTAINS(c["Timestamps"], @timestamp)
             await context.Set<LegacyDateTimeContext.Item>()
                 .Where(e => EF.Parameter(timestamps).AsQueryable().Contains(e.Timestamp))
                 .Select(e => e.Id).ToArrayAsync());
+        foreach (var singleValue in new[] { true, false })
+        {
+            var inlineQuery = singleValue
+                ? context.Set<LegacyDateTimeContext.Item>()
+                    .Where(e => new[] { new DateTime(2026, 1, 1, 0, 0, 0, 123, DateTimeKind.Utc) }.AsQueryable().Contains(e.Timestamp))
+                : context.Set<LegacyDateTimeContext.Item>()
+                    .Where(e => new[]
+                    {
+                        new DateTime(2026, 1, 1, 0, 0, 0, 123, DateTimeKind.Utc),
+                        new DateTime(2026, 1, 2, 0, 0, 0, 123, DateTimeKind.Utc)
+                    }.AsQueryable().Contains(e.Timestamp));
+            Assert.Equal(
+                new[] { 1 },
+                await inlineQuery.Select(e => e.Id).ToArrayAsync());
+        }
         var expectedTimestamp = legacyMember ? "2026-01-01T00:00:00.123Z" : "2026-01-01T00:00:00.1230000Z";
         AssertSql(
             $"""
@@ -737,6 +752,16 @@ WHERE (@timestamp = c["Timestamp"])
 SELECT VALUE c["Id"]
 FROM root c
 WHERE ARRAY_CONTAINS(@timestamps, c["Timestamp"])
+""",
+            $"""
+SELECT VALUE c["Id"]
+FROM root c
+WHERE (c["Timestamp"] = "{expectedTimestamp}")
+""",
+            $"""
+SELECT VALUE c["Id"]
+FROM root c
+WHERE c["Timestamp"] IN ("{expectedTimestamp}", "{(legacyMember ? "2026-01-02T00:00:00.123Z" : "2026-01-02T00:00:00.1230000Z")}")
 """);
     }
 
