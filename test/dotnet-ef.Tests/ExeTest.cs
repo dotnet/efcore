@@ -35,6 +35,12 @@ public class ExeTest
     }
 
     [Fact]
+    public void ToArguments_escapes_quotes_in_arguments_without_spaces()
+        => Assert.Equal(
+            "\"{\\\"tenant\\\":\\\"blue\\\"}\" \"say\\\\\\\"hi\" plain",
+            ToArguments(["{\"tenant\":\"blue\"}", "say\\\"hi", "plain"]));
+
+    [Fact]
     public void ToArguments_does_not_escape_UNC_prefix()
         => Assert.Equal(
             "\"\\\\FILESERVER\\DevShare\\Sample Solution\\Api Project.csproj\"",

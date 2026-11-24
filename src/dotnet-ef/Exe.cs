@@ -110,7 +110,7 @@ internal static class Exe
                 continue;
             }
 
-            if (args[i].IndexOf(' ') == -1)
+            if (args[i].IndexOf(' ') == -1 && args[i].IndexOf('"') == -1)
             {
                 builder.Append(args[i]);
 
