@@ -47,15 +47,10 @@ public class SqlExpressionSimplifyingExpressionVisitor(
                     expression = _sqlExpressionFactory.Convert(
                         expression, projectionExpression.Expression.Type, projectionExpression.Expression.TypeMapping);
                 }
-                else if (!UseOldBehavior39782
-                         && expression.Type != projectionExpression.Expression.Type
-                         && projectionExpression.Expression is SqlUnaryExpression
-                         {
-                             OperatorType: ExpressionType.Convert,
-                             TypeMapping: not null
-                         } convertExpression)
+                else if (!UseOldBehavior39782 && expression.Type != projectionExpression.Expression.Type)
                 {
-                    expression = new ClrTypeChangeExpression(expression, convertExpression.Type, convertExpression.TypeMapping);
+                    expression = new ClrTypeChangeExpression(
+                        expression, projectionExpression.Expression.Type, projectionExpression.Expression.TypeMapping);
                 }
 
                 return projectionExpression.Update(expression);
