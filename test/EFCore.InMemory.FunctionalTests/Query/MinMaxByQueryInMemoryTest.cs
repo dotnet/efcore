@@ -50,6 +50,25 @@ public class MinMaxByQueryInMemoryTest(NonSharedFixture fixture, ITestOutputHelp
         Assert.Equal((expected!.Id, rows.Length), (winner!.Id, actual.Calls));
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Non_nullable_key_ties_use_the_original_source_ordering(bool maximum)
+    {
+        var factory = await InitializeNonSharedTest<MinMaxByContext>(
+            onModelCreating: b => b.Entity<Item>().Property(i => i.Id).ValueGeneratedNever(),
+            seed: c =>
+            {
+                c.AddRange(new Item { Id = 1 }, new Item { Id = 2 });
+                return c.SaveChangesAsync();
+            });
+        using var context = factory.CreateDbContext();
+        var counter = new KeyCounter();
+        var ordered = context.Set<Item>().OrderByDescending(i => counter.GetKey(i.Id));
+        var winner = maximum ? ordered.MaxBy(i => i.Scenario) : ordered.MinBy(i => i.Scenario);
+        Assert.Equal((2, 2), (winner!.Id, counter.Calls));
+    }
+
     private sealed class KeyCounter
     {
         private readonly HashSet<int> _seen = [];

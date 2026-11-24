@@ -62,16 +62,11 @@ public class InMemoryQueryTranslationPreprocessor : QueryTranslationPreprocessor
             }
 
             var selector = call.Arguments[1].UnwrapLambdaFromQuote();
-            if (!selector.ReturnType.IsNullableType())
-            {
-                return base.TryNormalizeMaxByMinBy(call);
-            }
-
             var sourceType = call.Method.GetGenericArguments()[0];
             var minimum = method == QueryableMethods.MinBy;
             // Descending CLR ordering already puts nulls last. For ascending order, construct
             // the composite sort key inside one call to avoid evaluating the selector twice.
-            var key = minimum
+            var key = minimum && selector.ReturnType.IsNullableType()
                 ? Expression.Lambda(
                     Expression.Call(typeof(InMemoryNormalizingVisitor), nameof(NullsLast), [selector.ReturnType], selector.Body),
                     selector.Parameters)

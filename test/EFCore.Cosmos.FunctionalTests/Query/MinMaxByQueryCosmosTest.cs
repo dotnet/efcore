@@ -112,6 +112,20 @@ public class MinMaxByQueryCosmosTest(NonSharedFixture fixture, ITestOutputHelper
         Assert.Equal(descending ? 1 : 3, (await numeric.MaxByAsync(i => i.Key))!.Id);
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Ordered_non_nullable_keys_with_default_indexes(bool maximum)
+    {
+        var factory = await InitializeItems();
+        await using var context = factory.CreateDbContext();
+        var ordered = context.Set<Item>().OrderByDescending(i => i.Id);
+        var winner = maximum ? await ordered.MaxByAsync(i => i.Group) : await ordered.MinByAsync(i => i.Group);
+        Assert.Equal(maximum ? 6 : 4, winner!.Id);
+        var sql = Assert.Single(((TestSqlLoggerFactory)ListLoggerFactory).SqlStatements);
+        Assert.DoesNotMatch(@"(?m)^ORDER BY [^\r\n]*,", sql);
+    }
+
     private Task<ContextFactory<Context>> InitializeItems()
         => InitializeNonSharedTest<Context>(
             onModelCreating: b => b.Entity<Item>().HasPartitionKey(i => i.Group),

@@ -14671,6 +14671,9 @@
       "Properties": [
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Query.RelationalQueryableMethodTranslatingExpressionVisitorDependencies RelationalDependencies { get; }"
+        },
+        {
+          "Member": "virtual bool SupportsExtremalKeyLookup { get; }"
         }
       ]
     },

@@ -1,12 +1,27 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Query.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public class MinMaxByQuerySqliteTest(NonSharedFixture fixture, ITestOutputHelper output) : MinMaxByQueryTestBase(fixture, output)
 {
     protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqliteTestStoreFactory.Instance;
+
+    public override async Task Non_nullable_keys_preserve_source_order(bool maximum)
+    {
+        await base.Non_nullable_keys_preserve_source_order(maximum);
+
+        AssertSql(
+            $$"""
+SELECT "i"."Id", "i"."Key", "i"."Scenario", "i"."StringKey"
+FROM "Item" AS "i"
+ORDER BY "i"."Scenario"{{(maximum ? " DESC" : "")}}, "i"."Id" DESC
+LIMIT 1
+""");
+    }
 
     public override async Task Nullable_keys(bool async, bool maximum, bool stringKey, int scenario)
     {
@@ -115,6 +130,35 @@ LIMIT 1
         Assert.Equal(winner.Id, winner.Key);
         var sql = ((TestSqlLoggerFactory)ListLoggerFactory).Sql;
         Assert.Equal(2, sql.Split("FROM \"Item\"", StringSplitOptions.None).Length);
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task Regular_ordering_without_extremal_lookup(bool explicitOrdering)
+    {
+        var factory = await InitializeNonSharedTest<MinMaxByContext>(
+            onModelCreating: b => b.Entity<Item>().Property(i => i.Id).ValueGeneratedNever(),
+            addServices: explicitOrdering ? null : s => s.AddScoped<IQueryableMethodTranslatingExpressionVisitorFactory,
+                RelationalQueryableMethodTranslatingExpressionVisitorFactory>(),
+            seed: c =>
+            {
+                c.AddRange(new Item { Id = 1 }, new Item { Id = 2, Key = 3 });
+                return c.SaveChangesAsync();
+            });
+        using var context = factory.CreateDbContext();
+        var items = context.Set<Item>();
+        var winner = explicitOrdering
+            ? await items.OrderBy(i => i.Key == null).ThenBy(i => i.Key).FirstAsync()
+            : await items.MinByAsync(i => i.Key);
+        Assert.Equal(2, winner!.Id);
+        AssertSql(
+            """
+SELECT "i"."Id", "i"."Key", "i"."Scenario", "i"."StringKey"
+FROM "Item" AS "i"
+ORDER BY "i"."Key" IS NULL, "i"."Key"
+LIMIT 1
+""");
     }
 
     private void AssertSql(params string[] expected)

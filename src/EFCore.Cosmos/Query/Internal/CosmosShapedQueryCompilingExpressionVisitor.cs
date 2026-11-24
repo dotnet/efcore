@@ -73,36 +73,43 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
                 ReadItemInfo: null,
                 Limit: SqlConstantExpression { Value: 1 },
                 Offset: null or SqlConstantExpression { Value: 0 },
-                Orderings: [
-                    { IsAscending: true, Expression: SqlBinaryExpression
-                        { OperatorType: ExpressionType.Equal, Left: ScalarAccessExpression key, Right: SqlConstantExpression { Value: null } } },
-                    var keyOrdering, ..]
-            }
-            && key.Equals(keyOrdering.Expression))
+                Orderings.Count: >= 2
+            })
         {
-            var sourceOrderings = selectExpression.Orderings.Skip(2).Where(o => !o.Expression.Equals(key)).ToArray();
-            var compareTies = sourceOrderings.Length > 0 && sourceOrderings.All(o => IsScalarSortKey(o.Expression));
-            selectExpression = selectExpression.Update(
-                [.. selectExpression.Sources], selectExpression.Predicate, [.. selectExpression.Projection],
-                compareTies ? [keyOrdering] : [keyOrdering, .. sourceOrderings], offset: null,
-                keyOrdering.IsAscending || compareTies ? null : selectExpression.Limit);
-            if (keyOrdering.IsAscending || compareTies)
+            var orderings = selectExpression.Orderings;
+            var hasNullDiscriminator = orderings[0] is
+                { IsAscending: true, Expression: SqlBinaryExpression
+                    { OperatorType: ExpressionType.Equal, Left: ScalarAccessExpression discriminatorKey, Right: SqlConstantExpression { Value: null } } }
+                && discriminatorKey.Equals(orderings[1].Expression);
+            var keyIndex = hasNullDiscriminator ? 1 : 0;
+            var keyOrdering = orderings[keyIndex];
+            if (keyOrdering.Expression is ScalarAccessExpression key)
             {
-                var index = selectExpression.AddToProjection(key);
-                if (compareTies)
+                var sourceOrderings = orderings.Skip(keyIndex + 1).Where(o => !o.Expression.Equals(key)).ToArray();
+                var compareTies = sourceOrderings.Length > 0 && sourceOrderings.All(o => IsScalarSortKey(o.Expression));
+                var readCandidates = (hasNullDiscriminator && keyOrdering.IsAscending) || compareTies;
+                selectExpression = selectExpression.Update(
+                    [.. selectExpression.Sources], selectExpression.Predicate, [.. selectExpression.Projection],
+                    compareTies ? [keyOrdering] : [keyOrdering, .. sourceOrderings], offset: null,
+                    readCandidates ? null : selectExpression.Limit);
+                if (readCandidates)
                 {
-                    tieBreakers = sourceOrderings.Select(o =>
+                    var index = selectExpression.AddToProjection(key);
+                    if (compareTies)
                     {
-                        var projectionIndex = selectExpression.AddToProjection(o.Expression);
-                        return (selectExpression.Projection[projectionIndex].Alias, o.IsAscending);
-                    }).ToArray();
-                }
+                        tieBreakers = sourceOrderings.Select(o =>
+                        {
+                            var projectionIndex = selectExpression.AddToProjection(o.Expression);
+                            return (selectExpression.Projection[projectionIndex].Alias, o.IsAscending);
+                        }).ToArray();
+                    }
 
-                var projection = selectExpression.Projection[index];
-                extremumKeyProjection = projection.IsValueProjection ? string.Empty : projection.Alias;
-                if (!projection.IsValueProjection && shaperSelect.Projection is [{ IsValueProjection: true } original])
-                {
-                    valueProjection = original.Alias;
+                    var projection = selectExpression.Projection[index];
+                    extremumKeyProjection = projection.IsValueProjection ? string.Empty : projection.Alias;
+                    if (!projection.IsValueProjection && shaperSelect.Projection is [{ IsValueProjection: true } original])
+                    {
+                        valueProjection = original.Alias;
+                    }
                 }
             }
         }

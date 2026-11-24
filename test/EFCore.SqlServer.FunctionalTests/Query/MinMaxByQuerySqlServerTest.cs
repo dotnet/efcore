@@ -8,6 +8,18 @@ public class MinMaxByQuerySqlServerTest(NonSharedFixture fixture, ITestOutputHel
     protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
+    public override async Task Non_nullable_keys_preserve_source_order(bool maximum)
+    {
+        await base.Non_nullable_keys_preserve_source_order(maximum);
+
+        AssertSql(
+            $$"""
+SELECT TOP(1) [i].[Id], [i].[Key], [i].[Scenario], [i].[StringKey]
+FROM [Item] AS [i]
+ORDER BY [i].[Scenario]{{(maximum ? " DESC" : "")}}, [i].[Id] DESC
+""");
+    }
+
     public override async Task Nullable_keys(bool async, bool maximum, bool stringKey, int scenario)
     {
         await base.Nullable_keys(async, maximum, stringKey, scenario);

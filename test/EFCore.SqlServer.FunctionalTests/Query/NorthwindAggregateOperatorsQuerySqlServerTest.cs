@@ -473,7 +473,7 @@ ORDER BY (
         SELECT TOP(1) [o0].[ProductID]
         FROM [Order Details] AS [o0]
         WHERE [o].[OrderID] = [o0].[OrderID]
-        ORDER BY [o0].[ProductID]))
+        ORDER BY [o0].[ProductID])), [c0].[CustomerID]
 """);
     }
 
@@ -498,7 +498,7 @@ ORDER BY (
     ORDER BY 5 + (
         SELECT MAX([o0].[ProductID])
         FROM [Order Details] AS [o0]
-        WHERE [o].[OrderID] = [o0].[OrderID]))
+        WHERE [o].[OrderID] = [o0].[OrderID])), [c0].[CustomerID]
 """);
     }
 
@@ -701,7 +701,7 @@ ORDER BY (
         SELECT TOP(1) [o0].[ProductID]
         FROM [Order Details] AS [o0]
         WHERE [o].[OrderID] = [o0].[OrderID]
-        ORDER BY [o0].[ProductID] DESC) DESC) DESC
+        ORDER BY [o0].[ProductID] DESC) DESC) DESC, [c0].[CustomerID]
 """);
     }
 
@@ -726,7 +726,7 @@ ORDER BY (
     ORDER BY 5 + (
         SELECT ISNULL(SUM([o0].[ProductID]), 0)
         FROM [Order Details] AS [o0]
-        WHERE [o].[OrderID] = [o0].[OrderID]) DESC) DESC
+        WHERE [o].[OrderID] = [o0].[OrderID]) DESC) DESC, [c0].[CustomerID]
 """);
     }
 
