@@ -1334,70 +1334,8 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                     return jsonQueryExpression.BindProperty(property);
                 }
 
-                var projection = (StructuralTypeProjectionExpression)valueBufferExpression;
-                var propertyAccess = projection.BindProperty(property);
-
-                if (typeReference.StructuralType is not IEntityType entityType
-                    || entityType.FindDiscriminatorProperty() != null
-                    || entityType.FindPrimaryKey() == null
-                    || entityType.GetRootType() != entityType
-                    || entityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy)
-                {
-                    return propertyAccess;
-                }
-
-                // Scope to actually-projected tables when known (entity-splitting).
-                var table = entityType.GetProjectedQueryMappings(projection.TableMap)
-                    .Single(e => e.IsSplitEntityTypePrincipal ?? true).Table;
-                if (!table.IsOptional(entityType))
-                {
-                    return propertyAccess;
-                }
-
-                // this is optional dependent sharing table
-                var nonPrincipalSharedNonPkProperties = entityType.GetNonPrincipalSharedNonPkProperties(table);
-                if (nonPrincipalSharedNonPkProperties.Contains(property))
-                {
-                    // The column is not being shared with principal side so we can always use directly
-                    return propertyAccess;
-                }
-
-                SqlExpression? condition = null;
-                // Property is being shared with principal side, so we need to make it conditional access
-                var allRequiredNonPkProperties = entityType.GetRequiredNonPkProperties();
-                if (allRequiredNonPkProperties.Count > 0)
-                {
-                    condition = allRequiredNonPkProperties.Select(projection.BindColumn)
-                        .Select(c => _sqlExpressionFactory.NotEqual(c, _sqlExpressionFactory.Constant(null, c.Type)))
-                        .Aggregate(_sqlExpressionFactory.AndAlso);
-                }
-
-                if (nonPrincipalSharedNonPkProperties.Count != 0
-                    && nonPrincipalSharedNonPkProperties.All(p => p.IsNullable()))
-                {
-                    // If all non principal shared properties are nullable then we need additional condition
-                    var atLeastOneNonNullValueInNullableColumnsCondition = nonPrincipalSharedNonPkProperties
-                        .Select(projection.BindColumn)
-                        .Select(c => _sqlExpressionFactory.NotEqual(c, _sqlExpressionFactory.Constant(null, c.Type)))
-                        .Aggregate(_sqlExpressionFactory.OrElse);
-
-                    condition = condition == null
-                        ? atLeastOneNonNullValueInNullableColumnsCondition
-                        : _sqlExpressionFactory.AndAlso(condition, atLeastOneNonNullValueInNullableColumnsCondition);
-                }
-
-                if (condition == null)
-                {
-                    // if we cannot compute condition then we just return property access (and hope for the best)
-                    return propertyAccess;
-                }
-
-                return _sqlExpressionFactory.Case(
-                    [new CaseWhenClause(condition, propertyAccess)],
-                    elseResult: null);
-
-                // We don't do above processing for subquery entity since it comes from after subquery which has been
-                // single result so either it is regular entity or a collection which always have their own table.
+                return BindProperty(
+                    (StructuralTypeProjectionExpression)valueBufferExpression, typeReference.StructuralType, property);
             }
 
             case { Subquery: { } subquery }:
@@ -1408,7 +1346,8 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                 var projectionBindingExpression = (ProjectionBindingExpression)shaper.ValueBufferExpression;
                 var innerProjection = subSelectExpression.GetProjection(projectionBindingExpression) switch
                 {
-                    StructuralTypeProjectionExpression projection => projection.BindProperty(property),
+                    // An included owned navigation can be an optional dependent sharing its owner's table (see TryBindMember)
+                    StructuralTypeProjectionExpression projection => BindProperty(projection, typeReference.StructuralType, property),
 
                     // A JSON complex type bound over a subquery (see BindComplexProperty)
                     JsonQueryExpression jsonQuery => jsonQuery.BindProperty(property),
@@ -1424,6 +1363,70 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
             default:
                 throw new UnreachableException();
         }
+    }
+
+    private SqlExpression BindProperty(StructuralTypeProjectionExpression projection, ITypeBase structuralType, IProperty property)
+    {
+        var propertyAccess = projection.BindProperty(property);
+
+        if (structuralType is not IEntityType entityType
+            || entityType.FindDiscriminatorProperty() != null
+            || entityType.FindPrimaryKey() == null
+            || entityType.GetRootType() != entityType
+            || entityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy)
+        {
+            return propertyAccess;
+        }
+
+        // Scope to actually-projected tables when known (entity-splitting).
+        var table = entityType.GetProjectedQueryMappings(projection.TableMap)
+            .Single(e => e.IsSplitEntityTypePrincipal ?? true).Table;
+        if (!table.IsOptional(entityType))
+        {
+            return propertyAccess;
+        }
+
+        // this is optional dependent sharing table
+        var nonPrincipalSharedNonPkProperties = entityType.GetNonPrincipalSharedNonPkProperties(table);
+        if (nonPrincipalSharedNonPkProperties.Contains(property))
+        {
+            // The column is not being shared with principal side so we can always use directly
+            return propertyAccess;
+        }
+
+        SqlExpression? condition = null;
+        // Property is being shared with principal side, so we need to make it conditional access
+        var allRequiredNonPkProperties = entityType.GetRequiredNonPkProperties();
+        if (allRequiredNonPkProperties.Count > 0)
+        {
+            condition = allRequiredNonPkProperties.Select(projection.BindColumn)
+                .Select(c => _sqlExpressionFactory.NotEqual(c, _sqlExpressionFactory.Constant(null, c.Type)))
+                .Aggregate(_sqlExpressionFactory.AndAlso);
+        }
+
+        if (nonPrincipalSharedNonPkProperties.Count != 0
+            && nonPrincipalSharedNonPkProperties.All(p => p.IsNullable()))
+        {
+            // If all non principal shared properties are nullable then we need additional condition
+            var atLeastOneNonNullValueInNullableColumnsCondition = nonPrincipalSharedNonPkProperties
+                .Select(projection.BindColumn)
+                .Select(c => _sqlExpressionFactory.NotEqual(c, _sqlExpressionFactory.Constant(null, c.Type)))
+                .Aggregate(_sqlExpressionFactory.OrElse);
+
+            condition = condition == null
+                ? atLeastOneNonNullValueInNullableColumnsCondition
+                : _sqlExpressionFactory.AndAlso(condition, atLeastOneNonNullValueInNullableColumnsCondition);
+        }
+
+        if (condition == null)
+        {
+            // if we cannot compute condition then we just return property access (and hope for the best)
+            return propertyAccess;
+        }
+
+        return _sqlExpressionFactory.Case(
+            [new CaseWhenClause(condition, propertyAccess)],
+            elseResult: null);
     }
 
     private Expression BindComplexProperty(StructuralTypeReferenceExpression typeReference, IComplexProperty complexProperty)

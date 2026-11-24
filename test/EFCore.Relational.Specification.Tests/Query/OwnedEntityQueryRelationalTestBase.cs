@@ -2206,6 +2206,64 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
 
     #endregion
 
+    #region 36296
+
+    // Details is an optional dependent whose Name shares a column with its owner, so the column holds the owner's value when Details
+    // is absent; binding Details.Name on the element of a grouping must check that Details is present, as it does without a subquery.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Optional_owned_property_sharing_owner_column_on_GroupBy_element(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context36296>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+        ClearLog();
+
+        var query = context.Set<Context36296.Product>()
+            .GroupBy(e => e.Category)
+            .Select(g => g.OrderBy(e => e.Id).First(e => e.Id > 0))
+            .Where(e => e.Details!.Name == "Shared")
+            .Select(e => e.Category);
+
+        var result = async ? await query.ToListAsync() : query.ToList();
+
+        Assert.Equal("With details", Assert.Single(result));
+    }
+
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context36296(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Product>(b =>
+            {
+                b.Property(e => e.Name).HasColumnName("Name");
+                b.OwnsOne(e => e.Details, d => d.Property(e => e.Name).HasColumnName("Name"));
+            });
+
+        public Task SeedAsync()
+        {
+            AddRange(
+                new Product { Category = "With details", Name = "Shared", Details = new Details { Name = "Shared", Weight = 1 } },
+                new Product { Category = "Without details", Name = "Shared" });
+
+            return SaveChangesAsync();
+        }
+
+        public class Product
+        {
+            public int Id { get; set; }
+            public string Category { get; set; } = null!;
+            public string Name { get; set; } = null!;
+            public Details? Details { get; set; }
+        }
+
+        public class Details
+        {
+            public string? Name { get; set; }
+            public int Weight { get; set; }
+        }
+    }
+
+    #endregion
+
     protected override DbContextOptionsBuilder AddNonSharedOptions(DbContextOptionsBuilder builder)
         => base.AddNonSharedOptions(builder).ConfigureWarnings(c => c
             .Log(RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning)
