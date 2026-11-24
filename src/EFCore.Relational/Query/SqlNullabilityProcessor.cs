@@ -2056,17 +2056,33 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         // (e.g. binary -> unary, or binary -> constant)
         // but we need to pay attention in the future if we introduce more subtle transformations here
         if (optimized.Equals(sqlBinaryExpression)
-            && (leftNullable || rightNullable)
-            && !UseRelationalNulls)
+            && (leftNullable || rightNullable))
         {
-            return RewriteNullSemantics(
-                sqlBinaryExpression,
-                sqlBinaryExpression.Left,
-                sqlBinaryExpression.Right,
-                leftNullable,
-                rightNullable,
-                optimize,
-                out nullable);
+            if (!UseRelationalNulls)
+            {
+                return RewriteNullSemantics(
+                    sqlBinaryExpression,
+                    sqlBinaryExpression.Left,
+                    sqlBinaryExpression.Right,
+                    leftNullable,
+                    rightNullable,
+                    optimize,
+                    out nullable);
+            }
+
+            if (optimize
+                && sqlBinaryExpression.Left is ColumnExpression { TypeMapping.Converter: null } leftColumn
+                && sqlBinaryExpression.Right is ColumnExpression { TypeMapping.Converter: null }
+                && leftColumn.Type == typeof(bool))
+            {
+                var comparison = OptimizeBooleanComparison(
+                    sqlBinaryExpression, sqlBinaryExpression.Left, sqlBinaryExpression.Right, optimize);
+                if (!comparison.Equals(sqlBinaryExpression))
+                {
+                    nullable = leftNullable || rightNullable;
+                    return comparison;
+                }
+            }
         }
 
         return optimized;
@@ -2192,10 +2208,19 @@ public class SqlNullabilityProcessor : ExpressionVisitor
 
         var notEqual = sqlBinaryExpression.OperatorType == ExpressionType.Equal ^ leftNegated == rightNegated;
 
-        // prefer equality in predicates
-        if (optimize && notEqual && left.Type == typeof(bool))
+        // Prefer equality when a column can be used for a lookup.
+        if (optimize
+            && notEqual
+            && left.Type == typeof(bool)
+            && left.TypeMapping?.Converter is null
+            && right.TypeMapping?.Converter is null
+            && (left is ColumnExpression || right is ColumnExpression)
+            && (left is not ColumnExpression leftColumn
+                || right is not ColumnExpression rightColumn
+                || leftColumn.TableAlias != rightColumn.TableAlias))
         {
-            if (right is ColumnExpression && (left is not ColumnExpression || leftNegated))
+            var negateLeft = right is ColumnExpression && (left is not ColumnExpression || leftNegated || !rightNegated);
+            if (negateLeft)
             {
                 left = _sqlExpressionFactory.Not(left);
             }

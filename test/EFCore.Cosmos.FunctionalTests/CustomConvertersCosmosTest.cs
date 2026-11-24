@@ -68,6 +68,10 @@ public class CustomConvertersCosmosTest : CustomConvertersTestBase<CustomConvert
     public override Task Value_conversion_is_appropriately_used_for_left_join_condition()
         => base.Value_conversion_is_appropriately_used_for_left_join_condition();
 
+    [Theory(Skip = "Cross joins are not supported")]
+    public override Task Compare_converted_bool_columns_from_different_tables(bool async)
+        => base.Compare_converted_bool_columns_from_different_tables(async);
+
     [Fact]
     public override async Task Where_bool_gets_converted_to_equality_when_value_conversion_is_used()
     {
