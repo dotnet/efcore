@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 
@@ -118,6 +119,7 @@ public class QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : Exp
             ShapedQueryExpression e => e.UpdateQueryExpression(Visit(e.QueryExpression)),
             AtTimeZoneExpression e => VisitAtTimeZone(e),
             CaseExpression e => VisitCase(e),
+            ClrTypeChangeExpression e => VisitClrTypeChange(e),
             CollateExpression e => VisitCollate(e),
             ColumnExpression e => VisitColumn(e),
             CrossApplyExpression e => VisitCrossApply(e),
@@ -157,6 +159,12 @@ public class QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : Exp
             _ => throw new InvalidOperationException(
                 RelationalStrings.UnhandledExpressionInVisitor(expression, expression.GetType(), nameof(QuerySqlGenerator))),
         };
+
+    private Expression VisitClrTypeChange(ClrTypeChangeExpression expression)
+    {
+        Visit(expression.Operand);
+        return expression;
+    }
 
     /// <summary>
     ///     Generates SQL for an arbitrary fragment.
@@ -356,8 +364,14 @@ public class QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : Exp
     {
         Visit(projectionExpression.Expression);
 
+        var projectedExpression = projectionExpression.Expression;
+        while (projectedExpression is ClrTypeChangeExpression clrTypeChangeExpression)
+        {
+            projectedExpression = clrTypeChangeExpression.Operand;
+        }
+
         if (projectionExpression.Alias != string.Empty
-            && !(projectionExpression.Expression is ColumnExpression column && column.Name == projectionExpression.Alias))
+            && !(projectedExpression is ColumnExpression column && column.Name == projectionExpression.Alias))
         {
             _relationalCommandBuilder
                 .Append(AliasSeparator)
@@ -1682,6 +1696,11 @@ public class QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : Exp
     /// <returns>A bool value indicating that parenthesis is required or not. </returns>
     protected virtual bool RequiresParentheses(SqlExpression outerExpression, SqlExpression innerExpression)
     {
+        while (innerExpression is ClrTypeChangeExpression clrTypeChangeExpression)
+        {
+            innerExpression = clrTypeChangeExpression.Operand;
+        }
+
         int outerPrecedence, innerPrecedence;
 
         // Convert is rendered as a function (CAST()) and not as an operator, so we never need to add parentheses around the inner

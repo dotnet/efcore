@@ -39,6 +39,18 @@ INSERT INTO ZeroKey VALUES (NULL)
         await context.SaveChangesAsync();
     }
 
+    public override async Task Projection_cast_between_time_types_with_same_store_type(bool async)
+    {
+        await base.Projection_cast_between_time_types_with_same_store_type(async);
+
+        AssertSql(
+            """
+SELECT "e"."Time"
+FROM "Events" AS "e"
+ORDER BY "e"."Id"
+""");
+    }
+
     public override async Task Average_with_cast()
     {
         await base.Average_with_cast();
@@ -222,6 +234,118 @@ SELECT "u"."Id", "u"."Name"
 FROM "Users" AS "u"
 WHERE "u"."Name" LIKE 'Name%'
 """);
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public async Task Projection_cast_between_clr_types_with_same_store_type(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context39782>(
+            seed: async context =>
+            {
+                context.Events.AddRange(
+                    new Context39782.Event
+                    {
+                        Timestamp = new DateOnly(2000, 2, 29),
+                        NullableTimestamp = new DateOnly(2000, 2, 29)
+                    },
+                    new Context39782.Event { Timestamp = new DateOnly(2024, 1, 2) });
+                await context.SaveChangesAsync();
+            });
+        using var context = contextFactory.CreateDbContext();
+        ClearLog();
+
+        var query = context.Events.Select(e => (DateTimeOffset)(object)e.Timestamp);
+        Assert.Equal(
+            """
+SELECT "e"."Timestamp"
+FROM "Events" AS "e"
+""",
+            query.ToQueryString());
+
+        var results = async ? await query.ToListAsync() : query.ToList();
+        Assert.Equal(
+            [new DateTimeOffset(2000, 2, 29, 0, 0, 0, TimeSpan.Zero), new DateTimeOffset(2024, 1, 2, 0, 0, 0, TimeSpan.Zero)],
+            results.OrderBy(e => e));
+
+        var nestedQuery = context.Events.OrderBy(e => e.Id)
+            .Select(e => new { e.Id, Timestamp = (DateTimeOffset?)(object?)e.NullableTimestamp });
+        var nestedResults = async ? await nestedQuery.ToListAsync() : nestedQuery.ToList();
+        Assert.Collection(
+            nestedResults,
+            e =>
+            {
+                Assert.Equal(1, e.Id);
+                Assert.Equal(new DateTimeOffset(2000, 2, 29, 0, 0, 0, TimeSpan.Zero), e.Timestamp);
+            },
+            e =>
+            {
+                Assert.Equal(2, e.Id);
+                Assert.Null(e.Timestamp);
+            });
+
+        var coalescedQuery = context.Events.OrderBy(e => e.Id)
+            .Select(e => (DateTimeOffset)(object)(e.NullableTimestamp ?? e.Timestamp));
+        var coalescedResults = async ? await coalescedQuery.ToListAsync() : coalescedQuery.ToList();
+        Assert.Equal(
+            [new DateTimeOffset(2000, 2, 29, 0, 0, 0, TimeSpan.Zero), new DateTimeOffset(2024, 1, 2, 0, 0, 0, TimeSpan.Zero)],
+            coalescedResults);
+
+        var containsQuery = context.Events.OrderBy(e => e.Id)
+            .Select(e => context.Events
+                .Where(inner => inner.Id == 2)
+                .Select(inner => (DateTimeOffset?)(object?)inner.NullableTimestamp)
+                .Contains((DateTimeOffset?)(object?)e.NullableTimestamp));
+        var containsResults = async ? await containsQuery.ToListAsync() : containsQuery.ToList();
+        Assert.Equal([false, true], containsResults);
+
+        var numericQuery = context.Events.OrderBy(e => e.Id).Select(e => (double)e.Id);
+        var numericResults = async ? await numericQuery.ToListAsync() : numericQuery.ToList();
+        Assert.Equal([1.0, 2.0], numericResults);
+
+        AssertSql(
+            """
+SELECT "e"."Timestamp"
+FROM "Events" AS "e"
+""",
+            //
+            """
+SELECT "e"."Id", "e"."NullableTimestamp" AS "Timestamp"
+FROM "Events" AS "e"
+ORDER BY "e"."Id"
+""",
+            //
+            """
+SELECT COALESCE("e"."NullableTimestamp", "e"."Timestamp")
+FROM "Events" AS "e"
+ORDER BY "e"."Id"
+""",
+            //
+            """
+SELECT EXISTS (
+    SELECT 1
+    FROM "Events" AS "e0"
+    WHERE "e0"."Id" = 2 AND ("e0"."NullableTimestamp" = "e"."NullableTimestamp" OR ("e0"."NullableTimestamp" IS NULL AND "e"."NullableTimestamp" IS NULL)))
+FROM "Events" AS "e"
+ORDER BY "e"."Id"
+""",
+            //
+            """
+SELECT CAST("e"."Id" AS REAL)
+FROM "Events" AS "e"
+ORDER BY "e"."Id"
+""");
+    }
+
+    public class Context39782(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Event> Events => Set<Event>();
+
+        public class Event
+        {
+            public int Id { get; set; }
+            public DateOnly Timestamp { get; set; }
+            public DateOnly? NullableTimestamp { get; set; }
+        }
     }
 
     #region 13146

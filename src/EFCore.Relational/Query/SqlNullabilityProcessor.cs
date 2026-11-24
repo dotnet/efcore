@@ -4,6 +4,7 @@
 using System.Collections;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -349,6 +350,8 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 => VisitAtTimeZone(sqlAtTimeZoneExpression, allowOptimizedExpansion, out nullable),
             CaseExpression caseExpression
                 => VisitCase(caseExpression, allowOptimizedExpansion, out nullable),
+            ClrTypeChangeExpression clrTypeChangeExpression
+                => clrTypeChangeExpression.Update(Visit(clrTypeChangeExpression.Operand, allowOptimizedExpansion, out nullable)),
             CollateExpression collateExpression
                 => VisitCollate(collateExpression, allowOptimizedExpansion, out nullable),
             ColumnExpression columnExpression
