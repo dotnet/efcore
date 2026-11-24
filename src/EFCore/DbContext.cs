@@ -647,10 +647,10 @@ public class DbContext :
 
         var interceptionResult = DbContextDependencies.UpdateLogger.SaveChangesStarting(this);
 
-        TryDetectChanges();
-
         try
         {
+            TryDetectChanges();
+
             var entitiesSaved = interceptionResult.HasResult
                 ? interceptionResult.Result
                 : DbContextDependencies.StateManager.SaveChanges(acceptAllChangesOnSuccess);
@@ -788,10 +788,10 @@ public class DbContext :
         var interceptionResult = await DbContextDependencies.UpdateLogger
             .SaveChangesStartingAsync(this, cancellationToken).ConfigureAwait(acceptAllChangesOnSuccess);
 
-        TryDetectChanges();
-
         try
         {
+            TryDetectChanges();
+
             var entitiesSaved = interceptionResult.HasResult
                 ? interceptionResult.Result
                 : await DbContextDependencies.StateManager
