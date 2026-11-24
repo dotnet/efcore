@@ -276,6 +276,24 @@ public class SqliteParameterTest
     public void Bind_works_when_DateTime_with_SqliteType_Real()
         => Bind_works(new DateTime(2014, 4, 14, 11, 13, 59), 2456761.9680439816, SqliteType.Real);
 
+    [Theory]
+    [InlineData(1, 1)]
+    [InlineData(1, 9)]
+    [InlineData(4, 35)]
+    [InlineData(59, 999)]
+    public void Bind_works_when_DateTime_with_SqliteType_Real_and_milliseconds(int second, int millisecond)
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT strftime('%Y-%m-%d %H:%M:%f', $value);";
+        command.Parameters.Add("$value", SqliteType.Real).Value = new DateTime(2014, 4, 14, 11, 13, second, millisecond);
+        connection.Open();
+
+        var result = command.ExecuteScalar();
+
+        Assert.Equal($"2014-04-14 11:13:{second:00}.{millisecond:000}", result);
+    }
+
     [Fact]
     public void Bind_works_when_DateTimeOffset()
         => Bind_works(new DateTimeOffset(2014, 4, 14, 11, 13, 59, TimeSpan.FromHours(-8)), "2014-04-14 11:13:59-08:00");
@@ -306,6 +324,24 @@ public class SqliteParameterTest
     [Fact]
     public void Bind_works_when_TimeOnly_with_SqliteType_Real()
         => Bind_works(new TimeOnly(13, 10, 15), 0.5487847222222222, SqliteType.Real);
+
+    [Theory]
+    [InlineData(1, 1)]
+    [InlineData(1, 9)]
+    [InlineData(4, 35)]
+    [InlineData(59, 999)]
+    public void Bind_works_when_TimeOnly_with_SqliteType_Real_and_milliseconds(int second, int millisecond)
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT $value;";
+        command.Parameters.Add("$value", SqliteType.Real).Value = new TimeOnly(13, 10, second, millisecond);
+        connection.Open();
+
+        var result = command.ExecuteScalar();
+
+        Assert.Equal(((13 * 3600000) + (10 * 60000) + (second * 1000) + millisecond) / 86400000.0, result);
+    }
 
     [Fact]
     public void Bind_works_when_DBNull()
