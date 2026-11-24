@@ -446,7 +446,7 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.DeleteBehavior GetTargetDeleteBehavior(Microsoft.EntityFrameworkCore.Metadata.IConventionForeignKey foreignKey);"
         },
         {
-          "Member": "virtual void ProcessForeignKeyAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder relationshipBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder> context);"
+          "Member": "virtual void ProcessForeignKeyAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder foreignKeyBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder> context);"
         },
         {
           "Member": "virtual void ProcessForeignKeyRequirednessChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder relationshipBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<bool?> context);"
@@ -8752,7 +8752,7 @@
           "Member": "virtual void ProcessEntityTypeAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder> context);"
         },
         {
-          "Member": "virtual void ProcessForeignKeyAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder relationshipBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder> context);"
+          "Member": "virtual void ProcessForeignKeyAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder foreignKeyBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder> context);"
         },
         {
           "Member": "virtual void ProcessModelFinalizing(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder modelBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder> context);"
@@ -8837,7 +8837,7 @@
           "Member": "virtual void ProcessEntityTypeBaseTypeChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType? newBaseType, Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType? oldBaseType, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType> context);"
         },
         {
-          "Member": "virtual void ProcessForeignKeyAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder relationshipBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder> context);"
+          "Member": "virtual void ProcessForeignKeyAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder foreignKeyBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder> context);"
         },
         {
           "Member": "virtual void ProcessForeignKeyPropertiesChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder relationshipBuilder, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IConventionProperty> oldDependentProperties, Microsoft.EntityFrameworkCore.Metadata.IConventionKey oldPrincipalKey, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IConventionProperty>> context);"
@@ -8889,7 +8889,7 @@
           "Member": "virtual void ProcessEntityTypePrimaryKeyChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, Microsoft.EntityFrameworkCore.Metadata.IConventionKey? newPrimaryKey, Microsoft.EntityFrameworkCore.Metadata.IConventionKey? previousPrimaryKey, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionKey> context);"
         },
         {
-          "Member": "virtual void ProcessForeignKeyAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder relationshipBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder> context);"
+          "Member": "virtual void ProcessForeignKeyAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder foreignKeyBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder> context);"
         },
         {
           "Member": "virtual void ProcessForeignKeyPrincipalEndChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder relationshipBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder> context);"
@@ -16714,7 +16714,7 @@
           "Member": "virtual void ProcessEntityTypeMemberIgnored(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, string name, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<string> context);"
         },
         {
-          "Member": "virtual void ProcessForeignKeyAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder relationshipBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder> context);"
+          "Member": "virtual void ProcessForeignKeyAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder foreignKeyBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder> context);"
         },
         {
           "Member": "virtual void ProcessForeignKeyOwnershipChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder relationshipBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<bool?> context);"
@@ -23583,7 +23583,7 @@
           "Member": "static Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer CreateDefault<T>(bool favorStructuralComparisons);"
         },
         {
-          "Member": "abstract bool Equals(object? left, object? right);"
+          "Member": "abstract bool Equals(object? x, object? y);"
         },
         {
           "Member": "virtual System.Linq.Expressions.Expression ExtractEqualsBody(System.Linq.Expressions.Expression leftExpression, System.Linq.Expressions.Expression rightExpression);"
@@ -23595,7 +23595,7 @@
           "Member": "virtual System.Linq.Expressions.Expression ExtractSnapshotBody(System.Linq.Expressions.Expression expression);"
         },
         {
-          "Member": "abstract int GetHashCode(object? instance);"
+          "Member": "abstract int GetHashCode(object? obj);"
         },
         {
           "Member": "abstract object? Snapshot(object? instance);"
@@ -23641,10 +23641,10 @@
           "Member": "static System.Linq.Expressions.Expression<System.Func<T, T>> CreateDefaultSnapshotExpression(bool favorStructuralComparisons);"
         },
         {
-          "Member": "virtual bool Equals(T? left, T? right);"
+          "Member": "virtual bool Equals(T? x, T? y);"
         },
         {
-          "Member": "virtual int GetHashCode(T instance);"
+          "Member": "virtual int GetHashCode(T obj);"
         },
         {
           "Member": "virtual T Snapshot(T instance);"
@@ -23868,7 +23868,7 @@
           "Member": "virtual void ProcessEntityTypePrimaryKeyChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, Microsoft.EntityFrameworkCore.Metadata.IConventionKey? newPrimaryKey, Microsoft.EntityFrameworkCore.Metadata.IConventionKey? previousPrimaryKey, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionKey> context);"
         },
         {
-          "Member": "virtual void ProcessForeignKeyAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder relationshipBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder> context);"
+          "Member": "virtual void ProcessForeignKeyAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder foreignKeyBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder> context);"
         },
         {
           "Member": "virtual void ProcessForeignKeyOwnershipChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder relationshipBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<bool?> context);"

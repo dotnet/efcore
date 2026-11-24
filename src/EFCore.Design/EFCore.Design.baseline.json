@@ -226,7 +226,7 @@
           "Member": "CSharpSnapshotGenerator(Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorDependencies dependencies);"
         },
         {
-          "Member": "virtual void Generate(string modelBuilderName, Microsoft.EntityFrameworkCore.Metadata.IModel model, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+          "Member": "virtual void Generate(string builderName, Microsoft.EntityFrameworkCore.Metadata.IModel model, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
         },
         {
           "Member": "virtual void GenerateBaseType(string entityTypeBuilderName, Microsoft.EntityFrameworkCore.Metadata.IEntityType? baseType, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
