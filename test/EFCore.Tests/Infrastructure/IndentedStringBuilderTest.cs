@@ -50,6 +50,22 @@ public class IndentedStringBuilderTest
     }
 
     [Fact]
+    public void Clear_resets_pending_indent()
+    {
+        var indentedStringBuilder = new IndentedStringBuilder();
+
+        indentedStringBuilder.Append("Foo");
+        indentedStringBuilder.Clear();
+
+        using (indentedStringBuilder.Indent())
+        {
+            indentedStringBuilder.Append("Bar");
+        }
+
+        Assert.Equal("    Bar", indentedStringBuilder.ToString());
+    }
+
+    [Fact]
     public void Append_in_middle_when_new_line()
     {
         var indentedStringBuilder = new IndentedStringBuilder();
