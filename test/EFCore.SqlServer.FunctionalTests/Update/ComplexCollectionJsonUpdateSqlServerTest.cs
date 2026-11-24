@@ -27,6 +27,27 @@ WHERE [Id] = @p1;
 """);
     }
 
+    public override async Task Prepend_and_evict_json_complex_collection_element_after_detect_changes()
+    {
+        await base.Prepend_and_evict_json_complex_collection_element_after_detect_changes().ConfigureAwait(false);
+
+        AssertSql(
+            """
+@p0='[{"Name":"new","PhoneNumbers":[]},{"Name":"t0","PhoneNumbers":[]},{"Name":"t1","PhoneNumbers":[]},{"Name":"t2","PhoneNumbers":[]}]' (Nullable = false) (Size = 130)
+@p1='1'
+@p2='{"Label":"S1","Tags":[{"Value":"new"},{"Value":"t0"},{"Value":"t1"},{"Value":"t2"}]}' (Nullable = false) (Size = 84)
+@p3='1'
+
+SET NOCOUNT ON;
+UPDATE [Companies] SET [Contacts] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+UPDATE [StructWidgets] SET [Data] = @p2
+OUTPUT 1
+WHERE [Id] = @p3;
+""");
+    }
+
     public override async Task Add_element_to_complex_collection_mapped_to_json()
     {
         await base.Add_element_to_complex_collection_mapped_to_json();

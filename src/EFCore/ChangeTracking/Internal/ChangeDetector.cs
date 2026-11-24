@@ -14,6 +14,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 /// </summary>
 public class ChangeDetector : IChangeDetector
 {
+    private static readonly bool UseOldBehavior39450 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue39450", out var enabled) && enabled;
+
     private readonly IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> _logger;
     private readonly ILoggingOptions _loggingOptions;
     private bool _inCascadeDelete;
@@ -494,7 +497,14 @@ public class ChangeDetector : IChangeDetector
                             Check.DebugAssert(
                                 originalEntry.Ordinal > i || currentNulls.Contains(originalEntry.Ordinal),
                                 $"Expected the entry that was previously at {originalEntry.Ordinal} to have been encountered at an ordinal before {i}.");
-                            entry.MoveComplexCollectionEntry(complexProperty, originalEntry.Ordinal, i);
+                            var previousOrdinal = originalEntry.Ordinal;
+                            entry.MoveComplexCollectionEntry(complexProperty, previousOrdinal, i);
+                            if (!UseOldBehavior39450
+                                && previousOrdinal < i - 1)
+                            {
+                                // Swap with the earlier unmatched slot without shifting entries already matched in between.
+                                entry.MoveComplexCollectionEntry(complexProperty, i - 1, previousOrdinal);
+                            }
 
                             changesFound = true;
                         }

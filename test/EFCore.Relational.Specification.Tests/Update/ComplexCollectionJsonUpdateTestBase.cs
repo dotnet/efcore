@@ -72,6 +72,45 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
             });
 
     [Fact]
+    public virtual Task Prepend_and_evict_json_complex_collection_element_after_detect_changes()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var company = await context.Companies.OrderBy(c => c.Id).FirstAsync().ConfigureAwait(false);
+                var widget = await context.StructWidgets.SingleAsync().ConfigureAwait(false);
+                company.Contacts = [new() { Name = "t0" }, new() { Name = "t1" }, new() { Name = "t2" }, new() { Name = "t3" }];
+                widget.Data = new StructData
+                {
+                    Label = "S1",
+                    Tags = [new() { Value = "t0" }, new() { Value = "t1" }, new() { Value = "t2" }, new() { Value = "t3" }]
+                };
+                await context.SaveChangesAsync().ConfigureAwait(false);
+            },
+            async context =>
+            {
+                var company = await context.Companies.OrderBy(c => c.Id).FirstAsync().ConfigureAwait(false);
+                var widget = await context.StructWidgets.SingleAsync().ConfigureAwait(false);
+                company.Contacts = [new() { Name = "new" }, .. company.Contacts!.Take(3)];
+                widget.Data = new StructData { Label = widget.Data.Label, Tags = [new() { Value = "new" }, .. widget.Data.Tags.Take(3)] };
+
+                context.ChangeTracker.DetectChanges();
+                ClearLog();
+                await context.SaveChangesAsync().ConfigureAwait(false);
+            },
+            async context =>
+            {
+                using (SuspendRecordingEvents())
+                {
+                    var company = await context.Companies.OrderBy(c => c.Id).FirstAsync().ConfigureAwait(false);
+                    var widget = await context.StructWidgets.SingleAsync().ConfigureAwait(false);
+                    Assert.Equal(["new", "t0", "t1", "t2"], company.Contacts!.Select(c => c.Name));
+                    Assert.Equal(["new", "t0", "t1", "t2"], widget.Data.Tags.Select(t => t.Value));
+                }
+            });
+
+    [Fact]
     public virtual Task Add_element_to_complex_collection_mapped_to_json()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
