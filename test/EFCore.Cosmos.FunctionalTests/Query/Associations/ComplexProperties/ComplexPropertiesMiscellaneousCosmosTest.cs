@@ -94,6 +94,9 @@ WHERE (c["OptionalAssociate"] != null)
     public override Task Where_on_associate_scalar_property_on_GroupBy_First()
         => AssertTranslationFailed(base.Where_on_associate_scalar_property_on_GroupBy_First);
 
+    public override Task Where_on_nested_associate_scalar_property_on_GroupBy_First()
+        => AssertTranslationFailed(base.Where_on_nested_associate_scalar_property_on_GroupBy_First);
+
     public override Task Where_on_root_property_on_GroupBy_First()
         => AssertTranslationFailed(base.Where_on_root_property_on_GroupBy_First);
 

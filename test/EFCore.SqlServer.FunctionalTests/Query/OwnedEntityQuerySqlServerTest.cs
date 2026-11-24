@@ -767,6 +767,42 @@ HAVING (
 """);
     }
 
+    public override async Task Optional_owned_json_compared_to_null_on_GroupBy_element(bool async)
+    {
+        await base.Optional_owned_json_compared_to_null_on_GroupBy_element(async);
+
+        AssertSql(
+            """
+SELECT (
+    SELECT TOP(1) [p1].[Category]
+    FROM [Product] AS [p1]
+    WHERE [p].[Category] = [p1].[Category] AND [p1].[Id] > 0
+    ORDER BY [p1].[Id])
+FROM [Product] AS [p]
+GROUP BY [p].[Category]
+HAVING (
+    SELECT TOP(1) [p0].[JsonDetails]
+    FROM [Product] AS [p0]
+    WHERE [p].[Category] = [p0].[Category] AND [p0].[Id] > 0
+    ORDER BY [p0].[Id]) IS NULL
+""",
+            //
+            """
+SELECT (
+    SELECT TOP(1) [p1].[Category]
+    FROM [Product] AS [p1]
+    WHERE [p].[Category] = [p1].[Category] AND [p1].[Id] > 0
+    ORDER BY [p1].[Id])
+FROM [Product] AS [p]
+GROUP BY [p].[Category]
+HAVING (
+    SELECT TOP(1) [p0].[JsonDetails]
+    FROM [Product] AS [p0]
+    WHERE [p].[Category] = [p0].[Category] AND [p0].[Id] > 0
+    ORDER BY [p0].[Id]) IS NOT NULL
+""");
+    }
+
     public override async Task Owned_collection_select_many_without_result_selector(bool async)
     {
         await base.Owned_collection_select_many_without_result_selector(async);

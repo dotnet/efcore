@@ -2228,6 +2228,29 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
         Assert.Equal("With details", Assert.Single(result));
     }
 
+    // The JsonDetails of the "With details" product is a document whose values are all null; comparing JsonDetails to null on the
+    // element of a grouping must check the document itself, as it does without a subquery.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Optional_owned_json_compared_to_null_on_GroupBy_element(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context36296>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+        ClearLog();
+
+        var elements = context.Set<Context36296.Product>()
+            .GroupBy(e => e.Category)
+            .Select(g => g.OrderBy(e => e.Id).First(e => e.Id > 0));
+
+        var nullQuery = elements.Where(e => e.JsonDetails == null).Select(e => e.Category);
+        var notNullQuery = elements.Where(e => e.JsonDetails != null).Select(e => e.Category);
+
+        var nullResult = async ? await nullQuery.ToListAsync() : nullQuery.ToList();
+        var notNullResult = async ? await notNullQuery.ToListAsync() : notNullQuery.ToList();
+
+        Assert.Equal("Without details", Assert.Single(nullResult));
+        Assert.Equal("With details", Assert.Single(notNullResult));
+    }
+
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context36296(DbContextOptions options) : DbContext(options)
     {
@@ -2236,12 +2259,19 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
             {
                 b.Property(e => e.Name).HasColumnName("Name");
                 b.OwnsOne(e => e.Details, d => d.Property(e => e.Name).HasColumnName("Name"));
+                b.OwnsOne(e => e.JsonDetails, d => d.ToJson());
             });
 
         public Task SeedAsync()
         {
             AddRange(
-                new Product { Category = "With details", Name = "Shared", Details = new Details { Name = "Shared", Weight = 1 } },
+                new Product
+                {
+                    Category = "With details",
+                    Name = "Shared",
+                    Details = new Details { Name = "Shared", Weight = 1 },
+                    JsonDetails = new JsonDetails()
+                },
                 new Product { Category = "Without details", Name = "Shared" });
 
             return SaveChangesAsync();
@@ -2253,12 +2283,18 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
             public string Category { get; set; } = null!;
             public string Name { get; set; } = null!;
             public Details? Details { get; set; }
+            public JsonDetails? JsonDetails { get; set; }
         }
 
         public class Details
         {
             public string? Name { get; set; }
             public int Weight { get; set; }
+        }
+
+        public class JsonDetails
+        {
+            public string? Note { get; set; }
         }
     }
 

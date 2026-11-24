@@ -201,6 +201,54 @@ ORDER BY [r8].[Key], [s].[RootEntityId], [s].[Id], [s].[AssociateTypeRootEntityI
 """);
     }
 
+    public override async Task Where_on_nested_associate_scalar_property_on_GroupBy_First()
+    {
+        await base.Where_on_nested_associate_scalar_property_on_GroupBy_First();
+
+        AssertSql(
+            """
+SELECT [r10].[Id], [r10].[Name], [r8].[Key], [s].[RootEntityId], [s].[Id], [s].[Int], [s].[Ints], [s].[Name], [s].[String], [s].[AssociateTypeRootEntityId], [s].[AssociateTypeId], [s].[Id0], [s].[Int0], [s].[Ints0], [s].[Name0], [s].[String0], [s].[OptionalNestedAssociate_Id], [s].[OptionalNestedAssociate_Int], [s].[OptionalNestedAssociate_Ints], [s].[OptionalNestedAssociate_Name], [s].[OptionalNestedAssociate_String], [s].[RequiredNestedAssociate_Id], [s].[RequiredNestedAssociate_Int], [s].[RequiredNestedAssociate_Ints], [s].[RequiredNestedAssociate_Name], [s].[RequiredNestedAssociate_String], [r10].[OptionalAssociate_Id], [r10].[OptionalAssociate_Int], [r10].[OptionalAssociate_Ints], [r10].[OptionalAssociate_Name], [r10].[OptionalAssociate_String], [o].[AssociateTypeRootEntityId], [o].[Id], [o].[Int], [o].[Ints], [o].[Name], [o].[String], [r10].[OptionalAssociate_OptionalNestedAssociate_Id], [r10].[OptionalAssociate_OptionalNestedAssociate_Int], [r10].[OptionalAssociate_OptionalNestedAssociate_Ints], [r10].[OptionalAssociate_OptionalNestedAssociate_Name], [r10].[OptionalAssociate_OptionalNestedAssociate_String], [r10].[OptionalAssociate_RequiredNestedAssociate_Id], [r10].[OptionalAssociate_RequiredNestedAssociate_Int], [r10].[OptionalAssociate_RequiredNestedAssociate_Ints], [r10].[OptionalAssociate_RequiredNestedAssociate_Name], [r10].[OptionalAssociate_RequiredNestedAssociate_String], [r10].[RequiredAssociate_Id], [r10].[RequiredAssociate_Int], [r10].[RequiredAssociate_Ints], [r10].[RequiredAssociate_Name], [r10].[RequiredAssociate_String], [r5].[AssociateTypeRootEntityId], [r5].[Id], [r5].[Int], [r5].[Ints], [r5].[Name], [r5].[String], [r10].[RequiredAssociate_OptionalNestedAssociate_Id], [r10].[RequiredAssociate_OptionalNestedAssociate_Int], [r10].[RequiredAssociate_OptionalNestedAssociate_Ints], [r10].[RequiredAssociate_OptionalNestedAssociate_Name], [r10].[RequiredAssociate_OptionalNestedAssociate_String], [r10].[RequiredAssociate_RequiredNestedAssociate_Id], [r10].[RequiredAssociate_RequiredNestedAssociate_Int], [r10].[RequiredAssociate_RequiredNestedAssociate_Ints], [r10].[RequiredAssociate_RequiredNestedAssociate_Name], [r10].[RequiredAssociate_RequiredNestedAssociate_String]
+FROM (
+    SELECT [r0].[Key]
+    FROM (
+        SELECT [r].[Id] % 2 AS [Key]
+        FROM [RootEntity] AS [r]
+    ) AS [r0]
+    GROUP BY [r0].[Key]
+    HAVING (
+        SELECT TOP(1) [r6].[RequiredAssociate_RequiredNestedAssociate_Int]
+        FROM (
+            SELECT [r7].[Id], [r7].[Id] % 2 AS [Key], [r7].[RequiredAssociate_RequiredNestedAssociate_Int]
+            FROM [RootEntity] AS [r7]
+        ) AS [r6]
+        WHERE ([r0].[Key] = [r6].[Key] OR ([r0].[Key] IS NULL AND [r6].[Key] IS NULL)) AND [r6].[Id] > 0
+        ORDER BY [r6].[Id]) = 8
+) AS [r8]
+LEFT JOIN (
+    SELECT [r9].[Id], [r9].[Name], [r9].[OptionalAssociate_Id], [r9].[OptionalAssociate_Int], [r9].[OptionalAssociate_Ints], [r9].[OptionalAssociate_Name], [r9].[OptionalAssociate_String], [r9].[OptionalAssociate_OptionalNestedAssociate_Id], [r9].[OptionalAssociate_OptionalNestedAssociate_Int], [r9].[OptionalAssociate_OptionalNestedAssociate_Ints], [r9].[OptionalAssociate_OptionalNestedAssociate_Name], [r9].[OptionalAssociate_OptionalNestedAssociate_String], [r9].[OptionalAssociate_RequiredNestedAssociate_Id], [r9].[OptionalAssociate_RequiredNestedAssociate_Int], [r9].[OptionalAssociate_RequiredNestedAssociate_Ints], [r9].[OptionalAssociate_RequiredNestedAssociate_Name], [r9].[OptionalAssociate_RequiredNestedAssociate_String], [r9].[RequiredAssociate_Id], [r9].[RequiredAssociate_Int], [r9].[RequiredAssociate_Ints], [r9].[RequiredAssociate_Name], [r9].[RequiredAssociate_String], [r9].[RequiredAssociate_OptionalNestedAssociate_Id], [r9].[RequiredAssociate_OptionalNestedAssociate_Int], [r9].[RequiredAssociate_OptionalNestedAssociate_Ints], [r9].[RequiredAssociate_OptionalNestedAssociate_Name], [r9].[RequiredAssociate_OptionalNestedAssociate_String], [r9].[RequiredAssociate_RequiredNestedAssociate_Id], [r9].[RequiredAssociate_RequiredNestedAssociate_Int], [r9].[RequiredAssociate_RequiredNestedAssociate_Ints], [r9].[RequiredAssociate_RequiredNestedAssociate_Name], [r9].[RequiredAssociate_RequiredNestedAssociate_String], [r9].[Key]
+    FROM (
+        SELECT [r1].[Id], [r1].[Name], [r1].[OptionalAssociate_Id], [r1].[OptionalAssociate_Int], [r1].[OptionalAssociate_Ints], [r1].[OptionalAssociate_Name], [r1].[OptionalAssociate_String], [r1].[OptionalAssociate_OptionalNestedAssociate_Id], [r1].[OptionalAssociate_OptionalNestedAssociate_Int], [r1].[OptionalAssociate_OptionalNestedAssociate_Ints], [r1].[OptionalAssociate_OptionalNestedAssociate_Name], [r1].[OptionalAssociate_OptionalNestedAssociate_String], [r1].[OptionalAssociate_RequiredNestedAssociate_Id], [r1].[OptionalAssociate_RequiredNestedAssociate_Int], [r1].[OptionalAssociate_RequiredNestedAssociate_Ints], [r1].[OptionalAssociate_RequiredNestedAssociate_Name], [r1].[OptionalAssociate_RequiredNestedAssociate_String], [r1].[RequiredAssociate_Id], [r1].[RequiredAssociate_Int], [r1].[RequiredAssociate_Ints], [r1].[RequiredAssociate_Name], [r1].[RequiredAssociate_String], [r1].[RequiredAssociate_OptionalNestedAssociate_Id], [r1].[RequiredAssociate_OptionalNestedAssociate_Int], [r1].[RequiredAssociate_OptionalNestedAssociate_Ints], [r1].[RequiredAssociate_OptionalNestedAssociate_Name], [r1].[RequiredAssociate_OptionalNestedAssociate_String], [r1].[RequiredAssociate_RequiredNestedAssociate_Id], [r1].[RequiredAssociate_RequiredNestedAssociate_Int], [r1].[RequiredAssociate_RequiredNestedAssociate_Ints], [r1].[RequiredAssociate_RequiredNestedAssociate_Name], [r1].[RequiredAssociate_RequiredNestedAssociate_String], [r1].[Key], ROW_NUMBER() OVER(PARTITION BY [r1].[Key] ORDER BY [r1].[Id]) AS [row]
+        FROM (
+            SELECT [r2].[Id], [r2].[Name], [r2].[Id] % 2 AS [Key], [r2].[OptionalAssociate_Id], [r2].[OptionalAssociate_Int], [r2].[OptionalAssociate_Ints], [r2].[OptionalAssociate_Name], [r2].[OptionalAssociate_String], [r2].[OptionalAssociate_OptionalNestedAssociate_Id], [r2].[OptionalAssociate_OptionalNestedAssociate_Int], [r2].[OptionalAssociate_OptionalNestedAssociate_Ints], [r2].[OptionalAssociate_OptionalNestedAssociate_Name], [r2].[OptionalAssociate_OptionalNestedAssociate_String], [r2].[OptionalAssociate_RequiredNestedAssociate_Id], [r2].[OptionalAssociate_RequiredNestedAssociate_Int], [r2].[OptionalAssociate_RequiredNestedAssociate_Ints], [r2].[OptionalAssociate_RequiredNestedAssociate_Name], [r2].[OptionalAssociate_RequiredNestedAssociate_String], [r2].[RequiredAssociate_Id], [r2].[RequiredAssociate_Int], [r2].[RequiredAssociate_Ints], [r2].[RequiredAssociate_Name], [r2].[RequiredAssociate_String], [r2].[RequiredAssociate_OptionalNestedAssociate_Id], [r2].[RequiredAssociate_OptionalNestedAssociate_Int], [r2].[RequiredAssociate_OptionalNestedAssociate_Ints], [r2].[RequiredAssociate_OptionalNestedAssociate_Name], [r2].[RequiredAssociate_OptionalNestedAssociate_String], [r2].[RequiredAssociate_RequiredNestedAssociate_Id], [r2].[RequiredAssociate_RequiredNestedAssociate_Int], [r2].[RequiredAssociate_RequiredNestedAssociate_Ints], [r2].[RequiredAssociate_RequiredNestedAssociate_Name], [r2].[RequiredAssociate_RequiredNestedAssociate_String]
+            FROM [RootEntity] AS [r2]
+        ) AS [r1]
+        WHERE [r1].[Id] > 0
+    ) AS [r9]
+    WHERE [r9].[row] <= 1
+) AS [r10] ON [r8].[Key] = [r10].[Key] OR ([r8].[Key] IS NULL AND [r10].[Key] IS NULL)
+LEFT JOIN (
+    SELECT [r3].[RootEntityId], [r3].[Id], [r3].[Int], [r3].[Ints], [r3].[Name], [r3].[String], [r4].[AssociateTypeRootEntityId], [r4].[AssociateTypeId], [r4].[Id] AS [Id0], [r4].[Int] AS [Int0], [r4].[Ints] AS [Ints0], [r4].[Name] AS [Name0], [r4].[String] AS [String0], [r3].[OptionalNestedAssociate_Id], [r3].[OptionalNestedAssociate_Int], [r3].[OptionalNestedAssociate_Ints], [r3].[OptionalNestedAssociate_Name], [r3].[OptionalNestedAssociate_String], [r3].[RequiredNestedAssociate_Id], [r3].[RequiredNestedAssociate_Int], [r3].[RequiredNestedAssociate_Ints], [r3].[RequiredNestedAssociate_Name], [r3].[RequiredNestedAssociate_String]
+    FROM [RelatedCollection] AS [r3]
+    LEFT JOIN [RelatedCollection_NestedCollection] AS [r4] ON [r3].[RootEntityId] = [r4].[AssociateTypeRootEntityId] AND [r3].[Id] = [r4].[AssociateTypeId]
+) AS [s] ON [r10].[Id] = [s].[RootEntityId]
+LEFT JOIN [OptionalRelated_NestedCollection] AS [o] ON CASE
+    WHEN [r10].[OptionalAssociate_Id] IS NOT NULL AND [r10].[OptionalAssociate_Int] IS NOT NULL AND [r10].[OptionalAssociate_Ints] IS NOT NULL AND [r10].[OptionalAssociate_Name] IS NOT NULL AND [r10].[OptionalAssociate_String] IS NOT NULL THEN [r10].[Id]
+END = [o].[AssociateTypeRootEntityId]
+LEFT JOIN [RequiredRelated_NestedCollection] AS [r5] ON [r10].[Id] = [r5].[AssociateTypeRootEntityId]
+ORDER BY [r8].[Key], [s].[RootEntityId], [s].[Id], [s].[AssociateTypeRootEntityId], [s].[AssociateTypeId], [s].[Id0], [o].[AssociateTypeRootEntityId], [o].[Id], [r5].[AssociateTypeRootEntityId], [r5].[Id]
+""");
+    }
+
     public override async Task Select_multiple_associates_on_GroupBy_OrderByDescending_First()
     {
         await base.Select_multiple_associates_on_GroupBy_OrderByDescending_First();

@@ -39,6 +39,13 @@ public abstract class AssociationsMiscellaneousTestBase<TFixture>(TFixture fixtu
             .Where(e => e.RequiredAssociate.Int == 8));
 
     [Fact]
+    public virtual Task Where_on_nested_associate_scalar_property_on_GroupBy_First()
+        => AssertQuery(ss => ss.Set<RootEntity>()
+            .GroupBy(e => e.Id % 2)
+            .Select(g => g.OrderBy(e => e.Id).First(e => e.Id > 0))
+            .Where(e => e.RequiredAssociate.RequiredNestedAssociate.Int == 8));
+
+    [Fact]
     public virtual Task OrderBy_associate_scalar_property_on_GroupBy_First()
         => AssertQuery(
             ss => ss.Set<RootEntity>()

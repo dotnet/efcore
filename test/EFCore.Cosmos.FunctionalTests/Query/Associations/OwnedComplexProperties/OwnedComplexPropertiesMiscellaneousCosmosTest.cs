@@ -59,6 +59,9 @@ WHERE (c["RequiredAssociate"]["RequiredNestedAssociate"]["Int"] = 8)
     public override Task Where_on_associate_scalar_property_on_GroupBy_First()
         => AssertTranslationFailed(base.Where_on_associate_scalar_property_on_GroupBy_First);
 
+    public override Task Where_on_nested_associate_scalar_property_on_GroupBy_First()
+        => AssertTranslationFailed(base.Where_on_nested_associate_scalar_property_on_GroupBy_First);
+
     public override Task Select_multiple_associates_on_GroupBy_OrderByDescending_First()
         => AssertTranslationFailed(base.Select_multiple_associates_on_GroupBy_OrderByDescending_First);
 

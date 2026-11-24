@@ -247,6 +247,66 @@ ORDER BY [r16].[Key], [s].[RootEntityId], [s].[Id], [s].[AssociateTypeRootEntity
 """);
     }
 
+    public override async Task Where_on_nested_associate_scalar_property_on_GroupBy_First()
+    {
+        await base.Where_on_nested_associate_scalar_property_on_GroupBy_First();
+
+        AssertSql(
+            """
+SELECT [r18].[Id], [r18].[Name], [r16].[Key], [s].[RootEntityId], [s].[Id], [s].[Int], [s].[Ints], [s].[Name], [s].[String], [s].[AssociateTypeRootEntityId], [s].[AssociateTypeId], [s].[AssociateTypeRootEntityId0], [s].[AssociateTypeId0], [s].[AssociateTypeRootEntityId1], [s].[AssociateTypeId1], [s].[Id0], [s].[Int0], [s].[Ints0], [s].[Name0], [s].[String0], [s].[Id1], [s].[Int1], [s].[Ints1], [s].[Name1], [s].[String1], [s].[Id2], [s].[Int2], [s].[Ints2], [s].[Name2], [s].[String2], [r18].[RootEntityId], [r18].[Id0], [r18].[Int], [r18].[Ints], [r18].[Name0], [r18].[String], [o2].[AssociateTypeRootEntityId], [o2].[Id], [o2].[Int], [o2].[Ints], [o2].[Name], [o2].[String], [r18].[AssociateTypeRootEntityId], [r18].[Id1], [r18].[Int0], [r18].[Ints0], [r18].[Name1], [r18].[String0], [r18].[AssociateTypeRootEntityId0], [r18].[Id2], [r18].[Int1], [r18].[Ints1], [r18].[Name2], [r18].[String1], [r18].[RootEntityId0], [r18].[Id3], [r18].[Int2], [r18].[Ints2], [r18].[Name3], [r18].[String2], [r10].[AssociateTypeRootEntityId], [r10].[Id], [r10].[Int], [r10].[Ints], [r10].[Name], [r10].[String], [r18].[AssociateTypeRootEntityId1], [r18].[Id4], [r18].[Int3], [r18].[Ints3], [r18].[Name4], [r18].[String3], [r18].[AssociateTypeRootEntityId2], [r18].[Id5], [r18].[Int4], [r18].[Ints4], [r18].[Name5], [r18].[String4]
+FROM (
+    SELECT [r0].[Key]
+    FROM (
+        SELECT [r].[Id] % 2 AS [Key]
+        FROM [RootEntity] AS [r]
+    ) AS [r0]
+    GROUP BY [r0].[Key]
+    HAVING (
+        SELECT TOP(1) [r11].[Int4]
+        FROM (
+            SELECT [r12].[Id], [r12].[Id] % 2 AS [Key], [r15].[Int] AS [Int4]
+            FROM [RootEntity] AS [r12]
+            LEFT JOIN [OptionalRelated] AS [o3] ON [r12].[Id] = [o3].[RootEntityId]
+            LEFT JOIN [OptionalRelated_OptionalNested] AS [o4] ON [o3].[RootEntityId] = [o4].[AssociateTypeRootEntityId]
+            LEFT JOIN [OptionalRelated_RequiredNested] AS [o5] ON [o3].[RootEntityId] = [o5].[AssociateTypeRootEntityId]
+            LEFT JOIN [RequiredRelated] AS [r13] ON [r12].[Id] = [r13].[RootEntityId]
+            LEFT JOIN [RequiredRelated_OptionalNested] AS [r14] ON [r13].[RootEntityId] = [r14].[AssociateTypeRootEntityId]
+            LEFT JOIN [RequiredRelated_RequiredNested] AS [r15] ON [r13].[RootEntityId] = [r15].[AssociateTypeRootEntityId]
+        ) AS [r11]
+        WHERE ([r0].[Key] = [r11].[Key] OR ([r0].[Key] IS NULL AND [r11].[Key] IS NULL)) AND [r11].[Id] > 0
+        ORDER BY [r11].[Id]) = 8
+) AS [r16]
+LEFT JOIN (
+    SELECT [r17].[Id], [r17].[Name], [r17].[RootEntityId], [r17].[Id0], [r17].[Int], [r17].[Ints], [r17].[Name0], [r17].[String], [r17].[AssociateTypeRootEntityId], [r17].[Id1], [r17].[Int0], [r17].[Ints0], [r17].[Name1], [r17].[String0], [r17].[AssociateTypeRootEntityId0], [r17].[Id2], [r17].[Int1], [r17].[Ints1], [r17].[Name2], [r17].[String1], [r17].[RootEntityId0], [r17].[Id3], [r17].[Int2], [r17].[Ints2], [r17].[Name3], [r17].[String2], [r17].[AssociateTypeRootEntityId1], [r17].[Id4], [r17].[Int3], [r17].[Ints3], [r17].[Name4], [r17].[String3], [r17].[AssociateTypeRootEntityId2], [r17].[Id5], [r17].[Int4], [r17].[Ints4], [r17].[Name5], [r17].[String4], [r17].[Key]
+    FROM (
+        SELECT [r1].[Id], [r1].[Name], [r1].[RootEntityId], [r1].[Id0], [r1].[Int], [r1].[Ints], [r1].[Name0], [r1].[String], [r1].[AssociateTypeRootEntityId], [r1].[Id1], [r1].[Int0], [r1].[Ints0], [r1].[Name1], [r1].[String0], [r1].[AssociateTypeRootEntityId0], [r1].[Id2], [r1].[Int1], [r1].[Ints1], [r1].[Name2], [r1].[String1], [r1].[RootEntityId0], [r1].[Id3], [r1].[Int2], [r1].[Ints2], [r1].[Name3], [r1].[String2], [r1].[AssociateTypeRootEntityId1], [r1].[Id4], [r1].[Int3], [r1].[Ints3], [r1].[Name4], [r1].[String3], [r1].[AssociateTypeRootEntityId2], [r1].[Id5], [r1].[Int4], [r1].[Ints4], [r1].[Name5], [r1].[String4], [r1].[Key], ROW_NUMBER() OVER(PARTITION BY [r1].[Key] ORDER BY [r1].[Id]) AS [row]
+        FROM (
+            SELECT [r2].[Id], [r2].[Name], [r2].[Id] % 2 AS [Key], [o].[RootEntityId], [o].[Id] AS [Id0], [o].[Int], [o].[Ints], [o].[Name] AS [Name0], [o].[String], [o0].[AssociateTypeRootEntityId], [o0].[Id] AS [Id1], [o0].[Int] AS [Int0], [o0].[Ints] AS [Ints0], [o0].[Name] AS [Name1], [o0].[String] AS [String0], [o1].[AssociateTypeRootEntityId] AS [AssociateTypeRootEntityId0], [o1].[Id] AS [Id2], [o1].[Int] AS [Int1], [o1].[Ints] AS [Ints1], [o1].[Name] AS [Name2], [o1].[String] AS [String1], [r3].[RootEntityId] AS [RootEntityId0], [r3].[Id] AS [Id3], [r3].[Int] AS [Int2], [r3].[Ints] AS [Ints2], [r3].[Name] AS [Name3], [r3].[String] AS [String2], [r4].[AssociateTypeRootEntityId] AS [AssociateTypeRootEntityId1], [r4].[Id] AS [Id4], [r4].[Int] AS [Int3], [r4].[Ints] AS [Ints3], [r4].[Name] AS [Name4], [r4].[String] AS [String3], [r5].[AssociateTypeRootEntityId] AS [AssociateTypeRootEntityId2], [r5].[Id] AS [Id5], [r5].[Int] AS [Int4], [r5].[Ints] AS [Ints4], [r5].[Name] AS [Name5], [r5].[String] AS [String4]
+            FROM [RootEntity] AS [r2]
+            LEFT JOIN [OptionalRelated] AS [o] ON [r2].[Id] = [o].[RootEntityId]
+            LEFT JOIN [OptionalRelated_OptionalNested] AS [o0] ON [o].[RootEntityId] = [o0].[AssociateTypeRootEntityId]
+            LEFT JOIN [OptionalRelated_RequiredNested] AS [o1] ON [o].[RootEntityId] = [o1].[AssociateTypeRootEntityId]
+            LEFT JOIN [RequiredRelated] AS [r3] ON [r2].[Id] = [r3].[RootEntityId]
+            LEFT JOIN [RequiredRelated_OptionalNested] AS [r4] ON [r3].[RootEntityId] = [r4].[AssociateTypeRootEntityId]
+            LEFT JOIN [RequiredRelated_RequiredNested] AS [r5] ON [r3].[RootEntityId] = [r5].[AssociateTypeRootEntityId]
+        ) AS [r1]
+        WHERE [r1].[Id] > 0
+    ) AS [r17]
+    WHERE [r17].[row] <= 1
+) AS [r18] ON [r16].[Key] = [r18].[Key] OR ([r16].[Key] IS NULL AND [r18].[Key] IS NULL)
+LEFT JOIN (
+    SELECT [r6].[RootEntityId], [r6].[Id], [r6].[Int], [r6].[Ints], [r6].[Name], [r6].[String], [r7].[AssociateTypeRootEntityId], [r7].[AssociateTypeId], [r8].[AssociateTypeRootEntityId] AS [AssociateTypeRootEntityId0], [r8].[AssociateTypeId] AS [AssociateTypeId0], [r9].[AssociateTypeRootEntityId] AS [AssociateTypeRootEntityId1], [r9].[AssociateTypeId] AS [AssociateTypeId1], [r9].[Id] AS [Id0], [r9].[Int] AS [Int0], [r9].[Ints] AS [Ints0], [r9].[Name] AS [Name0], [r9].[String] AS [String0], [r7].[Id] AS [Id1], [r7].[Int] AS [Int1], [r7].[Ints] AS [Ints1], [r7].[Name] AS [Name1], [r7].[String] AS [String1], [r8].[Id] AS [Id2], [r8].[Int] AS [Int2], [r8].[Ints] AS [Ints2], [r8].[Name] AS [Name2], [r8].[String] AS [String2]
+    FROM [RelatedCollection] AS [r6]
+    LEFT JOIN [RelatedCollection_OptionalNested] AS [r7] ON [r6].[RootEntityId] = [r7].[AssociateTypeRootEntityId] AND [r6].[Id] = [r7].[AssociateTypeId]
+    LEFT JOIN [RelatedCollection_RequiredNested] AS [r8] ON [r6].[RootEntityId] = [r8].[AssociateTypeRootEntityId] AND [r6].[Id] = [r8].[AssociateTypeId]
+    LEFT JOIN [RelatedCollection_NestedCollection] AS [r9] ON [r6].[RootEntityId] = [r9].[AssociateTypeRootEntityId] AND [r6].[Id] = [r9].[AssociateTypeId]
+) AS [s] ON [r18].[Id] = [s].[RootEntityId]
+LEFT JOIN [OptionalRelated_NestedCollection] AS [o2] ON [r18].[RootEntityId] = [o2].[AssociateTypeRootEntityId]
+LEFT JOIN [RequiredRelated_NestedCollection] AS [r10] ON [r18].[RootEntityId0] = [r10].[AssociateTypeRootEntityId]
+ORDER BY [r16].[Key], [s].[RootEntityId], [s].[Id], [s].[AssociateTypeRootEntityId], [s].[AssociateTypeId], [s].[AssociateTypeRootEntityId0], [s].[AssociateTypeId0], [s].[AssociateTypeRootEntityId1], [s].[AssociateTypeId1], [s].[Id0], [o2].[AssociateTypeRootEntityId], [o2].[Id], [r10].[AssociateTypeRootEntityId], [r10].[Id]
+""");
+    }
+
     public override async Task Select_multiple_associates_on_GroupBy_OrderByDescending_First()
     {
         await base.Select_multiple_associates_on_GroupBy_OrderByDescending_First();

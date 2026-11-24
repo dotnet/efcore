@@ -1296,20 +1296,32 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
             return true;
         }
 
-        // A reference navigation on an entity produced by a single-result subquery,
-        // which the subquery already includes (e.g. an owned navigation):
-        // bind it over the same subquery, projecting the navigation's target instead of the entity.
-        if (typeReference is { Subquery: { } subquery, IncludedNavigations: { } includedNavigations }
+        // A reference navigation on an entity produced by a single-result subquery
+        if (typeReference is { Subquery: { } subquery }
             && structuralType is IEntityType entityType
             && (member.MemberInfo != null
                 ? entityType.FindNavigation(member.MemberInfo)
-                : entityType.FindNavigation(member.Name!)) is { IsCollection: false } navigation
-            && includedNavigations.TryGetValue(navigation, out var navigationExpression)
-            && Visit(subquery.UpdateShaperExpression(navigationExpression)) is StructuralTypeReferenceExpression navigationReference)
+                : entityType.FindNavigation(member.Name!)) is { IsCollection: false } navigation)
         {
-            expression = navigationReference;
-            property = navigation;
-            return true;
+            // The subquery already includes the navigation (e.g. an owned navigation):
+            // bind it over the same subquery, projecting the navigation's target instead of the entity.
+            if (typeReference.IncludedNavigations?.TryGetValue(navigation, out var navigationExpression) == true
+                && Visit(subquery.UpdateShaperExpression(navigationExpression)) is StructuralTypeReferenceExpression navigationReference)
+            {
+                expression = navigationReference;
+                property = navigation;
+                return true;
+            }
+
+            // The entity is owned and mapped to JSON: the includes of its navigations are pruned, since the JSON document
+            // is materialized as a whole, so bind the navigation within the document instead.
+            if (!navigation.IsOnDependent
+                && GetSubqueryProjection(subquery) is JsonQueryExpression)
+            {
+                expression = BindStructuralPropertyOverSubquery(subquery, navigation);
+                property = navigation;
+                return true;
+            }
         }
 
         AddTranslationErrorDetails(
@@ -1339,30 +1351,37 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
             }
 
             case { Subquery: { } subquery }:
-            {
-                var shaper = (StructuralTypeShaperExpression)subquery.ShaperExpression;
-                var subSelectExpression = ((SelectExpression)subquery.QueryExpression).Clone();
+                return BindOverSubquery(
+                    subquery,
+                    projection => projection switch
+                    {
+                        // An included owned navigation can be an optional dependent sharing its owner's table (see TryBindMember)
+                        StructuralTypeProjectionExpression structuralTypeProjection
+                            => BindProperty(structuralTypeProjection, typeReference.StructuralType, property),
 
-                var projectionBindingExpression = (ProjectionBindingExpression)shaper.ValueBufferExpression;
-                var innerProjection = subSelectExpression.GetProjection(projectionBindingExpression) switch
-                {
-                    // An included owned navigation can be an optional dependent sharing its owner's table (see TryBindMember)
-                    StructuralTypeProjectionExpression projection => BindProperty(projection, typeReference.StructuralType, property),
+                        // A JSON complex type bound over a subquery (see BindComplexProperty)
+                        JsonQueryExpression jsonQuery => jsonQuery.BindProperty(property),
 
-                    // A JSON complex type bound over a subquery (see BindComplexProperty)
-                    JsonQueryExpression jsonQuery => jsonQuery.BindProperty(property),
-
-                    _ => throw new UnreachableException()
-                };
-                subSelectExpression.ReplaceProjection([innerProjection]);
-                subSelectExpression.ApplyProjection();
-
-                return new ScalarSubqueryExpression(subSelectExpression);
-            }
+                        _ => throw new UnreachableException()
+                    });
 
             default:
                 throw new UnreachableException();
         }
+    }
+
+    // Binds a scalar over the row of a single-result subquery: the scalar is computed from the subquery's projection of the structural
+    // type, and projected from a clone of the subquery.
+    private static ScalarSubqueryExpression BindOverSubquery(ShapedQueryExpression subquery, Func<Expression, SqlExpression> bind)
+    {
+        var shaper = (StructuralTypeShaperExpression)subquery.ShaperExpression;
+        var subSelectExpression = ((SelectExpression)subquery.QueryExpression).Clone();
+
+        var projection = subSelectExpression.GetProjection((ProjectionBindingExpression)shaper.ValueBufferExpression);
+        subSelectExpression.ReplaceProjection([bind(projection)]);
+        subSelectExpression.ApplyProjection();
+
+        return new ScalarSubqueryExpression(subSelectExpression);
     }
 
     private SqlExpression BindProperty(StructuralTypeProjectionExpression projection, ITypeBase structuralType, IProperty property)
@@ -1465,47 +1484,63 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                 }
 
             case { Subquery: { } subquery }:
-            {
                 Check.DebugAssert(!complexProperty.IsCollection, "Complex collections over a subquery are rejected in TryBindMember");
 
-                // Bind the complex property inside a copy of the single-result subquery, and make that copy project the complex type.
-                // Its properties are then bound as scalar subqueries (see BindProperty), and nested complex properties come back here.
-                var shaper = (StructuralTypeShaperExpression)subquery.ShaperExpression;
-                var subSelectExpression = ((SelectExpression)subquery.QueryExpression).Clone();
-
-                var projectionBindingExpression = (ProjectionBindingExpression)shaper.ValueBufferExpression;
-                var (complexProjection, isNullable) = subSelectExpression.GetProjection(projectionBindingExpression) switch
-                {
-                    StructuralTypeProjectionExpression projection
-                        => projection.BindComplexProperty(complexProperty) is StructuralTypeShaperExpression complexShaper
-                            ? (complexShaper.ValueBufferExpression, complexShaper.IsNullable)
-                            : throw new UnreachableException(),
-
-                    JsonQueryExpression jsonQuery
-                        => jsonQuery.BindStructuralProperty(complexProperty) is var nestedJsonQuery
-                            ? (nestedJsonQuery, nestedJsonQuery.IsNullable)
-                            : throw new UnreachableException(),
-
-                    _ => throw new UnreachableException()
-                };
-
-                var projectionMember = new ProjectionMember();
-                subSelectExpression.ReplaceProjection(new Dictionary<ProjectionMember, Expression> { [projectionMember] = complexProjection });
-
-                subquery = subquery.Update(
-                    subSelectExpression,
-                    new RelationalStructuralTypeShaperExpression(
-                        complexProperty.ComplexType,
-                        new ProjectionBindingExpression(subSelectExpression, projectionMember, typeof(ValueBuffer)),
-                        shaper.IsNullable || isNullable));
-
-                return new StructuralTypeReferenceExpression(subquery);
-            }
+                return BindStructuralPropertyOverSubquery(subquery, complexProperty);
 
             default:
                 throw new UnreachableException();
         }
     }
+
+    // Binds a complex property, or a navigation within a JSON document, of the structural type on the row of a single-result subquery:
+    // the property is bound inside a copy of the subquery, which then projects the property's type instead.
+    // Its properties are then bound as scalar subqueries (see BindProperty), and nested structural properties come back here.
+    private static StructuralTypeReferenceExpression BindStructuralPropertyOverSubquery(
+        ShapedQueryExpression subquery,
+        IPropertyBase structuralProperty)
+    {
+        var shaper = (StructuralTypeShaperExpression)subquery.ShaperExpression;
+        var subSelectExpression = ((SelectExpression)subquery.QueryExpression).Clone();
+
+        var (projection, isNullable) = subSelectExpression.GetProjection((ProjectionBindingExpression)shaper.ValueBufferExpression) switch
+        {
+            StructuralTypeProjectionExpression structuralTypeProjection
+                => structuralProperty is IComplexProperty complexProperty
+                    && structuralTypeProjection.BindComplexProperty(complexProperty) is StructuralTypeShaperExpression complexShaper
+                        ? (complexShaper.ValueBufferExpression, complexShaper.IsNullable)
+                        : throw new UnreachableException(),
+
+            JsonQueryExpression jsonQuery
+                => jsonQuery.BindStructuralProperty(structuralProperty) is var nestedJsonQuery
+                    ? (nestedJsonQuery, nestedJsonQuery.IsNullable)
+                    : throw new UnreachableException(),
+
+            _ => throw new UnreachableException()
+        };
+
+        var projectionMember = new ProjectionMember();
+        subSelectExpression.ReplaceProjection(new Dictionary<ProjectionMember, Expression> { [projectionMember] = projection });
+
+        var structuralType = structuralProperty switch
+        {
+            IComplexProperty complexProperty => (ITypeBase)complexProperty.ComplexType,
+            INavigation navigation => navigation.TargetEntityType,
+            _ => throw new UnreachableException()
+        };
+
+        return new StructuralTypeReferenceExpression(
+            subquery.Update(
+                subSelectExpression,
+                new RelationalStructuralTypeShaperExpression(
+                    structuralType,
+                    new ProjectionBindingExpression(subSelectExpression, projectionMember, typeof(ValueBuffer)),
+                    shaper.IsNullable || isNullable)));
+    }
+
+    private static Expression GetSubqueryProjection(ShapedQueryExpression subquery)
+        => ((SelectExpression)subquery.QueryExpression).GetProjection(
+            (ProjectionBindingExpression)((StructuralTypeShaperExpression)subquery.ShaperExpression).ValueBufferExpression);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

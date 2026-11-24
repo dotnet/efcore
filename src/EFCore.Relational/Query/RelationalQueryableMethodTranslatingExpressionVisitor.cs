@@ -370,7 +370,9 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                 JsonScalarExpression jsonScalar
                     => jsonScalar.Path.Select(s => s.PropertyName).LastOrDefault()
                     ?? GenerateTableAlias(jsonScalar.Json),
-                ScalarSubqueryExpression scalarSubquery => scalarSubquery.Subquery.Projection[0].Alias,
+                // The projection of a scalar subquery binding a member of a single-result subquery (e.g. a JSON value) has no alias
+                ScalarSubqueryExpression { Subquery.Projection: [var projection] }
+                    => projection.Alias is { Length: > 0 } alias ? alias : GenerateTableAlias(projection.Expression),
 
                 _ => "collection"
             };
