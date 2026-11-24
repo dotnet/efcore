@@ -253,6 +253,25 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
             ss => ss.Set<Customer>().Select(c => c.ShippingAddress).Union(ss.Set<Customer>().Select(c => c.BillingAddress)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Union_complex_type_with_different_identifiers_in_collection_projection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<CustomerGroup>().Select(g => new
+            {
+                g.Id,
+                // The Distinct side is identified by all its columns, the other one by the customer key.
+                Addresses = ss.Set<Customer>().Select(c => c.ShippingAddress).Distinct()
+                    .Union(ss.Set<Customer>().Where(c => c.Id > 1).Select(c => c.ShippingAddress))
+                    .ToList()
+            }),
+            elementSorter: e => e.Id,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.Id, a.Id);
+                AssertCollection(e.Addresses, a.Addresses, elementSorter: x => (x.AddressLine1, x.ZipCode, x.Country.Code));
+            });
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Filter_on_property_inside_struct_complex_type(bool async)
         => AssertQuery(
             async,

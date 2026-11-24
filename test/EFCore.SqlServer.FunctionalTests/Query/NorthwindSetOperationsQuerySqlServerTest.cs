@@ -1820,6 +1820,52 @@ FROM [Customers] AS [c0]
 """);
     }
 
+    public override async Task Union_of_different_shapes_in_collection_projection(bool async)
+    {
+        await base.Union_of_different_shapes_in_collection_projection(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], [u].[OrderID]
+FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT [o].[OrderID]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    UNION
+    SELECT [o1].[ProductID] AS [OrderID]
+    FROM [Orders] AS [o0]
+    INNER JOIN [Order Details] AS [o1] ON [o0].[OrderID] = [o1].[OrderID]
+    WHERE [c].[CustomerID] = [o0].[CustomerID]
+) AS [u]
+WHERE [c].[CustomerID] LIKE N'A%'
+ORDER BY [c].[CustomerID]
+""");
+    }
+
+    public override async Task Intersect_of_different_shapes_in_collection_projection(bool async)
+    {
+        await base.Intersect_of_different_shapes_in_collection_projection(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], [i].[ProductID]
+FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT [o0].[ProductID]
+    FROM [Orders] AS [o]
+    INNER JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    INTERSECT
+    SELECT [p].[ProductID]
+    FROM [Products] AS [p]
+    WHERE [p].[UnitsInStock] > CAST(50 AS smallint)
+) AS [i]
+WHERE [c].[CustomerID] LIKE N'A%'
+ORDER BY [c].[CustomerID]
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

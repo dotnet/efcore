@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Sqlite.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public class NorthwindSetOperationsQuerySqliteTest : NorthwindSetOperationsQueryRelationalTestBase<
@@ -82,6 +84,16 @@ END AS "LatestOrderID", (
 FROM "Customers" AS "c0"
 """);
     }
+
+    public override async Task Union_of_different_shapes_in_collection_projection(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Union_of_different_shapes_in_collection_projection(async))).Message);
+
+    public override async Task Intersect_of_different_shapes_in_collection_projection(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Intersect_of_different_shapes_in_collection_projection(async))).Message);
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

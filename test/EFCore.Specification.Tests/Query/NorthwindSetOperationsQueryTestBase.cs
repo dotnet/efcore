@@ -887,4 +887,40 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture>(TFixture fix
                 .Concat(ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("B")).Distinct())
                 .Concat(ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A")))
                 .Select(x => x.City));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Union_of_different_shapes_in_collection_projection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A")).Select(c => new
+            {
+                c.CustomerID,
+                Ids = c.Orders.Select(o => o.OrderID)
+                    .Union(c.Orders.SelectMany(o => o.OrderDetails).Select(od => od.ProductID))
+                    .ToList()
+            }),
+            elementSorter: e => e.CustomerID,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.CustomerID, a.CustomerID);
+                AssertCollection(e.Ids, a.Ids, elementSorter: i => i);
+            });
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Intersect_of_different_shapes_in_collection_projection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A")).Select(c => new
+            {
+                c.CustomerID,
+                Ids = c.Orders.SelectMany(o => o.OrderDetails).Select(od => od.ProductID)
+                    .Intersect(ss.Set<Product>().Where(p => p.UnitsInStock > 50).Select(p => p.ProductID))
+                    .ToList()
+            }),
+            elementSorter: e => e.CustomerID,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.CustomerID, a.CustomerID);
+                AssertCollection(e.Ids, a.Ids, elementSorter: i => i);
+            });
 }

@@ -379,6 +379,12 @@ FROM "Customer" AS "c0"
         AssertSql();
     }
 
+    public override async Task Union_complex_type_with_different_identifiers_in_collection_projection(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Union_complex_type_with_different_identifiers_in_collection_projection(async))).Message);
+
     public override async Task Union_two_different_complex_type(bool async)
     {
         await base.Union_two_different_complex_type(async);
