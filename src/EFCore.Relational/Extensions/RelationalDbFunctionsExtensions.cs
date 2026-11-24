@@ -64,6 +64,9 @@ public static class RelationalDbFunctionsExtensions
     /// </summary>
     /// <remarks>
     ///     <para>
+    ///         A <see langword="null" /> value is not considered valid JSON, and so causes this function to return <see langword="false" />.
+    ///     </para>
+    ///     <para>
     ///         Note that not all databases support this function; consult your database's documentation for more information.
     ///     </para>
     ///     <para>
@@ -72,6 +75,6 @@ public static class RelationalDbFunctionsExtensions
     /// </remarks>
     /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
     /// <param name="value">The value to check for valid JSON.</param>
-    public static bool IsJson(this DbFunctions _, object value)
+    public static bool IsJson(this DbFunctions _, object? value)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(IsJson)));
 }

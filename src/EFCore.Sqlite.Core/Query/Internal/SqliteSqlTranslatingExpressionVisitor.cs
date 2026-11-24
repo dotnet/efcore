@@ -288,16 +288,20 @@ public class SqliteSqlTranslatingExpressionVisitor(
                 };
 #pragma warning restore EF1001
 
+                // json_valid() returns NULL for a NULL argument, but IsJson() returns a non-nullable bool where NULL means false.
+                // Comparing to 1 (as on SQL Server) makes the null semantics pipeline compensate correctly, e.g. when negated.
                 return translatedValue is null
                     ? QueryCompilationContext.NotTranslatedExpression
-                    : _sqlExpressionFactory.Function(
-                        "json_valid",
-                        [translatedValue],
-                        nullable: true,
-                        // Unlike json_type() above, json_valid() returns NULL only when its argument is NULL, so it genuinely
-                        // propagates nullability and there's no wrapping check that must be preserved from optimization.
-                        argumentsPropagateNullability: [true],
-                        typeof(bool));
+                    : _sqlExpressionFactory.Equal(
+                        _sqlExpressionFactory.Function(
+                            "json_valid",
+                            [translatedValue],
+                            nullable: true,
+                            // Unlike json_type() above, json_valid() returns NULL only when its argument is NULL, so it genuinely
+                            // propagates nullability and there's no wrapping check that must be preserved from optimization.
+                            argumentsPropagateNullability: [true],
+                            typeof(int)),
+                        _sqlExpressionFactory.Constant(1));
             }
         }
 

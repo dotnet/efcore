@@ -42,9 +42,18 @@ public abstract class JsonTranslationsRelationalTestBase<TFixture>(TFixture fixt
     public virtual Task IsJson_on_scalar_string_column()
         => AssertQuery(
             ss => ss.Set<JsonTranslationsEntity>()
-                .Where(b => EF.Functions.IsJson(b.MaybeJsonString!)),
+                .Where(b => EF.Functions.IsJson(b.MaybeJsonString)),
             ss => ss.Set<JsonTranslationsEntity>()
                 .Where(b => IsValidJson(b.MaybeJsonString)));
+
+    // NULL must be treated as "not valid JSON" (false), so negating IsJson must bring back both the invalid row (3) and the NULL row (4).
+    [Fact]
+    public virtual Task IsJson_negated_on_scalar_string_column()
+        => AssertQuery(
+            ss => ss.Set<JsonTranslationsEntity>()
+                .Where(b => !EF.Functions.IsJson(b.MaybeJsonString)),
+            ss => ss.Set<JsonTranslationsEntity>()
+                .Where(b => !IsValidJson(b.MaybeJsonString)));
 
     [Fact]
     public virtual Task IsJson_on_complex_property()

@@ -60,7 +60,20 @@ WHERE json_type("j"."JsonOwnedType", '$.OptionalInt') IS NOT NULL
             """
 SELECT "j"."Id", "j"."JsonString", "j"."MaybeJsonString", "j"."JsonComplexType", "j"."JsonOwnedType"
 FROM "JsonEntities" AS "j"
-WHERE json_valid("j"."MaybeJsonString")
+WHERE json_valid("j"."MaybeJsonString") = 1
+""");
+    }
+
+    [Fact]
+    public override async Task IsJson_negated_on_scalar_string_column()
+    {
+        await base.IsJson_negated_on_scalar_string_column();
+
+        AssertSql(
+            """
+SELECT "j"."Id", "j"."JsonString", "j"."MaybeJsonString", "j"."JsonComplexType", "j"."JsonOwnedType"
+FROM "JsonEntities" AS "j"
+WHERE json_valid("j"."MaybeJsonString") <> 1 OR "j"."MaybeJsonString" IS NULL
 """);
     }
 
@@ -73,7 +86,7 @@ WHERE json_valid("j"."MaybeJsonString")
             """
 SELECT "j"."Id", "j"."JsonString", "j"."MaybeJsonString", "j"."JsonComplexType", "j"."JsonOwnedType"
 FROM "JsonEntities" AS "j"
-WHERE json_valid("j"."JsonComplexType")
+WHERE json_valid("j"."JsonComplexType") = 1
 """);
     }
 
@@ -86,7 +99,7 @@ WHERE json_valid("j"."JsonComplexType")
             """
 SELECT "j"."Id", "j"."JsonString", "j"."MaybeJsonString", "j"."JsonComplexType", "j"."JsonOwnedType"
 FROM "JsonEntities" AS "j"
-WHERE json_valid("j"."JsonOwnedType")
+WHERE json_valid("j"."JsonOwnedType") = 1
 """);
     }
 

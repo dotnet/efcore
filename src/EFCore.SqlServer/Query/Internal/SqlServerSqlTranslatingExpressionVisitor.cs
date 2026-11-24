@@ -471,10 +471,18 @@ public class SqlServerSqlTranslatingExpressionVisitor(
 
             // We translate EF.Functions.IsJson here and not in a method translator since we need to support IsJson over complex and
             // owned JSON properties, which requires special handling.
+            // ISJSON() was introduced in SQL Server 2016 (compatibility level 130).
             case nameof(RelationalDbFunctionsExtensions.IsJson)
                 when declaringType == typeof(RelationalDbFunctionsExtensions)
                 && @object is null
-                && arguments is [_, var value]:
+                && arguments is [_, var value]
+                && _sqlServerSingletonOptions.EngineType switch
+                {
+                    SqlServerEngineType.SqlServer => _sqlServerSingletonOptions.SqlServerCompatibilityLevel >= 130,
+                    SqlServerEngineType.AzureSql => _sqlServerSingletonOptions.AzureSqlCompatibilityLevel >= 130,
+                    SqlServerEngineType.AzureSynapse => true,
+                    _ => throw new UnreachableException()
+                }:
             {
 #pragma warning disable EF1001 // TranslateProjection() is pubternal
                 var translatedValue = TranslateProjection(value) switch

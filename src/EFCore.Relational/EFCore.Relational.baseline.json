@@ -11125,7 +11125,7 @@
           "Member": "static T Greatest<T>(this Microsoft.EntityFrameworkCore.DbFunctions _, params T[] values);"
         },
         {
-          "Member": "static bool IsJson(this Microsoft.EntityFrameworkCore.DbFunctions _, object value);"
+          "Member": "static bool IsJson(this Microsoft.EntityFrameworkCore.DbFunctions _, object? value);"
         },
         {
           "Member": "static bool JsonPathExists(this Microsoft.EntityFrameworkCore.DbFunctions _, object json, string path);"
