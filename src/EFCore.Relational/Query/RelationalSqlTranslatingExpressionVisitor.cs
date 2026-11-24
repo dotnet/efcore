@@ -239,6 +239,22 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
         }
     }
 
+    // Translates the selector, predicate or ordering of an aggregate over a grouping element: SQL that ends up in the aggregate's
+    // argument, which isn't a query an aggregate over a grouping can be evaluated in. SQL doesn't allow an aggregate inside another
+    // aggregate's argument, so with no known scope a nested aggregate over a grouping is refused and falls back to a subquery (#27130).
+    private Expression? TranslateAggregateArgument(Expression expression)
+    {
+        PushTranslationScope(null);
+        try
+        {
+            return TranslateInternal(expression);
+        }
+        finally
+        {
+            PopTranslationScope();
+        }
+    }
+
     private Expression? TranslateInternal(Expression expression, bool applyDefaultTypeMapping = true)
     {
         var result = Visit(expression);
@@ -1669,7 +1685,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
 
         if (predicateLambda != null)
         {
-            if (TranslateInternal(RemapLambda(enumerableExpression, predicateLambda)) is not SqlExpression predicate)
+            if (TranslateAggregateArgument(RemapLambda(enumerableExpression, predicateLambda)) is not SqlExpression predicate)
             {
                 return false;
             }
@@ -1857,7 +1873,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
         refusedGroupingAggregate = null;
 
         _throwForNotTranslatedEfProperty = false;
-        var selector = TranslateInternal(enumerableExpression.Selector);
+        var selector = TranslateAggregateArgument(enumerableExpression.Selector);
         _throwForNotTranslatedEfProperty = true;
         if (selector is SqlExpression)
         {
@@ -2037,7 +2053,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
         => query.Tables.Any(t => t.UnwrapJoin().Alias == alias);
 
     // Collects the aliases of the tables whose columns an expression references, leaving out tables of subqueries nested inside the
-    // expression. Mirrors how SelectExpressionCorrelationFindingExpressionVisitor and SqlServerAggregateOverSubqueryPostprocessor
+    // expression. Mirrors how SelectExpressionCorrelationFindingExpressionVisitor and SqlServerAggregateArgumentPostprocessor
     // decide whether a subquery is correlated.
     internal sealed class ReferencedTableAliasCollector : ExpressionVisitor
     {
@@ -2165,7 +2181,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
         bool ascending)
     {
         var lambdaBody = RemapLambda(enumerableExpression, lambdaExpression);
-        if (TranslateInternal(lambdaBody) is not SqlExpression keySelector)
+        if (TranslateAggregateArgument(lambdaBody) is not SqlExpression keySelector)
         {
             return null;
         }
@@ -2177,7 +2193,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
     }
 
     private EnumerableExpression? ProcessPredicate(EnumerableExpression enumerableExpression, LambdaExpression lambdaExpression)
-        => TranslateInternal(RemapLambda(enumerableExpression, lambdaExpression)) is SqlExpression predicate
+        => TranslateAggregateArgument(RemapLambda(enumerableExpression, lambdaExpression)) is SqlExpression predicate
             ? enumerableExpression.ApplyPredicate(predicate)
             : null;
 
