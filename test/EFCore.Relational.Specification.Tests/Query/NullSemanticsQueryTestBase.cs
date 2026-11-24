@@ -517,13 +517,94 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
             assertOrder: true);
 
     [Theory, MemberData(nameof(IsAsyncData))]
-    public virtual Task Compare_complex_expression_not_duplicated(bool async)
+    public virtual Task Compare_complex_expression_null_checks_propagated(bool async)
         => AssertQueryScalar(
             async,
             ss => ss.Set<NullSemanticsEntity1>()
                 .Where(e => e.NullableIntA + e.NullableIntB != e.IntC)
                 .Select(e => e.Id),
             assertOrder: true);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Compare_nullable_subquery_not_equal(bool async)
+        => AssertQueryScalar(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>()
+                .Where(e => ss.Set<NullSemanticsEntity2>()
+                    .Where(i => i.Id == e.Id && i.NullableIntB != null).Select(i => i.NullableIntA).FirstOrDefault() != e.IntB)
+                .Select(e => e.Id));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Compare_nullable_subquery_not_equal_reversed(bool async)
+        => AssertQueryScalar(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>()
+                .Where(e => e.IntB != ss.Set<NullSemanticsEntity2>().Where(i => i.Id == e.Id)
+                    .Select(i => i.NullableIntA).FirstOrDefault())
+                .Select(e => e.Id));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Project_nullable_subquery_not_equal(bool async)
+        => AssertQueryScalar(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>()
+                .Select(e => ss.Set<NullSemanticsEntity2>().Where(i => i.Id == e.Id)
+                    .Select(i => i.NullableIntA).FirstOrDefault() != e.IntB));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Project_nullable_subquery_equal(bool async)
+        => AssertQueryScalar(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>()
+                .Select(e => ss.Set<NullSemanticsEntity2>().Where(i => i.Id == e.Id)
+                    .Select(i => i.NullableIntA).FirstOrDefault() == e.IntB));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Project_nullable_subquery_equal_constant(bool async)
+        => AssertQueryScalar(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>()
+                .Select(e => ss.Set<NullSemanticsEntity2>().Where(i => i.Id == e.Id).Select(i => i.NullableIntA).FirstOrDefault() == 1));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Project_nullable_subquery_equal_parameter(bool async)
+    {
+        var value = 1;
+        return AssertQueryScalar(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>()
+                .Select(e => ss.Set<NullSemanticsEntity2>().Where(i => i.Id == e.Id).Select(i => i.NullableIntA).FirstOrDefault() == value));
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Project_negated_nullable_bool_subquery_equal(bool async)
+        => AssertQueryScalar(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>()
+                .Select(e => !ss.Set<NullSemanticsEntity2>().Where(i => i.Id == e.Id)
+                    .Select(i => i.NullableBoolA).FirstOrDefault() == e.BoolB));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Compare_two_nullable_expressions_not_equal(bool async)
+        => AssertQueryScalar(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>()
+                .Where(e => ss.Set<NullSemanticsEntity2>().Where(i => i.Id == e.Id).Select(i => i.NullableIntA).FirstOrDefault()
+                    != e.NullableIntB)
+                .Select(e => e.Id));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Compare_nullable_subquery_with_relational_nulls(bool async)
+    {
+        using var context = CreateContext(useRelationalNulls: true);
+        var query = context.Entities1
+            .Where(e => context.Entities2.Where(i => i.Id == e.Id).Select(i => i.NullableIntA).FirstOrDefault() != e.IntB)
+            .OrderBy(e => e.Id)
+            .Select(e => e.Id);
+
+        var results = async ? await query.ToListAsync() : query.ToList();
+        Assert.Equal([4, 5, 6, 7, 8, 9, 10, 11, 12, 16, 17, 18], results);
+    }
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Compare_nullable_with_null_parameter_equal(bool async)

@@ -2245,14 +2245,14 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         var originallyNotEqual = sqlBinaryExpression.OperatorType == ExpressionType.NotEqual;
         var bodyNotEqual = body is SqlBinaryExpression { OperatorType: ExpressionType.NotEqual };
 
-        // When both operands are nullable, the CASE transformation is invalid.
-        // We also use the generic transformation when it simplifies to one of:
-        //  - a == b && (a != null)
-        //  - a == b && (b != null)
-        //  - a == b || (a == null)
-        //  - a == b || (b == null)
-        // as these expressions can use indexes on a and/or on b.
-        if (leftNullable && rightNullable || originallyNotEqual == bodyNotEqual)
+        // Keep indexable comparisons, including expressions which may have a computed-column index.
+        // A scalar subquery cannot have such an index and may be expensive to evaluate twice. An equality
+        // with a column may still use the column's index, but a constant or parameter has no index.
+        // Both nullable operands require the full rewrite to distinguish two nulls from one.
+        if (leftNullable && rightNullable
+            || originallyNotEqual == bodyNotEqual
+                && (leftNullable ? right : left) is not (SqlConstantExpression or SqlParameterExpression)
+            || (leftNullable ? leftIsNull : rightIsNull) is not SqlUnaryExpression { Operand: ScalarSubqueryExpression })
         {
             // (a == b && (a != null && b != null)) || (a == null && b == null)
             body = _sqlExpressionFactory.OrElse(
@@ -2261,14 +2261,12 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         }
         else
         {
-            // When only one of the operands is nullable, we avoid duplicating
-            // complex expressions by performing the following transformation:
-            // a == b -> CASE WHEN a == b THEN TRUE ELSE FALSE END
+            // Map UNKNOWN to false without repeating the nullable expression.
+            // The final NOT below maps it to true when the original comparison was an inequality.
             body = _sqlExpressionFactory.Case(
                 [new(body, _sqlExpressionFactory.Constant(true, body.Type, body.TypeMapping))],
                 _sqlExpressionFactory.Constant(false, body.Type, body.TypeMapping));
         }
-
 
         if (sqlBinaryExpression.OperatorType == ExpressionType.NotEqual)
         {
