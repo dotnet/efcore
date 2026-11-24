@@ -510,12 +510,15 @@ public class MigrationsScaffolder : IMigrationsScaffolder
     // The snapshot instance is cached on the context's IMigrationsAssembly and shared with its IMigrator, whose
     // HasPendingModelChanges() and Migrate() finalize its model. ISnapshotModelProcessor returns null for a finalized
     // model, which made the scaffolder diff against no model at all (#36016), so process a new instance instead.
+    // IMigrationsAssembly is a public contract, so a snapshot that can't be re-created without arguments (its model may
+    // depend on constructor state) is used as supplied.
     private ModelSnapshot? GetModelSnapshot()
     {
         var modelSnapshot = Dependencies.MigrationsAssembly.ModelSnapshot;
         return modelSnapshot?.Model is Model { IsReadOnly: true }
-            ? (ModelSnapshot)Activator.CreateInstance(modelSnapshot.GetType())!
-            : modelSnapshot;
+            && modelSnapshot.GetType().GetConstructor(Type.EmptyTypes) != null
+                ? (ModelSnapshot)Activator.CreateInstance(modelSnapshot.GetType())!
+                : modelSnapshot;
     }
 
     private bool ContainsForeignMigrations(string migrationsNamespace)
