@@ -3,24 +3,21 @@
 
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Microsoft.EntityFrameworkCore.Query;
-
-#nullable disable
 
 public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
     #region 21006
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Project_all_types_entity_with_missing_scalars()
     {
-        var contextFactory = await InitializeAsync<JsonContext21006>(
+        var contextFactory = await InitializeNonSharedTest<JsonContext21006>(
             onModelCreating: OnModelCreating21006,
             seed: Seed21006);
 
-        await using var context = contextFactory.CreateContext();
+        await using var context = contextFactory.CreateDbContext();
 
         var query = context.Set<JsonContext21006.Entity>();
 
@@ -67,7 +64,8 @@ public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSh
 
     protected class JsonContext21006(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Entity> Entities { get; set; }
+        public DbSet<Entity> Entities
+            => Set<Entity>();
 
         public class Entity
         {
@@ -87,7 +85,7 @@ public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSh
             public bool TestBoolean { get; set; }
             public byte TestByte { get; set; }
 
-            public byte[] TestByteArray { get; set; }
+            public byte[] TestByteArray { get; set; } = null!;
             public Guid TestGuid { get; set; }
             public ushort TestUnsignedInt16 { get; set; }
             public uint TestUnsignedInt32 { get; set; }
@@ -96,16 +94,16 @@ public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSh
             public sbyte TestSignedByte { get; set; }
             public int? TestNullableInt32 { get; set; }
             public JsonEnum TestEnum { get; set; }
-            public byte[] TestByteCollection { get; set; }
-            public IList<ushort> TestUnsignedInt16Collection { get; set; }
-            public uint[] TestUnsignedInt32Collection { get; set; }
-            public sbyte[] TestSignedByteCollection { get; set; }
-            public JsonEntity Reference { get; set; }
+            public byte[] TestByteCollection { get; set; } = null!;
+            public IList<ushort> TestUnsignedInt16Collection { get; set; } = null!;
+            public uint[] TestUnsignedInt32Collection { get; set; } = null!;
+            public sbyte[] TestSignedByteCollection { get; set; } = null!;
+            public JsonEntity Reference { get; set; } = null!;
         }
 
         public class JsonEntity
         {
-            public string Text { get; set; }
+            public string Text { get; set; } = null!;
 
             public short TestInt16 { get; set; }
             public int TestInt32 { get; set; }
@@ -120,7 +118,7 @@ public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSh
             public float TestSingle { get; set; }
             public bool TestBoolean { get; set; }
             public byte TestByte { get; set; }
-            public byte[] TestByteArray { get; set; }
+            public byte[] TestByteArray { get; set; } = null!;
             public Guid TestGuid { get; set; }
             public ushort TestUnsignedInt16 { get; set; }
             public uint TestUnsignedInt32 { get; set; }
@@ -131,11 +129,11 @@ public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSh
             public JsonEnum TestEnum { get; set; }
             public JsonEnum TestEnumWithIntConverter { get; set; }
 
-            public byte[] TestByteCollection { get; set; }
-            public IList<ushort> TestUnsignedInt16Collection { get; set; }
-            public uint[] TestUnsignedInt32Collection { get; set; }
+            public byte[] TestByteCollection { get; set; } = null!;
+            public IList<ushort> TestUnsignedInt16Collection { get; set; } = null!;
+            public uint[] TestUnsignedInt32Collection { get; set; } = null!;
 
-            public sbyte[] TestSignedByteCollection { get; set; }
+            public sbyte[] TestSignedByteCollection { get; set; } = null!;
         }
 
         public enum JsonEnum
@@ -150,10 +148,10 @@ public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSh
 
     #region 34911
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Enum_partition_key()
     {
-        var contextFactory = await InitializeAsync<Context34911>(
+        var contextFactory = await InitializeNonSharedTest<Context34911>(
             onModelCreating: b => b.Entity<Context34911.Member>().HasPartitionKey(d => d.MemberType),
             seed: async context =>
             {
@@ -161,7 +159,7 @@ public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSh
                 await context.SaveChangesAsync();
             });
 
-        await using (var context = contextFactory.CreateContext())
+        await using (var context = contextFactory.CreateDbContext())
         {
             var admin = await context.Members.Where(p => p.MemberType == Context34911.MemberType.Admin).SingleAsync();
             Assert.Equal("Some Admin", admin.Name);
@@ -170,7 +168,8 @@ public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSh
 
     protected class Context34911(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Member> Members { get; set; }
+        public DbSet<Member> Members
+            => Set<Member>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Member>().HasData(new Member { Id = 1, Name = "Product 1" });
@@ -179,7 +178,7 @@ public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSh
         {
             public int Id { get; set; }
             public MemberType MemberType { get; set; }
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
         }
 
         public enum MemberType
@@ -195,93 +194,94 @@ public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSh
 
     // TODO: Move these tests to a better location. They require nullable properties with nulls in the database.
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Min_over_value_type_containing_nulls()
     {
-        await using var context = (await InitializeAsync<Context35094>()).CreateContext();
+        await using var context = (await InitializeNonSharedTest<Context35094>()).CreateDbContext();
         Assert.Null(await context.Set<Context35094.Product>().MinAsync(p => p.NullableVal));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Min_over_value_type_containing_all_nulls()
     {
-        await using var context = (await InitializeAsync<Context35094>()).CreateContext();
+        await using var context = (await InitializeNonSharedTest<Context35094>()).CreateDbContext();
         Assert.Null(await context.Set<Context35094.Product>().Where(e => e.NullableVal == null).MinAsync(p => p.NullableVal));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Min_over_reference_type_containing_nulls()
     {
-        await using var context = (await InitializeAsync<Context35094>()).CreateContext();
+        await using var context = (await InitializeNonSharedTest<Context35094>()).CreateDbContext();
         Assert.Null(await context.Set<Context35094.Product>().MinAsync(p => p.NullableRef));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Min_over_reference_type_containing_all_nulls()
     {
-        await using var context = (await InitializeAsync<Context35094>()).CreateContext();
+        await using var context = (await InitializeNonSharedTest<Context35094>()).CreateDbContext();
         Assert.Null(await context.Set<Context35094.Product>().Where(e => e.NullableRef == null).MinAsync(p => p.NullableRef));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Min_over_reference_type_containing_no_data()
     {
-        await using var context = (await InitializeAsync<Context35094>()).CreateContext();
+        await using var context = (await InitializeNonSharedTest<Context35094>()).CreateDbContext();
         Assert.Null(await context.Set<Context35094.Product>().Where(e => e.Id < 0).MinAsync(p => p.NullableRef));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Max_over_value_type_containing_nulls()
     {
-        await using var context = (await InitializeAsync<Context35094>()).CreateContext();
+        await using var context = (await InitializeNonSharedTest<Context35094>()).CreateDbContext();
         Assert.Equal(3.14, await context.Set<Context35094.Product>().MaxAsync(p => p.NullableVal));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Max_over_value_type_containing_all_nulls()
     {
-        await using var context = (await InitializeAsync<Context35094>()).CreateContext();
+        await using var context = (await InitializeNonSharedTest<Context35094>()).CreateDbContext();
         Assert.Null(await context.Set<Context35094.Product>().Where(e => e.NullableVal == null).MaxAsync(p => p.NullableVal));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Max_over_reference_type_containing_nulls()
     {
-        await using var context = (await InitializeAsync<Context35094>()).CreateContext();
+        await using var context = (await InitializeNonSharedTest<Context35094>()).CreateDbContext();
         Assert.Equal("Value", await context.Set<Context35094.Product>().MaxAsync(p => p.NullableRef));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Max_over_reference_type_containing_all_nulls()
     {
-        await using var context = (await InitializeAsync<Context35094>()).CreateContext();
+        await using var context = (await InitializeNonSharedTest<Context35094>()).CreateDbContext();
         Assert.Null(await context.Set<Context35094.Product>().Where(e => e.NullableRef == null).MaxAsync(p => p.NullableRef));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Max_over_reference_type_containing_no_data()
     {
-        await using var context = (await InitializeAsync<Context35094>()).CreateContext();
+        await using var context = (await InitializeNonSharedTest<Context35094>()).CreateDbContext();
         Assert.Null(await context.Set<Context35094.Product>().Where(e => e.Id < 0).MaxAsync(p => p.NullableRef));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Average_over_value_type_containing_nulls()
     {
-        await using var context = (await InitializeAsync<Context35094>()).CreateContext();
+        await using var context = (await InitializeNonSharedTest<Context35094>()).CreateDbContext();
         Assert.Null(await context.Set<Context35094.Product>().AverageAsync(p => p.NullableVal));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Average_over_value_type_containing_all_nulls()
     {
-        await using var context = (await InitializeAsync<Context35094>()).CreateContext();
+        await using var context = (await InitializeNonSharedTest<Context35094>()).CreateDbContext();
         Assert.Null(await context.Set<Context35094.Product>().Where(e => e.NullableVal == null).AverageAsync(p => p.NullableVal));
     }
 
     protected class Context35094(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Product> Products { get; set; }
+        public DbSet<Product> Products
+            => Set<Product>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Product>().HasData(
@@ -300,7 +300,7 @@ public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSh
             public int Id { get; set; }
 
             public double? NullableVal { get; set; }
-            public string NullableRef { get; set; }
+            public string? NullableRef { get; set; }
         }
     }
 
@@ -308,14 +308,14 @@ public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSh
 
     #region 36329
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Enum_discriminator_with_value_converter_on_derived_dbset()
     {
-        var contextFactory = await InitializeAsync<EnumDiscriminatorContext36329>(
+        var contextFactory = await InitializeNonSharedTest<EnumDiscriminatorContext36329>(
             onModelCreating: OnModelCreating36329,
             seed: Seed36329);
 
-        await using var context = contextFactory.CreateContext();
+        await using var context = contextFactory.CreateDbContext();
 
         // This should not throw an InvalidCastException
         var dog = await context.Dogs.SingleAsync(x => x.Id == "123");
@@ -362,20 +362,23 @@ public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSh
         {
         }
 
-        public DbSet<Dog36329> Dogs { get; set; }
-        public DbSet<Pet36329> Pets { get; set; }
+        public DbSet<Dog36329> Dogs
+            => Set<Dog36329>();
+
+        public DbSet<Pet36329> Pets
+            => Set<Pet36329>();
     }
 
     public abstract record Pet36329
     {
-        public string Id { get; set; }
+        public string Id { get; set; } = null!;
         public PetType36329 PetType { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     public record Dog36329 : Pet36329
     {
-        public string DogProperty { get; set; }
+        public string DogProperty { get; set; } = null!;
     }
 
     public enum PetType36329
@@ -386,12 +389,156 @@ public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSh
 
     #endregion 36329
 
-    protected override string StoreName
+    #region 37653
+
+    [Fact]
+    public virtual async Task Coalesce_in_conditional_with_value_conversion()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context37653>();
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Set<Context37653.Data>()
+            .OrderBy(e => e.Id)
+            .Select(e => new
+            {
+                e.Id,
+                Foo = e.Foo ?? false ? 'A' : 'B',
+            });
+
+        var result = await query.ToListAsync();
+        Assert.Equal('A', result[0].Foo);
+        Assert.Equal('B', result[1].Foo);
+        Assert.Equal('B', result[2].Foo);
+    }
+
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context37653(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Data>(builder =>
+            {
+                builder.Property(a => a.Foo).HasConversion<FooConverter>();
+                builder.HasData(
+                    new Data { Id = 1, Foo = true },
+                    new Data { Id = 2, Foo = false },
+                    new Data { Id = 3, Foo = null });
+            });
+
+        public class Data
+        {
+            public int Id { get; set; }
+            public bool? Foo { get; set; }
+        }
+
+        public class FooConverter : ValueConverter<bool?, short?>
+        {
+            public FooConverter()
+                : base(
+                    x => x == true ? 10 : (short?)99,
+                    x => x == 10 ? true : x == 99 ? false : null,
+                    convertsNulls: true)
+            {
+            }
+        }
+    }
+
+    #endregion
+
+    #region 34567
+
+    [Fact]
+    public virtual async Task Html_unsafe_character_scalar()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context34567>();
+        using var context = contextFactory.CreateDbContext();
+
+        var result = await context.Set<Context34567.Data>()
+            .Where(x => x.Text == "\"")
+            .ToListAsync();
+
+        Assert.Equal(1, result.Count);
+
+        Assert.Equal("\"", result.Single().Text);
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (c["Text"] = "\"")
+""");
+    }
+
+    [Fact]
+    public virtual async Task Html_unsafe_character_id()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context34567>();
+        using var context = contextFactory.CreateDbContext();
+
+        var result = await context.Set<Context34567.Data>()
+            .Where(x => x.Id == "\"")
+            .ToListAsync();
+
+        Assert.Equal(1, result.Count);
+
+        Assert.Equal("\"", result.Single().Text);
+
+        AssertSql(
+            """
+ReadItem(?, ?)
+""");
+    }
+
+    [Fact]
+    public virtual async Task Html_unsafe_character_partition_key()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context34567>();
+        using var context = contextFactory.CreateDbContext();
+
+        var result = await context.Set<Context34567.Data>()
+            .WithPartitionKey("\"")
+            .ToListAsync();
+
+        Assert.Equal(1, result.Count);
+
+        Assert.Equal("\"", result.Single().Text);
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+""");
+    }
+
+    protected class Context34567(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Data>(builder =>
+            {
+                builder.HasPartitionKey(x => x.Id);
+                builder.HasData([new()]);
+            });
+
+        public class Data
+        {
+            public string Id { get; set; } = "\"" + "";
+            public string Text { get; set; } = "\"" + "";
+        }
+    }
+
+    #endregion
+
+    protected override string NonSharedStoreName
         => "AdHocMiscellaneousQueryTests";
 
-    protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+    protected override DbContextOptionsBuilder AddNonSharedOptions(DbContextOptionsBuilder builder)
         => builder.ConfigureWarnings(b => b.Ignore(CosmosEventId.NoPartitionKeyDefined));
 
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => CosmosTestStoreFactory.Instance;
+
+    protected TestSqlLoggerFactory TestSqlLoggerFactory
+        => (TestSqlLoggerFactory)ListLoggerFactory;
+
+    private void AssertSql(params string[] expected)
+        => TestSqlLoggerFactory.AssertBaseline(expected);
 }

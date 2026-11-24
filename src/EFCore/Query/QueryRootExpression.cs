@@ -85,8 +85,8 @@ public abstract class QueryRootExpression : Expression, IPrintableExpression
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is QueryRootExpression queryRootExpression
-                && ElementType == queryRootExpression.ElementType);
+                || (obj is QueryRootExpression queryRootExpression
+                    && ElementType == queryRootExpression.ElementType));
 
     /// <inheritdoc />
     public override int GetHashCode()

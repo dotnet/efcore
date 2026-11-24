@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 public class SqliteModelValidatorTest : RelationalModelValidatorTest
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_srid()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -23,7 +23,37 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
                 nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal)), modelBuilder);
     }
 
-    [ConditionalFact]
+    // SQLite cannot build an expression index over all elements of a JSON array, unlike other relational providers.
+    public override void Detects_index_on_complex_collection_property()
+    {
+        var exception = Assert.Throws<InvalidOperationException>(base.Detects_index_on_complex_collection_property);
+
+        Assert.Equal(SqliteStrings.JsonIndexAllElementsNotSupported, exception.Message);
+    }
+
+    public override void Detects_index_traversing_complex_collection()
+    {
+        var exception = Assert.Throws<InvalidOperationException>(base.Detects_index_traversing_complex_collection);
+
+        Assert.Equal(SqliteStrings.JsonIndexAllElementsNotSupported, exception.Message);
+    }
+
+    public override void Passes_on_json_path_index_in_single_complex_collection()
+    {
+        var exception = Assert.Throws<InvalidOperationException>(base.Passes_on_json_path_index_in_single_complex_collection);
+
+        Assert.Equal(SqliteStrings.JsonIndexAllElementsNotSupported, exception.Message);
+    }
+
+    public override void Passes_on_json_path_index_through_nested_complex_collections_all_elements()
+    {
+        var exception = Assert.Throws<InvalidOperationException>(
+            base.Passes_on_json_path_index_through_nested_complex_collections_all_elements);
+
+        Assert.Equal(SqliteStrings.JsonIndexAllElementsNotSupported, exception.Message);
+    }
+
+    [Fact]
     public void Detects_schemas()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -34,7 +64,7 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Detects_sequences()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -45,7 +75,7 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Detects_insert_stored_procedures()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -60,7 +90,7 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
         VerifyError(SqliteStrings.StoredProceduresNotSupported(nameof(Person)), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Detects_update_stored_procedures()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -75,7 +105,7 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
         VerifyError(SqliteStrings.StoredProceduresNotSupported(nameof(Person)), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Detects_delete_stored_procedures()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -85,7 +115,7 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
         VerifyError(SqliteStrings.StoredProceduresNotSupported(nameof(Person)), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_incompatible_sql_returning_clause_shared_table()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -103,8 +133,7 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
     public override void Passes_for_stored_procedure_without_parameter_for_insert_non_save_property()
     {
         var exception =
-            Assert.Throws<InvalidOperationException>(()
-                => base.Passes_for_stored_procedure_without_parameter_for_insert_non_save_property());
+            Assert.Throws<InvalidOperationException>(base.Passes_for_stored_procedure_without_parameter_for_insert_non_save_property);
 
         Assert.Equal(SqliteStrings.StoredProceduresNotSupported(nameof(Animal)), exception.Message);
     }
@@ -112,8 +141,7 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
     public override void Passes_for_stored_procedure_without_parameter_for_update_non_save_property()
     {
         var exception =
-            Assert.Throws<InvalidOperationException>(()
-                => base.Passes_for_stored_procedure_without_parameter_for_update_non_save_property());
+            Assert.Throws<InvalidOperationException>(base.Passes_for_stored_procedure_without_parameter_for_update_non_save_property);
 
         Assert.Equal(SqliteStrings.StoredProceduresNotSupported(nameof(Animal)), exception.Message);
     }
@@ -121,7 +149,7 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
     public override void Passes_on_valid_UsingDeleteStoredProcedure_in_TPT()
     {
         var exception =
-            Assert.Throws<InvalidOperationException>(() => base.Passes_on_valid_UsingDeleteStoredProcedure_in_TPT());
+            Assert.Throws<InvalidOperationException>(base.Passes_on_valid_UsingDeleteStoredProcedure_in_TPT);
 
         Assert.Equal(SqliteStrings.StoredProceduresNotSupported(nameof(Animal)), exception.Message);
     }
@@ -129,7 +157,7 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
     public override void Passes_on_derived_entity_type_mapped_to_a_stored_procedure_in_TPT()
     {
         var exception =
-            Assert.Throws<InvalidOperationException>(() => base.Passes_on_derived_entity_type_mapped_to_a_stored_procedure_in_TPT());
+            Assert.Throws<InvalidOperationException>(base.Passes_on_derived_entity_type_mapped_to_a_stored_procedure_in_TPT);
 
         Assert.Equal(SqliteStrings.StoredProceduresNotSupported(nameof(Cat)), exception.Message);
     }
@@ -137,7 +165,7 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
     public override void Passes_on_derived_entity_type_not_mapped_to_a_stored_procedure_in_TPT()
     {
         var exception =
-            Assert.Throws<InvalidOperationException>(() => base.Passes_on_derived_entity_type_not_mapped_to_a_stored_procedure_in_TPT());
+            Assert.Throws<InvalidOperationException>(base.Passes_on_derived_entity_type_not_mapped_to_a_stored_procedure_in_TPT);
 
         Assert.Equal(SqliteStrings.StoredProceduresNotSupported(nameof(Animal)), exception.Message);
     }
@@ -145,12 +173,114 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
     public override void Detects_unmapped_concurrency_token()
     {
         var exception =
-            Assert.Throws<InvalidOperationException>(() => base.Detects_unmapped_concurrency_token());
+            Assert.Throws<InvalidOperationException>(base.Detects_unmapped_concurrency_token);
 
         Assert.Equal(SqliteStrings.StoredProceduresNotSupported(nameof(Animal)), exception.Message);
     }
 
-    [ConditionalFact]
+    public override void Detects_non_generated_update_stored_procedure_result_columns_in_TPT()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_missing_generated_stored_procedure_parameters_in_TPT()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_missing_generated_stored_procedure_parameters_in_TPC()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_multiple_entity_types_mapped_to_the_same_stored_procedure()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_current_value_parameter_on_delete_stored_procedure()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_InsertUsingStoredProcedure_without_a_name()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_non_key_delete_stored_procedure_params_in_TPH()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_stored_procedure_input_parameter_for_update_non_save_property()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_unmatched_stored_procedure_result_columns_in_TPC()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_rows_affected_with_result_columns()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_original_value_parameter_on_insert_stored_procedure()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_non_generated_insert_stored_procedure_result_columns_in_TPH()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_unmatched_stored_procedure_result_columns_in_TPH()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_generated_properties_mapped_to_result_and_parameter()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_missing_stored_procedure_parameters_for_abstract_properties_in_TPT()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_unmatched_stored_procedure_result_columns_in_TPT()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_delete_stored_procedure_result_columns_in_TPH()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_unmatched_stored_procedure_parameters_in_TPT()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_generated_properties_mapped_to_original_and_current_parameter()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_tableless_entity_type_mapped_to_some_stored_procedures()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_duplicate_parameter()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_missing_generated_stored_procedure_parameters()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_non_generated_insert_stored_procedure_output_parameter_in_TPC()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_unmatched_stored_procedure_parameters_in_TPC()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_unmatched_stored_procedure_parameters_in_TPH()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_keyless_entity_type_mapped_to_a_stored_procedure()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_non_generated_update_stored_procedure_input_output_parameter()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_stored_procedure_input_parameter_for_insert_non_save_property()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_missing_generated_stored_procedure_parameters_in_TPH()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_rows_affected_on_insert_stored_procedure()
+        => VerifyStoredProceduresNotSupported();
+
+    public override void Detects_duplicate_result_column()
+        => VerifyStoredProceduresNotSupported();
+
+    private void VerifyStoredProceduresNotSupported()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Animal>()
+            .InsertUsingStoredProcedure("Insert", s => s.HasParameter(a => a.Id));
+
+        VerifyError(SqliteStrings.StoredProceduresNotSupported(nameof(Animal)), modelBuilder);
+    }
+
+    [Fact]
     public void Detects_conflicting_autoincrement_and_default_value_sql()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -165,7 +295,7 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Detects_conflicting_autoincrement_and_computed_column()
     {
         var modelBuilder = CreateConventionModelBuilder();

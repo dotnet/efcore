@@ -251,7 +251,7 @@ public abstract class ExecutionStrategy : IExecutionStrategy
                     throw new RetryLimitExceededException(CoreStrings.RetryLimitExceeded(MaxRetryCount, GetType().Name), ex);
                 }
 
-                Dependencies.Logger.ExecutionStrategyRetrying(ExceptionsEncountered, delay.Value, async: true);
+                Dependencies.Logger.ExecutionStrategyRetrying(ExceptionsEncountered, delay.Value, async: false);
 
                 OnRetry();
 
@@ -383,9 +383,9 @@ public abstract class ExecutionStrategy : IExecutionStrategy
         if (RetriesOnFailure
             && (Dependencies.CurrentContext.Context.Database.CurrentTransaction is not null
                 || Dependencies.CurrentContext.Context.Database.GetEnlistedTransaction() is not null
-                || (((IDatabaseFacadeDependenciesAccessor)Dependencies.CurrentContext.Context.Database).Dependencies
-                    .TransactionManager as
-                    ITransactionEnlistmentManager)?.CurrentAmbientTransaction is not null))
+                || ((IDatabaseFacadeDependenciesAccessor)Dependencies.CurrentContext.Context.Database).Dependencies
+                .TransactionManager is
+                ITransactionEnlistmentManager { CurrentAmbientTransaction: not null }))
         {
             throw new InvalidOperationException(
                 CoreStrings.ExecutionStrategyExistingTransaction(
@@ -430,7 +430,7 @@ public abstract class ExecutionStrategy : IExecutionStrategy
         if (currentRetryCount < MaxRetryCount)
         {
             var delta = (Math.Pow(DefaultExponentialBase, currentRetryCount) - 1.0)
-                * (1.0 + Random.NextDouble() * (DefaultRandomFactor - 1.0));
+                * (1.0 + (Random.NextDouble() * (DefaultRandomFactor - 1.0)));
 
             var delay = Math.Min(
                 DefaultCoefficient.TotalMilliseconds * delta,

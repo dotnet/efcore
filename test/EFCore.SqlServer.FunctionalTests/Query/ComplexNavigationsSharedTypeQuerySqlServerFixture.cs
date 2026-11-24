@@ -3,10 +3,11 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class ComplexNavigationsSharedTypeQuerySqlServerFixture : ComplexNavigationsSharedTypeQueryRelationalFixtureBase
 {
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerTestStoreFactory.Instance;
+
+    public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+        => SqlServerTestEnvironment.SetCompatibilityLevelFromEnvironment(base.AddOptions(builder));
 }

@@ -89,8 +89,8 @@ public class AtTimeZoneExpression : SqlExpression
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is AtTimeZoneExpression atTimeZoneExpression
-                && Equals(atTimeZoneExpression));
+                || (obj is AtTimeZoneExpression atTimeZoneExpression
+                    && Equals(atTimeZoneExpression)));
 
     private bool Equals(AtTimeZoneExpression atTimeZoneExpression)
         => base.Equals(atTimeZoneExpression)

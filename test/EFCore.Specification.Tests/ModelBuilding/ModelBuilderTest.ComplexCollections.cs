@@ -7,8 +7,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
-#nullable disable
-
 public abstract partial class ModelBuilderTest
 {
     public abstract class ComplexCollectionTestBase(ModelBuilderFixtureBase fixture) : ModelBuilderTestBase(fixture)
@@ -19,7 +17,7 @@ public abstract partial class ModelBuilderTest
             where TElement : notnull
             => builder;
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_complex_property_annotation()
         {
             var modelBuilder = CreateModelBuilder();
@@ -37,7 +35,7 @@ public abstract partial class ModelBuilderTest
                 .Ignore(c => c.Orders);
 
             var model = modelBuilder.FinalizeModel();
-            var complexCollection = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single();
+            var complexCollection = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single();
 
             Assert.Equal("bar", complexCollection.ComplexType["foo"]);
             Assert.Equal("bar2", complexCollection["foo2"]);
@@ -53,7 +51,7 @@ public abstract partial class ModelBuilderTest
       Notes (List<string>) Element type: string Required", complexCollection.ToDebugString(), ignoreLineEndingDifferences: true);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_property_annotation()
         {
             var modelBuilder = CreateModelBuilder();
@@ -70,13 +68,13 @@ public abstract partial class ModelBuilderTest
                 .Property(c => c.Name).HasAnnotation("foo", "bar");
 
             var model = modelBuilder.FinalizeModel();
-            var complexCollection = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single();
+            var complexCollection = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single();
             var property = complexCollection.ComplexType.FindProperty(nameof(Customer.Name));
 
-            Assert.Equal("bar", property["foo"]);
+            Assert.Equal("bar", property!["foo"]);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_property_annotation_when_no_clr_property()
         {
             var modelBuilder = CreateModelBuilder();
@@ -93,13 +91,13 @@ public abstract partial class ModelBuilderTest
                 .Property<string>(Customer.NameProperty.Name).HasAnnotation("foo", "bar");
 
             var model = modelBuilder.FinalizeModel();
-            var complexCollection = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single();
+            var complexCollection = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single();
             var property = complexCollection.ComplexType.FindProperty(nameof(Customer.Name));
 
-            Assert.Equal("bar", property["foo"]);
+            Assert.Equal("bar", property!["foo"]);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_property_annotation_by_type()
         {
             var modelBuilder = CreateModelBuilder(c => c.Properties<string>().HaveAnnotation("foo", "bar"));
@@ -116,13 +114,13 @@ public abstract partial class ModelBuilderTest
                 .Property(c => c.Name);
 
             var model = modelBuilder.FinalizeModel();
-            var complexCollection = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single();
+            var complexCollection = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single();
             var property = complexCollection.ComplexType.FindProperty(nameof(Customer.Name));
 
-            Assert.Equal("bar", property["foo"]);
+            Assert.Equal("bar", property!["foo"]);
         }
 
-        [ConditionalFact(Skip = "Issue #35613")]
+        [Fact(Skip = "Issue #35613")]
         public virtual void Properties_are_required_by_default_only_if_CLR_type_is_nullable()
         {
             var modelBuilder = CreateModelBuilder();
@@ -145,17 +143,17 @@ public abstract partial class ModelBuilderTest
                     });
 
             var model = modelBuilder.FinalizeModel();
-            var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
+            var complexType = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single().ComplexType;
 
-            Assert.False(complexType.FindProperty("Up").IsNullable);
-            Assert.True(complexType.FindProperty("Down").IsNullable);
-            Assert.False(complexType.FindProperty("Charm").IsNullable);
-            Assert.True(complexType.FindProperty("Strange").IsNullable);
-            Assert.False(complexType.FindProperty("Top").IsNullable);
-            Assert.True(complexType.FindProperty("Bottom").IsNullable);
+            Assert.False(complexType.FindProperty("Up")!.IsNullable);
+            Assert.True(complexType.FindProperty("Down")!.IsNullable);
+            Assert.False(complexType.FindProperty("Charm")!.IsNullable);
+            Assert.True(complexType.FindProperty("Strange")!.IsNullable);
+            Assert.False(complexType.FindProperty("Top")!.IsNullable);
+            Assert.True(complexType.FindProperty("Bottom")!.IsNullable);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Properties_can_be_ignored()
         {
             var modelBuilder = CreateModelBuilder();
@@ -179,14 +177,14 @@ public abstract partial class ModelBuilderTest
                     });
 
             var model = modelBuilder.FinalizeModel();
-            var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
+            var complexType = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single().ComplexType;
 
             Assert.Contains(nameof(Quarks.Id), complexType.GetProperties().Select(p => p.Name));
             Assert.DoesNotContain(nameof(Quarks.Up), complexType.GetProperties().Select(p => p.Name));
             Assert.DoesNotContain(nameof(Quarks.Down), complexType.GetProperties().Select(p => p.Name));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Properties_can_be_ignored_by_type()
         {
             var modelBuilder = CreateModelBuilder(c => c.IgnoreAny<Guid>());
@@ -199,11 +197,11 @@ public abstract partial class ModelBuilderTest
                 .ComplexCollection(e => e.Customers, b => ConfigureComplexCollection(b).Ignore(c => c.Details).Ignore(c => c.Orders));
 
             var model = modelBuilder.FinalizeModel();
-            var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
+            var complexType = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single().ComplexType;
             Assert.Null(complexType.FindProperty(nameof(Customer.AlternateKey)));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_ignore_shadow_properties_when_they_have_been_added_explicitly()
         {
             var modelBuilder = CreateModelBuilder();
@@ -220,11 +218,11 @@ public abstract partial class ModelBuilderTest
 
             var model = modelBuilder.FinalizeModel();
 
-            var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
+            var complexType = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single().ComplexType;
             Assert.Null(complexType.FindProperty("Shadow"));
         }
 
-        [ConditionalFact(Skip = "Issue #35613")]
+        [Fact(Skip = "Issue #35613")]
         public virtual void Can_add_shadow_properties_when_they_have_been_ignored()
         {
             var modelBuilder = CreateModelBuilder();
@@ -247,11 +245,11 @@ public abstract partial class ModelBuilderTest
 
             var model = modelBuilder.FinalizeModel();
 
-            var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
+            var complexType = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single().ComplexType;
             Assert.NotNull(complexType.FindProperty("Shadow"));
         }
 
-        [ConditionalFact(Skip = "Issue #35613")]
+        [Fact(Skip = "Issue #35613")]
         public virtual void Properties_can_be_made_required()
         {
             var modelBuilder = CreateModelBuilder();
@@ -274,17 +272,17 @@ public abstract partial class ModelBuilderTest
                     });
 
             var model = modelBuilder.FinalizeModel();
-            var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
+            var complexType = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single().ComplexType;
 
-            Assert.False(complexType.FindProperty("Up").IsNullable);
-            Assert.False(complexType.FindProperty("Down").IsNullable);
-            Assert.False(complexType.FindProperty("Charm").IsNullable);
-            Assert.False(complexType.FindProperty("Strange").IsNullable);
-            Assert.False(complexType.FindProperty("Top").IsNullable);
-            Assert.False(complexType.FindProperty("Bottom").IsNullable);
+            Assert.False(complexType.FindProperty("Up")!.IsNullable);
+            Assert.False(complexType.FindProperty("Down")!.IsNullable);
+            Assert.False(complexType.FindProperty("Charm")!.IsNullable);
+            Assert.False(complexType.FindProperty("Strange")!.IsNullable);
+            Assert.False(complexType.FindProperty("Top")!.IsNullable);
+            Assert.False(complexType.FindProperty("Bottom")!.IsNullable);
         }
 
-        [ConditionalFact(Skip = "Issue #35613")]
+        [Fact(Skip = "Issue #35613")]
         public virtual void Properties_can_be_made_optional()
         {
             var modelBuilder = CreateModelBuilder();
@@ -305,16 +303,16 @@ public abstract partial class ModelBuilderTest
                     });
 
             var model = modelBuilder.FinalizeModel();
-            var complexProperty = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single();
+            var complexProperty = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single();
             Assert.True(complexProperty.IsNullable);
 
             var complexType = complexProperty.ComplexType;
-            Assert.True(complexType.FindProperty("Down").IsNullable);
-            Assert.True(complexType.FindProperty("Strange").IsNullable);
-            Assert.True(complexType.FindProperty("Bottom").IsNullable);
+            Assert.True(complexType.FindProperty("Down")!.IsNullable);
+            Assert.True(complexType.FindProperty("Strange")!.IsNullable);
+            Assert.True(complexType.FindProperty("Bottom")!.IsNullable);
         }
 
-        [ConditionalFact(Skip = "Issue #35613")]
+        [Fact(Skip = "Issue #35613")]
         public virtual void Non_nullable_properties_cannot_be_made_optional()
         {
             var modelBuilder = CreateModelBuilder();
@@ -342,14 +340,14 @@ public abstract partial class ModelBuilderTest
                     });
 
             var model = modelBuilder.FinalizeModel();
-            var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
+            var complexType = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single().ComplexType;
 
-            Assert.False(complexType.FindProperty("Up").IsNullable);
-            Assert.False(complexType.FindProperty("Charm").IsNullable);
-            Assert.False(complexType.FindProperty("Top").IsNullable);
+            Assert.False(complexType.FindProperty("Up")!.IsNullable);
+            Assert.False(complexType.FindProperty("Charm")!.IsNullable);
+            Assert.False(complexType.FindProperty("Top")!.IsNullable);
         }
 
-        [ConditionalFact(Skip = "Issue #35613")]
+        [Fact(Skip = "Issue #35613")]
         public virtual void Properties_specified_by_string_are_shadow_properties_unless_already_known_to_be_CLR_properties()
         {
             var modelBuilder = CreateModelBuilder();
@@ -370,21 +368,21 @@ public abstract partial class ModelBuilderTest
                     });
 
             var model = modelBuilder.FinalizeModel();
-            var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
+            var complexType = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single().ComplexType;
 
-            Assert.False(complexType.FindProperty("Up").IsShadowProperty());
-            Assert.False(complexType.FindProperty("Down").IsShadowProperty());
-            Assert.True(complexType.FindProperty("Gluon").IsShadowProperty());
-            Assert.True(complexType.FindProperty("Photon").IsShadowProperty());
+            Assert.False(complexType.FindProperty("Up")!.IsShadowProperty());
+            Assert.False(complexType.FindProperty("Down")!.IsShadowProperty());
+            Assert.True(complexType.FindProperty("Gluon")!.IsShadowProperty());
+            Assert.True(complexType.FindProperty("Photon")!.IsShadowProperty());
 
-            Assert.Equal(-1, complexType.FindProperty("Up").GetShadowIndex());
-            Assert.Equal(-1, complexType.FindProperty("Down").GetShadowIndex());
-            Assert.NotEqual(-1, complexType.FindProperty("Gluon").GetShadowIndex());
-            Assert.NotEqual(-1, complexType.FindProperty("Photon").GetShadowIndex());
-            Assert.NotEqual(complexType.FindProperty("Gluon").GetShadowIndex(), complexType.FindProperty("Photon").GetShadowIndex());
+            Assert.Equal(-1, complexType.FindProperty("Up")!.GetShadowIndex());
+            Assert.Equal(-1, complexType.FindProperty("Down")!.GetShadowIndex());
+            Assert.NotEqual(-1, complexType.FindProperty("Gluon")!.GetShadowIndex());
+            Assert.NotEqual(-1, complexType.FindProperty("Photon")!.GetShadowIndex());
+            Assert.NotEqual(complexType.FindProperty("Gluon")!.GetShadowIndex(), complexType.FindProperty("Photon")!.GetShadowIndex());
         }
 
-        [ConditionalFact(Skip = "Issue #35613")]
+        [Fact(Skip = "Issue #35613")]
         public virtual void Properties_can_have_access_mode_set()
         {
             var modelBuilder = CreateModelBuilder();
@@ -421,7 +419,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(PropertyAccessMode.FieldDuringConstruction, quarksType.FindProperty("Strange")!.GetPropertyAccessMode());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Access_mode_can_be_overridden_at_entity_and_property_levels()
         {
             var modelBuilder = CreateModelBuilder();
@@ -462,11 +460,11 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(PropertyAccessMode.Property, quarksType.FindProperty("Up")!.GetPropertyAccessMode());
         }
 
-        [ConditionalFact(Skip = "Issue #35613")]
+        [Fact(Skip = "Issue #35613")]
         public virtual void Properties_can_have_provider_type_set()
-            => Properties_can_have_provider_type_set<byte[]>();
+            => Properties_can_have_provider_type_set_implementation<byte[]>();
 
-        protected virtual void Properties_can_have_provider_type_set<TBytes>()
+        protected virtual void Properties_can_have_provider_type_set_implementation<TBytes>()
         {
             var modelBuilder = CreateModelBuilder();
 
@@ -489,34 +487,34 @@ public abstract partial class ModelBuilderTest
                     });
 
             var model = modelBuilder.FinalizeModel();
-            var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
+            var complexType = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single().ComplexType;
 
             var up = complexType.FindProperty("Up");
-            Assert.Null(up.GetProviderClrType());
+            Assert.Null(up!.GetProviderClrType());
             Assert.True(up.GetValueComparer().IsDefault());
 
             var down = complexType.FindProperty("Down");
-            Assert.Same(typeof(byte[]), down.GetProviderClrType());
+            Assert.Same(typeof(byte[]), down!.GetProviderClrType());
             Assert.True(down.GetValueComparer().IsDefault());
             Assert.True(down.GetProviderValueComparer() is ValueComparer<TBytes>);
 
             var charm = complexType.FindProperty("Charm");
-            Assert.Same(typeof(long), charm.GetProviderClrType());
+            Assert.Same(typeof(long), charm!.GetProviderClrType());
             Assert.IsType<CustomValueComparer<int>>(charm.GetValueComparer());
             Assert.True(charm.GetProviderValueComparer().IsDefault());
 
             var strange = complexType.FindProperty("Strange");
-            Assert.Null(strange.GetProviderClrType());
+            Assert.Null(strange!.GetProviderClrType());
             Assert.True(strange.GetValueComparer().IsDefault());
             Assert.True(strange.GetProviderValueComparer().IsDefault());
 
             var top = complexType.FindProperty("Top");
-            Assert.Same(typeof(string), top.GetProviderClrType());
+            Assert.Same(typeof(string), top!.GetProviderClrType());
             Assert.IsType<CustomValueComparer<string>>(top.GetValueComparer());
             Assert.True(top.GetProviderValueComparer() is ValueComparer<string>);
         }
 
-        [ConditionalFact(Skip = "Issue #35613")]
+        [Fact(Skip = "Issue #35613")]
         public virtual void Properties_can_have_provider_type_set_for_type()
         {
             var modelBuilder = CreateModelBuilder(c => c.Properties<string>().HaveConversion<byte[]>());
@@ -537,7 +535,7 @@ public abstract partial class ModelBuilderTest
                     });
 
             var model = modelBuilder.FinalizeModel();
-            var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
+            var complexType = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single().ComplexType;
 
             Assert.Null(complexType.FindProperty("Up")!.GetProviderClrType());
             Assert.Same(typeof(byte[]), complexType.FindProperty("Down")!.GetProviderClrType());
@@ -545,11 +543,11 @@ public abstract partial class ModelBuilderTest
             Assert.Same(typeof(byte[]), complexType.FindProperty("Strange")!.GetProviderClrType());
         }
 
-        [ConditionalFact(Skip = "Issue #35613")]
+        [Fact(Skip = "Issue #35613")]
         public virtual void Properties_can_have_non_generic_value_converter_set()
-            => Properties_can_have_non_generic_value_converter_set<byte[]>();
+            => Properties_can_have_non_generic_value_converter_set_implementation<byte[]>();
 
-        protected virtual void Properties_can_have_non_generic_value_converter_set<TBytes>()
+        protected virtual void Properties_can_have_non_generic_value_converter_set_implementation<TBytes>()
         {
             var modelBuilder = CreateModelBuilder();
 
@@ -573,28 +571,28 @@ public abstract partial class ModelBuilderTest
                     });
 
             var model = modelBuilder.FinalizeModel();
-            var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
+            var complexType = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single().ComplexType;
 
-            Assert.Null(complexType.FindProperty("Up").GetValueConverter());
+            Assert.Null(complexType.FindProperty("Up")!.GetValueConverter());
 
             var down = complexType.FindProperty("Down");
-            Assert.Same(stringConverter, down.GetValueConverter());
+            Assert.Same(stringConverter, down!.GetValueConverter());
             Assert.True(down.GetValueComparer().IsDefault());
             Assert.True(down.GetProviderValueComparer() is ValueComparer<TBytes>);
 
             var charm = complexType.FindProperty("Charm");
-            Assert.Same(intConverter, charm.GetValueConverter());
+            Assert.Same(intConverter, charm!.GetValueConverter());
             Assert.True(charm.GetValueComparer().IsDefault());
             Assert.IsType<CustomValueComparer<long>>(charm.GetProviderValueComparer());
 
-            Assert.Null(complexType.FindProperty("Strange").GetValueConverter());
+            Assert.Null(complexType.FindProperty("Strange")!.GetValueConverter());
         }
 
-        [ConditionalFact(Skip = "Issue #35613")]
+        [Fact(Skip = "Issue #35613")]
         public virtual void Properties_can_have_custom_type_value_converter_type_set()
-            => Properties_can_have_custom_type_value_converter_type_set<byte[]>();
+            => Properties_can_have_custom_type_value_converter_type_set_implementation<byte[]>();
 
-        protected virtual void Properties_can_have_custom_type_value_converter_type_set<TBytes>()
+        protected virtual void Properties_can_have_custom_type_value_converter_type_set_implementation<TBytes>()
         {
             var modelBuilder = CreateModelBuilder();
 
@@ -616,26 +614,26 @@ public abstract partial class ModelBuilderTest
                     });
 
             var model = modelBuilder.FinalizeModel();
-            var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
+            var complexType = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single().ComplexType;
 
             var up = complexType.FindProperty("Up");
-            Assert.Equal(typeof(int), up.GetProviderClrType());
+            Assert.Equal(typeof(int), up!.GetProviderClrType());
             Assert.Null(up.GetValueConverter());
             Assert.IsType<CustomValueComparer<int>>(up.GetValueComparer());
             Assert.IsType<CustomValueComparer<int>>(up.GetProviderValueComparer());
 
             var down = complexType.FindProperty("Down");
-            Assert.IsType<UTF8StringToBytesConverter>(down.GetValueConverter());
+            Assert.IsType<UTF8StringToBytesConverter>(down!.GetValueConverter());
             Assert.IsType<CustomValueComparer<string>>(down.GetValueComparer());
             Assert.True(down.GetProviderValueComparer() is ValueComparer<TBytes>);
 
             var charm = complexType.FindProperty("Charm");
-            Assert.IsType<CastingConverter<int, long>>(charm.GetValueConverter());
+            Assert.IsType<CastingConverter<int, long>>(charm!.GetValueConverter());
             Assert.IsType<CustomValueComparer<int>>(charm.GetValueComparer());
             Assert.True(charm.GetProviderValueComparer().IsDefault());
 
             var strange = complexType.FindProperty("Strange");
-            Assert.Null(strange.GetValueConverter());
+            Assert.Null(strange!.GetValueConverter());
             Assert.True(strange.GetValueComparer().IsDefault());
             Assert.True(strange.GetProviderValueComparer().IsDefault());
         }
@@ -644,7 +642,7 @@ public abstract partial class ModelBuilderTest
 
         protected class CustomValueComparer<T>() : ValueComparer<T>(false);
 
-        [ConditionalFact(Skip = "Issue #35613")]
+        [Fact(Skip = "Issue #35613")]
         public virtual void Properties_can_have_value_converter_set_inline()
         {
             var modelBuilder = CreateModelBuilder();
@@ -659,38 +657,38 @@ public abstract partial class ModelBuilderTest
                     {
                         ConfigureComplexCollection(b);
                         b.Property(e => e.Up);
-                        b.Property(e => e.Down).HasConversion(v => int.Parse(v), v => v.ToString());
+                        b.Property(e => e.Down).HasConversion(v => int.Parse(v!), v => v.ToString());
                         b.Property<int>("Charm").HasConversion(v => (long)v, v => (int)v, new CustomValueComparer<int>());
                         b.Property<float>("Strange").HasConversion(
                             v => (double)v, v => (float)v, new CustomValueComparer<float>(), new CustomValueComparer<double>());
                     });
 
             var model = modelBuilder.FinalizeModel();
-            var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
+            var complexType = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single().ComplexType;
 
             var up = complexType.FindProperty("Up");
-            Assert.Null(up.GetProviderClrType());
+            Assert.Null(up!.GetProviderClrType());
             Assert.Null(up.GetValueConverter());
             Assert.True(up.GetValueComparer().IsDefault());
             Assert.True(up.GetProviderValueComparer().IsDefault());
 
             var down = complexType.FindProperty("Down");
-            Assert.IsType<ValueConverter<string, int>>(down.GetValueConverter());
+            Assert.IsType<ValueConverter<string, int>>(down!.GetValueConverter());
             Assert.True(down.GetValueComparer().IsDefault());
             Assert.True(down.GetProviderValueComparer().IsDefault());
 
             var charm = complexType.FindProperty("Charm");
-            Assert.IsType<ValueConverter<int, long>>(charm.GetValueConverter());
+            Assert.IsType<ValueConverter<int, long>>(charm!.GetValueConverter());
             Assert.IsType<CustomValueComparer<int>>(charm.GetValueComparer());
             Assert.True(charm.GetProviderValueComparer().IsDefault());
 
             var strange = complexType.FindProperty("Strange");
-            Assert.IsType<ValueConverter<float, double>>(strange.GetValueConverter());
+            Assert.IsType<ValueConverter<float, double>>(strange!.GetValueConverter());
             Assert.IsType<CustomValueComparer<float>>(strange.GetValueComparer());
             Assert.IsType<CustomValueComparer<double>>(strange.GetProviderValueComparer());
         }
 
-        [ConditionalFact(Skip = "Issue #35613")]
+        [Fact(Skip = "Issue #35613")]
         public virtual void Properties_can_have_value_converter_set()
         {
             var modelBuilder = CreateModelBuilder();
@@ -706,7 +704,7 @@ public abstract partial class ModelBuilderTest
                         ConfigureComplexCollection(b);
                         b.Property(e => e.Up);
                         b.Property(e => e.Down).HasConversion(
-                            new ValueConverter<string, int>(v => int.Parse(v), v => v.ToString()));
+                            new ValueConverter<string?, int>(v => int.Parse(v!), v => v.ToString()));
                         b.Property<int>("Charm").HasConversion(
                             new ValueConverter<int, long>(v => v, v => (int)v), new CustomValueComparer<int>());
                         b.Property<float>("Strange").HasConversion(
@@ -715,37 +713,35 @@ public abstract partial class ModelBuilderTest
                     });
 
             var model = modelBuilder.FinalizeModel();
-            var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
+            var complexType = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single().ComplexType;
 
             var up = complexType.FindProperty("Up");
-            Assert.Null(up.GetProviderClrType());
+            Assert.Null(up!.GetProviderClrType());
             Assert.Null(up.GetValueConverter());
             Assert.True(up.GetValueComparer().IsDefault());
             Assert.True(up.GetProviderValueComparer().IsDefault());
 
             var down = complexType.FindProperty("Down");
-            Assert.IsType<ValueConverter<string, int>>(down.GetValueConverter());
+            Assert.IsType<ValueConverter<string, int>>(down!.GetValueConverter());
             Assert.True(down.GetValueComparer().IsDefault());
             Assert.True(down.GetProviderValueComparer().IsDefault());
 
             var charm = complexType.FindProperty("Charm");
-            Assert.IsType<ValueConverter<int, long>>(charm.GetValueConverter());
+            Assert.IsType<ValueConverter<int, long>>(charm!.GetValueConverter());
             Assert.IsType<CustomValueComparer<int>>(charm.GetValueComparer());
             Assert.True(charm.GetProviderValueComparer().IsDefault());
 
             var strange = complexType.FindProperty("Strange");
-            Assert.IsType<ValueConverter<float, double>>(strange.GetValueConverter());
+            Assert.IsType<ValueConverter<float, double>>(strange!.GetValueConverter());
             Assert.IsType<CustomValueComparer<float>>(strange.GetValueComparer());
             Assert.IsType<CustomValueComparer<double>>(strange.GetProviderValueComparer());
         }
 
-        [ConditionalFact(Skip = "Issue #35613")]
+        [Fact(Skip = "Issue #35613")]
         public virtual void Value_converter_configured_on_non_nullable_type_is_applied()
         {
-            var modelBuilder = CreateModelBuilder(c =>
-            {
-                c.Properties<int>().HaveConversion<NumberToStringConverter<int>, CustomValueComparer<int>>();
-            });
+            var modelBuilder = CreateModelBuilder(c
+                => c.Properties<int>().HaveConversion<NumberToStringConverter<int>, CustomValueComparer<int>>());
 
             modelBuilder
                 .Ignore<Order>()
@@ -760,18 +756,18 @@ public abstract partial class ModelBuilderTest
                     });
 
             var model = modelBuilder.FinalizeModel();
-            var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
+            var complexType = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single().ComplexType;
 
             var id = complexType.FindProperty("Id");
-            Assert.IsType<NumberToStringConverter<int>>(id.GetValueConverter());
+            Assert.IsType<NumberToStringConverter<int>>(id!.GetValueConverter());
             Assert.IsType<CustomValueComparer<int>>(id.GetValueComparer());
 
             var wierd = complexType.FindProperty("Wierd");
-            Assert.IsType<NumberToStringConverter<int>>(wierd.GetValueConverter());
+            Assert.IsType<NumberToStringConverter<int>>(wierd!.GetValueConverter());
             Assert.IsType<NullableValueComparer<int>>(wierd.GetValueComparer());
         }
 
-        [ConditionalFact(Skip = "Issue #35613")]
+        [Fact(Skip = "Issue #35613")]
         public virtual void Value_converter_configured_on_nullable_type_overrides_non_nullable()
         {
             var modelBuilder = CreateModelBuilder(c =>
@@ -794,20 +790,20 @@ public abstract partial class ModelBuilderTest
                     });
 
             var model = modelBuilder.FinalizeModel();
-            var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
+            var complexType = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single().ComplexType;
 
             var id = complexType.FindProperty("Id");
-            Assert.IsType<NumberToStringConverter<int>>(id.GetValueConverter());
+            Assert.IsType<NumberToStringConverter<int>>(id!.GetValueConverter());
             Assert.IsType<CustomValueComparer<int>>(id.GetValueComparer());
             Assert.IsType<CustomValueComparer<string>>(id.GetProviderValueComparer());
 
             var wierd = complexType.FindProperty("Wierd");
-            Assert.IsType<NumberToStringConverter<int?>>(wierd.GetValueConverter());
+            Assert.IsType<NumberToStringConverter<int?>>(wierd!.GetValueConverter());
             Assert.IsType<CustomValueComparer<int?>>(wierd.GetValueComparer());
             Assert.IsType<CustomValueComparer<string>>(wierd.GetProviderValueComparer());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Value_converter_type_is_checked()
         {
             var modelBuilder = CreateModelBuilder();
@@ -828,11 +824,11 @@ public abstract partial class ModelBuilderTest
                     });
 
             var model = modelBuilder.FinalizeModel();
-            var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
-            Assert.Null(complexType.FindProperty("Up").GetValueConverter());
+            var complexType = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single().ComplexType;
+            Assert.Null(complexType.FindProperty("Up")!.GetValueConverter());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Properties_can_have_field_set()
         {
             var modelBuilder = CreateModelBuilder();
@@ -852,14 +848,14 @@ public abstract partial class ModelBuilderTest
                     });
 
             var model = modelBuilder.FinalizeModel();
-            var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
+            var complexType = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single().ComplexType;
 
-            Assert.Equal("_forUp", complexType.FindProperty("Up").GetFieldName());
-            Assert.Equal("_forDown", complexType.FindProperty("Down").GetFieldName());
-            Assert.Equal("_forWierd", complexType.FindProperty("_forWierd").GetFieldName());
+            Assert.Equal("_forUp", complexType.FindProperty("Up")!.GetFieldName());
+            Assert.Equal("_forDown", complexType.FindProperty("Down")!.GetFieldName());
+            Assert.Equal("_forWierd", complexType.FindProperty("_forWierd")!.GetFieldName());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void HasField_throws_if_field_is_not_found()
         {
             var modelBuilder = CreateModelBuilder();
@@ -868,15 +864,12 @@ public abstract partial class ModelBuilderTest
                 .Entity<ComplexProperties>()
                 .ComplexCollection(
                     e => e.QuarksCollection,
-                    b =>
-                    {
-                        Assert.Equal(
-                            CoreStrings.MissingBackingField("_notFound", nameof(Quarks.Down), "ComplexProperties.QuarksCollection#Quarks"),
-                            Assert.Throws<InvalidOperationException>(() => b.Property(e => e.Down).HasField("_notFound")).Message);
-                    });
+                    b => Assert.Equal(
+                        CoreStrings.MissingBackingField("_notFound", nameof(Quarks.Down), "ComplexProperties.QuarksCollection#Quarks"),
+                        Assert.Throws<InvalidOperationException>(() => b.Property(e => e.Down).HasField("_notFound")).Message));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void HasField_throws_if_field_is_wrong_type()
         {
             var modelBuilder = CreateModelBuilder();
@@ -885,15 +878,12 @@ public abstract partial class ModelBuilderTest
                 .Entity<ComplexProperties>()
                 .ComplexCollection(
                     e => e.QuarksCollection,
-                    b =>
-                    {
-                        Assert.Equal(
-                            CoreStrings.BadBackingFieldType("_forUp", "int", nameof(Quarks), nameof(Quarks.Down), "string"),
-                            Assert.Throws<InvalidOperationException>(() => b.Property(e => e.Down).HasField("_forUp")).Message);
-                    });
+                    b => Assert.Equal(
+                        CoreStrings.BadBackingFieldType("_forUp", "int", nameof(Quarks), nameof(Quarks.Down), "string"),
+                        Assert.Throws<InvalidOperationException>(() => b.Property(e => e.Down).HasField("_forUp")).Message));
         }
 
-        [ConditionalFact]
+        [Fact]
         protected virtual void Throws_for_incompatible_type()
         {
             var modelBuilder = CreateModelBuilder();
@@ -905,7 +895,7 @@ public abstract partial class ModelBuilderTest
                     .ComplexCollection<ICollection<Customer>, Customer>(nameof(ComplexProperties.Customer))).Message);
         }
 
-        [ConditionalFact(Skip = "Issue #35613")]
+        [Fact(Skip = "Issue #35613")]
         public virtual void Can_set_max_length_for_property_type()
         {
             var modelBuilder = CreateModelBuilder(c =>
@@ -930,18 +920,18 @@ public abstract partial class ModelBuilderTest
                     });
 
             var model = modelBuilder.FinalizeModel();
-            var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
+            var complexType = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single().ComplexType;
 
-            Assert.Equal(0, complexType.FindProperty(Customer.IdProperty.Name).GetMaxLength());
-            Assert.Equal(0, complexType.FindProperty("Up").GetMaxLength());
-            Assert.Equal(100, complexType.FindProperty("Down").GetMaxLength());
-            Assert.Equal(0, complexType.FindProperty("Charm").GetMaxLength());
-            Assert.Equal(100, complexType.FindProperty("Strange").GetMaxLength());
-            Assert.Equal(0, complexType.FindProperty("Top").GetMaxLength());
-            Assert.Equal(100, complexType.FindProperty("Bottom").GetMaxLength());
+            Assert.Equal(0, complexType.FindProperty(Customer.IdProperty.Name)!.GetMaxLength());
+            Assert.Equal(0, complexType.FindProperty("Up")!.GetMaxLength());
+            Assert.Equal(100, complexType.FindProperty("Down")!.GetMaxLength());
+            Assert.Equal(0, complexType.FindProperty("Charm")!.GetMaxLength());
+            Assert.Equal(100, complexType.FindProperty("Strange")!.GetMaxLength());
+            Assert.Equal(0, complexType.FindProperty("Top")!.GetMaxLength());
+            Assert.Equal(100, complexType.FindProperty("Bottom")!.GetMaxLength());
         }
 
-        [ConditionalFact(Skip = "Issue #35613")]
+        [Fact(Skip = "Issue #35613")]
         public virtual void Can_set_sentinel_for_properties()
         {
             var modelBuilder = CreateModelBuilder();
@@ -964,7 +954,7 @@ public abstract partial class ModelBuilderTest
                     });
 
             var model = modelBuilder.FinalizeModel();
-            var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
+            var complexType = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single().ComplexType;
 
             Assert.Equal(0, complexType.FindProperty(Customer.IdProperty.Name)!.Sentinel);
             Assert.Equal(1, complexType.FindProperty("Up")!.Sentinel);
@@ -975,7 +965,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal("100", complexType.FindProperty("Bottom")!.Sentinel);
         }
 
-        [ConditionalFact(Skip = "Issue #35613")]
+        [Fact(Skip = "Issue #35613")]
         public virtual void Can_set_sentinel_for_property_type()
         {
             var modelBuilder = CreateModelBuilder(c =>
@@ -1000,7 +990,7 @@ public abstract partial class ModelBuilderTest
                     });
 
             var model = modelBuilder.FinalizeModel();
-            var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
+            var complexType = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single().ComplexType;
 
             Assert.Equal(-1, complexType.FindProperty(Customer.IdProperty.Name)!.Sentinel);
             Assert.Equal(-1, complexType.FindProperty("Up")!.Sentinel);
@@ -1011,7 +1001,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal("100", complexType.FindProperty("Bottom")!.Sentinel);
         }
 
-        [ConditionalFact(Skip = "Issue #35613")]
+        [Fact(Skip = "Issue #35613")]
         public virtual void Can_set_unbounded_max_length_for_property_type()
         {
             var modelBuilder = CreateModelBuilder(c =>
@@ -1036,18 +1026,18 @@ public abstract partial class ModelBuilderTest
                     });
 
             var model = modelBuilder.FinalizeModel();
-            var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
+            var complexType = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single().ComplexType;
 
-            Assert.Equal(0, complexType.FindProperty(Customer.IdProperty.Name).GetMaxLength());
-            Assert.Equal(0, complexType.FindProperty("Up").GetMaxLength());
-            Assert.Equal(-1, complexType.FindProperty("Down").GetMaxLength());
-            Assert.Equal(0, complexType.FindProperty("Charm").GetMaxLength());
-            Assert.Equal(-1, complexType.FindProperty("Strange").GetMaxLength());
-            Assert.Equal(0, complexType.FindProperty("Top").GetMaxLength());
-            Assert.Equal(-1, complexType.FindProperty("Bottom").GetMaxLength());
+            Assert.Equal(0, complexType.FindProperty(Customer.IdProperty.Name)!.GetMaxLength());
+            Assert.Equal(0, complexType.FindProperty("Up")!.GetMaxLength());
+            Assert.Equal(-1, complexType.FindProperty("Down")!.GetMaxLength());
+            Assert.Equal(0, complexType.FindProperty("Charm")!.GetMaxLength());
+            Assert.Equal(-1, complexType.FindProperty("Strange")!.GetMaxLength());
+            Assert.Equal(0, complexType.FindProperty("Top")!.GetMaxLength());
+            Assert.Equal(-1, complexType.FindProperty("Bottom")!.GetMaxLength());
         }
 
-        [ConditionalFact(Skip = "Issue #35613")]
+        [Fact(Skip = "Issue #35613")]
         public virtual void Can_set_precision_and_scale_for_property_type()
         {
             var modelBuilder = CreateModelBuilder(c =>
@@ -1072,25 +1062,25 @@ public abstract partial class ModelBuilderTest
                     });
 
             var model = modelBuilder.FinalizeModel();
-            var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
+            var complexType = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single().ComplexType;
 
-            Assert.Equal(1, complexType.FindProperty(Customer.IdProperty.Name).GetPrecision());
-            Assert.Equal(0, complexType.FindProperty(Customer.IdProperty.Name).GetScale());
-            Assert.Equal(1, complexType.FindProperty("Up").GetPrecision());
-            Assert.Equal(0, complexType.FindProperty("Up").GetScale());
-            Assert.Equal(100, complexType.FindProperty("Down").GetPrecision());
-            Assert.Equal(10, complexType.FindProperty("Down").GetScale());
-            Assert.Equal(1, complexType.FindProperty("Charm").GetPrecision());
-            Assert.Equal(0, complexType.FindProperty("Charm").GetScale());
-            Assert.Equal(100, complexType.FindProperty("Strange").GetPrecision());
-            Assert.Equal(10, complexType.FindProperty("Strange").GetScale());
-            Assert.Equal(1, complexType.FindProperty("Top").GetPrecision());
-            Assert.Equal(0, complexType.FindProperty("Top").GetScale());
-            Assert.Equal(100, complexType.FindProperty("Bottom").GetPrecision());
-            Assert.Equal(10, complexType.FindProperty("Bottom").GetScale());
+            Assert.Equal(1, complexType.FindProperty(Customer.IdProperty.Name)!.GetPrecision());
+            Assert.Equal(0, complexType.FindProperty(Customer.IdProperty.Name)!.GetScale());
+            Assert.Equal(1, complexType.FindProperty("Up")!.GetPrecision());
+            Assert.Equal(0, complexType.FindProperty("Up")!.GetScale());
+            Assert.Equal(100, complexType.FindProperty("Down")!.GetPrecision());
+            Assert.Equal(10, complexType.FindProperty("Down")!.GetScale());
+            Assert.Equal(1, complexType.FindProperty("Charm")!.GetPrecision());
+            Assert.Equal(0, complexType.FindProperty("Charm")!.GetScale());
+            Assert.Equal(100, complexType.FindProperty("Strange")!.GetPrecision());
+            Assert.Equal(10, complexType.FindProperty("Strange")!.GetScale());
+            Assert.Equal(1, complexType.FindProperty("Top")!.GetPrecision());
+            Assert.Equal(0, complexType.FindProperty("Top")!.GetScale());
+            Assert.Equal(100, complexType.FindProperty("Bottom")!.GetPrecision());
+            Assert.Equal(10, complexType.FindProperty("Bottom")!.GetScale());
         }
 
-        [ConditionalFact(Skip = "Issue #35613")]
+        [Fact(Skip = "Issue #35613")]
         public virtual void Can_set_custom_value_generator_for_properties()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1113,14 +1103,14 @@ public abstract partial class ModelBuilderTest
 
             var model = modelBuilder.FinalizeModel();
 
-            var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
+            var complexType = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single().ComplexType;
 
-            Assert.Null(complexType.FindProperty(Customer.IdProperty.Name).GetValueGeneratorFactory());
-            Assert.IsType<CustomValueGenerator>(complexType.FindProperty("Up").GetValueGeneratorFactory()(null, null));
-            Assert.IsType<CustomValueGenerator>(complexType.FindProperty("Down").GetValueGeneratorFactory()(null, null));
-            Assert.IsType<CustomValueGenerator>(complexType.FindProperty("Strange").GetValueGeneratorFactory()(null, null));
-            Assert.IsType<CustomValueGenerator>(complexType.FindProperty("Top").GetValueGeneratorFactory()(null, null));
-            Assert.IsType<CustomValueGenerator>(complexType.FindProperty("Bottom").GetValueGeneratorFactory()(null, null));
+            Assert.Null(complexType.FindProperty(Customer.IdProperty.Name)!.GetValueGeneratorFactory());
+            Assert.IsType<CustomValueGenerator>(complexType.FindProperty("Up")!.GetValueGeneratorFactory()!(null!, null!));
+            Assert.IsType<CustomValueGenerator>(complexType.FindProperty("Down")!.GetValueGeneratorFactory()!(null!, null!));
+            Assert.IsType<CustomValueGenerator>(complexType.FindProperty("Strange")!.GetValueGeneratorFactory()!(null!, null!));
+            Assert.IsType<CustomValueGenerator>(complexType.FindProperty("Top")!.GetValueGeneratorFactory()!(null!, null!));
+            Assert.IsType<CustomValueGenerator>(complexType.FindProperty("Bottom")!.GetValueGeneratorFactory()!(null!, null!));
         }
 
         private class CustomValueGenerator : ValueGenerator<int>
@@ -1138,7 +1128,7 @@ public abstract partial class ModelBuilderTest
                 => new CustomValueGenerator();
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Throws_for_bad_value_generator_type()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1147,15 +1137,12 @@ public abstract partial class ModelBuilderTest
                 .Entity<ComplexProperties>()
                 .ComplexCollection(
                     e => e.QuarksCollection,
-                    b =>
-                    {
-                        Assert.Equal(
-                            CoreStrings.BadValueGeneratorType(nameof(Random), nameof(ValueGenerator)),
-                            Assert.Throws<ArgumentException>(() => b.Property(e => e.Down).HasValueGenerator(typeof(Random))).Message);
-                    });
+                    b => Assert.Equal(
+                        CoreStrings.BadValueGeneratorType(nameof(Random), nameof(ValueGenerator)),
+                        Assert.Throws<ArgumentException>(() => b.Property(e => e.Down).HasValueGenerator(typeof(Random))).Message));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Throws_for_value_generator_that_cannot_be_constructed()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1171,17 +1158,17 @@ public abstract partial class ModelBuilderTest
                         b.Property(e => e.Down).HasValueGenerator<BadCustomValueGenerator2>();
                     });
 
-            var complexType = model.FindEntityType(typeof(ComplexProperties))
+            var complexType = model.FindEntityType(typeof(ComplexProperties))!
                 .FindComplexProperty(nameof(ComplexProperties.QuarksCollection))!.ComplexType;
 
             Assert.Equal(
                 CoreStrings.CannotCreateValueGenerator(nameof(BadCustomValueGenerator1), "HasValueGenerator"),
-                Assert.Throws<InvalidOperationException>(() => complexType.FindProperty("Up").GetValueGeneratorFactory()(null, null))
+                Assert.Throws<InvalidOperationException>(() => complexType.FindProperty("Up")!.GetValueGeneratorFactory()!(null!, null!))
                     .Message);
 
             Assert.Equal(
                 CoreStrings.CannotCreateValueGenerator(nameof(BadCustomValueGenerator2), "HasValueGenerator"),
-                Assert.Throws<InvalidOperationException>(() => complexType.FindProperty("Down").GetValueGeneratorFactory()(null, null))
+                Assert.Throws<InvalidOperationException>(() => complexType.FindProperty("Down")!.GetValueGeneratorFactory()!(null!, null!))
                     .Message);
         }
 
@@ -1195,10 +1182,10 @@ public abstract partial class ModelBuilderTest
 
         protected class StringCollectionEntity
         {
-            public ICollection<string> Property { get; set; }
+            public ICollection<string> Property { get; set; } = null!;
         }
 
-        [ConditionalFact(Skip = "Issue #35613")]
+        [Fact(Skip = "Issue #35613")]
         public virtual void Can_set_unicode_for_properties()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1221,18 +1208,18 @@ public abstract partial class ModelBuilderTest
                     });
 
             var model = modelBuilder.FinalizeModel();
-            var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
+            var complexType = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single().ComplexType;
 
-            Assert.Null(complexType.FindProperty(Customer.IdProperty.Name).IsUnicode());
-            Assert.True(complexType.FindProperty("Up").IsUnicode());
-            Assert.False(complexType.FindProperty("Down").IsUnicode());
-            Assert.True(complexType.FindProperty("Charm").IsUnicode());
-            Assert.False(complexType.FindProperty("Strange").IsUnicode());
-            Assert.True(complexType.FindProperty("Top").IsUnicode());
-            Assert.False(complexType.FindProperty("Bottom").IsUnicode());
+            Assert.Null(complexType.FindProperty(Customer.IdProperty.Name)!.IsUnicode());
+            Assert.True(complexType.FindProperty("Up")!.IsUnicode());
+            Assert.False(complexType.FindProperty("Down")!.IsUnicode());
+            Assert.True(complexType.FindProperty("Charm")!.IsUnicode());
+            Assert.False(complexType.FindProperty("Strange")!.IsUnicode());
+            Assert.True(complexType.FindProperty("Top")!.IsUnicode());
+            Assert.False(complexType.FindProperty("Bottom")!.IsUnicode());
         }
 
-        [ConditionalFact(Skip = "Issue #35613")]
+        [Fact(Skip = "Issue #35613")]
         public virtual void Can_set_unicode_for_property_type()
         {
             var modelBuilder = CreateModelBuilder(c =>
@@ -1257,18 +1244,18 @@ public abstract partial class ModelBuilderTest
                     });
 
             var model = modelBuilder.FinalizeModel();
-            var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
+            var complexType = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single().ComplexType;
 
-            Assert.True(complexType.FindProperty(Customer.IdProperty.Name).IsUnicode());
-            Assert.True(complexType.FindProperty("Up").IsUnicode());
-            Assert.False(complexType.FindProperty("Down").IsUnicode());
-            Assert.True(complexType.FindProperty("Charm").IsUnicode());
-            Assert.False(complexType.FindProperty("Strange").IsUnicode());
-            Assert.True(complexType.FindProperty("Top").IsUnicode());
-            Assert.False(complexType.FindProperty("Bottom").IsUnicode());
+            Assert.True(complexType.FindProperty(Customer.IdProperty.Name)!.IsUnicode());
+            Assert.True(complexType.FindProperty("Up")!.IsUnicode());
+            Assert.False(complexType.FindProperty("Down")!.IsUnicode());
+            Assert.True(complexType.FindProperty("Charm")!.IsUnicode());
+            Assert.False(complexType.FindProperty("Strange")!.IsUnicode());
+            Assert.True(complexType.FindProperty("Top")!.IsUnicode());
+            Assert.False(complexType.FindProperty("Bottom")!.IsUnicode());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void PropertyBuilder_methods_can_be_chained()
             => CreateModelBuilder()
                 .Entity<ComplexProperties>()
@@ -1284,7 +1271,7 @@ public abstract partial class ModelBuilderTest
                 .HasValueGeneratorFactory(typeof(CustomValueGeneratorFactory))
                 .IsRequired();
 
-        [ConditionalFact(Skip = "Issue #31411")]
+        [Fact(Skip = "Issue #31411")]
         public virtual void Can_map_a_tuple_collection()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1309,7 +1296,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(2, tupleType.GetProperties().Count());
         }
 
-        [ConditionalFact]
+        [Fact]
         protected virtual void Mapping_throws_for_non_ignored_navigations_on_complex_types()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1324,7 +1311,7 @@ public abstract partial class ModelBuilderTest
                 Assert.Throws<InvalidOperationException>(modelBuilder.FinalizeModel).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         protected virtual void Mapping_throws_for_empty_complex_types()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1345,7 +1332,7 @@ public abstract partial class ModelBuilderTest
                 Assert.Throws<InvalidOperationException>(modelBuilder.FinalizeModel).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void PrimitiveCollectionBuilder_methods_can_be_chained()
             => CreateModelBuilder()
                 .Entity<ComplexProperties>()
@@ -1382,5 +1369,45 @@ public abstract partial class ModelBuilderTest
                 .HasValueGeneratorFactory<CustomValueGeneratorFactory>()
                 .HasValueGeneratorFactory(typeof(CustomValueGeneratorFactory))
                 .IsRequired();
+
+        [Fact]
+        public virtual void Dotted_complex_collection_string_configures_nested_collection()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder
+                .Ignore<IndexedClass>()
+                .Ignore<StreetAddress>()
+                .Entity<ComplexProperties>(b =>
+                {
+                    b.Ignore(e => e.Customers);
+                    b.ComplexProperty(
+                        e => e.Customer, cb =>
+                        {
+                            cb.Ignore(c => c.Orders);
+                            cb.Ignore(c => c.Details);
+                        });
+                    b.ComplexCollection<List<SpecialOrder>, SpecialOrder>(
+                        "Customer.SomeOrders", ob =>
+                        {
+                            ob.Ignore(o => o.Customer);
+                            ob.Ignore(o => o.Products);
+                            ob.Ignore(o => o.Details);
+                            ob.Ignore(o => o.OrderCombination);
+                            ob.Ignore(o => o.SpecialCustomer);
+                            ob.Ignore(o => o.BackOrder);
+                            ob.Ignore(o => o.SpecialOrderCombination);
+                            ob.Ignore(o => o.ShippingAddress);
+                        });
+                });
+
+            var model = modelBuilder.FinalizeModel();
+            var entityType = model.FindEntityType(typeof(ComplexProperties))!;
+            var customerType = entityType.FindComplexProperty("Customer")!.ComplexType;
+            var someOrdersComplex = customerType.FindComplexProperty("SomeOrders");
+
+            Assert.NotNull(someOrdersComplex);
+            Assert.True(someOrdersComplex!.IsCollection);
+        }
     }
 }

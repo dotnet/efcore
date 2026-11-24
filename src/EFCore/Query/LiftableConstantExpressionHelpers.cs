@@ -105,11 +105,8 @@ public static class LiftableConstantExpressionHelpers
     {
         var (rootEntityType, complexTypes) = FindPathForEntityOrComplexType(targetType);
 
-        Expression result;
-
-        if (rootEntityType.IsAdHoc())
-        {
-            result = Call(
+        var result = rootEntityType.IsAdHoc()
+            ? Call(
                 Convert(
                     Property(
                         Property(
@@ -118,11 +115,8 @@ public static class LiftableConstantExpressionHelpers
                         nameof(ShapedQueryCompilingExpressionVisitorDependencies.Model)),
                     typeof(RuntimeModel)),
                 RuntimeModelFindAdHocEntiyTypeMethod,
-                Constant(rootEntityType.ClrType));
-        }
-        else
-        {
-            result = Call(
+                Constant(rootEntityType.ClrType))
+            : (Expression)Call(
                 Property(
                     Property(
                         liftableConstantContextParameter,
@@ -130,8 +124,6 @@ public static class LiftableConstantExpressionHelpers
                     nameof(ShapedQueryCompilingExpressionVisitorDependencies.Model)),
                 ModelFindEntiyTypeMethod,
                 Constant(rootEntityType.Name));
-        }
-
         foreach (var complexType in complexTypes)
         {
             var complexPropertyName = complexType.ComplexProperty.Name;
@@ -200,7 +192,9 @@ public static class LiftableConstantExpressionHelpers
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static Expression BuildStructuralPropertyAccess(IPropertyBase? structuralProperty, ParameterExpression liftableConstantContextParameter)
+    public static Expression BuildStructuralPropertyAccess(
+        IPropertyBase? structuralProperty,
+        ParameterExpression liftableConstantContextParameter)
     {
         if (structuralProperty is null)
         {
@@ -231,7 +225,8 @@ public static class LiftableConstantExpressionHelpers
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static Expression<Func<MaterializerLiftableConstantContext, object>> BuildStructuralPropertyAccessLambda(IPropertyBase? structuralProperty)
+    public static Expression<Func<MaterializerLiftableConstantContext, object>> BuildStructuralPropertyAccessLambda(
+        IPropertyBase? structuralProperty)
     {
         var prm = Parameter(typeof(MaterializerLiftableConstantContext));
         var body = BuildStructuralPropertyAccess(structuralProperty, prm);
@@ -245,7 +240,9 @@ public static class LiftableConstantExpressionHelpers
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static Expression BuildClrCollectionAccessor(IPropertyBase? structuralProperty, ParameterExpression liftableConstantContextParameter)
+    public static Expression BuildClrCollectionAccessor(
+        IPropertyBase? structuralProperty,
+        ParameterExpression liftableConstantContextParameter)
     {
         if (structuralProperty is null)
         {

@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Query;
 [DisplayName(nameof(FuncletizationTests))]
 public abstract class FuncletizationTests
 {
-    private OrdersContextBase _context;
+    private OrdersContextBase _context = null!;
 
     protected virtual int FuncletizationIterationCount
         => 100;

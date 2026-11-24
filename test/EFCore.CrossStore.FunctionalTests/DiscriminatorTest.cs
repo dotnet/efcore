@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class DiscriminatorTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_save_entities_with_discriminators()
     {
         using (var context = new Context4285())
@@ -29,7 +29,7 @@ public class DiscriminatorTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_save_entities_with_int_discriminators()
     {
         using (var context = new Context4285())
@@ -58,12 +58,12 @@ public class DiscriminatorTest
 
     private class SubProduct : BaseProduct
     {
-        public string SomeName { get; set; }
+        public string SomeName { get; set; } = null!;
     }
 
     private class SubProduct2 : BaseProduct
     {
-        public string SomeName2 { get; set; }
+        public string SomeName2 { get; set; } = null!;
     }
 
     private abstract class BaseIntProduct
@@ -73,25 +73,25 @@ public class DiscriminatorTest
 
     private class SubIntProduct : BaseIntProduct
     {
-        public string SomeName { get; set; }
+        public string SomeName { get; set; } = null!;
     }
 
     private class SubIntProduct2 : BaseIntProduct
     {
-        public string SomeName2 { get; set; }
+        public string SomeName2 { get; set; } = null!;
     }
 
     private class Context4285 : DbContext
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<BaseProduct> Products { get; set; }
-        public DbSet<SubProduct> SubProducts { get; set; }
-        public DbSet<SubProduct2> SubProducts2 { get; set; }
+        public DbSet<BaseProduct> Products { get; set; } = null!;
+        public DbSet<SubProduct> SubProducts { get; set; } = null!;
+        public DbSet<SubProduct2> SubProducts2 { get; set; } = null!;
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<BaseIntProduct> IntProducts { get; set; }
-        public DbSet<SubIntProduct> SubIntProducts { get; set; }
-        public DbSet<SubIntProduct2> SubIntProducts2 { get; set; }
+        public DbSet<BaseIntProduct> IntProducts { get; set; } = null!;
+        public DbSet<SubIntProduct> SubIntProducts { get; set; } = null!;
+        public DbSet<SubIntProduct2> SubIntProducts2 { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder

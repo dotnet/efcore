@@ -5,8 +5,6 @@ using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class NorthwindKeylessEntitiesQueryCosmosTest : NorthwindKeylessEntitiesQueryTestBase<
     NorthwindQueryCosmosFixture<NoopModelCustomizer>>
 {
@@ -19,7 +17,7 @@ public class NorthwindKeylessEntitiesQueryCosmosTest : NorthwindKeylessEntitiesQ
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

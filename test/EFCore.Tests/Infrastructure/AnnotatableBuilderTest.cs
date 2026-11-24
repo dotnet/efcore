@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 public class AnnotatableBuilderTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_lower_source_annotation()
     {
         var builder = CreateAnnotatableBuilder();
@@ -22,7 +22,7 @@ public class AnnotatableBuilderTest
         Assert.Equal("2", metadata.GetAnnotations().Single().Value);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_existing_annotation_explicitly()
     {
         var builder = CreateAnnotatableBuilder();
@@ -38,7 +38,7 @@ public class AnnotatableBuilderTest
         Assert.Equal("2", metadata.GetAnnotations().Single().Value);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Annotation_set_explicitly_can_not_be_removed_by_convention()
     {
         var builder = CreateAnnotatableBuilder();

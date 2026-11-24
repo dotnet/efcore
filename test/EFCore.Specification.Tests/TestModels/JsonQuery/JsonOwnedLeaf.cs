@@ -3,11 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
-#nullable disable
-
 public class JsonOwnedLeaf
 {
-    public string SomethingSomething { get; set; }
+    public string? SomethingSomething { get; set; }
 
-    public JsonOwnedBranch Parent { get; set; }
+    public JsonOwnedBranch Parent { get; set; } = null!;
 }

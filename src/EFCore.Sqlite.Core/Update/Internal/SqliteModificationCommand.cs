@@ -68,8 +68,6 @@ public class SqliteModificationCommand : ModificationCommand
             return;
         }
 
-#pragma warning disable EF1001 // Internal EF Core API usage.
         base.ProcessSinglePropertyJsonUpdate(ref parameters);
-#pragma warning restore EF1001 // Internal EF Core API usage.
     }
 }

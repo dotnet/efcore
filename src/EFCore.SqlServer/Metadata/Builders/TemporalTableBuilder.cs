@@ -101,10 +101,7 @@ public class TemporalTableBuilder
 
         // if convention builder is null, it means the property with this name exists, but it has incorrect type
         // we will throw in the model validation
-        if (conventionPropertyBuilder != null)
-        {
-            conventionPropertyBuilder.ValueGenerated(ValueGenerated.OnAddOrUpdate);
-        }
+        conventionPropertyBuilder?.ValueGenerated(ValueGenerated.OnAddOrUpdate);
 
         return _entityTypeBuilder.Metadata.FindProperty(propertyName)!;
     }

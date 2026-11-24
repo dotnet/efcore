@@ -78,16 +78,4 @@ public class CollectionResultExpression(
             expressionPrinter.Append("ElementType:").AppendLine(ElementType.ShortDisplayName());
         }
     }
-
-    /// <summary>
-    ///     The expression to get the subquery for this collection.
-    /// </summary>
-    [Obsolete("Use QueryExpression instead.", error: true)]
-    public virtual ProjectionBindingExpression ProjectionBindingExpression { get; } = null!;
-
-    /// <summary>
-    ///     The navigation if associated with the collection.
-    /// </summary>
-    [Obsolete("Use StructuralProperty instead.", error: true)]
-    public virtual INavigationBase? Navigation { get; }
 }

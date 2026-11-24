@@ -11,20 +11,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
 /// </remarks>
-public class NonNullableNavigationConvention :
-    NonNullableConventionBase,
+public class NonNullableNavigationConvention(ProviderConventionSetBuilderDependencies dependencies) :
+    NonNullableConventionBase(dependencies),
     INavigationAddedConvention,
     IForeignKeyPrincipalEndChangedConvention
 {
-    /// <summary>
-    ///     Creates a new instance of <see cref="NonNullableNavigationConvention" />.
-    /// </summary>
-    /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
-    public NonNullableNavigationConvention(ProviderConventionSetBuilderDependencies dependencies)
-        : base(dependencies)
-    {
-    }
-
     /// <inheritdoc />
     public virtual void ProcessNavigationAdded(
         IConventionNavigationBuilder navigationBuilder,

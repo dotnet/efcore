@@ -127,8 +127,8 @@ public class IntersectExpression : SetOperationBase
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is IntersectExpression intersectExpression
-                && Equals(intersectExpression));
+                || (obj is IntersectExpression intersectExpression
+                    && Equals(intersectExpression)));
 
     private bool Equals(IntersectExpression intersectExpression)
         => base.Equals(intersectExpression);

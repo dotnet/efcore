@@ -5,10 +5,8 @@ using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.SpatialModel;
 
-#nullable disable
-
 public class MultiLineStringEntity
 {
     public int Id { get; set; }
-    public MultiLineString MultiLineString { get; set; }
+    public MultiLineString? MultiLineString { get; set; }
 }

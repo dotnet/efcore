@@ -2,12 +2,13 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 
 public class FakeDbConnection(
     string connectionString,
-    FakeCommandExecutor commandExecutor = null,
+    FakeCommandExecutor? commandExecutor = null,
     ConnectionState state = ConnectionState.Closed) : DbConnection
 {
     private readonly FakeCommandExecutor _commandExecutor = commandExecutor ?? new FakeCommandExecutor();
@@ -25,6 +26,7 @@ public class FakeDbConnection(
     public IReadOnlyList<FakeDbCommand> DbCommands
         => _dbCommands;
 
+    [AllowNull]
     public override string ConnectionString { get; set; } = connectionString;
 
     public override string Database { get; } = "Fake Database";
@@ -74,7 +76,7 @@ public class FakeDbConnection(
     public IReadOnlyList<FakeDbTransaction> DbTransactions
         => _dbTransactions;
 
-    public FakeDbTransaction ActiveTransaction { get; set; }
+    public FakeDbTransaction? ActiveTransaction { get; set; }
 
     protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel)
     {

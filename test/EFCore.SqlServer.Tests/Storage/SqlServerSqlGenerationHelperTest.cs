@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 
 public class SqlServerSqlGenerationHelperTest
 {
-    [ConditionalFact]
+    [Fact]
     public void BatchSeparator_returns_separator()
         => Assert.Equal("GO" + Environment.NewLine + Environment.NewLine, CreateSqlGenerationHelper().BatchTerminator);
 

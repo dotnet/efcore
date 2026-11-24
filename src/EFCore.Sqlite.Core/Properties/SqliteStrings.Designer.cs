@@ -74,6 +74,12 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
                 operation);
 
         /// <summary>
+        ///     SQLite does not support indexes over all elements of a JSON array. Specify a collection index in the index property path.
+        /// </summary>
+        public static string JsonIndexAllElementsNotSupported
+            => GetString("JsonIndexAllElementsNotSupported");
+
+        /// <summary>
         ///     Generating idempotent scripts for migrations is not currently supported for SQLite. See https://go.microsoft.com/fwlink/?LinkId=723262 for more information and examples.
         /// </summary>
         public static string MigrationScriptGenerationNotSupported

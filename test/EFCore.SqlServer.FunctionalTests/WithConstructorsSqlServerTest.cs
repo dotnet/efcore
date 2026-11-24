@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class WithConstructorsSqlServerTest(WithConstructorsSqlServerTest.WithConstructorsSqlServerFixture fixture)
     : WithConstructorsTestBase<WithConstructorsSqlServerTest.WithConstructorsSqlServerFixture>(fixture)
 {

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.Data.SqlClient;
@@ -8,8 +8,6 @@ using NetTopologySuite;
 using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore;
-
-#nullable disable
 
 public abstract class SqlServerValueGenerationScenariosTestBase
 {
@@ -31,7 +29,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
 
     // Positive cases
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_with_Identity_column()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -55,7 +53,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
 
     public class BlogContextIdentity(string databaseName, Action<ModelBuilder> modelBuilder) : ContextBase(databaseName, modelBuilder);
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_with_sequence_HiLo()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -95,7 +93,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_with_key_sequence()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -135,7 +133,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_with_non_key_sequence()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -173,7 +171,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_with_default_value_from_sequence()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -243,7 +241,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_with_default_string_value_from_sequence()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -272,7 +270,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
     {
         private readonly string _stringSentinel = stringSentinel;
 
-        public DbSet<BlogWithStringKey> StringyBlogs { get; set; }
+        public DbSet<BlogWithStringKey> StringyBlogs { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -292,11 +290,11 @@ public abstract class SqlServerValueGenerationScenariosTestBase
 
     public class BlogWithStringKey
     {
-        public string Id { get; set; }
-        public string Name { get; set; }
+        public string Id { get; set; } = null!;
+        public string? Name { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_with_key_default_value_from_sequence()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -337,7 +335,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_uint_to_Identity_column_using_value_converter()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -366,7 +364,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
     {
         private readonly uint _uintSentinel = uintSentinel;
 
-        public DbSet<BlogWithUIntKey> UnsignedBlogs { get; set; }
+        public DbSet<BlogWithUIntKey> UnsignedBlogs { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -383,10 +381,10 @@ public abstract class SqlServerValueGenerationScenariosTestBase
     public class BlogWithUIntKey
     {
         public uint Id { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_int_enum_to_Identity_column()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -415,7 +413,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
     {
         private readonly IntKey _sentinel = sentinel;
 
-        public DbSet<BlogWithIntEnumKey> EnumBlogs { get; set; }
+        public DbSet<BlogWithIntEnumKey> EnumBlogs { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -432,7 +430,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
     public class BlogWithIntEnumKey
     {
         public IntKey Id { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
     }
 
     public enum IntKey
@@ -442,7 +440,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         SixSixSeven,
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_ulong_enum_to_Identity_column()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -471,7 +469,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
     {
         private readonly ULongKey _sentinel = sentinel;
 
-        public DbSet<BlogWithULongEnumKey> EnumBlogs { get; set; }
+        public DbSet<BlogWithULongEnumKey> EnumBlogs { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -488,7 +486,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
     public class BlogWithULongEnumKey
     {
         public ULongKey Id { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
     }
 
     public enum ULongKey : ulong
@@ -497,7 +495,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         Sentinel
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_string_to_Identity_column_using_value_converter()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -526,7 +524,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
     {
         private readonly string _sentinel = sentinel;
 
-        public DbSet<BlogWithStringKey> StringyBlogs { get; set; }
+        public DbSet<BlogWithStringKey> StringyBlogs { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -547,7 +545,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_with_explicit_non_default_keys()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -584,7 +582,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_with_explicit_with_default_keys()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -625,7 +623,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_with_non_key_default_value()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -658,7 +656,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
 
             Assert.NotEqual(new DateTime(), blogs[0].CreatedOn);
             Assert.NotEqual(new DateTime(), blogs[1].CreatedOn);
-            Assert.Equal(111, blogs[1].NeedsConverter.Value);
+            Assert.Equal(111, blogs[1].NeedsConverter!.Value);
         }
 
         await using (var context = new BlogContextNonKeyDefaultValue(testStore.Name, OnModelCreating))
@@ -688,13 +686,13 @@ public abstract class SqlServerValueGenerationScenariosTestBase
 
             Assert.Equal(new DateTime(1973, 9, 3, 0, 10, 0), blogs[0].CreatedOn);
             Assert.Equal(new DateTime(1969, 8, 3, 0, 10, 0), blogs[1].CreatedOn);
-            Assert.Equal(222, blogs[1].NeedsConverter.Value);
+            Assert.Equal(222, blogs[1].NeedsConverter!.Value);
             Assert.Equal(new DateTime(1974, 8, 3, 0, 10, 0), blogs[2].CreatedOn);
-            Assert.Equal(333, blogs[2].NeedsConverter.Value);
+            Assert.Equal(333, blogs[2].NeedsConverter!.Value);
         }
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsSqlClrSupported))]
     public async Task Insert_with_non_key_default_spatial_value()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -724,7 +722,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
 
             context.SaveChanges();
 
-            var point = ((Point)blogs[1].GeometryCollection.Geometries[0]);
+            var point = (Point)blogs[1].GeometryCollection!.Geometries[0];
             Assert.Equal(1, point.X);
             Assert.Equal(3, point.Y);
         }
@@ -734,16 +732,16 @@ public abstract class SqlServerValueGenerationScenariosTestBase
             var blogs = context.SpatialBlogs.OrderBy(e => e.Name).ToList();
             Assert.Equal(3, blogs.Count);
 
-            var point1 = ((Point)blogs[1].GeometryCollection.Geometries[0]);
+            var point1 = (Point)blogs[1].GeometryCollection!.Geometries[0];
             Assert.Equal(1, point1.X);
             Assert.Equal(3, point1.Y);
 
-            var point2 = ((Point)blogs[2].GeometryCollection.Geometries[0]);
+            var point2 = (Point)blogs[2].GeometryCollection!.Geometries[0];
             Assert.Equal(1, point2.X);
             Assert.Equal(2, point2.Y);
 
-            blogs[1].GeometryCollection.Geometries[0] = GeometryFactory.CreatePoint(new Coordinate(1, 11));
-            blogs[2].GeometryCollection.Geometries[0] = GeometryFactory.CreatePoint(new Coordinate(1, 22));
+            blogs[1].GeometryCollection!.Geometries[0] = GeometryFactory.CreatePoint(new Coordinate(1, 11));
+            blogs[2].GeometryCollection!.Geometries[0] = GeometryFactory.CreatePoint(new Coordinate(1, 22));
 
             context.SaveChanges();
         }
@@ -753,11 +751,11 @@ public abstract class SqlServerValueGenerationScenariosTestBase
             var blogs = context.SpatialBlogs.OrderBy(e => e.Name).ToList();
             Assert.Equal(3, blogs.Count);
 
-            var point1 = ((Point)blogs[1].GeometryCollection.Geometries[0]);
+            var point1 = (Point)blogs[1].GeometryCollection!.Geometries[0];
             Assert.Equal(1, point1.X);
             Assert.Equal(11, point1.Y);
 
-            var point2 = ((Point)blogs[2].GeometryCollection.Geometries[0]);
+            var point2 = (Point)blogs[2].GeometryCollection!.Geometries[0];
             Assert.Equal(1, point2.X);
             Assert.Equal(22, point2.Y);
         }
@@ -809,7 +807,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_with_non_key_default_value_readonly()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -888,7 +886,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_and_update_with_computed_column()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -964,7 +962,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
     }
 
     // #6044
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_and_update_with_computed_column_with_function()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -1038,10 +1036,10 @@ RETURNS NVARCHAR(MAX) WITH SCHEMABINDING AS BEGIN RETURN @First + @Second END");
     }
 
     // #6044
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_and_update_with_computed_column_with_querying_function()
     {
-        SqlServerTestStore testStore = null;
+        SqlServerTestStore? testStore = null;
         try
         {
             testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -1135,7 +1133,7 @@ END");
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public async Task Insert_with_computed_column_with_function_without_metadata_configuration(bool async)
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -1159,19 +1157,17 @@ END");
 
         try
         {
-            await using (var context = new BlogContextComputedColumn(testStore.Name, OnModelCreating, IntSentinel, StringSentinel))
-            {
-                await context.AddAsync(new FullNameBlog { Id = IntSentinel, FullName = StringSentinel });
+            await using var context = new BlogContextComputedColumn(testStore.Name, OnModelCreating, IntSentinel, StringSentinel);
+            await context.AddAsync(new FullNameBlog { Id = IntSentinel, FullName = StringSentinel });
 
-                var exception = async
-                    ? await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync())
-                    : Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+            var exception = async
+                ? await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync())
+                : Assert.Throws<DbUpdateException>(() => context.SaveChanges());
 
-                Assert.Equal(SqlServerStrings.SaveChangesFailedBecauseOfComputedColumnWithFunction, exception.Message);
+            Assert.Equal(SqlServerStrings.SaveChangesFailedBecauseOfComputedColumnWithFunction, exception.Message);
 
-                var sqlException = Assert.IsType<SqlException>(exception.InnerException);
-                Assert.Equal(4186, sqlException.Number);
-            }
+            var sqlException = Assert.IsType<SqlException>(exception.InnerException);
+            Assert.Equal(4186, sqlException.Number);
         }
         finally
         {
@@ -1182,7 +1178,7 @@ END");
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public async Task Insert_with_trigger_without_metadata_configuration(bool async)
     {
         // Execute an insert against a table which has a trigger, but which haven't identified as such in our metadata.
@@ -1204,19 +1200,17 @@ END");
 
         try
         {
-            await using (var context = new BlogContextComputedColumn(testStore.Name, OnModelCreating, IntSentinel, StringSentinel))
-            {
-                await context.AddAsync(new FullNameBlog { Id = IntSentinel, FullName = StringSentinel });
+            await using var context = new BlogContextComputedColumn(testStore.Name, OnModelCreating, IntSentinel, StringSentinel);
+            await context.AddAsync(new FullNameBlog { Id = IntSentinel, FullName = StringSentinel });
 
-                var exception = async
-                    ? await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync())
-                    : Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+            var exception = async
+                ? await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync())
+                : Assert.Throws<DbUpdateException>(() => context.SaveChanges());
 
-                Assert.Equal(SqlServerStrings.SaveChangesFailedBecauseOfTriggers, exception.Message);
+            Assert.Equal(SqlServerStrings.SaveChangesFailedBecauseOfTriggers, exception.Message);
 
-                var sqlException = Assert.IsType<SqlException>(exception.InnerException);
-                Assert.Equal(334, sqlException.Number);
-            }
+            var sqlException = Assert.IsType<SqlException>(exception.InnerException);
+            Assert.Equal(334, sqlException.Number);
         }
         finally
         {
@@ -1225,7 +1219,7 @@ END");
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_with_client_generated_GUID_key()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -1281,7 +1275,7 @@ END");
         }
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.IsNotAzureSql)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsNotAzureSql))]
     public async Task Insert_with_ValueGeneratedOnAdd_GUID_nonkey_property_throws()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -1320,7 +1314,7 @@ END");
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_with_server_generated_GUID_key()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -1379,7 +1373,7 @@ END");
     }
 
     // Negative cases
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_with_explicit_non_default_keys_by_default()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -1396,7 +1390,7 @@ END");
         context.Database.CreateExecutionStrategy().Execute(context, c => Assert.Throws<DbUpdateException>(() => c.SaveChanges()));
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_with_explicit_default_keys()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -1416,7 +1410,7 @@ END");
 
     public class BlogContext(string databaseName, Action<ModelBuilder> modelBuilder) : ContextBase(databaseName, modelBuilder);
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_with_implicit_default_keys()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -1456,7 +1450,7 @@ END");
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_explicit_value_throws_when_readonly_sequence_before_save()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -1494,7 +1488,7 @@ END");
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_explicit_value_throws_when_readonly_before_save()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -1522,7 +1516,7 @@ END");
             Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Insert_explicit_value_into_computed_column()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -1545,7 +1539,7 @@ END");
             Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Update_explicit_value_in_computed_column()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -1580,7 +1574,7 @@ END");
     }
 
     // Concurrency
-    [ConditionalFact]
+    [Fact]
     public async Task Resolve_concurrency()
     {
         await using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
@@ -1602,7 +1596,7 @@ END");
         var updatedBlog = innerContext.ConcurrentBlogs.Single();
         updatedBlog.Name = "One Pegasus";
         innerContext.SaveChanges();
-        var currentTimestamp = updatedBlog.Timestamp.ToArray();
+        var currentTimestamp = updatedBlog.Timestamp!.ToArray();
 
         try
         {
@@ -1660,9 +1654,9 @@ END");
     public class Blog
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public DateTime CreatedOn { get; set; }
-        public NeedsConverter NeedsConverter { get; set; }
+        public NeedsConverter? NeedsConverter { get; set; }
         public int? OtherId { get; set; }
     }
 
@@ -1677,15 +1671,15 @@ END");
     public class BlogWithSpatial
     {
         public int Id { get; set; }
-        public string Name { get; set; }
-        public GeometryCollection GeometryCollection { get; set; }
+        public string? Name { get; set; }
+        public GeometryCollection? GeometryCollection { get; set; }
     }
 
     public class NeedsConverter(int value)
     {
         public int Value { get; } = value;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => throw new InvalidOperationException();
 
         public override int GetHashCode()
@@ -1695,52 +1689,52 @@ END");
     public class NullableKeyBlog
     {
         public int? Id { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public DateTime CreatedOn { get; set; }
     }
 
     public class FullNameBlog
     {
         public int Id { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string FullName { get; set; }
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
+        public string? FullName { get; set; }
     }
 
     public class GuidBlog
     {
         public Guid Id { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public Guid NotId { get; set; }
     }
 
     public class ConcurrentBlog
     {
         public int Id { get; set; }
-        public string Name { get; set; }
-        public byte[] Timestamp { get; set; }
+        public string? Name { get; set; }
+        public byte[]? Timestamp { get; set; }
     }
 
     protected virtual void OnModelCreating(ModelBuilder modelBuilder)
         => modelBuilder.Entity<Blog>()
             .Property(e => e.NeedsConverter)
             .HasConversion(
-                v => v.Value,
+                v => v!.Value,
                 v => new NeedsConverter(v),
                 new ValueComparer<NeedsConverter>(
                     (l, r) => (l == null && r == null) || (l != null && r != null && l.Value == r.Value),
-                    v => v.Value.GetHashCode(),
-                    v => new NeedsConverter(v.Value)))
+                    v => v!.Value.GetHashCode(),
+                    v => new NeedsConverter(v!.Value)))
             .HasDefaultValue(new NeedsConverter(999));
 
     public abstract class ContextBase(string databaseName, Action<ModelBuilder> builder) : DbContext
     {
-        public DbSet<Blog> Blogs { get; set; }
-        public DbSet<BlogWithSpatial> SpatialBlogs { get; set; }
-        public DbSet<NullableKeyBlog> NullableKeyBlogs { get; set; }
-        public DbSet<FullNameBlog> FullNameBlogs { get; set; }
-        public DbSet<GuidBlog> GuidBlogs { get; set; }
-        public DbSet<ConcurrentBlog> ConcurrentBlogs { get; set; }
+        public DbSet<Blog> Blogs { get; set; } = null!;
+        public DbSet<BlogWithSpatial> SpatialBlogs { get; set; } = null!;
+        public DbSet<NullableKeyBlog> NullableKeyBlogs { get; set; } = null!;
+        public DbSet<FullNameBlog> FullNameBlogs { get; set; } = null!;
+        public DbSet<GuidBlog> GuidBlogs { get; set; } = null!;
+        public DbSet<ConcurrentBlog> ConcurrentBlogs { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => builder(modelBuilder);

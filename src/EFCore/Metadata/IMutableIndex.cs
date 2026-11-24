@@ -29,9 +29,21 @@ public interface IMutableIndex : IReadOnlyIndex, IMutableAnnotatable
     new IReadOnlyList<bool>? IsDescending { get; set; }
 
     /// <summary>
+    ///     Gets the complex-collection indices traversed to reach each indexed property.
+    ///     See <see cref="IReadOnlyIndex.CollectionIndices" /> for the structure of the value.
+    /// </summary>
+    /// <remarks>
+    ///     Collection indices are part of the index identity and are fixed at construction time;
+    ///     to define an index with different collection indices, create a new index via
+    ///     <see cref="IMutableEntityType.AddIndex(IReadOnlyList{IMutablePropertyBase})" /> (or an
+    ///     overload taking collection indices).
+    /// </remarks>
+    new IReadOnlyList<IReadOnlyList<int?>?>? CollectionIndices { get; }
+
+    /// <summary>
     ///     Gets the properties that this index is defined on.
     /// </summary>
-    new IReadOnlyList<IMutableProperty> Properties { get; }
+    new IReadOnlyList<IMutablePropertyBase> Properties { get; }
 
     /// <summary>
     ///     Gets the entity type the index is defined on. This may be different from the type that <see cref="Properties" />

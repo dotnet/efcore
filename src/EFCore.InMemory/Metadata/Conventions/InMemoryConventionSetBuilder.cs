@@ -4,7 +4,7 @@
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 /// <summary>
-///     A builder for building conventions for th in-memory provider.
+///     A builder for building conventions for the in-memory provider.
 /// </summary>
 /// <remarks>
 ///     <para>

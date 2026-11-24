@@ -447,10 +447,7 @@ public class CollectionCollectionBuilder
             }
         }
 
-        if (entityTypeSnapshot != null)
-        {
-            entityTypeSnapshot.Attach(newJoinEntityType.Builder);
-        }
+        entityTypeSnapshot?.Attach(newJoinEntityType.Builder);
 
         IMutableForeignKey? rightForeignKey;
         if (configureRight != null)
@@ -506,20 +503,16 @@ public class CollectionCollectionBuilder
                 compatibleFk = fk;
             }
 
-            if (compatibleFk != null)
-            {
-                return compatibleFk;
-            }
-
-            return joinEntityType
-                .Builder
-                .HasRelationship(
-                    skipNavigation.DeclaringEntityType,
-                    ConfigurationSource.Convention,
-                    required: true,
-                    skipNavigation.Inverse!.Name)!
-                .IsUnique(false, ConfigurationSource.Convention)!
-                .Metadata;
+            return compatibleFk
+                ?? joinEntityType
+                    .Builder
+                    .HasRelationship(
+                        skipNavigation.DeclaringEntityType,
+                        ConfigurationSource.Convention,
+                        required: true,
+                        skipNavigation.Inverse!.Name)!
+                    .IsUnique(false, ConfigurationSource.Convention)!
+                    .Metadata;
         }
     }
 

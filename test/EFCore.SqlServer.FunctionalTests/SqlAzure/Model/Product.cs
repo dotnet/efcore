@@ -6,8 +6,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore.SqlAzure.Model;
 
-#nullable disable
-
 [Table("Product", Schema = "SalesLT")]
 public class Product
 {
@@ -17,10 +15,10 @@ public class Product
     public int ProductID { get; set; }
 
     [Required]
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     [MaxLength(15)]
-    public string Color { get; set; }
+    public string? Color { get; set; }
 
     public DateTime? DiscontinuedDate { get; set; }
     public decimal ListPrice { get; set; }
@@ -29,19 +27,19 @@ public class Product
     public int? ProductModelID { get; set; }
 
     [Required, MaxLength(25)]
-    public string ProductNumber { get; set; }
+    public string ProductNumber { get; set; } = null!;
 
     public DateTime? SellEndDate { get; set; }
     public DateTime SellStartDate { get; set; }
 
     [MaxLength(5)]
-    public string Size { get; set; }
+    public string? Size { get; set; }
 
     public decimal StandardCost { get; set; }
-    public byte[] ThumbNailPhoto { get; set; }
+    public byte[]? ThumbNailPhoto { get; set; }
 
     [MaxLength(50)]
-    public string ThumbnailPhotoFileName { get; set; }
+    public string? ThumbnailPhotoFileName { get; set; }
 
     public decimal? Weight { get; set; }
     public Guid rowguid { get; set; }
@@ -50,8 +48,8 @@ public class Product
     public virtual ICollection<SalesOrderDetail> OrderDetails { get; set; }
 
     [ForeignKey("ProductCategoryID"), InverseProperty("Product")]
-    public virtual ProductCategory ProductCategory { get; set; }
+    public virtual ProductCategory? ProductCategory { get; set; }
 
     [ForeignKey("ProductModelID"), InverseProperty("Product")]
-    public virtual ProductModel ProductModel { get; set; }
+    public virtual ProductModel? ProductModel { get; set; }
 }

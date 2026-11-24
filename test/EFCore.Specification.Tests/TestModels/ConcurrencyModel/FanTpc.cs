@@ -5,16 +5,14 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 
-#nullable disable
-
 public abstract class FanTpc
 {
     public int Id { get; set; }
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
     public ulong ULongVersion { get; init; }
 
     [NotMapped]
-    public List<byte> BinaryVersion { get; init; }
+    public List<byte> BinaryVersion { get; init; } = null!;
 }
 
 public class MegaFanTpc : FanTpc
@@ -26,8 +24,8 @@ public class MegaFanTpc : FanTpc
         public bool InitializedCalled { get; set; }
     }
 
-    public string MegaStatus { get; set; }
-    public SwagBag Swag { get; set; }
+    public string? MegaStatus { get; set; }
+    public SwagBag Swag { get; set; } = null!;
 }
 
 public class SuperFanTpc : FanTpc, ISuperFan
@@ -39,6 +37,6 @@ public class SuperFanTpc : FanTpc, ISuperFan
         public bool InitializedCalled { get; set; }
     }
 
-    public string SuperStatus { get; set; }
-    public SwagBag Swag { get; set; }
+    public string? SuperStatus { get; set; }
+    public SwagBag Swag { get; set; } = null!;
 }

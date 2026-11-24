@@ -59,7 +59,7 @@ public class SqlServerMemoryOptimizedTablesConvention :
     {
         if (name == SqlServerAnnotationNames.MemoryOptimized)
         {
-            var memoryOptimized = annotation?.Value as bool? == true;
+            var memoryOptimized = (annotation?.Value as bool?) == true;
             foreach (var key in entityTypeBuilder.Metadata.GetDeclaredKeys())
             {
                 key.Builder.IsClustered(memoryOptimized ? false : null);

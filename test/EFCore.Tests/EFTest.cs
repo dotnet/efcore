@@ -5,13 +5,13 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class EFTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Property_throws_when_invoked_outside_of_query()
         => Assert.Equal(
             CoreStrings.PropertyMethodInvoked,
             Assert.Throws<InvalidOperationException>(() => EF.Property<object>(new object(), "")).Message);
 
-    [ConditionalFact]
+    [Fact]
     public void CompiledQuery_throws_when_used_with_different_models()
     {
         using var context1 = new SwitchContext();
@@ -30,7 +30,7 @@ public class EFTest
         _ = query(context1, new Bar()).ToList();
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task CompiledQueryAsync_throws_when_used_with_different_models()
     {
         using var context1 = new SwitchContext();

@@ -10,13 +10,13 @@ public abstract class ComplexNavigationsSharedTypeQueryTestBase<TFixture>(TFixtu
     public override Task Join_navigation_self_ref(bool async)
         => AssertTranslationFailed(() => base.Join_navigation_self_ref(async));
 
-    public override Task Join_condition_optimizations_applied_correctly_when_anonymous_type_with_multiple_properties(bool async)
+    public override Task Join_on_anonymous_type_with_multiple_properties(bool async)
         => AssertUnableToTranslateEFProperty(()
-            => base.Join_condition_optimizations_applied_correctly_when_anonymous_type_with_multiple_properties(async));
+            => base.Join_on_anonymous_type_with_multiple_properties(async));
 
-    public override Task Join_condition_optimizations_applied_correctly_when_anonymous_type_with_single_property(bool async)
+    public override Task Join_on_anonymous_type_with_single_property(bool async)
         => AssertUnableToTranslateEFProperty(()
-            => base.Join_condition_optimizations_applied_correctly_when_anonymous_type_with_single_property(async));
+            => base.Join_on_anonymous_type_with_single_property(async));
 
     public override Task Multiple_SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_joined_together(bool async)
         => AssertTranslationFailed(()

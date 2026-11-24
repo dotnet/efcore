@@ -3,13 +3,11 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationshipsModel;
 
-#nullable disable
-
 public class ReferenceOnDerived
 {
     public int Id { get; set; }
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     public int? ParentId { get; set; }
-    public DerivedInheritanceRelationshipEntity Parent { get; set; }
+    public DerivedInheritanceRelationshipEntity? Parent { get; set; }
 }

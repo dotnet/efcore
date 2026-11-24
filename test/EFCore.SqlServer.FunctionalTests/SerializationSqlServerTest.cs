@@ -3,6 +3,4 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class SerializationSqlServerTest(F1SqlServerFixture fixture) : SerializationTestBase<F1SqlServerFixture>(fixture);

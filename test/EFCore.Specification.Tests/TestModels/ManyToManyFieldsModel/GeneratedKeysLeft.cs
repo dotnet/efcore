@@ -5,12 +5,10 @@ using System.Collections.ObjectModel;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyFieldsModel;
 
-#nullable disable
-
 public class GeneratedKeysLeft
 {
     public int Id;
-    public string Name;
+    public string? Name;
 
     public ICollection<GeneratedKeysRight> Rights = new ObservableCollection<GeneratedKeysRight>();
 }

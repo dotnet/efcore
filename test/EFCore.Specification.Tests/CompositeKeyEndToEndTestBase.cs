@@ -6,14 +6,12 @@ using System.Globalization;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class CompositeKeyEndToEndTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : CompositeKeyEndToEndTestBase<TFixture>.CompositeKeyEndToEndFixtureBase
 {
     private TFixture Fixture { get; } = fixture;
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_use_two_non_generated_integers_as_composite_key_end_to_end()
     {
         var ticks = DateTime.UtcNow.Ticks;
@@ -60,7 +58,7 @@ public abstract class CompositeKeyEndToEndTestBase<TFixture>(TFixture fixture) :
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_use_generated_values_in_composite_key_end_to_end()
     {
         long id1;
@@ -114,7 +112,7 @@ public abstract class CompositeKeyEndToEndTestBase<TFixture>(TFixture fixture) :
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Only_one_part_of_a_composite_key_needs_to_vary_for_uniqueness()
     {
         var ids = new int[3];
@@ -198,23 +196,20 @@ public abstract class CompositeKeyEndToEndTestBase<TFixture>(TFixture fixture) :
     protected class BronieContext(DbContextOptions options) : PoolableDbContext(options)
     {
         // ReSharper disable UnusedAutoPropertyAccessor.Local
-        public DbSet<Pegasus> Pegasuses { get; set; }
-        public DbSet<Unicorn> Unicorns { get; set; }
+        public DbSet<Pegasus> Pegasuses { get; set; } = null!;
+        public DbSet<Unicorn> Unicorns { get; set; } = null!;
 
-        public DbSet<EarthPony> EarthPonies { get; set; }
+        public DbSet<EarthPony> EarthPonies { get; set; } = null!;
         // ReSharper restore UnusedAutoPropertyAccessor.Local
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Flyer>(b =>
+            modelBuilder.Entity<Flyer>(b => b.HasKey(e => new
             {
-                b.HasKey(e => new
-                {
-                    e.Id1,
-                    e.Id2,
-                    e.Discriminator
-                });
-            });
+                e.Id1,
+                e.Id2,
+                e.Discriminator
+            }));
 
             modelBuilder.Entity<Pegasus>();
 
@@ -240,28 +235,28 @@ public abstract class CompositeKeyEndToEndTestBase<TFixture>(TFixture fixture) :
 
     protected abstract class Flyer
     {
-        public string Discriminator { get; set; }
+        public string Discriminator { get; set; } = null!;
         public long Id1 { get; set; }
         public long Id2 { get; set; }
     }
 
     protected class Pegasus : Flyer
     {
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     protected class Unicorn
     {
         public int Id1 { get; set; }
-        public string Id2 { get; set; }
+        public string Id2 { get; set; } = null!;
         public Guid Id3 { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     protected class EarthPony
     {
         public int Id1 { get; set; }
         public int Id2 { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 }

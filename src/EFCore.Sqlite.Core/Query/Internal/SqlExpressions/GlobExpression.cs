@@ -110,8 +110,8 @@ public class GlobExpression : SqlExpression
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is GlobExpression globExpression
-                && Equals(globExpression));
+                || (obj is GlobExpression globExpression
+                    && Equals(globExpression)));
 
     private bool Equals(GlobExpression globExpression)
         => base.Equals(globExpression)

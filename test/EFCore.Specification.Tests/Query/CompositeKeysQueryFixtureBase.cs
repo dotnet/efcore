@@ -5,27 +5,22 @@ using Microsoft.EntityFrameworkCore.TestModels.CompositeKeysModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
-public abstract class CompositeKeysQueryFixtureBase : SharedStoreFixtureBase<CompositeKeysContext>, IQueryFixtureBase
+public abstract class CompositeKeysQueryFixtureBase : QueryFixtureBase<CompositeKeysContext>
 {
     protected override string StoreName
         => "CompositeKeys";
 
-    public Func<DbContext> GetContextCreator()
-        => () => CreateContext();
-
-    public virtual ISetSource GetExpectedData()
+    public override ISetSource GetExpectedData()
         => CompositeKeysDefaultData.Instance;
 
-    public virtual Dictionary<(Type, string), Func<object, object>> GetShadowPropertyMappings()
+    public virtual Dictionary<(Type, string), Func<object, object?>> GetShadowPropertyMappings()
     {
         var l1s = GetExpectedData().Set<CompositeOne>().ToList();
         var l2s = GetExpectedData().Set<CompositeTwo>().ToList();
         var l3s = GetExpectedData().Set<CompositeThree>().ToList();
         var l4s = GetExpectedData().Set<CompositeFour>().ToList();
 
-        return new Dictionary<(Type, string), Func<object, object>>
+        return new Dictionary<(Type, string), Func<object, object?>>
         {
             {
                 (typeof(CompositeOne), "OneToOne_Optional_Self1Id1"),
@@ -198,15 +193,15 @@ public abstract class CompositeKeysQueryFixtureBase : SharedStoreFixtureBase<Com
         };
     }
 
-    public IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
+    public override IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
     {
-        { typeof(CompositeOne), e => (((CompositeOne)e)?.Id1, ((CompositeOne)e)?.Id2) },
-        { typeof(CompositeTwo), e => (((CompositeTwo)e)?.Id1, ((CompositeTwo)e)?.Id2) },
-        { typeof(CompositeThree), e => (((CompositeThree)e)?.Id1, ((CompositeThree)e)?.Id2) },
-        { typeof(CompositeFour), e => (((CompositeFour)e)?.Id1, ((CompositeFour)e)?.Id2) },
+        { typeof(CompositeOne), e => (((CompositeOne)e).Id1, ((CompositeOne)e).Id2) },
+        { typeof(CompositeTwo), e => (((CompositeTwo)e).Id1, ((CompositeTwo)e).Id2) },
+        { typeof(CompositeThree), e => (((CompositeThree)e).Id1, ((CompositeThree)e).Id2) },
+        { typeof(CompositeFour), e => (((CompositeFour)e).Id1, ((CompositeFour)e).Id2) },
     }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-    public IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
+    public override IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
     {
         {
             typeof(CompositeOne), (e, a) =>
@@ -215,7 +210,7 @@ public abstract class CompositeKeysQueryFixtureBase : SharedStoreFixtureBase<Com
 
                 if (a != null)
                 {
-                    var ee = (CompositeOne)e;
+                    var ee = (CompositeOne)e!;
                     var aa = (CompositeOne)a;
 
                     Assert.Equal(ee.Id1, aa.Id1);
@@ -232,7 +227,7 @@ public abstract class CompositeKeysQueryFixtureBase : SharedStoreFixtureBase<Com
 
                 if (a != null)
                 {
-                    var ee = (CompositeTwo)e;
+                    var ee = (CompositeTwo)e!;
                     var aa = (CompositeTwo)a;
 
                     Assert.Equal(ee.Id1, aa.Id1);
@@ -253,7 +248,7 @@ public abstract class CompositeKeysQueryFixtureBase : SharedStoreFixtureBase<Com
 
                 if (a != null)
                 {
-                    var ee = (CompositeThree)e;
+                    var ee = (CompositeThree)e!;
                     var aa = (CompositeThree)a;
 
                     Assert.Equal(ee.Id1, aa.Id1);
@@ -273,7 +268,7 @@ public abstract class CompositeKeysQueryFixtureBase : SharedStoreFixtureBase<Com
 
                 if (a != null)
                 {
-                    var ee = (CompositeFour)e;
+                    var ee = (CompositeFour)e!;
                     var aa = (CompositeFour)a;
 
                     Assert.Equal(ee.Id1, aa.Id1);
@@ -398,17 +393,11 @@ public abstract class CompositeKeysQueryFixtureBase : SharedStoreFixtureBase<Com
                 return (IQueryable<TEntity>)CompositeTwos.AsQueryable();
             }
 
-            if (typeof(TEntity) == typeof(CompositeThree))
-            {
-                return (IQueryable<TEntity>)CompositeThrees.AsQueryable();
-            }
-
-            if (typeof(TEntity) == typeof(CompositeFour))
-            {
-                return (IQueryable<TEntity>)CompositeFours.AsQueryable();
-            }
-
-            throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
+            return typeof(TEntity) == typeof(CompositeThree)
+                ? (IQueryable<TEntity>)CompositeThrees.AsQueryable()
+                : typeof(TEntity) == typeof(CompositeFour)
+                    ? (IQueryable<TEntity>)CompositeFours.AsQueryable()
+                    : throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
         }
     }
 }

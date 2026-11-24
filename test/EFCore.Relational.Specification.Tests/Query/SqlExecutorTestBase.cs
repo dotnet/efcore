@@ -9,14 +9,12 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 // ReSharper disable ConvertToConstant.Local
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class SqlExecutorTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : NorthwindQueryRelationalFixture<SqlExecutorModelCustomizer>, new()
 {
     protected TFixture Fixture { get; } = fixture;
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Executes_stored_procedure(bool async)
     {
         using var context = CreateContext();
@@ -28,7 +26,7 @@ public abstract class SqlExecutorTestBase<TFixture>(TFixture fixture) : IClassFi
                 : context.Database.ExecuteSqlRaw(TenMostExpensiveProductsSproc));
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Executes_stored_procedure_with_parameter(bool async)
     {
         using var context = CreateContext();
@@ -40,7 +38,7 @@ public abstract class SqlExecutorTestBase<TFixture>(TFixture fixture) : IClassFi
                 : context.Database.ExecuteSqlRaw(CustomerOrderHistorySproc, parameter));
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Executes_stored_procedure_with_generated_parameter(bool async)
     {
         using var context = CreateContext();
@@ -52,7 +50,7 @@ public abstract class SqlExecutorTestBase<TFixture>(TFixture fixture) : IClassFi
                 : context.Database.ExecuteSqlRaw(CustomerOrderHistoryWithGeneratedParameterSproc, "ALFKI"));
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Throws_on_concurrent_command(bool async)
     {
         using var context = CreateContext();
@@ -94,7 +92,7 @@ public abstract class SqlExecutorTestBase<TFixture>(TFixture fixture) : IClassFi
         blockingTask.Wait();
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Query_with_parameters(bool async)
     {
         var city = "London";
@@ -111,7 +109,7 @@ public abstract class SqlExecutorTestBase<TFixture>(TFixture fixture) : IClassFi
         Assert.Equal(-1, actual);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Query_with_dbParameter_with_name(bool async)
     {
         var city = CreateDbParameter("@city", "London");
@@ -125,7 +123,7 @@ public abstract class SqlExecutorTestBase<TFixture>(TFixture fixture) : IClassFi
         Assert.Equal(-1, actual);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Query_with_positional_dbParameter_with_name(bool async)
     {
         var city = CreateDbParameter("@city", "London");
@@ -139,10 +137,10 @@ public abstract class SqlExecutorTestBase<TFixture>(TFixture fixture) : IClassFi
         Assert.Equal(-1, actual);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Query_with_positional_dbParameter_without_name(bool async)
     {
-        var city = CreateDbParameter(name: null, value: "London");
+        var city = CreateDbParameter(name: null!, value: "London");
 
         using var context = CreateContext();
 
@@ -153,7 +151,7 @@ public abstract class SqlExecutorTestBase<TFixture>(TFixture fixture) : IClassFi
         Assert.Equal(-1, actual);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Query_with_dbParameters_mixed(bool async)
     {
         var city = "London";
@@ -183,7 +181,7 @@ public abstract class SqlExecutorTestBase<TFixture>(TFixture fixture) : IClassFi
         Assert.Equal(-1, actual);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Query_with_parameters_interpolated(bool async)
     {
         var city = "London";
@@ -192,15 +190,15 @@ public abstract class SqlExecutorTestBase<TFixture>(TFixture fixture) : IClassFi
         using var context = CreateContext();
 
         var actual = async
-            ? await context.Database.ExecuteSqlInterpolatedAsync(
+            ? await context.Database.ExecuteSqlAsync(
                 $@"SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = {city} AND ""ContactTitle"" = {contactTitle}")
-            : context.Database.ExecuteSqlInterpolated(
+            : context.Database.ExecuteSql(
                 $@"SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = {city} AND ""ContactTitle"" = {contactTitle}");
 
         Assert.Equal(-1, actual);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Query_with_DbParameters_interpolated(bool async)
     {
         var city = CreateDbParameter("city", "London");
@@ -209,15 +207,15 @@ public abstract class SqlExecutorTestBase<TFixture>(TFixture fixture) : IClassFi
         using var context = CreateContext();
 
         var actual = async
-            ? await context.Database.ExecuteSqlInterpolatedAsync(
+            ? await context.Database.ExecuteSqlAsync(
                 $@"SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = {city} AND ""ContactTitle"" = {contactTitle}")
-            : context.Database.ExecuteSqlInterpolated(
+            : context.Database.ExecuteSql(
                 $@"SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = {city} AND ""ContactTitle"" = {contactTitle}");
 
         Assert.Equal(-1, actual);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Query_with_parameters_interpolated_2(bool async)
     {
         var city = "London";
@@ -234,7 +232,7 @@ public abstract class SqlExecutorTestBase<TFixture>(TFixture fixture) : IClassFi
         Assert.Equal(-1, actual);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Query_with_DbParameters_interpolated_2(bool async)
     {
         var city = CreateDbParameter("city", "London");
@@ -251,7 +249,7 @@ public abstract class SqlExecutorTestBase<TFixture>(TFixture fixture) : IClassFi
         Assert.Equal(-1, actual);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Query_with_parameters_custom_converter(bool async)
     {
         var city = new City { Name = "London" };

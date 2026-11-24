@@ -33,7 +33,7 @@ WHERE (
     SELECT COUNT(*)
     FROM [RelatedCollection] AS [r0]
     WHERE [r].[Id] = [r0].[RootEntityId]) = 2
-ORDER BY [r].[Id], [o].[RootEntityId], [o0].[AssociateTypeRootEntityId], [o1].[AssociateTypeRootEntityId], [r1].[RootEntityId], [r2].[AssociateTypeRootEntityId], [r3].[AssociateTypeRootEntityId], [s].[RootEntityId], [s].[Id], [s].[AssociateTypeRootEntityId], [s].[AssociateTypeId], [s].[AssociateTypeRootEntityId0], [s].[AssociateTypeId0], [s].[AssociateTypeRootEntityId1], [s].[AssociateTypeId1], [s].[Id0], [o2].[AssociateTypeRootEntityId], [o2].[Id], [r8].[AssociateTypeRootEntityId]
+ORDER BY [r].[Id], [o].[RootEntityId], [o0].[AssociateTypeRootEntityId], [o1].[AssociateTypeRootEntityId], [r1].[RootEntityId], [r2].[AssociateTypeRootEntityId], [r3].[AssociateTypeRootEntityId], [s].[RootEntityId], [s].[Id], [s].[AssociateTypeRootEntityId], [s].[AssociateTypeId], [s].[AssociateTypeRootEntityId0], [s].[AssociateTypeId0], [s].[AssociateTypeRootEntityId1], [s].[AssociateTypeId1], [s].[Id0], [o2].[AssociateTypeRootEntityId], [o2].[Id], [r8].[AssociateTypeRootEntityId], [r8].[Id]
 """);
     }
 
@@ -64,7 +64,7 @@ WHERE (
     SELECT COUNT(*)
     FROM [RelatedCollection] AS [r0]
     WHERE [r].[Id] = [r0].[RootEntityId] AND [r0].[Int] <> 8) = 2
-ORDER BY [r].[Id], [o].[RootEntityId], [o0].[AssociateTypeRootEntityId], [o1].[AssociateTypeRootEntityId], [r1].[RootEntityId], [r2].[AssociateTypeRootEntityId], [r3].[AssociateTypeRootEntityId], [s].[RootEntityId], [s].[Id], [s].[AssociateTypeRootEntityId], [s].[AssociateTypeId], [s].[AssociateTypeRootEntityId0], [s].[AssociateTypeId0], [s].[AssociateTypeRootEntityId1], [s].[AssociateTypeId1], [s].[Id0], [o2].[AssociateTypeRootEntityId], [o2].[Id], [r8].[AssociateTypeRootEntityId]
+ORDER BY [r].[Id], [o].[RootEntityId], [o0].[AssociateTypeRootEntityId], [o1].[AssociateTypeRootEntityId], [r1].[RootEntityId], [r2].[AssociateTypeRootEntityId], [r3].[AssociateTypeRootEntityId], [s].[RootEntityId], [s].[Id], [s].[AssociateTypeRootEntityId], [s].[AssociateTypeId], [s].[AssociateTypeRootEntityId0], [s].[AssociateTypeId0], [s].[AssociateTypeRootEntityId1], [s].[AssociateTypeId1], [s].[Id0], [o2].[AssociateTypeRootEntityId], [o2].[Id], [r8].[AssociateTypeRootEntityId], [r8].[Id]
 """);
     }
 
@@ -97,7 +97,7 @@ WHERE (
     WHERE [r].[Id] = [r0].[RootEntityId]
     ORDER BY [r0].[Id]
     OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY) = 8
-ORDER BY [r].[Id], [o].[RootEntityId], [o0].[AssociateTypeRootEntityId], [o1].[AssociateTypeRootEntityId], [r1].[RootEntityId], [r2].[AssociateTypeRootEntityId], [r3].[AssociateTypeRootEntityId], [s].[RootEntityId], [s].[Id], [s].[AssociateTypeRootEntityId], [s].[AssociateTypeId], [s].[AssociateTypeRootEntityId0], [s].[AssociateTypeId0], [s].[AssociateTypeRootEntityId1], [s].[AssociateTypeId1], [s].[Id0], [o2].[AssociateTypeRootEntityId], [o2].[Id], [r8].[AssociateTypeRootEntityId]
+ORDER BY [r].[Id], [o].[RootEntityId], [o0].[AssociateTypeRootEntityId], [o1].[AssociateTypeRootEntityId], [r1].[RootEntityId], [r2].[AssociateTypeRootEntityId], [r3].[AssociateTypeRootEntityId], [s].[RootEntityId], [s].[Id], [s].[AssociateTypeRootEntityId], [s].[AssociateTypeId], [s].[AssociateTypeRootEntityId0], [s].[AssociateTypeId0], [s].[AssociateTypeRootEntityId1], [s].[AssociateTypeId1], [s].[Id0], [o2].[AssociateTypeRootEntityId], [o2].[Id], [r8].[AssociateTypeRootEntityId], [r8].[Id]
 """);
     }
 
@@ -133,7 +133,7 @@ WHERE (
         FROM [RelatedCollection] AS [r0]
         WHERE [r].[Id] = [r0].[RootEntityId]
     ) AS [r1]) = 2
-ORDER BY [r].[Id], [o].[RootEntityId], [o0].[AssociateTypeRootEntityId], [o1].[AssociateTypeRootEntityId], [r2].[RootEntityId], [r3].[AssociateTypeRootEntityId], [r4].[AssociateTypeRootEntityId], [s].[RootEntityId], [s].[Id], [s].[AssociateTypeRootEntityId], [s].[AssociateTypeId], [s].[AssociateTypeRootEntityId0], [s].[AssociateTypeId0], [s].[AssociateTypeRootEntityId1], [s].[AssociateTypeId1], [s].[Id0], [o2].[AssociateTypeRootEntityId], [o2].[Id], [r9].[AssociateTypeRootEntityId]
+ORDER BY [r].[Id], [o].[RootEntityId], [o0].[AssociateTypeRootEntityId], [o1].[AssociateTypeRootEntityId], [r2].[RootEntityId], [r3].[AssociateTypeRootEntityId], [r4].[AssociateTypeRootEntityId], [s].[RootEntityId], [s].[Id], [s].[AssociateTypeRootEntityId], [s].[AssociateTypeId], [s].[AssociateTypeRootEntityId0], [s].[AssociateTypeId0], [s].[AssociateTypeRootEntityId1], [s].[AssociateTypeId1], [s].[Id0], [o2].[AssociateTypeRootEntityId], [o2].[Id], [r9].[AssociateTypeRootEntityId], [r9].[Id]
 """);
     }
 
@@ -158,7 +158,7 @@ OUTER APPLY (
     ) AS [r1]
     LEFT JOIN [RelatedCollection_NestedCollection] AS [r4] ON [r1].[RootEntityId] = [r4].[AssociateTypeRootEntityId] AND [r1].[Id] = [r4].[AssociateTypeId]
 ) AS [s]
-ORDER BY [r].[Id], [s].[RootEntityId], [s].[Id], [s].[AssociateTypeRootEntityId], [s].[AssociateTypeId]
+ORDER BY [r].[Id], [s].[RootEntityId], [s].[Id], [s].[AssociateTypeRootEntityId], [s].[AssociateTypeId], [s].[Id0]
 """);
         }
     }
@@ -220,7 +220,7 @@ ORDER BY [r].[Id], [s].[RootEntityId], [s].[Id], [s].[AssociateTypeRootEntityId]
 
     #region GroupBy
 
-    [ConditionalFact]
+    [Fact]
     public override async Task GroupBy()
     {
         await base.GroupBy();
@@ -245,12 +245,12 @@ LEFT JOIN (
 LEFT JOIN [OptionalRelated_NestedCollection] AS [o2] ON [o].[RootEntityId] = [o2].[AssociateTypeRootEntityId]
 LEFT JOIN [RequiredRelated_NestedCollection] AS [r8] ON [r1].[RootEntityId] = [r8].[AssociateTypeRootEntityId]
 WHERE 16 IN (
-    SELECT COALESCE(SUM([r0].[Int]), 0)
+    SELECT ISNULL(SUM([r0].[Int]), 0)
     FROM [RelatedCollection] AS [r0]
     WHERE [r].[Id] = [r0].[RootEntityId]
     GROUP BY [r0].[String]
 )
-ORDER BY [r].[Id], [o].[RootEntityId], [o0].[AssociateTypeRootEntityId], [o1].[AssociateTypeRootEntityId], [r1].[RootEntityId], [r2].[AssociateTypeRootEntityId], [r3].[AssociateTypeRootEntityId], [s].[RootEntityId], [s].[Id], [s].[AssociateTypeRootEntityId], [s].[AssociateTypeId], [s].[AssociateTypeRootEntityId0], [s].[AssociateTypeId0], [s].[AssociateTypeRootEntityId1], [s].[AssociateTypeId1], [s].[Id0], [o2].[AssociateTypeRootEntityId], [o2].[Id], [r8].[AssociateTypeRootEntityId]
+ORDER BY [r].[Id], [o].[RootEntityId], [o0].[AssociateTypeRootEntityId], [o1].[AssociateTypeRootEntityId], [r1].[RootEntityId], [r2].[AssociateTypeRootEntityId], [r3].[AssociateTypeRootEntityId], [s].[RootEntityId], [s].[Id], [s].[AssociateTypeRootEntityId], [s].[AssociateTypeId], [s].[AssociateTypeRootEntityId0], [s].[AssociateTypeId0], [s].[AssociateTypeRootEntityId1], [s].[AssociateTypeId1], [s].[Id0], [o2].[AssociateTypeRootEntityId], [o2].[Id], [r8].[AssociateTypeRootEntityId], [r8].[Id]
 """);
     }
 
@@ -263,7 +263,7 @@ ORDER BY [r].[Id], [o].[RootEntityId], [o0].[AssociateTypeRootEntityId], [o1].[A
         AssertSql(
             """
 SELECT (
-    SELECT COALESCE(SUM([s].[value]), 0)
+    SELECT ISNULL(SUM([s].[value]), 0)
     FROM [RelatedCollection] AS [r0]
     OUTER APPLY (
         SELECT MAX([r1].[Int]) AS [value]
@@ -275,7 +275,7 @@ FROM [RootEntity] AS [r]
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 }

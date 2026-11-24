@@ -65,13 +65,10 @@ public class SqliteQueryTranslationPostprocessor : RelationalQueryTranslationPos
                 return extensionExpression;
             }
 
-            if (extensionExpression is SelectExpression selectExpression
-                && selectExpression.Tables.Any(t => t is CrossApplyExpression or OuterApplyExpression))
-            {
-                throw new InvalidOperationException(SqliteStrings.ApplyNotSupported);
-            }
-
-            return base.VisitExtension(extensionExpression);
+            return extensionExpression is SelectExpression selectExpression
+                && selectExpression.Tables.Any(t => t is CrossApplyExpression or OuterApplyExpression)
+                    ? throw new InvalidOperationException(SqliteStrings.ApplyNotSupported)
+                    : base.VisitExtension(extensionExpression);
         }
     }
 }

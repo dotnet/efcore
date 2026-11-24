@@ -6,29 +6,28 @@ using Microsoft.EntityFrameworkCore.Metadata;
 #pragma warning disable 219, 612, 618
 #nullable disable
 
-namespace TestNamespace
+namespace TestNamespace;
+
+public partial class DbContextModel
 {
-    public partial class DbContextModel
+    private DbContextModel()
+        : base(skipDetectChanges: false, modelId: new Guid("00000000-0000-0000-0000-000000000000"), entityTypeCount: 3)
     {
-        private DbContextModel()
-            : base(skipDetectChanges: false, modelId: new Guid("00000000-0000-0000-0000-000000000000"), entityTypeCount: 3)
-        {
-        }
+    }
 
-        partial void Initialize()
-        {
-            var dependentBase = DependentBaseEntityType.Create(this);
-            var principalBase = PrincipalBaseEntityType.Create(this);
-            var principalDerived = PrincipalDerivedEntityType.Create(this, principalBase);
+    partial void Initialize()
+    {
+        var dependentBase = DependentBaseEntityType.Create(this);
+        var principalBase = PrincipalBaseEntityType.Create(this);
+        var principalDerived = PrincipalDerivedEntityType.Create(this, principalBase);
 
-            DependentBaseEntityType.CreateForeignKey1(dependentBase, principalDerived);
-            PrincipalBaseEntityType.CreateForeignKey1(principalBase, dependentBase);
-            PrincipalDerivedEntityType.CreateForeignKey1(principalDerived, principalBase);
+        DependentBaseEntityType.CreateForeignKey1(dependentBase, principalDerived);
+        PrincipalBaseEntityType.CreateForeignKey1(principalBase, dependentBase);
+        PrincipalDerivedEntityType.CreateForeignKey1(principalDerived, principalBase);
 
-            DependentBaseEntityType.CreateAnnotations(dependentBase);
-            PrincipalBaseEntityType.CreateAnnotations(principalBase);
-            PrincipalDerivedEntityType.CreateAnnotations(principalDerived);
+        DependentBaseEntityType.CreateAnnotations(dependentBase);
+        PrincipalBaseEntityType.CreateAnnotations(principalBase);
+        PrincipalDerivedEntityType.CreateAnnotations(principalDerived);
 
-        }
     }
 }

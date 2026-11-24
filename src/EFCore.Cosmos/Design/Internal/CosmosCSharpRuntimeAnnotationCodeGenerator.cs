@@ -52,6 +52,8 @@ public class CosmosCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnotatio
             annotations.Remove(CosmosAnnotationNames.AnalyticalStoreTimeToLive);
             annotations.Remove(CosmosAnnotationNames.DefaultTimeToLive);
             annotations.Remove(CosmosAnnotationNames.Throughput);
+            annotations.Remove(CosmosAnnotationNames.AutomaticIndexingExceptions);
+            annotations.Remove(CosmosAnnotationNames.AutomaticIndexingEnabled);
         }
 
         base.Generate(entityType, parameters);

@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #if !NET
-using System.Configuration;
 #endif
 
 namespace Microsoft.EntityFrameworkCore.Tasks.Internal;

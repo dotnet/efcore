@@ -3,18 +3,16 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
 
-#nullable disable
-
 public abstract class Animal
 {
     public int Id { get; set; }
-    public string Species { get; set; }
-    public string Name { get; set; }
+    public string? Species { get; set; }
+    public string? Name { get; set; }
     public int CountryId { get; set; }
 }
 
 public abstract class AnimalQuery
 {
-    public string Name { get; set; }
+    public string? Name { get; set; }
     public int CountryId { get; set; }
 }

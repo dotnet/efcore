@@ -5,11 +5,9 @@ using System.Globalization;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-#nullable disable
-
-public class MockMethodInfo(Type declaringType, Action<object[]> invoke = null) : MethodInfo
+public class MockMethodInfo(Type declaringType, Action<object?[]>? invoke = null) : MethodInfo
 {
-    private readonly Action<object[]> _invoke = invoke;
+    private readonly Action<object?[]>? _invoke = invoke;
 
     public override Type DeclaringType { get; } = declaringType;
 
@@ -43,9 +41,9 @@ public class MockMethodInfo(Type declaringType, Action<object[]> invoke = null) 
     public override ParameterInfo[] GetParameters()
         => new ParameterInfo[1];
 
-    public override object Invoke(object obj, BindingFlags invokeAttr, Binder binder, object[] parameters, CultureInfo culture)
+    public override object? Invoke(object? obj, BindingFlags invokeAttr, Binder? binder, object?[]? parameters, CultureInfo? culture)
     {
-        _invoke?.Invoke(parameters);
+        _invoke?.Invoke(parameters!);
 
         return null;
     }

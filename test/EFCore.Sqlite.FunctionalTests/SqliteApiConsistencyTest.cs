@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class SqliteApiConsistencyTest(SqliteApiConsistencyTest.SqliteApiConsistencyFixture fixture)
     : ApiConsistencyTestBase<SqliteApiConsistencyTest.SqliteApiConsistencyFixture>(fixture)
 {
@@ -46,7 +44,7 @@ public class SqliteApiConsistencyTest(SqliteApiConsistencyTest.SqliteApiConsiste
                         typeof(SqlitePropertyExtensions),
                         typeof(SqlitePropertyExtensions),
                         typeof(SqlitePropertyBuilderExtensions),
-                        null
+                        null!
                     )
                 },
                 {
@@ -55,7 +53,7 @@ public class SqliteApiConsistencyTest(SqliteApiConsistencyTest.SqliteApiConsiste
                         typeof(SqliteEntityTypeExtensions),
                         typeof(SqliteEntityTypeExtensions),
                         typeof(SqliteEntityTypeBuilderExtensions),
-                        null
+                        null!
                     )
                 }
             };

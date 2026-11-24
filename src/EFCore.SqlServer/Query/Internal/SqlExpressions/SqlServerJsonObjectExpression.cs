@@ -33,13 +33,13 @@ public sealed class SqlServerJsonObjectExpression : SqlFunctionExpression
         IReadOnlyList<string> propertyNames,
         IReadOnlyList<SqlExpression> propertyValues,
         RelationalTypeMapping typeMapping)
-    : base(
-        "JSON_OBJECT",
-        arguments: propertyValues,
-        nullable: false,
-        argumentsPropagateNullability: Enumerable.Repeat(false, propertyValues.Count).ToList(),
-        typeof(string),
-        typeMapping)
+        : base(
+            "JSON_OBJECT",
+            arguments: propertyValues,
+            nullable: false,
+            argumentsPropagateNullability: Enumerable.Repeat(false, propertyValues.Count).ToList(),
+            typeof(string),
+            typeMapping)
     {
         if (propertyNames.Count != propertyValues.Count)
         {
@@ -65,11 +65,11 @@ public sealed class SqlServerJsonObjectExpression : SqlFunctionExpression
     public override Expression Quote()
         => New(
             _quotingConstructor ??= typeof(SqlServerJsonObjectExpression).GetConstructor(
-                [
-                    typeof(IReadOnlyList<string>),
-                    typeof(IReadOnlyList<SqlExpression>),
-                    typeof(SqlServerStringTypeMapping),
-                ])!,
+            [
+                typeof(IReadOnlyList<string>),
+                typeof(IReadOnlyList<SqlExpression>),
+                typeof(SqlServerStringTypeMapping),
+            ])!,
             NewArrayInit(typeof(string), initializers: PropertyNames.Select(Constant)),
             Arguments is null
                 ? Constant(null, typeof(IEnumerable<SqlExpression>))
@@ -101,8 +101,8 @@ public sealed class SqlServerJsonObjectExpression : SqlFunctionExpression
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is SqlServerJsonObjectExpression other
-                && Equals(other));
+                || (obj is SqlServerJsonObjectExpression other
+                    && Equals(other)));
 
     private bool Equals(SqlServerJsonObjectExpression other)
         => base.Equals(other) && PropertyNames.SequenceEqual(other.PropertyNames);

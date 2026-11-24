@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class RelationalTransactionExtensionsTest
 {
-    [ConditionalFact]
+    [Fact]
     public void GetDbTransaction_returns_the_DbTransaction()
     {
         var dbConnection = new FakeDbConnection(ConnectionString);
@@ -37,14 +37,14 @@ public class RelationalTransactionExtensionsTest
         Assert.Equal(dbTransaction, transaction.GetDbTransaction());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GetDbTransaction_throws_on_non_relational_provider()
     {
         var transaction = new NonRelationalTransaction();
 
         Assert.Equal(
             RelationalStrings.RelationalNotInUse,
-            Assert.Throws<InvalidOperationException>(() => transaction.GetDbTransaction()).Message);
+            Assert.Throws<InvalidOperationException>(transaction.GetDbTransaction).Message);
     }
 
     private class NonRelationalTransaction : IDbContextTransaction
@@ -73,7 +73,7 @@ public class RelationalTransactionExtensionsTest
     private const string ConnectionString = "Fake Connection String";
 
     public static IDbContextOptions CreateOptions(
-        FakeRelationalOptionsExtension optionsExtension = null)
+        FakeRelationalOptionsExtension? optionsExtension = null)
     {
         var optionsBuilder = new DbContextOptionsBuilder();
 

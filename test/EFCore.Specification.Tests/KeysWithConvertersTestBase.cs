@@ -6,8 +6,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : KeysWithConvertersTestBase<TFixture>.KeysWithConvertersFixtureBase, new()
 {
@@ -16,11 +14,11 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
     protected DbContext CreateContext()
         => Fixture.CreateContext();
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_and_read_back_with_struct_key_and_optional_dependents()
     {
-        IntStructKeyPrincipal[] principals = null;
-        IntStructKeyOptionalDependent[] dependents = null;
+        IntStructKeyPrincipal[] principals = null!;
+        IntStructKeyOptionalDependent[] dependents = null!;
         await InsertOptionalGraph<IntStructKeyPrincipal, IntStructKeyOptionalDependent>();
 
         using (var context = CreateContext())
@@ -28,8 +26,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             await RunQueries(context);
 
             Validate(
-                principals,
-                dependents,
+                principals!,
+                dependents!,
                 [(0, [0]), (1, [1]), (2, [2, 2, 2]), (3, [])],
                 [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null)]);
 
@@ -126,11 +124,11 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                 d => ((IntStructKeyOptionalDependent)d).Principal);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_and_read_back_with_comparable_struct_key_and_optional_dependents()
     {
-        ComparableIntStructKeyPrincipal[] principals = null;
-        ComparableIntStructKeyOptionalDependent[] dependents = null;
+        ComparableIntStructKeyPrincipal[] principals = null!;
+        ComparableIntStructKeyOptionalDependent[] dependents = null!;
         await InsertOptionalGraph<ComparableIntStructKeyPrincipal, ComparableIntStructKeyOptionalDependent>();
 
         using (var context = CreateContext())
@@ -138,8 +136,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             await RunQueries(context);
 
             Validate(
-                principals,
-                dependents,
+                principals!,
+                dependents!,
                 [(0, [0]), (1, [1]), (2, [2, 2, 2]), (3, [])],
                 [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null)]);
 
@@ -246,11 +244,11 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                 d => ((ComparableIntStructKeyOptionalDependent)d).Principal);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_and_read_back_with_generic_comparable_struct_key_and_optional_dependents()
     {
-        GenericComparableIntStructKeyPrincipal[] principals = null;
-        GenericComparableIntStructKeyOptionalDependent[] dependents = null;
+        GenericComparableIntStructKeyPrincipal[] principals = null!;
+        GenericComparableIntStructKeyOptionalDependent[] dependents = null!;
         await InsertOptionalGraph<GenericComparableIntStructKeyPrincipal, GenericComparableIntStructKeyOptionalDependent>();
 
         using (var context = CreateContext())
@@ -258,8 +256,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             await RunQueries(context);
 
             Validate(
-                principals,
-                dependents,
+                principals!,
+                dependents!,
                 [(0, [0]), (1, [1]), (2, [2, 2, 2]), (3, [])],
                 [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null)]);
 
@@ -370,11 +368,11 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                 d => ((GenericComparableIntStructKeyOptionalDependent)d).Principal);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_and_read_back_with_struct_key_and_required_dependents()
     {
-        IntStructKeyPrincipal[] principals = null;
-        IntStructKeyRequiredDependent[] dependents = null;
+        IntStructKeyPrincipal[] principals = null!;
+        IntStructKeyRequiredDependent[] dependents = null!;
         await InsertRequiredGraph<IntStructKeyPrincipal, IntStructKeyRequiredDependent>();
 
         using (var context = CreateContext())
@@ -382,8 +380,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             await RunQueries(context);
 
             Validate(
-                principals,
-                dependents,
+                principals!,
+                dependents!,
                 [(0, [0]), (1, [1]), (2, [2, 2, 2, 2]), (3, [])],
                 [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, 2)]);
 
@@ -450,14 +448,14 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
             dependents =
             [
-                await context.Set<IntStructKeyRequiredDependent>().FirstOrDefaultAsync(e => e.Id.Equals(new IntStructKey { Id = 111 })),
-                await context.Set<IntStructKeyRequiredDependent>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new IntStructKey { Id = oneTwelve })),
-                await context.Set<IntStructKeyRequiredDependent>().FirstOrDefaultAsync(e => e.Id.Equals(oneThirteen)),
-                await context.Set<IntStructKeyRequiredDependent>().FirstOrDefaultAsync(e => e.Id.Equals(new IntStructKey { Id = 114 })),
-                await context.Set<IntStructKeyRequiredDependent>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new IntStructKey { Id = oneFifteeen })),
-                await context.Set<IntStructKeyRequiredDependent>().FirstOrDefaultAsync(e => e.Id.Equals(oneSixteen))
+                (await context.Set<IntStructKeyRequiredDependent>().FirstOrDefaultAsync(e => e.Id.Equals(new IntStructKey { Id = 111 })))!,
+                (await context.Set<IntStructKeyRequiredDependent>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new IntStructKey { Id = oneTwelve })))!,
+                (await context.Set<IntStructKeyRequiredDependent>().FirstOrDefaultAsync(e => e.Id.Equals(oneThirteen)))!,
+                (await context.Set<IntStructKeyRequiredDependent>().FirstOrDefaultAsync(e => e.Id.Equals(new IntStructKey { Id = 114 })))!,
+                (await context.Set<IntStructKeyRequiredDependent>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new IntStructKey { Id = oneFifteeen })))!,
+                (await context.Set<IntStructKeyRequiredDependent>().FirstOrDefaultAsync(e => e.Id.Equals(oneSixteen)))!
             ];
 
             Assert.Same(dependents[0], await context.Set<IntStructKeyRequiredDependent>().FindAsync(new IntStructKey { Id = 111 }));
@@ -483,11 +481,11 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                 d => ((IntStructKeyRequiredDependent)d).Principal);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_and_read_back_with_comparable_struct_key_and_required_dependents()
     {
-        ComparableIntStructKeyPrincipal[] principals = null;
-        ComparableIntStructKeyRequiredDependent[] dependents = null;
+        ComparableIntStructKeyPrincipal[] principals = null!;
+        ComparableIntStructKeyRequiredDependent[] dependents = null!;
         await InsertRequiredGraph<ComparableIntStructKeyPrincipal, ComparableIntStructKeyRequiredDependent>();
 
         using (var context = CreateContext())
@@ -495,8 +493,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             await RunQueries(context);
 
             Validate(
-                principals,
-                dependents,
+                principals!,
+                dependents!,
                 [(0, [0]), (1, [1]), (2, [2, 2, 2, 2]), (3, [])],
                 [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, 2)]);
 
@@ -563,16 +561,16 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
             dependents =
             [
-                await context.Set<ComparableIntStructKeyRequiredDependent>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new ComparableIntStructKey { Id = 111 })),
-                await context.Set<ComparableIntStructKeyRequiredDependent>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new ComparableIntStructKey { Id = oneTwelve })),
-                await context.Set<ComparableIntStructKeyRequiredDependent>().FirstOrDefaultAsync(e => e.Id.Equals(oneThirteen)),
-                await context.Set<ComparableIntStructKeyRequiredDependent>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new ComparableIntStructKey { Id = 114 })),
-                await context.Set<ComparableIntStructKeyRequiredDependent>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new ComparableIntStructKey { Id = oneFifteeen })),
-                await context.Set<ComparableIntStructKeyRequiredDependent>().FirstOrDefaultAsync(e => e.Id.Equals(oneSixteen))
+                (await context.Set<ComparableIntStructKeyRequiredDependent>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new ComparableIntStructKey { Id = 111 })))!,
+                (await context.Set<ComparableIntStructKeyRequiredDependent>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new ComparableIntStructKey { Id = oneTwelve })))!,
+                (await context.Set<ComparableIntStructKeyRequiredDependent>().FirstOrDefaultAsync(e => e.Id.Equals(oneThirteen)))!,
+                (await context.Set<ComparableIntStructKeyRequiredDependent>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new ComparableIntStructKey { Id = 114 })))!,
+                (await context.Set<ComparableIntStructKeyRequiredDependent>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new ComparableIntStructKey { Id = oneFifteeen })))!,
+                (await context.Set<ComparableIntStructKeyRequiredDependent>().FirstOrDefaultAsync(e => e.Id.Equals(oneSixteen)))!
             ];
 
             Assert.Same(
@@ -605,11 +603,11 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                 d => ((ComparableIntStructKeyRequiredDependent)d).Principal);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_and_read_back_with_generic_comparable_struct_key_and_required_dependents()
     {
-        GenericComparableIntStructKeyPrincipal[] principals = null;
-        GenericComparableIntStructKeyRequiredDependent[] dependents = null;
+        GenericComparableIntStructKeyPrincipal[] principals = null!;
+        GenericComparableIntStructKeyRequiredDependent[] dependents = null!;
         await InsertRequiredGraph<GenericComparableIntStructKeyPrincipal, GenericComparableIntStructKeyRequiredDependent>();
 
         using (var context = CreateContext())
@@ -617,8 +615,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             await RunQueries(context);
 
             Validate(
-                principals,
-                dependents,
+                principals!,
+                dependents!,
                 [(0, [0]), (1, [1]), (2, [2, 2, 2, 2]), (3, [])],
                 [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, 2)]);
 
@@ -685,16 +683,16 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
             dependents =
             [
-                await context.Set<GenericComparableIntStructKeyRequiredDependent>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new GenericComparableIntStructKey { Id = 111 })),
-                await context.Set<GenericComparableIntStructKeyRequiredDependent>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new GenericComparableIntStructKey { Id = oneTwelve })),
-                await context.Set<GenericComparableIntStructKeyRequiredDependent>().FirstOrDefaultAsync(e => e.Id.Equals(oneThirteen)),
-                await context.Set<GenericComparableIntStructKeyRequiredDependent>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new GenericComparableIntStructKey { Id = 114 })),
-                await context.Set<GenericComparableIntStructKeyRequiredDependent>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new GenericComparableIntStructKey { Id = oneFifteeen })),
-                await context.Set<GenericComparableIntStructKeyRequiredDependent>().FirstOrDefaultAsync(e => e.Id.Equals(oneSixteen))
+                (await context.Set<GenericComparableIntStructKeyRequiredDependent>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new GenericComparableIntStructKey { Id = 111 })))!,
+                (await context.Set<GenericComparableIntStructKeyRequiredDependent>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new GenericComparableIntStructKey { Id = oneTwelve })))!,
+                (await context.Set<GenericComparableIntStructKeyRequiredDependent>().FirstOrDefaultAsync(e => e.Id.Equals(oneThirteen)))!,
+                (await context.Set<GenericComparableIntStructKeyRequiredDependent>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new GenericComparableIntStructKey { Id = 114 })))!,
+                (await context.Set<GenericComparableIntStructKeyRequiredDependent>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new GenericComparableIntStructKey { Id = oneFifteeen })))!,
+                (await context.Set<GenericComparableIntStructKeyRequiredDependent>().FirstOrDefaultAsync(e => e.Id.Equals(oneSixteen)))!
             ];
 
             Assert.Same(
@@ -731,11 +729,11 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                 d => ((GenericComparableIntStructKeyRequiredDependent)d).Principal);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_and_read_back_with_class_key_and_optional_dependents()
     {
-        IntClassKeyPrincipal[] principals = null;
-        IntClassKeyOptionalDependent[] dependents = null;
+        IntClassKeyPrincipal[] principals = null!;
+        IntClassKeyOptionalDependent[] dependents = null!;
         await InsertOptionalGraph<IntClassKeyPrincipal, IntClassKeyOptionalDependent>();
 
         using (var context = CreateContext())
@@ -743,8 +741,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             await RunQueries(context);
 
             Validate(
-                principals,
-                dependents,
+                principals!,
+                dependents!,
                 [(0, [0]), (1, [1]), (2, [2, 2, 2]), (3, [])],
                 [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null)]);
 
@@ -841,11 +839,11 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                 d => ((IntClassKeyOptionalDependent)d).Principal);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_and_read_back_with_enumerable_class_key_and_optional_dependents()
     {
-        EnumerableClassKeyPrincipal[] principals = null;
-        EnumerableClassKeyOptionalDependent[] dependents = null;
+        EnumerableClassKeyPrincipal[] principals = null!;
+        EnumerableClassKeyOptionalDependent[] dependents = null!;
         await InsertOptionalGraph<EnumerableClassKeyPrincipal, EnumerableClassKeyOptionalDependent>();
 
         using (var context = CreateContext())
@@ -853,8 +851,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             await RunQueries(context);
 
             Validate(
-                principals,
-                dependents,
+                principals!,
+                dependents!,
                 [(0, [0]), (1, [1]), (2, [2, 2, 2]), (3, [])],
                 [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null)]);
 
@@ -952,11 +950,11 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                 d => ((EnumerableClassKeyOptionalDependent)d).Principal);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_and_read_back_with_bare_class_key_and_optional_dependents()
     {
-        BareIntClassKeyPrincipal[] principals = null;
-        BareIntClassKeyOptionalDependent[] dependents = null;
+        BareIntClassKeyPrincipal[] principals = null!;
+        BareIntClassKeyOptionalDependent[] dependents = null!;
         await InsertOptionalGraph<BareIntClassKeyPrincipal, BareIntClassKeyOptionalDependent>();
 
         using (var context = CreateContext())
@@ -964,8 +962,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             await RunQueries(context);
 
             Validate(
-                principals,
-                dependents,
+                principals!,
+                dependents!,
                 [(0, [0]), (1, [1]), (2, [2, 2, 2]), (3, [])],
                 [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null)]);
 
@@ -1062,11 +1060,11 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                 d => ((BareIntClassKeyOptionalDependent)d).Principal);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_and_read_back_with_comparable_class_key_and_optional_dependents()
     {
-        ComparableIntClassKeyPrincipal[] principals = null;
-        ComparableIntClassKeyOptionalDependent[] dependents = null;
+        ComparableIntClassKeyPrincipal[] principals = null!;
+        ComparableIntClassKeyOptionalDependent[] dependents = null!;
         await InsertOptionalGraph<ComparableIntClassKeyPrincipal, ComparableIntClassKeyOptionalDependent>();
 
         using (var context = CreateContext())
@@ -1074,8 +1072,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             await RunQueries(context);
 
             Validate(
-                principals,
-                dependents,
+                principals!,
+                dependents!,
                 [(0, [0]), (1, [1]), (2, [2, 2, 2]), (3, [])],
                 [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null)]);
 
@@ -1178,11 +1176,11 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                 d => ((ComparableIntClassKeyOptionalDependent)d).Principal);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_and_read_back_with_struct_binary_key_and_optional_dependents()
     {
-        BytesStructKeyPrincipal[] principals = null;
-        BytesStructKeyOptionalDependent[] dependents = null;
+        BytesStructKeyPrincipal[] principals = null!;
+        BytesStructKeyOptionalDependent[] dependents = null!;
         await InsertOptionalBytesGraph<BytesStructKeyPrincipal, BytesStructKeyOptionalDependent>();
 
         using (var context = CreateContext())
@@ -1190,8 +1188,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             await RunQueries(context);
 
             Validate(
-                principals,
-                dependents,
+                principals!,
+                dependents!,
                 [(0, [0]), (1, [1]), (2, [2, 2, 2]), (3, [])],
                 [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null)]);
 
@@ -1292,11 +1290,11 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                 d => ((BytesStructKeyOptionalDependent)d).Principal);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_and_read_back_with_structural_struct_binary_key_and_optional_dependents()
     {
-        StructuralComparableBytesStructKeyPrincipal[] principals = null;
-        StructuralComparableBytesStructKeyOptionalDependent[] dependents = null;
+        StructuralComparableBytesStructKeyPrincipal[] principals = null!;
+        StructuralComparableBytesStructKeyOptionalDependent[] dependents = null!;
         await InsertOptionalBytesGraph<StructuralComparableBytesStructKeyPrincipal, StructuralComparableBytesStructKeyOptionalDependent>();
 
         using (var context = CreateContext())
@@ -1304,8 +1302,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             await RunQueries(context);
 
             Validate(
-                principals,
-                dependents,
+                principals!,
+                dependents!,
                 [(0, [0]), (1, [1]), (2, [2, 2, 2]), (3, [])],
                 [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null)]);
 
@@ -1426,11 +1424,11 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                 d => ((StructuralComparableBytesStructKeyOptionalDependent)d).Principal);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_and_read_back_with_comparable_struct_binary_key_and_optional_dependents()
     {
-        ComparableBytesStructKeyPrincipal[] principals = null;
-        ComparableBytesStructKeyOptionalDependent[] dependents = null;
+        ComparableBytesStructKeyPrincipal[] principals = null!;
+        ComparableBytesStructKeyOptionalDependent[] dependents = null!;
         await InsertOptionalBytesGraph<ComparableBytesStructKeyPrincipal, ComparableBytesStructKeyOptionalDependent>();
 
         using (var context = CreateContext())
@@ -1438,8 +1436,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             await RunQueries(context);
 
             Validate(
-                principals,
-                dependents,
+                principals!,
+                dependents!,
                 [(0, [0]), (1, [1]), (2, [2, 2, 2]), (3, [])],
                 [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null)]);
 
@@ -1550,11 +1548,11 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                 d => ((ComparableBytesStructKeyOptionalDependent)d).Principal);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_and_read_back_with_generic_comparable_struct_binary_key_and_optional_dependents()
     {
-        GenericComparableBytesStructKeyPrincipal[] principals = null;
-        GenericComparableBytesStructKeyOptionalDependent[] dependents = null;
+        GenericComparableBytesStructKeyPrincipal[] principals = null!;
+        GenericComparableBytesStructKeyOptionalDependent[] dependents = null!;
         await InsertOptionalBytesGraph<GenericComparableBytesStructKeyPrincipal, GenericComparableBytesStructKeyOptionalDependent>();
 
         using (var context = CreateContext())
@@ -1562,8 +1560,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             await RunQueries(context);
 
             Validate(
-                principals,
-                dependents,
+                principals!,
+                dependents!,
                 [(0, [0]), (1, [1]), (2, [2, 2, 2]), (3, [])],
                 [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null)]);
 
@@ -1677,11 +1675,11 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                 d => ((GenericComparableBytesStructKeyOptionalDependent)d).Principal);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_and_read_back_with_struct_binary_key_and_required_dependents()
     {
-        BytesStructKeyPrincipal[] principals = null;
-        BytesStructKeyRequiredDependent[] dependents = null;
+        BytesStructKeyPrincipal[] principals = null!;
+        BytesStructKeyRequiredDependent[] dependents = null!;
         await InsertRequiredBytesGraph<BytesStructKeyPrincipal, BytesStructKeyRequiredDependent>();
 
         using (var context = CreateContext())
@@ -1689,8 +1687,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             await RunQueries(context);
 
             Validate(
-                principals,
-                dependents,
+                principals!,
+                dependents!,
                 [(0, [0]), (1, [1]), (2, [2, 2, 2, 2]), (3, [])],
                 [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, 2)]);
 
@@ -1757,16 +1755,16 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
             dependents =
             [
-                await context.Set<BytesStructKeyRequiredDependent>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new BytesStructKey { Id = new byte[] { 111 } })),
-                await context.Set<BytesStructKeyRequiredDependent>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new BytesStructKey { Id = oneTwelve })),
-                await context.Set<BytesStructKeyRequiredDependent>().FirstOrDefaultAsync(e => e.Id.Equals(oneThirteen)),
-                await context.Set<BytesStructKeyRequiredDependent>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new BytesStructKey { Id = new byte[] { 114 } })),
-                await context.Set<BytesStructKeyRequiredDependent>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new BytesStructKey { Id = oneFifteeen })),
-                await context.Set<BytesStructKeyRequiredDependent>().FirstOrDefaultAsync(e => e.Id.Equals(oneSixteen))
+                (await context.Set<BytesStructKeyRequiredDependent>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new BytesStructKey { Id = new byte[] { 111 } })))!,
+                (await context.Set<BytesStructKeyRequiredDependent>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new BytesStructKey { Id = oneTwelve })))!,
+                (await context.Set<BytesStructKeyRequiredDependent>().FirstOrDefaultAsync(e => e.Id.Equals(oneThirteen)))!,
+                (await context.Set<BytesStructKeyRequiredDependent>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new BytesStructKey { Id = new byte[] { 114 } })))!,
+                (await context.Set<BytesStructKeyRequiredDependent>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new BytesStructKey { Id = oneFifteeen })))!,
+                (await context.Set<BytesStructKeyRequiredDependent>().FirstOrDefaultAsync(e => e.Id.Equals(oneSixteen)))!
             ];
 
             Assert.Same(
@@ -1795,11 +1793,11 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                 d => ((BytesStructKeyRequiredDependent)d).Principal);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_and_read_back_with_comparable_struct_binary_key_and_required_dependents()
     {
-        ComparableBytesStructKeyPrincipal[] principals = null;
-        ComparableBytesStructKeyRequiredDependent[] dependents = null;
+        ComparableBytesStructKeyPrincipal[] principals = null!;
+        ComparableBytesStructKeyRequiredDependent[] dependents = null!;
         await InsertRequiredBytesGraph<ComparableBytesStructKeyPrincipal, ComparableBytesStructKeyRequiredDependent>();
 
         using (var context = CreateContext())
@@ -1807,8 +1805,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             await RunQueries(context);
 
             Validate(
-                principals,
-                dependents,
+                principals!,
+                dependents!,
                 [(0, [0]), (1, [1]), (2, [2, 2, 2, 2]), (3, [])],
                 [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, 2)]);
 
@@ -1875,16 +1873,16 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
             dependents =
             [
-                await context.Set<ComparableBytesStructKeyRequiredDependent>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new ComparableBytesStructKey { Id = new byte[] { 111 } })),
-                await context.Set<ComparableBytesStructKeyRequiredDependent>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new ComparableBytesStructKey { Id = oneTwelve })),
-                await context.Set<ComparableBytesStructKeyRequiredDependent>().FirstOrDefaultAsync(e => e.Id.Equals(oneThirteen)),
-                await context.Set<ComparableBytesStructKeyRequiredDependent>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new ComparableBytesStructKey { Id = new byte[] { 114 } })),
-                await context.Set<ComparableBytesStructKeyRequiredDependent>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new ComparableBytesStructKey { Id = oneFifteeen })),
-                await context.Set<ComparableBytesStructKeyRequiredDependent>().FirstOrDefaultAsync(e => e.Id.Equals(oneSixteen))
+                (await context.Set<ComparableBytesStructKeyRequiredDependent>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new ComparableBytesStructKey { Id = new byte[] { 111 } })))!,
+                (await context.Set<ComparableBytesStructKeyRequiredDependent>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new ComparableBytesStructKey { Id = oneTwelve })))!,
+                (await context.Set<ComparableBytesStructKeyRequiredDependent>().FirstOrDefaultAsync(e => e.Id.Equals(oneThirteen)))!,
+                (await context.Set<ComparableBytesStructKeyRequiredDependent>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new ComparableBytesStructKey { Id = new byte[] { 114 } })))!,
+                (await context.Set<ComparableBytesStructKeyRequiredDependent>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new ComparableBytesStructKey { Id = oneFifteeen })))!,
+                (await context.Set<ComparableBytesStructKeyRequiredDependent>().FirstOrDefaultAsync(e => e.Id.Equals(oneSixteen)))!
             ];
 
             Assert.Same(
@@ -1920,11 +1918,11 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                 d => ((ComparableBytesStructKeyRequiredDependent)d).Principal);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_and_read_back_with_structural_struct_binary_key_and_required_dependents()
     {
-        StructuralComparableBytesStructKeyPrincipal[] principals = null;
-        StructuralComparableBytesStructKeyRequiredDependent[] dependents = null;
+        StructuralComparableBytesStructKeyPrincipal[] principals = null!;
+        StructuralComparableBytesStructKeyRequiredDependent[] dependents = null!;
         await InsertRequiredBytesGraph<StructuralComparableBytesStructKeyPrincipal, StructuralComparableBytesStructKeyRequiredDependent>();
 
         using (var context = CreateContext())
@@ -1932,8 +1930,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             await RunQueries(context);
 
             Validate(
-                principals,
-                dependents,
+                principals!,
+                dependents!,
                 [(0, [0]), (1, [1]), (2, [2, 2, 2, 2]), (3, [])],
                 [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, 2)]);
 
@@ -2005,16 +2003,16 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
             dependents =
             [
-                await context.Set<StructuralComparableBytesStructKeyRequiredDependent>().FirstOrDefaultAsync(e
-                    => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 111 } })),
-                await context.Set<StructuralComparableBytesStructKeyRequiredDependent>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = oneTwelve })),
-                await context.Set<StructuralComparableBytesStructKeyRequiredDependent>().FirstOrDefaultAsync(e => e.Id.Equals(oneThirteen)),
-                await context.Set<StructuralComparableBytesStructKeyRequiredDependent>().FirstOrDefaultAsync(e
-                    => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 114 } })),
-                await context.Set<StructuralComparableBytesStructKeyRequiredDependent>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = oneFifteeen })),
-                await context.Set<StructuralComparableBytesStructKeyRequiredDependent>().FirstOrDefaultAsync(e => e.Id.Equals(oneSixteen))
+                (await context.Set<StructuralComparableBytesStructKeyRequiredDependent>().FirstOrDefaultAsync(e
+                    => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 111 } })))!,
+                (await context.Set<StructuralComparableBytesStructKeyRequiredDependent>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = oneTwelve })))!,
+                (await context.Set<StructuralComparableBytesStructKeyRequiredDependent>().FirstOrDefaultAsync(e => e.Id.Equals(oneThirteen)))!,
+                (await context.Set<StructuralComparableBytesStructKeyRequiredDependent>().FirstOrDefaultAsync(e
+                    => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 114 } })))!,
+                (await context.Set<StructuralComparableBytesStructKeyRequiredDependent>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = oneFifteeen })))!,
+                (await context.Set<StructuralComparableBytesStructKeyRequiredDependent>().FirstOrDefaultAsync(e => e.Id.Equals(oneSixteen)))!
             ];
 
             Assert.Same(
@@ -2054,11 +2052,11 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                 d => ((StructuralComparableBytesStructKeyRequiredDependent)d).Principal);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_and_read_back_with_generic_comparable_struct_binary_key_and_required_dependents()
     {
-        GenericComparableBytesStructKeyPrincipal[] principals = null;
-        GenericComparableBytesStructKeyRequiredDependent[] dependents = null;
+        GenericComparableBytesStructKeyPrincipal[] principals = null!;
+        GenericComparableBytesStructKeyRequiredDependent[] dependents = null!;
         await InsertRequiredBytesGraph<GenericComparableBytesStructKeyPrincipal, GenericComparableBytesStructKeyRequiredDependent>();
 
         using (var context = CreateContext())
@@ -2066,8 +2064,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             await RunQueries(context);
 
             Validate(
-                principals,
-                dependents,
+                principals!,
+                dependents!,
                 [(0, [0]), (1, [1]), (2, [2, 2, 2, 2]), (3, [])],
                 [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, 2)]);
 
@@ -2135,16 +2133,16 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
             dependents =
             [
-                await context.Set<GenericComparableBytesStructKeyRequiredDependent>().FirstOrDefaultAsync(e
-                    => e.Id.Equals(new GenericComparableBytesStructKey { Id = new byte[] { 111 } })),
-                await context.Set<GenericComparableBytesStructKeyRequiredDependent>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new GenericComparableBytesStructKey { Id = oneTwelve })),
-                await context.Set<GenericComparableBytesStructKeyRequiredDependent>().FirstOrDefaultAsync(e => e.Id.Equals(oneThirteen)),
-                await context.Set<GenericComparableBytesStructKeyRequiredDependent>().FirstOrDefaultAsync(e
-                    => e.Id.Equals(new GenericComparableBytesStructKey { Id = new byte[] { 114 } })),
-                await context.Set<GenericComparableBytesStructKeyRequiredDependent>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new GenericComparableBytesStructKey { Id = oneFifteeen })),
-                await context.Set<GenericComparableBytesStructKeyRequiredDependent>().FirstOrDefaultAsync(e => e.Id.Equals(oneSixteen))
+                (await context.Set<GenericComparableBytesStructKeyRequiredDependent>().FirstOrDefaultAsync(e
+                    => e.Id.Equals(new GenericComparableBytesStructKey { Id = new byte[] { 111 } })))!,
+                (await context.Set<GenericComparableBytesStructKeyRequiredDependent>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new GenericComparableBytesStructKey { Id = oneTwelve })))!,
+                (await context.Set<GenericComparableBytesStructKeyRequiredDependent>().FirstOrDefaultAsync(e => e.Id.Equals(oneThirteen)))!,
+                (await context.Set<GenericComparableBytesStructKeyRequiredDependent>().FirstOrDefaultAsync(e
+                    => e.Id.Equals(new GenericComparableBytesStructKey { Id = new byte[] { 114 } })))!,
+                (await context.Set<GenericComparableBytesStructKeyRequiredDependent>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new GenericComparableBytesStructKey { Id = oneFifteeen })))!,
+                (await context.Set<GenericComparableBytesStructKeyRequiredDependent>().FirstOrDefaultAsync(e => e.Id.Equals(oneSixteen)))!
             ];
 
             Assert.Same(
@@ -2183,7 +2181,7 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                 d => ((GenericComparableBytesStructKeyRequiredDependent)d).Principal);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_query_and_update_owned_entity_with_value_converter()
     {
         using (var context = CreateContext())
@@ -2217,11 +2215,11 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             var key = new Key("1-1-1");
             var ownedEntity = await context.Set<BaseEntity>().FindAsync(key);
 
-            Assert.Equal(0, ownedEntity.Text.Position);
+            Assert.Equal(0, ownedEntity!.Text.Position);
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_query_and_update_owned_entity_with_int_struct_key()
     {
         using (var context = CreateContext())
@@ -2245,11 +2243,11 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
         {
             var owner = await context.Set<OwnerIntStructKey>().FindAsync(new IntStructKey(1));
 
-            Assert.Equal(88, owner.Owned.Position);
+            Assert.Equal(88, owner!.Owned.Position);
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_query_and_update_owned_entity_with_binary_struct_key()
     {
         using (var context = CreateContext())
@@ -2271,11 +2269,11 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
         using (var context = CreateContext())
         {
             var owner = await context.Set<OwnerBytesStructKey>().FindAsync(new BytesStructKey([1, 5, 7, 1]));
-            Assert.Equal(88, owner.Owned.Position);
+            Assert.Equal(88, owner!.Owned.Position);
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_query_and_update_owned_entity_with_comparable_int_struct_key()
     {
         using (var context = CreateContext())
@@ -2296,11 +2294,11 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
         using (var context = CreateContext())
         {
             var owner = await context.Set<OwnerComparableIntStructKey>().FindAsync(new ComparableIntStructKey(1));
-            Assert.Equal(88, owner.Owned.Position);
+            Assert.Equal(88, owner!.Owned.Position);
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_query_and_update_owned_entity_with_comparable_bytes_struct_key()
     {
         using (var context = CreateContext())
@@ -2324,11 +2322,11 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
         using (var context = CreateContext())
         {
             var owner = await context.Set<OwnerComparableBytesStructKey>().FindAsync(new ComparableBytesStructKey([1, 5, 7, 1]));
-            Assert.Equal(88, owner.Owned.Position);
+            Assert.Equal(88, owner!.Owned.Position);
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_query_and_update_owned_entity_with_generic_comparable_int_struct_key()
     {
         using (var context = CreateContext())
@@ -2352,11 +2350,11 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
         using (var context = CreateContext())
         {
             var owner = await context.Set<OwnerGenericComparableIntStructKey>().FindAsync(new GenericComparableIntStructKey(1));
-            Assert.Equal(88, owner.Owned.Position);
+            Assert.Equal(88, owner!.Owned.Position);
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_query_and_update_owned_entity_with_generic_comparable_bytes_struct_key()
     {
         using (var context = CreateContext())
@@ -2381,11 +2379,11 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
         {
             var owner = await context.Set<OwnerGenericComparableBytesStructKey>()
                 .FindAsync(new GenericComparableBytesStructKey([1, 5, 7, 1]));
-            Assert.Equal(88, owner.Owned.Position);
+            Assert.Equal(88, owner!.Owned.Position);
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_query_and_update_owned_entity_with_structural_generic_comparable_bytes_struct_key()
     {
         using (var context = CreateContext())
@@ -2411,11 +2409,11 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
         {
             var owner = await context.Set<OwnerStructuralComparableBytesStructKey>()
                 .FindAsync(new StructuralComparableBytesStructKey([1, 5, 7, 1]));
-            Assert.Equal(88, owner.Owned.Position);
+            Assert.Equal(88, owner!.Owned.Position);
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_query_and_update_owned_entity_with_int_class_key()
     {
         using (var context = CreateContext())
@@ -2436,11 +2434,11 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
         using (var context = CreateContext())
         {
             var owner = await context.Set<OwnerIntClassKey>().FindAsync(new IntClassKey(1));
-            Assert.Equal(88, owner.Owned.Position);
+            Assert.Equal(88, owner!.Owned.Position);
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_query_and_update_owned_entity_with_int_bare_class_key()
     {
         using (var context = CreateContext())
@@ -2461,11 +2459,11 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
         using (var context = CreateContext())
         {
             var owner = await context.Set<OwnerBareIntClassKey>().FindAsync(new BareIntClassKey(1));
-            Assert.Equal(88, owner.Owned.Position);
+            Assert.Equal(88, owner!.Owned.Position);
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_query_and_update_owned_entity_with_comparable_int_class_key()
     {
         using (var context = CreateContext())
@@ -2486,11 +2484,11 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
         using (var context = CreateContext())
         {
             var owner = await context.Set<OwnerComparableIntClassKey>().FindAsync(new ComparableIntClassKey(1));
-            Assert.Equal(88, owner.Owned.Position);
+            Assert.Equal(88, owner!.Owned.Position);
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_query_and_update_owned_entity_with_generic_comparable_int_class_key()
     {
         using (var context = CreateContext())
@@ -2513,15 +2511,15 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
         using (var context = CreateContext())
         {
             var owner = await context.Set<OwnerGenericComparableIntClassKey>().FindAsync(new GenericComparableIntClassKey(1));
-            Assert.Equal(88, owner.Owned.Position);
+            Assert.Equal(88, owner!.Owned.Position);
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_and_read_back_with_struct_key_and_optional_dependents_with_shadow_FK()
     {
-        IntStructKeyPrincipalShadow[] principals = null;
-        IntStructKeyOptionalDependentShadow[] dependents = null;
+        IntStructKeyPrincipalShadow[] principals = null!;
+        IntStructKeyOptionalDependentShadow[] dependents = null!;
         using (var context = CreateContext())
         {
             var principals0 = new IntStructKeyPrincipalShadow[]
@@ -2550,8 +2548,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             await RunQueries(context);
 
             Validate(
-                principals,
-                dependents,
+                principals!,
+                dependents!,
                 [(0, [0]), (1, [1]), (2, [2, 2, 2]), (3, [])],
                 [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null)]);
 
@@ -2676,11 +2674,11 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_and_read_back_with_comparable_struct_key_and_optional_dependents_with_shadow_FK()
     {
-        ComparableIntStructKeyPrincipalShadow[] principals = null;
-        ComparableIntStructKeyOptionalDependentShadow[] dependents = null;
+        ComparableIntStructKeyPrincipalShadow[] principals = null!;
+        ComparableIntStructKeyOptionalDependentShadow[] dependents = null!;
         using (var context = CreateContext())
         {
             var principals0 = new ComparableIntStructKeyPrincipalShadow[]
@@ -2709,8 +2707,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             await RunQueries(context);
 
             Validate(
-                principals,
-                dependents,
+                principals!,
+                dependents!,
                 [(0, [0]), (1, [1]), (2, [2, 2, 2]), (3, [])],
                 [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null)]);
 
@@ -2847,11 +2845,11 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_and_read_back_with_generic_comparable_struct_key_and_optional_dependents_with_shadow_FK()
     {
-        GenericComparableIntStructKeyPrincipalShadow[] principals = null;
-        GenericComparableIntStructKeyOptionalDependentShadow[] dependents = null;
+        GenericComparableIntStructKeyPrincipalShadow[] principals = null!;
+        GenericComparableIntStructKeyOptionalDependentShadow[] dependents = null!;
         using (var context = CreateContext())
         {
             var principals0 = new GenericComparableIntStructKeyPrincipalShadow[]
@@ -2867,23 +2865,28 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             context.Set<GenericComparableIntStructKeyOptionalDependentShadow>().AddRange(
                 new GenericComparableIntStructKeyOptionalDependentShadow
                 {
-                    Id = new GenericComparableIntStructKey(101), Principal = principals0[0]
+                    Id = new GenericComparableIntStructKey(101),
+                    Principal = principals0[0]
                 },
                 new GenericComparableIntStructKeyOptionalDependentShadow
                 {
-                    Id = new GenericComparableIntStructKey(102), Principal = principals0[1]
+                    Id = new GenericComparableIntStructKey(102),
+                    Principal = principals0[1]
                 },
                 new GenericComparableIntStructKeyOptionalDependentShadow
                 {
-                    Id = new GenericComparableIntStructKey(103), Principal = principals0[2]
+                    Id = new GenericComparableIntStructKey(103),
+                    Principal = principals0[2]
                 },
                 new GenericComparableIntStructKeyOptionalDependentShadow
                 {
-                    Id = new GenericComparableIntStructKey(104), Principal = principals0[2]
+                    Id = new GenericComparableIntStructKey(104),
+                    Principal = principals0[2]
                 },
                 new GenericComparableIntStructKeyOptionalDependentShadow
                 {
-                    Id = new GenericComparableIntStructKey(105), Principal = principals0[2]
+                    Id = new GenericComparableIntStructKey(105),
+                    Principal = principals0[2]
                 },
                 new GenericComparableIntStructKeyOptionalDependentShadow { Id = new GenericComparableIntStructKey(106) });
 
@@ -2895,8 +2898,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             await RunQueries(context);
 
             Validate(
-                principals,
-                dependents,
+                principals!,
+                dependents!,
                 [(0, [0]), (1, [1]), (2, [2, 2, 2]), (3, [])],
                 [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null)]);
 
@@ -3037,11 +3040,11 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_and_read_back_with_struct_key_and_required_dependents_with_shadow_FK()
     {
-        IntStructKeyPrincipalShadow[] principals = null;
-        IntStructKeyRequiredDependentShadow[] dependents = null;
+        IntStructKeyPrincipalShadow[] principals = null!;
+        IntStructKeyRequiredDependentShadow[] dependents = null!;
         using (var context = CreateContext())
         {
             var principals0 = new IntStructKeyPrincipalShadow[]
@@ -3070,8 +3073,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             await RunQueries(context);
 
             Validate(
-                principals,
-                dependents,
+                principals!,
+                dependents!,
                 [(0, [0]), (1, [1]), (2, [2, 2, 2, 2]), (3, [])],
                 [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, 2)]);
 
@@ -3138,16 +3141,16 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
             dependents =
             [
-                await context.Set<IntStructKeyRequiredDependentShadow>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new IntStructKey { Id = 111 })),
-                await context.Set<IntStructKeyRequiredDependentShadow>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new IntStructKey { Id = oneTwelve })),
-                await context.Set<IntStructKeyRequiredDependentShadow>().FirstOrDefaultAsync(e => e.Id.Equals(oneThirteen)),
-                await context.Set<IntStructKeyRequiredDependentShadow>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new IntStructKey { Id = 114 })),
-                await context.Set<IntStructKeyRequiredDependentShadow>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new IntStructKey { Id = oneFifteeen })),
-                await context.Set<IntStructKeyRequiredDependentShadow>().FirstOrDefaultAsync(e => e.Id.Equals(oneSixteen))
+                (await context.Set<IntStructKeyRequiredDependentShadow>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new IntStructKey { Id = 111 })))!,
+                (await context.Set<IntStructKeyRequiredDependentShadow>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new IntStructKey { Id = oneTwelve })))!,
+                (await context.Set<IntStructKeyRequiredDependentShadow>().FirstOrDefaultAsync(e => e.Id.Equals(oneThirteen)))!,
+                (await context.Set<IntStructKeyRequiredDependentShadow>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new IntStructKey { Id = 114 })))!,
+                (await context.Set<IntStructKeyRequiredDependentShadow>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new IntStructKey { Id = oneFifteeen })))!,
+                (await context.Set<IntStructKeyRequiredDependentShadow>().FirstOrDefaultAsync(e => e.Id.Equals(oneSixteen)))!
             ];
 
             Assert.Same(dependents[0], await context.Set<IntStructKeyRequiredDependentShadow>().FindAsync(new IntStructKey { Id = 111 }));
@@ -3197,11 +3200,11 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_and_read_back_with_comparable_struct_key_and_required_dependents_with_shadow_FK()
     {
-        ComparableIntStructKeyPrincipalShadow[] principals = null;
-        ComparableIntStructKeyRequiredDependentShadow[] dependents = null;
+        ComparableIntStructKeyPrincipalShadow[] principals = null!;
+        ComparableIntStructKeyRequiredDependentShadow[] dependents = null!;
         using (var context = CreateContext())
         {
             var principals0 = new ComparableIntStructKeyPrincipalShadow[]
@@ -3230,8 +3233,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             await RunQueries(context);
 
             Validate(
-                principals,
-                dependents,
+                principals!,
+                dependents!,
                 [(0, [0]), (1, [1]), (2, [2, 2, 2, 2]), (3, [])],
                 [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, 2)]);
 
@@ -3298,16 +3301,16 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
             dependents =
             [
-                await context.Set<ComparableIntStructKeyRequiredDependentShadow>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new ComparableIntStructKey { Id = 111 })),
-                await context.Set<ComparableIntStructKeyRequiredDependentShadow>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new ComparableIntStructKey { Id = oneTwelve })),
-                await context.Set<ComparableIntStructKeyRequiredDependentShadow>().FirstOrDefaultAsync(e => e.Id.Equals(oneThirteen)),
-                await context.Set<ComparableIntStructKeyRequiredDependentShadow>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new ComparableIntStructKey { Id = 114 })),
-                await context.Set<ComparableIntStructKeyRequiredDependentShadow>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new ComparableIntStructKey { Id = oneFifteeen })),
-                await context.Set<ComparableIntStructKeyRequiredDependentShadow>().FirstOrDefaultAsync(e => e.Id.Equals(oneSixteen))
+                (await context.Set<ComparableIntStructKeyRequiredDependentShadow>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new ComparableIntStructKey { Id = 111 })))!,
+                (await context.Set<ComparableIntStructKeyRequiredDependentShadow>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new ComparableIntStructKey { Id = oneTwelve })))!,
+                (await context.Set<ComparableIntStructKeyRequiredDependentShadow>().FirstOrDefaultAsync(e => e.Id.Equals(oneThirteen)))!,
+                (await context.Set<ComparableIntStructKeyRequiredDependentShadow>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new ComparableIntStructKey { Id = 114 })))!,
+                (await context.Set<ComparableIntStructKeyRequiredDependentShadow>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new ComparableIntStructKey { Id = oneFifteeen })))!,
+                (await context.Set<ComparableIntStructKeyRequiredDependentShadow>().FirstOrDefaultAsync(e => e.Id.Equals(oneSixteen)))!
             ];
 
             Assert.Same(
@@ -3365,11 +3368,11 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_and_read_back_with_generic_comparable_struct_key_and_required_dependents_with_shadow_FK()
     {
-        GenericComparableIntStructKeyPrincipalShadow[] principals = null;
-        GenericComparableIntStructKeyRequiredDependentShadow[] dependents = null;
+        GenericComparableIntStructKeyPrincipalShadow[] principals = null!;
+        GenericComparableIntStructKeyRequiredDependentShadow[] dependents = null!;
         using (var context = CreateContext())
         {
             var principals0 = new GenericComparableIntStructKeyPrincipalShadow[]
@@ -3385,27 +3388,33 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             context.Set<GenericComparableIntStructKeyRequiredDependentShadow>().AddRange(
                 new GenericComparableIntStructKeyRequiredDependentShadow
                 {
-                    Id = new GenericComparableIntStructKey(111), Principal = principals0[0]
+                    Id = new GenericComparableIntStructKey(111),
+                    Principal = principals0[0]
                 },
                 new GenericComparableIntStructKeyRequiredDependentShadow
                 {
-                    Id = new GenericComparableIntStructKey(112), Principal = principals0[1]
+                    Id = new GenericComparableIntStructKey(112),
+                    Principal = principals0[1]
                 },
                 new GenericComparableIntStructKeyRequiredDependentShadow
                 {
-                    Id = new GenericComparableIntStructKey(113), Principal = principals0[2]
+                    Id = new GenericComparableIntStructKey(113),
+                    Principal = principals0[2]
                 },
                 new GenericComparableIntStructKeyRequiredDependentShadow
                 {
-                    Id = new GenericComparableIntStructKey(114), Principal = principals0[2]
+                    Id = new GenericComparableIntStructKey(114),
+                    Principal = principals0[2]
                 },
                 new GenericComparableIntStructKeyRequiredDependentShadow
                 {
-                    Id = new GenericComparableIntStructKey(115), Principal = principals0[2]
+                    Id = new GenericComparableIntStructKey(115),
+                    Principal = principals0[2]
                 },
                 new GenericComparableIntStructKeyRequiredDependentShadow
                 {
-                    Id = new GenericComparableIntStructKey(116), Principal = principals0[2]
+                    Id = new GenericComparableIntStructKey(116),
+                    Principal = principals0[2]
                 });
 
             Assert.Equal(10, await context.SaveChangesAsync());
@@ -3416,8 +3425,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             await RunQueries(context);
 
             Validate(
-                principals,
-                dependents,
+                principals!,
+                dependents!,
                 [(0, [0]), (1, [1]), (2, [2, 2, 2, 2]), (3, [])],
                 [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, 2)]);
 
@@ -3485,17 +3494,17 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
             dependents =
             [
-                await context.Set<GenericComparableIntStructKeyRequiredDependentShadow>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new GenericComparableIntStructKey { Id = 111 })),
-                await context.Set<GenericComparableIntStructKeyRequiredDependentShadow>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new GenericComparableIntStructKey { Id = oneTwelve })),
-                await context.Set<GenericComparableIntStructKeyRequiredDependentShadow>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(oneThirteen)),
-                await context.Set<GenericComparableIntStructKeyRequiredDependentShadow>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new GenericComparableIntStructKey { Id = 114 })),
-                await context.Set<GenericComparableIntStructKeyRequiredDependentShadow>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new GenericComparableIntStructKey { Id = oneFifteeen })),
-                await context.Set<GenericComparableIntStructKeyRequiredDependentShadow>().FirstOrDefaultAsync(e => e.Id.Equals(oneSixteen))
+                (await context.Set<GenericComparableIntStructKeyRequiredDependentShadow>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new GenericComparableIntStructKey { Id = 111 })))!,
+                (await context.Set<GenericComparableIntStructKeyRequiredDependentShadow>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new GenericComparableIntStructKey { Id = oneTwelve })))!,
+                (await context.Set<GenericComparableIntStructKeyRequiredDependentShadow>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(oneThirteen)))!,
+                (await context.Set<GenericComparableIntStructKeyRequiredDependentShadow>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new GenericComparableIntStructKey { Id = 114 })))!,
+                (await context.Set<GenericComparableIntStructKeyRequiredDependentShadow>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new GenericComparableIntStructKey { Id = oneFifteeen })))!,
+                (await context.Set<GenericComparableIntStructKeyRequiredDependentShadow>().FirstOrDefaultAsync(e => e.Id.Equals(oneSixteen)))!
             ];
 
             Assert.Same(
@@ -3556,11 +3565,11 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_and_read_back_with_class_key_and_optional_dependents_with_shadow_FK()
     {
-        IntClassKeyPrincipalShadow[] principals = null;
-        IntClassKeyOptionalDependentShadow[] dependents = null;
+        IntClassKeyPrincipalShadow[] principals = null!;
+        IntClassKeyOptionalDependentShadow[] dependents = null!;
         using (var context = CreateContext())
         {
             var principals0 = new IntClassKeyPrincipalShadow[]
@@ -3589,8 +3598,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             await RunQueries(context);
 
             Validate(
-                principals,
-                dependents,
+                principals!,
+                dependents!,
                 [(0, [0]), (1, [1]), (2, [2, 2, 2]), (3, [])],
                 [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null)]);
 
@@ -3714,11 +3723,11 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_and_read_back_with_bare_class_key_and_optional_dependents_with_shadow_FK()
     {
-        BareIntClassKeyPrincipalShadow[] principals = null;
-        BareIntClassKeyOptionalDependentShadow[] dependents = null;
+        BareIntClassKeyPrincipalShadow[] principals = null!;
+        BareIntClassKeyOptionalDependentShadow[] dependents = null!;
         using (var context = CreateContext())
         {
             var principals0 = new BareIntClassKeyPrincipalShadow[]
@@ -3747,8 +3756,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             await RunQueries(context);
 
             Validate(
-                principals,
-                dependents,
+                principals!,
+                dependents!,
                 [(0, [0]), (1, [1]), (2, [2, 2, 2]), (3, [])],
                 [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null)]);
 
@@ -3873,11 +3882,11 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_and_read_back_with_comparable_class_key_and_optional_dependents_with_shadow_FK()
     {
-        ComparableIntClassKeyPrincipalShadow[] principals = null;
-        ComparableIntClassKeyOptionalDependentShadow[] dependents = null;
+        ComparableIntClassKeyPrincipalShadow[] principals = null!;
+        ComparableIntClassKeyOptionalDependentShadow[] dependents = null!;
         using (var context = CreateContext())
         {
             var principals0 = new ComparableIntClassKeyPrincipalShadow[]
@@ -3906,8 +3915,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             await RunQueries(context);
 
             Validate(
-                principals,
-                dependents,
+                principals!,
+                dependents!,
                 [(0, [0]), (1, [1]), (2, [2, 2, 2]), (3, [])],
                 [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null)]);
 
@@ -4039,11 +4048,11 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_and_read_back_with_struct_binary_key_and_optional_dependents_with_shadow_FK()
     {
-        BytesStructKeyPrincipalShadow[] principals = null;
-        BytesStructKeyOptionalDependentShadow[] dependents = null;
+        BytesStructKeyPrincipalShadow[] principals = null!;
+        BytesStructKeyOptionalDependentShadow[] dependents = null!;
         using (var context = CreateContext())
         {
             var principals0 = new BytesStructKeyPrincipalShadow[]
@@ -4072,8 +4081,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             await RunQueries(context);
 
             Validate(
-                principals,
-                dependents,
+                principals!,
+                dependents!,
                 [(0, [0]), (1, [1]), (2, [2, 2, 2]), (3, [])],
                 [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null)]);
 
@@ -4206,11 +4215,11 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_and_read_back_with_structural_struct_binary_key_and_optional_dependents_with_shadow_FK()
     {
-        StructuralComparableBytesStructKeyPrincipalShadow[] principals = null;
-        StructuralComparableBytesStructKeyOptionalDependentShadow[] dependents = null;
+        StructuralComparableBytesStructKeyPrincipalShadow[] principals = null!;
+        StructuralComparableBytesStructKeyOptionalDependentShadow[] dependents = null!;
         using (var context = CreateContext())
         {
             var principals0 = new StructuralComparableBytesStructKeyPrincipalShadow[]
@@ -4226,23 +4235,28 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             context.Set<StructuralComparableBytesStructKeyOptionalDependentShadow>().AddRange(
                 new StructuralComparableBytesStructKeyOptionalDependentShadow
                 {
-                    Id = new StructuralComparableBytesStructKey([101]), Principal = principals0[0]
+                    Id = new StructuralComparableBytesStructKey([101]),
+                    Principal = principals0[0]
                 },
                 new StructuralComparableBytesStructKeyOptionalDependentShadow
                 {
-                    Id = new StructuralComparableBytesStructKey([102]), Principal = principals0[1]
+                    Id = new StructuralComparableBytesStructKey([102]),
+                    Principal = principals0[1]
                 },
                 new StructuralComparableBytesStructKeyOptionalDependentShadow
                 {
-                    Id = new StructuralComparableBytesStructKey([103]), Principal = principals0[2]
+                    Id = new StructuralComparableBytesStructKey([103]),
+                    Principal = principals0[2]
                 },
                 new StructuralComparableBytesStructKeyOptionalDependentShadow
                 {
-                    Id = new StructuralComparableBytesStructKey([104]), Principal = principals0[2]
+                    Id = new StructuralComparableBytesStructKey([104]),
+                    Principal = principals0[2]
                 },
                 new StructuralComparableBytesStructKeyOptionalDependentShadow
                 {
-                    Id = new StructuralComparableBytesStructKey([105]), Principal = principals0[2]
+                    Id = new StructuralComparableBytesStructKey([105]),
+                    Principal = principals0[2]
                 },
                 new StructuralComparableBytesStructKeyOptionalDependentShadow { Id = new StructuralComparableBytesStructKey([106]) });
 
@@ -4254,8 +4268,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             await RunQueries(context);
 
             Validate(
-                principals,
-                dependents,
+                principals!,
+                dependents!,
                 [(0, [0]), (1, [1]), (2, [2, 2, 2]), (3, [])],
                 [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null)]);
 
@@ -4406,11 +4420,11 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_and_read_back_with_comparable_struct_binary_key_and_optional_dependents_with_shadow_FK()
     {
-        ComparableBytesStructKeyPrincipalShadow[] principals = null;
-        ComparableBytesStructKeyOptionalDependentShadow[] dependents = null;
+        ComparableBytesStructKeyPrincipalShadow[] principals = null!;
+        ComparableBytesStructKeyOptionalDependentShadow[] dependents = null!;
         using (var context = CreateContext())
         {
             var principals0 = new ComparableBytesStructKeyPrincipalShadow[]
@@ -4426,23 +4440,28 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             context.Set<ComparableBytesStructKeyOptionalDependentShadow>().AddRange(
                 new ComparableBytesStructKeyOptionalDependentShadow
                 {
-                    Id = new ComparableBytesStructKey([101]), Principal = principals0[0]
+                    Id = new ComparableBytesStructKey([101]),
+                    Principal = principals0[0]
                 },
                 new ComparableBytesStructKeyOptionalDependentShadow
                 {
-                    Id = new ComparableBytesStructKey([102]), Principal = principals0[1]
+                    Id = new ComparableBytesStructKey([102]),
+                    Principal = principals0[1]
                 },
                 new ComparableBytesStructKeyOptionalDependentShadow
                 {
-                    Id = new ComparableBytesStructKey([103]), Principal = principals0[2]
+                    Id = new ComparableBytesStructKey([103]),
+                    Principal = principals0[2]
                 },
                 new ComparableBytesStructKeyOptionalDependentShadow
                 {
-                    Id = new ComparableBytesStructKey([104]), Principal = principals0[2]
+                    Id = new ComparableBytesStructKey([104]),
+                    Principal = principals0[2]
                 },
                 new ComparableBytesStructKeyOptionalDependentShadow
                 {
-                    Id = new ComparableBytesStructKey([105]), Principal = principals0[2]
+                    Id = new ComparableBytesStructKey([105]),
+                    Principal = principals0[2]
                 },
                 new ComparableBytesStructKeyOptionalDependentShadow { Id = new ComparableBytesStructKey([106]) });
 
@@ -4454,8 +4473,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             await RunQueries(context);
 
             Validate(
-                principals,
-                dependents,
+                principals!,
+                dependents!,
                 [(0, [0]), (1, [1]), (2, [2, 2, 2]), (3, [])],
                 [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null)]);
 
@@ -4595,11 +4614,11 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_and_read_back_with_generic_comparable_struct_binary_key_and_optional_dependents_with_shadow_FK()
     {
-        GenericComparableBytesStructKeyPrincipalShadow[] principals = null;
-        GenericComparableBytesStructKeyOptionalDependentShadow[] dependents = null;
+        GenericComparableBytesStructKeyPrincipalShadow[] principals = null!;
+        GenericComparableBytesStructKeyOptionalDependentShadow[] dependents = null!;
         using (var context = CreateContext())
         {
             var principals0 = new GenericComparableBytesStructKeyPrincipalShadow[]
@@ -4615,23 +4634,28 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             context.Set<GenericComparableBytesStructKeyOptionalDependentShadow>().AddRange(
                 new GenericComparableBytesStructKeyOptionalDependentShadow
                 {
-                    Id = new GenericComparableBytesStructKey([101]), Principal = principals0[0]
+                    Id = new GenericComparableBytesStructKey([101]),
+                    Principal = principals0[0]
                 },
                 new GenericComparableBytesStructKeyOptionalDependentShadow
                 {
-                    Id = new GenericComparableBytesStructKey([102]), Principal = principals0[1]
+                    Id = new GenericComparableBytesStructKey([102]),
+                    Principal = principals0[1]
                 },
                 new GenericComparableBytesStructKeyOptionalDependentShadow
                 {
-                    Id = new GenericComparableBytesStructKey([103]), Principal = principals0[2]
+                    Id = new GenericComparableBytesStructKey([103]),
+                    Principal = principals0[2]
                 },
                 new GenericComparableBytesStructKeyOptionalDependentShadow
                 {
-                    Id = new GenericComparableBytesStructKey([104]), Principal = principals0[2]
+                    Id = new GenericComparableBytesStructKey([104]),
+                    Principal = principals0[2]
                 },
                 new GenericComparableBytesStructKeyOptionalDependentShadow
                 {
-                    Id = new GenericComparableBytesStructKey([105]), Principal = principals0[2]
+                    Id = new GenericComparableBytesStructKey([105]),
+                    Principal = principals0[2]
                 },
                 new GenericComparableBytesStructKeyOptionalDependentShadow { Id = new GenericComparableBytesStructKey([106]) });
 
@@ -4643,8 +4667,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             await RunQueries(context);
 
             Validate(
-                principals,
-                dependents,
+                principals!,
+                dependents!,
                 [(0, [0]), (1, [1]), (2, [2, 2, 2]), (3, [])],
                 [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null)]);
 
@@ -4791,11 +4815,11 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_and_read_back_with_struct_binary_key_and_required_dependents_with_shadow_FK()
     {
-        BytesStructKeyPrincipalShadow[] principals = null;
-        BytesStructKeyRequiredDependentShadow[] dependents = null;
+        BytesStructKeyPrincipalShadow[] principals = null!;
+        BytesStructKeyRequiredDependentShadow[] dependents = null!;
         using (var context = CreateContext())
         {
             var principals0 = new BytesStructKeyPrincipalShadow[]
@@ -4824,8 +4848,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             await RunQueries(context);
 
             Validate(
-                principals,
-                dependents,
+                principals!,
+                dependents!,
                 [(0, [0]), (1, [1]), (2, [2, 2, 2, 2]), (3, [])],
                 [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, 2)]);
 
@@ -4892,16 +4916,16 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
             dependents =
             [
-                await context.Set<BytesStructKeyRequiredDependentShadow>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new BytesStructKey { Id = new byte[] { 111 } })),
-                await context.Set<BytesStructKeyRequiredDependentShadow>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new BytesStructKey { Id = oneTwelve })),
-                await context.Set<BytesStructKeyRequiredDependentShadow>().FirstOrDefaultAsync(e => e.Id.Equals(oneThirteen)),
-                await context.Set<BytesStructKeyRequiredDependentShadow>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new BytesStructKey { Id = new byte[] { 114 } })),
-                await context.Set<BytesStructKeyRequiredDependentShadow>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new BytesStructKey { Id = oneFifteeen })),
-                await context.Set<BytesStructKeyRequiredDependentShadow>().FirstOrDefaultAsync(e => e.Id.Equals(oneSixteen))
+                (await context.Set<BytesStructKeyRequiredDependentShadow>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new BytesStructKey { Id = new byte[] { 111 } })))!,
+                (await context.Set<BytesStructKeyRequiredDependentShadow>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new BytesStructKey { Id = oneTwelve })))!,
+                (await context.Set<BytesStructKeyRequiredDependentShadow>().FirstOrDefaultAsync(e => e.Id.Equals(oneThirteen)))!,
+                (await context.Set<BytesStructKeyRequiredDependentShadow>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new BytesStructKey { Id = new byte[] { 114 } })))!,
+                (await context.Set<BytesStructKeyRequiredDependentShadow>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new BytesStructKey { Id = oneFifteeen })))!,
+                (await context.Set<BytesStructKeyRequiredDependentShadow>().FirstOrDefaultAsync(e => e.Id.Equals(oneSixteen)))!
             ];
 
             Assert.Same(
@@ -4963,11 +4987,11 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_and_read_back_with_comparable_struct_binary_key_and_required_dependents_with_shadow_FK()
     {
-        ComparableBytesStructKeyPrincipalShadow[] principals = null;
-        ComparableBytesStructKeyRequiredDependentShadow[] dependents = null;
+        ComparableBytesStructKeyPrincipalShadow[] principals = null!;
+        ComparableBytesStructKeyRequiredDependentShadow[] dependents = null!;
         using (var context = CreateContext())
         {
             var principals0 = new ComparableBytesStructKeyPrincipalShadow[]
@@ -4983,27 +5007,33 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             context.Set<ComparableBytesStructKeyRequiredDependentShadow>().AddRange(
                 new ComparableBytesStructKeyRequiredDependentShadow
                 {
-                    Id = new ComparableBytesStructKey([111]), Principal = principals0[0]
+                    Id = new ComparableBytesStructKey([111]),
+                    Principal = principals0[0]
                 },
                 new ComparableBytesStructKeyRequiredDependentShadow
                 {
-                    Id = new ComparableBytesStructKey([112]), Principal = principals0[1]
+                    Id = new ComparableBytesStructKey([112]),
+                    Principal = principals0[1]
                 },
                 new ComparableBytesStructKeyRequiredDependentShadow
                 {
-                    Id = new ComparableBytesStructKey([113]), Principal = principals0[2]
+                    Id = new ComparableBytesStructKey([113]),
+                    Principal = principals0[2]
                 },
                 new ComparableBytesStructKeyRequiredDependentShadow
                 {
-                    Id = new ComparableBytesStructKey([114]), Principal = principals0[2]
+                    Id = new ComparableBytesStructKey([114]),
+                    Principal = principals0[2]
                 },
                 new ComparableBytesStructKeyRequiredDependentShadow
                 {
-                    Id = new ComparableBytesStructKey([115]), Principal = principals0[2]
+                    Id = new ComparableBytesStructKey([115]),
+                    Principal = principals0[2]
                 },
                 new ComparableBytesStructKeyRequiredDependentShadow
                 {
-                    Id = new ComparableBytesStructKey([116]), Principal = principals0[2]
+                    Id = new ComparableBytesStructKey([116]),
+                    Principal = principals0[2]
                 });
 
             Assert.Equal(10, await context.SaveChangesAsync());
@@ -5014,8 +5044,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             await RunQueries(context);
 
             Validate(
-                principals,
-                dependents,
+                principals!,
+                dependents!,
                 [(0, [0]), (1, [1]), (2, [2, 2, 2, 2]), (3, [])],
                 [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, 2)]);
 
@@ -5082,16 +5112,16 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
             dependents =
             [
-                await context.Set<ComparableBytesStructKeyRequiredDependentShadow>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new ComparableBytesStructKey { Id = new byte[] { 111 } })),
-                await context.Set<ComparableBytesStructKeyRequiredDependentShadow>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new ComparableBytesStructKey { Id = oneTwelve })),
-                await context.Set<ComparableBytesStructKeyRequiredDependentShadow>().FirstOrDefaultAsync(e => e.Id.Equals(oneThirteen)),
-                await context.Set<ComparableBytesStructKeyRequiredDependentShadow>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new ComparableBytesStructKey { Id = new byte[] { 114 } })),
-                await context.Set<ComparableBytesStructKeyRequiredDependentShadow>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new ComparableBytesStructKey { Id = oneFifteeen })),
-                await context.Set<ComparableBytesStructKeyRequiredDependentShadow>().FirstOrDefaultAsync(e => e.Id.Equals(oneSixteen))
+                (await context.Set<ComparableBytesStructKeyRequiredDependentShadow>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new ComparableBytesStructKey { Id = new byte[] { 111 } })))!,
+                (await context.Set<ComparableBytesStructKeyRequiredDependentShadow>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new ComparableBytesStructKey { Id = oneTwelve })))!,
+                (await context.Set<ComparableBytesStructKeyRequiredDependentShadow>().FirstOrDefaultAsync(e => e.Id.Equals(oneThirteen)))!,
+                (await context.Set<ComparableBytesStructKeyRequiredDependentShadow>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new ComparableBytesStructKey { Id = new byte[] { 114 } })))!,
+                (await context.Set<ComparableBytesStructKeyRequiredDependentShadow>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new ComparableBytesStructKey { Id = oneFifteeen })))!,
+                (await context.Set<ComparableBytesStructKeyRequiredDependentShadow>().FirstOrDefaultAsync(e => e.Id.Equals(oneSixteen)))!
             ];
 
             Assert.Same(
@@ -5158,11 +5188,11 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_and_read_back_with_structural_struct_binary_key_and_required_dependents_with_shadow_FK()
     {
-        StructuralComparableBytesStructKeyPrincipalShadow[] principals = null;
-        StructuralComparableBytesStructKeyRequiredDependentShadow[] dependents = null;
+        StructuralComparableBytesStructKeyPrincipalShadow[] principals = null!;
+        StructuralComparableBytesStructKeyRequiredDependentShadow[] dependents = null!;
         using (var context = CreateContext())
         {
             var principals0 = new StructuralComparableBytesStructKeyPrincipalShadow[]
@@ -5178,27 +5208,33 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             context.Set<StructuralComparableBytesStructKeyRequiredDependentShadow>().AddRange(
                 new StructuralComparableBytesStructKeyRequiredDependentShadow
                 {
-                    Id = new StructuralComparableBytesStructKey([111]), Principal = principals0[0]
+                    Id = new StructuralComparableBytesStructKey([111]),
+                    Principal = principals0[0]
                 },
                 new StructuralComparableBytesStructKeyRequiredDependentShadow
                 {
-                    Id = new StructuralComparableBytesStructKey([112]), Principal = principals0[1]
+                    Id = new StructuralComparableBytesStructKey([112]),
+                    Principal = principals0[1]
                 },
                 new StructuralComparableBytesStructKeyRequiredDependentShadow
                 {
-                    Id = new StructuralComparableBytesStructKey([113]), Principal = principals0[2]
+                    Id = new StructuralComparableBytesStructKey([113]),
+                    Principal = principals0[2]
                 },
                 new StructuralComparableBytesStructKeyRequiredDependentShadow
                 {
-                    Id = new StructuralComparableBytesStructKey([114]), Principal = principals0[2]
+                    Id = new StructuralComparableBytesStructKey([114]),
+                    Principal = principals0[2]
                 },
                 new StructuralComparableBytesStructKeyRequiredDependentShadow
                 {
-                    Id = new StructuralComparableBytesStructKey([115]), Principal = principals0[2]
+                    Id = new StructuralComparableBytesStructKey([115]),
+                    Principal = principals0[2]
                 },
                 new StructuralComparableBytesStructKeyRequiredDependentShadow
                 {
-                    Id = new StructuralComparableBytesStructKey([116]), Principal = principals0[2]
+                    Id = new StructuralComparableBytesStructKey([116]),
+                    Principal = principals0[2]
                 });
 
             Assert.Equal(10, await context.SaveChangesAsync());
@@ -5209,8 +5245,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             await RunQueries(context);
 
             Validate(
-                principals,
-                dependents,
+                principals!,
+                dependents!,
                 [(0, [0]), (1, [1]), (2, [2, 2, 2, 2]), (3, [])],
                 [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, 2)]);
 
@@ -5282,18 +5318,18 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
             dependents =
             [
-                await context.Set<StructuralComparableBytesStructKeyRequiredDependentShadow>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 111 } })),
-                await context.Set<StructuralComparableBytesStructKeyRequiredDependentShadow>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = oneTwelve })),
-                await context.Set<StructuralComparableBytesStructKeyRequiredDependentShadow>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(oneThirteen)),
-                await context.Set<StructuralComparableBytesStructKeyRequiredDependentShadow>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 114 } })),
-                await context.Set<StructuralComparableBytesStructKeyRequiredDependentShadow>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = oneFifteeen })),
-                await context.Set<StructuralComparableBytesStructKeyRequiredDependentShadow>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(oneSixteen))
+                (await context.Set<StructuralComparableBytesStructKeyRequiredDependentShadow>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 111 } })))!,
+                (await context.Set<StructuralComparableBytesStructKeyRequiredDependentShadow>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = oneTwelve })))!,
+                (await context.Set<StructuralComparableBytesStructKeyRequiredDependentShadow>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(oneThirteen)))!,
+                (await context.Set<StructuralComparableBytesStructKeyRequiredDependentShadow>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 114 } })))!,
+                (await context.Set<StructuralComparableBytesStructKeyRequiredDependentShadow>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = oneFifteeen })))!,
+                (await context.Set<StructuralComparableBytesStructKeyRequiredDependentShadow>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(oneSixteen)))!
             ];
 
             Assert.Same(
@@ -5364,11 +5400,11 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_and_read_back_with_generic_comparable_struct_binary_key_and_required_dependents_with_shadow_FK()
     {
-        GenericComparableBytesStructKeyPrincipalShadow[] principals = null;
-        GenericComparableBytesStructKeyRequiredDependentShadow[] dependents = null;
+        GenericComparableBytesStructKeyPrincipalShadow[] principals = null!;
+        GenericComparableBytesStructKeyRequiredDependentShadow[] dependents = null!;
         using (var context = CreateContext())
         {
             var principals0 = new GenericComparableBytesStructKeyPrincipalShadow[]
@@ -5384,27 +5420,33 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             context.Set<GenericComparableBytesStructKeyRequiredDependentShadow>().AddRange(
                 new GenericComparableBytesStructKeyRequiredDependentShadow
                 {
-                    Id = new GenericComparableBytesStructKey([111]), Principal = principals0[0]
+                    Id = new GenericComparableBytesStructKey([111]),
+                    Principal = principals0[0]
                 },
                 new GenericComparableBytesStructKeyRequiredDependentShadow
                 {
-                    Id = new GenericComparableBytesStructKey([112]), Principal = principals0[1]
+                    Id = new GenericComparableBytesStructKey([112]),
+                    Principal = principals0[1]
                 },
                 new GenericComparableBytesStructKeyRequiredDependentShadow
                 {
-                    Id = new GenericComparableBytesStructKey([113]), Principal = principals0[2]
+                    Id = new GenericComparableBytesStructKey([113]),
+                    Principal = principals0[2]
                 },
                 new GenericComparableBytesStructKeyRequiredDependentShadow
                 {
-                    Id = new GenericComparableBytesStructKey([114]), Principal = principals0[2]
+                    Id = new GenericComparableBytesStructKey([114]),
+                    Principal = principals0[2]
                 },
                 new GenericComparableBytesStructKeyRequiredDependentShadow
                 {
-                    Id = new GenericComparableBytesStructKey([115]), Principal = principals0[2]
+                    Id = new GenericComparableBytesStructKey([115]),
+                    Principal = principals0[2]
                 },
                 new GenericComparableBytesStructKeyRequiredDependentShadow
                 {
-                    Id = new GenericComparableBytesStructKey([116]), Principal = principals0[2]
+                    Id = new GenericComparableBytesStructKey([116]),
+                    Principal = principals0[2]
                 });
 
             Assert.Equal(10, await context.SaveChangesAsync());
@@ -5415,8 +5457,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             await RunQueries(context);
 
             Validate(
-                principals,
-                dependents,
+                principals!,
+                dependents!,
                 [(0, [0]), (1, [1]), (2, [2, 2, 2, 2]), (3, [])],
                 [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, 2)]);
 
@@ -5488,18 +5530,18 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
             dependents =
             [
-                await context.Set<GenericComparableBytesStructKeyRequiredDependentShadow>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new GenericComparableBytesStructKey { Id = new byte[] { 111 } })),
-                await context.Set<GenericComparableBytesStructKeyRequiredDependentShadow>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new GenericComparableBytesStructKey { Id = oneTwelve })),
-                await context.Set<GenericComparableBytesStructKeyRequiredDependentShadow>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(oneThirteen)),
-                await context.Set<GenericComparableBytesStructKeyRequiredDependentShadow>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new GenericComparableBytesStructKey { Id = new byte[] { 114 } })),
-                await context.Set<GenericComparableBytesStructKeyRequiredDependentShadow>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(new GenericComparableBytesStructKey { Id = oneFifteeen })),
-                await context.Set<GenericComparableBytesStructKeyRequiredDependentShadow>()
-                    .FirstOrDefaultAsync(e => e.Id.Equals(oneSixteen))
+                (await context.Set<GenericComparableBytesStructKeyRequiredDependentShadow>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new GenericComparableBytesStructKey { Id = new byte[] { 111 } })))!,
+                (await context.Set<GenericComparableBytesStructKeyRequiredDependentShadow>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new GenericComparableBytesStructKey { Id = oneTwelve })))!,
+                (await context.Set<GenericComparableBytesStructKeyRequiredDependentShadow>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(oneThirteen)))!,
+                (await context.Set<GenericComparableBytesStructKeyRequiredDependentShadow>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new GenericComparableBytesStructKey { Id = new byte[] { 114 } })))!,
+                (await context.Set<GenericComparableBytesStructKeyRequiredDependentShadow>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(new GenericComparableBytesStructKey { Id = oneFifteeen })))!,
+                (await context.Set<GenericComparableBytesStructKeyRequiredDependentShadow>()
+                    .FirstOrDefaultAsync(e => e.Id.Equals(oneSixteen)))!
             ];
 
             Assert.Same(
@@ -5620,7 +5662,7 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
         IList<(int, int[])> expectedPrincipalToDependents,
         IList<(int, int?)> expectedDependentToPrincipals,
         Func<IIntPrincipal, IList<IIntOptionalDependent>> getDependents,
-        Func<IIntOptionalDependent, IIntPrincipal> getPrincipal)
+        Func<IIntOptionalDependent, IIntPrincipal?> getPrincipal)
     {
         Assert.Equal(4, principals.Count);
         for (var i = 0; i < 4; i++)
@@ -5749,7 +5791,7 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
         IList<(int, int[])> expectedPrincipalToDependents,
         IList<(int, int?)> expectedDependentToPrincipals,
         Func<IBytesPrincipal, IList<IBytesOptionalDependent>> getDependents,
-        Func<IBytesOptionalDependent, IBytesPrincipal> getPrincipal)
+        Func<IBytesOptionalDependent, IBytesPrincipal?> getPrincipal)
     {
         Assert.Equal(4, principals.Count);
         Assert.Equal(new byte[] { 1 }, principals[0].BackingId);
@@ -5852,7 +5894,7 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
         public byte[] Id { get; set; } = id;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj is BytesStructKey other && Equals(other);
 
         public bool Equals(BytesStructKey other)
@@ -5882,8 +5924,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
         public int Id { get; set; } = id;
 
-        public int CompareTo(object other)
-            => Id - ((ComparableIntStructKey)other).Id;
+        public int CompareTo(object? other)
+            => Id - ((ComparableIntStructKey)other!).Id;
     }
 
     protected struct ComparableBytesStructKey(byte[] id) : IComparable
@@ -5893,7 +5935,7 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
         public byte[] Id { get; set; } = id;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj is ComparableBytesStructKey other && Equals(other);
 
         public bool Equals(ComparableBytesStructKey other)
@@ -5916,9 +5958,9 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             return code.ToHashCode();
         }
 
-        public int CompareTo(object other)
+        public int CompareTo(object? other)
         {
-            var result = Id.Length - ((ComparableBytesStructKey)other).Id.Length;
+            var result = Id.Length - ((ComparableBytesStructKey)other!).Id.Length;
 
             return result != 0
                 ? result
@@ -5945,7 +5987,7 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
         public byte[] Id { get; set; } = id;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj is GenericComparableBytesStructKey other && Equals(other);
 
         public bool Equals(GenericComparableBytesStructKey other)
@@ -5986,7 +6028,7 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
         public byte[] Id { get; set; } = id;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj is StructuralComparableBytesStructKey other && Equals(other);
 
         public bool Equals(StructuralComparableBytesStructKey other)
@@ -6009,9 +6051,9 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             return code.ToHashCode();
         }
 
-        public int CompareTo(object other, IComparer comparer)
+        public int CompareTo(object? other, IComparer comparer)
         {
-            var typedOther = ((StructuralComparableBytesStructKey)other);
+            var typedOther = (StructuralComparableBytesStructKey)other!;
 
             var i = -1;
             var result = Id.Length - typedOther.Id.Length;
@@ -6034,10 +6076,10 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
         protected bool Equals(IntClassKey other)
             => other != null && Id == other.Id;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj == this
-                || obj?.GetType() == GetType()
-                && Equals((IntClassKey)obj);
+                || (obj?.GetType() == GetType()
+                    && Equals((IntClassKey)obj));
 
         public override int GetHashCode()
             => Id;
@@ -6059,10 +6101,10 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
         protected bool Equals(EnumerableClassKey other)
             => other != null && Id == other.Id;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj == this
-                || obj?.GetType() == GetType()
-                && Equals((IntClassKey)obj);
+                || (obj?.GetType() == GetType()
+                    && Equals((IntClassKey)obj));
 
         public override int GetHashCode()
             => Id;
@@ -6079,7 +6121,7 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             = new(
                 (l, r) => (l == null && r == null) || (l != null && r != null && l.Id == r.Id),
                 v => v == null ? 0 : v.Id.GetHashCode(),
-                v => v == null ? null : new BareIntClassKey(v.Id));
+                v => v == null ? null! : new BareIntClassKey(v.Id));
 
         public int Id { get; set; } = id;
     }
@@ -6094,16 +6136,16 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
         protected bool Equals(ComparableIntClassKey other)
             => other != null && Id == other.Id;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj == this
-                || obj?.GetType() == GetType()
-                && Equals((ComparableIntClassKey)obj);
+                || (obj?.GetType() == GetType()
+                    && Equals((ComparableIntClassKey)obj));
 
         public override int GetHashCode()
             => Id;
 
-        public int CompareTo(object other)
-            => Id - ((ComparableIntClassKey)other).Id;
+        public int CompareTo(object? other)
+            => Id - ((ComparableIntClassKey)other!).Id;
     }
 
     protected class GenericComparableIntClassKey(int id) : IComparable<GenericComparableIntClassKey>
@@ -6116,16 +6158,16 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
         protected bool Equals(GenericComparableIntClassKey other)
             => other != null && Id == other.Id;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj == this
-                || obj?.GetType() == GetType()
-                && Equals((GenericComparableIntClassKey)obj);
+                || (obj?.GetType() == GetType()
+                    && Equals((GenericComparableIntClassKey)obj));
 
         public override int GetHashCode()
             => Id;
 
-        public int CompareTo(GenericComparableIntClassKey other)
-            => Id - other.Id;
+        public int CompareTo(GenericComparableIntClassKey? other)
+            => Id - other!.Id;
     }
 
     protected interface IBytesPrincipal
@@ -6137,7 +6179,7 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
     protected interface IBytesOptionalDependent
     {
         byte[] BackingId { get; set; }
-        byte[] BackingPrincipalId { get; set; }
+        byte[]? BackingPrincipalId { get; set; }
     }
 
     protected interface IBytesRequiredDependent
@@ -6167,9 +6209,9 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
     protected class IntStructKeyPrincipal : IIntPrincipal
     {
         public IntStructKey Id { get; set; }
-        public string Foo { get; set; }
-        public ICollection<IntStructKeyRequiredDependent> RequiredDependents { get; set; }
-        public ICollection<IntStructKeyOptionalDependent> OptionalDependents { get; set; }
+        public string Foo { get; set; } = null!;
+        public ICollection<IntStructKeyRequiredDependent> RequiredDependents { get; set; } = null!;
+        public ICollection<IntStructKeyOptionalDependent> OptionalDependents { get; set; } = null!;
 
         [NotMapped]
         public int BackingId
@@ -6183,7 +6225,7 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
     {
         public IntStructKey Id { get; set; }
         public IntStructKey PrincipalId { get; set; }
-        public IntStructKeyPrincipal Principal { get; set; }
+        public IntStructKeyPrincipal Principal { get; set; } = null!;
 
         [NotMapped]
         public int BackingId
@@ -6204,7 +6246,7 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
     {
         public IntStructKey Id { get; set; }
         public IntStructKey? PrincipalId { get; set; }
-        public IntStructKeyPrincipal Principal { get; set; }
+        public IntStructKeyPrincipal? Principal { get; set; }
 
         [NotMapped]
         public int BackingId
@@ -6224,9 +6266,9 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
     protected class BytesStructKeyPrincipal : IBytesPrincipal
     {
         public BytesStructKey Id { get; set; }
-        public string Foo { get; set; }
-        public ICollection<BytesStructKeyOptionalDependent> OptionalDependents { get; set; }
-        public ICollection<BytesStructKeyRequiredDependent> RequiredDependents { get; set; }
+        public string Foo { get; set; } = null!;
+        public ICollection<BytesStructKeyOptionalDependent> OptionalDependents { get; set; } = null!;
+        public ICollection<BytesStructKeyRequiredDependent> RequiredDependents { get; set; } = null!;
 
         [NotMapped]
         public byte[] BackingId
@@ -6240,7 +6282,7 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
     {
         public BytesStructKey Id { get; set; }
         public BytesStructKey? PrincipalId { get; set; }
-        public BytesStructKeyPrincipal Principal { get; set; }
+        public BytesStructKeyPrincipal? Principal { get; set; }
 
         [NotMapped]
         public byte[] BackingId
@@ -6250,7 +6292,7 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
         }
 
         [NotMapped]
-        public byte[] BackingPrincipalId
+        public byte[]? BackingPrincipalId
         {
             get => PrincipalId?.Id;
             set => PrincipalId = value != null ? new BytesStructKey(value) : null;
@@ -6261,7 +6303,7 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
     {
         public BytesStructKey Id { get; set; }
         public BytesStructKey PrincipalId { get; set; }
-        public BytesStructKeyPrincipal Principal { get; set; }
+        public BytesStructKeyPrincipal Principal { get; set; } = null!;
 
         [NotMapped]
         public byte[] BackingId
@@ -6281,9 +6323,9 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
     protected class ComparableIntStructKeyPrincipal : IIntPrincipal
     {
         public ComparableIntStructKey Id { get; set; }
-        public string Foo { get; set; }
-        public ICollection<ComparableIntStructKeyOptionalDependent> OptionalDependents { get; set; }
-        public ICollection<ComparableIntStructKeyRequiredDependent> RequiredDependents { get; set; }
+        public string Foo { get; set; } = null!;
+        public ICollection<ComparableIntStructKeyOptionalDependent> OptionalDependents { get; set; } = null!;
+        public ICollection<ComparableIntStructKeyRequiredDependent> RequiredDependents { get; set; } = null!;
 
         [NotMapped]
         public int BackingId
@@ -6297,7 +6339,7 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
     {
         public ComparableIntStructKey Id { get; set; }
         public ComparableIntStructKey? PrincipalId { get; set; }
-        public ComparableIntStructKeyPrincipal Principal { get; set; }
+        public ComparableIntStructKeyPrincipal? Principal { get; set; }
 
         [NotMapped]
         public int BackingId
@@ -6318,7 +6360,7 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
     {
         public ComparableIntStructKey Id { get; set; }
         public ComparableIntStructKey PrincipalId { get; set; }
-        public ComparableIntStructKeyPrincipal Principal { get; set; }
+        public ComparableIntStructKeyPrincipal Principal { get; set; } = null!;
 
         [NotMapped]
         public int BackingId
@@ -6338,9 +6380,9 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
     protected class ComparableBytesStructKeyPrincipal : IBytesPrincipal
     {
         public ComparableBytesStructKey Id { get; set; }
-        public string Foo { get; set; }
-        public ICollection<ComparableBytesStructKeyOptionalDependent> OptionalDependents { get; set; }
-        public ICollection<ComparableBytesStructKeyRequiredDependent> RequiredDependents { get; set; }
+        public string Foo { get; set; } = null!;
+        public ICollection<ComparableBytesStructKeyOptionalDependent> OptionalDependents { get; set; } = null!;
+        public ICollection<ComparableBytesStructKeyRequiredDependent> RequiredDependents { get; set; } = null!;
 
         [NotMapped]
         public byte[] BackingId
@@ -6354,7 +6396,7 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
     {
         public ComparableBytesStructKey Id { get; set; }
         public ComparableBytesStructKey? PrincipalId { get; set; }
-        public ComparableBytesStructKeyPrincipal Principal { get; set; }
+        public ComparableBytesStructKeyPrincipal? Principal { get; set; }
 
         [NotMapped]
         public byte[] BackingId
@@ -6364,7 +6406,7 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
         }
 
         [NotMapped]
-        public byte[] BackingPrincipalId
+        public byte[]? BackingPrincipalId
         {
             get => PrincipalId?.Id;
             set => PrincipalId = value != null ? new ComparableBytesStructKey(value) : null;
@@ -6375,7 +6417,7 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
     {
         public ComparableBytesStructKey Id { get; set; }
         public ComparableBytesStructKey PrincipalId { get; set; }
-        public ComparableBytesStructKeyPrincipal Principal { get; set; }
+        public ComparableBytesStructKeyPrincipal Principal { get; set; } = null!;
 
         [NotMapped]
         public byte[] BackingId
@@ -6395,9 +6437,9 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
     protected class GenericComparableIntStructKeyPrincipal : IIntPrincipal
     {
         public GenericComparableIntStructKey Id { get; set; }
-        public string Foo { get; set; }
-        public ICollection<GenericComparableIntStructKeyOptionalDependent> OptionalDependents { get; set; }
-        public ICollection<GenericComparableIntStructKeyRequiredDependent> RequiredDependents { get; set; }
+        public string Foo { get; set; } = null!;
+        public ICollection<GenericComparableIntStructKeyOptionalDependent> OptionalDependents { get; set; } = null!;
+        public ICollection<GenericComparableIntStructKeyRequiredDependent> RequiredDependents { get; set; } = null!;
 
         [NotMapped]
         public int BackingId
@@ -6411,7 +6453,7 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
     {
         public GenericComparableIntStructKey Id { get; set; }
         public GenericComparableIntStructKey? PrincipalId { get; set; }
-        public GenericComparableIntStructKeyPrincipal Principal { get; set; }
+        public GenericComparableIntStructKeyPrincipal? Principal { get; set; }
 
         [NotMapped]
         public int BackingId
@@ -6434,7 +6476,7 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
     {
         public GenericComparableIntStructKey Id { get; set; }
         public GenericComparableIntStructKey PrincipalId { get; set; }
-        public GenericComparableIntStructKeyPrincipal Principal { get; set; }
+        public GenericComparableIntStructKeyPrincipal Principal { get; set; } = null!;
 
         [NotMapped]
         public int BackingId
@@ -6454,9 +6496,9 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
     protected class GenericComparableBytesStructKeyPrincipal : IBytesPrincipal
     {
         public GenericComparableBytesStructKey Id { get; set; }
-        public string Foo { get; set; }
-        public ICollection<GenericComparableBytesStructKeyOptionalDependent> OptionalDependents { get; set; }
-        public ICollection<GenericComparableBytesStructKeyRequiredDependent> RequiredDependents { get; set; }
+        public string Foo { get; set; } = null!;
+        public ICollection<GenericComparableBytesStructKeyOptionalDependent> OptionalDependents { get; set; } = null!;
+        public ICollection<GenericComparableBytesStructKeyRequiredDependent> RequiredDependents { get; set; } = null!;
 
         [NotMapped]
         public byte[] BackingId
@@ -6470,7 +6512,7 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
     {
         public GenericComparableBytesStructKey Id { get; set; }
         public GenericComparableBytesStructKey? PrincipalId { get; set; }
-        public GenericComparableBytesStructKeyPrincipal Principal { get; set; }
+        public GenericComparableBytesStructKeyPrincipal? Principal { get; set; }
 
         [NotMapped]
         public byte[] BackingId
@@ -6480,7 +6522,7 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
         }
 
         [NotMapped]
-        public byte[] BackingPrincipalId
+        public byte[]? BackingPrincipalId
         {
             get => PrincipalId?.Id;
             set => PrincipalId = value != null
@@ -6493,7 +6535,7 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
     {
         public GenericComparableBytesStructKey Id { get; set; }
         public GenericComparableBytesStructKey PrincipalId { get; set; }
-        public GenericComparableBytesStructKeyPrincipal Principal { get; set; }
+        public GenericComparableBytesStructKeyPrincipal Principal { get; set; } = null!;
 
         [NotMapped]
         public byte[] BackingId
@@ -6513,9 +6555,9 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
     protected class StructuralComparableBytesStructKeyPrincipal : IBytesPrincipal
     {
         public StructuralComparableBytesStructKey Id { get; set; }
-        public string Foo { get; set; }
-        public ICollection<StructuralComparableBytesStructKeyOptionalDependent> OptionalDependents { get; set; }
-        public ICollection<StructuralComparableBytesStructKeyRequiredDependent> RequiredDependents { get; set; }
+        public string Foo { get; set; } = null!;
+        public ICollection<StructuralComparableBytesStructKeyOptionalDependent> OptionalDependents { get; set; } = null!;
+        public ICollection<StructuralComparableBytesStructKeyRequiredDependent> RequiredDependents { get; set; } = null!;
 
         [NotMapped]
         public byte[] BackingId
@@ -6529,7 +6571,7 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
     {
         public StructuralComparableBytesStructKey Id { get; set; }
         public StructuralComparableBytesStructKey? PrincipalId { get; set; }
-        public StructuralComparableBytesStructKeyPrincipal Principal { get; set; }
+        public StructuralComparableBytesStructKeyPrincipal? Principal { get; set; }
 
         [NotMapped]
         public byte[] BackingId
@@ -6539,7 +6581,7 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
         }
 
         [NotMapped]
-        public byte[] BackingPrincipalId
+        public byte[]? BackingPrincipalId
         {
             get => PrincipalId?.Id;
             set => PrincipalId = value != null
@@ -6552,7 +6594,7 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
     {
         public StructuralComparableBytesStructKey Id { get; set; }
         public StructuralComparableBytesStructKey PrincipalId { get; set; }
-        public StructuralComparableBytesStructKeyPrincipal Principal { get; set; }
+        public StructuralComparableBytesStructKeyPrincipal Principal { get; set; } = null!;
 
         [NotMapped]
         public byte[] BackingId
@@ -6571,10 +6613,10 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
     protected class IntClassKeyPrincipal : IIntPrincipal
     {
-        public IntClassKey Id { get; set; }
-        public string Foo { get; set; }
-        public ICollection<IntClassKeyOptionalDependent> OptionalDependents { get; set; }
-        public ICollection<IntClassKeyRequiredDependent> RequiredDependents { get; set; }
+        public IntClassKey Id { get; set; } = null!;
+        public string Foo { get; set; } = null!;
+        public ICollection<IntClassKeyOptionalDependent> OptionalDependents { get; set; } = null!;
+        public ICollection<IntClassKeyRequiredDependent> RequiredDependents { get; set; } = null!;
 
         [NotMapped]
         public int BackingId
@@ -6586,9 +6628,9 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
     protected class IntClassKeyOptionalDependent : IIntOptionalDependent
     {
-        public IntClassKey Id { get; set; }
-        public IntClassKey PrincipalId { get; set; }
-        public IntClassKeyPrincipal Principal { get; set; }
+        public IntClassKey Id { get; set; } = null!;
+        public IntClassKey? PrincipalId { get; set; }
+        public IntClassKeyPrincipal? Principal { get; set; }
 
         [NotMapped]
         public int BackingId
@@ -6607,9 +6649,9 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
     protected class IntClassKeyRequiredDependent : IIntRequiredDependent
     {
-        public IntClassKey Id { get; set; }
-        public IntClassKey PrincipalId { get; set; }
-        public IntClassKeyPrincipal Principal { get; set; }
+        public IntClassKey Id { get; set; } = null!;
+        public IntClassKey PrincipalId { get; set; } = null!;
+        public IntClassKeyPrincipal Principal { get; set; } = null!;
 
         [NotMapped]
         public int BackingId
@@ -6628,10 +6670,10 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
     protected class EnumerableClassKeyPrincipal : IIntPrincipal
     {
-        public EnumerableClassKey Id { get; set; }
-        public string Foo { get; set; }
-        public ICollection<EnumerableClassKeyOptionalDependent> OptionalDependents { get; set; }
-        public ICollection<EnumerableClassKeyRequiredDependent> RequiredDependents { get; set; }
+        public EnumerableClassKey Id { get; set; } = null!;
+        public string Foo { get; set; } = null!;
+        public ICollection<EnumerableClassKeyOptionalDependent> OptionalDependents { get; set; } = null!;
+        public ICollection<EnumerableClassKeyRequiredDependent> RequiredDependents { get; set; } = null!;
 
         [NotMapped]
         public int BackingId
@@ -6643,9 +6685,9 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
     protected class EnumerableClassKeyOptionalDependent : IIntOptionalDependent
     {
-        public EnumerableClassKey Id { get; set; }
-        public EnumerableClassKey PrincipalId { get; set; }
-        public EnumerableClassKeyPrincipal Principal { get; set; }
+        public EnumerableClassKey Id { get; set; } = null!;
+        public EnumerableClassKey? PrincipalId { get; set; }
+        public EnumerableClassKeyPrincipal? Principal { get; set; }
 
         [NotMapped]
         public int BackingId
@@ -6664,9 +6706,9 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
     protected class EnumerableClassKeyRequiredDependent : IIntRequiredDependent
     {
-        public EnumerableClassKey Id { get; set; }
-        public EnumerableClassKey PrincipalId { get; set; }
-        public EnumerableClassKeyPrincipal Principal { get; set; }
+        public EnumerableClassKey Id { get; set; } = null!;
+        public EnumerableClassKey PrincipalId { get; set; } = null!;
+        public EnumerableClassKeyPrincipal Principal { get; set; } = null!;
 
         [NotMapped]
         public int BackingId
@@ -6685,10 +6727,10 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
     protected class BareIntClassKeyPrincipal : IIntPrincipal
     {
-        public BareIntClassKey Id { get; set; }
-        public string Foo { get; set; }
-        public ICollection<BareIntClassKeyOptionalDependent> OptionalDependents { get; set; }
-        public ICollection<BareIntClassKeyRequiredDependent> RequiredDependents { get; set; }
+        public BareIntClassKey Id { get; set; } = null!;
+        public string Foo { get; set; } = null!;
+        public ICollection<BareIntClassKeyOptionalDependent> OptionalDependents { get; set; } = null!;
+        public ICollection<BareIntClassKeyRequiredDependent> RequiredDependents { get; set; } = null!;
 
         [NotMapped]
         public int BackingId
@@ -6700,9 +6742,9 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
     protected class BareIntClassKeyOptionalDependent : IIntOptionalDependent
     {
-        public BareIntClassKey Id { get; set; }
-        public BareIntClassKey PrincipalId { get; set; }
-        public BareIntClassKeyPrincipal Principal { get; set; }
+        public BareIntClassKey Id { get; set; } = null!;
+        public BareIntClassKey? PrincipalId { get; set; }
+        public BareIntClassKeyPrincipal? Principal { get; set; }
 
         [NotMapped]
         public int BackingId
@@ -6721,9 +6763,9 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
     protected class BareIntClassKeyRequiredDependent : IIntRequiredDependent
     {
-        public BareIntClassKey Id { get; set; }
-        public BareIntClassKey PrincipalId { get; set; }
-        public BareIntClassKeyPrincipal Principal { get; set; }
+        public BareIntClassKey Id { get; set; } = null!;
+        public BareIntClassKey PrincipalId { get; set; } = null!;
+        public BareIntClassKeyPrincipal Principal { get; set; } = null!;
 
         [NotMapped]
         public int BackingId
@@ -6742,10 +6784,10 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
     protected class ComparableIntClassKeyPrincipal : IIntPrincipal
     {
-        public ComparableIntClassKey Id { get; set; }
-        public string Foo { get; set; }
-        public ICollection<ComparableIntClassKeyOptionalDependent> OptionalDependents { get; set; }
-        public ICollection<ComparableIntClassKeyRequiredDependent> RequiredDependents { get; set; }
+        public ComparableIntClassKey Id { get; set; } = null!;
+        public string Foo { get; set; } = null!;
+        public ICollection<ComparableIntClassKeyOptionalDependent> OptionalDependents { get; set; } = null!;
+        public ICollection<ComparableIntClassKeyRequiredDependent> RequiredDependents { get; set; } = null!;
 
         [NotMapped]
         public int BackingId
@@ -6757,9 +6799,9 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
     protected class ComparableIntClassKeyOptionalDependent : IIntOptionalDependent
     {
-        public ComparableIntClassKey Id { get; set; }
-        public ComparableIntClassKey PrincipalId { get; set; }
-        public ComparableIntClassKeyPrincipal Principal { get; set; }
+        public ComparableIntClassKey Id { get; set; } = null!;
+        public ComparableIntClassKey? PrincipalId { get; set; }
+        public ComparableIntClassKeyPrincipal? Principal { get; set; }
 
         [NotMapped]
         public int BackingId
@@ -6778,9 +6820,9 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
     protected class ComparableIntClassKeyRequiredDependent : IIntRequiredDependent
     {
-        public ComparableIntClassKey Id { get; set; }
-        public ComparableIntClassKey PrincipalId { get; set; }
-        public ComparableIntClassKeyPrincipal Principal { get; set; }
+        public ComparableIntClassKey Id { get; set; } = null!;
+        public ComparableIntClassKey PrincipalId { get; set; } = null!;
+        public ComparableIntClassKeyPrincipal Principal { get; set; } = null!;
 
         [NotMapped]
         public int BackingId
@@ -6799,10 +6841,10 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
     protected class GenericComparableIntClassKeyPrincipal : IIntPrincipal
     {
-        public GenericComparableIntClassKey Id { get; set; }
-        public string Foo { get; set; }
-        public ICollection<GenericComparableIntClassKeyOptionalDependent> OptionalDependents { get; set; }
-        public ICollection<GenericComparableIntClassKeyRequiredDependent> RequiredDependents { get; set; }
+        public GenericComparableIntClassKey Id { get; set; } = null!;
+        public string Foo { get; set; } = null!;
+        public ICollection<GenericComparableIntClassKeyOptionalDependent> OptionalDependents { get; set; } = null!;
+        public ICollection<GenericComparableIntClassKeyRequiredDependent> RequiredDependents { get; set; } = null!;
 
         [NotMapped]
         public int BackingId
@@ -6814,9 +6856,9 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
     protected class GenericComparableIntClassKeyOptionalDependent : IIntOptionalDependent
     {
-        public GenericComparableIntClassKey Id { get; set; }
-        public GenericComparableIntClassKey PrincipalId { get; set; }
-        public GenericComparableIntClassKeyPrincipal Principal { get; set; }
+        public GenericComparableIntClassKey Id { get; set; } = null!;
+        public GenericComparableIntClassKey? PrincipalId { get; set; }
+        public GenericComparableIntClassKeyPrincipal? Principal { get; set; }
 
         [NotMapped]
         public int BackingId
@@ -6835,9 +6877,9 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
     protected class GenericComparableIntClassKeyRequiredDependent : IIntRequiredDependent
     {
-        public GenericComparableIntClassKey Id { get; set; }
-        public GenericComparableIntClassKey PrincipalId { get; set; }
-        public GenericComparableIntClassKeyPrincipal Principal { get; set; }
+        public GenericComparableIntClassKey Id { get; set; } = null!;
+        public GenericComparableIntClassKey PrincipalId { get; set; } = null!;
+        public GenericComparableIntClassKeyPrincipal Principal { get; set; } = null!;
 
         [NotMapped]
         public int BackingId
@@ -6857,221 +6899,221 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
     protected class IntStructKeyPrincipalShadow
     {
         public IntStructKey Id { get; set; }
-        public string Foo { get; set; }
-        public ICollection<IntStructKeyRequiredDependentShadow> RequiredDependents { get; set; }
-        public ICollection<IntStructKeyOptionalDependentShadow> OptionalDependents { get; set; }
+        public string Foo { get; set; } = null!;
+        public ICollection<IntStructKeyRequiredDependentShadow> RequiredDependents { get; set; } = null!;
+        public ICollection<IntStructKeyOptionalDependentShadow> OptionalDependents { get; set; } = null!;
     }
 
     protected class IntStructKeyRequiredDependentShadow
     {
         public IntStructKey Id { get; set; }
-        public IntStructKeyPrincipalShadow Principal { get; set; }
+        public IntStructKeyPrincipalShadow Principal { get; set; } = null!;
     }
 
     protected class IntStructKeyOptionalDependentShadow
     {
         public IntStructKey Id { get; set; }
-        public IntStructKeyPrincipalShadow Principal { get; set; }
+        public IntStructKeyPrincipalShadow? Principal { get; set; }
     }
 
     protected class BytesStructKeyPrincipalShadow
     {
         public BytesStructKey Id { get; set; }
-        public string Foo { get; set; }
-        public ICollection<BytesStructKeyOptionalDependentShadow> OptionalDependents { get; set; }
-        public ICollection<BytesStructKeyRequiredDependentShadow> RequiredDependents { get; set; }
+        public string Foo { get; set; } = null!;
+        public ICollection<BytesStructKeyOptionalDependentShadow> OptionalDependents { get; set; } = null!;
+        public ICollection<BytesStructKeyRequiredDependentShadow> RequiredDependents { get; set; } = null!;
     }
 
     protected class BytesStructKeyOptionalDependentShadow
     {
         public BytesStructKey Id { get; set; }
-        public BytesStructKeyPrincipalShadow Principal { get; set; }
+        public BytesStructKeyPrincipalShadow? Principal { get; set; }
     }
 
     protected class BytesStructKeyRequiredDependentShadow
     {
         public BytesStructKey Id { get; set; }
-        public BytesStructKeyPrincipalShadow Principal { get; set; }
+        public BytesStructKeyPrincipalShadow Principal { get; set; } = null!;
     }
 
     protected class ComparableIntStructKeyPrincipalShadow
     {
         public ComparableIntStructKey Id { get; set; }
-        public string Foo { get; set; }
-        public ICollection<ComparableIntStructKeyOptionalDependentShadow> OptionalDependents { get; set; }
-        public ICollection<ComparableIntStructKeyRequiredDependentShadow> RequiredDependents { get; set; }
+        public string Foo { get; set; } = null!;
+        public ICollection<ComparableIntStructKeyOptionalDependentShadow> OptionalDependents { get; set; } = null!;
+        public ICollection<ComparableIntStructKeyRequiredDependentShadow> RequiredDependents { get; set; } = null!;
     }
 
     protected class ComparableIntStructKeyOptionalDependentShadow
     {
         public ComparableIntStructKey Id { get; set; }
-        public ComparableIntStructKeyPrincipalShadow Principal { get; set; }
+        public ComparableIntStructKeyPrincipalShadow? Principal { get; set; }
     }
 
     protected class ComparableIntStructKeyRequiredDependentShadow
     {
         public ComparableIntStructKey Id { get; set; }
-        public ComparableIntStructKeyPrincipalShadow Principal { get; set; }
+        public ComparableIntStructKeyPrincipalShadow Principal { get; set; } = null!;
     }
 
     protected class ComparableBytesStructKeyPrincipalShadow
     {
         public ComparableBytesStructKey Id { get; set; }
-        public string Foo { get; set; }
-        public ICollection<ComparableBytesStructKeyOptionalDependentShadow> OptionalDependents { get; set; }
-        public ICollection<ComparableBytesStructKeyRequiredDependentShadow> RequiredDependents { get; set; }
+        public string Foo { get; set; } = null!;
+        public ICollection<ComparableBytesStructKeyOptionalDependentShadow> OptionalDependents { get; set; } = null!;
+        public ICollection<ComparableBytesStructKeyRequiredDependentShadow> RequiredDependents { get; set; } = null!;
     }
 
     protected class ComparableBytesStructKeyOptionalDependentShadow
     {
         public ComparableBytesStructKey Id { get; set; }
-        public ComparableBytesStructKeyPrincipalShadow Principal { get; set; }
+        public ComparableBytesStructKeyPrincipalShadow? Principal { get; set; }
     }
 
     protected class ComparableBytesStructKeyRequiredDependentShadow
     {
         public ComparableBytesStructKey Id { get; set; }
-        public ComparableBytesStructKeyPrincipalShadow Principal { get; set; }
+        public ComparableBytesStructKeyPrincipalShadow Principal { get; set; } = null!;
     }
 
     protected class GenericComparableIntStructKeyPrincipalShadow
     {
         public GenericComparableIntStructKey Id { get; set; }
-        public string Foo { get; set; }
-        public ICollection<GenericComparableIntStructKeyOptionalDependentShadow> OptionalDependents { get; set; }
-        public ICollection<GenericComparableIntStructKeyRequiredDependentShadow> RequiredDependents { get; set; }
+        public string Foo { get; set; } = null!;
+        public ICollection<GenericComparableIntStructKeyOptionalDependentShadow> OptionalDependents { get; set; } = null!;
+        public ICollection<GenericComparableIntStructKeyRequiredDependentShadow> RequiredDependents { get; set; } = null!;
     }
 
     protected class GenericComparableIntStructKeyOptionalDependentShadow
     {
         public GenericComparableIntStructKey Id { get; set; }
-        public GenericComparableIntStructKeyPrincipalShadow Principal { get; set; }
+        public GenericComparableIntStructKeyPrincipalShadow? Principal { get; set; }
     }
 
     protected class GenericComparableIntStructKeyRequiredDependentShadow
     {
         public GenericComparableIntStructKey Id { get; set; }
-        public GenericComparableIntStructKeyPrincipalShadow Principal { get; set; }
+        public GenericComparableIntStructKeyPrincipalShadow Principal { get; set; } = null!;
     }
 
     protected class GenericComparableBytesStructKeyPrincipalShadow
     {
         public GenericComparableBytesStructKey Id { get; set; }
-        public string Foo { get; set; }
-        public ICollection<GenericComparableBytesStructKeyOptionalDependentShadow> OptionalDependents { get; set; }
-        public ICollection<GenericComparableBytesStructKeyRequiredDependentShadow> RequiredDependents { get; set; }
+        public string Foo { get; set; } = null!;
+        public ICollection<GenericComparableBytesStructKeyOptionalDependentShadow> OptionalDependents { get; set; } = null!;
+        public ICollection<GenericComparableBytesStructKeyRequiredDependentShadow> RequiredDependents { get; set; } = null!;
     }
 
     protected class GenericComparableBytesStructKeyOptionalDependentShadow
     {
         public GenericComparableBytesStructKey Id { get; set; }
-        public GenericComparableBytesStructKeyPrincipalShadow Principal { get; set; }
+        public GenericComparableBytesStructKeyPrincipalShadow? Principal { get; set; }
     }
 
     protected class GenericComparableBytesStructKeyRequiredDependentShadow
     {
         public GenericComparableBytesStructKey Id { get; set; }
-        public GenericComparableBytesStructKeyPrincipalShadow Principal { get; set; }
+        public GenericComparableBytesStructKeyPrincipalShadow Principal { get; set; } = null!;
     }
 
     protected class StructuralComparableBytesStructKeyPrincipalShadow
     {
         public StructuralComparableBytesStructKey Id { get; set; }
-        public string Foo { get; set; }
-        public ICollection<StructuralComparableBytesStructKeyOptionalDependentShadow> OptionalDependents { get; set; }
-        public ICollection<StructuralComparableBytesStructKeyRequiredDependentShadow> RequiredDependents { get; set; }
+        public string Foo { get; set; } = null!;
+        public ICollection<StructuralComparableBytesStructKeyOptionalDependentShadow> OptionalDependents { get; set; } = null!;
+        public ICollection<StructuralComparableBytesStructKeyRequiredDependentShadow> RequiredDependents { get; set; } = null!;
     }
 
     protected class StructuralComparableBytesStructKeyOptionalDependentShadow
     {
         public StructuralComparableBytesStructKey Id { get; set; }
-        public StructuralComparableBytesStructKeyPrincipalShadow Principal { get; set; }
+        public StructuralComparableBytesStructKeyPrincipalShadow? Principal { get; set; }
     }
 
     protected class StructuralComparableBytesStructKeyRequiredDependentShadow
     {
         public StructuralComparableBytesStructKey Id { get; set; }
-        public StructuralComparableBytesStructKeyPrincipalShadow Principal { get; set; }
+        public StructuralComparableBytesStructKeyPrincipalShadow Principal { get; set; } = null!;
     }
 
     protected class IntClassKeyPrincipalShadow
     {
-        public IntClassKey Id { get; set; }
-        public string Foo { get; set; }
-        public ICollection<IntClassKeyOptionalDependentShadow> OptionalDependents { get; set; }
-        public ICollection<IntClassKeyRequiredDependentShadow> RequiredDependents { get; set; }
+        public IntClassKey Id { get; set; } = null!;
+        public string Foo { get; set; } = null!;
+        public ICollection<IntClassKeyOptionalDependentShadow> OptionalDependents { get; set; } = null!;
+        public ICollection<IntClassKeyRequiredDependentShadow> RequiredDependents { get; set; } = null!;
     }
 
     protected class IntClassKeyOptionalDependentShadow
     {
-        public IntClassKey Id { get; set; }
-        public IntClassKeyPrincipalShadow Principal { get; set; }
+        public IntClassKey Id { get; set; } = null!;
+        public IntClassKeyPrincipalShadow? Principal { get; set; }
     }
 
     protected class IntClassKeyRequiredDependentShadow
     {
-        public IntClassKey Id { get; set; }
-        public IntClassKeyPrincipalShadow Principal { get; set; }
+        public IntClassKey Id { get; set; } = null!;
+        public IntClassKeyPrincipalShadow Principal { get; set; } = null!;
     }
 
     protected class BareIntClassKeyPrincipalShadow
     {
-        public BareIntClassKey Id { get; set; }
-        public string Foo { get; set; }
-        public ICollection<BareIntClassKeyOptionalDependentShadow> OptionalDependents { get; set; }
-        public ICollection<BareIntClassKeyRequiredDependentShadow> RequiredDependents { get; set; }
+        public BareIntClassKey Id { get; set; } = null!;
+        public string Foo { get; set; } = null!;
+        public ICollection<BareIntClassKeyOptionalDependentShadow> OptionalDependents { get; set; } = null!;
+        public ICollection<BareIntClassKeyRequiredDependentShadow> RequiredDependents { get; set; } = null!;
     }
 
     protected class BareIntClassKeyOptionalDependentShadow
     {
-        public BareIntClassKey Id { get; set; }
-        public BareIntClassKeyPrincipalShadow Principal { get; set; }
+        public BareIntClassKey Id { get; set; } = null!;
+        public BareIntClassKeyPrincipalShadow? Principal { get; set; }
     }
 
     protected class BareIntClassKeyRequiredDependentShadow
     {
-        public BareIntClassKey Id { get; set; }
-        public BareIntClassKeyPrincipalShadow Principal { get; set; }
+        public BareIntClassKey Id { get; set; } = null!;
+        public BareIntClassKeyPrincipalShadow Principal { get; set; } = null!;
     }
 
     protected class ComparableIntClassKeyPrincipalShadow
     {
-        public ComparableIntClassKey Id { get; set; }
-        public string Foo { get; set; }
-        public ICollection<ComparableIntClassKeyOptionalDependentShadow> OptionalDependents { get; set; }
-        public ICollection<ComparableIntClassKeyRequiredDependentShadow> RequiredDependents { get; set; }
+        public ComparableIntClassKey Id { get; set; } = null!;
+        public string Foo { get; set; } = null!;
+        public ICollection<ComparableIntClassKeyOptionalDependentShadow> OptionalDependents { get; set; } = null!;
+        public ICollection<ComparableIntClassKeyRequiredDependentShadow> RequiredDependents { get; set; } = null!;
     }
 
     protected class ComparableIntClassKeyOptionalDependentShadow
     {
-        public ComparableIntClassKey Id { get; set; }
-        public ComparableIntClassKeyPrincipalShadow Principal { get; set; }
+        public ComparableIntClassKey Id { get; set; } = null!;
+        public ComparableIntClassKeyPrincipalShadow? Principal { get; set; }
     }
 
     protected class ComparableIntClassKeyRequiredDependentShadow
     {
-        public ComparableIntClassKey Id { get; set; }
-        public ComparableIntClassKeyPrincipalShadow Principal { get; set; }
+        public ComparableIntClassKey Id { get; set; } = null!;
+        public ComparableIntClassKeyPrincipalShadow Principal { get; set; } = null!;
     }
 
     protected class GenericComparableIntClassKeyPrincipalShadow
     {
-        public GenericComparableIntClassKey Id { get; set; }
-        public string Foo { get; set; }
-        public ICollection<GenericComparableIntClassKeyOptionalDependentShadow> OptionalDependents { get; set; }
-        public ICollection<GenericComparableIntClassKeyRequiredDependentShadow> RequiredDependents { get; set; }
+        public GenericComparableIntClassKey Id { get; set; } = null!;
+        public string Foo { get; set; } = null!;
+        public ICollection<GenericComparableIntClassKeyOptionalDependentShadow> OptionalDependents { get; set; } = null!;
+        public ICollection<GenericComparableIntClassKeyRequiredDependentShadow> RequiredDependents { get; set; } = null!;
     }
 
     protected class GenericComparableIntClassKeyOptionalDependentShadow
     {
-        public GenericComparableIntClassKey Id { get; set; }
-        public GenericComparableIntClassKeyPrincipalShadow Principal { get; set; }
+        public GenericComparableIntClassKey Id { get; set; } = null!;
+        public GenericComparableIntClassKeyPrincipalShadow? Principal { get; set; }
     }
 
     protected class GenericComparableIntClassKeyRequiredDependentShadow
     {
-        public GenericComparableIntClassKey Id { get; set; }
-        public GenericComparableIntClassKeyPrincipalShadow Principal { get; set; }
+        public GenericComparableIntClassKey Id { get; set; } = null!;
+        public GenericComparableIntClassKeyPrincipalShadow Principal { get; set; } = null!;
     }
 
     protected class Key(string id)
@@ -7091,8 +7133,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
             Text = text;
         }
 
-        public Key Name { get; set; }
-        public TextEntity Text { get; set; }
+        public Key Name { get; set; } = null!;
+        public TextEntity Text { get; set; } = null!;
     }
 
     protected class TextEntity
@@ -7103,7 +7145,7 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
     protected class OwnerIntStructKey(IntStructKey id, OwnedIntStructKey owned)
     {
         public OwnerIntStructKey(IntStructKey id)
-            : this(id, null)
+            : this(id, null!)
         {
         }
 
@@ -7119,7 +7161,7 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
     protected class OwnerBytesStructKey(BytesStructKey id, OwnedBytesStructKey owned)
     {
         public OwnerBytesStructKey(BytesStructKey id)
-            : this(id, null)
+            : this(id, null!)
         {
         }
 
@@ -7135,7 +7177,7 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
     protected class OwnerComparableIntStructKey(ComparableIntStructKey id, OwnedComparableIntStructKey owned)
     {
         public OwnerComparableIntStructKey(ComparableIntStructKey id)
-            : this(id, null)
+            : this(id, null!)
         {
         }
 
@@ -7151,7 +7193,7 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
     protected class OwnerComparableBytesStructKey(ComparableBytesStructKey id, OwnedComparableBytesStructKey owned)
     {
         public OwnerComparableBytesStructKey(ComparableBytesStructKey id)
-            : this(id, null)
+            : this(id, null!)
         {
         }
 
@@ -7167,7 +7209,7 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
     protected class OwnerGenericComparableIntStructKey(GenericComparableIntStructKey id, OwnedGenericComparableIntStructKey owned)
     {
         public OwnerGenericComparableIntStructKey(GenericComparableIntStructKey id)
-            : this(id, null)
+            : this(id, null!)
         {
         }
 
@@ -7183,7 +7225,7 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
     protected class OwnerGenericComparableBytesStructKey(GenericComparableBytesStructKey id, OwnedGenericComparableBytesStructKey owned)
     {
         public OwnerGenericComparableBytesStructKey(GenericComparableBytesStructKey id)
-            : this(id, null)
+            : this(id, null!)
         {
         }
 
@@ -7201,7 +7243,7 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
         OwnedStructuralComparableBytesStructKey owned)
     {
         public OwnerStructuralComparableBytesStructKey(StructuralComparableBytesStructKey id)
-            : this(id, null)
+            : this(id, null!)
         {
         }
 
@@ -7217,7 +7259,7 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
     protected class OwnerIntClassKey(IntClassKey id, OwnedIntClassKey owned)
     {
         public OwnerIntClassKey(IntClassKey id)
-            : this(id, null)
+            : this(id, null!)
         {
         }
 
@@ -7233,7 +7275,7 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
     protected class OwnerBareIntClassKey(BareIntClassKey id, OwnedBareIntClassKey owned)
     {
         public OwnerBareIntClassKey(BareIntClassKey id)
-            : this(id, null)
+            : this(id, null!)
         {
         }
 
@@ -7249,7 +7291,7 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
     protected class OwnerComparableIntClassKey(ComparableIntClassKey id, OwnedComparableIntClassKey owned)
     {
         public OwnerComparableIntClassKey(ComparableIntClassKey id)
-            : this(id, null)
+            : this(id, null!)
         {
         }
 
@@ -7265,7 +7307,7 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
     protected class OwnerGenericComparableIntClassKey(GenericComparableIntClassKey id, OwnedGenericComparableIntClassKey owned)
     {
         public OwnerGenericComparableIntClassKey(GenericComparableIntClassKey id)
-            : this(id, null)
+            : this(id, null!)
         {
         }
 
@@ -7288,7 +7330,7 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
-            modelBuilder.Entity<IntStructKeyPrincipal>(b => { b.Property(e => e.Id).HasConversion(IntStructKey.Converter); });
+            modelBuilder.Entity<IntStructKeyPrincipal>(b => b.Property(e => e.Id).HasConversion(IntStructKey.Converter));
 
             modelBuilder.Entity<IntStructKeyOptionalDependent>(b =>
             {
@@ -7302,12 +7344,12 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                 b.Property(e => e.PrincipalId);
             });
 
-            modelBuilder.Entity<IntClassKeyPrincipal>(b => { b.Property(e => e.Id).HasConversion(IntClassKey.Converter); });
+            modelBuilder.Entity<IntClassKeyPrincipal>(b => b.Property(e => e.Id).HasConversion(IntClassKey.Converter));
 
             modelBuilder.Entity<IntClassKeyOptionalDependent>(b =>
             {
                 b.Property(e => e.Id).HasConversion(IntClassKey.Converter);
-                b.Property(e => e.PrincipalId).HasConversion(IntClassKey.Converter);
+                b.Property(e => e.PrincipalId).HasConversion((ValueConverter)IntClassKey.Converter);
             });
 
             modelBuilder.Entity<IntClassKeyRequiredDependent>(b =>
@@ -7316,7 +7358,7 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                 b.Property(e => e.PrincipalId).HasConversion(IntClassKey.Converter);
             });
 
-            modelBuilder.Entity<EnumerableClassKeyPrincipal>(b => { b.Property(e => e.Id).HasConversion(EnumerableClassKey.Converter); });
+            modelBuilder.Entity<EnumerableClassKeyPrincipal>(b => b.Property(e => e.Id).HasConversion(EnumerableClassKey.Converter));
 
             modelBuilder.Entity<EnumerableClassKeyOptionalDependent>(b =>
             {
@@ -7330,15 +7372,13 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                 b.Property(e => e.PrincipalId);
             });
 
-            modelBuilder.Entity<BareIntClassKeyPrincipal>(b =>
-            {
-                b.Property(e => e.Id).HasConversion(BareIntClassKey.Converter, BareIntClassKey.Comparer);
-            });
+            modelBuilder.Entity<BareIntClassKeyPrincipal>(b => b.Property(e => e.Id).HasConversion(
+                BareIntClassKey.Converter, BareIntClassKey.Comparer));
 
             modelBuilder.Entity<BareIntClassKeyOptionalDependent>(b =>
             {
                 b.Property(e => e.Id).HasConversion(BareIntClassKey.Converter, BareIntClassKey.Comparer);
-                b.Property(e => e.PrincipalId).HasConversion(BareIntClassKey.Converter, BareIntClassKey.Comparer);
+                b.Property(e => e.PrincipalId).HasConversion((ValueConverter)BareIntClassKey.Converter, BareIntClassKey.Comparer);
             });
 
             modelBuilder.Entity<BareIntClassKeyRequiredDependent>(b =>
@@ -7347,10 +7387,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                 b.Property(e => e.PrincipalId).HasConversion(BareIntClassKey.Converter, BareIntClassKey.Comparer);
             });
 
-            modelBuilder.Entity<ComparableIntStructKeyPrincipal>(b =>
-            {
-                b.Property(e => e.Id).HasConversion(ComparableIntStructKey.Converter);
-            });
+            modelBuilder.Entity<ComparableIntStructKeyPrincipal>(b
+                => b.Property(e => e.Id).HasConversion(ComparableIntStructKey.Converter));
 
             modelBuilder.Entity<ComparableIntStructKeyOptionalDependent>(b =>
             {
@@ -7364,10 +7402,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                 b.Property(e => e.PrincipalId);
             });
 
-            modelBuilder.Entity<GenericComparableIntStructKeyPrincipal>(b =>
-            {
-                b.Property(e => e.Id).HasConversion(GenericComparableIntStructKey.Converter);
-            });
+            modelBuilder.Entity<GenericComparableIntStructKeyPrincipal>(b
+                => b.Property(e => e.Id).HasConversion(GenericComparableIntStructKey.Converter));
 
             modelBuilder.Entity<GenericComparableIntStructKeyOptionalDependent>(b =>
             {
@@ -7381,10 +7417,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                 b.Property(e => e.PrincipalId).HasConversion(GenericComparableIntStructKey.Converter);
             });
 
-            modelBuilder.Entity<StructuralComparableBytesStructKeyPrincipal>(b =>
-            {
-                b.Property(e => e.Id).HasConversion(StructuralComparableBytesStructKey.Converter);
-            });
+            modelBuilder.Entity<StructuralComparableBytesStructKeyPrincipal>(b
+                => b.Property(e => e.Id).HasConversion(StructuralComparableBytesStructKey.Converter));
 
             modelBuilder.Entity<StructuralComparableBytesStructKeyOptionalDependent>(b =>
             {
@@ -7398,7 +7432,7 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                 b.Property(e => e.PrincipalId);
             });
 
-            modelBuilder.Entity<BytesStructKeyPrincipal>(b => { b.Property(e => e.Id).HasConversion(BytesStructKey.Converter); });
+            modelBuilder.Entity<BytesStructKeyPrincipal>(b => b.Property(e => e.Id).HasConversion(BytesStructKey.Converter));
 
             modelBuilder.Entity<BytesStructKeyOptionalDependent>(b =>
             {
@@ -7412,10 +7446,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                 b.Property(e => e.PrincipalId).HasConversion(BytesStructKey.Converter);
             });
 
-            modelBuilder.Entity<ComparableBytesStructKeyPrincipal>(b =>
-            {
-                b.Property(e => e.Id).HasConversion(ComparableBytesStructKey.Converter);
-            });
+            modelBuilder.Entity<ComparableBytesStructKeyPrincipal>(b
+                => b.Property(e => e.Id).HasConversion(ComparableBytesStructKey.Converter));
 
             modelBuilder.Entity<ComparableBytesStructKeyOptionalDependent>(b =>
             {
@@ -7429,10 +7461,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                 b.Property(e => e.PrincipalId);
             });
 
-            modelBuilder.Entity<GenericComparableBytesStructKeyPrincipal>(b =>
-            {
-                b.Property(e => e.Id).HasConversion(GenericComparableBytesStructKey.Converter);
-            });
+            modelBuilder.Entity<GenericComparableBytesStructKeyPrincipal>(b
+                => b.Property(e => e.Id).HasConversion(GenericComparableBytesStructKey.Converter));
 
             modelBuilder.Entity<GenericComparableBytesStructKeyOptionalDependent>(b =>
             {
@@ -7446,10 +7476,7 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                 b.Property(e => e.PrincipalId).HasConversion(GenericComparableBytesStructKey.Converter);
             });
 
-            modelBuilder.Entity<ComparableIntClassKeyPrincipal>(b =>
-            {
-                b.Property(e => e.Id).HasConversion(ComparableIntClassKey.Converter);
-            });
+            modelBuilder.Entity<ComparableIntClassKeyPrincipal>(b => b.Property(e => e.Id).HasConversion(ComparableIntClassKey.Converter));
 
             modelBuilder.Entity<ComparableIntClassKeyOptionalDependent>(b =>
             {
@@ -7463,15 +7490,13 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                 b.Property(e => e.PrincipalId);
             });
 
-            modelBuilder.Entity<GenericComparableIntClassKeyPrincipal>(b =>
-            {
-                b.Property(e => e.Id).HasConversion(GenericComparableIntClassKey.Converter);
-            });
+            modelBuilder.Entity<GenericComparableIntClassKeyPrincipal>(b
+                => b.Property(e => e.Id).HasConversion(GenericComparableIntClassKey.Converter));
 
             modelBuilder.Entity<GenericComparableIntClassKeyOptionalDependent>(b =>
             {
                 b.Property(e => e.Id).HasConversion(GenericComparableIntClassKey.Converter);
-                b.Property(e => e.PrincipalId).HasConversion(GenericComparableIntClassKey.Converter);
+                b.Property(e => e.PrincipalId).HasConversion((ValueConverter)GenericComparableIntClassKey.Converter);
             });
 
             modelBuilder.Entity<GenericComparableIntClassKeyRequiredDependent>(b =>
@@ -7496,149 +7521,95 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                 entity.Navigation(p => p.Text).IsRequired();
             });
 
-            modelBuilder.Entity<IntStructKeyPrincipalShadow>(b => { b.Property(e => e.Id).HasConversion(IntStructKey.Converter); });
+            modelBuilder.Entity<IntStructKeyPrincipalShadow>(b => b.Property(e => e.Id).HasConversion(IntStructKey.Converter));
 
-            modelBuilder.Entity<IntStructKeyOptionalDependentShadow>(b => { b.Property(e => e.Id).HasConversion(IntStructKey.Converter); });
+            modelBuilder.Entity<IntStructKeyOptionalDependentShadow>(b => b.Property(e => e.Id).HasConversion(IntStructKey.Converter));
 
-            modelBuilder.Entity<IntStructKeyRequiredDependentShadow>(b => { b.Property(e => e.Id).HasConversion(IntStructKey.Converter); });
+            modelBuilder.Entity<IntStructKeyRequiredDependentShadow>(b => b.Property(e => e.Id).HasConversion(IntStructKey.Converter));
 
-            modelBuilder.Entity<IntClassKeyPrincipalShadow>(b => { b.Property(e => e.Id).HasConversion(IntClassKey.Converter); });
+            modelBuilder.Entity<IntClassKeyPrincipalShadow>(b => b.Property(e => e.Id).HasConversion(IntClassKey.Converter));
 
-            modelBuilder.Entity<IntClassKeyOptionalDependentShadow>(b => { b.Property(e => e.Id).HasConversion(IntClassKey.Converter); });
+            modelBuilder.Entity<IntClassKeyOptionalDependentShadow>(b => b.Property(e => e.Id).HasConversion(IntClassKey.Converter));
 
-            modelBuilder.Entity<IntClassKeyRequiredDependentShadow>(b => { b.Property(e => e.Id).HasConversion(IntClassKey.Converter); });
+            modelBuilder.Entity<IntClassKeyRequiredDependentShadow>(b => b.Property(e => e.Id).HasConversion(IntClassKey.Converter));
 
-            modelBuilder.Entity<BareIntClassKeyPrincipalShadow>(b =>
-            {
-                b.Property(e => e.Id).HasConversion(BareIntClassKey.Converter, BareIntClassKey.Comparer);
-            });
+            modelBuilder.Entity<BareIntClassKeyPrincipalShadow>(b
+                => b.Property(e => e.Id).HasConversion(BareIntClassKey.Converter, BareIntClassKey.Comparer));
 
-            modelBuilder.Entity<BareIntClassKeyOptionalDependentShadow>(b =>
-            {
-                b.Property(e => e.Id).HasConversion(BareIntClassKey.Converter, BareIntClassKey.Comparer);
-            });
+            modelBuilder.Entity<BareIntClassKeyOptionalDependentShadow>(b
+                => b.Property(e => e.Id).HasConversion(BareIntClassKey.Converter, BareIntClassKey.Comparer));
 
-            modelBuilder.Entity<BareIntClassKeyRequiredDependentShadow>(b =>
-            {
-                b.Property(e => e.Id).HasConversion(BareIntClassKey.Converter, BareIntClassKey.Comparer);
-            });
+            modelBuilder.Entity<BareIntClassKeyRequiredDependentShadow>(b
+                => b.Property(e => e.Id).HasConversion(BareIntClassKey.Converter, BareIntClassKey.Comparer));
 
-            modelBuilder.Entity<ComparableIntStructKeyPrincipalShadow>(b =>
-            {
-                b.Property(e => e.Id).HasConversion(ComparableIntStructKey.Converter);
-            });
+            modelBuilder.Entity<ComparableIntStructKeyPrincipalShadow>(b
+                => b.Property(e => e.Id).HasConversion(ComparableIntStructKey.Converter));
 
-            modelBuilder.Entity<ComparableIntStructKeyOptionalDependentShadow>(b =>
-            {
-                b.Property(e => e.Id).HasConversion(ComparableIntStructKey.Converter);
-            });
+            modelBuilder.Entity<ComparableIntStructKeyOptionalDependentShadow>(b
+                => b.Property(e => e.Id).HasConversion(ComparableIntStructKey.Converter));
 
-            modelBuilder.Entity<ComparableIntStructKeyRequiredDependentShadow>(b =>
-            {
-                b.Property(e => e.Id).HasConversion(ComparableIntStructKey.Converter);
-            });
+            modelBuilder.Entity<ComparableIntStructKeyRequiredDependentShadow>(b
+                => b.Property(e => e.Id).HasConversion(ComparableIntStructKey.Converter));
 
-            modelBuilder.Entity<GenericComparableIntStructKeyPrincipalShadow>(b =>
-            {
-                b.Property(e => e.Id).HasConversion(GenericComparableIntStructKey.Converter);
-            });
+            modelBuilder.Entity<GenericComparableIntStructKeyPrincipalShadow>(b
+                => b.Property(e => e.Id).HasConversion(GenericComparableIntStructKey.Converter));
 
-            modelBuilder.Entity<GenericComparableIntStructKeyOptionalDependentShadow>(b =>
-            {
-                b.Property(e => e.Id).HasConversion(GenericComparableIntStructKey.Converter);
-            });
+            modelBuilder.Entity<GenericComparableIntStructKeyOptionalDependentShadow>(b
+                => b.Property(e => e.Id).HasConversion(GenericComparableIntStructKey.Converter));
 
-            modelBuilder.Entity<GenericComparableIntStructKeyRequiredDependentShadow>(b =>
-            {
-                b.Property(e => e.Id).HasConversion(GenericComparableIntStructKey.Converter);
-            });
+            modelBuilder.Entity<GenericComparableIntStructKeyRequiredDependentShadow>(b
+                => b.Property(e => e.Id).HasConversion(GenericComparableIntStructKey.Converter));
 
-            modelBuilder.Entity<StructuralComparableBytesStructKeyPrincipalShadow>(b =>
-            {
-                b.Property(e => e.Id).HasConversion(StructuralComparableBytesStructKey.Converter);
-            });
+            modelBuilder.Entity<StructuralComparableBytesStructKeyPrincipalShadow>(b
+                => b.Property(e => e.Id).HasConversion(StructuralComparableBytesStructKey.Converter));
 
-            modelBuilder.Entity<StructuralComparableBytesStructKeyOptionalDependentShadow>(b =>
-            {
-                b.Property(e => e.Id).HasConversion(StructuralComparableBytesStructKey.Converter);
-            });
+            modelBuilder.Entity<StructuralComparableBytesStructKeyOptionalDependentShadow>(b
+                => b.Property(e => e.Id).HasConversion(StructuralComparableBytesStructKey.Converter));
 
-            modelBuilder.Entity<StructuralComparableBytesStructKeyRequiredDependentShadow>(b =>
-            {
-                b.Property(e => e.Id).HasConversion(StructuralComparableBytesStructKey.Converter);
-            });
+            modelBuilder.Entity<StructuralComparableBytesStructKeyRequiredDependentShadow>(b
+                => b.Property(e => e.Id).HasConversion(StructuralComparableBytesStructKey.Converter));
 
-            modelBuilder.Entity<BytesStructKeyPrincipalShadow>(b => { b.Property(e => e.Id).HasConversion(BytesStructKey.Converter); });
+            modelBuilder.Entity<BytesStructKeyPrincipalShadow>(b => b.Property(e => e.Id).HasConversion(BytesStructKey.Converter));
 
-            modelBuilder.Entity<BytesStructKeyOptionalDependentShadow>(b =>
-            {
-                b.Property(e => e.Id).HasConversion(BytesStructKey.Converter);
-            });
+            modelBuilder.Entity<BytesStructKeyOptionalDependentShadow>(b => b.Property(e => e.Id).HasConversion(BytesStructKey.Converter));
 
-            modelBuilder.Entity<BytesStructKeyRequiredDependentShadow>(b =>
-            {
-                b.Property(e => e.Id).HasConversion(BytesStructKey.Converter);
-            });
+            modelBuilder.Entity<BytesStructKeyRequiredDependentShadow>(b => b.Property(e => e.Id).HasConversion(BytesStructKey.Converter));
 
-            modelBuilder.Entity<ComparableBytesStructKeyPrincipalShadow>(b =>
-            {
-                b.Property(e => e.Id).HasConversion(ComparableBytesStructKey.Converter);
-            });
+            modelBuilder.Entity<ComparableBytesStructKeyPrincipalShadow>(b
+                => b.Property(e => e.Id).HasConversion(ComparableBytesStructKey.Converter));
 
-            modelBuilder.Entity<ComparableBytesStructKeyOptionalDependentShadow>(b =>
-            {
-                b.Property(e => e.Id).HasConversion(ComparableBytesStructKey.Converter);
-            });
+            modelBuilder.Entity<ComparableBytesStructKeyOptionalDependentShadow>(b
+                => b.Property(e => e.Id).HasConversion(ComparableBytesStructKey.Converter));
 
-            modelBuilder.Entity<ComparableBytesStructKeyRequiredDependentShadow>(b =>
-            {
-                b.Property(e => e.Id).HasConversion(ComparableBytesStructKey.Converter);
-            });
+            modelBuilder.Entity<ComparableBytesStructKeyRequiredDependentShadow>(b
+                => b.Property(e => e.Id).HasConversion(ComparableBytesStructKey.Converter));
 
-            modelBuilder.Entity<GenericComparableBytesStructKeyPrincipalShadow>(b =>
-            {
-                b.Property(e => e.Id).HasConversion(GenericComparableBytesStructKey.Converter);
-            });
+            modelBuilder.Entity<GenericComparableBytesStructKeyPrincipalShadow>(b
+                => b.Property(e => e.Id).HasConversion(GenericComparableBytesStructKey.Converter));
 
-            modelBuilder.Entity<GenericComparableBytesStructKeyOptionalDependentShadow>(b =>
-            {
-                b.Property(e => e.Id).HasConversion(GenericComparableBytesStructKey.Converter);
-            });
+            modelBuilder.Entity<GenericComparableBytesStructKeyOptionalDependentShadow>(b
+                => b.Property(e => e.Id).HasConversion(GenericComparableBytesStructKey.Converter));
 
-            modelBuilder.Entity<GenericComparableBytesStructKeyRequiredDependentShadow>(b =>
-            {
-                b.Property(e => e.Id).HasConversion(GenericComparableBytesStructKey.Converter);
-            });
+            modelBuilder.Entity<GenericComparableBytesStructKeyRequiredDependentShadow>(b
+                => b.Property(e => e.Id).HasConversion(GenericComparableBytesStructKey.Converter));
 
-            modelBuilder.Entity<ComparableIntClassKeyPrincipalShadow>(b =>
-            {
-                b.Property(e => e.Id).HasConversion(ComparableIntClassKey.Converter);
-            });
+            modelBuilder.Entity<ComparableIntClassKeyPrincipalShadow>(b
+                => b.Property(e => e.Id).HasConversion(ComparableIntClassKey.Converter));
 
-            modelBuilder.Entity<ComparableIntClassKeyOptionalDependentShadow>(b =>
-            {
-                b.Property(e => e.Id).HasConversion(ComparableIntClassKey.Converter);
-            });
+            modelBuilder.Entity<ComparableIntClassKeyOptionalDependentShadow>(b
+                => b.Property(e => e.Id).HasConversion(ComparableIntClassKey.Converter));
 
-            modelBuilder.Entity<ComparableIntClassKeyRequiredDependentShadow>(b =>
-            {
-                b.Property(e => e.Id).HasConversion(ComparableIntClassKey.Converter);
-            });
+            modelBuilder.Entity<ComparableIntClassKeyRequiredDependentShadow>(b
+                => b.Property(e => e.Id).HasConversion(ComparableIntClassKey.Converter));
 
-            modelBuilder.Entity<GenericComparableIntClassKeyPrincipalShadow>(b =>
-            {
-                b.Property(e => e.Id).HasConversion(GenericComparableIntClassKey.Converter);
-            });
+            modelBuilder.Entity<GenericComparableIntClassKeyPrincipalShadow>(b
+                => b.Property(e => e.Id).HasConversion(GenericComparableIntClassKey.Converter));
 
-            modelBuilder.Entity<GenericComparableIntClassKeyOptionalDependentShadow>(b =>
-            {
-                b.Property(e => e.Id).HasConversion(GenericComparableIntClassKey.Converter);
-            });
+            modelBuilder.Entity<GenericComparableIntClassKeyOptionalDependentShadow>(b
+                => b.Property(e => e.Id).HasConversion(GenericComparableIntClassKey.Converter));
 
-            modelBuilder.Entity<GenericComparableIntClassKeyRequiredDependentShadow>(b =>
-            {
-                b.Property(e => e.Id).HasConversion(GenericComparableIntClassKey.Converter);
-            });
+            modelBuilder.Entity<GenericComparableIntClassKeyRequiredDependentShadow>(b
+                => b.Property(e => e.Id).HasConversion(GenericComparableIntClassKey.Converter));
 
             modelBuilder.Entity<OwnerIntStructKey>(b =>
             {
@@ -7706,5 +7677,8 @@ public abstract class KeysWithConvertersTestBase<TFixture>(TFixture fixture) : I
                 b.OwnsOne(e => e.Owned);
             });
         }
+
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => base.AddOptions(builder).ConfigureWarnings(w => w.Ignore(CoreEventId.CollectionWithoutComparer));
     }
 }

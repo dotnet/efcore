@@ -39,6 +39,7 @@ public class ConstructorBindingConvention : IModelFinalizingConvention
         foreach (EntityType entityType in modelBuilder.Metadata.GetEntityTypes())
         {
             if (!entityType.ClrType.IsAbstract
+                && !entityType.ClrType.IsUnion()
                 && ConfigurationSource.Convention.Overrides(entityType.GetConstructorBindingConfigurationSource()))
             {
                 Dependencies.ConstructorBindingFactory.GetBindings(
@@ -58,6 +59,7 @@ public class ConstructorBindingConvention : IModelFinalizingConvention
     private void Process(ComplexType complexType)
     {
         if (!complexType.ClrType.IsAbstract
+            && !complexType.ClrType.IsUnion()
             && ConfigurationSource.Convention.Overrides(complexType.GetConstructorBindingConfigurationSource()))
         {
             Dependencies.ConstructorBindingFactory.GetBindings(

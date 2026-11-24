@@ -66,20 +66,7 @@ internal class SqliteConnectionPool
     }
 
     private static bool TryPop(Stack<SqliteConnectionInternal> stack, out SqliteConnectionInternal? connection)
-    {
-#if NET5_0_OR_GREATER
-        return stack.TryPop(out connection);
-#else
-            if (stack.Count > 0)
-            {
-                connection = stack.Pop();
-                return true;
-            }
-
-            connection = null;
-            return false;
-#endif
-    }
+        => stack.TryPop(out connection);
 
     public void Return(SqliteConnectionInternal connection)
     {

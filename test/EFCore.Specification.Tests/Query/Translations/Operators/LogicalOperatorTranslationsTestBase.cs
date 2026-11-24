@@ -8,29 +8,29 @@ namespace Microsoft.EntityFrameworkCore.Query.Translations.Operators;
 public abstract class LogicalOperatorTranslationsTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : BasicTypesQueryFixtureBase, new()
 {
-    [ConditionalFact]
+    [Fact]
     public virtual async Task And()
         => await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Int == 8 && b.String == "Seattle"));
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task And_with_bool_property()
         => await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Bool && b.String == "Seattle"));
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Or()
         => await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Int == 999 || b.String == "Seattle"));
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Or_with_bool_property()
         => await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Bool || b.String == "Seattle"));
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Not()
         => await AssertQuery(
             // ReSharper disable once NegativeEqualityExpression
             ss => ss.Set<BasicTypesEntity>().Where(b => !(b.Int == 999)));
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Not_with_bool_property()
         => await AssertQuery(
             // ReSharper disable once NegativeEqualityExpression

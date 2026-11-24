@@ -79,9 +79,8 @@ public class SqlServerObjectToStringTranslator : IMethodCallTranslator
 
         if (instance.Type == typeof(bool))
         {
-            if (instance is not ColumnExpression { IsNullable: false })
-            {
-                return _sqlExpressionFactory.Case(
+            return instance is not ColumnExpression { IsNullable: false }
+                ? _sqlExpressionFactory.Case(
                     instance,
                     [
                         new CaseWhenClause(
@@ -91,16 +90,14 @@ public class SqlServerObjectToStringTranslator : IMethodCallTranslator
                             _sqlExpressionFactory.Constant(true),
                             _sqlExpressionFactory.Constant(true.ToString()))
                     ],
-                    _sqlExpressionFactory.Constant(string.Empty));
-            }
-
-            return _sqlExpressionFactory.Case(
-                [
-                    new CaseWhenClause(
-                        instance,
-                        _sqlExpressionFactory.Constant(true.ToString()))
-                ],
-                _sqlExpressionFactory.Constant(false.ToString()));
+                    _sqlExpressionFactory.Constant(string.Empty))
+                : _sqlExpressionFactory.Case(
+                    [
+                        new CaseWhenClause(
+                            instance,
+                            _sqlExpressionFactory.Constant(true.ToString()))
+                    ],
+                    _sqlExpressionFactory.Constant(false.ToString()));
         }
 
         // Enums are handled by EnumMethodTranslator

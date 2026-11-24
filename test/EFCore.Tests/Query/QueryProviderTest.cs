@@ -1,11 +1,11 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public class QueryProviderTest
 {
-    [ConditionalFact]
+    [Fact]
     public async Task ExecuteUpdate_and_ExecuteDelete_throw_when_provider_does_not_implement()
     {
         using var context = new TestContext();
@@ -13,22 +13,23 @@ public class QueryProviderTest
 
         Assert.Equal(
             CoreStrings.ExecuteQueriesNotSupported("ExecuteUpdate", "ExecuteUpdateAsync"),
-            Assert.Throws<InvalidOperationException>(() => set.ExecuteUpdate(s => s.SetProperty(e => e.Id, 1))).Message);
+            Assert.Throws<InvalidOperationException>(() => set.ExecuteUpdate(s => s.SetProperty(e => e.Id, 1))).InnerException!.Message);
 
         Assert.Equal(
             CoreStrings.ExecuteQueriesNotSupported("ExecuteUpdate", "ExecuteUpdateAsync"),
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => set.ExecuteUpdateAsync(s => s.SetProperty(e => e.Id, 1)))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => set.ExecuteUpdateAsync(s => s.SetProperty(e => e.Id, 1))))
+            .InnerException!.Message);
 
         Assert.Equal(
             CoreStrings.ExecuteQueriesNotSupported("ExecuteDelete", "ExecuteDeleteAsync"),
-            Assert.Throws<InvalidOperationException>(() => set.ExecuteDelete()).Message);
+            Assert.Throws<InvalidOperationException>(() => set.ExecuteDelete()).InnerException!.Message);
 
         Assert.Equal(
             CoreStrings.ExecuteQueriesNotSupported("ExecuteDelete", "ExecuteDeleteAsync"),
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => set.ExecuteDeleteAsync())).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => set.ExecuteDeleteAsync())).InnerException!.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Non_generic_ExecuteQuery_does_not_throw()
     {
         var context = new TestContext();
@@ -36,7 +37,7 @@ public class QueryProviderTest
         IQueryable q = context.TestEntities;
         var expr = Expression.Call(null, func.GetMethodInfo(), q.Expression);
         Assert.Equal(0, q.Provider.Execute<int>(expr));
-        Assert.Equal(0, (int)q.Provider.Execute(expr));
+        Assert.Equal(0, (int)q.Provider.Execute(expr)!);
     }
 
     #region Fixture
@@ -49,7 +50,7 @@ public class QueryProviderTest
     private class TestContext : DbContext
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<TestEntity> TestEntities { get; set; }
+        public DbSet<TestEntity> TestEntities { get; set; } = null!;
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder

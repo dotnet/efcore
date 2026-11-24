@@ -41,4 +41,9 @@ public sealed class DbContextModelAttribute : Attribute
     ///     Gets the compiled model.
     /// </summary>
     public Type ModelType { get; }
+
+    /// <summary>
+    ///     Gets the database provider name used to build the compiled model.
+    /// </summary>
+    public string? ProviderName { get; set; }
 }

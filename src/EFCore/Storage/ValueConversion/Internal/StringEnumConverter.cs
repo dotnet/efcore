@@ -42,18 +42,13 @@ public class StringEnumConverter<TModel, TProvider, TEnum> : ValueConverter<TMod
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected static Expression<Func<string, TEnum>> ToEnum()
-    {
-        if (!typeof(TEnum).UnwrapNullableType().IsEnum)
-        {
-            throw new InvalidOperationException(
+        => !typeof(TEnum).UnwrapNullableType().IsEnum
+            ? throw new InvalidOperationException(
                 CoreStrings.ConverterBadType(
                     typeof(StringEnumConverter<TModel, TProvider, TEnum>).ShortDisplayName(),
                     typeof(TEnum).ShortDisplayName(),
-                    "enum types"));
-        }
-
-        return v => ConvertToEnum(v);
-    }
+                    "enum types"))
+            : (v => ConvertToEnum(v));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

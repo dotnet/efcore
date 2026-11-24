@@ -28,13 +28,14 @@ public abstract class ComplexJsonRelationalFixtureBase : ComplexPropertiesFixtur
         {
             b.ComplexProperty(e => e.RequiredAssociate, rrb => rrb.ToJson());
 
-            b.ComplexProperty(e => e.OptionalAssociate, orb =>
-            {
-                orb.ToJson();
+            b.ComplexProperty(
+                e => e.OptionalAssociate, orb =>
+                {
+                    orb.ToJson();
 
-                // TODO: Without the following, we get an ambiguous property error
-                orb.ComplexProperty(r => r.OptionalNested).IsRequired(false);
-            });
+                    // TODO: Without the following, we get an ambiguous property error
+                    orb.ComplexProperty(r => r.OptionalNested).IsRequired(false);
+                });
 
             b.ComplexCollection(e => e.AssociateCollection, rcb => rcb.ToJson());
         });

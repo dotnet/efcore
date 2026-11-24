@@ -1,6 +1,9 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Net;
+using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Scripts;
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
@@ -22,23 +25,33 @@ public class CosmosTestHelpers : TestHelpers
         => services.AddEntityFrameworkCosmos();
 
     public override DbContextOptionsBuilder UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
-        => TestEnvironment.UseTokenCredential
+        => CosmosTestEnvironment.UseTokenCredential
             ? optionsBuilder.UseCosmos(
-                TestEnvironment.DefaultConnection,
-                TestEnvironment.TokenCredential,
+                CosmosTestEnvironment.DefaultConnection,
+                CosmosTestEnvironment.TokenCredential,
                 "UnitTests")
             : optionsBuilder.UseCosmos(
-                TestEnvironment.DefaultConnection,
-                TestEnvironment.AuthToken,
+                CosmosTestEnvironment.DefaultConnection,
+                CosmosTestEnvironment.AuthToken,
                 "UnitTests");
 
-    private static readonly string SyncMessage
-        = CoreStrings.WarningAsErrorTemplate(
-            CosmosEventId.SyncNotSupported.ToString(),
-            CosmosResources.LogSyncNotSupported(new TestLogger<CosmosLoggingDefinitions>()).GenerateMessage(),
-            "CosmosEventId.SyncNotSupported");
-
     public override LoggingDefinitions LoggingDefinitions { get; } = new CosmosLoggingDefinitions();
+
+    public static Task CreateOrReplaceTriggerAsync(
+        DbContext context,
+        Container container,
+        TriggerProperties triggerDefinition)
+        => context.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
+        {
+            try
+            {
+                await container.Scripts.CreateTriggerAsync(triggerDefinition);
+            }
+            catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.Conflict)
+            {
+                await container.Scripts.ReplaceTriggerAsync(triggerDefinition);
+            }
+        });
 
     public async Task NoSyncTest(bool async, Func<bool, Task> testCode)
     {
@@ -49,7 +62,7 @@ public class CosmosTestHelpers : TestHelpers
         }
         catch (InvalidOperationException e)
         {
-            if (e.Message != SyncMessage)
+            if (e.Message != CosmosStrings.SyncNotSupported)
             {
                 throw;
             }
@@ -58,7 +71,7 @@ public class CosmosTestHelpers : TestHelpers
         }
         catch (DbUpdateException e)
         {
-            if (e.InnerException?.Message != SyncMessage)
+            if (e.InnerException?.Message != CosmosStrings.SyncNotSupported)
             {
                 throw;
             }
@@ -76,14 +89,14 @@ public class CosmosTestHelpers : TestHelpers
         }
         catch (InvalidOperationException e)
         {
-            if (e.Message != SyncMessage)
+            if (e.Message != CosmosStrings.SyncNotSupported)
             {
                 throw;
             }
         }
         catch (DbUpdateException e)
         {
-            if (e.InnerException?.Message != SyncMessage)
+            if (e.InnerException?.Message != CosmosStrings.SyncNotSupported)
             {
                 throw;
             }

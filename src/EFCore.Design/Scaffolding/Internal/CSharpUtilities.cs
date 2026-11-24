@@ -220,19 +220,9 @@ public class CSharpUtilities : ICSharpUtilities
     }
 
     private static bool IsIdentifierStartCharacter(char ch)
-    {
-        if (ch < 'a')
-        {
-            return ch is >= 'A' and (<= 'Z' or '_');
-        }
-
-        if (ch <= 'z')
-        {
-            return true;
-        }
-
-        return ch > '\u007F' && IsLetterChar(CharUnicodeInfo.GetUnicodeCategory(ch));
-    }
+        => ch < 'a'
+            ? ch is >= 'A' and (<= 'Z' or '_')
+            : ch <= 'z' || (ch > '\u007F' && IsLetterChar(CharUnicodeInfo.GetUnicodeCategory(ch)));
 
     private static bool IsIdentifierPartCharacter(char ch)
     {
@@ -254,37 +244,20 @@ public class CSharpUtilities : ICSharpUtilities
         }
 
         var cat = CharUnicodeInfo.GetUnicodeCategory(ch);
-        if (IsLetterChar(cat))
-        {
-            return true;
-        }
-
-        switch (cat)
-        {
-            case UnicodeCategory.DecimalDigitNumber:
-            case UnicodeCategory.ConnectorPunctuation:
-            case UnicodeCategory.NonSpacingMark:
-            case UnicodeCategory.SpacingCombiningMark:
-            case UnicodeCategory.Format:
-                return true;
-        }
-
-        return false;
+        return IsLetterChar(cat)
+            || cat switch
+            {
+                UnicodeCategory.DecimalDigitNumber or UnicodeCategory.ConnectorPunctuation or UnicodeCategory.NonSpacingMark
+                    or UnicodeCategory.SpacingCombiningMark or UnicodeCategory.Format => true,
+                _ => false,
+            };
     }
 
     private static bool IsLetterChar(UnicodeCategory cat)
-    {
-        switch (cat)
+        => cat switch
         {
-            case UnicodeCategory.UppercaseLetter:
-            case UnicodeCategory.LowercaseLetter:
-            case UnicodeCategory.TitlecaseLetter:
-            case UnicodeCategory.ModifierLetter:
-            case UnicodeCategory.OtherLetter:
-            case UnicodeCategory.LetterNumber:
-                return true;
-        }
-
-        return false;
-    }
+            UnicodeCategory.UppercaseLetter or UnicodeCategory.LowercaseLetter or UnicodeCategory.TitlecaseLetter
+                or UnicodeCategory.ModifierLetter or UnicodeCategory.OtherLetter or UnicodeCategory.LetterNumber => true,
+            _ => false,
+        };
 }

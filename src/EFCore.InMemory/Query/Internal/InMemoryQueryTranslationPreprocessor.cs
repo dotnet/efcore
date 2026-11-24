@@ -36,15 +36,12 @@ public class InMemoryQueryTranslationPreprocessor : QueryTranslationPreprocessor
     {
         var result = base.Process(query);
 
-        if (result is MethodCallExpression { Method.IsGenericMethod: true } methodCallExpression
+        return result is MethodCallExpression { Method.IsGenericMethod: true } methodCallExpression
             && (methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.GroupByWithKeySelector
-                || methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.GroupByWithKeyElementSelector))
-        {
-            throw new InvalidOperationException(
-                CoreStrings.TranslationFailedWithDetails(methodCallExpression.Print(), InMemoryStrings.NonComposedGroupByNotSupported));
-        }
-
-        return result;
+                || methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.GroupByWithKeyElementSelector)
+                ? throw new InvalidOperationException(
+                    CoreStrings.TranslationFailedWithDetails(methodCallExpression.Print(), InMemoryStrings.NonComposedGroupByNotSupported))
+                : result;
     }
 
     /// <inheritdoc />

@@ -144,6 +144,7 @@ public class EntityFrameworkRelationalServicesBuilder : EntityFrameworkServicesB
         TryAdd<IRelationalAnnotationProvider, RelationalAnnotationProvider>();
         TryAdd<IMigrationsAnnotationProvider, MigrationsAnnotationProvider>();
         TryAdd<IModelValidator, RelationalModelValidator>();
+        TryAdd<IMemberClassifier, RelationalMemberClassifier>();
         TryAdd<IMigrator, Migrator>();
         TryAdd<IMigrationCommandExecutor, MigrationCommandExecutor>();
         TryAdd<IMigrationsAssembly, MigrationsAssembly>();
@@ -185,6 +186,7 @@ public class EntityFrameworkRelationalServicesBuilder : EntityFrameworkServicesB
         TryAdd<IRelationalSqlTranslatingExpressionVisitorFactory, RelationalSqlTranslatingExpressionVisitorFactory>();
         TryAdd<ISqlExpressionFactory, SqlExpressionFactory>();
         TryAdd<IQueryTranslationPreprocessorFactory, RelationalQueryTranslationPreprocessorFactory>();
+        TryAdd<INavigationExpansionExtensibilityHelper, RelationalNavigationExpansionExtensibilityHelper>();
         TryAdd<IRelationalParameterBasedSqlProcessorFactory, RelationalParameterBasedSqlProcessorFactory>();
         TryAdd<IRelationalQueryStringFactory, RelationalQueryStringFactory>();
         TryAdd<IQueryCompilationContextFactory, RelationalQueryCompilationContextFactory>();

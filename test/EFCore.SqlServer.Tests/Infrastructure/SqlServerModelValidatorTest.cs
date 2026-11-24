@@ -1,18 +1,62 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Data.SqlTypes;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
+using Microsoft.SqlServer.Types;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 public class SqlServerModelValidatorTest : RelationalModelValidatorTest
 {
-    [ConditionalFact] // Issue #34324
+    [Fact] // Issue #39600
+    public void Scalar_collection_warning_identifies_the_configuration_before_contains_translation_fails()
+    {
+        var options = new DbContextOptionsBuilder()
+            .UseSqlServer()
+            .UseLoggerFactory(LoggerFactory)
+            .Options;
+        var id = Guid.NewGuid();
+
+        using (var context = new ScalarCollectionQueryContext(options))
+        {
+            Assert.Throws<InvalidOperationException>(
+                () => context.Set<CollectionQueryRoom>().Where(r => r.Required.Contains(id)).ToQueryString());
+            var warning = Assert.Single(LoggerFactory.Log, e => e.Id == CoreEventId.AccidentalScalarCollection);
+            Assert.Contains("PrimitiveCollection()", warning.Message);
+        }
+
+        LoggerFactory.Clear();
+        using var collectionContext = new PrimitiveCollectionQueryContext(options);
+        var sql = collectionContext.Set<CollectionQueryRoom>().Where(r => r.Required.Contains(id)).ToQueryString();
+        Assert.Contains("OPENJSON", sql);
+        Assert.DoesNotContain(LoggerFactory.Log, e => e.Id == CoreEventId.AccidentalScalarCollection);
+    }
+
+    private class CollectionQueryRoom
+    {
+        public int Id { get; set; }
+        public Guid[] Required { get; set; } = [];
+    }
+
+    private class ScalarCollectionQueryContext(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<CollectionQueryRoom>().Property(r => r.Required).IsRequired();
+    }
+
+    private class PrimitiveCollectionQueryContext(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<CollectionQueryRoom>().PrimitiveCollection(r => r.Required).IsRequired();
+    }
+
+    [Fact] // Issue #34324
     public virtual void Throws_for_nested_primitive_collections()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -32,10 +76,10 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     protected class WithNestedCollection
     {
         public int Id { get; set; }
-        public string[][] SomeStrings { get; set; }
+        public string[][] SomeStrings { get; set; } = null!;
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Passes_on_TPT_with_nested_owned_types()
     {
         var modelBuilder = base.CreateConventionModelBuilder();
@@ -95,81 +139,60 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         Assert.Equal(SqlServerValueGenerationStrategy.Sequence, keyProperty.GetValueGenerationStrategy());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Throws_for_identity_on_bad_type()
     {
         var modelBuilder = CreateConventionModelBuilder();
 
-        modelBuilder.Entity<Animal>(b =>
-        {
-            b.Property(e => e.Name).UseIdentityColumn();
-        });
+        modelBuilder.Entity<Animal>(b => b.Property(e => e.Name).UseIdentityColumn());
 
         VerifyError(
             SqlServerStrings.IdentityBadType(nameof(LivingBeing.Name), nameof(Animal), "string"),
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Throws_for_sequence_on_bad_type()
     {
         var modelBuilder = CreateConventionModelBuilder();
 
-        modelBuilder.Entity<Animal>(b =>
-        {
-            b.Property(e => e.Name).UseSequence();
-        });
+        modelBuilder.Entity<Animal>(b => b.Property(e => e.Name).UseSequence());
 
         VerifyError(
             SqlServerStrings.SequenceBadType(nameof(LivingBeing.Name), nameof(Animal), "string"),
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Throws_for_sequence_HiLo_on_bad_type()
     {
         var modelBuilder = CreateConventionModelBuilder();
 
-        modelBuilder.Entity<Animal>(b =>
-        {
-            b.Property(e => e.Name).UseHiLo();
-        });
+        modelBuilder.Entity<Animal>(b => b.Property(e => e.Name).UseHiLo());
 
         VerifyError(
             SqlServerStrings.SequenceBadType(nameof(LivingBeing.Name), nameof(Animal), "string"),
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Passes_for_duplicate_column_names_within_hierarchy_with_identity()
     {
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Animal>().Property(a => a.Id).ValueGeneratedNever();
-        modelBuilder.Entity<Cat>(cb =>
-        {
-            cb.Property(c => c.Identity).UseIdentityColumn(2, 3).HasColumnName(nameof(Cat.Identity));
-        });
-        modelBuilder.Entity<Dog>(db =>
-        {
-            db.Property(d => d.Identity).UseIdentityColumn(2, 3).HasColumnName(nameof(Dog.Identity));
-        });
+        modelBuilder.Entity<Cat>(cb => cb.Property(c => c.Identity).UseIdentityColumn(2, 3).HasColumnName(nameof(Cat.Identity)));
+        modelBuilder.Entity<Dog>(db => db.Property(d => d.Identity).UseIdentityColumn(2, 3).HasColumnName(nameof(Dog.Identity)));
 
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_identity_seed()
     {
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Animal>();
-        modelBuilder.Entity<Cat>(cb =>
-        {
-            cb.Property(c => c.Identity).UseIdentityColumn().HasColumnName(nameof(Cat.Identity));
-        });
-        modelBuilder.Entity<Dog>(db =>
-        {
-            db.Property(d => d.Identity).UseIdentityColumn(2).HasColumnName(nameof(Dog.Identity));
-        });
+        modelBuilder.Entity<Cat>(cb => cb.Property(c => c.Identity).UseIdentityColumn().HasColumnName(nameof(Cat.Identity)));
+        modelBuilder.Entity<Dog>(db => db.Property(d => d.Identity).UseIdentityColumn(2).HasColumnName(nameof(Dog.Identity)));
 
         VerifyError(
             SqlServerStrings.DuplicateColumnIdentitySeedMismatch(
@@ -177,19 +200,13 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_identity_increment()
     {
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Animal>();
-        modelBuilder.Entity<Cat>(cb =>
-        {
-            cb.Property(c => c.Identity).UseIdentityColumn().HasColumnName(nameof(Cat.Identity));
-        });
-        modelBuilder.Entity<Dog>(db =>
-        {
-            db.Property(d => d.Identity).UseIdentityColumn(increment: 2).HasColumnName(nameof(Dog.Identity));
-        });
+        modelBuilder.Entity<Cat>(cb => cb.Property(c => c.Identity).UseIdentityColumn().HasColumnName(nameof(Cat.Identity)));
+        modelBuilder.Entity<Dog>(db => db.Property(d => d.Identity).UseIdentityColumn(increment: 2).HasColumnName(nameof(Dog.Identity)));
 
         VerifyError(
             SqlServerStrings.DuplicateColumnIdentityIncrementMismatch(
@@ -197,7 +214,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Passes_for_identity_seed_and_increment_on_owner()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -208,7 +225,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Passes_for_duplicate_column_names_with_HiLoSequence()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -227,7 +244,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_duplicate_column_names_with_different_HiLoSequence_name()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -249,7 +266,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_duplicate_column_name_with_different_HiLoSequence_schema()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -271,7 +288,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Passes_for_duplicate_column_names_with_KeySequence()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -291,7 +308,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_duplicate_column_names_with_different_KeySequence_name()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -315,7 +332,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_duplicate_column_name_with_different_KeySequence_schema()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -339,7 +356,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_value_generation_strategy()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -349,10 +366,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             cb.Property(c => c.Id).ValueGeneratedNever();
             cb.Property(c => c.Identity).UseIdentityColumn().HasColumnName(nameof(Cat.Identity));
         });
-        modelBuilder.Entity<Dog>(db =>
-        {
-            db.Property(d => d.Identity).UseHiLo().HasColumnName(nameof(Dog.Identity));
-        });
+        modelBuilder.Entity<Dog>(db => db.Property(d => d.Identity).UseHiLo().HasColumnName(nameof(Dog.Identity)));
 
         VerifyError(
             SqlServerStrings.DuplicateColumnNameValueGenerationStrategyMismatch(
@@ -360,7 +374,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_sparseness()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -382,7 +396,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Passes_for_incompatible_foreignKeys_within_hierarchy_when_one_name_configured_explicitly_for_sqlServer()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -398,7 +412,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         Assert.Equal("FK_Animal_Person_Name1", fk2.GetConstraintName());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Passes_for_compatible_duplicate_convention_indexes_for_foreign_keys()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -410,11 +424,11 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
 
         var model = Validate(modelBuilder);
 
-        Assert.Equal("IX_Animal_Name", model.FindEntityType(typeof(Cat)).GetDeclaredIndexes().Single().GetDatabaseName());
-        Assert.Equal("IX_Animal_Name", model.FindEntityType(typeof(Dog)).GetDeclaredIndexes().Single().GetDatabaseName());
+        Assert.Equal("IX_Animal_Name", model.FindEntityType(typeof(Cat))!.GetDeclaredIndexes().Single().GetDatabaseName());
+        Assert.Equal("IX_Animal_Name", model.FindEntityType(typeof(Dog))!.GetDeclaredIndexes().Single().GetDatabaseName());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_duplicate_index_names_within_hierarchy_differently_clustered()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -430,7 +444,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_duplicate_index_names_within_hierarchy_different_fill_factor()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -446,7 +460,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_duplicate_index_names_within_hierarchy_differently_online()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -462,7 +476,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_duplicate_index_names_within_hierarchy_different_sort_in_tempdb()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -478,7 +492,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_duplicate_index_names_within_hierarchy_different_data_compression()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -494,7 +508,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_duplicate_index_names_within_hierarchy_with_different_different_include()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -511,7 +525,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Detects_missing_include_properties()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -521,7 +535,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         VerifyError(SqlServerStrings.IncludePropertyNotFound("Tag", "{'Name'}", nameof(Dog)), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Detects_duplicate_include_properties()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -531,7 +545,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         VerifyError(SqlServerStrings.IncludePropertyDuplicated(nameof(Dog), nameof(Dog.Type), "{'Name'}"), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Detects_indexed_include_properties()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -541,7 +555,287 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         VerifyError(SqlServerStrings.IncludePropertyInIndex(nameof(Dog), nameof(Dog.Name), "{'Name'}"), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
+    public void IncludeProperties_supports_dotted_paths_to_complex_type_properties()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<EntityWithIncludedComplex>(b =>
+        {
+            b.HasKey(e => e.Id);
+            b.ComplexProperty(
+                e => e.Address, cb =>
+                {
+                    cb.Property(a => a.City).IsRequired();
+                    cb.Property(a => a.Street).IsRequired();
+                });
+            b.HasIndex(e => e.Id).IncludeProperties("Address.City");
+        });
+
+        var model = Validate(modelBuilder);
+        var index = model.FindEntityType(typeof(EntityWithIncludedComplex))!.GetIndexes().Single();
+        Assert.Equal(["Address.City"], index.GetIncludeProperties());
+    }
+
+    [Fact]
+    public void IncludeProperties_lambda_supports_complex_property_chain()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<EntityWithIncludedComplex>(b =>
+        {
+            b.HasKey(e => e.Id);
+            b.ComplexProperty(
+                e => e.Address, cb =>
+                {
+                    cb.Property(a => a.City).IsRequired();
+                    cb.Property(a => a.Street).IsRequired();
+                });
+            b.HasIndex(e => e.Id).IncludeProperties(e => e.Address.City);
+        });
+
+        var model = Validate(modelBuilder);
+        var index = model.FindEntityType(typeof(EntityWithIncludedComplex))!.GetIndexes().Single();
+        Assert.Equal(["Address.City"], index.GetIncludeProperties());
+    }
+
+    [Fact]
+    public void IncludeProperties_dotted_path_not_found_throws()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<EntityWithIncludedComplex>(b =>
+        {
+            b.HasKey(e => e.Id);
+            b.ComplexProperty(
+                e => e.Address, cb =>
+                {
+                    cb.Property(a => a.City).IsRequired();
+                    cb.Property(a => a.Street).IsRequired();
+                });
+            b.HasIndex(e => e.Id).IncludeProperties("Address.NotAProperty");
+        });
+
+        VerifyError(
+            SqlServerStrings.IncludePropertyNotFound("Address.NotAProperty", "{'Id'}", nameof(EntityWithIncludedComplex)),
+            modelBuilder);
+    }
+
+    [Fact]
+    public void IncludeProperties_on_non_json_complex_property_throws()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<EntityWithIncludedComplex>(b =>
+        {
+            b.HasKey(e => e.Id);
+            b.ComplexProperty(
+                e => e.Address, cb =>
+                {
+                    cb.Property(a => a.City).IsRequired();
+                    cb.Property(a => a.Street).IsRequired();
+                });
+            b.HasIndex(e => e.Id).IncludeProperties("Address");
+        });
+
+        VerifyError(
+            SqlServerStrings.IncludePropertyNotFound("Address", "{'Id'}", nameof(EntityWithIncludedComplex)),
+            modelBuilder);
+    }
+
+    [Fact]
+    public void IncludeProperties_inside_json_complex_collection_throws()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<EntityWithIncludedComplexCollection>(b =>
+        {
+            b.HasKey(e => e.Id);
+            b.ComplexCollection(
+                e => e.Addresses, cb =>
+                {
+                    cb.ToJson();
+                    cb.Property(a => a.City).IsRequired();
+                    cb.Property(a => a.Street).IsRequired();
+                });
+            b.HasIndex(e => e.Id).IncludeProperties("Addresses.City");
+        });
+
+        VerifyError(
+            SqlServerStrings.IncludePropertyInJsonMappedType(
+                "Addresses.City", "{'Id'}", nameof(EntityWithIncludedComplexCollection)),
+            modelBuilder);
+    }
+
+    [Fact]
+    public void IncludeProperties_on_json_complex_collection_is_valid()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<EntityWithIncludedComplexCollection>(b =>
+        {
+            b.HasKey(e => e.Id);
+            b.ComplexCollection(
+                e => e.Addresses, cb =>
+                {
+                    cb.ToJson();
+                    cb.Property(a => a.City).IsRequired();
+                    cb.Property(a => a.Street).IsRequired();
+                });
+            b.HasIndex(e => e.Id).IncludeProperties("Addresses");
+        });
+
+        var model = Validate(modelBuilder);
+        var index = model.FindEntityType(typeof(EntityWithIncludedComplexCollection))!.GetIndexes().Single();
+        Assert.Equal(["Addresses"], index.GetIncludeProperties());
+    }
+
+    [Fact]
+    public void IncludeProperties_inside_json_complex_property_throws()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<EntityWithIncludedComplexJson>(b =>
+        {
+            b.HasKey(e => e.Id);
+            b.ComplexProperty(
+                e => e.Address, cb =>
+                {
+                    cb.ToJson();
+                    cb.Property(a => a.City).IsRequired();
+                    cb.Property(a => a.Street).IsRequired();
+                });
+            b.HasIndex(e => e.Id).IncludeProperties("Address.City");
+        });
+
+        VerifyError(
+            SqlServerStrings.IncludePropertyInJsonMappedType(
+                "Address.City", "{'Id'}", nameof(EntityWithIncludedComplexJson)),
+            modelBuilder);
+    }
+
+    [Fact]
+    public void IncludeProperties_on_json_complex_property_is_valid()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<EntityWithIncludedComplexJson>(b =>
+        {
+            b.HasKey(e => e.Id);
+            b.ComplexProperty(
+                e => e.Address, cb =>
+                {
+                    cb.ToJson();
+                    cb.Property(a => a.City).IsRequired();
+                    cb.Property(a => a.Street).IsRequired();
+                });
+            b.HasIndex(e => e.Id).IncludeProperties("Address");
+        });
+
+        var model = Validate(modelBuilder);
+        var index = model.FindEntityType(typeof(EntityWithIncludedComplexJson))!.GetIndexes().Single();
+        Assert.Equal(["Address"], index.GetIncludeProperties());
+    }
+
+    protected class EntityWithIncludedComplexJson
+    {
+        public int Id { get; set; }
+        public required EntityWithIncludedComplexAddress Address { get; set; }
+    }
+
+    protected class EntityWithIncludedComplex
+    {
+        public int Id { get; set; }
+        public required EntityWithIncludedComplexAddress Address { get; set; }
+    }
+
+    protected class EntityWithIncludedComplexCollection
+    {
+        public int Id { get; set; }
+        public required List<EntityWithIncludedComplexAddress> Addresses { get; set; }
+    }
+
+    protected class EntityWithIncludedComplexAddress
+    {
+        public required string City { get; set; }
+        public required string Street { get; set; }
+    }
+
+    [Theory]
+    [InlineData("IsUnique")]
+    [InlineData("IsDescending")]
+    [InlineData("Filter")]
+    [InlineData("IsClustered")]
+    [InlineData("IncludeProperties")]
+    [InlineData("IsCreatedOnline")]
+    [InlineData("SortInTempDb")]
+    [InlineData("DataCompression")]
+    public void Json_index_with_unsupported_option_throws(string option)
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<EntityWithIncludedComplexJson>(b =>
+        {
+            b.ComplexProperty(e => e.Address, cb => cb.ToJson());
+            var indexBuilder = b.HasIndex("Address.City");
+
+            switch (option)
+            {
+                case "IsUnique":
+                    indexBuilder.IsUnique();
+                    break;
+                case "IsDescending":
+                    indexBuilder.IsDescending();
+                    break;
+                case "Filter":
+                    indexBuilder.HasFilter("[Id] > 0");
+                    break;
+                case "IsClustered":
+                    indexBuilder.IsClustered();
+                    break;
+                case "IncludeProperties":
+                    indexBuilder.IncludeProperties("Id");
+                    break;
+                case "IsCreatedOnline":
+                    indexBuilder.IsCreatedOnline();
+                    break;
+                case "SortInTempDb":
+                    indexBuilder.SortInTempDb();
+                    break;
+                case "DataCompression":
+                    indexBuilder.Metadata.SetDataCompression(DataCompressionType.Page);
+                    break;
+                default:
+                    throw new InvalidOperationException();
+            }
+        });
+
+        VerifyError(
+            SqlServerStrings.JsonIndexUnsupportedOption(
+                "{'City'}", nameof(EntityWithIncludedComplexJson), option),
+            modelBuilder);
+    }
+
+    [Theory]
+    [InlineData("FillFactor")]
+    [InlineData("NonClustered")]
+    [InlineData("NoIncludeProperties")]
+    [InlineData("CreatedOffline")]
+    [InlineData("SortInTempDbDisabled")]
+    public void Json_index_with_supported_option_passes(string option)
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<EntityWithIncludedComplexJson>(b =>
+        {
+            b.ComplexProperty(e => e.Address, cb => cb.ToJson());
+            var indexBuilder = b.HasIndex("Address.City");
+
+            _ = option switch
+            {
+                "FillFactor" => indexBuilder.HasFillFactor(80),
+                "NonClustered" => indexBuilder.IsClustered(false),
+                "NoIncludeProperties" => indexBuilder.IncludeProperties(),
+                "CreatedOffline" => indexBuilder.IsCreatedOnline(false),
+                "SortInTempDbDisabled" => indexBuilder.SortInTempDb(false),
+                _ => throw new InvalidOperationException()
+            };
+        });
+
+        Validate(modelBuilder);
+    }
+
+    [Fact]
     public virtual void Detects_incompatible_memory_optimized_shared_table()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -557,7 +851,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_incompatible_sql_output_clause_shared_table()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -572,7 +866,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Passes_for_shared_table_with_only_one_entity_trigger_definition()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -583,7 +877,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_incompatible_non_clustered_shared_key()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -600,7 +894,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_decimal_keys()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -613,7 +907,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
                 .GenerateMessage("Price", nameof(Animal)), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_default_decimal_mapping()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -624,7 +918,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
                 .GenerateMessage("Price", nameof(Animal)), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detects_default_nullable_decimal_mapping()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -635,7 +929,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
                 .GenerateMessage("Price", nameof(Animal)), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Does_not_warn_if_decimal_column_has_precision_and_scale()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -647,7 +941,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
                 .GenerateMessage("Price", nameof(Animal)), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Does_not_warn_if_default_decimal_mapping_has_non_decimal_to_decimal_value_converter()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -660,7 +954,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
                 .GenerateMessage("Price", nameof(Animal)), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Warn_if_default_decimal_mapping_has_decimal_to_decimal_value_converter()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -673,7 +967,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
                 .GenerateMessage("Price", nameof(Animal)), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Detects_byte_identity_column()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -685,7 +979,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
                 .GenerateMessage("Bite", nameof(Dog)), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Detects_nullable_byte_identity_column()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -697,7 +991,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
                 .GenerateMessage("Bite", nameof(Dog)), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Detects_multiple_identity_properties()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -709,7 +1003,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         VerifyError(SqlServerStrings.MultipleIdentityColumns("'Dog.Tag', 'Dog.Type'", nameof(Dog)), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Passes_for_non_key_identity()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -719,7 +1013,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Passes_for_non_key_identity_on_model()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -732,7 +1026,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Passes_for_non_key_SequenceHiLo_on_model()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -744,7 +1038,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Passes_for_non_key_KeySequence_on_model()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -756,7 +1050,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         Validate(modelBuilder);
     }
 
-    [ConditionalTheory, InlineData("DefaultValue", "DefaultValueSql"), InlineData("DefaultValue", "ComputedColumnSql"),
+    [Theory, InlineData("DefaultValue", "DefaultValueSql"), InlineData("DefaultValue", "ComputedColumnSql"),
      InlineData("DefaultValueSql", "ComputedColumnSql")]
     public void Metadata_throws_when_setting_conflicting_serverGenerated_values(string firstConfiguration, string secondConfiguration)
     {
@@ -772,7 +1066,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalTheory, InlineData(SqlServerValueGenerationStrategy.IdentityColumn, "DefaultValueSql"),
+    [Theory, InlineData(SqlServerValueGenerationStrategy.IdentityColumn, "DefaultValueSql"),
      InlineData(SqlServerValueGenerationStrategy.IdentityColumn, "ComputedColumnSql"),
      InlineData(SqlServerValueGenerationStrategy.SequenceHiLo, "DefaultValueSql"),
      InlineData(SqlServerValueGenerationStrategy.SequenceHiLo, "ComputedColumnSql")]
@@ -793,7 +1087,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalTheory, InlineData(SqlServerValueGenerationStrategy.IdentityColumn),
+    [Theory, InlineData(SqlServerValueGenerationStrategy.IdentityColumn),
      InlineData(SqlServerValueGenerationStrategy.SequenceHiLo)]
     public void SqlServerValueGenerationStrategy_warns_when_setting_conflicting_DefaultValue(
         SqlServerValueGenerationStrategy sqlServerValueGenerationStrategy)
@@ -836,7 +1130,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void DefaultValue_with_explicit_constraint_name_throws_for_TPC()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -850,7 +1144,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void DefaultValueSql_with_explicit_constraint_name_throws_for_TPC()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -864,7 +1158,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void DefaultValue_with_empty_explicit_constraint_name_throws()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -875,7 +1169,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             => modelBuilder.Entity<Animal>().Property(x => x.Name).HasDefaultValue("Miauo", defaultConstraintName: ""));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void DefaultValueSql_with_empty_explicit_constraint_name_throws()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -886,7 +1180,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             => modelBuilder.Entity<Animal>().Property(x => x.Name).HasDefaultValueSql("Miauo", defaultConstraintName: ""));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void DefaultValue_with_implicit_constraint_name_throws_for_TPC()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -904,7 +1198,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
 
     #region Temporal tables
 
-    [ConditionalFact]
+    [Fact]
     public void Temporal_can_only_be_specified_on_root_entities()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -914,7 +1208,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         VerifyError(SqlServerStrings.TemporalOnlyOnRoot(nameof(Dog)), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Temporal_enitty_must_have_period_start()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -924,7 +1218,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         VerifyError(SqlServerStrings.TemporalMustDefinePeriodProperties(nameof(Dog)), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Temporal_enitty_must_have_period_end()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -934,7 +1228,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         VerifyError(SqlServerStrings.TemporalMustDefinePeriodProperties(nameof(Dog)), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Temporal_enitty_without_expected_period_start_property()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -944,16 +1238,16 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         VerifyError(SqlServerStrings.TemporalExpectedPeriodPropertyNotFound(nameof(Dog), "Start"), modelBuilder);
     }
 
-    [ConditionalFact]
-    public void Temporal_period_property_must_be_in_shadow_state()
+    [Fact]
+    public void Temporal_period_property_mapped_to_CLR_property_is_allowed()
     {
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Human>().ToTable(tb => tb.IsTemporal(ttb => ttb.HasPeriodStart("DateOfBirth")));
 
-        VerifyError(SqlServerStrings.TemporalPeriodPropertyMustBeInShadowState(nameof(Human), "DateOfBirth"), modelBuilder);
+        Validate(modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Temporal_period_property_must_be_non_nullable_datetime()
     {
         var modelBuilder1 = CreateConventionModelBuilder();
@@ -973,7 +1267,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             SqlServerStrings.TemporalPeriodPropertyMustBeNonNullableDateTime(nameof(Dog), "Start", nameof(DateTime)), modelBuilder2);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Temporal_period_property_must_be_mapped_to_datetime2()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -983,7 +1277,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         VerifyError(SqlServerStrings.TemporalPeriodPropertyMustBeMappedToDatetime2(nameof(Dog), "Start", "datetime2"), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Temporal_all_properties_mapped_to_period_column_must_have_value_generated_OnAddOrUpdate()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -995,7 +1289,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
                 nameof(Dog), "Start", nameof(ValueGenerated.OnAddOrUpdate)), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Temporal_period_property_cant_have_default_value()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1005,7 +1299,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         VerifyError(SqlServerStrings.TemporalPeriodPropertyCantHaveDefaultValue(nameof(Dog), "Start"), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Temporal_doesnt_work_on_TPH()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1016,7 +1310,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         VerifyError(SqlServerStrings.TemporalOnlySupportedForTPH(nameof(Animal)), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Temporal_doesnt_work_on_table_splitting_with_inconsistent_period_mappings()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1029,7 +1323,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
                 "start", "Splitting2", "PeriodStart", "Splitting2_PeriodStart", "PeriodStart"), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Temporal_doesnt_work_on_table_splitting_when_some_types_are_temporal_and_some_are_not()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1040,7 +1334,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         VerifyError(SqlServerStrings.TemporalAllEntitiesMappedToSameTableMustBeTemporal("Splitting1"), modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Temporal_table_with_explicit_precision_on_period_columns_passes_validation()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1052,13 +1346,13 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
 
         Validate(modelBuilder);
 
-        var entity = modelBuilder.Model.FindEntityType(typeof(Human));
+        var entity = modelBuilder.Model.FindEntityType(typeof(Human))!;
 
-        Assert.Equal(2, entity.FindProperty("Start").GetPrecision());
-        Assert.Equal(2, entity.FindProperty("End").GetPrecision());
+        Assert.Equal(2, entity.FindProperty("Start")!.GetPrecision());
+        Assert.Equal(2, entity.FindProperty("End")!.GetPrecision());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Temporal_table_with_owned_with_explicit_precision_on_period_columns_passes_validation()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1079,20 +1373,20 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
 
         Validate(modelBuilder);
 
-        var ownerEntity = modelBuilder.Model.FindEntityType(typeof(Owner));
-        var ownedEntity = modelBuilder.Model.FindEntityType(typeof(OwnedEntity));
+        var ownerEntity = modelBuilder.Model.FindEntityType(typeof(Owner))!;
+        var ownedEntity = modelBuilder.Model.FindEntityType(typeof(OwnedEntity))!;
 
-        Assert.Equal(2, ownerEntity.FindProperty("Start").GetPrecision());
-        Assert.Equal(2, ownerEntity.FindProperty("End").GetPrecision());
-        Assert.Equal(2, ownedEntity.FindProperty("Start").GetPrecision());
-        Assert.Equal(2, ownedEntity.FindProperty("End").GetPrecision());
+        Assert.Equal(2, ownerEntity.FindProperty("Start")!.GetPrecision());
+        Assert.Equal(2, ownerEntity.FindProperty("End")!.GetPrecision());
+        Assert.Equal(2, ownedEntity.FindProperty("Start")!.GetPrecision());
+        Assert.Equal(2, ownedEntity.FindProperty("End")!.GetPrecision());
     }
 
     #endregion Temporal tables
 
     #region Vector
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Throws_for_vector_property_without_dimensions()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1104,20 +1398,101 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
-    public virtual void Throws_for_vector_property_inside_JSON()
+    [Fact]
+    public virtual void Throws_for_vector_property_inside_JSON_owned_entity()
     {
         var modelBuilder = CreateConventionModelBuilder();
 
-        modelBuilder.Entity<VectorInsideJsonEntity>().OwnsOne(
-            v => v.VectorContainer, n =>
-            {
-                n.ToJson();
-                n.Property(v => v.Vector).HasMaxLength(3);
-            });
+        modelBuilder.Entity<VectorInsideJsonEntity>()
+            .OwnsOne(
+                v => v.VectorContainer,
+                n =>
+                {
+                    n.ToJson();
+                    n.Property(v => v.Vector).HasMaxLength(3);
+                });
 
         VerifyError(
             SqlServerStrings.VectorPropertiesNotSupportedInJson(nameof(VectorContainer), nameof(VectorContainer.Vector)),
+            modelBuilder);
+    }
+
+    [Fact]
+    [Experimental("EF9105")]
+    public virtual void Throws_for_vector_property_inside_JSON_complex_type()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<VectorInsideJsonEntity>()
+            .ComplexProperty(
+                v => v.VectorContainer,
+                n =>
+                {
+                    n.ToJson();
+                    n.Property(v => v.Vector).HasMaxLength(3);
+                });
+
+        VerifyError(
+            SqlServerStrings.VectorPropertiesNotSupportedInJson(
+                "VectorInsideJsonEntity.VectorContainer#VectorContainer",
+                nameof(VectorContainer.Vector)),
+            modelBuilder);
+    }
+
+    [Fact]
+    [Experimental("EF9105")]
+    public virtual void Throws_for_vector_index_on_multiple_properties()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<VectorEntityWithTwoVectors>(b =>
+        {
+            b.Property(e => e.Vector1).HasMaxLength(3);
+            b.Property(e => e.Vector2).HasMaxLength(3);
+            b.HasVectorIndex(e => new { e.Vector1, e.Vector2 }).HasMetric("cosine");
+        });
+
+        VerifyError(
+            SqlServerStrings.VectorIndexRequiresSingleProperty(
+                "{'Vector1', 'Vector2'}",
+                nameof(VectorEntityWithTwoVectors)),
+            modelBuilder);
+    }
+
+    [Fact]
+    [Experimental("EF9105")]
+    public virtual void Throws_for_vector_index_on_non_vector_property()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<VectorEntityWithNonVector>(b => b.HasVectorIndex(e => e.NonVectorProperty).HasMetric("cosine"));
+
+        VerifyError(
+            SqlServerStrings.VectorIndexOnNonVectorProperty(
+                "{'NonVectorProperty'}",
+                nameof(VectorEntityWithNonVector),
+                nameof(VectorEntityWithNonVector.NonVectorProperty)),
+            modelBuilder);
+    }
+
+    [Fact]
+    [Experimental("EF9105")]
+    public virtual void Throws_for_vector_index_with_unsupported_option()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<VectorWithoutDimensionsEntity>(b =>
+        {
+            b.Property(e => e.Vector).HasMaxLength(3);
+            var indexBuilder = b.HasVectorIndex(e => e.Vector).HasMetric("cosine");
+            indexBuilder.Metadata.SetDataCompression(DataCompressionType.Page);
+        });
+
+        VerifyError(
+            SqlServerStrings.VectorIndexUnsupportedOption(
+                "{'Vector'}",
+                nameof(VectorWithoutDimensionsEntity),
+                "DataCompression"),
             modelBuilder);
     }
 
@@ -1130,7 +1505,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     public class VectorInsideJsonEntity
     {
         public int Id { get; set; }
-        public VectorContainer VectorContainer { get; set; }
+        public VectorContainer VectorContainer { get; set; } = null!;
     }
 
     public class VectorContainer
@@ -1138,7 +1513,223 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         public SqlVector<float> Vector { get; set; }
     }
 
+    public class VectorEntityWithTwoVectors
+    {
+        public int Id { get; set; }
+        public SqlVector<float> Vector1 { get; set; }
+        public SqlVector<float> Vector2 { get; set; }
+    }
+
+    public class VectorEntityWithNonVector
+    {
+        public int Id { get; set; }
+        public string NonVectorProperty { get; set; } = null!;
+    }
+
+    [Fact]
+    [Experimental("EF9105")]
+    public virtual void Passes_for_vector_index_on_complex_type_property_not_mapped_to_json()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<VectorInsideJsonEntity>(b =>
+        {
+            b.ComplexProperty(
+                v => v.VectorContainer,
+                n => n.Property(v => v.Vector).HasMaxLength(3));
+            b.HasVectorIndex("VectorContainer.Vector").HasMetric("cosine");
+        });
+
+        Validate(modelBuilder);
+    }
+
+    [Fact]
+    [Experimental("EF9105")]
+    public virtual void Throws_for_vector_index_on_complex_type_property_mapped_to_json()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<VectorInsideJsonEntity>(b =>
+        {
+            b.ComplexProperty(
+                v => v.VectorContainer,
+                n =>
+                {
+                    n.ToJson();
+                    n.Property(v => v.Vector).HasMaxLength(3);
+                });
+            b.HasVectorIndex("VectorContainer.Vector").HasMetric("cosine");
+        });
+
+        VerifyError(
+            SqlServerStrings.VectorPropertiesNotSupportedInJson(
+                "VectorInsideJsonEntity.VectorContainer#VectorContainer",
+                nameof(VectorContainer.Vector)),
+            modelBuilder);
+    }
+
     #endregion Vector
+
+    #region Full-text search
+
+    [Fact]
+    public virtual void Throws_for_multiple_full_text_indexes_on_same_entity()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<FullTextEntityWithTwoIndexes>(b =>
+        {
+            b.HasFullTextIndex(e => e.Title).UseKeyIndex("PK_FullTextEntityWithTwoIndexes");
+            b.HasFullTextIndex(e => e.Body).UseKeyIndex("PK_FullTextEntityWithTwoIndexes");
+        });
+
+        VerifyError(
+            SqlServerStrings.FullTextIndexDuplicateOnTable(
+                nameof(FullTextEntityWithTwoIndexes)),
+            modelBuilder);
+    }
+
+    [Fact]
+    public virtual void Throws_for_full_text_index_missing_key_index()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<FullTextEntityValid>(b =>
+        {
+            var indexBuilder = b.HasIndex(e => e.Title);
+            // Set the annotation with a null value to simulate a missing KEY INDEX
+            indexBuilder.Metadata.SetAnnotation(SqlServerAnnotationNames.FullTextIndex, null);
+        });
+
+        VerifyError(
+            SqlServerStrings.FullTextIndexMissingKeyIndex(
+                "{'Title'}",
+                nameof(FullTextEntityValid)),
+            modelBuilder);
+    }
+
+    [Fact]
+    public virtual void Throws_for_full_text_index_on_invalid_column_type()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<FullTextEntityWithIntColumn>(b
+            => b.HasFullTextIndex(e => e.Count).UseKeyIndex("PK_FullTextEntityWithIntColumn"));
+
+        VerifyError(
+            SqlServerStrings.FullTextIndexOnInvalidColumn(
+                "{'Count'}",
+                nameof(FullTextEntityWithIntColumn),
+                nameof(FullTextEntityWithIntColumn.Count)),
+            modelBuilder);
+    }
+
+    [Fact]
+    public virtual void Does_not_throw_for_full_text_index_on_string_column()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<FullTextEntityValid>(b => b.HasFullTextIndex(e => e.Title).UseKeyIndex("PK_FullTextEntityValid"));
+
+        Validate(modelBuilder);
+    }
+
+    [Fact]
+    public virtual void Does_not_throw_for_full_text_index_on_byte_array_column()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<FullTextEntityWithBinary>(b => b.HasFullTextIndex(e => e.Document).UseKeyIndex("PK_FullTextEntityWithBinary"));
+
+        Validate(modelBuilder);
+    }
+
+    [Fact]
+    public virtual void Does_not_throw_for_full_text_index_on_mixed_string_and_binary_columns()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<FullTextEntityWithMixedColumns>(b
+            => b.HasFullTextIndex(e => new { e.Title, e.Document }).UseKeyIndex("PK_FullTextEntityWithMixedColumns"));
+
+        Validate(modelBuilder);
+    }
+
+    [Fact]
+    public virtual void Throws_for_full_text_index_with_mixed_valid_and_invalid_columns()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<FullTextEntityWithMixedValidInvalid>(b
+            => b.HasFullTextIndex(e => new { e.Title, e.Count }).UseKeyIndex("PK_FullTextEntityWithMixedValidInvalid"));
+
+        VerifyError(
+            SqlServerStrings.FullTextIndexOnInvalidColumn(
+                "{'Title', 'Count'}",
+                nameof(FullTextEntityWithMixedValidInvalid),
+                nameof(FullTextEntityWithMixedValidInvalid.Count)),
+            modelBuilder);
+    }
+
+    [Fact]
+    public virtual void Throws_for_full_text_index_with_unsupported_option()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<FullTextEntityValid>(b =>
+        {
+            var indexBuilder = b.HasFullTextIndex(e => e.Title).UseKeyIndex("PK_FullTextEntityValid");
+            indexBuilder.Metadata.IsUnique = true;
+        });
+
+        VerifyError(
+            SqlServerStrings.FullTextIndexUnsupportedOption(
+                "{'Title'}",
+                nameof(FullTextEntityValid),
+                "IsUnique"),
+            modelBuilder);
+    }
+
+    public class FullTextEntityWithTwoIndexes
+    {
+        public int Id { get; set; }
+        public string Title { get; set; } = null!;
+        public string Body { get; set; } = null!;
+    }
+
+    public class FullTextEntityWithIntColumn
+    {
+        public int Id { get; set; }
+        public int Count { get; set; }
+    }
+
+    public class FullTextEntityValid
+    {
+        public int Id { get; set; }
+        public string Title { get; set; } = null!;
+    }
+
+    public class FullTextEntityWithBinary
+    {
+        public int Id { get; set; }
+        public byte[] Document { get; set; } = null!;
+    }
+
+    public class FullTextEntityWithMixedColumns
+    {
+        public int Id { get; set; }
+        public string Title { get; set; } = null!;
+        public byte[] Document { get; set; } = null!;
+    }
+
+    public class FullTextEntityWithMixedValidInvalid
+    {
+        public int Id { get; set; }
+        public string Title { get; set; } = null!;
+        public int Count { get; set; }
+    }
+
+    #endregion Full-text search
 
     public class Human
     {
@@ -1149,13 +1740,13 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     public class Splitting1
     {
         public int Id { get; set; }
-        public Splitting2 Details { get; set; }
+        public Splitting2 Details { get; set; } = null!;
     }
 
     public class Splitting2
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         public DateTime Detail { get; set; }
     }
 
@@ -1163,7 +1754,23 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     {
         public int Id { get; set; }
 
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
+    }
+
+    [Fact]
+    public void Throws_hierarchyid_message_when_hierarchyid_property_is_not_mapped()
+    {
+        var modelBuilder = CreateConventionlessModelBuilder();
+        var entityTypeBuilder = modelBuilder.Entity(typeof(NonPrimitiveAsPropertyEntity));
+        entityTypeBuilder.Property(typeof(SqlHierarchyId), "TreeNode");
+        entityTypeBuilder.Ignore(nameof(NonPrimitiveAsPropertyEntity.Property));
+
+        Assert.Equal(
+            SqlServerStrings.PropertyNotMappedHierarchyId(
+                typeof(SqlHierarchyId).ShortDisplayName(),
+                typeof(NonPrimitiveAsPropertyEntity).ShortDisplayName(),
+                "TreeNode"),
+            Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
     }
 
     protected override TestHelpers TestHelpers

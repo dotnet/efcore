@@ -73,6 +73,13 @@ public class ModelRuntimeInitializer : IModelRuntimeInitializer
                 {
                     model.ModelDependencies = Dependencies.ModelDependencies;
 
+                    if (Dependencies.CoreSingletonOptions.AreDetailedErrorsEnabled)
+                    {
+                        model.SetRuntimeAnnotation(
+                            CoreAnnotationNames.DetailedErrorsEnabled,
+                            true);
+                    }
+
                     InitializeModel(model, designTime, prevalidation: true);
 
                     if (validationLogger != null

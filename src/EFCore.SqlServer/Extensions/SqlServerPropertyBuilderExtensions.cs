@@ -75,7 +75,7 @@ public static class SqlServerPropertyBuilderExtensions
         this PropertyBuilder<TProperty> propertyBuilder,
         string? name = null,
         string? schema = null)
-        => (PropertyBuilder<TProperty>)UseHiLo((PropertyBuilder)propertyBuilder, name, schema);
+        => (PropertyBuilder<TProperty>)((PropertyBuilder)propertyBuilder).UseHiLo(name, schema);
 
     /// <summary>
     ///     Configures the database sequence used for the hi-lo pattern to generate values for the key property,
@@ -188,7 +188,7 @@ public static class SqlServerPropertyBuilderExtensions
         this PropertyBuilder<TProperty> propertyBuilder,
         string? name = null,
         string? schema = null)
-        => (PropertyBuilder<TProperty>)UseSequence((PropertyBuilder)propertyBuilder, name, schema);
+        => (PropertyBuilder<TProperty>)((PropertyBuilder)propertyBuilder).UseSequence(name, schema);
 
     /// <summary>
     ///     Configures the database sequence used for the key value generation pattern to generate values for the key property,
@@ -342,7 +342,7 @@ public static class SqlServerPropertyBuilderExtensions
         this PropertyBuilder<TProperty> propertyBuilder,
         long seed = 1,
         int increment = 1)
-        => (PropertyBuilder<TProperty>)UseIdentityColumn((PropertyBuilder)propertyBuilder, seed, increment);
+        => (PropertyBuilder<TProperty>)((PropertyBuilder)propertyBuilder).UseIdentityColumn(seed, increment);
 
     /// <summary>
     ///     Configures the key property to use the SQL Server IDENTITY feature to generate values for new entities,
@@ -362,7 +362,7 @@ public static class SqlServerPropertyBuilderExtensions
         this PropertyBuilder<TProperty> propertyBuilder,
         int seed,
         int increment = 1)
-        => (PropertyBuilder<TProperty>)UseIdentityColumn((PropertyBuilder)propertyBuilder, (long)seed, increment);
+        => (PropertyBuilder<TProperty>)((PropertyBuilder)propertyBuilder).UseIdentityColumn((long)seed, increment);
 
     /// <summary>
     ///     Configures the key column to use the SQL Server IDENTITY feature to generate values for new entities,
@@ -382,7 +382,7 @@ public static class SqlServerPropertyBuilderExtensions
         this ColumnBuilder<TProperty> columnBuilder,
         long seed = 1,
         int increment = 1)
-        => (ColumnBuilder<TProperty>)UseIdentityColumn((ColumnBuilder)columnBuilder, seed, increment);
+        => (ColumnBuilder<TProperty>)((ColumnBuilder)columnBuilder).UseIdentityColumn(seed, increment);
 
     /// <summary>
     ///     Configures the seed for SQL Server IDENTITY.
@@ -759,7 +759,7 @@ public static class SqlServerPropertyBuilderExtensions
     public static PropertyBuilder<TProperty> IsSparse<TProperty>(
         this PropertyBuilder<TProperty> propertyBuilder,
         bool sparse = true)
-        => (PropertyBuilder<TProperty>)IsSparse((PropertyBuilder)propertyBuilder, sparse);
+        => (PropertyBuilder<TProperty>)((PropertyBuilder)propertyBuilder).IsSparse(sparse);
 
     /// <summary>
     ///     Configures whether the property's column is created as sparse when targeting SQL Server.
@@ -814,6 +814,52 @@ public static class SqlServerPropertyBuilderExtensions
         => property.CanSetAnnotation(SqlServerAnnotationNames.Sparse, sparse, fromDataAnnotation);
 
     /// <summary>
+    ///     Configures whether the property's column is defined with the SQL Server <c>HIDDEN</c> flag, which excludes the
+    ///     column from <c>SELECT *</c> results. This applies to generated columns such as temporal table period columns.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="propertyBuilder">The builder for the property being configured.</param>
+    /// <param name="hidden">A value indicating whether the property's column is hidden.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The same builder instance if the configuration was applied, <see langword="null" /> otherwise.</returns>
+    public static IConventionPropertyBuilder? IsHidden(
+        this IConventionPropertyBuilder propertyBuilder,
+        bool? hidden,
+        bool fromDataAnnotation = false)
+    {
+        if (propertyBuilder.CanSetIsHidden(hidden, fromDataAnnotation))
+        {
+            propertyBuilder.Metadata.SetIsHidden(hidden, fromDataAnnotation);
+
+            return propertyBuilder;
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    ///     Returns a value indicating whether the property's column can be configured with the SQL Server <c>HIDDEN</c> flag.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="propertyBuilder">The builder for the property being configured.</param>
+    /// <param name="hidden">A value indicating whether the property's column is hidden.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>
+    ///     <see langword="true" /> if the property's column can be configured with the <c>HIDDEN</c> flag.
+    /// </returns>
+    public static bool CanSetIsHidden(
+        this IConventionPropertyBuilder propertyBuilder,
+        bool? hidden,
+        bool fromDataAnnotation = false)
+        => propertyBuilder.CanSetAnnotation(SqlServerAnnotationNames.IsHidden, hidden, fromDataAnnotation);
+
+    /// <summary>
     ///     Configures the default value for the column that the property maps to when targeting SQL Server.
     /// </summary>
     /// <remarks>
@@ -854,7 +900,7 @@ public static class SqlServerPropertyBuilderExtensions
         this PropertyBuilder<TProperty> propertyBuilder,
         object? value,
         string defaultConstraintName)
-        => (PropertyBuilder<TProperty>)HasDefaultValue((PropertyBuilder)propertyBuilder, value, defaultConstraintName);
+        => (PropertyBuilder<TProperty>)((PropertyBuilder)propertyBuilder).HasDefaultValue(value, defaultConstraintName);
 
     /// <summary>
     ///     Configures the default value for the column that the property maps to when targeting SQL Server.
@@ -957,7 +1003,7 @@ public static class SqlServerPropertyBuilderExtensions
         this PropertyBuilder<TProperty> propertyBuilder,
         string? sql,
         string defaultConstraintName)
-        => (PropertyBuilder<TProperty>)HasDefaultValueSql((PropertyBuilder)propertyBuilder, sql, defaultConstraintName);
+        => (PropertyBuilder<TProperty>)((PropertyBuilder)propertyBuilder).HasDefaultValueSql(sql, defaultConstraintName);
 
     /// <summary>
     ///     Configures the default value expression for the column that the property maps to when targeting SQL Server.

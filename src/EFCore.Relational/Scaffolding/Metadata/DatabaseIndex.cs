@@ -25,7 +25,7 @@ public class DatabaseIndex : Annotatable
     /// <summary>
     ///     The ordered list of columns that make up the index.
     /// </summary>
-    public virtual IList<DatabaseColumn> Columns { get; } = new List<DatabaseColumn>();
+    public virtual IList<DatabaseColumn> Columns { get; } = [];
 
     /// <summary>
     ///     Indicates whether or not the index enforces uniqueness.
@@ -35,7 +35,7 @@ public class DatabaseIndex : Annotatable
     /// <summary>
     ///     A set of values indicating whether each corresponding index column has descending sort order.
     /// </summary>
-    public virtual IList<bool> IsDescending { get; set; } = new List<bool>();
+    public virtual IList<bool> IsDescending { get; set; } = [];
 
     /// <summary>
     ///     The filter expression, or <see langword="null" /> if the index has no filter.

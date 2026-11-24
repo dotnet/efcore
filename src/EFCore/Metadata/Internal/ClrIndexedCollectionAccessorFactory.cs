@@ -177,19 +177,12 @@ public class ClrIndexedCollectionAccessorFactory
             var capacityConstructor = concreteType.GetConstructor([typeof(int)]);
             var defaultConstructor = concreteType.GetConstructor(Type.EmptyTypes);
 
-            if (capacityConstructor != null)
-            {
-                createCollectionBody = Expression.New(capacityConstructor, capacityParameter);
-            }
-            else if (defaultConstructor != null)
-            {
-                createCollectionBody = Expression.New(defaultConstructor);
-            }
-            else
-            {
-                throw new InvalidOperationException(
-                    $"The type '{collectionType.FullName}' does not have a constructor that takes an integer parameter or a parameterless constructor.");
-            }
+            createCollectionBody = capacityConstructor != null
+                ? Expression.New(capacityConstructor, capacityParameter)
+                : defaultConstructor != null
+                    ? (Expression)Expression.New(defaultConstructor)
+                    : throw new InvalidOperationException(
+                        $"The type '{collectionType.FullName}' does not have a constructor that takes an integer parameter or a parameterless constructor.");
         }
 
         createCollection = Expression.Lambda<Func<int, TCollection>>(createCollectionBody, capacityParameter);

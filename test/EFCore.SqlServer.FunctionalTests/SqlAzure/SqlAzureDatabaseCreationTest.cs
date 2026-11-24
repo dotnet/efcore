@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.Data.SqlClient;
@@ -6,14 +6,12 @@ using Microsoft.Data.SqlClient;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.SqlAzure;
 
-#nullable disable
-
-[SqlServerCondition(SqlServerCondition.IsAzureSql)]
+[ConditionalClass(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsAzureSql))]
 public class SqlAzureDatabaseCreationTest
 {
     protected string StoreName { get; } = "SqlAzureDatabaseCreationTest";
 
-    [ConditionalFact]
+    [Fact]
     public async Task Creates_database_in_elastic_pool()
     {
         await using var testDatabase = SqlServerTestStore.Create(StoreName + "Elastic");
@@ -28,17 +26,17 @@ public class SqlAzureDatabaseCreationTest
     {
         private readonly string _connectionString = testStore.ConnectionString;
 
-        public DbSet<FastUn> FastUns { get; set; }
-        public DbSet<BigUn> BigUns { get; set; }
+        public DbSet<FastUn> FastUns { get; set; } = null!;
+        public DbSet<BigUn> BigUns { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseSqlServer(_connectionString, b => b.ApplyConfiguration());
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.HasPerformanceLevelSql($"ELASTIC_POOL ( name = {TestEnvironment.ElasticPoolName} )");
+            => modelBuilder.HasPerformanceLevelSql($"ELASTIC_POOL ( name = {SqlServerTestEnvironment.ElasticPoolName} )");
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Creates_basic_database()
     {
         await using var testDatabase = SqlServerTestStore.Create(StoreName + "Basic");
@@ -53,8 +51,8 @@ public class SqlAzureDatabaseCreationTest
     {
         private readonly string _connectionString = testStore.ConnectionString;
 
-        public DbSet<FastUn> FastUns { get; set; }
-        public DbSet<BigUn> BigUns { get; set; }
+        public DbSet<FastUn> FastUns { get; set; } = null!;
+        public DbSet<BigUn> BigUns { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseSqlServer(_connectionString, b => b.ApplyConfiguration());
@@ -67,7 +65,7 @@ public class SqlAzureDatabaseCreationTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Creates_business_critical_database()
     {
         await using var testDatabase = SqlServerTestStore.Create(StoreName + "BusinessCritical");
@@ -82,8 +80,8 @@ public class SqlAzureDatabaseCreationTest
     {
         private readonly string _connectionString = testStore.ConnectionString;
 
-        public DbSet<FastUn> FastUns { get; set; }
-        public DbSet<BigUn> BigUns { get; set; }
+        public DbSet<FastUn> FastUns { get; set; } = null!;
+        public DbSet<BigUn> BigUns { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseSqlServer(_connectionString, b => b.ApplyConfiguration());
@@ -121,13 +119,13 @@ SELECT DATABASEPROPERTYEX('{storeName}', 'EDITION'),
     private class BigUn
     {
         public int Id { get; set; }
-        public ICollection<FastUn> FastUns { get; set; }
+        public ICollection<FastUn> FastUns { get; set; } = null!;
     }
 
     private class FastUn
     {
         public int Id { get; set; }
-        public string Name { get; set; }
-        public BigUn BigUn { get; set; }
+        public string? Name { get; set; }
+        public BigUn? BigUn { get; set; }
     }
 }

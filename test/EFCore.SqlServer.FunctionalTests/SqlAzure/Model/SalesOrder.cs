@@ -6,8 +6,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore.SqlAzure.Model;
 
-#nullable disable
-
 [Table("SalesOrderHeader", Schema = "SalesLT")]
 public class SalesOrder
 {
@@ -15,12 +13,12 @@ public class SalesOrder
         => Details = new HashSet<SalesOrderDetail>();
 
     public int SalesOrderID { get; set; }
-    public string AccountNumber { get; set; }
+    public string? AccountNumber { get; set; }
     public int? BillToAddressID { get; set; }
-    public string Comment { get; set; }
+    public string? Comment { get; set; }
 
     [MaxLength(15)]
-    public string CreditCardApprovalCode { get; set; }
+    public string? CreditCardApprovalCode { get; set; }
 
     public int CustomerID { get; set; }
 
@@ -32,16 +30,16 @@ public class SalesOrder
     public bool IsOnlineOrder { get; set; }
 
     public DateTime OrderDate { get; set; }
-    public string PurchaseOrderNumber { get; set; }
+    public string? PurchaseOrderNumber { get; set; }
     public byte RevisionNumber { get; set; }
 
     [Required, MaxLength(25)]
-    public string SalesOrderNumber { get; set; }
+    public string SalesOrderNumber { get; set; } = null!;
 
     public DateTime? ShipDate { get; set; }
 
     [Required, MaxLength(50)]
-    public string ShipMethod { get; set; }
+    public string ShipMethod { get; set; } = null!;
 
     public int? ShipToAddressID { get; set; }
     public byte Status { get; set; }
@@ -54,11 +52,11 @@ public class SalesOrder
     public virtual ICollection<SalesOrderDetail> Details { get; set; }
 
     [ForeignKey("CustomerID"), InverseProperty("Orders")]
-    public virtual Customer Customer { get; set; }
+    public virtual Customer Customer { get; set; } = null!;
 
     [ForeignKey("BillToAddressID")]
-    public virtual Address BillToAddress { get; set; }
+    public virtual Address? BillToAddress { get; set; }
 
     [ForeignKey("ShipToAddressID")]
-    public virtual Address ShipToAddress { get; set; }
+    public virtual Address? ShipToAddress { get; set; }
 }

@@ -3,24 +3,22 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyFieldsModel;
 
-#nullable disable
-
 public class EntityOne
 {
     public int Id;
-    public string Name;
+    public string? Name;
 
-    public EntityTwo Reference;
-    public ICollection<EntityTwo> Collection;
-    public ICollection<EntityTwo> TwoSkip;
-    public ICollection<EntityThree> ThreeSkipPayloadFull;
-    public ICollection<JoinOneToThreePayloadFull> JoinThreePayloadFull;
-    public ICollection<EntityTwo> TwoSkipShared;
-    public ICollection<EntityThree> ThreeSkipPayloadFullShared;
-    public ICollection<Dictionary<string, object>> JoinThreePayloadFullShared;
-    public ICollection<EntityOne> SelfSkipPayloadLeft;
-    public ICollection<JoinOneSelfPayload> JoinSelfPayloadLeft;
-    public ICollection<EntityOne> SelfSkipPayloadRight;
-    public ICollection<JoinOneSelfPayload> JoinSelfPayloadRight;
-    public ICollection<EntityBranch> BranchSkip;
+    public EntityTwo Reference = null!;
+    public ICollection<EntityTwo> Collection = null!;
+    public ICollection<EntityTwo> TwoSkip = null!;
+    public ICollection<EntityThree> ThreeSkipPayloadFull = null!;
+    public ICollection<JoinOneToThreePayloadFull> JoinThreePayloadFull = null!;
+    public ICollection<EntityTwo> TwoSkipShared = null!;
+    public ICollection<EntityThree> ThreeSkipPayloadFullShared = null!;
+    public ICollection<Dictionary<string, object>> JoinThreePayloadFullShared = null!;
+    public ICollection<EntityOne> SelfSkipPayloadLeft = null!;
+    public ICollection<JoinOneSelfPayload> JoinSelfPayloadLeft = null!;
+    public ICollection<EntityOne> SelfSkipPayloadRight = null!;
+    public ICollection<JoinOneSelfPayload> JoinSelfPayloadRight = null!;
+    public ICollection<EntityBranch> BranchSkip = null!;
 }

@@ -172,14 +172,14 @@ public class CaseExpression : SqlExpression
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is CaseExpression caseExpression
-                && Equals(caseExpression));
+                || (obj is CaseExpression caseExpression
+                    && Equals(caseExpression)));
 
     private bool Equals(CaseExpression caseExpression)
         => base.Equals(caseExpression)
-            && (Operand?.Equals(caseExpression.Operand) ?? caseExpression.Operand == null)
+            && (Operand?.Equals(caseExpression.Operand) ?? (caseExpression.Operand == null))
             && WhenClauses.SequenceEqual(caseExpression.WhenClauses)
-            && (ElseResult?.Equals(caseExpression.ElseResult) ?? caseExpression.ElseResult == null);
+            && (ElseResult?.Equals(caseExpression.ElseResult) ?? (caseExpression.ElseResult == null));
 
     /// <inheritdoc />
     public override int GetHashCode()

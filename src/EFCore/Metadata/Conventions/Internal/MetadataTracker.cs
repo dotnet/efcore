@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 /// </summary>
 public class MetadataTracker : IReferenceRoot<IConventionForeignKey>
 {
-    private readonly Dictionary<IConventionForeignKey, Reference<IConventionForeignKey>> _trackedForeignKeys = new();
+    private readonly Dictionary<IConventionForeignKey, Reference<IConventionForeignKey>> _trackedForeignKeys = [];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

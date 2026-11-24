@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore;
 ///     Relational database specific extension methods for <see cref="ComplexCollectionTypePropertyBuilder" />.
 /// </summary>
 /// <remarks>
-///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see> for more information and examples.
 /// </remarks>
 public static class RelationalComplexCollectionTypePropertyBuilderExtensions
 {
@@ -41,6 +41,6 @@ public static class RelationalComplexCollectionTypePropertyBuilderExtensions
     public static ComplexCollectionTypePropertyBuilder<TProperty> HasJsonPropertyName<TProperty>(
         this ComplexCollectionTypePropertyBuilder<TProperty> propertyBuilder,
         string? name)
-        => (ComplexCollectionTypePropertyBuilder<TProperty>)HasJsonPropertyName(
-            (ComplexCollectionTypePropertyBuilder)propertyBuilder, name);
+        => (ComplexCollectionTypePropertyBuilder<TProperty>)((ComplexCollectionTypePropertyBuilder)propertyBuilder).HasJsonPropertyName(
+            name);
 }

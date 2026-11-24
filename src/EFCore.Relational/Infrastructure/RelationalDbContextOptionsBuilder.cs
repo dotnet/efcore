@@ -157,54 +157,6 @@ public abstract class RelationalDbContextOptionsBuilder<TBuilder, TExtension> : 
         => WithOption(e => (TExtension)e.WithExecutionStrategyFactory(Check.NotNull(getExecutionStrategy)));
 
     /// <summary>
-    ///     Configures the context to translate parameterized collections to inline constants.
-    /// </summary>
-    /// <remarks>
-    ///     <para>
-    ///         When a LINQ query contains a parameterized collection, by default EF Core translates as a multiple SQL parameters,
-    ///         if possible. For example, on SQL Server, the LINQ query <c>Where(b => ids.Contains(b.Id)</c> is translated to
-    ///         <c>WHERE [b].[Id] IN (@ids1, @ids2, @ids3)</c>.
-    ///     </para>
-    ///     <para>
-    ///         <see cref="TranslateParameterizedCollectionsToConstants" /> instructs EF to translate the collection to a set of constants:
-    ///         <c>WHERE [b].[Id] IN (1, 2, 3)</c>. This can produce better query plans for certain query types, but can also lead to query
-    ///         plan bloat.
-    ///     </para>
-    ///     <para>
-    ///         Note that it's possible to cause EF to translate a specific collection in a specific query to constants by wrapping the
-    ///         parameterized collection in <see cref="EF.Constant{T}" />: <c>Where(b => EF.Constant(ids).Contains(b.Id)</c>. This overrides
-    ///         the default.
-    ///     </para>
-    /// </remarks>
-    [Obsolete("Use UseParameterizedCollectionMode instead.")]
-    public virtual TBuilder TranslateParameterizedCollectionsToConstants()
-        => UseParameterizedCollectionMode(ParameterTranslationMode.Constant);
-
-    /// <summary>
-    ///     Configures the context to translate parameterized collections to a single array-like parameter.
-    /// </summary>
-    /// <remarks>
-    ///     <para>
-    ///         When a LINQ query contains a parameterized collection, by default EF Core translates as a multiple SQL parameters,
-    ///         if possible. For example, on SQL Server, the LINQ query <c>Where(b => ids.Contains(b.Id)</c> is translated to
-    ///         <c>WHERE [b].[Id] IN (@ids1, @ids2, @ids3)</c>.
-    ///     </para>
-    ///     <para>
-    ///         <see cref="TranslateParameterizedCollectionsToParameters" /> instructs EF to translate the collection to a single array-like
-    ///         parameter:
-    ///         <c>WHERE [b].[Id] IN (SELECT [i].[value] FROM OPENJSON(@ids) ...)</c>.
-    ///     </para>
-    ///     <para>
-    ///         Note that it's possible to cause EF to translate a specific collection in a specific query to parameter by wrapping the
-    ///         parameterized collection in <see cref="EF.Parameter{T}" />: <c>Where(b => EF.Parameter(ids).Contains(b.Id)</c>. This overrides
-    ///         the default.
-    ///     </para>
-    /// </remarks>
-    [Obsolete("Use UseParameterizedCollectionMode instead.")]
-    public virtual TBuilder TranslateParameterizedCollectionsToParameters()
-        => UseParameterizedCollectionMode(ParameterTranslationMode.Parameter);
-
-    /// <summary>
     ///     Configures the mode to use when translating parameterized collections.
     /// </summary>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>

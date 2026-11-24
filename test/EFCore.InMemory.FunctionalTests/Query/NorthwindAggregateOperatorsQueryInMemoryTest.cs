@@ -22,6 +22,16 @@ public class NorthwindAggregateOperatorsQueryInMemoryTest(NorthwindQueryInMemory
             "Sequence contains no elements",
             (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Min_no_data_subquery(async))).Message);
 
+    public override async Task MaxBy_no_data_subquery_value_type(bool async)
+        => Assert.Equal(
+            "Sequence contains no elements",
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.MaxBy_no_data_subquery_value_type(async))).Message);
+
+    public override async Task MinBy_no_data_subquery_value_type(bool async)
+        => Assert.Equal(
+            "Sequence contains no elements",
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.MinBy_no_data_subquery_value_type(async))).Message);
+
     public override async Task Average_on_nav_subquery_in_projection(bool async)
         => Assert.Equal(
             "Sequence contains no elements",
@@ -29,7 +39,7 @@ public class NorthwindAggregateOperatorsQueryInMemoryTest(NorthwindQueryInMemory
 
     public override async Task Sum_over_scalar_returning_subquery(bool async)
         => Assert.Equal(
-            "Nullable object must have a value.",
+            "Cannot read the Value property of a Nullable object that has no value. Check HasValue before reading Value.",
             (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Sum_over_scalar_returning_subquery(async))).Message);
 
     public override Task Collection_Last_member_access_in_projection_translated(bool async)

@@ -8,8 +8,6 @@ using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class SpatialQuerySqlServerGeometryFixture : SpatialQuerySqlServerFixture
 {
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
@@ -40,9 +38,9 @@ public class SpatialQuerySqlServerGeometryFixture : SpatialQuerySqlServerFixture
         ISqlServerSingletonOptions sqlServerSingletonOptions)
         : SqlServerTypeMappingSource(dependencies, relationalDependencies, sqlServerSingletonOptions)
     {
-        protected override RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)
+        protected override RelationalTypeMapping? FindMapping(in RelationalTypeMappingInfo mappingInfo)
             => mappingInfo.ClrType == typeof(GeoPoint)
-                ? ((RelationalTypeMapping)base.FindMapping(typeof(Point))
+                ? ((RelationalTypeMapping)base.FindMapping(typeof(Point))!
                     .WithComposedConverter(new GeoPointConverter())).WithStoreTypeAndSize("geometry", null)
                 : base.FindMapping(mappingInfo);
     }

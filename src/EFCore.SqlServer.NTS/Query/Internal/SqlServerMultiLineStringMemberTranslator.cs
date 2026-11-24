@@ -39,19 +39,14 @@ public class SqlServerMultiLineStringMemberTranslator : IMemberTranslator
         MemberInfo member,
         Type returnType,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-    {
-        if (Equals(member, IsClosed))
-        {
-            return _sqlExpressionFactory.Function(
+        => Equals(member, IsClosed)
+            ? _sqlExpressionFactory.Function(
                 instance!,
                 "STIsClosed",
                 [],
                 nullable: true,
                 instancePropagatesNullability: true,
                 argumentsPropagateNullability: [],
-                returnType);
-        }
-
-        return null;
-    }
+                returnType)
+            : null;
 }

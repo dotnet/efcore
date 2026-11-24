@@ -13,7 +13,7 @@ public class GeometryValueComparer
 <[DynamicallyAccessedMembers(
         DynamicallyAccessedMemberTypes.PublicMethods
         | DynamicallyAccessedMemberTypes.PublicProperties)]
-    TGeometry>
+TGeometry>
     : ValueComparer<TGeometry>
 {
     /// <summary>

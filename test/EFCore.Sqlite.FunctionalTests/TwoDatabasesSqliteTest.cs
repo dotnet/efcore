@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class TwoDatabasesSqliteTest(TwoDatabasesSqliteTest.TwoDatabasesFixture fixture)
     : TwoDatabasesTestBase(fixture), IClassFixture<TwoDatabasesSqliteTest.TwoDatabasesFixture>
 {
@@ -17,7 +15,7 @@ public class TwoDatabasesSqliteTest(TwoDatabasesSqliteTest.TwoDatabasesFixture f
         bool withNullConnectionString = false)
         => withConnectionString
             ? withNullConnectionString
-                ? optionsBuilder.UseSqlite((string)null)
+                ? optionsBuilder.UseSqlite((string?)null)
                 : optionsBuilder.UseSqlite(DummyConnectionString)
             : optionsBuilder.UseSqlite();
 

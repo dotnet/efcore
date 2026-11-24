@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 public class InternalModelBuilderTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Entity_returns_same_instance_for_entity_clr_type()
     {
         var model = new Model();
@@ -22,10 +22,10 @@ public class InternalModelBuilderTest
         Assert.NotNull(entityBuilder);
         Assert.NotNull(model.FindEntityType(typeof(Customer)));
         Assert.Same(entityBuilder, modelBuilder.Entity(typeof(Customer).DisplayName(), ConfigurationSource.DataAnnotation));
-        Assert.NotNull(model.FindEntityType(typeof(Customer)).ClrType);
+        Assert.NotNull(model.FindEntityType(typeof(Customer))!.ClrType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Entity_creates_new_instance_for_entity_type_name()
     {
         var model = new Model();
@@ -36,10 +36,10 @@ public class InternalModelBuilderTest
         Assert.NotNull(entityBuilder);
         Assert.NotNull(model.FindEntityType(typeof(Customer).DisplayName()));
         Assert.NotSame(entityBuilder, modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit));
-        Assert.NotNull(model.FindEntityType(typeof(Customer)).ClrType);
+        Assert.NotNull(model.FindEntityType(typeof(Customer))!.ClrType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_ignore_lower_or_equal_source_entity_type_using_entity_clr_type()
     {
         var logger = CreateTestLogger();
@@ -65,7 +65,7 @@ public class InternalModelBuilderTest
             logger.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_ignore_lower_or_equal_source_entity_type_using_entity_type_name()
     {
         var logger = CreateTestLogger();
@@ -91,7 +91,7 @@ public class InternalModelBuilderTest
             logger.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Cannot_ignore_higher_source_entity_type_using_entity_clr_type()
     {
         var model = new Model();
@@ -106,22 +106,22 @@ public class InternalModelBuilderTest
         Assert.NotNull(model.FindEntityType(typeof(Customer)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Cannot_ignore_higher_source_entity_type_using_entity_type_name()
     {
         var model = new Model();
         var modelBuilder = CreateModelBuilder(model);
 
-        Assert.NotNull(modelBuilder.Ignore(typeof(Customer).FullName, ConfigurationSource.Convention));
-        Assert.Null(modelBuilder.Entity(typeof(Customer).FullName, ConfigurationSource.Convention));
-        Assert.NotNull(modelBuilder.Entity(typeof(Customer).FullName, ConfigurationSource.DataAnnotation));
+        Assert.NotNull(modelBuilder.Ignore(typeof(Customer).FullName!, ConfigurationSource.Convention));
+        Assert.Null(modelBuilder.Entity(typeof(Customer).FullName!, ConfigurationSource.Convention));
+        Assert.NotNull(modelBuilder.Entity(typeof(Customer).FullName!, ConfigurationSource.DataAnnotation));
 
-        Assert.Null(modelBuilder.Ignore(typeof(Customer).FullName, ConfigurationSource.Convention));
+        Assert.Null(modelBuilder.Ignore(typeof(Customer).FullName!, ConfigurationSource.Convention));
 
-        Assert.NotNull(model.FindEntityType(typeof(Customer).FullName));
+        Assert.NotNull(model.FindEntityType(typeof(Customer).FullName!));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_ignore_existing_entity_type_using_entity_clr_type()
     {
         var logger = CreateTestLogger();
@@ -143,7 +143,7 @@ public class InternalModelBuilderTest
             logger.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_ignore_existing_entity_type_using_entity_type_name()
     {
         var logger = CreateTestLogger();
@@ -166,14 +166,14 @@ public class InternalModelBuilderTest
             logger.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_ignore_entity_type_referenced_from_lower_or_equal_source_foreign_key()
     {
         var modelBuilder = CreateModelBuilder();
         modelBuilder
-            .Entity(typeof(Customer), ConfigurationSource.Convention)
+            .Entity(typeof(Customer), ConfigurationSource.Convention)!
             .PrimaryKey([Customer.IdProperty], ConfigurationSource.Convention);
-        var orderEntityTypeBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+        var orderEntityTypeBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit)!;
 
         Assert.NotNull(
             orderEntityTypeBuilder.HasRelationship(
@@ -185,14 +185,14 @@ public class InternalModelBuilderTest
         Assert.Empty(orderEntityTypeBuilder.Metadata.GetForeignKeys());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_ignore_entity_type_referencing_higher_or_equal_source_foreign_key()
     {
         var modelBuilder = CreateModelBuilder();
         var customerEntityTypeBuilder = modelBuilder
-            .Entity(typeof(Customer), ConfigurationSource.Explicit)
-            .PrimaryKey([Customer.IdProperty], ConfigurationSource.Convention);
-        var orderEntityTypeBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Convention);
+            .Entity(typeof(Customer), ConfigurationSource.Explicit)!
+            .PrimaryKey([Customer.IdProperty], ConfigurationSource.Convention)!;
+        var orderEntityTypeBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Convention)!;
 
         Assert.NotNull(
             orderEntityTypeBuilder
@@ -204,13 +204,13 @@ public class InternalModelBuilderTest
         Assert.Empty(customerEntityTypeBuilder.Metadata.GetReferencingForeignKeys());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_ignore_entity_type_with_base_and_derived_types()
     {
         var modelBuilder = CreateModelBuilder();
-        var baseEntityTypeBuilder = modelBuilder.Entity(typeof(Base), ConfigurationSource.Explicit);
-        var customerEntityTypeBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Convention);
-        var specialCustomerEntityTypeBuilder = modelBuilder.Entity(typeof(SpecialCustomer), ConfigurationSource.Explicit);
+        var baseEntityTypeBuilder = modelBuilder.Entity(typeof(Base), ConfigurationSource.Explicit)!;
+        var customerEntityTypeBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Convention)!;
+        var specialCustomerEntityTypeBuilder = modelBuilder.Entity(typeof(SpecialCustomer), ConfigurationSource.Explicit)!;
 
         Assert.NotNull(customerEntityTypeBuilder.HasBaseType(baseEntityTypeBuilder.Metadata, ConfigurationSource.Convention));
         Assert.NotNull(
@@ -222,14 +222,14 @@ public class InternalModelBuilderTest
         Assert.Same(baseEntityTypeBuilder.Metadata, specialCustomerEntityTypeBuilder.Metadata.BaseType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Cannot_ignore_entity_type_referenced_from_higher_source_foreign_key()
     {
         var modelBuilder = CreateModelBuilder();
         modelBuilder
-            .Entity(typeof(Customer), ConfigurationSource.Convention)
+            .Entity(typeof(Customer), ConfigurationSource.Convention)!
             .PrimaryKey([Customer.IdProperty], ConfigurationSource.Convention);
-        var orderEntityTypeBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Convention);
+        var orderEntityTypeBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Convention)!;
 
         Assert.NotNull(
             orderEntityTypeBuilder.HasRelationship(typeof(Customer), [Order.CustomerIdProperty], ConfigurationSource.Explicit));
@@ -240,18 +240,18 @@ public class InternalModelBuilderTest
         Assert.Single(orderEntityTypeBuilder.Metadata.GetForeignKeys());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Ignoring_an_entity_type_removes_lower_source_orphaned_entity_types()
     {
         var modelBuilder = CreateModelBuilder();
         modelBuilder
-            .Entity(typeof(Customer), ConfigurationSource.Convention)
+            .Entity(typeof(Customer), ConfigurationSource.Convention)!
             .PrimaryKey([Customer.IdProperty], ConfigurationSource.Convention);
         modelBuilder
-            .Entity(typeof(Product), ConfigurationSource.Convention)
+            .Entity(typeof(Product), ConfigurationSource.Convention)!
             .PrimaryKey([Product.IdProperty], ConfigurationSource.Convention);
 
-        var orderEntityTypeBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Convention);
+        var orderEntityTypeBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Convention)!;
         orderEntityTypeBuilder.HasRelationship(typeof(Customer), [Order.CustomerIdProperty], ConfigurationSource.Convention);
         orderEntityTypeBuilder.HasRelationship(typeof(Product), [Order.ProductIdProperty], ConfigurationSource.Convention);
 
@@ -261,19 +261,19 @@ public class InternalModelBuilderTest
         Assert.Empty(modelBuilder.Metadata.GetEntityTypes());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Ignoring_an_entity_type_does_not_remove_referenced_lower_source_entity_types()
     {
         var modelBuilder = CreateModelBuilder();
         modelBuilder
-            .Entity(typeof(Customer), ConfigurationSource.Convention)
+            .Entity(typeof(Customer), ConfigurationSource.Convention)!
             .PrimaryKey([Customer.IdProperty], ConfigurationSource.Convention);
         modelBuilder
-            .Entity(typeof(Product), ConfigurationSource.Convention)
+            .Entity(typeof(Product), ConfigurationSource.Convention)!
             .PrimaryKey([Product.IdProperty], ConfigurationSource.Convention);
 
-        var orderEntityTypeBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
-        orderEntityTypeBuilder.HasRelationship(typeof(Product), [Order.ProductIdProperty], ConfigurationSource.Convention)
+        var orderEntityTypeBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit)!;
+        orderEntityTypeBuilder.HasRelationship(typeof(Product), [Order.ProductIdProperty], ConfigurationSource.Convention)!
             .HasNavigation(
                 "Product",
                 pointsToPrincipal: true,
@@ -286,20 +286,20 @@ public class InternalModelBuilderTest
         Assert.Equal(typeof(Product), orderEntityTypeBuilder.Metadata.GetForeignKeys().Single().PrincipalEntityType.ClrType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Ignoring_an_entity_type_does_not_remove_referencing_lower_source_entity_types()
     {
         var modelBuilder = CreateModelBuilder();
         modelBuilder
-            .Entity(typeof(Customer), ConfigurationSource.Convention)
+            .Entity(typeof(Customer), ConfigurationSource.Convention)!
             .PrimaryKey([Customer.IdProperty], ConfigurationSource.Convention);
         modelBuilder
-            .Entity(typeof(Product), ConfigurationSource.Explicit)
+            .Entity(typeof(Product), ConfigurationSource.Explicit)!
             .PrimaryKey([Product.IdProperty], ConfigurationSource.Convention);
 
-        var orderEntityTypeBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Convention);
+        var orderEntityTypeBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Convention)!;
         orderEntityTypeBuilder.HasRelationship(typeof(Product), [Order.ProductIdProperty], ConfigurationSource.Convention)
-            .HasNavigation(
+            !.HasNavigation(
                 "Order",
                 pointsToPrincipal: false,
                 ConfigurationSource.Convention);
@@ -311,15 +311,15 @@ public class InternalModelBuilderTest
         Assert.Equal(typeof(Product), orderEntityTypeBuilder.Metadata.GetForeignKeys().Single().PrincipalEntityType.ClrType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_mark_type_as_owned_type()
     {
         var model = new Model();
         var modelBuilder = CreateModelBuilder(model);
 
-        var entityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
+        var entityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit)!;
 
-        var ownedEntityTypeBuilder = modelBuilder.Entity(typeof(Details), ConfigurationSource.Convention);
+        var ownedEntityTypeBuilder = modelBuilder.Entity(typeof(Details), ConfigurationSource.Convention)!;
         Assert.NotNull(ownedEntityTypeBuilder);
 
         Assert.False(model.IsOwned(typeof(Details)));
@@ -350,7 +350,7 @@ public class InternalModelBuilderTest
 
         Assert.NotNull(
             modelBuilder.Entity(typeof(Product), ConfigurationSource.Explicit)
-                .HasOwnership(typeof(Details), nameof(Product.Details), ConfigurationSource.Explicit));
+                !.HasOwnership(typeof(Details), nameof(Product.Details), ConfigurationSource.Explicit));
 
         Assert.Null(modelBuilder.Ignore(typeof(Details), ConfigurationSource.Convention));
 
@@ -380,25 +380,25 @@ public class InternalModelBuilderTest
             Assert.Throws<InvalidOperationException>(() => modelBuilder.Owned(typeof(Details), ConfigurationSource.Explicit)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_remove_implicitly_created_join_entity_type()
     {
         var model = new Model();
         var modelBuilder = CreateModelBuilder(model);
 
-        var manyToManyLeft = modelBuilder.Entity(typeof(ManyToManyLeft), ConfigurationSource.Convention);
-        var manyToManyRight = modelBuilder.Entity(typeof(ManyToManyRight), ConfigurationSource.Convention);
-        var manyToManyLeftPK = manyToManyLeft.PrimaryKey([nameof(ManyToManyLeft.Id)], ConfigurationSource.Convention);
-        var manyToManyRightPK = manyToManyRight.PrimaryKey([nameof(ManyToManyRight.Id)], ConfigurationSource.Convention);
+        var manyToManyLeft = modelBuilder.Entity(typeof(ManyToManyLeft), ConfigurationSource.Convention)!;
+        var manyToManyRight = modelBuilder.Entity(typeof(ManyToManyRight), ConfigurationSource.Convention)!;
+        var manyToManyLeftPK = manyToManyLeft.PrimaryKey([nameof(ManyToManyLeft.Id)], ConfigurationSource.Convention)!;
+        var manyToManyRightPK = manyToManyRight.PrimaryKey([nameof(ManyToManyRight.Id)], ConfigurationSource.Convention)!;
 
         var skipNavOnLeft = manyToManyLeft.HasSkipNavigation(
-            new MemberIdentity(typeof(ManyToManyLeft).GetProperty(nameof(ManyToManyLeft.Rights))),
+            new MemberIdentity(typeof(ManyToManyLeft).GetProperty(nameof(ManyToManyLeft.Rights))!),
             manyToManyRight.Metadata,
-            ConfigurationSource.Convention);
+            ConfigurationSource.Convention)!;
         var skipNavOnRight = manyToManyRight.HasSkipNavigation(
-            new MemberIdentity(typeof(ManyToManyRight).GetProperty(nameof(ManyToManyRight.Lefts))),
+            new MemberIdentity(typeof(ManyToManyRight).GetProperty(nameof(ManyToManyRight.Lefts))!),
             manyToManyLeft.Metadata,
-            ConfigurationSource.Convention);
+            ConfigurationSource.Convention)!;
         skipNavOnLeft.HasInverse(skipNavOnRight.Metadata, ConfigurationSource.Convention);
 
         var joinEntityTypeBuilder =
@@ -406,14 +406,14 @@ public class InternalModelBuilderTest
                 "JoinEntity",
                 typeof(Dictionary<string, object>),
                 owned: false,
-                ConfigurationSource.Convention).Builder;
+                ConfigurationSource.Convention)!.Builder;
         var leftFK = joinEntityTypeBuilder
             .HasRelationship(
                 manyToManyLeft.Metadata.Name,
                 new List<string> { "ManyToManyLeft_Id" },
                 manyToManyLeftPK.Metadata,
                 ConfigurationSource.Convention)
-            .IsUnique(false, ConfigurationSource.Convention)
+            !.IsUnique(false, ConfigurationSource.Convention)!
             .Metadata;
         var rightFK = joinEntityTypeBuilder
             .HasRelationship(
@@ -421,7 +421,7 @@ public class InternalModelBuilderTest
                 new List<string> { "ManyToManyRight_Id" },
                 manyToManyRightPK.Metadata,
                 ConfigurationSource.Convention)
-            .IsUnique(false, ConfigurationSource.Convention)
+            !.IsUnique(false, ConfigurationSource.Convention)!
             .Metadata;
         skipNavOnLeft.HasForeignKey(leftFK, ConfigurationSource.Convention);
         skipNavOnRight.HasForeignKey(rightFK, ConfigurationSource.Convention);
@@ -445,41 +445,41 @@ public class InternalModelBuilderTest
         Assert.NotNull(rightSkipNav);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Cannot_remove_manually_created_join_entity_type()
     {
         var model = new Model();
         var modelBuilder = CreateModelBuilder(model);
 
-        var manyToManyLeft = modelBuilder.Entity(typeof(ManyToManyLeft), ConfigurationSource.Convention);
-        var manyToManyRight = modelBuilder.Entity(typeof(ManyToManyRight), ConfigurationSource.Convention);
-        var manyToManyJoin = modelBuilder.Entity(typeof(ManyToManyJoin), ConfigurationSource.Convention);
-        var manyToManyLeftPK = manyToManyLeft.PrimaryKey([nameof(ManyToManyLeft.Id)], ConfigurationSource.Convention);
-        var manyToManyRightPK = manyToManyRight.PrimaryKey([nameof(ManyToManyRight.Id)], ConfigurationSource.Convention);
+        var manyToManyLeft = modelBuilder.Entity(typeof(ManyToManyLeft), ConfigurationSource.Convention)!;
+        var manyToManyRight = modelBuilder.Entity(typeof(ManyToManyRight), ConfigurationSource.Convention)!;
+        var manyToManyJoin = modelBuilder.Entity(typeof(ManyToManyJoin), ConfigurationSource.Convention)!;
+        var manyToManyLeftPK = manyToManyLeft.PrimaryKey([nameof(ManyToManyLeft.Id)], ConfigurationSource.Convention)!;
+        var manyToManyRightPK = manyToManyRight.PrimaryKey([nameof(ManyToManyRight.Id)], ConfigurationSource.Convention)!;
         manyToManyJoin.PrimaryKey(
             [nameof(ManyToManyJoin.LeftId), nameof(ManyToManyJoin.RightId)], ConfigurationSource.Convention);
 
         var skipNavOnLeft = manyToManyLeft.HasSkipNavigation(
-            new MemberIdentity(typeof(ManyToManyLeft).GetProperty(nameof(ManyToManyLeft.Rights))),
+            new MemberIdentity(typeof(ManyToManyLeft).GetProperty(nameof(ManyToManyLeft.Rights))!),
             manyToManyRight.Metadata,
-            ConfigurationSource.Convention);
+            ConfigurationSource.Convention)!;
         var skipNavOnRight = manyToManyRight.HasSkipNavigation(
-            new MemberIdentity(typeof(ManyToManyRight).GetProperty(nameof(ManyToManyRight.Lefts))),
+            new MemberIdentity(typeof(ManyToManyRight).GetProperty(nameof(ManyToManyRight.Lefts))!),
             manyToManyLeft.Metadata,
-            ConfigurationSource.Convention);
+            ConfigurationSource.Convention)!;
         skipNavOnLeft.HasInverse(skipNavOnRight.Metadata, ConfigurationSource.Convention);
 
         var leftFK = manyToManyJoin.HasRelationship(
             manyToManyLeft.Metadata.Name,
             [nameof(ManyToManyJoin.LeftId)],
             manyToManyLeftPK.Metadata,
-            ConfigurationSource.Convention);
+            ConfigurationSource.Convention)!;
         skipNavOnLeft.Metadata.SetForeignKey(leftFK.Metadata, ConfigurationSource.Convention);
         var rightFK = manyToManyJoin.HasRelationship(
             manyToManyRight.Metadata.Name,
             [nameof(ManyToManyJoin.RightId)],
             manyToManyRightPK.Metadata,
-            ConfigurationSource.Convention);
+            ConfigurationSource.Convention)!;
         skipNavOnRight.Metadata.SetForeignKey(rightFK.Metadata, ConfigurationSource.Convention);
         skipNavOnLeft.HasInverse(skipNavOnRight.Metadata, ConfigurationSource.Convention);
 
@@ -498,7 +498,7 @@ public class InternalModelBuilderTest
         Assert.Same(manyToManyJoin.Metadata, leftSkipNav.JoinEntityType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_shared_type()
     {
         var model = new Model();
@@ -508,7 +508,7 @@ public class InternalModelBuilderTest
 
         Assert.NotNull(modelBuilder.SharedTypeEntity(sharedTypeName, typeof(Details), ConfigurationSource.Convention));
 
-        Assert.True(model.FindEntityType(sharedTypeName).HasSharedClrType);
+        Assert.True(model.FindEntityType(sharedTypeName)!.HasSharedClrType);
 
         Assert.Null(modelBuilder.SharedTypeEntity(sharedTypeName, typeof(Product), ConfigurationSource.Convention));
 
@@ -518,7 +518,7 @@ public class InternalModelBuilderTest
 
         Assert.NotNull(modelBuilder.SharedTypeEntity(sharedTypeName, typeof(Product), ConfigurationSource.Explicit));
 
-        Assert.Equal(typeof(Product), model.FindEntityType(sharedTypeName).ClrType);
+        Assert.Equal(typeof(Product), model.FindEntityType(sharedTypeName)!.ClrType);
 
         Assert.Equal(
             CoreStrings.ClashingMismatchedSharedType("SpecialDetails", nameof(Product)),
@@ -546,7 +546,7 @@ public class InternalModelBuilderTest
     private static ProviderConventionSetBuilderDependencies CreateDependencies()
         => InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>();
 
-    protected virtual InternalModelBuilder CreateModelBuilder(Model model = null)
+    protected virtual InternalModelBuilder CreateModelBuilder(Model? model = null)
         => new(model ?? new Model());
 
     private class Base
@@ -556,53 +556,53 @@ public class InternalModelBuilderTest
 
     private class Customer : Base
     {
-        public static readonly PropertyInfo IdProperty = typeof(Customer).GetProperty("Id");
+        public static readonly PropertyInfo IdProperty = typeof(Customer).GetProperty("Id")!;
 
-        public string Name { get; set; }
-        public Details Details { get; set; }
+        public string Name { get; set; } = null!;
+        public Details Details { get; set; } = null!;
     }
 
     private class SpecialCustomer : Customer;
 
     private class Order
     {
-        public static readonly PropertyInfo IdProperty = typeof(Order).GetProperty("Id");
-        public static readonly PropertyInfo CustomerIdProperty = typeof(Order).GetProperty("CustomerId");
-        public static readonly PropertyInfo ProductIdProperty = typeof(Order).GetProperty("ProductId");
+        public static readonly PropertyInfo IdProperty = typeof(Order).GetProperty("Id")!;
+        public static readonly PropertyInfo CustomerIdProperty = typeof(Order).GetProperty("CustomerId")!;
+        public static readonly PropertyInfo ProductIdProperty = typeof(Order).GetProperty("ProductId")!;
 
         public int Id { get; set; }
         public int CustomerId { get; set; }
-        public Customer Customer { get; set; }
+        public Customer Customer { get; set; } = null!;
         public int ProductId { get; set; }
-        public Product Product { get; set; }
-        public Details Details { get; set; }
+        public Product Product { get; set; } = null!;
+        public Details Details { get; set; } = null!;
     }
 
     private class Product
     {
-        public static readonly PropertyInfo IdProperty = typeof(Product).GetProperty("Id");
+        public static readonly PropertyInfo IdProperty = typeof(Product).GetProperty("Id")!;
         public int Id { get; set; }
-        public Order Order { get; set; }
-        public Details Details { get; set; }
+        public Order Order { get; set; } = null!;
+        public Details Details { get; set; } = null!;
     }
 
     private class Details
     {
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     private class ManyToManyLeft
     {
         public int Id { get; set; }
-        public List<ManyToManyRight> Rights { get; set; }
-        public List<ManyToManyRight> OtherRights { get; set; }
+        public List<ManyToManyRight> Rights { get; set; } = null!;
+        public List<ManyToManyRight> OtherRights { get; set; } = null!;
     }
 
     private class ManyToManyRight
     {
         public int Id { get; set; }
-        public List<ManyToManyLeft> Lefts { get; set; }
-        public List<ManyToManyLeft> OtherLefts { get; set; }
+        public List<ManyToManyLeft> Lefts { get; set; } = null!;
+        public List<ManyToManyLeft> OtherLefts { get; set; } = null!;
     }
 
     private class ManyToManyJoin

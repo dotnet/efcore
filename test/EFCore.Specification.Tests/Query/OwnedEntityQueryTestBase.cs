@@ -1,25 +1,23 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.ObjectModel;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
-    protected override string StoreName
+    protected override string NonSharedStoreName
         => "OwnedEntityQueryTests";
 
     #region 9202
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Include_collection_for_entity_with_owned_type_works()
     {
-        var contextFactory = await InitializeAsync<Context9202>(seed: c => c.SeedAsync());
+        var contextFactory = await InitializeNonSharedTest<Context9202>(seed: c => c.SeedAsync());
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var query = context.Movies.Include(m => m.Cast);
             var result = query.ToList();
@@ -30,7 +28,7 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
             Assert.True(result[0].Cast.All(a => a.Details != null));
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var query = context.Movies.Include("Cast");
             var result = query.ToList();
@@ -45,8 +43,8 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context9202(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Movie> Movies { get; set; }
-        public DbSet<Actor> Actors { get; set; }
+        public DbSet<Movie> Movies { get; set; } = null!;
+        public DbSet<Actor> Actors { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -80,23 +78,23 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
         public class Movie
         {
             public int Id { get; set; }
-            public string Title { get; set; }
+            public string Title { get; set; } = null!;
 
-            public List<Actor> Cast { get; set; }
+            public List<Actor> Cast { get; set; } = null!;
 
-            public Details Details { get; set; }
+            public Details Details { get; set; } = null!;
         }
 
         public class Actor
         {
             public int Id { get; set; }
-            public string Name { get; set; }
-            public Details Details { get; set; }
+            public string Name { get; set; } = null!;
+            public Details Details { get; set; } = null!;
         }
 
         public class Details
         {
-            public string Info { get; set; }
+            public string Info { get; set; } = null!;
             public int Rating { get; set; }
         }
     }
@@ -105,11 +103,11 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
 
     #region 13079
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Multilevel_owned_entities_determine_correct_nullability()
     {
-        var contextFactory = await InitializeAsync<Context13079>();
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context13079>();
+        using var context = contextFactory.CreateDbContext();
         await context.AddAsync(new Context13079.BaseEntity());
         await context.SaveChangesAsync();
     }
@@ -117,7 +115,7 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context13079(DbContextOptions options) : DbContext(options)
     {
-        public virtual DbSet<BaseEntity> BaseEntities { get; set; }
+        public virtual DbSet<BaseEntity> BaseEntities { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<DerivedEntity>().OwnsOne(e => e.Data, b => b.OwnsOne(e => e.SubData));
@@ -130,13 +128,13 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
         public class DerivedEntity : BaseEntity
         {
             public int Property { get; set; }
-            public OwnedData Data { get; set; }
+            public OwnedData Data { get; set; } = null!;
         }
 
         public class OwnedData
         {
             public int Property { get; set; }
-            public OwnedSubData SubData { get; set; }
+            public OwnedSubData SubData { get; set; } = null!;
         }
 
         public class OwnedSubData
@@ -149,43 +147,38 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
 
     #region 13157
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Correlated_subquery_with_owned_navigation_being_compared_to_null_works()
     {
-        var contextFactory = await InitializeAsync<Context13157>(seed: c => c.SeedAsync());
+        var contextFactory = await InitializeNonSharedTest<Context13157>(seed: c => c.SeedAsync());
 
-        using (var context = contextFactory.CreateContext())
-        {
-            var partners = context.Partners
-                .Select(x => new
+        using var context = contextFactory.CreateDbContext();
+        var partners = context.Partners
+            .Select(x => new
+            {
+                Addresses = x.Addresses.Select(y => new
                 {
-                    Addresses = x.Addresses.Select(y => new
-                    {
-                        Turnovers = y.Turnovers == null
-                            ? null
-                            : new { y.Turnovers.AmountIn }
-                    }).ToList()
-                }).ToList();
+                    Turnovers = y.Turnovers == null
+                        ? null
+                        : new { y.Turnovers.AmountIn }
+                }).ToList()
+            }).ToList();
 
-            Assert.Single(partners);
-            Assert.Collection(
-                partners[0].Addresses,
-                t =>
-                {
-                    Assert.NotNull(t.Turnovers);
-                    Assert.Equal(10, t.Turnovers.AmountIn);
-                },
-                t =>
-                {
-                    Assert.Null(t.Turnovers);
-                });
-        }
+        Assert.Single(partners);
+        Assert.Collection(
+            partners[0].Addresses,
+            t =>
+            {
+                Assert.NotNull(t.Turnovers);
+                Assert.Equal(10, t.Turnovers.AmountIn);
+            },
+            t => Assert.Null(t.Turnovers));
     }
 
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context13157(DbContextOptions options) : DbContext(options)
     {
-        public virtual DbSet<Partner> Partners { get; set; }
+        public virtual DbSet<Partner> Partners { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Address>().OwnsOne(x => x.Turnovers);
@@ -195,10 +188,10 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
             AddRange(
                 new Partner
                 {
-                    Addresses = new List<Address>
-                    {
-                        new() { Turnovers = new AddressTurnovers { AmountIn = 10 } }, new() { Turnovers = null },
-                    }
+                    Addresses =
+                    [
+                        new Address { Turnovers = new AddressTurnovers { AmountIn = 10 } }, new Address { Turnovers = null },
+                    ]
                 }
             );
 
@@ -208,13 +201,13 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
         public class Partner
         {
             public int Id { get; set; }
-            public ICollection<Address> Addresses { get; set; }
+            public ICollection<Address> Addresses { get; set; } = null!;
         }
 
         public class Address
         {
             public int Id { get; set; }
-            public AddressTurnovers Turnovers { get; set; }
+            public AddressTurnovers? Turnovers { get; set; }
         }
 
         public class AddressTurnovers
@@ -227,15 +220,15 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
 
     #region 14911
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Owned_entity_multiple_level_in_aggregate()
     {
-        var contextFactory = await InitializeAsync<Context14911>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
-        var aggregate = context.Set<Context14911.Aggregate>().OrderByDescending(e => e.Id).FirstOrDefault();
-        Assert.Equal(10, aggregate.FirstValueObject.SecondValueObjects[0].FourthValueObject.FifthValueObjects[0].AnyValue);
+        var contextFactory = await InitializeNonSharedTest<Context14911>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+        var aggregate = context.Set<Context14911.Aggregate>().OrderByDescending(e => e.Id).FirstOrDefault()!;
+        Assert.Equal(10, aggregate.FirstValueObject!.SecondValueObjects[0].FourthValueObject!.FifthValueObjects[0].AnyValue);
         Assert.Equal(
-            20, aggregate.FirstValueObject.SecondValueObjects[0].ThirdValueObjects[0].FourthValueObject.FifthValueObjects[0].AnyValue);
+            20, aggregate.FirstValueObject.SecondValueObjects[0].ThirdValueObjects[0].FourthValueObject!.FifthValueObjects[0].AnyValue);
     }
 
     protected class Context14911(DbContextOptions options) : DbContext(options)
@@ -245,48 +238,39 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
             {
                 builder.HasKey(e => e.Id);
                 builder.OwnsOne(
-                    e => e.FirstValueObject, dr =>
-                    {
-                        dr.OwnsMany(
-                            d => d.SecondValueObjects, c =>
-                            {
-                                c.Property<int>("Id").IsRequired();
-                                c.HasKey("Id");
-                                c.OwnsOne(
-                                    b => b.FourthValueObject, b =>
+                    e => e.FirstValueObject, dr => dr.OwnsMany(
+                        d => d.SecondValueObjects, c =>
+                        {
+                            c.Property<int>("Id").IsRequired();
+                            c.HasKey("Id");
+                            c.OwnsOne(
+                                b => b.FourthValueObject, b => b.OwnsMany(
+                                    t => t.FifthValueObjects, sp =>
                                     {
-                                        b.OwnsMany(
-                                            t => t.FifthValueObjects, sp =>
+                                        sp.Property<int>("Id").IsRequired();
+                                        sp.HasKey("Id");
+                                        sp.Property(e => e.AnyValue).IsRequired();
+                                        sp.WithOwner().HasForeignKey("SecondValueObjectId");
+                                    }));
+                            c.OwnsMany(
+                                b => b.ThirdValueObjects, b =>
+                                {
+                                    b.Property<int>("Id").IsRequired();
+                                    b.HasKey("Id");
+
+                                    b.OwnsOne(
+                                        d => d.FourthValueObject, dpd => dpd.OwnsMany(
+                                            d => d.FifthValueObjects, sp =>
                                             {
                                                 sp.Property<int>("Id").IsRequired();
                                                 sp.HasKey("Id");
                                                 sp.Property(e => e.AnyValue).IsRequired();
-                                                sp.WithOwner().HasForeignKey("SecondValueObjectId");
-                                            });
-                                    });
-                                c.OwnsMany(
-                                    b => b.ThirdValueObjects, b =>
-                                    {
-                                        b.Property<int>("Id").IsRequired();
-                                        b.HasKey("Id");
-
-                                        b.OwnsOne(
-                                            d => d.FourthValueObject, dpd =>
-                                            {
-                                                dpd.OwnsMany(
-                                                    d => d.FifthValueObjects, sp =>
-                                                    {
-                                                        sp.Property<int>("Id").IsRequired();
-                                                        sp.HasKey("Id");
-                                                        sp.Property(e => e.AnyValue).IsRequired();
-                                                        sp.WithOwner().HasForeignKey("ThirdValueObjectId");
-                                                    });
-                                            });
-                                        b.WithOwner().HasForeignKey("SecondValueObjectId");
-                                    });
-                                c.WithOwner().HasForeignKey("AggregateId");
-                            });
-                    });
+                                                sp.WithOwner().HasForeignKey("ThirdValueObjectId");
+                                            }));
+                                    b.WithOwner().HasForeignKey("SecondValueObjectId");
+                                });
+                            c.WithOwner().HasForeignKey("AggregateId");
+                        }));
             });
 
         public Task SeedAsync()
@@ -323,30 +307,30 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
         public class Aggregate
         {
             public int Id { get; set; }
-            public FirstValueObject FirstValueObject { get; set; }
+            public FirstValueObject? FirstValueObject { get; set; }
         }
 
         public class FirstValueObject
         {
             public int Value { get; set; }
-            public List<SecondValueObject> SecondValueObjects { get; set; }
+            public List<SecondValueObject> SecondValueObjects { get; set; } = null!;
         }
 
         public class SecondValueObject
         {
-            public FourthValueObject FourthValueObject { get; set; }
-            public List<ThirdValueObject> ThirdValueObjects { get; set; }
+            public FourthValueObject? FourthValueObject { get; set; }
+            public List<ThirdValueObject> ThirdValueObjects { get; set; } = null!;
         }
 
         public class ThirdValueObject
         {
-            public FourthValueObject FourthValueObject { get; set; }
+            public FourthValueObject? FourthValueObject { get; set; }
         }
 
         public class FourthValueObject
         {
             public int Value { get; set; }
-            public List<FifthValueObject> FifthValueObjects { get; set; }
+            public List<FifthValueObject> FifthValueObjects { get; set; } = null!;
         }
 
         public class FifthValueObject
@@ -359,15 +343,16 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
 
     #region 18582
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Projecting_correlated_collection_property_for_owned_entity(bool async)
     {
-        var contextFactory = await InitializeAsync<Context18582>(seed: c => c.SeedAsync());
+        var contextFactory = await InitializeNonSharedTest<Context18582>(seed: c => c.SeedAsync());
 
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
         var query = context.Warehouses.Select(x => new Context18582.WarehouseModel
         {
-            WarehouseCode = x.WarehouseCode, DestinationCountryCodes = x.DestinationCountries.Select(c => c.CountryCode).ToArray()
+            WarehouseCode = x.WarehouseCode,
+            DestinationCountryCodes = x.DestinationCountries.Select(c => c.CountryCode).ToArray()
         }).AsNoTracking();
 
         var result = async
@@ -382,7 +367,7 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context18582(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Warehouse> Warehouses { get; set; }
+        public DbSet<Warehouse> Warehouses { get; set; } = null!;
 
         public Task SeedAsync()
         {
@@ -410,22 +395,22 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
         public class Warehouse
         {
             public int Id { get; set; }
-            public string WarehouseCode { get; set; }
+            public string WarehouseCode { get; set; } = null!;
             public ICollection<WarehouseDestinationCountry> DestinationCountries { get; set; } = new HashSet<WarehouseDestinationCountry>();
         }
 
         public class WarehouseDestinationCountry
         {
-            public string Id { get; set; }
-            public string WarehouseCode { get; set; }
-            public string CountryCode { get; set; }
+            public string Id { get; set; } = null!;
+            public string WarehouseCode { get; set; } = null!;
+            public string CountryCode { get; set; } = null!;
         }
 
         public class WarehouseModel
         {
-            public string WarehouseCode { get; set; }
+            public string WarehouseCode { get; set; } = null!;
 
-            public ICollection<string> DestinationCountryCodes { get; set; }
+            public ICollection<string> DestinationCountryCodes { get; set; } = null!;
         }
     }
 
@@ -433,23 +418,23 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
 
     #region 19138
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Accessing_scalar_property_in_derived_type_projection_does_not_load_owned_navigations()
     {
-        var contextFactory = await InitializeAsync<Context19138>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context19138>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         var result = context.BaseEntities
             .Select(b => context.OtherEntities.Where(o => o.OtherEntityData == ((Context19138.SubEntity)b).Data).FirstOrDefault())
             .ToList();
 
-        Assert.Equal("A", Assert.Single(result).OtherEntityData);
+        Assert.Equal("A", Assert.Single(result)!.OtherEntityData);
     }
 
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context19138(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<BaseEntity> BaseEntities { get; set; }
-        public DbSet<OtherEntity> OtherEntities { get; set; }
+        public DbSet<BaseEntity> BaseEntities { get; set; } = null!;
+        public DbSet<OtherEntity> OtherEntities { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -473,20 +458,20 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
 
         public class SubEntity : BaseEntity
         {
-            public string Data { get; set; }
-            public Owned Owned { get; set; }
+            public string Data { get; set; } = null!;
+            public Owned Owned { get; set; } = null!;
         }
 
         public class Owned
         {
-            public string OwnedData { get; set; }
+            public string OwnedData { get; set; } = null!;
             public int Value { get; set; }
         }
 
         public class OtherEntity
         {
             public int Id { get; set; }
-            public string OtherEntityData { get; set; }
+            public string OtherEntityData { get; set; } = null!;
         }
     }
 
@@ -494,11 +479,11 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
 
     #region 20277
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Multiple_single_result_in_projection_containing_owned_types(bool async)
     {
-        var contextFactory = await InitializeAsync<Context20277>();
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context20277>();
+        using var context = contextFactory.CreateDbContext();
         var query = context.Entities.AsNoTracking().Select(e => new
         {
             e.Id,
@@ -536,33 +521,27 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Entity>(cfg =>
-            {
-                cfg.OwnsMany(
-                    e => e.Children, inner =>
-                    {
-                        inner.OwnsOne(e => e.Owned);
-                    });
-            });
+            modelBuilder.Entity<Entity>(cfg => cfg.OwnsMany(
+                e => e.Children, inner => inner.OwnsOne(e => e.Owned)));
         }
 
         public class Entity
         {
             public int Id { get; set; }
-            public List<Child> Children { get; set; }
+            public List<Child> Children { get; set; } = null!;
         }
 
         public class Child
         {
             public int Id { get; set; }
             public int Type { get; set; }
-            public Owned Owned { get; set; }
+            public Owned Owned { get; set; } = null!;
         }
 
         public class Owned
         {
             public bool IsDeleted { get; set; }
-            public string Value { get; set; }
+            public string Value { get; set; } = null!;
         }
     }
 
@@ -570,12 +549,12 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
 
     #region 21540
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_auto_include_navigation_from_model()
     {
-        var contextFactory = await InitializeAsync<Context21540>(seed: c => c.SeedAsync());
+        var contextFactory = await InitializeNonSharedTest<Context21540>(seed: c => c.SeedAsync());
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var query = context.Parents.AsNoTracking().ToList();
             var result = Assert.Single(query);
@@ -587,7 +566,7 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
             Assert.Single(result.SkipOtherSide);
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var query = context.Parents.AsNoTracking().IgnoreAutoIncludes().ToList();
             var result = Assert.Single(query);
@@ -601,7 +580,7 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context21540(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Parent> Parents { get; set; }
+        public DbSet<Parent> Parents { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -641,31 +620,31 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
         public class Parent
         {
             public int Id { get; set; }
-            public Reference Reference { get; set; }
-            public Owned OwnedReference { get; set; }
-            public List<Collection> Collection { get; set; }
-            public List<OtherSide> SkipOtherSide { get; set; }
+            public Reference Reference { get; set; } = null!;
+            public Owned OwnedReference { get; set; } = null!;
+            public List<Collection> Collection { get; set; } = null!;
+            public List<OtherSide> SkipOtherSide { get; set; } = null!;
         }
 
         public class JoinEntity
         {
             public int ParentId { get; set; }
-            public Parent Parent { get; set; }
+            public Parent Parent { get; set; } = null!;
             public int OtherSideId { get; set; }
-            public OtherSide OtherSide { get; set; }
+            public OtherSide OtherSide { get; set; } = null!;
         }
 
         public class OtherSide
         {
             public int Id { get; set; }
-            public List<Parent> SkipParent { get; set; }
+            public List<Parent> SkipParent { get; set; } = null!;
         }
 
         public class Reference
         {
             public int Id { get; set; }
             public int ParentId { get; set; }
-            public Parent Parent { get; set; }
+            public Parent Parent { get; set; } = null!;
         }
 
         public class Owned
@@ -677,7 +656,7 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
         {
             public int Id { get; set; }
             public int ParentId { get; set; }
-            public Parent Parent { get; set; }
+            public Parent Parent { get; set; } = null!;
         }
     }
 
@@ -685,11 +664,11 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
 
     #region 21807
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Nested_owned_required_dependents_are_materialized()
     {
-        var contextFactory = await InitializeAsync<Context21807>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context21807>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         var query = context.Set<Context21807.Entity>().ToList();
         var result = Assert.Single(query);
         Assert.NotNull(result.Contact);
@@ -706,10 +685,7 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
                 builder.HasKey(x => x.Id);
 
                 builder.OwnsOne(
-                    x => x.Contact, contact =>
-                    {
-                        contact.OwnsOne(c => c.Address);
-                    });
+                    x => x.Contact, contact => contact.OwnsOne(c => c.Address));
 
                 builder.Navigation(x => x.Contact).IsRequired();
             });
@@ -723,21 +699,21 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
 
         public class Entity
         {
-            public string Id { get; set; }
-            public Contact Contact { get; set; }
+            public string Id { get; set; } = null!;
+            public Contact Contact { get; set; } = null!;
         }
 
         public class Contact
         {
-            public string Name { get; set; }
-            public Address Address { get; set; }
+            public string? Name { get; set; }
+            public Address Address { get; set; } = null!;
         }
 
         public class Address
         {
-            public string Street { get; set; }
-            public string City { get; set; }
-            public string State { get; set; }
+            public string? Street { get; set; }
+            public string? City { get; set; }
+            public string? State { get; set; }
             public int Zip { get; set; }
         }
     }
@@ -746,15 +722,16 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
 
     #region 22090
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task OwnsMany_correlated_projection(bool async)
     {
-        var contextFactory = await InitializeAsync<Context22089>();
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context22089>();
+        using var context = contextFactory.CreateDbContext();
         var results = await context.Contacts.Select(contact
                 => new Context22089.ContactDto
                 {
-                    Id = contact.Id, Names = contact.Names.Select(name => new Context22089.NameDto()).ToArray()
+                    Id = contact.Id,
+                    Names = contact.Names.Select(name => new Context22089.NameDto()).ToArray()
                 })
             .ToListAsync();
     }
@@ -762,7 +739,7 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context22089(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Contact> Contacts { get; set; }
+        public DbSet<Contact> Contacts { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -773,13 +750,13 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
         public class Contact
         {
             public Guid Id { get; set; }
-            public IReadOnlyList<Name> Names { get; protected set; } = new List<Name>();
+            public IReadOnlyList<Name> Names { get; protected set; } = [];
         }
 
         public class ContactDto
         {
             public Guid Id { get; set; }
-            public IReadOnlyList<NameDto> Names { get; set; }
+            public IReadOnlyList<NameDto> Names { get; set; } = null!;
         }
 
         public class Name
@@ -799,11 +776,11 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
 
     #region 24133
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Projecting_owned_collection_and_aggregate(bool async)
     {
-        var contextFactory = await InitializeAsync<Context24133>();
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context24133>();
+        using var context = contextFactory.CreateDbContext();
         var query = context.Set<Context24133.Blog>()
             .Select(b => new Context24133.BlogDto
             {
@@ -821,15 +798,12 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
     protected class Context24133(DbContextOptions options) : DbContext(options)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<Blog>(blog =>
-            {
-                blog.OwnsMany(
-                    b => b.Posts, p =>
-                    {
-                        p.WithOwner().HasForeignKey("BlogId");
-                        p.Property("BlogId").HasMaxLength(40);
-                    });
-            });
+            => modelBuilder.Entity<Blog>(blog => blog.OwnsMany(
+                b => b.Posts, p =>
+                {
+                    p.WithOwner().HasForeignKey("BlogId");
+                    p.Property("BlogId").HasMaxLength(40);
+                }));
 
         public class Blog
         {
@@ -846,7 +820,7 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
 
         public class Post
         {
-            public string Title { get; set; }
+            public string Title { get; set; } = null!;
             public int CommentsCount { get; set; }
         }
 
@@ -854,12 +828,12 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
         {
             public int Id { get; set; }
             public int TotalComments { get; set; }
-            public IEnumerable<PostDto> Posts { get; set; }
+            public IEnumerable<PostDto> Posts { get; set; } = null!;
         }
 
         public class PostDto
         {
-            public string Title { get; set; }
+            public string Title { get; set; } = null!;
             public int CommentsCount { get; set; }
         }
     }
@@ -877,30 +851,30 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
 
         var company = Assert.Single(result);
         Assert.Equal("Acme Inc.", company.Name);
-        Assert.Equal("Regular", company.CustomerData.AdditionalCustomerData);
-        Assert.Equal("Free shipping", company.SupplierData.AdditionalSupplierData);
+        Assert.Equal("Regular", company.CustomerData!.AdditionalCustomerData);
+        Assert.Equal("Free shipping", company.SupplierData!.AdditionalSupplierData);
     }
 
     protected virtual async Task Owned_references_on_same_level_nested_expanded_at_different_times_around_take_helper(
         MyContext26592Base context,
         bool async)
     {
-        var query = context.Owners.Where(e => e.OwnedEntity.CustomerData != null).OrderBy(e => e.Id).Take(10);
+        var query = context.Owners.Where(e => e.OwnedEntity!.CustomerData != null).OrderBy(e => e.Id).Take(10);
         var result = async
             ? await query.ToListAsync()
             : query.ToList();
 
         var owner = Assert.Single(result);
         Assert.Equal("Owner1", owner.Name);
-        Assert.Equal("Intermediate1", owner.OwnedEntity.Name);
-        Assert.Equal("IM Regular", owner.OwnedEntity.CustomerData.AdditionalCustomerData);
-        Assert.Equal("IM Free shipping", owner.OwnedEntity.SupplierData.AdditionalSupplierData);
+        Assert.Equal("Intermediate1", owner.OwnedEntity!.Name);
+        Assert.Equal("IM Regular", owner.OwnedEntity.CustomerData!.AdditionalCustomerData);
+        Assert.Equal("IM Free shipping", owner.OwnedEntity.SupplierData!.AdditionalSupplierData);
     }
 
     protected abstract class MyContext26592Base(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Company> Companies { get; set; }
-        public DbSet<Owner> Owners { get; set; }
+        public DbSet<Company> Companies { get; set; } = null!;
+        public DbSet<Owner> Owners { get; set; } = null!;
 
         public Task SeedAsync()
         {
@@ -930,39 +904,39 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
         public class Company
         {
             public int Id { get; set; }
-            public string Name { get; set; }
-            public CustomerData CustomerData { get; set; }
-            public SupplierData SupplierData { get; set; }
+            public string? Name { get; set; }
+            public CustomerData? CustomerData { get; set; }
+            public SupplierData? SupplierData { get; set; }
         }
 
         [Owned]
         public class CustomerData
         {
             public int Id { get; set; }
-            public string AdditionalCustomerData { get; set; }
+            public string? AdditionalCustomerData { get; set; }
         }
 
         [Owned]
         public class SupplierData
         {
             public int Id { get; set; }
-            public string AdditionalSupplierData { get; set; }
+            public string? AdditionalSupplierData { get; set; }
         }
 
         public class Owner
         {
             public int Id { get; set; }
-            public string Name { get; set; }
-            public IntermediateOwnedEntity OwnedEntity { get; set; }
+            public string? Name { get; set; }
+            public IntermediateOwnedEntity? OwnedEntity { get; set; }
         }
 
         [Owned]
         public class IntermediateOwnedEntity
         {
             public int Id { get; set; }
-            public string Name { get; set; }
-            public CustomerData CustomerData { get; set; }
-            public SupplierData SupplierData { get; set; }
+            public string? Name { get; set; }
+            public CustomerData? CustomerData { get; set; }
+            public SupplierData? SupplierData { get; set; }
         }
     }
 }

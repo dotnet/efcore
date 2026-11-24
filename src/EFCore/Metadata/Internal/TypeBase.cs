@@ -16,11 +16,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConventionTypeBase, IRuntimeTypeBase
 {
     private readonly SortedDictionary<string, Property> _properties;
-    private readonly SortedDictionary<string, ComplexProperty> _complexProperties = new(StringComparer.Ordinal);
-    private readonly Dictionary<string, ConfigurationSource> _ignoredMembers = new(StringComparer.Ordinal);
+    private readonly SortedDictionary<string, ComplexProperty> _complexProperties;
+    private readonly Dictionary<string, ConfigurationSource> _ignoredMembers = [with(StringComparer.Ordinal)];
 
     private TypeBase? _baseType;
-    private readonly SortedSet<TypeBase> _directlyDerivedTypes = new(TypeBaseNameComparer.Instance);
+    private readonly SortedSet<TypeBase> _directlyDerivedTypes = [with(TypeBaseNameComparer.Instance)];
     private ChangeTrackingStrategy? _changeTrackingStrategy;
 
     private ConfigurationSource _configurationSource;
@@ -58,7 +58,8 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
         Name = model.GetDisplayName(type);
         HasSharedClrType = false;
         IsPropertyBag = type.IsPropertyBagType();
-        _properties = new SortedDictionary<string, Property>(new PropertyNameComparer(this));
+        _properties = [with(new PropertyNameComparer(this))];
+        _complexProperties = [with(new ComplexPropertyNameComparer(this))];
     }
 
     /// <summary>
@@ -79,7 +80,8 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
         _configurationSource = configurationSource;
         HasSharedClrType = true;
         IsPropertyBag = type.IsPropertyBagType();
-        _properties = new SortedDictionary<string, Property>(new PropertyNameComparer(this));
+        _properties = [with(new PropertyNameComparer(this))];
+        _complexProperties = [with(new ComplexPropertyNameComparer(this))];
     }
 
     /// <summary>
@@ -294,6 +296,14 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public abstract EntityType ContainingEntityType { [DebuggerStepThrough] get; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     [DebuggerStepThrough]
     public virtual ConfigurationSource GetConfigurationSource()
         => _configurationSource;
@@ -451,16 +461,13 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
         {
             if (memberInfo != FindIndexerPropertyInfo())
             {
-                if (throwOnNameMismatch)
-                {
-                    throw new InvalidOperationException(
+                return throwOnNameMismatch
+                    ? throw new InvalidOperationException(
                         CoreStrings.PropertyWrongName(
                             name,
                             DisplayName(),
-                            memberInfo.GetSimpleMemberName()));
-                }
-
-                return memberInfo.GetMemberType();
+                            memberInfo.GetSimpleMemberName()))
+                    : memberInfo.GetMemberType();
             }
 
             var clashingMemberInfo = IsPropertyBag
@@ -488,6 +495,11 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     {
         if ((string?)this[CoreAnnotationNames.DiscriminatorProperty] == property?.Name)
         {
+            if (property != null)
+            {
+                FindAnnotation(CoreAnnotationNames.DiscriminatorProperty)!.UpdateConfigurationSource(configurationSource);
+            }
+
             return property;
         }
 
@@ -618,7 +630,8 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
         [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType,
         MemberInfo? memberInfo,
         ConfigurationSource? typeConfigurationSource,
-        ConfigurationSource configurationSource)
+        ConfigurationSource configurationSource,
+        Type? elementType = null)
     {
         Check.NotNull(name);
         Check.NotNull(propertyType);
@@ -629,9 +642,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
         if (conflictingMember != null)
         {
             throw new InvalidOperationException(
-                CoreStrings.ConflictingPropertyOrNavigation(
-                    name, DisplayName(),
-                    ((IReadOnlyTypeBase)conflictingMember.DeclaringType).DisplayName()));
+                conflictingMember.FormatConflictingMemberMessage(name, this));
         }
 
         if (memberInfo != null)
@@ -672,7 +683,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
 
         var property = new Property(
             name, propertyType, memberInfo as PropertyInfo, memberInfo as FieldInfo, this,
-            configurationSource, typeConfigurationSource);
+            configurationSource, typeConfigurationSource, elementType);
 
         _properties.Add(property.Name, property);
 
@@ -898,8 +909,17 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected virtual SortedDictionary<string, Property> Properties
+    protected internal virtual SortedDictionary<string, Property> Properties
         => _properties;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected internal virtual SortedDictionary<string, ComplexProperty> ComplexProperties
+        => _complexProperties;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1077,9 +1097,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
         if (conflictingMember != null)
         {
             throw new InvalidOperationException(
-                CoreStrings.ConflictingPropertyOrNavigation(
-                    name, DisplayName(),
-                    conflictingMember.DeclaringType.DisplayName()));
+                conflictingMember.FormatConflictingMemberMessage(name, this));
         }
 
         if (memberInfo != null)
@@ -1343,8 +1361,8 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     {
         if (requireFullNotifications)
         {
-            if (value != ChangeTrackingStrategy.ChangingAndChangedNotifications
-                && value != ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)
+            if (value is not ChangeTrackingStrategy.ChangingAndChangedNotifications
+                and not ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)
             {
                 return CoreStrings.FullChangeTrackingRequired(
                     structuralType.DisplayName(), value, nameof(ChangeTrackingStrategy.ChangingAndChangedNotifications),
@@ -1990,6 +2008,25 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
+    IMutableProperty IMutableTypeBase.AddPrimitiveCollection(
+        string name,
+        [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType,
+        Type elementType)
+        => AddProperty(
+            name,
+            propertyType,
+            memberInfo: null,
+            ConfigurationSource.Explicit,
+            ConfigurationSource.Explicit,
+            elementType)!;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
     IConventionProperty? IConventionTypeBase.AddProperty(
         string name,
         [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType,
@@ -2002,6 +2039,29 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
                 ? fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention
                 : null,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    IConventionProperty? IConventionTypeBase.AddPrimitiveCollection(
+        string name,
+        [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType,
+        Type elementType,
+        bool setTypeConfigurationSource,
+        bool fromDataAnnotation)
+        => AddProperty(
+            name,
+            propertyType,
+            memberInfo: null,
+            setTypeConfigurationSource
+                ? fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention
+                : null,
+            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention,
+            elementType);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2025,6 +2085,22 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
+    IMutableProperty IMutableTypeBase.AddPrimitiveCollection(
+        string name,
+        [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType,
+        MemberInfo memberInfo,
+        Type elementType)
+        => AddProperty(
+            name, propertyType, memberInfo,
+            ConfigurationSource.Explicit, ConfigurationSource.Explicit, elementType)!;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
     IConventionProperty? IConventionTypeBase.AddProperty(
         string name,
         [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType,
@@ -2039,6 +2115,30 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
                 ? fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention
                 : null,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    IConventionProperty? IConventionTypeBase.AddPrimitiveCollection(
+        string name,
+        [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType,
+        MemberInfo memberInfo,
+        Type elementType,
+        bool setTypeConfigurationSource,
+        bool fromDataAnnotation)
+        => AddProperty(
+            name,
+            propertyType,
+            memberInfo,
+            setTypeConfigurationSource
+                ? fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention
+                : null,
+            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention,
+            elementType);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

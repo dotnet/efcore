@@ -70,8 +70,8 @@ public class CrossJoinExpression : JoinExpressionBase
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is CrossJoinExpression crossJoinExpression
-                && Equals(crossJoinExpression));
+                || (obj is CrossJoinExpression crossJoinExpression
+                    && Equals(crossJoinExpression)));
 
     private bool Equals(CrossJoinExpression crossJoinExpression)
         => base.Equals(crossJoinExpression);

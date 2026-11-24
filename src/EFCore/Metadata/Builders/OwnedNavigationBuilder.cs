@@ -972,20 +972,13 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
         MemberIdentity navigationId,
         EntityType relatedEntityType)
     {
-        ForeignKey foreignKey;
-        if (navigationId.MemberInfo != null)
-        {
-            foreignKey = DependentEntityType.Builder.HasRelationship(
+        var foreignKey = navigationId.MemberInfo != null
+            ? DependentEntityType.Builder.HasRelationship(
                 relatedEntityType, navigationId.MemberInfo, ConfigurationSource.Explicit,
-                targetIsPrincipal: DependentEntityType == relatedEntityType ? true : null)!.Metadata;
-        }
-        else
-        {
-            foreignKey = DependentEntityType.Builder.HasRelationship(
+                targetIsPrincipal: DependentEntityType == relatedEntityType ? true : null)!.Metadata
+            : DependentEntityType.Builder.HasRelationship(
                 relatedEntityType, navigationId.Name, ConfigurationSource.Explicit,
                 targetIsPrincipal: DependentEntityType == relatedEntityType ? true : null)!.Metadata;
-        }
-
         return foreignKey;
     }
 

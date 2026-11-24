@@ -12,28 +12,28 @@ public class NavigationExpandingExpressionVisitorTests
     {
         public TInterceptor Aggregate<TInterceptor>()
             where TInterceptor : class, IInterceptor
-            => null;
+            => null!;
     }
 
     private class TestNavigationExpandingExpressionVisitor() : NavigationExpandingExpressionVisitor(
-        null,
+        null!,
         new QueryCompilationContext(
             new QueryCompilationContextDependencies(
-                model: null,
-                queryTranslationPreprocessorFactory: null,
-                queryableMethodTranslatingExpressionVisitorFactory: null,
-                queryTranslationPostprocessorFactory: null,
-                shapedQueryCompilingExpressionVisitorFactory: null,
-                liftableConstantFactory: null,
-                liftableConstantProcessor: null,
+                model: null!,
+                queryTranslationPreprocessorFactory: null!,
+                queryableMethodTranslatingExpressionVisitorFactory: null!,
+                queryTranslationPostprocessorFactory: null!,
+                shapedQueryCompilingExpressionVisitorFactory: null!,
+                liftableConstantFactory: null!,
+                liftableConstantProcessor: null!,
                 new ExecutionStrategyTest.TestExecutionStrategy(new MyDemoContext()),
                 new CurrentDbContext(new MyDemoContext()),
-                contextOptions: null,
-                logger: null,
+                contextOptions: null!,
+                logger: null!,
                 new TestInterceptors()
             ), async: false),
-        null,
-        null)
+        null!,
+        null!)
     {
         public Expression TestVisitExtension(Expression extensionExpression)
             => base.VisitExtension(extensionExpression);
@@ -71,11 +71,11 @@ public class NavigationExpandingExpressionVisitorTests
         public int B { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Visits_extension_children()
     {
         var model = new Model();
-        var e = model.AddEntityType(typeof(A), false, ConfigurationSource.Explicit);
+        var e = model.AddEntityType(typeof(A), false, ConfigurationSource.Explicit)!;
         var visitor = new TestNavigationExpandingExpressionVisitor();
         var testExpression = new TestEntityQueryRootExpression(e);
 

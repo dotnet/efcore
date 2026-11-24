@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Update;
 
 public class SqlServerModificationCommandBatchTest
 {
-    [ConditionalTheory, InlineData(EntityState.Added), InlineData(EntityState.Deleted), InlineData(EntityState.Modified)]
+    [Theory, InlineData(EntityState.Added), InlineData(EntityState.Deleted), InlineData(EntityState.Modified)]
     public void AddCommand_returns_false_when_max_batch_size_is_reached(EntityState entityState)
     {
         var batch = CreateBatch(maxBatchSize: 1);
@@ -29,12 +29,12 @@ public class SqlServerModificationCommandBatchTest
         Assert.Same(firstCommand, Assert.Single(batch.ModificationCommands));
     }
 
-    [ConditionalTheory, InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Deleted, true),
+    [Theory, InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Deleted, true),
      InlineData(EntityState.Deleted, false), InlineData(EntityState.Modified, true), InlineData(EntityState.Modified, false)]
     public void AddCommand_returns_false_when_max_parameters_are_reached(EntityState entityState, bool withSameTable)
     {
         var typeMapper = CreateTypeMappingSource();
-        var intMapping = typeMapper.FindMapping(typeof(int));
+        var intMapping = typeMapper.FindMapping(typeof(int))!;
         var paramIndex = 0;
 
         var batch = CreateBatch();
@@ -67,11 +67,11 @@ public class SqlServerModificationCommandBatchTest
             };
     }
 
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public void AddCommand_when_max_parameters_are_reached_with_pending_commands(bool lastCommandPending)
     {
         var typeMapper = CreateTypeMappingSource();
-        var intMapping = typeMapper.FindMapping(typeof(int));
+        var intMapping = typeMapper.FindMapping(typeof(int))!;
         var paramIndex = 0;
 
         var batch = CreateBatch();
@@ -151,7 +151,7 @@ public class SqlServerModificationCommandBatchTest
 
     private static INonTrackedModificationCommand CreateModificationCommand(
         string name,
-        string schema,
+        string? schema,
         bool sensitiveLoggingEnabled)
         => new ModificationCommandFactory().CreateNonTrackedModificationCommand(
             new NonTrackedModificationCommandParameters(name, schema, sensitiveLoggingEnabled));
@@ -159,11 +159,11 @@ public class SqlServerModificationCommandBatchTest
     private class TestSqlServerModificationCommandBatch(ModificationCommandBatchFactoryDependencies dependencies, int maxBatchSize)
         : SqlServerModificationCommandBatch(dependencies, maxBatchSize)
     {
-        public new Dictionary<string, object> ParameterValues
+        public new Dictionary<string, object?> ParameterValues
             => base.ParameterValues;
 
         public new RawSqlCommand StoreCommand
-            => base.StoreCommand;
+            => base.StoreCommand!;
 
         public new IList<ResultSetMapping> ResultSetMappings
             => base.ResultSetMappings;

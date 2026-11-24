@@ -15,8 +15,8 @@ public class CreditCard
     }
 
     public int CreditCardID { get; set; }
-    public string CardNumber { get; set; }
-    public string CardType { get; set; }
+    public string CardNumber { get; set; } = null!;
+    public string CardType { get; set; } = null!;
     public byte ExpMonth { get; set; }
     public short ExpYear { get; set; }
     public DateTime ModifiedDate { get; set; }

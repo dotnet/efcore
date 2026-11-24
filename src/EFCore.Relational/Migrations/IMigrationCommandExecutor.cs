@@ -37,7 +37,7 @@ public interface IMigrationCommandExecutor
     /// <param name="connection">The connection to use.</param>
     /// <param name="executionState">The state of the current migration execution.</param>
     /// <param name="commitTransaction">
-    ///     Indicates whether the transaction started by this call should be commited.
+    ///     Indicates whether the transaction started by this call should be committed.
     ///     If <see langword="false" />, the transaction will be made available in <paramref name="executionState" />.
     /// </param>
     /// <param name="isolationLevel">The isolation level for the transaction.</param>
@@ -68,7 +68,7 @@ public interface IMigrationCommandExecutor
     /// <param name="connection">The connection to use.</param>
     /// <param name="executionState">The state of the current migration execution.</param>
     /// <param name="commitTransaction">
-    ///     Indicates whether the transaction started by this call should be commited.
+    ///     Indicates whether the transaction started by this call should be committed.
     ///     If <see langword="false" />, the transaction will be made available in <paramref name="executionState" />.
     /// </param>
     /// <param name="isolationLevel">The isolation level for the transaction.</param>

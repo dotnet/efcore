@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class TPTTableSplittingSqliteTest(NonSharedFixture fixture, ITestOutputHelper testOutputHelper)
     : TPTTableSplittingTestBase(fixture, testOutputHelper)
 {
@@ -12,6 +10,6 @@ public class TPTTableSplittingSqliteTest(NonSharedFixture fixture, ITestOutputHe
         // This scenario is not valid for TPT
         => Task.CompletedTask;
 
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqliteTestStoreFactory.Instance;
 }

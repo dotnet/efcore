@@ -5,8 +5,6 @@ using System.Collections.ObjectModel;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 
-#nullable disable
-
 public class Team
 {
     public class TeamProxy(
@@ -32,12 +30,12 @@ public class Team
         public bool InitializedCalled { get; set; }
     }
 
-    private readonly ILazyLoader _loader;
+    private readonly ILazyLoader _loader = null!;
     private readonly ObservableCollection<Driver> _drivers = new ObservableCollectionListSource<Driver>();
     private readonly ObservableCollection<Sponsor> _sponsors = [];
-    private Engine _engine;
-    private Chassis _chassis;
-    private Gearbox _gearbox;
+    private Engine? _engine;
+    private Chassis? _chassis;
+    private Gearbox? _gearbox;
 
     public Team()
     {
@@ -76,10 +74,10 @@ public class Team
     }
 
     public int Id { get; set; }
-    public string Name { get; set; }
-    public string Constructor { get; set; }
-    public string Tire { get; set; }
-    public string Principal { get; set; }
+    public string Name { get; set; } = null!;
+    public string? Constructor { get; set; }
+    public string? Tire { get; set; }
+    public string? Principal { get; set; }
     public int ConstructorsChampionships { get; set; }
     public int DriversChampionships { get; set; }
     public int Races { get; set; }
@@ -89,13 +87,13 @@ public class Team
 
     public virtual Engine Engine
     {
-        get => _loader.Load(this, ref _engine);
+        get => _loader.Load(this, ref _engine)!;
         set => _engine = value;
     }
 
     public virtual Chassis Chassis
     {
-        get => _loader.Load(this, ref _chassis);
+        get => _loader.Load(this, ref _chassis)!;
         set => _chassis = value;
     }
 
@@ -115,7 +113,7 @@ public class Team
 
     public virtual Gearbox Gearbox
     {
-        get => _loader.Load(this, ref _gearbox);
+        get => _loader.Load(this, ref _gearbox)!;
         set => _gearbox = value;
     }
 

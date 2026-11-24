@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class ManyToManySplitQuerySqliteTest(ManyToManySplitQuerySqliteFixture fixture)
     : ManyToManyQueryRelationalTestBase<ManyToManySplitQuerySqliteFixture>(fixture)
 {

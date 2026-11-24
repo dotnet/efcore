@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal;
 public class EntityProjectionExpression : Expression, IPrintableExpression
 {
     private readonly IReadOnlyDictionary<IProperty, MethodCallExpression> _readExpressionMap;
-    private readonly Dictionary<INavigation, StructuralTypeShaperExpression> _navigationExpressionsCache = new();
+    private readonly Dictionary<INavigation, StructuralTypeShaperExpression> _navigationExpressionsCache = [];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -135,16 +135,11 @@ public class EntityProjectionExpression : Expression, IPrintableExpression
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual StructuralTypeShaperExpression? BindNavigation(INavigation navigation)
-    {
-        if (!EntityType.IsAssignableFrom(navigation.DeclaringEntityType)
-            && !navigation.DeclaringEntityType.IsAssignableFrom(EntityType))
-        {
-            throw new InvalidOperationException(
-                InMemoryStrings.UnableToBindMemberToEntityProjection("navigation", navigation.Name, EntityType.DisplayName()));
-        }
-
-        return _navigationExpressionsCache.GetValueOrDefault(navigation);
-    }
+        => !EntityType.IsAssignableFrom(navigation.DeclaringEntityType)
+            && !navigation.DeclaringEntityType.IsAssignableFrom(EntityType)
+                ? throw new InvalidOperationException(
+                    InMemoryStrings.UnableToBindMemberToEntityProjection("navigation", navigation.Name, EntityType.DisplayName()))
+                : _navigationExpressionsCache.GetValueOrDefault(navigation);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

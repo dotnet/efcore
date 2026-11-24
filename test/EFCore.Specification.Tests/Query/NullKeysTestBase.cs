@@ -5,8 +5,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class NullKeysTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : NullKeysTestBase<TFixture>.NullKeysFixtureBase, new()
 {
@@ -15,7 +13,7 @@ public abstract class NullKeysTestBase<TFixture>(TFixture fixture) : IClassFixtu
     protected DbContext CreateContext()
         => Fixture.CreateContext();
 
-    [ConditionalFact] // Issue #1093
+    [Fact] // Issue #1093
     public virtual void Include_with_null_FKs_and_nullable_PK()
     {
         using var context = CreateContext();
@@ -38,10 +36,10 @@ public abstract class NullKeysTestBase<TFixture>(TFixture fixture) : IClassFixtu
 
         Assert.Equal(
             ["Empire", "Fire", "Stereo", "Stereo"],
-            results.Skip(2).Select(e => e.Principal.Id));
+            results.Skip(2).Select(e => e.Principal!.Id));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Include_with_non_nullable_FKs_and_nullable_PK()
     {
         using var context = CreateContext();
@@ -63,7 +61,7 @@ public abstract class NullKeysTestBase<TFixture>(TFixture fixture) : IClassFixtu
             results.Select(e => e.Principal.Id).ToArray());
     }
 
-    [ConditionalFact] // Issue #1093
+    [Fact] // Issue #1093
     public virtual void Include_with_null_fKs_and_non_nullable_PK()
     {
         using var context = CreateContext();
@@ -81,14 +79,14 @@ public abstract class NullKeysTestBase<TFixture>(TFixture fixture) : IClassFixtu
             results.Select(e => e.Fk));
 
         Assert.Null(results[0].Principal);
-        Assert.Equal(1, results[1].Principal.Id);
+        Assert.Equal(1, results[1].Principal!.Id);
         Assert.Null(results[2].Principal);
-        Assert.Equal(2, results[3].Principal.Id);
+        Assert.Equal(2, results[3].Principal!.Id);
         Assert.Null(results[4].Principal);
         Assert.Null(results[5].Principal);
     }
 
-    [ConditionalFact] // Issue #1093
+    [Fact] // Issue #1093
     public virtual void Include_with_null_fKs_and_nullable_PK()
     {
         using var context = CreateContext();
@@ -106,14 +104,14 @@ public abstract class NullKeysTestBase<TFixture>(TFixture fixture) : IClassFixtu
             results.Select(e => e.Fk));
 
         Assert.Null(results[0].Principal);
-        Assert.Equal(1, results[1].Principal.Id);
+        Assert.Equal(1, results[1].Principal!.Id);
         Assert.Null(results[2].Principal);
-        Assert.Equal(2, results[3].Principal.Id);
+        Assert.Equal(2, results[3].Principal!.Id);
         Assert.Null(results[4].Principal);
         Assert.Null(results[5].Principal);
     }
 
-    [ConditionalFact] // Issue #1292
+    [Fact] // Issue #1292
     public virtual void One_to_one_self_ref_Include()
     {
         using var context = CreateContext();
@@ -131,36 +129,36 @@ public abstract class NullKeysTestBase<TFixture>(TFixture fixture) : IClassFixtu
             results.Select(e => e.SelfFk).ToArray());
 
         Assert.Null(results[0].Self);
-        Assert.Equal("And", results[1].Self.Id);
+        Assert.Equal("And", results[1].Self!.Id);
         Assert.Null(results[2].Self);
         Assert.Null(results[3].Self);
-        Assert.Equal("Wendy", results[4].Self.Id);
+        Assert.Equal("Wendy", results[4].Self!.Id);
         Assert.Null(results[5].Self);
     }
 
     protected class WithStringKey
     {
-        public string Id { get; set; }
+        public string Id { get; set; } = null!;
 
-        public ICollection<WithStringFk> Dependents { get; set; }
+        public ICollection<WithStringFk> Dependents { get; set; } = [];
     }
 
     protected class WithStringFk
     {
-        public string Id { get; set; }
+        public string Id { get; set; } = null!;
 
-        public string Fk { get; set; }
-        public WithStringKey Principal { get; set; }
+        public string? Fk { get; set; }
+        public WithStringKey? Principal { get; set; }
 
-        public string SelfFk { get; set; }
-        public WithStringFk Self { get; set; }
+        public string? SelfFk { get; set; }
+        public WithStringFk? Self { get; set; }
     }
 
     protected class WithIntKey
     {
         public int Id { get; set; }
 
-        public ICollection<WithNullableIntFk> Dependents { get; set; }
+        public ICollection<WithNullableIntFk> Dependents { get; set; } = [];
     }
 
     protected class WithNullableIntFk
@@ -168,14 +166,14 @@ public abstract class NullKeysTestBase<TFixture>(TFixture fixture) : IClassFixtu
         public int Id { get; set; }
 
         public int? Fk { get; set; }
-        public WithIntKey Principal { get; set; }
+        public WithIntKey? Principal { get; set; }
     }
 
     protected class WithNullableIntKey
     {
         public int? Id { get; set; }
 
-        public ICollection<WithIntFk> Dependents { get; set; }
+        public ICollection<WithIntFk> Dependents { get; set; } = [];
     }
 
     protected class WithIntFk
@@ -183,14 +181,14 @@ public abstract class NullKeysTestBase<TFixture>(TFixture fixture) : IClassFixtu
         public int Id { get; set; }
 
         public int Fk { get; set; }
-        public WithNullableIntKey Principal { get; set; }
+        public WithNullableIntKey Principal { get; set; } = null!;
     }
 
     protected class WithAllNullableIntKey
     {
         public int? Id { get; set; }
 
-        public ICollection<WithAllNullableIntFk> Dependents { get; set; }
+        public ICollection<WithAllNullableIntFk> Dependents { get; set; } = [];
     }
 
     protected class WithAllNullableIntFk
@@ -198,7 +196,7 @@ public abstract class NullKeysTestBase<TFixture>(TFixture fixture) : IClassFixtu
         public int Id { get; set; }
 
         public int? Fk { get; set; }
-        public WithAllNullableIntKey Principal { get; set; }
+        public WithAllNullableIntKey? Principal { get; set; }
     }
 
     public abstract class NullKeysFixtureBase : SharedStoreFixtureBase<PoolableDbContext>

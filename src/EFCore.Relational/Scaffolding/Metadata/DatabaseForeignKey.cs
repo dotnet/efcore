@@ -25,13 +25,13 @@ public class DatabaseForeignKey : Annotatable
     /// <summary>
     ///     The ordered list of columns that are constrained.
     /// </summary>
-    public virtual IList<DatabaseColumn> Columns { get; } = new List<DatabaseColumn>();
+    public virtual IList<DatabaseColumn> Columns { get; } = [];
 
     /// <summary>
     ///     The ordered list of columns in the <see cref="PrincipalTable" /> to which the <see cref="Columns" />
     ///     of the foreign key are constrained.
     /// </summary>
-    public virtual IList<DatabaseColumn> PrincipalColumns { get; } = new List<DatabaseColumn>();
+    public virtual IList<DatabaseColumn> PrincipalColumns { get; } = [];
 
     /// <summary>
     ///     The foreign key constraint name.

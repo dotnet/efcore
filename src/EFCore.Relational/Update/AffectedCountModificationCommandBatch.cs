@@ -119,7 +119,7 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
                             if (rowsAffected != 1)
                             {
                                 ThrowAggregateUpdateConcurrencyException(
-                                    reader, commandIndex + 1, expectedRowsAffected: 1, rowsAffected: 0);
+                                    reader, commandIndex + 1, expectedRowsAffected: 1, rowsAffected);
                             }
                         }
                         else
@@ -134,7 +134,7 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
                 }
             }
         }
-        catch (Exception ex) when (ex is not DbUpdateException and not OperationCanceledException)
+        catch (Exception ex) when (!ex.IsCritical() && ex is not DbUpdateException)
         {
             throw new DbUpdateException(
                 RelationalStrings.UpdateStoreException,
@@ -240,7 +240,7 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
                             if (rowsAffected != 1)
                             {
                                 await ThrowAggregateUpdateConcurrencyExceptionAsync(
-                                        reader, commandIndex + 1, expectedRowsAffected: 1, rowsAffected: 0, cancellationToken)
+                                        reader, commandIndex + 1, expectedRowsAffected: 1, rowsAffected, cancellationToken)
                                     .ConfigureAwait(false);
                             }
                         }
@@ -256,7 +256,7 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
                 }
             }
         }
-        catch (Exception ex) when (ex is not DbUpdateException and not OperationCanceledException)
+        catch (Exception ex) when (!ex.IsCritical() && ex is not DbUpdateException)
         {
             throw new DbUpdateException(
                 RelationalStrings.UpdateStoreException,
@@ -317,7 +317,7 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
 
             return commandIndex - 1;
         }
-        catch (Exception ex) when (ex is not DbUpdateException and not OperationCanceledException)
+        catch (Exception ex) when (!ex.IsCritical() && ex is not DbUpdateException)
         {
             throw new DbUpdateException(
                 RelationalStrings.UpdateStoreException,
@@ -387,7 +387,7 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
 
             return commandIndex - 1;
         }
-        catch (Exception ex) when (ex is not DbUpdateException and not OperationCanceledException)
+        catch (Exception ex) when (!ex.IsCritical() && ex is not DbUpdateException)
         {
             throw new DbUpdateException(
                 RelationalStrings.UpdateStoreException,

@@ -34,8 +34,8 @@ public class AttributeCodeFragment
     public AttributeCodeFragment(Type type, IEnumerable<object?> arguments, IDictionary<string, object?> namedArguments)
     {
         Type = type;
-        _arguments = [..arguments];
-        _namedArguments = new Dictionary<string, object?>(namedArguments);
+        _arguments = [.. arguments];
+        _namedArguments = [with(namedArguments)];
     }
 
     /// <summary>

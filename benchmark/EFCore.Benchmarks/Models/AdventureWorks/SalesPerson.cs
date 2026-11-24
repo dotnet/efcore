@@ -32,6 +32,6 @@ public class SalesPerson
     public virtual ICollection<SalesPersonQuotaHistory> SalesPersonQuotaHistory { get; set; }
     public virtual ICollection<SalesTerritoryHistory> SalesTerritoryHistory { get; set; }
     public virtual ICollection<Store> Store { get; set; }
-    public virtual Employee BusinessEntity { get; set; }
-    public virtual SalesTerritory Territory { get; set; }
+    public virtual Employee BusinessEntity { get; set; } = null!;
+    public virtual SalesTerritory? Territory { get; set; }
 }

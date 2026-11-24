@@ -3,26 +3,24 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyFieldsModel;
 
-#nullable disable
-
 public class EntityThree
 {
     public int Id;
-    public string Name;
+    public string? Name;
 
     public int? ReferenceInverseId;
-    public EntityTwo ReferenceInverse;
+    public EntityTwo? ReferenceInverse;
 
     public int? CollectionInverseId;
-    public EntityTwo CollectionInverse;
+    public EntityTwo? CollectionInverse;
 
-    public ICollection<EntityOne> OneSkipPayloadFull;
-    public ICollection<JoinOneToThreePayloadFull> JoinOnePayloadFull;
-    public ICollection<EntityTwo> TwoSkipFull;
-    public ICollection<JoinTwoToThree> JoinTwoFull;
-    public ICollection<EntityOne> OneSkipPayloadFullShared;
-    public ICollection<Dictionary<string, object>> JoinOnePayloadFullShared;
-    public ICollection<EntityCompositeKey> CompositeKeySkipFull;
-    public ICollection<JoinThreeToCompositeKeyFull> JoinCompositeKeyFull;
-    public ICollection<EntityRoot> RootSkipShared;
+    public ICollection<EntityOne> OneSkipPayloadFull = null!;
+    public ICollection<JoinOneToThreePayloadFull> JoinOnePayloadFull = null!;
+    public ICollection<EntityTwo> TwoSkipFull = null!;
+    public ICollection<JoinTwoToThree> JoinTwoFull = null!;
+    public ICollection<EntityOne> OneSkipPayloadFullShared = null!;
+    public ICollection<Dictionary<string, object>> JoinOnePayloadFullShared = null!;
+    public ICollection<EntityCompositeKey> CompositeKeySkipFull = null!;
+    public ICollection<JoinThreeToCompositeKeyFull> JoinCompositeKeyFull = null!;
+    public ICollection<EntityRoot> RootSkipShared = null!;
 }

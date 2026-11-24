@@ -18,7 +18,7 @@ public class Location
     public decimal Availability { get; set; }
     public decimal CostRate { get; set; }
     public DateTime ModifiedDate { get; set; }
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     public virtual ICollection<ProductInventory> ProductInventory { get; set; }
     public virtual ICollection<WorkOrderRouting> WorkOrderRouting { get; set; }

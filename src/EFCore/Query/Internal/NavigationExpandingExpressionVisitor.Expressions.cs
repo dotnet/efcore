@@ -16,7 +16,7 @@ public partial class NavigationExpandingExpressionVisitor
 
         public IEntityType EntityType { get; }
 
-        public Dictionary<(IForeignKey, bool), Expression> ForeignKeyExpansionMap { get; } = new();
+        public Dictionary<(IForeignKey, bool), Expression> ForeignKeyExpansionMap { get; } = [];
 
         public bool IsOptional { get; private set; }
         public IncludeTreeNode IncludePaths { get; private set; }
@@ -162,8 +162,8 @@ public partial class NavigationExpandingExpressionVisitor
         public override bool Equals(object? obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
-                    || obj is IncludeTreeNode includeTreeNode
-                    && Equals(includeTreeNode));
+                    || (obj is IncludeTreeNode includeTreeNode
+                        && Equals(includeTreeNode)));
 
         private bool Equals(IncludeTreeNode includeTreeNode)
         {
@@ -302,11 +302,15 @@ public partial class NavigationExpandingExpressionVisitor
             ParameterExpression groupingParameter,
             NavigationTreeNode currentTree,
             Expression pendingSelector,
-            string innerParameterName)
+            string innerParameterName,
+            NavigationExpansionExpression? parent = null,
+            LambdaExpression? originalKeySelector = null)
         {
             Source = source;
             CurrentParameter = groupingParameter;
             Type = source.Type;
+            Parent = parent;
+            OriginalKeySelector = originalKeySelector;
             GroupingEnumerable = new NavigationExpansionExpression(
                 Call(QueryableMethods.AsQueryable.MakeGenericMethod(CurrentParameter.Type.GetGenericArguments()[1]), CurrentParameter),
                 currentTree,
@@ -320,11 +324,28 @@ public partial class NavigationExpandingExpressionVisitor
 
         public NavigationExpansionExpression GroupingEnumerable { get; }
 
+        /// <summary>
+        ///     The pre-GroupBy source, stashed so the aggregate lift can widen it with joins and rebuild
+        ///     the GroupBy. Cleared as soon as an operator is composed over the grouping sequence.
+        /// </summary>
+        public NavigationExpansionExpression? Parent { get; private set; }
+
+        /// <summary>
+        ///     The unprocessed key selector, re-derivable over the widened parent because navigation
+        ///     expansion is idempotent (re-expansion reuses existing joins).
+        /// </summary>
+        public LambdaExpression? OriginalKeySelector { get; }
+
         public Type SourceElementType
             => CurrentParameter.Type;
 
         public void UpdateSource(Expression source)
-            => Source = source;
+        {
+            Source = source;
+
+            // Operators over the grouping sequence cannot be carried through the aggregate lift.
+            Parent = null;
+        }
 
         public override ExpressionType NodeType
             => ExpressionType.Extension;
@@ -489,7 +510,7 @@ public partial class NavigationExpandingExpressionVisitor
 
         public Expression Parent { get; private set; } = parent;
         public new IComplexProperty Property { get; } = complexProperty;
-        public Expression OriginalExpression { get; private set; } = originalExpression;
+        public Expression OriginalExpression { get; } = originalExpression;
         public ComplexTypeReference ComplexTypeReference { get; } = new(complexProperty.ComplexType);
 
         public override Type Type

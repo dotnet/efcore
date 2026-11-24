@@ -5,7 +5,7 @@
     <AnalysisLevel>latest</AnalysisLevel>
     <IsPackable>True</IsPackable>
     <IncludeSymbols>True</IncludeSymbols>
-    <Features>nullablePublicOnly;strict</Features>
+    <Features>$(Features);nullablePublicOnly;strict</Features>
     <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)..\rulesets\EFCore.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 

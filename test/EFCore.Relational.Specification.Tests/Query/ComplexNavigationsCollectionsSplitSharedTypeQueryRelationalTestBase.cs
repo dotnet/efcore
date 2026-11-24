@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class
     ComplexNavigationsCollectionsSplitSharedTypeQueryRelationalTestBase<TFixture>(TFixture fixture)
     : ComplexNavigationsCollectionsSharedTypeQueryTestBase
@@ -27,7 +25,7 @@ public abstract class
     private class SplitQueryRewritingExpressionVisitor : ExpressionVisitor
     {
         private readonly MethodInfo _asSplitQueryMethod
-            = typeof(RelationalQueryableExtensions).GetMethod(nameof(RelationalQueryableExtensions.AsSplitQuery));
+            = typeof(RelationalQueryableExtensions).GetMethod(nameof(RelationalQueryableExtensions.AsSplitQuery))!;
 
         protected override Expression VisitExtension(Expression extensionExpression)
         {

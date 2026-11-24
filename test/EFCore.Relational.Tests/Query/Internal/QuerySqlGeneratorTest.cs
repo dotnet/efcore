@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 
 public class QuerySqlGeneratorTest
 {
-    [ConditionalTheory,
+    [Theory,
      InlineData("INSERT something"),
      InlineData("SELECTANDSOMEOTHERSTUFF"),
      InlineData("SELECT"),
@@ -29,7 +29,7 @@ public class QuerySqlGeneratorTest
                 .Message);
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData("SELECT something"),
      InlineData("   SELECT something"),
      InlineData("-- comment\n SELECT something"),

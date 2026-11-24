@@ -6,4 +6,4 @@ using TestNamespace;
 #pragma warning disable 219, 612, 618
 #nullable disable
 
-[assembly: DbContextModel(typeof(DbContext), typeof(DbContextModel))]
+[assembly: DbContextModel(typeof(DbContext), typeof(DbContextModel), ProviderName = "Microsoft.EntityFrameworkCore.Cosmos")]

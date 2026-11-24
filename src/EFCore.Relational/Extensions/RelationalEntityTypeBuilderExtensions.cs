@@ -225,7 +225,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         this EntityTypeBuilder<TEntity> entityTypeBuilder,
         string query)
         where TEntity : class
-        => (EntityTypeBuilder<TEntity>)ToSqlQuery((EntityTypeBuilder)entityTypeBuilder, query);
+        => (EntityTypeBuilder<TEntity>)((EntityTypeBuilder)entityTypeBuilder).ToSqlQuery(query);
 
     /// <summary>
     ///     Configures a SQL string used to provide data for the entity type.
@@ -374,7 +374,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         this EntityTypeBuilder<TEntity> entityTypeBuilder,
         string? name)
         where TEntity : class
-        => (EntityTypeBuilder<TEntity>)ToFunction((EntityTypeBuilder)entityTypeBuilder, name);
+        => (EntityTypeBuilder<TEntity>)((EntityTypeBuilder)entityTypeBuilder).ToFunction(name);
 
     /// <summary>
     ///     Configures the function that the entity type maps to when targeting a relational database.
@@ -390,7 +390,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         this EntityTypeBuilder<TEntity> entityTypeBuilder,
         MethodInfo? function)
         where TEntity : class
-        => (EntityTypeBuilder<TEntity>)ToFunction((EntityTypeBuilder)entityTypeBuilder, function);
+        => (EntityTypeBuilder<TEntity>)((EntityTypeBuilder)entityTypeBuilder).ToFunction(function);
 
     /// <summary>
     ///     Configures the function that the entity type maps to when targeting a relational database.
@@ -546,8 +546,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         string? name)
         where TOwnerEntity : class
         where TDependentEntity : class
-        => (OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>)ToFunction(
-            (OwnedNavigationBuilder)ownedNavigationBuilder, name);
+        => (OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>)((OwnedNavigationBuilder)ownedNavigationBuilder).ToFunction(name);
 
     /// <summary>
     ///     Configures the function that the entity type maps to when targeting a relational database.
@@ -565,8 +564,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         MethodInfo? function)
         where TOwnerEntity : class
         where TDependentEntity : class
-        => (OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>)ToFunction(
-            (OwnedNavigationBuilder)ownedNavigationBuilder, function);
+        => (OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>)((OwnedNavigationBuilder)ownedNavigationBuilder).ToFunction(function);
 
     /// <summary>
     ///     Configures the function that the entity type maps to when targeting a relational database.
@@ -852,7 +850,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         string name,
         string? sql)
         where TEntity : class
-        => (EntityTypeBuilder<TEntity>)HasCheckConstraint((EntityTypeBuilder)entityTypeBuilder, name, sql);
+        => (EntityTypeBuilder<TEntity>)((EntityTypeBuilder)entityTypeBuilder).HasCheckConstraint(name, sql);
 
     /// <summary>
     ///     Configures a database check constraint when targeting a relational database.
@@ -873,7 +871,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         string sql,
         Action<CheckConstraintBuilder> buildAction)
         where TEntity : class
-        => (EntityTypeBuilder<TEntity>)HasCheckConstraint((EntityTypeBuilder)entityTypeBuilder, name, sql, buildAction);
+        => (EntityTypeBuilder<TEntity>)((EntityTypeBuilder)entityTypeBuilder).HasCheckConstraint(name, sql, buildAction);
 
     /// <summary>
     ///     Configures a database check constraint when targeting a relational database.
@@ -919,8 +917,8 @@ public static partial class RelationalEntityTypeBuilderExtensions
         string? sql)
         where TOwnerEntity : class
         where TDependentEntity : class
-        => (OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>)
-            HasCheckConstraint((OwnedNavigationBuilder)ownedNavigationBuilder, name, sql);
+        => (OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>)((OwnedNavigationBuilder)ownedNavigationBuilder).HasCheckConstraint(
+            name, sql);
 
     /// <summary>
     ///     Configures a database check constraint when targeting a relational database.
@@ -971,8 +969,8 @@ public static partial class RelationalEntityTypeBuilderExtensions
         Action<CheckConstraintBuilder> buildAction)
         where TOwnerEntity : class
         where TDependentEntity : class
-        => (OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>)
-            HasCheckConstraint((OwnedNavigationBuilder)ownedNavigationBuilder, name, sql, buildAction);
+        => (OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>)((OwnedNavigationBuilder)ownedNavigationBuilder).HasCheckConstraint(
+            name, sql, buildAction);
 
     /// <summary>
     ///     Configures a database check constraint when targeting a relational database.
@@ -1055,7 +1053,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         this EntityTypeBuilder<TEntity> entityTypeBuilder,
         string? comment)
         where TEntity : class
-        => (EntityTypeBuilder<TEntity>)HasComment((EntityTypeBuilder)entityTypeBuilder, comment);
+        => (EntityTypeBuilder<TEntity>)((EntityTypeBuilder)entityTypeBuilder).HasComment(comment);
 
     /// <summary>
     ///     Configures a comment to be applied to the table

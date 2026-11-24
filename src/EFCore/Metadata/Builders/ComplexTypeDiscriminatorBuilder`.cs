@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 ///     Provides a simple API surface for setting discriminator values.
 /// </summary>
 /// <remarks>
-///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see> for more information and examples.
 /// </remarks>
 /// <typeparam name="TDiscriminator">The type of the discriminator property.</typeparam>
 public class ComplexTypeDiscriminatorBuilder<TDiscriminator>

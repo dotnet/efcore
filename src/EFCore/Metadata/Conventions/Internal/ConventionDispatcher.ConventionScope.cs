@@ -139,6 +139,9 @@ public partial class ConventionDispatcher
         public abstract bool? OnForeignKeyRequirednessChanged(
             IConventionForeignKeyBuilder relationshipBuilder);
 
+        public abstract bool? OnForeignKeyConstrainednessChanged(
+            IConventionForeignKeyBuilder relationshipBuilder);
+
         public abstract bool? OnForeignKeyDependentRequirednessChanged(
             IConventionForeignKeyBuilder relationshipBuilder);
 
@@ -242,14 +245,12 @@ public partial class ConventionDispatcher
         public abstract bool? OnPropertyNullabilityChanged(
             IConventionPropertyBuilder propertyBuilder);
 
+        public abstract bool? OnPropertyAutoLoadChanged(
+            IConventionPropertyBuilder propertyBuilder);
+
         public abstract IConventionProperty? OnPropertyRemoved(
             IConventionTypeBaseBuilder typeBaseBuilder,
             IConventionProperty property);
-
-        public abstract IElementType? OnPropertyElementTypeChanged(
-            IConventionPropertyBuilder propertyBuilder,
-            IElementType? newElementType,
-            IElementType? oldElementType);
 
         public abstract IConventionTriggerBuilder? OnTriggerAdded(IConventionTriggerBuilder triggerBuilder);
 

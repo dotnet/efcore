@@ -6,8 +6,6 @@ using NetTopologySuite.Geometries;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class SqlServerValueGenerationScenariosTest : SqlServerValueGenerationScenariosTestBase
 {
     protected override string DatabaseName
@@ -32,7 +30,7 @@ public class SqlServerValueGenerationScenariosTest : SqlServerValueGenerationSce
         => null;
 
     protected override string StringSentinel
-        => null;
+        => null!;
 
     protected override DateTime DateTimeSentinel
         => new();
@@ -41,8 +39,8 @@ public class SqlServerValueGenerationScenariosTest : SqlServerValueGenerationSce
         => new(0);
 
     protected override GeometryCollection GeometryCollectionSentinel
-        => null;
+        => null!;
 
     protected override byte[] TimestampSentinel
-        => null;
+        => null!;
 }

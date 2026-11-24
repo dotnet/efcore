@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
@@ -12,33 +12,22 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqlServerQueryTranslationPostprocessor : RelationalQueryTranslationPostprocessor
+public class SqlServerQueryTranslationPostprocessor(
+    QueryTranslationPostprocessorDependencies dependencies,
+    RelationalQueryTranslationPostprocessorDependencies relationalDependencies,
+    SqlServerQueryCompilationContext queryCompilationContext)
+    : RelationalQueryTranslationPostprocessor(dependencies, relationalDependencies, queryCompilationContext)
 {
-    private readonly SqlServerJsonPostprocessor _jsonPostprocessor;
-    private readonly SqlServerAggregateOverSubqueryPostprocessor _aggregatePostprocessor;
+    private readonly SqlServerJsonPostprocessor _jsonPostprocessor = new(
+        relationalDependencies.TypeMappingSource,
+        relationalDependencies.SqlExpressionFactory,
+        queryCompilationContext.SqlAliasManager);
+
+    private readonly SqlServerAggregateArgumentPostprocessor _aggregatePostprocessor = new(queryCompilationContext.SqlAliasManager);
     private readonly SqlServerSqlTreePruner _pruner = new();
-    private readonly bool _supportsJsonTypeInOpenJson;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public SqlServerQueryTranslationPostprocessor(
-        QueryTranslationPostprocessorDependencies dependencies,
-        RelationalQueryTranslationPostprocessorDependencies relationalDependencies,
-        SqlServerQueryCompilationContext queryCompilationContext)
-        : base(dependencies, relationalDependencies, queryCompilationContext)
-    {
-        _jsonPostprocessor = new SqlServerJsonPostprocessor(
-            relationalDependencies.TypeMappingSource, relationalDependencies.SqlExpressionFactory, queryCompilationContext.SqlAliasManager);
-        _aggregatePostprocessor = new SqlServerAggregateOverSubqueryPostprocessor(queryCompilationContext.SqlAliasManager);
-
-        var sqlServerOptions = queryCompilationContext.ContextOptions.FindExtension<SqlServerOptionsExtension>()!;
-        _supportsJsonTypeInOpenJson = sqlServerOptions.EngineType == SqlServerEngineType.SqlServer
-            && sqlServerOptions.SqlServerCompatibilityLevel >= 170;
-    }
+    private readonly bool _supportsJsonTypeInOpenJson =
+        queryCompilationContext.ContextOptions.FindExtension<SqlServerOptionsExtension>()! is
+            { EngineType: SqlServerEngineType.SqlServer, SqlServerCompatibilityLevel: >= 170 };
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -52,6 +41,8 @@ public class SqlServerQueryTranslationPostprocessor : RelationalQueryTranslation
 
         var query2 = _jsonPostprocessor.Process(query1, _supportsJsonTypeInOpenJson);
         var query3 = _aggregatePostprocessor.Visit(query2);
+
+        new SqlServerVectorSearchWithoutApproximateDetector(queryCompilationContext).Visit(query3);
 
         return query3;
     }

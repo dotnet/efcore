@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
-#nullable disable
-
 public class JsonOwnedBranch
 {
     public int Id { get; set; }
@@ -13,9 +11,9 @@ public class JsonOwnedBranch
 
     public JsonEnum Enum { get; set; }
     public JsonEnum? NullableEnum { get; init; }
-    public JsonEnum[] Enums { get; init; }
-    public JsonEnum?[] NullableEnums { get; init; }
+    public JsonEnum[]? Enums { get; init; }
+    public JsonEnum?[]? NullableEnums { get; init; }
 
-    public JsonOwnedLeaf OwnedReferenceLeaf { get; set; }
-    public List<JsonOwnedLeaf> OwnedCollectionLeaf { get; set; }
+    public JsonOwnedLeaf OwnedReferenceLeaf { get; set; } = null!;
+    public List<JsonOwnedLeaf> OwnedCollectionLeaf { get; set; } = null!;
 }

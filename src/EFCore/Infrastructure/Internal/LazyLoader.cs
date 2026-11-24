@@ -21,8 +21,11 @@ public class LazyLoader : ILazyLoader, IInjectableService
     private IDictionary<string, bool>? _loadedStates;
     private readonly Lock _isLoadingLock = new();
 
-    private readonly Dictionary<(object Entity, string NavigationName), TaskCompletionSource> _isLoading = new(
-        NavEntryEqualityComparer.Instance);
+    private readonly Dictionary<(object Entity, string NavigationName), TaskCompletionSource> _isLoading =
+    [
+        with(
+            NavEntryEqualityComparer.Instance)
+    ];
 
     private static readonly AsyncLocal<int> _isLoadingCallDepth = new();
     private HashSet<string>? _nonLazyNavigations;

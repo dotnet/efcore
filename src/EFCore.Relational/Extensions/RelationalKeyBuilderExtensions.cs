@@ -43,7 +43,7 @@ public static class RelationalKeyBuilderExtensions
     public static KeyBuilder<TEntity> HasName<TEntity>(
         this KeyBuilder<TEntity> keyBuilder,
         string? name)
-        => (KeyBuilder<TEntity>)HasName((KeyBuilder)keyBuilder, name);
+        => (KeyBuilder<TEntity>)((KeyBuilder)keyBuilder).HasName(name);
 
     /// <summary>
     ///     Configures the name of the key constraint in the database when targeting a relational database.

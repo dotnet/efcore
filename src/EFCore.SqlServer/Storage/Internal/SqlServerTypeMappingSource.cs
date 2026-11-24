@@ -120,7 +120,7 @@ public class SqlServerTypeMappingSource(
         = new("uniqueidentifier");
 
     private static readonly SqlServerStringTypeMapping Xml
-        = new("xml", unicode: true, storeTypePostfix: StoreTypePostfix.None);
+        = new("xml", unicode: true, sqlDbType: SqlDbType.Xml, storeTypePostfix: StoreTypePostfix.None);
 
     private static readonly Dictionary<Type, RelationalTypeMapping> _clrTypeMappings;
 
@@ -184,7 +184,7 @@ public class SqlServerTypeMappingSource(
                 { "float", [SqlServerDoubleTypeMapping.Default] },
                 { "image", [ImageBinary] },
                 { "int", [IntTypeMapping.Default] },
-                { "json", [SqlServerStringTypeMapping.JsonTypeDefault] },
+                { "json", [SqlServerJsonTypeMapping.Default] },
                 { "money", [Money] },
                 { "national char varying", [VariableLengthUnicodeString] },
                 { "national char varying(max)", [VariableLengthMaxUnicodeString] },
@@ -237,10 +237,12 @@ public class SqlServerTypeMappingSource(
         if (clrType == typeof(JsonTypePlaceholder))
         {
             // We get here when a structural type (complex type or owned entity) is mapped to JSON.
-            return storeTypeName switch
+            return mappingInfo.StoreTypeNameBase switch
             {
                 "json" => SqlServerStructuralJsonTypeMapping.JsonTypeDefault,
-                "nvarchar(max)" => SqlServerStructuralJsonTypeMapping.NvarcharMaxDefault,
+
+                // Note that if the store type is non-max (e.g. nvarchar(2000)), it gets cloned outside for the right size.
+                "nvarchar" => SqlServerStructuralJsonTypeMapping.NvarcharMaxDefault,
 
                 null when _isJsonTypeSupported => SqlServerStructuralJsonTypeMapping.JsonTypeDefault,
                 null => SqlServerStructuralJsonTypeMapping.NvarcharMaxDefault,
@@ -320,7 +322,7 @@ public class SqlServerTypeMappingSource(
                     return Rowversion;
 
                 case { } t when t == typeof(string) && storeTypeName == "json":
-                    return SqlServerStringTypeMapping.JsonTypeDefault;
+                    return SqlServerJsonTypeMapping.Default;
 
                 case { } t when t == typeof(string):
                 {
@@ -334,25 +336,22 @@ public class SqlServerTypeMappingSource(
                         size = isFixedLength ? maxSize : null;
                     }
 
-                    if (size == null
+                    return size == null
                         && storeTypeName == null
-                        && !mappingInfo.IsKeyOrIndex)
-                    {
-                        return isAnsi
-                            ? isFixedLength
-                                ? FixedLengthAnsiString
-                                : VariableLengthMaxAnsiString
-                            : isFixedLength
-                                ? FixedLengthUnicodeString
-                                : VariableLengthMaxUnicodeString;
-                    }
-
-                    return new SqlServerStringTypeMapping(
-                        unicode: !isAnsi,
-                        size: size,
-                        fixedLength: isFixedLength,
-                        storeTypePostfix: storeTypeName == null ? StoreTypePostfix.Size : StoreTypePostfix.None,
-                        useKeyComparison: mappingInfo.IsKey);
+                        && !mappingInfo.IsKeyOrIndex
+                            ? isAnsi
+                                ? isFixedLength
+                                    ? FixedLengthAnsiString
+                                    : VariableLengthMaxAnsiString
+                                : isFixedLength
+                                    ? FixedLengthUnicodeString
+                                    : VariableLengthMaxUnicodeString
+                            : new SqlServerStringTypeMapping(
+                                unicode: !isAnsi,
+                                size: size,
+                                fixedLength: isFixedLength,
+                                storeTypePostfix: storeTypeName == null ? StoreTypePostfix.Size : StoreTypePostfix.None,
+                                useKeyComparison: mappingInfo.IsKey);
                 }
 
                 case { } t when t == typeof(byte[]) && mappingInfo.ElementTypeMapping is null:
@@ -408,8 +407,10 @@ public class SqlServerTypeMappingSource(
                 // Note that the converter info is only used temporarily here and never creates an instance.
                 .WithConverter(new ValueConverterInfo(modelType, typeof(string), _ => null!));
 
-            return (RelationalTypeMapping)FindMapping(jsonTypeMappingInfo)!
-                .WithComposedConverter(
+            var mapping = FindMapping(jsonTypeMappingInfo);
+            return mapping is null
+                ? null
+                : (RelationalTypeMapping)mapping.WithComposedConverter(
                     (ValueConverter)Activator.CreateInstance(
                         typeof(CollectionToJsonStringConverter<>).MakeGenericType(
                             modelType.TryGetElementType(typeof(IEnumerable<>))!), collectionReaderWriter!)!,

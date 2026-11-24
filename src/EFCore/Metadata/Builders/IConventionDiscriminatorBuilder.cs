@@ -69,14 +69,6 @@ public interface IConventionDiscriminatorBuilder
     /// <param name="value">The discriminator value.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns><see langword="true" /> if the discriminator value can be set from this configuration source.</returns>
-    bool CanSetValue(IConventionEntityType entityType, object? value, bool fromDataAnnotation = false)
-    {
-        if (!EntityType.IsAssignableFrom(entityType)
-            && !entityType.Builder.CanSetBaseType(EntityType, fromDataAnnotation))
-        {
-            return false;
-        }
-
-        return entityType.Builder.CanSetAnnotation(CoreAnnotationNames.DiscriminatorValue, value, fromDataAnnotation);
-    }
+    bool CanSetValue(IConventionEntityType entityType, object? value, bool fromDataAnnotation = false) => (EntityType.IsAssignableFrom(entityType)
+            || entityType.Builder.CanSetBaseType(EntityType, fromDataAnnotation)) && entityType.Builder.CanSetAnnotation(CoreAnnotationNames.DiscriminatorValue, value, fromDataAnnotation);
 }

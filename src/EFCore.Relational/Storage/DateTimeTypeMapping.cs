@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
 ///     for more information and examples.
 /// </remarks>
-public class DateTimeTypeMapping : RelationalTypeMapping
+public class DateTimeTypeMapping : RelationalTypeMapping<DateTime>
 {
     private const string DateTimeFormatConst = @"{0:yyyy-MM-dd HH\:mm\:ss.fffffff}";
 

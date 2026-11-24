@@ -393,6 +393,7 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
             annotations.Remove(RelationalAnnotationNames.UpdateStoredProcedureParameterMappings);
             annotations.Remove(RelationalAnnotationNames.UpdateStoredProcedureResultColumnMappings);
             annotations.Remove(RelationalAnnotationNames.DefaultColumnMappings);
+            annotations.Remove(RelationalAnnotationNames.JsonElementMappings);
         }
         else
         {
@@ -429,6 +430,46 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
             propertyOverrides.StoreObject,
             propertyOverrides.IsColumnNameOverridden,
             propertyOverrides.ColumnName);
+
+    /// <inheritdoc />
+    protected override void ProcessNavigationAnnotations(
+        Dictionary<string, object?> annotations,
+        INavigation navigation,
+        RuntimeNavigation runtimeNavigation,
+        bool runtime)
+    {
+        base.ProcessNavigationAnnotations(annotations, navigation, runtimeNavigation, runtime);
+
+        if (runtime)
+        {
+            annotations.Remove(RelationalAnnotationNames.TableColumnMappings);
+            annotations.Remove(RelationalAnnotationNames.ViewColumnMappings);
+            annotations.Remove(RelationalAnnotationNames.SqlQueryColumnMappings);
+            annotations.Remove(RelationalAnnotationNames.FunctionColumnMappings);
+            annotations.Remove(RelationalAnnotationNames.DefaultColumnMappings);
+            annotations.Remove(RelationalAnnotationNames.JsonElementMappings);
+        }
+    }
+
+    /// <inheritdoc />
+    protected override void ProcessComplexPropertyAnnotations(
+        Dictionary<string, object?> annotations,
+        IComplexProperty complexProperty,
+        RuntimeComplexProperty runtimeComplexProperty,
+        bool runtime)
+    {
+        base.ProcessComplexPropertyAnnotations(annotations, complexProperty, runtimeComplexProperty, runtime);
+
+        if (runtime)
+        {
+            annotations.Remove(RelationalAnnotationNames.TableColumnMappings);
+            annotations.Remove(RelationalAnnotationNames.ViewColumnMappings);
+            annotations.Remove(RelationalAnnotationNames.SqlQueryColumnMappings);
+            annotations.Remove(RelationalAnnotationNames.FunctionColumnMappings);
+            annotations.Remove(RelationalAnnotationNames.DefaultColumnMappings);
+            annotations.Remove(RelationalAnnotationNames.JsonElementMappings);
+        }
+    }
 
     /// <summary>
     ///     Updates the relational property overrides annotations that will be set on the read-only object.
@@ -505,6 +546,10 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
         if (runtime)
         {
             annotations.Remove(RelationalAnnotationNames.ForeignKeyMappings);
+        }
+        else
+        {
+            annotations.Remove(RelationalAnnotationNames.IsForeignKeyExcludedFromMigrations);
         }
     }
 

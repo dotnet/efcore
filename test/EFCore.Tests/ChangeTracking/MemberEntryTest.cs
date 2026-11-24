@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable enable
 #pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
 #pragma warning disable CS0414 // Field is assigned but its value is never used
 
@@ -9,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 
 public class MemberEntryTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_get_back_reference_property()
     {
         using var context = new FreezerContext();
@@ -20,7 +19,7 @@ public class MemberEntryTest
         Assert.Same(entityEntry.Entity, entityEntry.Member("Monkey").EntityEntry.Entity);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_back_reference_reference()
     {
         using var context = new FreezerContext();
@@ -31,7 +30,7 @@ public class MemberEntryTest
         Assert.Same(entityEntry.Entity, entityEntry.Member("Garcia").EntityEntry.Entity);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_back_reference_collection()
     {
         using var context = new FreezerContext();
@@ -42,7 +41,7 @@ public class MemberEntryTest
         Assert.Same(entityEntry.Entity, entityEntry.Member("Monkeys").EntityEntry.Entity);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_metadata_property()
     {
         using var context = new FreezerContext();
@@ -52,7 +51,7 @@ public class MemberEntryTest
         Assert.Equal("Monkey", context.Entry(entity).Member("Monkey").Metadata.Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_metadata_reference()
     {
         using var context = new FreezerContext();
@@ -62,7 +61,7 @@ public class MemberEntryTest
         Assert.Equal("Garcia", context.Entry(entity).Member("Garcia").Metadata.Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_metadata_collection()
     {
         using var context = new FreezerContext();
@@ -72,7 +71,7 @@ public class MemberEntryTest
         Assert.Equal("Monkeys", context.Entry(entity).Member("Monkeys").Metadata.Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_current_value_property()
     {
         using var context = new FreezerContext();
@@ -90,7 +89,7 @@ public class MemberEntryTest
         Assert.Null(property.CurrentValue);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_current_value_reference()
     {
         using var context = new FreezerContext();
@@ -117,7 +116,7 @@ public class MemberEntryTest
         Assert.Null(reference.CurrentValue);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_current_value_collection()
     {
         using var context = new FreezerContext();
@@ -144,7 +143,7 @@ public class MemberEntryTest
         Assert.Null(collection.CurrentValue);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsModified_tracks_state_of_FK_property_reference()
     {
         using var context = new FreezerContext();
@@ -168,7 +167,7 @@ public class MemberEntryTest
         Assert.False(reference.IsModified);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsModified_tracks_state_of_owned_entity()
     {
         using var context = new FreezerContext();
@@ -236,7 +235,7 @@ public class MemberEntryTest
         Assert.False(reference.IsModified);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsModified_can_set_fk_to_modified_collection()
     {
         using var context = new FreezerContext();
@@ -267,7 +266,7 @@ public class MemberEntryTest
         Assert.Equal(EntityState.Unchanged, context.Entry(chunky2).State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_back_complex_property()
     {
         using var context = new FreezerContext();
@@ -279,7 +278,7 @@ public class MemberEntryTest
         Assert.Same(entityEntry.Entity, entityEntry.Member("Milk").EntityEntry.Entity);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_metadata_complex_property()
     {
         using var context = new FreezerContext();
@@ -290,7 +289,7 @@ public class MemberEntryTest
         Assert.Equal("Milk", context.Entry(entity).Member("Milk").Metadata.Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_current_value_complex_property()
     {
         using var context = new FreezerContext();
@@ -308,7 +307,7 @@ public class MemberEntryTest
         Assert.Null(property.CurrentValue);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_current_value_struct_complex_property()
     {
         using var context = new FreezerContext();
@@ -323,7 +322,7 @@ public class MemberEntryTest
         Assert.Equal("L. delbrueckii", ((Culture)property.CurrentValue).Species);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_back_complex_property_using_fields()
     {
         using var context = new FreezerContext();
@@ -335,7 +334,7 @@ public class MemberEntryTest
         Assert.Same(entityEntry.Entity, entityEntry.Member("Milk").EntityEntry.Entity);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_metadata_complex_property_using_fields()
     {
         using var context = new FreezerContext();
@@ -346,7 +345,7 @@ public class MemberEntryTest
         Assert.Equal("Milk", context.Entry(entity).Member("Milk").Metadata.Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_current_value_complex_property_using_fields()
     {
         using var context = new FreezerContext();
@@ -364,7 +363,7 @@ public class MemberEntryTest
         Assert.Null(property.CurrentValue);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_current_value_struct_complex_property_using_fields()
     {
         using var context = new FreezerContext();

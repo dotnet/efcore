@@ -201,7 +201,7 @@ public void MoveClients(string oldOwner, string newOwner)
 	
 ### Security Note: Migration APIs not designed for untrusted input
 
-The migrations APIs are designed to accept trusted values that are compiled into your application as part of migration code files. Most of the values are appropriately escaped, but if you are accepting untrusted input you should ensure appropriate validation is performed. There are some APIs (such as the `Sql(string)` method and the `defaultValueSql` parameter) that are pass-thru in nature and do not perform and validation or escaping. 
+The migrations APIs are designed to accept trusted values that are compiled into your application as part of migration code files. Most of the values are appropriately escaped, but if you are accepting untrusted input you should ensure appropriate validation is performed. There are some APIs (such as the `Sql(string)` method and the `defaultValueSql` parameter) that are pass-thru in nature and do not perform any validation or escaping. 
 
 **Guidance:** The migrations APIs are not designed to accept input from an untrusted source. If input from an untrusted source (e.g. the end user of an application) is passed to the migrations APIs then it should be validated to protect against SQL injection attacks.
 

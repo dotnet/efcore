@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.StoreValueGenerationModel;
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
-#nullable disable
-
 public abstract class StoreValueGenerationWithoutOutputSqlServerFixture : StoreValueGenerationSqlServerFixtureBase
 {
     protected override async Task SeedAsync(StoreValueGenerationContext context)

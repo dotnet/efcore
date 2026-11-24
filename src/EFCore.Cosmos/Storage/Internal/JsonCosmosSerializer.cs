@@ -1,8 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Text;
-using Newtonsoft.Json;
+using System.Text.Json;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
@@ -14,41 +13,22 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 /// </summary>
 public class JsonCosmosSerializer : CosmosSerializer
 {
-    private static readonly Encoding DefaultEncoding = new UTF8Encoding(false, true);
-
     /// <inheritdoc />
     public override T FromStream<T>(Stream stream)
     {
         using (stream)
         {
-            if (typeof(Stream).IsAssignableFrom(typeof(T)))
-            {
-                return (T)(object)stream;
-            }
-
-            using var streamReader = new StreamReader(stream);
-            using var jsonTextReader = new JsonTextReader(streamReader);
-            return GetSerializer().Deserialize<T>(jsonTextReader)!;
+            return typeof(Stream).IsAssignableFrom(typeof(T)) ? (T)(object)stream : JsonSerializer.Deserialize<T>(stream)!;
         }
     }
 
     /// <inheritdoc />
     public override Stream ToStream<T>(T input)
     {
-        var streamPayload = new MemoryStream();
-        using (var streamWriter = new StreamWriter(streamPayload, encoding: DefaultEncoding, bufferSize: 1024, leaveOpen: true))
-        {
-            using var jsonTextWriter = new JsonTextWriter(streamWriter);
-            jsonTextWriter.Formatting = Formatting.None;
-            GetSerializer().Serialize(jsonTextWriter, input);
-            jsonTextWriter.Flush();
-            streamWriter.Flush();
-        }
-
-        streamPayload.Position = 0;
-        return streamPayload;
+        var stream = new MemoryStream();
+        using var writer = new Utf8JsonWriter(stream, CosmosClientWrapper.JsonWriterOptions);
+        JsonSerializer.Serialize(writer, input);
+        stream.Position = 0;
+        return stream;
     }
-
-    private static JsonSerializer GetSerializer()
-        => CosmosClientWrapper.Serializer;
 }

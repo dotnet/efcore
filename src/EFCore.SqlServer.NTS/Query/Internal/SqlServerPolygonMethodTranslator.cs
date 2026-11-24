@@ -52,9 +52,8 @@ public class SqlServerPolygonMethodTranslator : IMethodCallTranslator
             var storeType = instance.TypeMapping.StoreType;
             var isGeography = string.Equals(storeType, "geography", StringComparison.OrdinalIgnoreCase);
 
-            if (isGeography)
-            {
-                return _sqlExpressionFactory.Function(
+            return isGeography
+                ? _sqlExpressionFactory.Function(
                     instance,
                     "RingN",
                     [
@@ -66,22 +65,20 @@ public class SqlServerPolygonMethodTranslator : IMethodCallTranslator
                     instancePropagatesNullability: true,
                     argumentsPropagateNullability: Statics.TrueArrays[1],
                     method.ReturnType,
+                    _typeMappingSource.FindMapping(method.ReturnType, storeType))
+                : _sqlExpressionFactory.Function(
+                    instance,
+                    "STInteriorRingN",
+                    [
+                        _sqlExpressionFactory.Add(
+                            arguments[0],
+                            _sqlExpressionFactory.Constant(1))
+                    ],
+                    nullable: true,
+                    instancePropagatesNullability: true,
+                    argumentsPropagateNullability: Statics.TrueArrays[1],
+                    method.ReturnType,
                     _typeMappingSource.FindMapping(method.ReturnType, storeType));
-            }
-
-            return _sqlExpressionFactory.Function(
-                instance,
-                "STInteriorRingN",
-                [
-                    _sqlExpressionFactory.Add(
-                        arguments[0],
-                        _sqlExpressionFactory.Constant(1))
-                ],
-                nullable: true,
-                instancePropagatesNullability: true,
-                argumentsPropagateNullability: Statics.TrueArrays[1],
-                method.ReturnType,
-                _typeMappingSource.FindMapping(method.ReturnType, storeType));
         }
 
         return null;

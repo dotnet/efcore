@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 public class ValueConverterTest
 {
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public async Task Value_converters_are_run_for_in_memory_database(bool async)
     {
         using (var context = new InMemoryConvertersContext())
@@ -27,6 +27,7 @@ public class ValueConverterTest
         using (var context = new InMemoryConvertersContext())
         {
             var person = context.Set<Person>().Find(async ? 1L : 2L);
+            Assert.NotNull(person);
 
             Assert.Equal(DateTimeKind.Utc, person.ConvertedGoingIn.Kind);
             Assert.Equal(new DateTime(2015, 1, 10, 8, 8, 8, DateTimeKind.Utc), person.ConvertedGoingIn);
@@ -64,7 +65,7 @@ public class ValueConverterTest
     private static readonly ValueConverter<uint, int> _uIntToInt
         = new CastingConverter<uint, int>();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_access_raw_converters()
     {
         Assert.Same(_uIntToInt.ConvertFromProviderExpression, ((ValueConverter)_uIntToInt).ConvertFromProviderExpression);
@@ -77,7 +78,7 @@ public class ValueConverterTest
         Assert.Equal(uint.MaxValue, _uIntToInt.ConvertFromProviderExpression.Compile()(-1));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_exact_types_with_non_nullable_converter()
     {
         Assert.Equal(1, _uIntToInt.ConvertToProvider((uint)1));
@@ -87,7 +88,7 @@ public class ValueConverterTest
         Assert.Equal(uint.MaxValue, _uIntToInt.ConvertFromProvider(-1));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_nullable_types_with_non_nullable_converter()
     {
         Assert.Equal(1, _uIntToInt.ConvertToProvider((uint?)1));
@@ -97,7 +98,7 @@ public class ValueConverterTest
         Assert.Equal(uint.MaxValue, _uIntToInt.ConvertFromProvider((int?)-1));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_non_exact_types_with_non_nullable_converter()
     {
         Assert.Equal(1, _uIntToInt.ConvertToProvider((ushort)1));
@@ -110,7 +111,7 @@ public class ValueConverterTest
         Assert.Equal((uint)1, _uIntToInt.ConvertFromProvider(1));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_non_exact_nullable_types_with_non_nullable_converter()
     {
         Assert.Equal(1, _uIntToInt.ConvertToProvider((ushort?)1));
@@ -123,7 +124,7 @@ public class ValueConverterTest
         Assert.Equal((uint)1, _uIntToInt.ConvertFromProvider((int?)1));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_handle_nulls_with_non_nullable_converter()
     {
         Assert.Null(_uIntToInt.ConvertToProvider(null));
@@ -133,7 +134,7 @@ public class ValueConverterTest
     private static readonly ValueConverter<uint?, int?> _nullableUIntToNullableInt
         = new CastingConverter<uint?, int?>();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_exact_types_with_nullable_converter()
     {
         Assert.Equal((int?)1, _nullableUIntToNullableInt.ConvertToProvider((uint?)1));
@@ -143,7 +144,7 @@ public class ValueConverterTest
         Assert.Equal((uint?)uint.MaxValue, _nullableUIntToNullableInt.ConvertFromProvider((int?)-1));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_non_nullable_types_with_nullable_converter()
     {
         Assert.Equal((int?)1, _nullableUIntToNullableInt.ConvertToProvider((uint?)1));
@@ -153,7 +154,7 @@ public class ValueConverterTest
         Assert.Equal((uint?)uint.MaxValue, _nullableUIntToNullableInt.ConvertFromProvider((int?)-1));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_non_exact_types_with_nullable_converter()
     {
         Assert.Equal((int?)1, _nullableUIntToNullableInt.ConvertToProvider((ushort?)1));
@@ -166,7 +167,7 @@ public class ValueConverterTest
         Assert.Equal((uint?)1, _nullableUIntToNullableInt.ConvertFromProvider((int?)1));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_non_exact_nullable_types_with_nullable_converter()
     {
         Assert.Equal((int?)1, _nullableUIntToNullableInt.ConvertToProvider((ushort)1));
@@ -179,14 +180,14 @@ public class ValueConverterTest
         Assert.Equal((uint?)1, _nullableUIntToNullableInt.ConvertFromProvider(1));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_handle_nulls_with_nullable_converter()
     {
         Assert.Null(_nullableUIntToNullableInt.ConvertToProvider(null));
         Assert.Null(_nullableUIntToNullableInt.ConvertFromProvider(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_cast_between_numeric_types()
     {
         var types = new[]
@@ -223,7 +224,7 @@ public class ValueConverterTest
             {
                 var converter = (ValueConverter)Activator.CreateInstance(
                     typeof(CastingConverter<,>).MakeGenericType(fromType, toType),
-                    [null]);
+                    [null])!;
 
                 var resultToProvider = Expression.Lambda<Func<object>>(
                         Expression.Convert(
@@ -259,7 +260,7 @@ public class ValueConverterTest
     private static readonly ValueConverter<Beatles, int> _enumToNumber
         = new EnumToNumberConverter<Beatles, int>();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_compose_to_strings()
     {
         var converter
@@ -274,7 +275,7 @@ public class ValueConverterTest
         Assert.Equal("0", converter(default));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_compose_to_strings_object()
     {
         var converter = _enumToNumber.ComposeWith(_intToString).ConvertToProvider;
@@ -288,7 +289,7 @@ public class ValueConverterTest
         Assert.Null(converter(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_compose_to_enums()
     {
         var converter
@@ -303,7 +304,7 @@ public class ValueConverterTest
         Assert.Equal(default, converter("0"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_compose_to_enums_object()
     {
         var converter = _enumToNumber.ComposeWith(_intToString).ConvertFromProvider;
@@ -325,7 +326,7 @@ public class ValueConverterTest
         Ringo = -1
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Cannot_compose_converters_with_mismatched_types()
         => Assert.Equal(
             CoreStrings.ConvertersCannotBeComposed("Beatles", "int", "uint", "int"),
@@ -367,7 +368,7 @@ public class ValueConverterTest
 
     private class BytesComparer : IComparer<byte[]>
     {
-        public int Compare(byte[] x, byte[] y)
+        public int Compare(byte[]? x, byte[]? y)
             => StructuralComparisons.StructuralComparer.Compare(x, y);
     }
 }

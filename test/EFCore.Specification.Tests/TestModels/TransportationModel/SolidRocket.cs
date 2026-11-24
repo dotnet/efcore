@@ -3,13 +3,11 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel;
 
-#nullable disable
-
 public class SolidRocket : ContinuousCombustionEngine
 {
-    public SolidFuelTank SolidFuelTank { get; set; }
+    public SolidFuelTank SolidFuelTank { get; set; } = null!;
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
         => obj is SolidRocket other
             && base.Equals(other);
 

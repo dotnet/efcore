@@ -1,10 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable disable
-
 using Microsoft.EntityFrameworkCore.Internal;
-using Newtonsoft.Json.Linq;
 using static System.Linq.Expressions.Expression;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
@@ -22,6 +19,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
     IQuerySqlGeneratorFactory querySqlGeneratorFactory)
     : ShapedQueryCompilingExpressionVisitor(dependencies, cosmosQueryCompilationContext)
 {
+    private delegate T Shaper<T>(QueryContext queryContext, ReadOnlyMemory<byte> data, int ordinal, out int bytesConsumed);
+
     private readonly Type _contextType = cosmosQueryCompilationContext.ContextType;
     private readonly bool _threadSafetyChecksEnabled = dependencies.CoreSingletonOptions.AreThreadSafetyChecksEnabled;
 
@@ -38,12 +37,10 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
             throw new UnreachableException("No root entity type was set during query processing.");
         }
 
-        var jTokenParameter = Parameter(typeof(JToken), "jToken");
-
         var shaperBody = shapedQueryExpression.ShaperExpression;
 
         var (paging, maxItemCount, continuationToken, responseContinuationTokenLimitInKb) =
-            (false, (SqlParameterExpression)null, (SqlParameterExpression)null, (SqlParameterExpression)null);
+            (false, (SqlParameterExpression?)null, (SqlParameterExpression?)null, (SqlParameterExpression?)null);
 
         // If the query is terminated ToPageAsync(), CosmosQueryableMethodTranslatingExpressionVisitor composed a PagingExpression on top
         // of the shaper. We remove that to get the shaper for each actual document being read (as opposed to the page of those documents),
@@ -58,23 +55,21 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
             shaperBody = pagingExpression.Expression;
         }
 
-        shaperBody = new JObjectInjectingExpressionVisitor().Visit(shaperBody);
-        shaperBody = InjectStructuralTypeMaterializers(shaperBody);
-
         if (shapedQueryExpression.QueryExpression is not SelectExpression selectExpression)
         {
             throw new NotSupportedException(CoreStrings.UnhandledExpressionNode(shapedQueryExpression.QueryExpression));
         }
 
-        shaperBody = new CosmosProjectionBindingRemovingExpressionVisitor(
-                selectExpression, jTokenParameter,
-                QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll)
-            .Visit(shaperBody);
+        VerifyNoClientConstant(shaperBody);
 
-        var shaperLambda = Lambda(
-            shaperBody,
-            QueryCompilationContext.QueryContextParameter,
-            jTokenParameter);
+        // Because the shaper might process the data twice (duplicated shaper),
+        // we pass the data as ROM, and the shaper will create a JsonReaderData where needed.
+        var dataParameter = Parameter(typeof(ReadOnlyMemory<byte>), "data");
+        // The shaper will always read the whole next json token/object, and will know how many bytes that was
+        // we get the amount of bytes read from the shaper, so that we can advance the data in the QueryingEnumerable as needed, without having to scan the data twice (once for shaper, once for advancing the data).
+        var bytesConsumedParameter = Parameter(typeof(int).MakeByRefType(), "bytesConsumed");
+        var shaperLambda = new ShaperProcessingExpressionVisitor(this, selectExpression, dataParameter, bytesConsumedParameter)
+            .ProcessShaper(shaperBody);
 
         var cosmosQueryContextConstant = Convert(QueryCompilationContext.QueryContextParameter, typeof(CosmosQueryContext));
         var shaperConstant = Constant(shaperLambda.Compile());
@@ -111,9 +106,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
                 Constant(cosmosQueryCompilationContext.PartitionKeyPropertyValues),
                 standAloneStateManagerConstant,
                 threadSafetyConstant,
-                Constant(maxItemCount.Name),
-                Constant(continuationToken.Name),
-                Constant(responseContinuationTokenLimitInKb.Name)),
+                Constant(maxItemCount!.Name),
+                Constant(continuationToken!.Name),
+                Constant(responseContinuationTokenLimitInKb!.Name)),
 
             _ => New(
                 typeof(QueryingEnumerable<>).MakeGenericType(shaperLambda.ReturnType).GetConstructors()[0], cosmosQueryContextConstant,
@@ -132,7 +127,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
     private static PartitionKey GeneratePartitionKey(
         IEntityType rootEntityType,
         List<Expression> partitionKeyPropertyValues,
-        IReadOnlyDictionary<string, object> parameterValues)
+        IReadOnlyDictionary<string, object?> parameterValues)
     {
         if (partitionKeyPropertyValues.Count == 0)
         {

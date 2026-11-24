@@ -22,7 +22,7 @@ public class InMemoryFixture
     public static ServiceProvider BuildServiceProvider(ILoggerFactory loggerFactory)
         => BuildServiceProvider(new ServiceCollection().AddSingleton(loggerFactory));
 
-    public static ServiceProvider BuildServiceProvider(IServiceCollection providerServices = null)
+    public static ServiceProvider BuildServiceProvider(IServiceCollection? providerServices = null)
         => InMemoryTestStoreFactory.Instance.AddProviderServices(
                 providerServices
                 ?? new ServiceCollection())

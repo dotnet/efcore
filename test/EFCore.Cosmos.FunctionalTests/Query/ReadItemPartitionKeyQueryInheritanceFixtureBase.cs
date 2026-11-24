@@ -68,7 +68,7 @@ public class ReadItemPartitionKeyQueryInheritanceFixtureBase : ReadItemPartition
             = new Func<object, object>(e => ((DerivedOnlyHierarchicalPartitionKeyEntity)e).DerivedPayload);
 
         sorters[typeof(DerivedSinglePartitionKeyEntity)]
-            = new Func<object, object>(e => ((DerivedSinglePartitionKeyEntity)e).Id);
+            = new Func<object, object>(e => (((DerivedSinglePartitionKeyEntity)e).Id, ((DerivedSinglePartitionKeyEntity)e).PartitionKey));
 
         sorters[typeof(DerivedOnlySinglePartitionKeyEntity)]
             = new Func<object, object>(e => ((DerivedOnlySinglePartitionKeyEntity)e).DerivedPayload);
@@ -110,17 +110,11 @@ public class ReadItemPartitionKeyQueryInheritanceFixtureBase : ReadItemPartition
                     .AsQueryable();
             }
 
-            if (typeof(TEntity) == typeof(DerivedOnlySinglePartitionKeyEntity))
-            {
-                return (IQueryable<TEntity>)OnlySinglePartitionKeyEntities.OfType<DerivedOnlySinglePartitionKeyEntity>().AsQueryable();
-            }
-
-            if (typeof(TEntity) == typeof(DerivedNoPartitionKeyEntity))
-            {
-                return (IQueryable<TEntity>)NoPartitionKeyEntities.OfType<DerivedNoPartitionKeyEntity>().AsQueryable();
-            }
-
-            return base.Set<TEntity>();
+            return typeof(TEntity) == typeof(DerivedOnlySinglePartitionKeyEntity)
+                ? (IQueryable<TEntity>)OnlySinglePartitionKeyEntities.OfType<DerivedOnlySinglePartitionKeyEntity>().AsQueryable()
+                : typeof(TEntity) == typeof(DerivedNoPartitionKeyEntity)
+                    ? (IQueryable<TEntity>)NoPartitionKeyEntities.OfType<DerivedNoPartitionKeyEntity>().AsQueryable()
+                    : base.Set<TEntity>();
         }
 
         private static List<DerivedHierarchicalPartitionKeyEntity> CreateDerivedHierarchicalPartitionKeyEntities()

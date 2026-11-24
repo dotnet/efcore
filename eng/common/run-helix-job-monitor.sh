@@ -7,7 +7,6 @@ scriptroot="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 toolArgs=(
   --helix-base-uri "$HELIX_MONITOR_BASE_URI"
   --use-entra-authentication "$HELIX_MONITOR_USE_ENTRA_AUTHENTICATION"
-  --helix-entra-scope "$HELIX_MONITOR_ENTRA_SCOPE"
   --polling-interval-seconds "$HELIX_MONITOR_POLLING_INTERVAL_SECONDS"
   --fail-on-failed-tests "$HELIX_MONITOR_FAIL_ON_FAILED_TESTS"
   --allow-no-helix-jobs "$HELIX_MONITOR_ALLOW_NO_HELIX_JOBS"

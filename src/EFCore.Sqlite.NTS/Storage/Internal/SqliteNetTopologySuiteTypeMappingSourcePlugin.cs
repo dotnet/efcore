@@ -102,25 +102,17 @@ public class SqliteNetTopologySuiteTypeMappingSourcePlugin : IRelationalTypeMapp
         {
             defaultStoreType = "MULTIPOLYGON";
         }
-        else if (typeof(Point).IsAssignableFrom(type))
-        {
-            defaultStoreType = "POINT";
-        }
-        else if (typeof(Polygon).IsAssignableFrom(type))
-        {
-            defaultStoreType = "POLYGON";
-        }
-        else if (typeof(GeometryCollection).IsAssignableFrom(type))
-        {
-            defaultStoreType = "GEOMETRYCOLLECTION";
-        }
-        else if (typeof(Geometry).IsAssignableFrom(type))
-        {
-            defaultStoreType = "GEOMETRY";
-        }
         else
         {
-            defaultStoreType = null;
+            defaultStoreType = typeof(Point).IsAssignableFrom(type)
+                ? "POINT"
+                : typeof(Polygon).IsAssignableFrom(type)
+                    ? "POLYGON"
+                    : typeof(GeometryCollection).IsAssignableFrom(type)
+                        ? "GEOMETRYCOLLECTION"
+                        : typeof(Geometry).IsAssignableFrom(type)
+                            ? "GEOMETRY"
+                            : null;
         }
 
         return defaultStoreType != null;

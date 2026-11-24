@@ -46,17 +46,7 @@ public readonly struct InterceptionResult<TResult>
     /// </remarks>
     /// <exception cref="InvalidOperationException">when <see cref="Result" /> is <see langword="false" />.</exception>
     public TResult Result
-    {
-        get
-        {
-            if (!HasResult)
-            {
-                throw new InvalidOperationException(CoreStrings.NoInterceptionResult);
-            }
-
-            return field;
-        }
-    }
+        => !HasResult ? throw new InvalidOperationException(CoreStrings.NoInterceptionResult) : (field);
 
     /// <summary>
     ///     If true, then interception is suppressed, and <see cref="Result" /> contains the result to use.

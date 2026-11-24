@@ -5,11 +5,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class SeedingTestBase
 {
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Seeding_does_not_leave_context_contaminated(bool async)
     {
         using var context = CreateContextWithEmptyDatabase(async ? "1A" : "1S");
@@ -28,7 +26,7 @@ public abstract class SeedingTestBase
         Assert.Equal("Orange", seeds[1].Species);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Seeding_keyless_entity_throws_exception(bool async)
     {
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
@@ -65,7 +63,7 @@ public abstract class SeedingTestBase
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
 
-        public string Species { get; set; }
+        public string Species { get; set; } = null!;
     }
 
     public class KeylessSeedingContext(DbContextOptions options) : DbContext(options)
@@ -81,6 +79,6 @@ public abstract class SeedingTestBase
 
     public class KeylessSeed
     {
-        public string Species { get; set; }
+        public string Species { get; set; } = null!;
     }
 }

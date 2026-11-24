@@ -111,5 +111,5 @@ public class DbUpdateException : Exception
     ///     may be zero or multiple entries.
     /// </summary>
     public virtual IReadOnlyList<EntityEntry> Entries
-        => _entries ??= new List<EntityEntry>();
+        => _entries ??= [];
 }

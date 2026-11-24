@@ -51,7 +51,7 @@ public class EntityTypeConfigurationAttributeConvention : TypeAttributeConventio
     }
 
     /// <summary>
-    ///     Called after an complex type is added to the model if it has an attribute.
+    ///     Called after a complex type is added to the model if it has an attribute.
     /// </summary>
     /// <param name="complexTypeBuilder">The builder for the complex type.</param>
     /// <param name="attribute">The attribute.</param>

@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.Operators;
 
-#nullable disable
-
 public class OperatorsContext(DbContextOptions options) : DbContext(options)
 {
     protected override void OnModelCreating(ModelBuilder modelBuilder)

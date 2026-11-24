@@ -150,5 +150,5 @@ public static class RelationalOwnedNavigationBuilderExtensions
         string? name)
         where TSource : class
         where TTarget : class
-        => (OwnedNavigationBuilder<TSource, TTarget>)HasJsonPropertyName((OwnedNavigationBuilder)navigationBuilder, name);
+        => (OwnedNavigationBuilder<TSource, TTarget>)((OwnedNavigationBuilder)navigationBuilder).HasJsonPropertyName(name);
 }

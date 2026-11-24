@@ -112,6 +112,68 @@ public interface IConventionTypeBaseBuilder : IConventionAnnotatableBuilder
     bool CanHaveProperty(MemberInfo memberInfo, bool fromDataAnnotation = false);
 
     /// <summary>
+    ///     Returns an object that can be used to configure the primitive collection with the given name.
+    ///     If no matching property exists, then a new property will be added.
+    /// </summary>
+    /// <param name="propertyType">The type of value the property will hold.</param>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <param name="elementType">The element type of the collection, or <see langword="null" /> to discover it.</param>
+    /// <param name="setTypeConfigurationSource">Indicates whether the type configuration source should be set.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>
+    ///     An object that can be used to configure the property if it exists on the type,
+    ///     <see langword="null" /> otherwise.
+    /// </returns>
+    IConventionPropertyBuilder? PrimitiveCollection(
+        Type propertyType,
+        string propertyName,
+        Type? elementType = null,
+        bool setTypeConfigurationSource = true,
+        bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Returns an object that can be used to configure the primitive collection with the given member info.
+    ///     If no matching property exists, then a new property will be added.
+    /// </summary>
+    /// <param name="memberInfo">The <see cref="PropertyInfo" /> or <see cref="FieldInfo" /> of the property.</param>
+    /// <param name="elementType">The element type of the collection, or <see langword="null" /> to discover it.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>
+    ///     An object that can be used to configure the property if it exists on the type,
+    ///     <see langword="null" /> otherwise.
+    /// </returns>
+    IConventionPropertyBuilder? PrimitiveCollection(
+        MemberInfo memberInfo,
+        Type? elementType = null,
+        bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Returns a value indicating whether the given primitive collection can be added to this type.
+    /// </summary>
+    /// <param name="propertyType">The type of value the property will hold.</param>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <param name="elementType">The element type of the collection, or <see langword="null" /> to discover it.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns><see langword="true" /> if the property can be added.</returns>
+    bool CanHavePrimitiveCollection(
+        Type? propertyType,
+        string propertyName,
+        Type? elementType = null,
+        bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Returns a value indicating whether the given primitive collection can be added to this type.
+    /// </summary>
+    /// <param name="memberInfo">The <see cref="PropertyInfo" /> or <see cref="FieldInfo" /> of the property.</param>
+    /// <param name="elementType">The element type of the collection, or <see langword="null" /> to discover it.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns><see langword="true" /> if the property can be added.</returns>
+    bool CanHavePrimitiveCollection(
+        MemberInfo memberInfo,
+        Type? elementType = null,
+        bool fromDataAnnotation = false);
+
+    /// <summary>
     ///     Returns an object that can be used to configure the indexer property with the given name.
     ///     If no matching property exists, then a new property will be added.
     /// </summary>

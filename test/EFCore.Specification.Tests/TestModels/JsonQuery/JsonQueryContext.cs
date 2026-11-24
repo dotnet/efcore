@@ -3,19 +3,17 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
-#nullable disable
-
 public class JsonQueryContext(DbContextOptions options) : DbContext(options)
 {
-    public DbSet<EntityBasic> EntitiesBasic { get; set; }
-    public DbSet<JsonEntityBasic> JsonEntitiesBasic { get; set; }
-    public DbSet<JsonEntityBasicForReference> JsonEntitiesBasicForReference { get; set; }
-    public DbSet<JsonEntityBasicForCollection> JsonEntitiesBasicForCollection { get; set; }
-    public DbSet<JsonEntityCustomNaming> JsonEntitiesCustomNaming { get; set; }
-    public DbSet<JsonEntitySingleOwned> JsonEntitiesSingleOwned { get; set; }
-    public DbSet<JsonEntityInheritanceBase> JsonEntitiesInheritance { get; set; }
-    public DbSet<JsonEntityAllTypes> JsonEntitiesAllTypes { get; set; }
-    public DbSet<JsonEntityConverters> JsonEntitiesConverters { get; set; }
+    public DbSet<EntityBasic> EntitiesBasic { get; set; } = null!;
+    public DbSet<JsonEntityBasic> JsonEntitiesBasic { get; set; } = null!;
+    public DbSet<JsonEntityBasicForReference> JsonEntitiesBasicForReference { get; set; } = null!;
+    public DbSet<JsonEntityBasicForCollection> JsonEntitiesBasicForCollection { get; set; } = null!;
+    public DbSet<JsonEntityCustomNaming> JsonEntitiesCustomNaming { get; set; } = null!;
+    public DbSet<JsonEntitySingleOwned> JsonEntitiesSingleOwned { get; set; } = null!;
+    public DbSet<JsonEntityInheritanceBase> JsonEntitiesInheritance { get; set; } = null!;
+    public DbSet<JsonEntityAllTypes> JsonEntitiesAllTypes { get; set; } = null!;
+    public DbSet<JsonEntityConverters> JsonEntitiesConverters { get; set; } = null!;
 
     public static Task SeedAsync(JsonQueryContext context)
     {

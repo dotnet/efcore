@@ -12,6 +12,6 @@ public class ProductProductPhoto
     public DateTime ModifiedDate { get; set; }
     public bool Primary { get; set; }
 
-    public virtual Product Product { get; set; }
-    public virtual ProductPhoto ProductPhoto { get; set; }
+    public virtual Product Product { get; set; } = null!;
+    public virtual ProductPhoto ProductPhoto { get; set; } = null!;
 }

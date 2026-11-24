@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.FunkyDataModel;
 
-#nullable disable
-
 public class FunkyDataData : ISetSource
 {
     public static readonly FunkyDataData Instance = new();
@@ -16,18 +14,13 @@ public class FunkyDataData : ISetSource
 
     public virtual IQueryable<TEntity> Set<TEntity>()
         where TEntity : class
-    {
-        if (typeof(TEntity) == typeof(FunkyCustomer))
-        {
-            return (IQueryable<TEntity>)FunkyCustomers.AsQueryable();
-        }
-
-        throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
-    }
+        => typeof(TEntity) == typeof(FunkyCustomer)
+            ? (IQueryable<TEntity>)FunkyCustomers.AsQueryable()
+            : throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
 
     public static IReadOnlyList<FunkyCustomer> CreateFunkyCustomers()
-        => new List<FunkyCustomer>
-        {
+        =>
+        [
             new()
             {
                 Id = 1,
@@ -155,5 +148,5 @@ public class FunkyDataData : ISetSource
                 LastName = "B[[",
                 NullableBool = true
             }
-        };
+        ];
 }

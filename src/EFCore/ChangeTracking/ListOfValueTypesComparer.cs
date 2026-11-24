@@ -178,7 +178,7 @@ public sealed class ListOfValueTypesComparer<TConcreteList, TElement> : ValueCom
         }
         else
         {
-            var snapshot = IsReadOnly ? new List<TElement>() : (IList<TElement>)Activator.CreateInstance<TConcreteList>()!;
+            var snapshot = IsReadOnly ? [] : (IList<TElement>)Activator.CreateInstance<TConcreteList>()!;
             foreach (var e in sourceList)
             {
                 snapshot.Add(elementSnapshot(e));

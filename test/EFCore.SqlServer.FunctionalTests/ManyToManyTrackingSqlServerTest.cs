@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class ManyToManyTrackingSqlServerTest(ManyToManyTrackingSqlServerTest.ManyToManyTrackingSqlServerFixture fixture)
     : ManyToManyTrackingSqlServerTestBase<ManyToManyTrackingSqlServerTest.ManyToManyTrackingSqlServerFixture>(fixture)
 {

@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 public class ClrPropertyGetterFactoryTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Property_is_returned_if_it_implements_IClrPropertyGetter()
     {
         var property = new FakeProperty();
@@ -126,18 +126,15 @@ public class ClrPropertyGetterFactoryTest
         public bool HasSentinelValueUsingContainingEntity(object entity, IReadOnlyList<int> indices)
             => throw new NotImplementedException();
 
-        public string Name { get; }
-        public ITypeBase DeclaringType { get; }
-        public Type ClrType { get; }
+        public string Name { get; } = null!;
+        public ITypeBase DeclaringType { get; } = null!;
+        public Type ClrType { get; } = null!;
         public bool IsNullable { get; }
         public ValueGenerated ValueGenerated { get; }
         public bool IsConcurrencyToken { get; }
-        public object Sentinel { get; }
-        public PropertyInfo PropertyInfo { get; }
-        public FieldInfo FieldInfo { get; }
-
-        IReadOnlyEntityType IReadOnlyProperty.DeclaringEntityType
-            => throw new NotImplementedException();
+        public object? Sentinel { get; }
+        public PropertyInfo? PropertyInfo { get; }
+        public FieldInfo? FieldInfo { get; }
 
         IReadOnlyTypeBase IReadOnlyPropertyBase.DeclaringType
             => throw new NotImplementedException();
@@ -146,27 +143,27 @@ public class ClrPropertyGetterFactoryTest
             => throw new NotImplementedException();
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_getter_is_returned_for_IProperty_property()
     {
         var modelBuilder = CreateModelBuilder();
         modelBuilder.Entity<Customer>().Property(e => e.Id);
         var model = modelBuilder.FinalizeModel();
 
-        var idProperty = model.FindEntityType(typeof(Customer)).FindProperty(nameof(Customer.Id));
+        var idProperty = model.FindEntityType(typeof(Customer))!.FindProperty(nameof(Customer.Id))!;
 
         Assert.Equal(
             7, ClrPropertyGetterFactory.Instance.Create(idProperty).GetClrValueUsingContainingEntity(
                 new Customer { Id = 7 }));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_getter_is_returned_for_property_info()
         => Assert.Equal(
-            7, ClrPropertyGetterFactory.Instance.Create(typeof(Customer).GetAnyProperty("Id")).GetClrValueUsingContainingEntity(
+            7, ClrPropertyGetterFactory.Instance.Create(typeof(Customer).GetAnyProperty("Id")!).GetClrValueUsingContainingEntity(
                 new Customer { Id = 7 }));
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_getter_is_returned_for_IProperty_struct_property()
     {
         var modelBuilder = CreateModelBuilder();
@@ -180,14 +177,14 @@ public class ClrPropertyGetterFactoryTest
                 new Customer { Id = 7, Fuel = new Fuel(1.0) }));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_getter_is_returned_for_struct_property_info()
         => Assert.Equal(
             new Fuel(1.0),
-            ClrPropertyGetterFactory.Instance.Create(typeof(Customer).GetAnyProperty("Fuel")).GetClrValueUsingContainingEntity(
+            ClrPropertyGetterFactory.Instance.Create(typeof(Customer).GetAnyProperty("Fuel")!).GetClrValueUsingContainingEntity(
                 new Customer { Id = 7, Fuel = new Fuel(1.0) }));
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_getter_is_returned_for_index_property()
     {
         var modelBuilder = CreateModelBuilder();
@@ -206,7 +203,7 @@ public class ClrPropertyGetterFactoryTest
                 .GetClrValueUsingContainingEntity(new IndexedClass { Id = 7 }));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_getter_is_returned_for_IProperty_complex_property()
     {
         var modelBuilder = CreateModelBuilder();
@@ -228,6 +225,74 @@ public class ClrPropertyGetterFactoryTest
 
         Assert.Equal(
             10.0, ClrPropertyGetterFactory.Instance.Create(volumeProperty).GetClrValue(new Fuel(10.0)));
+    }
+
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public void Delegate_getter_is_returned_for_nullable_property_in_nested_complex_collection(bool detailedErrors, bool customSentinel)
+    {
+        var modelBuilder = CreateModelBuilder();
+        modelBuilder.Entity<Blog>().ComplexCollection(
+            e => e.Posts, b => b.ComplexCollection(
+                e => e.Revisions, b => b.Property(e => e.PublishedOn)
+                    .HasSentinel(customSentinel ? new DateOnly(2000, 1, 1) : null)));
+
+        var model = modelBuilder.FinalizeModel();
+        model.SetRuntimeAnnotation(CoreAnnotationNames.DetailedErrorsEnabled, detailedErrors);
+        var property = model.FindEntityType(typeof(Blog))!
+            .FindComplexProperty(nameof(Blog.Posts))!.ComplexType
+            .FindComplexProperty(nameof(Post.Revisions))!.ComplexType
+            .FindProperty(nameof(Revision.PublishedOn))!;
+
+        var getter = ClrPropertyGetterFactory.Instance.Create(property);
+        var revision = new Revision();
+        var blog = new Blog { Posts = [new Post { Revisions = [revision] }] };
+
+        Assert.Null(getter.GetClrValueUsingContainingEntity(blog, [0, 0]));
+        Assert.Null(getter.GetClrValue(revision));
+        Assert.Equal(!customSentinel, getter.HasSentinelValueUsingContainingEntity(blog, [0, 0]));
+        Assert.Equal(!customSentinel, getter.HasSentinelValue(revision));
+
+        revision.PublishedOn = new DateOnly(2000, 1, 1);
+
+        Assert.Equal(revision.PublishedOn, getter.GetClrValueUsingContainingEntity(blog, [0, 0]));
+        Assert.Equal(revision.PublishedOn, getter.GetClrValue(revision));
+        Assert.Equal(customSentinel, getter.HasSentinelValueUsingContainingEntity(blog, [0, 0]));
+        Assert.Equal(customSentinel, getter.HasSentinelValue(revision));
+
+        if (detailedErrors)
+        {
+            var complexProperty = ((IComplexType)property.DeclaringType).ComplexProperty;
+            Assert.Equal(
+                CoreStrings.ComplexCollectionOrdinalOutOfRange(
+                    1, complexProperty.DeclaringType.ShortNameChain(), complexProperty.Name, 1),
+                Assert.Throws<InvalidOperationException>(() => getter.GetClrValueUsingContainingEntity(blog, [0, 1])).Message);
+
+            blog.Posts[0].Revisions = null!;
+
+            Assert.Equal(
+                CoreStrings.ComplexCollectionNotInitialized(complexProperty.DeclaringType.ShortNameChain(), complexProperty.Name),
+                Assert.Throws<InvalidOperationException>(() => getter.GetClrValueUsingContainingEntity(blog, [0, 0])).Message);
+        }
+    }
+
+    private class Blog
+    {
+        public int Id { get; set; }
+        public List<Post> Posts { get; set; } = [];
+    }
+
+    private class Post
+    {
+        public List<Revision> Revisions { get; set; } = [];
+    }
+
+    private class Revision
+    {
+        public DateOnly? PublishedOn { get; set; }
     }
 
     private static TestHelpers.TestModelBuilder CreateModelBuilder()

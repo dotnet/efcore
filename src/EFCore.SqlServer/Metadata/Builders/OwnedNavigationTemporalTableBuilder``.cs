@@ -49,4 +49,36 @@ public class OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public new virtual OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity> UseHistoryTable(string name, string? schema)
         => (OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>)base.UseHistoryTable(name, schema);
+
+    /// <summary>
+    ///     Returns an object that can be used to configure a period start property of the entity type mapped to a temporal table.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
+    ///     for more information.
+    /// </remarks>
+    /// <param name="propertyExpression">
+    ///     A lambda expression representing the property to be configured as the period start property
+    ///     (<c>entity => entity.PeriodStart</c>).
+    /// </param>
+    /// <returns>An object that can be used to configure the period start property.</returns>
+    public virtual OwnedNavigationTemporalPeriodPropertyBuilder HasPeriodStart(
+        Expression<Func<TDependentEntity, DateTime>> propertyExpression)
+        => HasPeriodStart(Check.NotNull(propertyExpression).GetMemberAccess().Name);
+
+    /// <summary>
+    ///     Returns an object that can be used to configure a period end property of the entity type mapped to a temporal table.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
+    ///     for more information.
+    /// </remarks>
+    /// <param name="propertyExpression">
+    ///     A lambda expression representing the property to be configured as the period end property
+    ///     (<c>entity => entity.PeriodEnd</c>).
+    /// </param>
+    /// <returns>An object that can be used to configure the period end property.</returns>
+    public virtual OwnedNavigationTemporalPeriodPropertyBuilder HasPeriodEnd(
+        Expression<Func<TDependentEntity, DateTime>> propertyExpression)
+        => HasPeriodEnd(Check.NotNull(propertyExpression).GetMemberAccess().Name);
 }

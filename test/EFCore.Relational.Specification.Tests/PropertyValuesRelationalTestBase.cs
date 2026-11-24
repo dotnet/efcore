@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class PropertyValuesRelationalTestBase<TFixture>(TFixture fixture)
     : PropertyValuesTestBase<TFixture>(fixture)
     where TFixture : PropertyValuesRelationalTestBase<TFixture>.PropertyValuesRelationalFixture, new()

@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
 /// </remarks>
-public class RelationalMapToJsonConvention : IEntityTypeAnnotationChangedConvention, IModelFinalizingConvention
+public class RelationalMapToJsonConvention : IModelFinalizingConvention
 {
     /// <summary>
     ///     Creates a new instance of <see cref="RelationalMapToJsonConvention" />.
@@ -35,17 +35,6 @@ public class RelationalMapToJsonConvention : IEntityTypeAnnotationChangedConvent
     ///     Relational provider-specific dependencies for this service.
     /// </summary>
     protected virtual RelationalConventionSetBuilderDependencies RelationalDependencies { get; }
-
-    /// <inheritdoc />
-    [Obsolete("Container column mappings are now obtained from IColumnBase.StoreTypeMapping")]
-    public virtual void ProcessEntityTypeAnnotationChanged(
-        IConventionEntityTypeBuilder entityTypeBuilder,
-        string name,
-        IConventionAnnotation? annotation,
-        IConventionAnnotation? oldAnnotation,
-        IConventionContext<IConventionAnnotation> context)
-    {
-    }
 
     /// <inheritdoc />
     public virtual void ProcessModelFinalizing(

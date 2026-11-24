@@ -1,9 +1,10 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-namespace Microsoft.EntityFrameworkCore.TestModels.OptionalDependent;
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable disable
+namespace Microsoft.EntityFrameworkCore.TestModels.OptionalDependent;
 
 public class OptionalDependentData : ISetSource
 {
@@ -198,8 +199,8 @@ public class OptionalDependentData : ISetSource
             Json = null
         };
 
-        return new List<OptionalDependentEntityAllOptional>
-        {
+        return
+        [
             e1,
             e2,
             e3,
@@ -212,7 +213,7 @@ public class OptionalDependentData : ISetSource
             e10,
             e11,
             e12
-        };
+        ];
     }
 
     public static IReadOnlyList<OptionalDependentEntitySomeRequired> CreateEntitiesSomeRequired()
@@ -508,8 +509,8 @@ public class OptionalDependentData : ISetSource
             Json = null
         };
 
-        return new List<OptionalDependentEntitySomeRequired>
-        {
+        return
+        [
             e1,
             e2,
             e3,
@@ -522,22 +523,14 @@ public class OptionalDependentData : ISetSource
             e10,
             e11,
             e12
-        };
+        ];
     }
 
     public IQueryable<TEntity> Set<TEntity>()
         where TEntity : class
-    {
-        if (typeof(TEntity) == typeof(OptionalDependentEntityAllOptional))
-        {
-            return (IQueryable<TEntity>)EntitiesAllOptional.AsQueryable();
-        }
-
-        if (typeof(TEntity) == typeof(OptionalDependentEntitySomeRequired))
-        {
-            return (IQueryable<TEntity>)EntitiesSomeRequired.AsQueryable();
-        }
-
-        throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
-    }
+        => typeof(TEntity) == typeof(OptionalDependentEntityAllOptional)
+            ? (IQueryable<TEntity>)EntitiesAllOptional.AsQueryable()
+            : typeof(TEntity) == typeof(OptionalDependentEntitySomeRequired)
+                ? (IQueryable<TEntity>)EntitiesSomeRequired.AsQueryable()
+                : throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
 }

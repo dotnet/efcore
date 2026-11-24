@@ -13,8 +13,8 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Query;
 [DisplayName(nameof(NavigationsQueryTests))]
 public abstract class NavigationsQueryTests
 {
-    private AdventureWorksContextBase _context;
-    private IQueryable<Store> _query;
+    private AdventureWorksContextBase _context = null!;
+    private IQueryable<Store> _query = null!;
 
     protected virtual int QueriesPerIteration
         => 10;
@@ -35,8 +35,8 @@ public abstract class NavigationsQueryTests
     {
         _context = CreateContext();
         _query = Filter
-            ? _context.Store.Where(s => s.SalesPerson.Bonus > 3000)
-            : _context.Store.Where(s => s.SalesPerson.Bonus >= 0);
+            ? _context.Store.Where(s => s.SalesPerson!.Bonus > 3000)
+            : _context.Store.Where(s => s.SalesPerson!.Bonus >= 0);
     }
 
     [GlobalCleanup]

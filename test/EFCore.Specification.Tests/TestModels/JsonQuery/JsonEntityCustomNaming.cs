@@ -5,17 +5,15 @@ using System.Text.Json.Serialization;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
-#nullable disable
-
 public class JsonEntityCustomNaming
 {
     public int Id { get; set; }
 
-    public string Title { get; set; }
+    public string Title { get; set; } = null!;
 
     [JsonPropertyName("CustomOwnedReferenceRoot")]
-    public JsonOwnedCustomNameRoot OwnedReferenceRoot { get; set; }
+    public JsonOwnedCustomNameRoot OwnedReferenceRoot { get; set; } = null!;
 
     [JsonPropertyName("CustomOwnedCollectionRoot")]
-    public List<JsonOwnedCustomNameRoot> OwnedCollectionRoot { get; set; }
+    public List<JsonOwnedCustomNameRoot> OwnedCollectionRoot { get; set; } = null!;
 }

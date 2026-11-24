@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
 /// <summary>
@@ -14,7 +16,8 @@ public class CosmosQueryableMethodTranslatingExpressionVisitorFactory(
     ISqlExpressionFactory sqlExpressionFactory,
     ITypeMappingSource typeMappingSource,
     IMemberTranslatorProvider memberTranslatorProvider,
-    IMethodCallTranslatorProvider methodCallTranslatorProvider)
+    IMethodCallTranslatorProvider methodCallTranslatorProvider,
+    ICosmosStructuralTypeSerializerProvider structuralTypeSerializerProvider)
     : IQueryableMethodTranslatingExpressionVisitorFactory
 {
     /// <summary>
@@ -36,5 +39,6 @@ public class CosmosQueryableMethodTranslatingExpressionVisitorFactory(
             sqlExpressionFactory,
             typeMappingSource,
             memberTranslatorProvider,
-            methodCallTranslatorProvider);
+            methodCallTranslatorProvider,
+            structuralTypeSerializerProvider);
 }

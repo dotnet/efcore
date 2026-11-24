@@ -13,34 +13,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqlServerTimeOnlyMethodTranslator : IMethodCallTranslator
+public class SqlServerTimeOnlyMethodTranslator(ISqlExpressionFactory sqlExpressionFactory) : IMethodCallTranslator
 {
-    private static readonly MethodInfo AddHoursMethod = typeof(TimeOnly).GetRuntimeMethod(
-        nameof(TimeOnly.AddHours), [typeof(double)])!;
-
-    private static readonly MethodInfo AddMinutesMethod = typeof(TimeOnly).GetRuntimeMethod(
-        nameof(TimeOnly.AddMinutes), [typeof(double)])!;
-
-    private static readonly MethodInfo IsBetweenMethod = typeof(TimeOnly).GetRuntimeMethod(
-        nameof(TimeOnly.IsBetween), [typeof(TimeOnly), typeof(TimeOnly)])!;
-
-    private static readonly MethodInfo FromDateTime = typeof(TimeOnly).GetRuntimeMethod(
-        nameof(TimeOnly.FromDateTime), [typeof(DateTime)])!;
-
-    private static readonly MethodInfo FromTimeSpan = typeof(TimeOnly).GetRuntimeMethod(
-        nameof(TimeOnly.FromTimeSpan), [typeof(TimeSpan)])!;
-
-    private readonly ISqlExpressionFactory _sqlExpressionFactory;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public SqlServerTimeOnlyMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
-        => _sqlExpressionFactory = sqlExpressionFactory;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -58,33 +32,36 @@ public class SqlServerTimeOnlyMethodTranslator : IMethodCallTranslator
             return null;
         }
 
-        if ((method == FromDateTime || method == FromTimeSpan)
-            && instance is null
-            && arguments.Count == 1)
-        {
-            return _sqlExpressionFactory.Convert(arguments[0], typeof(TimeOnly));
-        }
-
         if (instance is null)
         {
-            return null;
+            return method.Name switch
+            {
+                nameof(TimeOnly.FromDateTime) or nameof(TimeOnly.FromTimeSpan) when arguments is [_]
+                    => sqlExpressionFactory.Convert(arguments[0], typeof(TimeOnly)),
+                _ => null
+            };
         }
 
-        if (method == AddHoursMethod || method == AddMinutesMethod)
+        var datePart = method.Name switch
         {
-            var datePart = method == AddHoursMethod ? "hour" : "minute";
+            nameof(TimeOnly.AddHours) => "hour",
+            nameof(TimeOnly.AddMinutes) => "minute",
+            _ => null
+        };
 
+        if (datePart is not null)
+        {
             // Some Add methods accept a double, and SQL Server DateAdd does not accept number argument outside of int range
             if (arguments[0] is SqlConstantExpression { Value: double and (<= int.MinValue or >= int.MaxValue) })
             {
                 return null;
             }
 
-            instance = _sqlExpressionFactory.ApplyDefaultTypeMapping(instance);
+            instance = sqlExpressionFactory.ApplyDefaultTypeMapping(instance);
 
-            return _sqlExpressionFactory.Function(
+            return sqlExpressionFactory.Function(
                 "DATEADD",
-                [_sqlExpressionFactory.Fragment(datePart), _sqlExpressionFactory.Convert(arguments[0], typeof(int)), instance],
+                [sqlExpressionFactory.Fragment(datePart), sqlExpressionFactory.Convert(arguments[0], typeof(int)), instance],
                 nullable: true,
                 argumentsPropagateNullability: [false, true, true],
                 instance.Type,
@@ -93,19 +70,19 @@ public class SqlServerTimeOnlyMethodTranslator : IMethodCallTranslator
 
         // Translate TimeOnly.IsBetween to a >= b AND a < c.
         // Since a is evaluated multiple times, only translate for simple constructs (i.e. avoid duplicating complex subqueries).
-        if (method == IsBetweenMethod
+        if (method.Name == nameof(TimeOnly.IsBetween)
             && instance is ColumnExpression or SqlConstantExpression or SqlParameterExpression)
         {
             var typeMapping = ExpressionExtensions.InferTypeMapping(instance, arguments[0], arguments[1]);
-            instance = _sqlExpressionFactory.ApplyTypeMapping(instance, typeMapping);
+            instance = sqlExpressionFactory.ApplyTypeMapping(instance, typeMapping);
 
-            return _sqlExpressionFactory.And(
-                _sqlExpressionFactory.GreaterThanOrEqual(
+            return sqlExpressionFactory.And(
+                sqlExpressionFactory.GreaterThanOrEqual(
                     instance,
-                    _sqlExpressionFactory.ApplyTypeMapping(arguments[0], typeMapping)),
-                _sqlExpressionFactory.LessThan(
+                    sqlExpressionFactory.ApplyTypeMapping(arguments[0], typeMapping)),
+                sqlExpressionFactory.LessThan(
                     instance,
-                    _sqlExpressionFactory.ApplyTypeMapping(arguments[1], typeMapping)));
+                    sqlExpressionFactory.ApplyTypeMapping(arguments[1], typeMapping)));
         }
 
         return null;

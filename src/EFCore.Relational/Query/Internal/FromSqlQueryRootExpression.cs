@@ -119,8 +119,8 @@ public sealed class FromSqlQueryRootExpression : EntityQueryRootExpression
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is FromSqlQueryRootExpression queryRootExpression
-                && Equals(queryRootExpression));
+                || (obj is FromSqlQueryRootExpression queryRootExpression
+                    && Equals(queryRootExpression)));
 
     private bool Equals(FromSqlQueryRootExpression queryRootExpression)
         => base.Equals(queryRootExpression)

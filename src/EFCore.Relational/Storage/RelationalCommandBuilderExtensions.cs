@@ -108,26 +108,6 @@ public static class RelationalCommandBuilderExtensions
     /// <param name="name">
     ///     The name to be used for the parameter when the command is executed against the database.
     /// </param>
-    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    [Obsolete("Use overload which takes TypeMapping argument.")]
-    public static IRelationalCommandBuilder AddParameter(
-        this IRelationalCommandBuilder commandBuilder,
-        string invariantName,
-        string name)
-        => throw new InvalidOperationException("Use overload which takes TypeMapping argument.");
-
-    /// <summary>
-    ///     Adds a parameter.
-    /// </summary>
-    /// <param name="commandBuilder">The command builder.</param>
-    /// <param name="invariantName">
-    ///     The key that identifies this parameter. Note that <see cref="IRelationalParameter" /> just represents a
-    ///     placeholder for a parameter and not the actual value. This is because the same command can be
-    ///     reused multiple times with different parameter values.
-    /// </param>
-    /// <param name="name">
-    ///     The name to be used for the parameter when the command is executed against the database.
-    /// </param>
     /// <param name="relationalTypeMapping">The relational type mapping for this parameter.</param>
     /// <param name="nullable">A value indicating whether the parameter could contain a null value.</param>
     /// <param name="direction">The parameter direction.</param>

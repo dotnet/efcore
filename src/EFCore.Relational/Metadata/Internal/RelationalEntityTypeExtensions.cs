@@ -61,7 +61,7 @@ public static class RelationalEntityTypeExtensions
 
         foreach (var derivedType in entityType.GetDirectlyDerivedTypes())
         {
-            if (IsMainFragment(derivedType, storeObject))
+            if (derivedType.IsMainFragment(storeObject))
             {
                 return true;
             }

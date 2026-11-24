@@ -5,14 +5,12 @@ using System.Net;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 
-#nullable disable
-
 public abstract class Faction
 {
     public int Id { get; set; }
-    public string Name { get; set; }
-    public IPAddress ServerAddress { get; set; }
+    public string? Name { get; set; }
+    public IPAddress? ServerAddress { get; set; }
 
-    public string CapitalName { get; set; }
-    public City Capital { get; set; }
+    public string? CapitalName { get; set; }
+    public City? Capital { get; set; }
 }

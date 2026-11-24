@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 public class LocalViewListener : ILocalViewListener
 {
     private readonly IList<Action<InternalEntityEntry, EntityState>> _viewActions
-        = new List<Action<InternalEntityEntry, EntityState>>();
+        = [];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

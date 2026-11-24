@@ -74,12 +74,9 @@ public class ProxyFactory : IProxyFactory
         object[] constructorArguments)
     {
         var options = context.GetService<IDbContextOptions>().FindExtension<ProxiesOptionsExtension>();
-        if (options == null)
-        {
-            throw new InvalidOperationException(ProxiesStrings.ProxyServicesMissing);
-        }
-
-        return CreateLazyLoadingProxy(entityType, loader, constructorArguments);
+        return options == null
+            ? throw new InvalidOperationException(ProxiesStrings.ProxyServicesMissing)
+            : CreateLazyLoadingProxy(entityType, loader, constructorArguments);
     }
 
     private object CreateLazyLoadingProxy(
@@ -105,22 +102,16 @@ public class ProxyFactory : IProxyFactory
         object[] constructorArguments)
     {
         var options = context.GetService<IDbContextOptions>().FindExtension<ProxiesOptionsExtension>();
-        if (options == null)
-        {
-            throw new InvalidOperationException(ProxiesStrings.ProxyServicesMissing);
-        }
-
-        if ((bool?)entityType.Model[ProxyAnnotationNames.LazyLoading] == true)
-        {
-            return CreateLazyLoadingProxy(
-                entityType,
-                context.GetService<ILazyLoader>(),
-                constructorArguments);
-        }
-
-        return CreateProxy(
-            entityType,
-            constructorArguments);
+        return options == null
+            ? throw new InvalidOperationException(ProxiesStrings.ProxyServicesMissing)
+            : (bool?)entityType.Model[ProxyAnnotationNames.LazyLoading] == true
+                ? CreateLazyLoadingProxy(
+                    entityType,
+                    context.GetService<ILazyLoader>(),
+                    constructorArguments)
+                : CreateProxy(
+                    entityType,
+                    constructorArguments);
     }
 
     private object CreateProxy(

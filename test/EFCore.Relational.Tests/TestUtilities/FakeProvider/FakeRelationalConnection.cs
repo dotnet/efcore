@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 
-public class FakeRelationalConnection(IDbContextOptions options = null)
+public class FakeRelationalConnection(IDbContextOptions? options = null)
     : RelationalConnection(
         new RelationalConnectionDependencies(
             options ?? CreateOptions(),
@@ -40,7 +40,7 @@ public class FakeRelationalConnection(IDbContextOptions options = null)
                     new LoggingOptions())),
             new ExceptionDetector()))
 {
-    private DbConnection _connection;
+    private DbConnection? _connection;
 
     private readonly List<FakeDbConnection> _dbConnections = [];
 
@@ -71,14 +71,16 @@ public class FakeRelationalConnection(IDbContextOptions options = null)
     public List<Tuple<string, object>> ConnectionDiagnosticEvents
         => ((ListDiagnosticSource)Dependencies.ConnectionLogger.DiagnosticSource).DiagnosticList;
 
-    protected override bool SupportsAmbientTransactions => true;
+    protected override bool SupportsAmbientTransactions
+        => true;
 
-    protected override void ConnectionEnlistTransaction(Transaction transaction)
-    { }
+    protected override void ConnectionEnlistTransaction(Transaction? transaction)
+    {
+    }
 
     protected override DbConnection CreateDbConnection()
     {
-        var connection = new FakeDbConnection(ConnectionString);
+        var connection = new FakeDbConnection(ConnectionString!);
 
         _dbConnections.Add(connection);
 

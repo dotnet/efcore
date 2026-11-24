@@ -94,8 +94,8 @@ public class RightJoinExpression : PredicateJoinExpressionBase
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is RightJoinExpression rightJoinExpression
-                && Equals(rightJoinExpression));
+                || (obj is RightJoinExpression rightJoinExpression
+                    && Equals(rightJoinExpression)));
 
     private bool Equals(RightJoinExpression rightJoinExpression)
         => base.Equals(rightJoinExpression);

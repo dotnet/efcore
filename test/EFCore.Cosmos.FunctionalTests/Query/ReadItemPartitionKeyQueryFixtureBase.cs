@@ -3,7 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbContext>, IQueryFixtureBase
+public class ReadItemPartitionKeyQueryFixtureBase : QueryFixtureBase<DbContext>
 {
     protected PartitionKeyData? ExpectedData { get; set; }
 
@@ -63,6 +63,13 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
 
         modelBuilder.Entity<SharedContainerEntity2Child>();
 
+        modelBuilder.Entity<SharedContainerEntity3>()
+            .ToContainer("SharedContainer")
+            .HasPartitionKey(e => e.PartitionKey)
+            .HasKey(e => new { e.Id, e.PartitionKey });
+
+        modelBuilder.Entity<SharedContainerEntity3Child>();
+
         modelBuilder.Entity<FancyDiscriminatorEntity>()
             .ToContainer("Cat35224")
             .HasPartitionKey(e => e.Id)
@@ -76,9 +83,6 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
     public TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;
 
-    public Func<DbContext> GetContextCreator()
-        => () => CreateContext();
-
     protected override Task SeedAsync(DbContext context)
     {
         var data = (PartitionKeyData)GetExpectedData();
@@ -91,27 +95,29 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
         context.AddRange(data.SharedContainerEntities1);
         context.AddRange(data.SharedContainerEntities2);
         context.AddRange(data.SharedContainerEntities2Children);
+        context.AddRange(data.SharedContainerEntities3Children);
         context.AddRange(data.Cat35224Entities);
 
         return context.SaveChangesAsync();
     }
 
-    public virtual ISetSource GetExpectedData()
+    public override ISetSource GetExpectedData()
         => ExpectedData ??= new PartitionKeyData();
 
-    public IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object?, object?>>
+    public override IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object?, object?>>
     {
         { typeof(HierarchicalPartitionKeyEntity), e => ((HierarchicalPartitionKeyEntity?)e)?.Id },
         { typeof(OnlyHierarchicalPartitionKeyEntity), e => ((OnlyHierarchicalPartitionKeyEntity?)e)?.Payload },
-        { typeof(SinglePartitionKeyEntity), e => ((SinglePartitionKeyEntity?)e)?.Id },
+        { typeof(SinglePartitionKeyEntity), e => (((SinglePartitionKeyEntity?)e)?.Id, ((SinglePartitionKeyEntity?)e)?.PartitionKey) },
         { typeof(FancyDiscriminatorEntity), e => ((FancyDiscriminatorEntity?)e)?.Id },
         { typeof(OnlySinglePartitionKeyEntity), e => ((OnlySinglePartitionKeyEntity?)e)?.Payload },
         { typeof(NoPartitionKeyEntity), e => ((NoPartitionKeyEntity?)e)?.Id },
         { typeof(SharedContainerEntity1), e => ((SharedContainerEntity1?)e)?.Id },
-        { typeof(SharedContainerEntity2), e => ((SharedContainerEntity2?)e)?.Id }
+        { typeof(SharedContainerEntity2), e => ((SharedContainerEntity2?)e)?.Id },
+        { typeof(SharedContainerEntity3), e => ((SharedContainerEntity3?)e)?.Id }
     }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-    public IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object?, object?>>
+    public override IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object?, object?>>
     {
         {
             typeof(HierarchicalPartitionKeyEntity), (e, a) =>
@@ -244,6 +250,39 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
             }
         },
         {
+            typeof(SharedContainerEntity3), (e, a) =>
+            {
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
+                {
+                    var ee = (SharedContainerEntity3)e!;
+                    var aa = (SharedContainerEntity3)a;
+
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.PartitionKey, aa.PartitionKey);
+                    Assert.Equal(ee.Payload3, aa.Payload3);
+                }
+            }
+        },
+        {
+            typeof(SharedContainerEntity3Child), (e, a) =>
+            {
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
+                {
+                    var ee = (SharedContainerEntity3Child)e!;
+                    var aa = (SharedContainerEntity3Child)a;
+
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.PartitionKey, aa.PartitionKey);
+                    Assert.Equal(ee.Payload3, aa.Payload3);
+                    Assert.Equal(ee.Child1Payload, aa.Child1Payload);
+                }
+            }
+        },
+        {
             typeof(FancyDiscriminatorEntity), (e, a) =>
             {
                 Assert.Equal(e == null, a == null);
@@ -274,6 +313,7 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
         public List<SharedContainerEntity1> SharedContainerEntities1 { get; } = CreateSharedContainerEntities1();
         public List<SharedContainerEntity2> SharedContainerEntities2 { get; } = CreateSharedContainerEntities2();
         public List<SharedContainerEntity2Child> SharedContainerEntities2Children { get; } = CreateSharedContainerEntities2Children();
+        public List<SharedContainerEntity3Child> SharedContainerEntities3Children { get; } = CreateSharedContainerEntities3Children1();
 
         public List<FancyDiscriminatorEntity> Cat35224Entities { get; } = CreateCat35224Entities();
 
@@ -320,18 +360,17 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
                 return (IQueryable<TEntity>)SharedContainerEntities2Children.AsQueryable();
             }
 
-            if (typeof(TEntity) == typeof(FancyDiscriminatorEntity))
-            {
-                return (IQueryable<TEntity>)Cat35224Entities.AsQueryable();
-            }
-
-            throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
+            return typeof(TEntity) == typeof(SharedContainerEntity3) || typeof(TEntity) == typeof(SharedContainerEntity3Child)
+                ? (IQueryable<TEntity>)SharedContainerEntities3Children.AsQueryable()
+                : typeof(TEntity) == typeof(FancyDiscriminatorEntity)
+                    ? (IQueryable<TEntity>)Cat35224Entities.AsQueryable()
+                    : throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
         }
 
         private static List<HierarchicalPartitionKeyEntity> CreateHierarchicalPartitionKeyEntities()
             =>
             [
-                new HierarchicalPartitionKeyEntity
+                new()
                 {
                     Id = Guid.Parse("31887258-BDF9-49B8-89B2-01B6AA741A4A"),
                     PartitionKey1 = "PK1",
@@ -340,7 +379,7 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
                     Payload = "Payload1"
                 },
 
-                new HierarchicalPartitionKeyEntity
+                new()
                 {
                     Id = Guid.Parse("31887258-BDF9-49B8-89B2-01B6AA741A4A"), // Same Id as previous; different partition.
                     PartitionKey1 = "PK2",
@@ -349,7 +388,7 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
                     Payload = "Payload2"
                 },
 
-                new HierarchicalPartitionKeyEntity
+                new()
                 {
                     Id = Guid.Parse("BBA46A5D-BDB8-40F0-BA80-BA5731147B9A"), // Different Id.
                     PartitionKey1 = "PK1",
@@ -358,7 +397,7 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
                     Payload = "Payload3"
                 },
 
-                new HierarchicalPartitionKeyEntity
+                new()
                 {
                     Id = Guid.Parse("BBA46A5D-BDB8-40F0-BA80-BA5731147B9A"), // Same Id as previous; different partition.
                     PartitionKey1 = "PK2",
@@ -371,28 +410,28 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
         private static List<SinglePartitionKeyEntity> CreateSinglePartitionKeyEntities()
             =>
             [
-                new SinglePartitionKeyEntity
+                new()
                 {
                     Id = Guid.Parse("B29BCED8-E1E5-420E-82D7-1C7A51703D34"),
                     PartitionKey = "PK1",
                     Payload = "Payload1"
                 },
 
-                new SinglePartitionKeyEntity
+                new()
                 {
                     Id = Guid.Parse("B29BCED8-E1E5-420E-82D7-1C7A51703D34"),
                     PartitionKey = "PK2",
                     Payload = "Payload2"
                 },
 
-                new SinglePartitionKeyEntity
+                new()
                 {
                     Id = Guid.Parse("3307A33B-7F28-49EF-9857-48F4E3EBCAED"),
                     PartitionKey = "PK1",
                     Payload = "Payload3"
                 },
 
-                new SinglePartitionKeyEntity
+                new()
                 {
                     Id = Guid.Parse("3307A33B-7F28-49EF-9857-48F4E3EBCAED"),
                     PartitionKey = "PK2",
@@ -403,7 +442,7 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
         private static List<OnlyHierarchicalPartitionKeyEntity> CreateOnlyHierarchicalPartitionKeyEntities()
             =>
             [
-                new OnlyHierarchicalPartitionKeyEntity
+                new()
                 {
                     PartitionKey1 = "PK1a",
                     PartitionKey2 = 1,
@@ -411,7 +450,7 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
                     Payload = "Payload1"
                 },
 
-                new OnlyHierarchicalPartitionKeyEntity
+                new()
                 {
                     PartitionKey1 = "PK2a",
                     PartitionKey2 = 2,
@@ -419,7 +458,7 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
                     Payload = "Payload2"
                 },
 
-                new OnlyHierarchicalPartitionKeyEntity
+                new()
                 {
                     PartitionKey1 = "PK1b",
                     PartitionKey2 = 1,
@@ -427,7 +466,7 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
                     Payload = "Payload3"
                 },
 
-                new OnlyHierarchicalPartitionKeyEntity
+                new()
                 {
                     PartitionKey1 = "PK2b",
                     PartitionKey2 = 2,
@@ -439,40 +478,40 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
         private static List<OnlySinglePartitionKeyEntity> CreateOnlySinglePartitionKeyEntities()
             =>
             [
-                new OnlySinglePartitionKeyEntity { PartitionKey = "PK1a", Payload = "Payload1" },
-                new OnlySinglePartitionKeyEntity { PartitionKey = "PK2a", Payload = "Payload2" },
-                new OnlySinglePartitionKeyEntity { PartitionKey = "PK1b", Payload = "Payload3" },
-                new OnlySinglePartitionKeyEntity { PartitionKey = "PK2b", Payload = "Payload4" }
+                new() { PartitionKey = "PK1a", Payload = "Payload1" },
+                new() { PartitionKey = "PK2a", Payload = "Payload2" },
+                new() { PartitionKey = "PK1b", Payload = "Payload3" },
+                new() { PartitionKey = "PK2b", Payload = "Payload4" }
             ];
 
         private static List<NoPartitionKeyEntity> CreateNoPartitionKeyEntities()
-            => [new NoPartitionKeyEntity { Id = 1, Payload = "Payload1" }, new NoPartitionKeyEntity { Id = 2, Payload = "Payload2" }];
+            => [new() { Id = 1, Payload = "Payload1" }, new() { Id = 2, Payload = "Payload2" }];
 
         private static List<SharedContainerEntity1> CreateSharedContainerEntities1()
             =>
             [
-                new SharedContainerEntity1
+                new()
                 {
                     Id = "1",
                     PartitionKey = "PK1",
                     Payload1 = "Payload1"
                 },
 
-                new SharedContainerEntity1
+                new()
                 {
                     Id = "1",
                     PartitionKey = "PK2",
                     Payload1 = "Payload2"
                 },
 
-                new SharedContainerEntity1
+                new()
                 {
                     Id = "2",
                     PartitionKey = "PK1",
                     Payload1 = "Payload3"
                 },
 
-                new SharedContainerEntity1
+                new()
                 {
                     Id = "2",
                     PartitionKey = "PK2",
@@ -483,14 +522,14 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
         private static List<SharedContainerEntity2> CreateSharedContainerEntities2()
             =>
             [
-                new SharedContainerEntity2
+                new()
                 {
                     Id = 4,
                     PartitionKey = "PK1",
                     Payload2 = "Payload4"
                 },
 
-                new SharedContainerEntity2
+                new()
                 {
                     Id = 4,
                     PartitionKey = "PK2",
@@ -501,7 +540,7 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
         private static List<SharedContainerEntity2Child> CreateSharedContainerEntities2Children()
             =>
             [
-                new SharedContainerEntity2Child
+                new()
                 {
                     Id = 5,
                     PartitionKey = "PK1",
@@ -509,7 +548,7 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
                     ChildPayload = "Child1"
                 },
 
-                new SharedContainerEntity2Child
+                new()
                 {
                     Id = 5,
                     PartitionKey = "PK2",
@@ -518,13 +557,33 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
                 }
             ];
 
+        private static List<SharedContainerEntity3Child> CreateSharedContainerEntities3Children1()
+            =>
+            [
+                new()
+                {
+                    Id = 6,
+                    PartitionKey = "PK1",
+                    Payload3 = "Payload8",
+                    Child1Payload = "Child1"
+                },
+
+                new()
+                {
+                    Id = 6,
+                    PartitionKey = "PK2",
+                    Payload3 = "Payload9",
+                    Child1Payload = "Child2"
+                }
+            ];
+
         private static List<FancyDiscriminatorEntity> CreateCat35224Entities()
             =>
             [
-                new FancyDiscriminatorEntity { Id = "Cat|1", Name = "Smokey" },
-                new FancyDiscriminatorEntity { Id = "Cat2||", Name = "Clippy" },
-                new FancyDiscriminatorEntity { Id = "Cat|3|$|5", Name = "Sid" },
-                new FancyDiscriminatorEntity { Id = "|Cat|", Name = "Killes" }
+                new() { Id = "Cat|1", Name = "Smokey" },
+                new() { Id = "Cat2||", Name = "Clippy" },
+                new() { Id = "Cat|3|$|5", Name = "Sid" },
+                new() { Id = "|Cat|", Name = "Killes" }
             ];
     }
 }
@@ -598,4 +657,16 @@ public class SharedContainerEntity2
 public class SharedContainerEntity2Child : SharedContainerEntity2
 {
     public required string ChildPayload { get; set; }
+}
+
+public abstract class SharedContainerEntity3
+{
+    public int Id { get; set; }
+    public required string PartitionKey { get; set; }
+    public required string Payload3 { get; set; }
+}
+
+public class SharedContainerEntity3Child : SharedContainerEntity3
+{
+    public required string Child1Payload { get; set; }
 }

@@ -60,6 +60,14 @@ public interface IUpdateEntry
     bool IsModified(IProperty property);
 
     /// <summary>
+    ///     Gets a value indicating if the specified property is loaded. If <see langword="false" />, the property
+    ///     value was not read from the database and the property should be excluded from update operations.
+    /// </summary>
+    /// <param name="property">The property to be checked.</param>
+    /// <returns><see langword="true" /> if the property value has been loaded, otherwise <see langword="false" />.</returns>
+    bool IsLoaded(IProperty property);
+
+    /// <summary>
     ///     Gets a value indicating if the specified complex property is modified. If <see langword="true" />,
     ///     the current value assigned to the property should be saved to the database.
     /// </summary>

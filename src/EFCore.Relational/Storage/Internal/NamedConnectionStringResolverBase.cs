@@ -44,31 +44,21 @@ public abstract class NamedConnectionStringResolverBase
         var resolved = configuration?[connectionName]
             ?? configuration?[DefaultSection + connectionName];
 
-        if (resolved == null)
-        {
-            throw new InvalidOperationException(
+        return resolved
+            ?? throw new InvalidOperationException(
                 RelationalStrings.NamedConnectionStringNotFound(connectionName));
-        }
-
-        return resolved;
     }
 
     private static string? TryGetConnectionName(string connectionString)
     {
         var firstEquals = connectionString.IndexOf('=');
-        if (firstEquals < 0)
-        {
-            return null;
-        }
-
-        if (connectionString.IndexOf('=', firstEquals + 1) >= 0)
-        {
-            return null;
-        }
-
-        return connectionString[..firstEquals].Trim().Equals(
-            "name", StringComparison.OrdinalIgnoreCase)
-            ? connectionString[(firstEquals + 1)..].Trim()
-            : null;
+        return firstEquals < 0
+            ? null
+            : connectionString.IndexOf('=', firstEquals + 1) >= 0
+                ? null
+                : connectionString[..firstEquals].Trim().Equals(
+                    "name", StringComparison.OrdinalIgnoreCase)
+                    ? connectionString[(firstEquals + 1)..].Trim()
+                    : null;
     }
 }

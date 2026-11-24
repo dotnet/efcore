@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 public class StoreObjectDictionary<T> : IReadOnlyStoreObjectDictionary<T>
     where T : class
 {
-    private readonly Dictionary<StoreObjectIdentifier, T> _dictionary = new();
+    private readonly Dictionary<StoreObjectIdentifier, T> _dictionary = [];
 
     /// <inheritdoc />
     public virtual T? Find(in StoreObjectIdentifier storeObject)

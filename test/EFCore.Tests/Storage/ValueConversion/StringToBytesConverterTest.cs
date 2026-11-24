@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -7,7 +7,7 @@ public class StringToBytesConverterTest
 {
     private static readonly StringToBytesConverter _stringToUtf8Converter = new(Encoding.UTF8);
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_strings_to_UTF8()
     {
         var converter = _stringToUtf8Converter.ConvertToProviderExpression.Compile();
@@ -16,7 +16,7 @@ public class StringToBytesConverterTest
         Assert.Equal(new byte[0], converter(""));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_UTF8_to_strings()
     {
         var converter = _stringToUtf8Converter.ConvertFromProviderExpression.Compile();
@@ -25,7 +25,7 @@ public class StringToBytesConverterTest
         Assert.Equal("", converter([]));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_strings_to_UTF8_object()
     {
         var converter = _stringToUtf8Converter.ConvertToProvider;
@@ -35,7 +35,7 @@ public class StringToBytesConverterTest
         Assert.Null(converter(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_UTF8_to_strings_object()
     {
         var converter = _stringToUtf8Converter.ConvertFromProvider;

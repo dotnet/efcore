@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable enable
-
 using System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore.Internal;
@@ -76,10 +74,7 @@ internal static class NonCapturingLazyInitializer
         var alreadyInitialized = Volatile.Read(ref initialized);
         if (alreadyInitialized)
         {
-            var value = Volatile.Read(ref target);
-            Check.DebugAssert(target != null, $"target was null in {nameof(EnsureInitialized)} after check");
-            Check.DebugAssert(value != null, $"value was null in {nameof(EnsureInitialized)} after check");
-            return value;
+            return Volatile.Read(ref target);
         }
 
         Volatile.Write(ref target, valueFactory(param));

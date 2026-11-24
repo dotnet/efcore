@@ -16,7 +16,7 @@ public class PropertyDiscoveryConventionTest
     {
         public int Id { get; private set; }
 
-        private string _code;
+        private string _code = null!;
 
         // ReSharper disable once ConvertToAutoProperty
         public string Code
@@ -25,7 +25,7 @@ public class PropertyDiscoveryConventionTest
             private set => _code = value;
         }
 
-        public string Description { get; private set; }
+        public string Description { get; private set; } = null!;
 
         public void SetInformation(string code, string description)
         {
@@ -39,7 +39,7 @@ public class PropertyDiscoveryConventionTest
     private class WithPrivatesContext : DbContext
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<DerivedWithoutPrivates> Entities { get; set; }
+        public DbSet<DerivedWithoutPrivates> Entities { get; set; } = null!;
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -47,7 +47,7 @@ public class PropertyDiscoveryConventionTest
                 .UseInMemoryDatabase(nameof(WithPrivatesContext));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Properties_with_private_setters_on_unmapped_base_types_are_discovered()
     {
         using var context = new WithPrivatesContext();
@@ -55,19 +55,19 @@ public class PropertyDiscoveryConventionTest
 
         Assert.Single(model.GetEntityTypes());
 
-        var entityType = (IRuntimeEntityType)model.FindEntityType(typeof(DerivedWithoutPrivates));
+        var entityType = (IRuntimeEntityType)model.FindEntityType(typeof(DerivedWithoutPrivates))!;
 
         Assert.Equal(3, entityType.PropertyCount);
 
-        var idProperty = entityType.FindProperty(nameof(BaseWithPrivates.Id));
+        var idProperty = entityType.FindProperty(nameof(BaseWithPrivates.Id))!;
         Assert.NotNull(idProperty.PropertyInfo);
         Assert.NotNull(idProperty.FieldInfo);
 
-        var codeProperty = entityType.FindProperty(nameof(BaseWithPrivates.Code));
+        var codeProperty = entityType.FindProperty(nameof(BaseWithPrivates.Code))!;
         Assert.NotNull(codeProperty.PropertyInfo);
         Assert.NotNull(codeProperty.FieldInfo);
 
-        var descriptionProperty = entityType.FindProperty(nameof(BaseWithPrivates.Description));
+        var descriptionProperty = entityType.FindProperty(nameof(BaseWithPrivates.Description))!;
         Assert.NotNull(descriptionProperty.PropertyInfo);
         Assert.NotNull(descriptionProperty.FieldInfo);
 
@@ -78,7 +78,7 @@ public class PropertyDiscoveryConventionTest
         context.SaveChanges();
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_save_and_query_using_entities_with_private_setters_on_base_types()
     {
         int id;
@@ -136,7 +136,7 @@ public class PropertyDiscoveryConventionTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsValidProperty_returns_false_when_invalid()
     {
         var entityBuilder = CreateInternalEntityBuilder<EntityWithInvalidProperties>();
@@ -150,7 +150,7 @@ public class PropertyDiscoveryConventionTest
     {
         public bool Boolean { get; set; }
         public byte Byte { get; set; }
-        public byte[] ByteArray { get; set; }
+        public byte[] ByteArray { get; set; } = null!;
         public char Char { get; set; }
         public DateTime DateTime { get; set; }
         public DateTimeOffset DateTimeOffset { get; set; }
@@ -182,7 +182,7 @@ public class PropertyDiscoveryConventionTest
         public int PrivateSetter { get; private set; }
         public sbyte SByte { get; set; }
         public float Single { get; set; }
-        public string String { get; set; }
+        public string String { get; set; } = null!;
         public TimeSpan TimeSpan { get; set; }
         public ushort UInt16 { get; set; }
         public uint UInt32 { get; set; }
@@ -194,7 +194,7 @@ public class PropertyDiscoveryConventionTest
         Default
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsPrimitiveProperty_returns_true_when_supported_type()
     {
         var entityBuilder = CreateInternalEntityBuilder<EntityWithEveryPrimitive>();
@@ -210,10 +210,10 @@ public class PropertyDiscoveryConventionTest
 
     private class EntityWithNoPrimitives
     {
-        public object Object { get; set; }
+        public object Object { get; set; } = null!;
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsPrimitiveProperty_returns_false_when_unsupported_type()
     {
         var entityBuilder = CreateInternalEntityBuilder<EntityWithNoPrimitives>();
@@ -241,6 +241,6 @@ public class PropertyDiscoveryConventionTest
         var modelBuilder = new InternalModelBuilder(new Model());
         var entityBuilder = modelBuilder.Entity(typeof(T), ConfigurationSource.Convention);
 
-        return entityBuilder;
+        return entityBuilder!;
     }
 }

@@ -96,29 +96,22 @@ public class RelationalValueConverterCompensatingExpressionVisitor : ExpressionV
 
     [return: NotNullIfNotNull(nameof(sqlExpression))]
     private SqlExpression? TryCompensateForBoolWithValueConverter(SqlExpression? sqlExpression)
-    {
-        if ((sqlExpression is ColumnExpression or JsonScalarExpression)
-            && sqlExpression.TypeMapping!.ClrType == typeof(bool)
-            && sqlExpression.TypeMapping.Converter != null)
-        {
-            return _sqlExpressionFactory.Equal(
-                sqlExpression,
-                _sqlExpressionFactory.Constant(true, sqlExpression.TypeMapping));
-        }
-
-        if (sqlExpression is SqlUnaryExpression sqlUnaryExpression)
-        {
-            return sqlUnaryExpression.Update(
-                TryCompensateForBoolWithValueConverter(sqlUnaryExpression.Operand));
-        }
-
-        if (sqlExpression is SqlBinaryExpression { OperatorType: ExpressionType.AndAlso or ExpressionType.OrElse } sqlBinaryExpression)
-        {
-            return sqlBinaryExpression.Update(
-                TryCompensateForBoolWithValueConverter(sqlBinaryExpression.Left),
-                TryCompensateForBoolWithValueConverter(sqlBinaryExpression.Right));
-        }
-
-        return sqlExpression;
-    }
+        => (sqlExpression is ColumnExpression or JsonScalarExpression or SqlFunctionExpression)
+            && sqlExpression.TypeMapping!.ClrType is var clrType
+            && (clrType == typeof(bool) || clrType == typeof(bool?))
+            && sqlExpression.TypeMapping.Converter != null
+                ? _sqlExpressionFactory.Equal(
+                    sqlExpression,
+                    _sqlExpressionFactory.Constant(true, sqlExpression.TypeMapping))
+                : sqlExpression is SqlUnaryExpression sqlUnaryExpression
+                    ? sqlUnaryExpression.Update(
+                        TryCompensateForBoolWithValueConverter(sqlUnaryExpression.Operand))
+                    : sqlExpression is SqlBinaryExpression
+                    {
+                        OperatorType: ExpressionType.AndAlso or ExpressionType.OrElse
+                    } sqlBinaryExpression
+                        ? sqlBinaryExpression.Update(
+                            TryCompensateForBoolWithValueConverter(sqlBinaryExpression.Left),
+                            TryCompensateForBoolWithValueConverter(sqlBinaryExpression.Right))
+                        : sqlExpression;
 }

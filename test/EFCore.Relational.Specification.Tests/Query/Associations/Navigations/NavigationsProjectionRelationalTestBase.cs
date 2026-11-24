@@ -19,7 +19,8 @@ public abstract class NavigationsProjectionRelationalTestBase<TFixture>
     public override Task Select_nested_collection_on_optional_associate(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<RootEntity>().OrderBy(e => e.Id).Select(x => x.OptionalAssociate!.NestedCollection),
-            ss => ss.Set<RootEntity>().OrderBy(e => e.Id).Select(x => x.OptionalAssociate!.NestedCollection ?? new List<NestedAssociateType>()),
+            ss => ss.Set<RootEntity>().OrderBy(e => e.Id)
+                .Select(x => x.OptionalAssociate!.NestedCollection ?? new List<NestedAssociateType>()),
             assertOrder: true,
             elementAsserter: (e, a) => AssertCollection(e, a, elementSorter: r => r.Id),
             queryTrackingBehavior: queryTrackingBehavior);

@@ -105,20 +105,17 @@ public class SearchConditionConverter(ISqlExpressionFactory sqlExpressionFactory
                     || sqlBinaryOperand.Right is SqlConstantExpression))
             {
                 var constant = sqlBinaryOperand.Left as SqlConstantExpression ?? (SqlConstantExpression)sqlBinaryOperand.Right;
-                if (sqlBinaryOperand.Left is SqlConstantExpression)
-                {
-                    return sqlExpressionFactory.MakeBinary(
+                return sqlBinaryOperand.Left is SqlConstantExpression
+                    ? sqlExpressionFactory.MakeBinary(
                         ExpressionType.Equal,
                         sqlExpressionFactory.Constant(!(bool)constant.Value!, constant.TypeMapping),
                         sqlBinaryOperand.Right,
+                        sqlBinaryOperand.TypeMapping)!
+                    : sqlExpressionFactory.MakeBinary(
+                        ExpressionType.Equal,
+                        sqlBinaryOperand.Left,
+                        sqlExpressionFactory.Constant(!(bool)constant.Value!, constant.TypeMapping),
                         sqlBinaryOperand.TypeMapping)!;
-                }
-
-                return sqlExpressionFactory.MakeBinary(
-                    ExpressionType.Equal,
-                    sqlBinaryOperand.Left,
-                    sqlExpressionFactory.Constant(!(bool)constant.Value!, constant.TypeMapping),
-                    sqlBinaryOperand.TypeMapping)!;
             }
 
             return sqlExpressionFactory.MakeBinary(
@@ -208,7 +205,8 @@ public class SearchConditionConverter(ISqlExpressionFactory sqlExpressionFactory
         {
             var leftType = newLeft.TypeMapping?.Converter?.ProviderClrType ?? newLeft.Type;
             var rightType = newRight.TypeMapping?.Converter?.ProviderClrType ?? newRight.Type;
-            if (!inSearchConditionContext && !allowNullFalseEquivalence
+            if (!inSearchConditionContext
+                && !allowNullFalseEquivalence
                 && (leftType == typeof(bool) || leftType.IsInteger())
                 && (rightType == typeof(bool) || rightType.IsInteger()))
             {
@@ -272,13 +270,10 @@ public class SearchConditionConverter(ISqlExpressionFactory sqlExpressionFactory
                 {
                     var negatedOperand = (SqlExpression)Visit(sqlUnaryExpression.Operand);
 
-                    if (negatedOperand is SqlUnaryExpression { OperatorType: ExpressionType.OnesComplement } unary)
-                    {
-                        return unary.Operand;
-                    }
-
-                    return sqlExpressionFactory.MakeUnary(
-                        ExpressionType.OnesComplement, negatedOperand, negatedOperand.Type, negatedOperand.TypeMapping)!;
+                    return negatedOperand is SqlUnaryExpression { OperatorType: ExpressionType.OnesComplement } unary
+                        ? unary.Operand
+                        : sqlExpressionFactory.MakeUnary(
+                            ExpressionType.OnesComplement, negatedOperand, negatedOperand.Type, negatedOperand.TypeMapping)!;
                 }
 
                 isOperandInSearchConditionContext = true;

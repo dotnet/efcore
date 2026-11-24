@@ -16,12 +16,12 @@ public class FixupTests
 {
     public abstract class FixupBase
     {
-        private OrdersFixtureBase _fixture;
+        private OrdersFixtureBase _fixture = null!;
 
-        protected List<Customer> _customers;
-        protected List<Order> _ordersWithoutPk;
-        protected List<Order> _ordersWithPk;
-        protected OrdersContextBase _context;
+        protected List<Customer> _customers = null!;
+        protected List<Order> _ordersWithoutPk = null!;
+        protected List<Order> _ordersWithPk = null!;
+        protected OrdersContextBase _context = null!;
 
         public abstract OrdersFixtureBase CreateFixture();
 

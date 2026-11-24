@@ -186,8 +186,70 @@ public sealed class StringsUsageInRawQueriesDiagnosticAnalyzer : DiagnosticAnaly
             } concatenation when AnalyzeConcatenation(concatenation)
                 => StringConcatenationDescriptor,
 
+            // ...an explicit call to string.Format(...) or string.Concat(...)
+            IInvocationOperation argInvocation
+                => AnalyzeStringMethodInvocation(argInvocation),
+
             _ => null,
         };
+
+    private static DiagnosticDescriptor? AnalyzeStringMethodInvocation(IInvocationOperation invocation)
+        => invocation.TargetMethod.ContainingType.SpecialType != SpecialType.System_String
+            || invocation.TargetMethod.Name is not (nameof(string.Format) or nameof(string.Concat))
+                ? null
+                : HasNonConstantArgument(invocation)
+                    ? StringConcatenationDescriptor
+                    : null;
+
+    private static bool HasNonConstantArgument(IInvocationOperation invocation)
+    {
+        foreach (var argument in invocation.Arguments)
+        {
+            // The IFormatProvider argument of the string.Format(IFormatProvider, ...) overloads
+            // (e.g. CultureInfo.InvariantCulture) never contributes to the SQL text and is never a
+            // compile-time constant — skip it so a fully-constant format call isn't flagged. See #37915.
+            if (argument.Parameter?.Type is
+                { Name: "IFormatProvider", ContainingNamespace: { Name: "System", ContainingNamespace.IsGlobalNamespace: true } })
+            {
+                continue;
+            }
+
+            var value = Unwrap(argument.Value);
+
+            // Implicit params arrays — inspect each element rather than the array itself.
+            if (argument.ArgumentKind == ArgumentKind.ParamArray
+                && value is IArrayCreationOperation { Initializer.ElementValues: var elements })
+            {
+                foreach (var element in elements)
+                {
+                    if (!Unwrap(element).ConstantValue.HasValue)
+                    {
+                        return true;
+                    }
+                }
+
+                continue;
+            }
+
+            if (!value.ConstantValue.HasValue)
+            {
+                return true;
+            }
+        }
+
+        return false;
+
+        // Strip implicit conversions (e.g. boxing to object) so we see the original constant.
+        static IOperation Unwrap(IOperation operation)
+        {
+            while (operation is IConversionOperation { IsImplicit: true } conversion)
+            {
+                operation = conversion.Operand;
+            }
+
+            return operation;
+        }
+    }
 
     private static bool AnalyzeInterpolatedString(IInterpolatedStringOperation interpolatedString)
     {
@@ -218,13 +280,10 @@ public sealed class StringsUsageInRawQueriesDiagnosticAnalyzer : DiagnosticAnaly
         var left = operation.LeftOperand;
         var right = operation.RightOperand;
 
-        if ((left is IBinaryOperation leftBinary && AnalyzeConcatenation(leftBinary))
-            || (right is IBinaryOperation rightBinary && AnalyzeConcatenation(rightBinary)))
-        {
-            return true;
-        }
-
-        return !left.ConstantValue.HasValue || !right.ConstantValue.HasValue;
+        return (left is IBinaryOperation leftBinary && AnalyzeConcatenation(leftBinary))
+            || (right is IBinaryOperation rightBinary && AnalyzeConcatenation(rightBinary))
+            || !left.ConstantValue.HasValue
+            || !right.ConstantValue.HasValue;
     }
 
     private static IMethodSymbol? FromSqlRawMethod(Compilation compilation)

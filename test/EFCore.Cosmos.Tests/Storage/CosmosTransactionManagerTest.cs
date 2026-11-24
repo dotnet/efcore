@@ -8,14 +8,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage;
 
 public class CosmosTransactionManagerTest
 {
-    [ConditionalFact]
+    [Fact]
     public virtual async Task CosmosTransactionManager_does_not_support_transactions()
     {
         var transactionManager = new CosmosTransactionManager();
 
         Assert.Equal(
             CosmosStrings.TransactionsNotSupported,
-            Assert.Throws<NotSupportedException>(() => transactionManager.BeginTransaction()).Message);
+            Assert.Throws<NotSupportedException>(transactionManager.BeginTransaction).Message);
 
         Assert.Equal(
             CosmosStrings.TransactionsNotSupported,
@@ -23,7 +23,7 @@ public class CosmosTransactionManagerTest
 
         Assert.Equal(
             CosmosStrings.TransactionsNotSupported,
-            Assert.Throws<NotSupportedException>(() => transactionManager.CommitTransaction()).Message);
+            Assert.Throws<NotSupportedException>(transactionManager.CommitTransaction).Message);
 
         Assert.Equal(
             CosmosStrings.TransactionsNotSupported,
@@ -31,7 +31,7 @@ public class CosmosTransactionManagerTest
 
         Assert.Equal(
             CosmosStrings.TransactionsNotSupported,
-            Assert.Throws<NotSupportedException>(() => transactionManager.RollbackTransaction()).Message);
+            Assert.Throws<NotSupportedException>(transactionManager.RollbackTransaction).Message);
 
         Assert.Equal(
             CosmosStrings.TransactionsNotSupported,

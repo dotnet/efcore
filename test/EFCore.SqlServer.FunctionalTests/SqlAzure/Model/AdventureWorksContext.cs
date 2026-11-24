@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.SqlAzure.Model;
 
-#nullable disable
-
 public class AdventureWorksContext(DbContextOptions options) : PoolableDbContext(options)
 {
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -145,11 +143,11 @@ public class AdventureWorksContext(DbContextOptions options) : PoolableDbContext
         modelBuilder.Entity<ProductModelProductDescription>(entity =>
         {
             entity.HasKey(e => new
-                {
-                    e.ProductModelID,
-                    e.ProductDescriptionID,
-                    e.Culture
-                })
+            {
+                e.ProductModelID,
+                e.ProductDescriptionID,
+                e.Culture
+            })
                 .HasName("PK_ProductModelProductDescription_ProductModelID_ProductDescriptionID_Culture");
 
             entity.HasIndex(e => e.rowguid, "AK_ProductModelProductDescription_rowguid")
@@ -254,14 +252,14 @@ public class AdventureWorksContext(DbContextOptions options) : PoolableDbContext
         modelBuilder.HasSequence<int>("SalesOrderNumber", "SalesLT");
     }
 
-    public virtual DbSet<Address> Addresses { get; set; }
-    public virtual DbSet<Customer> Customers { get; set; }
-    public virtual DbSet<CustomerAddress> CustomerAddresses { get; set; }
-    public virtual DbSet<Product> Products { get; set; }
-    public virtual DbSet<ProductCategory> ProductCategories { get; set; }
-    public virtual DbSet<ProductDescription> ProductDescriptions { get; set; }
-    public virtual DbSet<ProductModel> ProductModels { get; set; }
-    public virtual DbSet<ProductModelProductDescription> ProductModelProductDescriptions { get; set; }
-    public virtual DbSet<SalesOrderDetail> SalesOrderDetails { get; set; }
-    public virtual DbSet<SalesOrder> SalesOrders { get; set; }
+    public virtual DbSet<Address> Addresses { get; set; } = null!;
+    public virtual DbSet<Customer> Customers { get; set; } = null!;
+    public virtual DbSet<CustomerAddress> CustomerAddresses { get; set; } = null!;
+    public virtual DbSet<Product> Products { get; set; } = null!;
+    public virtual DbSet<ProductCategory> ProductCategories { get; set; } = null!;
+    public virtual DbSet<ProductDescription> ProductDescriptions { get; set; } = null!;
+    public virtual DbSet<ProductModel> ProductModels { get; set; } = null!;
+    public virtual DbSet<ProductModelProductDescription> ProductModelProductDescriptions { get; set; } = null!;
+    public virtual DbSet<SalesOrderDetail> SalesOrderDetails { get; set; } = null!;
+    public virtual DbSet<SalesOrder> SalesOrders { get; set; } = null!;
 }

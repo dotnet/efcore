@@ -142,7 +142,7 @@ public class CandidateNamingService : ICandidateNamingService
             }
         }
 
-        return i != 0
+        return i > 0
             ? commonPrefix[..(i + 1)]
             : commonPrefix;
     }

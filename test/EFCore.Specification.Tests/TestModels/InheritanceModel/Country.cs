@@ -3,13 +3,11 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
 
-#nullable disable
-
 public class Country
 {
     public int Id { get; set; }
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
-    public IList<Animal> Animals { get; set; } = new List<Animal>();
-    public IList<Plant> Plants { get; set; }
+    public IList<Animal> Animals { get; set; } = [];
+    public IList<Plant> Plants { get; set; } = null!;
 }

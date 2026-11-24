@@ -3,11 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class ComputedColumnTest : IAsyncLifetime
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_use_computed_columns()
     {
         var serviceProvider = new ServiceCollection()
@@ -31,7 +29,7 @@ public class ComputedColumnTest : IAsyncLifetime
         Assert.Equal(100, entity.P5);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_use_computed_columns_with_null_values()
     {
         var serviceProvider = new ServiceCollection()
@@ -51,7 +49,7 @@ public class ComputedColumnTest : IAsyncLifetime
 
     private class Context(IServiceProvider serviceProvider, string databaseName) : DbContext
     {
-        public DbSet<Entity> Entities { get; set; }
+        public DbSet<Entity> Entities { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -99,7 +97,7 @@ public class ComputedColumnTest : IAsyncLifetime
     private class NullableContext(IServiceProvider serviceProvider, string databaseName) : DbContext
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<EnumItem> EnumItems { get; set; }
+        public DbSet<EnumItem> EnumItems { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -112,7 +110,7 @@ public class ComputedColumnTest : IAsyncLifetime
                 .HasComputedColumnSql("FlagEnum | OptionalFlagEnum");
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_use_computed_columns_with_nullable_enum()
     {
         var serviceProvider = new ServiceCollection()
@@ -128,11 +126,11 @@ public class ComputedColumnTest : IAsyncLifetime
         Assert.Equal(FlagEnum.AValue | FlagEnum.BValue, entity.CalculatedFlagEnum);
     }
 
-    protected SqlServerTestStore TestStore { get; private set; }
+    protected SqlServerTestStore TestStore { get; private set; } = null!;
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
         => TestStore = await SqlServerTestStore.CreateInitializedAsync("ComputedColumnTest");
 
-    public async Task DisposeAsync()
+    public async ValueTask DisposeAsync()
         => await TestStore.DisposeAsync();
 }
