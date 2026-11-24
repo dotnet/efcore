@@ -1102,7 +1102,7 @@ WHERE [o].[Id] = 1
 
         AssertSql(
             """
-@p0='{"City":"Melbourne","Street":"1 Main St","Country":{"Code":"AU","Name":"Australia"}}' (Nullable = false) (Size = 84)
+@p0='{"City":"Melbourne","Street":"1 Main St","Country":{"Code":"AU","Name":"Australia"}}' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1125,12 +1125,12 @@ WHERE [o].[Id] = 1
 
         AssertSql(
             """
-@p0='{"":"Melbourne"}' (Nullable = false) (Size = 16)
+@p0='Melbourne' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [Owners] SET [Owned] = JSON_MODIFY([Owned], 'strict $.Address.City', JSON_VALUE(@p0, '$.""'))
+UPDATE [Owners] SET [Owned] = JSON_MODIFY([Owned], 'strict $.Address.City', @p0)
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
@@ -1148,7 +1148,7 @@ WHERE [o].[Id] = 1
 
         AssertSql(
             """
-@p0='{"Name":"Owned1","Address":{"City":"Melbourne","Street":"1 Main St","Country":{"Code":"AU","Name":"Oz"}}}' (Nullable = false) (Size = 105)
+@p0='{"Name":"Owned1","Address":{"City":"Melbourne","Street":"1 Main St","Country":{"Code":"AU","Name":"Oz"}}}' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1171,7 +1171,7 @@ WHERE [o].[Id] = 1
 
         AssertSql(
             """
-@p0='{"Address":{"City":"Melbourne","Street":"1 Main St","Country":{"Code":"AU","Name":"Australia"}},"City":{"Name":"Brisbane"}}' (Nullable = false) (Size = 123)
+@p0='{"Address":{"City":"Melbourne","Street":"1 Main St","Country":{"Code":"AU","Name":"Australia"}},"City":{"Name":"Brisbane"}}' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1193,7 +1193,7 @@ FROM [OwnerOfNested] AS [o]
 
         AssertSql(
             """
-@p0='{"Address":{"Place":"Melbourne","Street":"1 Main St","Country":{"Code":"AU","Name":"Australia"}},"Place":{"Name":"Brisbane"}}' (Nullable = false) (Size = 125)
+@p0='{"Address":{"Place":"Melbourne","Street":"1 Main St","Country":{"Code":"AU","Name":"Australia"}},"Place":{"Name":"Brisbane"}}' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1289,7 +1289,7 @@ ORDER BY [o1].[Id]
 
         AssertSql(
             """
-@p0=NULL
+@p0=NULL (Size = 4000)
 @p2='1'
 @p1=NULL (Size = 4000)
 @p3='3'
@@ -1315,7 +1315,7 @@ ORDER BY [o].[Id]
 
         AssertSql(
             """
-@p0='{"Tag":{"Code":"A","Id":1,"Label":"Uno","RelatedIds":"5,6"},"Tags":[{"Code":"A","Id":10,"Label":"Ten","RelatedIds":""},{"Code":"E","Id":11,"Label":"Eleven","RelatedIds":""}]}' (Nullable = false) (Size = 174)
+@p0='{"Tag":{"Code":"A","Id":1,"Label":"Uno","RelatedIds":"5,6"},"Tags":[{"Code":"A","Id":10,"Label":"Ten","RelatedIds":""},{"Code":"E","Id":11,"Label":"Eleven","RelatedIds":""}]}' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1338,7 +1338,7 @@ WHERE [o].[Id] = 1
 
         AssertSql(
             """
-@p0='{"Name":"Owned","Outer":{"Inner":{"Flag":true,"Value":"New"}}}' (Nullable = false) (Size = 62)
+@p0='{"Name":"Owned","Outer":{"Inner":{"Flag":true,"Value":"New"}}}' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1360,7 +1360,7 @@ FROM [OwnerOfNullableComplex] AS [o]
 
         AssertSql(
             """
-@p0='{"Name":"Owned","Outer":null}' (Nullable = false) (Size = 29)
+@p0='{"Name":"Owned","Outer":null}' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1382,12 +1382,12 @@ FROM [OwnerOfNullableComplex] AS [o]
 
         AssertSql(
             """
-@p0='{"":"New"}' (Nullable = false) (Size = 10)
+@p0='New' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [OwnerOfNullableComplex] SET [Owned] = JSON_MODIFY([Owned], 'strict $.Outer.Inner.Value', JSON_VALUE(@p0, '$.""'))
+UPDATE [OwnerOfNullableComplex] SET [Owned] = JSON_MODIFY([Owned], 'strict $.Outer.Inner.Value', @p0)
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
@@ -1404,7 +1404,7 @@ FROM [OwnerOfNullableComplex] AS [o]
 
         AssertSql(
             """
-@p0=NULL (Nullable = false) (DbType = Boolean)
+@p0=NULL (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1426,7 +1426,7 @@ FROM [OwnerOfNullableComplex] AS [o]
 
         AssertSql(
             """
-@p0='{"Tag":{"Code":"A","Id":3,"Label":"One","RelatedIds":[5,6,7]},"Tags":[{"Code":"A","Id":30,"Label":"Ten","RelatedIds":[]}]}' (Nullable = false) (Size = 122)
+@p0='{"Tag":{"Code":"A","Id":3,"Label":"One","RelatedIds":[5,6,7]},"Tags":[{"Code":"A","Id":30,"Label":"Ten","RelatedIds":[]}]}' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1449,8 +1449,8 @@ WHERE CAST(JSON_VALUE([o].[Owned], '$.Tag.Id') AS int) = 3
 
         AssertSql(
             """
-@p0='{"Code":"A","Id":3,"Label":"One","RelatedIds":[5,6,7]}' (Nullable = false) (Size = 54)
-@p1='[{"Code":"A","Id":30,"Label":"Ten","RelatedIds":[]}]' (Nullable = false) (Size = 52)
+@p0='{"Code":"A","Id":3,"Label":"One","RelatedIds":[5,6,7]}' (Nullable = false) (Size = 4000)
+@p1='[{"Code":"A","Id":30,"Label":"Ten","RelatedIds":[]}]' (Nullable = false) (Size = 4000)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1479,12 +1479,12 @@ WHERE [o].[Id] = 1
 """,
             //
             """
-@p0='{"":"5,6,7"}' (Nullable = false) (Size = 12)
+@p0='5,6,7' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [OwnerWithTag] SET [Owned] = JSON_MODIFY([Owned], 'strict $.Tag.RelatedIds', JSON_VALUE(@p0, '$.""'))
+UPDATE [OwnerWithTag] SET [Owned] = JSON_MODIFY([Owned], 'strict $.Tag.RelatedIds', @p0)
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
@@ -1508,7 +1508,7 @@ WHERE [o].[Id] = 1
 """,
             //
             """
-@p0='{"Code":"A","Id":1,"Label":"One","RelatedIds":"5,6,7"}' (Nullable = false) (Size = 54)
+@p0='{"Code":"A","Id":1,"Label":"One","RelatedIds":"5,6,7"}' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1531,12 +1531,12 @@ WHERE [o].[Id] = 1
 
         AssertSql(
             """
-@p0='{"":"#C"}' (Nullable = false) (Size = 9)
+@p0='#C' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [OwnerWithTag] SET [Owned] = JSON_MODIFY([Owned], 'strict $.Tag.Code', JSON_VALUE(@p0, '$.""'))
+UPDATE [OwnerWithTag] SET [Owned] = JSON_MODIFY([Owned], 'strict $.Tag.Code', @p0)
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
@@ -1554,7 +1554,7 @@ WHERE [o].[Id] = 1
 
         AssertSql(
             """
-@p0='{"Code":"#C","Id":1,"Label":"One","RelatedIds":"5,6"}' (Nullable = false) (Size = 53)
+@p0='{"Code":"#C","Id":1,"Label":"One","RelatedIds":"5,6"}' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;

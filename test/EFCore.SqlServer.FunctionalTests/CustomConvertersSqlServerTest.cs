@@ -140,7 +140,7 @@ WHERE N'Yeps' IN (
 
         AssertSql(
             """
-@p0='[{"Code":"A","Id":30,"Label":"Ten","RelatedIds":[]}]' (Nullable = false) (Size = 52)
+@p0='[{"Code":"A","Id":30,"Label":"Ten","RelatedIds":[]}]' (Nullable = false) (Size = 4000)
 @p3='1'
 @p1='3'
 @p2='[5,6,7]' (Nullable = false) (Size = 4000)

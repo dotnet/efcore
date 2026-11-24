@@ -414,7 +414,8 @@ public partial class OwnedWithComplex0EntityType
                 shadowIndex: -1,
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
-            text.TypeMapping = SqliteStringTypeMapping.Default;
+            text.TypeMapping = new SqliteJsonScalarTypeMapping(SqliteStringTypeMapping.Default).Clone(
+                comparer: DefaultValueComparer<string>.Default);
 
             complexType.SetOriginalValuesFactory(
                 ISnapshot (IInternalEntry source) =>

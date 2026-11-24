@@ -49,9 +49,10 @@ public partial class OwnedWithComplexEntityType
             shadowIndex: 0,
             relationshipIndex: 0,
             storeGenerationIndex: 0);
-        ownerWithComplexId.TypeMapping = IntTypeMapping.Default.Clone(
+        ownerWithComplexId.TypeMapping = new SqliteJsonScalarTypeMapping(IntTypeMapping.Default.Clone(
             mappingInfo: new RelationalTypeMappingInfo(
-                storeTypeName: "INTEGER"));
+                storeTypeName: "INTEGER"))).Clone(
+            comparer: DefaultValueComparer<int>.Default);
         ownerWithComplexId.SetCurrentValueComparer(new EntryCurrentValueComparer<int>(ownerWithComplexId));
 
         LocationComplexProperty.Create(runtimeEntityType);
@@ -146,7 +147,8 @@ public partial class OwnedWithComplexEntityType
                 shadowIndex: -1,
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
-            city.TypeMapping = SqliteStringTypeMapping.Default;
+            city.TypeMapping = new SqliteJsonScalarTypeMapping(SqliteStringTypeMapping.Default).Clone(
+                comparer: DefaultValueComparer<string>.Default);
 
             CoordinatesComplexProperty.Create(complexType);
             complexType.AddAnnotation("Relational:FunctionName", null);
@@ -255,7 +257,8 @@ public partial class OwnedWithComplexEntityType
                     shadowIndex: -1,
                     relationshipIndex: -1,
                     storeGenerationIndex: -1);
-                latitude.TypeMapping = SqliteDecimalTypeMapping.Default;
+                latitude.TypeMapping = new SqliteJsonScalarTypeMapping(SqliteDecimalTypeMapping.Default).Clone(
+                    comparer: DefaultValueComparer<decimal>.Default);
 
                 var longitude = complexType.AddProperty(
                     "Longitude",
@@ -303,7 +306,8 @@ public partial class OwnedWithComplexEntityType
                     shadowIndex: -1,
                     relationshipIndex: -1,
                     storeGenerationIndex: -1);
-                longitude.TypeMapping = SqliteDecimalTypeMapping.Default;
+                longitude.TypeMapping = new SqliteJsonScalarTypeMapping(SqliteDecimalTypeMapping.Default).Clone(
+                    comparer: DefaultValueComparer<decimal>.Default);
 
                 complexType.AddAnnotation("Relational:FunctionName", null);
                 complexType.AddAnnotation("Relational:Schema", null);
@@ -414,7 +418,8 @@ public partial class OwnedWithComplexEntityType
                 shadowIndex: -1,
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
-            text.TypeMapping = SqliteStringTypeMapping.Default;
+            text.TypeMapping = new SqliteJsonScalarTypeMapping(SqliteStringTypeMapping.Default).Clone(
+                comparer: DefaultValueComparer<string>.Default);
 
             complexType.SetOriginalValuesFactory(
                 ISnapshot (IInternalEntry source) =>
