@@ -31,33 +31,42 @@ public static class SqliteDbFunctionsExtensions
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Glob)));
 
     /// <summary>
-    ///     Maps to the SQLite <c>json_extract</c> function, which extracts and returns one or more values from well-formed JSON.
+    ///     Extracts a single value from well-formed JSON using SQLite's <c>json_extract</c> function.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
     ///     <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information and examples.
     /// </remarks>
     /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
-    /// <param name="expression">The json</param>
-    /// <param name="paths">The paths</param>
-    /// <returns>One or more values from the well-formed JSON.</returns>
+    /// <param name="expression">The JSON value to search.</param>
+    /// <param name="path">The JSON path to extract.</param>
+    /// <returns>
+    ///     The extracted value, or <see langword="null" /> for a missing path or JSON null. Numbers and booleans are returned
+    ///     as SQLite numeric values; strings are returned as text, and objects and arrays as JSON text.
+    /// </returns>
     /// <seealso href="https://www.sqlite.org/json1.html#the_json_extract_function">SQLite documentation for <c>json_extract</c>.</seealso>
-    public static string JsonExtract(this DbFunctions _, object expression, params string[] paths)
+    public static object? JsonExtract(this DbFunctions _, object expression, string path)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(JsonExtract)));
 
     /// <summary>
-    ///     Maps to the SQLite <c>json_extract</c> function, which extracts and returns one or more values from well-formed JSON.
+    ///     Extracts values from well-formed JSON using SQLite's <c>json_extract</c> function.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
     ///     <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information and examples.
     /// </remarks>
     /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
-    /// <param name="expression">The json</param>
-    /// <param name="path">The paths</param>
-    /// <returns>INTEGER or REAL for a JSON numeric value, an INTEGER zero for a JSON false value, an INTEGER one for a JSON true value, the dequoted text for a JSON string value, and a text representation for JSON object and array values</returns>
+    /// <param name="expression">The JSON value to search.</param>
+    /// <param name="paths">
+    ///     The JSON paths to extract. The number of paths must be known at query compilation time; captured arrays are embedded as constants
+    ///     and cannot be used in precompiled queries.
+    /// </param>
+    /// <returns>
+    ///     A JSON array if multiple paths are provided, the extracted value as text for one path, or <see langword="null" />
+    ///     if no paths are provided, the JSON argument is null, or a path is null.
+    /// </returns>
     /// <seealso href="https://www.sqlite.org/json1.html#the_json_extract_function">SQLite documentation for <c>json_extract</c>.</seealso>
-    public static object JsonExtract(this DbFunctions _, object expression, string path)
+    public static string? JsonExtract(this DbFunctions _, object expression, [NotParameterized] params string[] paths)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(JsonExtract)));
 
     /// <summary>

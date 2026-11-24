@@ -429,6 +429,38 @@ public class SqlServerSqlTranslatingExpressionVisitor(
                     typeof(int));
             }
 
+            case nameof(RelationalDbFunctionsExtensions.JsonValue) or nameof(RelationalDbFunctionsExtensions.JsonQuery)
+                when declaringType == typeof(RelationalDbFunctionsExtensions)
+                && @object is null
+                && arguments is [_, var json, var path]:
+            {
+                if (Translate(path) is not SqlExpression translatedPath)
+                {
+                    return QueryCompilationContext.NotTranslatedExpression;
+                }
+
+#pragma warning disable EF1001 // TranslateProjection() is pubternal
+                var translatedJson = TranslateProjection(json) switch
+                {
+                    SqlExpression scalar => scalar,
+                    RelationalStructuralTypeShaperExpression { ValueBufferExpression: JsonQueryExpression j }
+                        => j.Path.Count == 0
+                            ? j.JsonColumn
+                            : new JsonScalarExpression(j.JsonColumn, j.Path, j.JsonColumn.Type, j.JsonColumn.TypeMapping, j.IsNullable),
+                    _ => null
+                };
+#pragma warning restore EF1001
+
+                return translatedJson is null
+                    ? QueryCompilationContext.NotTranslatedExpression
+                    : _sqlExpressionFactory.Function(
+                        method.Name == nameof(RelationalDbFunctionsExtensions.JsonValue) ? "JSON_VALUE" : "JSON_QUERY",
+                        [translatedJson, translatedPath],
+                        nullable: true,
+                        argumentsPropagateNullability: [false, false],
+                        typeof(string));
+            }
+
             // We translate EF.Functions.JsonPathExists here and not in a method translator since we need to support JsonPathExists over
             // complex and owned JSON properties, which requires special handling.
             case nameof(RelationalDbFunctionsExtensions.JsonPathExists)

@@ -29,6 +29,31 @@ ORDER BY "r"."Id"
 """);
     }
 
+    [Fact]
+    public async Task JsonExtract_single_path()
+    {
+        var contextFactory = await InitializeNonSharedTest<JsonContext>();
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            context.JsonEntities.Add(new JsonEntity { JsonThing = new JsonThing { StringProperty = "value" }, IntList = [42] });
+            await context.SaveChangesAsync();
+        }
+
+        await Test(
+            """
+await using var context = new AdHocPrecompiledQueryRelationalTestBase.JsonContext(dbContextOptions);
+var result = context.JsonEntities.Select(e => new
+{
+    Text = EF.Functions.JsonExtract(e.JsonThing, "$.StringProperty"),
+    Number = EF.Functions.JsonExtract(e.IntList, "$[0]")
+}).Single();
+Assert.Equal("value", result.Text);
+Assert.Equal(42L, result.Number);
+""",
+            typeof(JsonContext),
+            contextFactory.GetOptions());
+    }
+
     protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqliteTestStoreFactory.Instance;
 

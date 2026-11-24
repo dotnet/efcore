@@ -14,8 +14,27 @@ public class JsonQuerySqliteTest : JsonQueryRelationalTestBase<JsonQuerySqliteFi
         : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();
-        //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+    }
 
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public async Task JsonExtract_on_nested_owned_json(bool async)
+    {
+        await using var context = Fixture.CreateContext();
+        var query = context.JsonEntitiesBasic.Where(e => e.Id == 1)
+            .Select(e => EF.Functions.JsonExtract(
+                e.OwnedReferenceRoot.OwnedReferenceBranch!.OwnedReferenceLeaf, "$.SomethingSomething"));
+
+        var result = async ? await query.SingleAsync() : query.Single();
+
+        Assert.Equal("e1_r_r_r", result);
+        AssertSql(
+            """
+SELECT json_extract("j"."OwnedReferenceRoot" ->> '$.OwnedReferenceBranch.OwnedReferenceLeaf', '$.SomethingSomething')
+FROM "JsonEntitiesBasic" AS "j"
+WHERE "j"."Id" = 1
+LIMIT 2
+""");
     }
 
     public override async Task Json_scalar_length(bool async)
@@ -184,34 +203,6 @@ WHERE EXISTS (
             (await Assert.ThrowsAsync<InvalidOperationException>(()
                 => base.Json_collection_Select_entity_with_initializer_ElementAt(async)))
             .Message);
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public async Task JsonExtract_Query_Single_Path(bool async)
-    {
-        var ctx = Fixture.CreateContext();
-
-        var actual = ctx.JsonEntitiesBasicString.Select(c => new { Result = EF.Functions.JsonExtract(c.OwnedReferenceRoot, "$.Number") });
-
-        var result = async ? await actual.ToListAsync() : actual.ToList();
-        var queryString = actual.ToQueryString();
-
-        Assert.Equal("10", result.FirstOrDefault()?.Result);
-    }
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public async Task JsonExtract_Query_Multiple_Paths(bool async)
-    {
-        var ctx = Fixture.CreateContext();
-
-        var actual = ctx.JsonEntitiesBasicString.Select(c => new { Result = EF.Functions.JsonExtract(c.OwnedReferenceRoot, "$.Number", "$.Name") });
-
-        var result = async ? await actual.ToListAsync() : actual.ToList();
-        var queryString = actual.ToQueryString();
-
-        Assert.Equal($@"[10,""e1_r""]", result.FirstOrDefault()?.Result);
-    }
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task FromSqlInterpolated_on_entity_with_json_with_predicate(bool async)

@@ -4,6 +4,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Query.ExpressionExtensions;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
@@ -228,6 +229,68 @@ public class SqliteSqlTranslatingExpressionVisitor(
                     methodCallExpression.Object,
                     value,
                     method.Name is nameof(string.StartsWith));
+            }
+
+            case nameof(SqliteDbFunctionsExtensions.JsonExtract)
+                when declaringType == typeof(SqliteDbFunctionsExtensions)
+                && @object is null
+                && arguments is [_, var json, var paths]:
+            {
+#pragma warning disable EF1001 // TranslateProjection() is pubternal
+                var translatedJson = TranslateProjection(json) switch
+                {
+                    SqlExpression scalar => scalar,
+                    RelationalStructuralTypeShaperExpression { ValueBufferExpression: JsonQueryExpression j }
+                        => j.Path.Count == 0
+                            ? j.JsonColumn
+                            : new JsonScalarExpression(j.JsonColumn, j.Path, j.JsonColumn.Type, j.JsonColumn.TypeMapping, j.IsNullable),
+                    _ => null
+                };
+#pragma warning restore EF1001
+
+                if (translatedJson is null)
+                {
+                    return QueryCompilationContext.NotTranslatedExpression;
+                }
+
+                List<SqlExpression> functionArguments = [translatedJson];
+                if (method.ReturnType == typeof(object))
+                {
+                    if (Translate(paths) is not SqlExpression translatedPath)
+                    {
+                        return QueryCompilationContext.NotTranslatedExpression;
+                    }
+
+                    functionArguments.Add(translatedPath);
+                }
+                else if (paths is NewArrayExpression newArray)
+                {
+                    foreach (var path in newArray.Expressions)
+                    {
+                        if (Translate(path) is not SqlExpression translatedPath)
+                        {
+                            return QueryCompilationContext.NotTranslatedExpression;
+                        }
+
+                        functionArguments.Add(translatedPath);
+                    }
+                }
+                else if (paths is ConstantExpression { Value: string[] constantPaths })
+                {
+                    functionArguments.AddRange(constantPaths.Select(p => _sqlExpressionFactory.Constant(p, typeof(string))));
+                }
+                else
+                {
+                    return QueryCompilationContext.NotTranslatedExpression;
+                }
+
+                return _sqlExpressionFactory.Function(
+                    "json_extract",
+                    functionArguments,
+                    nullable: true,
+                    argumentsPropagateNullability: new bool[functionArguments.Count],
+                    method.ReturnType,
+                    method.ReturnType == typeof(object) ? SqliteDynamicTypeMapping.Default : null);
             }
 
             // We translate EF.Functions.JsonPathExists here and not in a method translator since we need to support JsonPathExists over

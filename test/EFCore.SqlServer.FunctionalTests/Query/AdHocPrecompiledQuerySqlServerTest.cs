@@ -11,6 +11,31 @@ public class AdHocPrecompiledQuerySqlServerTest(NonSharedFixture fixture, ITestO
     protected override bool AlwaysPrintGeneratedSources
         => false;
 
+    [Fact]
+    public async Task JsonValue_and_JsonQuery()
+    {
+        var contextFactory = await InitializeNonSharedTest<JsonContext>();
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            context.JsonEntities.Add(new JsonEntity { JsonThing = new JsonThing { StringProperty = "value" }, IntList = [42] });
+            await context.SaveChangesAsync();
+        }
+
+        await Test(
+            """
+await using var context = new AdHocPrecompiledQueryRelationalTestBase.JsonContext(dbContextOptions);
+var result = context.JsonEntities.Select(e => new
+{
+    Text = EF.Functions.JsonValue(e.JsonThing, "$.StringProperty"),
+    Array = EF.Functions.JsonQuery(e.IntList, "$")
+}).Single();
+Assert.Equal("value", result.Text);
+Assert.Equal("[42]", result.Array);
+""",
+            typeof(JsonContext),
+            contextFactory.GetOptions());
+    }
+
     public override async Task Implicit_conversions_in_binary_and_conditional_expressions()
     {
         await base.Implicit_conversions_in_binary_and_conditional_expressions();

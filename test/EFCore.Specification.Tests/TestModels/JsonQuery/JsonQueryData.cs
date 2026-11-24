@@ -10,7 +10,6 @@ public class JsonQueryData : ISetSource
     public JsonQueryData()
     {
         JsonEntitiesBasic = CreateJsonEntitiesBasic();
-        JsonEntitiesBasicStrings = CreateJsonEntitiesBasicString();
         EntitiesBasic = CreateEntitiesBasic();
         JsonEntitiesBasicForReference = CreateJsonEntitiesBasicForReference();
         JsonEntitiesBasicForCollection = CreateJsonEntitiesBasicForCollection();
@@ -25,8 +24,6 @@ public class JsonQueryData : ISetSource
 
     public IReadOnlyList<EntityBasic> EntitiesBasic { get; }
     public IReadOnlyList<JsonEntityBasic> JsonEntitiesBasic { get; }
-    public IReadOnlyList<JsonEntityBasicString> JsonEntitiesBasicStrings { get; }
-
     public IReadOnlyList<JsonEntityBasicForReference> JsonEntitiesBasicForReference { get; }
     public IReadOnlyList<JsonEntityBasicForCollection> JsonEntitiesBasicForCollection { get; }
     public IReadOnlyList<JsonEntityCustomNaming> JsonEntitiesCustomNaming { get; set; }
@@ -34,16 +31,6 @@ public class JsonQueryData : ISetSource
     public IReadOnlyList<JsonEntityInheritanceBase> JsonEntitiesInheritance { get; set; }
     public IReadOnlyList<JsonEntityAllTypes> JsonEntitiesAllTypes { get; set; }
     public IReadOnlyList<JsonEntityConverters> JsonEntitiesConverters { get; set; }
-
-
-    public static IReadOnlyList<JsonEntityBasicString> CreateJsonEntitiesBasicString()
-    {
-        var entity = new JsonEntityBasicString();
-        entity.Name = "Testing SQL Json-functions.";
-        entity.OwnedReferenceRoot = "{\"Name\":\"e1_r\",\"Number\":10,\"OwnedCollectionBranch\":[{\"Date\":\"2101-01-01T00:00:00\",\"Enum\":\"Two\",\"Fraction\":10.1,\"NullableEnum\":\"One\",\"OwnedCollectionLeaf\":[{\"SomethingSomething\":\"e1_r_c1_c1\"},{\"SomethingSomething\":\"e1_r_c1_c2\"}],\"OwnedReferenceLeaf\":{\"SomethingSomething\":\"e1_r_c1_r\"}},{\"Date\":\"2102-01-01T00:00:00\",\"Enum\":\"Three\",\"Fraction\":10.2,\"NullableEnum\":\"Two\",\"OwnedCollectionLeaf\":[{\"SomethingSomething\":\"e1_r_c2_c1\"},{\"SomethingSomething\":\"e1_r_c2_c2\"}],\"OwnedReferenceLeaf\":{\"SomethingSomething\":\"e1_r_c2_r\"}}],\"OwnedReferenceBranch\":{\"Date\":\"2100-01-01T00:00:00\",\"Enum\":\"One\",\"Fraction\":10.0,\"NullableEnum\":null,\"OwnedCollectionLeaf\":[{\"SomethingSomething\":\"e1_r_r_c1\"},{\"SomethingSomething\":\"e1_r_r_c2\"}],\"OwnedReferenceLeaf\":{\"SomethingSomething\":\"e1_r_r_r\"}}}";
-
-        return new List<JsonEntityBasicString>() { entity };
-    }
 
     public static IReadOnlyList<JsonEntityBasic> CreateJsonEntitiesBasic()
     {
@@ -1505,11 +1492,6 @@ public class JsonQueryData : ISetSource
         if (typeof(TEntity) == typeof(JsonEntityBasic))
         {
             return (IQueryable<TEntity>)JsonEntitiesBasic.AsQueryable();
-        }
-
-        if (typeof(TEntity) == typeof(JsonEntityBasicString))
-        {
-            return (IQueryable<TEntity>)JsonEntitiesBasicStrings.AsQueryable();
         }
 
         if (typeof(TEntity) == typeof(JsonEntityCustomNaming))

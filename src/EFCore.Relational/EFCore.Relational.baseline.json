@@ -11163,6 +11163,12 @@
           "Member": "static bool JsonPathExists(this Microsoft.EntityFrameworkCore.DbFunctions _, object json, string path);"
         },
         {
+          "Member": "static string? JsonQuery(this Microsoft.EntityFrameworkCore.DbFunctions _, object json, string path);"
+        },
+        {
+          "Member": "static string? JsonValue(this Microsoft.EntityFrameworkCore.DbFunctions _, object json, string path);"
+        },
+        {
           "Member": "static T Least<T>(this Microsoft.EntityFrameworkCore.DbFunctions _, params T[] values);"
         }
       ]

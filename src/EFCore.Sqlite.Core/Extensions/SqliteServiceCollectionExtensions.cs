@@ -97,6 +97,7 @@ public static class SqliteServiceCollectionExtensions
             .TryAdd<IRelationalAnnotationProvider, SqliteAnnotationProvider>()
             .TryAdd<IModelValidator, SqliteModelValidator>()
             .TryAdd<IProviderConventionSetBuilder, SqliteConventionSetBuilder>()
+            .TryAdd<IEvaluatableExpressionFilter, SqliteEvaluatableExpressionFilter>()
             .TryAdd<IModificationCommandBatchFactory, SqliteModificationCommandBatchFactory>()
             .TryAdd<IModificationCommandFactory, SqliteModificationCommandFactory>()
             .TryAdd<IRelationalConnection>(p => p.GetRequiredService<ISqliteRelationalConnection>())
