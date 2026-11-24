@@ -3424,6 +3424,87 @@ INSERT INTO Sales (Region, Product, Amount, Category) VALUES ('North', 'Chair', 
         }
 
         #endregion
+
+        #region 39733
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Project_json_complex_collection_inside_collection_with_identity_resolution(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<Context39733>();
+            using var context = contextFactory.CreateDbContext();
+
+            context.Parents.Add(
+                new Context39733.Parent
+                {
+                    Children =
+                    [
+                        new Context39733.Child
+                        {
+                            Content = new Context39733.Content
+                            {
+                                Label = "home",
+                                Addresses = [new Context39733.Address { City = "Paris" }]
+                            }
+                        }
+                    ]
+                });
+            await context.SaveChangesAsync();
+            context.ChangeTracker.Clear();
+            ClearLog();
+
+            var query = context.Parents.AsNoTrackingWithIdentityResolution()
+                .Select(
+                    parent => parent.Children.Select(
+                        child => new
+                        {
+                            Details = child.Content.Label == null ? null : new { child.Content.Label },
+                            child.Content.Addresses
+                        }));
+
+            var result = async ? await query.SingleAsync() : query.Single();
+            var child = result.Single();
+
+            Assert.Equal("home", child.Details!.Label);
+            Assert.Equal("Paris", Assert.Single(child.Addresses).City);
+        }
+
+        protected class Context39733(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<Parent> Parents => Set<Parent>();
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+                => modelBuilder.Entity<Child>().ComplexProperty(
+                    c => c.Content, b =>
+                    {
+                        b.ToJson();
+                        b.ComplexCollection(x => x.Addresses);
+                    });
+
+            public class Parent
+            {
+                public int Id { get; set; }
+                public List<Child> Children { get; set; } = [];
+            }
+
+            public class Child
+            {
+                public int Id { get; set; }
+                public Content Content { get; set; } = new();
+            }
+
+            public class Content
+            {
+                public string? Label { get; set; }
+                public List<Address> Addresses { get; set; } = [];
+            }
+
+            public class Address
+            {
+                public string City { get; set; } = "";
+            }
+        }
+
+        #endregion
     }
 }
 

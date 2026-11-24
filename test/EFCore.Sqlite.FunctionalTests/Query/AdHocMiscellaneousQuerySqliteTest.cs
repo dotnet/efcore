@@ -219,6 +219,23 @@ ORDER BY "u"."Id"
 """);
     }
 
+    public override async Task Project_json_complex_collection_inside_collection_with_identity_resolution(bool async)
+    {
+        await base.Project_json_complex_collection_inside_collection_with_identity_resolution(async);
+
+        AssertSql(
+            """
+SELECT "p0"."Id", "c"."Content" ->> 'Label' IS NULL, "c"."Content" ->> 'Label', "c"."Content" ->> 'Addresses', "c"."Id"
+FROM (
+    SELECT "p"."Id"
+    FROM "Parents" AS "p"
+    LIMIT 2
+) AS "p0"
+LEFT JOIN "Child" AS "c" ON "p0"."Id" = "c"."ParentId"
+ORDER BY "p0"."Id"
+""");
+    }
+
     public override async Task Like_on_value_converted_string_column_does_not_produce_cast(bool async)
     {
         await base.Like_on_value_converted_string_column_does_not_produce_cast(async);
