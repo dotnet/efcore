@@ -4044,6 +4044,21 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
             elementSorter: e => e.Key);
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_from_multiple_query_with_subquery_selector_over_outer_element(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(o => o.CustomerID)
+                .Select(g => new
+                {
+                    g.Key,
+                    A = ss.Set<Employee>().GroupBy(e => e.City)
+                        .OrderBy(g2 => g2.Key)
+                        .Select(g2 => g.Sum(int (Order o) => ss.Set<Order>().Count(o2 => o2.CustomerID == o.CustomerID)))
+                        .FirstOrDefault()
+                }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_aggregate_from_multiple_query_three_levels(bool async)
         => AssertQuery(
             async,

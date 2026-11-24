@@ -1981,7 +1981,47 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
             }
         }
 
+        // An aggregate written in a query nested inside the owner is evaluated over the owner's rows only through its outer
+        // references. When its argument contains a subquery, providers don't keep it there: SQL Server can't aggregate over a
+        // subquery, and SqlServerAggregateArgumentPostprocessor lifts the subquery to an APPLY on the query the aggregate is written
+        // in, so that the aggregate is then evaluated over that query's rows instead. Such an aggregate falls back to a subquery
+        // over the grouping element.
+        if (evaluatedIn < scopes.Count - 1 && SubqueryFinder.ContainsSubquery(aggregate))
+        {
+            return false;
+        }
+
         return scopes[evaluatedIn] == query;
+    }
+
+    private sealed class SubqueryFinder : ExpressionVisitor
+    {
+        private bool _found;
+
+        public static bool ContainsSubquery(Expression expression)
+        {
+            var finder = new SubqueryFinder();
+            finder.Visit(expression);
+
+            return finder._found;
+        }
+
+        [return: NotNullIfNotNull(nameof(node))]
+        public override Expression? Visit(Expression? node)
+        {
+            if (_found)
+            {
+                return node;
+            }
+
+            if (node is SelectExpression)
+            {
+                _found = true;
+                return node;
+            }
+
+            return base.Visit(node);
+        }
     }
 
     // Whether the selector of an aggregate over the given query references columns, but none of the query's own, so that SQL would

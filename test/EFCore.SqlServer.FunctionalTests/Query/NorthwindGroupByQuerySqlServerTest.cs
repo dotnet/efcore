@@ -4928,6 +4928,30 @@ GROUP BY [o].[CustomerID]
 """);
     }
 
+    public override async Task GroupBy_aggregate_from_multiple_query_with_subquery_selector_over_outer_element(bool async)
+    {
+        await base.GroupBy_aggregate_from_multiple_query_with_subquery_selector_over_outer_element(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID] AS [Key], ISNULL((
+    SELECT TOP(1) (
+        SELECT ISNULL(SUM([s].[value]), 0)
+        FROM [Orders] AS [o0]
+        OUTER APPLY (
+            SELECT COUNT(*) AS [value]
+            FROM [Orders] AS [o1]
+            WHERE [o1].[CustomerID] = [o0].[CustomerID] OR ([o1].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)
+        ) AS [s]
+        WHERE [o].[CustomerID] = [o0].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL))
+    FROM [Employees] AS [e]
+    GROUP BY [e].[City]
+    ORDER BY [e].[City]), 0) AS [A]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]
+""");
+    }
+
     public override async Task GroupBy_aggregate_from_multiple_query_three_levels(bool async)
     {
         await base.GroupBy_aggregate_from_multiple_query_three_levels(async);
