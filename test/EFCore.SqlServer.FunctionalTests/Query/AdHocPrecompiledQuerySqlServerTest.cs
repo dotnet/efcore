@@ -97,6 +97,49 @@ ORDER BY [r].[Id]
 """);
     }
 
+    [Fact]
+    public async Task Coalesce_string_with_larger_fallback()
+    {
+        var contextFactory = await InitializeNonSharedTest<StringCoalesceContext>(
+            seed: async context =>
+            {
+                context.Records.AddRange(new StringCoalesceRecord(), new StringCoalesceRecord { Value = "abc" });
+                await context.SaveChangesAsync();
+            });
+
+        ClearLog();
+
+        await Test(
+            """
+await using var context = new AdHocPrecompiledQuerySqlServerTest.StringCoalesceContext(dbContextOptions);
+var rows = await context.Records.OrderBy(r => r.Id).Select(r => r.Value ?? "long fallback").ToListAsync();
+Assert.Equal(new[] { "long fallback", "abc" }, rows);
+""",
+            typeof(StringCoalesceContext),
+            contextFactory.GetOptions());
+
+        AssertSql(
+            """
+SELECT ISNULL(CAST([r].[Value] AS nvarchar(13)), N'long fallback')
+FROM [Records] AS [r]
+ORDER BY [r].[Id]
+""");
+    }
+
+    public class StringCoalesceContext(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<StringCoalesceRecord> Records { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<StringCoalesceRecord>().Property(e => e.Value).HasMaxLength(3);
+    }
+
+    public class StringCoalesceRecord
+    {
+        public int Id { get; set; }
+        public string? Value { get; set; }
+    }
+
     public override async Task Index_no_evaluatability()
     {
         if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)

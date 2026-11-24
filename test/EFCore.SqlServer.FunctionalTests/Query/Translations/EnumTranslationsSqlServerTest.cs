@@ -329,7 +329,7 @@ WHERE CASE [n].[Enum]
     WHEN 0 THEN N'One'
     WHEN 1 THEN N'Two'
     WHEN 2 THEN N'Three'
-    ELSE ISNULL(CAST([n].[Enum] AS nvarchar(max)), N'')
+    ELSE COALESCE(CAST([n].[Enum] AS nvarchar(max)), N'')
 END LIKE N'%One%'
 """);
     }
@@ -360,7 +360,7 @@ SELECT CASE [n].[Enum]
     WHEN 0 THEN N'One'
     WHEN 1 THEN N'Two'
     WHEN 2 THEN N'Three'
-    ELSE ISNULL(CAST([n].[Enum] AS nvarchar(max)), N'')
+    ELSE COALESCE(CAST([n].[Enum] AS nvarchar(max)), N'')
 END
 FROM [NullableBasicTypesEntities] AS [n]
 """);

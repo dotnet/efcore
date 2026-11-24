@@ -9926,7 +9926,7 @@ WHERE [c].[Location] = 'Unknown'
 
         AssertSql(
             """
-SELECT COALESCE([c].[Location], 'Unknown')
+SELECT ISNULL([c].[Location], 'Unknown')
 FROM [Cities] AS [c]
 """);
     }

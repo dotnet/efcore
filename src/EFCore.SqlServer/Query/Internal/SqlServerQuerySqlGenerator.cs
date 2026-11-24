@@ -28,6 +28,7 @@ public class SqlServerQuerySqlGenerator(
     private readonly ISqlServerSingletonOptions _sqlServerSingletonOptions = sqlServerSingletonOptions;
 
     private bool _withinTable;
+    private SelectExpression? _currentSelect;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -131,8 +132,18 @@ public class SqlServerQuerySqlGenerator(
         // a requirement in databases). So we must use visitor state to track whether we're (directly) within a table subquery, and
         // generate "1 AS empty" instead of just "1".
         var parentWithinTable = _withinTable;
-        base.VisitSelect(selectExpression);
-        _withinTable = parentWithinTable;
+        var parentSelect = _currentSelect;
+        _currentSelect = selectExpression;
+        try
+        {
+            base.VisitSelect(selectExpression);
+        }
+        finally
+        {
+            _withinTable = parentWithinTable;
+            _currentSelect = parentSelect;
+        }
+
         return selectExpression;
     }
 
@@ -413,65 +424,123 @@ public class SqlServerQuerySqlGenerator(
     {
         switch (sqlFunctionExpression)
         {
-            case { IsBuiltIn: true, Arguments: not null }
+            case { IsBuiltIn: true, Arguments.Count: >= 2 }
                 when string.Equals(sqlFunctionExpression.Name, "COALESCE", StringComparison.OrdinalIgnoreCase):
             {
-                // ISNULL always return a value having the same type as its first
-                // argument. Ideally we would convert the argument to have the
-                // desired type and type mapping, but currently EFCore has some
-                // trouble in computing types of non-homogeneous expressions
-                // (tracked in https://github.com/dotnet/efcore/issues/15586).
-                //
-                // The main issue is the sizing of the type. Since sometimes the
-                // computed size is wrong, stay on the safe side by expanding to the
-                // maximum supported size with an approach similar to that used in
-                // SqlServerStringAggregateMethodTranslator. This might result in
-                // unneeded conversions, but should produce the correct results.
-                var forceCast = sqlFunctionExpression.TypeMapping?.StoreTypeNameBase is
-                    "nvarchar" or "varchar" or "varbinary";
+                var arguments = sqlFunctionExpression.Arguments;
+                var result = arguments[0];
+                var canRewrite = false;
 
-                var typeMapping = sqlFunctionExpression.TypeMapping switch
+                // Expression type mappings do not necessarily describe the SQL result type.
+                // Infer the size only for operands whose actual store type is known.
+                if (GetColumnMapping(result) is { Converter: null } firstMapping
+                    && firstMapping.StoreTypeNameBase is "nvarchar" or "varchar" or "varbinary"
+                    && GetColumnSize(firstMapping) is { } firstSize)
                 {
-                    { StoreTypeNameBase: "nvarchar", Size: >= 0 and < 4000 } => _typeMappingSource.FindMapping(
-                        typeof(string),
-                        sqlFunctionExpression.TypeMapping.StoreTypeNameBase,
-                        unicode: true,
-                        size: 4000),
-                    { StoreTypeNameBase: "varchar" or "varbinary", Size: >= 0 and < 8000 } => _typeMappingSource.FindMapping(
-                        typeof(string),
-                        sqlFunctionExpression.TypeMapping.StoreTypeNameBase,
-                        unicode: false,
-                        size: 8000),
-                    var t => t,
-                };
+                    var size = firstSize;
+                    canRewrite = true;
+                    foreach (var argument in arguments.Skip(1))
+                    {
+                        var argumentSize = argument switch
+                        {
+                            ColumnExpression { TypeMapping: { Converter: null } mapping } column
+                                when firstMapping.StoreTypeNameBase == "varbinary"
+                                    && mapping.StoreTypeNameBase == firstMapping.StoreTypeNameBase
+                                    && IsTableColumn(column, _currentSelect)
+                                => GetColumnSize(mapping),
+                            SqlConstantExpression { Value: string value, TypeMapping: { Converter: null } mapping }
+                                when mapping.GetType() == typeof(SqlServerStringTypeMapping)
+                                    && mapping.StoreTypeNameBase == firstMapping.StoreTypeNameBase
+                                    && firstMapping.StoreTypeNameBase is "nvarchar" or "varchar"
+                                    && mapping.IsUnicode == (firstMapping.StoreTypeNameBase == "nvarchar")
+                                    && !value.Contains('\r') && !value.Contains('\n')
+                                    && (firstMapping.StoreTypeNameBase == "nvarchar" || value.All(c => c <= 127))
+                                    && value.Length <= (mapping.IsUnicode ? 4000 : 8000)
+                                => Math.Max(value.Length, 1),
+                            SqlConstantExpression { Value: byte[] value, TypeMapping: { Converter: null } mapping }
+                                when mapping.GetType() == typeof(SqlServerByteArrayTypeMapping)
+                                    && firstMapping.StoreTypeNameBase == "varbinary"
+                                    && mapping.StoreTypeNameBase == firstMapping.StoreTypeNameBase
+                                    && value.Length <= 8000
+                                => Math.Max(value.Length, 1),
+                            _ => null
+                        };
 
-                var result = sqlFunctionExpression.Arguments[0];
-                if (forceCast || result.TypeMapping?.StoreType != typeMapping?.StoreType)
-                {
-                    result = new SqlUnaryExpression(
-                        ExpressionType.Convert,
-                        result,
-                        sqlFunctionExpression.Type,
-                        typeMapping
-                    );
+                        if (argumentSize is null)
+                        {
+                            canRewrite = false;
+                            break;
+                        }
+
+                        size = size == -1 || argumentSize == -1 ? -1 : Math.Max(size, argumentSize.Value);
+                    }
+
+                    if (canRewrite && size != firstSize)
+                    {
+                        var storeType = $"{firstMapping.StoreTypeNameBase}({(size == -1 ? "max" : size.ToString(CultureInfo.InvariantCulture))})";
+                        result = new SqlUnaryExpression(
+                            ExpressionType.Convert, result, result.Type, firstMapping.WithStoreTypeAndSize(storeType, size));
+                    }
                 }
 
-                var length = sqlFunctionExpression.Arguments.Count;
-                for (var i = 1; i < length; i++)
+                if (!canRewrite)
                 {
-                    // propagate type and type mapping from the first argument,
-                    // nullability from COALESCE
+                    var type = sqlFunctionExpression.Type;
+                    var typeMapping = sqlFunctionExpression.TypeMapping;
+                    canRewrite = type != typeof(string) && type != typeof(byte[])
+                        && _typeMappingSource.FindMapping(type) == typeMapping
+                        && arguments.All(a => a.Type == type && a.TypeMapping == typeMapping);
+                }
+
+                if (!canRewrite)
+                {
+                    return base.VisitSqlFunction(sqlFunctionExpression);
+                }
+
+                for (var i = 1; i < arguments.Count; i++)
+                {
                     result = new SqlFunctionExpression(
                         "ISNULL",
-                        arguments: [result, sqlFunctionExpression.Arguments[i]],
-                        nullable: i == length - 1 ? sqlFunctionExpression.IsNullable : true,
+                        arguments: [result, arguments[i]],
+                        nullable: i == arguments.Count - 1 ? sqlFunctionExpression.IsNullable : true,
                         argumentsPropagateNullability: [false, false],
                         result.Type,
-                        result.TypeMapping
-                    );
+                        result.TypeMapping);
                 }
 
                 return base.VisitSqlFunction((SqlFunctionExpression)result);
+
+                RelationalTypeMapping? GetColumnMapping(SqlExpression expression)
+                    => expression switch
+                    {
+                        ColumnExpression { TypeMapping: { } mapping } column
+                            when IsTableColumn(column, _currentSelect)
+                            => mapping,
+                        ScalarSubqueryExpression { Subquery: var subquery }
+                            when subquery.Projection is [{ Expression: ColumnExpression { TypeMapping: { } } column }]
+                                && IsTableColumn(column, subquery)
+                            => subquery.Projection[0].Expression.TypeMapping,
+                        _ => null
+                    };
+
+                static bool IsTableColumn(ColumnExpression column, SelectExpression? select)
+                    => select?.Tables.Any(
+                        table => (table is JoinExpressionBase join ? join.Table : table) is TableExpression source
+                            && source.Alias == column.TableAlias
+                            && source.Table.FindColumn(column.Name)?.StoreType == column.TypeMapping?.StoreType) == true;
+
+                static int? GetColumnSize(RelationalTypeMapping mapping)
+                {
+                    if (mapping.StoreType == $"{mapping.StoreTypeNameBase}(max)")
+                    {
+                        return -1;
+                    }
+
+                    return mapping.Size is > 0
+                        && mapping.StoreType == $"{mapping.StoreTypeNameBase}({mapping.Size})"
+                            ? mapping.Size
+                            : null;
+                }
             }
 
             case SqlServerJsonObjectExpression jsonObject:

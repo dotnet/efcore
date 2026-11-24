@@ -102,7 +102,7 @@ FROM [Owner] AS [o]
             """
 SET NOCOUNT OFF;
 UPDATE [o]
-SET [o].[Title] = ISNULL([o].[Title], N'') + N'_Suffix'
+SET [o].[Title] = COALESCE([o].[Title], N'') + N'_Suffix'
 FROM [Owner] AS [o]
 """);
     }

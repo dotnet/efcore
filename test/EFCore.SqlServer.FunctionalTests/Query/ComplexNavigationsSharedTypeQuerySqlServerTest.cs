@@ -5733,7 +5733,7 @@ WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id]
 
         AssertSql(
             """
-SELECT ISNULL([l].[Name], N'') + N' ' + ISNULL(CASE
+SELECT ISNULL([l].[Name], N'') + N' ' + COALESCE(CASE
     WHEN [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [l1].[Level2_Name]
     ELSE N'NULL'
 END, N'')

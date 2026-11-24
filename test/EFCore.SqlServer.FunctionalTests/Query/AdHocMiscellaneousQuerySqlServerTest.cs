@@ -52,6 +52,135 @@ INSERT ZeroKey VALUES (NULL)
         await context.SaveChangesAsync();
     }
 
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Coalesce_preserves_string_and_binary_sizes(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<CoalesceSizeContext>(
+            seed: async c =>
+            {
+                c.Entities.AddRange(
+                    new CoalesceSizeEntity
+                    {
+                        Id = 1, BinaryFallback = [1, 2, 3, 4], LongText = new string('x', 5000), DecimalFallback = 1234.5678m
+                    },
+                    new CoalesceSizeEntity
+                    {
+                        Id = 2, Text = "abc", AnsiText = "abc", Binary = [5, 6], BinaryFallback = [1, 2, 3, 4], Decimal = 1.23m
+                    });
+                await c.SaveChangesAsync();
+            });
+
+        using var context = contextFactory.CreateDbContext();
+        var query = context.Set<CoalesceSizeEntity>().OrderBy(e => e.Id).Select(
+            e => new
+            {
+                Text = e.Text ?? "long fallback",
+                ShortText = e.Text ?? "x",
+                AnsiText = e.AnsiText ?? "long fallback",
+                Binary = e.Binary ?? e.BinaryFallback,
+                Decimal = e.Decimal ?? e.DecimalFallback,
+                MaxText = e.LongText ?? "fallback",
+                LongText = (e.Id == 1 ? e.LongText : e.Text) ?? "fallback"
+            });
+        var result = async ? await query.ToListAsync() : query.ToList();
+
+        Assert.Equal(2, result.Count);
+        Assert.Equal("long fallback", result[0].Text);
+        Assert.Equal("x", result[0].ShortText);
+        Assert.Equal("long fallback", result[0].AnsiText);
+        Assert.Equal(new byte[] { 1, 2, 3, 4 }, result[0].Binary);
+        Assert.Equal(1234.5678m, result[0].Decimal);
+        Assert.Equal(new string('x', 5000), result[0].MaxText);
+        Assert.Equal(new string('x', 5000), result[0].LongText);
+        Assert.Equal("abc", result[1].Text);
+        Assert.Equal("abc", result[1].ShortText);
+        Assert.Equal("abc", result[1].AnsiText);
+        Assert.Equal(new byte[] { 5, 6 }, result[1].Binary);
+        Assert.Equal(1.23m, result[1].Decimal);
+        Assert.Equal("fallback", result[1].MaxText);
+        Assert.Equal("abc", result[1].LongText);
+
+        var subquery = context.Set<CoalesceSizeEntity>().OrderBy(e => e.Id)
+            .Select(
+                e => context.Set<CoalesceSizeEntity>()
+                    .Where(other => other.Id == e.Id)
+                    .Select(other => other.Text)
+                    .FirstOrDefault() ?? "long fallback");
+        var subqueryResult = async ? await subquery.ToListAsync() : subquery.ToList();
+        Assert.Equal(["long fallback", "abc"], subqueryResult);
+
+        AssertSql(
+            """
+SELECT ISNULL(CAST([e].[Text] AS nvarchar(13)), N'long fallback') AS [Text], ISNULL([e].[Text], N'x') AS [ShortText], ISNULL(CAST([e].[AnsiText] AS varchar(13)), 'long fallback') AS [AnsiText], ISNULL(CAST([e].[Binary] AS varbinary(8)), [e].[BinaryFallback]) AS [Binary], COALESCE([e].[Decimal], [e].[DecimalFallback]) AS [Decimal], ISNULL([e].[LongText], N'fallback') AS [MaxText], COALESCE(CASE
+    WHEN [e].[Id] = 1 THEN [e].[LongText]
+    ELSE [e].[Text]
+END, N'fallback') AS [LongText]
+FROM [Entities] AS [e]
+ORDER BY [e].[Id]
+""",
+            //
+            """
+SELECT ISNULL(CAST((
+    SELECT TOP(1) [e0].[Text]
+    FROM [Entities] AS [e0]
+    WHERE [e0].[Id] = [e].[Id]) AS nvarchar(13)), N'long fallback')
+FROM [Entities] AS [e]
+ORDER BY [e].[Id]
+""");
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Coalesce_over_set_operation_preserves_actual_sql_type(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<CoalesceSizeContext>(
+            seed: async c =>
+            {
+                c.Entities.Add(new CoalesceSizeEntity { Id = 1, LongText = new string('x', 5000) });
+                await c.SaveChangesAsync();
+            });
+
+        using var context = contextFactory.CreateDbContext();
+        var query = context.Entities.Select(e => e.Text)
+            .Concat(context.Entities.Select(e => e.LongText))
+            .Select(s => s ?? "fallback");
+
+        var result = async ? await query.ToListAsync() : query.ToList();
+        Assert.Equal(2, result.Count);
+        Assert.Contains("fallback", result);
+        Assert.Contains(new string('x', 5000), result);
+        Assert.Contains("COALESCE(", query.ToQueryString());
+    }
+
+    protected class CoalesceSizeContext(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<CoalesceSizeEntity> Entities => Set<CoalesceSizeEntity>();
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<CoalesceSizeEntity>(
+                b =>
+                {
+                    b.Property(e => e.Id).ValueGeneratedNever();
+                    b.Property(e => e.Text).HasMaxLength(3);
+                    b.Property(e => e.AnsiText).HasMaxLength(3).IsUnicode(false);
+                    b.Property(e => e.Binary).HasMaxLength(2);
+                    b.Property(e => e.BinaryFallback).HasMaxLength(8);
+                    b.Property(e => e.Decimal).HasColumnType("decimal(5,2)");
+                    b.Property(e => e.DecimalFallback).HasColumnType("decimal(10,4)");
+                });
+    }
+
+    protected class CoalesceSizeEntity
+    {
+        public int Id { get; set; }
+        public string? Text { get; set; }
+        public string? AnsiText { get; set; }
+        public string? LongText { get; set; }
+        public byte[]? Binary { get; set; }
+        public byte[]? BinaryFallback { get; set; }
+        public decimal? Decimal { get; set; }
+        public decimal? DecimalFallback { get; set; }
+    }
+
     #region 5456
 
     [Fact]

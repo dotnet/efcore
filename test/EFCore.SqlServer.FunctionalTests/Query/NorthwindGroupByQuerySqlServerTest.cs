@@ -4057,7 +4057,7 @@ GROUP BY [c].[Country]
 
         AssertSql(
             """
-SELECT COALESCE([c].[City], N'Unknown') AS [Locality], COUNT(*) AS [Count]
+SELECT ISNULL([c].[City], N'Unknown') AS [Locality], COUNT(*) AS [Count]
 FROM [Customers] AS [c]
 GROUP BY [c].[City]
 ORDER BY COUNT(*) DESC, [c].[City]

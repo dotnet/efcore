@@ -2993,7 +2993,7 @@ WHERE [e].[NullableStringA] IS NOT NULL
             """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE ISNULL([e].[NullableStringA], [e].[NullableStringB]) = [e].[NullableStringC] OR ([e].[NullableStringA] IS NULL AND [e].[NullableStringB] IS NULL AND [e].[NullableStringC] IS NULL)
+WHERE COALESCE([e].[NullableStringA], [e].[NullableStringB]) = [e].[NullableStringC] OR ([e].[NullableStringA] IS NULL AND [e].[NullableStringB] IS NULL AND [e].[NullableStringC] IS NULL)
 """);
     }
 
@@ -3005,7 +3005,7 @@ WHERE ISNULL([e].[NullableStringA], [e].[NullableStringB]) = [e].[NullableString
             """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE (ISNULL([e].[NullableStringA], [e].[NullableStringB]) <> [e].[NullableStringC] OR ([e].[NullableStringA] IS NULL AND [e].[NullableStringB] IS NULL) OR [e].[NullableStringC] IS NULL) AND ([e].[NullableStringA] IS NOT NULL OR [e].[NullableStringB] IS NOT NULL OR [e].[NullableStringC] IS NOT NULL)
+WHERE (COALESCE([e].[NullableStringA], [e].[NullableStringB]) <> [e].[NullableStringC] OR ([e].[NullableStringA] IS NULL AND [e].[NullableStringB] IS NULL) OR [e].[NullableStringC] IS NULL) AND ([e].[NullableStringA] IS NOT NULL OR [e].[NullableStringB] IS NOT NULL OR [e].[NullableStringC] IS NOT NULL)
 """);
     }
 
@@ -3017,7 +3017,7 @@ WHERE (ISNULL([e].[NullableStringA], [e].[NullableStringB]) <> [e].[NullableStri
             """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE ISNULL([e].[NullableStringA], [e].[NullableStringB]) = ISNULL([e].[NullableStringC], [e].[StringA])
+WHERE COALESCE([e].[NullableStringA], [e].[NullableStringB]) = COALESCE([e].[NullableStringC], [e].[StringA])
 """);
     }
 
