@@ -79,21 +79,23 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
             async context =>
             {
                 var company = await context.Companies.OrderBy(c => c.Id).FirstAsync().ConfigureAwait(false);
-                var widget = await context.StructWidgets.SingleAsync().ConfigureAwait(false);
+                var widget = await context.Widgets.SingleAsync().ConfigureAwait(false);
                 company.Contacts = [new() { Name = "t0" }, new() { Name = "t1" }, new() { Name = "t2" }, new() { Name = "t3" }];
-                widget.Data = new StructData
+                widget.Deep = new DeepData
                 {
-                    Label = "S1",
-                    Tags = [new() { Value = "t0" }, new() { Value = "t1" }, new() { Value = "t2" }, new() { Value = "t3" }]
+                    Mid = new MiddleData
+                    {
+                        Items = [new() { Title = "t0" }, new() { Title = "t1" }, new() { Title = "t2" }, new() { Title = "t3" }]
+                    }
                 };
                 await context.SaveChangesAsync().ConfigureAwait(false);
             },
             async context =>
             {
                 var company = await context.Companies.OrderBy(c => c.Id).FirstAsync().ConfigureAwait(false);
-                var widget = await context.StructWidgets.SingleAsync().ConfigureAwait(false);
+                var widget = await context.Widgets.SingleAsync().ConfigureAwait(false);
                 company.Contacts = [new() { Name = "new" }, .. company.Contacts!.Take(3)];
-                widget.Data = new StructData { Label = widget.Data.Label, Tags = [new() { Value = "new" }, .. widget.Data.Tags.Take(3)] };
+                widget.Deep.Mid.Items = [new() { Title = "new" }, .. widget.Deep.Mid.Items.Take(3)];
 
                 context.ChangeTracker.DetectChanges();
                 ClearLog();
@@ -104,9 +106,9 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 using (SuspendRecordingEvents())
                 {
                     var company = await context.Companies.OrderBy(c => c.Id).FirstAsync().ConfigureAwait(false);
-                    var widget = await context.StructWidgets.SingleAsync().ConfigureAwait(false);
+                    var widget = await context.Widgets.SingleAsync().ConfigureAwait(false);
                     Assert.Equal(["new", "t0", "t1", "t2"], company.Contacts!.Select(c => c.Name));
-                    Assert.Equal(["new", "t0", "t1", "t2"], widget.Data.Tags.Select(t => t.Value));
+                    Assert.Equal(["new", "t0", "t1", "t2"], widget.Deep.Mid.Items.Select(i => i.Title));
                 }
             });
 

@@ -495,7 +495,9 @@ public class ChangeDetector : IChangeDetector
                         else
                         {
                             Check.DebugAssert(
-                                originalEntry.Ordinal > i || currentNulls.Contains(originalEntry.Ordinal),
+                                originalEntry.Ordinal > i
+                                || currentNulls.Contains(originalEntry.Ordinal)
+                                || added.Contains(originalEntry.Ordinal),
                                 $"Expected the entry that was previously at {originalEntry.Ordinal} to have been encountered at an ordinal before {i}.");
                             var previousOrdinal = originalEntry.Ordinal;
                             entry.MoveComplexCollectionEntry(complexProperty, previousOrdinal, i);

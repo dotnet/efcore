@@ -39,10 +39,10 @@ WHERE "Id" = @p1
 RETURNING 1;
 """,
             """
-@p0='{"Label":"S1","Tags":[{"Value":"new"},{"Value":"t0"},{"Value":"t1"},{"Value":"t2"}]}' (Nullable = false) (Size = 84)
+@p0='{"Mid":{"Items":[{"Title":"new","Inner":[],"Others":[]},{"Title":"t0","Inner":[],"Others":[]},{"Title":"t1","Inner":[],"Others":[]},{"Title":"t2","Inner":[],"Others":[]}]}}' (Nullable = false) (Size = 172)
 @p1='1'
 
-UPDATE "StructWidgets" SET "Data" = @p0
+UPDATE "Widgets" SET "Deep" = @p0
 WHERE "Id" = @p1
 RETURNING 1;
 """);
