@@ -277,6 +277,40 @@ public abstract class PrimitiveCollectionsQueryRelationalTestBase<TFixture>(TFix
     }
 
     [Fact]
+    public virtual async Task Parameter_collection_Contains_all_null_values_with_bucket_padding()
+    {
+        var contextFactory = await InitializeNonSharedTest<TestContext>(
+            onModelCreating: mb => mb.Entity<TestEntityWithNullableInt>().Property(e => e.Id).ValueGeneratedNever(),
+            onConfiguring: b => SetParameterizedCollectionMode(b, ParameterTranslationMode.MultipleParameters),
+            seed: context =>
+            {
+                context.AddRange(
+                    new TestEntityWithNullableInt { Id = 1, NullableInt = 10 },
+                    new TestEntityWithNullableInt { Id = 2, NullableInt = null },
+                    new TestEntityWithNullableInt { Id = 3, NullableInt = 30 });
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        int?[] values = [null, null, null, null, null, null, null];
+
+        var nonNullableResult = await context.Set<TestEntityWithNullableInt>()
+            .Where(c => !values.Contains(c.Id))
+            .OrderBy(c => c.Id)
+            .Select(c => c.Id)
+            .ToListAsync();
+        Assert.Equivalent(new[] { 1, 2, 3 }, nonNullableResult);
+
+        var nullableResult = await context.Set<TestEntityWithNullableInt>()
+            .Where(c => values.Contains(c.NullableInt))
+            .OrderBy(c => c.Id)
+            .Select(c => c.Id)
+            .ToListAsync();
+        Assert.Equivalent(new[] { 2 }, nullableResult);
+    }
+
+    [Fact]
     public virtual async Task Column_collection_inside_json_owned_entity()
     {
         var contextFactory = await InitializeNonSharedTest<TestContext>(
@@ -455,5 +489,11 @@ public abstract class PrimitiveCollectionsQueryRelationalTestBase<TFixture>(TFix
     {
         public Guid[] Guids { get; set; } = null!;
         public DateTime[] Dates { get; set; } = null!;
+    }
+
+    protected class TestEntityWithNullableInt
+    {
+        public int Id { get; set; }
+        public int? NullableInt { get; set; }
     }
 }

@@ -1273,6 +1273,25 @@ ORDER BY "t"."Id"
 """);
     }
 
+    public override async Task Parameter_collection_Contains_all_null_values_with_bucket_padding()
+    {
+        await base.Parameter_collection_Contains_all_null_values_with_bucket_padding();
+
+        AssertSql(
+            """
+SELECT "t"."Id"
+FROM "TestEntityWithNullableInt" AS "t"
+ORDER BY "t"."Id"
+""",
+            //
+            """
+SELECT "t"."Id"
+FROM "TestEntityWithNullableInt" AS "t"
+WHERE "t"."NullableInt" IS NULL
+ORDER BY "t"."Id"
+""");
+    }
+
     public override async Task Parameter_collection_of_enum_Cast_from_different_enum_type(ParameterTranslationMode mode)
     {
         await base.Parameter_collection_of_enum_Cast_from_different_enum_type(mode);

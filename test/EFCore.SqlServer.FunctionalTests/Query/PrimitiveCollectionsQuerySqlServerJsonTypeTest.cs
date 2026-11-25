@@ -1473,6 +1473,48 @@ WHERE [t].[Id] IN (@ints1, @ints2, @ints3, @ints4, @ints5, @ints6, @ints7, @ints
 """);
     }
 
+    public override async Task Parameter_collection_Contains_ending_in_null_with_bucket_padding()
+    {
+        await base.Parameter_collection_Contains_ending_in_null_with_bucket_padding();
+
+        AssertSql(
+            """
+@values1='1'
+@values2='2'
+@values3='3'
+@values4='4'
+@values5='5'
+@values6='6'
+@values8='6'
+@values9='6'
+@values10='6'
+
+SELECT [t].[Id]
+FROM [TestEntity] AS [t]
+WHERE [t].[Id] NOT IN (@values1, @values2, @values3, @values4, @values5, @values6, @values8, @values9, @values10)
+ORDER BY [t].[Id]
+""");
+    }
+
+    public override async Task Parameter_collection_Contains_all_null_values_with_bucket_padding()
+    {
+        await base.Parameter_collection_Contains_all_null_values_with_bucket_padding();
+
+        AssertSql(
+            """
+SELECT [t].[Id]
+FROM [TestEntityWithNullableInt] AS [t]
+ORDER BY [t].[Id]
+""",
+            //
+            """
+SELECT [t].[Id]
+FROM [TestEntityWithNullableInt] AS [t]
+WHERE [t].[NullableInt] IS NULL
+ORDER BY [t].[Id]
+""");
+    }
+
     public override async Task Parameter_collection_of_enum_Cast_from_different_enum_type(ParameterTranslationMode mode)
     {
         await base.Parameter_collection_of_enum_Cast_from_different_enum_type(mode);

@@ -1231,7 +1231,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 if (translationMode is ParameterTranslationMode.MultipleParameters)
                 {
                     var paddingValue = removeNulls ? values.FindLast(v => v is not null) : values.LastOrDefault();
-                    if (paddingValue is not null || !removeNulls)
+                    if (values.Count > 0 && (paddingValue is not null || !removeNulls))
                     {
                         var padding = CalculateBucketPadding(values.Count, elementTypeMapping);
                         for (var i = 0; i < padding; i++)
