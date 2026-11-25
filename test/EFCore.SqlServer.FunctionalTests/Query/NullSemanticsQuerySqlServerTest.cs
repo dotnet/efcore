@@ -2672,6 +2672,236 @@ END
 """);
     }
 
+    public override async Task Compare_simple_expression(bool async)
+    {
+        await base.Compare_simple_expression(async);
+
+        AssertSql(
+            """
+SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE [e].[NullableIntA] + [e].[IntB] <> [e].[IntC] OR [e].[NullableIntA] IS NULL
+""");
+    }
+
+    public override async Task Compare_complex_expression_null_checks_propagated(bool async)
+    {
+        await base.Compare_complex_expression_null_checks_propagated(async);
+
+        AssertSql(
+            """
+SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE [e].[NullableIntA] + [e].[NullableIntB] <> [e].[IntC] OR [e].[NullableIntA] IS NULL OR [e].[NullableIntB] IS NULL
+""");
+    }
+
+    public override async Task Compare_nullable_subquery_not_equal(bool async)
+    {
+        await base.Compare_nullable_subquery_not_equal(async);
+
+        AssertSql(
+            """
+SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE CASE
+    WHEN (
+        SELECT TOP(1) [e0].[NullableIntA]
+        FROM [Entities2] AS [e0]
+        WHERE [e0].[Id] = [e].[Id] AND [e0].[NullableIntB] IS NOT NULL) = [e].[IntB] THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
+""");
+    }
+
+    public override async Task Compare_nullable_subquery_not_equal_reversed(bool async)
+    {
+        await base.Compare_nullable_subquery_not_equal_reversed(async);
+
+        AssertSql(
+            """
+SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE CASE
+    WHEN [e].[IntB] = (
+        SELECT TOP(1) [e0].[NullableIntA]
+        FROM [Entities2] AS [e0]
+        WHERE [e0].[Id] = [e].[Id]) THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
+""");
+    }
+
+    public override async Task Project_nullable_subquery_not_equal(bool async)
+    {
+        await base.Project_nullable_subquery_not_equal(async);
+
+        AssertSql(
+            """
+SELECT CASE
+    WHEN (
+        SELECT TOP(1) [e0].[NullableIntA]
+        FROM [Entities2] AS [e0]
+        WHERE [e0].[Id] = [e].[Id]) = [e].[IntB] THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END
+FROM [Entities1] AS [e]
+ORDER BY [e].[Id]
+""");
+    }
+
+    public override async Task Project_nullable_subquery_equal(bool async)
+    {
+        await base.Project_nullable_subquery_equal(async);
+
+        AssertSql(
+            """
+SELECT CASE
+    WHEN (
+        SELECT TOP(1) [e0].[NullableIntA]
+        FROM [Entities2] AS [e0]
+        WHERE [e0].[Id] = [e].[Id]) = [e].[IntB] AND (
+        SELECT TOP(1) [e0].[NullableIntA]
+        FROM [Entities2] AS [e0]
+        WHERE [e0].[Id] = [e].[Id]) IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+FROM [Entities1] AS [e]
+ORDER BY [e].[Id]
+""");
+    }
+
+    public override async Task Project_nullable_subquery_equal_constant(bool async)
+    {
+        await base.Project_nullable_subquery_equal_constant(async);
+
+        AssertSql(
+            """
+SELECT CASE
+    WHEN (
+        SELECT TOP(1) [e0].[NullableIntA]
+        FROM [Entities2] AS [e0]
+        WHERE [e0].[Id] = [e].[Id]) = 1 THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+FROM [Entities1] AS [e]
+ORDER BY [e].[Id]
+""");
+    }
+
+    public override async Task Project_negated_nullable_bool_subquery_equal(bool async)
+    {
+        await base.Project_negated_nullable_bool_subquery_equal(async);
+
+        AssertSql(
+            """
+SELECT CASE
+    WHEN (
+        SELECT TOP(1) [e0].[NullableBoolA]
+        FROM [Entities2] AS [e0]
+        WHERE [e0].[Id] = [e].[Id]) <> [e].[BoolB] THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+FROM [Entities1] AS [e]
+ORDER BY [e].[Id]
+""");
+    }
+
+    public override async Task Project_negated_nullable_bool_subquery_not_equal_parameter(bool async)
+    {
+        await base.Project_negated_nullable_bool_subquery_not_equal_parameter(async);
+
+        AssertSql(
+            """
+@value='True' (Nullable = true)
+
+SELECT CASE
+    WHEN (
+        SELECT TOP(1) [e0].[NullableBoolA]
+        FROM [Entities2] AS [e0]
+        WHERE [e0].[Id] = [e].[Id] AND [e0].[NullableBoolB] IS NOT NULL) <> @value THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END
+FROM [Entities1] AS [e]
+ORDER BY [e].[Id]
+""");
+    }
+
+    public override async Task Compare_negated_nullable_bool_subquery_not_equal_column(bool async)
+    {
+        await base.Compare_negated_nullable_bool_subquery_not_equal_column(async);
+
+        AssertSql(
+            """
+SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE (
+    SELECT TOP(1) [e0].[NullableBoolA]
+    FROM [Entities2] AS [e0]
+    WHERE [e0].[Id] = [e].[Id] AND [e0].[NullableBoolB] IS NOT NULL) = [e].[BoolB] OR (
+    SELECT TOP(1) [e0].[NullableBoolA]
+    FROM [Entities2] AS [e0]
+    WHERE [e0].[Id] = [e].[Id] AND [e0].[NullableBoolB] IS NOT NULL) IS NULL
+""");
+    }
+
+    public override async Task Project_nullable_subquery_equal_parameter(bool async)
+    {
+        await base.Project_nullable_subquery_equal_parameter(async);
+
+        AssertSql(
+            """
+@value='1' (Nullable = true)
+
+SELECT CASE
+    WHEN (
+        SELECT TOP(1) [e0].[NullableIntA]
+        FROM [Entities2] AS [e0]
+        WHERE [e0].[Id] = [e].[Id]) = @value THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+FROM [Entities1] AS [e]
+ORDER BY [e].[Id]
+""");
+    }
+
+    public override async Task Compare_nullable_subquery_with_relational_nulls(bool async)
+    {
+        await base.Compare_nullable_subquery_with_relational_nulls(async);
+
+        AssertSql(
+            """
+SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE (
+    SELECT TOP(1) [e0].[NullableIntA]
+    FROM [Entities2] AS [e0]
+    WHERE [e0].[Id] = [e].[Id]) <> [e].[IntB]
+ORDER BY [e].[Id]
+""");
+    }
+
+    public override async Task Compare_two_nullable_expressions_not_equal(bool async)
+    {
+        await base.Compare_two_nullable_expressions_not_equal(async);
+
+        AssertSql(
+            """
+SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE ((
+    SELECT TOP(1) [e0].[NullableIntA]
+    FROM [Entities2] AS [e0]
+    WHERE [e0].[Id] = [e].[Id]) <> [e].[NullableIntB] OR (
+    SELECT TOP(1) [e0].[NullableIntA]
+    FROM [Entities2] AS [e0]
+    WHERE [e0].[Id] = [e].[Id]) IS NULL OR [e].[NullableIntB] IS NULL) AND ((
+    SELECT TOP(1) [e0].[NullableIntA]
+    FROM [Entities2] AS [e0]
+    WHERE [e0].[Id] = [e].[Id]) IS NOT NULL OR [e].[NullableIntB] IS NOT NULL)
+""");
+    }
+
     public override async Task Compare_nullable_with_null_parameter_equal(bool async)
     {
         await base.Compare_nullable_with_null_parameter_equal(async);

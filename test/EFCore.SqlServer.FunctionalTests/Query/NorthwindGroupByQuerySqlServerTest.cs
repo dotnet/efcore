@@ -5611,13 +5611,13 @@ GROUP BY [o].[CustomerID]
             """
 SELECT [o].[CustomerID] AS [Key], ISNULL((
     SELECT TOP(1) CASE
-        WHEN 2 IN (COUNT(*)) OR (2 = (
-            SELECT COUNT(*)
-            FROM [Orders] AS [o0]
-            WHERE [o].[CustomerID] = [o0].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)) AND (
-            SELECT COUNT(*)
-            FROM [Orders] AS [o0]
-            WHERE [o].[CustomerID] = [o0].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)) IS NOT NULL) THEN CAST(1 AS bit)
+        WHEN 2 IN (COUNT(*)) OR CASE
+            WHEN 2 = (
+                SELECT COUNT(*)
+                FROM [Orders] AS [o0]
+                WHERE [o].[CustomerID] = [o0].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)) THEN CAST(1 AS bit)
+            ELSE CAST(0 AS bit)
+        END = CAST(1 AS bit) THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END
     FROM [Employees] AS [e]

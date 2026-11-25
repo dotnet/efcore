@@ -13,6 +13,248 @@ public class NullSemanticsQuerySqliteTest : NullSemanticsQueryTestBase<NullSeman
         => Fixture.TestSqlLoggerFactory.Clear();
 
     //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+    public override async Task Compare_simple_expression(bool async)
+    {
+        await base.Compare_simple_expression(async);
+
+        AssertSql(
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."NullableIntA" + "e"."IntB" <> "e"."IntC" OR "e"."NullableIntA" IS NULL
+""");
+    }
+
+    public override async Task Compare_complex_expression_null_checks_propagated(bool async)
+    {
+        await base.Compare_complex_expression_null_checks_propagated(async);
+
+        AssertSql(
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."NullableIntA" + "e"."NullableIntB" <> "e"."IntC" OR "e"."NullableIntA" IS NULL OR "e"."NullableIntB" IS NULL
+""");
+    }
+
+    public override async Task Compare_nullable_subquery_not_equal(bool async)
+    {
+        await base.Compare_nullable_subquery_not_equal(async);
+
+        AssertSql(
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE CASE
+    WHEN (
+        SELECT "e0"."NullableIntA"
+        FROM "Entities2" AS "e0"
+        WHERE "e0"."Id" = "e"."Id" AND "e0"."NullableIntB" IS NOT NULL
+        LIMIT 1) = "e"."IntB" THEN 0
+    ELSE 1
+END
+""");
+    }
+
+    public override async Task Compare_nullable_subquery_not_equal_reversed(bool async)
+    {
+        await base.Compare_nullable_subquery_not_equal_reversed(async);
+
+        AssertSql(
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE CASE
+    WHEN "e"."IntB" = (
+        SELECT "e0"."NullableIntA"
+        FROM "Entities2" AS "e0"
+        WHERE "e0"."Id" = "e"."Id"
+        LIMIT 1) THEN 0
+    ELSE 1
+END
+""");
+    }
+
+    public override async Task Project_nullable_subquery_not_equal(bool async)
+    {
+        await base.Project_nullable_subquery_not_equal(async);
+
+        AssertSql(
+            """
+SELECT CASE
+    WHEN (
+        SELECT "e0"."NullableIntA"
+        FROM "Entities2" AS "e0"
+        WHERE "e0"."Id" = "e"."Id"
+        LIMIT 1) = "e"."IntB" THEN 0
+    ELSE 1
+END
+FROM "Entities1" AS "e"
+ORDER BY "e"."Id"
+""");
+    }
+
+    public override async Task Project_nullable_subquery_equal(bool async)
+    {
+        await base.Project_nullable_subquery_equal(async);
+
+        AssertSql(
+            """
+SELECT (
+    SELECT "e0"."NullableIntA"
+    FROM "Entities2" AS "e0"
+    WHERE "e0"."Id" = "e"."Id"
+    LIMIT 1) = "e"."IntB" AND (
+    SELECT "e0"."NullableIntA"
+    FROM "Entities2" AS "e0"
+    WHERE "e0"."Id" = "e"."Id"
+    LIMIT 1) IS NOT NULL
+FROM "Entities1" AS "e"
+ORDER BY "e"."Id"
+""");
+    }
+
+    public override async Task Project_nullable_subquery_equal_constant(bool async)
+    {
+        await base.Project_nullable_subquery_equal_constant(async);
+
+        AssertSql(
+            """
+SELECT CASE
+    WHEN (
+        SELECT "e0"."NullableIntA"
+        FROM "Entities2" AS "e0"
+        WHERE "e0"."Id" = "e"."Id"
+        LIMIT 1) = 1 THEN 1
+    ELSE 0
+END
+FROM "Entities1" AS "e"
+ORDER BY "e"."Id"
+""");
+    }
+
+    public override async Task Project_negated_nullable_bool_subquery_equal(bool async)
+    {
+        await base.Project_negated_nullable_bool_subquery_equal(async);
+
+        AssertSql(
+            """
+SELECT CASE
+    WHEN (
+        SELECT "e0"."NullableBoolA"
+        FROM "Entities2" AS "e0"
+        WHERE "e0"."Id" = "e"."Id"
+        LIMIT 1) <> "e"."BoolB" THEN 1
+    ELSE 0
+END
+FROM "Entities1" AS "e"
+ORDER BY "e"."Id"
+""");
+    }
+
+    public override async Task Project_negated_nullable_bool_subquery_not_equal_parameter(bool async)
+    {
+        await base.Project_negated_nullable_bool_subquery_not_equal_parameter(async);
+
+        AssertSql(
+            """
+@value='True' (Nullable = true)
+
+SELECT CASE
+    WHEN (
+        SELECT "e0"."NullableBoolA"
+        FROM "Entities2" AS "e0"
+        WHERE "e0"."Id" = "e"."Id" AND "e0"."NullableBoolB" IS NOT NULL
+        LIMIT 1) <> @value THEN 0
+    ELSE 1
+END
+FROM "Entities1" AS "e"
+ORDER BY "e"."Id"
+""");
+    }
+
+    public override async Task Compare_negated_nullable_bool_subquery_not_equal_column(bool async)
+    {
+        await base.Compare_negated_nullable_bool_subquery_not_equal_column(async);
+
+        AssertSql(
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE (
+    SELECT "e0"."NullableBoolA"
+    FROM "Entities2" AS "e0"
+    WHERE "e0"."Id" = "e"."Id" AND "e0"."NullableBoolB" IS NOT NULL
+    LIMIT 1) = "e"."BoolB" OR (
+    SELECT "e0"."NullableBoolA"
+    FROM "Entities2" AS "e0"
+    WHERE "e0"."Id" = "e"."Id" AND "e0"."NullableBoolB" IS NOT NULL
+    LIMIT 1) IS NULL
+""");
+    }
+
+    public override async Task Project_nullable_subquery_equal_parameter(bool async)
+    {
+        await base.Project_nullable_subquery_equal_parameter(async);
+
+        AssertSql(
+            """
+@value='1' (Nullable = true)
+
+SELECT CASE
+    WHEN (
+        SELECT "e0"."NullableIntA"
+        FROM "Entities2" AS "e0"
+        WHERE "e0"."Id" = "e"."Id"
+        LIMIT 1) = @value THEN 1
+    ELSE 0
+END
+FROM "Entities1" AS "e"
+ORDER BY "e"."Id"
+""");
+    }
+
+    public override async Task Compare_nullable_subquery_with_relational_nulls(bool async)
+    {
+        await base.Compare_nullable_subquery_with_relational_nulls(async);
+
+        AssertSql(
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE (
+    SELECT "e0"."NullableIntA"
+    FROM "Entities2" AS "e0"
+    WHERE "e0"."Id" = "e"."Id"
+    LIMIT 1) <> "e"."IntB"
+ORDER BY "e"."Id"
+""");
+    }
+
+    public override async Task Compare_two_nullable_expressions_not_equal(bool async)
+    {
+        await base.Compare_two_nullable_expressions_not_equal(async);
+
+        AssertSql(
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE ((
+    SELECT "e0"."NullableIntA"
+    FROM "Entities2" AS "e0"
+    WHERE "e0"."Id" = "e"."Id"
+    LIMIT 1) <> "e"."NullableIntB" OR (
+    SELECT "e0"."NullableIntA"
+    FROM "Entities2" AS "e0"
+    WHERE "e0"."Id" = "e"."Id"
+    LIMIT 1) IS NULL OR "e"."NullableIntB" IS NULL) AND ((
+    SELECT "e0"."NullableIntA"
+    FROM "Entities2" AS "e0"
+    WHERE "e0"."Id" = "e"."Id"
+    LIMIT 1) IS NOT NULL OR "e"."NullableIntB" IS NOT NULL)
+""");
+    }
+
     public override async Task Rewrite_compare_int_with_int(bool async)
     {
         await base.Rewrite_compare_int_with_int(async);

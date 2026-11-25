@@ -2629,13 +2629,13 @@ END
         AssertSql(
             """
 SELECT [o].[OrderID], CASE
-    WHEN 2 IN (0) OR (2 = (
-        SELECT COUNT(*)
-        FROM [Orders] AS [o0]
-        WHERE [o0].[CustomerID] = [o].[CustomerID] OR ([o0].[CustomerID] IS NULL AND [o].[CustomerID] IS NULL)) AND (
-        SELECT COUNT(*)
-        FROM [Orders] AS [o0]
-        WHERE [o0].[CustomerID] = [o].[CustomerID] OR ([o0].[CustomerID] IS NULL AND [o].[CustomerID] IS NULL)) IS NOT NULL) THEN CAST(1 AS bit)
+    WHEN 2 IN (0) OR CASE
+        WHEN 2 = (
+            SELECT COUNT(*)
+            FROM [Orders] AS [o0]
+            WHERE [o0].[CustomerID] = [o].[CustomerID] OR ([o0].[CustomerID] IS NULL AND [o].[CustomerID] IS NULL)) THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END = CAST(1 AS bit) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [HasTwo]
 FROM [Orders] AS [o]

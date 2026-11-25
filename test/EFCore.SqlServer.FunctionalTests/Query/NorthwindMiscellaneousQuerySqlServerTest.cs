@@ -2608,25 +2608,19 @@ END, [c].[CustomerID]
             """
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[OrderID] <= 10250 AND ((
-    SELECT TOP(1) [c].[City]
-    FROM [Customers] AS [c]
-    ORDER BY CASE
-        WHEN EXISTS (
-            SELECT 1
-            FROM [Customers] AS [c0]
-            WHERE [c0].[CustomerID] = N'ALFKI') THEN CAST(1 AS bit)
-        ELSE CAST(0 AS bit)
-    END) <> N'Nowhere' OR (
-    SELECT TOP(1) [c].[City]
-    FROM [Customers] AS [c]
-    ORDER BY CASE
-        WHEN EXISTS (
-            SELECT 1
-            FROM [Customers] AS [c0]
-            WHERE [c0].[CustomerID] = N'ALFKI') THEN CAST(1 AS bit)
-        ELSE CAST(0 AS bit)
-    END) IS NULL)
+WHERE [o].[OrderID] <= 10250 AND CASE
+    WHEN (
+        SELECT TOP(1) [c].[City]
+        FROM [Customers] AS [c]
+        ORDER BY CASE
+            WHEN EXISTS (
+                SELECT 1
+                FROM [Customers] AS [c0]
+                WHERE [c0].[CustomerID] = N'ALFKI') THEN CAST(1 AS bit)
+            ELSE CAST(0 AS bit)
+        END) = N'Nowhere' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 """);
     }
 
@@ -5061,15 +5055,14 @@ SELECT [c].[CustomerID], (
     WHERE [c].[CustomerID] = [o0].[CustomerID]
     ORDER BY [o0].[OrderDate]) AS [A]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'A%' AND ((
-    SELECT TOP(1) [o].[OrderID]
-    FROM [Orders] AS [o]
-    WHERE [c].[CustomerID] = [o].[CustomerID]
-    ORDER BY [o].[OrderDate]) <> 0 OR (
-    SELECT TOP(1) [o].[OrderID]
-    FROM [Orders] AS [o]
-    WHERE [c].[CustomerID] = [o].[CustomerID]
-    ORDER BY [o].[OrderDate]) IS NULL)
+WHERE [c].[CustomerID] LIKE N'A%' AND CASE
+    WHEN (
+        SELECT TOP(1) [o].[OrderID]
+        FROM [Orders] AS [o]
+        WHERE [c].[CustomerID] = [o].[CustomerID]
+        ORDER BY [o].[OrderDate]) = 0 THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 """);
     }
 
