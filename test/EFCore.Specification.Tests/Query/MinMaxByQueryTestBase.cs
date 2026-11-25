@@ -93,6 +93,38 @@ public abstract class MinMaxByQueryTestBase : NonSharedModelTestBase, IClassFixt
         Assert.Equal(maximum ? 13 : 3, winner!.Id);
     }
 
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public virtual async Task Nullable_keys_with_global_query_filter(bool async, bool maximum)
+    {
+        var factory = await InitializeNonSharedTest<MinMaxByContext>(
+            onModelCreating: b =>
+            {
+                var entity = b.Entity<Item>();
+                entity.Property(i => i.Id).ValueGeneratedNever();
+                entity.HasQueryFilter(i => i.Scenario == 1);
+            },
+            seed: c =>
+            {
+                c.AddRange(
+                    new Item { Id = 1, Scenario = 1 },
+                    new Item { Id = 2, Scenario = 1, Key = 10 },
+                    new Item { Id = 3, Scenario = 1, Key = 20 },
+                    new Item { Id = 4, Scenario = 2, Key = 1 },
+                    new Item { Id = 5, Scenario = 2, Key = 99 });
+                return c.SaveChangesAsync();
+            });
+        using var context = factory.CreateDbContext();
+        var items = context.Set<Item>().OrderBy(i => i.Id);
+        var winner = maximum
+            ? async ? await items.MaxByAsync(i => i.Key) : items.MaxBy(i => i.Key)
+            : async ? await items.MinByAsync(i => i.Key) : items.MinBy(i => i.Key);
+        Assert.Equal(maximum ? 3 : 2, winner!.Id);
+    }
+
     private static Item[] CreateItems()
         =>
         [

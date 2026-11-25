@@ -10,6 +10,25 @@ public class MinMaxByQuerySqliteTest(NonSharedFixture fixture, ITestOutputHelper
     protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqliteTestStoreFactory.Instance;
 
+    public override async Task Nullable_keys_with_global_query_filter(bool async, bool maximum)
+    {
+        await base.Nullable_keys_with_global_query_filter(async, maximum);
+
+        AssertSql(
+            $$"""
+SELECT "i"."Id", "i"."Key", "i"."Scenario", "i"."StringKey"
+FROM "Item" AS "i"
+WHERE "i"."Scenario" = 1 AND ("i"."Key" IS (
+    SELECT "i0"."Key"
+    FROM "Item" AS "i0"
+    WHERE "i0"."Scenario" = 1 AND "i0"."Key" IS NOT NULL
+    ORDER BY "i0"."Key"{{(maximum ? " DESC" : "")}}
+    LIMIT 1))
+ORDER BY "i"."Id"
+LIMIT 1
+""");
+    }
+
     public override async Task Non_nullable_keys_preserve_source_order(bool maximum)
     {
         await base.Non_nullable_keys_preserve_source_order(maximum);

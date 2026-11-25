@@ -797,7 +797,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         }
 
         var one = TranslateExpression(Expression.Constant(1))!;
-        if (SupportsExtremalKeyLookup && _isRootOperator && _queryCompilationContext.IsMinMaxBy)
+        if (SupportsExtremalKeyLookup && _isRootOperator && _queryCompilationContext.IsMinMaxBy == true)
         {
             selectExpression.TryApplyExtremalKeyLookup(_sqlExpressionFactory, one);
         }
