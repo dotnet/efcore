@@ -1380,6 +1380,19 @@ SELECT * FROM [Customers2]"))
         await AssertSeattleAndLondon(query, async);
     }
 
+    // A DbParameter whose name doesn't appear in the SQL isn't referenced at all, so it doesn't reserve its name, and is renamed as
+    // before instead of conflicting with the hard-coded parameter.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Union_of_FromSql_with_db_parameter_hardcoded_in_sql_and_unused_db_parameter_of_same_name(bool async)
+    {
+        using var context = CreateContext();
+
+        var query = FromSqlCity(context, "@city", CreateDbParameter("city", "Seattle"))
+            .Union(FromSqlCity(context, "'London'", CreateDbParameter("city", "Paris")));
+
+        await AssertSeattleAndLondon(query, async);
+    }
+
     // The second parameter's name is hard-coded in the SQL, so the first, which is referenced positionally, is renamed to make way for it.
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Union_of_FromSql_with_same_named_db_parameters_positional_then_hardcoded(bool async)

@@ -248,7 +248,7 @@ public class RelationalParameterProcessor : ExpressionVisitor
                 // pointing at a different parameter with the same name. See #32932.
                 // Note that this doesn't detect SQL which references the same argument both positionally and by name; the by-name
                 // reference would still be left pointing at the other parameter.
-                if (IsNameHardCoded(fromSql, index))
+                if (IsNameHardCoded(fromSql, index, originalName))
                 {
                     // Other parameters avoid this name (see _hardCodedParameterNames), so it can only already be taken by another
                     // DbParameter which also hard-codes it.
@@ -267,8 +267,48 @@ public class RelationalParameterProcessor : ExpressionVisitor
         }
     }
 
-    private static bool IsNameHardCoded(FromSqlExpression fromSql, int index)
-        => !ReferencesArgumentByPosition(fromSql.Sql, index);
+    // A parameter that isn't referenced positionally only reserves its name if the SQL references that name. An unused parameter is
+    // renamed like before. The match accepts any of the common parameter prefixes, in any case, so a real reference isn't missed
+    // whichever prefix the provider uses; a false match (e.g. inside a string literal) only means the name is treated as hard-coded.
+    private static bool IsNameHardCoded(FromSqlExpression fromSql, int index, string parameterName)
+        => !ReferencesArgumentByPosition(fromSql.Sql, index)
+            && ReferencesParameterByName(fromSql.Sql, parameterName.TrimStart(ParameterPrefixes));
+
+    private static readonly char[] ParameterPrefixes = ['@', ':', '$', '?'];
+
+    /// <summary>
+    ///     Returns whether the given SQL contains a reference to a parameter with the given (unprefixed) name, ignoring case: the name
+    ///     preceded by one of <c>@</c>, <c>:</c>, <c>$</c> or <c>?</c> and not followed by a letter, digit or underscore.
+    /// </summary>
+    internal static bool ReferencesParameterByName(string sql, string name)
+    {
+        if (name.Length == 0)
+        {
+            return false;
+        }
+
+        for (var start = 0;;)
+        {
+            var i = sql.IndexOf(name, start, StringComparison.OrdinalIgnoreCase);
+            if (i < 0)
+            {
+                return false;
+            }
+
+            var end = i + name.Length;
+            if (i > 0
+                && ParameterPrefixes.Contains(sql[i - 1])
+                && (end == sql.Length || !IsWordCharacter(sql[end])))
+            {
+                return true;
+            }
+
+            start = i + 1;
+        }
+
+        static bool IsWordCharacter(char c)
+            => char.IsLetterOrDigit(c) || c == '_';
+    }
 
     private void CollectHardCodedParameterNames(FromSqlExpression fromSql)
     {
@@ -289,7 +329,7 @@ public class RelationalParameterProcessor : ExpressionVisitor
         for (var i = 0; i < arguments.Length; i++)
         {
             if (arguments[i] is DbParameter { ParameterName: { Length: > 0 } name }
-                && IsNameHardCoded(fromSql, i))
+                && IsNameHardCoded(fromSql, i, name))
             {
                 _hardCodedParameterNames.Add(_sqlGenerationHelper.GenerateParameterName(name));
             }
