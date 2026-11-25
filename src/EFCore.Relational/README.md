@@ -4,7 +4,7 @@
 
 This package is included automatically as a dependency of each relational provider package. Adding an explicit reference can be useful to ensure the latest version is used even if the provider is depending on an older version.
 
-Boolean comparison optimization assumes that boolean values without a value converter have a two-valued database representation. For example, SQLite databases containing boolean values other than 0 and 1 can return incorrect results. To disable the optimization for all relational providers, set the AppContext switch before using EF Core:
+Boolean comparison optimization assumes that boolean values without a value converter have a two-valued database representation. For example, SQLite databases containing boolean values other than 0 and 1 can return incorrect results. To disable this optimization and restore the previous comparison behavior for all relational providers, set the AppContext switch before using EF Core:
 
 ```csharp
 AppContext.SetSwitch("Microsoft.EntityFrameworkCore.DisableBooleanComparisonOptimization", true);
