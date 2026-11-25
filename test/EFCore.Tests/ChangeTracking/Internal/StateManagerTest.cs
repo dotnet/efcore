@@ -950,6 +950,81 @@ public class StateManagerTest
         Assert.Same(firstEntry, stateManager.TryGetEntry(keyX, new object[] { 1, 1 }));
     }
 
+    // The alternate key on Code is processed before the primary key, so removing the Added entry from the alternate key map
+    // must not use (or break) the shared identity with the Deleted entry.
+    [Fact]
+    public void Detaching_added_entry_sharing_identity_restores_deleted_entry_in_primary_key_map()
+    {
+        using var context = new FailedTrackingContext();
+        var stateManager = GetStateManager(context);
+        var entityType = context.Model.FindEntityType(typeof(FailedTrackingMultiKey))!;
+        var codeKey = entityType.GetKeys().Single(k => k.Properties.Single().Name == nameof(FailedTrackingMultiKey.Code));
+
+        var deleted = context.Attach(new FailedTrackingMultiKey { Id = 1, Code = 1, Zip = 1 }).Entity;
+        context.Remove(deleted);
+        var deletedEntry = context.Entry(deleted).GetInfrastructure();
+        var added = context.Add(new FailedTrackingMultiKey { Id = 1, Code = 2, Zip = 2 }).Entity;
+
+        context.Entry(added).State = EntityState.Detached;
+
+        Assert.Same(deletedEntry, stateManager.TryGetEntry(entityType.FindPrimaryKey()!, new object[] { 1 }));
+        Assert.Same(deletedEntry, stateManager.TryGetEntry(codeKey, new object[] { 1 }));
+        Assert.Null(stateManager.TryGetEntry(codeKey, new object[] { 2 }));
+        Assert.Null(deletedEntry.SharedIdentityEntry);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Detaching_deleted_entry_sharing_identity_leaves_nothing_registered_for_it(bool acceptAllChanges)
+    {
+        using var context = new FailedTrackingContext();
+        var stateManager = GetStateManager(context);
+        var entityType = context.Model.FindEntityType(typeof(FailedTrackingMultiKey))!;
+        var codeKey = entityType.GetKeys().Single(k => k.Properties.Single().Name == nameof(FailedTrackingMultiKey.Code));
+
+        var deleted = context.Attach(new FailedTrackingMultiKey { Id = 1, Code = 1, Zip = 1 }).Entity;
+        context.Remove(deleted);
+        var added = context.Add(new FailedTrackingMultiKey { Id = 1, Code = 2, Zip = 2 }).Entity;
+        var addedEntry = context.Entry(added).GetInfrastructure();
+
+        if (acceptAllChanges)
+        {
+            context.ChangeTracker.AcceptAllChanges();
+        }
+        else
+        {
+            context.Entry(deleted).State = EntityState.Detached;
+        }
+
+        Assert.Equal(EntityState.Detached, context.Entry(deleted).State);
+        Assert.Same(addedEntry, stateManager.TryGetEntry(entityType.FindPrimaryKey()!, new object[] { 1 }));
+        Assert.Same(addedEntry, stateManager.TryGetEntry(codeKey, new object[] { 2 }));
+        Assert.Null(stateManager.TryGetEntry(codeKey, new object[] { 1 }));
+        Assert.Null(addedEntry.SharedIdentityEntry);
+    }
+
+    // Changing an alternate key of the Added entry must not break its shared identity with the Deleted entry,
+    // otherwise SaveChanges sends a delete and an insert for the same primary key.
+    [Fact]
+    public void Alternate_key_change_of_added_entry_sharing_identity_is_saved_as_update()
+    {
+        using var context = new FailedTrackingContext();
+        context.Add(new FailedTrackingMultiKey { Id = 1, Code = 1, Zip = 1 });
+        context.SaveChanges();
+
+        context.Remove(context.Set<FailedTrackingMultiKey>().Single());
+        var added = context.Add(new FailedTrackingMultiKey { Id = 1, Code = 1, Zip = 1 }).Entity;
+        added.Code = 2;
+        context.ChangeTracker.DetectChanges();
+        context.SaveChanges();
+
+        Assert.Equal(EntityState.Unchanged, Assert.Single(context.ChangeTracker.Entries()).State);
+
+        context.ChangeTracker.Clear();
+        Assert.Equal(2, context.Set<FailedTrackingMultiKey>().Single().Code);
+    }
+
     // A failed key change leaves the entry registered under its old key value, which must go when the entry is detached.
     [Theory]
     [InlineData(true)]
