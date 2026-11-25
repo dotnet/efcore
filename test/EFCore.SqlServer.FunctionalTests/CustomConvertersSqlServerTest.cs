@@ -12,6 +12,20 @@ public class CustomConvertersSqlServerTest : CustomConvertersTestBase<CustomConv
         : base(fixture)
         => Fixture.TestSqlLoggerFactory.Clear();
 
+    public override async Task Compare_converted_bool_columns_from_different_tables(bool async)
+    {
+        await base.Compare_converted_bool_columns_from_different_tables(async);
+
+        AssertSql(
+            """
+SELECT [b].[BlogId] AS [Left], [b0].[BlogId] AS [Right]
+FROM [Blog] AS [b]
+CROSS JOIN [Blog] AS [b0]
+WHERE [b].[IsVisible] <> [b0].[IsVisible]
+ORDER BY [b].[BlogId], [b0].[BlogId]
+""");
+    }
+
     [Fact]
     public override async Task Value_conversion_is_appropriately_used_for_join_condition()
     {

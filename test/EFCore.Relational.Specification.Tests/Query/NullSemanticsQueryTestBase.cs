@@ -539,6 +539,85 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
             elementSorter: e => (e.Id1, e.Id2));
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Join_with_negated_boolean_key(bool async)
+        => AssertQuery(
+            async,
+            ss => from e1 in ss.Set<NullSemanticsEntity1>()
+                  join e2 in ss.Set<NullSemanticsEntity2>() on e1.BoolA equals !e2.BoolB
+                  select new { Id1 = e1.Id, Id2 = e2.Id },
+            elementSorter: e => (e.Id1, e.Id2));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Left_join_with_negated_boolean_key(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>()
+                .LeftJoin(
+                    ss.Set<NullSemanticsEntity2>(),
+                    e1 => e1.BoolA,
+                    e2 => !e2.BoolB,
+                    (e1, e2) => new { Id1 = e1.Id, Id2 = e2 == null ? null : (int?)e2.Id }),
+            elementSorter: e => (e.Id1, e.Id2));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupJoin_on_true_equal_true(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => e.Id <= 2)
+                .GroupJoin(
+                    ss.Set<NullSemanticsEntity2>().Where(e => e.Id <= 3),
+                    e1 => true,
+                    e2 => true,
+                    (e1, group) => new { e1.Id, Ids = group.Select(e2 => e2.Id).ToList() }),
+            elementSorter: e => e.Id,
+            elementAsserter: (expected, actual) =>
+            {
+                Assert.Equal(expected.Id, actual.Id);
+                AssertCollection(expected.Ids, actual.Ids);
+            });
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Join_with_negated_nullable_boolean_key(bool async)
+        => AssertQuery(
+            async,
+            ss => from e1 in ss.Set<NullSemanticsEntity1>()
+                  join e2 in ss.Set<NullSemanticsEntity2>() on !e1.NullableBoolA equals e2.NullableBoolB
+                  select new { Id1 = e1.Id, Id2 = e2.Id },
+            elementSorter: e => (e.Id1, e.Id2));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Compare_nullable_booleans_from_different_tables(bool async)
+        => AssertQuery(
+            async,
+            ss => from e1 in ss.Set<NullSemanticsEntity1>()
+                  from e2 in ss.Set<NullSemanticsEntity2>()
+                  where e1.NullableBoolA != e2.NullableBoolB
+                  select new { Id1 = e1.Id, Id2 = e2.Id },
+            elementSorter: e => (e.Id1, e.Id2));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Compare_nullable_booleans_from_different_tables_with_relational_nulls(bool async)
+    {
+        using var context = CreateContext(useRelationalNulls: true);
+        var query =
+            from e1 in context.Entities1
+            from e2 in context.Entities2
+            where e1.NullableBoolA != e2.NullableBoolB
+            orderby e1.Id, e2.Id
+            select new { Id1 = e1.Id, Id2 = e2.Id };
+
+        var result = async ? await query.ToListAsync() : query.ToList();
+        var expected =
+            from e1 in NullSemanticsData.Instance.Entities1
+            from e2 in NullSemanticsData.Instance.Entities2
+            where e1.NullableBoolA != null && e2.NullableBoolB != null && e1.NullableBoolA != e2.NullableBoolB
+            orderby e1.Id, e2.Id
+            select new { Id1 = e1.Id, Id2 = e2.Id };
+
+        Assert.Equal(expected, result);
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Join_uses_database_semantics_with_filtered_inner(bool async)
         => AssertQuery(
             async,

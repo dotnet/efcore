@@ -9,6 +9,40 @@ public class CustomConvertersSqliteTest : CustomConvertersTestBase<CustomConvert
         : base(fixture)
         => Fixture.TestSqlLoggerFactory.Clear();
 
+    public override async Task Compare_converted_bool_columns_from_different_tables(bool async)
+    {
+        await base.Compare_converted_bool_columns_from_different_tables(async);
+
+        AssertSql(
+            """
+SELECT "b"."BlogId" AS "Left", "b0"."BlogId" AS "Right"
+FROM "Blog" AS "b"
+CROSS JOIN "Blog" AS "b0"
+WHERE "b"."IsVisible" <> "b0"."IsVisible"
+ORDER BY "b"."BlogId", "b0"."BlogId"
+""");
+    }
+
+    [Theory, InlineData(false), InlineData(true)]
+    public async Task Compare_converted_bool_with_noncanonical_provider_value(bool async)
+    {
+        using var context = CreateContext();
+        using var transaction = context.Database.BeginTransaction();
+        context.Database.ExecuteSqlRaw("UPDATE Blog SET IsVisible = 'X' WHERE BlogId = 2");
+        Fixture.TestSqlLoggerFactory.Clear();
+
+        var query = context.Set<Blog>().Where(b => b.IsVisible != true).Select(b => b.BlogId);
+        var result = async ? await query.ToListAsync() : query.ToList();
+
+        Assert.Equal([2], result);
+        AssertSql(
+            """
+SELECT "b"."BlogId"
+FROM "Blog" AS "b"
+WHERE "b"."IsVisible" <> 'Y'
+""");
+    }
+
     // Disabled: SQLite database is case-sensitive
     public override Task Can_insert_and_read_back_with_case_insensitive_string_key()
         => Task.CompletedTask;

@@ -324,7 +324,7 @@ ORDER BY "g0"."HasSoulPatch", "g0"."Nickname" DESC, "t"."Id", "g0"."SquadId", "g
 
 SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank"
 FROM "Gears" AS "g"
-WHERE "g"."HasSoulPatch" <> @prm
+WHERE "g"."HasSoulPatch" = (NOT (@prm))
 """,
             //
             """
@@ -332,7 +332,7 @@ WHERE "g"."HasSoulPatch" <> @prm
 
 SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank"
 FROM "Gears" AS "g"
-WHERE "g"."HasSoulPatch" <> @prm
+WHERE "g"."HasSoulPatch" = (NOT (@prm))
 """);
     }
 
@@ -4451,7 +4451,7 @@ ORDER BY "g0"."FullName", "g0"."Nickname", "g0"."SquadId"
 SELECT "f"."Id", "f"."CapitalName", "f"."Discriminator", "f"."Name", "f"."ServerAddress", "f"."CommanderName", "f"."DeputyCommanderName", "f"."Eradicated"
 FROM "LocustLeaders" AS "l"
 LEFT JOIN "Factions" AS "f" ON "l"."Name" = "f"."CommanderName" AND "f"."Name" = 'Swarm'
-WHERE "f"."Eradicated" <> 1 OR "f"."Eradicated" IS NULL
+WHERE "f"."Eradicated" = 0 OR "f"."Eradicated" IS NULL
 """);
     }
 
@@ -4515,7 +4515,7 @@ WHERE "g"."Nickname" <> "g0"."Nickname" OR "g"."SquadId" <> "g0"."SquadId"
 SELECT "f"."Id", "f"."CapitalName", "f"."Discriminator", "f"."Name", "f"."ServerAddress", "f"."CommanderName", "f"."DeputyCommanderName", "f"."Eradicated"
 FROM "LocustLeaders" AS "l"
 INNER JOIN "Factions" AS "f" ON "l"."Name" = "f"."CommanderName" AND "f"."Name" = 'Swarm'
-WHERE "f"."Eradicated" <> 1 OR "f"."Eradicated" IS NULL
+WHERE "f"."Eradicated" = 0 OR "f"."Eradicated" IS NULL
 """);
     }
 
@@ -6841,7 +6841,7 @@ INNER JOIN "Weapons" AS "w" ON "w"."SynergyWithId" IS NOT NULL
 
 SELECT "g"."Nickname", "g"."FullName", "w"."Id" IS NOT NULL AS "Collection"
 FROM "Gears" AS "g"
-LEFT JOIN "Weapons" AS "w" ON "g"."FullName" = "w"."OwnerFullName" AND "w"."IsAutomatic" <> @isAutomatic
+LEFT JOIN "Weapons" AS "w" ON "g"."FullName" = "w"."OwnerFullName" AND "w"."IsAutomatic" = (NOT (@isAutomatic))
 """);
     }
 

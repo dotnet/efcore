@@ -487,6 +487,24 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         Assert.Equal("http://rssblog.com", result2.Url);
     }
 
+    [Theory, InlineData(false), InlineData(true)]
+    public virtual async Task Compare_converted_bool_columns_from_different_tables(bool async)
+    {
+        using var context = CreateContext();
+        var query =
+            from left in context.Set<Blog>()
+            from right in context.Set<Blog>()
+            where left.IsVisible != right.IsVisible
+            orderby left.BlogId, right.BlogId
+            select new { Left = left.BlogId, Right = right.BlogId };
+
+        var result = async ? await query.ToListAsync() : query.ToList();
+        Assert.Collection(
+            result,
+            item => { Assert.Equal(1, item.Left); Assert.Equal(2, item.Right); },
+            item => { Assert.Equal(2, item.Left); Assert.Equal(1, item.Right); });
+    }
+
     [Fact]
     public virtual async Task Select_bool_with_value_conversion_is_used()
     {
