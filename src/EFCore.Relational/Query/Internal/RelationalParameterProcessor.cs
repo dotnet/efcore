@@ -284,7 +284,8 @@ public class RelationalParameterProcessor : ExpressionVisitor
 
     /// <summary>
     ///     Returns whether the given SQL contains a reference to a parameter with the given (unprefixed) name, ignoring case: the name
-    ///     preceded by one of <c>@</c>, <c>:</c>, <c>$</c> or <c>?</c> and not followed by a letter, digit or underscore.
+    ///     preceded by one of <c>@</c>, <c>:</c>, <c>$</c> or <c>?</c> (but not by the same character twice, as in <c>::</c> or
+    ///     <c>@@</c>) and not followed by a letter, digit or underscore.
     /// </summary>
     internal static bool ReferencesParameterByName(string sql, string name)
     {
@@ -302,8 +303,11 @@ public class RelationalParameterProcessor : ExpressionVisitor
             }
 
             var end = i + name.Length;
+            // A doubled prefix isn't a parameter reference: e.g. a PostgreSQL cast ({0}::date) or a SQL Server system function
+            // (@@ROWCOUNT).
             if (i > 0
                 && ParameterPrefixes.Contains(sql[i - 1])
+                && (i == 1 || sql[i - 2] != sql[i - 1])
                 && (end == sql.Length || !IsWordCharacter(sql[end])))
             {
                 return true;

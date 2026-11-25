@@ -14,7 +14,11 @@ public class RelationalParameterProcessorTest
      InlineData("SELECT @city, 1", "city", true),
      InlineData("SELECT @city1, @city", "city", true),
      InlineData("SELECT ?city", "city", true),
-     InlineData("SELECT @@city", "city", true),
+     InlineData("SELECT @@city", "city", false), // SQL Server system function, e.g. @@ROWCOUNT
+     InlineData("x > {0}::date", "date", false), // PostgreSQL cast
+     InlineData("x > @date::date", "date", true),
+     InlineData("SELECT :date", "date", true),
+     InlineData("SELECT ?:city", "city", true),
      InlineData("WHERE [City] = 'x'", "city", false),
      InlineData("SELECT city", "city", false),
      InlineData("SELECT #city", "city", false),
