@@ -110,9 +110,7 @@ public static class SqlServerEntityTypeExtensions
     /// <param name="entityType">The entity type.</param>
     /// <returns>Name of the period start property.</returns>
     public static string? GetPeriodStartPropertyName(this IReadOnlyEntityType entityType)
-        => (entityType is RuntimeEntityType)
-            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
-            : entityType[SqlServerAnnotationNames.TemporalPeriodStartPropertyName] as string;
+        => entityType[SqlServerAnnotationNames.TemporalPeriodStartPropertyName] as string;
 
     /// <summary>
     ///     Sets a value representing the name of the period start property of the entity mapped to a temporal table.
@@ -152,9 +150,7 @@ public static class SqlServerEntityTypeExtensions
     /// <param name="entityType">The entity type.</param>
     /// <returns>Name of the period start property.</returns>
     public static string? GetPeriodEndPropertyName(this IReadOnlyEntityType entityType)
-        => (entityType is RuntimeEntityType)
-            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
-            : entityType[SqlServerAnnotationNames.TemporalPeriodEndPropertyName] as string;
+        => entityType[SqlServerAnnotationNames.TemporalPeriodEndPropertyName] as string;
 
     /// <summary>
     ///     Sets a value representing the name of the period end property of the entity mapped to a temporal table.

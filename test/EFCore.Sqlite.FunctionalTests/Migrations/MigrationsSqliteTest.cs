@@ -1820,6 +1820,50 @@ CREATE INDEX "IX_Orders_CustomerId" ON "Orders" ("CustomerId");
 """);
     }
 
+    public override async Task Add_deferrable_foreign_key()
+    {
+        await base.Add_deferrable_foreign_key();
+
+        AssertSql(
+            """
+CREATE INDEX "IX_Orders_CustomerId" ON "Orders" ("CustomerId");
+""",
+            //
+            """
+CREATE TABLE "ef_temp_Orders" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_Orders" PRIMARY KEY AUTOINCREMENT,
+    "CustomerId" INTEGER NOT NULL,
+    CONSTRAINT "FK_Orders_Customers_CustomerId" FOREIGN KEY ("CustomerId") REFERENCES "Customers" ("Id") ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED
+);
+""",
+            //
+            """
+INSERT INTO "ef_temp_Orders" ("Id", "CustomerId")
+SELECT "Id", "CustomerId"
+FROM "Orders";
+""",
+            //
+            """
+PRAGMA foreign_keys = 0;
+""",
+            //
+            """
+DROP TABLE "Orders";
+""",
+            //
+            """
+ALTER TABLE "ef_temp_Orders" RENAME TO "Orders";
+""",
+            //
+            """
+PRAGMA foreign_keys = 1;
+""",
+            //
+            """
+CREATE INDEX "IX_Orders_CustomerId" ON "Orders" ("CustomerId");
+""");
+    }
+
     public override async Task Add_unique_constraint()
     {
         await base.Add_unique_constraint();
@@ -2088,6 +2132,35 @@ CREATE TABLE "Contacts" (
 """);
     }
 
+    public override async Task Create_tables_with_complex_properties_on_owned_types()
+    {
+        await base.Create_tables_with_complex_properties_on_owned_types();
+
+        AssertSql(
+            """
+CREATE TABLE "Owner" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_Owner" PRIMARY KEY AUTOINCREMENT,
+    "Owned_Name" TEXT NULL,
+    "Owned_Complex_Value" TEXT NULL,
+    "Owned_Complex_Date" TEXT NULL,
+    "Owned_Complex_Nested_Foo" INTEGER NULL,
+    "Owned_Complex_Nested_Bar" TEXT NULL,
+    "NestedCollection" TEXT NULL
+);
+""",
+            //
+            """
+CREATE TABLE "OwnedItems" (
+    "OwnerId" INTEGER NOT NULL,
+    "Id" INTEGER NOT NULL,
+    "Complex_Foo" INTEGER NULL,
+    "Complex_Bar" TEXT NULL,
+    CONSTRAINT "PK_OwnedItems" PRIMARY KEY ("OwnerId", "Id"),
+    CONSTRAINT "FK_OwnedItems_Owner_OwnerId" FOREIGN KEY ("OwnerId") REFERENCES "Owner" ("Id") ON DELETE CASCADE
+);
+""");
+    }
+
     public override async Task Create_table_with_optional_complex_type_with_required_properties()
     {
         await base.Create_table_with_optional_complex_type_with_required_properties();
@@ -2307,10 +2380,6 @@ CREATE TABLE "Customers" (
 
     // Our current version Sqlite doesn't seem to support scaffolding collations
     protected override bool AssertCollations
-        => false;
-
-    // Reverse engineering of index filters isn't supported in SQLite
-    protected override bool AssertIndexFilters
         => false;
 
     // Reverse engineering of constraint names isn't supported in SQLite

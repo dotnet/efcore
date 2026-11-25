@@ -50,7 +50,8 @@ public class RelationalQueryTranslationPostprocessor : QueryTranslationPostproce
         var afterProjectionApplication = new SelectExpressionProjectionApplyingExpressionVisitor(
                 ((RelationalQueryCompilationContext)QueryCompilationContext).QuerySplittingBehavior)
             .Visit(afterTypeMappings);
-        var afterPruning = Prune(afterProjectionApplication);
+        var afterGroupingAggregateFolding = new GroupingAggregateFoldingExpressionVisitor().Visit(afterProjectionApplication);
+        var afterPruning = Prune(afterGroupingAggregateFolding);
 
         // TODO: This - and all the verifications below - should happen after all visitors have run, including provider-specific ones.
         var afterAliases = _sqlAliasManager.PostprocessAliases(afterPruning);

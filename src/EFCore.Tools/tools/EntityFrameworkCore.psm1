@@ -1433,6 +1433,15 @@ function EF($project, $startupProject, $params, $applicationArgs, [switch] $skip
 
         $dotnetParams = 'exec', '--depsfile', $depsFile
 
+        # `migrations bundle` launches a child ef.dll to discover the DbContext, and needs the same host
+        # context to start it. Only that command understands these options; the others reject unknown ones.
+        $isBundle = $params.Count -ge 2 -and $params[0] -eq 'migrations' -and $params[1] -eq 'bundle'
+        $bundleHostParams = @()
+        if ($isBundle -and [IO.File]::Exists($depsFile))
+        {
+            $bundleHostParams += '--deps-file', $depsFile
+        }
+
         if ($projectAssetsFile)
         {
             # NB: Don't use Get-Content. It doesn't handle UTF-8 without a signature
@@ -1440,21 +1449,33 @@ function EF($project, $startupProject, $params, $applicationArgs, [switch] $skip
             $projectAssets = [IO.File]::ReadAllText($projectAssetsFile) | ConvertFrom-Json
             $projectAssets.packageFolders.psobject.Properties.Name | %{
                 $dotnetParams += '--additionalprobingpath', $_.TrimEnd('\')
+                if ($isBundle)
+                {
+                    $bundleHostParams += '--additional-probing-path', $_.TrimEnd('\')
+                }
             }
         }
 
         if ([IO.File]::Exists($runtimeConfig))
         {
             $dotnetParams += '--runtimeconfig', $runtimeConfig
+            if ($isBundle)
+            {
+                $bundleHostParams += '--runtime-config', $runtimeConfig
+            }
         }
         elseif ($runtimeFrameworkVersion)
         {
             $dotnetParams += '--fx-version', $runtimeFrameworkVersion
+            if ($isBundle)
+            {
+                $bundleHostParams += '--runtime-framework-version', $runtimeFrameworkVersion
+            }
         }
 
         $dotnetParams += $efPath
 
-        $params = $dotnetParams + $params
+        $params = $dotnetParams + $params + $bundleHostParams
     }
     elseif ($targetFramework -eq '.NETStandard')
     {

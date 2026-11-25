@@ -65,6 +65,19 @@ public class SqliteConnectionStringBuilderTest
         Assert.Equal(1, builder.DefaultTimeout);
     }
 
+    [Theory, InlineData("Default Timeout"), InlineData("Command Timeout")]
+    public void Ctor_throws_when_DefaultTimeout_is_negative(string keyword)
+        => Assert.Throws<ArgumentOutOfRangeException>(() => new SqliteConnectionStringBuilder($"{keyword}=-1"));
+
+    [Fact]
+    public void DefaultTimeout_throws_when_negative()
+    {
+        var builder = new SqliteConnectionStringBuilder();
+
+        Assert.Throws<ArgumentOutOfRangeException>(() => builder.DefaultTimeout = -1);
+        Assert.Equal(30, builder.DefaultTimeout);
+    }
+
     [Fact]
     public void Ctor_parses_Vfs()
     {
@@ -236,13 +249,18 @@ public class SqliteConnectionStringBuilderTest
         Assert.Equal(SqliteCacheMode.Shared, builder["Cache"]);
     }
 
-    [Theory, InlineData(42), InlineData("Unknown"), InlineData((SqliteCacheMode)42), InlineData(SqliteOpenMode.ReadOnly)]
+    [Theory, InlineData(42), InlineData("Unknown"), InlineData((SqliteCacheMode)42), InlineData(SqliteOpenMode.ReadOnly),
+     InlineData("42"), InlineData("Private, Shared")]
     public void Item_throws_when_cannot_convert_to_enum_on_set(object value)
     {
         var builder = new SqliteConnectionStringBuilder();
 
         Assert.ThrowsAny<ArgumentException>(() => builder["Cache"] = value);
     }
+
+    [Theory, InlineData("Mode=42"), InlineData("Cache=42"), InlineData("Synchronous=7")]
+    public void Ctor_throws_when_connection_string_has_undefined_enum_value(string connectionString)
+        => Assert.Throws<ArgumentOutOfRangeException>(() => new SqliteConnectionStringBuilder(connectionString));
 
     [Theory, InlineData(1, true), InlineData("True", true), InlineData(0, false), InlineData("False", false), InlineData(null, null),
      InlineData("", null)]

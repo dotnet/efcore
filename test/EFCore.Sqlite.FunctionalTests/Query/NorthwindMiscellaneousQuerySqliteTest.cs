@@ -60,7 +60,7 @@ LIMIT -1 OFFSET @p1
 
         AssertSql(
             """
-SELECT CAST(substr(strftime('%f', "o"."OrderDate", CAST(1 AS TEXT) || ' years'), 4) AS INTEGER)
+SELECT CAST(substr(strftime('%f', "o"."OrderDate", CAST(1 AS TEXT) || ' years', 'floor'), 4) AS INTEGER)
 FROM "Orders" AS "o"
 """);
     }
@@ -91,7 +91,7 @@ WHERE "o"."OrderDate" IS NOT NULL
 
         AssertSql(
             """
-SELECT rtrim(rtrim(strftime('%H:%M:%f', "o"."OrderDate", CAST(1 AS TEXT) || ' years'), '0'), '.')
+SELECT rtrim(rtrim(strftime('%H:%M:%f', "o"."OrderDate", CAST(1 AS TEXT) || ' years', 'floor'), '0'), '.')
 FROM "Orders" AS "o"
 """);
     }
@@ -102,7 +102,7 @@ FROM "Orders" AS "o"
 
         AssertSql(
             """
-SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', "o"."OrderDate", CAST(1 AS TEXT) || ' years'), '0'), '.') AS "OrderDate"
+SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', "o"."OrderDate", CAST(1 AS TEXT) || ' years', 'floor'), '0'), '.') AS "OrderDate"
 FROM "Orders" AS "o"
 WHERE "o"."OrderDate" IS NOT NULL
 """);
@@ -110,33 +110,11 @@ WHERE "o"."OrderDate" IS NOT NULL
 
     public override async Task Select_expression_datetime_add_month(bool async)
     {
-        await AssertQuery(
-            async,
-            ss => ss.Set<Order>()
-                .Where(o => o.OrderDate != null)
-                .Select(o => new Order { OrderDate = o.OrderDate!.Value.AddMonths(1) }),
-            e => e.OrderDate,
-            elementAsserter: (e, a) =>
-            {
-                Assert.Equal(e.OrderDate.HasValue, a.OrderDate.HasValue);
-                if (e.OrderDate.HasValue && a.OrderDate.HasValue)
-                {
-                    // difference between how Sqlite and everyone else add months
-                    // e.g. when adding 1 month to Jan 31st, we get March 2/3 on Sqlite and Feb 28th/29ths for everyone else
-                    // see notes on issue #25851 for more details
-                    var diff = (e.OrderDate - a.OrderDate)!.Value;
-                    Assert.True(diff.Days is >= -3 and <= 0);
-                    Assert.Equal(0, diff.Hours);
-                    Assert.Equal(0, diff.Minutes);
-                    Assert.Equal(0, diff.Seconds);
-                    Assert.Equal(0, diff.Milliseconds);
-                    Assert.Equal(0, diff.Microseconds);
-                }
-            });
+        await base.Select_expression_datetime_add_month(async);
 
         AssertSql(
             """
-SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', "o"."OrderDate", CAST(1 AS TEXT) || ' months'), '0'), '.') AS "OrderDate"
+SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', "o"."OrderDate", CAST(1 AS TEXT) || ' months', 'floor'), '0'), '.') AS "OrderDate"
 FROM "Orders" AS "o"
 WHERE "o"."OrderDate" IS NOT NULL
 """);

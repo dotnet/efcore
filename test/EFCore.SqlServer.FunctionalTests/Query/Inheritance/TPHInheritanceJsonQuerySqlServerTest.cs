@@ -131,6 +131,64 @@ WHERE (
 """);
     }
 
+    public override async Task Owned_reference_with_complex_type_on_base_and_derived_types(bool async)
+    {
+        await base.Owned_reference_with_complex_type_on_base_and_derived_types(async);
+
+        AssertSql(
+            """
+SELECT [m].[Id], [m].[Discriminator], [m].[Name], [m].[Headquarters_Name], [m].[Headquarters_Address], [m].[Brewhouse_Name], [m].[Brewhouse_Address]
+FROM [Manufacturer] AS [m]
+""");
+    }
+
+    public override async Task Filter_on_complex_type_property_of_owned_reference_on_base_type(bool async)
+    {
+        await base.Filter_on_complex_type_property_of_owned_reference_on_base_type(async);
+
+        AssertSql(
+            """
+SELECT [m].[Id], [m].[Discriminator], [m].[Name], [m].[Headquarters_Name], [m].[Headquarters_Address], [m].[Brewhouse_Name], [m].[Brewhouse_Address]
+FROM [Manufacturer] AS [m]
+WHERE JSON_VALUE([m].[Headquarters_Address], '$.Country.Code') = N'DE'
+""");
+    }
+
+    public override async Task Filter_on_complex_type_property_of_owned_reference_on_derived_type(bool async)
+    {
+        await base.Filter_on_complex_type_property_of_owned_reference_on_derived_type(async);
+
+        AssertSql(
+            """
+SELECT [m].[Id], [m].[Discriminator], [m].[Name], [m].[Headquarters_Name], [m].[Headquarters_Address], [m].[Brewhouse_Name], [m].[Brewhouse_Address]
+FROM [Manufacturer] AS [m]
+WHERE [m].[Discriminator] = N'Brewery' AND JSON_VALUE([m].[Brewhouse_Address], '$.Country.Code') = N'DE'
+""");
+    }
+
+    public override async Task Project_complex_type_of_owned_reference_on_base_type(bool async)
+    {
+        await base.Project_complex_type_of_owned_reference_on_base_type(async);
+
+        AssertSql(
+            """
+SELECT [m].[Headquarters_Address]
+FROM [Manufacturer] AS [m]
+""");
+    }
+
+    public override async Task Project_complex_type_of_owned_reference_on_derived_type(bool async)
+    {
+        await base.Project_complex_type_of_owned_reference_on_derived_type(async);
+
+        AssertSql(
+            """
+SELECT [m].[Brewhouse_Address]
+FROM [Manufacturer] AS [m]
+WHERE [m].[Discriminator] = N'Brewery'
+""");
+    }
+
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 }

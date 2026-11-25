@@ -32,6 +32,14 @@ public class CustomConvertersInMemoryTest(CustomConvertersInMemoryTest.CustomCon
     public override void Collection_enum_as_string_Contains()
         => Assert.ThrowsAny<XunitException>(base.Collection_enum_as_string_Contains);
 
+    // Querying complex properties on owned types isn't supported by the in-memory provider
+    public override Task Value_converter_in_complex_type_on_owned_reference()
+        => Assert.ThrowsAsync<KeyNotFoundException>(base.Value_converter_in_complex_type_on_owned_reference);
+
+    // Querying complex properties on owned types isn't supported by the in-memory provider
+    public override Task Value_comparer_in_complex_type_on_owned_reference()
+        => Assert.ThrowsAsync<KeyNotFoundException>(base.Value_comparer_in_complex_type_on_owned_reference);
+
     public override void GroupBy_converted_enum()
         => Assert.Contains(
             CoreStrings.TranslationFailedWithDetails("", InMemoryStrings.NonComposedGroupByNotSupported)[21..],

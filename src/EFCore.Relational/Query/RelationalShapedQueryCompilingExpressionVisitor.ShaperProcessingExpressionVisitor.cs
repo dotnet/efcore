@@ -2664,7 +2664,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             {
                 var jsonColumnName = structuralType.GetContainerColumnName()!;
                 jsonColumn = structuralType.ContainingEntityType.GetQueryMappings()
-                        .Select(m => m.Table.FindColumn(jsonColumnName))
+                        .Select(m => structuralType is IComplexType complexType
+                            ? m.Table.FindColumn(complexType.ComplexProperty)
+                            : m.Table.FindColumn(jsonColumnName))
                         .FirstOrDefault(c => c is not null)
                     ?? throw new UnreachableException(
                         $"Could not find JSON container column '{jsonColumnName}' for entity type '{structuralType.DisplayName()}'.");
@@ -3778,6 +3780,11 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                     switch (entityProjection)
                     {
+                        // complex types are not tracked by the change tracker, so ordering is irrelevant
+                        case QueryableJsonProjectionInfo or JsonProjectionInfo
+                            when entityShaperExpression.StructuralType is not IEntityType:
+                            return base.VisitExtension(extensionExpression);
+
                         case QueryableJsonProjectionInfo:
                         case JsonProjectionInfo when _insideCollection && !_insideInclude:
                             throw new InvalidOperationException(
@@ -3817,6 +3824,11 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                     switch (collectionProjection)
                     {
+                        // complex collections are not tracked by the change tracker, so ordering is irrelevant
+                        case QueryableJsonProjectionInfo or JsonProjectionInfo
+                            when collectionResultExpression.StructuralProperty is not INavigation:
+                            return base.VisitExtension(extensionExpression);
+
                         case QueryableJsonProjectionInfo:
                         case JsonProjectionInfo when _insideCollection && !_insideInclude:
                             throw new InvalidOperationException(

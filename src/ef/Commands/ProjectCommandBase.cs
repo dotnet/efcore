@@ -54,6 +54,40 @@ internal abstract class ProjectCommandBase : EFCommandBase
         base.Configure(command);
     }
 
+    protected IReadOnlyList<string> GetCommonProjectArgs()
+    {
+        var args = new List<string>();
+
+        void AddValue(CommandOption? option, string name)
+        {
+            if (option!.HasValue())
+            {
+                args.Add(name);
+                args.Add(option.Value()!);
+            }
+        }
+
+        AddValue(Assembly, "--assembly");
+        AddValue(StartupAssembly, "--startup-assembly");
+        AddValue(Project, "--project");
+        AddValue(StartupProject, "--startup-project");
+        AddValue(_dataDir, "--data-dir");
+        AddValue(_projectDir, "--project-dir");
+        AddValue(_rootNamespace, "--root-namespace");
+        AddValue(_language, "--language");
+        if (_nullable!.HasValue())
+        {
+            args.Add("--nullable");
+        }
+
+        AddValue(WorkingDir, "--working-dir");
+        AddValue(Framework, "--framework");
+        AddValue(Configuration, "--configuration");
+        AddValue(_designAssembly, "--design-assembly");
+
+        return args;
+    }
+
     protected override void Validate()
     {
         base.Validate();

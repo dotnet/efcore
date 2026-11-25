@@ -804,4 +804,17 @@ FROM [EntityOne] AS [e]
 INNER JOIN [SplitEntityOnePart] AS [s] ON [e].[Id] = [s].[Id]
 """);
     }
+
+    public override async Task Owned_reference_entity_splitting()
+    {
+        await base.Owned_reference_entity_splitting();
+
+        AssertSql(
+            """
+SELECT [o].[Id], [s].[Description], [o].[Owned_Name], [o].[Owned_Address_City], [o].[Owned_Address_Street], [o].[Owned_Address_Country_Code], [o].[Owned_Address_Country_Name]
+FROM [OwnerOfSplit] AS [o]
+LEFT JOIN [SplitOwnedDescription] AS [s] ON [o].[Id] = [s].[OwnerOfSplitId]
+ORDER BY [o].[Id]
+""");
+    }
 }

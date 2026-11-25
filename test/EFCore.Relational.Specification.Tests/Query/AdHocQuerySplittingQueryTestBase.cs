@@ -706,4 +706,123 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
     }
 
     #endregion
+
+    #region 39206
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Split_query_paging_with_non_unique_ordering_and_reference_navigation_in_projection(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context39206>(
+            seed: c => c.SeedAsync(),
+            onConfiguring: o => SetQuerySplittingBehavior(o, QuerySplittingBehavior.SplitQuery));
+
+        using var context = contextFactory.CreateDbContext();
+
+        // All parents have the same Name, so the page is only deterministic if the key is part of the
+        // ordering in the subquery that applies Skip/Take (the reference navigation forces that subquery).
+        var query = context.Parents
+            .Select(p => new
+            {
+                p.Id,
+                p.Name,
+                LocationName = p.Location.Name,
+                ChildIds = p.Children.Select(c => c.Id).ToList()
+            })
+            .OrderBy(x => x.Name)
+            .Skip(1)
+            .Take(2);
+
+        var results = async
+            ? await query.ToListAsync()
+            : query.ToList();
+
+        Assert.Equal(2, results.Count);
+        foreach (var result in results)
+        {
+            Assert.Equal(Context39206.ExpectedChildIds(result.Id), result.ChildIds.Order());
+        }
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Split_query_paging_with_non_unique_ordering_and_reference_include(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context39206>(
+            seed: c => c.SeedAsync(),
+            onConfiguring: o => SetQuerySplittingBehavior(o, QuerySplittingBehavior.SplitQuery));
+
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Parents
+            .Include(p => p.Location)
+            .Include(p => p.Children)
+            .OrderBy(p => p.Name)
+            .Skip(1)
+            .Take(2);
+
+        var results = async
+            ? await query.ToListAsync()
+            : query.ToList();
+
+        Assert.Equal(2, results.Count);
+        foreach (var result in results)
+        {
+            Assert.NotNull(result.Location);
+            Assert.Equal(Context39206.ExpectedChildIds(result.Id), result.Children.Select(c => c.Id).Order());
+        }
+    }
+
+    protected class Context39206(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Parent39206> Parents
+            => Set<Parent39206>();
+
+        public static IEnumerable<int> ExpectedChildIds(int parentId)
+            => [parentId * 10 + 1, parentId * 10 + 2];
+
+        public Task SeedAsync()
+        {
+            for (var i = 1; i <= 4; i++)
+            {
+                Parents.Add(
+                    new Parent39206
+                    {
+                        Id = i,
+                        Name = "Same",
+                        Location = new Location39206 { Id = i, Name = "Location " + i },
+                        Children = ExpectedChildIds(i).Select(id => new Child39206 { Id = id }).ToList()
+                    });
+            }
+
+            return SaveChangesAsync();
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Parent39206>().Property(p => p.Id).ValueGeneratedNever();
+            modelBuilder.Entity<Location39206>().Property(l => l.Id).ValueGeneratedNever();
+            modelBuilder.Entity<Child39206>().Property(c => c.Id).ValueGeneratedNever();
+        }
+
+        public class Parent39206
+        {
+            public int Id { get; set; }
+            public string Name { get; set; } = null!;
+            public int LocationId { get; set; }
+            public Location39206 Location { get; set; } = null!;
+            public List<Child39206> Children { get; set; } = [];
+        }
+
+        public class Location39206
+        {
+            public int Id { get; set; }
+            public string Name { get; set; } = null!;
+        }
+
+        public class Child39206
+        {
+            public int Id { get; set; }
+        }
+    }
+
+    #endregion
 }

@@ -219,6 +219,68 @@ string name4 = "baq";
 var blogs = await context.Blogs.Where(b => b.Name == name1 || b.Name == name2 || b.Name == name3 || b.Name == name4).ToListAsync();
 """);
 
+    [Fact]
+    public virtual Task Contains_with_captured_array()
+        => Test(
+            """
+string[][] values = [["Blog1"], ["Blog2", "missing"], [null!], []];
+int[][] expected = [[8], [9], [], []];
+string[] names = [];
+for (var i = 0; i < values.Length; i++)
+{
+    names = values[i];
+    var actual = await context.Blogs.Where(b => names.Contains(b.Name!)).Select(b => b.Id).ToListAsync();
+    Assert.Equal(expected[i], actual);
+}
+""",
+            interceptorCodeAsserter: code => Assert.Contains(nameof(RelationalCommandCache), code));
+
+    [Fact]
+    public virtual Task Contains_with_captured_array_static_invocation()
+        => Test(
+            """
+int[][] values = [[8], [9]];
+int[] ids = [];
+for (var i = 0; i < values.Length; i++)
+{
+    ids = values[i];
+    var actual = await context.Blogs.Where(b => MemoryExtensions.Contains<int>(ids, b.Id)).Select(b => b.Id).ToListAsync();
+    Assert.Equal(values[i], actual);
+}
+""",
+            interceptorCodeAsserter: code => Assert.Contains(nameof(RelationalCommandCache), code));
+
+    [Fact]
+    public virtual Task Any_with_captured_array()
+        => Test(
+            """
+string[][] values = [["Blog1"], ["missing"], []];
+bool[] expected = [true, false, false];
+string[] names = [];
+for (var i = 0; i < values.Length; i++)
+{
+    names = values[i];
+    Assert.Equal(expected[i], await context.Blogs.AnyAsync(b => names.Contains(b.Name!)));
+}
+""",
+            interceptorCodeAsserter: code => Assert.Contains(nameof(RelationalCommandCache), code));
+
+    [Fact]
+    public virtual Task Contains_with_captured_collection()
+        => Test(
+            """
+IReadOnlyCollection<int>[] values = [new List<int> { 8 }, new List<int> { 9, 10 }, new List<int>()];
+int[][] expected = [[8], [9], []];
+IReadOnlyCollection<int> ids = [];
+for (var i = 0; i < values.Length; i++)
+{
+    ids = values[i];
+    var actual = await context.Blogs.Where(b => ids.Contains(b.Id)).Select(b => b.Id).ToListAsync();
+    Assert.Equal(expected[i], actual);
+}
+""",
+            interceptorCodeAsserter: code => Assert.Contains(nameof(RelationalCommandCache), code));
+
     #region Tests for the different querying enumerables
 
     [Fact]

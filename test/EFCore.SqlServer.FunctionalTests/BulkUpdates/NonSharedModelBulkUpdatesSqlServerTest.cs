@@ -177,6 +177,60 @@ FROM [Context30572_Principal] AS [c]
 """);
     }
 
+    public override async Task Delete_entity_with_many_to_many_auto_include(bool async)
+    {
+        await base.Delete_entity_with_many_to_many_auto_include(async);
+
+        AssertSql(
+            """
+SET NOCOUNT OFF;
+DELETE FROM [c]
+FROM [Context35523_Left] AS [c]
+""");
+    }
+
+    public override async Task Delete_entity_with_many_to_many_explicit_include(bool async)
+    {
+        await base.Delete_entity_with_many_to_many_explicit_include(async);
+
+        AssertSql(
+            """
+SET NOCOUNT OFF;
+DELETE FROM [c]
+FROM [Context35523_Right] AS [c]
+""");
+    }
+
+    public override async Task Update_entity_with_many_to_many_auto_include(bool async)
+    {
+        await base.Update_entity_with_many_to_many_auto_include(async);
+
+        AssertSql(
+            """
+@p='SomeValue' (Size = 4000)
+
+SET NOCOUNT OFF;
+UPDATE [c]
+SET [c].[Title] = @p
+FROM [Context35523_Left] AS [c]
+""");
+    }
+
+    public override async Task Update_entity_with_many_to_many_explicit_include(bool async)
+    {
+        await base.Update_entity_with_many_to_many_explicit_include(async);
+
+        AssertSql(
+            """
+@p='SomeValue' (Size = 4000)
+
+SET NOCOUNT OFF;
+UPDATE [c]
+SET [c].[Title] = @p
+FROM [Context35523_Right] AS [c]
+""");
+    }
+
     public override async Task Delete_predicate_based_on_optional_navigation(bool async)
     {
         await base.Delete_predicate_based_on_optional_navigation(async);
@@ -265,6 +319,35 @@ UPDATE [b]
 SET [b].[ComplexThing_Prop1] = @p
 FROM [Blogs] AS [b]
 """);
+    }
+
+    public override async Task ExecuteUpdate_complex_property_of_owned_reference()
+    {
+        await base.ExecuteUpdate_complex_property_of_owned_reference();
+
+        AssertSql(
+            """
+@p='Melbourne' (Size = 4000)
+
+SET NOCOUNT OFF;
+UPDATE [o]
+SET [o].[Owned_Address_City] = @p
+FROM [Owners] AS [o]
+WHERE [o].[Id] = 1
+""",
+            //
+            """
+SELECT TOP(2) [o].[Id], [o].[Name], [o].[Owned_Name], [o].[Owned_Address_City], [o].[Owned_Address_Street], [o].[Owned_Address_Country_Code], [o].[Owned_Address_Country_Name]
+FROM [Owners] AS [o]
+WHERE [o].[Id] = 1
+""");
+    }
+
+    public override async Task ExecuteUpdate_complex_property_of_json_owned_reference()
+    {
+        await base.ExecuteUpdate_complex_property_of_json_owned_reference();
+
+        AssertSql();
     }
 
     private void AssertSql(params string[] expected)

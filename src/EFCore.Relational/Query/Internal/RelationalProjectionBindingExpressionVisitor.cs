@@ -266,7 +266,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                         }
 
                         _clientProjections!.Add(
-                            _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(
+                            TranslateSubquery(
                                 materializeCollectionNavigationExpression.Subquery)!);
 
                         return new CollectionResultExpression(
@@ -276,10 +276,9 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                             materializeCollectionNavigationExpression.Navigation.ClrType.GetSequenceType());
                 }
 
-                switch (_sqlTranslator.TranslateProjection(expression))
+                switch (_sqlTranslator.TranslateProjection(expression, _selectExpression))
                 {
                     case SqlExpression sqlExpression:
-                        sqlExpression = AddExplicitConvertIfNeeded(sqlExpression);
                         return AddClientProjection(sqlExpression, expression.Type.MakeNullable());
 
                     // This handles the case of a complex type being projected out of a Select.
@@ -302,7 +301,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                         && method.DeclaringType == typeof(Enumerable)
                         && argument.Type.TryGetElementType(typeof(IQueryable<>)) != null)
                     {
-                        if (_queryableMethodTranslatingExpressionVisitor.TranslateSubquery(argument) is { } subquery)
+                        if (TranslateSubquery(argument) is { } subquery)
                         {
                             _clientProjections!.Add(subquery);
                             // expression.Type here will be List<T>
@@ -314,7 +313,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                     }
                     else
                     {
-                        var subquery = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression);
+                        var subquery = TranslateSubquery(methodCallExpression);
                         if (subquery != null)
                         {
                             _clientProjections!.Add(subquery);
@@ -340,10 +339,9 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
 
             default:
             {
-                switch (_sqlTranslator.TranslateProjection(expression))
+                switch (_sqlTranslator.TranslateProjection(expression, _selectExpression))
                 {
                     case SqlExpression sqlExpression:
-                        sqlExpression = AddExplicitConvertIfNeeded(sqlExpression);
                         _projectionMapping[_projectionMembers.Peek()] = sqlExpression;
                         return new ProjectionBindingExpression(
                             _selectExpression, _projectionMembers.Peek(), expression.Type.MakeNullable());
@@ -927,6 +925,21 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
         return expression;
     }
 
+    // A collection subquery is projected out of this query, so an aggregate in it over this query's grouping can be evaluated here
+    // (#27130).
+    private ShapedQueryExpression? TranslateSubquery(Expression expression)
+    {
+        _sqlTranslator.PushTranslationScope(_selectExpression);
+        try
+        {
+            return _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(expression);
+        }
+        finally
+        {
+            _sqlTranslator.PopTranslationScope();
+        }
+    }
+
     private ProjectionBindingExpression AddClientProjection(Expression expression, Type type)
     {
         var existingIndex = _clientProjections!.FindIndex(e => e.Equals(expression));
@@ -938,18 +951,6 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
 
         return new ProjectionBindingExpression(_selectExpression, existingIndex, type);
     }
-
-    // if the SQL constant literal type is different from the CLR type
-    private static SqlExpression AddExplicitConvertIfNeeded(SqlExpression sqlExpression)
-        => sqlExpression is SqlConstantExpression { Value: not null }
-            && (sqlExpression.Type == typeof(Guid)
-                || sqlExpression.Type == typeof(DateTime)
-                || sqlExpression.Type == typeof(DateOnly)
-                || sqlExpression.Type == typeof(TimeOnly)
-                || sqlExpression.Type == typeof(TimeSpan)
-                || sqlExpression.Type == typeof(DateTimeOffset))
-                    ? new SqlUnaryExpression(ExpressionType.Convert, sqlExpression, sqlExpression.Type, sqlExpression.TypeMapping)
-                    : sqlExpression;
 
     private Expression LowerSingleResultSubquery(
         ProjectionBindingExpression projectionBindingExpression,

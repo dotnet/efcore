@@ -146,6 +146,8 @@ internal class RootCommand : CommandBase
                 Resources.PlatformSpecificProject(startupProject.ProjectName, startupProject.TargetFramework));
         }
 
+        var additionalProbingPaths = new List<string>();
+
         var targetFramework = new FrameworkName(startupProject.TargetFrameworkMoniker!);
         if (targetFramework.Identifier == ".NETFramework")
         {
@@ -171,13 +173,16 @@ internal class RootCommand : CommandBase
                 using var file = File.OpenRead(projectAssetsFile);
                 using var reader = JsonDocument.Parse(file);
                 var projectAssets = reader.RootElement;
-                var packageFolders = projectAssets.GetProperty("packageFolders").EnumerateObject().Select(p => p.Name);
+                var packageFolders = projectAssets.GetProperty("packageFolders")
+                    .EnumerateObject().Select(p => Path.TrimEndingDirectorySeparator(p.Name)).ToList();
 
                 foreach (var packageFolder in packageFolders)
                 {
                     args.Add("--additionalprobingpath");
-                    args.Add(packageFolder.TrimEnd(Path.DirectorySeparatorChar));
+                    args.Add(packageFolder);
                 }
+
+                additionalProbingPaths = packageFolders;
             }
 
             if (File.Exists(runtimeConfig))
@@ -185,7 +190,7 @@ internal class RootCommand : CommandBase
                 args.Add("--runtimeconfig");
                 args.Add(runtimeConfig);
             }
-            else if (startupProject.RuntimeFrameworkVersion!.Length != 0)
+            else if (!string.IsNullOrEmpty(startupProject.RuntimeFrameworkVersion))
             {
                 args.Add("--fx-version");
                 args.Add(startupProject.RuntimeFrameworkVersion);
@@ -258,6 +263,13 @@ internal class RootCommand : CommandBase
             args.Add("--prefix-output");
         }
 
+        // Only `migrations bundle` understands these (it launches a child ef.dll for DbContext discovery);
+        // every other ef.dll command rejects unrecognized options.
+        if (IsMigrationsBundle(commands))
+        {
+            args.AddRange(GetBundleHostArgs(depsFile, runtimeConfig, startupProject.RuntimeFrameworkVersion, additionalProbingPaths));
+        }
+
         if (_applicationArgs!.Any())
         {
             args.Add("--");
@@ -265,6 +277,49 @@ internal class RootCommand : CommandBase
         }
 
         return Exe.Run(executable, args, startupProject.ProjectDir);
+    }
+
+    internal static bool IsMigrationsBundle(IReadOnlyList<string> commands)
+        => commands.Count >= 2
+            && string.Equals(commands[0], "migrations", StringComparison.OrdinalIgnoreCase)
+            && string.Equals(commands[1], "bundle", StringComparison.OrdinalIgnoreCase);
+
+    // The startup project's host context, forwarded so `migrations bundle` can launch its out-of-process
+    // discovery child the same way this tool launched ef.dll. See https://github.com/dotnet/efcore/issues/25555.
+    internal static IReadOnlyList<string> GetBundleHostArgs(
+        string depsFile,
+        string runtimeConfig,
+        string? runtimeFrameworkVersion,
+        IReadOnlyList<string> additionalProbingPaths)
+    {
+        var args = new List<string>();
+
+        if (File.Exists(depsFile))
+        {
+            args.Add("--deps-file");
+            args.Add(depsFile);
+        }
+
+        if (File.Exists(runtimeConfig))
+        {
+            args.Add("--runtime-config");
+            args.Add(runtimeConfig);
+        }
+        else if (!string.IsNullOrEmpty(runtimeFrameworkVersion))
+        {
+            // Mirrors the host --fx-version so the child can pin the same shared framework when there is
+            // no runtimeconfig.json.
+            args.Add("--runtime-framework-version");
+            args.Add(runtimeFrameworkVersion);
+        }
+
+        foreach (var additionalProbingPath in additionalProbingPaths)
+        {
+            args.Add("--additional-probing-path");
+            args.Add(additionalProbingPath);
+        }
+
+        return args;
     }
 
     private static (string, string) ResolveProjects(

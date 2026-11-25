@@ -463,6 +463,12 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
             selector: p => p.UnitPrice ?? 0);
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Min_over_constant_DateTime(bool async)
+        => AssertMin(
+            async,
+            ss => ss.Set<Order>().Select(o => DateTime.MinValue));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Min_over_subquery(bool async)
         => AssertMin(
             async,
@@ -494,7 +500,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
     public virtual Task MinBy_over_subquery(bool async)
         => AssertMinBy(
             async,
-            ss => ss.Set<Customer>(),
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "FISSA" || c.CustomerID == "CENTC"),
             selector: c => c.Orders.Sum(o => o.OrderID));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -530,6 +536,12 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
             async,
             ss => ss.Set<Product>().Where(p => p.ProductID < 40),
             selector: p => p.UnitPrice ?? 0);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Max_over_constant_DateTime(bool async)
+        => AssertMax(
+            async,
+            ss => ss.Set<Order>().Select(o => DateTime.MaxValue));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Max_over_subquery(bool async)

@@ -186,6 +186,9 @@ WHERE (c["ShippingAddressRenamed"] = @entity_equality_address)
         => AssertTranslationFailedWithDetails(
             () => base.Union_entity_type_containing_complex_property(async), CosmosStrings.NonCorrelatedSubqueriesNotSupported);
 
+    public override Task Union_complex_type_with_different_identifiers_in_collection_projection(bool async)
+        => AssertTranslationFailed(() => base.Union_complex_type_with_different_identifiers_in_collection_projection(async));
+
     public override Task Union_complex_type(bool async)
         => AssertTranslationFailedWithDetails(() => base.Union_complex_type(async), CosmosStrings.NonCorrelatedSubqueriesNotSupported);
 

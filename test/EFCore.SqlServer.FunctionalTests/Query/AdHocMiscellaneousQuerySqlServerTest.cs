@@ -2826,6 +2826,25 @@ ORDER BY [u].[Id]
 
     #endregion
 
+    public override async Task Project_json_complex_collection_inside_collection_with_identity_resolution(bool async)
+    {
+        await base.Project_json_complex_collection_inside_collection_with_identity_resolution(async);
+
+        AssertSql(
+            """
+SELECT [p0].[Id], CASE
+    WHEN JSON_VALUE([c].[Content], '$.Label') IS NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, JSON_VALUE([c].[Content], '$.Label'), JSON_QUERY([c].[Content], '$.Addresses'), [c].[Id]
+FROM (
+    SELECT TOP(2) [p].[Id]
+    FROM [Parents] AS [p]
+) AS [p0]
+LEFT JOIN [Child] AS [c] ON [p0].[Id] = [c].[ParentId]
+ORDER BY [p0].[Id]
+""");
+    }
+
     public override async Task Like_on_value_converted_string_column_does_not_produce_cast(bool async)
     {
         await base.Like_on_value_converted_string_column_does_not_produce_cast(async);
@@ -3923,6 +3942,126 @@ ORDER BY [e].[DepartmentName]
 
     #endregion
 
+    #region 31388
+
+    public override async Task Keyless_entity_final_GroupBy_with_ToDictionary(bool async)
+    {
+        await base.Keyless_entity_final_GroupBy_with_ToDictionary(async);
+
+        AssertSql(
+            """
+SELECT [s].[Region], [s].[Product], [s].[Amount], [s].[Category]
+FROM [Sales] AS [s]
+WHERE [s].[Amount] > 0
+ORDER BY [s].[Region], [s].[Product]
+""");
+    }
+
+    public override async Task Keyless_entity_final_GroupBy_with_elements(bool async)
+    {
+        await base.Keyless_entity_final_GroupBy_with_elements(async);
+
+        AssertSql(
+            """
+SELECT [s].[Region], [s].[Amount], [s].[Category], [s].[Product]
+FROM [Sales] AS [s]
+ORDER BY [s].[Region]
+""");
+    }
+
+    public override async Task Keyless_entity_final_GroupBy_with_null_key(bool async)
+    {
+        await base.Keyless_entity_final_GroupBy_with_null_key(async);
+
+        AssertSql(
+            """
+SELECT [s].[Category], [s].[Amount], [s].[Product], [s].[Region]
+FROM [Sales] AS [s]
+ORDER BY [s].[Category]
+""");
+    }
+
+    public override async Task Keyless_entity_final_GroupBy_with_computed_key(bool async)
+    {
+        await base.Keyless_entity_final_GroupBy_with_computed_key(async);
+
+        AssertSql(
+            """
+SELECT [s0].[Key], [s0].[Amount], [s0].[Category], [s0].[Product], [s0].[Region]
+FROM (
+    SELECT [s].[Amount], [s].[Category], [s].[Product], [s].[Region], [s].[Amount] % 2 AS [Key]
+    FROM [Sales] AS [s]
+) AS [s0]
+ORDER BY [s0].[Key]
+""");
+    }
+
+    #endregion
+
+    #region 33494
+
+    public override async Task Final_GroupBy_over_set_operation(bool async)
+    {
+        await base.Final_GroupBy_over_set_operation(async);
+
+        AssertSql(
+            """
+SELECT [u].[Name], [u].[Id]
+FROM (
+    SELECT [m].[Id], [m].[Name]
+    FROM [Managers] AS [m]
+    WHERE [m].[Name] <> N'Cheng'
+    UNION ALL
+    SELECT [m0].[Id], [m0].[Name]
+    FROM [Managers] AS [m0]
+    WHERE [m0].[Name] = N'Cheng'
+) AS [u]
+ORDER BY [u].[Name]
+""");
+    }
+
+    public override async Task Final_GroupBy_over_Except_with_collection(bool async)
+    {
+        await base.Final_GroupBy_over_Except_with_collection(async);
+
+        AssertSql(
+            """
+SELECT [e1].[Name], [e1].[c], [e0].[Id]
+FROM (
+    SELECT [e].[Name], COUNT(*) AS [c]
+    FROM (
+        SELECT [m].[Id], [m].[Name]
+        FROM [Companies] AS [c]
+        INNER JOIN [Managers] AS [m] ON [c].[ManagerId] = [m].[Id]
+        EXCEPT
+        SELECT [m0].[Id], [m0].[Name]
+        FROM [Managers] AS [m0]
+        WHERE [m0].[Name] = N'Cheng'
+    ) AS [e]
+    GROUP BY [e].[Name]
+) AS [e1]
+LEFT JOIN (
+    SELECT [m1].[Id], [m1].[Name]
+    FROM [Companies] AS [c0]
+    INNER JOIN [Managers] AS [m1] ON [c0].[ManagerId] = [m1].[Id]
+    EXCEPT
+    SELECT [m2].[Id], [m2].[Name]
+    FROM [Managers] AS [m2]
+    WHERE [m2].[Name] = N'Cheng'
+) AS [e0] ON [e1].[Name] = [e0].[Name]
+ORDER BY [e1].[Name]
+""");
+    }
+
+    public override async Task Final_GroupBy_over_Concat_with_collection_throws(bool async)
+    {
+        await base.Final_GroupBy_over_Concat_with_collection_throws(async);
+
+        AssertSql();
+    }
+
+    #endregion
+
     #region 39366
 
     public override async Task GroupBy_value_converted_reference_type_key_with_elements_and_aggregate(bool async)
@@ -4359,6 +4498,247 @@ GROUP BY [e].[GroupKey]
         public string? Text { get; set; }
         public string? Ntext { get; set; }
         public byte[]? Image { get; set; }
+    }
+
+    #endregion
+
+    #region 35436
+
+    [Fact]
+    public virtual async Task DateTime_Ticks_matches_client_for_all_store_types()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context35436>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var expected = context.Dates.AsNoTracking().OrderBy(d => d.Id).ToList()
+            .Select(d => new
+            {
+                d.Id,
+                DateTime2_7 = d.DateTime2_7.Ticks,
+                DateTime2_3 = d.DateTime2_3.Ticks,
+                DateTime2_0 = d.DateTime2_0.Ticks,
+                DateTime = d.DateTime.Ticks,
+                SmallDateTime = d.SmallDateTime.Ticks,
+                Date = d.Date.Ticks
+            })
+            .ToList();
+
+        ClearLog();
+
+        var actual = await context.Dates.OrderBy(d => d.Id)
+            .Select(d => new
+            {
+                d.Id,
+                DateTime2_7 = d.DateTime2_7.Ticks,
+                DateTime2_3 = d.DateTime2_3.Ticks,
+                DateTime2_0 = d.DateTime2_0.Ticks,
+                DateTime = d.DateTime.Ticks,
+                SmallDateTime = d.SmallDateTime.Ticks,
+                Date = d.Date.Ticks
+            })
+            .ToListAsync();
+
+        Assert.Equal(expected, actual);
+
+        AssertSql(
+            """
+SELECT [d].[Id], CAST(DATEDIFF(day, '0001-01-01T00:00:00.0000000', [d].[DateTime2_7]) AS bigint) * CAST(864000000000 AS bigint) + CAST(DATEDIFF(second, CONVERT(date, [d].[DateTime2_7]), [d].[DateTime2_7]) AS bigint) * CAST(10000000 AS bigint) + CAST(DATEPART(nanosecond, [d].[DateTime2_7]) / 100 AS bigint) AS [DateTime2_7], CAST(DATEDIFF(day, '0001-01-01T00:00:00.0000000', [d].[DateTime2_3]) AS bigint) * CAST(864000000000 AS bigint) + CAST(DATEDIFF(second, CONVERT(date, [d].[DateTime2_3]), [d].[DateTime2_3]) AS bigint) * CAST(10000000 AS bigint) + CAST(DATEPART(nanosecond, [d].[DateTime2_3]) / 100 AS bigint) AS [DateTime2_3], CAST(DATEDIFF(day, '0001-01-01T00:00:00.0000000', [d].[DateTime2_0]) AS bigint) * CAST(864000000000 AS bigint) + CAST(DATEDIFF(second, CONVERT(date, [d].[DateTime2_0]), [d].[DateTime2_0]) AS bigint) * CAST(10000000 AS bigint) + CAST(DATEPART(nanosecond, [d].[DateTime2_0]) / 100 AS bigint) AS [DateTime2_0], CAST(DATEDIFF(day, '0001-01-01T00:00:00.0000000', [d].[DateTime]) AS bigint) * CAST(864000000000 AS bigint) + CAST(DATEDIFF(second, CONVERT(date, [d].[DateTime]), [d].[DateTime]) AS bigint) * CAST(10000000 AS bigint) + CAST(((DATEPART(nanosecond, [d].[DateTime]) + 500000) / 1000000) * 10000 AS bigint) AS [DateTime], CAST(DATEDIFF(day, '0001-01-01T00:00:00.0000000', [d].[SmallDateTime]) AS bigint) * CAST(864000000000 AS bigint) + CAST(DATEDIFF(second, CONVERT(date, [d].[SmallDateTime]), [d].[SmallDateTime]) AS bigint) * CAST(10000000 AS bigint) AS [SmallDateTime], CAST(DATEDIFF(day, '0001-01-01T00:00:00.0000000', [d].[Date]) AS bigint) * CAST(864000000000 AS bigint) AS [Date]
+FROM [Dates] AS [d]
+ORDER BY [d].[Id]
+""");
+    }
+
+    [Fact]
+    public virtual async Task DateTime_Ticks_on_parameter()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context35436>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+        var dateTime = new DateTime(1998, 5, 4, 15, 30, 10, 123, 456).AddTicks(4);
+
+        var ids = await context.Dates
+            .Where(d => EF.Parameter(dateTime).Ticks == d.DateTime2_7.Ticks)
+            .Select(d => d.Id)
+            .ToListAsync();
+
+        Assert.Equal([3], ids);
+
+        AssertSql(
+            """
+@dateTime='1998-05-04T15:30:10.1234564'
+
+SELECT [d].[Id]
+FROM [Dates] AS [d]
+WHERE CAST(DATEDIFF(day, '0001-01-01T00:00:00.0000000', @dateTime) AS bigint) * CAST(864000000000 AS bigint) + CAST(DATEDIFF(second, CONVERT(date, @dateTime), @dateTime) AS bigint) * CAST(10000000 AS bigint) + CAST(DATEPART(nanosecond, @dateTime) / 100 AS bigint) = CAST(DATEDIFF(day, '0001-01-01T00:00:00.0000000', [d].[DateTime2_7]) AS bigint) * CAST(864000000000 AS bigint) + CAST(DATEDIFF(second, CONVERT(date, [d].[DateTime2_7]), [d].[DateTime2_7]) AS bigint) * CAST(10000000 AS bigint) + CAST(DATEPART(nanosecond, [d].[DateTime2_7]) / 100 AS bigint)
+""");
+    }
+
+    [Fact]
+    public virtual async Task DateTime_Ticks_on_nullable_column()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context35436>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var expected = context.Dates.AsNoTracking().OrderBy(d => d.Id).ToList()
+            .Select(d => d.Nullable.HasValue ? d.Nullable.Value.Ticks : (long?)null)
+            .ToList();
+
+        var ticks = expected[2];
+
+        ClearLog();
+
+        var actual = await context.Dates.OrderBy(d => d.Id)
+            .Select(d => d.Nullable.HasValue ? d.Nullable.Value.Ticks : (long?)null)
+            .ToListAsync();
+        var filtered = await context.Dates
+            .Where(d => d.Nullable!.Value.Ticks == ticks)
+            .Select(d => d.Id)
+            .ToListAsync();
+
+        Assert.Equal(expected, actual);
+        Assert.Equal([3], filtered);
+
+        AssertSql(
+            """
+SELECT CAST(DATEDIFF(day, '0001-01-01T00:00:00.0000000', [d].[Nullable]) AS bigint) * CAST(864000000000 AS bigint) + CAST(DATEDIFF(second, CONVERT(date, [d].[Nullable]), [d].[Nullable]) AS bigint) * CAST(10000000 AS bigint) + CAST(DATEPART(nanosecond, [d].[Nullable]) / 100 AS bigint)
+FROM [Dates] AS [d]
+ORDER BY [d].[Id]
+""",
+            //
+            """
+@ticks='630298926101234564' (Nullable = true)
+
+SELECT [d].[Id]
+FROM [Dates] AS [d]
+WHERE CAST(DATEDIFF(day, '0001-01-01T00:00:00.0000000', [d].[Nullable]) AS bigint) * CAST(864000000000 AS bigint) + CAST(DATEDIFF(second, CONVERT(date, [d].[Nullable]), [d].[Nullable]) AS bigint) * CAST(10000000 AS bigint) + CAST(DATEPART(nanosecond, [d].[Nullable]) / 100 AS bigint) = @ticks
+""");
+    }
+
+    [Fact]
+    public virtual async Task DateTime_Ticks_on_datetime_matches_client_for_every_millisecond()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context35436>(seed: c => c.SeedEveryMillisecondAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var expected = context.Dates.AsNoTracking().OrderBy(d => d.Id).ToList()
+            .Select(d => d.DateTime.Ticks)
+            .ToList();
+        var actual = await context.Dates.OrderBy(d => d.Id).Select(d => d.DateTime.Ticks).ToListAsync();
+
+        Assert.Equal(1000, actual.Count);
+        Assert.Equal(expected, actual);
+    }
+
+    [Fact]
+    public virtual async Task DateTime_Ticks_is_not_translated_over_a_complex_expression()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context35436>();
+        using var context = contextFactory.CreateDbContext();
+
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+            () => context.Dates.Where(d => d.DateTime2_7.AddDays(1).Ticks > 0).ToListAsync())).Message;
+
+        Assert.Equal(
+            CoreStrings.TranslationFailed(
+                @"DbSet<Dates35436>()    .Where(d => d.DateTime2_7.AddDays(1).Ticks > 0)"),
+            message.Replace("\r", "").Replace("\n", ""));
+    }
+
+    protected class Context35436(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Dates35436> Dates { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Dates35436>(
+                b =>
+                {
+                    b.Property(e => e.Id).ValueGeneratedNever();
+                    b.Property(e => e.DateTime2_7).HasColumnType("datetime2(7)");
+                    b.Property(e => e.DateTime2_3).HasColumnType("datetime2(3)");
+                    b.Property(e => e.DateTime2_0).HasColumnType("datetime2(0)");
+                    b.Property(e => e.DateTime).HasColumnType("datetime");
+                    b.Property(e => e.SmallDateTime).HasColumnType("smalldatetime");
+                    b.Property(e => e.Date).HasColumnType("date");
+                });
+
+        public Task SeedAsync()
+        {
+            AddRange(
+                new Dates35436
+                {
+                    Id = 1,
+                    DateTime2_7 = DateTime.MinValue,
+                    DateTime2_3 = DateTime.MinValue,
+                    DateTime2_0 = DateTime.MinValue,
+                    DateTime = new DateTime(1753, 1, 1),
+                    SmallDateTime = new DateTime(1900, 1, 1),
+                    Date = DateTime.MinValue,
+                    Nullable = null
+                },
+                new Dates35436
+                {
+                    Id = 2,
+                    DateTime2_7 = DateTime.MaxValue,
+                    DateTime2_3 = new DateTime(9999, 12, 31, 23, 59, 59, 999),
+                    DateTime2_0 = new DateTime(9999, 12, 31, 23, 59, 59),
+                    DateTime = new DateTime(9999, 12, 31, 23, 59, 59, 997),
+                    SmallDateTime = new DateTime(2079, 6, 6, 23, 59, 0),
+                    Date = new DateTime(9999, 12, 31),
+                    Nullable = DateTime.MaxValue
+                },
+                new Dates35436
+                {
+                    Id = 3,
+                    DateTime2_7 = new DateTime(1998, 5, 4, 15, 30, 10, 123, 456).AddTicks(4),
+                    DateTime2_3 = new DateTime(1998, 5, 4, 15, 30, 10, 123),
+                    DateTime2_0 = new DateTime(1998, 5, 4, 15, 30, 10),
+                    // datetime stores 1/300 s: .007 is stored as 2/300 s, which SQL Server reports as 6666666 ns
+                    DateTime = new DateTime(1998, 5, 4, 15, 30, 10, 7),
+                    SmallDateTime = new DateTime(1998, 5, 4, 15, 30, 0),
+                    Date = new DateTime(1998, 5, 4),
+                    Nullable = new DateTime(1998, 5, 4, 15, 30, 10, 123, 456).AddTicks(4)
+                },
+                new Dates35436
+                {
+                    Id = 4,
+                    DateTime2_7 = new DateTime(2000, 1, 1, 23, 59, 59).AddTicks(1),
+                    DateTime2_3 = new DateTime(2000, 1, 1, 0, 0, 0, 1),
+                    DateTime2_0 = new DateTime(2000, 1, 1, 23, 59, 59),
+                    DateTime = new DateTime(2000, 1, 1, 23, 59, 59, 3),
+                    SmallDateTime = new DateTime(2000, 1, 1, 23, 59, 0),
+                    Date = new DateTime(2000, 1, 1)
+                });
+
+            return SaveChangesAsync();
+        }
+
+        // Every millisecond of the last second of a day, including those that datetime rounds to the next day.
+        public Task SeedEveryMillisecondAsync()
+        {
+            for (var i = 0; i < 1000; i++)
+            {
+                Add(
+                    new Dates35436
+                    {
+                        Id = i + 1,
+                        DateTime = new DateTime(2000, 1, 1, 23, 59, 59).AddMilliseconds(i),
+                        SmallDateTime = new DateTime(2000, 1, 1)
+                    });
+            }
+
+            return SaveChangesAsync();
+        }
+    }
+
+    protected class Dates35436
+    {
+        public int Id { get; set; }
+        public DateTime DateTime2_7 { get; set; }
+        public DateTime DateTime2_3 { get; set; }
+        public DateTime DateTime2_0 { get; set; }
+        public DateTime DateTime { get; set; }
+        public DateTime SmallDateTime { get; set; }
+        public DateTime Date { get; set; }
+        public DateTime? Nullable { get; set; }
     }
 
     #endregion

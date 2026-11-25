@@ -188,7 +188,16 @@ public class SqliteCommand : DbCommand
     public override int CommandTimeout
     {
         get => _commandTimeout ?? _connection?.DefaultTimeout ?? 30;
-        set => _commandTimeout = value;
+        set
+        {
+            if (value < 0)
+            {
+                // NB: Message is provided by the framework
+                throw new ArgumentOutOfRangeException(nameof(value), value, message: null);
+            }
+
+            _commandTimeout = value;
+        }
     }
 
     /// <summary>

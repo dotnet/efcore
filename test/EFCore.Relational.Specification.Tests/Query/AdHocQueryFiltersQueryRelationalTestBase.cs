@@ -234,6 +234,105 @@ public abstract class AdHocQueryFiltersQueryRelationalTestBase(NonSharedFixture 
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task GroupBy_operator_chains_over_required_navigation_with_query_filter(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context38965>(
+            onConfiguring: b => b.ConfigureWarnings(
+                w => w.Ignore(CoreEventId.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning)),
+            seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Dependents
+            .GroupBy(d => d.GroupId)
+            .Select(g => new
+            {
+                g.Key,
+                Count = g.Count(),
+                Distinct = g.Select(d => d.PrincipalId).Distinct().Count(),
+                Large = g.Where(d => d.Principal.Value > 5).Count(),
+                Sum = g.Select(d => (int?)d.Principal.Value).Sum(),
+                Projected = g.Select(d => d.Principal.Value).Count()
+            });
+
+        var results = async
+            ? await query.ToListAsync()
+            : query.ToList();
+
+        // An operator chain through a filtered-out principal sees no row, as in the correlated translation, while
+        // one over the dependent's own columns still sees the dependent, and so does a count, which ignores the
+        // projection.
+        Assert.Collection(
+            results.OrderBy(e => e.Key),
+            result =>
+            {
+                Assert.Equal(1, result.Key);
+                Assert.Equal(1, result.Count);
+                Assert.Equal(1, result.Distinct);
+                Assert.Equal(1, result.Large);
+                Assert.Equal(10, result.Sum);
+                Assert.Equal(1, result.Projected);
+            },
+            result =>
+            {
+                Assert.Equal(2, result.Key);
+                Assert.Equal(1, result.Count);
+                Assert.Equal(1, result.Distinct);
+                Assert.Equal(0, result.Large);
+                Assert.Equal(0, result.Sum);
+                Assert.Equal(1, result.Projected);
+            });
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task GroupBy_count_and_any_over_projection_through_required_navigation_with_query_filter(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context38965>(
+            onConfiguring: b => b.ConfigureWarnings(
+                w => w.Ignore(CoreEventId.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning)),
+            seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Dependents
+            .GroupBy(d => d.GroupId)
+            .Select(g => new
+            {
+                g.Key,
+                Sum = g.Sum(d => d.Principal.Value),
+                Count = g.Select(d => d.Principal.Value).Count(),
+                LongCount = g.Select(d => d.Principal.Value).LongCount(),
+                Any = g.Select(d => d.Principal.Value).Any(),
+                WhereCount = g.Where(d => d.Id > 0).Select(d => d.Principal.Value).Count()
+            });
+
+        var results = async
+            ? await query.ToListAsync()
+            : query.ToList();
+
+        // Count, LongCount and Any ignore the projection, as when the aggregates aren't lifted, so they still see
+        // the dependent whose principal is filtered out.
+        Assert.Collection(
+            results.OrderBy(e => e.Key),
+            result =>
+            {
+                Assert.Equal(1, result.Key);
+                Assert.Equal(10, result.Sum);
+                Assert.Equal(1, result.Count);
+                Assert.Equal(1, result.LongCount);
+                Assert.True(result.Any);
+                Assert.Equal(1, result.WhereCount);
+            },
+            result =>
+            {
+                Assert.Equal(2, result.Key);
+                Assert.Equal(0, result.Sum);
+                Assert.Equal(1, result.Count);
+                Assert.Equal(1, result.LongCount);
+                Assert.True(result.Any);
+                Assert.Equal(1, result.WhereCount);
+            });
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task GroupBy_aggregate_over_required_navigation_keeps_the_principals_own_filter_exact(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context38965_FilterThroughNavigation>(

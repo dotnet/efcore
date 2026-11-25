@@ -249,6 +249,28 @@ _ = await context.Blogs.Select(b => new Blog(i, b.Name)).ToListAsync();
         => Test("_ = await context.Blogs.Select(b => new Blog { Id = b.Id, Name = b.Name }).ToListAsync();");
 
     [Fact]
+    public virtual Task MemberInit_with_required_init_only_properties()
+        => Test(
+            """
+var id = 8;
+var blog = await context.Blogs.Where(b => b.Id == id)
+    .Select(b => new RequiredBlogDto
+    {
+        Id = b.Id,
+        Name = b.Name,
+        Details = new RequiredBlogDto { Id = b.Id, Name = b.Name }
+    })
+    .FirstOrDefaultAsync();
+
+Assert.NotNull(blog);
+Assert.Equal(8, blog.Id);
+Assert.Equal("Blog1", blog.Name);
+Assert.NotNull(blog.Details);
+Assert.Equal(8, blog.Details.Id);
+Assert.Equal("Blog1", blog.Details.Name);
+""");
+
+    [Fact]
     public virtual Task MemberInit_contains_captured_variable()
         => Test(
             """
@@ -330,6 +352,39 @@ _ = await context.Blogs.OrderBy(b => b.Name).Take(toTake).ToListAsync();
 """);
 
     [Fact]
+    public virtual Task Skip_Take_with_parameters()
+        => Test(
+            """
+foreach (var (skip, take, expected) in new[]
+{
+    (0, 3, new[] { 11, 12, 21 }),
+    (1, 2, new[] { 12, 21 }),
+    (1, 1, new[] { 12 }),
+    (5, 1, Array.Empty<int>())
+})
+{
+    var ids = context.Posts.OrderBy(p => p.Id).Skip(skip).Take(take).Select(p => p.Id).ToList();
+    Assert.Equal(expected, ids);
+}
+""");
+
+    [Fact]
+    public virtual Task Skip_Take_with_captured_parameters_in_local_function()
+        => Test(
+            """
+var skip = 1;
+var take = 2;
+await AssertPage();
+
+async Task AssertPage()
+{
+    var ids = await context.Posts.OrderBy(p => p.Id).Where(p => p.Id > 10)
+        .Skip(skip).Take(take).Select(p => p.Id).ToListAsync(CancellationToken.None);
+    Assert.Equal(new[] { 12, 21 }, ids);
+}
+""");
+
+    [Fact]
     public virtual Task Select_changes_type()
         => Test("_ = await context.Blogs.Select(b => b.Name).ToListAsync();");
 
@@ -356,6 +411,25 @@ _ = await context.Blogs.OrderBy(b => b.Name).Take(toTake).ToListAsync();
     [Fact]
     public virtual Task GroupBy_Select_first_grouping_element()
         => Test("""var blogs = await context.Blogs.GroupBy(b => b.Name).Select(g => g.OrderBy(b => b.Id).First()).ToListAsync();""");
+
+    // An aggregate over a grouping translated in a nested query falls back to a subquery over the grouping element (#27130).
+    [Fact]
+    public virtual Task GroupBy_aggregate_over_outer_grouping_in_subquery()
+        => Test(
+            """
+var blogs = await context.Blogs.GroupBy(b => b.Name)
+    .Select(g => new { g.Key, Count = context.Blogs.GroupBy(b => b.Id).OrderBy(g2 => g2.Key).Select(g2 => g.Count()).FirstOrDefault() })
+    .ToListAsync();
+""");
+
+    // An aggregate over a grouping translated for an inline collection is folded back into the grouped query once the
+    // collection becomes an IN list (#27130).
+    [Fact]
+    public virtual Task GroupBy_aggregate_as_element_of_inline_collection_Contains()
+        => Test(
+            """
+var blogs = await context.Blogs.GroupBy(b => b.Name).Where(g => new List<int> { g.Count(), -1 }.Contains(1)).Select(g => g.Key).ToListAsync();
+""");
 
     #endregion Regular operators
 
@@ -1549,6 +1623,13 @@ await using var context = new PrecompiledQueryContext(dbContextOptions);
         public string? Text { get; set; }
 
         public JsonBranch Inner { get; set; } = null!;
+    }
+
+    public class RequiredBlogDto
+    {
+        public int Id { get; init; }
+        public required string? Name { get; init; }
+        public RequiredBlogDto? Details { get; init; }
     }
 
     public class JsonBranch

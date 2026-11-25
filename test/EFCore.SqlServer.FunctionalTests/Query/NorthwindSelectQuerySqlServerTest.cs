@@ -233,6 +233,26 @@ FROM [Customers] AS [c]
 """);
     }
 
+    public override async Task Select_anonymous_conditional_non_numeric_constants(bool async)
+    {
+        await base.Select_anonymous_conditional_non_numeric_constants(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], CASE
+    WHEN [c].[CustomerID] = N'ALFKI' THEN CAST('00000000-0000-0000-0000-000000000000' AS uniqueidentifier)
+    ELSE CAST('8a4d1d6c-5ad8-4b1e-9b0e-2f1c2d3e4f50' AS uniqueidentifier)
+END AS [ConditionalGuid], CASE
+    WHEN [c].[CustomerID] = N'ALFKI' THEN CAST('0001-01-01T00:00:00.0000000' AS datetime2)
+    ELSE CAST('9999-12-31T23:59:59.9999999' AS datetime2)
+END AS [ConditionalDateTime], CASE
+    WHEN [c].[CustomerID] = N'ALFKI' THEN CAST('00:00:00' AS time)
+    ELSE CAST('01:00:00' AS time)
+END AS [ConditionalTimeSpan]
+FROM [Customers] AS [c]
+""");
+    }
+
     public override async Task Select_anonymous_constant_in_expression(bool async)
     {
         await base.Select_anonymous_constant_in_expression(async);
@@ -2620,7 +2640,7 @@ ORDER BY [o0].[OrderID]
 
         AssertSql(
             """
-SELECT [o].[OrderDate]
+SELECT CAST(DATEDIFF(day, '0001-01-01T00:00:00.0000000', [o].[OrderDate]) AS bigint) * CAST(864000000000 AS bigint) + CAST(DATEDIFF(second, CONVERT(date, [o].[OrderDate]), [o].[OrderDate]) AS bigint) * CAST(10000000 AS bigint) + CAST(((DATEPART(nanosecond, [o].[OrderDate]) + 500000) / 1000000) * 10000 AS bigint)
 FROM [Orders] AS [o]
 """);
     }

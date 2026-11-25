@@ -4559,6 +4559,56 @@ FROM [Entities1] AS [e]
 """);
     }
 
+    public override async Task Nullable_column_info_propagates_to_else_of_conditional(bool async)
+    {
+        await base.Nullable_column_info_propagates_to_else_of_conditional(async);
+
+        AssertSql(
+            """
+SELECT CASE
+    WHEN [e].[NullableStringA] IS NULL THEN [e].[BoolA]
+    WHEN [e].[NullableStringA] <> [e].[StringA] THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+FROM [Entities1] AS [e]
+""");
+    }
+
+    public override async Task Nullable_column_info_propagates_to_else_of_conditional_in_predicate(bool async)
+    {
+        await base.Nullable_column_info_propagates_to_else_of_conditional_in_predicate(async);
+
+        AssertSql(
+            """
+SELECT [e].[Id], [e].[BoolA], [e].[BoolB], [e].[BoolC], [e].[IntA], [e].[IntB], [e].[IntC], [e].[NullableBoolA], [e].[NullableBoolB], [e].[NullableBoolC], [e].[NullableIntA], [e].[NullableIntB], [e].[NullableIntC], [e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC], [e].[StringA], [e].[StringB], [e].[StringC]
+FROM [Entities1] AS [e]
+WHERE CASE
+    WHEN [e].[NullableIntA] IS NULL THEN CASE
+        WHEN [e].[IntB] = [e].[NullableIntB] THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END
+    WHEN [e].[NullableIntC] = [e].[NullableIntA] THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END = CAST(1 AS bit)
+""");
+    }
+
+    public override async Task Nullable_column_info_propagates_to_later_clauses_of_conditional(bool async)
+    {
+        await base.Nullable_column_info_propagates_to_later_clauses_of_conditional(async);
+
+        AssertSql(
+            """
+SELECT CASE
+    WHEN [e].[NullableIntA] IS NULL THEN 0
+    WHEN [e].[NullableIntB] IS NULL THEN 1
+    WHEN [e].[NullableIntA] = [e].[NullableIntB] THEN 2
+    ELSE 3
+END
+FROM [Entities1] AS [e]
+""");
+    }
+
     public override async Task Nullable_column_info_doesnt_propagate_between_projections(bool async)
     {
         await base.Nullable_column_info_doesnt_propagate_between_projections(async);
@@ -5216,7 +5266,7 @@ WHERE CASE
         WHEN ([e].[NullableStringA] <> [e].[NullableStringB] OR [e].[NullableStringA] IS NULL OR [e].[NullableStringB] IS NULL) AND ([e].[NullableStringA] IS NOT NULL OR [e].[NullableStringB] IS NOT NULL) THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END
-    WHEN ([e].[NullableStringA] <> [e].[NullableStringC] OR [e].[NullableStringA] IS NULL OR [e].[NullableStringC] IS NULL) AND ([e].[NullableStringA] IS NOT NULL OR [e].[NullableStringC] IS NOT NULL) THEN CAST(1 AS bit)
+    WHEN [e].[NullableStringA] <> [e].[NullableStringC] OR [e].[NullableStringC] IS NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END = CAST(1 AS bit)
 """);
@@ -5236,7 +5286,7 @@ WHERE CASE
         WHEN [e].[NullableStringA] = [e].[NullableStringB] OR ([e].[NullableStringA] IS NULL AND [e].[NullableStringB] IS NULL) THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END
-    WHEN ([e].[NullableStringA] <> [e].[NullableStringB] OR [e].[NullableStringA] IS NULL OR [e].[NullableStringB] IS NULL) AND ([e].[NullableStringA] IS NOT NULL OR [e].[NullableStringB] IS NOT NULL) THEN CAST(1 AS bit)
+    WHEN [e].[NullableStringA] <> [e].[NullableStringB] THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END = CAST(1 AS bit)
 """);
@@ -5275,8 +5325,7 @@ WHERE [e].[NullableBoolA] IS NULL OR CASE
         WHEN [e].[NullableBoolB] <> [e].[NullableBoolA] OR [e].[NullableBoolB] IS NULL THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END
-    WHEN [e].[NullableBoolA] <> [e].[NullableBoolB] OR [e].[NullableBoolB] IS NULL THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
+    ELSE [e].[NullableBoolA] ^ [e].[NullableBoolB]
 END = CAST(1 AS bit)
 """);
     }
@@ -5296,10 +5345,10 @@ WHERE CASE
         ELSE CAST(0 AS bit)
     END
     WHEN [e].[NullableBoolC] IS NULL THEN CASE
-        WHEN ([e].[NullableBoolA] <> [e].[NullableBoolC] OR [e].[NullableBoolA] IS NULL OR [e].[NullableBoolC] IS NULL) AND ([e].[NullableBoolA] IS NOT NULL OR [e].[NullableBoolC] IS NOT NULL) THEN CAST(1 AS bit)
+        WHEN [e].[NullableBoolA] <> [e].[NullableBoolC] OR [e].[NullableBoolC] IS NULL THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END
-    WHEN ([e].[NullableBoolC] <> [e].[NullableBoolA] OR [e].[NullableBoolC] IS NULL OR [e].[NullableBoolA] IS NULL) AND ([e].[NullableBoolC] IS NOT NULL OR [e].[NullableBoolA] IS NOT NULL) THEN CAST(1 AS bit)
+    WHEN [e].[NullableBoolC] <> [e].[NullableBoolA] THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END = CAST(1 AS bit)
 """);

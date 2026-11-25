@@ -135,6 +135,7 @@ public class MigrationBuilder
     /// </param>
     /// <param name="onUpdate">The action to take on updates.</param>
     /// <param name="onDelete">The action to take on deletes.</param>
+    /// <param name="deferrability">Whether checking of the foreign key constraint can be deferred until the end of the transaction.</param>
     /// <returns>A builder to allow annotations to be added to the operation.</returns>
     public virtual OperationBuilder<AddForeignKeyOperation> AddForeignKey(
         string name,
@@ -145,7 +146,8 @@ public class MigrationBuilder
         string? principalSchema = null,
         string? principalColumn = null,
         ReferentialAction onUpdate = ReferentialAction.NoAction,
-        ReferentialAction onDelete = ReferentialAction.NoAction)
+        ReferentialAction onDelete = ReferentialAction.NoAction,
+        ConstraintDeferrability deferrability = ConstraintDeferrability.NotDeferrable)
         => AddForeignKey(
             name,
             table,
@@ -155,7 +157,8 @@ public class MigrationBuilder
             principalSchema,
             principalColumn != null ? [principalColumn] : null,
             onUpdate,
-            onDelete);
+            onDelete,
+            deferrability);
 
     /// <summary>
     ///     Builds an <see cref="AddForeignKeyOperation" /> to add a new composite (multi-column) foreign key to a table.
@@ -177,6 +180,7 @@ public class MigrationBuilder
     /// </param>
     /// <param name="onUpdate">The action to take on updates.</param>
     /// <param name="onDelete">The action to take on deletes.</param>
+    /// <param name="deferrability">Whether checking of the foreign key constraint can be deferred until the end of the transaction.</param>
     /// <returns>A builder to allow annotations to be added to the operation.</returns>
     public virtual OperationBuilder<AddForeignKeyOperation> AddForeignKey(
         string name,
@@ -187,7 +191,8 @@ public class MigrationBuilder
         string? principalSchema = null,
         string[]? principalColumns = null,
         ReferentialAction onUpdate = ReferentialAction.NoAction,
-        ReferentialAction onDelete = ReferentialAction.NoAction)
+        ReferentialAction onDelete = ReferentialAction.NoAction,
+        ConstraintDeferrability deferrability = ConstraintDeferrability.NotDeferrable)
     {
         Check.NotEmpty(name);
         Check.NotEmpty(table);
@@ -204,7 +209,8 @@ public class MigrationBuilder
             PrincipalTable = principalTable,
             PrincipalColumns = principalColumns,
             OnUpdate = onUpdate,
-            OnDelete = onDelete
+            OnDelete = onDelete,
+            Deferrability = deferrability
         };
         Operations.Add(operation);
 

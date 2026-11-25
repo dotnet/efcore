@@ -355,6 +355,166 @@ public class DbContextOperationsTest
             Assert.Throws<OperationException>(()
                 => CreateOperations(typeof(ThrowingTestProgram)).CreateContext(typeof(TestContext).FullName)).Message);
 
+    // Guards for the single-factory early return (#34082): the service provider must not be consulted at all.
+    [Fact]
+    public void Factory_context_is_used_when_service_provider_throws_and_name_is_given()
+    {
+        var (operations, reporter) = CreateOperationsWithReporter(typeof(ThrowingTestProgram), typeof(BlogContext), typeof(BlogContextFactory));
+
+        Assert.IsType<BlogContext>(operations.CreateContext(nameof(BlogContext)));
+
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Warning);
+    }
+
+    [Fact]
+    public void Factory_context_is_used_when_service_provider_throws_and_there_is_only_one_context()
+    {
+        var (operations, reporter) = CreateOperationsWithReporter(typeof(ThrowingTestProgram), typeof(BlogContext), typeof(BlogContextFactory));
+
+        Assert.IsType<BlogContext>(operations.CreateContext(null));
+
+        Assert.DoesNotContain(reporter.Messages, m => m.Level == LogLevel.Warning);
+    }
+
+    [Fact]
+    public void Factory_contexts_are_listed_with_warning_when_service_provider_throws()
+    {
+        var (operations, reporter) = CreateOperationsWithReporter(
+            typeof(ThrowingTestProgram), typeof(BaseContext), typeof(DerivedContext), typeof(HierarchyContextFactory));
+
+        Assert.Equal([typeof(BaseContext), typeof(DerivedContext)], operations.GetContextTypes().OrderBy(t => t.Name));
+
+        Assert.Equal(
+            DesignStrings.ServiceProviderContextDiscoveryFailed("Bang!"),
+            Assert.Single(reporter.Messages, m => m.Level == LogLevel.Warning).Message);
+        Assert.DoesNotContain(reporter.Messages, m => m.Level is LogLevel.Critical or LogLevel.Error);
+    }
+
+    [Fact]
+    public void Ambiguity_between_factory_contexts_is_reported_when_service_provider_throws()
+    {
+        var (operations, _) = CreateOperationsWithReporter(
+            typeof(ThrowingTestProgram), typeof(BaseContext), typeof(DerivedContext), typeof(HierarchyContextFactory));
+
+        Assert.Equal(
+            DesignStrings.MultipleContexts,
+            Assert.Throws<OperationException>(() => operations.CreateContext(null)).Message);
+    }
+
+    [Fact]
+    public void Service_provider_failure_is_reported_when_a_context_has_no_factory()
+    {
+        var (operations, _) = CreateOperationsWithReporter(
+            typeof(ThrowingTestProgram), typeof(BlogContext), typeof(BlogContextFactory), typeof(TestContext));
+
+        Assert.Equal(
+            DesignStrings.CannotFindDbContextTypes("Bang!"),
+            Assert.Throws<OperationException>(() => operations.CreateContext(null)).Message);
+    }
+
+    [Fact]
+    public void Service_provider_failure_is_reported_when_named_context_is_not_a_factory_context()
+    {
+        var (operations, _) = CreateOperationsWithReporter(typeof(ThrowingTestProgram), typeof(BlogContext), typeof(BlogContextFactory));
+
+        Assert.Equal(
+            DesignStrings.CannotFindDbContextTypes("Bang!"),
+            Assert.Throws<OperationException>(() => operations.CreateContext(nameof(TestContext))).Message);
+    }
+
+    [Fact]
+    public void Service_provider_failure_is_reported_when_no_contexts_found()
+    {
+        var (operations, _) = CreateOperationsWithReporter(typeof(ThrowingTestProgram));
+
+        Assert.Equal(
+            DesignStrings.CannotFindDbContextTypes("Bang!"),
+            Assert.Throws<OperationException>(() => operations.CreateContext(null)).Message);
+    }
+
+    [Fact]
+    public void Contexts_from_service_provider_are_found_in_addition_to_factory_contexts()
+    {
+        var (operations, reporter) = CreateOperationsWithReporter(
+            typeof(TestProgram), typeof(BaseContext), typeof(DerivedContext), typeof(HierarchyContextFactory));
+
+        Assert.Equal(
+            [typeof(BaseContext), typeof(DerivedContext), typeof(TestContext)],
+            operations.GetContextTypes().OrderBy(t => t.Name));
+
+        Assert.DoesNotContain(reporter.Messages, m => m.Level is LogLevel.Warning or LogLevel.Error or LogLevel.Critical);
+    }
+
+    [Fact]
+    public void Service_provider_only_context_can_be_created_alongside_factory_contexts()
+    {
+        var (operations, reporter) = CreateOperationsWithReporter(
+            typeof(TestProgram), typeof(BaseContext), typeof(DerivedContext), typeof(HierarchyContextFactory));
+
+        Assert.IsType<TestContext>(operations.CreateContext(nameof(TestContext)));
+        Assert.Equal(nameof(BaseContext), Assert.IsType<BaseContext>(operations.CreateContext(nameof(BaseContext))).FactoryUsed);
+
+        Assert.DoesNotContain(reporter.Messages, m => m.Level is LogLevel.Warning or LogLevel.Error or LogLevel.Critical);
+    }
+
+    [Fact]
+    public void Factory_contexts_are_listed_when_building_the_host_throws()
+    {
+        var (operations, reporter) = CreateOperationsWithReporter(
+            typeof(HostBuildThrowingTestProgram), typeof(BaseContext), typeof(DerivedContext), typeof(HierarchyContextFactory));
+
+        Assert.Equal([typeof(BaseContext), typeof(DerivedContext)], operations.GetContextTypes().OrderBy(t => t.Name));
+
+        Assert.Contains(
+            reporter.Messages,
+            m => m.Level == LogLevel.Warning && m.Message == DesignStrings.InvokeCreateHostBuilderFailed("Boom!"));
+        Assert.DoesNotContain(reporter.Messages, m => m.Level is LogLevel.Error or LogLevel.Critical);
+    }
+
+    private static class HostBuildThrowingTestProgram
+    {
+        private static TestWebHost BuildWebHost(string[] args)
+            => throw new Exception("Boom!");
+    }
+
+    [Fact]
+    public void Factory_is_used_in_preference_to_service_provider_for_the_same_context()
+    {
+        var (operations, _) = CreateOperationsWithReporter(typeof(TestProgramWithBlogContext), typeof(BlogContext), typeof(BlogContextFactory));
+
+        Assert.IsType<BlogContext>(operations.CreateContext(null));
+    }
+
+    private static class TestProgramWithBlogContext
+    {
+        private static TestWebHost BuildWebHost(string[] args)
+            => new(
+                new ServiceCollection()
+                    .AddDbContext<BlogContext>(b => b.UseInMemoryDatabase("In-memory test database"))
+                    .BuildServiceProvider(validateScopes: true));
+    }
+
+    private static (TestDbContextOperations Operations, TestOperationReporter Reporter) CreateOperationsWithReporter(
+        Type testProgramType,
+        params Type[] types)
+    {
+        var assembly = MockAssembly.Create([testProgramType, .. types]);
+        var reporter = new TestOperationReporter();
+        var operations = new TestDbContextOperations(
+            reporter,
+            assembly,
+            assembly,
+            project: "",
+            projectDir: "",
+            rootNamespace: null,
+            language: "C#",
+            nullable: false,
+            /* args: */ [],
+            new TestAppServiceProviderFactory(assembly, reporter));
+
+        return (operations, reporter);
+    }
+
     private static class ThrowingTestProgram
     {
         private static TestWebHost BuildWebHost(string[] args)

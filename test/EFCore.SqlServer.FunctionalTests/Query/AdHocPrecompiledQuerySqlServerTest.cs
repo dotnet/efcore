@@ -10,7 +10,28 @@ public class AdHocPrecompiledQuerySqlServerTest(NonSharedFixture fixture, ITestO
 {
     protected override bool AlwaysPrintGeneratedSources
         => false;
-          
+
+    public override async Task Implicit_conversions_in_binary_and_conditional_expressions()
+    {
+        await base.Implicit_conversions_in_binary_and_conditional_expressions();
+
+        AssertSql(
+            """
+@taskType='generation' (Size = 4000)
+@since='2026-01-01T00:00:00.0000000'
+
+SELECT [t].[State], COUNT(*), CASE
+    WHEN COUNT_BIG([t].[CompletedAt]) > CAST(0 AS bigint) THEN AVG(CASE
+        WHEN [t].[CompletedAt] IS NOT NULL THEN CAST([t].[Id] AS float)
+    END)
+END
+FROM [Tasks] AS [t]
+WHERE [t].[Type] = @taskType AND [t].[CreatedAt] >= @since
+GROUP BY [t].[State]
+ORDER BY [t].[State]
+""");
+    }
+
     protected override DbContextOptionsBuilder UseWindowFunctionAggregates(DbContextOptionsBuilder optionsBuilder)
     {
 #pragma warning disable EF9001 // UseWindowFunctionAggregates is experimental
@@ -192,6 +213,31 @@ WHERE [n].[Name] = N'Root'
 SELECT [j].[Id], [j].[IntList], [j].[JsonThing]
 FROM [JsonEntities] AS [j]
 WHERE JSON_VALUE([j].[JsonThing], '$.StringProperty') = N'foo'
+""");
+    }
+
+    public override async Task Complex_properties_on_owned_types()
+    {
+        await base.Complex_properties_on_owned_types();
+
+        AssertSql(
+            """
+SELECT [o].[Id], [o].[JsonOwned], [o].[Owned_Address_City], [o].[Owned_Address_Country_Code], [o].[Owned_JsonAddress], [o0].[Id], [o0].[OwnedComplexOwnerId], [o0].[Address_City], [o0].[Address_Country_Code]
+FROM [Owners] AS [o]
+LEFT JOIN [Owners_OwnedCollection] AS [o0] ON [o].[Id] = [o0].[OwnedComplexOwnerId]
+WHERE [o].[Owned_Address_City] = N'Sydney'
+ORDER BY [o].[Id]
+""");
+    }
+
+    public override async Task Complex_properties_on_owned_types_projected()
+    {
+        await base.Complex_properties_on_owned_types_projected();
+
+        AssertSql(
+            """
+SELECT [o].[Owned_Address_City], [o].[Owned_Address_Country_Code], [o].[Owned_JsonAddress], JSON_VALUE([o].[JsonOwned], '$.Address.City') AS [JsonOwnedCity]
+FROM [Owners] AS [o]
 """);
     }
 

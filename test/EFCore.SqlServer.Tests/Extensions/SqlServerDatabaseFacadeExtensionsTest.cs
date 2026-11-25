@@ -60,6 +60,26 @@ public class SqlServerDatabaseFacadeExtensionsTest
     }
 
     [Fact]
+    public void Setting_CommandTimeout_to_sub_second_timespan_does_not_disable_timeout()
+    {
+        using var context = new TimeoutContext();
+
+        context.Database.SetCommandTimeout(TimeSpan.FromMilliseconds(400));
+        Assert.Equal(1, context.Database.GetCommandTimeout());
+
+        context.Database.SetCommandTimeout(TimeSpan.FromMilliseconds(500));
+        Assert.Equal(1, context.Database.GetCommandTimeout());
+
+        context.Database.SetCommandTimeout(TimeSpan.Zero);
+        Assert.Equal(0, context.Database.GetCommandTimeout());
+
+        using (context.Database.UseCommandTimeout(TimeSpan.FromMilliseconds(250)))
+        {
+            Assert.Equal(1, context.Database.GetCommandTimeout());
+        }
+    }
+
+    [Fact]
     public void Setting_CommandTimeout_to_negative_value_throws()
     {
         Assert.Throws<InvalidOperationException>(() => new DbContextOptionsBuilder().UseSqlServer(

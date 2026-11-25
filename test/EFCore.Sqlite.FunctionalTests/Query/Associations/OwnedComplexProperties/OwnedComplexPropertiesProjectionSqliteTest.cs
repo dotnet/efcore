@@ -1,0 +1,27 @@
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
+using Microsoft.EntityFrameworkCore.Sqlite.Internal;
+
+namespace Microsoft.EntityFrameworkCore.Query.Associations.OwnedComplexProperties;
+
+public class OwnedComplexPropertiesProjectionSqliteTest(OwnedComplexPropertiesSqliteFixture fixture, ITestOutputHelper testOutputHelper)
+    : OwnedComplexPropertiesProjectionRelationalTestBase<OwnedComplexPropertiesSqliteFixture>(fixture, testOutputHelper)
+{
+    public override Task Select_subquery_required_related_FirstOrDefault(QueryTrackingBehavior queryTrackingBehavior)
+        => AssertApplyNotSupported(() => base.Select_subquery_required_related_FirstOrDefault(queryTrackingBehavior));
+
+    public override Task Select_subquery_optional_related_FirstOrDefault(QueryTrackingBehavior queryTrackingBehavior)
+        => AssertApplyNotSupported(() => base.Select_subquery_optional_related_FirstOrDefault(queryTrackingBehavior));
+
+    public override Task Select_subquery_FirstOrDefault_complex_collection(QueryTrackingBehavior queryTrackingBehavior)
+        => queryTrackingBehavior is QueryTrackingBehavior.TrackAll
+            ? Task.CompletedTask // Base test expects "can't track owned entities" exception, but with SQLite we get "no CROSS APPLY"
+            : AssertApplyNotSupported(() => base.Select_subquery_FirstOrDefault_complex_collection(queryTrackingBehavior));
+
+    private static async Task AssertApplyNotSupported(Func<Task> query)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(query))
+            .Message);
+}

@@ -41,6 +41,24 @@ public abstract class DateOnlyTranslationsTestBase<TFixture>(TFixture fixture) :
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.DateOnly.AddMonths(3) == new DateOnly(1991, 2, 10)));
 
     [Fact]
+    public virtual Task AddMonths_past_end_of_month_gives_last_day_of_month()
+        => AssertQuery(
+            ss => ss.Set<BasicTypesEntity>()
+                .Where(m => m.DateOnly.AddDays(82).AddMonths(1) == new DateOnly(1991, 2, 28)));
+
+    [Fact]
+    public virtual Task AddMonths_negative_past_end_of_month_gives_last_day_of_month()
+        => AssertQuery(
+            ss => ss.Set<BasicTypesEntity>()
+                .Where(m => m.DateOnly.AddDays(51).AddMonths(-1) == new DateOnly(1990, 11, 30)));
+
+    [Fact]
+    public virtual Task AddYears_from_leap_day_gives_last_day_of_February()
+        => AssertQuery(
+            ss => ss.Set<BasicTypesEntity>()
+                .Where(m => m.DateOnly.AddDays(476).AddYears(1) == new DateOnly(1993, 2, 28)));
+
+    [Fact]
     public virtual Task AddDays()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.DateOnly.AddDays(3) == new DateOnly(1990, 11, 13)));
 

@@ -374,6 +374,8 @@ public class ForeignKeyPropertyDiscoveryConvention :
     {
         var dependentPkProperties = dependentEntityType.FindPrimaryKey()?.Properties;
         return dependentPkProperties != null
+            // Foreign keys can't use properties declared on complex types
+            && dependentPkProperties.All(p => p.DeclaringType is IConventionEntityType)
             && ForeignKey.AreCompatible(
                 propertiesToReference,
                 dependentPkProperties,

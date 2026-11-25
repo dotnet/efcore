@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore;
@@ -167,6 +168,33 @@ WHERE (c["$type"] = "Parent")
         await base.Can_query_custom_type_not_mapped_by_default_equality(async);
     }
 
+    public override Task Value_converter_in_complex_type_on_owned_reference()
+    {
+        // Primitive collections with element converters aren't supported on Cosmos, so this mapping isn't in the fixture's model
+        var modelBuilder = CosmosTestHelpers.Instance.CreateConventionBuilder();
+        ConfigureOwnerWithConvertedTag(modelBuilder, _ => { });
+
+        var exception = Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel());
+
+        Assert.Equal(CosmosStrings.ElementWithValueConverter("List<TagId>", "Tag", "RelatedIds", "TagId"), exception.Message);
+
+        return Task.CompletedTask;
+    }
+
+    public override async Task Value_comparer_in_complex_type_on_owned_reference()
+    {
+        await base.Value_comparer_in_complex_type_on_owned_reference();
+
+        AssertSql(
+            """
+ReadItem(None, OwnerWithComparedTag|1)
+""",
+            //
+            """
+ReadItem(None, OwnerWithComparedTag|1)
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
@@ -218,6 +246,9 @@ WHERE (c["$type"] = "Parent")
 
             modelBuilder.Entity<Person>().Metadata.RemoveIndex(
                 modelBuilder.Entity<Person>().Property(e => e.SSN).Metadata.GetContainingIndexes().Single());
+
+            // Primitive collections with element converters aren't supported
+            modelBuilder.Ignore<OwnerWithConvertedTag>();
         }
     }
 }

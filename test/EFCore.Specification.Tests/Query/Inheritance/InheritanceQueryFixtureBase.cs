@@ -51,7 +51,7 @@ public abstract class InheritanceQueryFixtureBase : QueryFixtureBase<Inheritance
             var animals = expectedData.Animals.Where(a => a.CountryId == 1).ToList();
             var animalQueries = expectedData.AnimalQueries.Where(a => a.CountryId == 1).ToList();
             expectedData = new InheritanceData(
-                animals, animalQueries, expectedData.Countries, expectedData.Drinks, expectedData.Plants);
+                animals, animalQueries, expectedData.Countries, expectedData.Drinks, expectedData.Plants, expectedData.Manufacturers);
         }
 
         _expectedDataCache[EnableFilters] = expectedData;
@@ -80,6 +80,9 @@ public abstract class InheritanceQueryFixtureBase : QueryFixtureBase<Inheritance
         { typeof(Tea), e => ((Tea)e).SortIndex },
         { typeof(ComplexType), e => e is ComplexType complexType ? complexType.UniqueInt : 0 },
         { typeof(NestedComplexType), e => e is NestedComplexType nestedComplexType ? nestedComplexType.UniqueInt : 0 },
+        { typeof(Manufacturer), e => ((Manufacturer)e).Id },
+        { typeof(Brewery), e => ((Brewery)e).Id },
+        { typeof(SiteAddress), e => ((SiteAddress)e).City },
     }.ToDictionary(e => e.Key, e => (object)e.Value);
 
     public override IReadOnlyDictionary<Type, object> EntityAsserters { get; }
@@ -410,7 +413,71 @@ public abstract class InheritanceQueryFixtureBase : QueryFixtureBase<Inheritance
                     }
                 }
             },
+            {
+                typeof(Manufacturer), (e, a) =>
+                {
+                    Assert.Equal(e == null, a == null);
+
+                    if (a != null)
+                    {
+                        var ee = (Manufacturer)e!;
+                        var aa = (Manufacturer)a;
+
+                        Assert.Equal(ee.Id, aa.Id);
+                        Assert.Equal(ee.Name, aa.Name);
+                        AssertSite(ee.Headquarters, aa.Headquarters);
+
+                        Assert.Equal(ee is Brewery, aa is Brewery);
+                        if (ee is Brewery eb)
+                        {
+                            AssertSite(eb.Brewhouse, ((Brewery)aa).Brewhouse);
+                        }
+                    }
+                }
+            },
+            {
+                typeof(Brewery), (e, a) =>
+                {
+                    Assert.Equal(e == null, a == null);
+
+                    if (a != null)
+                    {
+                        var ee = (Brewery)e!;
+                        var aa = (Brewery)a;
+
+                        Assert.Equal(ee.Id, aa.Id);
+                        Assert.Equal(ee.Name, aa.Name);
+                        AssertSite(ee.Headquarters, aa.Headquarters);
+                        AssertSite(ee.Brewhouse, aa.Brewhouse);
+                    }
+                }
+            },
+            {
+                typeof(SiteAddress), (e, a) =>
+                {
+                    Assert.Equal(e == null, a == null);
+
+                    if (a != null)
+                    {
+                        AssertSiteAddress((SiteAddress)e!, (SiteAddress)a);
+                    }
+                }
+            },
         }.ToDictionary(e => e.Key, e => (object)e.Value);
+
+    private static void AssertSite(Site e, Site a)
+    {
+        Assert.Equal(e.Name, a.Name);
+        AssertSiteAddress(e.Address, a.Address);
+    }
+
+    private static void AssertSiteAddress(SiteAddress e, SiteAddress a)
+    {
+        Assert.Equal(e.Street, a.Street);
+        Assert.Equal(e.City, a.City);
+        Assert.Equal(e.Country.Name, a.Country.Name);
+        Assert.Equal(e.Country.Code, a.Country.Code);
+    }
 
     private void AssertComplexType(ComplexType? e, ComplexType? a)
     {
@@ -521,6 +588,16 @@ public abstract class InheritanceQueryFixtureBase : QueryFixtureBase<Inheritance
 
             modelBuilder.Entity<Coke>().ComplexProperty(c => c.ChildComplexType);
             modelBuilder.Entity<Tea>().ComplexProperty(t => t.ChildComplexType);
+
+            // Complex properties on owned types, on both the base and the derived type of a hierarchy. These types are
+            // only reachable from here, so they're not in the model when complex types are disabled.
+            modelBuilder.Entity<Manufacturer>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+                b.OwnsOne(e => e.Headquarters, ob => ob.ComplexProperty(o => o.Address));
+            });
+
+            modelBuilder.Entity<Brewery>().OwnsOne(e => e.Brewhouse, ob => ob.ComplexProperty(o => o.Address));
         }
         else
         {
@@ -536,5 +613,5 @@ public abstract class InheritanceQueryFixtureBase : QueryFixtureBase<Inheritance
     }
 
     protected override Task SeedAsync(InheritanceContext context)
-        => InheritanceContext.SeedAsync(context, UseGeneratedKeys);
+        => InheritanceContext.SeedAsync(context, UseGeneratedKeys, EnableComplexTypes);
 }

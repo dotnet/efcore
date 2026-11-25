@@ -163,6 +163,85 @@ Func<Task<decimal>> query = () => context.Groups.Where(group => group.Id == id)
     }
 
     [Fact]
+    public virtual async Task Implicit_conversions_in_binary_and_conditional_expressions()
+    {
+        var contextFactory = await InitializeNonSharedTest<ImplicitConversionContext>(seed: context => context.SeedAsync());
+
+        await Test(
+            """
+await using var context = new AdHocPrecompiledQueryRelationalTestBase.ImplicitConversionContext(dbContextOptions);
+var taskType = "generation";
+var since = new DateTime(2026, 1, 1);
+var metrics = await context.Tasks
+    .AsNoTracking()
+    .Where(task => task.Type == taskType && task.CreatedAt >= since)
+    .GroupBy(task => task.State)
+    .OrderBy(group => group.Key)
+    .Select(group => new AdHocPrecompiledQueryRelationalTestBase.ImplicitConversionContext.Metric(
+        group.Key,
+        group.Count(),
+        group.Where(task => task.CompletedAt.HasValue).Any()
+            ? group.Where(task => task.CompletedAt.HasValue).Average(task => task.Id)
+            : null))
+    .ToListAsync();
+
+Assert.Equal(
+    new[]
+    {
+        new AdHocPrecompiledQueryRelationalTestBase.ImplicitConversionContext.Metric(0, 2, 2.0),
+        new AdHocPrecompiledQueryRelationalTestBase.ImplicitConversionContext.Metric(1, 1, null)
+    },
+    metrics);
+""",
+            typeof(ImplicitConversionContext),
+            contextFactory.GetOptions());
+    }
+
+    public class ImplicitConversionContext(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<GenerationTask> Tasks { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<GenerationTask>().Property(task => task.Id).ValueGeneratedNever();
+            modelBuilder.Entity<GenerationTask>().Property(task => task.Type)
+                .HasConversion(type => (string)type, value => new TaskType(value));
+        }
+
+        public Task SeedAsync()
+        {
+            var createdAt = new DateTime(2026, 1, 1);
+            AddRange(
+                new GenerationTask { Id = 1, Type = new TaskType("generation"), CreatedAt = createdAt, CompletedAt = createdAt },
+                new GenerationTask { Id = 3, Type = new TaskType("generation"), CreatedAt = createdAt, CompletedAt = createdAt },
+                new GenerationTask { Id = 2, Type = new TaskType("generation"), State = 1, CreatedAt = createdAt },
+                new GenerationTask { Id = 4, Type = new TaskType("other"), CreatedAt = createdAt },
+                new GenerationTask { Id = 5, Type = new TaskType("generation"), CreatedAt = createdAt.AddDays(-1) });
+
+            return SaveChangesAsync();
+        }
+
+        public class GenerationTask
+        {
+            public int Id { get; set; }
+            public TaskType Type { get; set; } = null!;
+            public int State { get; set; }
+            public DateTime CreatedAt { get; set; }
+            public DateTime? CompletedAt { get; set; }
+        }
+
+        public class TaskType(string value)
+        {
+            private readonly string _value = value;
+
+            public static implicit operator string(TaskType type)
+                => type._value;
+        }
+
+        public sealed record Metric(int State, int Count, double? Average);
+    }
+
+    [Fact]
     public virtual async Task Index_no_evaluatability()
     {
         var contextFactory = await InitializeNonSharedTest<JsonContext>();
@@ -232,6 +311,133 @@ _ = context.JsonEntities.Where(b => b.JsonThing.StringProperty == "foo").ToList(
     public class JsonThing
     {
         public string StringProperty { get; set; } = null!;
+    }
+
+    [Fact]
+    public virtual async Task Complex_properties_on_owned_types()
+    {
+        var contextFactory = await InitializeNonSharedTest<OwnedComplexContext>(seed: OwnedComplexContext.SeedAsync);
+        var options = contextFactory.GetOptions();
+
+        await Test(
+            """
+await using var context = new AdHocPrecompiledQueryRelationalTestBase.OwnedComplexContext(dbContextOptions);
+
+var owners = await context.Owners.Where(o => o.Owned.Address.City == "Sydney").ToListAsync();
+var owner = Assert.Single(owners);
+Assert.Equal("AU", owner.Owned.Address.Country.Code);
+Assert.Equal("Melbourne", owner.Owned.JsonAddress.City);
+Assert.Equal(["Perth"], owner.OwnedCollection.Select(o => o.Address.City));
+Assert.Equal("Hobart", owner.JsonOwned.Address.City);
+""",
+            typeof(OwnedComplexContext),
+            options);
+    }
+
+    [Fact]
+    public virtual async Task Complex_properties_on_owned_types_projected()
+    {
+        var contextFactory = await InitializeNonSharedTest<OwnedComplexContext>(seed: OwnedComplexContext.SeedAsync);
+        var options = contextFactory.GetOptions();
+
+        await Test(
+            """
+await using var context = new AdHocPrecompiledQueryRelationalTestBase.OwnedComplexContext(dbContextOptions);
+
+var addresses = await context.Owners
+    .Select(o => new { o.Owned.Address, o.Owned.JsonAddress, JsonOwnedCity = o.JsonOwned.Address.City })
+    .ToListAsync();
+var address = Assert.Single(addresses);
+Assert.Equal("Sydney", address.Address.City);
+Assert.Equal("AU", address.Address.Country.Code);
+Assert.Equal("Melbourne", address.JsonAddress.City);
+Assert.Equal("Hobart", address.JsonOwnedCity);
+""",
+            typeof(OwnedComplexContext),
+            options);
+    }
+
+    public class OwnedComplexContext(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<OwnedComplexOwner> Owners { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<OwnedComplexOwner>(b =>
+            {
+                b.Property(o => o.Id).ValueGeneratedNever();
+                b.OwnsOne(
+                    o => o.Owned, ob =>
+                    {
+                        ob.ComplexProperty(o => o.Address);
+                        ob.ComplexProperty(o => o.JsonAddress, cb => cb.ToJson());
+                    });
+                b.OwnsMany(
+                    o => o.OwnedCollection, ob =>
+                    {
+                        ob.HasKey("Id");
+                        ob.ComplexProperty(o => o.Address);
+                        ob.Ignore(o => o.JsonAddress);
+                    });
+                b.OwnsOne(
+                    o => o.JsonOwned, ob =>
+                    {
+                        ob.ToJson();
+                        ob.ComplexProperty(o => o.Address);
+                        ob.Ignore(o => o.JsonAddress);
+                    });
+            });
+
+        public static Task SeedAsync(OwnedComplexContext context)
+        {
+            context.Owners.Add(
+                new OwnedComplexOwner
+                {
+                    Id = 1,
+                    Owned = new OwnedWithAddress
+                    {
+                        Address = new OwnedAddress { City = "Sydney", Country = new OwnedCountry { Code = "AU" } },
+                        JsonAddress = new OwnedAddress { City = "Melbourne", Country = new OwnedCountry { Code = "AU" } }
+                    },
+                    OwnedCollection =
+                    [
+                        new OwnedWithAddress
+                        {
+                            Address = new OwnedAddress { City = "Perth", Country = new OwnedCountry { Code = "AU" } }
+                        }
+                    ],
+                    JsonOwned = new OwnedWithAddress
+                    {
+                        Address = new OwnedAddress { City = "Hobart", Country = new OwnedCountry { Code = "AU" } }
+                    }
+                });
+
+            return context.SaveChangesAsync();
+        }
+    }
+
+    public class OwnedComplexOwner
+    {
+        public int Id { get; set; }
+        public OwnedWithAddress Owned { get; set; } = null!;
+        public List<OwnedWithAddress> OwnedCollection { get; set; } = [];
+        public OwnedWithAddress JsonOwned { get; set; } = null!;
+    }
+
+    public class OwnedWithAddress
+    {
+        public OwnedAddress Address { get; set; } = null!;
+        public OwnedAddress JsonAddress { get; set; } = null!;
+    }
+
+    public class OwnedAddress
+    {
+        public string City { get; set; } = null!;
+        public OwnedCountry Country { get; set; } = null!;
+    }
+
+    public class OwnedCountry
+    {
+        public string Code { get; set; } = null!;
     }
 
     [Fact]

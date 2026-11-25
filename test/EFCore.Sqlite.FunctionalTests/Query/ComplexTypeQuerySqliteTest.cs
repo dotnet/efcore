@@ -379,6 +379,12 @@ FROM "Customer" AS "c0"
         AssertSql();
     }
 
+    public override async Task Union_complex_type_with_different_identifiers_in_collection_projection(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Union_complex_type_with_different_identifiers_in_collection_projection(async))).Message);
+
     public override async Task Union_two_different_complex_type(bool async)
     {
         await base.Union_two_different_complex_type(async);
@@ -1552,6 +1558,71 @@ LIMIT 2
     }
 
     #endregion Non-shared test resources
+
+    public override async Task Distinct_over_entity_with_key_on_complex_property()
+    {
+        await base.Distinct_over_entity_with_key_on_complex_property();
+
+        AssertSql(
+            """
+SELECT "p0"."Id_Id", "p0"."Address_City", "p0"."Address_PostalCode"
+FROM (
+    SELECT DISTINCT "p"."Id_Id", "p"."Address_City", "p"."Address_PostalCode"
+    FROM "Person" AS "p"
+) AS "p0"
+ORDER BY "p0"."Id_Id"
+""");
+    }
+
+    public override async Task Union_over_entity_with_key_on_complex_property()
+    {
+        await base.Union_over_entity_with_key_on_complex_property();
+
+        AssertSql(
+            """
+SELECT "u"."Id_Id", "u"."Address_City", "u"."Address_PostalCode"
+FROM (
+    SELECT "p"."Id_Id", "p"."Address_City", "p"."Address_PostalCode"
+    FROM "Person" AS "p"
+    WHERE "p"."Address_City" = 'Seattle'
+    UNION
+    SELECT "p0"."Id_Id", "p0"."Address_City", "p0"."Address_PostalCode"
+    FROM "Person" AS "p0"
+    WHERE "p0"."Address_City" = 'Redmond'
+) AS "u"
+ORDER BY "u"."Id_Id"
+""");
+    }
+
+    public override async Task Entity_with_key_on_complex_property_equals_parameter()
+    {
+        await base.Entity_with_key_on_complex_property_equals_parameter();
+
+        AssertSql(
+            """
+@entity_equality_person_Id_Id='2' (Nullable = true)
+
+SELECT "p"."Id_Id", "p"."Address_City", "p"."Address_PostalCode"
+FROM "Person" AS "p"
+WHERE "p"."Id_Id" = @entity_equality_person_Id_Id
+LIMIT 2
+""");
+    }
+
+    public override async Task Entity_with_key_on_complex_property_in_local_collection()
+    {
+        await base.Entity_with_key_on_complex_property_in_local_collection();
+
+        AssertSql(
+            """
+@entity_equality_people_Id1='2'
+
+SELECT "p"."Id_Id", "p"."Address_City", "p"."Address_PostalCode"
+FROM "Person" AS "p"
+WHERE "p"."Id_Id" = @entity_equality_people_Id1
+LIMIT 2
+""");
+    }
 
     [Fact]
     public virtual void Check_all_tests_overridden()

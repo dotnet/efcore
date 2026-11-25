@@ -16,6 +16,20 @@ public class PrecompiledQuerySqlServerTest(
 
     #region Expression types
 
+    public override async Task MemberInit_with_required_init_only_properties()
+    {
+        await base.MemberInit_with_required_init_only_properties();
+
+        AssertSql(
+            """
+@id='8'
+
+SELECT TOP(1) [b].[Id], [b].[Name]
+FROM [Blogs] AS [b]
+WHERE [b].[Id] = @id
+""");
+    }
+
     public override async Task Class_constant_in_predicate()
     {
         await base.Class_constant_in_predicate();
@@ -540,6 +554,66 @@ ORDER BY [b].[Name]
 """);
     }
 
+    public override async Task Skip_Take_with_parameters()
+    {
+        await base.Skip_Take_with_parameters();
+
+        AssertSql(
+            """
+@p='0'
+@p1='3'
+
+SELECT [p].[Id]
+FROM [Posts] AS [p]
+ORDER BY [p].[Id]
+OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
+""",
+            """
+@p='1'
+@p1='2'
+
+SELECT [p].[Id]
+FROM [Posts] AS [p]
+ORDER BY [p].[Id]
+OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
+""",
+            """
+@p='1'
+@p1='1'
+
+SELECT [p].[Id]
+FROM [Posts] AS [p]
+ORDER BY [p].[Id]
+OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
+""",
+            """
+@p='5'
+@p1='1'
+
+SELECT [p].[Id]
+FROM [Posts] AS [p]
+ORDER BY [p].[Id]
+OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
+""");
+    }
+
+    public override async Task Skip_Take_with_captured_parameters_in_local_function()
+    {
+        await base.Skip_Take_with_captured_parameters_in_local_function();
+
+        AssertSql(
+            """
+@p='1'
+@p1='2'
+
+SELECT [p].[Id]
+FROM [Posts] AS [p]
+WHERE [p].[Id] > 10
+ORDER BY [p].[Id]
+OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
+""");
+    }
+
     public override async Task Select_changes_type()
     {
         await base.Select_changes_type();
@@ -631,6 +705,38 @@ FROM (
     FROM [Blogs] AS [b]
 ) AS [b0]
 WHERE [b0].[row] <= 1
+""");
+    }
+
+    public override async Task GroupBy_aggregate_over_outer_grouping_in_subquery()
+    {
+        await base.GroupBy_aggregate_over_outer_grouping_in_subquery();
+
+        AssertSql(
+            """
+SELECT [b].[Name] AS [Key], ISNULL((
+    SELECT TOP(1) (
+        SELECT COUNT(*)
+        FROM [Blogs] AS [b1]
+        WHERE [b].[Name] = [b1].[Name] OR ([b].[Name] IS NULL AND [b1].[Name] IS NULL))
+    FROM [Blogs] AS [b0]
+    GROUP BY [b0].[Id]
+    ORDER BY [b0].[Id]), 0) AS [Count]
+FROM [Blogs] AS [b]
+GROUP BY [b].[Name]
+""");
+    }
+
+    public override async Task GroupBy_aggregate_as_element_of_inline_collection_Contains()
+    {
+        await base.GroupBy_aggregate_as_element_of_inline_collection_Contains();
+
+        AssertSql(
+            """
+SELECT [b].[Name]
+FROM [Blogs] AS [b]
+GROUP BY [b].[Name]
+HAVING 1 IN (COUNT(*), -1)
 """);
     }
 

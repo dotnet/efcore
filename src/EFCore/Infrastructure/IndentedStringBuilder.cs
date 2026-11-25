@@ -247,6 +247,7 @@ public class IndentedStringBuilder
     {
         _stringBuilder.Clear();
         _indent = 0;
+        _indentPending = true;
 
         return this;
     }

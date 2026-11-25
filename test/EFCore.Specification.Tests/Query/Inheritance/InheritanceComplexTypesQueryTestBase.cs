@@ -70,4 +70,34 @@ public abstract class InheritanceComplexTypesQueryTestBase<TFixture>(TFixture fi
             async,
             ss => ss.Set<Drink>().Where(d => d.ComplexTypeCollection.Count(c => c.Int > 59) == 2),
             ss => ss.Set<Drink>().Where(d => d.ComplexTypeCollection != null && d.ComplexTypeCollection.Count(c => c.Int > 59) == 2));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Owned_reference_with_complex_type_on_base_and_derived_types(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Manufacturer>());
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Filter_on_complex_type_property_of_owned_reference_on_base_type(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Manufacturer>().Where(m => m.Headquarters.Address.Country.Code == "DE"));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Filter_on_complex_type_property_of_owned_reference_on_derived_type(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Brewery>().Where(b => b.Brewhouse.Address.Country.Code == "DE"));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Project_complex_type_of_owned_reference_on_base_type(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Manufacturer>().Select(m => m.Headquarters.Address));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Project_complex_type_of_owned_reference_on_derived_type(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Manufacturer>().OfType<Brewery>().Select(b => b.Brewhouse.Address));
 }

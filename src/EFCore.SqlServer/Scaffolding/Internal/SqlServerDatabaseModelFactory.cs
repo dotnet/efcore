@@ -51,7 +51,7 @@ public class SqlServerDatabaseModelFactory(
     /// </summary>
     public override DatabaseModel Create(string connectionString, DatabaseModelFactoryOptions options)
     {
-        using var connection = new SqlConnection(connectionString);
+        using var connection = new SqlConnection(connectionString) { RegisteredApplication = RegisteredApplication.EntityFrameworkCore };
         return Create(connection, options);
     }
 

@@ -955,25 +955,7 @@ public static class RelationalDatabaseFacadeExtensions
     /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
     /// <param name="timeout">The timeout to use.</param>
     public static void SetCommandTimeout(this DatabaseFacade databaseFacade, TimeSpan timeout)
-    {
-        if (timeout == Timeout.InfiniteTimeSpan)
-        {
-            databaseFacade.SetCommandTimeout(0);
-            return;
-        }
-
-        if (timeout < TimeSpan.Zero)
-        {
-            throw new ArgumentException(RelationalStrings.TimeoutTooSmall(timeout.TotalSeconds));
-        }
-
-        if (timeout.TotalSeconds > int.MaxValue)
-        {
-            throw new ArgumentException(RelationalStrings.TimeoutTooBig(timeout.TotalSeconds));
-        }
-
-        databaseFacade.SetCommandTimeout(Convert.ToInt32(timeout.TotalSeconds));
-    }
+        => databaseFacade.SetCommandTimeout(ToCommandTimeoutSeconds(timeout));
 
     /// <summary>
     ///     Returns the timeout (in seconds) set for commands executed with this <see cref="DbContext" />.
@@ -1031,24 +1013,7 @@ public static class RelationalDatabaseFacadeExtensions
     /// <param name="timeout">The timeout to use.</param>
     /// <returns>An <see cref="IDisposable" /> that resets the command timeout to its previous value when disposed.</returns>
     public static IDisposable UseCommandTimeout(this DatabaseFacade databaseFacade, TimeSpan timeout)
-    {
-        if (timeout == Timeout.InfiniteTimeSpan)
-        {
-            return databaseFacade.UseCommandTimeout(0);
-        }
-
-        if (timeout < TimeSpan.Zero)
-        {
-            throw new ArgumentException(RelationalStrings.TimeoutTooSmall(timeout.TotalSeconds));
-        }
-
-        if (timeout.TotalSeconds > int.MaxValue)
-        {
-            throw new ArgumentException(RelationalStrings.TimeoutTooBig(timeout.TotalSeconds));
-        }
-
-        return databaseFacade.UseCommandTimeout(Convert.ToInt32(timeout.TotalSeconds));
-    }
+        => databaseFacade.UseCommandTimeout(ToCommandTimeoutSeconds(timeout));
 
     /// <summary>
     ///     Generates a script to create all tables for the current model.
@@ -1098,6 +1063,28 @@ public static class RelationalDatabaseFacadeExtensions
         return dependencies is IRelationalDatabaseFacadeDependencies relationalDependencies
             ? relationalDependencies
             : throw new InvalidOperationException(RelationalStrings.RelationalNotInUse);
+    }
+
+    private static int ToCommandTimeoutSeconds(TimeSpan timeout)
+    {
+        if (timeout == Timeout.InfiniteTimeSpan)
+        {
+            return 0;
+        }
+
+        if (timeout < TimeSpan.Zero)
+        {
+            throw new ArgumentException(RelationalStrings.TimeoutTooSmall(timeout.TotalSeconds));
+        }
+
+        if (timeout.TotalSeconds > int.MaxValue)
+        {
+            throw new ArgumentException(RelationalStrings.TimeoutTooBig(timeout.TotalSeconds));
+        }
+
+        // A timeout of 0 means no timeout, so a positive timeout must not be rounded down to 0 seconds
+        var seconds = Convert.ToInt32(timeout.TotalSeconds);
+        return seconds == 0 && timeout > TimeSpan.Zero ? 1 : seconds;
     }
 
     private static TService GetRelationalService<TService>(this IInfrastructure<IServiceProvider> databaseFacade)

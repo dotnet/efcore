@@ -1478,6 +1478,65 @@ LIMIT 2
 """);
     }
 
+    public override async Task Column_collections_Contains_with_non_json_scalar_types(bool async)
+    {
+        await base.Column_collections_Contains_with_non_json_scalar_types(async);
+
+        AssertSql(
+            """
+@id='12345678-1234-1234-1234-123456789abc'
+
+SELECT "c"."Id"
+FROM "ContainsOwner" AS "c"
+WHERE @id IN (
+    SELECT "g"."value"
+    FROM json_each("c"."Guids") AS "g"
+)
+""",
+            //
+            """
+@date='2026-01-02T12:30:00.0000000' (DbType = DateTime)
+
+SELECT "c"."Id"
+FROM "ContainsOwner" AS "c"
+WHERE @date IN (
+    SELECT "d"."value"
+    FROM json_each("c"."Dates") AS "d"
+)
+""",
+            //
+            """
+@id='12345678-1234-1234-1234-123456789abc'
+
+SELECT "c"."Id"
+FROM "ContainsOwner" AS "c"
+WHERE @id IN (
+    SELECT "g"."value"
+    FROM json_each("c"."Owned" ->> 'Guids') AS "g"
+)
+""",
+            //
+            """
+@date='2026-01-02T12:30:00.0000000' (DbType = DateTime)
+
+SELECT "c"."Id"
+FROM "ContainsOwner" AS "c"
+WHERE @date IN (
+    SELECT "d"."value"
+    FROM json_each("c"."Owned" ->> 'Dates') AS "d"
+)
+""",
+            //
+            """
+SELECT "c"."Id"
+FROM "ContainsOwner" AS "c"
+WHERE '42' IN (
+    SELECT "c0"."value"
+    FROM json_each("c"."ConvertedInts") AS "c0"
+)
+""");
+    }
+
     public override async Task Column_collection_inside_json_owned_entity()
     {
         await base.Column_collection_inside_json_owned_entity();
@@ -2050,6 +2109,69 @@ WHERE (
 SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."NullableWrappedId", "p"."NullableWrappedIdWithNullableComparer", "p"."String", "p"."Strings", "p"."WrappedId"
 FROM "PrimitiveCollectionsEntity" AS "p"
 WHERE json_array_length("p"."Ints") > 0
+""");
+    }
+
+    public override async Task Column_collection_Array_Exists()
+    {
+        await base.Column_collection_Array_Exists();
+
+        AssertSql(
+            """
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."NullableWrappedId", "p"."NullableWrappedIdWithNullableComparer", "p"."String", "p"."Strings", "p"."WrappedId"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE EXISTS (
+    SELECT 1
+    FROM json_each("p"."Ints") AS "i"
+    WHERE "i"."value" > 10)
+""");
+    }
+
+    public override async Task Column_collection_Array_Exists_covariant()
+    {
+        await base.Column_collection_Array_Exists_covariant();
+
+        AssertSql(
+            """
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."NullableWrappedId", "p"."NullableWrappedIdWithNullableComparer", "p"."String", "p"."Strings", "p"."WrappedId"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE EXISTS (
+    SELECT 1
+    FROM json_each("p"."Strings") AS "s"
+    WHERE "s"."value" = '10')
+""");
+    }
+
+    public override async Task Parameter_collection_Array_Exists_covariant()
+    {
+        await base.Parameter_collection_Array_Exists_covariant();
+
+        AssertSql(
+            """
+@strings1='10' (Size = 2)
+@strings2='999' (Size = 3)
+
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."NullableWrappedId", "p"."NullableWrappedIdWithNullableComparer", "p"."String", "p"."Strings", "p"."WrappedId"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE EXISTS (
+    SELECT 1
+    FROM (SELECT @strings1 AS "Value" UNION ALL VALUES (@strings2)) AS "s"
+    WHERE "s"."Value" = "p"."String")
+""");
+    }
+
+    public override async Task Parameter_collection_Array_Exists()
+    {
+        await base.Parameter_collection_Array_Exists();
+
+        AssertSql(
+            """
+@ints1='10'
+@ints2='999'
+
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."NullableWrappedId", "p"."NullableWrappedIdWithNullableComparer", "p"."String", "p"."Strings", "p"."WrappedId"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE "p"."Int" IN (@ints1, @ints2)
 """);
     }
 

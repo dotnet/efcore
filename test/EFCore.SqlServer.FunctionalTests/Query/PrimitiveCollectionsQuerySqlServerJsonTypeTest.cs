@@ -1699,6 +1699,65 @@ WHERE [t].[Ints] = @ints
 """);
     }
 
+    public override async Task Column_collections_Contains_with_non_json_scalar_types(bool async)
+    {
+        await base.Column_collections_Contains_with_non_json_scalar_types(async);
+
+        AssertSql(
+            """
+@id='12345678-1234-1234-1234-123456789abc'
+
+SELECT [c].[Id]
+FROM [ContainsOwner] AS [c]
+WHERE @id IN (
+    SELECT [g].[value]
+    FROM OPENJSON([c].[Guids]) WITH ([value] uniqueidentifier '$') AS [g]
+)
+""",
+            //
+            """
+@date='2026-01-02T12:30:00.0000000'
+
+SELECT [c].[Id]
+FROM [ContainsOwner] AS [c]
+WHERE @date IN (
+    SELECT [d].[value]
+    FROM OPENJSON([c].[Dates]) WITH ([value] datetime2 '$') AS [d]
+)
+""",
+            //
+            """
+@id='12345678-1234-1234-1234-123456789abc'
+
+SELECT [c].[Id]
+FROM [ContainsOwner] AS [c]
+WHERE @id IN (
+    SELECT [g].[value]
+    FROM OPENJSON(JSON_QUERY([c].[Owned], '$.Guids')) WITH ([value] uniqueidentifier '$') AS [g]
+)
+""",
+            //
+            """
+@date='2026-01-02T12:30:00.0000000'
+
+SELECT [c].[Id]
+FROM [ContainsOwner] AS [c]
+WHERE @date IN (
+    SELECT [d].[value]
+    FROM OPENJSON(JSON_QUERY([c].[Owned], '$.Dates')) WITH ([value] datetime2 '$') AS [d]
+)
+""",
+            //
+            """
+SELECT [c].[Id]
+FROM [ContainsOwner] AS [c]
+WHERE N'42' IN (
+    SELECT [c0].[value]
+    FROM OPENJSON([c].[ConvertedInts]) WITH ([value] nvarchar(64) '$') AS [c0]
+)
+""");
+    }
+
     public override async Task Column_collection_inside_json_owned_entity()
     {
         await base.Column_collection_inside_json_owned_entity();
@@ -2281,6 +2340,69 @@ FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE EXISTS (
     SELECT 1
     FROM OPENJSON([p].[Ints]) AS [i])
+""");
+    }
+
+    public override async Task Column_collection_Array_Exists()
+    {
+        await base.Column_collection_Array_Exists();
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE EXISTS (
+    SELECT 1
+    FROM OPENJSON([p].[Ints]) WITH ([value] int '$') AS [i]
+    WHERE [i].[value] > 10)
+""");
+    }
+
+    public override async Task Column_collection_Array_Exists_covariant()
+    {
+        await base.Column_collection_Array_Exists_covariant();
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE EXISTS (
+    SELECT 1
+    FROM OPENJSON([p].[Strings]) WITH ([value] nvarchar(max) '$') AS [s]
+    WHERE [s].[value] = N'10')
+""");
+    }
+
+    public override async Task Parameter_collection_Array_Exists_covariant()
+    {
+        await base.Parameter_collection_Array_Exists_covariant();
+
+        AssertSql(
+            """
+@strings1='10' (Size = 4000)
+@strings2='999' (Size = 4000)
+
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE EXISTS (
+    SELECT 1
+    FROM (VALUES (@strings1), (@strings2)) AS [s]([Value])
+    WHERE [s].[Value] = [p].[String])
+""");
+    }
+
+    public override async Task Parameter_collection_Array_Exists()
+    {
+        await base.Parameter_collection_Array_Exists();
+
+        AssertSql(
+            """
+@ints1='10'
+@ints2='999'
+
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE [p].[Int] IN (@ints1, @ints2)
 """);
     }
 

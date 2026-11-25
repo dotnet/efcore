@@ -443,6 +443,30 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     }
 
     [Fact]
+    public virtual void Detects_json_path_index_spanning_default_and_explicit_json_columns_on_owned_type()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<OwnerOfTwoJsonCollections>().OwnsOne(
+            e => e.Owned, b =>
+            {
+                b.ComplexCollection(e => e.ItemsA).ToJson();
+                b.ComplexCollection(e => e.ItemsB).ToJson("ItemsA");
+                b.HasIndex("ItemsA[].Value", "ItemsB[].Value");
+            });
+
+        VerifyError(
+            RelationalStrings.JsonPathIndexPropertiesInDifferentJsonColumns(
+                "{'Value', 'Value'}", nameof(EntityWithTwoJsonCollections), "Owned_ItemsA", "ItemsA"),
+            modelBuilder);
+    }
+
+    private sealed class OwnerOfTwoJsonCollections
+    {
+        public int Id { get; set; }
+        public EntityWithTwoJsonCollections Owned { get; set; } = null!;
+    }
+
+    [Fact]
     public virtual void GetNullableValueFactory_throws_for_index_containing_complex_property()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -2348,6 +2372,25 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
                 "{'" + nameof(Dog.Name) + "'}", nameof(Dog),
                 "{'" + nameof(Cat.Name) + "'}", nameof(Cat),
                 nameof(Animal), "FK_Animal_Person_Name"),
+            modelBuilder);
+    }
+
+    [Fact]
+    public virtual void Detects_duplicate_foreignKey_names_within_hierarchy_with_different_deferrability()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Animal>();
+        modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey(c => c.Name).HasPrincipalKey(p => p.Name)
+            .HasConstraintName("FK_Animal_Person_Name").HasDeferrability(ConstraintDeferrability.DeferrableInitiallyDeferred);
+        modelBuilder.Entity<Dog>().HasOne<Person>().WithMany().HasForeignKey(d => d.Name).HasPrincipalKey(p => p.Name)
+            .HasConstraintName("FK_Animal_Person_Name");
+
+        VerifyError(
+            RelationalStrings.DuplicateForeignKeyDeferrabilityMismatch(
+                "{'" + nameof(Dog.Name) + "'}", nameof(Dog),
+                "{'" + nameof(Cat.Name) + "'}", nameof(Cat),
+                nameof(Animal), "FK_Animal_Person_Name",
+                ConstraintDeferrability.NotDeferrable, ConstraintDeferrability.DeferrableInitiallyDeferred),
             modelBuilder);
     }
 
