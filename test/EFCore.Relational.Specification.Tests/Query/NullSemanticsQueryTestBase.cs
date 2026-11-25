@@ -546,23 +546,29 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
         => AssertQueryScalar(
             async,
             ss => ss.Set<NullSemanticsEntity1>()
+                .OrderBy(e => e.Id)
                 .Select(e => ss.Set<NullSemanticsEntity2>().Where(i => i.Id == e.Id)
-                    .Select(i => i.NullableIntA).FirstOrDefault() != e.IntB));
+                    .Select(i => i.NullableIntA).FirstOrDefault() != e.IntB),
+            assertOrder: true);
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Project_nullable_subquery_equal(bool async)
         => AssertQueryScalar(
             async,
             ss => ss.Set<NullSemanticsEntity1>()
+                .OrderBy(e => e.Id)
                 .Select(e => ss.Set<NullSemanticsEntity2>().Where(i => i.Id == e.Id)
-                    .Select(i => i.NullableIntA).FirstOrDefault() == e.IntB));
+                    .Select(i => i.NullableIntA).FirstOrDefault() == e.IntB),
+            assertOrder: true);
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Project_nullable_subquery_equal_constant(bool async)
         => AssertQueryScalar(
             async,
             ss => ss.Set<NullSemanticsEntity1>()
-                .Select(e => ss.Set<NullSemanticsEntity2>().Where(i => i.Id == e.Id).Select(i => i.NullableIntA).FirstOrDefault() == 1));
+                .OrderBy(e => e.Id)
+                .Select(e => ss.Set<NullSemanticsEntity2>().Where(i => i.Id == e.Id).Select(i => i.NullableIntA).FirstOrDefault() == 1),
+            assertOrder: true);
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Project_nullable_subquery_equal_parameter(bool async)
@@ -571,7 +577,9 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
         return AssertQueryScalar(
             async,
             ss => ss.Set<NullSemanticsEntity1>()
-                .Select(e => ss.Set<NullSemanticsEntity2>().Where(i => i.Id == e.Id).Select(i => i.NullableIntA).FirstOrDefault() == value));
+                .OrderBy(e => e.Id)
+                .Select(e => ss.Set<NullSemanticsEntity2>().Where(i => i.Id == e.Id).Select(i => i.NullableIntA).FirstOrDefault() == value),
+            assertOrder: true);
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -579,8 +587,32 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
         => AssertQueryScalar(
             async,
             ss => ss.Set<NullSemanticsEntity1>()
+                .OrderBy(e => e.Id)
                 .Select(e => !ss.Set<NullSemanticsEntity2>().Where(i => i.Id == e.Id)
-                    .Select(i => i.NullableBoolA).FirstOrDefault() == e.BoolB));
+                    .Select(i => i.NullableBoolA).FirstOrDefault() == e.BoolB),
+            assertOrder: true);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Project_negated_nullable_bool_subquery_not_equal_parameter(bool async)
+    {
+        var value = true;
+        return AssertQueryScalar(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>()
+                .OrderBy(e => e.Id)
+                .Select(e => !ss.Set<NullSemanticsEntity2>().Where(i => i.Id == e.Id && i.NullableBoolB != null)
+                    .Select(i => i.NullableBoolA).FirstOrDefault() != value),
+            assertOrder: true);
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Compare_negated_nullable_bool_subquery_not_equal_column(bool async)
+        => AssertQueryScalar(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>()
+                .Where(e => !ss.Set<NullSemanticsEntity2>().Where(i => i.Id == e.Id && i.NullableBoolB != null)
+                    .Select(i => i.NullableBoolA).FirstOrDefault() != e.BoolB)
+                .Select(e => e.Id));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Compare_two_nullable_expressions_not_equal(bool async)

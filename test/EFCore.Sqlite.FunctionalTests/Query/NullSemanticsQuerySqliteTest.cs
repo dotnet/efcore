@@ -90,6 +90,7 @@ SELECT CASE
     ELSE 1
 END
 FROM "Entities1" AS "e"
+ORDER BY "e"."Id"
 """);
     }
 
@@ -109,6 +110,7 @@ SELECT (
     WHERE "e0"."Id" = "e"."Id"
     LIMIT 1) IS NOT NULL
 FROM "Entities1" AS "e"
+ORDER BY "e"."Id"
 """);
     }
 
@@ -127,6 +129,7 @@ SELECT CASE
     ELSE 0
 END
 FROM "Entities1" AS "e"
+ORDER BY "e"."Id"
 """);
     }
 
@@ -145,6 +148,48 @@ SELECT CASE
     ELSE 0
 END
 FROM "Entities1" AS "e"
+ORDER BY "e"."Id"
+""");
+    }
+
+    public override async Task Project_negated_nullable_bool_subquery_not_equal_parameter(bool async)
+    {
+        await base.Project_negated_nullable_bool_subquery_not_equal_parameter(async);
+
+        AssertSql(
+            """
+@value='True' (Nullable = true)
+
+SELECT CASE
+    WHEN (
+        SELECT "e0"."NullableBoolA"
+        FROM "Entities2" AS "e0"
+        WHERE "e0"."Id" = "e"."Id" AND "e0"."NullableBoolB" IS NOT NULL
+        LIMIT 1) <> @value THEN 0
+    ELSE 1
+END
+FROM "Entities1" AS "e"
+ORDER BY "e"."Id"
+""");
+    }
+
+    public override async Task Compare_negated_nullable_bool_subquery_not_equal_column(bool async)
+    {
+        await base.Compare_negated_nullable_bool_subquery_not_equal_column(async);
+
+        AssertSql(
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE (
+    SELECT "e0"."NullableBoolA"
+    FROM "Entities2" AS "e0"
+    WHERE "e0"."Id" = "e"."Id" AND "e0"."NullableBoolB" IS NOT NULL
+    LIMIT 1) = "e"."BoolB" OR (
+    SELECT "e0"."NullableBoolA"
+    FROM "Entities2" AS "e0"
+    WHERE "e0"."Id" = "e"."Id" AND "e0"."NullableBoolB" IS NOT NULL
+    LIMIT 1) IS NULL
 """);
     }
 
@@ -165,6 +210,7 @@ SELECT CASE
     ELSE 0
 END
 FROM "Entities1" AS "e"
+ORDER BY "e"."Id"
 """);
     }
 
