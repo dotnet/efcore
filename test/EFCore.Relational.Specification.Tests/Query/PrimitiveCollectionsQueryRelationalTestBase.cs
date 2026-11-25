@@ -261,19 +261,32 @@ public abstract class PrimitiveCollectionsQueryRelationalTestBase<TFixture>(TFix
     public virtual async Task Parameter_collection_Contains_ending_in_null_with_bucket_padding()
     {
         var contextFactory = await InitializeNonSharedTest<TestContext>(
+            onModelCreating: mb => mb.Entity<TestEntityWithNullableInt>().Property(e => e.Id).ValueGeneratedNever(),
             onConfiguring: b => SetParameterizedCollectionMode(b, ParameterTranslationMode.MultipleParameters),
             seed: context =>
             {
                 context.AddRange(
-                    Enumerable.Range(1, 11).Select(i => new TestEntity { Id = i }));
+                    Enumerable.Range(1, 11).Select(i => new TestEntityWithNullableInt { Id = i, NullableInt = i == 2 ? null : i * 10 }));
                 return context.SaveChangesAsync();
             });
 
         await using var context = contextFactory.CreateDbContext();
 
         int?[] values = [1, 2, 3, 4, 5, 6, null];
-        var result = await context.Set<TestEntity>().Where(c => !values.Contains(c.Id)).OrderBy(c => c.Id).Select(c => c.Id).ToListAsync();
+
+        var result = await context.Set<TestEntityWithNullableInt>()
+            .Where(c => !values.Contains(c.Id))
+            .OrderBy(c => c.Id)
+            .Select(c => c.Id)
+            .ToListAsync();
         Assert.Equivalent(new[] { 7, 8, 9, 10, 11 }, result);
+
+        var counts = await context.Set<TestEntityWithNullableInt>()
+            .Where(c => values.Contains(c.Id))
+            .OrderBy(c => c.Id)
+            .Select(c => values.Count(v => v == c.NullableInt))
+            .ToListAsync();
+        Assert.Equal([0, 1, 0, 0, 0, 0], counts);
     }
 
     [Fact]

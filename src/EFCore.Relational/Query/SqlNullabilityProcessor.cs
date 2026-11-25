@@ -28,7 +28,10 @@ public class SqlNullabilityProcessor : ExpressionVisitor
     /// <summary>
     ///     Tracks parameters for collection expansion, allowing reuse.
     /// </summary>
-    private readonly Dictionary<SqlParameterExpression, List<SqlParameterExpression>> _collectionParameterExpansionMap;
+    private readonly Dictionary<SqlParameterExpression, SqlParameterExpression?[]> _collectionParameterExpansionMap;
+
+    private readonly Dictionary<(SqlParameterExpression Parameter, bool RemoveNulls), List<SqlParameterExpression>>
+        _collectionParameterPaddingMap;
 
     /// <summary>
     ///     Creates a new instance of the <see cref="SqlNullabilityProcessor" /> class.
@@ -47,6 +50,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         _nonNullableColumns = [];
         _nullValueColumns = [];
         _collectionParameterExpansionMap = [];
+        _collectionParameterPaddingMap = [];
         ParametersDecorator = null!;
     }
 
@@ -81,6 +85,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         _nonNullableColumns.Clear();
         _nullValueColumns.Clear();
         _collectionParameterExpansionMap.Clear();
+        _collectionParameterPaddingMap.Clear();
         ParametersDecorator = parametersDecorator;
 
         var result = Visit(queryExpression);
@@ -135,21 +140,25 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 {
                     case ParameterTranslationMode.MultipleParameters:
                     {
-                        var expandedParameters = _collectionParameterExpansionMap.GetOrAddNew(valuesParameter);
-                        var expandedParametersCounter = 0;
-                        foreach (var value in values)
+                        if (!_collectionParameterExpansionMap.TryGetValue(valuesParameter, out var expandedParameters))
+                        {
+                            expandedParameters = new SqlParameterExpression?[values.Count];
+                            _collectionParameterExpansionMap[valuesParameter] = expandedParameters;
+                        }
+
+                        for (var i = 0; i < values.Count; i++)
                         {
                             // Create parameter for value if we didn't create it yet,
                             // otherwise reuse it.
-                            ExpandParameterIfNeeded(
-                                valuesParameter.Name, expandedParameters, queryParameters, expandedParametersCounter, value,
+                            var parameterExpression = GetOrAddExpandedParameter(
+                                valuesParameter.Name, expandedParameters, queryParameters, index: i, uniquifier: i + 1, values[i],
                                 elementTypeMapping);
 
                             processedValues.Add(
                                 new RowValueExpression(
                                     ProcessValuesOrderingColumn(
                                         valuesExpression,
-                                        [expandedParameters[expandedParametersCounter++]],
+                                        [parameterExpression],
                                         intTypeMapping,
                                         ref valuesOrderingCounter)));
                         }
@@ -1170,15 +1179,23 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 processedValues = [];
 
                 var translationMode = valuesParameter.TranslationMode ?? CollectionParameterTranslationMode;
-                var expandedParameters = _collectionParameterExpansionMap.GetOrAddNew(valuesParameter);
-                var expandedParametersCounter = 0;
-                foreach (var value in values)
+                if (!_collectionParameterExpansionMap.TryGetValue(valuesParameter, out var expandedParameters))
                 {
+                    expandedParameters = new SqlParameterExpression?[values.Count];
+                    _collectionParameterExpansionMap[valuesParameter] = expandedParameters;
+                }
+
+                object? lastValue = null;
+                for (var i = 0; i < values.Count; i++)
+                {
+                    var value = values[i];
                     if (value is null && removeNulls)
                     {
                         hasNull = true;
                         continue;
                     }
+
+                    lastValue = value;
 
                     switch (translationMode)
                     {
@@ -1188,10 +1205,15 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                         {
                             // Create parameter for value if we didn't create it yet,
                             // otherwise reuse it.
-                            ExpandParameterIfNeeded(
-                                valuesParameter.Name, expandedParameters, parameters, expandedParametersCounter, value, elementTypeMapping);
-
-                            processedValues.Add(expandedParameters[expandedParametersCounter++]);
+                            processedValues.Add(
+                                GetOrAddExpandedParameter(
+                                    valuesParameter.Name,
+                                    expandedParameters,
+                                    parameters,
+                                    index: i,
+                                    uniquifier: processedValues.Count + 1,
+                                    value,
+                                    elementTypeMapping));
 
                             break;
                         }
@@ -1228,20 +1250,26 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 // Suppose a query has 12 parameters, and the bucket size is calculated as 10. The query will be padded with 8 additional
                 // parameters (using the last value) to fit into the next bucket size of 20. This ensures that queries with 12, 13, or 19
                 // parameters all share the same query plan, reducing query plan fragmentation.
-                if (translationMode is ParameterTranslationMode.MultipleParameters)
+                if (translationMode is ParameterTranslationMode.MultipleParameters && processedValues.Count > 0)
                 {
-                    var paddingValue = removeNulls ? values.FindLast(v => v is not null) : values.LastOrDefault();
-                    if (values.Count > 0 && (paddingValue is not null || !removeNulls))
+                    var padding = CalculateBucketPadding(processedValues.Count, elementTypeMapping);
+                    if (padding > 0)
                     {
-                        var padding = CalculateBucketPadding(values.Count, elementTypeMapping);
+                        var paddingParameters = _collectionParameterPaddingMap.GetOrAddNew((valuesParameter, removeNulls));
                         for (var i = 0; i < padding; i++)
                         {
                             // Create parameter for value if we didn't create it yet,
                             // otherwise reuse it.
                             ExpandParameterIfNeeded(
-                                valuesParameter.Name, expandedParameters, parameters, values.Count + i, paddingValue, elementTypeMapping);
+                                valuesParameter.Name,
+                                paddingParameters,
+                                parameters,
+                                index: i,
+                                uniquifier: processedValues.Count + 1,
+                                lastValue,
+                                elementTypeMapping);
 
-                            processedValues.Add(expandedParameters[expandedParametersCounter++]);
+                            processedValues.Add(paddingParameters[i]);
                         }
                     }
                 }
@@ -2667,17 +2695,38 @@ public class SqlNullabilityProcessor : ExpressionVisitor
     private static bool IsLogicalNot(SqlUnaryExpression? sqlUnaryExpression)
         => sqlUnaryExpression is { OperatorType: ExpressionType.Not } && sqlUnaryExpression.Type == typeof(bool);
 
+    private static SqlParameterExpression GetOrAddExpandedParameter(
+        string valuesParameterName,
+        SqlParameterExpression?[] expandedParameters,
+        Dictionary<string, object?> parameters,
+        int index,
+        int uniquifier,
+        object? value,
+        RelationalTypeMapping typeMapping)
+    {
+        if (expandedParameters[index] is not { } parameterExpression)
+        {
+            var parameterName = Uniquifier.Uniquify(valuesParameterName, parameters, maxLength: int.MaxValue, uniquifier: uniquifier);
+            parameters.Add(parameterName, value);
+            parameterExpression = new SqlParameterExpression(parameterName, value?.GetType() ?? typeof(object), typeMapping);
+            expandedParameters[index] = parameterExpression;
+        }
+
+        return parameterExpression;
+    }
+
     private static void ExpandParameterIfNeeded(
         string valuesParameterName,
         List<SqlParameterExpression> expandedParameters,
         Dictionary<string, object?> parameters,
         int index,
+        int uniquifier,
         object? value,
         RelationalTypeMapping typeMapping)
     {
         if (expandedParameters.Count <= index)
         {
-            var parameterName = Uniquifier.Uniquify(valuesParameterName, parameters, maxLength: int.MaxValue, uniquifier: index + 1);
+            var parameterName = Uniquifier.Uniquify(valuesParameterName, parameters, maxLength: int.MaxValue, uniquifier: uniquifier);
             parameters.Add(parameterName, value);
             var parameterExpression = new SqlParameterExpression(parameterName, value?.GetType() ?? typeof(object), typeMapping);
             expandedParameters.Add(parameterExpression);

@@ -1485,13 +1485,36 @@ WHERE [t].[Id] IN (@ints1, @ints2, @ints3, @ints4, @ints5, @ints6, @ints7, @ints
 @values4='4'
 @values5='5'
 @values6='6'
+@values7='6'
 @values8='6'
 @values9='6'
 @values10='6'
 
 SELECT [t].[Id]
-FROM [TestEntity] AS [t]
-WHERE [t].[Id] NOT IN (@values1, @values2, @values3, @values4, @values5, @values6, @values8, @values9, @values10)
+FROM [TestEntityWithNullableInt] AS [t]
+WHERE [t].[Id] NOT IN (@values1, @values2, @values3, @values4, @values5, @values6, @values7, @values8, @values9, @values10)
+ORDER BY [t].[Id]
+""",
+            //
+            """
+@values1='1'
+@values2='2'
+@values3='3'
+@values4='4'
+@values5='5'
+@values6='6'
+@values11=NULL (DbType = Int32)
+@values7='6'
+@values8='6'
+@values9='6'
+@values10='6'
+
+SELECT (
+    SELECT COUNT(*)
+    FROM (VALUES (@values1), (@values2), (@values3), (@values4), (@values5), (@values6), (@values11)) AS [v]([Value])
+    WHERE [v].[Value] = [t].[NullableInt] OR ([v].[Value] IS NULL AND [t].[NullableInt] IS NULL))
+FROM [TestEntityWithNullableInt] AS [t]
+WHERE [t].[Id] IN (@values1, @values2, @values3, @values4, @values5, @values6, @values7, @values8, @values9, @values10)
 ORDER BY [t].[Id]
 """);
     }
