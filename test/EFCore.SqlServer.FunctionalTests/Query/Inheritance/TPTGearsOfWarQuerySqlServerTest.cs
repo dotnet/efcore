@@ -858,7 +858,7 @@ FROM [Gears] AS [g]
 
         AssertSql(
             """
-SELECT COALESCE([g].[LeaderNickname], N'') + COALESCE([g].[LeaderNickname], N'')
+SELECT ISNULL([g].[LeaderNickname], N'') + ISNULL([g].[LeaderNickname], N'')
 FROM [Gears] AS [g]
 """);
     }
@@ -6304,7 +6304,7 @@ ORDER BY ISNULL([w0].[Name], N'') + N'Marcus'' Lancer'
 
         AssertSql(
             """
-SELECT N'HasSoulPatch ' + CAST([g].[HasSoulPatch] AS nvarchar(max)) + N' HasSoulPatch' AS [HasSoulPatch], N'Rank ' + CAST([g].[Rank] AS nvarchar(max)) + N' Rank' AS [Rank], N'SquadId ' + CAST([g].[SquadId] AS nvarchar(max)) + N' SquadId' AS [SquadId], N'Rating ' + ISNULL(CAST([m].[Rating] AS nvarchar(max)), N'') + N' Rating' AS [Rating], N'Timeline ' + CAST([m].[Timeline] AS nvarchar(max)) + N' Timeline' AS [Timeline]
+SELECT N'HasSoulPatch ' + CAST([g].[HasSoulPatch] AS nvarchar(max)) + N' HasSoulPatch' AS [HasSoulPatch], N'Rank ' + CAST([g].[Rank] AS nvarchar(max)) + N' Rank' AS [Rank], N'SquadId ' + CAST([g].[SquadId] AS nvarchar(max)) + N' SquadId' AS [SquadId], N'Rating ' + COALESCE(CAST([m].[Rating] AS nvarchar(max)), N'') + N' Rating' AS [Rating], N'Timeline ' + CAST([m].[Timeline] AS nvarchar(max)) + N' Timeline' AS [Timeline]
 FROM [Gears] AS [g]
 CROSS JOIN [Missions] AS [m]
 ORDER BY [g].[Nickname], [m].[Id]
@@ -8385,7 +8385,7 @@ WHERE [c].[Location] = 'Unknown'
 
         AssertSql(
             """
-SELECT COALESCE([c].[Location], 'Unknown')
+SELECT ISNULL([c].[Location], 'Unknown')
 FROM [Cities] AS [c]
 """);
     }
@@ -9739,7 +9739,7 @@ ORDER BY [f].[Id]
 
         AssertSql(
             """
-SELECT [g].[FullName] + N'' + COALESCE([g].[LeaderNickname], N'') + N''
+SELECT [g].[FullName] + N'' + ISNULL([g].[LeaderNickname], N'') + N''
 FROM [Gears] AS [g]
 """);
     }

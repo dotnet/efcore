@@ -710,7 +710,7 @@ INNER JOIN (
 
         AssertSql(
             """
-SELECT TOP(1) [p0].[FirstName], ISNULL([p0].[FirstName], N'') + N' ' + ISNULL([p0].[MiddleInitial], N'') + N' ' + ISNULL([p0].[LastName], N'') AS [FullName]
+SELECT TOP(1) [p0].[FirstName], COALESCE([p0].[FirstName], N'') + N' ' + COALESCE([p0].[MiddleInitial], N'') + N' ' + COALESCE([p0].[LastName], N'') AS [FullName]
 FROM (
     SELECT [p].[FirstName], [p].[LastName], [p].[MiddleInitial], ROW_NUMBER() OVER(PARTITION BY [p].[FirstName] ORDER BY [p].[Id]) AS [row]
     FROM [Person] AS [p]

@@ -2919,7 +2919,7 @@ LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
 
         AssertSql(
             """
-SELECT ISNULL([l].[Name], N'') + N' ' + ISNULL(CASE
+SELECT ISNULL([l].[Name], N'') + N' ' + COALESCE(CASE
     WHEN [l1].[Id] IS NOT NULL THEN [l1].[Name]
     ELSE N'NULL'
 END, N'')

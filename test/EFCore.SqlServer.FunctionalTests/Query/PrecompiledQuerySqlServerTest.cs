@@ -631,7 +631,7 @@ FROM [Blogs] AS [b]
 
         AssertSql(
             """
-SELECT COALESCE([b].[Name], N'') + N'Foo' AS [Foo]
+SELECT ISNULL([b].[Name], N'') + N'Foo' AS [Foo]
 FROM [Blogs] AS [b]
 """);
     }
@@ -2216,7 +2216,7 @@ _ = context.Blogs
 
         AssertSql(
             """
-SELECT COALESCE(STRING_AGG(COALESCE([b].[Name], N''), N', ') WITHIN GROUP (ORDER BY [b].[Name]), N'')
+SELECT COALESCE(STRING_AGG(ISNULL([b].[Name], N''), N', ') WITHIN GROUP (ORDER BY [b].[Name]), N'')
 FROM [Blogs] AS [b]
 GROUP BY [b].[Id]
 """);
