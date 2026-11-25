@@ -1905,20 +1905,24 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
         {
             // COUNT(DISTINCT x) skips NULL, but LINQ's Distinct().Count() counts null as one more distinct value. Add one when
             // the rows being counted contain a NULL. That is itself a distinct count, so it is 0 or 1 and never NULL.
+            // Null semantics may still find x non-nullable (a parameter, a predicate) and drop the WHEN, so the ELSE is a typed
+            // NULL: some databases (SQL Server) reject COUNT over an untyped NULL.
             var isNull = _sqlExpressionFactory.IsNull(distinctSelector);
+            var intTypeMapping = Dependencies.TypeMappingSource.FindMapping(typeof(int), Dependencies.Model);
+            var nullMarker = _sqlExpressionFactory.Case(
+                [
+                    new CaseWhenClause(
+                        enumerableExpression.Predicate is null
+                            ? isNull
+                            : _sqlExpressionFactory.AndAlso(enumerableExpression.Predicate, isNull),
+                        _sqlExpressionFactory.Constant(1, intTypeMapping))
+                ],
+                elseResult: _sqlExpressionFactory.Convert(
+                    _sqlExpressionFactory.Constant(null, typeof(int?), intTypeMapping), typeof(int), intTypeMapping));
             var nullCount = Dependencies.AggregateMethodCallTranslatorProvider.Translate(
                 _model,
                 method,
-                new EnumerableExpression(
-                    _sqlExpressionFactory.Case(
-                        [
-                            new CaseWhenClause(
-                                enumerableExpression.Predicate is null
-                                    ? isNull
-                                    : _sqlExpressionFactory.AndAlso(enumerableExpression.Predicate, isNull),
-                                _sqlExpressionFactory.Constant(1))
-                        ],
-                        elseResult: null)) { GroupingOwner = enumerableExpression.GroupingOwner }.SetDistinct(true),
+                new EnumerableExpression(nullMarker) { GroupingOwner = enumerableExpression.GroupingOwner }.SetDistinct(true),
                 scalarArguments,
                 _queryCompilationContext.Logger);
 
@@ -1975,6 +1979,12 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
             {
                 ColumnExpression column => column.IsNullable,
                 SqlConstantExpression constant => constant.Value is null,
+                SqlFunctionExpression { IsBuiltIn: true, Name: "COALESCE", Arguments: { } coalesceArguments }
+                    => coalesceArguments.All(MayBeNull),
+                CaseExpression caseExpression
+                    => caseExpression.ElseResult is null
+                    || MayBeNull(caseExpression.ElseResult)
+                    || caseExpression.WhenClauses.Any(c => MayBeNull(c.Result)),
                 SqlFunctionExpression function
                     => function.IsNullable
                     || (function is { Arguments: { } arguments, ArgumentsPropagateNullability: { } propagate }

@@ -2398,6 +2398,21 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
             elementSorter: e => e.Key);
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Property_Select_Distinct_Count_over_non_nullable_expression(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .GroupBy(c => c.Country)
+                .Select(g => new
+                {
+                    g.Key,
+                    Coalesced = g.Select(c => c.Region ?? "unknown").Distinct().Count(),
+                    Conditional = g.Select(c => c.Region == null ? "none" : "some").Distinct().LongCount(),
+                    NotNullFiltered = g.Where(c => c.Region != null && c.City != "London").Select(c => c.Region).Distinct().Count()
+                }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_Property_Select_Count_with_not_null_and_other_predicate(bool async)
         => AssertQuery(
             async,
