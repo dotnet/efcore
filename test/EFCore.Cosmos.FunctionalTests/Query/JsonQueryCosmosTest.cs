@@ -2990,13 +2990,13 @@ WHERE (c["Id"] = 4)
         modelBuilder.Entity<Context29219.MyEntity>().ToContainer("Entities");
     }
 
-    protected override async Task Seed29219(DbContext context)
+    protected override async Task Seed29219(DbContext ctx)
     {
-        await base.Seed29219(context);
+        await base.Seed29219(ctx);
 
-        var wrapper = (CosmosClientWrapper)context.GetService<ICosmosClientWrapper>();
-        var singletonWrapper = context.GetService<ISingletonCosmosClientWrapper>();
-        var entitiesContainer = singletonWrapper.Client.GetContainer(context.Database.GetCosmosDatabaseId(), containerId: "Entities");
+        var wrapper = (CosmosClientWrapper)ctx.GetService<ICosmosClientWrapper>();
+        var singletonWrapper = ctx.GetService<ISingletonCosmosClientWrapper>();
+        var entitiesContainer = singletonWrapper.Client.GetContainer(ctx.Database.GetCosmosDatabaseId(), containerId: "Entities");
 
         var missingNullableScalars =
             """
@@ -3041,11 +3041,11 @@ WHERE (c["Id"] = 4)
         modelBuilder.Entity<Context30028.MyEntity>().ToContainer("Entities");
     }
 
-    protected override async Task Seed30028(DbContext context)
+    protected override async Task Seed30028(DbContext ctx)
     {
-        var wrapper = (CosmosClientWrapper)context.GetService<ICosmosClientWrapper>();
-        var singletonWrapper = context.GetService<ISingletonCosmosClientWrapper>();
-        var entitiesContainer = singletonWrapper.Client.GetContainer(context.Database.GetCosmosDatabaseId(), containerId: "Entities");
+        var wrapper = (CosmosClientWrapper)ctx.GetService<ICosmosClientWrapper>();
+        var singletonWrapper = ctx.GetService<ISingletonCosmosClientWrapper>();
+        var entitiesContainer = singletonWrapper.Client.GetContainer(ctx.Database.GetCosmosDatabaseId(), containerId: "Entities");
 
         var complete =
             """
@@ -3208,11 +3208,11 @@ WHERE (c["Id"] = 4)
         modelBuilder.Entity<Context33046.Review>().ToContainer("Reviews");
     }
 
-    protected override async Task Seed33046(DbContext context)
+    protected override async Task Seed33046(DbContext ctx)
     {
-        var wrapper = (CosmosClientWrapper)context.GetService<ICosmosClientWrapper>();
-        var singletonWrapper = context.GetService<ISingletonCosmosClientWrapper>();
-        var entitiesContainer = singletonWrapper.Client.GetContainer(context.Database.GetCosmosDatabaseId(), containerId: "Reviews");
+        var wrapper = (CosmosClientWrapper)ctx.GetService<ICosmosClientWrapper>();
+        var singletonWrapper = ctx.GetService<ISingletonCosmosClientWrapper>();
+        var entitiesContainer = singletonWrapper.Client.GetContainer(ctx.Database.GetCosmosDatabaseId(), containerId: "Reviews");
 
         var json =
             """
@@ -3271,13 +3271,13 @@ WHERE (c["Id"] = 4)
         modelBuilder.Entity<Context34960.JunkEntity>().ToContainer("Junk");
     }
 
-    protected override async Task Seed34960(Context34960 context)
+    protected override async Task Seed34960(Context34960 ctx)
     {
-        await base.Seed34960(context);
+        await base.Seed34960(ctx);
 
-        var wrapper = (CosmosClientWrapper)context.GetService<ICosmosClientWrapper>();
-        var singletonWrapper = context.GetService<ISingletonCosmosClientWrapper>();
-        var entitiesContainer = singletonWrapper.Client.GetContainer(context.Database.GetCosmosDatabaseId(), containerId: "Entities");
+        var wrapper = (CosmosClientWrapper)ctx.GetService<ICosmosClientWrapper>();
+        var singletonWrapper = ctx.GetService<ISingletonCosmosClientWrapper>();
+        var entitiesContainer = singletonWrapper.Client.GetContainer(ctx.Database.GetCosmosDatabaseId(), containerId: "Entities");
 
         var json =
             """
@@ -3295,7 +3295,7 @@ WHERE (c["Id"] = 4)
             json,
             CancellationToken.None);
 
-        var junkContainer = singletonWrapper.Client.GetContainer(context.Database.GetCosmosDatabaseId(), containerId: "Junk");
+        var junkContainer = singletonWrapper.Client.GetContainer(ctx.Database.GetCosmosDatabaseId(), containerId: "Junk");
 
         var objectWhereCollectionShouldBe =
             """
@@ -3356,11 +3356,11 @@ WHERE (c["Id"] = 4)
         modelBuilder.Entity<ContextJunkInJson.MyEntity>().ToContainer("Entities");
     }
 
-    protected override async Task SeedJunkInJson(DbContext context)
+    protected override async Task SeedJunkInJson(DbContext ctx)
     {
-        var wrapper = (CosmosClientWrapper)context.GetService<ICosmosClientWrapper>();
-        var singletonWrapper = context.GetService<ISingletonCosmosClientWrapper>();
-        var entitiesContainer = singletonWrapper.Client.GetContainer(context.Database.GetCosmosDatabaseId(), containerId: "Entities");
+        var wrapper = (CosmosClientWrapper)ctx.GetService<ICosmosClientWrapper>();
+        var singletonWrapper = ctx.GetService<ISingletonCosmosClientWrapper>();
+        var entitiesContainer = singletonWrapper.Client.GetContainer(ctx.Database.GetCosmosDatabaseId(), containerId: "Entities");
 
         var json =
             """
@@ -3548,11 +3548,11 @@ WHERE (c["Id"] = 4)
         modelBuilder.Entity<ContextTrickyBuffering.MyEntity>().ToContainer("Entities");
     }
 
-    protected override async Task SeedTrickyBuffering(DbContext context)
+    protected override async Task SeedTrickyBuffering(DbContext ctx)
     {
-        var wrapper = (CosmosClientWrapper)context.GetService<ICosmosClientWrapper>();
-        var singletonWrapper = context.GetService<ISingletonCosmosClientWrapper>();
-        var entitiesContainer = singletonWrapper.Client.GetContainer(context.Database.GetCosmosDatabaseId(), containerId: "Entities");
+        var wrapper = (CosmosClientWrapper)ctx.GetService<ICosmosClientWrapper>();
+        var singletonWrapper = ctx.GetService<ISingletonCosmosClientWrapper>();
+        var entitiesContainer = singletonWrapper.Client.GetContainer(ctx.Database.GetCosmosDatabaseId(), containerId: "Entities");
 
         var json =
             """
@@ -3646,11 +3646,11 @@ WHERE (c["Id"] = 4)
         });
     }
 
-    protected override async Task SeedShadowProperties(DbContext context)
+    protected override async Task SeedShadowProperties(DbContext ctx)
     {
-        var wrapper = (CosmosClientWrapper)context.GetService<ICosmosClientWrapper>();
-        var singletonWrapper = context.GetService<ISingletonCosmosClientWrapper>();
-        var entitiesContainer = singletonWrapper.Client.GetContainer(context.Database.GetCosmosDatabaseId(), containerId: "Entities");
+        var wrapper = (CosmosClientWrapper)ctx.GetService<ICosmosClientWrapper>();
+        var singletonWrapper = ctx.GetService<ISingletonCosmosClientWrapper>();
+        var entitiesContainer = singletonWrapper.Client.GetContainer(ctx.Database.GetCosmosDatabaseId(), containerId: "Entities");
 
         var json =
             """
@@ -3706,11 +3706,11 @@ WHERE (c["Id"] = 4)
         modelBuilder.Entity<ContextNotICollection.MyEntity>().ToContainer("Entities");
     }
 
-    protected override async Task SeedNotICollection(DbContext context)
+    protected override async Task SeedNotICollection(DbContext ctx)
     {
-        var wrapper = (CosmosClientWrapper)context.GetService<ICosmosClientWrapper>();
-        var singletonWrapper = context.GetService<ISingletonCosmosClientWrapper>();
-        var entitiesContainer = singletonWrapper.Client.GetContainer(context.Database.GetCosmosDatabaseId(), containerId: "Entities");
+        var wrapper = (CosmosClientWrapper)ctx.GetService<ICosmosClientWrapper>();
+        var singletonWrapper = ctx.GetService<ISingletonCosmosClientWrapper>();
+        var entitiesContainer = singletonWrapper.Client.GetContainer(ctx.Database.GetCosmosDatabaseId(), containerId: "Entities");
 
         var json1 =
             """
@@ -3796,11 +3796,11 @@ WHERE (c["Id"] = 4)
         modelBuilder.Entity<ContextBadJsonProperties.Entity>().ToContainer("Entities");
     }
 
-    protected override async Task SeedBadJsonProperties(ContextBadJsonProperties context)
+    protected override async Task SeedBadJsonProperties(ContextBadJsonProperties ctx)
     {
-        var wrapper = (CosmosClientWrapper)context.GetService<ICosmosClientWrapper>();
-        var singletonWrapper = context.GetService<ISingletonCosmosClientWrapper>();
-        var entitiesContainer = singletonWrapper.Client.GetContainer(context.Database.GetCosmosDatabaseId(), containerId: "Entities");
+        var wrapper = (CosmosClientWrapper)ctx.GetService<ICosmosClientWrapper>();
+        var singletonWrapper = ctx.GetService<ISingletonCosmosClientWrapper>();
+        var entitiesContainer = singletonWrapper.Client.GetContainer(ctx.Database.GetCosmosDatabaseId(), containerId: "Entities");
 
         var baseline =
             """

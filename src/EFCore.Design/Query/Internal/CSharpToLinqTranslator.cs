@@ -181,13 +181,13 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override Expression VisitAnonymousObjectCreationExpression(AnonymousObjectCreationExpressionSyntax anonymousObjectCreation)
+    public override Expression VisitAnonymousObjectCreationExpression(AnonymousObjectCreationExpressionSyntax node)
     {
         // Creating an actual anonymous object means creating a new type, which can only be done with Reflection.Emit.
         // At least for EF's purposes, it doesn't matter, so we build a placeholder.
-        if (_semanticModel.GetSymbolInfo(anonymousObjectCreation).Symbol is not IMethodSymbol constructorSymbol)
+        if (_semanticModel.GetSymbolInfo(node).Symbol is not IMethodSymbol constructorSymbol)
         {
-            throw new InvalidOperationException(DesignStrings.NoAnonymousSymbol + " " + anonymousObjectCreation);
+            throw new InvalidOperationException(DesignStrings.NoAnonymousSymbol + " " + node);
         }
 
         var anonymousType = ResolveType(constructorSymbol.ContainingType);
@@ -198,7 +198,7 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
         var memberInfos = new MemberInfo[parameters.Length];
         var arguments = new Expression[parameters.Length];
 
-        foreach (var initializer in anonymousObjectCreation.Initializers)
+        foreach (var initializer in node.Initializers)
         {
             // If the initializer's name isn't explicitly specified, infer it from the initializer's expression like the compiler does
             var name = initializer.NameEquals is not null
@@ -231,8 +231,8 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override Expression VisitArgument(ArgumentSyntax argument)
-        => VisitArgument(argument, expectedType: null);
+    public override Expression VisitArgument(ArgumentSyntax node)
+        => VisitArgument(node, expectedType: null);
 
     private Expression VisitArgument(ArgumentSyntax argument, Type? expectedType)
         => !argument.RefKindKeyword.IsKind(SyntaxKind.None)
@@ -245,24 +245,24 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override Expression VisitArrayCreationExpression(ArrayCreationExpressionSyntax arrayCreation)
+    public override Expression VisitArrayCreationExpression(ArrayCreationExpressionSyntax node)
     {
-        if (_semanticModel.GetTypeInfo(arrayCreation).Type is not IArrayTypeSymbol arrayTypeSymbol)
+        if (_semanticModel.GetTypeInfo(node).Type is not IArrayTypeSymbol arrayTypeSymbol)
         {
-            throw new InvalidOperationException($"ArrayCreation: non-array type symbol: {arrayCreation}");
+            throw new InvalidOperationException($"ArrayCreation: non-array type symbol: {node}");
         }
 
         if (arrayTypeSymbol.Rank > 1)
         {
-            throw new NotImplementedException($"ArrayCreation: multi-dimensional array: {arrayCreation}");
+            throw new NotImplementedException($"ArrayCreation: multi-dimensional array: {node}");
         }
 
         var elementType = ResolveType(arrayTypeSymbol.ElementType);
         Check.DebugAssert(elementType is not null);
 
-        return arrayCreation.Initializer is null
-            ? NewArrayBounds(elementType, Visit(arrayCreation.Type.RankSpecifiers[0].Sizes[0]))
-            : NewArrayInit(elementType, arrayCreation.Initializer.Expressions.Select(e => Visit(e)));
+        return node.Initializer is null
+            ? NewArrayBounds(elementType, Visit(node.Type.RankSpecifiers[0].Sizes[0]))
+            : NewArrayInit(elementType, node.Initializer.Expressions.Select(e => Visit(e)));
     }
 
     /// <summary>
@@ -271,18 +271,18 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override Expression VisitBinaryExpression(BinaryExpressionSyntax binary)
+    public override Expression VisitBinaryExpression(BinaryExpressionSyntax node)
     {
         // The compiler omits implicit reference conversions in binary expression trees.
-        var typeOperator = binary.Kind() is SyntaxKind.IsExpression or SyntaxKind.AsExpression;
+        var typeOperator = node.Kind() is SyntaxKind.IsExpression or SyntaxKind.AsExpression;
         var left = typeOperator
-            ? Visit(binary.Left)
-            : VisitWithConversion(binary.Left, convertReferenceTypes: false);
+            ? Visit(node.Left)
+            : VisitWithConversion(node.Left, convertReferenceTypes: false);
         var right = typeOperator
-            ? Visit(binary.Right)
-            : VisitWithConversion(binary.Right, convertReferenceTypes: false);
+            ? Visit(node.Right)
+            : VisitWithConversion(node.Right, convertReferenceTypes: false);
 
-        if (binary.IsKind(SyntaxKind.CoalesceExpression))
+        if (node.IsKind(SyntaxKind.CoalesceExpression))
         {
             return Coalesce(left, right);
         }
@@ -297,7 +297,7 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
         }
 
         // https://learn.microsoft.com/dotnet/api/Microsoft.CodeAnalysis.CSharp.Syntax.BinaryExpressionSyntax
-        return binary.Kind() switch
+        return node.Kind() switch
         {
             // String concatenation
             SyntaxKind.AddExpression
@@ -351,7 +351,7 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
                     ? type
                     : throw new InvalidOperationException(
                         $"Encountered {SyntaxKind.AsExpression} with non-constant type right argument: {right}")),
-            _ => throw new ArgumentOutOfRangeException($"BinaryExpressionSyntax with {binary.Kind()}")
+            _ => throw new ArgumentOutOfRangeException($"BinaryExpressionSyntax with {node.Kind()}")
         };
     }
 
@@ -361,8 +361,8 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override Expression VisitCastExpression(CastExpressionSyntax cast)
-        => Convert(Visit(cast.Expression), ResolveType(cast.Type));
+    public override Expression VisitCastExpression(CastExpressionSyntax node)
+        => Convert(Visit(node.Expression), ResolveType(node.Type));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -370,11 +370,11 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override Expression VisitConditionalExpression(ConditionalExpressionSyntax conditional)
+    public override Expression VisitConditionalExpression(ConditionalExpressionSyntax node)
         => Condition(
-            Visit(conditional.Condition),
-            VisitWithConversion(conditional.WhenTrue),
-            VisitWithConversion(conditional.WhenFalse));
+            Visit(node.Condition),
+            VisitWithConversion(node.WhenTrue),
+            VisitWithConversion(node.WhenFalse));
 
     private Expression VisitWithConversion(ExpressionSyntax node, bool convertReferenceTypes = true)
     {
@@ -442,16 +442,16 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override Expression VisitElementAccessExpression(ElementAccessExpressionSyntax elementAccessExpression)
+    public override Expression VisitElementAccessExpression(ElementAccessExpressionSyntax node)
     {
-        var arguments = elementAccessExpression.ArgumentList.Arguments;
-        var visitedExpression = Visit(elementAccessExpression.Expression);
+        var arguments = node.ArgumentList.Arguments;
+        var visitedExpression = Visit(node.Expression);
 
-        switch (_semanticModel.GetTypeInfo(elementAccessExpression.Expression).ConvertedType)
+        switch (_semanticModel.GetTypeInfo(node.Expression).ConvertedType)
         {
             case IArrayTypeSymbol:
                 Check.DebugAssert(
-                    elementAccessExpression.ArgumentList.Arguments.Count == 1,
+                    node.ArgumentList.Arguments.Count == 1,
                     $"ElementAccessExpressionSyntax over array with {arguments.Count} arguments");
                 return ArrayIndex(visitedExpression, Visit(arguments[0].Expression));
 
@@ -472,7 +472,7 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
 
             case null:
                 throw new InvalidOperationException(
-                    $"No type for expression {elementAccessExpression.Expression} in {nameof(ElementAccessExpressionSyntax)}");
+                    $"No type for expression {node.Expression} in {nameof(ElementAccessExpressionSyntax)}");
 
             default:
                 throw new NotImplementedException($"{nameof(ElementAccessExpressionSyntax)} over non-array");
@@ -485,14 +485,14 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override Expression VisitIdentifierName(IdentifierNameSyntax identifierName)
+    public override Expression VisitIdentifierName(IdentifierNameSyntax node)
     {
-        if (_parameterStack.Peek().TryGetValue(identifierName.Identifier.Text, out var parameter))
+        if (_parameterStack.Peek().TryGetValue(node.Identifier.Text, out var parameter))
         {
             return parameter;
         }
 
-        var symbol = _semanticModel.GetSymbolInfo(identifierName).Symbol;
+        var symbol = _semanticModel.GetSymbolInfo(node).Symbol;
 
         ITypeSymbol typeSymbol;
         switch (symbol)
@@ -515,9 +515,9 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
                 typeSymbol = s.Type;
                 break;
             case null:
-                throw new InvalidOperationException($"Identifier without symbol: {identifierName}");
+                throw new InvalidOperationException($"Identifier without symbol: {node}");
             default:
-                throw new UnreachableException($"IdentifierName of type {symbol.GetType().Name}: {identifierName}");
+                throw new UnreachableException($"IdentifierName of type {symbol.GetType().Name}: {node}");
         }
 
         // TODO: Separate out EF Core-specific logic (EF Core would extend this visitor)
@@ -565,7 +565,7 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
         }
 
         throw new InvalidOperationException(
-            $"Encountered unknown identifier name '{identifierName}', which doesn't correspond to a lambda parameter or captured variable");
+            $"Encountered unknown identifier name '{node}', which doesn't correspond to a lambda parameter or captured variable");
     }
 
     /// <summary>
@@ -574,22 +574,22 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override Expression VisitImplicitArrayCreationExpression(ImplicitArrayCreationExpressionSyntax implicitArrayCreation)
+    public override Expression VisitImplicitArrayCreationExpression(ImplicitArrayCreationExpressionSyntax node)
     {
-        if (_semanticModel.GetTypeInfo(implicitArrayCreation).Type is not IArrayTypeSymbol arrayTypeSymbol)
+        if (_semanticModel.GetTypeInfo(node).Type is not IArrayTypeSymbol arrayTypeSymbol)
         {
-            throw new InvalidOperationException($"ArrayCreation: non-array type symbol: {implicitArrayCreation}");
+            throw new InvalidOperationException($"ArrayCreation: non-array type symbol: {node}");
         }
 
         if (arrayTypeSymbol.Rank > 1)
         {
-            throw new NotImplementedException($"ArrayCreation: multi-dimensional array: {implicitArrayCreation}");
+            throw new NotImplementedException($"ArrayCreation: multi-dimensional array: {node}");
         }
 
         var elementType = ResolveType(arrayTypeSymbol.ElementType);
         Check.DebugAssert(elementType is not null);
 
-        var initializers = implicitArrayCreation.Initializer.Expressions.Select(e => Visit(e));
+        var initializers = node.Initializer.Expressions.Select(e => Visit(e));
 
         return NewArrayInit(elementType, initializers);
     }
@@ -600,11 +600,11 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override Expression VisitInterpolatedStringExpression(InterpolatedStringExpressionSyntax interpolatedString)
+    public override Expression VisitInterpolatedStringExpression(InterpolatedStringExpressionSyntax node)
     {
         var formatBuilder = new StringBuilder();
         var arguments = new List<Expression>();
-        foreach (var fragment in interpolatedString.Contents)
+        foreach (var fragment in node.Contents)
         {
             switch (fragment)
             {
@@ -629,7 +629,7 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
         // Return a call to string.Format(), unless we have an implicit conversion to FormattableString, in which case return a call to
         // FormattableStringFactory.Create().
         return Call(
-            _semanticModel.GetTypeInfo(interpolatedString).ConvertedType switch
+            _semanticModel.GetTypeInfo(node).ConvertedType switch
             {
                 { } t when t.Equals(_formattableStringSymbol, SymbolEqualityComparer.Default)
                     => _formattableStringFactoryCreateMethod ??= typeof(FormattableStringFactory).GetMethod(
@@ -647,11 +647,11 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override Expression VisitInvocationExpression(InvocationExpressionSyntax invocation)
+    public override Expression VisitInvocationExpression(InvocationExpressionSyntax node)
     {
-        if (_semanticModel.GetSymbolInfo(invocation).Symbol is not IMethodSymbol methodSymbol)
+        if (_semanticModel.GetSymbolInfo(node).Symbol is not IMethodSymbol methodSymbol)
         {
-            throw new InvalidOperationException("Could not find symbol for method invocation: " + invocation);
+            throw new InvalidOperationException("Could not find symbol for method invocation: " + node);
         }
 
         // First, if the method return type is the user's DbContext type (e.g. DbContext local variable, or field/property), return a
@@ -667,9 +667,9 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
         if (!methodSymbol.IsStatic || methodSymbol.ReducedFrom is not null)
         {
             // In normal method calls (the ones we support), the invocation node is composed on top of a member access
-            if (invocation.Expression is not MemberAccessExpressionSyntax { Expression: var receiver })
+            if (node.Expression is not MemberAccessExpressionSyntax { Expression: var receiver })
             {
-                throw new NotSupportedException($"Invocation over non-member access: {invocation}");
+                throw new NotSupportedException($"Invocation over non-member access: {node}");
             }
 
             instance = Visit(receiver);
@@ -734,7 +734,7 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
             if (definitionMethodInfos.Length != 1)
             {
                 throw new InvalidOperationException(
-                    $"Invocation: Found {definitionMethodInfos.Length} matches for generic method: {invocation}");
+                    $"Invocation: Found {definitionMethodInfos.Length} matches for generic method: {node}");
             }
 
             var definitionMethodInfo = definitionMethodInfos[0];
@@ -754,7 +754,7 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
             if (methodInfo is null)
             {
                 throw new InvalidOperationException(
-                    $"Invocation: couldn't find method '{methodSymbol.Name}' on type '{declaringType.Name}': {invocation}");
+                    $"Invocation: couldn't find method '{methodSymbol.Name}' on type '{declaringType.Name}': {node}");
             }
         }
 
@@ -765,7 +765,7 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
         // If the method also has a "params" parameter, we also need to take care of that - the syntactic arguments will need to be packed
         // into the "params" array etc.
         var parameters = methodInfo.GetParameters();
-        var sourceArguments = invocation.ArgumentList.Arguments;
+        var sourceArguments = node.ArgumentList.Arguments;
         var destArguments = new Expression?[parameters.Length];
         var paramIndex = 0;
 
@@ -788,7 +788,7 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
                 var paramsArguments = new Expression[sourceArguments.Count - sourceArgIndex];
                 for (var paramsArgIndex = 0; sourceArgIndex < sourceArguments.Count; sourceArgIndex++, paramsArgIndex++)
                 {
-                    var arg = invocation.ArgumentList.Arguments[sourceArgIndex];
+                    var arg = node.ArgumentList.Arguments[sourceArgIndex];
                     Check.DebugAssert(arg.NameColon is null, "Named argument in params");
 
                     paramsArguments[paramsArgIndex] = Visit(arg);
@@ -812,7 +812,7 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
                 continue;
             }
 
-            var argument = invocation.ArgumentList.Arguments[sourceArgIndex++];
+            var argument = node.ArgumentList.Arguments[sourceArgIndex++];
 
             // Positional argument
             if (argument.NameColon is null)
@@ -860,10 +860,10 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override Expression VisitLiteralExpression(LiteralExpressionSyntax literal)
+    public override Expression VisitLiteralExpression(LiteralExpressionSyntax node)
     {
-        var value = literal.Token.Value;
-        if (_semanticModel.GetTypeInfo(literal) is not { ConvertedType: { } type })
+        var value = node.Token.Value;
+        if (_semanticModel.GetTypeInfo(node) is not { ConvertedType: { } type })
         {
             return Constant(value);
         }
@@ -887,13 +887,13 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override Expression VisitMemberAccessExpression(MemberAccessExpressionSyntax memberAccess)
+    public override Expression VisitMemberAccessExpression(MemberAccessExpressionSyntax node)
     {
-        var expression = Visit(memberAccess.Expression);
+        var expression = Visit(node.Expression);
 
-        if (_semanticModel.GetSymbolInfo(memberAccess).Symbol is not { } memberSymbol)
+        if (_semanticModel.GetSymbolInfo(node).Symbol is not { } memberSymbol)
         {
-            throw new InvalidOperationException($"MemberAccess: Couldn't find symbol for member: {memberAccess}");
+            throw new InvalidOperationException($"MemberAccess: Couldn't find symbol for member: {node}");
         }
 
         var containingType = ResolveType(memberSymbol.ContainingType);
@@ -903,8 +903,8 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
             IFieldSymbol f => containingType.GetField(f.Name),
             INamedTypeSymbol t => containingType.GetNestedType(t.Name),
 
-            null => throw new InvalidOperationException($"MemberAccess: Couldn't find symbol for member: {memberAccess}"),
-            _ => throw new NotSupportedException($"MemberAccess: unsupported member symbol '{memberSymbol.GetType().Name}': {memberAccess}")
+            null => throw new InvalidOperationException($"MemberAccess: Couldn't find symbol for member: {node}"),
+            _ => throw new NotSupportedException($"MemberAccess: unsupported member symbol '{memberSymbol.GetType().Name}': {node}")
         };
 
         switch (memberInfo)
@@ -913,7 +913,7 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
                 return Constant(nestedType);
 
             case null:
-                throw new InvalidOperationException($"MemberAccess: couldn't find member '{memberSymbol.Name}': {memberAccess}");
+                throw new InvalidOperationException($"MemberAccess: couldn't find member '{memberSymbol.Name}': {node}");
         }
 
         // Enum field constant
@@ -938,11 +938,11 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override Expression VisitObjectCreationExpression(ObjectCreationExpressionSyntax objectCreation)
+    public override Expression VisitObjectCreationExpression(ObjectCreationExpressionSyntax node)
     {
-        if (_semanticModel.GetSymbolInfo(objectCreation).Symbol is not IMethodSymbol constructorSymbol)
+        if (_semanticModel.GetSymbolInfo(node).Symbol is not IMethodSymbol constructorSymbol)
         {
-            throw new InvalidOperationException($"ObjectCreation: couldn't find IMethodSymbol for constructor: {objectCreation}");
+            throw new InvalidOperationException($"ObjectCreation: couldn't find IMethodSymbol for constructor: {node}");
         }
 
         Check.DebugAssert(constructorSymbol.MethodKind == MethodKind.Constructor);
@@ -956,12 +956,12 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
         var newExpression = constructor is not null
             ? New(
                 constructor,
-                objectCreation.ArgumentList?.Arguments.Select(a => Visit(a)) ?? [])
+                node.ArgumentList?.Arguments.Select(a => Visit(a)) ?? [])
             : parameterTypes.Length == 0 // For structs, there's no actual parameterless constructor
                 ? New(type)
-                : throw new InvalidOperationException($"ObjectCreation: Missing constructor: {objectCreation}");
+                : throw new InvalidOperationException($"ObjectCreation: Missing constructor: {node}");
 
-        switch (objectCreation.Initializer)
+        switch (node.Initializer)
         {
             // No initializers, just return the NewExpression
             case null or { Expressions: [] }:
@@ -971,12 +971,12 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
             case { Expressions: [AssignmentExpressionSyntax, ..] }:
                 return MemberInit(
                     newExpression,
-                    objectCreation.Initializer.Expressions.Select(e =>
+                    node.Initializer.Expressions.Select(e =>
                     {
                         if (e is not AssignmentExpressionSyntax { Left: var lValue, Right: var value })
                         {
                             throw new NotSupportedException(
-                                $"ObjectCreation: non-assignment initializer expression of type '{e.GetType().Name}': {objectCreation}");
+                                $"ObjectCreation: non-assignment initializer expression of type '{e.GetType().Name}': {node}");
                         }
 
                         var lValueSymbol = _semanticModel.GetSymbolInfo(lValue).Symbol;
@@ -1011,7 +1011,7 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
 
                 return ListInit(
                     newExpression,
-                    objectCreation.Initializer.Expressions.Select(e => ElementInit(addMethod, Visit(e))));
+                    node.Initializer.Expressions.Select(e => ElementInit(addMethod, Visit(e))));
         }
     }
 
@@ -1021,8 +1021,8 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override Expression VisitParenthesizedExpression(ParenthesizedExpressionSyntax parenthesized)
-        => Visit(parenthesized.Expression);
+    public override Expression VisitParenthesizedExpression(ParenthesizedExpressionSyntax node)
+        => Visit(node.Expression);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1030,8 +1030,8 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override Expression VisitParenthesizedLambdaExpression(ParenthesizedLambdaExpressionSyntax lambda)
-        => VisitLambdaExpression(lambda);
+    public override Expression VisitParenthesizedLambdaExpression(ParenthesizedLambdaExpressionSyntax node)
+        => VisitLambdaExpression(node);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1039,8 +1039,8 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override Expression VisitPredefinedType(PredefinedTypeSyntax predefinedType)
-        => Constant(ResolveType(predefinedType), typeof(Type));
+    public override Expression VisitPredefinedType(PredefinedTypeSyntax node)
+        => Constant(ResolveType(node), typeof(Type));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1048,13 +1048,13 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override Expression VisitPrefixUnaryExpression(PrefixUnaryExpressionSyntax unary)
+    public override Expression VisitPrefixUnaryExpression(PrefixUnaryExpressionSyntax node)
     {
-        var operand = Visit(unary.Operand);
+        var operand = Visit(node.Operand);
 
         // https://learn.microsoft.com/dotnet/api/Microsoft.CodeAnalysis.CSharp.Syntax.PrefixUnaryExpressionSyntax
 
-        return unary.Kind() switch
+        return node.Kind() switch
         {
             SyntaxKind.UnaryPlusExpression => UnaryPlus(operand),
             SyntaxKind.UnaryMinusExpression => Negate(operand),
@@ -1068,12 +1068,12 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
             SyntaxKind.PreIncrementExpression => throw NotSupportedInExpressionTrees(),
 
             _ => throw new UnreachableException(
-                $"Unexpected syntax kind '{unary.Kind()}' when visiting a {nameof(PrefixUnaryExpressionSyntax)}")
+                $"Unexpected syntax kind '{node.Kind()}' when visiting a {nameof(PrefixUnaryExpressionSyntax)}")
         };
 
         NotSupportedException NotSupportedInExpressionTrees()
             => throw new UnreachableException(
-                $"Unary expression of type {unary.Kind()} is not supported in expression trees");
+                $"Unary expression of type {node.Kind()} is not supported in expression trees");
     }
 
     /// <summary>
@@ -1082,13 +1082,13 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override Expression VisitPostfixUnaryExpression(PostfixUnaryExpressionSyntax unary)
+    public override Expression VisitPostfixUnaryExpression(PostfixUnaryExpressionSyntax node)
     {
-        var operand = Visit(unary.Operand);
+        var operand = Visit(node.Operand);
 
         // https://learn.microsoft.com/dotnet/api/Microsoft.CodeAnalysis.CSharp.Syntax.PostfixUnaryExpressionSyntax
 
-        return unary.Kind() switch
+        return node.Kind() switch
         {
             SyntaxKind.SuppressNullableWarningExpression => operand,
 
@@ -1096,12 +1096,12 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
             SyntaxKind.PostDecrementExpression => throw NotSupportedInExpressionTrees(),
 
             _ => throw new UnreachableException(
-                $"Unexpected syntax kind '{unary.Kind()}' when visiting a {nameof(PostfixUnaryExpressionSyntax)}")
+                $"Unexpected syntax kind '{node.Kind()}' when visiting a {nameof(PostfixUnaryExpressionSyntax)}")
         };
 
         NotSupportedException NotSupportedInExpressionTrees()
             => throw new UnreachableException(
-                $"Unary expression of type {unary.Kind()} is not supported in expression trees");
+                $"Unary expression of type {node.Kind()} is not supported in expression trees");
     }
 
     /// <summary>
@@ -1119,8 +1119,8 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override Expression VisitSimpleLambdaExpression(SimpleLambdaExpressionSyntax lambda)
-        => VisitLambdaExpression(lambda);
+    public override Expression VisitSimpleLambdaExpression(SimpleLambdaExpressionSyntax node)
+        => VisitLambdaExpression(node);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1128,12 +1128,12 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override Expression VisitTypeOfExpression(TypeOfExpressionSyntax typeOf)
+    public override Expression VisitTypeOfExpression(TypeOfExpressionSyntax node)
     {
-        if (_semanticModel.GetSymbolInfo(typeOf.Type).Symbol is not ITypeSymbol typeSymbol)
+        if (_semanticModel.GetSymbolInfo(node.Type).Symbol is not ITypeSymbol typeSymbol)
         {
             throw new InvalidOperationException(
-                "Could not find symbol for typeof() expression: " + typeOf);
+                "Could not find symbol for typeof() expression: " + node);
         }
 
         var type = ResolveType(typeSymbol);

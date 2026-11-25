@@ -100,11 +100,11 @@ public abstract class CompiledQueryBase<TContext, TResult>
 
     private sealed class QueryExpressionRewriter(TContext context, IReadOnlyCollection<ParameterExpression> parameters) : ExpressionVisitor
     {
-        protected override Expression VisitParameter(ParameterExpression parameterExpression)
-            => typeof(TContext).IsAssignableFrom(parameterExpression.Type)
+        protected override Expression VisitParameter(ParameterExpression node)
+            => typeof(TContext).IsAssignableFrom(node.Type)
                 ? Expression.Constant(context)
-                : parameters.Contains(parameterExpression)
-                    ? new QueryParameterExpression(parameterExpression.Name!, parameterExpression.Type)
-                    : parameterExpression;
+                : parameters.Contains(node)
+                    ? new QueryParameterExpression(node.Name!, node.Type)
+                    : node;
     }
 }

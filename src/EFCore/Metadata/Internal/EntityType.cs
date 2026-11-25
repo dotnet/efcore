@@ -2886,12 +2886,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     public virtual string? CheckQueryFilter(IQueryFilter queryFilter)
     {
         var expression = queryFilter?.Expression;
-        return expression != null
-            && (expression.Parameters.Count != 1
-                || expression.Parameters[0].Type != ClrType
-                || expression.ReturnType != typeof(bool))
-                ? CoreStrings.BadFilterExpression(expression, DisplayName(), ClrType)
-                : null;
+        return expression != null && (expression.Parameters.Count != 1 || expression.Parameters[0].Type != ClrType || expression.ReturnType != typeof(bool)) ? CoreStrings.BadFilterExpression(expression, DisplayName(), ClrType) : null;
     }
 
     /// <summary>

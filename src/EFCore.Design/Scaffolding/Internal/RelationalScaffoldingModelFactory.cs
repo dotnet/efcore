@@ -814,9 +814,9 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
         }
 
         var principalPropertiesMap = foreignKey.PrincipalColumns
-            .Select(fc => (property: principalEntityType.FindProperty(GetPropertyName(fc))!, column: fc)).ToList();
+            .Select(fc => (Property: principalEntityType.FindProperty(GetPropertyName(fc))!, Column: fc)).ToList();
         var principalProperties = principalPropertiesMap
-            .Select(tuple => tuple.property)
+            .Select(tuple => tuple.Property)
             .ToList();
 
         var principalKey = principalEntityType.FindKey(principalProperties);
@@ -830,17 +830,17 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
                 // ensure all principal properties are non-nullable even if the columns
                 // are nullable on the database. EF's concept of a key requires this.
                 var nullablePrincipalProperties =
-                    principalPropertiesMap.Where(tuple => tuple.property.IsNullable).ToList();
+                    principalPropertiesMap.Where(tuple => tuple.Property.IsNullable).ToList();
                 if (nullablePrincipalProperties.Count > 0)
                 {
                     _reporter.WriteWarning(
                         DesignStrings.ForeignKeyPrincipalEndContainsNullableColumns(
                             foreignKey.DisplayName(),
                             index.GetDatabaseName(),
-                            nullablePrincipalProperties.Select(tuple => tuple.column.DisplayName()).ToList()
+                            nullablePrincipalProperties.Select(tuple => tuple.Column.DisplayName()).ToList()
                                 .Aggregate((a, b) => a + "," + b)));
 
-                    nullablePrincipalProperties.ForEach(tuple => tuple.property.IsNullable = false);
+                    nullablePrincipalProperties.ForEach(tuple => tuple.Property.IsNullable = false);
                 }
 
                 principalKey = principalEntityType.AddKey(principalProperties);
@@ -955,12 +955,7 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
 
                 // Prefer the exact name. Only fall back to ignoring case if that identifies a single column, since databases
                 // that are not case-sensitive resolve names this way and an ambiguous name can't be attributed to a column.
-                var column = tableColumnList.Contains(name, StringComparer.Ordinal)
-                    ? name
-                    : tableColumnList.Where(c => string.Equals(c, name, StringComparison.OrdinalIgnoreCase)).ToList()
-                        is [var single]
-                        ? single
-                        : null;
+                var column = tableColumnList.Contains(name, StringComparer.Ordinal) ? name : tableColumnList.Where(c => string.Equals(c, name, StringComparison.OrdinalIgnoreCase)).ToList() is [var single] ? single : null;
 
                 if (column == null
                     || !foreignKeyColumnSet.Contains(column))

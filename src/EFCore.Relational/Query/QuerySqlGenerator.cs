@@ -127,8 +127,8 @@ public class QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : Exp
     }
 
     /// <inheritdoc />
-    protected override Expression VisitExtension(Expression expression)
-        => expression switch
+    protected override Expression VisitExtension(Expression node)
+        => node switch
         {
             ShapedQueryExpression e => e.UpdateQueryExpression(Visit(e.QueryExpression)),
             AggregateFunctionExpression e => VisitAggregateFunction(e),
@@ -176,7 +176,7 @@ public class QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : Exp
 #pragma warning restore EF9001
 
             _ => throw new InvalidOperationException(
-                RelationalStrings.UnhandledExpressionInVisitor(expression, expression.GetType(), nameof(QuerySqlGenerator))),
+                RelationalStrings.UnhandledExpressionInVisitor(node, node.GetType(), nameof(QuerySqlGenerator))),
         };
 
     /// <summary>

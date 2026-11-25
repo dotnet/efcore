@@ -218,26 +218,7 @@ public class Navigation : PropertyBase, IMutableNavigation, IConventionNavigatio
         var targetClrType = targetType.ClrType;
         var navigationTargetClrType = navigationProperty.GetMemberType().TryGetSequenceType();
         shouldBeCollection ??= navigationTargetClrType != null && navigationProperty.GetMemberType() != targetClrType;
-        return shouldBeCollection.Value
-            && navigationTargetClrType?.IsAssignableFrom(targetClrType) != true
-                ? shouldThrow
-                    ? throw new InvalidOperationException(
-                        CoreStrings.NavigationCollectionWrongClrType(
-                            navigationName,
-                            sourceType.DisplayName(),
-                            navigationProperty.GetMemberType().ShortDisplayName(),
-                            targetClrType.ShortDisplayName()))
-                    : false
-                : shouldBeCollection.Value
-                || navigationProperty.GetMemberType().IsAssignableFrom(targetClrType)
-                || (shouldThrow
-                    ? throw new InvalidOperationException(
-                        CoreStrings.NavigationSingleWrongClrType(
-                            navigationName,
-                            sourceType.DisplayName(),
-                            navigationProperty.GetMemberType().ShortDisplayName(),
-                            targetClrType.ShortDisplayName()))
-                    : false);
+        return shouldBeCollection.Value && navigationTargetClrType?.IsAssignableFrom(targetClrType) != true ? shouldThrow ? throw new InvalidOperationException( CoreStrings.NavigationCollectionWrongClrType( navigationName, sourceType.DisplayName(), navigationProperty.GetMemberType().ShortDisplayName(), targetClrType.ShortDisplayName())) : false : shouldBeCollection.Value || navigationProperty.GetMemberType().IsAssignableFrom(targetClrType) || (shouldThrow ? throw new InvalidOperationException( CoreStrings.NavigationSingleWrongClrType( navigationName, sourceType.DisplayName(), navigationProperty.GetMemberType().ShortDisplayName(), targetClrType.ShortDisplayName())) : false);
     }
 
     /// <summary>

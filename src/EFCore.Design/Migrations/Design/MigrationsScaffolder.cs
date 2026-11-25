@@ -92,12 +92,7 @@ public class MigrationsScaffolder : IMigrationsScaffolder
         var (key, typeInfo) = Dependencies.MigrationsAssembly.Migrations.LastOrDefault();
 
         var migrationNamespace =
-            (!string.IsNullOrEmpty(rootNamespace)
-                && !string.IsNullOrEmpty(subNamespace))
-                ? rootNamespace + "." + subNamespace
-                : !string.IsNullOrEmpty(rootNamespace)
-                    ? rootNamespace
-                    : subNamespace;
+            (!string.IsNullOrEmpty(rootNamespace) && !string.IsNullOrEmpty(subNamespace)) ? rootNamespace + "." + subNamespace : !string.IsNullOrEmpty(rootNamespace) ? rootNamespace : subNamespace;
 
         if (subNamespaceDefaulted)
         {

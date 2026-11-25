@@ -205,8 +205,8 @@ internal abstract class OperationExecutorBase : IOperationExecutor
         bool useDataAnnotations,
         bool overwriteFiles,
         bool useDatabaseNames,
-        string? modelNamespace,
-        string? contextNamespace,
+        string? entityNamespace,
+        string? dbContextNamespace,
         bool suppressOnConfiguring,
         bool noPluralize)
         => InvokeOperation<IDictionary>(
@@ -223,8 +223,8 @@ internal abstract class OperationExecutorBase : IOperationExecutor
                 ["useDataAnnotations"] = useDataAnnotations,
                 ["overwriteFiles"] = overwriteFiles,
                 ["useDatabaseNames"] = useDatabaseNames,
-                ["modelNamespace"] = modelNamespace,
-                ["contextNamespace"] = contextNamespace,
+                ["modelNamespace"] = entityNamespace,
+                ["contextNamespace"] = dbContextNamespace,
                 ["suppressOnConfiguring"] = suppressOnConfiguring,
                 ["noPluralize"] = noPluralize
             });

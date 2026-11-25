@@ -42,10 +42,6 @@ public class SpatialQuerySqlServerGeographyFixture : SpatialQuerySqlServerFixtur
         : SqlServerTypeMappingSource(dependencies, relationalDependencies, sqlServerSingletonOptions)
     {
         protected override RelationalTypeMapping? FindMapping(in RelationalTypeMappingInfo mappingInfo)
-            => mappingInfo.ClrType == typeof(GeoPoint)
-                ? ((RelationalTypeMapping)base.FindMapping(typeof(Point))!
-                    .WithComposedConverter(new GeoPointConverter(CreateGeometryServices().CreateGeometryFactory())))
-                .WithStoreTypeAndSize("geography", null)
-                : base.FindMapping(mappingInfo);
+            => mappingInfo.ClrType == typeof(GeoPoint) ? ((RelationalTypeMapping)base.FindMapping(typeof(Point))! .WithComposedConverter(new GeoPointConverter(CreateGeometryServices().CreateGeometryFactory()))) .WithStoreTypeAndSize("geography", null) : base.FindMapping(mappingInfo);
     }
 }

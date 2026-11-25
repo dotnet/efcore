@@ -1438,8 +1438,8 @@ public class RelationalCommandTest
     private sealed class ReaderFailureDiagnosticSource(List<Tuple<string, object>> events, string? eventName)
         : ListDiagnosticSource(events)
     {
-        public override bool IsEnabled(string diagnosticName)
-            => diagnosticName == eventName;
+        public override bool IsEnabled(string name)
+            => name == eventName;
     }
 
     private sealed class ReaderFailureInterceptor : DbCommandInterceptor

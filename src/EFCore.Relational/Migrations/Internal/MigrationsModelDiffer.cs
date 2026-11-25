@@ -2543,7 +2543,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
     {
         var sourceList = sources.ToList();
         var targetList = targets.ToList();
-        var pairedList = new List<(T source, T target)>();
+        var pairedList = new List<(T Source, T Target)>();
 
         foreach (var predicate in predicates)
         {

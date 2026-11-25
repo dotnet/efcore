@@ -288,7 +288,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 
     // Builds the RETURNING projection columns and a shaper that materializes each returned target row into the result type. The shaper
     // reads the returned columns positionally (matching the RETURNING order) and evaluates the original returning selector over them.
-    private (IReadOnlyList<ProjectionExpression>, LambdaExpression) BuildReturning(
+    private (IReadOnlyList<ProjectionExpression> Projections, LambdaExpression Shaper) BuildReturning(
         LambdaExpression returningSelector,
         IEntityType entityType,
         ITableBase table)

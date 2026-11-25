@@ -37,37 +37,37 @@ public partial class NavigationExpandingExpressionVisitor
 
         protected IModel Model { get; } = navigationExpandingExpressionVisitor._queryCompilationContext.Model;
 
-        protected override Expression VisitExtension(Expression expression)
-            => expression switch
+        protected override Expression VisitExtension(Expression node)
+            => node switch
             {
-                NavigationExpansionExpression or NavigationTreeExpression => expression,
-                _ => base.VisitExtension(expression),
+                NavigationExpansionExpression or NavigationTreeExpression => node,
+                _ => base.VisitExtension(node),
             };
 
-        protected override Expression VisitMember(MemberExpression memberExpression)
+        protected override Expression VisitMember(MemberExpression node)
         {
-            var innerExpression = Visit(memberExpression.Expression);
-            return TryExpandRelationship(innerExpression, MemberIdentity.Create(memberExpression.Member), memberExpression)
-                ?? memberExpression.Update(innerExpression);
+            var innerExpression = Visit(node.Expression);
+            return TryExpandRelationship(innerExpression, MemberIdentity.Create(node.Member), node)
+                ?? node.Update(innerExpression);
         }
 
-        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var navigationName))
+            if (node.TryGetEFPropertyArguments(out var source, out var navigationName))
             {
                 source = Visit(source);
-                return TryExpandRelationship(source, MemberIdentity.Create(navigationName), methodCallExpression)
-                    ?? methodCallExpression.Update(null, [source, methodCallExpression.Arguments[1]]);
+                return TryExpandRelationship(source, MemberIdentity.Create(navigationName), node)
+                    ?? node.Update(null, [source, node.Arguments[1]]);
             }
 
-            if (methodCallExpression.TryGetIndexerArguments(Model, out source, out navigationName))
+            if (node.TryGetIndexerArguments(Model, out source, out navigationName))
             {
                 source = Visit(source);
-                return TryExpandRelationship(source, MemberIdentity.Create(navigationName), methodCallExpression)
-                    ?? methodCallExpression.Update(source, [methodCallExpression.Arguments[0]]);
+                return TryExpandRelationship(source, MemberIdentity.Create(navigationName), node)
+                    ?? node.Update(source, [node.Arguments[0]]);
             }
 
-            return base.VisitMethodCall(methodCallExpression);
+            return base.VisitMethodCall(node);
         }
 
         private Expression? TryExpandRelationship(Expression? root, MemberIdentity memberIdentity, Expression originalExpression)
@@ -560,29 +560,29 @@ public partial class NavigationExpandingExpressionVisitor
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger = navigationExpandingExpressionVisitor._queryCompilationContext
             .Logger;
 
-        protected override Expression VisitBinary(BinaryExpression binaryExpression)
+        protected override Expression VisitBinary(BinaryExpression node)
         {
-            if (binaryExpression.NodeType is ExpressionType.Equal or ExpressionType.NotEqual)
+            if (node.NodeType is ExpressionType.Equal or ExpressionType.NotEqual)
             {
                 // This could be entity equality. We don't want to expand include nodes over them
                 // as either they translate or throw.
-                var leftEntityReference = IsEntityReference(binaryExpression.Left);
-                var rightEntityReference = IsEntityReference(binaryExpression.Right);
+                var leftEntityReference = IsEntityReference(node.Left);
+                var rightEntityReference = IsEntityReference(node.Right);
                 if (leftEntityReference || rightEntityReference)
                 {
-                    return binaryExpression;
+                    return node;
                 }
             }
 
-            return base.VisitBinary(binaryExpression);
+            return base.VisitBinary(node);
 
             static bool IsEntityReference(Expression expression)
                 => TryGetEntityType(expression) != null;
         }
 
-        protected override Expression VisitExtension(Expression extensionExpression)
+        protected override Expression VisitExtension(Expression node)
         {
-            switch (extensionExpression)
+            switch (node)
             {
                 case NavigationTreeExpression navigationTreeExpression:
                     if (navigationTreeExpression.Value is EntityReference entityReference)
@@ -607,37 +607,37 @@ public partial class NavigationExpandingExpressionVisitor
                 case IncludeExpression:
                 case PrimitiveCollectionReference:
                 case ComplexPropertyReference:
-                    return extensionExpression;
+                    return node;
             }
 
-            return base.VisitExtension(extensionExpression);
+            return base.VisitExtension(node);
         }
 
-        protected override Expression VisitMember(MemberExpression memberExpression)
+        protected override Expression VisitMember(MemberExpression node)
         {
-            if (memberExpression.Expression != null)
+            if (node.Expression != null)
             {
                 // If it is mapped property then, it would get converted to a column so we don't need to expand includes.
-                var entityType = TryGetEntityType(memberExpression.Expression);
-                var property = entityType?.FindProperty(memberExpression.Member);
+                var entityType = TryGetEntityType(node.Expression);
+                var property = entityType?.FindProperty(node.Member);
                 if (property != null)
                 {
-                    return memberExpression;
+                    return node;
                 }
 
-                var complexProperty = entityType?.FindComplexProperty(memberExpression.Member);
+                var complexProperty = entityType?.FindComplexProperty(node.Member);
                 if (complexProperty != null)
                 {
-                    return memberExpression;
+                    return node;
                 }
 
-                if (memberExpression.Expression is NavigationTreeExpression navigationTreeExpression
+                if (node.Expression is NavigationTreeExpression navigationTreeExpression
                     && navigationTreeExpression.Value is NewExpression newExpression
                     && newExpression.Members != null)
                 {
                     for (var i = 0; i < newExpression.Members.Count; i++)
                     {
-                        if (newExpression.Members[i] == memberExpression.Member)
+                        if (newExpression.Members[i] == node.Member)
                         {
                             var argument = newExpression.Arguments[i];
                             var newRoot = Expression.MakeMemberAccess(navigationTreeExpression, newExpression.Members[i]);
@@ -653,48 +653,48 @@ public partial class NavigationExpandingExpressionVisitor
                 }
             }
 
-            return base.VisitMember(memberExpression);
+            return base.VisitMember(node);
         }
 
-        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            if (methodCallExpression.TryGetEFPropertyArguments(out _, out _))
+            if (node.TryGetEFPropertyArguments(out _, out _))
             {
                 // If it is EF.Property then, it would get converted to a column or throw
                 // so we don't need to expand includes.
-                return methodCallExpression;
+                return node;
             }
 
-            if (methodCallExpression.TryGetIndexerArguments(Model, out var source, out var propertyName))
+            if (node.TryGetIndexerArguments(Model, out var source, out var propertyName))
             {
                 // If it is mapped property then, it would get converted to a column so we don't need to expand includes.
                 var entityType = TryGetEntityType(source);
                 var property = entityType?.FindProperty(propertyName);
                 if (property != null)
                 {
-                    return methodCallExpression;
+                    return node;
                 }
             }
 
-            return base.VisitMethodCall(methodCallExpression);
+            return base.VisitMethodCall(node);
         }
 
-        protected override Expression VisitNew(NewExpression newExpression)
+        protected override Expression VisitNew(NewExpression node)
         {
-            var arguments = new Expression[newExpression.Arguments.Count];
-            for (var i = 0; i < newExpression.Arguments.Count; i++)
+            var arguments = new Expression[node.Arguments.Count];
+            for (var i = 0; i < node.Arguments.Count; i++)
             {
-                var argument = newExpression.Arguments[i];
+                var argument = node.Arguments[i];
                 arguments[i] = argument is EntityReference entityReference
                     ? ExpandInclude(argument, entityReference)
                     : Visit(argument);
             }
 
-            return newExpression.Update(arguments);
+            return node.Update(arguments);
         }
 
-        protected override Expression VisitTypeBinary(TypeBinaryExpression typeBinaryExpression)
-            => typeBinaryExpression;
+        protected override Expression VisitTypeBinary(TypeBinaryExpression node)
+            => node;
 
         private static IEntityType? TryGetEntityType(Expression expression)
         {
@@ -1003,10 +1003,10 @@ public partial class NavigationExpandingExpressionVisitor
         bool applyIncludes = false)
         : ExpressionVisitor
     {
-        [return: NotNullIfNotNull(nameof(expression))]
-        public override Expression? Visit(Expression? expression)
+        [return: NotNullIfNotNull(nameof(node))]
+        public override Expression? Visit(Expression? node)
         {
-            if (expression is NavigationExpansionExpression navigationExpansionExpression)
+            if (node is NavigationExpansionExpression navigationExpansionExpression)
             {
                 visitor.ApplyPendingOrderings(navigationExpansionExpression);
 
@@ -1020,7 +1020,7 @@ public partial class NavigationExpandingExpressionVisitor
                 return navigationExpansionExpression;
             }
 
-            return base.Visit(expression);
+            return base.Visit(node);
         }
     }
 
@@ -1029,10 +1029,10 @@ public partial class NavigationExpandingExpressionVisitor
     /// </summary>
     private sealed class ReducingExpressionVisitor : ExpressionVisitor
     {
-        [return: NotNullIfNotNull(nameof(expression))]
-        public override Expression? Visit(Expression? expression)
+        [return: NotNullIfNotNull(nameof(node))]
+        public override Expression? Visit(Expression? node)
         {
-            switch (expression)
+            switch (node)
             {
                 case NavigationTreeExpression navigationTreeExpression:
                     return navigationTreeExpression.GetExpression();
@@ -1102,7 +1102,7 @@ public partial class NavigationExpandingExpressionVisitor
                     return includeExpression.Update(entityExpression, navigationExpression);
 
                 default:
-                    return base.Visit(expression);
+                    return base.Visit(node);
             }
         }
     }
@@ -1194,17 +1194,17 @@ public partial class NavigationExpandingExpressionVisitor
     /// </summary>
     private sealed class EntityReferenceOptionalMarkingExpressionVisitor : ExpressionVisitor
     {
-        [return: NotNullIfNotNull(nameof(expression))]
-        public override Expression? Visit(Expression? expression)
+        [return: NotNullIfNotNull(nameof(node))]
+        public override Expression? Visit(Expression? node)
         {
-            if (expression is EntityReference entityReference)
+            if (node is EntityReference entityReference)
             {
                 entityReference.MarkAsOptional();
 
                 return entityReference;
             }
 
-            return base.Visit(expression);
+            return base.Visit(node);
         }
     }
 
@@ -1216,11 +1216,11 @@ public partial class NavigationExpandingExpressionVisitor
         IEntityType entityType)
         : ExpressionVisitor
     {
-        protected override Expression VisitExtension(Expression extensionExpression)
-            => extensionExpression is EntityQueryRootExpression entityQueryRootExpression
+        protected override Expression VisitExtension(Expression node)
+            => node is EntityQueryRootExpression entityQueryRootExpression
                 && entityQueryRootExpression.EntityType == entityType
                     ? navigationExpandingExpressionVisitor.CreateNavigationExpansionExpression(entityQueryRootExpression, entityType)
-                    : base.VisitExtension(extensionExpression);
+                    : base.VisitExtension(node);
     }
 
     private sealed class CloningExpressionVisitor : ExpressionVisitor
@@ -1237,10 +1237,10 @@ public partial class NavigationExpandingExpressionVisitor
         public IReadOnlyDictionary<NavigationTreeNode, NavigationTreeNode> ClonedNodesMap
             => _clonedMap;
 
-        [return: NotNullIfNotNull(nameof(expression))]
-        public override Expression? Visit(Expression? expression)
+        [return: NotNullIfNotNull(nameof(node))]
+        public override Expression? Visit(Expression? node)
         {
-            switch (expression)
+            switch (node)
             {
                 case EntityReference entityReference:
                     return entityReference.Snapshot();
@@ -1269,7 +1269,7 @@ public partial class NavigationExpandingExpressionVisitor
                     return clonedNavigationTreeNode;
 
                 default:
-                    return base.Visit(expression);
+                    return base.Visit(node);
             }
         }
     }
@@ -1307,24 +1307,24 @@ public partial class NavigationExpandingExpressionVisitor
 
         public bool ContainsGrouping { get; private set; }
 
-        [return: NotNullIfNotNull(nameof(expression))]
-        public override Expression? Visit(Expression? expression)
+        [return: NotNullIfNotNull(nameof(node))]
+        public override Expression? Visit(Expression? node)
         {
-            if (expression == _parameterExpression)
+            if (node == _parameterExpression)
             {
                 ContainsGrouping = true;
             }
 
-            return base.Visit(expression);
+            return base.Visit(node);
         }
 
-        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            if (methodCallExpression.Method.IsGenericMethod
-                && (methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.AsQueryable
-                    || methodCallExpression.Method.GetGenericMethodDefinition() == EnumerableMethods.ToList
-                    || methodCallExpression.Method.GetGenericMethodDefinition() == EnumerableMethods.ToArray)
-                && methodCallExpression.Arguments[0] == _parameterExpression)
+            if (node.Method.IsGenericMethod
+                && (node.Method.GetGenericMethodDefinition() == QueryableMethods.AsQueryable
+                    || node.Method.GetGenericMethodDefinition() == EnumerableMethods.ToList
+                    || node.Method.GetGenericMethodDefinition() == EnumerableMethods.ToArray)
+                && node.Arguments[0] == _parameterExpression)
             {
                 var currentTree = _cloningExpressionVisitor.Clone(_navigationExpansionExpression.CurrentTree);
 
@@ -1337,44 +1337,29 @@ public partial class NavigationExpandingExpressionVisitor
                         .Visit(_navigationExpansionExpression.PendingSelector),
                     _navigationExpansionExpression.CurrentParameter.Name!);
 
-                return methodCallExpression.Update(null, [navigationExpansionExpression]);
+                return node.Update(null, [navigationExpansionExpression]);
             }
 
-            return base.VisitMethodCall(methodCallExpression);
+            return base.VisitMethodCall(node);
         }
 
-        protected override Expression VisitMember(MemberExpression memberExpression)
-            => memberExpression.Member == _keyMemberInfo
-                && memberExpression.Expression == _parameterExpression
+        protected override Expression VisitMember(MemberExpression node)
+            => node.Member == _keyMemberInfo
+                && node.Expression == _parameterExpression
                     ? _keyAccessExpression!
-                    : base.VisitMember(memberExpression);
+                    : base.VisitMember(node);
     }
 
     private sealed class RemoveRedundantNavigationComparisonExpressionVisitor(IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         : ExpressionVisitor
     {
-        protected override Expression VisitBinary(BinaryExpression binaryExpression)
-            => binaryExpression.NodeType is ExpressionType.Equal or ExpressionType.NotEqual
-                && TryRemoveNavigationComparison(
-                    binaryExpression.NodeType, binaryExpression.Left, binaryExpression.Right, out var result)
-                    ? result
-                    : base.VisitBinary(binaryExpression);
+        protected override Expression VisitBinary(BinaryExpression node)
+            => node.NodeType is ExpressionType.Equal or ExpressionType.NotEqual && TryRemoveNavigationComparison( node.NodeType, node.Left, node.Right, out var result) ? result : base.VisitBinary(node);
 
-        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            var method = methodCallExpression.Method;
-            return method.Name == nameof(object.Equals)
-                && methodCallExpression is { Object: not null, Arguments.Count: 1 }
-                && TryRemoveNavigationComparison(
-                    ExpressionType.Equal, methodCallExpression.Object, methodCallExpression.Arguments[0], out var result)
-                    ? result
-                    : method.Name == nameof(object.Equals)
-                    && methodCallExpression.Object == null
-                    && methodCallExpression.Arguments.Count == 2
-                    && TryRemoveNavigationComparison(
-                        ExpressionType.Equal, methodCallExpression.Arguments[0], methodCallExpression.Arguments[1], out result)
-                        ? result
-                        : base.VisitMethodCall(methodCallExpression);
+            var method = node.Method;
+            return method.Name == nameof(object.Equals) && node is { Object: not null, Arguments.Count: 1 } && TryRemoveNavigationComparison( ExpressionType.Equal, node.Object, node.Arguments[0], out var result) ? result : method.Name == nameof(object.Equals) && node.Object == null && node.Arguments.Count == 2 && TryRemoveNavigationComparison( ExpressionType.Equal, node.Arguments[0], node.Arguments[1], out result) ? result : base.VisitMethodCall(node);
         }
 
         private bool TryRemoveNavigationComparison(

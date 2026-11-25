@@ -83,15 +83,13 @@ public partial class NavigationExpandingExpressionVisitor
         public Dictionary<Expression, List<SingleResultSubqueryRead>> Reads { get; } = [with(ExpressionEqualityComparer.Instance)];
 
         // A subquery inside a nested lambda is correlated to that lambda's parameter, not to the element being processed.
-        protected override Expression VisitLambda<T>(Expression<T> lambdaExpression)
-            => lambdaExpression;
+        protected override Expression VisitLambda<T>(Expression<T> node)
+            => node;
 
-        protected override Expression VisitBinary(BinaryExpression binaryExpression)
+        protected override Expression VisitBinary(BinaryExpression node)
         {
-            if (binaryExpression.NodeType is ExpressionType.Equal or ExpressionType.NotEqual
-                && (binaryExpression.Left.IsNullConstantExpression() ? binaryExpression.Right
-                        : binaryExpression.Right.IsNullConstantExpression() ? binaryExpression.Left
-                        : null).UnwrapTypeConversion(out var convertedType) is MethodCallExpression subquery
+            if (node.NodeType is ExpressionType.Equal or ExpressionType.NotEqual
+                && (node.Left.IsNullConstantExpression() ? node.Right : node.Right.IsNullConstantExpression() ? node.Left : null).UnwrapTypeConversion(out var convertedType) is MethodCallExpression subquery
                 && convertedType == null
                 && Decompose(subquery) is (var collection, var projector)
                 && visitor._queryCompilationContext.Model.FindEntityType(collection.Type.GetSequenceType())!.FindPrimaryKey() != null
@@ -100,27 +98,27 @@ public partial class NavigationExpandingExpressionVisitor
                         && IsRowPreservingProjection(projector.Body, projector.Parameters[0]))))
             {
                 // An entity, or an object created by the projection, is null exactly when the row is missing.
-                Reads.GetOrAddNew(collection).Add(new SingleResultSubqueryRead(binaryExpression, null, IsExistenceCheck: true));
+                Reads.GetOrAddNew(collection).Add(new SingleResultSubqueryRead(node, null, IsExistenceCheck: true));
 
-                return binaryExpression;
+                return node;
             }
 
-            return base.VisitBinary(binaryExpression);
+            return base.VisitBinary(node);
         }
 
-        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            if (Decompose(methodCallExpression) is not (var collection, var projector))
+            if (Decompose(node) is not (var collection, var projector))
             {
-                return base.VisitMethodCall(methodCallExpression);
+                return base.VisitMethodCall(node);
             }
 
             if (projector == null || IsPropertyChain(projector.Body, projector.Parameters[0]))
             {
-                Reads.GetOrAddNew(collection).Add(new SingleResultSubqueryRead(methodCallExpression, projector, IsExistenceCheck: false));
+                Reads.GetOrAddNew(collection).Add(new SingleResultSubqueryRead(node, projector, IsExistenceCheck: false));
             }
 
-            return methodCallExpression;
+            return node;
         }
 
         private (Expression Collection, LambdaExpression? Projector)? Decompose(MethodCallExpression subquery)

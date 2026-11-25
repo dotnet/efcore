@@ -38,14 +38,6 @@ public class SqlServerNetTopologySuiteTypeMappingSourcePlugin : IRelationalTypeM
         var clrType = mappingInfo.ClrType;
         var storeTypeName = mappingInfo.StoreTypeName;
 
-        return typeof(Geometry).IsAssignableFrom(clrType)
-            || (storeTypeName != null
-                && _spatialStoreTypes.Contains(storeTypeName))
-                ? (RelationalTypeMapping)Activator.CreateInstance(
-                    typeof(SqlServerGeometryTypeMapping<>).MakeGenericType(
-                        clrType is null || clrType == typeof(SqlBytes) ? typeof(Geometry) : clrType),
-                    _geometryServices,
-                    storeTypeName ?? "geography")!
-                : null;
+        return typeof(Geometry).IsAssignableFrom(clrType) || (storeTypeName != null && _spatialStoreTypes.Contains(storeTypeName)) ? (RelationalTypeMapping)Activator.CreateInstance( typeof(SqlServerGeometryTypeMapping<>).MakeGenericType( clrType is null || clrType == typeof(SqlBytes) ? typeof(Geometry) : clrType), _geometryServices, storeTypeName ?? "geography")! : null;
     }
 }

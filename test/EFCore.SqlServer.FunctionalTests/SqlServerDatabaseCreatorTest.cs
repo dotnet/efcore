@@ -207,7 +207,7 @@ public class SqlServerDatabaseCreatorEnsureCreatedTest : SqlServerDatabaseCreato
             : Creates_physical_database_and_schema_test((false, async, ambientTransaction, file));
 
     private static async Task Creates_physical_database_and_schema_test(
-        (bool CreateDatabase, bool Async, bool ambientTransaction, bool File) options)
+        (bool CreateDatabase, bool Async, bool AmbientTransaction, bool File) options)
     {
         var (createDatabase, async, ambientTransaction, file) = options;
         await using var testDatabase = SqlServerTestStore.Create("EnsureCreatedTest" + (file ? "File" : ""), file);

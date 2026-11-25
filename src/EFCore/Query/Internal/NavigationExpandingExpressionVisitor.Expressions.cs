@@ -16,7 +16,7 @@ public partial class NavigationExpandingExpressionVisitor
 
         public IEntityType EntityType { get; }
 
-        public Dictionary<(IForeignKey, bool), Expression> ForeignKeyExpansionMap { get; } = [];
+        public Dictionary<(IForeignKey ForeignKey, bool OnDependent), Expression> ForeignKeyExpansionMap { get; } = [];
 
         public bool IsOptional { get; private set; }
         public IncludeTreeNode IncludePaths { get; private set; }

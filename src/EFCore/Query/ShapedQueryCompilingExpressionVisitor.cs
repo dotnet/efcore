@@ -82,9 +82,9 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
     protected virtual QueryCompilationContext QueryCompilationContext { get; }
 
     /// <inheritdoc />
-    protected override Expression VisitExtension(Expression extensionExpression)
+    protected override Expression VisitExtension(Expression node)
     {
-        if (extensionExpression is ShapedQueryExpression shapedQueryExpression)
+        if (node is ShapedQueryExpression shapedQueryExpression)
         {
             var serverEnumerable = VisitShapedQuery(shapedQueryExpression);
 
@@ -111,11 +111,11 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                             serverEnumerable.Type.GetSequenceType()),
                         serverEnumerable),
 
-                _ => base.VisitExtension(extensionExpression)
+                _ => base.VisitExtension(node)
             };
         }
 
-        return base.VisitExtension(extensionExpression);
+        return base.VisitExtension(node);
     }
 
     private static readonly MethodInfo SingleAsyncMethodInfo
@@ -218,37 +218,37 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
         private static readonly MethodInfo ServiceProviderGetService =
             typeof(IServiceProvider).GetMethod(nameof(IServiceProvider.GetService), [typeof(Type)])!;
 
-        protected override Expression VisitConstant(ConstantExpression constantExpression)
-            => constantExpression switch
+        protected override Expression VisitConstant(ConstantExpression node)
+            => node switch
             {
                 { Value: IEntityType entityTypeValue } => liftableConstantFactory.CreateLiftableConstant(
-                    constantExpression.Value,
+                    node.Value,
                     LiftableConstantExpressionHelpers.BuildMemberAccessLambdaForStructuralType(entityTypeValue),
                     entityTypeValue.ShortName() + "EntityType",
-                    constantExpression.Type),
+                    node.Type),
                 { Value: IComplexType complexTypeValue } => liftableConstantFactory.CreateLiftableConstant(
-                    constantExpression.Value,
+                    node.Value,
                     LiftableConstantExpressionHelpers.BuildMemberAccessLambdaForStructuralType(complexTypeValue),
                     complexTypeValue.ShortName() + "ComplexType",
-                    constantExpression.Type),
+                    node.Type),
                 { Value: IProperty propertyValue } => liftableConstantFactory.CreateLiftableConstant(
-                    constantExpression.Value,
+                    node.Value,
                     LiftableConstantExpressionHelpers.BuildMemberAccessLambdaForProperty(propertyValue),
                     propertyValue.Name + "Property",
-                    constantExpression.Type),
-                _ => base.VisitConstant(constantExpression)
+                    node.Type),
+                _ => base.VisitConstant(node)
             };
 
-        protected override Expression VisitBinary(BinaryExpression binaryExpression)
+        protected override Expression VisitBinary(BinaryExpression node)
         {
-            var left = Visit(binaryExpression.Left);
-            var right = Visit(binaryExpression.Right);
-            var conversion = (LambdaExpression?)Visit(binaryExpression.Conversion);
+            var left = Visit(node.Left);
+            var right = Visit(node.Right);
+            var conversion = (LambdaExpression?)Visit(node.Conversion);
 
-            return binaryExpression.NodeType is ExpressionType.Assign
+            return node.NodeType is ExpressionType.Assign
                 && left is MemberExpression { Member: FieldInfo { IsInitOnly: true } } initFieldMember
                     ? initFieldMember.Assign(right)
-                    : binaryExpression.Update(left, conversion, right);
+                    : node.Update(left, conversion, right);
         }
 
         protected override Expression VisitExtension(Expression node)
@@ -297,24 +297,24 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                 || typeMappingSource.FindMapping(constantExpression.Type) != null
                 || constantExpression.Value is Array { Length: 0 };
 
-        protected override Expression VisitConstant(ConstantExpression constantExpression)
-            => !ValidConstant(constantExpression)
+        protected override Expression VisitConstant(ConstantExpression node)
+            => !ValidConstant(node)
                 ? throw new InvalidOperationException(
-                    CoreStrings.ClientProjectionCapturingConstantInTree(constantExpression.Type.DisplayName()))
-                : (Expression)constantExpression;
+                    CoreStrings.ClientProjectionCapturingConstantInTree(node.Type.DisplayName()))
+                : (Expression)node;
 
-        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            if (RemoveConvert(methodCallExpression.Object) is ConstantExpression constantInstance
+            if (RemoveConvert(node.Object) is ConstantExpression constantInstance
                 && !ValidConstant(constantInstance))
             {
                 throw new InvalidOperationException(
                     CoreStrings.ClientProjectionCapturingConstantInMethodInstance(
                         constantInstance.Type.DisplayName(),
-                        methodCallExpression.Method.Name));
+                        node.Method.Name));
             }
 
-            foreach (var argument in methodCallExpression.Arguments)
+            foreach (var argument in node.Arguments)
             {
                 if (RemoveConvert(argument) is ConstantExpression constantArgument
                     && !ValidConstant(constantArgument))
@@ -322,17 +322,17 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                     throw new InvalidOperationException(
                         CoreStrings.ClientProjectionCapturingConstantInMethodArgument(
                             constantArgument.Type.DisplayName(),
-                            methodCallExpression.Method.Name));
+                            node.Method.Name));
                 }
             }
 
-            return base.VisitMethodCall(methodCallExpression);
+            return base.VisitMethodCall(node);
         }
 
-        protected override Expression VisitExtension(Expression extensionExpression)
-            => extensionExpression is StructuralTypeShaperExpression or ProjectionBindingExpression
-                ? extensionExpression
-                : base.VisitExtension(extensionExpression);
+        protected override Expression VisitExtension(Expression node)
+            => node is StructuralTypeShaperExpression or ProjectionBindingExpression
+                ? node
+                : base.VisitExtension(node);
 
         private static Expression? RemoveConvert(Expression? expression)
         {
@@ -420,10 +420,10 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
             return result;
         }
 
-        protected override Expression VisitExtension(Expression extensionExpression)
-            => extensionExpression is StructuralTypeShaperExpression shaper
+        protected override Expression VisitExtension(Expression node)
+            => node is StructuralTypeShaperExpression shaper
                 ? ProcessStructuralTypeShaper(shaper)
-                : base.VisitExtension(extensionExpression);
+                : base.VisitExtension(node);
 
         private Expression ProcessStructuralTypeShaper(StructuralTypeShaperExpression shaper)
         {

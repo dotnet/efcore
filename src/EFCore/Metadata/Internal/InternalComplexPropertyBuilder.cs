@@ -119,7 +119,7 @@ public class InternalComplexPropertyBuilder
             detachedKeys ??= [];
 
             var detachedKey = InternalEntityTypeBuilder.DetachKey(keyToDetach);
-            if (detachedKey.Item1.Metadata.GetConfigurationSource().Overrides(ConfigurationSource.Explicit))
+            if (detachedKey.KeyBuilder.Metadata.GetConfigurationSource().Overrides(ConfigurationSource.Explicit))
             {
                 detachedKeys.Add(detachedKey);
             }

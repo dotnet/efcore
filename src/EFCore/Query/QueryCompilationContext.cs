@@ -287,14 +287,14 @@ public class QueryCompilationContext
         private static readonly MethodInfo ComplexPropertyListElementAddMethod =
             typeof(List<IComplexProperty>).GetMethod(nameof(List<>.Add))!;
 
-        protected override Expression VisitConstant(ConstantExpression constantExpression)
+        protected override Expression VisitConstant(ConstantExpression node)
         {
-            switch (constantExpression.Value)
+            switch (node.Value)
             {
                 case IProperty property:
                 {
                     return liftableConstantFactory.CreateLiftableConstant(
-                        constantExpression.Value,
+                        node.Value,
                         LiftableConstantExpressionHelpers.BuildMemberAccessLambdaForProperty(property),
                         property.Name + "Property",
                         typeof(IProperty));
@@ -316,16 +316,16 @@ public class QueryCompilationContext
                     }
 
                     return liftableConstantFactory.CreateLiftableConstant(
-                        constantExpression.Value,
+                        node.Value,
                         Expression.Lambda<Func<MaterializerLiftableConstantContext, object>>(
                             Expression.ListInit(Expression.New(typeof(List<IComplexProperty>)), elementInitExpressions),
                             prm),
                         "ComplexPropertyChain",
-                        constantExpression.Type);
+                        node.Type);
                 }
 
                 default:
-                    return base.VisitConstant(constantExpression);
+                    return base.VisitConstant(node);
             }
         }
     }

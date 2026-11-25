@@ -457,40 +457,13 @@ public class RelationalApiConsistencyTest(RelationalApiConsistencyTest.Relationa
                         nameof(PropertyBuilder<object>.HasConversion), [typeof(Type), typeof(Type), typeof(Type)])!,
                     GetMethod(
                         typeof(PropertyBuilder<>), nameof(PropertyBuilder<object>.HasConversion), genericParameterCount: 1,
-                        (typeGenerics, methodGenerics) => (typeGenerics.Length < 1 || methodGenerics.Length < 1)
-                            ? [typeof(Random)]
-                            :
-                            [
-                                typeof(Expression<>).MakeGenericType(
-                                    typeof(Func<,>).MakeGenericType(typeGenerics[0], methodGenerics[0])),
-                                typeof(Expression<>).MakeGenericType(
-                                    typeof(Func<,>).MakeGenericType(methodGenerics[0], typeGenerics[0]))
-                            ]),
+                        (typeGenerics, methodGenerics) => (typeGenerics.Length < 1 || methodGenerics.Length < 1) ? [typeof(Random)] : [ typeof(Expression<>).MakeGenericType( typeof(Func<,>).MakeGenericType(typeGenerics[0], methodGenerics[0])), typeof(Expression<>).MakeGenericType( typeof(Func<,>).MakeGenericType(methodGenerics[0], typeGenerics[0])) ]),
                     GetMethod(
                         typeof(PropertyBuilder<>), nameof(PropertyBuilder<object>.HasConversion), genericParameterCount: 1,
-                        (typeGenerics, methodGenerics) => (typeGenerics.Length < 1 || methodGenerics.Length < 1)
-                            ? [typeof(Random)]
-                            :
-                            [
-                                typeof(Expression<>).MakeGenericType(
-                                    typeof(Func<,>).MakeGenericType(typeGenerics[0], methodGenerics[0])),
-                                typeof(Expression<>).MakeGenericType(
-                                    typeof(Func<,>).MakeGenericType(methodGenerics[0], typeGenerics[0])),
-                                typeof(ValueComparer)
-                            ]),
+                        (typeGenerics, methodGenerics) => (typeGenerics.Length < 1 || methodGenerics.Length < 1) ? [typeof(Random)] : [ typeof(Expression<>).MakeGenericType( typeof(Func<,>).MakeGenericType(typeGenerics[0], methodGenerics[0])), typeof(Expression<>).MakeGenericType( typeof(Func<,>).MakeGenericType(methodGenerics[0], typeGenerics[0])), typeof(ValueComparer) ]),
                     GetMethod(
                         typeof(PropertyBuilder<>), nameof(PropertyBuilder<object>.HasConversion), genericParameterCount: 1,
-                        (typeGenerics, methodGenerics) => (typeGenerics.Length < 1 || methodGenerics.Length < 1)
-                            ? [typeof(Random)]
-                            :
-                            [
-                                typeof(Expression<>).MakeGenericType(
-                                    typeof(Func<,>).MakeGenericType(typeGenerics[0], methodGenerics[0])),
-                                typeof(Expression<>).MakeGenericType(
-                                    typeof(Func<,>).MakeGenericType(methodGenerics[0], typeGenerics[0])),
-                                typeof(ValueComparer),
-                                typeof(ValueComparer)
-                            ]),
+                        (typeGenerics, methodGenerics) => (typeGenerics.Length < 1 || methodGenerics.Length < 1) ? [typeof(Random)] : [ typeof(Expression<>).MakeGenericType( typeof(Func<,>).MakeGenericType(typeGenerics[0], methodGenerics[0])), typeof(Expression<>).MakeGenericType( typeof(Func<,>).MakeGenericType(methodGenerics[0], typeGenerics[0])), typeof(ValueComparer), typeof(ValueComparer) ]),
                     GetMethod(
                         typeof(PropertyBuilder<>), nameof(PropertyBuilder<object>.HasConversion), genericParameterCount: 1,
                         (typeGenerics, methodGenerics) => (typeGenerics.Length < 1 || methodGenerics.Length < 1)
@@ -498,22 +471,10 @@ public class RelationalApiConsistencyTest(RelationalApiConsistencyTest.Relationa
                             : [typeof(ValueConverter<,>).MakeGenericType(typeGenerics[0], methodGenerics[0])]),
                     GetMethod(
                         typeof(PropertyBuilder<>), nameof(PropertyBuilder<object>.HasConversion), genericParameterCount: 1,
-                        (typeGenerics, methodGenerics) => (typeGenerics.Length < 1 || methodGenerics.Length < 1)
-                            ? [typeof(Random)]
-                            :
-                            [
-                                typeof(ValueConverter<,>).MakeGenericType(typeGenerics[0], methodGenerics[0]), typeof(ValueComparer)
-                            ]),
+                        (typeGenerics, methodGenerics) => (typeGenerics.Length < 1 || methodGenerics.Length < 1) ? [typeof(Random)] : [ typeof(ValueConverter<,>).MakeGenericType(typeGenerics[0], methodGenerics[0]), typeof(ValueComparer) ]),
                     GetMethod(
                         typeof(PropertyBuilder<>), nameof(PropertyBuilder<object>.HasConversion), genericParameterCount: 1,
-                        (typeGenerics, methodGenerics) => (typeGenerics.Length < 1 || methodGenerics.Length < 1)
-                            ? [typeof(Random)]
-                            :
-                            [
-                                typeof(ValueConverter<,>).MakeGenericType(typeGenerics[0], methodGenerics[0]),
-                                typeof(ValueComparer),
-                                typeof(ValueComparer)
-                            ])
+                        (typeGenerics, methodGenerics) => (typeGenerics.Length < 1 || methodGenerics.Length < 1) ? [typeof(Random)] : [ typeof(ValueConverter<,>).MakeGenericType(typeGenerics[0], methodGenerics[0]), typeof(ValueComparer), typeof(ValueComparer) ])
                 ]
             }
         };

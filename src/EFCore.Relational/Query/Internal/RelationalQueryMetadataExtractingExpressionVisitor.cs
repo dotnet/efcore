@@ -29,28 +29,28 @@ public class RelationalQueryMetadataExtractingExpressionVisitor : ExpressionVisi
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+    protected override Expression VisitMethodCall(MethodCallExpression node)
     {
-        if (methodCallExpression.Method.DeclaringType == typeof(RelationalQueryableExtensions))
+        if (node.Method.DeclaringType == typeof(RelationalQueryableExtensions))
         {
-            switch (methodCallExpression.Method.Name)
+            switch (node.Method.Name)
             {
                 case nameof(RelationalQueryableExtensions.AsSplitQuery):
                 {
-                    var innerQueryable = Visit(methodCallExpression.Arguments[0]);
+                    var innerQueryable = Visit(node.Arguments[0]);
                     _relationalQueryCompilationContext.QuerySplittingBehavior = QuerySplittingBehavior.SplitQuery;
                     return innerQueryable;
                 }
 
                 case nameof(RelationalQueryableExtensions.AsSingleQuery):
                 {
-                    var innerQueryable = Visit(methodCallExpression.Arguments[0]);
+                    var innerQueryable = Visit(node.Arguments[0]);
                     _relationalQueryCompilationContext.QuerySplittingBehavior = QuerySplittingBehavior.SingleQuery;
                     return innerQueryable;
                 }
             }
         }
 
-        return base.VisitMethodCall(methodCallExpression);
+        return base.VisitMethodCall(node);
     }
 }

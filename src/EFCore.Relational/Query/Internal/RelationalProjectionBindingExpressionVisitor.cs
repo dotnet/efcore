@@ -185,24 +185,24 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [return: NotNullIfNotNull(nameof(expression))]
-    public override Expression? Visit(Expression? expression)
+    [return: NotNullIfNotNull(nameof(node))]
+    public override Expression? Visit(Expression? node)
     {
-        switch (expression)
+        switch (node)
         {
             case MemberInitExpression or StructuralTypeShaperExpression or IncludeExpression:
             case NewExpression newExpression when !_indexBasedBinding || newExpression.Arguments.Count == 0:
-                return base.Visit(expression);
+                return base.Visit(node);
 
             case null:
                 return null;
 
             case not null when _indexBasedBinding:
             {
-                switch (expression)
+                switch (node)
                 {
                     case ConstantExpression:
-                        return expression;
+                        return node;
 
                     case QueryParameterExpression queryParameterExpression:
                         return Expression.Call(
@@ -217,7 +217,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                         return _selectExpression.GetProjection(projectionBindingExpression) switch
                         {
                             StructuralTypeProjectionExpression projection => AddClientProjection(projection, typeof(ValueBuffer)),
-                            SqlExpression mappedSqlExpression => AddClientProjection(mappedSqlExpression, expression.Type.MakeNullable()),
+                            SqlExpression mappedSqlExpression => AddClientProjection(mappedSqlExpression, node.Type.MakeNullable()),
                             // A single-result subquery (e.g. the group element of GroupBy(k).Select(g => g.First()))
                             // being composed over: lower it into the current select as a to-one join so the result
                             // has a bindable shape, instead of failing.
@@ -271,15 +271,15 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
 
                         return new CollectionResultExpression(
                             // expression.Type will be CLR type of the navigation here so that is fine.
-                            new ProjectionBindingExpression(_selectExpression, _clientProjections.Count - 1, expression.Type),
+                            new ProjectionBindingExpression(_selectExpression, _clientProjections.Count - 1, node.Type),
                             materializeCollectionNavigationExpression.Navigation,
                             materializeCollectionNavigationExpression.Navigation.ClrType.GetSequenceType());
                 }
 
-                switch (_sqlTranslator.TranslateProjection(expression, _selectExpression))
+                switch (_sqlTranslator.TranslateProjection(node, _selectExpression))
                 {
                     case SqlExpression sqlExpression:
-                        return AddClientProjection(sqlExpression, expression.Type.MakeNullable());
+                        return AddClientProjection(sqlExpression, node.Type.MakeNullable());
 
                     // This handles the case of a complex type being projected out of a Select.
                     case RelationalStructuralTypeShaperExpression { StructuralType: IComplexType } shaper:
@@ -289,7 +289,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                         return base.Visit(collectionResult);
                 }
 
-                if (expression is MethodCallExpression methodCallExpression)
+                if (node is MethodCallExpression methodCallExpression)
                 {
                     if (methodCallExpression is
                         {
@@ -306,7 +306,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                             _clientProjections!.Add(subquery);
                             // expression.Type here will be List<T>
                             return new CollectionResultExpression(
-                                new ProjectionBindingExpression(_selectExpression, _clientProjections.Count - 1, expression.Type),
+                                new ProjectionBindingExpression(_selectExpression, _clientProjections.Count - 1, node.Type),
                                 structuralProperty: null,
                                 methodCallExpression.Method.GetGenericArguments()[0]);
                         }
@@ -317,7 +317,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                         if (subquery != null)
                         {
                             _clientProjections!.Add(subquery);
-                            var type = expression.Type;
+                            var type = node.Type;
                             if (type.IsGenericType
                                 && type.GetGenericTypeDefinition() == typeof(IQueryable<>))
                             {
@@ -334,17 +334,17 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                     }
                 }
 
-                return base.Visit(expression);
+                return base.Visit(node);
             }
 
             default:
             {
-                switch (_sqlTranslator.TranslateProjection(expression, _selectExpression))
+                switch (_sqlTranslator.TranslateProjection(node, _selectExpression))
                 {
                     case SqlExpression sqlExpression:
                         _projectionMapping[_projectionMembers.Peek()] = sqlExpression;
                         return new ProjectionBindingExpression(
-                            _selectExpression, _projectionMembers.Peek(), expression.Type.MakeNullable());
+                            _selectExpression, _projectionMembers.Peek(), node.Type.MakeNullable());
 
                     // This handles the case of a complex type being projected out of a Select.
                     // Note that an entity type being projected is (currently) handled differently
@@ -370,12 +370,12 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitBinary(BinaryExpression binaryExpression)
+    protected override Expression VisitBinary(BinaryExpression node)
     {
-        var left = MatchTypes(Visit(binaryExpression.Left), binaryExpression.Left.Type);
-        var right = MatchTypes(Visit(binaryExpression.Right), binaryExpression.Right.Type);
+        var left = MatchTypes(Visit(node.Left), node.Left.Type);
+        var right = MatchTypes(Visit(node.Right), node.Right.Type);
 
-        return binaryExpression.Update(left, VisitAndConvert(binaryExpression.Conversion, "VisitBinary"), right);
+        return node.Update(left, VisitAndConvert(node.Conversion, "VisitBinary"), right);
     }
 
     /// <summary>
@@ -384,33 +384,33 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
+    protected override Expression VisitConditional(ConditionalExpression node)
     {
-        var test = Visit(conditionalExpression.Test);
-        var ifTrue = Visit(conditionalExpression.IfTrue);
-        var ifFalse = Visit(conditionalExpression.IfFalse);
+        var test = Visit(node.Test);
+        var ifTrue = Visit(node.IfTrue);
+        var ifFalse = Visit(node.IfFalse);
 
         if (test.Type == typeof(bool?))
         {
             test = Expression.Equal(test, Expression.Constant(true, typeof(bool?)));
         }
 
-        ifTrue = MatchTypes(ifTrue, conditionalExpression.IfTrue.Type);
-        ifFalse = MatchTypes(ifFalse, conditionalExpression.IfFalse.Type);
+        ifTrue = MatchTypes(ifTrue, node.IfTrue.Type);
+        ifFalse = MatchTypes(ifFalse, node.IfFalse.Type);
 
         // Edge case when one branch of a conditional is null, the other is a queryable
         // that gets translated into a client-side collection Type,
         // conditionalExpression.Update throws Error in this case
-        if (!conditionalExpression.IfTrue.Type.IsAssignableFrom(ifTrue.Type) && ifFalse is ConstantExpression { Value: null })
+        if (!node.IfTrue.Type.IsAssignableFrom(ifTrue.Type) && ifFalse is ConstantExpression { Value: null })
         {
             return Expression.Condition(test, ifTrue, Expression.Constant(null, ifTrue.Type));
         }
-        if (!conditionalExpression.IfFalse.Type.IsAssignableFrom(ifFalse.Type) && ifTrue is ConstantExpression { Value: null })
+        if (!node.IfFalse.Type.IsAssignableFrom(ifFalse.Type) && ifTrue is ConstantExpression { Value: null })
         {
             return Expression.Condition(test, Expression.Constant(null, ifFalse.Type), ifFalse);
         }
 
-        return conditionalExpression.Update(test, ifTrue, ifFalse);
+        return node.Update(test, ifTrue, ifFalse);
     }
 
     /// <summary>
@@ -419,9 +419,9 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitExtension(Expression extensionExpression)
+    protected override Expression VisitExtension(Expression node)
     {
-        switch (extensionExpression)
+        switch (node)
         {
             case StructuralTypeShaperExpression shaper:
             {
@@ -529,7 +529,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                     // and the json entity that is the start of the include chain - the rest will be added in the shaper phase
                     return includeExpression.Navigation.DeclaringEntityType.IsMappedToJson()
                         ? Visit(includeExpression.EntityExpression)
-                        : base.VisitExtension(extensionExpression);
+                        : base.VisitExtension(node);
                 }
 
                 return QueryCompilationContext.NotTranslatedExpression;
@@ -575,7 +575,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
             }
 
             default:
-                throw new InvalidOperationException(CoreStrings.TranslationFailed(extensionExpression.Print()));
+                throw new InvalidOperationException(CoreStrings.TranslationFailed(node.Print()));
         }
     }
 
@@ -585,8 +585,8 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override ElementInit VisitElementInit(ElementInit elementInit)
-        => elementInit.Update(elementInit.Arguments.Select(e => MatchTypes(Visit(e), e.Type)));
+    protected override ElementInit VisitElementInit(ElementInit node)
+        => node.Update(node.Arguments.Select(e => MatchTypes(Visit(e), e.Type)));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -594,17 +594,17 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitMember(MemberExpression memberExpression)
+    protected override Expression VisitMember(MemberExpression node)
     {
-        var expression = Visit(memberExpression.Expression);
-        Expression updatedMemberExpression = memberExpression.Update(
-            expression != null ? MatchTypes(expression, memberExpression.Expression!.Type) : expression);
+        var expression = Visit(node.Expression);
+        Expression updatedMemberExpression = node.Update(
+            expression != null ? MatchTypes(expression, node.Expression!.Type) : expression);
 
         if (expression?.Type.IsNullableType() == true
             && !_includeFindingExpressionVisitor.ContainsInclude(expression))
         {
-            var nullableReturnType = memberExpression.Type.MakeNullable();
-            if (!memberExpression.Type.IsNullableType())
+            var nullableReturnType = node.Type.MakeNullable();
+            if (!node.Type.IsNullableType())
             {
                 updatedMemberExpression = Expression.Convert(updatedMemberExpression, nullableReturnType);
             }
@@ -624,23 +624,23 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override MemberAssignment VisitMemberAssignment(MemberAssignment memberAssignment)
+    protected override MemberAssignment VisitMemberAssignment(MemberAssignment node)
     {
-        var expression = memberAssignment.Expression;
+        var expression = node.Expression;
         Expression? visitedExpression;
         if (_indexBasedBinding)
         {
-            visitedExpression = Visit(memberAssignment.Expression);
+            visitedExpression = Visit(node.Expression);
         }
         else
         {
-            var projectionMember = _projectionMembers.Peek().Append(memberAssignment.Member);
+            var projectionMember = _projectionMembers.Peek().Append(node.Member);
             _projectionMembers.Push(projectionMember);
 
-            visitedExpression = Visit(memberAssignment.Expression);
+            visitedExpression = Visit(node.Expression);
             if (visitedExpression == QueryCompilationContext.NotTranslatedExpression)
             {
-                return memberAssignment.Update(Expression.Convert(visitedExpression, expression.Type));
+                return node.Update(Expression.Convert(visitedExpression, expression.Type));
             }
 
             _projectionMembers.Pop();
@@ -648,7 +648,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
 
         visitedExpression = MatchTypes(visitedExpression, expression.Type);
 
-        return memberAssignment.Update(visitedExpression);
+        return node.Update(visitedExpression);
     }
 
     /// <summary>
@@ -657,27 +657,27 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitMemberInit(MemberInitExpression memberInitExpression)
+    protected override Expression VisitMemberInit(MemberInitExpression node)
     {
         // #30915: if the whole non-entity object is being projected from the nullable side of an outer join, gate its
         // materialization on the recorded marker so it becomes null (rather than a constructed all-NULL object) on no-match rows.
-        var hasNullabilityMarker = _selectExpression.TryGetNonEntityNullabilityMarker(memberInitExpression, out var markerBinding);
+        var hasNullabilityMarker = _selectExpression.TryGetNonEntityNullabilityMarker(node, out var markerBinding);
 
-        var newExpression = Visit(memberInitExpression.NewExpression);
+        var newExpression = Visit(node.NewExpression);
         if (newExpression == QueryCompilationContext.NotTranslatedExpression)
         {
             return QueryCompilationContext.NotTranslatedExpression;
         }
 
-        var newBindings = new MemberBinding[memberInitExpression.Bindings.Count];
+        var newBindings = new MemberBinding[node.Bindings.Count];
         for (var i = 0; i < newBindings.Length; i++)
         {
-            if (memberInitExpression.Bindings[i].BindingType != MemberBindingType.Assignment)
+            if (node.Bindings[i].BindingType != MemberBindingType.Assignment)
             {
                 return QueryCompilationContext.NotTranslatedExpression;
             }
 
-            newBindings[i] = VisitMemberBinding(memberInitExpression.Bindings[i]);
+            newBindings[i] = VisitMemberBinding(node.Bindings[i]);
             if (newBindings[i] is MemberAssignment { Expression: UnaryExpression { NodeType: ExpressionType.Convert } unaryExpression }
                 && unaryExpression.Operand == QueryCompilationContext.NotTranslatedExpression)
             {
@@ -685,7 +685,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
             }
         }
 
-        var visited = memberInitExpression.Update((NewExpression)newExpression, newBindings);
+        var visited = node.Update((NewExpression)newExpression, newBindings);
 
         if (hasNullabilityMarker && _rootIsTransparentIdentifier)
         {
@@ -693,11 +693,11 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
             // gating but must rebind the (now stale) marker and re-key the recorded entry onto the rebuilt node, so the final
             // whole-object projection over the same SelectExpression still finds a valid node and marker binding to gate on.
             var reboundMarker = BindNullabilityMarker(markerBinding!);
-            _selectExpression.RemapNonEntityNullabilityMarker(memberInitExpression, visited, reboundMarker);
+            _selectExpression.RemapNonEntityNullabilityMarker(node, visited, reboundMarker);
         }
 
         return hasNullabilityMarker
-            ? GateNonEntityOnNullabilityMarker(visited, markerBinding!, memberInitExpression.Type)
+            ? GateNonEntityOnNullabilityMarker(visited, markerBinding!, node.Type)
             : visited;
     }
 
@@ -707,26 +707,26 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+    protected override Expression VisitMethodCall(MethodCallExpression node)
     {
-        var @object = Visit(methodCallExpression.Object);
-        var arguments = new Expression[methodCallExpression.Arguments.Count];
-        for (var i = 0; i < methodCallExpression.Arguments.Count; i++)
+        var @object = Visit(node.Object);
+        var arguments = new Expression[node.Arguments.Count];
+        for (var i = 0; i < node.Arguments.Count; i++)
         {
-            var argument = methodCallExpression.Arguments[i];
+            var argument = node.Arguments[i];
             arguments[i] = MatchTypes(Visit(argument), argument.Type);
         }
 
-        Expression updatedMethodCallExpression = methodCallExpression.Update(
-            @object != null ? MatchTypes(@object, methodCallExpression.Object!.Type) : @object!,
+        Expression updatedMethodCallExpression = node.Update(
+            @object != null ? MatchTypes(@object, node.Object!.Type) : @object!,
             arguments);
 
         if (@object?.Type.IsNullableType() == true
-            && methodCallExpression.Object != null
-            && !methodCallExpression.Object.Type.IsNullableType())
+            && node.Object != null
+            && !node.Object.Type.IsNullableType())
         {
-            var nullableReturnType = methodCallExpression.Type.MakeNullable();
-            if (!methodCallExpression.Type.IsNullableType())
+            var nullableReturnType = node.Type.MakeNullable();
+            if (!node.Type.IsNullableType())
             {
                 updatedMethodCallExpression = Expression.Convert(updatedMethodCallExpression, nullableReturnType);
             }
@@ -746,27 +746,27 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitNew(NewExpression newExpression)
+    protected override Expression VisitNew(NewExpression node)
     {
-        if (newExpression.Arguments.Count == 0)
+        if (node.Arguments.Count == 0)
         {
-            return newExpression;
+            return node;
         }
 
         if (!_indexBasedBinding
-            && newExpression.Members == null)
+            && node.Members == null)
         {
             return QueryCompilationContext.NotTranslatedExpression;
         }
 
         // #30915: if the whole non-entity object is being projected from the nullable side of an outer join, gate its
         // materialization on the recorded marker so it becomes null (rather than a constructed all-NULL object) on no-match rows.
-        var hasNullabilityMarker = _selectExpression.TryGetNonEntityNullabilityMarker(newExpression, out var markerBinding);
+        var hasNullabilityMarker = _selectExpression.TryGetNonEntityNullabilityMarker(node, out var markerBinding);
 
-        var newArguments = new Expression[newExpression.Arguments.Count];
+        var newArguments = new Expression[node.Arguments.Count];
         for (var i = 0; i < newArguments.Length; i++)
         {
-            var argument = newExpression.Arguments[i];
+            var argument = node.Arguments[i];
             Expression? visitedArgument;
             if (_indexBasedBinding)
             {
@@ -774,7 +774,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
             }
             else
             {
-                var projectionMember = _projectionMembers.Peek().Append(newExpression.Members![i]);
+                var projectionMember = _projectionMembers.Peek().Append(node.Members![i]);
                 _projectionMembers.Push(projectionMember);
                 visitedArgument = Visit(argument);
                 if (visitedArgument == QueryCompilationContext.NotTranslatedExpression)
@@ -788,7 +788,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
             newArguments[i] = MatchTypes(visitedArgument, argument.Type);
         }
 
-        var visited = newExpression.Update(newArguments);
+        var visited = node.Update(newArguments);
 
         if (hasNullabilityMarker && _rootIsTransparentIdentifier)
         {
@@ -799,11 +799,11 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
             // phase's projection mechanism and re-key it onto the rebuilt node, so the *final* user projection (a later Translate
             // pass over the same SelectExpression, where the whole object is projected) finds a still-valid marker binding.
             var reboundMarker = BindNullabilityMarker(markerBinding!);
-            _selectExpression.RemapNonEntityNullabilityMarker(newExpression, visited, reboundMarker);
+            _selectExpression.RemapNonEntityNullabilityMarker(node, visited, reboundMarker);
         }
 
         return hasNullabilityMarker
-            ? GateNonEntityOnNullabilityMarker(visited, markerBinding!, newExpression.Type)
+            ? GateNonEntityOnNullabilityMarker(visited, markerBinding!, node.Type)
             : visited;
     }
 
@@ -886,8 +886,8 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitNewArray(NewArrayExpression newArrayExpression)
-        => newArrayExpression.Update(newArrayExpression.Expressions.Select(e => MatchTypes(Visit(e), e.Type)));
+    protected override Expression VisitNewArray(NewArrayExpression node)
+        => node.Update(node.Expressions.Select(e => MatchTypes(Visit(e), e.Type)));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -895,14 +895,14 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitUnary(UnaryExpression unaryExpression)
+    protected override Expression VisitUnary(UnaryExpression node)
     {
-        var operand = Visit(unaryExpression.Operand);
+        var operand = Visit(node.Operand);
 
-        return unaryExpression.NodeType is ExpressionType.Convert or ExpressionType.ConvertChecked
-            && unaryExpression.Type == operand.Type
+        return node.NodeType is ExpressionType.Convert or ExpressionType.ConvertChecked
+            && node.Type == operand.Type
                 ? operand
-                : unaryExpression.Update(MatchTypes(operand, unaryExpression.Operand.Type));
+                : node.Update(MatchTypes(operand, node.Operand.Type));
     }
 
     [DebuggerStepThrough]
@@ -992,20 +992,20 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
             return _containsInclude;
         }
 
-        [return: NotNullIfNotNull(nameof(expression))]
-        public override Expression? Visit(Expression? expression)
-            => _containsInclude ? expression : base.Visit(expression);
+        [return: NotNullIfNotNull(nameof(node))]
+        public override Expression? Visit(Expression? node)
+            => _containsInclude ? node : base.Visit(node);
 
-        protected override Expression VisitExtension(Expression extensionExpression)
+        protected override Expression VisitExtension(Expression node)
         {
-            if (extensionExpression is IncludeExpression)
+            if (node is IncludeExpression)
             {
                 _containsInclude = true;
 
-                return extensionExpression;
+                return node;
             }
 
-            return base.VisitExtension(extensionExpression);
+            return base.VisitExtension(node);
         }
     }
 }

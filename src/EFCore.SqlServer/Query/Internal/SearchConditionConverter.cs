@@ -30,9 +30,9 @@ public class SearchConditionConverter(ISqlExpressionFactory sqlExpressionFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [return: NotNullIfNotNull(nameof(expression))]
-    public override Expression? Visit(Expression? expression)
-        => Visit(expression, inSearchConditionContext: false, allowNullFalseEquivalence: false);
+    [return: NotNullIfNotNull(nameof(node))]
+    public override Expression? Visit(Expression? node)
+        => Visit(node, inSearchConditionContext: false, allowNullFalseEquivalence: false);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -63,7 +63,7 @@ public class SearchConditionConverter(ISqlExpressionFactory sqlExpressionFactory
         };
 
     private SqlExpression ApplyConversion(SqlExpression sqlExpression, bool inSearchConditionContext, bool isExpressionSearchCondition)
-        => (inSearchCondition: inSearchConditionContext, isExpressionSearchCondition) switch
+        => (InSearchCondition: inSearchConditionContext, IsExpressionSearchCondition: isExpressionSearchCondition) switch
         {
             // A non-search condition expression in a search condition context - add equality to convert to search condition:
             // WHERE b.SomeBitColumn => WHERE b.SomeBitColumn = 1

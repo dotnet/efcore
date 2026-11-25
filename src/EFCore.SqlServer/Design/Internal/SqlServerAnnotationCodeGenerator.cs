@@ -443,10 +443,7 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override bool IsHandledByConvention(IModel model, IAnnotation annotation)
-        => annotation.Name == RelationalAnnotationNames.DefaultSchema
-            ? (string?)annotation.Value == "dbo"
-            : annotation.Name == SqlServerAnnotationNames.ValueGenerationStrategy
-            && (SqlServerValueGenerationStrategy)annotation.Value! == SqlServerValueGenerationStrategy.IdentityColumn;
+        => annotation.Name == RelationalAnnotationNames.DefaultSchema ? (string?)annotation.Value == "dbo" : annotation.Name == SqlServerAnnotationNames.ValueGenerationStrategy && (SqlServerValueGenerationStrategy)annotation.Value! == SqlServerValueGenerationStrategy.IdentityColumn;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -589,7 +586,7 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
                         : complexType
                             ? ComplexTypePropertyUseSequenceMethodInfo
                             : PropertyUseSequenceMethodInfo,
-                    (name: nameOrSuffix, schema) switch
+                    (Name: nameOrSuffix, Schema: schema) switch
                     {
                         (null, null) => [],
                         (_, null) => [nameOrSuffix],

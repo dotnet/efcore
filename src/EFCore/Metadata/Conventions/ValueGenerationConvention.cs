@@ -33,13 +33,13 @@ public class ValueGenerationConvention :
     /// <summary>
     ///     Called after a foreign key is added to the entity type.
     /// </summary>
-    /// <param name="relationshipBuilder">The builder for the foreign key.</param>
+    /// <param name="foreignKeyBuilder">The builder for the foreign key.</param>
     /// <param name="context">Additional information associated with convention execution.</param>
     public virtual void ProcessForeignKeyAdded(
-        IConventionForeignKeyBuilder relationshipBuilder,
+        IConventionForeignKeyBuilder foreignKeyBuilder,
         IConventionContext<IConventionForeignKeyBuilder> context)
     {
-        var foreignKey = relationshipBuilder.Metadata;
+        var foreignKey = foreignKeyBuilder.Metadata;
         if (!foreignKey.IsBaseLinking())
         {
             foreach (var property in foreignKey.Properties)

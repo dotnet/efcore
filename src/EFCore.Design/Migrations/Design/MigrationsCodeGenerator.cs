@@ -102,8 +102,8 @@ public abstract class MigrationsCodeGenerator : IMigrationsCodeGenerator
                 operations.OfType<AddForeignKeyOperation>()
                     .Concat(operations.OfType<CreateTableOperation>().SelectMany(o => o.ForeignKeys))
                     .Any(o => o.Deferrability != ConstraintDeferrability.NotDeferrable)
-                    ? [typeof(ConstraintDeferrability).Namespace!]
-                    : [])
+                        ? [typeof(ConstraintDeferrability).Namespace!]
+                        : [])
             .Concat(GetAnnotationNamespaces(GetAnnotatables(operations)));
 
     private static IEnumerable<string> GetColumnNamespaces(ColumnOperation columnOperation)

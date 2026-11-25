@@ -321,10 +321,10 @@ WHERE name = '{connection.Database}';
     private static string EscapeLiteral(string s)
         => $"N'{s.Replace("'", "''")}'";
 
-    private IReadOnlyDictionary<string, (string, string)> GetTypeAliases(DbConnection connection)
+    private IReadOnlyDictionary<string, (string StoreType, string SystemType)> GetTypeAliases(DbConnection connection)
     {
         using var command = connection.CreateCommand();
-        var typeAliasMap = new Dictionary<string, (string, string)>(StringComparer.OrdinalIgnoreCase);
+        var typeAliasMap = new Dictionary<string, (string StoreType, string SystemType)>(StringComparer.OrdinalIgnoreCase);
 
         command.CommandText =
             """
@@ -364,7 +364,7 @@ WHERE [t].[is_user_defined] = 1 OR [t].[system_type_id] <> [t].[user_type_id];
         DbConnection connection,
         DatabaseModel databaseModel,
         Func<string, string>? schemaFilter,
-        IReadOnlyDictionary<string, (string storeType, string)> typeAliases)
+        IReadOnlyDictionary<string, (string StoreType, string SystemType)> typeAliases)
     {
         using var command = connection.CreateCommand();
         command.CommandText =
@@ -424,7 +424,7 @@ WHERE "
             // Swap store type if type alias is used
             if (typeAliases.TryGetValue($"[{storeTypeSchema}].[{storeType}]", out var value))
             {
-                storeType = value.storeType;
+                storeType = value.StoreType;
             }
 
             storeType = GetStoreType(storeType, maxLength: 0, precision, scale, vectorDimensions: 0);
@@ -474,7 +474,7 @@ WHERE "
         DbConnection connection,
         DatabaseModel databaseModel,
         Func<string, string, string>? tableFilter,
-        IReadOnlyDictionary<string, (string, string)> typeAliases,
+        IReadOnlyDictionary<string, (string StoreType, string SystemType)> typeAliases,
         string? databaseCollation)
     {
         using var command = connection.CreateCommand();
@@ -684,7 +684,7 @@ AND [v].[is_date_correlation_view] = 0
         IReadOnlyList<DatabaseTable> tables,
         string tableFilter,
         string? viewFilter,
-        IReadOnlyDictionary<string, (string storeType, string typeName)> typeAliases,
+        IReadOnlyDictionary<string, (string StoreType, string TypeName)> typeAliases,
         string? databaseCollation)
     {
         // The vector type is available under all database compatibility levels, so check whether the server knows
@@ -756,13 +756,13 @@ LEFT JOIN [sys].[default_constraints] AS [dc] ON [c].[object_id] = [dc].[parent_
 
         using var reader = command.ExecuteReader();
         var tableColumnGroups = reader.Cast<DbDataRecord>()
-            .GroupBy(ddr => (tableSchema: ddr.GetValueOrDefault<string>("table_schema"),
-                tableName: ddr.GetFieldValue<string>("table_name")));
+            .GroupBy(ddr => (TableSchema: ddr.GetValueOrDefault<string>("table_schema"),
+                TableName: ddr.GetFieldValue<string>("table_name")));
 
         foreach (var tableColumnGroup in tableColumnGroups)
         {
-            var tableSchema = tableColumnGroup.Key.tableSchema;
-            var tableName = tableColumnGroup.Key.tableName;
+            var tableSchema = tableColumnGroup.Key.TableSchema;
+            var tableName = tableColumnGroup.Key.TableName;
 
             var table = tables.Single(t => t.Schema == tableSchema && t.Name == tableName);
 
@@ -817,8 +817,8 @@ LEFT JOIN [sys].[default_constraints] AS [dc] ON [c].[object_id] = [dc].[parent_
                 if (fullQualifiedTypeName is not "[sys].[vector]"
                     && typeAliases.TryGetValue(fullQualifiedTypeName, out var value))
                 {
-                    storeType = value.storeType;
-                    systemTypeName = value.typeName;
+                    storeType = value.StoreType;
+                    systemTypeName = value.TypeName;
                 }
                 else
                 {
@@ -1078,8 +1078,8 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal];
         using var reader = command.ExecuteReader();
         var tableGroups = reader.Cast<DbDataRecord>()
             .GroupBy(r => (
-                tableSchema: r.GetValueOrDefault<string>("table_schema"),
-                tableName: r.GetFieldValue<string>("table_name")))
+                TableSchema: r.GetValueOrDefault<string>("table_schema"),
+                TableName: r.GetFieldValue<string>("table_name")))
             .ToDictionary(g => g.Key, g => g.ToList());
 
         foreach (var ((tableSchema, tableName), tableGroup) in tableGroups)
@@ -1314,9 +1314,9 @@ ORDER BY [table_schema], [table_name], [index_name], [jip].[path];
         using var reader = command.ExecuteReader();
         var indexGroups = reader.Cast<DbDataRecord>()
             .GroupBy(r => (
-                tableSchema: r.GetValueOrDefault<string>("table_schema"),
-                tableName: r.GetFieldValue<string>("table_name"),
-                indexName: r.GetFieldValue<string>("index_name")))
+                TableSchema: r.GetValueOrDefault<string>("table_schema"),
+                TableName: r.GetFieldValue<string>("table_name"),
+                IndexName: r.GetFieldValue<string>("index_name")))
             .ToDictionary(g => g.Key, g => g.ToList());
 
         foreach (var ((tableSchema, tableName, indexName), records) in indexGroups)
@@ -1400,8 +1400,8 @@ ORDER BY [table_schema], [table_name], [fic].[column_id];
         using var reader = command.ExecuteReader();
         var tableGroups = reader.Cast<DbDataRecord>()
             .GroupBy(r => (
-                tableSchema: r.GetValueOrDefault<string>("table_schema"),
-                tableName: r.GetFieldValue<string>("table_name")))
+                TableSchema: r.GetValueOrDefault<string>("table_schema"),
+                TableName: r.GetFieldValue<string>("table_name")))
             .ToDictionary(g => g.Key, g => g.ToList());
 
         foreach (var ((tableSchema, tableName), records) in tableGroups)
@@ -1504,13 +1504,13 @@ ORDER BY [table_schema], [table_name], [f].[name], [fc].[constraint_column_id];
 
         using var reader = command.ExecuteReader();
         var tableForeignKeyGroups = reader.Cast<DbDataRecord>()
-            .GroupBy(ddr => (tableSchema: ddr.GetValueOrDefault<string>("table_schema"),
-                tableName: ddr.GetFieldValue<string>("table_name")));
+            .GroupBy(ddr => (TableSchema: ddr.GetValueOrDefault<string>("table_schema"),
+                TableName: ddr.GetFieldValue<string>("table_name")));
 
         foreach (var tableForeignKeyGroup in tableForeignKeyGroups)
         {
-            var tableSchema = tableForeignKeyGroup.Key.tableSchema;
-            var tableName = tableForeignKeyGroup.Key.tableName;
+            var tableSchema = tableForeignKeyGroup.Key.TableSchema;
+            var tableName = tableForeignKeyGroup.Key.TableName;
 
             var table = tables.Single(t => t.Schema == tableSchema && t.Name == tableName);
 
@@ -1656,13 +1656,13 @@ ORDER BY [table_schema], [table_name], [tr].[name];
 
         using var reader = command.ExecuteReader();
         var tableGroups = reader.Cast<DbDataRecord>()
-            .GroupBy(ddr => (tableSchema: ddr.GetValueOrDefault<string>("table_schema"),
-                tableName: ddr.GetFieldValue<string>("table_name")));
+            .GroupBy(ddr => (TableSchema: ddr.GetValueOrDefault<string>("table_schema"),
+                TableName: ddr.GetFieldValue<string>("table_name")));
 
         foreach (var tableGroup in tableGroups)
         {
-            var tableSchema = tableGroup.Key.tableSchema;
-            var tableName = tableGroup.Key.tableName;
+            var tableSchema = tableGroup.Key.TableSchema;
+            var tableName = tableGroup.Key.TableName;
 
             var table = tables.Single(t => t.Schema == tableSchema && t.Name == tableName);
 

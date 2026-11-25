@@ -143,12 +143,12 @@ public abstract class NorthwindEFPropertyIncludeQueryTestBase<TFixture>(TFixture
         private static readonly MethodInfo _propertyMethod
             = typeof(EF).GetTypeInfo().GetDeclaredMethod(nameof(EF.Property))!;
 
-        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            if (methodCallExpression.Method.DeclaringType == typeof(EntityFrameworkQueryableExtensions)
-                && methodCallExpression.Method.IsGenericMethod)
+            if (node.Method.DeclaringType == typeof(EntityFrameworkQueryableExtensions)
+                && node.Method.IsGenericMethod)
             {
-                var genericMethodDefinition = methodCallExpression.Method.GetGenericMethodDefinition();
+                var genericMethodDefinition = node.Method.GetGenericMethodDefinition();
                 if (genericMethodDefinition == _includeMethodInfo)
                 {
                     return BuildEFPropertyCallExpression(0, 1);
@@ -161,19 +161,19 @@ public abstract class NorthwindEFPropertyIncludeQueryTestBase<TFixture>(TFixture
                 }
             }
 
-            return base.VisitMethodCall(methodCallExpression);
+            return base.VisitMethodCall(node);
 
             Expression BuildEFPropertyCallExpression(int entityTypeIndex, int propertyTypeIndex)
             {
-                var arguments = methodCallExpression.Arguments;
-                var genericArguments = methodCallExpression.Method.GetGenericArguments();
+                var arguments = node.Arguments;
+                var genericArguments = node.Method.GetGenericArguments();
                 var fromQuote = arguments[1].UnwrapLambdaFromQuote();
                 var parameterExpression = fromQuote.Parameters[0];
 
                 var path = GetPath(fromQuote.Body);
                 return path != null && !path.Contains(".")
                     ? Expression.Call(
-                        methodCallExpression.Method,
+                        node.Method,
                         Visit(arguments[0]),
                         Expression.Quote(
                             Expression.Lambda(
@@ -183,7 +183,7 @@ public abstract class NorthwindEFPropertyIncludeQueryTestBase<TFixture>(TFixture
                                     parameterExpression,
                                     Expression.Constant(path)),
                                 parameterExpression)))
-                    : base.VisitMethodCall(methodCallExpression);
+                    : base.VisitMethodCall(node);
             }
         }
 

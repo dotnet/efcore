@@ -546,19 +546,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                                 [context.Entry(removed1).Property(e => e.ParentId).Metadata] = null;
                         }
 
-                        testCode = deleteOrphansTiming == CascadeTiming.Immediate
-                            ? () =>
-                            {
-                                context.ChangeTracker.DetectChanges();
-                                return Task.CompletedTask;
-                            }
-                        : deleteOrphansTiming == null
-                                ? () =>
-                                {
-                                    context.ChangeTracker.CascadeChanges();
-                                    return Task.CompletedTask;
-                                }
-                        : () => context.SaveChangesAsync();
+                        testCode = deleteOrphansTiming == CascadeTiming.Immediate ? () => { context.ChangeTracker.DetectChanges(); return Task.CompletedTask; } : deleteOrphansTiming == null ? () => { context.ChangeTracker.CascadeChanges(); return Task.CompletedTask; } : () => context.SaveChangesAsync();
                     }
 
                     var message = (await Assert.ThrowsAsync<InvalidOperationException>(testCode)).Message;

@@ -5,9 +5,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
 public static class DatabaseFacadeExtensions
 {
-    public static bool EnsureCreatedResiliently(this DatabaseFacade façade)
-        => façade.CreateExecutionStrategy().Execute(façade, f => f.EnsureCreated());
+    public static bool EnsureCreatedResiliently(this DatabaseFacade databaseFacade)
+        => databaseFacade.CreateExecutionStrategy().Execute(databaseFacade, f => f.EnsureCreated());
 
-    public static Task<bool> EnsureCreatedResilientlyAsync(this DatabaseFacade façade, CancellationToken cancellationToken = default)
-        => façade.CreateExecutionStrategy().ExecuteAsync(façade, (f, ct) => f.EnsureCreatedAsync(ct), cancellationToken);
+    public static Task<bool> EnsureCreatedResilientlyAsync(
+        this DatabaseFacade databaseFacade,
+        CancellationToken cancellationToken = default)
+        => databaseFacade.CreateExecutionStrategy().ExecuteAsync(
+            databaseFacade, (f, ct) => f.EnsureCreatedAsync(ct), cancellationToken);
 }

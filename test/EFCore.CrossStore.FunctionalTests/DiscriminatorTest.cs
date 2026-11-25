@@ -97,15 +97,15 @@ public class DiscriminatorTest
             => optionsBuilder
                 .UseInMemoryDatabase(nameof(Context4285));
 
-        protected override void OnModelCreating(ModelBuilder builder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            builder.Entity<BaseProduct>()
+            modelBuilder.Entity<BaseProduct>()
                 .ToTable("BaseProducts")
                 .HasDiscriminator<string>("Discriminator")
                 .HasValue<SubProduct>("SubProduct")
                 .HasValue<SubProduct2>("SubProduct2");
 
-            builder.Entity<BaseIntProduct>()
+            modelBuilder.Entity<BaseIntProduct>()
                 .ToTable("BaseIntProducts")
                 .HasDiscriminator<int>("IntDiscriminator")
                 .HasValue<SubIntProduct>(1)

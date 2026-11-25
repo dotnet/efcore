@@ -53,8 +53,8 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitBinary(BinaryExpression binaryExpression)
-        => binaryExpression switch
+    protected override Expression VisitBinary(BinaryExpression node)
+        => node switch
         {
             // Convert array[x] to array.ElementAt(x)
             { NodeType: ExpressionType.ArrayIndex, Left: var source, Right: var index }
@@ -95,7 +95,7 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                         EnumerableMethods.AnyWithoutPredicate.MakeGenericMethod(source.Type.GetSequenceType()),
                         source)),
 
-            _ => base.VisitBinary(binaryExpression)
+            _ => base.VisitBinary(node)
         };
 
     /// <summary>
@@ -104,14 +104,14 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+    protected override Expression VisitMethodCall(MethodCallExpression node)
     {
-        var method = methodCallExpression.Method;
+        var method = node.Method;
 
         // Extract information from query metadata method and prune them
         if (method.DeclaringType == typeof(EntityFrameworkQueryableExtensions)
             && method.IsGenericMethod
-            && ExtractQueryMetadata(methodCallExpression) is { } expression)
+            && ExtractQueryMetadata(node) is { } expression)
         {
             return expression;
         }
@@ -127,7 +127,7 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                         throw new InvalidOperationException(CoreStrings.EFConstantNotSupported);
                     }
 
-                    var queryParameter = (QueryParameterExpression)Visit(methodCallExpression.Arguments[0]);
+                    var queryParameter = (QueryParameterExpression)Visit(node.Arguments[0]);
                     return new QueryParameterExpression(
                         queryParameter.Name, queryParameter.Type, translationMode: ParameterTranslationMode.Constant,
                         queryParameter.IsNonNullableReferenceType);
@@ -135,7 +135,7 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
 
                 case nameof(EF.Parameter):
                 {
-                    return HandleParameter(methodCallExpression, ParameterTranslationMode.Parameter);
+                    return HandleParameter(node, ParameterTranslationMode.Parameter);
                 }
             }
         }
@@ -143,11 +143,11 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
         // EF.MultipleParameters is defined in Relational, hence the hardcoded values here.
         if (method is { Name: "MultipleParameters", DeclaringType.FullName: "Microsoft.EntityFrameworkCore.EFExtensions" })
         {
-            return HandleParameter(methodCallExpression, ParameterTranslationMode.MultipleParameters);
+            return HandleParameter(node, ParameterTranslationMode.MultipleParameters);
         }
 
         // Normalize list[x] to list.ElementAt(x)
-        if (methodCallExpression is
+        if (node is
             {
                 Method:
                 {
@@ -170,7 +170,7 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
         Expression? visitedExpression = null;
         if (method.DeclaringType == typeof(Enumerable))
         {
-            visitedExpression = TryConvertEnumerableToQueryable(methodCallExpression);
+            visitedExpression = TryConvertEnumerableToQueryable(node);
         }
 
         if (method.Name == nameof(ICollection<>.Contains)
@@ -179,7 +179,7 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                 || !UseOldBehavior37081
                 && method.DeclaringType.TryGetElementType(typeof(IReadOnlyCollection<>)) is not null))
         {
-            visitedExpression = TryConvertCollectionContainsToQueryableContains(methodCallExpression);
+            visitedExpression = TryConvertCollectionContainsToQueryableContains(node);
         }
 
         if (method.Name == nameof(List<>.Exists)
@@ -187,9 +187,9 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
             && existsDeclaringType.GetGenericTypeDefinition() == typeof(List<>))
         {
             visitedExpression = TryConvertExistsToQueryableAny(
-                methodCallExpression,
-                methodCallExpression.Object!,
-                methodCallExpression.Arguments[0],
+                node,
+                node.Object!,
+                node.Arguments[0],
                 existsDeclaringType.GetGenericArguments()[0]);
         }
 
@@ -198,9 +198,9 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
             && method.IsGenericMethod)
         {
             visitedExpression = TryConvertExistsToQueryableAny(
-                methodCallExpression,
-                methodCallExpression.Arguments[0],
-                methodCallExpression.Arguments[1],
+                node,
+                node.Arguments[0],
+                node.Arguments[1],
                 method.GetGenericArguments()[0]);
         }
 
@@ -208,33 +208,33 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
             && method.Name is nameof(EntityFrameworkQueryableExtensions.Include)
                 or nameof(EntityFrameworkQueryableExtensions.ThenInclude)
                 or nameof(EntityFrameworkQueryableExtensions.NotQuiteInclude)
-            && methodCallExpression.Arguments[1].TryGetLambdaExpression(out var includeLambda)
+            && node.Arguments[1].TryGetLambdaExpression(out var includeLambda)
             && includeLambda.ReturnType.IsGenericType
             && includeLambda.ReturnType.GetGenericTypeDefinition() == typeof(IOrderedEnumerable<>))
         {
-            var source = Visit(methodCallExpression.Arguments[0]);
+            var source = Visit(node.Arguments[0]);
             var body = Visit(includeLambda.Body);
 
             // we have to rewrite the lambda to accommodate for IOrderedEnumerable<> into IOrderedQueryable<> conversion
             var lambda = (Expression)Expression.Lambda(body, includeLambda.Parameters);
-            if (methodCallExpression.Arguments[1].NodeType == ExpressionType.Quote)
+            if (node.Arguments[1].NodeType == ExpressionType.Quote)
             {
                 lambda = Expression.Quote(lambda);
             }
 
-            var genericArguments = methodCallExpression.Method.GetGenericArguments();
+            var genericArguments = node.Method.GetGenericArguments();
 
             if (body.Type.IsGenericType
                 && body.Type.GetGenericTypeDefinition() == typeof(IOrderedQueryable<>))
             {
                 genericArguments[^1] = body.Type;
-                var newIncludeMethod = methodCallExpression.Method.GetGenericMethodDefinition()
+                var newIncludeMethod = node.Method.GetGenericMethodDefinition()
                     .MakeGenericMethod(genericArguments);
 
                 return Expression.Call(newIncludeMethod, source, lambda);
             }
 
-            return methodCallExpression.Update(null, [source, lambda]);
+            return node.Update(null, [source, lambda]);
         }
 
         if (visitedExpression == null)
@@ -242,11 +242,11 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
             if (method.IsGenericMethod
                 && method.GetGenericMethodDefinition() == QueryableMethods.Select)
             {
-                var selector = methodCallExpression.Arguments[1].UnwrapLambdaFromQuote();
+                var selector = node.Arguments[1].UnwrapLambdaFromQuote();
                 VerifyReturnType(selector.Body, selector.Parameters[0]);
             }
 
-            visitedExpression = base.VisitMethodCall(methodCallExpression);
+            visitedExpression = base.VisitMethodCall(node);
         }
 
         if (visitedExpression is MethodCallExpression visitedMethodCall
@@ -956,18 +956,18 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
 
     private sealed class GroupJoinConvertingExpressionVisitor : ExpressionVisitor
     {
-        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            if (methodCallExpression.Method.DeclaringType == typeof(Queryable)
-                && methodCallExpression.Method.IsGenericMethod
-                && methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.GroupJoin)
+            if (node.Method.DeclaringType == typeof(Queryable)
+                && node.Method.IsGenericMethod
+                && node.Method.GetGenericMethodDefinition() == QueryableMethods.GroupJoin)
             {
-                var genericArguments = methodCallExpression.Method.GetGenericArguments();
-                var outerSource = methodCallExpression.Arguments[0];
-                var innerSource = methodCallExpression.Arguments[1];
-                var outerKeySelector = methodCallExpression.Arguments[2].UnwrapLambdaFromQuote();
-                var innerKeySelector = methodCallExpression.Arguments[3].UnwrapLambdaFromQuote();
-                var resultSelector = methodCallExpression.Arguments[4].UnwrapLambdaFromQuote();
+                var genericArguments = node.Method.GetGenericArguments();
+                var outerSource = node.Arguments[0];
+                var innerSource = node.Arguments[1];
+                var outerKeySelector = node.Arguments[2].UnwrapLambdaFromQuote();
+                var innerKeySelector = node.Arguments[3].UnwrapLambdaFromQuote();
+                var resultSelector = node.Arguments[4].UnwrapLambdaFromQuote();
 
                 if (innerSource.Type.IsGenericType
                     && innerSource.Type.GetGenericTypeDefinition() != typeof(IQueryable<>))
@@ -1057,7 +1057,7 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                             resultSelector.Parameters[0])));
             }
 
-            return base.VisitMethodCall(methodCallExpression);
+            return base.VisitMethodCall(node);
         }
     }
 
@@ -1114,69 +1114,69 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
             return _correlated;
         }
 
-        protected override Expression VisitLambda<T>(Expression<T> lambdaExpression)
+        protected override Expression VisitLambda<T>(Expression<T> node)
         {
             try
             {
-                _allowedParameters.AddRange(lambdaExpression.Parameters);
+                _allowedParameters.AddRange(node.Parameters);
 
-                return base.VisitLambda(lambdaExpression);
+                return base.VisitLambda(node);
             }
             finally
             {
-                foreach (var parameter in lambdaExpression.Parameters)
+                foreach (var parameter in node.Parameters)
                 {
                     _allowedParameters.Remove(parameter);
                 }
             }
         }
 
-        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        protected override Expression VisitMethodCall(MethodCallExpression node)
         {
             if (_correlated)
             {
-                return methodCallExpression;
+                return node;
             }
 
-            if (methodCallExpression.Method.DeclaringType == typeof(Queryable)
-                && !_allowedMethods.Contains(methodCallExpression.Method.Name))
+            if (node.Method.DeclaringType == typeof(Queryable)
+                && !_allowedMethods.Contains(node.Method.Name))
             {
-                if (methodCallExpression.Method.IsGenericMethod
-                    && methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.Select)
+                if (node.Method.IsGenericMethod
+                    && node.Method.GetGenericMethodDefinition() == QueryableMethods.Select)
                 {
-                    var selector = methodCallExpression.Arguments[1].UnwrapLambdaFromQuote();
+                    var selector = node.Arguments[1].UnwrapLambdaFromQuote();
                     if (selector.Body == selector.Parameters[0])
                     {
                         // identity projection is allowed
-                        return methodCallExpression;
+                        return node;
                     }
                 }
 
                 _correlated = true;
 
-                return methodCallExpression;
+                return node;
             }
 
-            return base.VisitMethodCall(methodCallExpression);
+            return base.VisitMethodCall(node);
         }
 
-        protected override Expression VisitParameter(ParameterExpression parameterExpression)
+        protected override Expression VisitParameter(ParameterExpression node)
         {
-            if (_allowedParameters.Contains(parameterExpression))
+            if (_allowedParameters.Contains(node))
             {
-                return parameterExpression;
+                return node;
             }
 
-            if (parameterExpression == _rootParameter)
+            if (node == _rootParameter)
             {
                 _rootParameterCount++;
 
-                return parameterExpression;
+                return node;
             }
 
             _correlated = true;
 
-            return base.VisitParameter(parameterExpression);
+            return base.VisitParameter(node);
         }
 
         protected override Expression VisitExtension(Expression node)

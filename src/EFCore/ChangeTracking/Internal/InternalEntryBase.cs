@@ -7,12 +7,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
-/// <summary>
-///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-///     any release. You should only use it directly in your code with extreme caution and knowing that
-///     doing so can result in application failures when updating to a new Entity Framework Core release.
-/// </summary>
 public abstract partial class InternalEntryBase : IInternalEntry
 {
     private OriginalValues _originalValues;
@@ -605,10 +599,7 @@ public abstract partial class InternalEntryBase : IInternalEntry
     {
         StructuralType.CheckContains(property);
 
-        return property.IsCollection
-            ? _complexCollectionEntries[property.GetIndex()].IsModified()
-            : property.ComplexType.GetFlattenedProperties().Any(IsModified)
-            || property.ComplexType.GetFlattenedComplexProperties().Any(cp => cp.IsCollection && IsModified(cp));
+        return property.IsCollection ? _complexCollectionEntries[property.GetIndex()].IsModified() : property.ComplexType.GetFlattenedProperties().Any(IsModified) || property.ComplexType.GetFlattenedComplexProperties().Any(cp => cp.IsCollection && IsModified(cp));
     }
 
     /// <summary>
@@ -1224,12 +1215,12 @@ public abstract partial class InternalEntryBase : IInternalEntry
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public InternalComplexEntry GetComplexCollectionOriginalEntry(IComplexProperty property, int ordinal)
+    public InternalComplexEntry GetComplexCollectionOriginalEntry(IComplexProperty property, int originalOrdinal)
     {
         StructuralType.CheckContains(property);
         Check.DebugAssert(property.IsCollection, $"Property {property.Name} should be a collection");
 
-        return _complexCollectionEntries[property.GetIndex()].GetEntry(ordinal, original: true);
+        return _complexCollectionEntries[property.GetIndex()].GetEntry(originalOrdinal, original: true);
     }
 
     /// <summary>

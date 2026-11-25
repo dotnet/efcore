@@ -209,13 +209,13 @@ public class ConventionDispatcherTest
         public readonly List<object?> Calls = [];
 
         public void ProcessModelAnnotationChanged(
-            IConventionModelBuilder propertyBuilder,
+            IConventionModelBuilder modelBuilder,
             string name,
             IConventionAnnotation? annotation,
             IConventionAnnotation? oldAnnotation,
             IConventionContext<IConventionAnnotation> context)
         {
-            Assert.NotNull(propertyBuilder.Metadata.Builder);
+            Assert.NotNull(modelBuilder.Metadata.Builder);
 
             Calls.Add(annotation?.Value);
 
@@ -1000,10 +1000,10 @@ public class ConventionDispatcherTest
         public readonly List<object?> Calls = [];
 
         public void ProcessForeignKeyAdded(
-            IConventionForeignKeyBuilder relationshipBuilder,
+            IConventionForeignKeyBuilder foreignKeyBuilder,
             IConventionContext<IConventionForeignKeyBuilder> context)
         {
-            var fk = relationshipBuilder.Metadata;
+            var fk = foreignKeyBuilder.Metadata;
             Assert.NotNull(fk.Builder);
 
             Calls.Add(fk.Properties.First().Name);
@@ -2292,13 +2292,13 @@ public class ConventionDispatcherTest
         public readonly List<object?> Calls = [];
 
         public virtual void ProcessSkipNavigationAnnotationChanged(
-            IConventionSkipNavigationBuilder navigationBuilder,
+            IConventionSkipNavigationBuilder skipNavigationBuilder,
             string name,
             IConventionAnnotation? annotation,
             IConventionAnnotation? oldAnnotation,
             IConventionContext<IConventionAnnotation> context)
         {
-            Assert.True(navigationBuilder.Metadata.IsInModel);
+            Assert.True(skipNavigationBuilder.Metadata.IsInModel);
 
             Calls.Add(annotation?.Value);
 
@@ -2379,12 +2379,12 @@ public class ConventionDispatcherTest
         public readonly List<IConventionForeignKey?> Calls = [];
 
         public virtual void ProcessSkipNavigationForeignKeyChanged(
-            IConventionSkipNavigationBuilder navigationBuilder,
+            IConventionSkipNavigationBuilder skipNavigationBuilder,
             IConventionForeignKey? foreignKey,
             IConventionForeignKey? oldForeignKey,
             IConventionContext<IConventionForeignKey> context)
         {
-            Assert.True(navigationBuilder.Metadata.IsInModel);
+            Assert.True(skipNavigationBuilder.Metadata.IsInModel);
 
             Calls.Add(foreignKey);
 
@@ -4903,13 +4903,13 @@ public class ConventionDispatcherTest
         public readonly List<object?> Calls = [];
 
         public void ProcessComplexTypeAnnotationChanged(
-            IConventionComplexTypeBuilder propertyBuilder,
+            IConventionComplexTypeBuilder complexTypeBuilder,
             string name,
             IConventionAnnotation? annotation,
             IConventionAnnotation? oldAnnotation,
             IConventionContext<IConventionAnnotation> context)
         {
-            Assert.True(propertyBuilder.Metadata.IsInModel);
+            Assert.True(complexTypeBuilder.Metadata.IsInModel);
 
             Calls.Add(annotation?.Value);
 

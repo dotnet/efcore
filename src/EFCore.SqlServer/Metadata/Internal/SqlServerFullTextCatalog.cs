@@ -255,8 +255,8 @@ public class SqlServerFullTextCatalog(
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    bool? IConventionSqlServerFullTextCatalog.SetIsDefault(bool? isDefault, bool fromDataAnnotation)
-        => SetIsDefault(isDefault, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+    bool? IConventionSqlServerFullTextCatalog.SetIsDefault(bool? @default, bool fromDataAnnotation)
+        => SetIsDefault(@default, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -265,7 +265,7 @@ public class SqlServerFullTextCatalog(
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    bool? IConventionSqlServerFullTextCatalog.SetIsAccentSensitive(bool? isAccentSensitive, bool fromDataAnnotation)
+    bool? IConventionSqlServerFullTextCatalog.SetIsAccentSensitive(bool? accentSensitive, bool fromDataAnnotation)
         => SetIsAccentSensitive(
-            isAccentSensitive, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+            accentSensitive, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 }

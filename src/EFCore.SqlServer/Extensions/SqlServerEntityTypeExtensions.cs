@@ -304,15 +304,7 @@ public static class SqlServerEntityTypeExtensions
     /// <param name="entityType">The entity type.</param>
     /// <returns><see langword="true" /> if the SQL OUTPUT clause is used to save changes to the table.</returns>
     public static bool IsSqlOutputClauseUsed(this IReadOnlyEntityType entityType)
-        => entityType.FindAnnotation(SqlServerAnnotationNames.UseSqlOutputClause) is { Value: bool useSqlOutputClause }
-            ? useSqlOutputClause
-            : entityType.FindOwnership() is { } ownership
-            && StoreObjectIdentifier.Create(entityType, StoreObjectType.Table) is { } tableIdentifier
-            && ownership.FindSharedObjectRootForeignKey(tableIdentifier) is { } rootForeignKey
-                ? rootForeignKey.PrincipalEntityType.IsSqlOutputClauseUsed()
-                : entityType.BaseType is null
-                || entityType.GetMappingStrategy() != RelationalAnnotationNames.TphMappingStrategy
-                || entityType.GetRootType().IsSqlOutputClauseUsed();
+        => entityType.FindAnnotation(SqlServerAnnotationNames.UseSqlOutputClause) is { Value: bool useSqlOutputClause } ? useSqlOutputClause : entityType.FindOwnership() is { } ownership && StoreObjectIdentifier.Create(entityType, StoreObjectType.Table) is { } tableIdentifier && ownership.FindSharedObjectRootForeignKey(tableIdentifier) is { } rootForeignKey ? rootForeignKey.PrincipalEntityType.IsSqlOutputClauseUsed() : entityType.BaseType is null || entityType.GetMappingStrategy() != RelationalAnnotationNames.TphMappingStrategy || entityType.GetRootType().IsSqlOutputClauseUsed();
 
     /// <summary>
     ///     Sets a value indicating whether to use the SQL OUTPUT clause when saving changes to the table.
@@ -369,17 +361,7 @@ public static class SqlServerEntityTypeExtensions
     /// <param name="storeObject">The identifier of the table-like store object.</param>
     /// <returns>A value indicating whether the SQL OUTPUT clause is used to save changes to the associated table.</returns>
     public static bool IsSqlOutputClauseUsed(this IReadOnlyEntityType entityType, in StoreObjectIdentifier storeObject)
-        => entityType.FindMappingFragment(storeObject) is { } overrides
-            && overrides.FindAnnotation(SqlServerAnnotationNames.UseSqlOutputClause) is { Value: bool useSqlOutputClause }
-                ? useSqlOutputClause
-                : StoreObjectIdentifier.Create(entityType, storeObject.StoreObjectType) == storeObject
-                    ? entityType.IsSqlOutputClauseUsed()
-                    : entityType.FindOwnership() is { } ownership
-                    && ownership.FindSharedObjectRootForeignKey(storeObject) is { } rootForeignKey
-                        ? rootForeignKey.PrincipalEntityType.IsSqlOutputClauseUsed(storeObject)
-                        : entityType.BaseType is null
-                        || entityType.GetMappingStrategy() != RelationalAnnotationNames.TphMappingStrategy
-                        || entityType.GetRootType().IsSqlOutputClauseUsed(storeObject);
+        => entityType.FindMappingFragment(storeObject) is { } overrides && overrides.FindAnnotation(SqlServerAnnotationNames.UseSqlOutputClause) is { Value: bool useSqlOutputClause } ? useSqlOutputClause : StoreObjectIdentifier.Create(entityType, storeObject.StoreObjectType) == storeObject ? entityType.IsSqlOutputClauseUsed() : entityType.FindOwnership() is { } ownership && ownership.FindSharedObjectRootForeignKey(storeObject) is { } rootForeignKey ? rootForeignKey.PrincipalEntityType.IsSqlOutputClauseUsed(storeObject) : entityType.BaseType is null || entityType.GetMappingStrategy() != RelationalAnnotationNames.TphMappingStrategy || entityType.GetRootType().IsSqlOutputClauseUsed(storeObject);
 
     /// <summary>
     ///     Sets a value indicating whether to use the SQL OUTPUT clause when saving changes to the table.

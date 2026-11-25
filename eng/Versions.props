@@ -51,7 +51,7 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Analyzers">
-    <StyleCopAnalyzersVersion>1.1.118</StyleCopAnalyzersVersion>
+    <StyleCopAnalyzersVersion>1.3.180</StyleCopAnalyzersVersion>
     <DotNetAnalyzersDocumentationAnalyzersVersion>1.0.0-beta.59</DotNetAnalyzersDocumentationAnalyzersVersion>
   </PropertyGroup>
 

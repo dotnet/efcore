@@ -25,12 +25,12 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitBinary(BinaryExpression binaryExpression)
+    protected override Expression VisitBinary(BinaryExpression node)
     {
-        var left = Visit(binaryExpression.Left);
-        var right = Visit(binaryExpression.Right);
+        var left = Visit(node.Left);
+        var right = Visit(node.Right);
 
-        if (binaryExpression.NodeType != ExpressionType.Coalesce
+        if (node.NodeType != ExpressionType.Coalesce
             && left.Type != right.Type
             && left.Type.UnwrapNullableType() == right.Type.UnwrapNullableType())
         {
@@ -44,7 +44,7 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
             }
         }
 
-        return binaryExpression.Update(left, binaryExpression.Conversion, right);
+        return node.Update(left, node.Conversion, right);
     }
 
     /// <summary>
@@ -53,11 +53,11 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
+    protected override Expression VisitConditional(ConditionalExpression node)
     {
-        var test = Visit(conditionalExpression.Test);
-        var ifTrue = Visit(conditionalExpression.IfTrue);
-        var ifFalse = Visit(conditionalExpression.IfFalse);
+        var test = Visit(node.Test);
+        var ifTrue = Visit(node.IfTrue);
+        var ifFalse = Visit(node.IfFalse);
 
         if (ifTrue.Type != ifFalse.Type
             && ifTrue.Type.UnwrapNullableType() == ifFalse.Type.UnwrapNullableType())
@@ -74,7 +74,7 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
             return Expression.Condition(test, ifTrue, ifFalse);
         }
 
-        return conditionalExpression.Update(test, ifTrue, ifFalse);
+        return node.Update(test, ifTrue, ifFalse);
     }
 
     /// <summary>
@@ -83,17 +83,17 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override ElementInit VisitElementInit(ElementInit elementInit)
+    protected override ElementInit VisitElementInit(ElementInit node)
     {
-        var arguments = new Expression[elementInit.Arguments.Count];
+        var arguments = new Expression[node.Arguments.Count];
         for (var i = 0; i < arguments.Length; i++)
         {
             arguments[i] = MatchExpressionType(
-                Visit(elementInit.Arguments[i]),
-                elementInit.Arguments[i].Type);
+                Visit(node.Arguments[i]),
+                node.Arguments[i].Type);
         }
 
-        return elementInit.Update(arguments);
+        return node.Update(arguments);
     }
 
     /// <summary>
@@ -102,13 +102,13 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitLambda<T>(Expression<T> lambdaExpression)
+    protected override Expression VisitLambda<T>(Expression<T> node)
     {
-        var body = Visit(lambdaExpression.Body);
+        var body = Visit(node.Body);
 
-        return body.Type != lambdaExpression.Body.Type
-            ? Expression.Lambda(Expression.Convert(body, lambdaExpression.Body.Type), lambdaExpression.Parameters)
-            : lambdaExpression.Update(body, lambdaExpression.Parameters);
+        return body.Type != node.Body.Type
+            ? Expression.Lambda(Expression.Convert(body, node.Body.Type), node.Parameters)
+            : node.Update(body, node.Parameters);
     }
 
     /// <summary>
@@ -117,15 +117,15 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitMember(MemberExpression memberExpression)
+    protected override Expression VisitMember(MemberExpression node)
     {
-        var expression = memberExpression.Expression != null
+        var expression = node.Expression != null
             ? MatchExpressionType(
-                Visit(memberExpression.Expression),
-                memberExpression.Expression.Type)
+                Visit(node.Expression),
+                node.Expression.Type)
             : null;
 
-        var visitedExpression = memberExpression.Update(expression);
+        var visitedExpression = node.Update(expression);
 
         return TryOptimizeMemberAccessOverConditional(visitedExpression) ?? visitedExpression;
     }
@@ -136,13 +136,13 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override MemberAssignment VisitMemberAssignment(MemberAssignment memberAssignment)
+    protected override MemberAssignment VisitMemberAssignment(MemberAssignment node)
     {
         var expression = MatchExpressionType(
-            Visit(memberAssignment.Expression),
-            memberAssignment.Expression.Type);
+            Visit(node.Expression),
+            node.Expression.Type);
 
-        return memberAssignment.Update(expression);
+        return node.Update(expression);
     }
 
     /// <summary>
@@ -151,17 +151,17 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+    protected override Expression VisitMethodCall(MethodCallExpression node)
     {
         // Normalize x.Any(i => i == foo) to x.Contains(foo)
         // And x.All(i => i != foo) to !x.Contains(foo)
-        if (methodCallExpression.Method.IsGenericMethod
-            && methodCallExpression.Method.GetGenericMethodDefinition() is var methodInfo
+        if (node.Method.IsGenericMethod
+            && node.Method.GetGenericMethodDefinition() is var methodInfo
             && (methodInfo == EnumerableMethods.AnyWithPredicate
                 || methodInfo == EnumerableMethods.All
                 || methodInfo == QueryableMethods.AnyWithPredicate
                 || methodInfo == QueryableMethods.All)
-            && methodCallExpression.Arguments[1].UnwrapLambdaFromQuote() is var lambda
+            && node.Arguments[1].UnwrapLambdaFromQuote() is var lambda
             && TryExtractEqualityOperands(lambda.Body, out var left, out var right, out var negated))
         {
             var itemExpression = left == lambda.Parameters[0]
@@ -178,33 +178,33 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
 
                 if ((methodInfo == EnumerableMethods.AnyWithPredicate || methodInfo == QueryableMethods.AnyWithPredicate) && !negated)
                 {
-                    var containsMethod = containsMethodDefinition.MakeGenericMethod(methodCallExpression.Method.GetGenericArguments()[0]);
-                    return Expression.Call(null, containsMethod, methodCallExpression.Arguments[0], itemExpression);
+                    var containsMethod = containsMethodDefinition.MakeGenericMethod(node.Method.GetGenericArguments()[0]);
+                    return Expression.Call(null, containsMethod, node.Arguments[0], itemExpression);
                 }
 
                 if ((methodInfo == EnumerableMethods.All || methodInfo == QueryableMethods.All) && negated)
                 {
-                    var containsMethod = containsMethodDefinition.MakeGenericMethod(methodCallExpression.Method.GetGenericArguments()[0]);
-                    return Expression.Not(Expression.Call(null, containsMethod, methodCallExpression.Arguments[0], itemExpression));
+                    var containsMethod = containsMethodDefinition.MakeGenericMethod(node.Method.GetGenericArguments()[0]);
+                    return Expression.Not(Expression.Call(null, containsMethod, node.Arguments[0], itemExpression));
                 }
             }
         }
 
         var @object = default(Expression);
-        if (methodCallExpression.Object != null)
+        if (node.Object != null)
         {
             @object = MatchExpressionType(
-                Visit(methodCallExpression.Object), methodCallExpression.Object.Type);
+                Visit(node.Object), node.Object.Type);
         }
 
-        var arguments = new Expression[methodCallExpression.Arguments.Count];
+        var arguments = new Expression[node.Arguments.Count];
         for (var i = 0; i < arguments.Length; i++)
         {
             arguments[i] = MatchExpressionType(
-                Visit(methodCallExpression.Arguments[i]), methodCallExpression.Arguments[i].Type);
+                Visit(node.Arguments[i]), node.Arguments[i].Type);
         }
 
-        var visited = methodCallExpression.Update(@object!, arguments);
+        var visited = node.Update(@object!, arguments);
 
         // In VB.NET, comparison operators between strings (equality, greater-than, less-than) yield
         // calls to a VB-specific CompareString method. Normalize that to string.Compare.
@@ -237,22 +237,22 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitNew(NewExpression newExpression)
+    protected override Expression VisitNew(NewExpression node)
     {
-        if (newExpression.Arguments.Count == 0)
+        if (node.Arguments.Count == 0)
         {
-            return newExpression;
+            return node;
         }
 
-        var arguments = new Expression[newExpression.Arguments.Count];
+        var arguments = new Expression[node.Arguments.Count];
         for (var i = 0; i < arguments.Length; i++)
         {
             arguments[i] = MatchExpressionType(
-                Visit(newExpression.Arguments[i]),
-                newExpression.Arguments[i].Type);
+                Visit(node.Arguments[i]),
+                node.Arguments[i].Type);
         }
 
-        return newExpression.Update(arguments);
+        return node.Update(arguments);
     }
 
     /// <summary>
@@ -261,17 +261,17 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitNewArray(NewArrayExpression newArrayExpression)
+    protected override Expression VisitNewArray(NewArrayExpression node)
     {
-        var expressions = new Expression[newArrayExpression.Expressions.Count];
+        var expressions = new Expression[node.Expressions.Count];
         for (var i = 0; i < expressions.Length; i++)
         {
             expressions[i] = MatchExpressionType(
-                Visit(newArrayExpression.Expressions[i]),
-                newArrayExpression.Expressions[i].Type);
+                Visit(node.Expressions[i]),
+                node.Expressions[i].Type);
         }
 
-        return newArrayExpression.Update(expressions);
+        return node.Update(expressions);
     }
 
     /// <summary>
@@ -280,8 +280,8 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitUnary(UnaryExpression unaryExpression)
-        => unaryExpression.Update(Visit(unaryExpression.Operand));
+    protected override Expression VisitUnary(UnaryExpression node)
+        => node.Update(Visit(node.Operand));
 
     private static Expression MatchExpressionType(Expression expression, Type typeToMatch)
         => expression.Type != typeToMatch

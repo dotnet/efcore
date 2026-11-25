@@ -1048,19 +1048,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 if (Fixture.ForceClientNoAction
                     || deleteOrphansTiming == CascadeTiming.Never)
                 {
-                    var testCode = deleteOrphansTiming == CascadeTiming.Immediate
-                        ? () =>
-                        {
-                            context.ChangeTracker.DetectChanges();
-                            return Task.CompletedTask;
-                        }
-                    : deleteOrphansTiming == null
-                            ? () =>
-                            {
-                                context.ChangeTracker.CascadeChanges();
-                                return Task.CompletedTask;
-                            }
-                    : (Func<Task>)(() => context.SaveChangesAsync());
+                    var testCode = deleteOrphansTiming == CascadeTiming.Immediate ? () => { context.ChangeTracker.DetectChanges(); return Task.CompletedTask; } : deleteOrphansTiming == null ? () => { context.ChangeTracker.CascadeChanges(); return Task.CompletedTask; } : (Func<Task>)(() => context.SaveChangesAsync());
 
                     var message = (await Assert.ThrowsAsync<InvalidOperationException>(testCode)).Message;
 
@@ -1313,19 +1301,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 if (Fixture.ForceClientNoAction
                     || deleteOrphansTiming == CascadeTiming.Never)
                 {
-                    var testCode = deleteOrphansTiming == CascadeTiming.Immediate
-                        ? () =>
-                        {
-                            context.ChangeTracker.DetectChanges();
-                            return Task.CompletedTask;
-                        }
-                    : deleteOrphansTiming == null
-                            ? () =>
-                            {
-                                context.ChangeTracker.CascadeChanges();
-                                return Task.CompletedTask;
-                            }
-                    : (Func<Task>)(() => context.SaveChangesAsync());
+                    var testCode = deleteOrphansTiming == CascadeTiming.Immediate ? () => { context.ChangeTracker.DetectChanges(); return Task.CompletedTask; } : deleteOrphansTiming == null ? () => { context.ChangeTracker.CascadeChanges(); return Task.CompletedTask; } : (Func<Task>)(() => context.SaveChangesAsync());
 
                     var message = (await Assert.ThrowsAsync<InvalidOperationException>(testCode)).Message;
 
@@ -1444,19 +1420,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 if (Fixture.ForceClientNoAction
                     || deleteOrphansTiming == CascadeTiming.Never)
                 {
-                    var testCode = deleteOrphansTiming == CascadeTiming.Immediate
-                        ? () =>
-                        {
-                            context.ChangeTracker.DetectChanges();
-                            return Task.CompletedTask;
-                        }
-                    : deleteOrphansTiming == null
-                            ? () =>
-                            {
-                                context.ChangeTracker.CascadeChanges();
-                                return Task.CompletedTask;
-                            }
-                    : (Func<Task>)(() => context.SaveChangesAsync());
+                    var testCode = deleteOrphansTiming == CascadeTiming.Immediate ? () => { context.ChangeTracker.DetectChanges(); return Task.CompletedTask; } : deleteOrphansTiming == null ? () => { context.ChangeTracker.CascadeChanges(); return Task.CompletedTask; } : (Func<Task>)(() => context.SaveChangesAsync());
 
                     var message = (await Assert.ThrowsAsync<InvalidOperationException>(testCode)).Message;
 
@@ -1575,19 +1539,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 if (Fixture.ForceClientNoAction
                     || deleteOrphansTiming == CascadeTiming.Never)
                 {
-                    var testCode = deleteOrphansTiming == CascadeTiming.Immediate
-                        ? () =>
-                        {
-                            context.ChangeTracker.DetectChanges();
-                            return Task.CompletedTask;
-                        }
-                    : deleteOrphansTiming == null
-                            ? () =>
-                            {
-                                context.ChangeTracker.CascadeChanges();
-                                return Task.CompletedTask;
-                            }
-                    : (Func<Task>)(() => context.SaveChangesAsync());
+                    var testCode = deleteOrphansTiming == CascadeTiming.Immediate ? () => { context.ChangeTracker.DetectChanges(); return Task.CompletedTask; } : deleteOrphansTiming == null ? () => { context.ChangeTracker.CascadeChanges(); return Task.CompletedTask; } : (Func<Task>)(() => context.SaveChangesAsync());
 
                     var message = (await Assert.ThrowsAsync<InvalidOperationException>(testCode)).Message;
 

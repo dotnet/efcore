@@ -60,7 +60,7 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
     /// </summary>
     public Expression CreateMaterializeExpression(
         StructuralTypeMaterializerSourceParameters parameters,
-        Expression materializationContextExpression)
+        Expression materializationExpression)
     {
         var (structuralType, entityInstanceName) = (parameters.StructuralType, parameters.InstanceName);
 
@@ -70,7 +70,7 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
         }
 
         var constructorBinding = ModifyBindings(structuralType, structuralType.ConstructorBinding!);
-        var bindingInfo = new ParameterBindingInfo(parameters, materializationContextExpression);
+        var bindingInfo = new ParameterBindingInfo(parameters, materializationExpression);
         var instanceVariable = Variable(constructorBinding.RuntimeType, entityInstanceName);
         bindingInfo.ServiceInstances.Add(instanceVariable);
 
@@ -97,7 +97,7 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
 
         var constructorExpression = constructorBinding.CreateConstructorExpression(bindingInfo);
         var getValueBufferExpression = Call(bindingInfo.MaterializationContextExpression, MaterializationContext.GetValueBufferMethod);
-        var materializationExpression = _materializationInterceptor == null
+        var materializationResult = _materializationInterceptor == null
             // TODO: This currently applies the materialization interceptor only on the root structural type - any contained complex types
             // don't get intercepted. #35883
             || structuralType is not IEntityType
@@ -123,9 +123,9 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
                 ? HandleNullableComplexTypeMaterialization(
                     complexType,
                     parameters.ClrType,
-                    materializationExpression,
+                    materializationResult,
                     getValueBufferExpression)
-                : materializationExpression;
+                : materializationResult;
 
         // Creates a conditional expression that handles materialization of nullable complex types.
         // For nullable complex types, the method checks if all scalar properties are null

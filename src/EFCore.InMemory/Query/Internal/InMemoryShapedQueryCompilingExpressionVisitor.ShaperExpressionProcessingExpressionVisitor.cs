@@ -64,9 +64,9 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
             return Lambda(result, QueryCompilationContext.QueryContextParameter, _valueBufferParameter);
         }
 
-        protected override Expression VisitExtension(Expression extensionExpression)
+        protected override Expression VisitExtension(Expression node)
         {
-            switch (extensionExpression)
+            switch (node)
             {
                 case StructuralTypeShaperExpression shaper:
                 {
@@ -197,15 +197,15 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
                 }
             }
 
-            return base.VisitExtension(extensionExpression);
+            return base.VisitExtension(node);
         }
 
-        protected override Expression VisitBinary(BinaryExpression binaryExpression)
+        protected override Expression VisitBinary(BinaryExpression node)
         {
-            if (binaryExpression is { NodeType: ExpressionType.Assign, Left: ParameterExpression parameterExpression }
+            if (node is { NodeType: ExpressionType.Assign, Left: ParameterExpression parameterExpression }
                 && parameterExpression.Type == typeof(MaterializationContext))
             {
-                var newExpression = (NewExpression)binaryExpression.Right;
+                var newExpression = (NewExpression)node.Right;
 
                 var projectionBindingExpression = (ProjectionBindingExpression)newExpression.Arguments[0];
                 var queryExpression = (InMemoryQueryExpression)projectionBindingExpression.QueryExpression;
@@ -217,35 +217,35 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
                 var updatedExpression = newExpression.Update(
                     [Constant(ValueBuffer.Empty), newExpression.Arguments[1]]);
 
-                return MakeBinary(ExpressionType.Assign, binaryExpression.Left, updatedExpression);
+                return MakeBinary(ExpressionType.Assign, node.Left, updatedExpression);
             }
 
-            return binaryExpression is
+            return node is
             { NodeType: ExpressionType.Assign, Left: MemberExpression { Member: FieldInfo { IsInitOnly: true } } memberExpression }
-                ? memberExpression.Assign(Visit(binaryExpression.Right))
-                : base.VisitBinary(binaryExpression);
+                ? memberExpression.Assign(Visit(node.Right))
+                : base.VisitBinary(node);
         }
 
-        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            if (methodCallExpression.Method.IsGenericMethod
-                && methodCallExpression.Method.GetGenericMethodDefinition() == ExpressionExtensions.ValueBufferTryReadValueMethod)
+            if (node.Method.IsGenericMethod
+                && node.Method.GetGenericMethodDefinition() == ExpressionExtensions.ValueBufferTryReadValueMethod)
             {
-                var property = methodCallExpression.Arguments[2].GetConstantValue<IProperty?>();
+                var property = node.Arguments[2].GetConstantValue<IProperty?>();
                 var indexMap = _materializationContextBindings[
-                    (ParameterExpression)((MethodCallExpression)methodCallExpression.Arguments[0]).Object!];
+                    (ParameterExpression)((MethodCallExpression)node.Arguments[0]).Object!];
 
                 Check.DebugAssert(
-                    property != null || methodCallExpression.Type.IsNullableType(), "Must read nullable value without property");
+                    property != null || node.Type.IsNullableType(), "Must read nullable value without property");
 
                 return Call(
-                    methodCallExpression.Method,
+                    node.Method,
                     _valueBufferParameter!,
                     Constant(indexMap[property!]),
-                    methodCallExpression.Arguments[2]);
+                    node.Arguments[2]);
             }
 
-            return base.VisitMethodCall(methodCallExpression);
+            return base.VisitMethodCall(node);
         }
 
         private static void IncludeReference<TEntity, TIncludingEntity, TIncludedEntity>(

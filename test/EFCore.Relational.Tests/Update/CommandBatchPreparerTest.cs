@@ -434,14 +434,16 @@ public class CommandBatchPreparerTest
 
         var modelData = new UpdateAdapter(stateManager);
 
-        var expectedCycle = sensitiveLogging
-            ? @"FakeEntity { 'Id': 42 } [Added] <-
+        var expectedCycle = sensitiveLogging switch
+        {
+            true => @"FakeEntity { 'Id': 42 } [Added] <-
 ForeignKeyConstraint { 'RelatedId': 42 } RelatedFakeEntity { 'Id': 1 } [Added] <-
-ForeignKeyConstraint { 'RelatedId': 1 } FakeEntity { 'Id': 42 } [Added]"
-            : @"FakeEntity [Added] <-
+ForeignKeyConstraint { 'RelatedId': 1 } FakeEntity { 'Id': 42 } [Added]",
+            false => @"FakeEntity [Added] <-
 ForeignKeyConstraint { 'RelatedId' } RelatedFakeEntity [Added] <-
 ForeignKeyConstraint { 'RelatedId' } FakeEntity [Added]"
-            + CoreStrings.SensitiveDataDisabled;
+                + CoreStrings.SensitiveDataDisabled
+        };
 
         Assert.Equal(
             CoreStrings.CircularDependency(ListLoggerFactory.NormalizeLineEndings(expectedCycle)),
@@ -520,16 +522,18 @@ ForeignKeyConstraint { 'RelatedId' } FakeEntity [Added]"
 
         var modelData = new UpdateAdapter(stateManager);
 
-        var expectedCycle = sensitiveLogging
-            ? @"FakeEntity { 'Id': 42 } [Added] <-
+        var expectedCycle = sensitiveLogging switch
+        {
+            true => @"FakeEntity { 'Id': 42 } [Added] <-
 ForeignKeyConstraint { 'RelatedId': 42 } RelatedFakeEntity { 'Id': 1 } [Added] <-
 ForeignKeyConstraint { 'RelatedId': 1 } FakeEntity { 'Id': 2 } [Modified] <-
-Index { 'UniqueValue': Test } FakeEntity { 'Id': 42 } [Added]"
-            : @"FakeEntity [Added] <-
+Index { 'UniqueValue': Test } FakeEntity { 'Id': 42 } [Added]",
+            false => @"FakeEntity [Added] <-
 ForeignKeyConstraint { 'RelatedId' } RelatedFakeEntity [Added] <-
 ForeignKeyConstraint { 'RelatedId' } FakeEntity [Modified] <-
 Index { 'UniqueValue' } FakeEntity [Added]"
-            + CoreStrings.SensitiveDataDisabled;
+                + CoreStrings.SensitiveDataDisabled
+        };
 
         Assert.Equal(
             CoreStrings.CircularDependency(ListLoggerFactory.NormalizeLineEndings(expectedCycle)),
@@ -558,14 +562,16 @@ Index { 'UniqueValue' } FakeEntity [Added]"
 
         var modelData = new UpdateAdapter(stateManager);
 
-        var expectedCycle = sensitiveLogging
-            ? @"FakeEntity { 'Id': 1 } [Deleted] ForeignKeyConstraint { 'RelatedId': 2 } <-
+        var expectedCycle = sensitiveLogging switch
+        {
+            true => @"FakeEntity { 'Id': 1 } [Deleted] ForeignKeyConstraint { 'RelatedId': 2 } <-
 RelatedFakeEntity { 'Id': 2 } [Deleted] ForeignKeyConstraint { 'RelatedId': 1 } <-
-FakeEntity { 'Id': 1 } [Deleted]"
-            : @"FakeEntity [Deleted] ForeignKeyConstraint { 'RelatedId' } <-
+FakeEntity { 'Id': 1 } [Deleted]",
+            false => @"FakeEntity [Deleted] ForeignKeyConstraint { 'RelatedId' } <-
 RelatedFakeEntity [Deleted] ForeignKeyConstraint { 'RelatedId' } <-
 FakeEntity [Deleted]"
-            + CoreStrings.SensitiveDataDisabled;
+                + CoreStrings.SensitiveDataDisabled
+        };
 
         Assert.Equal(
             CoreStrings.CircularDependency(ListLoggerFactory.NormalizeLineEndings(expectedCycle)),

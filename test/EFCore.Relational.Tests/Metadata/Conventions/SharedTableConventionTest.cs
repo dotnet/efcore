@@ -463,7 +463,7 @@ public class SharedTableConventionTest
             => false;
     }
 
-    private (ModelBuilder, DbContext) GetModelBuilder(bool keysUniqueAcrossSchemas)
+    private (ModelBuilder ModelBuilder, DbContext Context) GetModelBuilder(bool keysUniqueAcrossSchemas)
     {
         var conventionSet = new ConventionSet();
 

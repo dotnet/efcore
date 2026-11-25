@@ -122,17 +122,17 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
     /// <summary>
     ///     Compares the two instances to determine if they are equal.
     /// </summary>
-    /// <param name="left">The first instance.</param>
-    /// <param name="right">The second instance.</param>
+    /// <param name="x">The first instance.</param>
+    /// <param name="y">The second instance.</param>
     /// <returns><see langword="true" /> if they are equal; <see langword="false" /> otherwise.</returns>
-    public new abstract bool Equals(object? left, object? right);
+    public new abstract bool Equals(object? x, object? y);
 
     /// <summary>
     ///     Returns the hash code for the given instance.
     /// </summary>
-    /// <param name="instance">The instance.</param>
+    /// <param name="obj">The instance.</param>
     /// <returns>The hash code.</returns>
-    public abstract int GetHashCode(object? instance);
+    public abstract int GetHashCode(object? obj);
 
     /// <summary>
     ///     Creates a snapshot of the given instance.

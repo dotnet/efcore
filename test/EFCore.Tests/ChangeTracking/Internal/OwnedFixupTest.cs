@@ -4467,8 +4467,8 @@ public class OwnedFixupTest
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseInMemoryDatabase(_databaseName);
 
-        protected internal override void OnModelCreating(ModelBuilder builder)
-            => builder.Entity<Product>().OwnsOne(x => x.Details);
+        protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Product>().OwnsOne(x => x.Details);
     }
 
     [Fact]
@@ -5176,8 +5176,8 @@ public class OwnedFixupTest
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseInMemoryDatabase(_databaseName);
 
-        protected internal override void OnModelCreating(ModelBuilder builder)
-            => builder.Entity<User>(m =>
+        protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<User>(m =>
             {
                 m.HasKey(x => x.UserId);
                 m.OwnsMany(

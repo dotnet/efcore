@@ -43,13 +43,6 @@ public class CosmosEqualsTranslator(ISqlExpressionFactory sqlExpressionFactory) 
             right = arguments[1];
         }
 
-        return left != null
-            && right != null
-                ? left.Type.UnwrapNullableType() == right.Type.UnwrapNullableType()
-                || (right.Type == typeof(object) && (right is SqlParameterExpression or SqlConstantExpression))
-                || (left.Type == typeof(object) && (left is SqlParameterExpression or SqlConstantExpression))
-                    ? sqlExpressionFactory.Equal(left, right)
-                    : sqlExpressionFactory.Constant(false)
-                : null;
+        return left != null && right != null ? left.Type.UnwrapNullableType() == right.Type.UnwrapNullableType() || (right.Type == typeof(object) && (right is SqlParameterExpression or SqlConstantExpression)) || (left.Type == typeof(object) && (left is SqlParameterExpression or SqlConstantExpression)) ? sqlExpressionFactory.Equal(left, right) : sqlExpressionFactory.Constant(false) : null;
     }
 }

@@ -171,28 +171,28 @@ public abstract class NorthwindStringIncludeQueryTestBase<TFixture>(TFixture fix
                         && typeInfo.GetGenericTypeDefinition() == typeof(IEnumerable<>);
                 });
 
-        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            if (methodCallExpression.Method.DeclaringType == typeof(EntityFrameworkQueryableExtensions)
-                && methodCallExpression.Method.IsGenericMethod)
+            if (node.Method.DeclaringType == typeof(EntityFrameworkQueryableExtensions)
+                && node.Method.IsGenericMethod)
             {
-                var genericMethodDefinition = methodCallExpression.Method.GetGenericMethodDefinition();
+                var genericMethodDefinition = node.Method.GetGenericMethodDefinition();
                 if (genericMethodDefinition == _includeMethodInfo)
                 {
-                    var source = Visit(methodCallExpression.Arguments[0]);
+                    var source = Visit(node.Arguments[0]);
 
                     return Expression.Call(
-                        _stringIncludeMethodInfo.MakeGenericMethod(methodCallExpression.Method.GetGenericArguments()[0]),
+                        _stringIncludeMethodInfo.MakeGenericMethod(node.Method.GetGenericArguments()[0]),
                         source,
-                        Expression.Constant(GetPath(methodCallExpression.Arguments[1].UnwrapLambdaFromQuote().Body)));
+                        Expression.Constant(GetPath(node.Arguments[1].UnwrapLambdaFromQuote().Body)));
                 }
 
                 if (genericMethodDefinition == _thenIncludeAfterEnumerableMethodInfo
                     || genericMethodDefinition == _thenIncludeAfterReferenceMethodInfo)
                 {
-                    var innerIncludeMethodCall = (MethodCallExpression)Visit(methodCallExpression.Arguments[0]);
+                    var innerIncludeMethodCall = (MethodCallExpression)Visit(node.Arguments[0]);
                     var innerNavigationPath = (string)((ConstantExpression)innerIncludeMethodCall.Arguments[1]).Value!;
-                    var currentNavigationpath = GetPath(methodCallExpression.Arguments[1].UnwrapLambdaFromQuote().Body);
+                    var currentNavigationpath = GetPath(node.Arguments[1].UnwrapLambdaFromQuote().Body);
 
                     return innerIncludeMethodCall.Update(
                         innerIncludeMethodCall.Object,
@@ -202,7 +202,7 @@ public abstract class NorthwindStringIncludeQueryTestBase<TFixture>(TFixture fix
                 }
             }
 
-            return base.VisitMethodCall(methodCallExpression);
+            return base.VisitMethodCall(node);
         }
 
         private static string GetPath(Expression? expression)

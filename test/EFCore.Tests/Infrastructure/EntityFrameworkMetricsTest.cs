@@ -306,7 +306,7 @@ public class EntityFrameworkMetricsTest
         }
     }
 
-    private static (MeterProvider, List<Metric>) Setup()
+    private static (MeterProvider MeterProvider, List<Metric> ExportedItems) Setup()
     {
         var exportedItems = new List<Metric>();
         var meterProvider = Sdk

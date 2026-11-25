@@ -167,10 +167,7 @@ public class CosmosQueryTranslationPostprocessor(
         }
 
         private int GetProjectionIndex(ProjectionBindingExpression projectionBindingExpression)
-            => projectionBindingExpression.ProjectionMember is not null
-                ? selectExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember).GetConstantValue<int>()
-                : projectionBindingExpression.Index
-                ?? throw new InvalidOperationException(CoreStrings.TranslationFailed(projectionBindingExpression.Print()));
+            => projectionBindingExpression.ProjectionMember is not null ? selectExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember).GetConstantValue<int>() : projectionBindingExpression.Index ?? throw new InvalidOperationException(CoreStrings.TranslationFailed(projectionBindingExpression.Print()));
 
         private bool IsRootEntityType(IEntityType entityType)
             => entityType == rootEntityType

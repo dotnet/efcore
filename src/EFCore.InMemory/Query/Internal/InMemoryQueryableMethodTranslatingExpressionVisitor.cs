@@ -66,9 +66,9 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitExtension(Expression extensionExpression)
+    protected override Expression VisitExtension(Expression node)
     {
-        switch (extensionExpression)
+        switch (node)
         {
             case GroupByShaperExpression groupByShaperExpression:
                 var groupShapedQueryExpression = groupByShaperExpression.GroupingEnumerable;
@@ -81,7 +81,7 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
                     .Clone(shapedQueryExpression.ShaperExpression);
 
             default:
-                return base.VisitExtension(extensionExpression);
+                return base.VisitExtension(node);
         }
     }
 
@@ -91,14 +91,8 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
-        => methodCallExpression.Method.IsGenericMethod
-            && methodCallExpression.Arguments.Count == 1
-            && methodCallExpression.Arguments[0].Type.TryGetSequenceType() != null
-            && (string.Equals(methodCallExpression.Method.Name, "AsSplitQuery", StringComparison.Ordinal)
-                || string.Equals(methodCallExpression.Method.Name, "AsSingleQuery", StringComparison.Ordinal))
-                ? Visit(methodCallExpression.Arguments[0])
-                : base.VisitMethodCall(methodCallExpression);
+    protected override Expression VisitMethodCall(MethodCallExpression node)
+        => node.Method.IsGenericMethod && node.Arguments.Count == 1 && node.Arguments[0].Type.TryGetSequenceType() != null && (string.Equals(node.Method.Name, "AsSplitQuery", StringComparison.Ordinal) || string.Equals(node.Method.Name, "AsSingleQuery", StringComparison.Ordinal)) ? Visit(node.Arguments[0]) : base.VisitMethodCall(node);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -209,9 +203,9 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override ShapedQueryExpression? TranslateCast(ShapedQueryExpression source, Type resultType)
-        => source.ShaperExpression.Type != resultType
-            ? source.UpdateShaperExpression(Expression.Convert(source.ShaperExpression, resultType))
+    protected override ShapedQueryExpression? TranslateCast(ShapedQueryExpression source, Type castType)
+        => source.ShaperExpression.Type != castType
+            ? source.UpdateShaperExpression(Expression.Convert(source.ShaperExpression, castType))
             : source;
 
     /// <summary>
@@ -535,7 +529,7 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
         return AlignKeySelectorTypes(outerKeySelector, innerKeySelector);
     }
 
-    private static (Expression?, Expression?) DecomposeJoinCondition(Expression? joinCondition)
+    private static (Expression? Left, Expression? Right) DecomposeJoinCondition(Expression? joinCondition)
     {
         var leftExpressions = new List<Expression>();
         var rightExpressions = new List<Expression>();
@@ -916,15 +910,15 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
             return _defaultIfEmpty;
         }
 
-        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            if (methodCallExpression.Method.IsGenericMethod
-                && methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.DefaultIfEmptyWithoutArgument)
+            if (node.Method.IsGenericMethod
+                && node.Method.GetGenericMethodDefinition() == QueryableMethods.DefaultIfEmptyWithoutArgument)
             {
                 _defaultIfEmpty = true;
             }
 
-            return base.VisitMethodCall(methodCallExpression);
+            return base.VisitMethodCall(node);
         }
     }
 
@@ -1167,43 +1161,43 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
             return Visit(lambdaBody);
         }
 
-        protected override Expression VisitMember(MemberExpression memberExpression)
+        protected override Expression VisitMember(MemberExpression node)
         {
             // Fold member access into conditional, i.e. transform
             // (test ? expr1 : expr2).Member -> (test ? expr1.Member : expr2.Member)
-            if (memberExpression.Expression is ConditionalExpression cond)
+            if (node.Expression is ConditionalExpression cond)
             {
                 return Visit(
                     Expression.Condition(
                         cond.Test,
-                        Expression.MakeMemberAccess(cond.IfTrue, memberExpression.Member),
-                        Expression.MakeMemberAccess(cond.IfFalse, memberExpression.Member)
+                        Expression.MakeMemberAccess(cond.IfTrue, node.Member),
+                        Expression.MakeMemberAccess(cond.IfFalse, node.Member)
                     ));
             }
 
-            var innerExpression = Visit(memberExpression.Expression);
+            var innerExpression = Visit(node.Expression);
 
-            return TryExpand(innerExpression, MemberIdentity.Create(memberExpression.Member))
-                ?? memberExpression.Update(innerExpression);
+            return TryExpand(innerExpression, MemberIdentity.Create(node.Member))
+                ?? node.Update(innerExpression);
         }
 
-        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var navigationName))
+            if (node.TryGetEFPropertyArguments(out var source, out var navigationName))
             {
                 source = Visit(source);
 
                 return TryExpand(source, MemberIdentity.Create(navigationName))
-                    ?? methodCallExpression.Update(null!, [source, methodCallExpression.Arguments[1]]);
+                    ?? node.Update(null!, [source, node.Arguments[1]]);
             }
 
-            return base.VisitMethodCall(methodCallExpression);
+            return base.VisitMethodCall(node);
         }
 
-        protected override Expression VisitExtension(Expression extensionExpression)
-            => extensionExpression is StructuralTypeShaperExpression or ShapedQueryExpression or GroupByShaperExpression
-                ? extensionExpression
-                : base.VisitExtension(extensionExpression);
+        protected override Expression VisitExtension(Expression node)
+            => node is StructuralTypeShaperExpression or ShapedQueryExpression or GroupByShaperExpression
+                ? node
+                : base.VisitExtension(node);
 
         private Expression? TryExpand(Expression? source, MemberIdentity member)
         {

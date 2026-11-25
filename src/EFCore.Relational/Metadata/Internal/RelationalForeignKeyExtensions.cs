@@ -152,18 +152,18 @@ public static class RelationalForeignKeyExtensions
                             foreignKey.GetConstraintName(storeObject, principalTable.Value)))
                     : false
                 : foreignKey.GetDeferrability() == duplicateForeignKey.GetDeferrability()
-                || (shouldThrow
-                    ? throw new InvalidOperationException(
-                        RelationalStrings.DuplicateForeignKeyDeferrabilityMismatch(
-                            foreignKey.Properties.Format(),
-                            foreignKey.DeclaringEntityType.DisplayName(),
-                            duplicateForeignKey.Properties.Format(),
-                            duplicateForeignKey.DeclaringEntityType.DisplayName(),
-                            foreignKey.DeclaringEntityType.GetSchemaQualifiedTableName(),
-                            foreignKey.GetConstraintName(storeObject, principalTable.Value),
-                            foreignKey.GetDeferrability(),
-                            duplicateForeignKey.GetDeferrability()))
-                    : false);
+                    || (shouldThrow
+                        ? throw new InvalidOperationException(
+                            RelationalStrings.DuplicateForeignKeyDeferrabilityMismatch(
+                                foreignKey.Properties.Format(),
+                                foreignKey.DeclaringEntityType.DisplayName(),
+                                duplicateForeignKey.Properties.Format(),
+                                duplicateForeignKey.DeclaringEntityType.DisplayName(),
+                                foreignKey.DeclaringEntityType.GetSchemaQualifiedTableName(),
+                                foreignKey.GetConstraintName(storeObject, principalTable.Value),
+                                foreignKey.GetDeferrability(),
+                                duplicateForeignKey.GetDeferrability()))
+                        : false);
     }
 
     /// <summary>

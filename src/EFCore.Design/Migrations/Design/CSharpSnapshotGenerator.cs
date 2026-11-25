@@ -50,21 +50,21 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
     /// <summary>
     ///     Generates code for creating an <see cref="IModel" />.
     /// </summary>
-    /// <param name="modelBuilderName">The <see cref="ModelBuilder" /> variable name.</param>
+    /// <param name="builderName">The <see cref="ModelBuilder" /> variable name.</param>
     /// <param name="model">The model.</param>
     /// <param name="stringBuilder">The builder code is added to.</param>
-    public virtual void Generate(string modelBuilderName, IModel model, IndentedStringBuilder stringBuilder)
+    public virtual void Generate(string builderName, IModel model, IndentedStringBuilder stringBuilder)
     {
         var annotations = GetAnnotations(model);
 
-        GenerateAnnotations(modelBuilderName, model, stringBuilder, annotations, inChainedCall: false, leadingNewline: false);
+        GenerateAnnotations(builderName, model, stringBuilder, annotations, inChainedCall: false, leadingNewline: false);
 
         foreach (var sequence in model.GetSequences())
         {
-            GenerateSequence(modelBuilderName, sequence, stringBuilder);
+            GenerateSequence(builderName, sequence, stringBuilder);
         }
 
-        GenerateEntityTypes(modelBuilderName, model.GetEntityTypesInHierarchicalOrder(), stringBuilder);
+        GenerateEntityTypes(builderName, model.GetEntityTypesInHierarchicalOrder(), stringBuilder);
     }
 
     /// <summary>

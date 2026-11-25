@@ -85,22 +85,22 @@ public class InMemoryProjectionBindingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [return: NotNullIfNotNull(nameof(expression))]
-    public override Expression? Visit(Expression? expression)
+    [return: NotNullIfNotNull(nameof(node))]
+    public override Expression? Visit(Expression? node)
     {
-        if (expression == null)
+        if (node == null)
         {
             return null;
         }
 
-        if (expression is not (NewExpression or MemberInitExpression or StructuralTypeShaperExpression or IncludeExpression))
+        if (node is not (NewExpression or MemberInitExpression or StructuralTypeShaperExpression or IncludeExpression))
         {
             if (_indexBasedBinding)
             {
-                switch (expression)
+                switch (node)
                 {
                     case ConstantExpression:
-                        return expression;
+                        return node;
 
                     case ProjectionBindingExpression projectionBindingExpression:
                         var mappedProjection = _queryExpression.GetProjection(projectionBindingExpression);
@@ -111,7 +111,7 @@ public class InMemoryProjectionBindingExpressionVisitor : ExpressionVisitor
 
                         if (mappedProjection is not InMemoryQueryExpression)
                         {
-                            return AddClientProjection(mappedProjection, expression.Type.MakeNullable());
+                            return AddClientProjection(mappedProjection, node.Type.MakeNullable());
                         }
 
                         throw new InvalidOperationException(CoreStrings.TranslationFailed(projectionBindingExpression.Print()));
@@ -158,7 +158,7 @@ public class InMemoryProjectionBindingExpressionVisitor : ExpressionVisitor
                                 var scalarTranslation = _expressionTranslatingExpressionVisitor.Translate(subquery);
                                 if (scalarTranslation != null)
                                 {
-                                    return AddClientProjection(scalarTranslation, expression.Type.MakeNullable());
+                                    return AddClientProjection(scalarTranslation, node.Type.MakeNullable());
                                 }
 
                                 if (subquery.ResultCardinality == ResultCardinality.Enumerable)
@@ -183,14 +183,14 @@ public class InMemoryProjectionBindingExpressionVisitor : ExpressionVisitor
                         break;
                 }
 
-                var translation = _expressionTranslatingExpressionVisitor.Translate(expression);
+                var translation = _expressionTranslatingExpressionVisitor.Translate(node);
                 return translation != null
-                    ? AddClientProjection(translation, expression.Type.MakeNullable())
-                    : base.Visit(expression);
+                    ? AddClientProjection(translation, node.Type.MakeNullable())
+                    : base.Visit(node);
             }
             else
             {
-                var translation = _expressionTranslatingExpressionVisitor.Translate(expression);
+                var translation = _expressionTranslatingExpressionVisitor.Translate(node);
                 if (translation == null)
                 {
                     return QueryCompilationContext.NotTranslatedExpression;
@@ -198,11 +198,11 @@ public class InMemoryProjectionBindingExpressionVisitor : ExpressionVisitor
 
                 _projectionMapping[_projectionMembers.Peek()] = translation;
 
-                return new ProjectionBindingExpression(_queryExpression, _projectionMembers.Peek(), expression.Type.MakeNullable());
+                return new ProjectionBindingExpression(_queryExpression, _projectionMembers.Peek(), node.Type.MakeNullable());
             }
         }
 
-        return base.Visit(expression);
+        return base.Visit(node);
     }
 
     /// <summary>
@@ -211,12 +211,12 @@ public class InMemoryProjectionBindingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitBinary(BinaryExpression binaryExpression)
+    protected override Expression VisitBinary(BinaryExpression node)
     {
-        var left = MatchTypes(Visit(binaryExpression.Left), binaryExpression.Left.Type);
-        var right = MatchTypes(Visit(binaryExpression.Right), binaryExpression.Right.Type);
+        var left = MatchTypes(Visit(node.Left), node.Left.Type);
+        var right = MatchTypes(Visit(node.Right), node.Right.Type);
 
-        return binaryExpression.Update(left, VisitAndConvert(binaryExpression.Conversion, "VisitBinary"), right);
+        return node.Update(left, VisitAndConvert(node.Conversion, "VisitBinary"), right);
     }
 
     /// <summary>
@@ -225,34 +225,34 @@ public class InMemoryProjectionBindingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
+    protected override Expression VisitConditional(ConditionalExpression node)
     {
-        var test = Visit(conditionalExpression.Test);
-        var ifTrue = Visit(conditionalExpression.IfTrue);
-        var ifFalse = Visit(conditionalExpression.IfFalse);
+        var test = Visit(node.Test);
+        var ifTrue = Visit(node.IfTrue);
+        var ifFalse = Visit(node.IfFalse);
 
         if (test.Type == typeof(bool?))
         {
             test = Expression.Equal(test, Expression.Constant(true, typeof(bool?)));
         }
 
-        ifTrue = MatchTypes(ifTrue, conditionalExpression.IfTrue.Type);
-        ifFalse = MatchTypes(ifFalse, conditionalExpression.IfFalse.Type);
+        ifTrue = MatchTypes(ifTrue, node.IfTrue.Type);
+        ifFalse = MatchTypes(ifFalse, node.IfFalse.Type);
 
         // Edge case when one branch of a conditional is null, the other is a queryable
         // that gets translated into a client-side collection Type,
         // conditionalExpression.Update throws Error in this case
-        if (!conditionalExpression.IfTrue.Type.IsAssignableFrom(ifTrue.Type) && ifFalse is ConstantExpression { Value: null })
+        if (!node.IfTrue.Type.IsAssignableFrom(ifTrue.Type) && ifFalse is ConstantExpression { Value: null })
         {
             return Expression.Condition(test, ifTrue, Expression.Constant(null, ifTrue.Type));
         }
 
-        if (!conditionalExpression.IfFalse.Type.IsAssignableFrom(ifFalse.Type) && ifTrue is ConstantExpression { Value: null })
+        if (!node.IfFalse.Type.IsAssignableFrom(ifFalse.Type) && ifTrue is ConstantExpression { Value: null })
         {
             return Expression.Condition(test, Expression.Constant(null, ifFalse.Type), ifFalse);
         }
 
-        return conditionalExpression.Update(test, ifTrue, ifFalse);
+        return node.Update(test, ifTrue, ifFalse);
     }
 
     /// <summary>
@@ -261,14 +261,11 @@ public class InMemoryProjectionBindingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitExtension(Expression extensionExpression)
+    protected override Expression VisitExtension(Expression node)
     {
-        if (extensionExpression is StructuralTypeShaperExpression shaper)
+        if (node is StructuralTypeShaperExpression shaper)
         {
-            var entityProjectionExpression = shaper.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression
-                ? (EntityProjectionExpression)((InMemoryQueryExpression)projectionBindingExpression.QueryExpression)
-                .GetProjection(projectionBindingExpression)
-                : (EntityProjectionExpression)shaper.ValueBufferExpression;
+            var entityProjectionExpression = shaper.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression ? (EntityProjectionExpression)((InMemoryQueryExpression)projectionBindingExpression.QueryExpression) .GetProjection(projectionBindingExpression) : (EntityProjectionExpression)shaper.ValueBufferExpression;
             if (_indexBasedBinding)
             {
                 if (!_entityProjectionCache!.TryGetValue(entityProjectionExpression, out var entityProjectionBinding))
@@ -286,11 +283,11 @@ public class InMemoryProjectionBindingExpressionVisitor : ExpressionVisitor
                 new ProjectionBindingExpression(_queryExpression, _projectionMembers.Peek(), typeof(ValueBuffer)));
         }
 
-        return extensionExpression is IncludeExpression includeExpression
+        return node is IncludeExpression includeExpression
             ? _indexBasedBinding
                 ? base.VisitExtension(includeExpression)
                 : QueryCompilationContext.NotTranslatedExpression
-            : throw new InvalidOperationException(CoreStrings.TranslationFailed(extensionExpression.Print()));
+            : throw new InvalidOperationException(CoreStrings.TranslationFailed(node.Print()));
     }
 
     /// <summary>
@@ -299,8 +296,8 @@ public class InMemoryProjectionBindingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override ElementInit VisitElementInit(ElementInit elementInit)
-        => elementInit.Update(elementInit.Arguments.Select(e => MatchTypes(Visit(e), e.Type)));
+    protected override ElementInit VisitElementInit(ElementInit node)
+        => node.Update(node.Arguments.Select(e => MatchTypes(Visit(e), e.Type)));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -308,16 +305,16 @@ public class InMemoryProjectionBindingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitMember(MemberExpression memberExpression)
+    protected override Expression VisitMember(MemberExpression node)
     {
-        var expression = Visit(memberExpression.Expression);
-        Expression updatedMemberExpression = memberExpression.Update(
-            expression != null ? MatchTypes(expression, memberExpression.Expression!.Type) : expression);
+        var expression = Visit(node.Expression);
+        Expression updatedMemberExpression = node.Update(
+            expression != null ? MatchTypes(expression, node.Expression!.Type) : expression);
 
         if (expression?.Type.IsNullableValueType() == true)
         {
-            var nullableReturnType = memberExpression.Type.MakeNullable();
-            if (!memberExpression.Type.IsNullableType())
+            var nullableReturnType = node.Type.MakeNullable();
+            if (!node.Type.IsNullableType())
             {
                 updatedMemberExpression = Expression.Convert(updatedMemberExpression, nullableReturnType);
             }
@@ -337,23 +334,23 @@ public class InMemoryProjectionBindingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override MemberAssignment VisitMemberAssignment(MemberAssignment memberAssignment)
+    protected override MemberAssignment VisitMemberAssignment(MemberAssignment node)
     {
-        var expression = memberAssignment.Expression;
+        var expression = node.Expression;
         Expression? visitedExpression;
         if (_indexBasedBinding)
         {
-            visitedExpression = Visit(memberAssignment.Expression);
+            visitedExpression = Visit(node.Expression);
         }
         else
         {
-            var projectionMember = _projectionMembers.Peek().Append(memberAssignment.Member);
+            var projectionMember = _projectionMembers.Peek().Append(node.Member);
             _projectionMembers.Push(projectionMember);
 
-            visitedExpression = Visit(memberAssignment.Expression);
+            visitedExpression = Visit(node.Expression);
             if (visitedExpression == QueryCompilationContext.NotTranslatedExpression)
             {
-                return memberAssignment.Update(Expression.Convert(visitedExpression, memberAssignment.Expression.Type));
+                return node.Update(Expression.Convert(visitedExpression, node.Expression.Type));
             }
 
             _projectionMembers.Pop();
@@ -361,7 +358,7 @@ public class InMemoryProjectionBindingExpressionVisitor : ExpressionVisitor
 
         visitedExpression = MatchTypes(visitedExpression, expression.Type);
 
-        return memberAssignment.Update(visitedExpression);
+        return node.Update(visitedExpression);
     }
 
     /// <summary>
@@ -370,23 +367,23 @@ public class InMemoryProjectionBindingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitMemberInit(MemberInitExpression memberInitExpression)
+    protected override Expression VisitMemberInit(MemberInitExpression node)
     {
-        var newExpression = Visit(memberInitExpression.NewExpression);
+        var newExpression = Visit(node.NewExpression);
         if (newExpression == QueryCompilationContext.NotTranslatedExpression)
         {
             return QueryCompilationContext.NotTranslatedExpression;
         }
 
-        var newBindings = new MemberBinding[memberInitExpression.Bindings.Count];
+        var newBindings = new MemberBinding[node.Bindings.Count];
         for (var i = 0; i < newBindings.Length; i++)
         {
-            if (memberInitExpression.Bindings[i].BindingType != MemberBindingType.Assignment)
+            if (node.Bindings[i].BindingType != MemberBindingType.Assignment)
             {
                 return QueryCompilationContext.NotTranslatedExpression;
             }
 
-            newBindings[i] = VisitMemberBinding(memberInitExpression.Bindings[i]);
+            newBindings[i] = VisitMemberBinding(node.Bindings[i]);
             if (((MemberAssignment)newBindings[i]).Expression is UnaryExpression { NodeType: ExpressionType.Convert } unaryExpression
                 && unaryExpression.Operand == QueryCompilationContext.NotTranslatedExpression)
             {
@@ -394,7 +391,7 @@ public class InMemoryProjectionBindingExpressionVisitor : ExpressionVisitor
             }
         }
 
-        return memberInitExpression.Update((NewExpression)newExpression, newBindings);
+        return node.Update((NewExpression)newExpression, newBindings);
     }
 
     /// <summary>
@@ -403,25 +400,25 @@ public class InMemoryProjectionBindingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+    protected override Expression VisitMethodCall(MethodCallExpression node)
     {
-        var @object = Visit(methodCallExpression.Object);
-        var arguments = new Expression[methodCallExpression.Arguments.Count];
-        for (var i = 0; i < methodCallExpression.Arguments.Count; i++)
+        var @object = Visit(node.Object);
+        var arguments = new Expression[node.Arguments.Count];
+        for (var i = 0; i < node.Arguments.Count; i++)
         {
-            var argument = methodCallExpression.Arguments[i];
+            var argument = node.Arguments[i];
             arguments[i] = MatchTypes(Visit(argument), argument.Type);
         }
 
-        Expression updatedMethodCallExpression = methodCallExpression.Update(
-            @object != null ? MatchTypes(@object, methodCallExpression.Object!.Type) : @object!,
+        Expression updatedMethodCallExpression = node.Update(
+            @object != null ? MatchTypes(@object, node.Object!.Type) : @object!,
             arguments);
 
         if (@object?.Type.IsNullableType() == true
-            && !methodCallExpression.Object!.Type.IsNullableType())
+            && !node.Object!.Type.IsNullableType())
         {
-            var nullableReturnType = methodCallExpression.Type.MakeNullable();
-            if (!methodCallExpression.Type.IsNullableType())
+            var nullableReturnType = node.Type.MakeNullable();
+            if (!node.Type.IsNullableType())
             {
                 updatedMethodCallExpression = Expression.Convert(updatedMethodCallExpression, nullableReturnType);
             }
@@ -441,23 +438,23 @@ public class InMemoryProjectionBindingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitNew(NewExpression newExpression)
+    protected override Expression VisitNew(NewExpression node)
     {
-        if (newExpression.Arguments.Count == 0)
+        if (node.Arguments.Count == 0)
         {
-            return newExpression;
+            return node;
         }
 
         if (!_indexBasedBinding
-            && newExpression.Members == null)
+            && node.Members == null)
         {
             return QueryCompilationContext.NotTranslatedExpression;
         }
 
-        var newArguments = new Expression[newExpression.Arguments.Count];
+        var newArguments = new Expression[node.Arguments.Count];
         for (var i = 0; i < newArguments.Length; i++)
         {
-            var argument = newExpression.Arguments[i];
+            var argument = node.Arguments[i];
             Expression? visitedArgument;
             if (_indexBasedBinding)
             {
@@ -465,7 +462,7 @@ public class InMemoryProjectionBindingExpressionVisitor : ExpressionVisitor
             }
             else
             {
-                var projectionMember = _projectionMembers.Peek().Append(newExpression.Members![i]);
+                var projectionMember = _projectionMembers.Peek().Append(node.Members![i]);
                 _projectionMembers.Push(projectionMember);
                 visitedArgument = Visit(argument);
                 if (visitedArgument == QueryCompilationContext.NotTranslatedExpression)
@@ -479,7 +476,7 @@ public class InMemoryProjectionBindingExpressionVisitor : ExpressionVisitor
             newArguments[i] = MatchTypes(visitedArgument, argument.Type);
         }
 
-        return newExpression.Update(newArguments);
+        return node.Update(newArguments);
     }
 
     /// <summary>
@@ -488,8 +485,8 @@ public class InMemoryProjectionBindingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitNewArray(NewArrayExpression newArrayExpression)
-        => newArrayExpression.Update(newArrayExpression.Expressions.Select(e => MatchTypes(Visit(e), e.Type)));
+    protected override Expression VisitNewArray(NewArrayExpression node)
+        => node.Update(node.Expressions.Select(e => MatchTypes(Visit(e), e.Type)));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -497,14 +494,14 @@ public class InMemoryProjectionBindingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitUnary(UnaryExpression unaryExpression)
+    protected override Expression VisitUnary(UnaryExpression node)
     {
-        var operand = Visit(unaryExpression.Operand);
+        var operand = Visit(node.Operand);
 
-        return unaryExpression.NodeType is ExpressionType.Convert or ExpressionType.ConvertChecked
-            && unaryExpression.Type == operand.Type
+        return node.NodeType is ExpressionType.Convert or ExpressionType.ConvertChecked
+            && node.Type == operand.Type
                 ? operand
-                : unaryExpression.Update(MatchTypes(operand, unaryExpression.Operand.Type));
+                : node.Update(MatchTypes(operand, node.Operand.Type));
     }
 
     private static Expression MatchTypes(Expression expression, Type targetType)

@@ -329,24 +329,7 @@ public class SqlFunctionExpression : SqlExpression
         SqlExpression? instance,
         IReadOnlyList<SqlExpression>? arguments,
         IReadOnlyList<bool>? argumentsPropagateNullability)
-        => instance == Instance
-            && ((arguments == Arguments) || (arguments != null && Arguments != null && arguments.SequenceEqual(Arguments)))
-            && ((argumentsPropagateNullability == ArgumentsPropagateNullability)
-                || (argumentsPropagateNullability != null
-                    && ArgumentsPropagateNullability != null
-                    && argumentsPropagateNullability.SequenceEqual(ArgumentsPropagateNullability)))
-                ? this
-                : new SqlFunctionExpression(
-                    instance,
-                    Schema,
-                    Name,
-                    arguments,
-                    IsNullable,
-                    InstancePropagatesNullability,
-                    argumentsPropagateNullability,
-                    IsBuiltIn,
-                    Type,
-                    TypeMapping);
+        => instance == Instance && ((arguments == Arguments) || (arguments != null && Arguments != null && arguments.SequenceEqual(Arguments))) && ((argumentsPropagateNullability == ArgumentsPropagateNullability) || (argumentsPropagateNullability != null && ArgumentsPropagateNullability != null && argumentsPropagateNullability.SequenceEqual(ArgumentsPropagateNullability))) ? this : new SqlFunctionExpression( instance, Schema, Name, arguments, IsNullable, InstancePropagatesNullability, argumentsPropagateNullability, IsBuiltIn, Type, TypeMapping);
 
     /// <inheritdoc />
     public override Expression Quote()

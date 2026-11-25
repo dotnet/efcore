@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
 public class SingleThreadSynchronizationContext : SynchronizationContext, IDisposable
 {
-    private readonly BlockingCollection<(SendOrPostCallback callback, object? state)> _tasks = [];
+    private readonly BlockingCollection<(SendOrPostCallback Callback, object? State)> _tasks = [];
 
     public Thread Thread { get; }
 
@@ -17,8 +17,8 @@ public class SingleThreadSynchronizationContext : SynchronizationContext, IDispo
         Thread.Start();
     }
 
-    public override void Post(SendOrPostCallback callback, object? state)
-        => _tasks.Add((callback, state));
+    public override void Post(SendOrPostCallback d, object? state)
+        => _tasks.Add((d, state));
 
     public void Dispose()
         => _tasks.CompleteAdding();

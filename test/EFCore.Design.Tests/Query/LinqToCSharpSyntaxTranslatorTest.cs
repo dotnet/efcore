@@ -2595,7 +2595,8 @@ catch
         }
     }
 
-    private (LinqToCSharpSyntaxTranslator, AdhocWorkspace) CreateTranslator(bool useUpdatedMemorySafetyRules = false)
+    private (LinqToCSharpSyntaxTranslator Translator, AdhocWorkspace Workspace) CreateTranslator(
+        bool useUpdatedMemorySafetyRules = false)
     {
         var workspace = new AdhocWorkspace();
         var syntaxGenerator = SyntaxGenerator.GetGenerator(workspace, LanguageNames.CSharp);
