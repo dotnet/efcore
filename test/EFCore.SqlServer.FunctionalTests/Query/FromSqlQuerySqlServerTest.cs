@@ -1057,6 +1057,35 @@ FROM (
 """);
     }
 
+    public override async Task Union_of_captured_variable_then_FromSql_with_db_parameter_of_same_name_positional_and_hardcoded_in_sql(
+        bool async)
+    {
+        await base.Union_of_captured_variable_then_FromSql_with_db_parameter_of_same_name_positional_and_hardcoded_in_sql(async);
+
+        AssertSql(
+            """
+@city0='Seattle' (Size = 15)
+city='London' (Nullable = false) (Size = 6)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[City] = @city0
+UNION
+SELECT [m].[CustomerID], [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[Fax], [m].[Phone], [m].[PostalCode], [m].[Region]
+FROM (
+    SELECT * FROM "Customers" WHERE "City" = @city AND "City" = @city
+) AS [m]
+""");
+    }
+
+    public override async Task Union_of_FromSql_with_same_named_db_parameters_hardcoded_and_positional_and_hardcoded_in_sql_throws(
+        bool async)
+    {
+        await base.Union_of_FromSql_with_same_named_db_parameters_hardcoded_and_positional_and_hardcoded_in_sql_throws(async);
+
+        AssertSql();
+    }
+
     public override async Task Union_of_FromSql_with_same_named_db_parameters_positional_then_hardcoded(bool async)
     {
         await base.Union_of_FromSql_with_same_named_db_parameters_positional_then_hardcoded(async);

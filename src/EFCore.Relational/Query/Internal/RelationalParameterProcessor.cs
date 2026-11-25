@@ -1,7 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Globalization;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 
@@ -36,8 +35,8 @@ public class RelationalParameterProcessor : ExpressionVisitor
 
     /// <summary>
     ///     Contains the (prefixed) names of the <see cref="DbParameter" />s whose names are written directly into the SQL passed to
-    ///     FromSql/SqlQuery (as opposed to referenced positionally via {n}). These names can't be changed, so every other parameter,
-    ///     whether it is visited before or after, has to avoid them. See #32932.
+    ///     FromSql/SqlQuery, whether or not the argument is also referenced positionally via {n}. These names can't be changed, so every
+    ///     other parameter, whether it is visited before or after, has to avoid them. See #32932.
     /// </summary>
     private readonly HashSet<string> _hardCodedParameterNames = [with(StringComparer.OrdinalIgnoreCase)];
 
@@ -165,7 +164,7 @@ public class RelationalParameterProcessor : ExpressionVisitor
                 {
                     if (parameterValues[i] is DbParameter dbParameter)
                     {
-                        subParameters.Add(ProcessDbParameter(dbParameter, i));
+                        subParameters.Add(ProcessDbParameter(dbParameter));
                     }
                     else
                     {
@@ -187,7 +186,7 @@ public class RelationalParameterProcessor : ExpressionVisitor
 
                 for (var i = 0; i < existingValues.Length; i++)
                 {
-                    constantValues[i] = ProcessConstantValue(existingValues[i], i);
+                    constantValues[i] = ProcessConstantValue(existingValues[i]);
                 }
 
                 return fromSql.Update(Expression.Constant(constantValues, typeof(object[])));
@@ -204,7 +203,7 @@ public class RelationalParameterProcessor : ExpressionVisitor
                         throw new InvalidOperationException();
                     }
 
-                    constantValues[i] = ProcessConstantValue(existingValue, i);
+                    constantValues[i] = ProcessConstantValue(existingValue);
                 }
 
                 return fromSql.Update(Expression.Constant(constantValues, typeof(object[])));
@@ -214,15 +213,15 @@ public class RelationalParameterProcessor : ExpressionVisitor
                 throw new UnreachableException("FromSql.Arguments must be Constant/QueryParameterExpression");
         }
 
-        object ProcessConstantValue(object? existingConstantValue, int index)
+        object ProcessConstantValue(object? existingConstantValue)
             => existingConstantValue is DbParameter dbParameter
-                ? ProcessDbParameter(dbParameter, index)
+                ? ProcessDbParameter(dbParameter)
                 : _sqlExpressionFactory.Constant(
                     existingConstantValue,
                     existingConstantValue?.GetType() ?? typeof(object),
                     _typeMappingSource.GetMappingForValue(existingConstantValue));
 
-        RawRelationalParameter ProcessDbParameter(DbParameter dbParameter, int index)
+        RawRelationalParameter ProcessDbParameter(DbParameter dbParameter)
         {
             _processedDbParameters ??= [];
 
@@ -243,12 +242,10 @@ public class RelationalParameterProcessor : ExpressionVisitor
             {
                 var originalName = dbParameter.ParameterName;
 
-                // The name can only be changed if EF is the one writing the parameter's name into the SQL (i.e. the SQL references the
-                // argument positionally via {n}). If the SQL hard-codes the name, renaming the DbParameter would silently leave the SQL
-                // pointing at a different parameter with the same name. See #32932.
-                // Note that this doesn't detect SQL which references the same argument both positionally and by name; the by-name
-                // reference would still be left pointing at the other parameter.
-                if (IsNameHardCoded(fromSql, index, originalName))
+                // The name can only be changed if EF is the only one writing the parameter's name into the SQL (i.e. the SQL references
+                // the argument only positionally via {n}). If the SQL hard-codes the name, even in addition to {n}, renaming the
+                // DbParameter would silently leave the SQL pointing at a different parameter with the same name. See #32932.
+                if (IsNameHardCoded(fromSql, originalName))
                 {
                     // Other parameters avoid this name (see _hardCodedParameterNames), so it can only already be taken by another
                     // DbParameter which also hard-codes it.
@@ -267,12 +264,12 @@ public class RelationalParameterProcessor : ExpressionVisitor
         }
     }
 
-    // A parameter that isn't referenced positionally only reserves its name if the SQL references that name. An unused parameter is
-    // renamed like before. The match accepts any of the common parameter prefixes, in any case, so a real reference isn't missed
-    // whichever prefix the provider uses; a false match (e.g. inside a string literal) only means the name is treated as hard-coded.
-    private static bool IsNameHardCoded(FromSqlExpression fromSql, int index, string parameterName)
-        => !ReferencesArgumentByPosition(fromSql.Sql, index)
-            && ReferencesParameterByName(fromSql.Sql, parameterName.TrimStart(ParameterPrefixes));
+    // A parameter reserves its name if the SQL references that name, whether or not it's also referenced positionally. A parameter
+    // referenced only positionally, or not at all, is renamed like before. The match accepts any of the common parameter prefixes, in
+    // any case, so a real reference isn't missed whichever prefix the provider uses; a false match (e.g. inside a string literal) only
+    // means the name is treated as hard-coded.
+    private static bool IsNameHardCoded(FromSqlExpression fromSql, string parameterName)
+        => ReferencesParameterByName(fromSql.Sql, parameterName.TrimStart(ParameterPrefixes));
 
     private static readonly char[] ParameterPrefixes = ['@', ':', '$', '?'];
 
@@ -326,10 +323,10 @@ public class RelationalParameterProcessor : ExpressionVisitor
             return;
         }
 
-        for (var i = 0; i < arguments.Length; i++)
+        foreach (var argument in arguments)
         {
-            if (arguments[i] is DbParameter { ParameterName: { Length: > 0 } name }
-                && IsNameHardCoded(fromSql, i, name))
+            if (argument is DbParameter { ParameterName: { Length: > 0 } name }
+                && IsNameHardCoded(fromSql, name))
             {
                 _hardCodedParameterNames.Add(_sqlGenerationHelper.GenerateParameterName(name));
             }
@@ -347,55 +344,6 @@ public class RelationalParameterProcessor : ExpressionVisitor
 
             return base.VisitExtension(expression);
         }
-    }
-
-    /// <summary>
-    ///     Returns whether the given composite format string (as passed to <see cref="string.Format(string, object[])" />) contains a
-    ///     placeholder for the argument at the given index, e.g. <c>{0}</c>, <c>{0,5}</c> or <c>{0:x}</c>. Escaped braces
-    ///     (<c>{{0}}</c>) are not placeholders.
-    /// </summary>
-    internal static bool ReferencesArgumentByPosition(string sql, int index)
-    {
-        for (var i = 0; i < sql.Length; i++)
-        {
-            if (sql[i] != '{')
-            {
-                continue;
-            }
-
-            // '{{' is an escaped brace
-            if (i + 1 < sql.Length && sql[i + 1] == '{')
-            {
-                i++;
-                continue;
-            }
-
-            var j = i + 1;
-            var digitsStart = j;
-            while (j < sql.Length && sql[j] is >= '0' and <= '9')
-            {
-                j++;
-            }
-
-            if (j == digitsStart
-                || !int.TryParse(sql.AsSpan(digitsStart, j - digitsStart), NumberStyles.None, CultureInfo.InvariantCulture, out var value)
-                || value != index)
-            {
-                continue;
-            }
-
-            while (j < sql.Length && char.IsWhiteSpace(sql[j]))
-            {
-                j++;
-            }
-
-            if (j < sql.Length && sql[j] is ',' or ':' or '}')
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private string GenerateNewParameterName()

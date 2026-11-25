@@ -1393,6 +1393,34 @@ SELECT * FROM [Customers2]"))
         await AssertSeattleAndLondon(query, async);
     }
 
+    // A DbParameter referenced both positionally and by name keeps its name, since renaming it would leave the by-name reference
+    // pointing at the EF-generated parameter for the captured variable, which therefore has to be renamed instead.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Union_of_captured_variable_then_FromSql_with_db_parameter_of_same_name_positional_and_hardcoded_in_sql(
+        bool async)
+    {
+        using var context = CreateContext();
+
+        var city = "Seattle";
+        var query = context.Set<Customer>().Where(c => c.City == city)
+            .Union(FromSqlCity(context, "{0} AND [City] = @city", CreateDbParameter("city", "London")));
+
+        await AssertSeattleAndLondon(query, async);
+    }
+
+    // Both DbParameters reference the name in the SQL (one also positionally), so neither can be renamed.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Union_of_FromSql_with_same_named_db_parameters_hardcoded_and_positional_and_hardcoded_in_sql_throws(
+        bool async)
+    {
+        using var context = CreateContext();
+
+        var query = FromSqlCity(context, "@city", CreateDbParameter("city", "Seattle"))
+            .Union(FromSqlCity(context, "{0} AND [City] = @city", CreateDbParameter("city", "London")));
+
+        await AssertDuplicateParameterNameThrows(query, "city", async);
+    }
+
     // The second parameter's name is hard-coded in the SQL, so the first, which is referenced positionally, is renamed to make way for it.
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Union_of_FromSql_with_same_named_db_parameters_positional_then_hardcoded(bool async)
