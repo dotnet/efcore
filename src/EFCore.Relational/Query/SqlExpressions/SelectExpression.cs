@@ -2171,6 +2171,60 @@ public sealed partial class SelectExpression : TableExpressionBase
     public void ClearOrdering()
         => _orderings.Clear();
 
+    internal void TryApplyExtremalKeyLookup(ISqlExpressionFactory sqlExpressionFactory, SqlExpression limit)
+    {
+        if (this is
+            {
+                IsDistinct: false, Limit: null, Offset: null, GroupBy: [], Having: null,
+                Tables: [TableExpression { Table: ITable } table],
+                Orderings: [
+                    { IsAscending: true, Expression: SqlBinaryExpression
+                        { OperatorType: ExpressionType.Equal, Left: ColumnExpression key, Right: SqlConstantExpression { Value: null } } },
+                    var keyOrdering, ..]
+            }
+            && key.Equals(keyOrdering.Expression)
+            && IsStoredColumn(key, table)
+            && IsRepeatable(Predicate, table)
+            && Orderings.Skip(2).All(o => IsStoredColumn(o.Expression, table)))
+        {
+            // The scalar lookup ignores null keys. If all are null, select the first null in source order.
+            // Only repeat a filtered base table; paging, volatile expressions and joins must retain a single source.
+            var extremal = Clone();
+            var innerOrdering = extremal.Orderings[1];
+            extremal.ApplyPredicate(sqlExpressionFactory.IsNotNull(innerOrdering.Expression));
+            extremal.ApplyOrdering(innerOrdering);
+            extremal.ReplaceProjection([innerOrdering.Expression]);
+            extremal.ApplyLimit(limit);
+            extremal.ApplyProjection();
+            var scalar = new ScalarSubqueryExpression(extremal);
+            // INTERSECT compares singleton keys with nulls equal, including under relational null semantics.
+            var left = new SelectExpression(key, _sqlAliasManager);
+            var right = new SelectExpression(scalar, _sqlAliasManager);
+            left.ApplyIntersect(right, distinct: true);
+            left.ApplyProjection();
+            ApplyPredicate(sqlExpressionFactory.Exists(left));
+            _orderings.RemoveRange(0, 2);
+        }
+    }
+
+    private static bool IsStoredColumn(SqlExpression expression, TableExpression table)
+        => expression is ColumnExpression { Column: IColumn { ComputedColumnSql: null } column } c
+            && c.TableAlias == table.Alias && column.Table == table.Table;
+
+    private static bool IsRepeatable(SqlExpression? expression, TableExpression table)
+        => expression switch
+        {
+            null or SqlConstantExpression or SqlParameterExpression => true,
+            ColumnExpression => IsStoredColumn(expression, table),
+            SqlUnaryExpression { OperatorType: ExpressionType.Equal or ExpressionType.NotEqual } unary
+                => IsRepeatable(unary.Operand, table),
+            SqlBinaryExpression { OperatorType: ExpressionType.AndAlso or ExpressionType.OrElse or ExpressionType.Equal
+                or ExpressionType.NotEqual or ExpressionType.GreaterThan or ExpressionType.LessThan
+                or ExpressionType.GreaterThanOrEqual or ExpressionType.LessThanOrEqual } binary
+                => IsRepeatable(binary.Left, table) && IsRepeatable(binary.Right, table),
+            _ => false
+        };
+
     /// <summary>
     ///     Applies limit to the <see cref="SelectExpression" /> to limit the number of rows returned in the result set.
     /// </summary>

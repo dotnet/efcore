@@ -2041,6 +2041,81 @@ ORDER BY [u].[Id]
 """);
     }
 
+    public override async Task MinMaxBy_nullable_keys()
+    {
+        await base.MinMaxBy_nullable_keys();
+
+        AssertSql(
+            """
+SELECT TOP(1) [b].[Id], [b].[Name], [b].[Json]
+FROM [Blogs] AS [b]
+WHERE EXISTS (
+    SELECT [b].[Name]
+    INTERSECT
+    SELECT (
+        SELECT TOP(1) [b0].[Name]
+        FROM [Blogs] AS [b0]
+        WHERE [b0].[Name] IS NOT NULL
+        ORDER BY [b0].[Name]) AS [Name])
+ORDER BY [b].[Id]
+""",
+            //
+            """
+SELECT TOP(1) [b].[Id], [b].[Name], [b].[Json]
+FROM [Blogs] AS [b]
+WHERE EXISTS (
+    SELECT [b].[Name]
+    INTERSECT
+    SELECT (
+        SELECT TOP(1) [b0].[Name]
+        FROM [Blogs] AS [b0]
+        WHERE [b0].[Name] IS NOT NULL
+        ORDER BY [b0].[Name] DESC) AS [Name])
+ORDER BY [b].[Id]
+""",
+            //
+            """
+SELECT TOP(1) [p].[Id], [p].[BlogId], [p].[Title]
+FROM [Posts] AS [p]
+WHERE EXISTS (
+    SELECT [p].[Title]
+    INTERSECT
+    SELECT (
+        SELECT TOP(1) [p0].[Title]
+        FROM [Posts] AS [p0]
+        WHERE [p0].[Title] IS NOT NULL
+        ORDER BY [p0].[Title]) AS [Title])
+ORDER BY [p].[Id]
+""",
+            //
+            """
+SELECT TOP(1) [p].[Id], [p].[BlogId], [p].[Title]
+FROM [Posts] AS [p]
+WHERE EXISTS (
+    SELECT [p].[Title]
+    INTERSECT
+    SELECT (
+        SELECT TOP(1) [p0].[Title]
+        FROM [Posts] AS [p0]
+        WHERE [p0].[Title] IS NOT NULL
+        ORDER BY [p0].[Title] DESC) AS [Title])
+ORDER BY [p].[Id]
+""",
+            //
+            """
+SELECT TOP(1) [p].[Title]
+FROM [Posts] AS [p]
+WHERE EXISTS (
+    SELECT [p].[Title]
+    INTERSECT
+    SELECT (
+        SELECT TOP(1) [p0].[Title]
+        FROM [Posts] AS [p0]
+        WHERE [p0].[Title] IS NOT NULL
+        ORDER BY [p0].[Title]) AS [Title])
+""");
+    }
+
     public override async Task ConcatOnEntitiesWithJson()
     {
         await base.ConcatOnEntitiesWithJson();

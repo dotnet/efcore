@@ -35,6 +35,9 @@ public class RelationalQueryTranslationPreprocessor : QueryTranslationPreprocess
     public override Expression NormalizeQueryableMethod(Expression expression)
     {
         expression = new RelationalQueryMetadataExtractingExpressionVisitor(_relationalQueryCompilationContext).Visit(expression);
+        // Only the first normalization processes the root query. Query filters are normalized separately.
+        _relationalQueryCompilationContext.IsMinMaxBy ??= expression is MethodCallExpression { Method: { IsGenericMethod: true } method }
+            && (method.GetGenericMethodDefinition() == QueryableMethods.MinBy || method.GetGenericMethodDefinition() == QueryableMethods.MaxBy);
         expression = base.NormalizeQueryableMethod(expression);
 
         return expression;

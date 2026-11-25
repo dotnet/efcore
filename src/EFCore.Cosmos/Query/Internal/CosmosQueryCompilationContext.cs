@@ -12,6 +12,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 public class CosmosQueryCompilationContext(QueryCompilationContextDependencies dependencies, bool async)
     : QueryCompilationContext(dependencies, async)
 {
+    internal bool IsMinMaxBy { get; set; }
+
     /// <summary>
     ///     The root entity type being queried.
     /// </summary>
