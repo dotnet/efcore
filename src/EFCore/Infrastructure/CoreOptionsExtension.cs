@@ -46,7 +46,7 @@ public class CoreOptionsExtension : IDbContextOptionsExtension
 
     private static readonly TimeSpan DefaultLoggingCacheTime = TimeSpan.FromSeconds(1);
 
-    private WarningsConfiguration _warningsConfiguration
+    private static readonly WarningsConfiguration DefaultWarningsConfiguration
         = new WarningsConfiguration()
             .TryWithExplicit(CoreEventId.ManyServiceProvidersCreatedWarning, WarningBehavior.Throw)
             .TryWithExplicit(CoreEventId.AccidentalEntityType, WarningBehavior.Throw)
@@ -54,6 +54,8 @@ public class CoreOptionsExtension : IDbContextOptionsExtension
             .TryWithExplicit(CoreEventId.DetachedLazyLoadingWarning, WarningBehavior.Throw)
             .TryWithExplicit(CoreEventId.InvalidIncludePathError, WarningBehavior.Throw)
             .TryWithExplicit(CoreEventId.NavigationBaseIncludeIgnored, WarningBehavior.Throw);
+
+    private WarningsConfiguration _warningsConfiguration = DefaultWarningsConfiguration;
 
     /// <summary>
     ///     Creates a new set of options with everything set to default values.
