@@ -28,6 +28,7 @@ public static class RelationalComplexCollectionBuilderExtensions
     ///         If the complex collection is declared on a complex type that isn't mapped to JSON and the column name is not specified,
     ///         the name is prefixed with the names of the containing complex properties. For example, a complex collection
     ///         <c>Parcels</c> on the complex property <c>Order.Shipping</c> is mapped to the <c>Shipping_Parcels</c> column.
+    ///         A number is appended to the name if it's already used by another column.
     ///     </para>
     /// </remarks>
     public static ComplexCollectionBuilder ToJson(
@@ -61,6 +62,7 @@ public static class RelationalComplexCollectionBuilderExtensions
     ///         If the complex collection is declared on a complex type that isn't mapped to JSON and the column name is not specified,
     ///         the name is prefixed with the names of the containing complex properties. For example, a complex collection
     ///         <c>Parcels</c> on the complex property <c>Order.Shipping</c> is mapped to the <c>Shipping_Parcels</c> column.
+    ///         A number is appended to the name if it's already used by another column.
     ///     </para>
     /// </remarks>
     public static ComplexCollectionBuilder<TComplex> ToJson<TComplex>(

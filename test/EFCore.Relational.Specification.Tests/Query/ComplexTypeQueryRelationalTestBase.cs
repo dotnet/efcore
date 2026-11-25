@@ -807,6 +807,67 @@ public abstract class ComplexTypeQueryRelationalTestBase<TFixture>(TFixture fixt
     }
 
     [Fact]
+    public virtual async Task Json_complex_property_nested_in_table_split_complex_property_with_default_name_used_by_another_column()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context36558ColumnName>(
+            seed: context =>
+            {
+                context.Add(
+                    new Context36558ColumnName.Order
+                    {
+                        Id = 1,
+                        Shipping_Address = "Leave at the door",
+                        Shipping = new Context36558ColumnName.Shipping { Address = new Context36558ColumnName.Address { City = "Sydney" } }
+                    });
+
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        // The default name of the JSON column, Shipping_Address, is already used by the column of the Shipping_Address property
+        var table = context.Model.GetRelationalModel().Tables.Single();
+        var entityType = context.Model.FindEntityType(typeof(Context36558ColumnName.Order))!;
+        var addressProperty = entityType.FindComplexProperty(nameof(Context36558ColumnName.Order.Shipping))!.ComplexType
+            .FindComplexProperty(nameof(Context36558ColumnName.Shipping.Address))!;
+        Assert.Equal(
+            "Shipping_Address", table.FindColumn(entityType.FindProperty(nameof(Context36558ColumnName.Order.Shipping_Address))!)!.Name);
+        Assert.Equal("Shipping_Address1", table.FindColumn(addressProperty)!.Name);
+
+        var order = await context.Set<Context36558ColumnName.Order>().SingleAsync();
+
+        Assert.Equal("Leave at the door", order.Shipping_Address);
+        Assert.Equal("Sydney", order.Shipping.Address.City);
+    }
+
+    private class Context36558ColumnName(DbContextOptions options) : DbContext(options)
+    {
+        public class Order
+        {
+            public int Id { get; set; }
+            public required string Shipping_Address { get; set; }
+            public required Shipping Shipping { get; set; }
+        }
+
+        public class Shipping
+        {
+            public required Address Address { get; set; }
+        }
+
+        public class Address
+        {
+            public required string City { get; set; }
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Order>(b =>
+            {
+                b.Property(o => o.Id).ValueGeneratedNever();
+                b.ComplexProperty(o => o.Shipping, sb => sb.ComplexProperty(s => s.Address).ToJson());
+            });
+    }
+
+    [Fact]
     public virtual async Task Table_split_complex_property_identified_by_nested_json_complex_property_projected_over_left_join()
     {
         var contextFactory = await InitializeNonSharedTest<Context36558JsonOnly>(seed: Context36558JsonOnly.SeedAsync);

@@ -1832,6 +1832,17 @@ FROM [Row] AS [r]
 """);
     }
 
+    public override async Task Json_complex_property_nested_in_table_split_complex_property_with_default_name_used_by_another_column()
+    {
+        await base.Json_complex_property_nested_in_table_split_complex_property_with_default_name_used_by_another_column();
+
+        AssertSql(
+            """
+SELECT TOP(2) [o].[Id], [o].[Shipping_Address], [o].[Shipping_Address1]
+FROM [Order] AS [o]
+""");
+    }
+
     public override async Task Table_split_complex_property_identified_by_nested_json_complex_property_projected_over_left_join()
     {
         await base.Table_split_complex_property_identified_by_nested_json_complex_property_projected_over_left_join();

@@ -752,6 +752,235 @@ public partial class RelationalModelValidatorTest
     }
 
     [Fact]
+    public void Default_json_column_name_of_nested_complex_property_is_made_unique_against_other_columns()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorComplexEntity>(b =>
+        {
+            b.Property<string>("ComplexProp_NestedComplex");
+            b.ComplexProperty(
+                e => e.ComplexProp, outerBuilder => outerBuilder.ComplexProperty(
+                    x => x.NestedComplex, innerBuilder => innerBuilder.ToJson()));
+        });
+
+        var model = Validate(modelBuilder);
+
+        var table = model.GetRelationalModel().FindTable(nameof(ValidatorComplexEntity), null)!;
+        var entityType = model.FindEntityType(typeof(ValidatorComplexEntity))!;
+        var nestedComplexProperty = entityType.FindComplexProperty(nameof(ValidatorComplexEntity.ComplexProp))!.ComplexType
+            .FindComplexProperty(nameof(ValidatorComplexType.NestedComplex))!;
+        Assert.Equal("ComplexProp_NestedComplex", table.FindColumn(entityType.FindProperty("ComplexProp_NestedComplex")!)!.Name);
+        Assert.Equal("ComplexProp_NestedComplex1", table.FindColumn(nestedComplexProperty)!.Name);
+        Assert.IsType<Metadata.Internal.JsonColumn>(table.FindColumn("ComplexProp_NestedComplex1"));
+    }
+
+    [Fact]
+    public void Throws_when_json_column_name_of_complex_property_is_used_by_another_property()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorComplexEntity>(b =>
+        {
+            b.Property<string>("Data");
+            b.ComplexProperty(
+                e => e.ComplexProp, outerBuilder => outerBuilder.ComplexProperty(
+                    x => x.NestedComplex, innerBuilder => innerBuilder.ToJson("Data")));
+        });
+
+        VerifyError(
+            RelationalStrings.ComplexPropertyJsonColumnUsedByProperty(
+                $"{nameof(ValidatorComplexEntity)}.{nameof(ValidatorComplexEntity.ComplexProp)}#{nameof(ValidatorComplexType)}.{nameof(ValidatorComplexType.NestedComplex)}",
+                "Data",
+                nameof(ValidatorComplexEntity),
+                $"{nameof(ValidatorComplexEntity)}.Data"),
+            modelBuilder);
+    }
+
+    [Fact]
+    public void Default_json_column_name_of_nested_complex_property_is_made_unique_against_other_json_columns()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorNestedJsonEntity>(b =>
+        {
+            b.ComplexProperty(e => e.Outer, ob => ob.ComplexProperty(o => o.Document).ToJson());
+            b.ComplexProperty(e => e.Reserved).ToJson("Outer_Document1");
+        });
+
+        var model = Validate(modelBuilder);
+
+        // Outer_Document is used by a property and Outer_Document1 by another JSON column
+        var entityType = model.FindEntityType(typeof(ValidatorNestedJsonEntity))!;
+        var table = model.GetRelationalModel().Tables.Single();
+        Assert.Equal("Outer_Document1", table.FindColumn(entityType.FindComplexProperty(nameof(ValidatorNestedJsonEntity.Reserved))!)!.Name);
+        Assert.Equal("Outer_Document2", table.FindColumn(GetDocumentProperty(entityType))!.Name);
+    }
+
+    [Fact]
+    public void Default_json_column_name_of_nested_complex_property_is_made_unique_against_explicit_json_column_name()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorNestedJsonEntity>(b =>
+        {
+            b.Ignore(e => e.Outer_Document);
+            b.ComplexProperty(e => e.Outer, ob => ob.ComplexProperty(o => o.Document).ToJson());
+            b.ComplexProperty(e => e.Reserved).ToJson("Outer_Document");
+        });
+
+        var model = Validate(modelBuilder);
+
+        // The explicit name is kept, and the default name of the nested JSON column is made unique
+        var entityType = model.FindEntityType(typeof(ValidatorNestedJsonEntity))!;
+        var table = model.GetRelationalModel().Tables.Single();
+        Assert.Equal("Outer_Document", table.FindColumn(entityType.FindComplexProperty(nameof(ValidatorNestedJsonEntity.Reserved))!)!.Name);
+        Assert.Equal("Outer_Document1", table.FindColumn(GetDocumentProperty(entityType))!.Name);
+    }
+
+    [Fact]
+    public void Default_json_column_name_of_inherited_nested_complex_property_is_made_unique_in_all_tpc_tables()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorNestedJsonTpcBase>(b =>
+        {
+            b.UseTpcMappingStrategy();
+            b.ComplexProperty(e => e.Outer, ob => ob.ComplexProperty(o => o.Document).ToJson());
+        });
+        modelBuilder.Entity<ValidatorNestedJsonTpcFirst>(b => b.Property(e => e.Note).HasColumnName("Outer_Document"));
+        modelBuilder.Entity<ValidatorNestedJsonTpcSecond>(b => b.Property(e => e.Note).HasColumnName("Outer_Document1"));
+
+        var model = Validate(modelBuilder);
+
+        // The JSON column name isn't specific to a table, so it has to be free in both tables
+        var documentProperty = GetDocumentProperty(model.FindEntityType(typeof(ValidatorNestedJsonTpcBase))!);
+        Assert.All(
+            model.GetRelationalModel().Tables,
+            table => Assert.Equal("Outer_Document2", table.FindColumn(documentProperty)!.Name));
+    }
+
+    [Fact]
+    public void Default_json_column_name_of_nested_complex_property_is_made_unique_in_view()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorNestedJsonEntity>(b =>
+        {
+            b.ToView("NestedJsonView");
+            b.Ignore(e => e.Reserved);
+            b.ComplexProperty(e => e.Outer, ob => ob.ComplexProperty(o => o.Document).ToJson());
+        });
+
+        var model = Validate(modelBuilder);
+
+        var entityType = model.FindEntityType(typeof(ValidatorNestedJsonEntity))!;
+        var view = model.GetRelationalModel().Views.Single();
+        Assert.Equal(
+            "Outer_Document", view.FindColumn(entityType.FindProperty(nameof(ValidatorNestedJsonEntity.Outer_Document))!)!.Name);
+        Assert.Equal("Outer_Document1", view.FindColumn(GetDocumentProperty(entityType))!.Name);
+    }
+
+    [Fact]
+    public void Default_nested_json_column_name_is_made_unique_in_a_keyless_table()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorNestedJsonEntity>(b =>
+        {
+            b.HasNoKey().ToTable("NestedJsonTable");
+            b.Ignore(e => e.Reserved);
+            b.ComplexProperty(e => e.Outer, ob => ob.ComplexProperty(o => o.Document).ToJson());
+        });
+
+        var model = Validate(modelBuilder);
+        var entityType = model.FindEntityType(typeof(ValidatorNestedJsonEntity))!;
+        var table = model.GetRelationalModel().Tables.Single();
+        Assert.Equal("Outer_Document", table.FindColumn(entityType.FindProperty(nameof(ValidatorNestedJsonEntity.Outer_Document))!)!.Name);
+        Assert.Equal("Outer_Document1", table.FindColumn(GetDocumentProperty(entityType))!.Name);
+    }
+
+    [Fact]
+    public void Default_nested_json_column_name_skips_an_owned_json_column()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorNestedJsonOwnedEntity>(b =>
+        {
+            b.OwnsOne(e => e.Reserved, owned => owned.ToJson("Outer_Document1"));
+            b.ComplexProperty(e => e.Outer, ob => ob.ComplexProperty(o => o.Document).ToJson());
+        });
+
+        var model = Validate(modelBuilder);
+        var entityType = model.FindEntityType(typeof(ValidatorNestedJsonOwnedEntity))!;
+        var table = model.GetRelationalModel().Tables.Single();
+        Assert.Equal("Outer_Document2", table.FindColumn(GetDocumentProperty(entityType))!.Name);
+    }
+
+    [Fact]
+    public void Explicit_nested_json_column_name_is_distinct_from_the_default_mapping_of_a_renamed_scalar()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorNestedJsonEntity>(b =>
+        {
+            b.Ignore(e => e.Reserved);
+            b.ComplexProperty(
+                e => e.Outer, outer =>
+                {
+                    outer.Property(e => e.Marker).HasColumnName("Note");
+                    outer.ComplexProperty(e => e.Document).ToJson("Outer_Marker");
+                });
+        });
+
+        var model = Validate(modelBuilder);
+        var entityType = model.FindEntityType(typeof(ValidatorNestedJsonEntity))!;
+        var marker = entityType.FindComplexProperty(nameof(ValidatorNestedJsonEntity.Outer))!.ComplexType
+            .FindProperty(nameof(ValidatorNestedJsonOuter.Marker))!;
+        var document = GetDocumentProperty(entityType);
+        var table = model.GetRelationalModel().Tables.Single();
+        Assert.Equal("Note", table.FindColumn(marker)!.Name);
+        Assert.Equal("Outer_Marker", table.FindColumn(document)!.Name);
+
+        var defaultTable = entityType.GetDefaultMappings().Single().Table;
+        Assert.NotNull(defaultTable.FindColumn(marker));
+        Assert.NotNull(defaultTable.FindColumn(document));
+        Assert.NotSame(defaultTable.FindColumn(marker), defaultTable.FindColumn(document));
+    }
+
+    [Fact]
+    public void Throws_when_two_json_complex_properties_share_a_view_column()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorNestedJsonEntity>(b =>
+        {
+            b.ToView("NestedJsonView");
+            b.Ignore(e => e.Outer_Document);
+            b.ComplexProperty(e => e.Outer, outer => outer.ComplexProperty(e => e.Document).ToJson("Shared"));
+            b.ComplexProperty(e => e.Reserved).ToJson("Shared");
+        });
+
+        VerifyError(
+            RelationalStrings.ComplexPropertiesSharedJsonColumn(
+                $"{nameof(ValidatorNestedJsonEntity)}.{nameof(ValidatorNestedJsonEntity.Outer)}#{nameof(ValidatorNestedJsonOuter)}.{nameof(ValidatorNestedJsonOuter.Document)}",
+                $"{nameof(ValidatorNestedJsonEntity)}.{nameof(ValidatorNestedJsonEntity.Reserved)}",
+                "Shared",
+                "NestedJsonView"),
+            modelBuilder);
+    }
+
+    [Fact]
+    public void Throws_when_json_column_name_of_complex_property_is_used_by_another_property_in_view()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorNestedJsonEntity>(b =>
+        {
+            b.ToView("NestedJsonView");
+            b.Ignore(e => e.Reserved);
+            b.ComplexProperty(e => e.Outer, ob => ob.ComplexProperty(o => o.Document).ToJson("Outer_Document"));
+        });
+
+        VerifyError(
+            RelationalStrings.ComplexPropertyJsonColumnUsedByProperty(
+                $"{nameof(ValidatorNestedJsonEntity)}.{nameof(ValidatorNestedJsonEntity.Outer)}#{nameof(ValidatorNestedJsonOuter)}.{nameof(ValidatorNestedJsonOuter.Document)}",
+                "Outer_Document",
+                "NestedJsonView",
+                $"{nameof(ValidatorNestedJsonEntity)}.{nameof(ValidatorNestedJsonEntity.Outer_Document)}"),
+            modelBuilder);
+    }
+
+    [Fact]
     public void Index_on_inherited_nested_json_complex_property_is_mapped_to_all_tpc_tables()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1528,6 +1757,14 @@ public partial class RelationalModelValidatorTest
         public string Outer_Document { get; set; } = null!;
         public ValidatorNestedJsonOuter Outer { get; set; } = null!;
         public ValidatorNestedJsonDocument Reserved { get; set; } = null!;
+    }
+
+    protected class ValidatorNestedJsonOwnedEntity
+    {
+        public int Id { get; set; }
+        public string Outer_Document { get; set; } = null!;
+        public ValidatorNestedJsonOuter Outer { get; set; } = null!;
+        public ValidatorJsonOwnedBranch Reserved { get; set; } = null!;
     }
 
     protected class ValidatorNestedJsonOuter

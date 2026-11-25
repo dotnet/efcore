@@ -138,6 +138,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 complexProperty, entityType);
 
         /// <summary>
+        ///     The complex property '{complexProperty}' is mapped to the JSON column '{column}' in '{table}', which the property '{property}' is also mapped to. Configure a different JSON column name by passing it to 'ToJson()'.
+        /// </summary>
+        public static string ComplexPropertyJsonColumnUsedByProperty(object? complexProperty, object? column, object? table, object? property)
+            => string.Format(
+                GetString("ComplexPropertyJsonColumnUsedByProperty", nameof(complexProperty), nameof(column), nameof(table), nameof(property)),
+                complexProperty, column, table, property);
+
+        /// <summary>
         ///     Complex property '{property1}' and '{property2}' are both configured to use the same JSON property name '{jsonPropertyName}'. Each property within a JSON-mapped type must have a unique JSON property name.
         /// </summary>
         public static string ComplexPropertyJsonPropertyNameConflict(object? property1, object? property2, object? jsonPropertyName)

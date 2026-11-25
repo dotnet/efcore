@@ -1085,32 +1085,16 @@ public class RelationalModelValidator(
         in StoreObjectIdentifier table,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
-        var jsonColumns = new Dictionary<string, List<ITypeBase>>();
-        var complexProperties = new HashSet<IComplexProperty>();
-        var hasJsonEntityTypes = false;
+        ValidateJsonColumnsNotUsedByProperties(mappedTypes, table);
+        ValidateJsonColumnsSharing(mappedTypes, table);
 
+        var hasJsonEntityTypes = false;
         foreach (var entityType in mappedTypes)
         {
             if (entityType.IsMappedToJson())
             {
                 hasJsonEntityTypes = true;
                 ValidateJsonOwnedEntityType(entityType, table, logger);
-
-                if (!entityType.FindOwnership()!.PrincipalEntityType.IsMappedToJson())
-                {
-                    Validate(entityType, entityType.GetContainerColumnName()!, jsonColumns, table);
-                }
-
-                continue;
-            }
-
-            // Inherited complex properties are reached through each type in the table, but are only mapped once
-            foreach (var complexProperty in entityType.GetComplexProperties())
-            {
-                if (complexProperties.Add(complexProperty))
-                {
-                    ValidateComplexProperty(complexProperty, jsonColumns, table);
-                }
             }
         }
 
@@ -1141,29 +1125,58 @@ public class RelationalModelValidator(
 
             ValidateJsonEntityRoot(table, distinctRootTypes[0]);
         }
+    }
+
+    // The JSON-mapped owned entity types and complex properties in a table or view aren't mapped to the same JSON column,
+    // except for complex properties on types that can't share a row
+    private static void ValidateJsonColumnsSharing(IReadOnlyList<IEntityType> mappedTypes, in StoreObjectIdentifier storeObject)
+    {
+        var jsonColumns = new Dictionary<string, List<ITypeBase>>();
+        var complexProperties = new HashSet<IComplexProperty>();
+        foreach (var entityType in mappedTypes)
+        {
+            if (entityType.IsMappedToJson())
+            {
+                if (!entityType.FindOwnership()!.PrincipalEntityType.IsMappedToJson())
+                {
+                    Validate(entityType, entityType.GetContainerColumnName()!, jsonColumns, storeObject);
+                }
+
+                continue;
+            }
+
+            // Inherited complex properties are reached through each type in the table, but are only mapped once
+            foreach (var complexProperty in entityType.GetComplexProperties())
+            {
+                if (complexProperties.Add(complexProperty))
+                {
+                    ValidateComplexProperty(complexProperty, jsonColumns, storeObject);
+                }
+            }
+        }
 
         return;
 
         static void ValidateComplexProperty(
             IComplexProperty complexProperty,
             Dictionary<string, List<ITypeBase>> jsonColumns,
-            in StoreObjectIdentifier table)
+            in StoreObjectIdentifier storeObject)
         {
             if (complexProperty.ComplexType.GetContainerColumnName() == null)
             {
                 foreach (var nestedComplexProperty in complexProperty.ComplexType.GetComplexProperties())
                 {
-                    ValidateComplexProperty(nestedComplexProperty, jsonColumns, table);
+                    ValidateComplexProperty(nestedComplexProperty, jsonColumns, storeObject);
                 }
 
                 return;
             }
 
             // The JSON column of an inherited complex property can be in another table, e.g. with TPT
-            var columnName = complexProperty.ComplexType.GetContainerColumnName(table);
+            var columnName = complexProperty.ComplexType.GetContainerColumnName(storeObject);
             if (columnName != null)
             {
-                Validate(complexProperty.ComplexType, columnName, jsonColumns, table);
+                Validate(complexProperty.ComplexType, columnName, jsonColumns, storeObject);
             }
         }
 
@@ -1171,7 +1184,7 @@ public class RelationalModelValidator(
             ITypeBase jsonType,
             string columnName,
             Dictionary<string, List<ITypeBase>> jsonColumns,
-            in StoreObjectIdentifier table)
+            in StoreObjectIdentifier storeObject)
         {
             if (!jsonColumns.TryGetValue(columnName, out var existingJsonTypes))
             {
@@ -1187,7 +1200,7 @@ public class RelationalModelValidator(
                     // Issue #28592
                     // TODO: handle JSON columns on views, issue #28584
                     throw new InvalidOperationException(
-                        RelationalStrings.JsonEntityMultipleRootsMappedToTheSameJsonColumn(columnName, table.Name));
+                        RelationalStrings.JsonEntityMultipleRootsMappedToTheSameJsonColumn(columnName, storeObject.Name));
                 }
 
                 // Only types in different branches of the same hierarchy never share a row, so they can share the column.
@@ -1204,7 +1217,7 @@ public class RelationalModelValidator(
                             $"{existingComplexType.ComplexProperty.DeclaringType.DisplayName()}.{existingComplexType.ComplexProperty.Name}",
                             $"{complexType.ComplexProperty.DeclaringType.DisplayName()}.{complexType.ComplexProperty.Name}",
                             columnName,
-                            table.DisplayName()));
+                            storeObject.DisplayName()));
                 }
 
                 // Sibling types can't map a complex collection and a non-collection complex property to the same JSON column
@@ -1218,7 +1231,7 @@ public class RelationalModelValidator(
                             $"{complexCollection.DeclaringType.DisplayName()}.{complexCollection.Name}",
                             $"{complexProperty.DeclaringType.DisplayName()}.{complexProperty.Name}",
                             columnName,
-                            table.DisplayName()));
+                            storeObject.DisplayName()));
                 }
             }
 
@@ -1467,6 +1480,54 @@ public class RelationalModelValidator(
         }
     }
 
+    // A JSON column of a complex property can't have the name of the column of a property that isn't mapped to JSON
+    private static void ValidateJsonColumnsNotUsedByProperties(IReadOnlyList<IEntityType> mappedTypes, in StoreObjectIdentifier storeObject)
+    {
+        var propertyColumns = new Dictionary<string, IProperty>();
+        foreach (var entityType in mappedTypes)
+        {
+            foreach (var property in entityType.GetFlattenedProperties())
+            {
+                if (!property.DeclaringType.IsMappedToJson()
+                    && property.GetColumnName(storeObject) is { } columnName)
+                {
+                    propertyColumns.TryAdd(columnName, property);
+                }
+            }
+        }
+
+        foreach (var entityType in mappedTypes)
+        {
+            if (!entityType.IsMappedToJson())
+            {
+                Validate(entityType, propertyColumns, storeObject);
+            }
+        }
+
+        return;
+
+        static void Validate(ITypeBase type, Dictionary<string, IProperty> propertyColumns, in StoreObjectIdentifier storeObject)
+        {
+            foreach (var complexProperty in type.GetComplexProperties())
+            {
+                if (!complexProperty.ComplexType.IsMappedToJson())
+                {
+                    Validate(complexProperty.ComplexType, propertyColumns, storeObject);
+                }
+                else if (complexProperty.ComplexType.GetContainerColumnName(storeObject) is { } columnName
+                         && propertyColumns.TryGetValue(columnName, out var property))
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.ComplexPropertyJsonColumnUsedByProperty(
+                            $"{complexProperty.DeclaringType.DisplayName()}.{complexProperty.Name}",
+                            columnName,
+                            storeObject.DisplayName(),
+                            $"{property.DeclaringType.DisplayName()}.{property.Name}"));
+                }
+            }
+        }
+    }
+
     /// <summary>
     ///     Validates a single view and all entity types mapped to it.
     /// </summary>
@@ -1483,6 +1544,8 @@ public class RelationalModelValidator(
         {
             ValidateSharedViewCompatibility(nonJsonMappedTypes, view.Name, view.Schema, logger);
             ValidateSharedColumnsCompatibility(nonJsonMappedTypes, view, logger);
+            ValidateJsonColumnsNotUsedByProperties(nonJsonMappedTypes, view);
+            ValidateJsonColumnsSharing(nonJsonMappedTypes, view);
         }
 
         if (mappedTypes.Count != nonJsonMappedTypes.Count)

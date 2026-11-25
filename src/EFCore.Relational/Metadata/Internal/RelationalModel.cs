@@ -386,10 +386,12 @@ public class RelationalModel : Annotatable, IRelationalModel
             defaultTable.ComplexTypeMappings.Add(tableMapping);
         }
 
+        // Like for properties of entity types, a configured column name is used, so it doesn't collide with another column's name
         static string GetColumnName(IProperty property)
             => property.DeclaringType is IComplexType complexType
-                ? EntityFrameworkCore.RelationalPropertyExtensions.GetDefaultMappingColumnName(complexType, property.Name)
-                : property.GetColumnName();
+                && property.FindAnnotation(RelationalAnnotationNames.ColumnName) == null
+                    ? EntityFrameworkCore.RelationalPropertyExtensions.GetDefaultMappingColumnName(complexType, property.Name)
+                    : property.GetColumnName();
     }
 
     private static IEnumerable<ITableMapping> GetTableMappings(ITypeBase typeBase)
