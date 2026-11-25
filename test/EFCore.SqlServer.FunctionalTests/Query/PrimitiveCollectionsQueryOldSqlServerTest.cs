@@ -1386,6 +1386,9 @@ WHERE [t].[Ints] = @ints
 """);
     }
 
+    public override Task Column_collections_Contains_with_non_json_scalar_types(bool async)
+        => AssertCompatibilityLevelTooLow(() => base.Column_collections_Contains_with_non_json_scalar_types(async));
+
     public override Task Column_collection_inside_json_owned_entity()
         => AssertCompatibilityLevelTooLow(base.Column_collection_inside_json_owned_entity);
 
