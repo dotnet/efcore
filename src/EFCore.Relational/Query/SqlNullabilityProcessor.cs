@@ -2224,7 +2224,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 || right is not ColumnExpression rightColumn
                 || leftColumn.TableAlias != rightColumn.TableAlias))
         {
-            var negateLeft = right is ColumnExpression && (left is not ColumnExpression || leftNegated || !rightNegated);
+            var negateLeft = right is ColumnExpression;
             if (negateLeft)
             {
                 left = _sqlExpressionFactory.Not(left);

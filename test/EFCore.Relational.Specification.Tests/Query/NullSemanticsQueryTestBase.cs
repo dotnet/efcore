@@ -548,6 +548,18 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
             elementSorter: e => (e.Id1, e.Id2));
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Left_join_with_negated_boolean_key(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>()
+                .LeftJoin(
+                    ss.Set<NullSemanticsEntity2>(),
+                    e1 => e1.BoolA,
+                    e2 => !e2.BoolB,
+                    (e1, e2) => new { Id1 = e1.Id, Id2 = e2 == null ? null : (int?)e2.Id }),
+            elementSorter: e => (e.Id1, e.Id2));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupJoin_on_true_equal_true(bool async)
         => AssertQuery(
             async,

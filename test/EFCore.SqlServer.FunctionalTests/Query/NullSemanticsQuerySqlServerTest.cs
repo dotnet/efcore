@@ -49,7 +49,19 @@ ORDER BY [e].[Id], [e0].[Id]
             """
 SELECT [e].[Id] AS [Id1], [e0].[Id] AS [Id2]
 FROM [Entities1] AS [e]
-INNER JOIN [Entities2] AS [e0] ON [e].[BoolA] = ~[e0].[BoolB]
+INNER JOIN [Entities2] AS [e0] ON ~[e].[BoolA] = [e0].[BoolB]
+""");
+    }
+
+    public override async Task Left_join_with_negated_boolean_key(bool async)
+    {
+        await base.Left_join_with_negated_boolean_key(async);
+
+        AssertSql(
+            """
+SELECT [e].[Id] AS [Id1], [e0].[Id] AS [Id2]
+FROM [Entities1] AS [e]
+LEFT JOIN [Entities2] AS [e0] ON ~[e].[BoolA] = [e0].[BoolB]
 """);
     }
 
