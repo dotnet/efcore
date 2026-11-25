@@ -630,6 +630,54 @@ public abstract class NorthwindGroupByQueryRelationalTestBase<TFixture>(TFixture
         AssertGroupsFlattenedInOrder(async ? await query.ToListAsync() : query.ToList(), rowsPerGroup: 2, take: 20);
     }
 
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task GroupBy_SelectMany_Select_key_equal_by_collation(bool async)
+    {
+        using var context = CreateContext();
+        var query = context.Set<Order>()
+            .Where(o => o.CustomerID!.StartsWith("A"))
+            .GroupBy(o => o.OrderID % 2 == 0 ? o.CustomerID : o.CustomerID!.ToLower())
+            .SelectMany(g => g.Select(o => new { g.Key, o.OrderID }));
+
+        var rows = async ? await query.ToListAsync() : query.ToList();
+
+        await AssertKeyPerGroupAsync(context, async, rows.Select(r => r.Key).ToList(), rowsPerGroup: null);
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task GroupBy_SelectMany_OrderBy_Take_Select_key_equal_by_collation(bool async)
+    {
+        using var context = CreateContext();
+        var query = context.Set<Order>()
+            .Where(o => o.CustomerID!.StartsWith("A"))
+            .GroupBy(o => o.OrderID % 2 == 0 ? o.CustomerID : o.CustomerID!.ToLower())
+            .SelectMany(g => g.OrderBy(o => o.OrderID).Take(2).Select(o => new { g.Key, o.OrderID }));
+
+        var rows = async ? await query.ToListAsync() : query.ToList();
+
+        await AssertKeyPerGroupAsync(context, async, rows.Select(r => r.Key).ToList(), rowsPerGroup: 2);
+    }
+
+    // The keys of the groups above differ only in case, so the database decides by its collation whether 'ALFKI' and 'alfki' are one
+    // group. Whichever it decides, every row of a group must carry the same key: the keys read off the flattened rows make up as many
+    // distinct values, with as many rows each, as the groups the database forms.
+    private static async Task AssertKeyPerGroupAsync(
+        NorthwindContext context,
+        bool async,
+        IReadOnlyList<string?> keys,
+        int? rowsPerGroup)
+    {
+        var groupsQuery = context.Set<Order>()
+            .Where(o => o.CustomerID!.StartsWith("A"))
+            .GroupBy(o => o.OrderID % 2 == 0 ? o.CustomerID : o.CustomerID!.ToLower())
+            .Select(g => g.Count());
+        var groupSizes = async ? await groupsQuery.ToListAsync() : groupsQuery.ToList();
+
+        Assert.Equal(
+            groupSizes.Select(c => Math.Min(c, rowsPerGroup ?? int.MaxValue)).Order(),
+            keys.GroupBy(k => k, StringComparer.Ordinal).Select(g => g.Count()).Order());
+    }
+
     // Checks the rows of a SelectMany over the orders grouped by (CustomerID, EmployeeID) and ordered by CustomerID, each group's
     // elements ordered by descending OrderID and limited to rowsPerGroup. The customers come out in order, and the rows of each group
     // together and in order; with a final Take, all of them but the last group's.

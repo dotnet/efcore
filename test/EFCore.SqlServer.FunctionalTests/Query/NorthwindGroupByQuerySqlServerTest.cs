@@ -5283,8 +5283,11 @@ WHERE [o0].[row] <= 2
 
         AssertSql(
             """
-SELECT [o].[CustomerID] AS [Key], [o].[OrderID]
-FROM [Orders] AS [o]
+SELECT [o0].[CustomerID0] AS [Key], [o0].[OrderID]
+FROM (
+    SELECT [o].[OrderID], MIN([o].[CustomerID]) OVER(PARTITION BY [o].[CustomerID]) AS [CustomerID0]
+    FROM [Orders] AS [o]
+) AS [o0]
 """);
     }
 
@@ -5294,8 +5297,11 @@ FROM [Orders] AS [o]
 
         AssertSql(
             """
-SELECT [o].[CustomerID] AS [Key], [o].[OrderID]
-FROM [Orders] AS [o]
+SELECT [o0].[CustomerID0] AS [Key], [o0].[OrderID]
+FROM (
+    SELECT [o].[OrderID], MIN([o].[CustomerID]) OVER(PARTITION BY [o].[CustomerID]) AS [CustomerID0]
+    FROM [Orders] AS [o]
+) AS [o0]
 """);
     }
 
@@ -5305,9 +5311,9 @@ FROM [Orders] AS [o]
 
         AssertSql(
             """
-SELECT [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderID]
+SELECT [o0].[CustomerID0] AS [CustomerID], [o0].[EmployeeID], [o0].[OrderID]
 FROM (
-    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], ROW_NUMBER() OVER(PARTITION BY [o].[CustomerID], [o].[EmployeeID] ORDER BY [o].[OrderID]) AS [row]
+    SELECT [o].[OrderID], [o].[EmployeeID], ROW_NUMBER() OVER(PARTITION BY [o].[CustomerID], [o].[EmployeeID] ORDER BY [o].[OrderID]) AS [row], MIN([o].[CustomerID]) OVER(PARTITION BY [o].[CustomerID], [o].[EmployeeID]) AS [CustomerID0]
     FROM [Orders] AS [o]
 ) AS [o0]
 WHERE [o0].[row] <= 1
@@ -5419,9 +5425,12 @@ WHERE [o0].[row] <= 1
 
         AssertSql(
             """
-SELECT [o].[CustomerID] AS [Key], [o].[OrderID], [c].[City]
-FROM [Orders] AS [o]
-LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+SELECT [o0].[CustomerID0] AS [Key], [o0].[OrderID], [c].[City]
+FROM (
+    SELECT [o].[OrderID], [o].[CustomerID], MIN([o].[CustomerID]) OVER(PARTITION BY [o].[CustomerID]) AS [CustomerID0]
+    FROM [Orders] AS [o]
+) AS [o0]
+LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
 """);
     }
 
@@ -5473,8 +5482,11 @@ LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 
         AssertSql(
             """
-SELECT [o].[CustomerID] AS [Key], [o].[OrderID]
-FROM [Orders] AS [o]
+SELECT [o0].[CustomerID0] AS [Key], [o0].[OrderID]
+FROM (
+    SELECT [o].[OrderID], MIN([o].[CustomerID]) OVER(PARTITION BY [o].[CustomerID]) AS [CustomerID0]
+    FROM [Orders] AS [o]
+) AS [o0]
 """);
     }
 
@@ -5664,6 +5676,75 @@ ORDER BY [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderID] DESC
 """);
     }
 
+    public override async Task GroupBy_SelectMany_Select_key_equal_by_collation(bool async)
+    {
+        await base.GroupBy_SelectMany_Select_key_equal_by_collation(async);
+
+        AssertSql(
+            """
+SELECT [o1].[Key], [o1].[OrderID]
+FROM (
+    SELECT [o0].[OrderID], MIN([o0].[Key]) OVER(PARTITION BY [o0].[Key]) AS [Key]
+    FROM (
+        SELECT [o].[OrderID], CASE
+            WHEN [o].[OrderID] % 2 = 0 THEN [o].[CustomerID]
+            ELSE LOWER([o].[CustomerID])
+        END AS [Key]
+        FROM [Orders] AS [o]
+        WHERE [o].[CustomerID] LIKE N'A%'
+    ) AS [o0]
+) AS [o1]
+""",
+            //
+            """
+SELECT COUNT(*)
+FROM (
+    SELECT CASE
+        WHEN [o].[OrderID] % 2 = 0 THEN [o].[CustomerID]
+        ELSE LOWER([o].[CustomerID])
+    END AS [Key]
+    FROM [Orders] AS [o]
+    WHERE [o].[CustomerID] LIKE N'A%'
+) AS [o0]
+GROUP BY [o0].[Key]
+""");
+    }
+
+    public override async Task GroupBy_SelectMany_OrderBy_Take_Select_key_equal_by_collation(bool async)
+    {
+        await base.GroupBy_SelectMany_OrderBy_Take_Select_key_equal_by_collation(async);
+
+        AssertSql(
+            """
+SELECT [o1].[Key], [o1].[OrderID]
+FROM (
+    SELECT [o0].[OrderID], ROW_NUMBER() OVER(PARTITION BY [o0].[Key] ORDER BY [o0].[OrderID]) AS [row], MIN([o0].[Key]) OVER(PARTITION BY [o0].[Key]) AS [Key]
+    FROM (
+        SELECT [o].[OrderID], CASE
+            WHEN [o].[OrderID] % 2 = 0 THEN [o].[CustomerID]
+            ELSE LOWER([o].[CustomerID])
+        END AS [Key]
+        FROM [Orders] AS [o]
+        WHERE [o].[CustomerID] LIKE N'A%'
+    ) AS [o0]
+) AS [o1]
+WHERE [o1].[row] <= 2
+""",
+            //
+            """
+SELECT COUNT(*)
+FROM (
+    SELECT CASE
+        WHEN [o].[OrderID] % 2 = 0 THEN [o].[CustomerID]
+        ELSE LOWER([o].[CustomerID])
+    END AS [Key]
+    FROM [Orders] AS [o]
+    WHERE [o].[CustomerID] LIKE N'A%'
+) AS [o0]
+GROUP BY [o0].[Key]
+""");
+    }
+
     public override async Task GroupBy_SelectMany_Take_count_of_group_fails(bool async)
     {
         await base.GroupBy_SelectMany_Take_count_of_group_fails(async);
@@ -5712,9 +5793,12 @@ WHERE [c].[CustomerID] LIKE N'A%'
 
         AssertSql(
             """
-SELECT [o].[CustomerID] AS [Key], [o].[OrderID], [c].[City]
-FROM [Orders] AS [o]
-LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+SELECT [o0].[CustomerID0] AS [Key], [o0].[OrderID], [c].[City]
+FROM (
+    SELECT [o].[OrderID], [o].[CustomerID], MIN([o].[CustomerID]) OVER(PARTITION BY [o].[CustomerID]) AS [CustomerID0]
+    FROM [Orders] AS [o]
+) AS [o0]
+LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
 """);
     }
 
@@ -5740,11 +5824,14 @@ WHERE [o0].[row] <= 2
 
         AssertSql(
             """
-SELECT [o].[CustomerID], [o].[OrderID], [o].[EmployeeID], [o].[OrderDate], [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
-FROM [Orders] AS [o]
-LEFT JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
-WHERE [o].[OrderID] < 10300
-ORDER BY [o].[OrderID], [o0].[OrderID], [o0].[ProductID]
+SELECT [o0].[CustomerID0], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [o1].[OrderID], [o1].[ProductID], [o1].[Discount], [o1].[Quantity], [o1].[UnitPrice]
+FROM (
+    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], MIN([o].[CustomerID]) OVER(PARTITION BY [o].[CustomerID]) AS [CustomerID0]
+    FROM [Orders] AS [o]
+    WHERE [o].[OrderID] < 10300
+) AS [o0]
+LEFT JOIN [Order Details] AS [o1] ON [o0].[OrderID] = [o1].[OrderID]
+ORDER BY [o0].[OrderID], [o1].[OrderID], [o1].[ProductID]
 """);
     }
 

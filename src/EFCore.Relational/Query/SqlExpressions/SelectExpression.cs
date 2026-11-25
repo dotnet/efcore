@@ -1986,7 +1986,15 @@ public sealed partial class SelectExpression : TableExpressionBase
 
         var partitions = RemoveGrouping();
         var ordered = _orderings.Count > 0;
-        if (rowPredicate is null)
+
+        // Rows of the same group can hold different strings for a key term: the database compares strings by their collation, which
+        // can ignore case or trailing spaces, so 'ABC' and 'abc' are one group. The key is read off each row, so such a term is
+        // replaced by one value for the whole group, as GROUP BY would give.
+        var groupKeyTerms = projection is null
+            ? []
+            : partitions.Where(p => p.Type == typeof(string) && ContainsTerm(projection, p)).ToList();
+
+        if (rowPredicate is null && groupKeyTerms.Count == 0)
         {
             if (ordered)
             {
@@ -1996,12 +2004,46 @@ public sealed partial class SelectExpression : TableExpressionBase
             return projection;
         }
 
-        var typeMapping = sqlExpressionFactory.ApplyDefaultTypeMapping(sqlExpressionFactory.Constant(1)).TypeMapping;
-        var rowNumberExpression = new RowNumberExpression(partitions, GetRowNumberOrderings(orderings, _identifier), typeMapping);
+        // The row number is ordered by the identifier as it is before the pushdown, which remaps it to the new columns.
+        var rowNumberExpression = rowPredicate is null
+            ? null
+            : new RowNumberExpression(
+                partitions,
+                GetRowNumberOrderings(orderings, _identifier),
+                sqlExpressionFactory.ApplyDefaultTypeMapping(sqlExpressionFactory.Constant(1)).TypeMapping);
         var sqlRemappingVisitor = PushdownIntoSubqueryInternal();
         var subquery = (SelectExpression)_tables[0];
-        var rowNumberColumn = subquery.GenerateOuterColumn(subquery.Alias!, rowNumberExpression, "row");
-        ApplyPredicate(rowPredicate(rowNumberColumn));
+        if (rowNumberExpression is not null)
+        {
+            var rowNumberColumn = subquery.GenerateOuterColumn(subquery.Alias!, rowNumberExpression, "row");
+            ApplyPredicate(rowPredicate!(rowNumberColumn));
+        }
+
+        if (groupKeyTerms.Count > 0)
+        {
+            var groupKeyColumns = new Dictionary<SqlExpression, SqlExpression>();
+            foreach (var term in groupKeyTerms)
+            {
+#pragma warning disable EF9001 // Window function support is experimental
+                var groupKey = new WindowFunctionExpression(
+                    sqlExpressionFactory.Function(
+                        "MIN",
+                        [term],
+                        nullable: true,
+                        argumentsPropagateNullability: Statics.FalseArrays[1],
+                        term.Type,
+                        term.TypeMapping),
+                    partitions,
+                    orderings: null,
+                    typeMapping: null);
+#pragma warning restore EF9001
+                groupKeyColumns[term] = subquery.GenerateOuterColumn(
+                    subquery.Alias!, groupKey, term is ColumnExpression column ? column.Name : "key");
+            }
+
+            // The new columns refer to the subquery itself, so remapping leaves them alone.
+            projection = new TermReplacingExpressionVisitor(groupKeyColumns).Visit(projection);
+        }
 
         if (ordered)
         {
@@ -2009,6 +2051,33 @@ public sealed partial class SelectExpression : TableExpressionBase
         }
 
         return sqlRemappingVisitor.Visit(projection);
+
+        static bool ContainsTerm(Expression expression, SqlExpression term)
+        {
+            var found = false;
+            new TermReplacingExpressionVisitor(
+                new Dictionary<SqlExpression, SqlExpression> { [term] = term }, _ => found = true).Visit(expression);
+            return found;
+        }
+    }
+
+    // Replaces SQL expressions equal to the given terms, which need not be the same instances.
+    private sealed class TermReplacingExpressionVisitor(
+        Dictionary<SqlExpression, SqlExpression> replacements,
+        Action<SqlExpression>? onReplaced = null) : ExpressionVisitor
+    {
+        [return: NotNullIfNotNull(nameof(expression))]
+        public override Expression? Visit(Expression? expression)
+        {
+            if (expression is SqlExpression sqlExpression
+                && replacements.TryGetValue(sqlExpression, out var replacement))
+            {
+                onReplaced?.Invoke(sqlExpression);
+                return replacement;
+            }
+
+            return base.Visit(expression);
+        }
     }
 
     // The existing orderings are over grouping terms only. AppendOrdering skips a term already ordered by.
