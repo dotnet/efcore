@@ -8,6 +8,9 @@ public class AdHocMiscellaneousQuerySqliteTest(NonSharedFixture fixture) : AdHoc
     protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqliteTestStoreFactory.Instance;
 
+    protected override string CaseInsensitiveCollation
+        => "NOCASE";
+
     protected override DbContextOptionsBuilder SetParameterizedCollectionMode(
         DbContextOptionsBuilder optionsBuilder,
         ParameterTranslationMode parameterizedCollectionMode)

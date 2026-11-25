@@ -5676,6 +5676,36 @@ ORDER BY [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderID] DESC
 """);
     }
 
+    public override async Task GroupBy_OrderBy_key_SelectMany_Select_key(bool async)
+    {
+        await base.GroupBy_OrderBy_key_SelectMany_Select_key(async);
+
+        AssertSql(
+            """
+SELECT [o0].[CustomerID0] AS [Key], [o0].[OrderID]
+FROM (
+    SELECT [o].[OrderID], [o].[CustomerID], MIN([o].[CustomerID]) OVER(PARTITION BY [o].[CustomerID]) AS [CustomerID0]
+    FROM [Orders] AS [o]
+) AS [o0]
+ORDER BY [o0].[CustomerID]
+""");
+    }
+
+    public override async Task GroupBy_SelectMany_Select_key_Where_key(bool async)
+    {
+        await base.GroupBy_SelectMany_Select_key_Where_key(async);
+
+        AssertSql(
+            """
+SELECT [o0].[CustomerID0] AS [Key], [o0].[OrderID]
+FROM (
+    SELECT [o].[OrderID], MIN([o].[CustomerID]) OVER(PARTITION BY [o].[CustomerID]) AS [CustomerID0]
+    FROM [Orders] AS [o]
+) AS [o0]
+WHERE [o0].[CustomerID0] = N'ALFKI'
+""");
+    }
+
     public override async Task GroupBy_SelectMany_Select_key_equal_by_collation(bool async)
     {
         await base.GroupBy_SelectMany_Select_key_equal_by_collation(async);

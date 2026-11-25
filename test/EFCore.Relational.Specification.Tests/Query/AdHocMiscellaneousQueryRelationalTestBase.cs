@@ -2462,6 +2462,95 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        // The rows of a group, flattened by a SelectMany, all read the key the group has in the database. Database values in one group
+        // can differ: under a case-insensitive collation 'abc' and 'ABC' are one group, and so on some databases are date/time offsets
+        // of the same instant. Whichever groups the database forms, the keys read off the rows make up as many distinct values, with as
+        // many rows each.
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task GroupBy_SelectMany_Select_value_converted_string_key_equal_by_collation(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<ContextLooselyComparedKey>(
+                onModelCreating: mb => ConfigureLooselyComparedKey(mb),
+                seed: c => c.SeedAsync());
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Items
+                .GroupBy(i => i.Code)
+                .SelectMany(g => g.Select(i => new { g.Key, i.Id }));
+            var rows = async ? await query.ToListAsync() : query.ToList();
+
+            var groupsQuery = context.Items.GroupBy(i => i.Code).Select(g => g.Count());
+            var groupSizes = async ? await groupsQuery.ToListAsync() : groupsQuery.ToList();
+
+            Assert.Equal(groupSizes.Order(), rows.GroupBy(r => r.Key.Value, StringComparer.Ordinal).Select(g => g.Count()).Order());
+        }
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task GroupBy_SelectMany_OrderBy_Take_Select_DateTimeOffset_key_equal_by_instant(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<ContextLooselyComparedKey>(
+                onModelCreating: mb => ConfigureLooselyComparedKey(mb),
+                seed: c => c.SeedAsync());
+            using var context = contextFactory.CreateDbContext();
+
+            var query = context.Items
+                .GroupBy(i => i.Timestamp)
+                .SelectMany(g => g.OrderBy(i => i.Id).Take(5).Select(i => new { g.Key, i.Id }));
+            var rows = async ? await query.ToListAsync() : query.ToList();
+
+            var groupsQuery = context.Items.GroupBy(i => i.Timestamp).Select(g => g.Count());
+            var groupSizes = async ? await groupsQuery.ToListAsync() : groupsQuery.ToList();
+
+            // DateTimeOffset equality compares instants, so the offset is compared too.
+            Assert.Equal(groupSizes.Order(), rows.GroupBy(r => (r.Key.DateTime, r.Key.Offset)).Select(g => g.Count()).Order());
+        }
+
+        // The collation the code column compares with, which must ignore case, or null when the database's default does.
+        protected virtual string? CaseInsensitiveCollation
+            => null;
+
+        private void ConfigureLooselyComparedKey(ModelBuilder modelBuilder)
+        {
+            var code = modelBuilder.Entity<ContextLooselyComparedKey.Item>().Property(i => i.Code);
+            if (CaseInsensitiveCollation is { } collation)
+            {
+                code.UseCollation(collation);
+            }
+        }
+
+        // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+        protected class ContextLooselyComparedKey(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<Item> Items
+                => Set<Item>();
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Item>().Property(i => i.Id).ValueGeneratedNever();
+                modelBuilder.Entity<Item>().Property(i => i.Code).HasConversion(c => c.Value, v => new ItemCode(v));
+            }
+
+            public Task SeedAsync()
+            {
+                var instant = new DateTimeOffset(2026, 1, 1, 9, 0, 0, TimeSpan.Zero);
+                AddRange(
+                    new Item { Id = 1, Code = new ItemCode("abc"), Timestamp = instant },
+                    new Item { Id = 2, Code = new ItemCode("ABC"), Timestamp = instant.ToOffset(TimeSpan.FromHours(1)) },
+                    new Item { Id = 3, Code = new ItemCode("Abc"), Timestamp = instant.ToOffset(TimeSpan.FromHours(-5)) },
+                    new Item { Id = 4, Code = new ItemCode("def"), Timestamp = instant.AddHours(1) });
+                return SaveChangesAsync();
+            }
+
+            public class Item
+            {
+                public int Id { get; set; }
+                public ItemCode Code { get; set; }
+                public DateTimeOffset Timestamp { get; set; }
+            }
+
+            public readonly record struct ItemCode(string Value);
+        }
+
         // A distinct complex type is identified by all its columns, which include a converted property's.
         [Theory, MemberData(nameof(IsAsyncData))]
         public virtual async Task Distinct_complex_type_with_value_converted_reference_type_with_collection(bool async)

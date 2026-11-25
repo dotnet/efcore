@@ -460,6 +460,24 @@ WHERE [b0].[row] <= 1
 """);
     }
 
+    public override async Task GroupBy_SelectMany_OrderBy_Take_Select_key()
+    {
+        await base.GroupBy_SelectMany_OrderBy_Take_Select_key();
+
+        AssertSql(
+            """
+@take='1'
+
+SELECT [s].[Name0] AS [Key], [s].[Title]
+FROM (
+    SELECT [p].[Title], ROW_NUMBER() OVER(PARTITION BY [b].[Name] ORDER BY [p].[Id]) AS [row], MIN([b].[Name]) OVER(PARTITION BY [b].[Name]) AS [Name0]
+    FROM [Posts] AS [p]
+    LEFT JOIN [Blogs] AS [b] ON [p].[BlogId] = [b].[Id]
+) AS [s]
+WHERE [s].[row] <= @take
+""");
+    }
+
     public override async Task GroupBy_SelectMany_OrderBy_Skip_Take_Select()
     {
         await base.GroupBy_SelectMany_OrderBy_Skip_Take_Select();

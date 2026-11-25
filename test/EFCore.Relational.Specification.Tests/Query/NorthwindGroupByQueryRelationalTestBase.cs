@@ -631,6 +631,26 @@ public abstract class NorthwindGroupByQueryRelationalTestBase<TFixture>(TFixture
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_OrderBy_key_SelectMany_Select_key(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .OrderBy(g => g.Key)
+                .SelectMany(g => g.Select(o => new { g.Key, o.OrderID })),
+            elementSorter: e => e.OrderID);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_SelectMany_Select_key_Where_key(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .SelectMany(g => g.Select(o => new { g.Key, o.OrderID }))
+                .Where(e => e.Key == "ALFKI"),
+            elementSorter: e => e.OrderID);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task GroupBy_SelectMany_Select_key_equal_by_collation(bool async)
     {
         using var context = CreateContext();

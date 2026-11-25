@@ -303,6 +303,18 @@ _ = await context.Blogs.OrderBy(b => b.Name).Take(toTake).ToListAsync();
         => Test("""var blogs = await context.Blogs.GroupBy(b => b.Name).Select(g => g.OrderBy(b => b.Id).First()).ToListAsync();""");
 
     [Fact]
+    public virtual Task GroupBy_SelectMany_OrderBy_Take_Select_key()
+        => Test(
+            """
+var take = 1;
+var rows = await context.Posts
+    .GroupBy(p => p.Blog!.Name)
+    .SelectMany(g => g.OrderBy(p => p.Id).Take(take).Select(p => new { g.Key, p.Title }))
+    .ToListAsync();
+Assert.Equal(new[] { ("Blog1", "Post11"), ("Blog2", "Post21") }, rows.Select(r => (r.Key, r.Title)).OrderBy(r => r.Title));
+""");
+
+    [Fact]
     public virtual Task GroupBy_SelectMany_OrderBy_Skip_Take_Select()
         => Test(
             """

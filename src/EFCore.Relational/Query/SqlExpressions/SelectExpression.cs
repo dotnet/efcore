@@ -1970,13 +1970,14 @@ public sealed partial class SelectExpression : TableExpressionBase
     // ORDER BY <orderings>) satisfies `rowPredicate`, which is how a Skip or a Take applies to each group. When the groups are ordered,
     // the rows of each group are kept together: groups tied on the existing orderings, such as those of a composite key ordered by one
     // of its members, are told apart by the remaining grouping terms, and `orderings` then order the rows within each group.
-    // `projection` is an expression over the grouping terms (e.g. the key selector), returned remapped to the new columns.
+    // `projection` is an expression over the grouping terms (e.g. the key selector), remapped to the new columns. Returns false, leaving
+    // the SelectExpression unchanged, when the provider can't evaluate a window aggregate this needs.
     // Internal infrastructure: only called from RelationalQueryableMethodTranslatingExpressionVisitor.
-    [return: NotNullIfNotNull(nameof(projection))]
-    internal Expression? ApplyRowsPerGroup(
-        Expression? projection,
+    internal bool TryApplyRowsPerGroup(
+        ref Expression? projection,
         IReadOnlyList<OrderingExpression> orderings,
         Func<SqlExpression, SqlExpression>? rowPredicate,
+        Func<SqlFunctionExpression, bool> canTranslateAggregateAsWindowFunction,
         ISqlExpressionFactory sqlExpressionFactory)
     {
         Check.DebugAssert(_groupBy.Count > 0, "The selectExpression doesn't have grouping terms.");
@@ -1984,24 +1985,45 @@ public sealed partial class SelectExpression : TableExpressionBase
             Limit == null && Offset == null && !IsDistinct && Having == null,
             "Grouped SelectExpression has state over the groups.");
 
+        // Rows of the same group can hold different values for a key term the database compares more loosely than the values
+        // themselves: strings by their collation, which can ignore case or trailing spaces, so 'ABC' and 'abc' are one group, and on
+        // some databases date/time offsets by their instant. The key is read off each row, so such a term is replaced by one value
+        // for the whole group, as GROUP BY would give.
+        var groupKeyAggregates = new List<(SqlExpression Term, SqlFunctionExpression Aggregate)>();
+        if (projection is not null)
+        {
+            foreach (var term in _groupBy)
+            {
+                if (IsComparedLoosely(term) && ContainsTerm(projection, term))
+                {
+                    var aggregate = (SqlFunctionExpression)sqlExpressionFactory.Function(
+                        "MIN",
+                        [term],
+                        nullable: true,
+                        argumentsPropagateNullability: Statics.FalseArrays[1],
+                        term.Type,
+                        term.TypeMapping);
+                    if (!canTranslateAggregateAsWindowFunction(aggregate))
+                    {
+                        return false;
+                    }
+
+                    groupKeyAggregates.Add((term, aggregate));
+                }
+            }
+        }
+
         var partitions = RemoveGrouping();
         var ordered = _orderings.Count > 0;
 
-        // Rows of the same group can hold different strings for a key term: the database compares strings by their collation, which
-        // can ignore case or trailing spaces, so 'ABC' and 'abc' are one group. The key is read off each row, so such a term is
-        // replaced by one value for the whole group, as GROUP BY would give.
-        var groupKeyTerms = projection is null
-            ? []
-            : partitions.Where(p => p.Type == typeof(string) && ContainsTerm(projection, p)).ToList();
-
-        if (rowPredicate is null && groupKeyTerms.Count == 0)
+        if (rowPredicate is null && groupKeyAggregates.Count == 0)
         {
             if (ordered)
             {
                 AppendRowOrderings(partitions, orderings, remap: null);
             }
 
-            return projection;
+            return true;
         }
 
         // The row number is ordered by the identifier as it is before the pushdown, which remaps it to the new columns.
@@ -2019,23 +2041,13 @@ public sealed partial class SelectExpression : TableExpressionBase
             ApplyPredicate(rowPredicate!(rowNumberColumn));
         }
 
-        if (groupKeyTerms.Count > 0)
+        if (groupKeyAggregates.Count > 0)
         {
             var groupKeyColumns = new Dictionary<SqlExpression, SqlExpression>();
-            foreach (var term in groupKeyTerms)
+            foreach (var (term, aggregate) in groupKeyAggregates)
             {
 #pragma warning disable EF9001 // Window function support is experimental
-                var groupKey = new WindowFunctionExpression(
-                    sqlExpressionFactory.Function(
-                        "MIN",
-                        [term],
-                        nullable: true,
-                        argumentsPropagateNullability: Statics.FalseArrays[1],
-                        term.Type,
-                        term.TypeMapping),
-                    partitions,
-                    orderings: null,
-                    typeMapping: null);
+                var groupKey = new WindowFunctionExpression(aggregate, partitions, orderings: null, typeMapping: null);
 #pragma warning restore EF9001
                 groupKeyColumns[term] = subquery.GenerateOuterColumn(
                     subquery.Alias!, groupKey, term is ColumnExpression column ? column.Name : "key");
@@ -2050,7 +2062,13 @@ public sealed partial class SelectExpression : TableExpressionBase
             AppendRowOrderings(partitions, orderings, sqlRemappingVisitor);
         }
 
-        return sqlRemappingVisitor.Visit(projection);
+        projection = sqlRemappingVisitor.Visit(projection);
+        return true;
+
+        // Decided by the value the database stores, so a value converted to a string counts as a string.
+        static bool IsComparedLoosely(SqlExpression term)
+            => (term.TypeMapping?.Converter?.ProviderClrType ?? term.Type).UnwrapNullableType() is var storeType
+                && (storeType == typeof(string) || storeType == typeof(char) || storeType == typeof(DateTimeOffset));
 
         static bool ContainsTerm(Expression expression, SqlExpression term)
         {

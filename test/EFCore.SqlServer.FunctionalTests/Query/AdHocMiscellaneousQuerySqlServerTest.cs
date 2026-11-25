@@ -3737,6 +3737,47 @@ ORDER BY [i].[Number]
 """);
     }
 
+    public override async Task GroupBy_SelectMany_Select_value_converted_string_key_equal_by_collation(bool async)
+    {
+        await base.GroupBy_SelectMany_Select_value_converted_string_key_equal_by_collation(async);
+
+        AssertSql(
+            """
+SELECT [i0].[Code0] AS [Key], [i0].[Id]
+FROM (
+    SELECT [i].[Id], MIN([i].[Code]) OVER(PARTITION BY [i].[Code]) AS [Code0]
+    FROM [Items] AS [i]
+) AS [i0]
+""",
+            //
+            """
+SELECT COUNT(*)
+FROM [Items] AS [i]
+GROUP BY [i].[Code]
+""");
+    }
+
+    public override async Task GroupBy_SelectMany_OrderBy_Take_Select_DateTimeOffset_key_equal_by_instant(bool async)
+    {
+        await base.GroupBy_SelectMany_OrderBy_Take_Select_DateTimeOffset_key_equal_by_instant(async);
+
+        AssertSql(
+            """
+SELECT [i0].[Timestamp0] AS [Key], [i0].[Id]
+FROM (
+    SELECT [i].[Id], ROW_NUMBER() OVER(PARTITION BY [i].[Timestamp] ORDER BY [i].[Id]) AS [row], MIN([i].[Timestamp]) OVER(PARTITION BY [i].[Timestamp]) AS [Timestamp0]
+    FROM [Items] AS [i]
+) AS [i0]
+WHERE [i0].[row] <= 5
+""",
+            //
+            """
+SELECT COUNT(*)
+FROM [Items] AS [i]
+GROUP BY [i].[Timestamp]
+""");
+    }
+
     public override async Task Distinct_complex_type_with_value_converted_reference_type_with_collection(bool async)
     {
         await base.Distinct_complex_type_with_value_converted_reference_type_with_collection(async);

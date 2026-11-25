@@ -1189,8 +1189,14 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             }
         }
 
-        var remappedElementSelectorBody = selectExpression.ApplyRowsPerGroup(
-            analyzer.ElementSelector?.Body, orderings, rowPredicate, _sqlExpressionFactory);
+        var remappedElementSelectorBody = analyzer.ElementSelector?.Body;
+#pragma warning disable EF9001 // Window function support is experimental
+        if (!selectExpression.TryApplyRowsPerGroup(
+                ref remappedElementSelectorBody, orderings, rowPredicate, CanTranslateAggregateAsWindowFunction, _sqlExpressionFactory))
+#pragma warning restore EF9001
+        {
+            return null;
+        }
 
         // The grouping is gone by now, so owned navigations in the element selector are expanded as in any other Select, joins included.
         var shaper = analyzer.ElementSelector is { } elementSelector
