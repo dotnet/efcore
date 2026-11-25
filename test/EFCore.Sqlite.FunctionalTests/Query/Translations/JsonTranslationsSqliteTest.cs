@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Microsoft.EntityFrameworkCore.Query.Translations;
 
@@ -308,6 +309,31 @@ WHERE typeof(json_extract("j"."JsonString", '$.RequiredInt')) = 'integer' AND js
         await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
     }
 
+    [Fact]
+    public async Task JsonExtract_object_equals_default_converted_parameter_is_not_translated()
+    {
+        await using var connection = new SqliteConnection("Data Source=:memory:");
+        await connection.OpenAsync();
+        var options = new DbContextOptionsBuilder<DefaultConvertedJsonContext>().UseSqlite(connection).Options;
+        await using var context = new DefaultConvertedJsonContext(options);
+        await context.Database.EnsureCreatedAsync();
+        context.Add(new ConvertedJsonEntity { Json = """{"number":8}""", Number = 8, Text = "fallback" });
+        await context.SaveChangesAsync();
+
+        long value = 8;
+        var query = context.Set<ConvertedJsonEntity>()
+            .Where(e => object.Equals(EF.Functions.JsonExtract(e.Json, "$.number"), value));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
+
+        var reversedQuery = context.Set<ConvertedJsonEntity>()
+            .Where(e => object.Equals(value, EF.Functions.JsonExtract(e.Json, "$.number")));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => reversedQuery.ToListAsync());
+
+        var constantQuery = context.Set<ConvertedJsonEntity>()
+            .Where(e => object.Equals(EF.Functions.JsonExtract(e.Json, "$.number"), 8L));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => constantQuery.ToListAsync());
+    }
+
     [Theory, MemberData(nameof(IsAsyncData))]
     public async Task JsonExtract_binary_object_equality_is_not_translated(bool async)
     {
@@ -466,6 +492,32 @@ LIMIT 2
 
         var result = await query.SingleAsync();
         Assert.Equal("fallback", result);
+
+        var caseResult = await context.Entities.Select(e =>
+            EF.Functions.JsonExtract(e.Json, "$.missing") ?? (e.Id == 1 ? e.Text : null)).SingleAsync();
+        Assert.Equal("fallback", caseResult);
+
+        var caseNullResult = await context.Entities.Select(e =>
+            EF.Functions.JsonExtract(e.Json, "$.missing") ?? (e.Id != 1 ? e.Text : null)).SingleAsync();
+        Assert.Null(caseNullResult);
+
+        var casePresentResult = await context.Entities.Select(e =>
+            EF.Functions.JsonExtract(e.Json, "$.value") ?? (e.Id == 1 ? e.Text : null)).SingleAsync();
+        Assert.Equal("present", casePresentResult);
+
+        var nestedResult = await context.Entities.Select(e =>
+            (EF.Functions.JsonExtract(e.Json, "$.missing") ?? EF.Functions.JsonExtract(e.Json, "$.alsoMissing")) ?? e.Text)
+            .SingleAsync();
+        Assert.Equal("fallback", nestedResult);
+
+        var nestedPresentResult = await context.Entities.Select(e =>
+            (EF.Functions.JsonExtract(e.Json, "$.missing") ?? EF.Functions.JsonExtract(e.Json, "$.value")) ?? e.Text)
+            .SingleAsync();
+        Assert.Equal("present", nestedPresentResult);
+
+        var predicate = context.Entities.Where(e =>
+            object.Equals(EF.Functions.JsonExtract(e.Json, "$.missing") ?? (e.Id == 1 ? e.Text : null), "fallback"));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => predicate.ToListAsync());
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -523,6 +575,16 @@ LIMIT 2
                 b.Property(e => e.Number).HasConversion(value => value + 100, value => value - 100);
                 b.Property(e => e.Text).HasConversion(value => "x" + value, value => value.Substring(1));
             });
+    }
+
+    public sealed class LongOffsetConverter() : ValueConverter<long, long>(value => value + 100, value => value - 100);
+
+    private sealed class DefaultConvertedJsonContext(DbContextOptions<DefaultConvertedJsonContext> options) : DbContext(options)
+    {
+        public DbSet<ConvertedJsonEntity> Entities => Set<ConvertedJsonEntity>();
+
+        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+            => configurationBuilder.DefaultTypeMapping<long>().HasConversion<LongOffsetConverter>();
     }
 
     [Fact]

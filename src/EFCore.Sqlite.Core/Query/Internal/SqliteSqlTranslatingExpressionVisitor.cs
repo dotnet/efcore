@@ -164,8 +164,9 @@ public class SqliteSqlTranslatingExpressionVisitor(
             && translation is SqlFunctionExpression
             {
                 Name: "COALESCE",
-                Arguments: [SqlFunctionExpression { Name: "json_extract", TypeMapping: SqliteDynamicTypeMapping }, ColumnExpression]
-            })
+                Arguments: [{ TypeMapping: SqliteDynamicTypeMapping }, var fallback]
+            }
+            && (fallback is ColumnExpression || fallback.TypeMapping?.Converter is not null))
         {
             return QueryCompilationContext.NotTranslatedExpression;
         }

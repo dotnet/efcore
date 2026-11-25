@@ -49,6 +49,7 @@ public class SqliteDynamicEqualsTranslator(ISqlExpressionFactory sqlExpressionFa
             return sqlExpressionFactory.IsNull(left);
         }
 
+        right = sqlExpressionFactory.ApplyDefaultTypeMapping(right)!;
         if (right.TypeMapping?.Converter is not null)
         {
             throw new InvalidOperationException(CoreStrings.TranslationFailed(method.Name));
@@ -85,7 +86,6 @@ public class SqliteDynamicEqualsTranslator(ISqlExpressionFactory sqlExpressionFa
             typeMatches = sqlExpressionFactory.Equal(SqliteTypeOf(left), sqlExpressionFactory.Constant(storeType));
         }
 
-        right = sqlExpressionFactory.ApplyDefaultTypeMapping(right)!;
         return sqlExpressionFactory.OrElse(
             sqlExpressionFactory.AndAlso(sqlExpressionFactory.IsNull(left), sqlExpressionFactory.IsNull(right)),
             sqlExpressionFactory.AndAlso(typeMatches, sqlExpressionFactory.Equal(left, right)));

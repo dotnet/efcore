@@ -155,6 +155,23 @@ public class SqliteTypeMappingSource : RelationalTypeMappingSource
         return mapping;
     }
 
+    /// <inheritdoc />
+    public override RelationalTypeMapping? FindMapping(
+        Type type,
+        string? storeTypeName,
+        bool keyOrIndex = false,
+        bool? unicode = null,
+        int? size = null,
+        bool? rowVersion = null,
+        bool? fixedLength = null,
+        int? precision = null,
+        int? scale = null)
+        => type == typeof(object)
+            && storeTypeName is not null
+            && string.Equals(storeTypeName, TextTypeName, StringComparison.OrdinalIgnoreCase)
+                ? SqliteDynamicTypeMapping.Default.WithStoreTypeAndSize(storeTypeName, null)
+                : base.FindMapping(type, storeTypeName, keyOrIndex, unicode, size, rowVersion, fixedLength, precision, scale);
+
     private RelationalTypeMapping? FindRawMapping(RelationalTypeMappingInfo mappingInfo)
     {
         var clrType = mappingInfo.ClrType;
