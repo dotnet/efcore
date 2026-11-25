@@ -21,6 +21,9 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// </summary>
 public class SqlNullabilityProcessor : ExpressionVisitor
 {
+    private static readonly bool DisableBooleanComparisonOptimization =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.DisableBooleanComparisonOptimization", out var enabled) && enabled;
+
     private readonly List<ColumnExpression> _nonNullableColumns;
     private readonly List<ColumnExpression> _nullValueColumns;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
@@ -2070,7 +2073,8 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                     out nullable);
             }
 
-            if (optimize
+            if (!DisableBooleanComparisonOptimization
+                && optimize
                 && sqlBinaryExpression.Left is ColumnExpression { TypeMapping.Converter: null } leftColumn
                 && sqlBinaryExpression.Right is ColumnExpression { TypeMapping.Converter: null }
                 && leftColumn.Type == typeof(bool))
@@ -2209,7 +2213,8 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         var notEqual = sqlBinaryExpression.OperatorType == ExpressionType.Equal ^ leftNegated == rightNegated;
 
         // Prefer equality when a column can be used for a lookup.
-        if (optimize
+        if (!DisableBooleanComparisonOptimization
+            && optimize
             && notEqual
             && left.Type == typeof(bool)
             && left.TypeMapping?.Converter is null
