@@ -398,8 +398,14 @@ public static class RelationalTypeBaseExtensions
     ///     to a container column in the given store object.
     /// </returns>
     /// <remarks>
+    /// <para>
     ///     For a complex type of a complex property declared on an owned type that shares the table or view with its owner,
     ///     the default container column name is prefixed with the ownership navigation names.
+    /// </para>
+    /// <para>
+    ///     For a complex type of a complex property declared on a complex type that isn't mapped to JSON,
+    ///     it is prefixed with the names of the containing complex properties.
+    /// </para>
     /// </remarks>
     public static string? GetContainerColumnName(this IReadOnlyTypeBase typeBase, in StoreObjectIdentifier storeObject)
     {
@@ -411,6 +417,16 @@ public static class RelationalTypeBaseExtensions
             if (string.IsNullOrEmpty(containerColumnName))
             {
                 return containerColumnName;
+            }
+
+            // Like the columns of its properties, the default container column of a complex property nested in a complex type
+            // that isn't mapped to JSON is prefixed with the names of the containing complex properties
+            if (defaultContainerColumnProperty?.DeclaringType is IReadOnlyComplexType declaringComplexType)
+            {
+                containerColumnName = Uniquifier.Truncate(
+                    RelationalPropertyExtensions.CreateComplexPrefix(declaringComplexType, storeObject)
+                        .Append(containerColumnName).ToString(),
+                    typeBase.Model.GetMaxIdentifierLength());
             }
 
             if (storeObject.StoreObjectType is StoreObjectType.Function or StoreObjectType.SqlQuery)
@@ -488,6 +504,23 @@ public static class RelationalTypeBaseExtensions
         => typeBase is IReadOnlyComplexType complexType && (string?)containerColumnName.Value == string.Empty
             ? complexType.ComplexProperty
             : null;
+
+    // In the default table mapping the default container column of a complex property nested in a complex type
+    // that isn't mapped to JSON is prefixed with the names of the containing complex properties, like the columns of its properties
+    internal static string? GetDefaultMappingContainerColumnName(this IReadOnlyTypeBase typeBase)
+    {
+        var annotation = typeBase.FindAnnotation(RelationalAnnotationNames.ContainerColumnName);
+        if (annotation == null
+            || FindDefaultContainerColumnProperty(typeBase, annotation) is not
+            {
+                DeclaringType: IReadOnlyComplexType declaringComplexType
+            } defaultContainerColumnProperty)
+        {
+            return typeBase.GetContainerColumnName();
+        }
+
+        return RelationalPropertyExtensions.GetDefaultMappingColumnName(declaringComplexType, defaultContainerColumnProperty.Name);
+    }
 
     /// <summary>
     ///     Sets the name of the container column to which the type is mapped.

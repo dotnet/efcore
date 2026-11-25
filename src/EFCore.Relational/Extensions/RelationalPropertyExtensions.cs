@@ -249,28 +249,44 @@ public static class RelationalPropertyExtensions
         baseName = builder.ToString();
 
         return Uniquifier.Truncate(baseName, property.DeclaringType.Model.GetMaxIdentifierLength());
+    }
 
-        static StringBuilder CreateComplexPrefix(
-            IReadOnlyComplexType complexType,
-            in StoreObjectIdentifier storeObject,
-            StringBuilder? builder)
+    // In the default table mapping, the columns of a complex type mapped to columns (table splitting) are prefixed
+    // with the names of the complex properties containing it, without the store-specific ownership prefixes and truncation
+    internal static string GetDefaultMappingColumnName(IReadOnlyComplexType complexType, string name)
+    {
+        var builder = new StringBuilder(name);
+        for (var currentType = complexType;
+             currentType != null;
+             currentType = currentType.ComplexProperty.DeclaringType as IReadOnlyComplexType)
         {
-            builder ??= new StringBuilder();
-            while (true)
-            {
-                builder.Insert(0, "_");
-                builder.Insert(0, complexType.ComplexProperty.Name);
+            builder.Insert(0, '_');
+            builder.Insert(0, currentType.ComplexProperty.Name);
+        }
 
-                switch (complexType.ComplexProperty.DeclaringType)
-                {
-                    case IReadOnlyComplexType declaringComplexType:
-                        complexType = declaringComplexType;
-                        break;
-                    case IReadOnlyEntityType declaringEntityType:
-                        return CreateOwnershipPrefix(declaringEntityType, storeObject, builder);
-                    default:
-                        return builder;
-                }
+        return builder.ToString();
+    }
+
+    internal static StringBuilder CreateComplexPrefix(
+        IReadOnlyComplexType complexType,
+        in StoreObjectIdentifier storeObject,
+        StringBuilder? builder = null)
+    {
+        builder ??= new StringBuilder();
+        while (true)
+        {
+            builder.Insert(0, '_');
+            builder.Insert(0, complexType.ComplexProperty.Name);
+
+            switch (complexType.ComplexProperty.DeclaringType)
+            {
+                case IReadOnlyComplexType declaringComplexType:
+                    complexType = declaringComplexType;
+                    break;
+                case IReadOnlyEntityType declaringEntityType:
+                    return CreateOwnershipPrefix(declaringEntityType, storeObject, builder);
+                default:
+                    return builder;
             }
         }
     }

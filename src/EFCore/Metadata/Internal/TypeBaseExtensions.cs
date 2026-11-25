@@ -50,4 +50,37 @@ public static class TypeBaseExtensions
                     CoreStrings.PropertyDoesNotBelong(property.Name, property.DeclaringType.DisplayName(), structuralType.DisplayName()))
                 : property;
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    /// <remarks>
+    ///     Finds a required property on a path of required complex properties, which is null exactly when the complex type is,
+    ///     unlike one in an optional nested complex property.
+    /// </remarks>
+    public static IProperty? FindIdentifyingProperty(this IComplexType complexType)
+    {
+        foreach (var property in complexType.GetProperties())
+        {
+            if (!property.IsNullable)
+            {
+                return property;
+            }
+        }
+
+        foreach (var complexProperty in complexType.GetComplexProperties())
+        {
+            if (!complexProperty.IsNullable
+                && !complexProperty.IsCollection
+                && complexProperty.ComplexType.FindIdentifyingProperty() is { } property)
+            {
+                return property;
+            }
+        }
+
+        return null;
+    }
 }

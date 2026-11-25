@@ -1950,14 +1950,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 complexProperty, column, containingType, containingColumn);
 
         /// <summary>
-        ///     Complex property '{complexProperty}' is mapped to JSON but its containing type '{containingType}' is not. Map the root complex type to JSON. See https://github.com/dotnet/efcore/issues/36558.
-        /// </summary>
-        public static string NestedComplexPropertyJsonWithTableSharing(object? complexProperty, object? containingType)
-            => string.Format(
-                GetString("NestedComplexPropertyJsonWithTableSharing", nameof(complexProperty), nameof(containingType)),
-                complexProperty, containingType);
-
-        /// <summary>
         ///     The connection does not have any active transactions.
         /// </summary>
         public static string NoActiveTransaction

@@ -284,7 +284,12 @@ public class RelationalModelValidator(
 
         if (!complexProperty.ComplexType.IsMappedToJson()
             && complexProperty.IsNullable
-            && complexProperty.ComplexType.GetProperties().All(m => m.IsNullable))
+            // A required property in required complex properties, including inside a JSON complex property, identifies it. A JSON
+            // column alone doesn't, since property values (e.g. the database values of an entry) don't show whether a JSON document
+            // with only null values exists.
+#pragma warning disable EF1001 // Internal EF Core API usage.
+            && complexProperty.ComplexType.FindIdentifyingProperty() == null)
+#pragma warning restore EF1001 // Internal EF Core API usage.
         {
             throw new InvalidOperationException(
                 RelationalStrings.ComplexPropertyOptionalTableSharing(complexProperty.ComplexType.DisplayName(), complexProperty.Name));
@@ -324,16 +329,6 @@ public class RelationalModelValidator(
 
         if (complexProperty.ComplexType.IsMappedToJson())
         {
-            if (!complexProperty.DeclaringType.IsMappedToJson()
-                && complexProperty.DeclaringType is IComplexType)
-            {
-                // Issue #36558
-                throw new InvalidOperationException(
-                    RelationalStrings.NestedComplexPropertyJsonWithTableSharing(
-                        $"{complexProperty.DeclaringType.DisplayName()}.{complexProperty.Name}",
-                        complexProperty.DeclaringType.DisplayName()));
-            }
-
             ValidateJsonProperties(complexProperty.ComplexType);
         }
 
@@ -1093,6 +1088,7 @@ public class RelationalModelValidator(
         var jsonColumns = new Dictionary<string, List<ITypeBase>>();
         var complexProperties = new HashSet<IComplexProperty>();
         var hasJsonEntityTypes = false;
+
         foreach (var entityType in mappedTypes)
         {
             if (entityType.IsMappedToJson())

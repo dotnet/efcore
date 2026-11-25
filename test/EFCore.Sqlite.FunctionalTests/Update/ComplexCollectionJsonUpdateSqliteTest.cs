@@ -395,6 +395,40 @@ RETURNING 1;
 """);
     }
 
+    public override async Task Set_optional_table_split_complex_property_with_json_complex_properties_to_non_null_and_to_null()
+    {
+        await base.Set_optional_table_split_complex_property_with_json_complex_properties_to_non_null_and_to_null();
+
+        AssertSql(
+            """
+@p0=NULL (Nullable = false)
+@p1='{"City":"Old City","Country":"USA","PostalCode":"00003","Street":"3 Old St"}' (Nullable = false) (Size = 76)
+@p2='[{"Name":"Former Team","PhoneNumbers":[]}]' (Nullable = false) (Size = 42)
+@p5='1'
+@p3='500.00' (Nullable = true)
+@p4='Former Department' (Size = 17)
+
+UPDATE "CompaniesWithSplitDepartments" SET "FormerDepartment_Annex" = @p0, "FormerDepartment_Location" = @p1, "FormerDepartment_Teams" = @p2, "FormerDepartment_Budget" = @p3, "FormerDepartment_Name" = @p4
+WHERE "Id" = @p5
+RETURNING 1;
+""");
+    }
+
+    public override async Task Modify_json_complex_property_nested_in_value_type_table_split_complex_property()
+    {
+        await base.Modify_json_complex_property_nested_in_value_type_table_split_complex_property();
+
+        AssertSql(
+            """
+@p0='{"Label":"Modified","Tags":[{"Value":"t-0"},{"Value":"t-1"}]}' (Nullable = false) (Size = 61)
+@p1='1'
+
+UPDATE "CompaniesWithSplitDepartments" SET "Division_Data" = @p0
+WHERE "Id" = @p1
+RETURNING 1;
+""");
+    }
+
     public class ComplexCollectionJsonUpdateSqliteFixture : ComplexCollectionJsonUpdateFixtureBase
     {
         protected override ITestStoreFactory TestStoreFactory

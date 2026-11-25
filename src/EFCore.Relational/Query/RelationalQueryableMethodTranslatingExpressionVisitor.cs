@@ -3435,6 +3435,12 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                         => jsonQuery,
                     { IsCollection: true } when translatedExpression is JsonQueryExpression jsonQuery
                         => jsonQuery,
+                    // A table-split complex property, which can contain JSON complex properties (e.g. a JSON collection being indexed)
+                    { IsCollection: false } when translatedExpression is StructuralTypeShaperExpression
+                    {
+                        ValueBufferExpression: StructuralTypeProjectionExpression
+                    } shaper
+                        => shaper,
                     _ => null
                 };
             }

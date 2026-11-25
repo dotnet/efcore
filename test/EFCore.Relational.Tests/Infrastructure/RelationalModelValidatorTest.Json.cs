@@ -698,20 +698,174 @@ public partial class RelationalModelValidatorTest
     }
 
     [Fact]
-    public void Throws_when_nested_complex_property_mapped_to_json_with_table_sharing()
+    public void Passes_for_nested_complex_property_mapped_to_json_with_table_splitting()
     {
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<ValidatorComplexEntity>()
             .ComplexProperty(
                 e => e.ComplexProp, outerBuilder => outerBuilder.ComplexProperty(
-                    x => x.NestedComplex, innerBuilder => innerBuilder.ToJson("inner_json")));
+                    x => x.NestedComplex, innerBuilder => innerBuilder.ToJson()));
 
+        var model = Validate(modelBuilder);
+
+        // Like the columns of the containing complex type's properties, the default JSON column name is prefixed
+        var table = model.GetRelationalModel().FindTable(nameof(ValidatorComplexEntity), null)!;
+        Assert.Equal(
+            ["ComplexProp_Name", "ComplexProp_NestedComplex", "ComplexProp_Number", "Id"],
+            table.Columns.Select(c => c.Name).Order());
+
+        var jsonColumn = table.FindColumn("ComplexProp_NestedComplex")!;
+        Assert.IsType<Metadata.Internal.JsonColumn>(jsonColumn);
+        Assert.False(jsonColumn.IsNullable);
+
+        var nestedComplexProperty = model.FindEntityType(typeof(ValidatorComplexEntity))!
+            .FindComplexProperty(nameof(ValidatorComplexEntity.ComplexProp))!.ComplexType
+            .FindComplexProperty(nameof(ValidatorComplexType.NestedComplex))!;
+        Assert.Equal("NestedComplex", nestedComplexProperty.ComplexType.GetContainerColumnName());
+        Assert.Equal(
+            "ComplexProp_NestedComplex",
+            nestedComplexProperty.ComplexType.GetContainerColumnName(StoreObjectIdentifier.Table(nameof(ValidatorComplexEntity))));
+        Assert.Same(jsonColumn, table.FindColumn(nestedComplexProperty));
+        Assert.Equal(
+            "ComplexProp_NestedComplex",
+            nestedComplexProperty.ComplexType.GetDefaultMappings().Single().Table.FindColumn(nestedComplexProperty)!.Name);
+    }
+
+    [Fact]
+    public void Passes_for_nested_complex_property_mapped_to_named_json_column_with_optional_table_splitting()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorComplexEntity>()
+            .ComplexProperty(
+                e => e.ComplexProp, outerBuilder =>
+                {
+                    outerBuilder.IsRequired(false);
+                    outerBuilder.ComplexProperty(x => x.NestedComplex, innerBuilder => innerBuilder.ToJson("inner_json"));
+                });
+
+        var model = Validate(modelBuilder);
+
+        // An explicit column name isn't prefixed, and the column is nullable since the containing complex property is optional
+        var jsonColumn = model.GetRelationalModel().FindTable(nameof(ValidatorComplexEntity), null)!.FindColumn("inner_json")!;
+        Assert.IsType<Metadata.Internal.JsonColumn>(jsonColumn);
+        Assert.True(jsonColumn.IsNullable);
+    }
+
+    [Fact]
+    public void Index_on_inherited_nested_json_complex_property_is_mapped_to_all_tpc_tables()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorNestedJsonTpcBase>(b =>
+        {
+            b.UseTpcMappingStrategy();
+            b.ComplexProperty(e => e.Outer, ob => ob.ComplexProperty(o => o.Document).ToJson());
+            b.HasIndex(e => e.Outer.Document);
+        });
+        modelBuilder.Entity<ValidatorNestedJsonTpcFirst>();
+        modelBuilder.Entity<ValidatorNestedJsonTpcSecond>();
+
+        var model = Validate(modelBuilder);
+
+        Assert.DoesNotContain(LoggerFactory.Log, l => l.Id == RelationalEventId.AllIndexPropertiesNotMappedToAnyTable);
+        Assert.All(
+            model.GetRelationalModel().Tables,
+            table => Assert.Equal("Outer_Document", Assert.Single(Assert.Single(table.Indexes).Columns).Name));
+    }
+
+    [Fact]
+    public void Inherited_nested_json_complex_property_is_mapped_only_to_its_declaring_tpt_table()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorNestedJsonTpcBase>(b =>
+        {
+            b.UseTptMappingStrategy().ToTable("BaseTable");
+            b.ComplexProperty(e => e.Outer, ob => ob.ComplexProperty(o => o.Document).ToJson());
+        });
+        modelBuilder.Entity<ValidatorNestedJsonTpcFirst>().ToTable("FirstTable");
+        modelBuilder.Entity<ValidatorNestedJsonTpcSecond>().ToTable("SecondTable");
+
+        var model = Validate(modelBuilder);
+        var documentProperty = GetDocumentProperty(model.FindEntityType(typeof(ValidatorNestedJsonTpcBase))!);
+        var baseTable = StoreObjectIdentifier.Table("BaseTable");
+        Assert.Equal("Outer_Document", documentProperty.ComplexType.GetContainerColumnName(baseTable));
+        Assert.Null(documentProperty.ComplexType.GetContainerColumnName(StoreObjectIdentifier.Table("FirstTable")));
+        Assert.Null(documentProperty.ComplexType.GetContainerColumnName(StoreObjectIdentifier.Table("SecondTable")));
+        Assert.Equal([baseTable], documentProperty.GetMappedStoreObjects(StoreObjectType.Table));
+    }
+
+    [Fact]
+    public void Throws_for_optional_complex_property_with_only_optional_properties_in_nested_json_complex_property()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorNestedJsonEntity>(b =>
+        {
+            b.Ignore(e => e.Outer_Document);
+            b.Ignore(e => e.Reserved);
+            b.ComplexProperty(
+                e => e.Outer, ob =>
+                {
+                    ob.IsRequired(false);
+                    ob.Ignore(o => o.Marker);
+                    ob.ComplexProperty(
+                        o => o.Document, db =>
+                        {
+                            db.ToJson();
+                            db.Property(d => d.Value).IsRequired(false);
+                        });
+                });
+        });
+
+        // A JSON document with only null values can't be told apart from a missing Outer by the values of its properties
         VerifyError(
-            RelationalStrings.NestedComplexPropertyJsonWithTableSharing(
-                "ValidatorComplexEntity.ComplexProp#ValidatorComplexType.NestedComplex",
-                "ValidatorComplexEntity.ComplexProp#ValidatorComplexType"),
+            RelationalStrings.ComplexPropertyOptionalTableSharing(
+                $"{nameof(ValidatorNestedJsonEntity)}.{nameof(ValidatorNestedJsonEntity.Outer)}#{nameof(ValidatorNestedJsonOuter)}",
+                nameof(ValidatorNestedJsonEntity.Outer)),
             modelBuilder);
     }
+
+    [Fact]
+    public void Passes_for_optional_complex_property_identified_by_required_nested_json_complex_property()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorNestedJsonEntity>(b =>
+        {
+            b.Ignore(e => e.Outer_Document);
+            b.Ignore(e => e.Reserved);
+            b.ComplexProperty(
+                e => e.Outer, ob =>
+                {
+                    ob.IsRequired(false);
+                    ob.Ignore(o => o.Marker);
+                    ob.ComplexProperty(o => o.Document).ToJson();
+                });
+        });
+
+        Validate(modelBuilder);
+    }
+
+    [Fact]
+    public void Passes_for_optional_complex_property_identified_by_required_property_in_nested_complex_property()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorNestedJsonEntity>(b =>
+        {
+            b.Ignore(e => e.Outer_Document);
+            b.Ignore(e => e.Reserved);
+            b.ComplexProperty(
+                e => e.Outer, ob =>
+                {
+                    ob.IsRequired(false);
+                    ob.Ignore(o => o.Marker);
+                    ob.ComplexProperty(o => o.Document, db => db.Property(d => d.Value).IsRequired());
+                });
+        });
+
+        Validate(modelBuilder);
+    }
+
+    private static IComplexProperty GetDocumentProperty(IEntityType entityType)
+        => entityType.FindComplexProperty(nameof(ValidatorNestedJsonEntity.Outer))!.ComplexType
+            .FindComplexProperty(nameof(ValidatorNestedJsonOuter.Document))!;
 
     [Fact]
     public void Throws_when_properties_in_complex_type_have_same_json_property_name()
@@ -1366,6 +1520,41 @@ public partial class RelationalModelValidatorTest
                 "column_name",
                 "json_name"),
             modelBuilder);
+    }
+
+    protected class ValidatorNestedJsonEntity
+    {
+        public int Id { get; set; }
+        public string Outer_Document { get; set; } = null!;
+        public ValidatorNestedJsonOuter Outer { get; set; } = null!;
+        public ValidatorNestedJsonDocument Reserved { get; set; } = null!;
+    }
+
+    protected class ValidatorNestedJsonOuter
+    {
+        public string? Marker { get; set; }
+        public ValidatorNestedJsonDocument Document { get; set; } = null!;
+    }
+
+    protected class ValidatorNestedJsonDocument
+    {
+        public string Value { get; set; } = null!;
+    }
+
+    protected abstract class ValidatorNestedJsonTpcBase
+    {
+        public int Id { get; set; }
+        public ValidatorNestedJsonOuter Outer { get; set; } = null!;
+    }
+
+    protected class ValidatorNestedJsonTpcFirst : ValidatorNestedJsonTpcBase
+    {
+        public string? Note { get; set; }
+    }
+
+    protected class ValidatorNestedJsonTpcSecond : ValidatorNestedJsonTpcBase
+    {
+        public string? Note { get; set; }
     }
 
     protected class ValidatorComplexEntity

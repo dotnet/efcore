@@ -182,7 +182,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor
                         if (requiredNonPkProperties.Count > 0)
                         {
                             condition = requiredNonPkProperties.Select(p => Infrastructure.ExpressionExtensions.CreateEqualsExpression(
-                                    CreatePropertyAccessExpression(nonNullEntityReference, p),
+                                    CreateKeyPropertyAccessExpression(nonNullEntityReference, p),
                                     Expression.Constant(null, p.ClrType.MakeNullable()),
                                     nodeType != ExpressionType.Equal))
                                 .Aggregate((l, r) => nodeType == ExpressionType.Equal ? Expression.OrElse(l, r) : Expression.AndAlso(l, r));
@@ -199,7 +199,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor
                             // - if the entity is to be not null, at least one property must be not null
                             var optionalPropertiesCondition = allNonPrincipalSharedNonPkProperties
                                 .Select(p => Infrastructure.ExpressionExtensions.CreateEqualsExpression(
-                                    CreatePropertyAccessExpression(nonNullEntityReference, p),
+                                    CreateKeyPropertyAccessExpression(nonNullEntityReference, p),
                                     Expression.Constant(null, p.ClrType.MakeNullable()),
                                     nodeType != ExpressionType.Equal))
                                 .Aggregate((l, r) => nodeType == ExpressionType.Equal ? Expression.AndAlso(l, r) : Expression.OrElse(l, r));
@@ -330,7 +330,8 @@ public partial class RelationalSqlTranslatingExpressionVisitor
             var boolTypeMapping = Dependencies.TypeMappingSource.FindMapping(typeof(bool))!;
             SqlExpression? comparisons = null;
 
-            if (!TryGenerateComparisons(leftComplexType, rightComplexType, left, right, ref comparisons, out _))
+            if (!TryGenerateComparisons(
+                    leftComplexType, rightComplexType, left, right, collection, requiredPath: true, ref comparisons, out _))
             {
                 result = null;
                 return false;
@@ -348,6 +349,8 @@ public partial class RelationalSqlTranslatingExpressionVisitor
                 IComplexType? rightComplexType,
                 Expression left,
                 Expression right,
+                bool collection,
+                bool requiredPath,
                 [NotNullWhen(true)] ref SqlExpression? comparisons,
                 out bool exitImmediately)
             {
@@ -416,6 +419,14 @@ public partial class RelationalSqlTranslatingExpressionVisitor
                             // with the .NET instance. Serialize it to JSON and replace the constant (note that the type mapping will be inferred from the
                             // JSON column on other side above - important for e.g. nvarchar vs. json columns)
                             case SqlConstantExpression constant:
+                                result = new SqlConstantExpression(
+                                    RelationalJsonUtilities.SerializeComplexTypeToJson(firstComplexType, constant.Value, collection),
+                                    typeof(string),
+                                    typeMapping: null);
+                                return true;
+
+                            // A JSON complex property nested in a table-split complex type, extracted from an inline instance
+                            case ConstantExpression constant:
                                 result = new SqlConstantExpression(
                                     RelationalJsonUtilities.SerializeComplexTypeToJson(firstComplexType, constant.Value, collection),
                                     typeof(string),
@@ -498,7 +509,9 @@ public partial class RelationalSqlTranslatingExpressionVisitor
 
                     // If we have a required property and one of the sides is a constant null,
                     // we can use just that property and skip comparing the rest of properties.
-                    if (!property.IsNullable
+                    // A required property in an optional nested complex type is null when that complex type is, so it can't be used.
+                    if (requiredPath
+                        && !property.IsNullable
                         && (leftTranslation is SqlConstantExpression { Value: null }
                             || rightTranslation is SqlConstantExpression { Value: null }))
                     {
@@ -552,7 +565,8 @@ public partial class RelationalSqlTranslatingExpressionVisitor
                     }
 
                     if (!TryGenerateComparisons(
-                            nestedLeftType, nestedRightType, nestedLeft, nestedRight, ref comparisons, out exitImmediately))
+                            nestedLeftType, nestedRightType, nestedLeft, nestedRight, firstComplexProperty.IsCollection,
+                            requiredPath && !firstComplexProperty.IsNullable, ref comparisons, out exitImmediately))
                     {
                         return false;
                     }
@@ -657,8 +671,8 @@ public partial class RelationalSqlTranslatingExpressionVisitor
         }
     }
 
-    // Key properties can be declared on complex types, so access them through the complex property chain
-    private Expression CreateKeyPropertyAccessExpression(Expression target, IProperty property)
+    // Key properties and JSON complex properties can be declared on complex types, so access them through the complex property chain
+    private Expression CreateKeyPropertyAccessExpression(Expression target, IPropertyBase property)
         => CreatePropertyAccessExpression(
             property.DeclaringType is IComplexType complexType ? CreateComplexTypeAccessExpression(target, complexType) : target,
             property);

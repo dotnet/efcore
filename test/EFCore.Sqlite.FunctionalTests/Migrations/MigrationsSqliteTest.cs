@@ -2127,7 +2127,7 @@ CREATE TABLE "Contacts" (
     "MyComplex_Nested_Bar" TEXT NULL,
     "MyComplex_MyNestedComplex_Foo" INTEGER NULL,
     "MyComplex_MyNestedComplex_Bar" TEXT NULL,
-    "NestedCollection" TEXT NULL
+    "MyComplex_NestedCollection" TEXT NULL
 );
 """);
     }
@@ -2145,7 +2145,7 @@ CREATE TABLE "Owner" (
     "Owned_Complex_Date" TEXT NULL,
     "Owned_Complex_Nested_Foo" INTEGER NULL,
     "Owned_Complex_Nested_Bar" TEXT NULL,
-    "NestedCollection" TEXT NULL
+    "Owned_Complex_NestedCollection" TEXT NULL
 );
 """,
             //
@@ -2175,7 +2175,7 @@ CREATE TABLE "Suppliers" (
     "MyComplex_Nested_Bar" TEXT NULL,
     "MyComplex_MyNestedComplex_Foo" INTEGER NULL,
     "MyComplex_MyNestedComplex_Bar" TEXT NULL,
-    "NestedCollection" TEXT NULL
+    "MyComplex_NestedCollection" TEXT NULL
 );
 """);
     }

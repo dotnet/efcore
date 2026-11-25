@@ -15913,9 +15913,6 @@
           "Member": "static string NestedComplexPropertyJsonColumn(object? complexProperty, object? column, object? containingType, object? containingColumn);"
         },
         {
-          "Member": "static string NestedComplexPropertyJsonWithTableSharing(object? complexProperty, object? containingType);"
-        },
-        {
           "Member": "static string NoAliasOnTable(object? table);"
         },
         {

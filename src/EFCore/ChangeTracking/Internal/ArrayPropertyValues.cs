@@ -46,16 +46,7 @@ public class ArrayPropertyValues : PropertyValues
             var complexProperty = nullableComplexProperties[i];
             var scalarProperties = complexProperty.ComplexType.GetFlattenedProperties();
 
-            IProperty? requiredProperty = null;
-            foreach (var property in scalarProperties)
-            {
-                if (!property.IsNullable)
-                {
-                    requiredProperty = property;
-                    break;
-                }
-            }
-
+            var requiredProperty = complexProperty.ComplexType.FindIdentifyingProperty();
             if (requiredProperty != null)
             {
                 flags[i] = values[requiredProperty.GetIndex()] == null;
@@ -93,10 +84,19 @@ public class ArrayPropertyValues : PropertyValues
         {
             for (var i = 0; i < _nullComplexPropertyFlags.Length; i++)
             {
+                var complexProperty = NullableComplexProperties[i];
                 if (_nullComplexPropertyFlags[i])
                 {
-                    var complexProperty = NullableComplexProperties[i];
                     structuralObject = SetNestedComplexPropertyValue(structuralObject, complexProperty, null);
+                }
+                // A complex property that isn't null is materialized as null when none of its values show that it exists,
+                // e.g. when it's identified by a JSON complex property with only null values, so it's created from the values
+                else if (TryGetNestedComplexPropertyValue(structuralObject, complexProperty, out var value)
+                         && value == null)
+                {
+                    var materializer = complexProperty.ComplexType.GetOrCreateMaterializer(MaterializerSource);
+                    value = materializer(new MaterializationContext(new ValueBuffer(_values), InternalEntry.Context));
+                    structuralObject = SetNestedComplexPropertyValue(structuralObject, complexProperty, value);
                 }
             }
         }
@@ -123,6 +123,23 @@ public class ArrayPropertyValues : PropertyValues
         }
 
         return structuralObject;
+    }
+
+    // Gets the value of the complex property, unless a complex property containing it is null
+    private static bool TryGetNestedComplexPropertyValue(object structuralObject, IComplexProperty complexProperty, out object? value)
+    {
+        value = structuralObject;
+        foreach (var currentProperty in complexProperty.GetChainToComplexProperty(false))
+        {
+            if (value == null)
+            {
+                return false;
+            }
+
+            value = ((IRuntimeComplexProperty)currentProperty).GetGetter().GetClrValue(value);
+        }
+
+        return true;
     }
 
     private object SetNestedComplexPropertyValue(object structuralObject, IComplexProperty complexProperty, object? value)

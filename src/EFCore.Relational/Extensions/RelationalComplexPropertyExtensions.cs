@@ -94,22 +94,22 @@ public static class RelationalComplexPropertyExtensions
         //     }
         // }
 
-        if (declaringType.GetMappingStrategy() == RelationalAnnotationNames.TphMappingStrategy)
+        // A complex property declared on a complex type mapped to columns (table splitting) is in the tables of the entity type
+        var entityType = declaringType.ContainingEntityType;
+        if (entityType.GetMappingStrategy() == RelationalAnnotationNames.TphMappingStrategy)
         {
             yield break;
         }
 
-        if (declaringType is IReadOnlyEntityType entityType)
+        foreach (var derivedType in entityType.GetDerivedTypes())
         {
-            foreach (var derivedType in entityType.GetDerivedTypes())
+            // TODO: Support different JSON column names in derived types. Issue #38214
+            // With TPT, the JSON column is only in the table of the declaring type
+            var derivedStoreObject = StoreObjectIdentifier.Create(derivedType, storeObjectType);
+            if (derivedStoreObject != null
+                && property.ComplexType.GetContainerColumnName(derivedStoreObject.Value) != null)
             {
-                // TODO: Support different JSON column names in derived types. Issue #38214
-                var derivedStoreObject = StoreObjectIdentifier.Create(derivedType, storeObjectType);
-                if (derivedStoreObject != null
-                    && property.ComplexType.GetContainerColumnName() != null)
-                {
-                    yield return derivedStoreObject.Value;
-                }
+                yield return derivedStoreObject.Value;
             }
         }
     }

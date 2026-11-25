@@ -18,10 +18,17 @@ public static class RelationalComplexPropertyBuilderExtensions
     /// <param name="jsonColumnName">The name of the JSON column. If not specified, the complex property name is used.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     /// <remarks>
-    ///     If the complex property is declared on an owned type that shares a table or view with its owner and the column name
-    ///     is not specified, the name is prefixed in that table or view with the names of the ownership navigations.
-    ///     For example, a complex property <c>Location</c> on the owned <c>Order.ShippingAddress</c> is mapped to the
-    ///     <c>ShippingAddress_Location</c> column.
+    ///     <para>
+    ///         If the complex property is declared on an owned type that shares a table or view with its owner and the column name
+    ///         is not specified, the name is prefixed in that table or view with the names of the ownership navigations.
+    ///         For example, a complex property <c>Location</c> on the owned <c>Order.ShippingAddress</c> is mapped to the
+    ///         <c>ShippingAddress_Location</c> column.
+    ///     </para>
+    ///     <para>
+    ///         If the complex property is declared on a complex type that isn't mapped to JSON and the column name is not specified,
+    ///         the name is prefixed with the names of the containing complex properties. For example, a complex property
+    ///         <c>Address</c> on the complex property <c>Order.Shipping</c> is mapped to the <c>Shipping_Address</c> column.
+    ///     </para>
     /// </remarks>
     public static ComplexPropertyBuilder ToJson(
         this ComplexPropertyBuilder complexPropertyBuilder,
@@ -44,10 +51,17 @@ public static class RelationalComplexPropertyBuilderExtensions
     /// <param name="jsonColumnName">The name of the JSON column. If not specified, the complex property name is used.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     /// <remarks>
-    ///     If the complex property is declared on an owned type that shares a table or view with its owner and the column name
-    ///     is not specified, the name is prefixed in that table or view with the names of the ownership navigations.
-    ///     For example, a complex property <c>Location</c> on the owned <c>Order.ShippingAddress</c> is mapped to the
-    ///     <c>ShippingAddress_Location</c> column.
+    ///     <para>
+    ///         If the complex property is declared on an owned type that shares a table or view with its owner and the column name
+    ///         is not specified, the name is prefixed in that table or view with the names of the ownership navigations.
+    ///         For example, a complex property <c>Location</c> on the owned <c>Order.ShippingAddress</c> is mapped to the
+    ///         <c>ShippingAddress_Location</c> column.
+    ///     </para>
+    ///     <para>
+    ///         If the complex property is declared on a complex type that isn't mapped to JSON and the column name is not specified,
+    ///         the name is prefixed with the names of the containing complex properties. For example, a complex property
+    ///         <c>Address</c> on the complex property <c>Order.Shipping</c> is mapped to the <c>Shipping_Address</c> column.
+    ///     </para>
     /// </remarks>
     public static ComplexPropertyBuilder<TComplex> ToJson<TComplex>(
         this ComplexPropertyBuilder<TComplex> complexPropertyBuilder,

@@ -140,7 +140,7 @@ public class TableBase : Annotatable, ITableBase
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected virtual IColumnBase? FindColumn(IComplexProperty complexProperty)
-        => complexProperty.ComplexType.GetContainerColumnName() is { Length: > 0 } containerName
+        => complexProperty.ComplexType.GetDefaultMappingContainerColumnName() is { Length: > 0 } containerName
             ? FindColumn(containerName)
             : null;
 

@@ -1204,9 +1204,6 @@
   <data name="NestedComplexPropertyJsonColumn" xml:space="preserve">
     <value>Complex property '{complexProperty}' is mapped to JSON column '{column}', but its containing type '{containingType}' is already mapped to JSON column '{containingColumn}'. Only call 'ToJson()' on the outermost type mapped to JSON.</value>
   </data>
-  <data name="NestedComplexPropertyJsonWithTableSharing" xml:space="preserve">
-    <value>Complex property '{complexProperty}' is mapped to JSON but its containing type '{containingType}' is not. Map the root complex type to JSON. See https://github.com/dotnet/efcore/issues/36558.</value>
-  </data>
   <data name="NoActiveTransaction" xml:space="preserve">
     <value>The connection does not have any active transactions.</value>
   </data>

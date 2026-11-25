@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Text;
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 /// <summary>
@@ -328,7 +326,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         bool isTpc,
         IRelationalTypeMappingSource relationalTypeMappingSource)
     {
-        var containerColumnName = mappedType.GetContainerColumnName();
+        var containerColumnName = mappedType.GetDefaultMappingContainerColumnName();
         var containerColumnType = mappedType.GetContainerColumnType();
         if (!string.IsNullOrEmpty(containerColumnName))
         {
@@ -389,25 +387,9 @@ public class RelationalModel : Annotatable, IRelationalModel
         }
 
         static string GetColumnName(IProperty property)
-        {
-            var complexType = property.DeclaringType as IComplexType;
-            if (complexType != null)
-            {
-                var builder = new StringBuilder();
-                builder.Append(property.Name);
-                while (complexType != null)
-                {
-                    builder.Insert(0, "_");
-                    builder.Insert(0, complexType.ComplexProperty.Name);
-
-                    complexType = complexType.ComplexProperty.DeclaringType as IComplexType;
-                }
-
-                return builder.ToString();
-            }
-
-            return property.GetColumnName();
-        }
+            => property.DeclaringType is IComplexType complexType
+                ? EntityFrameworkCore.RelationalPropertyExtensions.GetDefaultMappingColumnName(complexType, property.Name)
+                : property.GetColumnName();
     }
 
     private static IEnumerable<ITableMapping> GetTableMappings(ITypeBase typeBase)

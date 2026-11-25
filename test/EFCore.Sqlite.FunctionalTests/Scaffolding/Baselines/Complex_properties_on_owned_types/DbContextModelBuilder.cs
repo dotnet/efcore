@@ -55,6 +55,11 @@ public partial class DbContextModel
         microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexTableBase.Columns.Add("Location_Coordinates_Latitude", location_Coordinates_LatitudeColumnBase);
         var location_Coordinates_LongitudeColumnBase = new ColumnBase<ColumnMappingBase>("Location_Coordinates_Longitude", "TEXT", microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexTableBase);
         microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexTableBase.Columns.Add("Location_Coordinates_Longitude", location_Coordinates_LongitudeColumnBase);
+        var location_LandmarkColumnBase = new JsonColumnBase("Location_Landmark", "TEXT", microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexTableBase)
+        {
+            IsNullable = true
+        };
+        microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexTableBase.Columns.Add("Location_Landmark", location_LandmarkColumnBase);
         var ownerWithComplexIdColumnBase = new ColumnBase<ColumnMappingBase>("OwnerWithComplexId", "INTEGER", microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexTableBase);
         microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexTableBase.Columns.Add("OwnerWithComplexId", ownerWithComplexIdColumnBase);
         var tagsColumnBase = new JsonColumnBase("Tags", "TEXT", microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexTableBase);
@@ -71,19 +76,27 @@ public partial class DbContextModel
         var longitudeJsonScalar = new RelationalJsonScalar("Longitude", coordinatesJsonObject, false);
         coordinatesJsonObject.AddProperty(longitudeJsonScalar);
         locationJsonObject.AddProperty(coordinatesJsonObject);
+        var landmarkJsonObject = new RelationalJsonObject("Landmark", locationJsonObject, true);
+        var textJsonScalar = new RelationalJsonScalar("Text", landmarkJsonObject, false);
+        landmarkJsonObject.AddProperty(textJsonScalar);
+        locationJsonObject.AddProperty(landmarkJsonObject);
         elementJsonObject.AddProperty(locationJsonObject);
         var tagsJsonArray = new RelationalJsonArray("Tags", elementJsonObject, false);
         var elementJsonObject0 = new RelationalJsonObject(tagsJsonArray, false);
-        var textJsonScalar = new RelationalJsonScalar("Text", elementJsonObject0, false);
-        elementJsonObject0.AddProperty(textJsonScalar);
+        var textJsonScalar0 = new RelationalJsonScalar("Text", elementJsonObject0, false);
+        elementJsonObject0.AddProperty(textJsonScalar0);
         tagsJsonArray.ElementType = elementJsonObject0;
         elementJsonObject.AddProperty(tagsJsonArray);
         jsonOwnedColumnBase.JsonElement = elementJsonObject;
+        var elementJsonObject1 = new RelationalJsonObject(location_LandmarkColumnBase, true);
+        var textJsonScalar1 = new RelationalJsonScalar("Text", elementJsonObject1, false);
+        elementJsonObject1.AddProperty(textJsonScalar1);
+        location_LandmarkColumnBase.JsonElement = elementJsonObject1;
         var arrayJsonArray = new RelationalJsonArray(tagsColumnBase, false);
-        var elementJsonObject1 = new RelationalJsonObject(arrayJsonArray, false);
-        var textJsonScalar0 = new RelationalJsonScalar("Text", elementJsonObject1, false);
-        elementJsonObject1.AddProperty(textJsonScalar0);
-        arrayJsonArray.ElementType = elementJsonObject1;
+        var elementJsonObject2 = new RelationalJsonObject(arrayJsonArray, false);
+        var textJsonScalar2 = new RelationalJsonScalar("Text", elementJsonObject2, false);
+        elementJsonObject2.AddProperty(textJsonScalar2);
+        arrayJsonArray.ElementType = elementJsonObject2;
         tagsColumnBase.JsonElement = arrayJsonArray;
         relationalModel.DefaultTables.Add("Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelRelationalTestBase+OwnerWithComplex", microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexTableBase);
         var microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase = new TableMappingBase<ColumnMappingBase>(ownerWithComplex, microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexTableBase, null);
@@ -109,13 +122,19 @@ public partial class DbContextModel
         var owned_Location_Coordinates_LongitudeColumn = new Column("Owned_Location_Coordinates_Longitude", "TEXT", ownerWithComplexTable);
         ownerWithComplexTable.Columns.Add("Owned_Location_Coordinates_Longitude", owned_Location_Coordinates_LongitudeColumn);
         owned_Location_Coordinates_LongitudeColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<decimal>(owned_Location_Coordinates_LongitudeColumn);
+        var owned_Location_LandmarkColumn = new JsonColumn("Owned_Location_Landmark", "TEXT", ownerWithComplexTable)
+        {
+            IsNullable = true
+        };
+        ownerWithComplexTable.Columns.Add("Owned_Location_Landmark", owned_Location_LandmarkColumn);
+        owned_Location_LandmarkColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<JsonTypePlaceholder>(owned_Location_LandmarkColumn);
         var owned_TagsColumn = new JsonColumn("Owned_Tags", "TEXT", ownerWithComplexTable);
         ownerWithComplexTable.Columns.Add("Owned_Tags", owned_TagsColumn);
         owned_TagsColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<JsonTypePlaceholder>(owned_TagsColumn);
-        var elementJsonObject2 = new RelationalJsonObject(jsonOwnedColumn, false);
-        var ownerWithComplexIdJsonScalar0 = new RelationalJsonScalar("OwnerWithComplexId", elementJsonObject2, false);
-        elementJsonObject2.AddProperty(ownerWithComplexIdJsonScalar0);
-        var locationJsonObject0 = new RelationalJsonObject("Location", elementJsonObject2, false);
+        var elementJsonObject3 = new RelationalJsonObject(jsonOwnedColumn, false);
+        var ownerWithComplexIdJsonScalar0 = new RelationalJsonScalar("OwnerWithComplexId", elementJsonObject3, false);
+        elementJsonObject3.AddProperty(ownerWithComplexIdJsonScalar0);
+        var locationJsonObject0 = new RelationalJsonObject("Location", elementJsonObject3, false);
         var cityJsonScalar0 = new RelationalJsonScalar("City", locationJsonObject0, false);
         locationJsonObject0.AddProperty(cityJsonScalar0);
         var coordinatesJsonObject0 = new RelationalJsonObject("Coordinates", locationJsonObject0, false);
@@ -124,19 +143,27 @@ public partial class DbContextModel
         var longitudeJsonScalar0 = new RelationalJsonScalar("Longitude", coordinatesJsonObject0, false);
         coordinatesJsonObject0.AddProperty(longitudeJsonScalar0);
         locationJsonObject0.AddProperty(coordinatesJsonObject0);
-        elementJsonObject2.AddProperty(locationJsonObject0);
-        var tagsJsonArray0 = new RelationalJsonArray("Tags", elementJsonObject2, false);
-        var elementJsonObject3 = new RelationalJsonObject(tagsJsonArray0, false);
-        var textJsonScalar1 = new RelationalJsonScalar("Text", elementJsonObject3, false);
-        elementJsonObject3.AddProperty(textJsonScalar1);
-        tagsJsonArray0.ElementType = elementJsonObject3;
-        elementJsonObject2.AddProperty(tagsJsonArray0);
-        jsonOwnedColumn.JsonElement = elementJsonObject2;
+        var landmarkJsonObject0 = new RelationalJsonObject("Landmark", locationJsonObject0, true);
+        var textJsonScalar3 = new RelationalJsonScalar("Text", landmarkJsonObject0, false);
+        landmarkJsonObject0.AddProperty(textJsonScalar3);
+        locationJsonObject0.AddProperty(landmarkJsonObject0);
+        elementJsonObject3.AddProperty(locationJsonObject0);
+        var tagsJsonArray0 = new RelationalJsonArray("Tags", elementJsonObject3, false);
+        var elementJsonObject4 = new RelationalJsonObject(tagsJsonArray0, false);
+        var textJsonScalar4 = new RelationalJsonScalar("Text", elementJsonObject4, false);
+        elementJsonObject4.AddProperty(textJsonScalar4);
+        tagsJsonArray0.ElementType = elementJsonObject4;
+        elementJsonObject3.AddProperty(tagsJsonArray0);
+        jsonOwnedColumn.JsonElement = elementJsonObject3;
+        var elementJsonObject5 = new RelationalJsonObject(owned_Location_LandmarkColumn, true);
+        var textJsonScalar5 = new RelationalJsonScalar("Text", elementJsonObject5, false);
+        elementJsonObject5.AddProperty(textJsonScalar5);
+        owned_Location_LandmarkColumn.JsonElement = elementJsonObject5;
         var arrayJsonArray0 = new RelationalJsonArray(owned_TagsColumn, false);
-        var elementJsonObject4 = new RelationalJsonObject(arrayJsonArray0, false);
-        var textJsonScalar2 = new RelationalJsonScalar("Text", elementJsonObject4, false);
-        elementJsonObject4.AddProperty(textJsonScalar2);
-        arrayJsonArray0.ElementType = elementJsonObject4;
+        var elementJsonObject6 = new RelationalJsonObject(arrayJsonArray0, false);
+        var textJsonScalar6 = new RelationalJsonScalar("Text", elementJsonObject6, false);
+        elementJsonObject6.AddProperty(textJsonScalar6);
+        arrayJsonArray0.ElementType = elementJsonObject6;
         owned_TagsColumn.JsonElement = arrayJsonArray0;
         relationalModel.Tables.Add(("OwnerWithComplex", null), ownerWithComplexTable);
         var ownerWithComplexTableMapping = new TableMapping(ownerWithComplex, ownerWithComplexTable, null)
@@ -161,8 +188,10 @@ public partial class DbContextModel
         RelationalModel.CreateJsonElementMapping(ownedWithComplex.FindComplexProperty("Location")!.ComplexType.FindComplexProperty("Coordinates")!, coordinatesJsonObject, microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase0);
         RelationalModel.CreateJsonElementMapping(ownedWithComplex.FindComplexProperty("Location")!.ComplexType.FindComplexProperty("Coordinates")!.ComplexType.FindProperty("Latitude")!, latitudeJsonScalar, microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase0);
         RelationalModel.CreateJsonElementMapping(ownedWithComplex.FindComplexProperty("Location")!.ComplexType.FindComplexProperty("Coordinates")!.ComplexType.FindProperty("Longitude")!, longitudeJsonScalar, microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase0);
+        RelationalModel.CreateJsonElementMapping(ownedWithComplex.FindComplexProperty("Location")!.ComplexType.FindComplexProperty("Landmark")!, landmarkJsonObject, microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase0);
+        RelationalModel.CreateJsonElementMapping(ownedWithComplex.FindComplexProperty("Location")!.ComplexType.FindComplexProperty("Landmark")!.ComplexType.FindProperty("Text")!, textJsonScalar, microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase0);
         RelationalModel.CreateJsonElementMapping(ownedWithComplex.FindComplexProperty("Tags")!, tagsJsonArray, microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase0);
-        RelationalModel.CreateJsonElementMapping(ownedWithComplex.FindComplexProperty("Tags")!.ComplexType.FindProperty("Text")!, textJsonScalar, microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase0);
+        RelationalModel.CreateJsonElementMapping(ownedWithComplex.FindComplexProperty("Tags")!.ComplexType.FindProperty("Text")!, textJsonScalar0, microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase0);
 
         var tableMappings0 = new List<TableMapping>();
         ownedWithComplex.SetRuntimeAnnotation("Relational:TableMappings", tableMappings0);
@@ -177,15 +206,17 @@ public partial class DbContextModel
             new[] { "OwnerWithComplexId" },
             "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelRelationalTestBase+OwnerWithComplex",
             new[] { "Id" }));
-        RelationalModel.CreateJsonElementMapping(ownerWithComplex.FindNavigation("JsonOwned")!, elementJsonObject2, ownerWithComplexTableMapping0);
+        RelationalModel.CreateJsonElementMapping(ownerWithComplex.FindNavigation("JsonOwned")!, elementJsonObject3, ownerWithComplexTableMapping0);
         RelationalModel.CreateJsonElementMapping(ownedWithComplex.FindProperty("OwnerWithComplexId")!, ownerWithComplexIdJsonScalar0, ownerWithComplexTableMapping0);
         RelationalModel.CreateJsonElementMapping(ownedWithComplex.FindComplexProperty("Location")!, locationJsonObject0, ownerWithComplexTableMapping0);
         RelationalModel.CreateJsonElementMapping(ownedWithComplex.FindComplexProperty("Location")!.ComplexType.FindProperty("City")!, cityJsonScalar0, ownerWithComplexTableMapping0);
         RelationalModel.CreateJsonElementMapping(ownedWithComplex.FindComplexProperty("Location")!.ComplexType.FindComplexProperty("Coordinates")!, coordinatesJsonObject0, ownerWithComplexTableMapping0);
         RelationalModel.CreateJsonElementMapping(ownedWithComplex.FindComplexProperty("Location")!.ComplexType.FindComplexProperty("Coordinates")!.ComplexType.FindProperty("Latitude")!, latitudeJsonScalar0, ownerWithComplexTableMapping0);
         RelationalModel.CreateJsonElementMapping(ownedWithComplex.FindComplexProperty("Location")!.ComplexType.FindComplexProperty("Coordinates")!.ComplexType.FindProperty("Longitude")!, longitudeJsonScalar0, ownerWithComplexTableMapping0);
+        RelationalModel.CreateJsonElementMapping(ownedWithComplex.FindComplexProperty("Location")!.ComplexType.FindComplexProperty("Landmark")!, landmarkJsonObject0, ownerWithComplexTableMapping0);
+        RelationalModel.CreateJsonElementMapping(ownedWithComplex.FindComplexProperty("Location")!.ComplexType.FindComplexProperty("Landmark")!.ComplexType.FindProperty("Text")!, textJsonScalar3, ownerWithComplexTableMapping0);
         RelationalModel.CreateJsonElementMapping(ownedWithComplex.FindComplexProperty("Tags")!, tagsJsonArray0, ownerWithComplexTableMapping0);
-        RelationalModel.CreateJsonElementMapping(ownedWithComplex.FindComplexProperty("Tags")!.ComplexType.FindProperty("Text")!, textJsonScalar1, ownerWithComplexTableMapping0);
+        RelationalModel.CreateJsonElementMapping(ownedWithComplex.FindComplexProperty("Tags")!.ComplexType.FindProperty("Text")!, textJsonScalar4, ownerWithComplexTableMapping0);
 
         var locationComplex = ownedWithComplex.FindComplexProperty("Location")!.ComplexType;
 
@@ -215,7 +246,7 @@ public partial class DbContextModel
         ownerWithComplexTable.AddTypeMapping(ownerWithComplexTableMapping2, null);
         tableMappings2.Add(ownerWithComplexTableMapping2);
 
-        var tagComplex = ownedWithComplex.FindComplexProperty("Tags")!.ComplexType;
+        var tagComplex = locationComplex.FindComplexProperty("Landmark")!.ComplexType;
 
         var defaultTableMappings3 = new List<TableMappingBase<ColumnMappingBase>>();
         tagComplex.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings3);
@@ -229,81 +260,113 @@ public partial class DbContextModel
         ownerWithComplexTable.AddTypeMapping(ownerWithComplexTableMapping3, null);
         tableMappings3.Add(ownerWithComplexTableMapping3);
 
-        var ownedWithComplex0 = FindEntityType("Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelRelationalTestBase+OwnerWithComplex.Owned#OwnedWithComplex")!;
+        var tagComplex0 = ownedWithComplex.FindComplexProperty("Tags")!.ComplexType;
 
         var defaultTableMappings4 = new List<TableMappingBase<ColumnMappingBase>>();
-        ownedWithComplex0.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings4);
-        var microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase4 = new TableMappingBase<ColumnMappingBase>(ownedWithComplex0, microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexTableBase, null);
-        microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexTableBase.AddTypeMapping(microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase4, false);
+        tagComplex0.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings4);
+        var microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase4 = new TableMappingBase<ColumnMappingBase>(tagComplex0, microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexTableBase, null);
+        microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexTableBase.AddTypeMapping(microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase4, null);
         defaultTableMappings4.Add(microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase4);
-        RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)ownerWithComplexIdColumnBase, ownedWithComplex0.FindProperty("OwnerWithComplexId")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase4);
 
         var tableMappings4 = new List<TableMapping>();
-        ownedWithComplex0.SetRuntimeAnnotation("Relational:TableMappings", tableMappings4);
-        var ownerWithComplexTableMapping4 = new TableMapping(ownedWithComplex0, ownerWithComplexTable, null)
+        tagComplex0.SetRuntimeAnnotation("Relational:TableMappings", tableMappings4);
+        var ownerWithComplexTableMapping4 = new TableMapping(tagComplex0, ownerWithComplexTable, true);
+        ownerWithComplexTable.AddTypeMapping(ownerWithComplexTableMapping4, null);
+        tableMappings4.Add(ownerWithComplexTableMapping4);
+
+        var ownedWithComplex0 = FindEntityType("Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelRelationalTestBase+OwnerWithComplex.Owned#OwnedWithComplex")!;
+
+        var defaultTableMappings5 = new List<TableMappingBase<ColumnMappingBase>>();
+        ownedWithComplex0.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings5);
+        var microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase5 = new TableMappingBase<ColumnMappingBase>(ownedWithComplex0, microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexTableBase, null);
+        microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexTableBase.AddTypeMapping(microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase5, false);
+        defaultTableMappings5.Add(microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase5);
+        RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)ownerWithComplexIdColumnBase, ownedWithComplex0.FindProperty("OwnerWithComplexId")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase5);
+
+        var tableMappings5 = new List<TableMapping>();
+        ownedWithComplex0.SetRuntimeAnnotation("Relational:TableMappings", tableMappings5);
+        var ownerWithComplexTableMapping5 = new TableMapping(ownedWithComplex0, ownerWithComplexTable, null)
         {
             IsSharedTablePrincipal = false,
         };
-        ownerWithComplexTable.AddTypeMapping(ownerWithComplexTableMapping4, false);
-        tableMappings4.Add(ownerWithComplexTableMapping4);
+        ownerWithComplexTable.AddTypeMapping(ownerWithComplexTableMapping5, false);
+        tableMappings5.Add(ownerWithComplexTableMapping5);
         ownerWithComplexTable.AddRowInternalForeignKey(ownedWithComplex0, RelationalModel.GetForeignKey(this,
             "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelRelationalTestBase+OwnerWithComplex.Owned#OwnedWithComplex",
             new[] { "OwnerWithComplexId" },
             "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelRelationalTestBase+OwnerWithComplex",
             new[] { "Id" }));
-        RelationalModel.CreateColumnMapping(idColumn, ownedWithComplex0.FindProperty("OwnerWithComplexId")!, ownerWithComplexTableMapping4);
+        RelationalModel.CreateColumnMapping(idColumn, ownedWithComplex0.FindProperty("OwnerWithComplexId")!, ownerWithComplexTableMapping5);
 
         var locationComplex0 = ownedWithComplex0.FindComplexProperty("Location")!.ComplexType;
 
-        var defaultTableMappings5 = new List<TableMappingBase<ColumnMappingBase>>();
-        locationComplex0.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings5);
-        var microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase5 = new TableMappingBase<ColumnMappingBase>(locationComplex0, microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexTableBase, null);
-        microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexTableBase.AddTypeMapping(microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase5, false);
-        defaultTableMappings5.Add(microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase5);
-        RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)location_CityColumnBase, locationComplex0.FindProperty("City")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase5);
+        var defaultTableMappings6 = new List<TableMappingBase<ColumnMappingBase>>();
+        locationComplex0.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings6);
+        var microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase6 = new TableMappingBase<ColumnMappingBase>(locationComplex0, microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexTableBase, null);
+        microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexTableBase.AddTypeMapping(microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase6, false);
+        defaultTableMappings6.Add(microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase6);
+        RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)location_CityColumnBase, locationComplex0.FindProperty("City")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase6);
 
-        var tableMappings5 = new List<TableMapping>();
-        locationComplex0.SetRuntimeAnnotation("Relational:TableMappings", tableMappings5);
-        var ownerWithComplexTableMapping5 = new TableMapping(locationComplex0, ownerWithComplexTable, true);
-        ownerWithComplexTable.AddTypeMapping(ownerWithComplexTableMapping5, false);
-        tableMappings5.Add(ownerWithComplexTableMapping5);
-        RelationalModel.CreateColumnMapping(owned_Location_CityColumn, locationComplex0.FindProperty("City")!, ownerWithComplexTableMapping5);
+        var tableMappings6 = new List<TableMapping>();
+        locationComplex0.SetRuntimeAnnotation("Relational:TableMappings", tableMappings6);
+        var ownerWithComplexTableMapping6 = new TableMapping(locationComplex0, ownerWithComplexTable, true);
+        ownerWithComplexTable.AddTypeMapping(ownerWithComplexTableMapping6, false);
+        tableMappings6.Add(ownerWithComplexTableMapping6);
+        RelationalModel.CreateColumnMapping(owned_Location_CityColumn, locationComplex0.FindProperty("City")!, ownerWithComplexTableMapping6);
 
         var coordinatesComplex0 = locationComplex0.FindComplexProperty("Coordinates")!.ComplexType;
 
-        var defaultTableMappings6 = new List<TableMappingBase<ColumnMappingBase>>();
-        coordinatesComplex0.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings6);
-        var microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase6 = new TableMappingBase<ColumnMappingBase>(coordinatesComplex0, microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexTableBase, null);
-        microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexTableBase.AddTypeMapping(microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase6, false);
-        defaultTableMappings6.Add(microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase6);
-        RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)location_Coordinates_LatitudeColumnBase, coordinatesComplex0.FindProperty("Latitude")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase6);
-        RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)location_Coordinates_LongitudeColumnBase, coordinatesComplex0.FindProperty("Longitude")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase6);
-
-        var tableMappings6 = new List<TableMapping>();
-        coordinatesComplex0.SetRuntimeAnnotation("Relational:TableMappings", tableMappings6);
-        var ownerWithComplexTableMapping6 = new TableMapping(coordinatesComplex0, ownerWithComplexTable, true);
-        ownerWithComplexTable.AddTypeMapping(ownerWithComplexTableMapping6, false);
-        tableMappings6.Add(ownerWithComplexTableMapping6);
-        RelationalModel.CreateColumnMapping(owned_Location_Coordinates_LatitudeColumn, coordinatesComplex0.FindProperty("Latitude")!, ownerWithComplexTableMapping6);
-        RelationalModel.CreateColumnMapping(owned_Location_Coordinates_LongitudeColumn, coordinatesComplex0.FindProperty("Longitude")!, ownerWithComplexTableMapping6);
-
-        var tagComplex0 = ownedWithComplex0.FindComplexProperty("Tags")!.ComplexType;
-
         var defaultTableMappings7 = new List<TableMappingBase<ColumnMappingBase>>();
-        tagComplex0.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings7);
-        var microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase7 = new TableMappingBase<ColumnMappingBase>(tagComplex0, microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexTableBase, null);
-        microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexTableBase.AddTypeMapping(microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase7, null);
+        coordinatesComplex0.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings7);
+        var microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase7 = new TableMappingBase<ColumnMappingBase>(coordinatesComplex0, microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexTableBase, null);
+        microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexTableBase.AddTypeMapping(microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase7, false);
         defaultTableMappings7.Add(microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase7);
-        RelationalModel.CreateJsonElementMapping(ownedWithComplex0.FindComplexProperty("Tags")!, arrayJsonArray, microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase7);
-        RelationalModel.CreateJsonElementMapping(tagComplex0.FindProperty("Text")!, textJsonScalar0, microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase7);
+        RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)location_Coordinates_LatitudeColumnBase, coordinatesComplex0.FindProperty("Latitude")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase7);
+        RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)location_Coordinates_LongitudeColumnBase, coordinatesComplex0.FindProperty("Longitude")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase7);
 
         var tableMappings7 = new List<TableMapping>();
-        tagComplex0.SetRuntimeAnnotation("Relational:TableMappings", tableMappings7);
-        var ownerWithComplexTableMapping7 = new TableMapping(tagComplex0, ownerWithComplexTable, true);
-        ownerWithComplexTable.AddTypeMapping(ownerWithComplexTableMapping7, null);
+        coordinatesComplex0.SetRuntimeAnnotation("Relational:TableMappings", tableMappings7);
+        var ownerWithComplexTableMapping7 = new TableMapping(coordinatesComplex0, ownerWithComplexTable, true);
+        ownerWithComplexTable.AddTypeMapping(ownerWithComplexTableMapping7, false);
         tableMappings7.Add(ownerWithComplexTableMapping7);
-        RelationalModel.CreateJsonElementMapping(ownedWithComplex0.FindComplexProperty("Tags")!, arrayJsonArray0, ownerWithComplexTableMapping7);
-        RelationalModel.CreateJsonElementMapping(tagComplex0.FindProperty("Text")!, textJsonScalar2, ownerWithComplexTableMapping7);
+        RelationalModel.CreateColumnMapping(owned_Location_Coordinates_LatitudeColumn, coordinatesComplex0.FindProperty("Latitude")!, ownerWithComplexTableMapping7);
+        RelationalModel.CreateColumnMapping(owned_Location_Coordinates_LongitudeColumn, coordinatesComplex0.FindProperty("Longitude")!, ownerWithComplexTableMapping7);
+
+        var tagComplex1 = locationComplex0.FindComplexProperty("Landmark")!.ComplexType;
+
+        var defaultTableMappings8 = new List<TableMappingBase<ColumnMappingBase>>();
+        tagComplex1.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings8);
+        var microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase8 = new TableMappingBase<ColumnMappingBase>(tagComplex1, microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexTableBase, null);
+        microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexTableBase.AddTypeMapping(microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase8, null);
+        defaultTableMappings8.Add(microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase8);
+        RelationalModel.CreateJsonElementMapping(locationComplex0.FindComplexProperty("Landmark")!, elementJsonObject1, microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase8);
+        RelationalModel.CreateJsonElementMapping(tagComplex1.FindProperty("Text")!, textJsonScalar1, microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase8);
+
+        var tableMappings8 = new List<TableMapping>();
+        tagComplex1.SetRuntimeAnnotation("Relational:TableMappings", tableMappings8);
+        var ownerWithComplexTableMapping8 = new TableMapping(tagComplex1, ownerWithComplexTable, true);
+        ownerWithComplexTable.AddTypeMapping(ownerWithComplexTableMapping8, null);
+        tableMappings8.Add(ownerWithComplexTableMapping8);
+        RelationalModel.CreateJsonElementMapping(locationComplex0.FindComplexProperty("Landmark")!, elementJsonObject5, ownerWithComplexTableMapping8);
+        RelationalModel.CreateJsonElementMapping(tagComplex1.FindProperty("Text")!, textJsonScalar5, ownerWithComplexTableMapping8);
+
+        var tagComplex2 = ownedWithComplex0.FindComplexProperty("Tags")!.ComplexType;
+
+        var defaultTableMappings9 = new List<TableMappingBase<ColumnMappingBase>>();
+        tagComplex2.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings9);
+        var microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase9 = new TableMappingBase<ColumnMappingBase>(tagComplex2, microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexTableBase, null);
+        microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexTableBase.AddTypeMapping(microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase9, null);
+        defaultTableMappings9.Add(microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase9);
+        RelationalModel.CreateJsonElementMapping(ownedWithComplex0.FindComplexProperty("Tags")!, arrayJsonArray, microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase9);
+        RelationalModel.CreateJsonElementMapping(tagComplex2.FindProperty("Text")!, textJsonScalar2, microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseOwnerWithComplexMappingBase9);
+
+        var tableMappings9 = new List<TableMapping>();
+        tagComplex2.SetRuntimeAnnotation("Relational:TableMappings", tableMappings9);
+        var ownerWithComplexTableMapping9 = new TableMapping(tagComplex2, ownerWithComplexTable, true);
+        ownerWithComplexTable.AddTypeMapping(ownerWithComplexTableMapping9, null);
+        tableMappings9.Add(ownerWithComplexTableMapping9);
+        RelationalModel.CreateJsonElementMapping(ownedWithComplex0.FindComplexProperty("Tags")!, arrayJsonArray0, ownerWithComplexTableMapping9);
+        RelationalModel.CreateJsonElementMapping(tagComplex2.FindProperty("Text")!, textJsonScalar6, ownerWithComplexTableMapping9);
         var pK_OwnerWithComplex = new UniqueConstraint("PK_OwnerWithComplex", ownerWithComplexTable, new[] { idColumn });
         ownerWithComplexTable.PrimaryKey = pK_OwnerWithComplex;
         pK_OwnerWithComplex.SetRowKeyValueFactory(new SimpleRowKeyValueFactory<int>(pK_OwnerWithComplex));
