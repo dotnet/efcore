@@ -312,7 +312,7 @@ WHERE CASE [b].[Enum]
     WHEN 0 THEN N'One'
     WHEN 1 THEN N'Two'
     WHEN 2 THEN N'Three'
-    ELSE CAST([b].[Enum] AS nvarchar(max))
+    ELSE CAST([b].[Enum] AS nvarchar(11))
 END LIKE N'%One%'
 """);
     }
@@ -329,7 +329,7 @@ WHERE CASE [n].[Enum]
     WHEN 0 THEN N'One'
     WHEN 1 THEN N'Two'
     WHEN 2 THEN N'Three'
-    ELSE ISNULL(CAST([n].[Enum] AS nvarchar(max)), N'')
+    ELSE ISNULL(CAST([n].[Enum] AS nvarchar(11)), N'')
 END LIKE N'%One%'
 """);
     }
@@ -344,7 +344,7 @@ SELECT CASE [b].[Enum]
     WHEN 0 THEN N'One'
     WHEN 1 THEN N'Two'
     WHEN 2 THEN N'Three'
-    ELSE CAST([b].[Enum] AS nvarchar(max))
+    ELSE CAST([b].[Enum] AS nvarchar(11))
 END
 FROM [BasicTypesEntities] AS [b]
 """);
@@ -360,7 +360,7 @@ SELECT CASE [n].[Enum]
     WHEN 0 THEN N'One'
     WHEN 1 THEN N'Two'
     WHEN 2 THEN N'Three'
-    ELSE ISNULL(CAST([n].[Enum] AS nvarchar(max)), N'')
+    ELSE ISNULL(CAST([n].[Enum] AS nvarchar(11)), N'')
 END
 FROM [NullableBasicTypesEntities] AS [n]
 """);
