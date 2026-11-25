@@ -105,7 +105,9 @@ public class SqliteApplyFlatteningExpressionVisitor(ISqlExpressionFactory sqlExp
             Orderings: [],
             Limit: null,
             Offset: null,
-            IsDistinct: false
+            IsDistinct: false,
+            // A common table expression is referenced by name, so it must stay a subquery.
+            CommonTableName: null
         };
 
     private sealed class ProjectionInliningVisitor(

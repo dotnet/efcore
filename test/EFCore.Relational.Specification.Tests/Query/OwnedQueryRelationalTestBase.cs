@@ -26,6 +26,28 @@ public abstract class OwnedQueryRelationalTestBase<TFixture>(TFixture fixture) :
     public override Task FirstOrDefault_over_owned_collection(bool async)
         => Task.CompletedTask;
 
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Embedded_query_referenced_twice_with_owned_navigation(bool async)
+        => AssertQuery(
+            async,
+            ss =>
+            {
+                var people = ss.Set<OwnedPerson>().Where(p => p.Id > 0);
+                return ss.Set<OwnedPerson>().Where(
+                    o => people.Any(p => p.Id == o.Id) && people.Any(p => p.Id == o.Id && p.PersonAddress!.Country!.Name == "USA"));
+            });
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Embedded_query_over_owned_compared_to_other_owned_type(bool async)
+        => AssertQuery(
+            async,
+            ss =>
+            {
+                var personAddresses = ss.Set<OwnedPerson>().Select(p => p.PersonAddress);
+                return ss.Set<Branch>().Where(b => personAddresses.Any(a => a == b.BranchAddress));
+            },
+            assertEmpty: true);
+
     // Relational only: the in-memory provider throws reading the missing dependent's value instead of treating it as absent.
     // Both Bartons land in one group, so the aggregates run over a present and an absent dependent together.
     [Theory, MemberData(nameof(IsAsyncData))]

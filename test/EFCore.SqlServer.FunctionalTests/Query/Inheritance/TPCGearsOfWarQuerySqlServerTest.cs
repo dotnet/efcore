@@ -8694,6 +8694,11 @@ ORDER BY [u0].[FullName]
             """
 @squadId='1'
 
+WITH [innerQuery] AS (
+    SELECT [s0].[Id]
+    FROM [Squads] AS [s0]
+    WHERE [s0].[Id] = @squadId
+)
 SELECT [u1].[Nickname], [u1].[SquadId], [u1].[AssignedCityName], [u1].[CityOfBirthName], [u1].[FullName], [u1].[HasSoulPatch], [u1].[LeaderNickname], [u1].[LeaderSquadId], [u1].[Rank], [u1].[Discriminator]
 FROM (
     SELECT [u].[Nickname], [u].[SquadId], [u].[AssignedCityName], [u].[CityOfBirthName], [u].[FullName], [u].[HasSoulPatch], [u].[LeaderNickname], [u].[LeaderSquadId], [u].[Rank], [u].[Discriminator]
@@ -8706,9 +8711,8 @@ FROM (
     ) AS [u]
     INNER JOIN [Squads] AS [s] ON [u].[SquadId] = [s].[Id]
     WHERE [s].[Id] IN (
-        SELECT [s0].[Id]
-        FROM [Squads] AS [s0]
-        WHERE [s0].[Id] = @squadId
+        SELECT [s1].[Id]
+        FROM [innerQuery] AS [s1]
     )
     UNION ALL
     SELECT [u0].[Nickname], [u0].[SquadId], [u0].[AssignedCityName], [u0].[CityOfBirthName], [u0].[FullName], [u0].[HasSoulPatch], [u0].[LeaderNickname], [u0].[LeaderSquadId], [u0].[Rank], [u0].[Discriminator]
@@ -8719,11 +8723,10 @@ FROM (
         SELECT [o0].[Nickname], [o0].[SquadId], [o0].[AssignedCityName], [o0].[CityOfBirthName], [o0].[FullName], [o0].[HasSoulPatch], [o0].[LeaderNickname], [o0].[LeaderSquadId], [o0].[Rank], N'Officer' AS [Discriminator]
         FROM [Officers] AS [o0]
     ) AS [u0]
-    INNER JOIN [Squads] AS [s1] ON [u0].[SquadId] = [s1].[Id]
-    WHERE [s1].[Id] IN (
-        SELECT [s2].[Id]
-        FROM [Squads] AS [s2]
-        WHERE [s2].[Id] = @squadId
+    INNER JOIN [Squads] AS [s2] ON [u0].[SquadId] = [s2].[Id]
+    WHERE [s2].[Id] IN (
+        SELECT [s4].[Id]
+        FROM [innerQuery] AS [s4]
     )
 ) AS [u1]
 ORDER BY [u1].[FullName]

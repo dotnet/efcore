@@ -20316,6 +20316,9 @@
           "Member": "abstract Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression? TranslateElementAtOrDefault(Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression source, System.Linq.Expressions.Expression index, bool returnDefault);"
         },
         {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression TranslateEmbeddedQuery(Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression source, string name);"
+        },
+        {
           "Member": "abstract Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression? TranslateExcept(Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression source1, Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression source2);"
         },
         {

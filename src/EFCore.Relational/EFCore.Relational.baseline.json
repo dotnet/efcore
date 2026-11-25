@@ -8997,6 +8997,12 @@
           "Member": "virtual void GenerateAggregateFunctionOrderings(Microsoft.EntityFrameworkCore.Query.SqlExpressions.AggregateFunctionExpression aggregateFunctionExpression, bool insideArgumentList);"
         },
         {
+          "Member": "virtual void GenerateCommonTable(string name, Microsoft.EntityFrameworkCore.Query.SqlExpressions.SelectExpression definition);"
+        },
+        {
+          "Member": "virtual void GenerateCommonTables(System.Linq.Expressions.Expression queryExpression);"
+        },
+        {
           "Member": "virtual void GenerateEmptyProjection(Microsoft.EntityFrameworkCore.Query.SqlExpressions.SelectExpression selectExpression);"
         },
         {
@@ -17563,6 +17569,9 @@
         }
       ],
       "Properties": [
+        {
+          "Member": "string? CommonTableName { get; }"
+        },
         {
           "Member": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression> GroupBy { get; }"
         },

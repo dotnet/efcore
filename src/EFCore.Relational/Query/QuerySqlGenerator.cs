@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
@@ -24,6 +25,7 @@ public class QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : Exp
     private readonly ISqlGenerationHelper _sqlGenerationHelper = dependencies.SqlGenerationHelper;
     private readonly HashSet<string> _parameterNames = [];
     private IRelationalCommandBuilder _relationalCommandBuilder = default!;
+    private Dictionary<SelectExpression, string>? _commonTableNames;
 
     /// <summary>
     ///     Relational provider-specific dependencies for this service.
@@ -38,6 +40,7 @@ public class QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : Exp
     public virtual IRelationalCommand GetCommand(Expression queryExpression)
     {
         _relationalCommandBuilder = _relationalCommandBuilderFactory.Create();
+        _commonTableNames = null;
 
         GenerateRootCommand(queryExpression);
 
@@ -55,6 +58,7 @@ public class QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : Exp
         {
             case SelectExpression selectExpression:
                 GenerateTagsHeaderComment(selectExpression.Tags);
+                GenerateCommonTables(selectExpression);
 
                 if (selectExpression.IsNonComposedFromSql())
                 {
@@ -69,11 +73,13 @@ public class QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : Exp
 
             case UpdateExpression updateExpression:
                 GenerateTagsHeaderComment(updateExpression.Tags);
+                GenerateCommonTables(updateExpression);
                 VisitUpdate(updateExpression);
                 break;
 
             case DeleteExpression deleteExpression:
                 GenerateTagsHeaderComment(deleteExpression.Tags);
+                GenerateCommonTables(deleteExpression);
                 VisitDelete(deleteExpression);
                 break;
 
@@ -85,6 +91,159 @@ public class QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : Exp
             default:
                 base.Visit(queryExpression);
                 break;
+        }
+    }
+
+    /// <summary>
+    ///     Generates the WITH clause for all common table expressions (CTEs) referenced anywhere in the given top-level query expression.
+    ///     CTEs are always hoisted to the top-level statement, since some databases (e.g. SQL Server) don't support them in subqueries.
+    /// </summary>
+    /// <param name="queryExpression">The top-level query expression.</param>
+    protected virtual void GenerateCommonTables(Expression queryExpression)
+    {
+        var collector = new CommonTableCollector();
+        collector.Visit(queryExpression);
+
+        if (collector.CommonTables.Count == 0)
+        {
+            return;
+        }
+
+        // An unqualified table reference with the same name as a CTE would bind to the CTE instead, so give clashing CTEs another name.
+        // References with the same name may still differ (e.g. one projecting more columns), so each distinct definition gets its own CTE.
+        var usedNames = collector.UsedNames;
+        var definitions = new List<(string Name, string OriginalName, SelectExpression Normalized, SelectExpression Definition)>();
+        _commonTableNames = new Dictionary<SelectExpression, string>(ReferenceEqualityComparer.Instance);
+        foreach (var (name, select) in collector.CommonTables)
+        {
+            // Each reference is translated separately, so the same definition can come with different table aliases.
+            var normalized = CommonTableAliasNormalizer.Normalize(select);
+            var existing = definitions.FindIndex(
+                d => string.Equals(d.OriginalName, name, StringComparison.Ordinal) && d.Normalized.Equals(normalized));
+            if (existing >= 0)
+            {
+                _commonTableNames[select] = definitions[existing].Name;
+                continue;
+            }
+
+            var uniqueName = Uniquifier.Uniquify(name, usedNames, maxLength: int.MaxValue);
+            usedNames.Add(uniqueName);
+            _commonTableNames[select] = uniqueName;
+            definitions.Add((uniqueName, name, normalized, select));
+        }
+
+        _relationalCommandBuilder.Append("WITH ");
+        var first = true;
+        foreach (var (name, _, _, definition) in definitions)
+        {
+            if (!first)
+            {
+                _relationalCommandBuilder.AppendLine(",");
+            }
+
+            first = false;
+            GenerateCommonTable(name, definition);
+        }
+
+        _relationalCommandBuilder.AppendLine();
+    }
+
+    /// <summary>
+    ///     Generates a single common table expression (CTE) definition within the WITH clause.
+    /// </summary>
+    /// <param name="name">The name of the common table expression.</param>
+    /// <param name="definition">The query defining the common table expression.</param>
+    protected virtual void GenerateCommonTable(string name, SelectExpression definition)
+    {
+        _relationalCommandBuilder
+            .Append(_sqlGenerationHelper.DelimitIdentifier(name))
+            .AppendLine(" AS (");
+
+        // Without an alias, the definition is generated as a plain SELECT instead of a reference to the common table.
+        using (_relationalCommandBuilder.Indent())
+        {
+            Visit(definition.WithAlias(null!));
+        }
+
+        _relationalCommandBuilder.AppendLine().Append(")");
+    }
+
+    private sealed class CommonTableAliasNormalizer : ExpressionVisitor
+    {
+        private readonly Dictionary<string, string> _aliases = [];
+        private bool _rewriting;
+
+        public static SelectExpression Normalize(SelectExpression select)
+        {
+            // Aliases are numbered in visiting order, which is the same for definitions differing only in their aliases.
+            var normalizer = new CommonTableAliasNormalizer();
+            normalizer.Visit(select);
+            normalizer._rewriting = true;
+            return (SelectExpression)normalizer.Visit(select);
+        }
+
+        protected override Expression VisitExtension(Expression node)
+        {
+            switch (node)
+            {
+                case TableExpressionBase { Alias: { } alias } table:
+                    if (!_rewriting)
+                    {
+                        _aliases.TryAdd(alias, "t" + _aliases.Count);
+                        return base.VisitExtension(node);
+                    }
+
+                    return base.VisitExtension(table.WithAlias(_aliases[alias]));
+
+                case ColumnExpression column when _rewriting && _aliases.TryGetValue(column.TableAlias, out var newTableAlias):
+                    return new ColumnExpression(column.Name, newTableAlias, column.Type, column.TypeMapping, column.IsNullable);
+
+                default:
+                    return base.VisitExtension(node);
+            }
+        }
+    }
+
+    private sealed class CommonTableCollector : ExpressionVisitor
+    {
+        public List<(string Name, SelectExpression Select)> CommonTables { get; } = [];
+
+        public HashSet<string> UsedNames { get; } = new(StringComparer.OrdinalIgnoreCase);
+
+        [return: NotNullIfNotNull(nameof(node))]
+        public override Expression? Visit(Expression? node)
+        {
+            // A CTE named like a table alias would be ambiguous (e.g. SQL Server's "DELETE FROM [o] FROM ... AS [o]").
+            if (node is TableExpressionBase { Alias: { } alias })
+            {
+                UsedNames.Add(alias);
+            }
+
+            switch (node)
+            {
+                case SelectExpression { CommonTableName: { } name } select:
+                    // Visit the definition first, so that CTEs it references are defined before it.
+                    base.Visit(node);
+                    CommonTables.Add((name, select));
+                    return node;
+
+                case TableExpression table:
+                    UsedNames.Add(table.Name);
+                    return node;
+
+                // Raw SQL can't be parsed, so any identifier in it is treated as a possible table reference.
+                case FromSqlExpression fromSql:
+                    UsedNames.UnionWith(Regex.Matches(fromSql.Sql, @"[\w@#$]+").Select(m => m.Value));
+                    return node;
+
+                // A CTE would shadow a table-valued function with the same name.
+                case TableValuedFunctionExpression function:
+                    UsedNames.Add(function.Name);
+                    return base.Visit(node);
+
+                default:
+                    return base.Visit(node);
+            }
         }
     }
 
@@ -272,6 +431,16 @@ public class QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : Exp
     /// <param name="selectExpression">The <see cref="SelectExpression" /> for which to generate SQL.</param>
     protected virtual Expression VisitSelect(SelectExpression selectExpression)
     {
+        if (_commonTableNames?.TryGetValue(selectExpression, out var commonTableName) == true)
+        {
+            _relationalCommandBuilder
+                .Append(_sqlGenerationHelper.DelimitIdentifier(commonTableName))
+                .Append(AliasSeparator)
+                .Append(_sqlGenerationHelper.DelimitIdentifier(selectExpression.Alias!));
+
+            return selectExpression;
+        }
+
         IDisposable? subQueryIndent = null;
         if (selectExpression.Alias != null)
         {

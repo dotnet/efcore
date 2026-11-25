@@ -330,6 +330,24 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
     {
         var method = methodCallExpression.Method;
+        if (method.DeclaringType == typeof(EmbeddedQueryable))
+        {
+            // Like Distinct, the embedded query becomes the source with its projection applied, keeping the structure so that the
+            // outer query can still bind navigations. Groupings, entities nested in e.g. an anonymous type or DTO, and owned types
+            // (identified only by their owner's key) can't be kept that way, so those stay inlined.
+            var embedded = Visit(methodCallExpression.Arguments[0]);
+            if (embedded is not NavigationExpansionExpression embeddedSource)
+            {
+                return embedded;
+            }
+
+            ApplyPendingOrderings(embeddedSource);
+            embeddedSource = (NavigationExpansionExpression)_pendingSelectorExpandingExpressionVisitor.Visit(embeddedSource);
+            return SnapshotLosesStructure(embeddedSource.PendingSelector)
+                ? embeddedSource
+                : ProcessDistinct(embeddedSource, EmbeddedQueryable.MarkerMethod, methodCallExpression.Arguments[1]);
+        }
+
         if (method.DeclaringType == typeof(Queryable) || method.DeclaringType == typeof(EntityFrameworkQueryableExtensions))
         {
             var genericMethod = method.IsGenericMethod ? method.GetGenericMethodDefinition() : null;
@@ -1041,13 +1059,16 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         return new NavigationExpansionExpression(result, navigationTree, navigationTree, parameterName);
     }
 
-    private NavigationExpansionExpression ProcessDistinct(NavigationExpansionExpression source, MethodInfo genericMethod)
+    private NavigationExpansionExpression ProcessDistinct(
+        NavigationExpansionExpression source,
+        MethodInfo genericMethod,
+        params Expression[] arguments)
     {
         source = (NavigationExpansionExpression)_pendingSelectorExpandingExpressionVisitor.Visit(source);
         var newStructure = SnapshotExpression(source.PendingSelector);
         var queryable = Reduce(source);
 
-        var result = Expression.Call(genericMethod.MakeGenericMethod(queryable.Type.GetSequenceType()), queryable);
+        var result = Expression.Call(genericMethod.MakeGenericMethod(queryable.Type.GetSequenceType()), [queryable, .. arguments]);
 
         var navigationTree = new NavigationTreeExpression(newStructure);
         var parameterName = GetParameterName("e");
@@ -3050,6 +3071,37 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             default:
                 return Expression.Default(selector.Type);
         }
+    }
+
+    private static bool SnapshotLosesStructure(Expression selector)
+        => selector switch
+        {
+            EntityReference or ComplexTypeReference => false,
+            NavigationTreeExpression navigationTreeExpression => SnapshotLosesStructure(navigationTreeExpression.Value),
+            _ => new StructuralReferenceFindingVisitor().Find(selector)
+        };
+
+    private sealed class StructuralReferenceFindingVisitor : ExpressionVisitor
+    {
+        private bool _found;
+
+        public bool Find(Expression expression)
+        {
+            Visit(expression);
+            return _found;
+        }
+
+        [return: NotNullIfNotNull(nameof(expression))]
+        public override Expression? Visit(Expression? expression)
+        {
+            _found |= expression is EntityReference or ComplexTypeReference or OwnedNavigationReference
+                or NavigationExpansionExpression or MaterializeCollectionNavigationExpression;
+            return _found ? expression : base.Visit(expression);
+        }
+
+        // Navigations are already expanded, so a member access here reads a value, not a structural reference.
+        protected override Expression VisitMember(MemberExpression memberExpression)
+            => memberExpression;
     }
 
     private static EntityReference? UnwrapEntityReference(Expression? expression)

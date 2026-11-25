@@ -470,23 +470,33 @@ WHERE CAST([e].[ReportsTo] AS bigint) = @p
             """
 @customerID='ALFKI' (Size = 5) (DbType = StringFixedLength)
 
+WITH [orders1] AS (
+    SELECT [o].[CustomerID]
+    FROM [Orders] AS [o]
+    WHERE [o].[CustomerID] = @customerID
+)
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE EXISTS (
     SELECT 1
-    FROM [Orders] AS [o]
-    WHERE [o].[CustomerID] = @customerID AND [o].[CustomerID] = [c].[CustomerID])
+    FROM [orders1] AS [o0]
+    WHERE [o0].[CustomerID] = [c].[CustomerID])
 """,
             //
             """
 @customerID='ANATR' (Size = 5) (DbType = StringFixedLength)
 
+WITH [orders1] AS (
+    SELECT [o].[CustomerID]
+    FROM [Orders] AS [o]
+    WHERE [o].[CustomerID] = @customerID
+)
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE EXISTS (
     SELECT 1
-    FROM [Orders] AS [o]
-    WHERE [o].[CustomerID] = @customerID AND [o].[CustomerID] = [c].[CustomerID])
+    FROM [orders1] AS [o0]
+    WHERE [o0].[CustomerID] = [c].[CustomerID])
 """);
     }
 
@@ -1905,12 +1915,16 @@ WHERE 0 = 1
         {
             AssertSql(
                 """
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE [c].[CustomerID] IN (
+WITH [ids] AS (
     SELECT [c0].[CustomerID]
     FROM [Customers] AS [c0]
     WHERE [c0].[CustomerID] <> N'ALFKI'
+)
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN (
+    SELECT [c1].[CustomerID]
+    FROM [ids] AS [c1]
 )
 """);
         }
@@ -1932,12 +1946,16 @@ FROM [Customers] AS [c]
         {
             AssertSql(
                 """
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE [c].[CustomerID] NOT IN (
+WITH [ids] AS (
     SELECT [c0].[CustomerID]
     FROM [Customers] AS [c0]
     WHERE [c0].[CustomerID] <> N'ALFKI'
+)
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] NOT IN (
+    SELECT [c1].[CustomerID]
+    FROM [ids] AS [c1]
 )
 """);
         }

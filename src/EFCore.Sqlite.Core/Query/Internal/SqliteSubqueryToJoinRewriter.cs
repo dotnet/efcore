@@ -185,7 +185,9 @@ public class SqliteSubqueryToJoinRewriter(ISqlExpressionFactory sqlExpressionFac
             Orderings: [],
             Limit: null,
             Offset: null,
-            IsDistinct: false
+            IsDistinct: false,
+            // A common table expression is referenced by name, so it must stay a subquery.
+            CommonTableName: null
         };
 
     // Any reference to the subquery alias from another table in the FROM clause (a sibling join's condition, or a correlated

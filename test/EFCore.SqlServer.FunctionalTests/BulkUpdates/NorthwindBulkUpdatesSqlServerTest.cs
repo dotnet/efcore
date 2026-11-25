@@ -1845,6 +1845,72 @@ FROM [Customers] AS [c]
 """);
     }
 
+    public override async Task Delete_Where_embedded_query(bool async)
+    {
+        await base.Delete_Where_embedded_query(async);
+
+        AssertSql(
+            """
+SET NOCOUNT OFF;
+WITH [orders1] AS (
+    SELECT [o0].[OrderID]
+    FROM [Orders] AS [o0]
+    WHERE [o0].[OrderID] > 11070
+)
+DELETE FROM [o]
+FROM [Order Details] AS [o]
+WHERE EXISTS (
+    SELECT 1
+    FROM [orders1] AS [o1]
+    WHERE [o1].[OrderID] = [o].[OrderID])
+""");
+    }
+
+    public override async Task Update_Where_embedded_query(bool async)
+    {
+        await base.Update_Where_embedded_query(async);
+
+        AssertExecuteUpdateSql(
+            """
+@p='Updated' (Size = 30)
+
+SET NOCOUNT OFF;
+WITH [lateOrders] AS (
+    SELECT [o].[CustomerID]
+    FROM [Orders] AS [o]
+    WHERE [o].[OrderID] > 11070
+)
+UPDATE [c]
+SET [c].[ContactName] = @p
+FROM [Customers] AS [c]
+WHERE EXISTS (
+    SELECT 1
+    FROM [lateOrders] AS [o0]
+    WHERE [o0].[CustomerID] = [c].[CustomerID])
+""");
+    }
+
+    public override async Task Delete_Where_embedded_query_named_like_table_alias(bool async)
+    {
+        await base.Delete_Where_embedded_query_named_like_table_alias(async);
+
+        AssertSql(
+            """
+SET NOCOUNT OFF;
+WITH [o2] AS (
+    SELECT [o0].[OrderID]
+    FROM [Orders] AS [o0]
+    WHERE [o0].[OrderID] > 11070
+)
+DELETE FROM [o]
+FROM [Order Details] AS [o]
+WHERE EXISTS (
+    SELECT 1
+    FROM [o2] AS [o1]
+    WHERE [o1].[OrderID] = [o].[OrderID])
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
