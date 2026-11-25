@@ -626,7 +626,7 @@ extends:
                   DotNetBuildsInternalReadSasToken: $(dotnetbuilds-internal-container-read-token)
 
           - job: Helix_Ubuntu
-            displayName: 'Helix Ubuntu'
+            displayName: 'Helix Azure Linux'
             condition: ${{ or(eq(parameters.jobs, '[]'), contains(parameters.jobs, '"Helix_Ubuntu"')) }}
             timeoutInMinutes: 180
             pool:
@@ -638,7 +638,7 @@ extends:
               - name: _HelixBuildConfig
                 value: $(_BuildConfig)
               - name: HelixTargetQueues
-                value: Ubuntu.2204.Amd64
+                value: azurelinux.4.amd64
               - name: _HelixAccessToken
                 value: $(HelixApiAccessToken)
             steps:
