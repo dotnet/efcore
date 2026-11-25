@@ -87,7 +87,7 @@ public abstract class JsonTranslationsRelationalTestBase<TFixture>(TFixture fixt
                 b.Property(e => e.Json)
                     .HasConversion(v => v.Value, v => new JsonDocumentValue(v));
                 b.Property(e => e.ConvertedNumber)
-                    .HasConversion(v => v + 100, v => v - 100);
+                    .HasConversion(v => v + 1, v => v - 1);
                 b.Property(e => e.ConvertedText)
                     .HasConversion(v => "x" + v, v => v.Substring(1));
             });

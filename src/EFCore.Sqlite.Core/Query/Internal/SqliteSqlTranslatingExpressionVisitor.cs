@@ -237,6 +237,40 @@ public class SqliteSqlTranslatingExpressionVisitor(
     }
 
     /// <inheritdoc />
+    protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
+    {
+        if (conditionalExpression.Type == typeof(object)
+            && (IsJsonExtract(conditionalExpression.IfTrue) || IsJsonExtract(conditionalExpression.IfFalse))
+            && (IsBoxingConversion(conditionalExpression.IfTrue) || IsBoxingConversion(conditionalExpression.IfFalse)))
+        {
+            return QueryCompilationContext.NotTranslatedExpression;
+        }
+
+        return base.VisitConditional(conditionalExpression);
+    }
+
+    private static bool IsJsonExtract(Expression expression)
+    {
+        while (expression is UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked, Operand: var operand })
+        {
+            expression = operand;
+        }
+
+        return expression is MethodCallExpression
+        {
+            Method.DeclaringType: var declaringType,
+            Method.Name: nameof(SqliteDbFunctionsExtensions.JsonExtract)
+        }
+            && declaringType == typeof(SqliteDbFunctionsExtensions);
+    }
+
+    private static bool IsBoxingConversion(Expression expression)
+        => expression is UnaryExpression unaryExpression
+            && (unaryExpression.NodeType is ExpressionType.Convert or ExpressionType.ConvertChecked)
+            && unaryExpression.Type == typeof(object)
+            && unaryExpression.Operand.Type.IsValueType;
+
+    /// <inheritdoc />
     protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
     {
         if (base.VisitMethodCall(methodCallExpression) is var translation

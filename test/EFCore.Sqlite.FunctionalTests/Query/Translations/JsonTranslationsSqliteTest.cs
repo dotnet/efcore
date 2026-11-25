@@ -237,6 +237,23 @@ ORDER BY "j"."Id"
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public async Task JsonExtract_conditional_projection_preserves_boxed_numeric_types(bool async)
+    {
+        await using var context = CreateContext();
+        var query = context.JsonEntities.OrderBy(e => e.Id)
+            .Select(e => e.Id == 1
+                ? EF.Functions.JsonExtract(e.JsonString, "$.RequiredInt")
+                : (long)e.Id);
+
+        var results = async ? await query.ToListAsync() : query.ToList();
+
+        Assert.Equal(8L, Assert.IsType<long>(results[0]));
+        Assert.Equal(2L, Assert.IsType<long>(results[1]));
+        Assert.Equal(3L, Assert.IsType<long>(results[2]));
+        Assert.Equal(4L, Assert.IsType<long>(results[3]));
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public async Task JsonExtract_single_path_array_string_predicate(bool async)
     {
         await using var context = CreateContext();
@@ -275,21 +292,20 @@ WHERE typeof(json_extract("j"."JsonString", '$.RequiredInt')) = 'integer' AND js
 """);
     }
 
-    [Theory, MemberData(nameof(IsAsyncData))]
-    public async Task JsonExtract_object_equals_converted_property_is_not_translated(bool async)
+    [Fact]
+    public async Task JsonExtract_object_equals_converted_property_is_not_translated()
     {
-        await using var context = CreateContext();
-        var query = context.Set<JsonConvertedEntity>()
-            .Where(e => object.Equals(EF.Functions.JsonExtract(e.Json, "$.number"), e.ConvertedNumber));
+        await using var connection = new SqliteConnection("Data Source=:memory:");
+        await connection.OpenAsync();
+        var options = new DbContextOptionsBuilder<ConvertedJsonContext>().UseSqlite(connection).Options;
+        await using var context = new ConvertedJsonContext(options);
+        await context.Database.EnsureCreatedAsync();
+        context.Add(new ConvertedJsonEntity { Json = """{"number":8}""", Number = 8, Text = "fallback" });
+        await context.SaveChangesAsync();
 
-        if (async)
-        {
-            await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
-        }
-        else
-        {
-            Assert.Throws<InvalidOperationException>(() => query.ToList());
-        }
+        var query = context.Entities
+            .Where(e => object.Equals(EF.Functions.JsonExtract(e.Json, "$.number"), e.Number));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
