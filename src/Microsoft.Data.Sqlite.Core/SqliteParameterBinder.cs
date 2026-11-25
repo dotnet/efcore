@@ -56,8 +56,12 @@ internal class SqliteParameterBinder(sqlite3_stmt stmt, sqlite3 handle, int inde
         SqliteException.ThrowExceptionForRC(rc, handle);
     }
 
+    // Size limits string and binary values only. The text or blob that any other value is sent as is never truncated.
+    private readonly bool _canTruncate = value is string or byte[] or Memory<byte> or ReadOnlyMemory<byte>;
+
     // A size of 0 (the default) or -1 sets no limit; only a positive size truncates.
     private bool ShouldTruncate(int length)
-        => size > 0
+        => _canTruncate
+            && size > 0
             && length > size.Value;
 }

@@ -496,6 +496,41 @@ public class SqliteParameterTest
         Assert.Equal(new byte[] { 0x7E, 0x57 }, result);
     }
 
+    [Theory]
+    [MemberData(nameof(NonStringValuesWithSizeData))]
+    public void Bind_with_restricted_size_does_not_truncate_other_values(object value, SqliteType sqliteType, object expected)
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT $value;";
+        var parameter = command.Parameters.Add("$value", sqliteType, 5);
+        parameter.Value = value;
+        connection.Open();
+
+        var result = command.ExecuteScalar();
+
+        Assert.Equal(expected, result);
+    }
+
+    public static IEnumerable<object[]> NonStringValuesWithSizeData
+        => new List<object[]>
+        {
+            new object[] { 1234567.89m, SqliteType.Text, "1234567.89" },
+            new object[] { new DateTime(2014, 4, 14, 11, 13, 59), SqliteType.Text, "2014-04-14 11:13:59" },
+            new object[] { new DateOnly(2014, 4, 14), SqliteType.Text, "2014-04-14" },
+            new object[] { new TimeSpan(11, 19, 32), SqliteType.Text, "11:19:32" },
+            new object[]
+            {
+                new Guid("1c902e9f-bd7c-4b53-bd32-0b1b0ae40b5e"), SqliteType.Text, "1C902E9F-BD7C-4B53-BD32-0B1B0AE40B5E"
+            },
+            new object[]
+            {
+                new Guid("1c902e9f-bd7c-4b53-bd32-0b1b0ae40b5e"),
+                SqliteType.Blob,
+                new byte[] { 0x9F, 0x2E, 0x90, 0x1C, 0x7C, 0xBD, 0x53, 0x4B, 0xBD, 0x32, 0x0B, 0x1B, 0x0A, 0xE4, 0x0B, 0x5E }
+            }
+        };
+
     [Theory,
      InlineData("@Parameter"),
      InlineData("$Parameter"),
