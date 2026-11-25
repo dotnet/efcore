@@ -3431,6 +3431,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
         private sealed class JsonCorrectOrderOfEntitiesForChangeTrackerValidator(SelectExpression selectExpression) : ExpressionVisitor
         {
+            private static readonly bool UseOldBehavior39733 =
+                AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue39733", out var enabled) && enabled;
+
             private bool _insideCollection;
             private bool _insideInclude;
             private SelectExpression _selectExpression = selectExpression;
@@ -3620,6 +3623,11 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                     switch (entityProjection)
                     {
+                        // complex types are not tracked by the change tracker, so ordering is irrelevant
+                        case QueryableJsonProjectionInfo or JsonProjectionInfo
+                            when !UseOldBehavior39733 && entityShaperExpression.StructuralType is not IEntityType:
+                            return base.VisitExtension(extensionExpression);
+
                         case QueryableJsonProjectionInfo:
                         case JsonProjectionInfo when _insideCollection && !_insideInclude:
                             throw new InvalidOperationException(
@@ -3659,6 +3667,11 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                     switch (collectionProjection)
                     {
+                        // complex collections are not tracked by the change tracker, so ordering is irrelevant
+                        case QueryableJsonProjectionInfo or JsonProjectionInfo
+                            when !UseOldBehavior39733 && collectionResultExpression.StructuralProperty is not INavigation:
+                            return base.VisitExtension(extensionExpression);
+
                         case QueryableJsonProjectionInfo:
                         case JsonProjectionInfo when _insideCollection && !_insideInclude:
                             throw new InvalidOperationException(
