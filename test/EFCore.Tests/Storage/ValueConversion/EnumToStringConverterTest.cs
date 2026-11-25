@@ -58,6 +58,19 @@ public class EnumToStringConverterTest
             Assert.Throws<InvalidOperationException>(() => converter("Jon")).Message);
     }
 
+    [Theory]
+    [InlineData("2147483648")]
+    [InlineData("-2147483649")]
+    [InlineData("18446744073709551615")]
+    public void Throws_for_numeric_strings_out_of_range_of_the_enum(string value)
+    {
+        var converter = _enumToString.ConvertFromProviderExpression.Compile();
+
+        Assert.Equal(
+            CoreStrings.CannotConvertEnumValue(value, "Beatles"),
+            Assert.Throws<InvalidOperationException>(() => converter(value)).Message);
+    }
+
     [Fact]
     public void Can_convert_strings_to_enums_object()
     {

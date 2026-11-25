@@ -61,14 +61,10 @@ public class StringEnumConverter<TModel, TProvider, TEnum> : ValueConverter<TMod
             ? result
             : Enum.TryParse(value, true, out result)
                 ? result
-                : ulong.TryParse(value, out var ulongValue)
-                    ? (TEnum)(object)ulongValue
-                    : long.TryParse(value, out var longValue)
-                        ? (TEnum)(object)longValue
-                        : value == ""
-                            ? default
-                            : value == null
-                                ? throw new ArgumentNullException(nameof(value))
-                                : throw new InvalidOperationException(
-                                    CoreStrings.CannotConvertEnumValue(value, typeof(TEnum).ShortDisplayName()));
+                : value == ""
+                    ? default
+                    : value == null
+                        ? throw new ArgumentNullException(nameof(value))
+                        : throw new InvalidOperationException(
+                            CoreStrings.CannotConvertEnumValue(value, typeof(TEnum).ShortDisplayName()));
 }
