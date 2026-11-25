@@ -4,6 +4,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Query.ExpressionExtensions;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
@@ -159,8 +160,49 @@ public class SqliteSqlTranslatingExpressionVisitor(
             return QueryCompilationContext.NotTranslatedExpression;
         }
 
+        if (binaryExpression.NodeType == ExpressionType.Coalesce
+            && translation is SqlFunctionExpression
+            {
+                Name: "COALESCE",
+                Arguments: [{ TypeMapping: SqliteDynamicTypeMapping }, var fallback]
+            }
+            && ((fallback.Type == typeof(object)
+                    && fallback is not SqlUnaryExpression { OperatorType: ExpressionType.Convert })
+                || fallback is ColumnExpression
+                || fallback.TypeMapping?.Converter is not null))
+        {
+            return QueryCompilationContext.NotTranslatedExpression;
+        }
+
+        if (binaryExpression.NodeType == ExpressionType.Coalesce
+            && translation is SqlFunctionExpression
+            {
+                Name: "COALESCE",
+                TypeMapping: SqliteDynamicTypeMapping,
+                Arguments: [var left, SqlUnaryExpression { OperatorType: ExpressionType.Convert, Type: var type, Operand: var operand }]
+            } coalesce
+            && type == typeof(object))
+        {
+            return operand.Type.UnwrapNullableType() is var operandType
+                && (operandType == typeof(long) || operandType == typeof(double)
+                    || operandType == typeof(string) || operandType == typeof(byte[]))
+                && operand.TypeMapping?.Converter is null
+                    ? coalesce.Update(null, [left, operand])
+                    : QueryCompilationContext.NotTranslatedExpression;
+        }
+
         if (translation is SqlBinaryExpression sqlBinary)
         {
+            if (sqlBinary.OperatorType is ExpressionType.Equal or ExpressionType.NotEqual
+                && sqlBinary.Left is not SqlConstantExpression { Value: null }
+                && sqlBinary.Right is not SqlConstantExpression { Value: null }
+                && (sqlBinary.Left.TypeMapping is SqliteDynamicTypeMapping
+                    || sqlBinary.Right.TypeMapping is SqliteDynamicTypeMapping)
+                && (sqlBinary.Left.Type == typeof(object) || sqlBinary.Right.Type == typeof(object)))
+            {
+                return QueryCompilationContext.NotTranslatedExpression;
+            }
+
             switch (sqlBinary)
             {
                 case { OperatorType: ExpressionType.ExclusiveOr }:
@@ -199,6 +241,40 @@ public class SqliteSqlTranslatingExpressionVisitor(
     }
 
     /// <inheritdoc />
+    protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
+    {
+        if (conditionalExpression.Type == typeof(object)
+            && (IsJsonExtract(conditionalExpression.IfTrue) || IsJsonExtract(conditionalExpression.IfFalse))
+            && (IsBoxingConversion(conditionalExpression.IfTrue) || IsBoxingConversion(conditionalExpression.IfFalse)))
+        {
+            return QueryCompilationContext.NotTranslatedExpression;
+        }
+
+        return base.VisitConditional(conditionalExpression);
+    }
+
+    private static bool IsJsonExtract(Expression expression)
+    {
+        while (expression is UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked, Operand: var operand })
+        {
+            expression = operand;
+        }
+
+        return expression is MethodCallExpression
+        {
+            Method.DeclaringType: var declaringType,
+            Method.Name: nameof(SqliteDbFunctionsExtensions.JsonExtract)
+        }
+            && declaringType == typeof(SqliteDbFunctionsExtensions);
+    }
+
+    private static bool IsBoxingConversion(Expression expression)
+        => expression is UnaryExpression unaryExpression
+            && (unaryExpression.NodeType is ExpressionType.Convert or ExpressionType.ConvertChecked)
+            && unaryExpression.Type == typeof(object)
+            && unaryExpression.Operand.Type.IsValueType;
+
+    /// <inheritdoc />
     protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
     {
         if (base.VisitMethodCall(methodCallExpression) is var translation
@@ -228,6 +304,73 @@ public class SqliteSqlTranslatingExpressionVisitor(
                     methodCallExpression.Object,
                     value,
                     method.Name is nameof(string.StartsWith));
+            }
+
+            case nameof(SqliteDbFunctionsExtensions.JsonExtract)
+                when declaringType == typeof(SqliteDbFunctionsExtensions)
+                && @object is null
+                && arguments is [_, var json, var paths]:
+            {
+#pragma warning disable EF1001 // TranslateProjection() is pubternal
+                var translatedJson = TranslateProjection(json) switch
+                {
+                    SqlExpression scalar => scalar,
+                    RelationalStructuralTypeShaperExpression { ValueBufferExpression: JsonQueryExpression j }
+                        => j.Path.Count == 0
+                            ? j.JsonColumn
+                            : new JsonScalarExpression(j.JsonColumn, j.Path, j.JsonColumn.Type, j.JsonColumn.TypeMapping, j.IsNullable),
+                    _ => null
+                };
+#pragma warning restore EF1001
+
+                if (translatedJson is null)
+                {
+                    return QueryCompilationContext.NotTranslatedExpression;
+                }
+
+                List<SqlExpression> functionArguments = [translatedJson];
+                if (method.ReturnType == typeof(object))
+                {
+                    if (Translate(paths) is not SqlExpression translatedPath)
+                    {
+                        return QueryCompilationContext.NotTranslatedExpression;
+                    }
+
+                    functionArguments.Add(translatedPath);
+                }
+                else if (paths is NewArrayExpression newArray)
+                {
+                    foreach (var path in newArray.Expressions)
+                    {
+                        if (Translate(path) is not SqlExpression translatedPath)
+                        {
+                            return QueryCompilationContext.NotTranslatedExpression;
+                        }
+
+                        functionArguments.Add(translatedPath);
+                    }
+                }
+                else if (paths is ConstantExpression { Value: string[] constantPaths })
+                {
+                    functionArguments.AddRange(constantPaths.Select(p => _sqlExpressionFactory.Constant(p, typeof(string))));
+                }
+                else
+                {
+                    return QueryCompilationContext.NotTranslatedExpression;
+                }
+
+                var singlePathStringResult = method.ReturnType == typeof(string) && functionArguments.Count == 2;
+                var function = _sqlExpressionFactory.Function(
+                    "json_extract",
+                    functionArguments,
+                    nullable: true,
+                    argumentsPropagateNullability: new bool[functionArguments.Count],
+                    singlePathStringResult ? typeof(object) : method.ReturnType,
+                    method.ReturnType == typeof(object) || singlePathStringResult ? SqliteDynamicTypeMapping.Default : null);
+
+                return singlePathStringResult
+                    ? _sqlExpressionFactory.Convert(function, typeof(string), SqliteStringTypeMapping.Default)
+                    : function;
             }
 
             // We translate EF.Functions.JsonPathExists here and not in a method translator since we need to support JsonPathExists over

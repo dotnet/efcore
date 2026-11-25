@@ -18,6 +18,25 @@ public class JsonQuerySqlServerTest : JsonQueryRelationalTestBase<JsonQuerySqlSe
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public async Task JsonValue_on_nested_owned_json(bool async)
+    {
+        await using var context = Fixture.CreateContext();
+        var query = context.JsonEntitiesBasic.Where(e => e.Id == 1)
+            .Select(e => EF.Functions.JsonValue(
+                e.OwnedReferenceRoot.OwnedReferenceBranch!.OwnedReferenceLeaf, "$.SomethingSomething"));
+
+        var result = async ? await query.SingleAsync() : query.Single();
+
+        Assert.Equal("e1_r_r_r", result);
+        AssertSql(
+            """
+SELECT TOP(2) JSON_VALUE(JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedReferenceLeaf'), N'$.SomethingSomething')
+FROM [JsonEntitiesBasic] AS [j]
+WHERE [j].[Id] = 1
+""");
+    }
+
     public override async Task Basic_json_projection_owner_entity_NoTrackingWithIdentityResolution(bool async)
     {
         await base.Basic_json_projection_owner_entity_NoTrackingWithIdentityResolution(async);

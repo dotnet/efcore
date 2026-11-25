@@ -58,4 +58,26 @@ public static class RelationalDbFunctionsExtensions
     /// <param name="path">The JSON path to look for.</param>
     public static bool JsonPathExists(this DbFunctions _, object json, string path)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(JsonPathExists)));
+
+    /// <summary>
+    ///     Extracts a scalar value as text from JSON using the specified path.
+    /// </summary>
+    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
+    /// <param name="json">The JSON value to search.</param>
+    /// <param name="path">The JSON path to the scalar value.</param>
+    /// <returns>The scalar value, or <see langword="null" /> when no scalar value is found in lax mode.</returns>
+    /// <seealso href="https://learn.microsoft.com/sql/t-sql/functions/json-value-transact-sql">SQL Server documentation for <c>JSON_VALUE</c>.</seealso>
+    public static string? JsonValue(this DbFunctions _, object json, string path)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(JsonValue)));
+
+    /// <summary>
+    ///     Extracts an object or array from JSON using the specified path.
+    /// </summary>
+    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
+    /// <param name="json">The JSON value to search.</param>
+    /// <param name="path">The JSON path to the object or array.</param>
+    /// <returns>The JSON fragment, or <see langword="null" /> when no object or array is found in lax mode.</returns>
+    /// <seealso href="https://learn.microsoft.com/sql/t-sql/functions/json-query-transact-sql">SQL Server documentation for <c>JSON_QUERY</c>.</seealso>
+    public static string? JsonQuery(this DbFunctions _, object json, string path)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(JsonQuery)));
 }

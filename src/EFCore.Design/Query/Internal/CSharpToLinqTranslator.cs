@@ -783,6 +783,15 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
             var parameter = parameters[paramIndex];
             if (parameter.IsDefined(typeof(ParamArrayAttribute)))
             {
+                if (sourceArguments.Count - sourceArgIndex == 1
+                    && SymbolEqualityComparer.Default.Equals(
+                        _semanticModel.GetTypeInfo(sourceArguments[sourceArgIndex].Expression).ConvertedType,
+                        (methodSymbol.ReducedFrom ?? methodSymbol).Parameters[paramIndex].Type))
+                {
+                    destArguments[paramIndex] = VisitWithConversion(sourceArguments[sourceArgIndex].Expression);
+                    break;
+                }
+
                 // We've reached a "params" parameter; pack all the remaining args (possibly zero) into a NewArrayExpression
                 var elementType = parameter.ParameterType.GetElementType()!;
                 var paramsArguments = new Expression[sourceArguments.Count - sourceArgIndex];

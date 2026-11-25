@@ -47,7 +47,8 @@ public class SqlExpressionSimplifyingExpressionVisitor(
                 OperatorType: ExpressionType.Convert,
                 Operand: not SqlConstantExpression and { TypeMapping.StoreType: var operandStoreType } operand,
                 TypeMapping.StoreType: var convertStoreType
-            } convertExpression when convertStoreType == operandStoreType:
+            } convertExpression
+                when convertStoreType == operandStoreType && operand.TypeMapping.ClrType != typeof(object):
             {
                 var visitedOperand = (SqlExpression)Visit(operand);
 

@@ -59,16 +59,39 @@ public abstract class JsonTranslationsRelationalTestBase<TFixture>(TFixture fixt
         public int? OptionalInt { get; set; }
     }
 
+    public readonly record struct JsonDocumentValue(string Value);
+
+    public class JsonConvertedEntity
+    {
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
+        public int Id { get; set; }
+        public JsonDocumentValue Json { get; set; }
+        public string JsonString { get; set; } = null!;
+        public long ConvertedNumber { get; set; }
+        public string ConvertedText { get; set; } = null!;
+    }
+
     public class JsonTranslationsQueryContext(DbContextOptions options) : PoolableDbContext(options)
     {
         public DbSet<JsonTranslationsEntity> JsonEntities { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<JsonTranslationsEntity>(b =>
+        {
+            modelBuilder.Entity<JsonTranslationsEntity>(b =>
             {
                 b.ComplexProperty(j => j.JsonComplexType, j => j.ToJson());
                 b.OwnsOne(j => j.JsonOwnedType, j => j.ToJson());
             });
+            modelBuilder.Entity<JsonConvertedEntity>(b =>
+            {
+                b.Property(e => e.Json)
+                    .HasConversion(v => v.Value, v => new JsonDocumentValue(v));
+                b.Property(e => e.ConvertedNumber)
+                    .HasConversion(v => v + 1, v => v - 1);
+                b.Property(e => e.ConvertedText)
+                    .HasConversion(v => "x" + v, v => v.Substring(1));
+            });
+        }
     }
 
     // The translation tests usually use BasicTypesQueryFixtureBase, which manages a single database with all the data needed for the tests.
@@ -85,6 +108,15 @@ public abstract class JsonTranslationsRelationalTestBase<TFixture>(TFixture fixt
         {
             var data = new JsonTranslationsData();
             context.AddRange(data.JsonTranslationsEntities);
+            context.Add(
+                new JsonConvertedEntity
+                {
+                    Id = 1,
+                    Json = new JsonDocumentValue("""{"value":"converted","number":8}"""),
+                    JsonString = """{"value":"converted","number":8}""",
+                    ConvertedNumber = 8,
+                    ConvertedText = "fallback"
+                });
             await context.SaveChangesAsync();
 
             var entityType = context.Model.FindEntityType(typeof(JsonTranslationsEntity))!;

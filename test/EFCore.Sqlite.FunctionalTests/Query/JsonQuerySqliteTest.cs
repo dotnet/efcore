@@ -17,6 +17,26 @@ public class JsonQuerySqliteTest : JsonQueryRelationalTestBase<JsonQuerySqliteFi
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public async Task JsonExtract_on_nested_owned_json(bool async)
+    {
+        await using var context = Fixture.CreateContext();
+        var query = context.JsonEntitiesBasic.Where(e => e.Id == 1)
+            .Select(e => EF.Functions.JsonExtract(
+                e.OwnedReferenceRoot.OwnedReferenceBranch!.OwnedReferenceLeaf, "$.SomethingSomething"));
+
+        var result = async ? await query.SingleAsync() : query.Single();
+
+        Assert.Equal("e1_r_r_r", result);
+        AssertSql(
+            """
+SELECT json_extract("j"."OwnedReferenceRoot" ->> '$.OwnedReferenceBranch.OwnedReferenceLeaf', '$.SomethingSomething')
+FROM "JsonEntitiesBasic" AS "j"
+WHERE "j"."Id" = 1
+LIMIT 2
+""");
+    }
+
     public override async Task Json_scalar_length(bool async)
     {
         await base.Json_scalar_length(async);

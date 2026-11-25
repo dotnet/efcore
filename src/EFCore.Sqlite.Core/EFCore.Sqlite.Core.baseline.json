@@ -117,6 +117,12 @@
           "Member": "static string Hex(this Microsoft.EntityFrameworkCore.DbFunctions _, byte[] bytes);"
         },
         {
+          "Member": "static object? JsonExtract(this Microsoft.EntityFrameworkCore.DbFunctions _, object expression, string path);"
+        },
+        {
+          "Member": "static string? JsonExtract(this Microsoft.EntityFrameworkCore.DbFunctions _, object expression, params string[] paths);"
+        },
+        {
           "Member": "static byte[] Substr(this Microsoft.EntityFrameworkCore.DbFunctions _, byte[] bytes, int startIndex);"
         },
         {
