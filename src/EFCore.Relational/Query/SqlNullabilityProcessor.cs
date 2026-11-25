@@ -2249,24 +2249,18 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         // A scalar subquery cannot have such an index and may be expensive to evaluate twice. An equality
         // with a column may still use the column's index, but a constant or parameter has no index.
         // Both nullable operands require the full rewrite to distinguish two nulls from one.
-        if (leftNullable && rightNullable
+        // Otherwise map UNKNOWN to false without repeating the nullable expression. The final NOT below maps
+        // it to true when the original comparison was an inequality.
+        body = leftNullable && rightNullable
             || originallyNotEqual == bodyNotEqual
                 && (leftNullable ? right : left) is not (SqlConstantExpression or SqlParameterExpression)
-            || (leftNullable ? leftIsNull : rightIsNull) is not SqlUnaryExpression { Operand: ScalarSubqueryExpression })
-        {
-            // (a == b && (a != null && b != null)) || (a == null && b == null)
-            body = _sqlExpressionFactory.OrElse(
-                _sqlExpressionFactory.AndAlso(body, _sqlExpressionFactory.AndAlso(leftIsNotNull, rightIsNotNull)),
-                _sqlExpressionFactory.AndAlso(leftIsNull, rightIsNull));
-        }
-        else
-        {
-            // Map UNKNOWN to false without repeating the nullable expression.
-            // The final NOT below maps it to true when the original comparison was an inequality.
-            body = _sqlExpressionFactory.Case(
-                [new(body, _sqlExpressionFactory.Constant(true, body.Type, body.TypeMapping))],
-                _sqlExpressionFactory.Constant(false, body.Type, body.TypeMapping));
-        }
+            || (leftNullable ? leftIsNull : rightIsNull) is not SqlUnaryExpression { Operand: ScalarSubqueryExpression }
+                ? _sqlExpressionFactory.OrElse(
+                    _sqlExpressionFactory.AndAlso(body, _sqlExpressionFactory.AndAlso(leftIsNotNull, rightIsNotNull)),
+                    _sqlExpressionFactory.AndAlso(leftIsNull, rightIsNull))
+                : _sqlExpressionFactory.Case(
+                    [new(body, _sqlExpressionFactory.Constant(true, body.Type, body.TypeMapping))],
+                    _sqlExpressionFactory.Constant(false, body.Type, body.TypeMapping));
 
         if (sqlBinaryExpression.OperatorType == ExpressionType.NotEqual)
         {

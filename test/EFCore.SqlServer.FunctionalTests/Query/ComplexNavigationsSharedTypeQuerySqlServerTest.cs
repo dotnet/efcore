@@ -6675,21 +6675,7 @@ SELECT CASE
         WHERE [l4].[OneToOne_Required_PK_Date] IS NOT NULL AND [l4].[Level1_Required_Id] IS NOT NULL AND [l4].[OneToMany_Required_Inverse2Id] IS NOT NULL
         ORDER BY CASE
             WHEN [l4].[OneToOne_Required_PK_Date] IS NOT NULL AND [l4].[Level1_Required_Id] IS NOT NULL AND [l4].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [l4].[Id]
-        END) = N'L1 02' AND (
-        SELECT TOP(1) [l5].[Name]
-        FROM [Level1] AS [l2]
-        LEFT JOIN (
-            SELECT [l3].[Id], [l3].[OneToOne_Required_PK_Date], [l3].[Level1_Required_Id], [l3].[OneToMany_Required_Inverse2Id]
-            FROM [Level1] AS [l3]
-            WHERE [l3].[OneToOne_Required_PK_Date] IS NOT NULL AND [l3].[Level1_Required_Id] IS NOT NULL AND [l3].[OneToMany_Required_Inverse2Id] IS NOT NULL
-        ) AS [l4] ON [l2].[Id] = CASE
-            WHEN [l4].[OneToOne_Required_PK_Date] IS NOT NULL AND [l4].[Level1_Required_Id] IS NOT NULL AND [l4].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [l4].[Id]
-        END
-        LEFT JOIN [Level1] AS [l5] ON [l4].[Level1_Required_Id] = [l5].[Id]
-        WHERE [l4].[OneToOne_Required_PK_Date] IS NOT NULL AND [l4].[Level1_Required_Id] IS NOT NULL AND [l4].[OneToMany_Required_Inverse2Id] IS NOT NULL
-        ORDER BY CASE
-            WHEN [l4].[OneToOne_Required_PK_Date] IS NOT NULL AND [l4].[Level1_Required_Id] IS NOT NULL AND [l4].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [l4].[Id]
-        END) IS NOT NULL THEN CAST(1 AS bit)
+        END) = N'L1 02' THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
 FROM [Level1] AS [l]

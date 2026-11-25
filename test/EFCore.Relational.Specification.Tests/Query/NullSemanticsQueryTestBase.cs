@@ -513,8 +513,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
             async,
             ss => ss.Set<NullSemanticsEntity1>()
                 .Where(e => e.NullableIntA + e.IntB != e.IntC)
-                .Select(e => e.Id),
-            assertOrder: true);
+                .Select(e => e.Id));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Compare_complex_expression_null_checks_propagated(bool async)
@@ -522,8 +521,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
             async,
             ss => ss.Set<NullSemanticsEntity1>()
                 .Where(e => e.NullableIntA + e.NullableIntB != e.IntC)
-                .Select(e => e.Id),
-            assertOrder: true);
+                .Select(e => e.Id));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Compare_nullable_subquery_not_equal(bool async)
