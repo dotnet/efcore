@@ -45,10 +45,18 @@ await using var context = new AdHocPrecompiledQueryRelationalTestBase.JsonContex
 var result = context.JsonEntities.Select(e => new
 {
     Text = EF.Functions.JsonExtract(e.JsonThing, "$.StringProperty"),
-    Number = EF.Functions.JsonExtract(e.IntList, "$[0]")
+    Number = EF.Functions.JsonExtract(e.IntList, "$[0]"),
+    NumberAsText = EF.Functions.JsonExtract(e.IntList, new[] { "$[0]" }),
+    NumbersAsJson = EF.Functions.JsonExtract(e.IntList, "$[0]", "$[1]"),
+    Matches = object.Equals(EF.Functions.JsonExtract(e.IntList, "$[0]"), 42L),
+    Fallback = EF.Functions.JsonExtract(e.JsonThing, "$.missing") ?? "don't"
 }).Single();
 Assert.Equal("value", result.Text);
 Assert.Equal(42L, result.Number);
+Assert.Equal("42", result.NumberAsText);
+Assert.Equal("[42,null]", result.NumbersAsJson);
+Assert.True(result.Matches);
+Assert.Equal("don't", result.Fallback);
 """,
             typeof(JsonContext),
             contextFactory.GetOptions());

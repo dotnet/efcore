@@ -308,6 +308,26 @@ class TestContainer
             "CSharpToLinqTranslatorTest.ParamsAndOptionalMethod(1, 4, 5, 6)");
 
     [Fact]
+    public void Invocation_method_with_params_parameter_explicit_array()
+        => AssertExpression(
+            Call(
+                typeof(CSharpToLinqTranslatorTest).GetMethod(nameof(ParamsAndOptionalMethod), [typeof(int), typeof(int), typeof(int[])])!,
+                Constant(1),
+                Constant(4),
+                NewArrayInit(typeof(int), Constant(5), Constant(6))),
+            "CSharpToLinqTranslatorTest.ParamsAndOptionalMethod(1, 4, new[] { 5, 6 })");
+
+    [Fact]
+    public void Invocation_method_with_params_parameter_null_array()
+        => AssertExpression(
+            Call(
+                typeof(CSharpToLinqTranslatorTest).GetMethod(nameof(ParamsAndOptionalMethod), [typeof(int), typeof(int), typeof(int[])])!,
+                Constant(1),
+                Constant(4),
+                Constant(null, typeof(int[]))),
+            "CSharpToLinqTranslatorTest.ParamsAndOptionalMethod(1, 4, null)");
+
+    [Fact]
     public void Invocation_method_with_params_parameter_missing_argument()
         => AssertExpression(
             Call(

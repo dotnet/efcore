@@ -235,6 +235,168 @@ ORDER BY "j"."Id"
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public async Task JsonExtract_single_path_array_string_predicate(bool async)
+    {
+        await using var context = CreateContext();
+        string[] paths = ["$.RequiredInt"];
+        var query = context.JsonEntities
+            .Where(e => EF.Functions.JsonExtract(e.JsonString, paths) == "8")
+            .Select(e => e.Id);
+
+        var results = async ? await query.ToListAsync() : query.ToList();
+
+        Assert.Equal(new[] { 1 }, results);
+        AssertSql(
+            """
+SELECT "j"."Id"
+FROM "JsonEntities" AS "j"
+WHERE CAST(json_extract("j"."JsonString", '$.RequiredInt') AS TEXT) = '8'
+""");
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public async Task JsonExtract_object_equals_numeric_predicate(bool async)
+    {
+        await using var context = CreateContext();
+        var query = context.JsonEntities
+            .Where(e => object.Equals(EF.Functions.JsonExtract(e.JsonString, "$.RequiredInt"), 8L))
+            .Select(e => e.Id);
+
+        var results = async ? await query.ToListAsync() : query.ToList();
+
+        Assert.Equal(new[] { 1 }, results);
+        AssertSql(
+            """
+SELECT "j"."Id"
+FROM "JsonEntities" AS "j"
+WHERE typeof(json_extract("j"."JsonString", '$.RequiredInt')) = 'integer' AND json_extract("j"."JsonString", '$.RequiredInt') = 8
+""");
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public async Task JsonExtract_object_equals_respects_result_types_and_nulls(bool async)
+    {
+        await using var context = CreateContext();
+        var json = """{"integer":8,"real":8.0,"text":"8","null":null}""";
+        var query = context.JsonEntities.Where(e => e.Id == 1).Select(e => new
+        {
+            EqualInteger = object.Equals(EF.Functions.JsonExtract(json, "$.integer"), 8L),
+            DifferentIntegerType = object.Equals(EF.Functions.JsonExtract(json, "$.integer"), 8),
+            DifferentNumericType = object.Equals(EF.Functions.JsonExtract(json, "$.integer"), 8.0),
+            EqualReal = object.Equals(EF.Functions.JsonExtract(json, "$.real"), 8.0),
+            EqualText = object.Equals(EF.Functions.JsonExtract(json, "$.text"), "8"),
+            InstanceEquals = EF.Functions.JsonExtract(json, "$.integer")!.Equals(8L),
+            DifferentDynamicTypes = object.Equals(
+                EF.Functions.JsonExtract(json, "$.integer"), EF.Functions.JsonExtract(json, "$.real")),
+            EqualDynamicValues = object.Equals(
+                EF.Functions.JsonExtract(json, "$.integer"), EF.Functions.JsonExtract(json, "$.integer")),
+            EqualNulls = object.Equals(
+                EF.Functions.JsonExtract(json, "$.null"), EF.Functions.JsonExtract(json, "$.missing"))
+        });
+
+        var result = async ? await query.SingleAsync() : query.Single();
+
+        Assert.True(result.EqualInteger);
+        Assert.False(result.DifferentIntegerType);
+        Assert.False(result.DifferentNumericType);
+        Assert.True(result.EqualReal);
+        Assert.True(result.EqualText);
+        Assert.True(result.InstanceEquals);
+        Assert.False(result.DifferentDynamicTypes);
+        Assert.True(result.EqualDynamicValues);
+        Assert.True(result.EqualNulls);
+        AssertSql(
+            """
+@json='{"integer":8,"real":8.0,"text":"8","null":null}' (Size = 47)
+
+SELECT typeof(json_extract(@json, '$.integer')) = 'integer' AND json_extract(@json, '$.integer') = 8 AND json_extract(@json, '$.integer') IS NOT NULL AS "EqualInteger", 0 AS "DifferentIntegerType", typeof(json_extract(@json, '$.integer')) = 'real' AND json_extract(@json, '$.integer') = 8.0 AND json_extract(@json, '$.integer') IS NOT NULL AS "DifferentNumericType", typeof(json_extract(@json, '$.real')) = 'real' AND json_extract(@json, '$.real') = 8.0 AND json_extract(@json, '$.real') IS NOT NULL AS "EqualReal", typeof(json_extract(@json, '$.text')) = 'text' AND json_extract(@json, '$.text') = '8' AND json_extract(@json, '$.text') IS NOT NULL AS "EqualText", (json_extract(@json, '$.integer') IS NULL AND json_extract(@json, '$.real') IS NULL) OR (typeof(json_extract(@json, '$.integer')) = typeof(json_extract(@json, '$.real')) AND ((json_extract(@json, '$.integer') = json_extract(@json, '$.real') AND json_extract(@json, '$.integer') IS NOT NULL AND json_extract(@json, '$.real') IS NOT NULL) OR (json_extract(@json, '$.integer') IS NULL AND json_extract(@json, '$.real') IS NULL))) AS "DifferentDynamicTypes", json_extract(@json, '$.integer') IS NULL OR (json_extract(@json, '$.integer') = json_extract(@json, '$.integer') AND json_extract(@json, '$.integer') IS NOT NULL) OR json_extract(@json, '$.integer') IS NULL AS "EqualDynamicValues", (json_extract(@json, '$.null') IS NULL AND json_extract(@json, '$.missing') IS NULL) OR (typeof(json_extract(@json, '$.null')) = typeof(json_extract(@json, '$.missing')) AND ((json_extract(@json, '$.null') = json_extract(@json, '$.missing') AND json_extract(@json, '$.null') IS NOT NULL AND json_extract(@json, '$.missing') IS NOT NULL) OR (json_extract(@json, '$.null') IS NULL AND json_extract(@json, '$.missing') IS NULL))) AS "EqualNulls"
+FROM "JsonEntities" AS "j"
+WHERE "j"."Id" = 1
+LIMIT 2
+""");
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public async Task JsonExtract_object_equals_with_blob_fallback_is_not_translated(bool async)
+    {
+        await using var context = CreateContext();
+        byte[] fallback = [1, 2];
+        var query = context.JsonEntities.Select(e =>
+            object.Equals(EF.Functions.JsonExtract(e.JsonString, "$.missing") ?? fallback, fallback));
+
+        if (async)
+        {
+            await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
+        }
+        else
+        {
+            Assert.Throws<InvalidOperationException>(() => query.ToList());
+        }
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public async Task JsonExtract_object_equals_dynamic_fallback_is_not_translated(bool async)
+    {
+        await using var context = CreateContext();
+        byte[] fallback = [1, 2];
+        var query = context.JsonEntities.Select(e =>
+            object.Equals(
+                EF.Functions.JsonExtract(e.JsonString, "$.missing") ?? fallback,
+                EF.Functions.JsonExtract(e.JsonString, "$.missing") ?? fallback));
+
+        if (async)
+        {
+            await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
+        }
+        else
+        {
+            Assert.Throws<InvalidOperationException>(() => query.ToList());
+        }
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public async Task JsonExtract_coalesce_string_literal(bool async)
+    {
+        await using var context = CreateContext();
+        var query = context.JsonEntities.Where(e => e.Id == 1)
+            .Select(e => EF.Functions.JsonExtract(e.JsonString, "$.missing") ?? "don't'); SELECT 1; --");
+
+        var result = async ? await query.SingleAsync() : query.Single();
+
+        Assert.Equal("don't'); SELECT 1; --", result);
+        AssertSql(
+            """
+SELECT COALESCE(json_extract("j"."JsonString", '$.missing'), 'don''t''); SELECT 1; --')
+FROM "JsonEntities" AS "j"
+WHERE "j"."Id" = 1
+LIMIT 2
+""");
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public async Task JsonExtract_coalesce_numeric_literals(bool async)
+    {
+        await using var context = CreateContext();
+        var query = context.JsonEntities.Where(e => e.Id == 1).Select(e => new
+        {
+            Integer = EF.Functions.JsonExtract(e.JsonString, "$.missing") ?? 8L,
+            Real = EF.Functions.JsonExtract(e.JsonString, "$.missing") ?? 1.5
+        });
+
+        var result = async ? await query.SingleAsync() : query.Single();
+
+        Assert.Equal(8L, Assert.IsType<long>(result.Integer));
+        Assert.Equal(1.5, Assert.IsType<double>(result.Real));
+        AssertSql(
+            """
+SELECT COALESCE(json_extract("j"."JsonString", '$.missing'), 8) AS "Integer", COALESCE(json_extract("j"."JsonString", '$.missing'), 1.5) AS "Real"
+FROM "JsonEntities" AS "j"
+WHERE "j"."Id" = 1
+LIMIT 2
+""");
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public async Task JsonExtract_path_array_edge_cases(bool async)
     {
         await using var context = CreateContext();
@@ -255,7 +417,7 @@ ORDER BY "j"."Id"
         Assert.Null(result.NullPath);
         AssertSql(
             """
-SELECT json_extract("j"."JsonString") AS "Empty", json_extract("j"."JsonString", '$.RequiredInt') AS "Single", json_extract("j"."JsonString", '$.RequiredInt', NULL) AS "NullPath"
+SELECT json_extract("j"."JsonString") AS "Empty", CAST(json_extract("j"."JsonString", '$.RequiredInt') AS TEXT) AS "Single", json_extract("j"."JsonString", '$.RequiredInt', NULL) AS "NullPath"
 FROM "JsonEntities" AS "j"
 WHERE "j"."Id" = 1
 LIMIT 2

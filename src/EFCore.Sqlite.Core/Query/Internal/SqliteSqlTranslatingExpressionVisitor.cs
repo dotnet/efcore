@@ -160,6 +160,23 @@ public class SqliteSqlTranslatingExpressionVisitor(
             return QueryCompilationContext.NotTranslatedExpression;
         }
 
+        if (binaryExpression.NodeType == ExpressionType.Coalesce
+            && translation is SqlFunctionExpression
+            {
+                Name: "COALESCE",
+                TypeMapping: SqliteDynamicTypeMapping,
+                Arguments: [var left, SqlUnaryExpression { OperatorType: ExpressionType.Convert, Type: var type, Operand: var operand }]
+            } coalesce
+            && type == typeof(object))
+        {
+            return operand.Type.UnwrapNullableType() is var operandType
+                && (operandType == typeof(long) || operandType == typeof(double)
+                    || operandType == typeof(string) || operandType == typeof(byte[]))
+                && operand.TypeMapping?.Converter is null
+                    ? coalesce.Update(null, [left, operand])
+                    : QueryCompilationContext.NotTranslatedExpression;
+        }
+
         if (translation is SqlBinaryExpression sqlBinary)
         {
             switch (sqlBinary)
@@ -284,13 +301,18 @@ public class SqliteSqlTranslatingExpressionVisitor(
                     return QueryCompilationContext.NotTranslatedExpression;
                 }
 
-                return _sqlExpressionFactory.Function(
+                var singlePathStringResult = method.ReturnType == typeof(string) && functionArguments.Count == 2;
+                var function = _sqlExpressionFactory.Function(
                     "json_extract",
                     functionArguments,
                     nullable: true,
                     argumentsPropagateNullability: new bool[functionArguments.Count],
-                    method.ReturnType,
-                    method.ReturnType == typeof(object) ? SqliteDynamicTypeMapping.Default : null);
+                    singlePathStringResult ? typeof(object) : method.ReturnType,
+                    method.ReturnType == typeof(object) || singlePathStringResult ? SqliteDynamicTypeMapping.Default : null);
+
+                return singlePathStringResult
+                    ? _sqlExpressionFactory.Convert(function, typeof(string), SqliteStringTypeMapping.Default)
+                    : function;
             }
 
             // We translate EF.Functions.JsonPathExists here and not in a method translator since we need to support JsonPathExists over

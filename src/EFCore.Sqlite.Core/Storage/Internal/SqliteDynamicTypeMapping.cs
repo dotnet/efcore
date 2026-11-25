@@ -38,4 +38,15 @@ public sealed class SqliteDynamicTypeMapping : RelationalTypeMapping
     /// <inheritdoc />
     protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
         => new SqliteDynamicTypeMapping(parameters);
+
+    /// <inheritdoc />
+    protected override string GenerateNonNullSqlLiteral(object value)
+        => value switch
+        {
+            string => SqliteStringTypeMapping.Default.GenerateSqlLiteral(value),
+            long => LongTypeMapping.Default.GenerateSqlLiteral(value),
+            double => DoubleTypeMapping.Default.GenerateSqlLiteral(value),
+            byte[] => SqliteByteArrayTypeMapping.Default.GenerateSqlLiteral(value),
+            _ => throw new InvalidOperationException(CoreStrings.TranslationFailed(value.GetType().ShortDisplayName()))
+        };
 }
