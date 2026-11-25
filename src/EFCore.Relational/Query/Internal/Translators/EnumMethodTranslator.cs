@@ -65,10 +65,10 @@ public class EnumMethodTranslator : IMethodCallTranslator
                 case not null when converterType.GetGenericTypeDefinition() == typeof(EnumToNumberConverter<,>):
                     var names = Enum.GetNames(instance.Type);
                     var maxEnumNameLength = names.Length > 0 ? names.Max(name => name.Length) : 0;
-                    var maxNumericLength = GetMaxNumericStringLength(converter.ProviderClrType);
-                    var maxLength = Math.Max(maxEnumNameLength, maxNumericLength);
-                    var stringTypeMapping = _typeMappingSource.FindMapping(typeof(string), storeTypeName: null, size: maxLength, unicode: true)
-                        ?? _typeMappingSource.FindMapping(typeof(string));
+                    var stringTypeMapping = GetMaxNumericStringLength(converter.ProviderClrType) is { } maxNumericLength
+                        ? _typeMappingSource.FindMapping(typeof(string), storeTypeName: null, size: Math.Max(maxEnumNameLength, maxNumericLength), unicode: true)
+                            ?? _typeMappingSource.FindMapping(typeof(string))
+                        : _typeMappingSource.FindMapping(typeof(string));
 
                     var whenClauses = Enum.GetValues(instance.Type)
                         .Cast<object>()
@@ -94,7 +94,7 @@ public class EnumMethodTranslator : IMethodCallTranslator
         return null;
     }
 
-    private static int GetMaxNumericStringLength(Type numericType)
+    private static int? GetMaxNumericStringLength(Type numericType)
         => Type.GetTypeCode(Nullable.GetUnderlyingType(numericType) ?? numericType) switch
         {
             TypeCode.Byte => 3,
@@ -105,6 +105,6 @@ public class EnumMethodTranslator : IMethodCallTranslator
             TypeCode.Int32 => 11,
             TypeCode.UInt64 => 20,
             TypeCode.Int64 => 20,
-            _ => 30
+            _ => null
         };
 }

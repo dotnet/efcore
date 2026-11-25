@@ -4743,6 +4743,132 @@ WHERE CAST(DATEDIFF(day, '0001-01-01T00:00:00.0000000', [d].[Nullable]) AS bigin
 
     #endregion
 
+    #region 39667
+
+    [ConditionalFact]
+    public virtual async Task Enum_ToString_bounds_by_underlying_type_and_member_name()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context39667>(seed: c => c.SeedAsync());
+        await using var context = contextFactory.CreateDbContext();
+
+        var results = await context.Entities
+            .OrderBy(e => e.Id)
+            .Select(e => new
+            {
+                Long = e.LongEnum.ToString(),
+                NullableLong = e.NullableLongEnum.ToString(),
+                LongName = e.LongNameEnum.ToString(),
+                Decimal = e.DecimalEnum.ToString()
+            })
+            .ToListAsync();
+
+        Assert.Equal(
+            [
+                new
+                {
+                    Long = "First",
+                    NullableLong = "",
+                    LongName = "VeryLongEnumMemberName24",
+                    Decimal = "Alpha"
+                },
+                new
+                {
+                    Long = "-9223372036854775808",
+                    NullableLong = "Second",
+                    LongName = "Short",
+                    Decimal = "Beta"
+                }
+            ],
+            results);
+
+        AssertSql(
+            """
+SELECT CASE [e].[LongEnum]
+    WHEN CAST(1 AS bigint) THEN N'First'
+    WHEN CAST(2 AS bigint) THEN N'Second'
+    ELSE CAST([e].[LongEnum] AS nvarchar(20))
+END AS [Long], CASE [e].[NullableLongEnum]
+    WHEN CAST(1 AS bigint) THEN N'First'
+    WHEN CAST(2 AS bigint) THEN N'Second'
+    ELSE ISNULL(CAST([e].[NullableLongEnum] AS nvarchar(20)), N'')
+END AS [NullableLong], CASE [e].[LongNameEnum]
+    WHEN 0 THEN N'Short'
+    WHEN 1 THEN N'VeryLongEnumMemberName24'
+    ELSE CAST([e].[LongNameEnum] AS nvarchar(24))
+END AS [LongName], CASE [e].[DecimalEnum]
+    WHEN 0.0 THEN N'Alpha'
+    WHEN 1.0 THEN N'Beta'
+    ELSE CAST([e].[DecimalEnum] AS nvarchar(max))
+END AS [Decimal]
+FROM [Entities] AS [e]
+ORDER BY [e].[Id]
+""");
+    }
+
+    protected class Context39667(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Entity39667> Entities => Set<Entity39667>();
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Entity39667>(b =>
+            {
+                b.Property(e => e.Id).ValueGeneratedNever();
+                b.Property(e => e.DecimalEnum).HasConversion<decimal>().HasPrecision(38, 18);
+            });
+
+        public Task SeedAsync()
+        {
+            AddRange(
+                new Entity39667
+                {
+                    Id = 1,
+                    LongEnum = LongEnum39667.First,
+                    NullableLongEnum = null,
+                    LongNameEnum = LongNameEnum39667.VeryLongEnumMemberName24,
+                    DecimalEnum = ShortEnum39667.Alpha
+                },
+                new Entity39667
+                {
+                    Id = 2,
+                    LongEnum = (LongEnum39667)long.MinValue,
+                    NullableLongEnum = LongEnum39667.Second,
+                    LongNameEnum = LongNameEnum39667.Short,
+                    DecimalEnum = ShortEnum39667.Beta
+                });
+
+            return SaveChangesAsync();
+        }
+    }
+
+    protected class Entity39667
+    {
+        public int Id { get; set; }
+        public LongEnum39667 LongEnum { get; set; }
+        public LongEnum39667? NullableLongEnum { get; set; }
+        public LongNameEnum39667 LongNameEnum { get; set; }
+        public ShortEnum39667 DecimalEnum { get; set; }
+    }
+
+    protected enum LongEnum39667 : long
+    {
+        First = 1,
+        Second = 2
+    }
+
+    protected enum LongNameEnum39667
+    {
+        Short = 0,
+        VeryLongEnumMemberName24 = 1
+    }
+
+    protected enum ShortEnum39667
+    {
+        Alpha = 0,
+        Beta = 1
+    }
+
+    #endregion
+
     [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
