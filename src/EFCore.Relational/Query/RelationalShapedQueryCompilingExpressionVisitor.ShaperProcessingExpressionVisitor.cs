@@ -2660,6 +2660,17 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         {
             Check.DebugAssert(structuralType.IsMappedToJson());
 
+            // Prefer the model column referenced by the projection: the containing entity type may not be mapped to a table itself
+            // (e.g. an abstract TPC base type, whose JSON column is projected out of the UNION over its concrete tables).
+            if (jsonColumn is null
+                && _selectExpression.Projection[jsonColumnIndex].Expression is JsonScalarExpression
+                {
+                    Json: ColumnExpression { Column: { } projectedColumn }
+                })
+            {
+                jsonColumn = projectedColumn;
+            }
+
             if (jsonColumn is null)
             {
                 var jsonColumnName = structuralType.GetContainerColumnName()!;

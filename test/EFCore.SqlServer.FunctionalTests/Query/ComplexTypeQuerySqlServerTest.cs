@@ -1338,6 +1338,28 @@ FROM [TpcChild2] AS [t0]
 
     #endregion 35025
 
+    #region 39814
+
+    public override async Task Select_TPC_base_with_json_complex_property()
+    {
+        await base.Select_TPC_base_with_json_complex_property();
+
+        AssertSql(
+            """
+SELECT [u].[Id], [u].[Document], [u].[Documents], [u].[Discriminator]
+FROM (
+    SELECT [f].[Id], [f].[Document], [f].[Documents], N'First' AS [Discriminator]
+    FROM [First] AS [f]
+    UNION ALL
+    SELECT [s].[Id], [s].[Document], [s].[Documents], N'Second' AS [Discriminator]
+    FROM [Second] AS [s]
+) AS [u]
+ORDER BY [u].[Id]
+""");
+    }
+
+    #endregion 39814
+
     #region 34706
 
     public override async Task Complex_type_on_an_entity_mapped_to_view_and_table()
