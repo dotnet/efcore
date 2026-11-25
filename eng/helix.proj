@@ -18,7 +18,7 @@
 
   <PropertyGroup Condition = "'$(SYSTEM_ACCESSTOKEN)' == ''">
     <!-- Local build outside of Azure Pipeline -->
-    <HelixTargetQueues Condition = "'$(HelixTargetQueues)' == ''">Windows.10.Amd64.Open;Windows.11.Amd64.Client.Open;Windows.11.Arm64.Open;Windows.Server2025.Amd64.Open;OSX.15.Amd64.Open;OSX.15.ARM64.Open;Ubuntu.2204.Amd64.XL.Open@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-22.04-helix-sqlserver-amd64;Ubuntu.2204.Amd64.XL.Open;Ubuntu.2204.Amd64.Open</HelixTargetQueues>
+    <HelixTargetQueues Condition = "'$(HelixTargetQueues)' == ''">Windows.10.Amd64.Open;Windows.11.Amd64.Client.Open;Windows.11.Arm64.Open;Windows.Server2025.Amd64.Open;OSX.15.Amd64.Open;OSX.15.ARM64.Open;Ubuntu.2204.Amd64.XL.Open@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-22.04-helix-sqlserver-amd64;Ubuntu.2204.Amd64.XL.Open;azurelinux.4.amd64.open</HelixTargetQueues>
     <EnableAzurePipelinesReporter>false</EnableAzurePipelinesReporter>
     <HelixSource>efcore/localbuild/</HelixSource>
     <HelixBuild>t001</HelixBuild>
@@ -125,8 +125,8 @@
     <MTPProject Include="$(CosmosTests)"/>
   </ItemGroup>
 
-  <!-- Run tests that don't need SqlServer or Cosmos on bare Ubuntu -->
-  <ItemGroup Condition = "'$(HelixTargetQueue)' == 'Ubuntu.2204.Amd64.Open' OR '$(HelixTargetQueue)' == 'Ubuntu.2204.Amd64'">
+  <!-- Run tests that don't need SqlServer or Cosmos on bare Azure Linux -->
+  <ItemGroup Condition = "'$(HelixTargetQueue)' == 'azurelinux.4.amd64.open' OR '$(HelixTargetQueue)' == 'azurelinux.4.amd64'">
     <MTPProject Remove="$(SqlServerTests)"/>
     <MTPProject Remove="$(CosmosTests)"/>
   </ItemGroup>

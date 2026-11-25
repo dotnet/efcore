@@ -19,7 +19,7 @@ $jobDisplayNames = @{
     Helix_macOS_ARM64 = 'Helix macOS ARM64'
     Helix_Ubuntu_SqlServer = 'Helix Ubuntu SQL Server'
     Helix_Ubuntu_Cosmos = 'Helix Ubuntu Cosmos'
-    Helix_Ubuntu = 'Helix Ubuntu'
+    Helix_Ubuntu = 'Helix Azure Linux'
 }
 
 # A group succeeds when at least one of its jobs succeeds. Jobs may participate in multiple groups.
