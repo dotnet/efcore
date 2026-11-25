@@ -28,6 +28,20 @@ WHERE json_type("j"."JsonString", '$.OptionalInt') IS NOT NULL
 """);
     }
 
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public async Task JsonExtract_coalesce_object_fallback_preserves_boxed_type(bool async)
+    {
+        await using var context = CreateContext();
+        object fallback = 8;
+        var query = context.JsonEntities.Where(e => e.Id == 1)
+            .Select(e => (int)(EF.Functions.JsonExtract(e.JsonString, "$.missing") ?? fallback));
+
+        Assert.DoesNotContain("COALESCE", query.ToQueryString());
+        var result = async ? await query.SingleAsync() : query.Single();
+
+        Assert.Equal(8, result);
+    }
+
     [Fact]
     public override async Task JsonPathExists_on_complex_property()
     {
@@ -356,6 +370,7 @@ WHERE typeof(json_extract("j"."JsonString", '$.RequiredInt')) = 'integer' AND js
     {
         await using var context = CreateContext();
         var json = """{"integer":8,"real":8.0,"text":"8","null":null}""";
+        var equivalentJson = """{"integer":8}""";
         var query = context.JsonEntities.Where(e => e.Id == 1).Select(e => new
         {
             EqualInteger = object.Equals(EF.Functions.JsonExtract(json, "$.integer"), 8L),
@@ -367,7 +382,7 @@ WHERE typeof(json_extract("j"."JsonString", '$.RequiredInt')) = 'integer' AND js
             DifferentDynamicTypes = object.Equals(
                 EF.Functions.JsonExtract(json, "$.integer"), EF.Functions.JsonExtract(json, "$.real")),
             EqualDynamicValues = object.Equals(
-                EF.Functions.JsonExtract(json, "$.integer"), EF.Functions.JsonExtract(json, "$.integer")),
+                EF.Functions.JsonExtract(json, "$.integer"), EF.Functions.JsonExtract(equivalentJson, "$.integer")),
             EqualNulls = object.Equals(
                 EF.Functions.JsonExtract(json, "$.null"), EF.Functions.JsonExtract(json, "$.missing"))
         });
@@ -386,8 +401,9 @@ WHERE typeof(json_extract("j"."JsonString", '$.RequiredInt')) = 'integer' AND js
         AssertSql(
             """
 @json='{"integer":8,"real":8.0,"text":"8","null":null}' (Size = 47)
+@equivalentJson='{"integer":8}' (Size = 13)
 
-SELECT typeof(json_extract(@json, '$.integer')) = 'integer' AND json_extract(@json, '$.integer') = 8 AND json_extract(@json, '$.integer') IS NOT NULL AS "EqualInteger", 0 AS "DifferentIntegerType", typeof(json_extract(@json, '$.integer')) = 'real' AND json_extract(@json, '$.integer') = 8.0 AND json_extract(@json, '$.integer') IS NOT NULL AS "DifferentNumericType", typeof(json_extract(@json, '$.real')) = 'real' AND json_extract(@json, '$.real') = 8.0 AND json_extract(@json, '$.real') IS NOT NULL AS "EqualReal", typeof(json_extract(@json, '$.text')) = 'text' AND json_extract(@json, '$.text') = '8' AND json_extract(@json, '$.text') IS NOT NULL AS "EqualText", (json_extract(@json, '$.integer') IS NULL AND json_extract(@json, '$.real') IS NULL) OR (typeof(json_extract(@json, '$.integer')) = typeof(json_extract(@json, '$.real')) AND ((json_extract(@json, '$.integer') = json_extract(@json, '$.real') AND json_extract(@json, '$.integer') IS NOT NULL AND json_extract(@json, '$.real') IS NOT NULL) OR (json_extract(@json, '$.integer') IS NULL AND json_extract(@json, '$.real') IS NULL))) AS "DifferentDynamicTypes", json_extract(@json, '$.integer') IS NULL OR (json_extract(@json, '$.integer') = json_extract(@json, '$.integer') AND json_extract(@json, '$.integer') IS NOT NULL) OR json_extract(@json, '$.integer') IS NULL AS "EqualDynamicValues", (json_extract(@json, '$.null') IS NULL AND json_extract(@json, '$.missing') IS NULL) OR (typeof(json_extract(@json, '$.null')) = typeof(json_extract(@json, '$.missing')) AND ((json_extract(@json, '$.null') = json_extract(@json, '$.missing') AND json_extract(@json, '$.null') IS NOT NULL AND json_extract(@json, '$.missing') IS NOT NULL) OR (json_extract(@json, '$.null') IS NULL AND json_extract(@json, '$.missing') IS NULL))) AS "EqualNulls"
+SELECT typeof(json_extract(@json, '$.integer')) = 'integer' AND json_extract(@json, '$.integer') = 8 AND json_extract(@json, '$.integer') IS NOT NULL AS "EqualInteger", 0 AS "DifferentIntegerType", typeof(json_extract(@json, '$.integer')) = 'real' AND json_extract(@json, '$.integer') = 8.0 AND json_extract(@json, '$.integer') IS NOT NULL AS "DifferentNumericType", typeof(json_extract(@json, '$.real')) = 'real' AND json_extract(@json, '$.real') = 8.0 AND json_extract(@json, '$.real') IS NOT NULL AS "EqualReal", typeof(json_extract(@json, '$.text')) = 'text' AND json_extract(@json, '$.text') = '8' AND json_extract(@json, '$.text') IS NOT NULL AS "EqualText", (json_extract(@json, '$.integer') IS NULL AND json_extract(@json, '$.real') IS NULL) OR (typeof(json_extract(@json, '$.integer')) = typeof(json_extract(@json, '$.real')) AND ((json_extract(@json, '$.integer') = json_extract(@json, '$.real') AND json_extract(@json, '$.integer') IS NOT NULL AND json_extract(@json, '$.real') IS NOT NULL) OR (json_extract(@json, '$.integer') IS NULL AND json_extract(@json, '$.real') IS NULL))) AS "DifferentDynamicTypes", (json_extract(@json, '$.integer') IS NULL AND json_extract(@equivalentJson, '$.integer') IS NULL) OR (typeof(json_extract(@json, '$.integer')) = typeof(json_extract(@equivalentJson, '$.integer')) AND ((json_extract(@json, '$.integer') = json_extract(@equivalentJson, '$.integer') AND json_extract(@json, '$.integer') IS NOT NULL AND json_extract(@equivalentJson, '$.integer') IS NOT NULL) OR (json_extract(@json, '$.integer') IS NULL AND json_extract(@equivalentJson, '$.integer') IS NULL))) AS "EqualDynamicValues", (json_extract(@json, '$.null') IS NULL AND json_extract(@json, '$.missing') IS NULL) OR (typeof(json_extract(@json, '$.null')) = typeof(json_extract(@json, '$.missing')) AND ((json_extract(@json, '$.null') = json_extract(@json, '$.missing') AND json_extract(@json, '$.null') IS NOT NULL AND json_extract(@json, '$.missing') IS NOT NULL) OR (json_extract(@json, '$.null') IS NULL AND json_extract(@json, '$.missing') IS NULL))) AS "EqualNulls"
 FROM "JsonEntities" AS "j"
 WHERE "j"."Id" = 1
 LIMIT 2
@@ -420,7 +436,7 @@ LIMIT 2
         var query = context.JsonEntities.Select(e =>
             object.Equals(
                 EF.Functions.JsonExtract(e.JsonString, "$.missing") ?? fallback,
-                EF.Functions.JsonExtract(e.JsonString, "$.missing") ?? fallback));
+                EF.Functions.JsonExtract(e.JsonString, "$.alsoMissing") ?? fallback));
 
         if (async)
         {

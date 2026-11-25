@@ -166,7 +166,10 @@ public class SqliteSqlTranslatingExpressionVisitor(
                 Name: "COALESCE",
                 Arguments: [{ TypeMapping: SqliteDynamicTypeMapping }, var fallback]
             }
-            && (fallback is ColumnExpression || fallback.TypeMapping?.Converter is not null))
+            && ((fallback.Type == typeof(object)
+                    && fallback is not SqlUnaryExpression { OperatorType: ExpressionType.Convert })
+                || fallback is ColumnExpression
+                || fallback.TypeMapping?.Converter is not null))
         {
             return QueryCompilationContext.NotTranslatedExpression;
         }

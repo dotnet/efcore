@@ -83,18 +83,18 @@ Assert.Equal("don't", result.Fallback);
             """
 await using var context = new AdHocPrecompiledQueryRelationalTestBase.JsonContext(dbContextOptions);
 string? a = "a", b = "b", c = "c", d = null;
-object fallback = "fallback";
+object fallback = 8;
 var result = context.JsonEntities
     .Where(e => e.JsonThing.StringProperty != a && e.JsonThing.StringProperty != b
         && e.JsonThing.StringProperty != c && e.JsonThing.StringProperty != d)
     .Select(e => new
     {
         Literal = EF.Functions.JsonExtract(e.JsonThing, "$.missing") ?? "fallback",
-        Parameter = EF.Functions.JsonExtract(e.JsonThing, "$.missing") ?? fallback
+        Parameter = (int)(EF.Functions.JsonExtract(e.JsonThing, "$.missing") ?? fallback)
     })
     .Single();
 Assert.Equal("fallback", result.Literal);
-Assert.Equal("fallback", result.Parameter);
+Assert.Equal(8, result.Parameter);
 """,
             typeof(JsonContext),
             contextFactory.GetOptions(),
