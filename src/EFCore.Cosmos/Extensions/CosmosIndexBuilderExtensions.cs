@@ -154,7 +154,7 @@ public static class CosmosIndexBuilderExtensions
         bool? fullTextIndex,
         bool fromDataAnnotation = false)
     {
-        if (indexBuilder.CanSetIsFullTextIndex(fromDataAnnotation))
+        if (indexBuilder.CanSetIsFullTextIndex(fullTextIndex, fromDataAnnotation))
         {
             indexBuilder.Metadata.SetIsFullTextIndex(fullTextIndex, fromDataAnnotation);
             return indexBuilder;

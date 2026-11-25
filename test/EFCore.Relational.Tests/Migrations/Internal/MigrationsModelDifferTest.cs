@@ -14,6 +14,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal;
 public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
 {
     [Fact]
+    public void Unspecified_computed_column_error_identifies_table_and_column()
+    {
+        var exception = Assert.Throws<InvalidOperationException>(() => Execute(
+            model => model.Entity("Record").ToTable("Records", "audit").Property<int>("Id"),
+            _ => { },
+            model => model.Entity("Record").Property<int>("Total").HasComputedColumnSql(),
+            _ => { }));
+
+        Assert.Equal(RelationalStrings.ComputedColumnSqlUnspecified("audit.Records", "Total"), exception.Message);
+    }
+
+    [Fact]
     public void Model_differ_does_not_detect_views()
         => Execute(
             _ => { },

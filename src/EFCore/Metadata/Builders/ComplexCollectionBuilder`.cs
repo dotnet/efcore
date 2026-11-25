@@ -563,7 +563,7 @@ public class ComplexCollectionBuilder<[DynamicallyAccessedMembers(IEntityType.Dy
         string propertyName,
         string complexTypeName,
         Action<ComplexCollectionBuilder> buildAction)
-        => (ComplexCollectionBuilder<TComplex>)base.ComplexCollection(propertyType, complexTypeName, propertyName, buildAction);
+        => (ComplexCollectionBuilder<TComplex>)base.ComplexCollection(propertyType, propertyName, complexTypeName, buildAction);
 
     /// <summary>
     ///     Returns an object that can be used to configure a complex collection property of the complex type.

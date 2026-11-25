@@ -841,7 +841,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
             builder => { },
             builder => builder.Entity("People").Property<int?>("Sum")
                 .HasComputedColumnSql());
-        Assert.Equal(RelationalStrings.ComputedColumnSqlUnspecified("Sum", "People"), ex.Message);
+        Assert.Equal(RelationalStrings.ComputedColumnSqlUnspecified("People", "Sum"), ex.Message);
     }
 
     [Fact]

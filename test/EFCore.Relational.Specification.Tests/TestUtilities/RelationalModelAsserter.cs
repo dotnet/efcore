@@ -45,7 +45,7 @@ public class RelationalModelAsserter : ModelAsserter
                         actual,
                         compareMemberAnnotations ? expected.GetAnnotations() : [],
                         compareMemberAnnotations ? actual.GetAnnotations() : [],
-                        compareMemberAnnotations)),
+                        compareMemberAnnotations: compareMemberAnnotations)),
             () => Assert.Equal(
                 expected.GetSequences().Select(x => x),
                 actual.GetSequences(),

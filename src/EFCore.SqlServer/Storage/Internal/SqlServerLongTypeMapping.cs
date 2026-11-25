@@ -37,7 +37,7 @@ public class SqlServerLongTypeMapping : LongTypeMapping
         : this(
             new RelationalTypeMappingParameters(
                 new CoreTypeMappingParameters(
-                    typeof(long), converter, comparer, providerValueComparer, jsonValueReaderWriter: JsonInt64ReaderWriter.Instance),
+                    typeof(long), converter, comparer, providerValueComparer: providerValueComparer, jsonValueReaderWriter: JsonInt64ReaderWriter.Instance),
                 storeType,
                 dbType: dbType))
     {

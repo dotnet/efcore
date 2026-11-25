@@ -16,6 +16,20 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 
 public class SqlServerTypeMappingTest : RelationalTypeMappingTest
 {
+    [Fact]
+    public void Long_mapping_preserves_provider_value_comparer()
+    {
+        var comparer = new ValueComparer<long>((left, right) => left == right, value => value.GetHashCode());
+        var providerComparer = new ValueComparer<long>((left, right) => left % 10 == right % 10, value => (value % 10).GetHashCode());
+
+        var mapping = new SqlServerLongTypeMapping("bigint", comparer: comparer, providerValueComparer: providerComparer);
+
+        Assert.Same(comparer, mapping.Comparer);
+        Assert.Same(providerComparer, mapping.ProviderValueComparer);
+        Assert.False(mapping.KeyComparer.Equals(1L, 11L));
+        Assert.True(mapping.ProviderValueComparer.Equals(1L, 11L));
+    }
+
     [Theory, InlineData(nameof(ChangeTracker.DetectChanges), false), InlineData(nameof(PropertyEntry.CurrentValue), false),
      InlineData(nameof(PropertyEntry.OriginalValue), false), InlineData(nameof(ChangeTracker.DetectChanges), true),
      InlineData(nameof(PropertyEntry.CurrentValue), true), InlineData(nameof(PropertyEntry.OriginalValue), true)]

@@ -87,7 +87,7 @@ public class PagingExpression(
         => expression == Expression
             ? this
             : expression.Type == Expression.Type
-                ? new PagingExpression(expression, ContinuationToken, MaxItemCount, ResponseContinuationTokenLimitInKb, Type)
+                ? new PagingExpression(expression, MaxItemCount, ContinuationToken, ResponseContinuationTokenLimitInKb, Type)
                 : throw new UnreachableException("Can't change the Type of a PagingExpression");
 
     /// <summary>

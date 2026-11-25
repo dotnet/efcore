@@ -168,7 +168,7 @@ public class DiscriminatorBuilder : IConventionDiscriminatorBuilder
     [DebuggerStepThrough]
     bool IConventionDiscriminatorBuilder.CanSetIsComplete(bool complete, bool fromDataAnnotation)
         => ((IConventionEntityTypeBuilder)EntityTypeBuilder).CanSetAnnotation(
-            CoreAnnotationNames.DiscriminatorMappingComplete, fromDataAnnotation);
+            CoreAnnotationNames.DiscriminatorMappingComplete, complete, fromDataAnnotation);
 
     /// <inheritdoc />
     [DebuggerStepThrough]
