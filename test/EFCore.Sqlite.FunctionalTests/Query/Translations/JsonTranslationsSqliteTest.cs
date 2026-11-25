@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.Data.Sqlite;
+
 namespace Microsoft.EntityFrameworkCore.Query.Translations;
 
 public class JsonTranslationsSqliteTest : JsonTranslationsRelationalTestBase<JsonTranslationsSqliteTest.JsonTranslationsQuerySqliteFixture>
@@ -274,6 +276,40 @@ WHERE typeof(json_extract("j"."JsonString", '$.RequiredInt')) = 'integer' AND js
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public async Task JsonExtract_object_equals_converted_property_is_not_translated(bool async)
+    {
+        await using var context = CreateContext();
+        var query = context.Set<JsonConvertedEntity>()
+            .Where(e => object.Equals(EF.Functions.JsonExtract(e.Json, "$.number"), e.ConvertedNumber));
+
+        if (async)
+        {
+            await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
+        }
+        else
+        {
+            Assert.Throws<InvalidOperationException>(() => query.ToList());
+        }
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public async Task JsonExtract_binary_object_equality_is_not_translated(bool async)
+    {
+        await using var context = CreateContext();
+        var query = context.JsonEntities
+            .Where(e => EF.Functions.JsonExtract(e.JsonString, "$.RequiredInt") == (object)8L);
+
+        if (async)
+        {
+            await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
+        }
+        else
+        {
+            Assert.Throws<InvalidOperationException>(() => query.ToList());
+        }
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public async Task JsonExtract_object_equals_respects_result_types_and_nulls(bool async)
     {
         await using var context = CreateContext();
@@ -396,6 +432,26 @@ LIMIT 2
 """);
     }
 
+    [Fact]
+    public async Task JsonExtract_coalesce_with_converted_fallback_preserves_model_value()
+    {
+        await using var connection = new SqliteConnection("Data Source=:memory:");
+        await connection.OpenAsync();
+        var options = new DbContextOptionsBuilder<ConvertedJsonContext>().UseSqlite(connection).Options;
+        await using var context = new ConvertedJsonContext(options);
+        await context.Database.EnsureCreatedAsync();
+        context.Add(new ConvertedJsonEntity { Json = """{"value":"present"}""", Number = 8, Text = "fallback" });
+        await context.SaveChangesAsync();
+
+        var query = context.Entities.Select(e => EF.Functions.JsonExtract(e.Json, "$.missing") ?? e.Text);
+        var sql = query.ToQueryString();
+        Assert.DoesNotContain("COALESCE", sql);
+        Assert.Contains("\"Text\"", sql);
+
+        var result = await query.SingleAsync();
+        Assert.Equal("fallback", result);
+    }
+
     [Theory, MemberData(nameof(IsAsyncData))]
     public async Task JsonExtract_path_array_edge_cases(bool async)
     {
@@ -431,6 +487,26 @@ LIMIT 2
 
         protected override string RemoveJsonProperty(string column, string property)
             => $"json_remove({column}, '$.{property}')";
+    }
+
+    private sealed class ConvertedJsonEntity
+    {
+        public int Id { get; set; }
+        public string Json { get; set; } = null!;
+        public long Number { get; set; }
+        public string Text { get; set; } = null!;
+    }
+
+    private sealed class ConvertedJsonContext(DbContextOptions<ConvertedJsonContext> options) : DbContext(options)
+    {
+        public DbSet<ConvertedJsonEntity> Entities => Set<ConvertedJsonEntity>();
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<ConvertedJsonEntity>(b =>
+            {
+                b.Property(e => e.Number).HasConversion(value => value + 100, value => value - 100);
+                b.Property(e => e.Text).HasConversion(value => "x" + value, value => value.Substring(1));
+            });
     }
 
     [Fact]

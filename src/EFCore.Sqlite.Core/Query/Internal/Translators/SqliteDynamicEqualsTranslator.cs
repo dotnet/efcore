@@ -49,6 +49,11 @@ public class SqliteDynamicEqualsTranslator(ISqlExpressionFactory sqlExpressionFa
             return sqlExpressionFactory.IsNull(left);
         }
 
+        if (right.TypeMapping?.Converter is not null)
+        {
+            throw new InvalidOperationException(CoreStrings.TranslationFailed(method.Name));
+        }
+
         SqlExpression typeMatches;
         if (right.TypeMapping is SqliteDynamicTypeMapping)
         {

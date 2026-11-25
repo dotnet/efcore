@@ -66,6 +66,9 @@ public abstract class JsonTranslationsRelationalTestBase<TFixture>(TFixture fixt
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
         public JsonDocumentValue Json { get; set; }
+        public string JsonString { get; set; } = null!;
+        public long ConvertedNumber { get; set; }
+        public string ConvertedText { get; set; } = null!;
     }
 
     public class JsonTranslationsQueryContext(DbContextOptions options) : PoolableDbContext(options)
@@ -79,8 +82,15 @@ public abstract class JsonTranslationsRelationalTestBase<TFixture>(TFixture fixt
                 b.ComplexProperty(j => j.JsonComplexType, j => j.ToJson());
                 b.OwnsOne(j => j.JsonOwnedType, j => j.ToJson());
             });
-            modelBuilder.Entity<JsonConvertedEntity>().Property(e => e.Json)
-                .HasConversion(v => v.Value, v => new JsonDocumentValue(v));
+            modelBuilder.Entity<JsonConvertedEntity>(b =>
+            {
+                b.Property(e => e.Json)
+                    .HasConversion(v => v.Value, v => new JsonDocumentValue(v));
+                b.Property(e => e.ConvertedNumber)
+                    .HasConversion(v => v + 100, v => v - 100);
+                b.Property(e => e.ConvertedText)
+                    .HasConversion(v => "x" + v, v => v.Substring(1));
+            });
         }
     }
 
@@ -98,7 +108,15 @@ public abstract class JsonTranslationsRelationalTestBase<TFixture>(TFixture fixt
         {
             var data = new JsonTranslationsData();
             context.AddRange(data.JsonTranslationsEntities);
-            context.Add(new JsonConvertedEntity { Id = 1, Json = new JsonDocumentValue("""{"value":"converted"}""") });
+            context.Add(
+                new JsonConvertedEntity
+                {
+                    Id = 1,
+                    Json = new JsonDocumentValue("""{"value":"converted","number":8}"""),
+                    JsonString = """{"value":"converted","number":8}""",
+                    ConvertedNumber = 8,
+                    ConvertedText = "fallback"
+                });
             await context.SaveChangesAsync();
 
             var entityType = context.Model.FindEntityType(typeof(JsonTranslationsEntity))!;

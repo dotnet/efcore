@@ -164,6 +164,16 @@ public class SqliteSqlTranslatingExpressionVisitor(
             && translation is SqlFunctionExpression
             {
                 Name: "COALESCE",
+                Arguments: [SqlFunctionExpression { Name: "json_extract", TypeMapping: SqliteDynamicTypeMapping }, ColumnExpression]
+            })
+        {
+            return QueryCompilationContext.NotTranslatedExpression;
+        }
+
+        if (binaryExpression.NodeType == ExpressionType.Coalesce
+            && translation is SqlFunctionExpression
+            {
+                Name: "COALESCE",
                 TypeMapping: SqliteDynamicTypeMapping,
                 Arguments: [var left, SqlUnaryExpression { OperatorType: ExpressionType.Convert, Type: var type, Operand: var operand }]
             } coalesce
@@ -179,6 +189,16 @@ public class SqliteSqlTranslatingExpressionVisitor(
 
         if (translation is SqlBinaryExpression sqlBinary)
         {
+            if (sqlBinary.OperatorType is ExpressionType.Equal or ExpressionType.NotEqual
+                && sqlBinary.Left is not SqlConstantExpression { Value: null }
+                && sqlBinary.Right is not SqlConstantExpression { Value: null }
+                && (sqlBinary.Left.TypeMapping is SqliteDynamicTypeMapping
+                    || sqlBinary.Right.TypeMapping is SqliteDynamicTypeMapping)
+                && (sqlBinary.Left.Type == typeof(object) || sqlBinary.Right.Type == typeof(object)))
+            {
+                return QueryCompilationContext.NotTranslatedExpression;
+            }
+
             switch (sqlBinary)
             {
                 case { OperatorType: ExpressionType.ExclusiveOr }:
