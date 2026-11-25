@@ -3769,7 +3769,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         // complex types are not tracked by the change tracker, so ordering is irrelevant
                         case QueryableJsonProjectionInfo or JsonProjectionInfo
                             when entityShaperExpression.StructuralType is not IEntityType:
-                            return base.VisitExtension(extensionExpression);
+                            return base.VisitExtension(node);
 
                         case QueryableJsonProjectionInfo:
                         case JsonProjectionInfo when _insideCollection && !_insideInclude:
@@ -3813,7 +3813,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         // complex collections are not tracked by the change tracker, so ordering is irrelevant
                         case QueryableJsonProjectionInfo or JsonProjectionInfo
                             when collectionResultExpression.StructuralProperty is not INavigation:
-                            return base.VisitExtension(extensionExpression);
+                            return base.VisitExtension(node);
 
                         case QueryableJsonProjectionInfo:
                         case JsonProjectionInfo when _insideCollection && !_insideInclude:
