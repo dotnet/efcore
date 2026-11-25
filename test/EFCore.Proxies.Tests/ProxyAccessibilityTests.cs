@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.ComponentModel;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -330,6 +331,63 @@ public class ProxyAccessibilityTests
         }
     }
 
+    // An entity type that raises both notifications itself gets no notification interceptors, so its setter is never
+    // overridden and does not need to be visible.
+    [Theory]
+    [MemberData(nameof(OnlyVisibleWithGrant))]
+    public void Change_tracking_accepts_invisible_navigation_setter_on_self_notifying_entity_type(MethodAttributes setter)
+    {
+        var types = EntityFactory.Create(
+            MethodAttributes.Public, setter, grantInternalsToProxies: false, principalBase: typeof(SelfNotifyingBase));
+
+        using var context = new AccessibilityContext(types, useChangeDetection: true);
+
+        AssertNavigationMapped(context, types);
+        Assert.IsType(types.Principal, context.CreateProxy(types.Principal), exactMatch: false);
+    }
+
+    // If the entity type raises only one of the notifications, the proxy adds an interceptor for the other one.
+    [Theory]
+    [InlineData(typeof(PropertyChangedOnlyBase))]
+    [InlineData(typeof(PropertyChangingOnlyBase))]
+    public void Change_tracking_throws_if_navigation_setter_is_not_visible_on_partially_notifying_entity_type(Type principalBase)
+    {
+        var types = EntityFactory.Create(
+            MethodAttributes.Public, MethodAttributes.Assembly, grantInternalsToProxies: false, principalBase: principalBase);
+
+        using var context = new AccessibilityContext(types, useChangeDetection: true);
+
+        AssertThrowsNotVisible(context, types, "setter");
+    }
+
+    public abstract class SelfNotifyingBase : INotifyPropertyChanged, INotifyPropertyChanging
+    {
+        public event PropertyChangedEventHandler? PropertyChanged;
+        public event PropertyChangingEventHandler? PropertyChanging;
+
+        protected void OnPropertyChanged(string name)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+
+        protected void OnPropertyChanging(string name)
+            => PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(name));
+    }
+
+    public abstract class PropertyChangedOnlyBase : INotifyPropertyChanged
+    {
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        protected void OnPropertyChanged(string name)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+    }
+
+    public abstract class PropertyChangingOnlyBase : INotifyPropertyChanging
+    {
+        public event PropertyChangingEventHandler? PropertyChanging;
+
+        protected void OnPropertyChanging(string name)
+            => PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(name));
+    }
+
     // The assembly that must grant access is the one that declares the accessor, not the one declaring the entity type.
     [Theory]
     [InlineData(true, false)]
@@ -497,7 +555,8 @@ public class ProxyAccessibilityTests
             MethodAttributes setter,
             bool grantInternalsToProxies,
             bool collection = false,
-            bool publicTypes = true)
+            bool publicTypes = true,
+            Type? principalBase = null)
         {
             var module = DefineModule(grantInternalsToProxies);
             var typeVisibility = (publicTypes ? TypeAttributes.Public : TypeAttributes.NotPublic) | TypeAttributes.Class;
@@ -507,7 +566,7 @@ public class ProxyAccessibilityTests
             DefineProperty(dependent, "Id", typeof(int), MethodAttributes.Public, MethodAttributes.Public);
             var dependentType = dependent.CreateType();
 
-            var principal = module.DefineType("Principal", typeVisibility);
+            var principal = module.DefineType("Principal", typeVisibility, principalBase);
             principal.DefineDefaultConstructor(MethodAttributes.Public);
             DefineProperty(principal, "Id", typeof(int), MethodAttributes.Public, MethodAttributes.Public);
             DefineProperty(

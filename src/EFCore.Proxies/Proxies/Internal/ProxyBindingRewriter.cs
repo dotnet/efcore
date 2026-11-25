@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.ComponentModel;
 using Castle.DynamicProxy;
 using Microsoft.EntityFrameworkCore.Internal;
 
@@ -75,6 +76,9 @@ public class ProxyBindingRewriter : IModelFinalizingConvention
                     throw new InvalidOperationException(ProxiesStrings.ItsASeal(entityType.DisplayName()));
                 }
 
+                var proxyNotifiesChanges = !typeof(INotifyPropertyChanged).IsAssignableFrom(clrType)
+                    || !typeof(INotifyPropertyChanging).IsAssignableFrom(clrType);
+
                 foreach (var navigationBase in entityType.GetDeclaredNavigations()
                              .Concat<IConventionNavigationBase>(entityType.GetDeclaredSkipNavigations()))
                 {
@@ -94,7 +98,10 @@ public class ProxyBindingRewriter : IModelFinalizingConvention
                                     ProxiesStrings.NonVirtualProperty(navigationBase.Name, entityType.DisplayName()));
                             }
 
-                            if (navigationBase.PropertyInfo.SetMethod is { } setMethod
+                            // An entity type that raises both notifications itself gets no notification interceptors,
+                            // so the proxy does not need to override the setter.
+                            if (proxyNotifiesChanges
+                                && navigationBase.PropertyInfo.SetMethod is { } setMethod
                                 && !IsVisibleToProxies(setMethod))
                             {
                                 throw new InvalidOperationException(
