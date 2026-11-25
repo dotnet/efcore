@@ -40,7 +40,6 @@ user-invocable: false
 ## Validation
 
 - For precompiled queries, `PrecompiledQueryTestHelpers` verifies generation, compilation, and execution. Add a precompiled-query test when adding translation for a new LINQ shape.
-- The SQL Server Northwind fixture skips reseeding an existing database outside CI; seed pre-created isolated databases before running its tests.
 - `ToQueryString()` shows generated SQL without executing
 - `ExpressionPrinter` dumps expression trees at any pipeline stage
 - SQL baselines verified via `AssertSql()` in provider functional tests and the generated SQL corresponds to the LINQ query in the base method
