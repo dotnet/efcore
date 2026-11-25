@@ -40,6 +40,13 @@ public class RelationalParameterProcessor : ExpressionVisitor
     /// </summary>
     private readonly HashSet<string> _hardCodedParameterNames = [with(StringComparer.OrdinalIgnoreCase)];
 
+    /// <summary>
+    ///     Contains the <see cref="DbParameter" /> instances whose names are written directly into the SQL of at least one
+    ///     FromSql/SqlQuery in the query. The same instance can be used by several FromSqls, and its name has to be kept even where a
+    ///     particular FromSql only references it positionally, since the parameter (and so its name) is shared by all of them.
+    /// </summary>
+    private readonly HashSet<DbParameter> _hardCodedDbParameters = [];
+
     private readonly Dictionary<string, SqlParameterExpression> _sqlParameters = [];
 
     private Dictionary<DbParameter, RawRelationalParameter>? _processedDbParameters;
@@ -82,6 +89,7 @@ public class RelationalParameterProcessor : ExpressionVisitor
         _visitedFromSqlExpressions.Clear();
         _prefixedParameterNames.Clear();
         _hardCodedParameterNames.Clear();
+        _hardCodedDbParameters.Clear();
         _sqlParameters.Clear();
         _processedDbParameters?.Clear();
         _parameterNameGenerator = _parameterNameGeneratorFactory.Create();
@@ -242,10 +250,11 @@ public class RelationalParameterProcessor : ExpressionVisitor
             {
                 var originalName = dbParameter.ParameterName;
 
-                // The name can only be changed if EF is the only one writing the parameter's name into the SQL (i.e. the SQL references
-                // the argument only positionally via {n}). If the SQL hard-codes the name, even in addition to {n}, renaming the
-                // DbParameter would silently leave the SQL pointing at a different parameter with the same name. See #32932.
-                if (IsNameHardCoded(fromSql, originalName))
+                // The name can only be changed if EF is the only one writing the parameter's name into the SQL (i.e. every SQL using
+                // this DbParameter references it only positionally via {n}). If any SQL hard-codes the name, even in addition to {n}
+                // or in a different FromSql than this one, renaming the DbParameter would leave that SQL pointing at a different
+                // parameter, or at none. See #32932.
+                if (_hardCodedDbParameters.Contains(dbParameter))
                 {
                     // Other parameters avoid this name (see _hardCodedParameterNames), so it can only already be taken by another
                     // DbParameter which also hard-codes it.
@@ -325,10 +334,11 @@ public class RelationalParameterProcessor : ExpressionVisitor
 
         foreach (var argument in arguments)
         {
-            if (argument is DbParameter { ParameterName: { Length: > 0 } name }
+            if (argument is DbParameter { ParameterName: { Length: > 0 } name } dbParameter
                 && IsNameHardCoded(fromSql, name))
             {
                 _hardCodedParameterNames.Add(_sqlGenerationHelper.GenerateParameterName(name));
+                _hardCodedDbParameters.Add(dbParameter);
             }
         }
     }

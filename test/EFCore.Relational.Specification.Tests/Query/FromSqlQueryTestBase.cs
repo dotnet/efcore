@@ -1421,6 +1421,32 @@ SELECT * FROM [Customers2]"))
         await AssertDuplicateParameterNameThrows(query, "city", async);
     }
 
+    // The same DbParameter instance is used by two FromSqls: one references it positionally and the other by name. Its name is hard-coded
+    // in the second SQL, so it must not be renamed while processing the first, whichever comes first.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Union_of_FromSql_with_same_db_parameter_instance_positional_then_hardcoded(bool async)
+    {
+        using var context = CreateContext();
+
+        var parameter = CreateDbParameter("city", "London");
+        var query = FromSqlCity(context, "{0}", parameter)
+            .Union(FromSqlCity(context, "@city", parameter));
+
+        await AssertLondon(query, async);
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Union_of_FromSql_with_same_db_parameter_instance_hardcoded_then_positional(bool async)
+    {
+        using var context = CreateContext();
+
+        var parameter = CreateDbParameter("city", "London");
+        var query = FromSqlCity(context, "@city", parameter)
+            .Union(FromSqlCity(context, "{0}", parameter));
+
+        await AssertLondon(query, async);
+    }
+
     // The second parameter's name is hard-coded in the SQL, so the first, which is referenced positionally, is renamed to make way for it.
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Union_of_FromSql_with_same_named_db_parameters_positional_then_hardcoded(bool async)
@@ -1602,6 +1628,16 @@ SELECT * FROM [Customers2]"))
             : query.ToList();
 
         Assert.Equal(SeattleAndLondonCustomerCount, actual.Count);
+    }
+
+    private static async Task AssertLondon(IQueryable<Customer> query, bool async)
+    {
+        var actual = async
+            ? await query.ToListAsync()
+            : query.ToList();
+
+        Assert.Equal(6, actual.Count);
+        Assert.All(actual, c => Assert.Equal("London", c.City));
     }
 
     // The GroupBy followed by a non-reducing Select causes the base FromSql to get duplicated in the SQL, and so the same DbParameter
