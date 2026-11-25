@@ -55,13 +55,15 @@ INSERT ZeroKey VALUES (NULL)
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Coalesce_preserves_string_and_binary_sizes(bool async)
     {
+        var binaryMax = Enumerable.Repeat((byte)7, 9000).ToArray();
         var contextFactory = await InitializeNonSharedTest<CoalesceSizeContext>(
             seed: async c =>
             {
                 c.Entities.AddRange(
                     new CoalesceSizeEntity
                     {
-                        Id = 1, BinaryFallback = [1, 2, 3, 4], LongText = new string('x', 5000), DecimalFallback = 1234.5678m
+                        Id = 1, BinaryFallback = [1, 2, 3, 4], BinaryMax = binaryMax,
+                        LongText = new string('x', 5000), DecimalFallback = 1234.5678m
                     },
                     new CoalesceSizeEntity
                     {
@@ -78,6 +80,8 @@ INSERT ZeroKey VALUES (NULL)
                 ShortText = e.Text ?? "x",
                 AnsiText = e.AnsiText ?? "long fallback",
                 Binary = e.Binary ?? e.BinaryFallback,
+                BinaryConstant = e.Binary ?? EF.Constant(new byte[] { 1, 2, 3, 4 }),
+                BinaryMax = e.Binary ?? e.BinaryMax,
                 Decimal = e.Decimal ?? e.DecimalFallback,
                 MaxText = e.LongText ?? "fallback",
                 LongText = (e.Id == 1 ? e.LongText : e.Text) ?? "fallback"
@@ -89,6 +93,8 @@ INSERT ZeroKey VALUES (NULL)
         Assert.Equal("x", result[0].ShortText);
         Assert.Equal("long fallback", result[0].AnsiText);
         Assert.Equal(new byte[] { 1, 2, 3, 4 }, result[0].Binary);
+        Assert.Equal(new byte[] { 1, 2, 3, 4 }, result[0].BinaryConstant);
+        Assert.Equal(binaryMax, result[0].BinaryMax);
         Assert.Equal(1234.5678m, result[0].Decimal);
         Assert.Equal(new string('x', 5000), result[0].MaxText);
         Assert.Equal(new string('x', 5000), result[0].LongText);
@@ -96,6 +102,8 @@ INSERT ZeroKey VALUES (NULL)
         Assert.Equal("abc", result[1].ShortText);
         Assert.Equal("abc", result[1].AnsiText);
         Assert.Equal(new byte[] { 5, 6 }, result[1].Binary);
+        Assert.Equal(new byte[] { 5, 6 }, result[1].BinaryConstant);
+        Assert.Equal(new byte[] { 5, 6 }, result[1].BinaryMax);
         Assert.Equal(1.23m, result[1].Decimal);
         Assert.Equal("fallback", result[1].MaxText);
         Assert.Equal("abc", result[1].LongText);
@@ -111,7 +119,7 @@ INSERT ZeroKey VALUES (NULL)
 
         AssertSql(
             """
-SELECT ISNULL(CAST([e].[Text] AS nvarchar(13)), N'long fallback') AS [Text], ISNULL([e].[Text], N'x') AS [ShortText], ISNULL(CAST([e].[AnsiText] AS varchar(13)), 'long fallback') AS [AnsiText], ISNULL(CAST([e].[Binary] AS varbinary(8)), [e].[BinaryFallback]) AS [Binary], COALESCE([e].[Decimal], [e].[DecimalFallback]) AS [Decimal], ISNULL([e].[LongText], N'fallback') AS [MaxText], COALESCE(CASE
+SELECT ISNULL(CAST([e].[Text] AS nvarchar(13)), N'long fallback') AS [Text], ISNULL([e].[Text], N'x') AS [ShortText], ISNULL(CAST([e].[AnsiText] AS varchar(13)), 'long fallback') AS [AnsiText], ISNULL(CAST([e].[Binary] AS varbinary(8)), [e].[BinaryFallback]) AS [Binary], ISNULL(CAST([e].[Binary] AS varbinary(4)), 0x01020304) AS [BinaryConstant], ISNULL(CAST([e].[Binary] AS varbinary(max)), [e].[BinaryMax]) AS [BinaryMax], COALESCE([e].[Decimal], [e].[DecimalFallback]) AS [Decimal], ISNULL([e].[LongText], N'fallback') AS [MaxText], COALESCE(CASE
     WHEN [e].[Id] = 1 THEN [e].[LongText]
     ELSE [e].[Text]
 END, N'fallback') AS [LongText]
@@ -151,6 +159,157 @@ ORDER BY [e].[Id]
         Assert.Contains("COALESCE(", query.ToQueryString());
     }
 
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Coalesce_over_computed_columns_preserves_actual_sql_type(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<CoalesceComputedContext>(
+            seed: async c =>
+            {
+                c.Entities.AddRange(
+                    new CoalesceComputedEntity { Id = 1, BinarySource = [1, 2, 3, 4] },
+                    new CoalesceComputedEntity { Id = 2, Value = "abcdefghijklmnopqrst" });
+                await c.SaveChangesAsync();
+            });
+
+        using var context = contextFactory.CreateDbContext();
+        var query = context.Entities.OrderBy(e => e.Id).Select(
+            e => new
+            {
+                Small = e.Small ?? "long fallback",
+                Large = e.Large ?? "long fallback",
+                Binary = e.Binary ?? e.ComputedBinary
+            });
+        var result = async ? await query.ToListAsync() : query.ToList();
+
+        Assert.Equal(2, result.Count);
+        Assert.Equal("long fallback", result[0].Small);
+        Assert.Equal("long fallback", result[0].Large);
+        Assert.Equal(new byte[] { 1, 2, 3, 4 }, result[0].Binary);
+        Assert.Equal("abc", result[1].Small);
+        Assert.Equal("abcdefghijklmnopqrst", result[1].Large);
+        Assert.Null(result[1].Binary);
+
+        var subquery = context.Entities.OrderBy(e => e.Id)
+            .Select(
+                e => context.Entities.Where(other => other.Id == e.Id)
+                    .Select(other => other.Small).FirstOrDefault() ?? "long fallback");
+        var subqueryResult = async ? await subquery.ToListAsync() : subquery.ToList();
+        Assert.Equal(["long fallback", "abc"], subqueryResult);
+
+        AssertSql(
+            """
+SELECT COALESCE([e].[Small], N'long fallback') AS [Small], COALESCE([e].[Large], N'long fallback') AS [Large], COALESCE([e].[Binary], [e].[ComputedBinary]) AS [Binary]
+FROM [Entities] AS [e]
+ORDER BY [e].[Id]
+""",
+            //
+            """
+SELECT COALESCE((
+    SELECT TOP(1) [e0].[Small]
+    FROM [Entities] AS [e0]
+    WHERE [e0].[Id] = [e].[Id]), N'long fallback')
+FROM [Entities] AS [e]
+ORDER BY [e].[Id]
+""");
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Coalesce_over_view_columns_preserves_actual_sql_type(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<CoalesceViewContext>(
+            seed: async c =>
+            {
+                c.Entities.AddRange(
+                    new CoalesceViewSource { Id = 1 },
+                    new CoalesceViewSource { Id = 2, Value = "abcdefghijklmnopqrst" });
+                await c.SaveChangesAsync();
+                await c.Database.ExecuteSqlRawAsync(
+                    """
+CREATE VIEW [CoalesceView] AS
+SELECT [Id], CAST([Value] AS nvarchar(3)) AS [Small], CAST([Value] AS nvarchar(100)) AS [Large]
+FROM [Entities]
+""");
+            });
+
+        using var context = contextFactory.CreateDbContext();
+        ClearLog();
+        var query = context.Rows.OrderBy(e => e.Id)
+            .Select(e => new { Small = e.Small ?? "long fallback", Large = e.Large ?? "long fallback" });
+        var result = async ? await query.ToListAsync() : query.ToList();
+
+        Assert.Equal(2, result.Count);
+        Assert.Equal("long fallback", result[0].Small);
+        Assert.Equal("long fallback", result[0].Large);
+        Assert.Equal("abc", result[1].Small);
+        Assert.Equal("abcdefghijklmnopqrst", result[1].Large);
+
+        AssertSql(
+            """
+SELECT COALESCE([c].[Small], N'long fallback') AS [Small], COALESCE([c].[Large], N'long fallback') AS [Large]
+FROM [CoalesceView] AS [c]
+ORDER BY [c].[Id]
+""");
+    }
+
+    protected class CoalesceComputedContext(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<CoalesceComputedEntity> Entities => Set<CoalesceComputedEntity>();
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<CoalesceComputedEntity>(
+                b =>
+                {
+                    b.Property(e => e.Id).ValueGeneratedNever();
+                    b.Property(e => e.Small).HasMaxLength(100).HasComputedColumnSql("CAST([Value] AS nvarchar(3))");
+                    b.Property(e => e.Large).HasMaxLength(3).HasComputedColumnSql("CAST([Value] AS nvarchar(100))");
+                    b.Property(e => e.Binary).HasMaxLength(2);
+                    b.Property(e => e.BinarySource).HasMaxLength(8);
+                    b.Property(e => e.ComputedBinary).HasMaxLength(3).HasComputedColumnSql("CAST([BinarySource] AS varbinary(8))");
+                });
+    }
+
+    protected class CoalesceComputedEntity
+    {
+        public int Id { get; set; }
+        public string? Value { get; set; }
+        public string? Small { get; set; }
+        public string? Large { get; set; }
+        public byte[]? Binary { get; set; }
+        public byte[]? BinarySource { get; set; }
+        public byte[]? ComputedBinary { get; set; }
+    }
+
+    protected class CoalesceViewContext(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<CoalesceViewSource> Entities => Set<CoalesceViewSource>();
+        public DbSet<CoalesceViewRow> Rows => Set<CoalesceViewRow>();
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<CoalesceViewSource>().Property(e => e.Id).ValueGeneratedNever();
+            modelBuilder.Entity<CoalesceViewRow>(
+                b =>
+                {
+                    b.HasNoKey().ToView("CoalesceView");
+                    b.Property(e => e.Small).HasMaxLength(100);
+                    b.Property(e => e.Large).HasMaxLength(3);
+                });
+        }
+    }
+
+    protected class CoalesceViewSource
+    {
+        public int Id { get; set; }
+        public string? Value { get; set; }
+    }
+
+    protected class CoalesceViewRow
+    {
+        public int Id { get; set; }
+        public string? Small { get; set; }
+        public string? Large { get; set; }
+    }
+
     protected class CoalesceSizeContext(DbContextOptions options) : DbContext(options)
     {
         public DbSet<CoalesceSizeEntity> Entities => Set<CoalesceSizeEntity>();
@@ -177,6 +336,7 @@ ORDER BY [e].[Id]
         public string? LongText { get; set; }
         public byte[]? Binary { get; set; }
         public byte[]? BinaryFallback { get; set; }
+        public byte[]? BinaryMax { get; set; }
         public decimal? Decimal { get; set; }
         public decimal? DecimalFallback { get; set; }
     }

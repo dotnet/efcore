@@ -432,7 +432,7 @@ public class SqlServerQuerySqlGenerator(
                 var canRewrite = false;
 
                 // Expression type mappings do not necessarily describe the SQL result type.
-                // Infer the size only for operands whose actual store type is known.
+                // Table column types are assumed to match the model; mismatches can cause truncation.
                 if (GetColumnMapping(result) is { Converter: null } firstMapping
                     && firstMapping.StoreTypeNameBase is "nvarchar" or "varchar" or "varbinary"
                     && GetColumnSize(firstMapping) is { } firstSize)
@@ -502,7 +502,7 @@ public class SqlServerQuerySqlGenerator(
                     result = new SqlFunctionExpression(
                         "ISNULL",
                         arguments: [result, arguments[i]],
-                        nullable: i == arguments.Count - 1 ? sqlFunctionExpression.IsNullable : true,
+                        nullable: i != arguments.Count - 1 || sqlFunctionExpression.IsNullable,
                         argumentsPropagateNullability: [false, false],
                         result.Type,
                         result.TypeMapping);
@@ -527,7 +527,8 @@ public class SqlServerQuerySqlGenerator(
                     => select?.Tables.Any(
                         table => (table is JoinExpressionBase join ? join.Table : table) is TableExpression source
                             && source.Alias == column.TableAlias
-                            && source.Table.FindColumn(column.Name)?.StoreType == column.TypeMapping?.StoreType) == true;
+                            && source.Table.FindColumn(column.Name) is IColumn { ComputedColumnSql: null } tableColumn
+                            && tableColumn.StoreType == column.TypeMapping?.StoreType) == true;
 
                 static int? GetColumnSize(RelationalTypeMapping mapping)
                 {

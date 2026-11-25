@@ -5790,7 +5790,7 @@ OUTER APPLY (
         WHEN COALESCE([s].[City], N'') + COALESCE([s].[CustomerID], N'') LIKE N'Lon%' THEN 1
     END) AS [Count], [s].[Key]
     FROM (
-        SELECT [o].[OrderID], [o].[CustomerID], [c0].[City], COALESCE([c0].[City], N'') + COALESCE([o].[CustomerID], N'') AS [Key]
+        SELECT [o].[OrderID], [o].[CustomerID], [c0].[City], ISNULL([c0].[City], N'') + COALESCE([o].[CustomerID], N'') AS [Key]
         FROM [Orders] AS [o]
         LEFT JOIN [Customers] AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
         WHERE [c].[CustomerID] = [o].[CustomerID]
@@ -6518,7 +6518,7 @@ HAVING 0.0E0 IN (LOG10(STDEVP(CAST([o].[Quantity] AS float)) + 1.0E0), -1.0E0)
         AssertSql(
             """
 SELECT [c].[City] AS [Key], CASE
-    WHEN N'Berlin|ALFKI' IN (CONCAT_WS(N'|', COALESCE([c].[City], N''), COALESCE(STRING_AGG([c].[CustomerID], N','), N'')), N'') THEN CAST(1 AS bit)
+    WHEN N'Berlin|ALFKI' IN (CONCAT_WS(N'|', ISNULL([c].[City], N''), COALESCE(STRING_AGG([c].[CustomerID], N','), N'')), N'') THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [A]
 FROM [Customers] AS [c]
