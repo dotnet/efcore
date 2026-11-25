@@ -690,7 +690,18 @@ public class StateManager : IStateManager
                 }
             }
 
-            FindIdentityMap(key)?.Remove(entry);
+            var identityMap = FindIdentityMap(key);
+            if (identityMap != null)
+            {
+                // The entry is registered under the key value in the relationship snapshot until a key change has been
+                // processed, and stays registered under it if processing the change fails, for example because of a conflict.
+                if (entry.HasRelationshipSnapshot)
+                {
+                    identityMap.RemoveUsingRelationshipSnapshot(entry);
+                }
+
+                identityMap.Remove(entry);
+            }
         }
 
         if (_referencedUntrackedEntities != null)
@@ -1078,10 +1089,11 @@ public class StateManager : IStateManager
 
     // Adding an entry to the map of an alternate key replaces a Deleted entry with the same key value, since the new entry is the
     // one to be found while the old one waits to be deleted. That entry has to go back when the new entry doesn't get tracked.
-    // This is only called when tracking has failed, so searching for the entry is fine.
+    // This is only called when tracking or a key change has failed, so searching for the entry is fine.
+    // The Deleted entry can still be linked to the failed entry through the primary key, so those are included.
     private void RestoreDisplacedDeletedEntry(IKey key, IIdentityMap identityMap, InternalEntityEntry failedEntry)
     {
-        foreach (var deletedEntry in GetEntriesForState(deleted: true).ToList())
+        foreach (var deletedEntry in GetEntriesForState(deleted: true, returnDeletedSharedIdentity: true).ToList())
         {
             if (deletedEntry != failedEntry
                 && key.DeclaringEntityType.IsAssignableFrom(deletedEntry.EntityType)
@@ -1113,6 +1125,12 @@ public class StateManager : IStateManager
         }
 
         identityMap.Remove(entry);
+
+        if (!key.IsPrimaryKey())
+        {
+            RestoreDisplacedDeletedEntry(key, identityMap, entry);
+        }
+
         identityMap.AddUsingRelationshipSnapshot(entry);
     }
 

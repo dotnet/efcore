@@ -896,6 +896,96 @@ public class StateManagerTest
         Assert.Equal(EntityState.Deleted, deletedEntry.EntityState);
     }
 
+    // The keys are processed in the order Code, Id, Zip, so the Deleted entry is still linked to the new entry through the
+    // primary key when its Code registration is restored. Tracking a shared-type entity changes how Deleted entries are found.
+    [Fact]
+    public void Failed_tracking_restores_deleted_entry_sharing_the_primary_key_in_alternate_key_map()
+    {
+        using var context = new FailedTrackingContext();
+        var stateManager = GetStateManager(context);
+        var entityType = context.Model.FindEntityType(typeof(FailedTrackingMultiKey))!;
+        var primaryKey = entityType.FindPrimaryKey()!;
+        var codeKey = entityType.GetKeys().Single(k => k.Properties.Single().Name == nameof(FailedTrackingMultiKey.Code));
+
+        context.Set<Dictionary<string, object>>("FailedTrackingBag").Add(new Dictionary<string, object> { ["Id"] = 1 });
+        var deleted = context.Attach(new FailedTrackingMultiKey { Id = 1, Code = 9, Zip = 7 }).Entity;
+        context.Attach(new FailedTrackingMultiKey { Id = 2, Code = 5, Zip = 8 });
+        context.Remove(deleted);
+        var deletedEntry = context.Entry(deleted).GetInfrastructure();
+
+        Assert.Throws<InvalidOperationException>(() => context.Add(new FailedTrackingMultiKey { Id = 1, Code = 9, Zip = 8 }));
+
+        Assert.Same(deletedEntry, stateManager.TryGetEntry(codeKey, new object[] { 9 }));
+        Assert.Same(deletedEntry, stateManager.TryGetEntry(primaryKey, new object[] { 1 }));
+        Assert.Null(deletedEntry.SharedIdentityEntry);
+    }
+
+    // The new value of {Code, X} replaces a Deleted entry in its map before {Code, Y} conflicts.
+    [Fact]
+    public void Failed_key_change_of_property_in_two_keys_restores_deleted_entry_replaced_in_alternate_key_map()
+    {
+        using var context = new FailedTrackingContext();
+        context.ChangeTracker.AutoDetectChangesEnabled = false;
+        var stateManager = GetStateManager(context);
+        var keyX = context.Model.FindEntityType(typeof(FailedTrackingTwoKeys))!.GetKeys()
+            .Single(k => k.Properties.Any(p => p.Name == nameof(FailedTrackingTwoKeys.X)));
+
+        var deleted = context.Attach(new FailedTrackingTwoKeys { Id = 3, Code = 2, X = 1, Y = 9 }).Entity;
+        context.Remove(deleted);
+        var deletedEntry = context.Entry(deleted).GetInfrastructure();
+        var first = context.Add(new FailedTrackingTwoKeys { Id = 1, Code = 1, X = 1, Y = 1 }).Entity;
+        context.Add(new FailedTrackingTwoKeys { Id = 2, Code = 2, X = 2, Y = 1 });
+        var firstEntry = context.Entry(first).GetInfrastructure();
+
+        first.Code = 2;
+        Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges());
+
+        Assert.Same(deletedEntry, stateManager.TryGetEntry(keyX, new object[] { 2, 1 }));
+        Assert.Same(firstEntry, stateManager.TryGetEntry(keyX, new object[] { 1, 1 }));
+
+        first.Code = 1;
+        context.ChangeTracker.DetectChanges();
+
+        Assert.Same(deletedEntry, stateManager.TryGetEntry(keyX, new object[] { 2, 1 }));
+        Assert.Same(firstEntry, stateManager.TryGetEntry(keyX, new object[] { 1, 1 }));
+    }
+
+    // A failed key change leaves the entry registered under its old key value, which must go when the entry is detached.
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void Detaching_entity_after_failed_key_change_frees_its_old_key(bool primaryKey)
+    {
+        using var context = new FailedTrackingContext();
+        context.ChangeTracker.AutoDetectChangesEnabled = false;
+        var stateManager = GetStateManager(context);
+        var entityType = context.Model.FindEntityType(typeof(FailedTrackingSingle))!;
+        var key = primaryKey ? entityType.FindPrimaryKey()! : entityType.GetKeys().Single(k => !k.IsPrimaryKey());
+
+        var first = context.Add(new FailedTrackingSingle { Id = 1, AlternateId = 10 }).Entity;
+        var second = context.Add(new FailedTrackingSingle { Id = 2, AlternateId = 20 }).Entity;
+        var firstEntry = context.Entry(first).GetInfrastructure();
+
+        if (primaryKey)
+        {
+            second.Id = 1;
+        }
+        else
+        {
+            second.AlternateId = 10;
+        }
+
+        Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges());
+
+        context.Entry(second).State = EntityState.Detached;
+
+        Assert.Same(firstEntry, stateManager.TryGetEntry(key, primaryKey ? new object[] { 1 } : new object[] { 10 }));
+        Assert.Null(stateManager.TryGetEntry(key, primaryKey ? new object[] { 2 } : new object[] { 20 }));
+
+        context.Add(new FailedTrackingSingle { Id = 2, AlternateId = 20 });
+        Assert.Equal(2, context.ChangeTracker.Entries().Count());
+    }
+
     [Fact]
     public async Task Failed_AddAsync_due_to_alternate_key_conflict_leaves_nothing_registered()
     {
@@ -991,6 +1081,9 @@ public class StateManagerTest
                     .HasForeignKey(e => new { e.PrincipalCode, e.PrincipalY })
                     .HasPrincipalKey(e => new { e.Code, e.Y });
             });
+
+            modelBuilder.SharedTypeEntity<Dictionary<string, object>>(
+                "FailedTrackingBag", b => b.IndexerProperty<int>("Id").ValueGeneratedNever());
         }
     }
 
