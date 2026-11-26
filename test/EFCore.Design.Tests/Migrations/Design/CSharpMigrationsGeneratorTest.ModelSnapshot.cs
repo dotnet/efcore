@@ -2903,6 +2903,53 @@ partial class Snapshot : ModelSnapshot
             });
 
     [Fact]
+    public void Keys_through_complex_properties_are_stored_in_snapshot()
+        => Test(
+            builder => builder.Entity<SnapshotEntityWithComplexKey>(b =>
+            {
+                b.ComplexProperty(e => e.Details, c => c.ComplexProperty(d => d.Nested));
+                b.HasKey(e => new { e.Id, e.Details.Value, NestedValue = e.Details.Nested.Value });
+                b.HasAlternateKey(e => new { e.Details.Other, NestedOther = e.Details.Nested.Other });
+            }),
+            """
+b.HasKey("Id", "Details.Value", "Details.Nested.Value");
+
+                b.HasAlternateKey("Details.Other", "Details.Nested.Other");
+""",
+            model =>
+            {
+                var entityType = model.FindEntityType(typeof(SnapshotEntityWithComplexKey))!;
+                var details = entityType.FindComplexProperty(nameof(SnapshotEntityWithComplexKey.Details))!.ComplexType;
+                var nested = details.FindComplexProperty(nameof(SnapshotKeyDetails.Nested))!.ComplexType;
+
+                Assert.Equal(
+                    [entityType.FindProperty("Id")!, details.FindProperty("Value")!, nested.FindProperty("Value")!],
+                    entityType.FindPrimaryKey()!.Properties);
+                var alternateKey = Assert.Single(entityType.GetKeys(), k => !k.IsPrimaryKey());
+                Assert.Equal([details.FindProperty("Other")!, nested.FindProperty("Other")!], alternateKey.Properties);
+            },
+            fullSnapshot: false);
+
+    private class SnapshotEntityWithComplexKey
+    {
+        public int Id { get; set; }
+        public SnapshotKeyDetails Details { get; set; } = null!;
+    }
+
+    private class SnapshotKeyDetails
+    {
+        public int Value { get; set; }
+        public int Other { get; set; }
+        public SnapshotNestedKeyDetails Nested { get; set; } = null!;
+    }
+
+    private class SnapshotNestedKeyDetails
+    {
+        public int Value { get; set; }
+        public int Other { get; set; }
+    }
+
+    [Fact]
     public void HasNoKey_is_handled()
         => Test(
             builder => builder.Entity<EntityWithOneProperty>().Ignore(e => e.EntityWithTwoProperties).HasNoKey(),
