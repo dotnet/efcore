@@ -89,6 +89,9 @@ public class FakeStateManager : IStateManager
     public IEntityFinder CreateEntityFinder(IEntityType entityType)
         => throw new NotImplementedException();
 
+    public void CancelIdentityMapUpdate(InternalEntityEntry entry, IKey principalKey)
+        => throw new NotImplementedException();
+
     public void UpdateIdentityMap(InternalEntityEntry entry, IKey principalKey)
         => throw new NotImplementedException();
 
@@ -162,6 +165,9 @@ public class FakeStateManager : IStateManager
         => throw new NotImplementedException();
 
     public void ChangingState(InternalEntityEntry entry, EntityState newState)
+        => throw new NotImplementedException();
+
+    public void CancelChangingState(InternalEntityEntry entry, EntityState newState)
         => throw new NotImplementedException();
 
     public IValueGenerationManager ValueGenerationManager

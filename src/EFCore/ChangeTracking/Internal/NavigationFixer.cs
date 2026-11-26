@@ -545,9 +545,30 @@ public class NavigationFixer : INavigationFixer
                 stateManager.UpdateDependentMap(entry, foreignKey);
             }
 
+            // Each key's identity map is updated just before its value is propagated, rather than updating all the maps
+            // first, because propagation can change a property of another key of this entry (for example a self-referencing
+            // foreign key that is part of an alternate key), and that nested update relies on the maps still matching the
+            // relationship snapshot.
+            var updatedKeyCount = 0;
             foreach (var key in containingPrincipalKeys)
             {
-                stateManager.UpdateIdentityMap(entry, key);
+                try
+                {
+                    stateManager.UpdateIdentityMap(entry, key);
+                }
+                catch
+                {
+                    // The relationship snapshot is only updated once all keys have been, so the keys already
+                    // updated must go back to the values in the snapshot to stay consistent with it.
+                    foreach (var updatedKey in containingPrincipalKeys.Take(updatedKeyCount))
+                    {
+                        stateManager.CancelIdentityMapUpdate(entry, updatedKey);
+                    }
+
+                    throw;
+                }
+
+                updatedKeyCount++;
 
                 // Propagate principal key values into FKs
                 foreach (var foreignKey in key.GetReferencingForeignKeys())
