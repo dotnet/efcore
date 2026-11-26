@@ -21,6 +21,7 @@ public class EnumMethodTranslator : IMethodCallTranslator
         = typeof(object).GetRuntimeMethod(nameof(ToString), [])!;
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
+    private readonly IRelationalTypeMappingSource _typeMappingSource;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -28,8 +29,11 @@ public class EnumMethodTranslator : IMethodCallTranslator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public EnumMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
-        => _sqlExpressionFactory = sqlExpressionFactory;
+    public EnumMethodTranslator(ISqlExpressionFactory sqlExpressionFactory, IRelationalTypeMappingSource typeMappingSource)
+    {
+        _sqlExpressionFactory = sqlExpressionFactory;
+        _typeMappingSource = typeMappingSource;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -59,16 +63,23 @@ public class EnumMethodTranslator : IMethodCallTranslator
             switch (converterType)
             {
                 case not null when converterType.GetGenericTypeDefinition() == typeof(EnumToNumberConverter<,>):
+                    var names = Enum.GetNames(instance.Type);
+                    var maxEnumNameLength = names.Length > 0 ? names.Max(name => name.Length) : 0;
+                    var stringTypeMapping = GetMaxNumericStringLength(converter.ProviderClrType) is { } maxNumericLength
+                        ? _typeMappingSource.FindMapping(typeof(string), storeTypeName: null, size: Math.Max(maxEnumNameLength, maxNumericLength), unicode: true)
+                            ?? _typeMappingSource.FindMapping(typeof(string))
+                        : _typeMappingSource.FindMapping(typeof(string));
+
                     var whenClauses = Enum.GetValues(instance.Type)
                         .Cast<object>()
                         .Select(value => new CaseWhenClause(
                             _sqlExpressionFactory.Constant(value),
-                            _sqlExpressionFactory.Constant(value.ToString(), typeof(string))))
+                            _sqlExpressionFactory.Constant(value.ToString(), typeof(string), stringTypeMapping)))
                         .ToArray();
 
                     var elseResult = _sqlExpressionFactory.Coalesce(
-                        _sqlExpressionFactory.Convert(instance, typeof(string)),
-                        _sqlExpressionFactory.Constant(string.Empty));
+                        _sqlExpressionFactory.Convert(instance, typeof(string), stringTypeMapping),
+                        _sqlExpressionFactory.Constant(string.Empty, stringTypeMapping));
 
                     return _sqlExpressionFactory.Case(instance, whenClauses, elseResult);
 
@@ -82,4 +93,18 @@ public class EnumMethodTranslator : IMethodCallTranslator
 
         return null;
     }
+
+    private static int? GetMaxNumericStringLength(Type numericType)
+        => Type.GetTypeCode(Nullable.GetUnderlyingType(numericType) ?? numericType) switch
+        {
+            TypeCode.Byte => 3,
+            TypeCode.SByte => 4,
+            TypeCode.UInt16 => 5,
+            TypeCode.Int16 => 6,
+            TypeCode.UInt32 => 10,
+            TypeCode.Int32 => 11,
+            TypeCode.UInt64 => 20,
+            TypeCode.Int64 => 20,
+            _ => null
+        };
 }
