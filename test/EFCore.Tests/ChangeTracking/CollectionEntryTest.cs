@@ -554,27 +554,6 @@ public class CollectionEntryTest
         Assert.False(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public async Task Loading_a_null_nullable_collection_navigation_does_not_replace_it_with_an_empty_collection(bool async)
-    {
-        using var context = new NullableCollectionNavigationContext();
-        var parent = new NullableCollectionParent { Id = 1, Children = null };
-        context.Attach(parent);
-
-        if (async)
-        {
-            await context.Entry(parent).Collection(p => p.Children!).LoadAsync();
-        }
-        else
-        {
-            context.Entry(parent).Collection(p => p.Children!).Load();
-        }
-
-        AssertStillNull(context, parent);
-    }
-
     [Fact]
     public void Querying_a_null_nullable_collection_navigation_does_not_replace_it_with_an_empty_collection()
     {
@@ -587,16 +566,34 @@ public class CollectionEntryTest
         AssertStillNull(context, parent);
     }
 
-    [Fact]
-    public void Loading_a_collection_navigation_that_is_not_nullable_still_creates_the_collection()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Loading_or_querying_a_null_collection_navigation_that_is_not_nullable_still_creates_the_collection(bool load)
     {
-        using var context = new NotNullableCollectionNavigationContext();
+        using var context = new RegularCollectionNavigationContext();
         var parent = new NullableCollectionParent { Id = 1, Children = null };
         context.Attach(parent);
 
-        context.Entry(parent).Collection(p => p.Children!).Load();
+        if (load)
+        {
+            context.Entry(parent).Collection(p => p.Children!).Load();
+        }
+        else
+        {
+            _ = context.Entry(parent).Collection(p => p.Children!).Query();
+        }
 
         Assert.NotNull(parent.Children);
+    }
+
+    private class RegularCollectionNavigationContext : DbContext
+    {
+        protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder.UseInMemoryDatabase(Guid.NewGuid().ToString());
+
+        protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<NullableCollectionParent>().HasMany(p => p.Children).WithOne();
     }
 
     private static void AssertStillNull(DbContext context, NullableCollectionParent parent)

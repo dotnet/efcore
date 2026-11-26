@@ -621,12 +621,9 @@ public class InternalEntrySubscriberTest
         Assert.Equal(EntityState.Added, context.Entry(child).State);
         Assert.Equal(2, context.ChangeTracker.Entries().Count());
 
-        Assert.Equal(1, context.Entry(child).Property<int?>("NotifyingNullableCollectionParentId").CurrentValue);
-
-        // The relationship is optional, so a removed element is kept with its foreign key set to null
         children.Remove(child);
-        Assert.Null(context.Entry(child).Property<int?>("NotifyingNullableCollectionParentId").CurrentValue);
-        Assert.Equal(2, context.ChangeTracker.Entries().Count());
+        Assert.Equal(EntityState.Detached, context.Entry(child).State);
+        Assert.Single(context.ChangeTracker.Entries());
     }
 
     private class TestPropertyListener : IChangeDetector

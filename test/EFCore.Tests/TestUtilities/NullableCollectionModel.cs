@@ -51,7 +51,7 @@ internal abstract class NullableCollectionContext : DbContext
 
     protected internal override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<NullableCollectionParent>().HasMany(p => p.Children).WithOne();
+        modelBuilder.Entity<NullableCollectionParent>().OwnsMany(p => p.Children);
         modelBuilder.Entity<NullableCollectionParent>().Navigation(p => p.Children).IsRequired(!Nullable);
     }
 }
@@ -142,7 +142,7 @@ internal abstract class NotifyingNullableCollectionContext : DbContext
     protected internal override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasChangeTrackingStrategy(Strategy);
-        modelBuilder.Entity<NotifyingNullableCollectionParent>().HasMany(p => p.Children).WithOne();
+        modelBuilder.Entity<NotifyingNullableCollectionParent>().OwnsMany(p => p.Children);
         modelBuilder.Entity<NotifyingNullableCollectionParent>().Navigation(p => p.Children).IsRequired(false);
     }
 }

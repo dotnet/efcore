@@ -339,9 +339,30 @@ public sealed partial class InternalEntityEntry : InternalEntryBase, IUpdateEntr
     private void RevertCollectionNullness(INavigation navigation)
     {
         var originalValue = GetOriginalValue(navigation);
-        if ((originalValue == null) != (this[navigation] == null))
+        var currentValue = this[navigation];
+        if ((originalValue == null) == (currentValue == null))
         {
-            SetProperty(navigation, originalValue, isMaterialization: false, setModified: false);
+            return;
+        }
+
+        // The collection is set directly rather than through the entity, so the entity doesn't raise notifications that would
+        // make the subscriptions to the collections follow the change.
+        var subscriber = EntityType.GetChangeTrackingStrategy() != ChangeTrackingStrategy.Snapshot
+            ? StateManager.Dependencies.InternalEntityEntrySubscriber
+            : null;
+        if (currentValue != null)
+        {
+            subscriber?.UnsubscribeCollectionChanged(this, navigation);
+        }
+
+        SetProperty(navigation, originalValue, isMaterialization: false, setModified: false);
+
+        if (originalValue != null
+            && subscriber != null)
+        {
+            // Unsubscribing first avoids subscribing twice to a collection that was never unsubscribed from
+            subscriber.UnsubscribeCollectionChanged(this, navigation);
+            subscriber.SubscribeCollectionChanged(this, navigation);
         }
     }
 
@@ -1155,7 +1176,9 @@ public sealed partial class InternalEntityEntry : InternalEntryBase, IUpdateEntr
     {
         EntityType.CheckContains(navigation);
 
-        return PropertyStateData.IsPropertyFlagged(navigation.GetIndex(), PropertyFlag.NavigationModified);
+        // Like for properties, only an entity in the Modified state can have a modified navigation
+        return EntityState == EntityState.Modified
+            && PropertyStateData.IsPropertyFlagged(navigation.GetIndex(), PropertyFlag.NavigationModified);
     }
 
     /// <summary>
@@ -1164,7 +1187,7 @@ public sealed partial class InternalEntityEntry : InternalEntryBase, IUpdateEntr
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public void SetPropertyModified(INavigation navigation, bool isModified = true, bool acceptChanges = false)
+    public void SetNavigationModified(INavigation navigation, bool isModified = true, bool acceptChanges = false)
     {
         EntityType.CheckContains(navigation);
 

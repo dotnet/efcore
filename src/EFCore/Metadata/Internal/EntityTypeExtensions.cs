@@ -181,12 +181,16 @@ public static class EntityTypeExtensions
                 index: navigationIndex++,
                 originalValueIndex: navigation.RequiresOriginalValue() ? originalValueIndex++ : -1,
                 shadowIndex: navigation.IsShadowProperty() ? shadowIndex++ : -1,
-                relationshipIndex: navigation.IsCollection && isNotifying ? -1 : relationshipIndex++,
+                // Collections of notifying entities report their changes, so they don't need to be snapshotted. But the previous
+                // collection of a nullable collection is only known from the snapshot when it is replaced.
+                relationshipIndex: navigation.IsCollection && isNotifying && navigation is not INavigation { IsNullable: true }
+                    ? -1
+                    : relationshipIndex++,
                 storeGenerationIndex: -1);
 
             navigation.PropertyIndexes = indexes;
 
-            if (navigation is INavigation { IsCollection: true, IsNullable: true })
+            if (navigation is INavigation { IsNullable: true })
             {
                 nullableCollectionCount++;
             }

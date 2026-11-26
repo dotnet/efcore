@@ -167,7 +167,7 @@ public class CollectionEntry : NavigationEntry
 
             if (Metadata is INavigation { IsNullable: true } nullableNavigation)
             {
-                InternalEntityEntry.SetPropertyModified(nullableNavigation, value);
+                InternalEntityEntry.SetNavigationModified(nullableNavigation, value);
             }
 
             if (Metadata is ISkipNavigation skipNavigation)

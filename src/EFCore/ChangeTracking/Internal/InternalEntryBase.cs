@@ -3,7 +3,6 @@
 
 using System.Collections;
 using System.Runtime.CompilerServices;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
@@ -594,10 +593,7 @@ public abstract partial class InternalEntryBase : IInternalEntry
         else if (currentState == EntityState.Modified
                  && changeState
                  && !isModified
-                 && !_stateData.AnyPropertiesFlagged(PropertyFlag.Modified)
-                 && (StructuralType.NullableCollectionCount == 0 || !_stateData.AnyPropertiesFlagged(PropertyFlag.NavigationModified))
-                 && StructuralType.GetFlattenedComplexProperties()
-                     .All(p => !p.IsCollection || !_complexCollectionEntries[p.GetIndex()].IsModified()))
+                 && !HasModifiedMembers())
         {
             OnStateChanging(EntityState.Unchanged);
             _stateData.EntityState = EntityState.Unchanged;
@@ -673,6 +669,12 @@ public abstract partial class InternalEntryBase : IInternalEntry
     public virtual void OnComplexPropertyModified(IComplexProperty property, bool isModified = true)
         => OnModifiedFlagChanged(isModified);
 
+    private bool HasModifiedMembers()
+        => _stateData.AnyPropertiesFlagged(PropertyFlag.Modified)
+            || (StructuralType.NullableCollectionCount > 0 && _stateData.AnyPropertiesFlagged(PropertyFlag.NavigationModified))
+            || StructuralType.GetFlattenedComplexProperties()
+                .Any(p => p.IsCollection && _complexCollectionEntries[p.GetIndex()].IsModified());
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -700,10 +702,7 @@ public abstract partial class InternalEntryBase : IInternalEntry
         }
         else if (currentState == EntityState.Modified
                  && !isModified
-                 && !_stateData.AnyPropertiesFlagged(PropertyFlag.Modified)
-                 && (StructuralType.NullableCollectionCount == 0 || !_stateData.AnyPropertiesFlagged(PropertyFlag.NavigationModified))
-                 && StructuralType.GetFlattenedComplexProperties()
-                     .All(p => !p.IsCollection || !_complexCollectionEntries[p.GetIndex()].IsModified()))
+                 && !HasModifiedMembers())
         {
             OnStateChanging(EntityState.Unchanged);
             _stateData.EntityState = EntityState.Unchanged;
@@ -1078,10 +1077,10 @@ public abstract partial class InternalEntryBase : IInternalEntry
         {
             DetectChanges(property);
         }
-        else if (propertyBase is INavigation { IsCollection: true, IsNullable: true } navigation
+        else if (propertyBase is INavigation { IsNullable: true } navigation
                  && this is InternalEntityEntry entityEntry)
         {
-            ((IDbContextDependencies)StateManager.Context).ChangeDetector.DetectCollectionNullnessChange(entityEntry, navigation);
+            (StateManager as StateManager)?.ChangeDetector.DetectCollectionNullnessChange(entityEntry, navigation);
         }
     }
 

@@ -257,7 +257,7 @@ public abstract class QueryContext
         if (entry != null
             && entry.IsModified(navigation))
         {
-            entry.SetPropertyModified(navigation, false, acceptChanges: true);
+            entry.SetNavigationModified(navigation, isModified: false, acceptChanges: true);
         }
     }
 

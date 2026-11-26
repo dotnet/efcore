@@ -1821,8 +1821,8 @@ public class ChangeDetectorTest
         Assert.Equal(EntityState.Modified, context.Entry(parent).State);
 
         var entry = context.Entry(parent);
-        entry.GetInfrastructure().SetPropertyModified(
-            (INavigation)entry.Metadata.FindNavigation(nameof(NullableCollectionParent.Children))!, false);
+        entry.GetInfrastructure().SetNavigationModified(
+            (INavigation)entry.Metadata.FindNavigation(nameof(NullableCollectionParent.Children))!, isModified: false);
         if (detectChanges)
         {
             context.ChangeTracker.DetectChanges();
@@ -1843,8 +1843,8 @@ public class ChangeDetectorTest
         context.ChangeTracker.DetectChanges();
 
         var entry = context.Entry(parent);
-        entry.GetInfrastructure().SetPropertyModified(
-            (INavigation)entry.Metadata.FindNavigation(nameof(NullableCollectionParent.Children))!, false, acceptChanges: true);
+        entry.GetInfrastructure().SetNavigationModified(
+            (INavigation)entry.Metadata.FindNavigation(nameof(NullableCollectionParent.Children))!, isModified: false, acceptChanges: true);
         context.ChangeTracker.DetectChanges();
 
         Assert.Null(parent.Children);
@@ -2289,19 +2289,17 @@ public class ChangeDetectorTest
         var tracked = new NotifyingNullableCollectionChild { Id = 100 };
         var parent = new NotifyingNullableCollectionParent { Id = 1, Children = startNull ? null : [tracked] };
         context.Attach(parent);
-        if (startNull)
-        {
-            context.Attach(tracked);
-        }
 
-        // The keys are generated, so these are tracked as new
         var child = new NotifyingNullableCollectionChild();
-        parent.Children = [tracked, child];
+        parent.Children = startNull ? [child] : [tracked, child];
 
         Assert.Equal(EntityState.Added, context.Entry(child).State);
-        Assert.Equal(startNull ? EntityState.Modified : EntityState.Unchanged, context.Entry(tracked).State);
-        Assert.Equal(1, context.Entry(child).Property<int?>("NotifyingNullableCollectionParentId").CurrentValue);
-        Assert.Equal(1, context.Entry(tracked).Property<int?>("NotifyingNullableCollectionParentId").CurrentValue);
+        Assert.Equal(1, context.Entry(child).Property<int>("NotifyingNullableCollectionParentId").CurrentValue);
+        if (!startNull)
+        {
+            Assert.Equal(EntityState.Unchanged, context.Entry(tracked).State);
+        }
+
         // Without original values, any assignment marks the navigation as modified
         Assert.Equal(
             startNull || strategy == ChangeTrackingStrategy.ChangingAndChangedNotifications,
@@ -2332,11 +2330,125 @@ public class ChangeDetectorTest
 
         parent.Children = toNull ? null : [kept];
 
-        // Like for snapshot change tracking, the foreign key of a removed element is set to null
-        Assert.Equal(EntityState.Modified, context.Entry(removed).State);
-        Assert.Null(context.Entry(removed).Property<int?>("NotifyingNullableCollectionParentId").CurrentValue);
-        Assert.Equal(toNull ? EntityState.Modified : EntityState.Unchanged, context.Entry(kept).State);
-        Assert.Equal(toNull ? null : 1, context.Entry(kept).Property<int?>("NotifyingNullableCollectionParentId").CurrentValue);
+        // Like for snapshot change tracking, an owned element that is removed is deleted
+        Assert.Equal(EntityState.Deleted, context.Entry(removed).State);
+        Assert.Equal(toNull ? EntityState.Deleted : EntityState.Unchanged, context.Entry(kept).State);
+    }
+
+    [Theory]
+    [InlineData(ChangeTrackingStrategy.ChangedNotifications)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotifications)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)]
+    public void Removes_elements_on_notification_of_a_nullable_collection_navigation_replaced_more_than_once(
+        ChangeTrackingStrategy strategy)
+    {
+        using var context = NotifyingNullableCollectionContext.Create(strategy);
+        var parent = new NotifyingNullableCollectionParent { Id = 1, Children = [] };
+        context.Attach(parent);
+
+        var child = new NotifyingNullableCollectionChild();
+        parent.Children = [child];
+        Assert.Equal(EntityState.Added, context.Entry(child).State);
+
+        // The elements of the collection that is replaced aren't the ones the navigation had originally
+        parent.Children = null;
+        Assert.Equal(EntityState.Detached, context.Entry(child).State);
+        Assert.Single(context.ChangeTracker.Entries());
+    }
+
+    [Theory]
+    [InlineData(ChangeTrackingStrategy.ChangedNotifications, false)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues, false)]
+    [InlineData(ChangeTrackingStrategy.ChangedNotifications, true)]
+    [InlineData(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues, true)]
+    public void Rejecting_a_nullness_change_on_notification_restores_the_elements_and_tracks_the_restored_collection(
+        ChangeTrackingStrategy strategy,
+        bool setUnchanged)
+    {
+        using var context = NotifyingNullableCollectionContext.Create(strategy);
+        var child = new NotifyingNullableCollectionChild { Id = 2 };
+        var children = new ObservableHashSet<NotifyingNullableCollectionChild> { child };
+        var parent = new NotifyingNullableCollectionParent { Id = 1, Children = children };
+        context.Attach(parent);
+
+        parent.Children = null;
+        Assert.Equal(EntityState.Deleted, context.Entry(child).State);
+
+        if (setUnchanged)
+        {
+            context.Entry(parent).State = EntityState.Unchanged;
+        }
+        else
+        {
+            context.Entry(parent).Collection(p => p.Children!).IsModified = false;
+        }
+
+        Assert.Same(children, parent.Children);
+        Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
+        // Like an owned element that is removed and added back, the element is undeleted
+        Assert.Equal(EntityState.Modified, context.Entry(child).State);
+
+        var added = new NotifyingNullableCollectionChild();
+        children.Add(added);
+        Assert.Equal(EntityState.Added, context.Entry(added).State);
+        Assert.Equal(3, context.ChangeTracker.Entries().Count());
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Rejecting_a_nullness_change_restores_the_elements(bool setUnchanged)
+    {
+        using var context = new NullableCollectionNavigationContext();
+        var child = new NullableCollectionChild { Id = 2 };
+        var children = new List<NullableCollectionChild> { child };
+        var parent = new NullableCollectionParent { Id = 1, Children = children };
+        context.Attach(parent);
+
+        parent.Children = null;
+        context.ChangeTracker.DetectChanges();
+        Assert.Equal(EntityState.Deleted, context.Entry(child).State);
+
+        if (setUnchanged)
+        {
+            context.Entry(parent).State = EntityState.Unchanged;
+        }
+        else
+        {
+            context.Entry(parent).Collection(p => p.Children!).IsModified = false;
+        }
+
+        Assert.Same(children, parent.Children);
+        Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
+        // Like an owned element that is removed and added back, the element is undeleted
+        Assert.Equal(EntityState.Modified, context.Entry(child).State);
+
+        context.ChangeTracker.DetectChanges();
+        Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
+        Assert.Equal(EntityState.Modified, context.Entry(child).State);
+    }
+
+    [Fact]
+    public void Nullness_change_is_not_reported_as_modified_for_an_entity_that_is_not_Modified()
+    {
+        using var context = new NullableCollectionNavigationContext();
+        var parent = new NullableCollectionParent { Id = 1, Children = [] };
+        context.Attach(parent);
+
+        parent.Children = null;
+        context.ChangeTracker.DetectChanges();
+        Assert.True(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+
+        // Like for properties, the navigation of a deleted entity isn't modified
+        context.Remove(parent);
+        Assert.False(NullableCollectionTestHelpers.IsChildrenModified(context, parent));
+        Assert.False(context.Entry(parent).Collection(p => p.Children!).IsModified);
+
+        // Nor is the navigation of an added entity
+        var added = new NullableCollectionParent { Id = 2, Children = null };
+        context.Add(added);
+        context.Entry(added).Collection(p => p.Children!).IsModified = true;
+        Assert.False(NullableCollectionTestHelpers.IsChildrenModified(context, added));
     }
 
     [Theory]

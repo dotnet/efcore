@@ -16,7 +16,6 @@ public class ChangeDetector : IChangeDetector
 {
     private readonly IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> _logger;
     private readonly ILoggingOptions _loggingOptions;
-    private Dictionary<(InternalEntityEntry, INavigation), IEnumerable?>? _replacedCollections;
     private bool _inCascadeDelete;
 
     /// <summary>
@@ -77,97 +76,21 @@ public class ChangeDetector : IChangeDetector
                 break;
 
             case INavigationBase navigation when propertyBase.GetRelationshipIndex() != -1:
-                DetectNavigationChange(
-                    entry as InternalEntityEntry ?? throw new UnreachableException("Complex type entry with a navigation"), navigation);
+                var navigationEntry = entry as InternalEntityEntry
+                    ?? throw new UnreachableException("Complex type entry with a navigation");
+                DetectNavigationChange(navigationEntry, navigation);
+
+                // ChangingAndChangedNotifications: no original value is kept, so, like for properties, any change notification
+                // marks a nullable collection navigation as modified.
+                if (setModified
+                    && navigation is INavigation { IsNullable: true } nullableCollection
+                    && nullableCollection.GetOriginalValueIndex() < 0
+                    && entry.EntityState is EntityState.Unchanged or EntityState.Modified)
+                {
+                    navigationEntry.SetNavigationModified(nullableCollection);
+                }
+
                 break;
-
-            case INavigation { IsNullable: true } nullableCollection
-                when entry is InternalEntityEntry nullableCollectionEntry:
-                // Collection navigations of notifying entities have no relationship snapshot, so changes of nullable collection
-                // navigations are tracked directly from the notification.
-                var previousCollection = TakeReplacedCollection(nullableCollectionEntry, nullableCollection);
-                if (!setModified
-                    || entry.EntityState == EntityState.Deleted)
-                {
-                    break;
-                }
-
-                if (entry.EntityState is EntityState.Unchanged or EntityState.Modified)
-                {
-                    if (nullableCollection.GetOriginalValueIndex() >= 0)
-                    {
-                        // Compare with the original value
-                        DetectCollectionNullnessChange(nullableCollectionEntry, nullableCollection);
-                    }
-                    else
-                    {
-                        // ChangingAndChangedNotifications: no original value is kept, so, like for properties, any change
-                        // notification marks the navigation as modified.
-                        nullableCollectionEntry.SetPropertyModified(nullableCollection);
-                    }
-                }
-
-                ReportReplacedElements(nullableCollectionEntry, nullableCollection, previousCollection);
-                break;
-        }
-    }
-
-    // The collection that a nullable collection navigation had before a change notification. It is captured from the changing
-    // notification when there is one. Otherwise, the original value is the best that is known: an earlier replacement of it is
-    // not known, but reporting its elements as removed again does nothing to elements that were already removed.
-    private IEnumerable? TakeReplacedCollection(InternalEntityEntry entry, INavigation navigation)
-    {
-        if (_replacedCollections != null
-            && _replacedCollections.Remove((entry, navigation), out var replaced))
-        {
-            return replaced;
-        }
-
-        return navigation.GetOriginalValueIndex() >= 0 && entry.HasOriginalValuesSnapshot
-            ? (IEnumerable?)entry.GetOriginalValue(navigation)
-            : null;
-    }
-
-    // Without a relationship snapshot nothing else finds the elements that are added or removed when the collection is
-    // replaced, for example when it is changed from or to null.
-    private static void ReportReplacedElements(InternalEntityEntry entry, INavigation navigation, IEnumerable? previousCollection)
-    {
-        var currentCollection = (IEnumerable?)entry[navigation];
-        if (ReferenceEquals(currentCollection, previousCollection))
-        {
-            return;
-        }
-
-        var previous = new HashSet<object>(ReferenceEqualityComparer.Instance);
-        if (previousCollection != null)
-        {
-            foreach (var element in previousCollection)
-            {
-                if (element != null)
-                {
-                    previous.Add(element);
-                }
-            }
-        }
-
-        List<object>? added = null;
-        if (currentCollection != null)
-        {
-            foreach (var element in currentCollection)
-            {
-                if (element != null
-                    && !previous.Remove(element))
-                {
-                    (added ??= []).Add(element);
-                }
-            }
-        }
-
-        if (added != null
-            || previous.Count > 0)
-        {
-            entry.StateManager.InternalEntityEntryNotifier.NavigationCollectionChanged(
-                entry, navigation, (IEnumerable<object>?)added ?? [], previous);
         }
     }
 
@@ -202,18 +125,11 @@ public class ChangeDetector : IChangeDetector
                 entry.EnsureOriginalValues();
             }
             else if (propertyBase is INavigation { IsNullable: true } nullableCollection
-                     && entry is InternalEntityEntry nullableCollectionEntry)
+                     && nullableCollection.GetOriginalValueIndex() != -1)
             {
-                if (nullableCollection.GetOriginalValueIndex() != -1)
-                {
-                    // The null-ness of a nullable collection is compared with its original value, so, like for properties, the
-                    // original values must be captured before the first change, even when that change is not to a property.
-                    entry.EnsureOriginalValues();
-                }
-
-                // The elements of a collection that is replaced are only known before the change
-                (_replacedCollections ??= [])[(nullableCollectionEntry, nullableCollection)] =
-                    (IEnumerable?)nullableCollectionEntry[nullableCollection];
+                // The null-ness of a nullable collection is compared with its original value, so, like for properties, the
+                // original values must be captured before the first change, even when that change is not to a property.
+                entry.EnsureOriginalValues();
             }
 
             if (propertyBase.GetRelationshipIndex() != -1)
@@ -1139,7 +1055,7 @@ public class ChangeDetector : IChangeDetector
             return false;
         }
 
-        entry.SetPropertyModified(navigation, true);
+        entry.SetNavigationModified(navigation, true);
 
         return true;
     }
@@ -1321,6 +1237,5 @@ public class ChangeDetector : IChangeDetector
         DetectedEntityChanges = null;
         DetectingAllChanges = null;
         DetectedAllChanges = null;
-        _replacedCollections = null;
     }
 }
