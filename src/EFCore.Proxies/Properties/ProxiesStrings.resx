@@ -135,6 +135,15 @@
   <data name="NonVirtualProperty" xml:space="preserve">
     <value>Property '{1_entityType}.{0_property}' is not virtual. 'UseChangeTrackingProxies' requires all entity types to be public, unsealed, have virtual properties, and have a public or protected constructor. 'UseLazyLoadingProxies' requires only the navigation properties be virtual.</value>
   </data>
+  <data name="NonVisibleGetter" xml:space="preserve">
+    <value>Property '{1_entityType}.{0_property}' cannot be lazy-loaded because its getter cannot be overridden by a proxy: the getter is not visible to the proxy assembly. Make it public, protected or protected internal, add '[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]' to the assembly that declares the property (a strong-named assembly must specify the proxy assembly's public key), or stop it being lazy-loaded by calling 'EnableLazyLoading(false)' on the navigation or 'IgnoreNonVirtualNavigations' on the lazy-loading proxy options.</value>
+  </data>
+  <data name="NonVisibleIndexerProperty" xml:space="preserve">
+    <value>The setter of the mapped indexer property on entity type '{entityType}' cannot be overridden by a proxy because it is not visible to the proxy assembly. Make it public, protected or protected internal, or add '[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]' to the assembly that declares the indexer (a strong-named assembly must specify the proxy assembly's public key).</value>
+  </data>
+  <data name="NonVisibleSetter" xml:space="preserve">
+    <value>Property '{1_entityType}.{0_property}' cannot be change-tracked because its setter cannot be overridden by a proxy: the setter is not visible to the proxy assembly. Make it public, protected or protected internal, or add '[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]' to the assembly that declares the property (a strong-named assembly must specify the proxy assembly's public key).</value>
+  </data>
   <data name="ProxiesNotEnabled" xml:space="preserve">
     <value>Unable to create proxy for '{entityType}' because proxies are not enabled. Call 'DbContextOptionsBuilder.UseChangeTrackingProxies' or 'DbContextOptionsBuilder.UseLazyLoadingProxies' to enable proxies.</value>
   </data>

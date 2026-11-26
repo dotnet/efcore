@@ -27,6 +27,84 @@ public class ChangeDetectionProxyTests
     }
 
     [Fact]
+    public void Throws_if_property_setter_is_not_visible_to_proxies()
+    {
+        using var context = new ChangeContext<ChangeInternalSetPropEntity>(
+            entityBuilderAction: b => b.Property(e => e.Name));
+        Assert.Equal(
+            ProxiesStrings.NonVisibleSetter(
+                nameof(ChangeInternalSetPropEntity.Name), nameof(ChangeInternalSetPropEntity)),
+            Assert.Throws<InvalidOperationException>(() => context.Model).Message);
+    }
+
+    // The exact repro from https://github.com/dotnet/efcore/issues/39589: the whole property is internal.
+    [Fact]
+    public void Throws_if_internal_virtual_property_is_not_visible_to_proxies()
+    {
+        using var context = new ChangeContext<ChangeInternalPropEntity>(
+            entityBuilderAction: b => b.Property(e => e.Name));
+        Assert.Equal(
+            ProxiesStrings.NonVisibleSetter(
+                nameof(ChangeInternalPropEntity.Name), nameof(ChangeInternalPropEntity)),
+            Assert.Throws<InvalidOperationException>(() => context.Model).Message);
+    }
+
+    [Fact]
+    public void Throws_if_owned_type_property_setter_is_not_visible_to_proxies()
+    {
+        using var context = new ChangeContext<ChangeOwnerOfInternalSetEntity>(
+            entityBuilderAction: b => b.OwnsOne(e => e.Owned));
+        Assert.Equal(
+            ProxiesStrings.NonVisibleSetter(
+                nameof(ChangeOwnedInternalSetEntity.Name), nameof(ChangeOwnedInternalSetEntity)),
+            Assert.Throws<InvalidOperationException>(() => context.Model).Message);
+    }
+
+    [Fact]
+    public void Throws_if_derived_type_property_setter_is_not_visible_to_proxies()
+    {
+        using var context = new ChangeContext<ChangeDerivedInternalSetEntity>(
+            entityBuilderAction: b => b.Property(e => e.Name));
+        Assert.Equal(
+            ProxiesStrings.NonVisibleSetter(
+                nameof(ChangeDerivedInternalSetEntity.Name), nameof(ChangeDerivedInternalSetEntity)),
+            Assert.Throws<InvalidOperationException>(() => context.Model).Message);
+    }
+
+    // The setter is declared on a base type that is not part of the model, so it is inherited by the mapped type.
+    [Fact]
+    public void Throws_if_property_setter_inherited_from_unmapped_base_is_not_visible_to_proxies()
+    {
+        using var context = new ChangeContext<ChangeInheritsInternalSetEntity>(
+            entityBuilderAction: b => b.Property(e => e.Name));
+        Assert.Equal(
+            ProxiesStrings.NonVisibleSetter(
+                nameof(ChangeInheritsInternalSetEntity.Name), nameof(ChangeInheritsInternalSetEntity)),
+            Assert.Throws<InvalidOperationException>(() => context.Model).Message);
+    }
+
+    [Fact]
+    public void Throws_if_key_property_setter_is_not_visible_to_proxies()
+    {
+        using var context = new ChangeContext<ChangeInternalSetKeyEntity>(
+            entityBuilderAction: b => b.HasKey(e => e.Id));
+        Assert.Equal(
+            ProxiesStrings.NonVisibleSetter(
+                nameof(ChangeInternalSetKeyEntity.Id), nameof(ChangeInternalSetKeyEntity)),
+            Assert.Throws<InvalidOperationException>(() => context.Model).Message);
+    }
+
+    [Fact]
+    public void Does_not_throw_if_property_setter_is_protected()
+    {
+        using var context = new ChangeContext<ChangeProtectedSetPropEntity>(
+            entityBuilderAction: b => b.Property(e => e.Name));
+        Assert.NotNull(
+            context.Model.FindEntityType(typeof(ChangeProtectedSetPropEntity))!.FindProperty(
+                nameof(ChangeProtectedSetPropEntity.Name)));
+    }
+
+    [Fact]
     public void Throws_if_non_virtual_indexer_property()
     {
         using var context = new ChangeContext<ChangeNonVirtualIndexer>(entityBuilderAction: b => b.IndexerProperty<int>("Snoopy"));
@@ -323,6 +401,64 @@ public class ChangeDetectionProxyTests
     public sealed class ChangeSealedEntity
     {
         public int Id { get; set; }
+    }
+
+    public class ChangeInternalSetPropEntity
+    {
+        public virtual int Id { get; set; }
+
+        public virtual string? Name { get; internal set; }
+    }
+
+    public class ChangeInternalSetKeyEntity
+    {
+        public virtual int Id { get; internal set; }
+    }
+
+    public class ChangeInternalPropEntity
+    {
+        public virtual int Id { get; set; }
+
+        internal virtual string? Name { get; set; }
+    }
+
+    public class ChangeOwnerOfInternalSetEntity
+    {
+        public virtual int Id { get; set; }
+
+        public virtual ChangeOwnedInternalSetEntity? Owned { get; set; }
+    }
+
+    public class ChangeOwnedInternalSetEntity
+    {
+        public virtual string? Name { get; internal set; }
+    }
+
+    public class ChangeBaseEntity
+    {
+        public virtual int Id { get; set; }
+    }
+
+    public class ChangeDerivedInternalSetEntity : ChangeBaseEntity
+    {
+        public virtual string? Name { get; internal set; }
+    }
+
+    public class ChangeUnmappedInternalSetBase
+    {
+        public virtual string? Name { get; internal set; }
+    }
+
+    public class ChangeInheritsInternalSetEntity : ChangeUnmappedInternalSetBase
+    {
+        public virtual int Id { get; set; }
+    }
+
+    public class ChangeProtectedSetPropEntity
+    {
+        public virtual int Id { get; set; }
+
+        public virtual string? Name { get; protected set; }
     }
 
     public class ChangeNonVirtualPropEntity
