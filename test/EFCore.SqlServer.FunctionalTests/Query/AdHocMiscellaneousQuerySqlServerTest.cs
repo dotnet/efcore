@@ -52,6 +52,18 @@ INSERT ZeroKey VALUES (NULL)
         await context.SaveChangesAsync();
     }
 
+    public override async Task Projection_cast_between_time_types_with_same_store_type(bool async)
+    {
+        await base.Projection_cast_between_time_types_with_same_store_type(async);
+
+        AssertSql(
+            """
+SELECT [e].[Time]
+FROM [Events] AS [e]
+ORDER BY [e].[Id]
+""");
+    }
+
     #region 5456
 
     [Fact]

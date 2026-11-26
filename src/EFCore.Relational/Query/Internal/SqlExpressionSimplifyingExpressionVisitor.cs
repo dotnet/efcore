@@ -16,6 +16,9 @@ public class SqlExpressionSimplifyingExpressionVisitor(
     ISqlExpressionFactory _sqlExpressionFactory,
     bool _useRelationalNulls) : ExpressionVisitor
 {
+    private static readonly bool UseOldBehavior39782 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue39782", out var enabled) && enabled;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -42,6 +45,11 @@ public class SqlExpressionSimplifyingExpressionVisitor(
                 if (expression.TypeMapping?.Converter != projectionExpression.Expression.TypeMapping?.Converter)
                 {
                     expression = _sqlExpressionFactory.Convert(
+                        expression, projectionExpression.Expression.Type, projectionExpression.Expression.TypeMapping);
+                }
+                else if (!UseOldBehavior39782 && expression.Type != projectionExpression.Expression.Type)
+                {
+                    expression = new ClrTypeChangeExpression(
                         expression, projectionExpression.Expression.Type, projectionExpression.Expression.TypeMapping);
                 }
 

@@ -22,6 +22,40 @@ namespace Microsoft.EntityFrameworkCore.Query
             DbContextOptionsBuilder optionsBuilder,
             ParameterTranslationMode parameterizedCollectionMode);
 
+        #region 39782
+
+        [Theory, MemberData(nameof(IsAsyncData))]
+        public virtual async Task Projection_cast_between_time_types_with_same_store_type(bool async)
+        {
+            var contextFactory = await InitializeNonSharedTest<TimeContext39782>(
+                seed: async context =>
+                {
+                    context.Events.AddRange(
+                        new TimeContext39782.Event { Time = new TimeOnly(1, 2, 3) },
+                        new TimeContext39782.Event { Time = new TimeOnly(12, 34, 56) });
+                    await context.SaveChangesAsync();
+                });
+            using var context = contextFactory.CreateDbContext();
+            ClearLog();
+
+            var query = context.Events.OrderBy(e => e.Id).Select(e => (TimeSpan)(object)e.Time);
+            var results = async ? await query.ToListAsync() : query.ToList();
+            Assert.Equal([new TimeSpan(1, 2, 3), new TimeSpan(12, 34, 56)], results);
+        }
+
+        protected class TimeContext39782(DbContextOptions options) : DbContext(options)
+        {
+            public DbSet<Event> Events => Set<Event>();
+
+            public class Event
+            {
+                public int Id { get; set; }
+                public TimeOnly Time { get; set; }
+            }
+        }
+
+        #endregion
+
         #region 2951
 
         [Fact]

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
@@ -43,6 +44,39 @@ public class QuerySqlGeneratorTest
         CreateDummyQuerySqlGenerator().CheckComposableSql(sql);
 
         CreateDummyQuerySqlGenerator().CheckComposableSql(sql.Replace("SELECT", "WITH"));
+    }
+
+    [Fact]
+    public void Clr_type_change_preserves_operand_parentheses()
+    {
+        var intMapping = new IntTypeMapping("integer");
+        var longMapping = new LongTypeMapping("integer");
+        var sum = new SqlBinaryExpression(
+            ExpressionType.Add,
+            new SqlConstantExpression(1, intMapping),
+            new SqlConstantExpression(2, intMapping),
+            typeof(int),
+            intMapping);
+        var product = new SqlBinaryExpression(
+            ExpressionType.Multiply,
+            new ClrTypeChangeExpression(sum, typeof(long), longMapping),
+            new SqlConstantExpression(3L, longMapping),
+            typeof(long),
+            longMapping);
+        var select = new SelectExpression(
+            alias: null,
+            tables: [],
+            predicate: null,
+            groupBy: [],
+            having: null,
+            projections: [new ProjectionExpression(product, "")],
+            distinct: false,
+            orderings: [],
+            offset: null,
+            limit: null,
+            sqlAliasManager: new SqlAliasManager());
+
+        Assert.Equal("SELECT (1 + 2) * 3", CreateDummyQuerySqlGenerator().GetCommand(select).CommandText);
     }
 
     private DummyQuerySqlGenerator CreateDummyQuerySqlGenerator()
