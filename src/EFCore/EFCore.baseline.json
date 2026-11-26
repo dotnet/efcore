@@ -4319,6 +4319,9 @@
           "Member": "static string NonNotifyingCollection(object? navigation, object? entityType, object? collectionType, object? changeTrackingStrategy);"
         },
         {
+          "Member": "static string NonOwnedCollectionNavigationIsRequired(object? navigation, object? entityType);"
+        },
+        {
           "Member": "static string NonQueryTranslationFailed(object? expression);"
         },
         {
