@@ -175,10 +175,14 @@ public class BufferedDataReader : DbDataReader
 
         try
         {
+            var resultSetIndex = 0;
             do
             {
+                var resultSetColumns = columns is BatchReaderColumns batchColumns
+                    ? batchColumns.GetColumnsForResultSet(resultSetIndex++)
+                    : columns;
                 _bufferedDataRecords.Add(
-                    new BufferedDataRecord(_detailedErrorsEnabled).Initialize(_underlyingReader, columns, _commandErrorReporter));
+                    new BufferedDataRecord(_detailedErrorsEnabled).Initialize(_underlyingReader, resultSetColumns, _commandErrorReporter));
             }
             while (AdvanceUnderlyingResult());
 
@@ -213,11 +217,15 @@ public class BufferedDataReader : DbDataReader
 
         try
         {
+            var resultSetIndex = 0;
             do
             {
+                var resultSetColumns = columns is BatchReaderColumns batchColumns
+                    ? batchColumns.GetColumnsForResultSet(resultSetIndex++)
+                    : columns;
                 _bufferedDataRecords.Add(
                     await new BufferedDataRecord(_detailedErrorsEnabled)
-                        .InitializeAsync(_underlyingReader, columns, cancellationToken, _commandErrorReporter)
+                        .InitializeAsync(_underlyingReader, resultSetColumns, cancellationToken, _commandErrorReporter)
                         .ConfigureAwait(false));
             }
             while (await AdvanceUnderlyingResultAsync(cancellationToken).ConfigureAwait(false));
