@@ -171,6 +171,9 @@ public static class CosmosTestEnvironment
         => IsEmulator
             && EmulatorType.Equals("linux", StringComparison.OrdinalIgnoreCase);
 
+    public static bool IsWindowsEmulator
+        => IsEmulator && !IsLinuxEmulator;
+
     public static bool IsAvailable
         => CosmosTestStore.IsConnectionAvailableAsync().AsTask().GetAwaiter().GetResult();
 
@@ -193,6 +196,19 @@ public static class CosmosTestEnvironment
     public static void SkipOnLinuxEmulator(string reason = "Not supported on the Linux Cosmos emulator")
     {
         if (IsLinuxEmulator)
+        {
+            throw SkipException.ForSkip(reason);
+        }
+    }
+
+    /// <summary>
+    ///     Throws <see cref="SkipException" /> when running on the Windows Cosmos emulator.
+    ///     Use inside override methods whose base already carries [Fact] / [Theory]
+    ///     so that a second [ConditionalFact] is not needed (xUnit v3 forbids it).
+    /// </summary>
+    public static void SkipOnWindowsEmulator(string reason = "Not supported on the Windows Cosmos emulator")
+    {
+        if (IsWindowsEmulator)
         {
             throw SkipException.ForSkip(reason);
         }
