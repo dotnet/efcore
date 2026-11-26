@@ -4,8 +4,15 @@
 using System.Collections;
 using System.Data.Common;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Update.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.Update;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Update;
 
@@ -50,15 +57,24 @@ public class SqlServerBulkImportTest : IAsyncLifetime
         Clothing
     }
 
-    private IServiceProvider CreateServiceProvider()
-        => new ServiceCollection()
-            .AddEntityFrameworkSqlServer()
-            .BuildServiceProvider(validateScopes: true);
+    private IServiceProvider CreateServiceProvider(ILoggerFactory? loggerFactory = null)
+    {
+        var services = new ServiceCollection()
+            .AddEntityFrameworkSqlServer();
+
+        if (loggerFactory is not null)
+        {
+            services.AddSingleton(loggerFactory);
+        }
+
+        return services.BuildServiceProvider(validateScopes: true);
+    }
 
     [Fact]
     public async Task Can_bulk_import_entities_basic()
     {
-        var sp = CreateServiceProvider();
+        var loggerFactory = new TestSqlLoggerFactory();
+        var sp = CreateServiceProvider(loggerFactory);
         await using var context = new BulkImportContext(sp, TestStore.Name);
         await context.Database.EnsureCreatedResilientlyAsync();
 
@@ -70,7 +86,11 @@ public class SqlServerBulkImportTest : IAsyncLifetime
             Description = i % 3 == 0 ? null : $"Description {i}"
         }).ToList();
 
+        loggerFactory.Clear();
         await context.Products.ImportFromAsync(products);
+
+        // Native SqlBulkCopy streams directly over TDS without executing relational INSERT commands
+        Assert.DoesNotContain(loggerFactory.SqlStatements, s => s.Contains("INSERT INTO", StringComparison.OrdinalIgnoreCase));
 
         var count = await context.Products.CountAsync();
         Assert.Equal(500, count);
@@ -79,6 +99,47 @@ public class SqlServerBulkImportTest : IAsyncLifetime
         Assert.Equal("Product 1", first.Name);
         Assert.Equal(1.5m, first.Price);
         Assert.Equal(ProductCategory.Books, first.Category);
+    }
+
+    [Fact]
+    public async Task Can_fallback_to_batched_insert_when_native_import_disabled()
+    {
+        var loggerFactory = new TestSqlLoggerFactory();
+        var sp = new ServiceCollection()
+            .AddEntityFrameworkSqlServer()
+            .AddSingleton<ILoggerFactory>(loggerFactory)
+            .AddScoped<IBulkImporter, FallbackOnlySqlServerBulkImporter>()
+            .BuildServiceProvider(validateScopes: true);
+
+        await using var context = new BulkImportContext(sp, TestStore.Name);
+        await context.Database.EnsureCreatedResilientlyAsync();
+
+        var products = Enumerable.Range(1, 10).Select(i => new Product
+        {
+            Name = $"FallbackProduct {i}",
+            Price = i * 2m,
+            Category = ProductCategory.Clothing
+        }).ToList();
+
+        loggerFactory.Clear();
+        await context.Products.ImportFromAsync(products);
+
+        Assert.Contains(loggerFactory.SqlStatements, s => s.Contains("INSERT INTO", StringComparison.OrdinalIgnoreCase));
+
+        var count = await context.Products.CountAsync(p => p.Name.StartsWith("FallbackProduct "));
+        Assert.Equal(10, count);
+    }
+
+    private sealed class FallbackOnlySqlServerBulkImporter(
+        ISqlServerConnection connection,
+        IRelationalCommandBuilderFactory commandBuilderFactory,
+        ISqlGenerationHelper sqlGenerationHelper,
+        IRelationalCommandDiagnosticsLogger logger,
+        ICurrentDbContext currentDbContext)
+        : SqlServerBulkImporter(connection, commandBuilderFactory, sqlGenerationHelper, logger, currentDbContext)
+    {
+        protected override bool CanExecuteNativeImport(IEntityType entityType, BulkImportOptions? options)
+            => false;
     }
 
     [Fact]
