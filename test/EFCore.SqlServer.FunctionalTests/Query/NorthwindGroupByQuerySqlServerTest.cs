@@ -2568,7 +2568,10 @@ GROUP BY [o].[CustomerID]
 
         AssertSql(
             """
-SELECT [o].[CustomerID] AS [Key], COUNT(DISTINCT ([o].[EmployeeID])) AS [Employees], CASE
+SELECT [o].[CustomerID] AS [Key], COUNT(DISTINCT ([o].[EmployeeID])) + COUNT(DISTINCT (CASE
+    WHEN [o].[EmployeeID] IS NULL THEN 1
+    ELSE CAST(NULL AS int)
+END)) AS [Employees], CASE
     WHEN EXISTS (
         SELECT 1
         FROM [Orders] AS [o0]
@@ -2835,7 +2838,10 @@ GROUP BY [o].[EmployeeID]
             """
 SELECT [o].[EmployeeID] AS [Key], MAX([c].[Region]) AS [Region], COUNT(CASE
     WHEN [c].[City] = N'London' THEN 1
-END) AS [Londons], COUNT(DISTINCT ([o].[CustomerID])) AS [Customers]
+END) AS [Londons], COUNT(DISTINCT ([o].[CustomerID])) + COUNT(DISTINCT (CASE
+    WHEN [o].[CustomerID] IS NULL THEN 1
+    ELSE CAST(NULL AS int)
+END)) AS [Customers]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 GROUP BY [o].[EmployeeID]
@@ -3463,7 +3469,13 @@ FROM (
 
         AssertSql(
             """
-SELECT [o].[CustomerID] AS [Key], AVG(DISTINCT (CAST([o].[OrderID] AS float))) AS [Average], COUNT(DISTINCT ([o].[EmployeeID])) AS [Count], COUNT_BIG(DISTINCT ([o].[EmployeeID])) AS [LongCount], MAX([o].[OrderDate]) AS [Max], MIN([o].[OrderDate]) AS [Min], ISNULL(SUM(DISTINCT ([o].[OrderID])), 0) AS [Sum]
+SELECT [o].[CustomerID] AS [Key], AVG(DISTINCT (CAST([o].[OrderID] AS float))) AS [Average], COUNT(DISTINCT ([o].[EmployeeID])) + COUNT(DISTINCT (CASE
+    WHEN [o].[EmployeeID] IS NULL THEN 1
+    ELSE CAST(NULL AS int)
+END)) AS [Count], COUNT_BIG(DISTINCT ([o].[EmployeeID])) + COUNT_BIG(DISTINCT (CASE
+    WHEN [o].[EmployeeID] IS NULL THEN 1
+    ELSE CAST(NULL AS int)
+END)) AS [LongCount], MAX([o].[OrderDate]) AS [Max], MIN([o].[OrderDate]) AS [Min], ISNULL(SUM(DISTINCT ([o].[OrderID])), 0) AS [Sum]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
 """);
@@ -4006,6 +4018,61 @@ GROUP BY [c].[Country]
         AssertSql(
             """
 SELECT [c].[Country] AS [Key], COUNT(DISTINCT ([c].[Region])) AS [Count]
+FROM [Customers] AS [c]
+GROUP BY [c].[Country]
+""");
+    }
+
+    public override async Task GroupBy_Property_Select_Distinct_Count_over_nullable_column(bool async)
+    {
+        await base.GroupBy_Property_Select_Distinct_Count_over_nullable_column(async);
+
+        AssertSql(
+            """
+SELECT [c].[Country] AS [Key], COUNT(DISTINCT ([c].[Region])) + COUNT(DISTINCT (CASE
+    WHEN [c].[Region] IS NULL THEN 1
+    ELSE CAST(NULL AS int)
+END)) AS [Count], COUNT_BIG(DISTINCT ([c].[Region])) + COUNT_BIG(DISTINCT (CASE
+    WHEN [c].[Region] IS NULL THEN 1
+    ELSE CAST(NULL AS int)
+END)) AS [LongCount]
+FROM [Customers] AS [c]
+GROUP BY [c].[Country]
+""");
+    }
+
+    public override async Task GroupBy_Property_Select_Distinct_Count_over_nullable_column_with_predicate(bool async)
+    {
+        await base.GroupBy_Property_Select_Distinct_Count_over_nullable_column_with_predicate(async);
+
+        AssertSql(
+            """
+SELECT [c].[Country] AS [Key], COUNT(DISTINCT (NULLIF([c].[Region], N'WA'))) + COUNT(DISTINCT (CASE
+    WHEN ([c].[Region] <> N'WA' OR [c].[Region] IS NULL) AND [c].[Region] IS NULL THEN 1
+    ELSE CAST(NULL AS int)
+END)) AS [Count], COUNT_BIG(DISTINCT (CASE
+    WHEN [c].[City] <> N'London' OR [c].[City] IS NULL THEN [c].[Region]
+END)) + COUNT_BIG(DISTINCT (CASE
+    WHEN ([c].[City] <> N'London' OR [c].[City] IS NULL) AND [c].[Region] IS NULL THEN 1
+    ELSE CAST(NULL AS int)
+END)) AS [LongCount]
+FROM [Customers] AS [c]
+GROUP BY [c].[Country]
+""");
+    }
+
+    public override async Task GroupBy_Property_Select_Distinct_Count_over_non_nullable_expression(bool async)
+    {
+        await base.GroupBy_Property_Select_Distinct_Count_over_non_nullable_expression(async);
+
+        AssertSql(
+            """
+SELECT [c].[Country] AS [Key], COUNT(DISTINCT (COALESCE([c].[Region], N'unknown'))) AS [Coalesced], COUNT_BIG(DISTINCT (CASE
+    WHEN [c].[Region] IS NULL THEN N'none'
+    ELSE N'some'
+END)) AS [Conditional], COUNT(DISTINCT (CASE
+    WHEN [c].[City] <> N'London' OR [c].[City] IS NULL THEN [c].[Region]
+END)) + COUNT(DISTINCT (CAST(NULL AS int))) AS [NotNullFiltered]
 FROM [Customers] AS [c]
 GROUP BY [c].[Country]
 """);
